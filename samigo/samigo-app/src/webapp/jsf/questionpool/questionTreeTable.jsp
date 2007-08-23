@@ -19,8 +19,24 @@
 **********************************************************************************/
 --%>
 -->
+<STYLE type="text/css">
+<!-- 
+table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px}
+-->
+</STYLE>
+
  <h:dataTable cellpadding="0" cellspacing="0" value="#{questionpool.allItems}" var="question" styleClass="listHier">
 
+<h:column id="colremove" rendered="#{questionpool.importToAuthoring == 'false'}" >
+  <f:facet name="header">
+    <h:selectManyCheckbox immediate="true" id="selectall" onclick="toggleRemove();checkUpdate()" title="#{questionPoolMessages.t_checkAll}" styleClass="checkall">
+      <f:selectItem itemValue="1"/>
+    </h:selectManyCheckbox>
+  </f:facet>
+  <h:selectManyCheckbox immediate="true" id="removeCheckbox" onclick="checkUpdate()" onkeypress="checkUpdate()"  value ="#{questionpool.destItems}">
+    <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
+  </h:selectManyCheckbox>
+</h:column>
 
     <h:column>
       <f:facet name="header">      
@@ -140,15 +156,6 @@ onkeypress=
      
 
     </h:column>
-
-    <h:column id="colremove" rendered="#{questionpool.importToAuthoring == 'false'}" >
-      <f:facet name="header">
-        <h:outputText value="#{questionPoolMessages.remove_chbox}"/>
-      </f:facet>
- <h:selectManyCheckbox immediate="true" id="removeCheckbox" onclick="checkUpdate()" onkeypress="checkUpdate()"  value ="#{questionpool.destItems}">
-         <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
- </h:selectManyCheckbox>
-     </h:column>
 
     <h:column id="colimport" rendered="#{questionpool.importToAuthoring == 'true'}" >
       <f:facet name="header">

@@ -40,7 +40,7 @@
 </script>
       </head>
 <body onload="collapseAllRowsForSelectList();flagRows();;<%= request.getAttribute("html.body.onload") %>">
-
+  
 <!-- content... -->
  <div class="portletBody">
 <h:form id="movePool">
@@ -53,7 +53,13 @@
 <div class="tier1">
 <h:outputText value="#{questionPoolMessages.sel_dest_move} "/>
 <h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{questionpool.currentPool.displayName}"/>
-<h:outputText rendered="#{questionpool.actionType == 'item'}" value="#{questionpool.currentItem.text}" escape="false"/>
+<h:outputText rendered="#{questionpool.actionType == 'item' && questionpool.currentItems[1] == null}" escape="false" value="#{questionpool.currentItems[0].text}"/>
+ 
+<h:dataTable rendered="#{questionpool.actionType == 'item' && questionpool.currentItems[1] != null}" id="questions" value="#{questionpool.currentItems}" var="curItem" >
+<h:column>
+<h:outputText escape="false" value="#{curItem.text}"/>
+</h:column>
+</h:dataTable>
 
 </div>
 

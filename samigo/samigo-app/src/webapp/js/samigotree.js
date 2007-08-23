@@ -482,21 +482,62 @@ function checkUpdate(){
 
 function inIt()
 {
-	abledButton();
+  var inputs= document.getElementsByTagName("INPUT");
+  for (var i = 0; i < inputs.length; i++) {
+    if (inputs[i].name.indexOf("Update") >=0) {
+      inputs[i].disabled=false;
+    }
+  }
+}
+
+function disableIt()
+{
+  var inputs= document.getElementsByTagName("INPUT");
+  for (var i = 0; i < inputs.length; i++) {
+    if (inputs[i].name.indexOf("Update") >=0) {
+      inputs[i].disabled=true;
+    }
+  }
 }
 
 function disabledButton(){
   var inputs= document.getElementsByTagName("INPUT");
   for (var i = 0; i < inputs.length; i++){
-    if (inputs[i].name.indexOf("Submit") >=0)
+    if (inputs[i].name.indexOf("Submit") >=0) {
       inputs[i].disabled=true;
+	  inputs[i].className='disabled';
+	}
   }
 }
 function abledButton(){
   var inputs= document.getElementsByTagName("INPUT");
   for (var i = 0; i < inputs.length; i++) {
-    if (inputs[i].name.indexOf("Submit") >=0)
+    if (inputs[i].name.indexOf("Submit") >=0) {
       inputs[i].disabled=false;
+	  inputs[i].className='enabled';
+	}
+  }
+}
+
+function toggleRemove(){
+  var inputs= document.getElementsByTagName("INPUT");
+  var selectitem = null;
+  for (var i = 0; i < inputs.length; i++) {
+    if (inputs[i].name.indexOf("selectall") >=0) {
+       selectitem = inputs[i];
+       break;
+    }
+  }
+
+  var checkit = selectitem.checked;  
+  if (checkit)
+    selectitem.title=textuncheckall;
+  else
+    selectitem.title=textcheckall;
+
+  for (var i = 0; i < inputs.length; i++){
+    if (inputs[i].name.indexOf("removeCheckbox") >=0)
+      inputs[i].checked=checkit;
   }
 }
 

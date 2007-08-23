@@ -36,14 +36,16 @@
 
 <script language="javascript" type="text/JavaScript">
 <!--
+var textcheckall="<h:outputText value="#{questionPoolMessages.t_checkAll}"/>";
+var textuncheckall="<h:outputText value="#{questionPoolMessages.t_uncheckAll}"/>";
 <%@ include file="/js/samigotree.js" %>
 <%@ include file="/js/authoring.js" %>
 //-->
 </script>
       </head>
 
-<f:verbatim><body onload="collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>;"></f:verbatim>
-
+<f:verbatim><body onload="disableIt();checkUpdate();collapseRowsByLevel(</f:verbatim><h:outputText value="#{questionpool.htmlIdLevel}"/><f:verbatim>);flagRows();<%= request.getAttribute("html.body.onload") %>;"></f:verbatim>
+  
  <div class="portletBody">
 <h:form id="editform">
   <!-- HEADINGS -->
@@ -72,26 +74,32 @@
  <div class="tier2">
 <h:panelGrid columns="2" columnClasses="shorttext">
   <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}"/>
-  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}"  onkeydown="inIt()" id="namefield" size="30" value="#{questionpool.currentPool.displayName}" />
+  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" onkeydown="inIt()" id="namefield" size="30" value="#{questionpool.currentPool.displayName}" />
   <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}"/>
   <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
 
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}"  for="orgfield" value="#{questionPoolMessages.dept}"/>
-  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="orgfield" size="30"  onkeydown="inIt()" value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
- 
+  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" onkeydown="inIt() "id="orgfield" size="30"  value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
+    
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}" for="descfield" value="#{questionPoolMessages.desc}" />
-  <h:inputTextarea disabled="#{questionpool.importToAuthoring == 'true'}"  id="descfield" onkeydown="inIt()" rendered="!#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.description}" cols="30" rows="5"/>
-
+  <h:inputTextarea disabled="#{questionpool.importToAuthoring == 'true'}" onkeydown="inIt()" id="descfield" rendered="!#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.description}" cols="30" rows="5"/>
+  
   <h:outputLabel for="objfield" value="#{questionPoolMessages.obj} " rendered="!#{questionpool.currentPool.showParentPools}"/>
-  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="objfield" size="30"  onkeydown="inIt()" value="#{questionpool.currentPool.objectives}" rendered="!#{questionpool.currentPool.showParentPools}"/>
-
+  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" onkeydown="inIt()" id="objfield" size="30"  value="#{questionpool.currentPool.objectives}" rendered="!#{questionpool.currentPool.showParentPools}"/>
+  
   <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords} " rendered="!#{questionpool.currentPool.showParentPools}" />
-  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="keyfield" size="30"  onkeydown="inIt()" value="#{questionpool.currentPool.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
+  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" onkeydown="inIt()" id="keyfield" size="30" value="#{questionpool.currentPool.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
 
   <h:inputHidden id="createdDate" value="#{questionpool.currentPool.dateCreated}">
   <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
   </h:inputHidden>
 </h:panelGrid>
+<div style="margin-top:1em;margin-bottom:2.5em">
+  <h:commandButton accesskey="#{questionPoolMessages.a_update}" id="Update"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}" value="#{questionPoolMessages.update}">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
+  </h:commandButton>
+</div>
+
  </div>
 
 
@@ -140,6 +148,24 @@
 </h:panelGrid>
 </h4>
   <div class="tier2">
+<div class="navIntraToolLink">
+  <h:commandButton accesskey="#{questionPoolMessages.a_update}" id="removeSubmit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}" value="#{questionPoolMessages.remove}">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" /> 
+  </h:commandButton>
+ 
+ <h:outputText escape="false" value=" | " rendered="#{questionpool.importToAuthoring != 'true'}" />
+ 
+ <h:commandButton title="#{questionPoolMessages.t_copyQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="copySubmit" immediate="true" action="#{questionpool.startCopyQuestions}" value="#{questionPoolMessages.copy}">
+ 
+ </h:commandButton>
+ 
+ <h:outputText escape="false" value=" | " rendered="#{questionpool.importToAuthoring != 'true'}" />
+ 
+ <h:commandButton title="#{questionPoolMessages.t_moveQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="moveSubmit" immediate="true" action="#{questionpool.startMoveQuestions}" value="#{questionPoolMessages.move}">
+ </h:commandButton>
+ 
+ </div>
+
 <h:panelGrid rendered="#{questionpool.currentPool.numberOfQuestions > 0 }" width="100%">
 <h:panelGroup>
 <%@ include file="/jsf/questionpool/questionTreeTable.jsp" %>
@@ -160,11 +186,6 @@
 
 <div class="tier1">
 <!-- for normal pool operations -->
-  <h:commandButton accesskey="#{questionPoolMessages.a_update}" id="Submit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}"
-        value="#{questionPoolMessages.update}">
-  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
- 
-  </h:commandButton>
 
 <!-- for importing questions from pool to authoring -->
 <!-- disable copy button once clicked.  show processing... -->

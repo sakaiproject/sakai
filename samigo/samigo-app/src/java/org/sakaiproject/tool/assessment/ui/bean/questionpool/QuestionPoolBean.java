@@ -29,11 +29,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.sakaiproject.util.ResourceLoader;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
@@ -47,17 +45,21 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.upload.FormFile;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
+import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.services.SectionService;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.util.ResourceLoader;
 
 // from navigo
 
@@ -82,8 +84,8 @@ public class QuestionPoolBean implements Serializable
   private QuestionPoolDataBean currentPool;
   private QuestionPoolDataBean parentPool;
 
-  private String currentItemId;
-  private ItemFacade currentItem;
+  private ArrayList currentItemIds;
+  private ArrayList currentItems;
 
   private boolean allPoolsSelected;
   private boolean allItemsSelected;
@@ -95,6 +97,7 @@ public class QuestionPoolBean implements Serializable
   private String[] selectedQuestions;
   private String[] destPools = {  }; // for multibox
   private String[] destItems = {  }; // items to delete
+  private String sourcePart = null; // copy all questions from part
   private String destPool=""; // for Move Pool Destination
   private FormFile filename; // for import /export
   private int htmlIdLevel; // pass this to javascript:collapseAll()
@@ -571,31 +574,37 @@ public class QuestionPoolBean implements Serializable
         return searchQrubrics;
   }
 
+  	public String getSourcePart() {
+		return sourcePart;
+  	}
 
-  public String getCurrentItemId()
-  {
-        return currentItemId;
-  }
-  public void setCurrentItemId(String pstr)
-  {
-    currentItemId= pstr;
-  }
+	public void setSourcePart(String s) {
+		sourcePart = s;
+	}
 
-  public ItemFacade getCurrentItem()
-  {
-        return currentItem;
-  }
-  public void setCurrentItem(ItemFacade param)
-  {
-    currentItem = param ;
-  }
+	public ArrayList getCurrentItemIds() {
+		return currentItemIds;
+	}
+
+	public void setCurrentItemIds(ArrayList pstr) {
+		currentItemIds = pstr;
+	}
+
+	public ArrayList getCurrentItems() {
+		return currentItems;
+	}
+
+	public void setCurrentItems(ArrayList param) {
+		currentItems = param;
+	}
+
 
   public ItemFacade getItemToPreview()
   {
 
 /*
-   String result =  previewQuestion();
-*/
+ * String result = previewQuestion();
+ */
     return itemToPreview;
   }
   public void setItemToPreview(ItemFacade param)
@@ -1121,6 +1130,7 @@ public String getAddOrEdit()
 // Item level actions
   public String startCopyQuestion()
   {
+	    this.sourcePart = null;
         getCheckedQuestion();
         return "copyPool";
   }
@@ -1131,39 +1141,52 @@ public String getAddOrEdit()
         return "movePool";
   }
 
+	public String startCopyQuestions() {
+		this.sourcePart = null;
+		getCheckedQuestions();
+		return "copyPool";
+	}
 
-  public String moveQuestion(){
-     String sourceId = "";
-      String destId = "";
-      sourceId = this.getCurrentPool().getId().toString();
-      String sourceItemId = this.getCurrentItemId();
+	public String startMoveQuestions() {
+		getCheckedQuestions();
+		return "movePool";
+	}
+  
+     public String moveQuestion() {
+		String sourceId = "";
+		String destId = "";
+		sourceId = this.getCurrentPool().getId().toString();
+		ArrayList sourceItemIds = this.getCurrentItemIds();
 
-        destId= ContextUtil.lookupParam("movePool:selectedRadioBtn");
+		destId = ContextUtil.lookupParam("movePool:selectedRadioBtn");
 
-        if((sourceId != null) && (destId != null) && (sourceItemId !=null))
-        {
-          try
-          {
-	    if (hasItemInDestPool(sourceItemId, destId)) {
-                return "movePool";
-            }
-	    else {		
-            QuestionPoolService delegate = new QuestionPoolService();
-            delegate.moveItemToPool(sourceItemId, new Long(sourceId), new Long(destId));
-	    }
-          }
-          catch(Exception e)
-          {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-          }
-        }
+		if ((sourceId != null) && (destId != null) && (sourceItemIds != null)) {
+			try {
+				QuestionPoolService delegate = new QuestionPoolService();
 
-      buildTree();
+				Iterator iter = sourceItemIds.iterator();
+				while (iter.hasNext()) {
+					String sourceItemId = (String) iter.next();
+					// originally this returned "movePool" if we found it
+					// in dest. This seems wrong. No error message, just
+					// return to an irrelevant screen. I think it's better
+					// just to skip that item. One could argue for a warning
+					// message.
+					if (!hasItemInDestPool(sourceItemId, destId)) {
+						delegate.moveItemToPool(sourceItemId,
+								new Long(sourceId), new Long(destId));
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new RuntimeException(e);
+			}
+		}
 
-        return "poolList";
+		buildTree();
 
-  }
+		return "poolList";
+	}
 
   public boolean hasItemInDestPool(String sourceItemId, String destId){
   
@@ -1184,49 +1207,96 @@ public String getAddOrEdit()
   }
 
 
-  public String copyQuestion(){
+  public String copyQuestion() {
+		if (getSourcePart() != null)
+			return copyQuestionsFromPart();
 
-      //Long sourceId = new Long(0);
-      String destId= "";
-      String sourceItemId = this.getCurrentItemId();
-      
-        ArrayList destpools= ContextUtil.paramArrayValueLike("checkboxes");
-        //sourceId = this.getCurrentPool().getId();
+		// Long sourceId = new Long(0);
+		String destId = "";
+		ArrayList sourceItems = this.getCurrentItems();
 
-        Iterator iter = destpools.iterator();
-      while(iter.hasNext())
-      {
+		ArrayList destpools = ContextUtil.paramArrayValueLike("checkboxes");
+		// sourceId = this.getCurrentPool().getId();
 
-          destId = (String) iter.next();
-          if((sourceItemId != null) && (destId != null))
-          {
-                 
-            try
-            {
-	      if (hasItemInDestPool(sourceItemId, destId)) {
-      		return "copyPool";
-              }
-              else {
-            	QuestionPoolService questionPoolService = new QuestionPoolService();
-            	String copyItemFacadeId = questionPoolService.copyItemFacade(this.getCurrentItem().getData()).toString();
-                  
-                QuestionPoolService delegate = new QuestionPoolService();
-                delegate.addItemToPool(copyItemFacadeId, new Long(destId));
-              }
-            }
-            catch(Exception e)
-            {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-          }
-        }
+		Iterator iter = destpools.iterator();
+		while (iter.hasNext()) {
 
-      buildTree();
-      return "poolList";
+			destId = (String) iter.next();
+			if ((sourceItems != null) && (destId != null)) {
 
+				try {
+					QuestionPoolService questionPoolService = new QuestionPoolService();
+					QuestionPoolService delegate = new QuestionPoolService();
 
-  }
+					Iterator iter2 = sourceItems.iterator();
+					while (iter2.hasNext()) {
+						ItemFacade sourceItem = (ItemFacade) iter2.next();
+						String sourceItemId = sourceItem.getItemIdString();
+						// originally this returned "copyPool" if we found it
+						// in dest. This seems wrong. No error message, just
+						// return to an irrelevant screen. I think it's better
+						// just to skip that item. One could argue for a warning
+						// message.
+						if (!hasItemInDestPool(sourceItemId, destId)) {
+							String copyItemFacadeId = questionPoolService
+									.copyItemFacade(sourceItem.getData())
+									.toString();
+							delegate.addItemToPool(copyItemFacadeId, new Long(
+									destId));
+						}
+
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new RuntimeException(e);
+				}
+			}
+		}
+
+		buildTree();
+		return "poolList";
+	}
+
+  public String copyQuestionsFromPart() {
+
+		SectionService sectiondelegate = new SectionService();
+
+		SectionFacade section = sectiondelegate.getSection(new Long(
+				getSourcePart()), AgentFacade.getAgentString());
+
+		Set itemSet = section.getItemSet();
+
+		ArrayList destpools = ContextUtil.paramArrayValueLike("checkboxes");
+		// sourceId = this.getCurrentPool().getId();
+
+		Iterator iter = destpools.iterator();
+		while (iter.hasNext()) {
+
+			String destId = (String) iter.next();
+			if ((itemSet != null) && (destId != null)) {
+				try {
+					QuestionPoolService delegate = new QuestionPoolService();
+
+					Iterator iter2 = itemSet.iterator();
+					while (iter2.hasNext()) {
+						ItemDataIfc sourceItem = (ItemDataIfc) iter2.next();
+						String sourceItemId = sourceItem.getItemIdString();
+
+						if (!hasItemInDestPool(sourceItemId, destId)) {
+							delegate.addItemToPool(sourceItemId, new Long(
+									destId));
+						}
+
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new RuntimeException(e);
+				}
+			}
+		}
+
+		return "editAssessment";
+	}
 
  public String removeQuestionsFromPool(){
      String sourceId = this.getCurrentPool().getId().toString();
@@ -1286,11 +1356,39 @@ public String getAddOrEdit()
 	String itemId= ContextUtil.lookupParam("itemid");
 	ItemService delegate = new ItemService();
 	ItemFacade itemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
-	setCurrentItemId(itemId);
-	setCurrentItem(itemfacade);
+	ArrayList itemIds = new ArrayList();
+	itemIds.add(itemId);
+	setCurrentItemIds(itemIds);
+	 
+	ArrayList itemFacades = new ArrayList();
+	itemFacades.add(itemfacade);
+	setCurrentItems(itemFacades);
 	setActionType("item");
   }
 
+  public void getCheckedQuestions() {
+		// String itemId= ContextUtil.lookupParam("itemid");
+
+		ArrayList destItems = ContextUtil.paramArrayValueLike("removeCheckbox");
+		ArrayList itemIds = new ArrayList();
+		ArrayList itemFacades = new ArrayList();
+
+		ItemService delegate = new ItemService();
+		Iterator iter = destItems.iterator();
+
+		while (iter.hasNext()) {
+			String itemId = (String) iter.next();
+			ItemFacade itemfacade = delegate.getItem(new Long(itemId),
+					AgentFacade.getAgentString());
+			itemFacades.add(itemfacade);
+			itemIds.add(itemId);
+		}
+
+		setCurrentItemIds(itemIds);
+		setCurrentItems(itemFacades);
+
+		setActionType("item");
+	}
 
 
 // Pool level actions
@@ -1774,7 +1872,10 @@ String poolId = ContextUtil.lookupParam("qpid");
         String itemId= ContextUtil.lookupParam("itemid");
 
         ItemFacade itemf = delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
-        setCurrentItem(itemf);
+        ArrayList itemFacades = new ArrayList();
+        itemFacades.add(itemf);
+        setCurrentItems(itemFacades);
+
 
   }
 
@@ -1785,7 +1886,10 @@ String poolId = ContextUtil.lookupParam("qpid");
         String itemId= ContextUtil.lookupParam("itemid");
 
         ItemFacade itemf = delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
-        setCurrentItem(itemf);
+        ArrayList itemFacades = new ArrayList();
+        itemFacades.add(itemf);
+        setCurrentItems(itemFacades);
+
 
     return "previewItem";
   }
