@@ -466,7 +466,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	protected boolean m_caching = false;
 
 	/**
-	 * Configuration: set the locks-in-db
+	 * Configuration: set the caching
 	 * 
 	 * @param path
 	 *        The storage path.
@@ -2315,7 +2315,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 			if ((!m_caching) || (m_calendarCache == null) || (m_calendarCache.disabled()))
 			{
-				events = m_storage.getEvents(this, range.firstTime().toStringSql(), range.lastTime().toStringSql() );
+				events = m_storage.getEvents(this);
 			}
 
 			else
@@ -4899,11 +4899,6 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 */
 		public List getEvents(Calendar calendar);
 
-		/**
-		 * Get the events from a calendar, within this time range
-		 */
-		public List getEvents(Calendar calendar, String startDate, String endDate);
-      
 		/**
 		 * Make and lock a new event.
 		 */

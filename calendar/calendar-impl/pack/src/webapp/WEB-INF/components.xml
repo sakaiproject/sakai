@@ -15,6 +15,7 @@
 		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
  		<property name="containerTableName"><value>CALENDAR_CALENDAR</value></property>
  		<property name="resourceTableName"><value>CALENDAR_EVENT</value></property>
+ 		<property name="caching"><value>false</value></property>
  		<property name="locksInDb"><value>false</value></property>
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>

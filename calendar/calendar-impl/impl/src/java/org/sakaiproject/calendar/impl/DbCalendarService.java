@@ -211,19 +211,6 @@ public class DbCalendarService
 		public List getEvents(Calendar calendar)
 			{ return super.getAllResources(calendar); }
 
-		public List getEvents(Calendar calendar, String startDate, String endDate)
-         { 
-            startDate = startDate.substring(0, 8); // only use date YYYYMMDD
-            endDate = endDate.substring(0, 8); // only use date YYYYMMDD
-            StringBuffer filter = new StringBuffer("(");
-            filter.append("EVENT_START >= '");
-            filter.append( startDate );
-            filter.append( "' and EVENT_END <= '");
-            filter.append( endDate );
-            filter.append( "')" );
-            return super.getAllResources(calendar, filter.toString()); 
-         }
-
 		public CalendarEventEdit putEvent(Calendar calendar,String id)
 			{ return (CalendarEventEdit) super.putResource(calendar, id, null); }
 
