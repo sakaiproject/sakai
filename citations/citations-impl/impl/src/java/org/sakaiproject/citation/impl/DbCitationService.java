@@ -1207,7 +1207,7 @@ public class DbCitationService extends BaseCitationService
          * @param name
          * @param value
          */
-        public Triple(String id, String name, Object value)
+        public Triple(String id, String name, String value)
         {
 	        super();
 	        m_id = id;
@@ -1286,7 +1286,7 @@ public class DbCitationService extends BaseCitationService
             {
 	            String citationId = result.getString(1);
 	            String name = result.getString(2);
-	            Object value = result.getObject(3);
+	            String value = result.getString(3);
 
 	            triple = new Triple(citationId, name, value);
             }
