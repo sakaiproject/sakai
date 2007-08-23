@@ -3,7 +3,7 @@
 		<input type="checkbox" name="selected" id="select_$!{citation.id}"
 		  value="$!{citation.id}" onclick="highlightCheckedSelections();" /> 
 	</td>
-	<td headers="details">
+	<td colspan="2" headers="details">
 		<a href="$citation.openurl" target="_blank">$xilator.escapeHtml( $citation.getCitationProperty( $titleProperty ) )</a>
 		<br />
 		$!{xilator.escapeHtml( $!{citation.creator} )}
