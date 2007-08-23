@@ -1880,6 +1880,7 @@ public abstract class BaseCitationService implements CitationService
 
 			public BasicIterator()
 			{
+				checkForUpdates();
 				this.listOfKeys = new Vector(m_order);
 				setIndexes();
 			}
@@ -2099,6 +2100,8 @@ public abstract class BaseCitationService implements CitationService
 
 		protected boolean m_ascending = true;
 
+		protected long m_mostRecentUpdate = 0L;
+
 		public BasicCitationCollection()
 		{
 			m_id = IdManager.createUuid();
@@ -2205,13 +2208,6 @@ public abstract class BaseCitationService implements CitationService
 		protected void copy(BasicCitationCollection other)
 		{
 			this.m_ascending = other.m_ascending;
-			this.m_description = other.m_description;
-//			this.m_comparator = other.m_comparator;
-			this.m_serialNumber = other.m_serialNumber;
-			this.m_pageSize = other.m_pageSize;
-			this.m_temporary = other.m_temporary;
-			this.m_title = other.m_title;
-
 			/*
 			 * Get new instance of comparator
 			 */
@@ -2225,34 +2221,8 @@ public abstract class BaseCitationService implements CitationService
 				this.m_comparator = new MultipleKeyComparator( TITLE_AS_KEY, true );
 			}
 
-			if(this.m_citations == null)
-			{
-				this.m_citations = new Hashtable<String, Citation>();
-			}
-			this.m_citations.clear();
-			if(this.m_order == null)
-			{
-				this.m_order = new TreeSet<String>(this.m_comparator);
-			}
-			this.m_order.clear();
-			Iterator it = other.m_citations.keySet().iterator();
-			while(it.hasNext())
-			{
-				String citationId = (String) it.next();
-				BasicCitation oldCitation = (BasicCitation) other.m_citations.get(citationId);
-				BasicCitation newCitation = new BasicCitation();
-				try
-				{
-					newCitation.copy(oldCitation);
-					this.saveCitation(newCitation);
-					this.add(newCitation);
-				}
-				catch(Exception e)
-				{
-					M_log.warn("copy(" + oldCitation.getId() + ") ==> " + newCitation.getId(), e);
-				}
-			}
-
+			set(other);
+			
 		}
 
 		public void exportRis(StringBuffer buffer, List<String>  citationIds) throws IOException
@@ -2318,6 +2288,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public List getCitations()
 		{
+			checkForUpdates();
 			List citations = new Vector();
 			if (m_citations == null)
 			{
@@ -2345,24 +2316,28 @@ public abstract class BaseCitationService implements CitationService
 
 		public CitationCollection getCitations(Comparator c)
 		{
+			checkForUpdates();
 			// TODO Auto-generated method stub
 			return null;
 		}
 
 		public CitationCollection getCitations(Comparator c, Filter f)
 		{
+			checkForUpdates();
 			// TODO Auto-generated method stub
 			return null;
 		}
 
 		public CitationCollection getCitations(Filter f)
 		{
+			checkForUpdates();
 			// TODO Auto-generated method stub
 			return null;
 		}
 
 		public CitationCollection getCitations(Map properties)
 		{
+			checkForUpdates();
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -2566,6 +2541,66 @@ public abstract class BaseCitationService implements CitationService
 		{
 			// TODO Auto-generated method stub
 			return null;
+		}
+
+		protected void checkForUpdates() 
+		{
+			if(this.m_mostRecentUpdate < m_storage.mostRecentUpdate(this.m_id))
+			{
+				CitationCollection edit = m_storage.getCollection(this.m_id);
+				if (edit == null)
+				{
+					
+				}
+				else
+				{
+					set((BasicCitationCollection) edit);
+				}
+			}
+			
+		}
+
+		/**
+		 * copy
+		 * @param other
+		 */
+		protected void set(BasicCitationCollection other) 
+		{
+			this.m_description = other.m_description;
+//			this.m_comparator = other.m_comparator;
+			this.m_serialNumber = other.m_serialNumber;
+			this.m_pageSize = other.m_pageSize;
+			this.m_temporary = other.m_temporary;
+			this.m_title = other.m_title;
+
+			if(this.m_citations == null)
+			{
+				this.m_citations = new Hashtable<String, Citation>();
+			}
+			this.m_citations.clear();
+			if(this.m_order == null)
+			{
+				this.m_order = new TreeSet<String>(this.m_comparator);
+			}
+			this.m_order.clear();
+			Iterator it = other.m_citations.keySet().iterator();
+			while(it.hasNext())
+			{
+				String citationId = (String) it.next();
+				BasicCitation oldCitation = (BasicCitation) other.m_citations.get(citationId);
+				BasicCitation newCitation = new BasicCitation();
+				try
+				{
+					newCitation.copy(oldCitation);
+					this.saveCitation(newCitation);
+					this.add(newCitation);
+				}
+				catch(Exception e)
+				{
+					M_log.warn("copy(" + oldCitation.getId() + ") ==> " + newCitation.getId(), e);
+				}
+			}
+
 		}
 
 	} // BaseCitationService.BasicCitationCollection
@@ -3113,6 +3148,8 @@ public abstract class BaseCitationService implements CitationService
 		public boolean checkCollection(String collectionId);
 
 		public boolean checkSchema(String schemaId);
+		
+		public long mostRecentUpdate(String collectionId);
 
 		/**
 		 * Close.

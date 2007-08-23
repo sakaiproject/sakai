@@ -343,6 +343,11 @@ public class DbCitationService extends BaseCitationService
 				fields[2] = citation.getId();
 				ok = m_sqlService.dbWrite(statement, fields);
 			}
+			
+			long mostRecentUpdate = TimeService.newTime().getTime();			
+			fields[1] = PROP_MOST_RECENT_UPDATE;
+			fields[2] = Long.toString(mostRecentUpdate);
+			ok = m_sqlService.dbWrite(statement, fields);
         }
 
  		/**
@@ -441,6 +446,11 @@ public class DbCitationService extends BaseCitationService
 				ok = m_sqlService.dbWrite(statement, fields);
 			}
 
+			edit.m_mostRecentUpdate = TimeService.newTime().getTime();			
+			fields[1] = PROP_MOST_RECENT_UPDATE;
+			fields[2] = Long.toString(edit.m_mostRecentUpdate);
+			ok = m_sqlService.dbWrite(statement, fields);
+			
 			return edit;
        }
 
@@ -810,7 +820,7 @@ public class DbCitationService extends BaseCitationService
 		{
 			String statement = "select COLLECTION_ID, PROPERTY_NAME, PROPERTY_VALUE from " + m_collectionTableName + " where (COLLECTION_ID = ?)";
 
-			CitationCollection edit = new BasicCitationCollection(collectionId);
+			BasicCitationCollection edit = new BasicCitationCollection(collectionId);
 
 			Object fields[] = new Object[1];
 			fields[0] = collectionId;
@@ -827,6 +837,17 @@ public class DbCitationService extends BaseCitationService
 					{
 						Citation citation = retrieveCitation((String) triple.getValue());
 						edit.add(citation);
+					}
+					else if(triple.getName().equals(PROP_MOST_RECENT_UPDATE))
+					{
+						try
+						{
+							edit.m_mostRecentUpdate = Long.parseLong(triple.getValue().toString());
+						}
+						catch(Exception e)
+						{
+							// do nothing
+						}
 					}
 					/*
 					 * TODO: else add property??
@@ -1144,6 +1165,36 @@ public class DbCitationService extends BaseCitationService
         	return found;
         }
 
+		public long mostRecentUpdate(String collectionId) 
+		{
+           	String statement =  "select PROPERTY_VALUE from " + m_collectionTableName + " where (COLLECTION_ID = ? and PROPERTY_NAME = ?)" ;
+
+			Object fields[] = new Object[2];
+			fields[0] = collectionId;
+			fields[1] = PROP_MOST_RECENT_UPDATE;
+
+			List list = m_sqlService.dbRead(statement, fields, null);
+
+			long time = 0L;
+			if(list == null || list.isEmpty())
+			{
+				// do nothing
+			}
+			else
+			{
+				try
+				{
+					time = Long.parseLong(list.get(0).toString());
+				}
+				catch(Exception e)
+				{
+					// do nothing
+				}
+			}
+
+			return time;
+		}
+
 	}
 
 	public class Triple
@@ -1255,13 +1306,16 @@ public class DbCitationService extends BaseCitationService
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(DbCitationService.class);
 	protected static final Pattern MULTIVALUED_PATTERN = Pattern.compile("^(.*)\\t(\\d+)$");
+	
+	protected static final String PROP_MOST_RECENT_UPDATE = "sakai:most_recent_update";
+
 	protected static final String PROP_ADDED = "sakai:added";
 	protected static final String PROP_DISPLAYNAME = "sakai:displayname";
 
 	protected static final String PROP_HAS_RIS_IDENTIFIER = "sakai:ris_identifier";
 
 	protected static final String PROP_HAS_URL = "sakai:has_url";
-
+	
 	protected static final String PROP_MEDIATYPE = "sakai:mediatype";
 
 	protected static final String PROP_URL_LABEL = "sakai:url_label";

@@ -495,6 +495,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String STATE_CURRENT_DATABASES = CitationHelper.CITATION_PREFIX + "current_databases";
 	protected static final String STATE_BACK_BUTTON_STACK = CitationHelper.CITATION_PREFIX + "back-button_stack";
 	protected static final String STATE_COLLECTION_ID = CitationHelper.CITATION_PREFIX + "collection_id";
+	protected static final String STATE_COLLECTION = CitationHelper.CITATION_PREFIX + "collection"; 
 	protected static final String STATE_CITATION_ID = CitationHelper.CITATION_PREFIX + "citation_id";
 	protected static final String STATE_COLLECTION_TITLE = CitationHelper.CITATION_PREFIX + "collection_name";
 	protected static final String STATE_CURRENT_REPOSITORY = CitationHelper.CITATION_PREFIX + "current_repository";
@@ -684,15 +685,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		String collectionId = (String)state.getAttribute(STATE_COLLECTION_ID);
 		context.put( "collectionId", collectionId );
 
-		CitationCollection collection = null;
-		try
-        {
-            collection = CitationService.getCollection(collectionId);
-        }
-        catch (IdUnusedException e)
-        {
-            logger.warn("buildAddCitationsPanelContext unable to access citationCollection " + collectionId);
-        }
+		CitationCollection collection = getCitationCollection(state, false);
 		if(collection == null)
 		{
 			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + collectionId );
@@ -742,15 +735,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		String collectionId = (String)state.getAttribute(STATE_COLLECTION_ID);
 		context.put( "collectionId", collectionId );
 
-		CitationCollection collection = null;
-		try
-        {
-            collection = CitationService.getCollection(collectionId);
-        }
-        catch (IdUnusedException e)
-        {
-            logger.warn("buildAddCitationsPanelContext unable to access citationCollection " + collectionId);
-        }
+		CitationCollection collection = getCitationCollection(state, false);
 		if(collection == null)
 		{
 			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + collectionId );
@@ -977,29 +962,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		context.put(PARAM_FORM_NAME, ELEMENT_ID_LIST_FORM);
 
-		CitationCollection collection = null;
-		String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-		if(collectionId == null)
-		{
-			collection = CitationService.addCollection();
-			state.setAttribute(STATE_COLLECTION_ID, collection.getId());
-		}
-		else
-		{
-			try
-            {
-	            collection = CitationService.getCollection(collectionId);
-            }
-            catch (IdUnusedException e)
-            {
-	            logger.warn("CitationHelperAction.buildListPanelContext unable to access citationCollection " + collectionId);
-            }
-			if(collection == null)
-			{
-				collection = CitationService.addCollection();
-				state.setAttribute(STATE_COLLECTION_ID, collection.getId());
-			}
-		}
+		CitationCollection collection = getCitationCollection(state, true);
 
 		// collection size
 		context.put( "collectionSize", new Integer( collection.size() ) );
@@ -1065,6 +1028,45 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		return TEMPLATE_LIST;
 
 	}	// buildListPanelContext
+
+	/**
+	 * @param state
+	 * @return
+	 */
+	protected CitationCollection getCitationCollection(SessionState state, boolean create) 
+	{
+		CitationCollection collection = (CitationCollection) state.getAttribute(STATE_COLLECTION);
+		if(collection == null)
+		{
+			String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+			if(collectionId == null && create)
+			{
+				collection = CitationService.addCollection();
+				state.setAttribute(STATE_COLLECTION_ID, collection.getId());
+			}
+			else
+			{
+				try
+	            {
+		            collection = CitationService.getCollection(collectionId);
+	            }
+	            catch (IdUnusedException e)
+	            {
+		            logger.warn("IdUnusedException: CitationHelperAction.getCitationCollection() unable to access citationCollection " + collectionId);
+	            }
+				if(collection == null && create)
+				{
+					collection = CitationService.addCollection();
+					state.setAttribute(STATE_COLLECTION_ID, collection.getId());
+				}
+			}
+			if(collection != null)
+			{
+				state.setAttribute(STATE_COLLECTION, collection);
+			}
+		}
+		return collection;
+	}
 
 	/**
 	 * build the context.
@@ -1165,22 +1167,19 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		String collectionId = (String)state.getAttribute(STATE_COLLECTION_ID);
 		context.put( "collectionId", collectionId );
 
-		CitationCollection collection = null;
-		try
-        {
-            collection = CitationService.getCollection(collectionId);
-        }
-        catch (IdUnusedException e)
-        {
-            logger.warn("buildAddCitationsPanelContext unable to access citationCollection " + collectionId);
-        }
+		int size = 0;
+		CitationCollection collection = getCitationCollection(state, false);
 		if(collection == null)
 		{
-			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + collectionId );
+			logger.warn( "buildMessagePanelContext unable to access citationCollection " + collectionId );
+		}
+		else
+		{
+			size = collection.size();
 		}
 
 		// get the size of the list
-		context.put( "citationCount", new Integer( collection.size() ) );
+		context.put( "citationCount", new Integer( size ) );
 
 	    return TEMPLATE_MESSAGE;
     }
@@ -1519,21 +1518,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		// get the collection we're now working on
-		String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+		CitationCollection collection = getCitationCollection(state, true);
 
-		CitationCollection collection = null;
-		try
-        {
-            collection = CitationService.getCollection(collectionId);
-        }
-        catch (IdUnusedException e)
-        {
-            logger.warn("buildAddCitationsPanelContext unable to access citationCollection " + collectionId);
-        }
-		if(collection == null)
-		{
-			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + collectionId );
-		}
+		String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
 
 		String[] args = new String[]{ Integer.toString(collection.size()) };
 		String size_str =rb.getFormattedMessage("citation.count",  args);
@@ -1634,29 +1621,22 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			search.setIndex(index);
 		}
 
-		try
-        {
-			CitationCollection permCollection = CitationService.getCollection(collectionId);
-			for(int i = 0; i < citationIds.length; i++)
+		CitationCollection permCollection = getCitationCollection(state, true);
+		for(int i = 0; i < citationIds.length; i++)
+		{
+			try
 			{
-				try
-				{
-					Citation citation = tempCollection.getCitation(citationIds[i]);
-					citation.setAdded(true);
-					permCollection.add(citation);
-				}
-				catch(IdUnusedException ex)
-				{
-			        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + collectionId);
-				}
+				Citation citation = tempCollection.getCitation(citationIds[i]);
+				citation.setAdded(true);
+				permCollection.add(citation);
 			}
-	        CitationService.save(permCollection);
-	        // setMode(state, Mode.LIST);
-        }
-        catch (IdUnusedException e)
-        {
-	        logger.info("doAdd: unable to get collection " + collectionId);
-        }
+			catch(IdUnusedException ex)
+			{
+		        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + collectionId);
+			}
+		}
+        CitationService.save(permCollection);
+        // setMode(state, Mode.LIST);
  	}
 
 	/**
@@ -1718,29 +1698,22 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			search.setIndex(index);
 		}
 
-		try
-        {
-			CitationCollection permCollection = CitationService.getCollection(collectionId);
-			for(int i = 0; i < citationIds.length; i++)
+		CitationCollection permCollection = getCitationCollection(state, true);
+		for(int i = 0; i < citationIds.length; i++)
+		{
+			try
 			{
-				try
-				{
-					Citation citation = tempCollection.getCitation(citationIds[i]);
-					citation.setAdded(false);
-					permCollection.remove(citation);
-				}
-				catch(IdUnusedException ex)
-				{
-			        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + collectionId);
-				}
+				Citation citation = tempCollection.getCitation(citationIds[i]);
+				citation.setAdded(false);
+				permCollection.remove(citation);
 			}
-	        CitationService.save(permCollection);
-	  		setMode(state, Mode.LIST);
-        }
-        catch (IdUnusedException e)
-        {
-	        logger.info("doAdd: unable to get collection " + collectionId);
-        }
+			catch(IdUnusedException ex)
+			{
+		        logger.info("doAdd: unable to add citation " + citationIds[i] + " to collection " + collectionId);
+			}
+		}
+        CitationService.save(permCollection);
+  		setMode(state, Mode.LIST);
 	}
 
 	public void doDatabasePopulate( RunData data )
@@ -1862,37 +1835,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		Set validPropertyNames = CitationService.getValidPropertyNames();
 		String mediatype = params.getString("type");
 
-		CitationCollection collection = null;
-
-		String collectionId = params.getString("collectionId");
-
-		if(collectionId == null)
-		{
-			collectionId = (String) (String) state.getAttribute(STATE_COLLECTION_ID);
-		}
-		if(collectionId == null)
-		{
-			// log error and go on
-			logger.info("CitationHelperAction.doCreateCitation no collection-id is given (creating new collection");
-			collection = CitationService.addCollection();
-			collectionId = collection.getId();
-			state.setAttribute(STATE_COLLECTION_ID, collectionId);
-		}
-		else
-		{
-			try
-            {
-	            collection = CitationService.getCollection(collectionId);
-            }
-            catch (IdUnusedException e)
-            {
-    			// log error and go on
-    			logger.info("CitationHelperAction.doCreateCitation unable to retrieve collection (creating new collection");
-    			collection = CitationService.addCollection();
-    			collectionId = collection.getId();
-    			state.setAttribute(STATE_COLLECTION_ID, collectionId);
-           }
-		}
+		CitationCollection collection = getCitationCollection(state, true);
 
 		// create a citation
 		Citation citation = CitationService.addCitation(mediatype);
@@ -2023,33 +1966,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		String collectionId = params.getString("collectionId");
 
 
-		CitationCollection collection = null;
-		if(collectionId == null)
-		{
-			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-		}
-
-		if(collectionId == null)
-		{
-
-		}
-		else
-		{
-			try
-			{
-				collection = CitationService.getCollection(collectionId);
-			}
-			catch(IdUnusedException e)
-			{
-				// must find a different way to get it
-			}
-
-		}
-		if(collection == null)
-		{
-			collection = CitationService.addCollection();
-			state.setAttribute(STATE_COLLECTION_ID, collection.getId());
-		}
+		CitationCollection collection = getCitationCollection(state, true);
 
 		Citation citation = null;
 		try
@@ -2161,15 +2078,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 
 		// get CitationCollection using collectionId
-		CitationCollection collection = null;
-		try
-        {
-            collection = CitationService.getCollection(collectionId);
-        }
-        catch (IdUnusedException e)
-        {
-            logger.warn("doMessageFrame() unable to access citationCollection " + collectionId);
-        }
+		CitationCollection collection = getCitationCollection(state, false);
 		if(collection == null)
 		{
 			logger.warn( "doMessageFrame() unable to access citationCollection " + collectionId );
@@ -2210,28 +2119,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		String collectionId = params.getString("collectionId");
 
-		CitationCollection collection = null;
-
-		if(collectionId == null)
-		{
-			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-		}
-		if(collectionId == null)
-		{
-			// TODO add alert and log error
-		}
-		else
-		{
-			try
-			{
-				collection = CitationService.getCollection(collectionId);
-			}
-			catch(IdUnusedException e)
-			{
-				// TODO add alert and log error
-		        logger.warn("CitationHelperAction.doRemoveCitation unable to retrieve collection: " + collectionId);
-			}
-		}
+		CitationCollection collection = getCitationCollection(state, false);
 
 		if(collection == null)
 		{
@@ -2265,28 +2153,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		String collectionId = params.getString("collectionId");
 
-		CitationCollection collection = null;
-
-		if(collectionId == null)
-		{
-			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-		}
-		if(collectionId == null)
-		{
-			// TODO add alert and log error
-		}
-		else
-		{
-			try
-			{
-				collection = CitationService.getCollection(collectionId);
-			}
-			catch(IdUnusedException e)
-			{
-				// TODO add alert and log error
-		        logger.warn("doRemoveSelectedCitation() unable to retrieve collection: " + collectionId);
-			}
-		}
+		CitationCollection collection = getCitationCollection(state, false);
 
 		if(collection == null)
 		{
@@ -2335,29 +2202,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// Set validPropertyNames = CitationService.getValidPropertyNames();
 		// String mediatype = params.getString("type");
 
-		CitationCollection collection = null;
-		Citation citation = null;
-
-		String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-		String citationId = (String) state.getAttribute(CitationHelper.CITATION_EDIT_ID);
-
-		if(collectionId == null)
-		{
-			collection = CitationService.addCollection();
-			state.setAttribute(STATE_COLLECTION_ID, collection.getId());
-			collectionId = collection.getId();
-		}
-		else
-		{
-			try
-            {
-	            collection = CitationService.getCollection(collectionId);
-            }
-            catch (IdUnusedException e)
-            {
-	            logger.warn("CitationHelperAction.doReviseCitation unable to get collection");
-            }
-		}
+		CitationCollection collection = getCitationCollection(state, false);
 
 		if(collection == null)
 		{
@@ -2365,25 +2210,29 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 		else
 		{
-			try
-            {
-	            citation = collection.getCitation(citationId);
-
-	            String schemaId = params.getString("type");
-	            Schema schema = CitationService.getSchema(schemaId);
-	            citation.setSchema(schema);
-
-	    		updateCitationFromParams(citation, params);
-
-	       		// add citation to current collection
-	    		collection.saveCitation(citation);
-	        }
-            catch (IdUnusedException e)
-            {
-	            // TODO add alert and log error
-            }
-
-       		CitationService.save(collection);
+			String citationId = (String) state.getAttribute(CitationHelper.CITATION_EDIT_ID);
+			if(citationId != null)
+			{
+				try
+	            {
+					Citation citation = collection.getCitation(citationId);
+	
+		            String schemaId = params.getString("type");
+		            Schema schema = CitationService.getSchema(schemaId);
+		            citation.setSchema(schema);
+	
+		    		updateCitationFromParams(citation, params);
+	
+		       		// add citation to current collection
+		    		collection.saveCitation(citation);
+		        }
+	            catch (IdUnusedException e)
+	            {
+		            // TODO add alert and log error
+	            }
+	
+	       		CitationService.save(collection);
+			}
  		}
 
 		setMode(state, Mode.LIST);
@@ -2665,29 +2514,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		CitationIterator listIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
 		if(listIterator == null)
 		{
-			CitationCollection collection = null;
-			String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-			if(collectionId == null)
-			{
-				collection = CitationService.addCollection();
-				state.setAttribute(STATE_COLLECTION_ID, collection.getId());
-			}
-			else
-			{
-				try
-	            {
-		            collection = CitationService.getCollection(collectionId);
-	            }
-	            catch (IdUnusedException e)
-	            {
-		            logger.warn("CitationHelperAction.buildListPanelContext unable to access citationCollection " + collectionId);
-	            }
-				if(collection == null)
-				{
-					collection = CitationService.addCollection();
-					state.setAttribute(STATE_COLLECTION_ID, collection.getId());
-				}
-			}
+			CitationCollection collection = getCitationCollection(state, true);
 			listIterator = collection.iterator();
 			state.setAttribute(STATE_LIST_ITERATOR, listIterator);
 		}
@@ -2710,29 +2537,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		CitationIterator listIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
 		if(listIterator == null)
 		{
-			CitationCollection collection = null;
-			String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-			if(collectionId == null)
-			{
-				collection = CitationService.addCollection();
-				state.setAttribute(STATE_COLLECTION_ID, collection.getId());
-			}
-			else
-			{
-				try
-	            {
-		            collection = CitationService.getCollection(collectionId);
-	            }
-	            catch (IdUnusedException e)
-	            {
-		            logger.warn("CitationHelperAction.buildListPanelContext unable to access citationCollection " + collectionId);
-	            }
-				if(collection == null)
-				{
-					collection = CitationService.addCollection();
-					state.setAttribute(STATE_COLLECTION_ID, collection.getId());
-				}
-			}
+			CitationCollection collection = getCitationCollection(state, true);
 			listIterator = collection.iterator();
 			state.setAttribute(STATE_LIST_ITERATOR, listIterator);
 		}
@@ -2752,29 +2557,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		// ParameterParser params = data.getParameters();
 
-		CitationCollection collection = null;
-		String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-		if(collectionId == null)
-		{
-			collection = CitationService.addCollection();
-			state.setAttribute(STATE_COLLECTION_ID, collection.getId());
-		}
-		else
-		{
-			try
-            {
-	            collection = CitationService.getCollection(collectionId);
-            }
-            catch (IdUnusedException e)
-            {
-	            logger.warn("CitationHelperAction.buildListPanelContext unable to access citationCollection " + collectionId);
-            }
-			if(collection == null)
-			{
-				collection = CitationService.addCollection();
-				state.setAttribute(STATE_COLLECTION_ID, collection.getId());
-			}
-		}
+		CitationCollection collection = getCitationCollection(state, true);
 
 		CitationIterator listIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
 		if(listIterator == null)
@@ -2806,29 +2589,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		CitationIterator listIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
 		if(listIterator == null)
 		{
-			CitationCollection collection = null;
-			String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-			if(collectionId == null)
-			{
-				collection = CitationService.addCollection();
-				state.setAttribute(STATE_COLLECTION_ID, collection.getId());
-			}
-			else
-			{
-				try
-	            {
-		            collection = CitationService.getCollection(collectionId);
-	            }
-	            catch (IdUnusedException e)
-	            {
-		            logger.warn("CitationHelperAction.buildListPanelContext unable to access citationCollection " + collectionId);
-	            }
-				if(collection == null)
-				{
-					collection = CitationService.addCollection();
-					state.setAttribute(STATE_COLLECTION_ID, collection.getId());
-				}
-			}
+			CitationCollection collection = getCitationCollection(state, true);
 
 			listIterator = collection.iterator();
 			state.setAttribute(STATE_LIST_ITERATOR, listIterator);
@@ -3071,29 +2832,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		String citationId = params.getString("citationId");
 		String collectionId = params.getString("collectionId");
 
-
-		CitationCollection collection = null;
-		if(collectionId == null)
-		{
-			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-		}
-
-		if(collectionId == null)
-		{
-
-		}
-		else
-		{
-			try
-			{
-				collection = CitationService.getCollection(collectionId);
-			}
-			catch(IdUnusedException e)
-			{
-				// must find a different way to get it
-			}
-
-		}
+		CitationCollection collection = getCitationCollection(state, false);
+		
 		if(collection == null)
 		{
 			addAlert(state, rb.getString("alert.access"));
