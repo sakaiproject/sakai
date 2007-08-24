@@ -1329,6 +1329,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public void removeUser(UserEdit user) throws UserPermissionException
 	{
+		String ref = user.getReference();
+		
 		// check for closed edit
 		if (!user.isActiveEdit())
 		{
@@ -1344,13 +1346,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 
 		// check security (throws if not permitted)
-		unlock(SECURE_REMOVE_USER, user.getReference());
+		unlock(SECURE_REMOVE_USER, ref);
 
 		// complete the edit
 		m_storage.remove(user);
 
 		// track it
-		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_USER, user.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_USER, ref, true));
 
 		// close the edit object
 		((BaseUserEdit) user).closeEdit();
@@ -1358,15 +1360,18 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// remove any realm defined for this resource
 		try
 		{
-			authzGroupService().removeAuthzGroup(authzGroupService().getAuthzGroup(user.getReference()));
+			authzGroupService().removeAuthzGroup(authzGroupService().getAuthzGroup(ref));
 		}
 		catch (AuthzPermissionException e)
 		{
-			M_log.warn("removeUser: removing realm for : " + user.getReference() + " : " + e);
+			M_log.warn("removeUser: removing realm for : " + ref + " : " + e);
 		}
 		catch (GroupNotDefinedException ignore)
 		{
 		}
+		
+		// Remove from ThreadLocal cache.
+		threadLocalManager().set(ref, null);
 	}
 
 	/**
