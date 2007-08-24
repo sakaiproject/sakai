@@ -102,6 +102,8 @@
 	<h4>$tlang.getString("dav.setup")</h4>
 	<iframe src="$webdav_instructions"
 		width="100%"
+		name="webdav_instructions_inner"
+		id="webdav_instructions_inner"
 		height="400px"
 		frameborder="0"
 		onload="javascript:setFrameHeight(this);">
