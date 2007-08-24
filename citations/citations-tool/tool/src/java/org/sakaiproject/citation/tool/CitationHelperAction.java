@@ -1049,8 +1049,21 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	}	// buildListPanelContext
 
 	/**
-	 * @param state
-	 * @return
+	 * This method retrieves the CitationCollection for the current session.  
+	 * If the CitationCollection is already in session-state and has not been
+	 * updated in the persistent storage since it was last accessed, the copy 
+	 * in session-state will be returned.  If it has been updated in storage,
+	 * the copy in session-state will be updated and returned. If the 
+	 * CitationCollection has not yet been created in storage and the second 
+	 * parameter is true, this method will create the collection and return it.
+	 * In that case, values will be added to session-state for attributes named 
+	 * STATE_COLLECTION_ID and STATE_COLLECTION. If the CitationCollection has 
+	 * not yet been created in storage and the second parameter is false, the
+	 * method will return null.
+	 * @param state The SessionState object for the current session.
+	 * @param create A flag indicating whether the collection should be created
+	 * 	if it does not already exist.
+	 * @return The CitationCollection for the current session, or null. 
 	 */
 	protected CitationCollection getCitationCollection(SessionState state, boolean create) 
 	{
