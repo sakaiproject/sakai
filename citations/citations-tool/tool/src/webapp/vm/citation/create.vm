@@ -2,7 +2,7 @@
 #set($default = "")
 #if($!DEFAULT_TEMPLATE)#set($default = "$!DEFAULT_TEMPLATE.identifier")#end
 
-<script type="text/javascript" src="#libraryLink('js/jquery-1.1.2.js')">
+<script type="text/javascript" src="#libraryLink('js/jquery.js')">
 </script>
 <script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
 </script>
