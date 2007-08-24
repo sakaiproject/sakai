@@ -527,6 +527,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String TEMPLATE_ERROR = "citation/error";
 	protected static final String TEMPLATE_LIST = "citation/list";
 	protected static final String TEMPLATE_ADD_CITATIONS = "citation/add_citations";
+	protected static final String TEMPLATE_IMPORT_CITATIONS = "citation/import_citations";
 	protected static final String TEMPLATE_MESSAGE = "citation/_message";
 	protected static final String TEMPLATE_SEARCH = "citation/search";
 	protected static final String TEMPLATE_RESULTS = "citation/results";
@@ -700,6 +701,18 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put( "collectionSize", new Integer( collection.size() ) );
     }
 
+	public String buildImportCitationsPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
+	{
+		// always put appropriate bundle in velocity context
+		context.put("tlang", rb);
+
+		// validator
+		context.put("xilator", new Validator());
+
+		return TEMPLATE_IMPORT_CITATIONS;
+
+	}	// buildImportPanelContext
+	
 	/**
      *
      * @param portlet
@@ -1118,6 +1131,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		switch(mode)
 		{
+			case IMPORT_CITATIONS:
+				template = buildImportCitationsPanelContext(portlet, context, rundata, state);
+				break;
 			case ADD_CITATIONS:
 				template = buildAddCitationsPanelContext(portlet, context, rundata, state);
 				break;
