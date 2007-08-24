@@ -2411,8 +2411,6 @@ public class SiteAction extends PagedResourceActionII {
 						.getAttribute(SITE_DUPLICATED_NAME));
 			}
 
-			setTermListForContext(context, state, true); // true-> upcoming only
-
 			return (String) getContext(data).get("template") + TEMPLATE[29];
 		case 36:
 			/*
@@ -7367,8 +7365,14 @@ public class SiteAction extends PagedResourceActionII {
 								String termId = StringUtil.trimToNull(params
 										.getString("selectTerm"));
 								if (termId != null) {
-									site.getPropertiesEdit().addProperty(
-											PROP_SITE_TERM, termId);
+									AcademicSession term = cms.getAcademicSession(termId);
+									if (term != null) {
+										ResourcePropertiesEdit rp = site.getPropertiesEdit();
+										rp.addProperty(PROP_SITE_TERM, term.getTitle());
+										rp.addProperty(PROP_SITE_TERM_EID, term.getEid());
+									} else {
+										M_log.warn("termId=" + termId + " not found");
+									}
 								}
 							}
 							try {
@@ -8990,7 +8994,7 @@ public class SiteAction extends PagedResourceActionII {
 						tool.setTitle(rb.getString("java.reccal"));
 						tool.setLayoutHints("3,1");
 					}
-					
+
 					if (hasMessageCenter) {
 						// Add synoptic Message Center tool
 						tool = page.addTool();
