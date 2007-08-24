@@ -29,7 +29,7 @@
 				#set($prev = $i)
 				#set($i = $i + 1)
 				#set($next = $i + 1)
-				<div id="contentDiv${DOT}$i" class="highlightPanel">
+				<div id="contentDiv${DOT}$i" class="actionitem highlightPanel">
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
 					<p class="shorttext">
 						<label for="content${DOT}$i">$tlang.getString("label.folder")</label>
