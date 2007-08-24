@@ -22,8 +22,11 @@
 
 package org.sakaiproject.user.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import junit.extensions.TestSetup;
@@ -51,6 +54,7 @@ public class UserDirectoryServiceGetTest extends SakaiTestBase {
 	
 	private static Map<String, String> eidToId = new HashMap<String, String>();
 	
+	private static TestProvider userDirectoryProvider;
 	private UserDirectoryService userDirectoryService;
 	
 	/**
@@ -83,7 +87,7 @@ public class UserDirectoryServiceGetTest extends SakaiTestBase {
 	}
 	
 	private static void oneTimeSetupAfter() throws Exception {
-		TestProvider userDirectoryProvider = new TestProvider();
+		userDirectoryProvider = new TestProvider();
 		
 		// This is a workaround until we can make it easier to load sakai.properties
 		// for specific integration tests.
@@ -93,6 +97,8 @@ public class UserDirectoryServiceGetTest extends SakaiTestBase {
 		// Sakai user services very helpfully lowercase input EIDs rather than leaving them alone.
 		addUserWithEid(dbUserService, "localuser");
 		addUserWithEid(dbUserService, "localfromauthn");		
+		addUserWithEid(dbUserService, "localwithproviderauthn");		
+		addUserWithEid(dbUserService, "localwithfailedproviderauthn");		
 	}
 	
 	private static void loginAs(String userId) {
@@ -107,7 +113,22 @@ public class UserDirectoryServiceGetTest extends SakaiTestBase {
 		log.debug("addUser eid=" + eid + ", id=" + user.getId());
 		return user;
 	}
+	private static UserEdit setAsExpected(UserEdit user, boolean isLocal) {
+		String eid = user.getEid();
+		user.setEmail(eid + "@somewhere.edu");
+		user.setFirstName("J. " + eid);
+		user.setLastName("de " + eid);
+		user.setPassword(eid + "pwd");
+		String type = isLocal ? "Guest" : "Student";
+		user.setType(type);
+		String source = isLocal ? "local" : "provided";
+		user.getPropertiesEdit().addProperty(USER_SOURCE_PROPERTY, source);
+		return user;
+	}
 	private static boolean isAsExpected(User user, String eid, boolean isLocal) {
+		if ((eid != null) && (eidToId.get(eid) == null)) {
+			eidToId.put(eid, user.getId());
+		}
 		boolean isMatch = (eid.equals(user.getEid()) &&
 			user.getId().equals(eidToId.get(eid)) &&
 			user.getEmail().equals(eid + "@somewhere.edu") &&
@@ -137,15 +158,66 @@ public class UserDirectoryServiceGetTest extends SakaiTestBase {
 		Assert.assertTrue(users.size() == 1);
 		User user = (User)users.iterator().next();
 		Assert.assertTrue(isAsExpected(user, "localuser", true));
+
+		// We need to be logged in to change a user record, although not to create one.
+		loginAs("admin");
+		UserEdit userEdit = userDirectoryService.editUser(user.getId());
+		userEdit.setEmail("razzle@somewhere.edu");
+		userDirectoryService.commitEdit(userEdit);
+		users = userDirectoryService.findUsersByEmail("razzle@somewhere.edu");
+		Assert.assertTrue(users.size() == 1);
+		user = (User)users.iterator().next();
+		Assert.assertTrue("localuser".equals(user.getEid()));
+		
+		// Return to where we were.
+		userEdit = userDirectoryService.editUser(user.getId());
+		userEdit.setEmail("localuser@somewhere.edu");
+		userDirectoryService.commitEdit(userEdit);
 	}
 	
 	public void testLocalUserByAuthn() throws Exception {
-		User user = userDirectoryService.authenticate("localfromauthn", "localfromauthn" + "pwd");
+		User user = userDirectoryService.authenticate("localfromauthn", "WRONGpwd");
+		Assert.assertTrue(user == null);
+		user = userDirectoryService.authenticate("localfromauthn", "localfromauthn" + "pwd");
 		Assert.assertTrue(isAsExpected(user, "localfromauthn", true));
 	}
 	
+	public void testLocalUserGetEid() throws Exception {
+		String eid = userDirectoryService.getUserEid(eidToId.get("localuser"));
+		Assert.assertTrue("localuser".equals(eid));
+	}
+	
+	public void testLocalUserGetId() throws Exception {
+		String id = userDirectoryService.getUserId("localuser");
+		Assert.assertTrue(eidToId.get("localuser").equals(id));
+	}
+	
+	public void testLocalUserEidEdit() throws Exception {
+		String localuserId = eidToId.get("localuser");
+
+		// Only test EID changing if EIDs are different from IDs.
+		// Currently there's no way for clients to directly find out whether separate IDs and EIDs are
+		// supported, and so we guess at it by looking at what ID was given to an existing record.
+		boolean separateIdEid = !localuserId.equals("localuser");
+		if (separateIdEid) {
+			loginAs("admin");
+			UserEdit userEdit = userDirectoryService.editUser(localuserId);		
+			userEdit.setEid("razzle");
+			userDirectoryService.commitEdit(userEdit);
+			String eid = userDirectoryService.getUserEid(localuserId);
+			Assert.assertTrue("razzle".equals(eid));
+			String id = userDirectoryService.getUserId("razzle");
+			Assert.assertTrue(localuserId.equals(id));
+
+			// Return to where we were.
+			userEdit = userDirectoryService.editUser(localuserId);
+			userEdit.setEid("localuser");
+			userDirectoryService.commitEdit(userEdit);
+		}
+	}
+	
 	public void testLocalUserRemove() throws Exception {
-		// We need to be logged in to create a user record, although not to create one.
+		// We need to be logged in to change a user record, although not to create one.
 		loginAs("admin");
 		UserEdit userEdit = userDirectoryService.editUser(eidToId.get("localuser"));		
 		userDirectoryService.removeUser(userEdit);
@@ -162,18 +234,59 @@ public class UserDirectoryServiceGetTest extends SakaiTestBase {
 			Assert.fail();
 		} catch (UserNotDefinedException e) {
 		}
+		addUserWithEid(userDirectoryService, "localuser");
+	}
+	
+	public void testProvidedUsers() throws Exception {
+		User user = userDirectoryService.getUserByEid("provideduser");
+		Assert.assertTrue(isAsExpected(user, "provideduser", false));
+		String userId = userDirectoryService.getUserId("providedthroughid");
+		user = userDirectoryService.getUser(userId);
+		Assert.assertTrue(isAsExpected(user, "providedthroughid", false));
+		Collection users = userDirectoryService.findUsersByEmail("provideduser@somewhere.edu");
+		Assert.assertTrue(users.size() == 1);
+		user = (User)users.iterator().next();
+		Assert.assertTrue(isAsExpected(user, "provideduser", false));
+		try {
+			user = userDirectoryService.getUserByEid("nosuchuser");
+			Assert.fail();
+		} catch (UserNotDefinedException e) {
+		}
+	}
+	
+	public void testProvidedAuthentication() throws Exception {
+		User user = userDirectoryService.authenticate("providedfromauthn", "providedfromauthn" + "Ppwd");
+		Assert.assertTrue(isAsExpected(user, "providedfromauthn", false));
+		user = userDirectoryService.authenticate("localwithproviderauthn", "localwithproviderauthn" + "Ppwd");
+		Assert.assertTrue(isAsExpected(user, "localwithproviderauthn", true));
+		user = userDirectoryService.authenticate("localwithfailedproviderauthn", "localwithfailedproviderauthn" + "pwd");
+		Assert.assertTrue(isAsExpected(user, "localwithfailedproviderauthn", true));
+	}
+	
+	public void testGetUsersThroughIds() throws Exception {
+		Collection<String> mappedIds = eidToId.values();
+		log.debug("have " + mappedIds.size() + " mapped IDs");
+		List<String> searchIds = new ArrayList<String>(mappedIds);
+		searchIds.add("NoSuchId");
+		List users = userDirectoryService.getUsers(searchIds);
+		log.debug("Return from getUsers=" + users);
+		Assert.assertTrue(users.size() == (searchIds.size() - 1));
 	}
 	
 	public static class TestProvider implements UserDirectoryProvider {
-
-		public boolean authenticateUser(String eid, UserEdit edit, String password) {
-			// TODO Auto-generated method stub
-			return false;
+		public boolean authenticateUser(String eid, UserEdit userEdit, String password) {
+			if (eid.equals("providedfromauthn")) {
+				setAsExpected(userEdit, false);
+				return true;
+			} else if (eid.equals("localwithproviderauthn")) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 
 		public boolean authenticateWithProviderFirst(String eid) {
-			// TODO Auto-generated method stub
-			return false;
+			return !eid.equals("localfromauthn");
 		}
 
 		public boolean createUserRecord(String eid) {
@@ -184,23 +297,45 @@ public class UserDirectoryServiceGetTest extends SakaiTestBase {
 			throw new UnsupportedOperationException("destroyAuthentication is legacy cruft, and should not be called at runtime");
 		}
 
-		public boolean findUserByEmail(UserEdit edit, String email) {
-			// TODO Auto-generated method stub
-			return false;
+		public boolean findUserByEmail(UserEdit userEdit, String email) {
+			log.debug("findUserByEmail email=" + email);
+			String[] parts = email.split("@");
+			String eid = parts[0];
+			if (eid.startsWith("provided")) {
+				userEdit.setEid(eid);
+				setAsExpected(userEdit, false);
+				return true;
+			} else {
+				return false;
+			}
 		}
 
-		public boolean getUser(UserEdit edit) {
-			// TODO Auto-generated method stub
-			return false;
+		public boolean getUser(UserEdit userEdit) {
+			String eid = userEdit.getEid();
+			log.debug("getUser eid=" + eid + ", id=" + userEdit.getId() + ", email=" + userEdit.getEmail());
+			
+			if (eid.startsWith("provided")) {
+				setAsExpected(userEdit, false);
+				return true;
+			} else {
+				return false;
+			}
 		}
 
 		public void getUsers(Collection users) {
-			// TODO Auto-generated method stub
-			
+			for (Iterator iter = users.iterator(); iter.hasNext(); ) {
+				UserEdit userEdit = (UserEdit)iter.next();
+				if (!getUser(userEdit)) {
+					iter.remove();
+				}
+			}
 		}
 
+		/**
+		 * Legacy cruft? No known users.
+		 */
 		public boolean updateUserAfterAuthentication() {
-			throw new UnsupportedOperationException("updateUserAfterAuthentication is legacy cruft, and should not be called at runtime");
+			return false;
 		}
 
 		public boolean userExists(String eid) {
