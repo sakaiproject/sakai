@@ -947,7 +947,10 @@ public class AssignmentAction extends PagedResourceActionII
 			if (s != null)
 			{
 				context.put("submission_id", s.getId());
-				context.put("submit_time", s.getTimeSubmitted().toStringLocalFull());
+				if (s.getTimeSubmitted() != null)
+				{
+					context.put("submit_time", s.getTimeSubmitted().toStringLocalFull());
+				}
 				List attachments = s.getSubmittedAttachments();
 				if (attachments != null && attachments.size()>0)
 				{
