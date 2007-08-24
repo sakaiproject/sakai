@@ -46,27 +46,6 @@
     <property name="messageService" ><ref bean="org.sakaiproject.mailarchive.api.MailArchiveService"/></property>
   </bean>
   
-  <bean id="discussionMessageAdapter" 
-    class="org.sakaiproject.search.component.adapter.message.MessageContentProducer"
-    singleton="true"
-    init-method="init" >
-    <property name="toolName" ><value>discussion</value></property>
-    <property name="addEvents" >
-      <list>
-        <value>disc.new</value>
-        <value>disc.revise.own</value>
-        <value>disc.revise.any</value>
-      </list>
-    </property>
-    <property name="removeEvents" >
-      <list>
-        <value>disc.delete.own</value>
-        <value>disc.delete.any</value>
-      </list>
-    </property>
-    <property name="messageService" ><ref bean="org.sakaiproject.discussion.api.DiscussionService"/></property>
-  </bean>
-
   <bean id="announcementMessageAdapter" 
     class="org.sakaiproject.search.component.adapter.message.MessageContentProducer"
     singleton="true"
