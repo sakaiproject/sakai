@@ -134,7 +134,6 @@
         <module>course-management</module>
         <module>dav</module>
         <module>db</module>
-        <module>discussion</module>
         <module>email</module>
         <module>entity</module>
         <module>event</module>
