@@ -2315,7 +2315,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 			if ((!m_caching) || (m_calendarCache == null) || (m_calendarCache.disabled()))
 			{
-				events = m_storage.getEvents(this);
+				events = m_storage.getEvents(this, range.firstTime().getTime(), range.lastTime().getTime() );
 			}
 
 			else
@@ -4900,6 +4900,11 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		public List getEvents(Calendar calendar);
 
 		/**
+		 * Get the events from a calendar, within this time range
+		 */
+		public List getEvents(Calendar calendar, long l, long m);
+      
+		/**
 		 * Make and lock a new event.
 		 */
 		public CalendarEventEdit putEvent(Calendar calendar, String id);
@@ -5148,11 +5153,38 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 */
 	public Object[] storageFields(Entity r)
 	{
-		Object[] rv = new Object[2];
+		Object[] rv = new Object[4];
 		TimeRange range = ((CalendarEvent) r).getRange();
 		rv[0] = range.firstTime(); // %%% fudge?
 		rv[1] = range.lastTime(); // %%% fudge?
+		
+		// we use hours rather than ms for the range to reduce the index size in the database
+		// I dont what to use days just incase we want sub day range finds
+		long oneHour = 60L*60L*1000L;
+		rv[2] = (int)(range.firstTime().getTime()/oneHour);
+		rv[3] = (int)(range.lastTime().getTime()/oneHour);
 
+		// find the end of the sequence
+		RecurrenceRuleBase rr = (RecurrenceRuleBase)((CalendarEvent) r).getRecurrenceRule();
+		if ( rr != null ) {
+			Time until = rr.getUntil();
+			if ( until != null ) {
+				rv[3] = (int)(until.getTime()/oneHour);
+			} else {
+				int count = rr.getCount();
+				int interval = rr.getInterval();
+				long endevent = range.lastTime().getTime();
+				if ( count == 0 ) {
+					rv[3] = Integer.MAX_VALUE-1; // hours since epoch, this represnts 9 Oct 246953 07:00:00
+ 				} else {
+					String frequency = rr.getFrequencyDescription();
+					GregorianCalendar c = new GregorianCalendar();
+					c.setTimeInMillis(endevent);
+					c.add(rr.getRecurrenceType(), count*interval);
+					rv[3] = (int)(c.getTimeInMillis()/oneHour);
+				}
+			}
+		}
 		return rv;
 	}
 

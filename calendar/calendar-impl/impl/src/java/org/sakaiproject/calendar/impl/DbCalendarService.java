@@ -21,6 +21,8 @@
 
 package org.sakaiproject.calendar.impl;
 
+import java.sql.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -53,7 +55,7 @@ public class DbCalendarService
 	/** If true, we do our locks in the remote database, otherwise we do them here. */
 	protected boolean m_locksInDb = true;
 
-	protected static final String[] FIELDS = { "EVENT_START", "EVENT_END" };
+	protected static final String[] FIELDS = { "EVENT_START", "EVENT_END", "RANGE_START", "RANGE_END" };
 
 	/*******************************************************************************
 	* Constructors, Dependencies and their setter methods
@@ -130,6 +132,9 @@ public class DbCalendarService
 			}
 
 			super.init();
+			
+			SAK11204Fix sf =  new SAK11204Fix(this);
+			sf.apply();
 
 			M_log.info("init(): tables: " + m_cTableName + " " + m_rTableName + " locks-in-db: " + m_locksInDb);
 		}
@@ -210,6 +215,41 @@ public class DbCalendarService
 
 		public List getEvents(Calendar calendar)
 			{ return super.getAllResources(calendar); }
+
+		public List getEvents(Calendar calendar, long startDate, long endDate)
+         { 
+			// we dont have acurate timezone information at this point, so we will make certain that we are at the start of the GMT day
+			long oneHour = 60L*60L*1000L;
+			long oneDay = 24L*oneHour;
+			// get to the start of the GMT day
+			startDate = startDate - (startDate%oneDay);
+			// get to the end of the GMT day
+			endDate = endDate + (oneDay-(endDate%oneDay));  
+			// this will work untill 9 Oct 246953 07:00:00
+			int startDateHours = (int)(startDate/oneHour);
+			int endDateHours = (int)(endDate/oneHour);
+			
+			if ( M_log.isErrorEnabled() ) {
+				M_log.debug("Selecting Range from "+(new Date(startDate)).toGMTString()+" to "+(new Date(endDate)).toGMTString());
+			}
+            StringBuffer filter = new StringBuffer("(");
+            filter.append(" (RANGE_START > ");
+            filter.append( startDateHours );
+            filter.append( " and RANGE_START < ");
+            filter.append( endDateHours );
+            filter.append( " ) or ( ");
+            filter.append(" RANGE_END > ");
+            filter.append( startDateHours );
+            filter.append( " and RANGE_END < ");
+            filter.append( endDateHours );
+            filter.append( " ) or ( ");
+            filter.append(" RANGE_START < ");
+            filter.append( startDateHours );
+            filter.append( " and RANGE_END > ");
+            filter.append( endDateHours );
+            filter.append( " )) ");
+            return super.getAllResources(calendar, filter.toString()); 
+         }
 
 		public CalendarEventEdit putEvent(Calendar calendar,String id)
 			{ return (CalendarEventEdit) super.putResource(calendar, id, null); }
