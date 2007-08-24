@@ -14,11 +14,11 @@ function serialize(s)
 	
 	//TODO: replace regexp stuff with a new hidden id item
 	var pageOrder = serial.hash;
-	pageOrder = pageOrder.replace(/:&sort1\[\]=content:::page-row::/g, ' ');
-	pageOrder = pageOrder.replace('sort1[]=content:::page-row::', '');
+	pageOrder = pageOrder.replace(/:&sort1\[\]=content::page-row:/g, ' ');
+	pageOrder = pageOrder.replace('sort1[]=content::page-row:', '');
 	pageOrder = pageOrder.substring(0, pageOrder.length - 1);
 
-	document.getElementById('content:::state-init').value = pageOrder;
+	document.getElementById('content::state-init').value = pageOrder;
 }
 
 function doRemovePage(clickedLink) {
@@ -84,7 +84,7 @@ function doEditPage(clickedLink) {
 	$("#call-results").load(clickedLink, function() {
 		var status = $("#call-results").find("#value").text();
 		if (status == "pass") {
-	    	var target = document.getElementById('content:::page-row::' + $("#call-results").find("#pageId").text() + ':');
+	    	var target = document.getElementById('content::page-row:' + $("#call-results").find("#pageId").text() + ':');
 			$("#call-results").fadeIn('500');
 					
 		}
@@ -219,7 +219,7 @@ function addTool(draggable, manual) {
 	li = $(draggable);
 	$("#call-results").load(url, function() {
 		$(li).DraggableDestroy();
-		$(li).id("content:::" + $("#call-results").find("li").id());
+		$(li).id("content::" + $("#call-results").find("li").id());
 		$(li).html($("#call-results").find("li").html());
 		$(this).find("li").remove();
 		makeSortable($(li).parent());

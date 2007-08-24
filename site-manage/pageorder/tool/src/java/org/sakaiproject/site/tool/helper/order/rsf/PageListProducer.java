@@ -21,6 +21,7 @@ import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIInternalLink;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
@@ -73,7 +74,7 @@ public class PageListProducer
                 UIBranchContainer pagerow = 
                     UIBranchContainer.make(pageForm, "page-row:", page.getId());
     
-                pagerow.decorators = new DecoratorList(new UITooltipDecorator(messageLocator
+                pagerow.decorate(new UITooltipDecorator(messageLocator
                         .getMessage("page_click_n_drag")));
                 
                 UIOutput.make(pagerow, "page-name", page.getTitle());
@@ -82,15 +83,15 @@ public class PageListProducer
                 UIOutput nameLabel = 
                     UIOutput.make(pagerow, "page-name-label", messageLocator.getMessage("title"));
                 
-                nameLabel.decorators = new DecoratorList(new UILabelTargetDecorator(name));
+                nameLabel.decorate(new UILabelTargetDecorator(name));
                 
                 PageEditViewParameters param = new PageEditViewParameters();
                                 
                 param.pageId = page.getId();
 
                 param.viewID = PageEditProducer.VIEW_ID;
-                UIInternalLink.make(pagerow, "edit-link", param).decorators =
-                    new DecoratorList(new UITooltipDecorator(messageLocator
+                UIInternalLink.make(pagerow, "edit-link", param)
+                  .decorate(new UITooltipDecorator(messageLocator
                             .getMessage("page_edit"))); 
 
                 if (page.getTools().size() == 1) {
@@ -102,9 +103,8 @@ public class PageListProducer
                             && !"sakai.siteinfo".equals(tool.getToolId())) {
 
                         param.viewID = PageDelProducer.VIEW_ID;
-                        UIInternalLink.make(pagerow, "del-link", param).decorators =
-                            new DecoratorList(new UITooltipDecorator(messageLocator
-                                .getMessage("page_remove")));
+                        UIInternalLink.make(pagerow, "del-link", param).decorate(
+                            new UITooltipDecorator(UIMessage.make("page_remove")));
                     }
                   
                     //allow special configuration for the iframe tool. This needs to be generalized
@@ -117,31 +117,32 @@ public class PageListProducer
  
                         UIOutput configLabel = UIOutput.make(pagerow, "page-config-label", messageLocator
                                 .getMessage("url"));
-                        configLabel.decorators = new DecoratorList(new UILabelTargetDecorator(config));
+                        configLabel.decorate(new UILabelTargetDecorator(config));
                     }
                 }
 
+                UIOutput.make(pagerow, "edit-link").decorate(
+                    new UITooltipDecorator(UIMessage.make("page_edit")));
                 if (handler.allowsHide(page)) {
                     param.viewID = PageEditProducer.VIEW_ID;
                     if (handler.isVisible(page)) {
                         param.visible = "false";
-                        UIInternalLink.make(pagerow, "hide-link", param).decorators =
-                            new DecoratorList(new UITooltipDecorator(messageLocator
-                                .getMessage("page_hide")));
+                        UIInternalLink.make(pagerow, "hide-link", param).decorate(
+                            new UITooltipDecorator(UIMessage.make("page_hide")));
                         param.visible = "true";
-                        UIInternalLink.make(pagerow, "show-link-off", param).decorators =
-                            new DecoratorList(new UITooltipDecorator(messageLocator
+                        UIInternalLink.make(pagerow, "show-link-off", param).decorate
+                          (new UITooltipDecorator(messageLocator
                                 .getMessage("page_show")));
                     }
                     else {
                         param.visible = "true";
-                        UIInternalLink.make(pagerow, "show-link", param).decorators =
-                            new DecoratorList(new UITooltipDecorator(messageLocator
+                        UIInternalLink.make(pagerow, "show-link", param).
+                          decorate(new UITooltipDecorator(messageLocator
                                 .getMessage("page_show")));
                      
                         param.visible = "false";
-                        UIInternalLink.make(pagerow, "hide-link-off", param).decorators =
-                            new DecoratorList(new UITooltipDecorator(messageLocator
+                        UIInternalLink.make(pagerow, "hide-link-off", param).
+                          decorate(new UITooltipDecorator(messageLocator
                                 .getMessage("page_hide")));
                     }
                 }
@@ -155,25 +156,23 @@ public class PageListProducer
             UIInternalLink.make(content, "add-link", addParam).decorators =
                 new DecoratorList(new UITooltipDecorator(messageLocator
                         .getMessage("page_show_add")));
-            
-            UIOutput.make(content, "add-page", messageLocator.getMessage("show_add"));
-            
-            UIOutput.make(pageForm, "del-message", messageLocator.getMessage("del_message"));
-            UIOutput.make(pageForm, "exit-message", messageLocator.getMessage("exit_message"));
-            UIOutput.make(pageForm, "reset-message", messageLocator.getMessage("confirm_reset_message"));
-        
+            UIMessage.make(content, "add-page", "show_add");
+            UIMessage.make(pageForm, "del-message", "del_message");
+            UIMessage.make(pageForm, "exit-message", "exit_message");
+            UIMessage.make(pageForm, "reset-message", "confirm_reset_message");
+
             UIInput.make(pageForm, "state-init", "#{SitePageEditHandler.state}", state);
-            UICommand.make(pageForm, "save", "#{SitePageEditHandler.savePages}").decorators = 
-                new DecoratorList(new UITooltipDecorator(messageLocator
+            UICommand.make(pageForm, "save", "#{SitePageEditHandler.savePages}")
+              .decorate(new UITooltipDecorator(messageLocator
                         .getMessage("save_message")));
 
-            UICommand.make(pageForm, "revert", "#{SitePageEditHandler.cancel}").decorators = 
-                new DecoratorList(new UITooltipDecorator(messageLocator
+            UICommand.make(pageForm, "revert", "#{SitePageEditHandler.cancel}")
+              .decorate(new UITooltipDecorator(messageLocator
                         .getMessage("cancel_message")));
 
             if (handler.isSiteOrdered()) {
-                UICommand.make(pageForm, "reset", "#{SitePageEditHandler.reset}").decorators = 
-                    new DecoratorList(new UITooltipDecorator(messageLocator
+                UICommand.make(pageForm, "reset", "#{SitePageEditHandler.reset}")
+                .decorate(new UITooltipDecorator(messageLocator
                             .getMessage("reset_message")));
             }
  
