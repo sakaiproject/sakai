@@ -106,11 +106,10 @@ languages, as follows:
     Local ID: es_CL
     
 17) Russian
-    Status: ??
-    Translated by: n/a
-    Contact: Alexander Glebovsky (glebovsky@rambler.ru) 1/06
-             Philip Fedchin (philip@smolny.org) 4/07
-             Sergey Belyakov (s.belyakov@gmail.com) 6/07
+    Status: 2.5 partial release
+    Translated by: Alexander Glebovsky (glebovsky@rambler.ru)
+    Contact: Anna Korsun (akorsun@smolny.org)
+             Philip Fedchin (philip@smolny.org) 
     Local ID: ru_RU
 
 18) German
