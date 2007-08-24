@@ -1753,6 +1753,101 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	/**
 	*
 	*/
+	public void doImportPage ( RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		setMode(state, Mode.IMPORT_CITATIONS);
+
+	}	// doImportPage
+	
+	
+	public void doImport ( RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		ParameterParser params = data.getParameters();
+		
+		logger.debug( "doImport called.");
+
+		Iterator iter = params.getNames();
+
+		while (iter.hasNext())
+		{
+			logger.debug( "param = " + iter.next());			
+		}
+		
+		String upload = params.get("risupload");
+		logger.debug( "Upload String = " + upload);
+
+		
+		FileItem risImport = params.getFileItem("risupload");
+		
+		
+		if (risImport == null)
+			logger.debug( "risImport is null.");
+
+	    logger.debug("Filename = " + risImport.getFileName());
+	    
+
+		InputStream risImportStream = risImport.getInputStream();
+		
+		InputStreamReader isr = new InputStreamReader(risImportStream);
+		
+		char[] chars = new char[500];
+		int charRead = 0;
+		
+		try
+		{
+		  charRead = isr.read(chars);
+		}
+		catch(Exception e)
+		{
+			logger.debug("ISR error = " + e);
+		}
+		
+		for (int i=0; i<charRead; i++)
+		{
+			logger.debug("char[" + i + "] = " + chars[i]);
+		}
+		
+		String fileString = new String(chars);
+		logger.debug("fileString = " + fileString);
+		
+/*		
+		int charint = -1;
+		
+		try
+		{
+		  while ((charint = risImportStream.read()) != -1)
+		  {
+		    logger.debug( "Read in integer: " + charint);
+			
+		  }
+		}
+		catch(Exception e)
+		{
+			logger.debug( "Error in reading file: " + e);
+		}
+
+		byte[] bytes = risImport.get();
+		
+		logger.debug("Bytes length = " + bytes.length);
+		
+		for(int i=0; i<bytes.length; i++)
+		{
+			logger.debug("byte[" + i + "] = " + bytes[i]);
+		}
+*/
+		
+		setMode(state, Mode.IMPORT_CITATIONS);
+	} // end doImport()
+	
+	/**
+	*
+	*/
 	public void doCreate ( RunData data)
 	{
 		// get the state object
