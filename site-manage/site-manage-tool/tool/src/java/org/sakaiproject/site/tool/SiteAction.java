@@ -4532,6 +4532,7 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void readCourseSectionInfo(SessionState state,
 			ParameterParser params) {
+		String option = params.getString("option");
 		int oldNumber = 1;
 		if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
 			oldNumber = ((Integer) state
@@ -4560,16 +4561,18 @@ public class SiteAction extends PagedResourceActionII {
 					// is this an empty String input?
 					emptyInputNum++;
 				}
-				// add to the multiCourseInput vector
 			}
-			multiCourseInputs.add(i, aCourseInputs);
 
 			// is any input invalid?
 			if (emptyInputNum == 0) {
 				// valid if all the inputs are not empty
-				validInputSites++;
+				multiCourseInputs.add(validInputSites++, aCourseInputs);
 			} else if (emptyInputNum == requiredFields.size()) {
 				// ignore if all inputs are empty
+				if (option.equalsIgnoreCase("change"))
+				{
+					multiCourseInputs.add(validInputSites++, aCourseInputs);
+				}
 			} else {
 				if (state.getAttribute(STATE_FUTURE_TERM_SELECTED) != null
 						&& ((Boolean) state
@@ -4577,20 +4580,18 @@ public class SiteAction extends PagedResourceActionII {
 								.booleanValue()) {
 					// if future term selected, then not all fields are required
 					// %%%
-					validInputSites++;
 				} else {
 					validInput = false;
 				}
+				multiCourseInputs.add(validInputSites++, aCourseInputs);
 			}
 		}
 
 		// how many more course/section to include in the site?
-		String option = params.getString("option");
 		if (option.equalsIgnoreCase("change")) {
 			if (params.getString("number") != null) {
 				int newNumber = Integer.parseInt(params.getString("number"));
-				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(
-						oldNumber + newNumber));
+				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(oldNumber + newNumber));
 
 				List requiredFields = sectionFieldProvider.getRequiredFields();
 				for (int j = 0; j < newNumber; j++) {
@@ -4611,11 +4612,9 @@ public class SiteAction extends PagedResourceActionII {
 			if (!validInput || validInputSites == 0) {
 				// not valid input
 				addAlert(state, rb.getString("java.miss"));
-			} else {
-				// valid input, adjust the add course number
-				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(
-						validInputSites));
-			}
+			} 
+			// valid input, adjust the add course number
+			state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(	validInputSites));
 		}
 
 		// set state attributes
