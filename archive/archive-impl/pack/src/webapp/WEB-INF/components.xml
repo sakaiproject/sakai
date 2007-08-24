@@ -22,7 +22,7 @@
 				<value>AssignmentService</value>
 				<value>ContentHostingService</value>
 				<value>CalendarService</value>
-				<value>ChatManager</value>
+				<value>ChatEntityProducer</value>
 				<value>DiscussionService</value>
 				<value>MailArchiveService</value>
 				<value>SyllabusService</value>
