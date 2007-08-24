@@ -6622,6 +6622,9 @@ public class SiteAction extends PagedResourceActionII {
 					// post event about the participant update
 					EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
 					AuthzGroupService.save(realmEdit);
+					
+					// then update all related group realms for the role
+					doUpdate_related_group_participants(s, realmId);
 				}
 			} catch (GroupNotDefinedException e) {
 				addAlert(state, rb.getString("java.problem2"));
@@ -6635,6 +6638,55 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 	} // doUpdate_participant
+
+	/**
+	 * update realted group realm setting according to parent site realm changes
+	 * @param s
+	 * @param realmId
+	 */
+	private void doUpdate_related_group_participants(Site s, String realmId) {
+		Collection groups = s.getGroups();
+		if (groups != null)
+		{
+			for (Iterator iGroups = groups.iterator(); iGroups.hasNext();)
+			{
+				Group g = (Group) iGroups.next();
+				try
+				{
+					Set gMembers = g.getMembers();
+					for (Iterator iGMembers = gMembers.iterator(); iGMembers.hasNext();)
+					{
+						Member gMember = (Member) iGMembers.next();
+						String gMemberId = gMember.getUserId();
+						Member siteMember = s.getMember(gMemberId);
+						if ( siteMember  == null)
+						{
+							// user has been removed from the site
+							g.removeMember(gMemberId);
+						}
+						else
+						{
+							// if there is a difference between the role setting, remove the entry from group and add it back with correct role, all are marked "not provided"
+							if (!g.getUserRole(gMemberId).equals(siteMember.getRole()))
+							{
+								g.removeMember(gMemberId);
+								g.addMember(gMemberId, siteMember.getRole().getId(), siteMember.isActive(), false);
+							}
+						}
+					}
+					// commit
+					// post event about the participant update
+					EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, g.getId(),false));
+					SiteService.save(s);
+				}
+				catch (Exception ee)
+				{
+					M_log.warn(this + ee.getMessage() + g.getId());
+				}
+				
+			}
+		}
+	}
 
 	/**
 	 * doUpdate_site_access
