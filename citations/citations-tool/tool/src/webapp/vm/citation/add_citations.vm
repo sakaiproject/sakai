@@ -92,6 +92,19 @@ doubleDeep = true;
 			    </td>
 			    <td>$tlang.getString("description.create")</td>
 			  </tr>
+<!-- Markup for Import/RIS
+-->
+			  <tr valign="middle">
+			    <td align="center">
+			      <div class="act">
+				    <input type="button" name="ImportCitation" id="ImportCitation"
+				      value="Import Citations"
+				      onclick="document.getElementById('sakai_action').value='doImportPage';submitform('$FORM_NAME');"
+				    />
+			      </div>
+			    </td>
+			    <td>Import citations in RIS format from EndNote, RefWorks or other citation management tools.</td>
+			  </tr>
 			</table>
 			<hr />
 			<div class="act">
