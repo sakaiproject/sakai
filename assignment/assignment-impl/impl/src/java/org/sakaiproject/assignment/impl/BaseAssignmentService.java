@@ -7706,6 +7706,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		/**
+		 * @inheritDoc
+		 */
+		public String getTimeSubmittedString()
+		{
+			if ( m_timeSubmitted == null )
+				return "";
+			else
+				return m_timeSubmitted.toStringLocalFull();
+		}
+
+		/**
 		 * Get whether the grade has been released.
 		 * 
 		 * @return True if the Submissions's grade has been released, false otherwise.

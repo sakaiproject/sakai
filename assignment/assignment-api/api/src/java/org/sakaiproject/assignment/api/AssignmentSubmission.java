@@ -90,6 +90,13 @@ public interface AssignmentSubmission extends Entity
 	public Time getTimeSubmitted();
 
 	/**
+	 * Set the time at which this response was submitted; "" signifies the response is unsubmitted.
+	 * 
+	 * @return Time of submission (String)
+	 */
+	public String getTimeSubmittedString();
+
+	/**
 	 * Text submitted in response to the Assignment.
 	 * 
 	 * @return The text of the submission.
