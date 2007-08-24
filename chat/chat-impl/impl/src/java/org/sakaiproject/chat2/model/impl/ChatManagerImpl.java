@@ -1045,10 +1045,6 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
          return false;
       }
    }
-   
-   public String serviceName() {
-      return ChatManager.class.getName();
-   }
 
    public ChatChannel getDefaultChannelSettings() {
       return defaultChannelSettings;

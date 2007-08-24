@@ -206,8 +206,6 @@ public interface ChatManager extends EntitySummary {
     */
    public Date calculateDateByOffset(int offset);
    
-   public String serviceName();
-   
    public String getLabel();
    
    /**

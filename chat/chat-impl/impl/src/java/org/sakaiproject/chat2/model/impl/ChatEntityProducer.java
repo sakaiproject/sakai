@@ -122,6 +122,14 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       return toolIds;
    }
    
+   /**
+    * Get the service name for this class
+    * @return
+    */
+   protected String serviceName() {
+      return ChatEntityProducer.class.getName();
+   }
+   
    public ChatMessage getMessage(Reference reference) throws IdUnusedException, PermissionException {
       return getChatManager().getMessage(reference.getId());
       //return null;
@@ -144,7 +152,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       try 
       {
          // start with an element with our very own (service) name         
-         Element element = doc.createElement(getChatManager().serviceName());
+         Element element = doc.createElement(serviceName());
          element.setAttribute(VERSION_ATTR, ARCHIVE_VERSION);
          ((Element) stack.peek()).appendChild(element);
          stack.push(element);
@@ -180,7 +188,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       }
       catch (Exception any)
       {
-         logger.warn("archive: exception archiving service: " + getChatManager().serviceName());
+         logger.warn("archive: exception archiving service: " + serviceName());
       }
 
       stack.pop();
@@ -223,7 +231,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       }
       catch (Exception e)
       {
-         logger.warn("archive: exception archiving synoptic options for service: " + getChatManager().serviceName());
+         logger.warn("archive: exception archiving synoptic options for service: " + serviceName());
       }
    }
 
@@ -700,7 +708,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
 
       catch (Exception any)
       {
-         logger.warn(".transferCopyEntities(): exception in handling " + getChatManager().serviceName() + " : ", any);
+         logger.warn(".transferCopyEntities(): exception in handling " + serviceName() + " : ", any);
       }
    }
    
@@ -742,7 +750,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       }
       catch (PermissionException pe)
       {
-         logger.warn("PermissionException transferring synoptic options for " + getChatManager().serviceName() + ':', pe);
+         logger.warn("PermissionException transferring synoptic options for " + serviceName() + ':', pe);
       }
       catch (IdUnusedException e)
       {
@@ -750,7 +758,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       }
       catch (Exception e)
       {
-         logger.warn("transferSynopticOptions(): exception in handling " + getChatManager().serviceName() + " : ", e);
+         logger.warn("transferSynopticOptions(): exception in handling " + serviceName() + " : ", e);
       }
    }
    

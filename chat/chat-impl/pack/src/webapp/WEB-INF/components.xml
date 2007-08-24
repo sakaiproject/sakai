@@ -80,7 +80,7 @@
     	</property>
    </bean>
 
-    <bean id="org.sakaiproject.entity.api.EntityProducer.chat"
+    <bean id="org.sakaiproject.chat2.model.impl.ChatEntityProducer"
       class="org.sakaiproject.chat2.model.impl.ChatEntityProducer"
       init-method="init"
 		destroy-method="destroy"
