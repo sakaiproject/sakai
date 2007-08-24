@@ -563,6 +563,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			}
 			catch (IOException e)
 			{
+				logger.warn("IOException", e);
 				// Log.warn("chef", this + " : ", e);
 			}
 			return;
