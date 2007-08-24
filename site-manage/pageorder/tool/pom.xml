@@ -18,9 +18,9 @@
   <packaging>war</packaging>
   <properties>
     <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-    <rsfutil.version>0.7.2M4</rsfutil.version>
-    <ponderutilcore.version>1.2.2M4</ponderutilcore.version>
-    <jservletutil.version>1.2.2M4</jservletutil.version>
+    <rsfutil.version>0.7.2RC1</rsfutil.version>
+    <ponderutilcore.version>1.2.2RC1</ponderutilcore.version>
+    <jservletutil.version>1.2.2RC1</jservletutil.version>
   </properties>
 <!--- 
   WARNING: This project is using Milestone builds of RSF
@@ -53,7 +53,7 @@
     </dependency>
     <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
-      <artifactId>SakaiRSF</artifactId>
+      <artifactId>sakairsf</artifactId>
       <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
       <type>jar</type>
     </dependency>
