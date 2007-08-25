@@ -119,7 +119,7 @@ public abstract class BaseCitationService implements CitationService
 
 	static
 	{
-		DATE_AS_KEY.add( CitationCollection.SORT_BY_TITLE );
+		DATE_AS_KEY.add( CitationCollection.SORT_BY_DATE );
 		DATE_AS_KEY.add( CitationCollection.SORT_BY_UUID );
 	};
 
