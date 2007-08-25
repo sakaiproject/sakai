@@ -115,6 +115,14 @@ public abstract class BaseCitationService implements CitationService
 		AUTHOR_AS_KEY.add( CitationCollection.SORT_BY_UUID );
 	};
 
+	protected static final List<String> DATE_AS_KEY = new Vector<String>();
+
+	static
+	{
+		DATE_AS_KEY.add( CitationCollection.SORT_BY_TITLE );
+		DATE_AS_KEY.add( CitationCollection.SORT_BY_UUID );
+	};
+
 	protected static final List<String> TITLE_AS_KEY = new Vector<String>();
 
 	static
@@ -1868,6 +1876,18 @@ public abstract class BaseCitationService implements CitationService
 
 		}
 
+		public class DateComparator extends MultipleKeyComparator
+		{
+			/**
+			 * @param ascending
+			 */
+			public DateComparator(boolean ascending)
+			{
+				super(DATE_AS_KEY, ascending);
+			}
+
+		} // end class DateComparator
+
 		public class BasicIterator implements CitationIterator
 		{
 			protected List listOfKeys;
@@ -2533,7 +2553,16 @@ public abstract class BaseCitationService implements CitationService
 			    	if (sortBy.equalsIgnoreCase(SORT_BY_TITLE))
 			        {
 				      this.m_comparator = new TitleComparator(ascending);
+					  status = "TITLE SET";
 			        }
+			    	else
+			    	{
+			    		if (sortBy.equalsIgnoreCase(SORT_BY_DATE))
+			    		{
+			    			this.m_comparator = new DateComparator(ascending);
+							status = "DATE SET";
+			    		}
+			    	}
 			    }
 			}
 			
