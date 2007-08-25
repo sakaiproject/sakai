@@ -3296,8 +3296,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	        if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_AUTHOR))
 			  collection.setSort(CitationCollection.SORT_BY_AUTHOR, true);
 	        else
-		        if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_DATE))
-					  collection.setSort(CitationCollection.SORT_BY_DATE , true);
+		        if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_YEAR))
+					  collection.setSort(CitationCollection.SORT_BY_YEAR , true);
 	        	
 			
 			Iterator iter = collection.iterator();
@@ -3308,8 +3308,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				
 				logger.debug("doSortAllCitaitons() tempcit 1 -------------");
 				logger.debug("doSortAllCitaitons() tempcit 1 (author) = " + tempCit.getFirstAuthor());
+		        logger.debug("doSortAllCitations() tempcit 1 (year)   = " + tempCit.getYear());
 				
-		        logger.debug("doSortAllCitations() tempcit 1 = " + tempCit.getDisplayName());				
+		        logger.debug("doSortAllCitations() tempcit 1 = " + tempCit.getDisplayName());
 			} // end while
 		} // end else
 		setMode(state, Mode.LIST);
