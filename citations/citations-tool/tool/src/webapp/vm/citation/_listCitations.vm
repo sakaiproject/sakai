@@ -68,9 +68,9 @@ Added for column sort
           Sort by:
           <select name="citationSortAction"
             onchange="doCitationSortAction(this.value)">
-            <option class="selectAction" value="author">Author</option>
-            <option class="selectAction" value="date">Date</option>
+            <option class="selectAction" value="author">First Author</option>
             <option class="selectAction" value="title" SELECTED>Title</option>
+            <option class="selectAction" value="year">Published Year</option>
           </select>
 		  <input type="button" name="savesort" value="Save Sort" />
         </div>
@@ -119,9 +119,9 @@ Added for column sort
           Sort by:
           <select name="citationSortAction"
             onchange="doCitationSortAction(this.value)">
-            <option class="selectAction" value="author">Author</option>
-            <option class="selectAction" value="date">Date</option>
+            <option class="selectAction" value="author">First Author</option>
             <option class="selectAction" value="title" SELECTED>Title</option>
+            <option class="selectAction" value="year">Published Year</option>
           </select>
 		  <input type="button" name="savesort" value="Save Sort" />
         </div>
