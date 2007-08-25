@@ -1855,6 +1855,22 @@ public abstract class BaseCitationService implements CitationService
 	            		}
 	            		rv = m_ascending ? author0.compareTo(author1) : author1.compareTo(author0);
 	            	}
+	            	else if(CitationCollection.SORT_BY_YEAR.equalsIgnoreCase(key))
+	            	{
+	            		String year0 = cit0.getYear();
+	            		String year1 = cit1.getYear();
+
+	            		if (year0 == null)
+	            		{
+	            			year0 = "";
+	            		}
+
+	            		if (year1 == null)
+	            		{
+	            			year1 = "";
+	            		}
+	            		rv = m_ascending ? year0.compareTo(year1) : year1.compareTo(year0);
+	            	}
 	            	else if( CitationCollection.SORT_BY_UUID.equalsIgnoreCase( key ) )
 	            	{
 	            		// not considering m_ascending for ids because they are random alpha-numeric strings
