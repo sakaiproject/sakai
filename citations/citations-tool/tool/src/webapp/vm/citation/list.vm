@@ -48,6 +48,7 @@
 			<input name="sakai_action" id="sakai_action" value="" type="hidden" />
 			<input name="citationId" id="citationId" value="" type="hidden" />
 			<input name="collectionId" id="collectionId" value="$collectionId" type="hidden" />
+			<input name="sort" id="sort" value="" type="hidden" />
 			<input name="$!{specialHelperFlag}" id="$!{specialHelperFlag}" value="$!{citationToolId}" type="hidden" />
 			<input name="pageSelector" id="pageSelector" value="" type="hidden" />
 			
