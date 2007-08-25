@@ -3266,8 +3266,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters();
 
-		// collecitonId holds the srting method (reused HTML hidden variable)
+		// collecitonId holds the string method (reused HTML hidden variable)
 		String collectionId = params.getString("collectionId");
+		
+		String sort = params.getString("sort");
 
 		CitationCollection collection = null;
 
@@ -3276,26 +3278,26 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
 		}
 
-        logger.debug("doSortCitations() sort type  = " + collectionId);
+        logger.debug("doSortAllCitations() sort type  = " + sort);
 
         collection = getCitationCollection(state, false);
 
 		if(collection == null)
 		{
 			// TODO add alert and log error
-	        logger.warn("doSortCitations() collection null: " + collectionId);
+	        logger.warn("doSortAllCitations() collection null: " + collectionId);
 		}
 		else
 		{
 			// sort the citation list
 			
-	        logger.debug("doSortCitations() ready to sort");
+	        logger.debug("doSortAllCitations() ready to sort");
 	        
-	        if (collectionId.equalsIgnoreCase(CitationCollection.SORT_BY_AUTHOR))
+	        if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_AUTHOR))
 			  collection.setSort(CitationCollection.SORT_BY_AUTHOR, true);
 	        else
-		        if (collectionId.equalsIgnoreCase(CitationCollection.SORT_BY_DATE))
-					  collection.setSort(CitationCollection.SORT_BY_DATE, true);
+		        if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_DATE))
+					  collection.setSort(CitationCollection.SORT_BY_DATE , true);
 	        	
 			
 			Iterator iter = collection.iterator();
@@ -3304,10 +3306,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			{
 				Citation tempCit = (Citation) iter.next();
 				
-				logger.debug("doSortCitaitons() tempcit 1 -------------");
-				logger.debug("doSortCitaitons() tempcit 1 (author) = " + tempCit.getFirstAuthor());
+				logger.debug("doSortAllCitaitons() tempcit 1 -------------");
+				logger.debug("doSortAllCitaitons() tempcit 1 (author) = " + tempCit.getFirstAuthor());
 				
-		        logger.debug("doSortCitations() tempcit 1 = " + tempCit.getDisplayName());				
+		        logger.debug("doSortAllCitations() tempcit 1 = " + tempCit.getDisplayName());				
 			} // end while
 		} // end else
 		setMode(state, Mode.LIST);
