@@ -102,6 +102,8 @@ public interface Citation 	// extends Entity
 	 * @throws IdUnusedException 
      */
     public String getCustomUrlLabel(String id) throws IdUnusedException;
+    
+    public String getYear();
 	
 	/**
 	 * Access the brief "title" of the resource, which can be used to display the item in a list of items.
