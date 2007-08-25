@@ -99,7 +99,7 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
     }
     catch (Throwable throwable)
     {
-   		_log.error(throwable.getMessage());
+   		_log.error("AssetIterator() " + throwable);
     	throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.OPERATION_FAILED);
   	}
 	}
@@ -137,7 +137,7 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
     }
     catch (Throwable throwable)
     {
-    	_log.error(throwable.getMessage());
+    	_log.error("initialize() " + throwable);
     	throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.OPERATION_FAILED);
   	}
 
@@ -163,7 +163,7 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
     }
     catch (Throwable throwable)
     {
-    	_log.error(throwable.getMessage());
+    	_log.error("hasNextAsset() " + throwable);
     	throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.OPERATION_FAILED);
   	}
   }
@@ -209,17 +209,17 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
       }
 			catch (SessionTimeoutException sessionTimeoutException)
 			{
-	    	_log.error(sessionTimeoutException.getMessage());
+	    	_log.error("nextAsset() session timeout: " + sessionTimeoutException);
 	    	throw new MetasearchException(MetasearchException.SESSION_TIMED_OUT);
 			}
 			catch (SearchException searchException)
 			{
-	    	_log.error(searchException.getMessage());
+	    	_log.error("nextAsset() search exception: " + searchException);
 	    	throw new MetasearchException(MetasearchException.METASEARCH_ERROR);
 			}
 			catch (Throwable throwable)
 			{
-	    	_log.error(throwable.getMessage());
+	    	_log.error("nextAsset() general: ", throwable);
 				throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
 			}
 		}

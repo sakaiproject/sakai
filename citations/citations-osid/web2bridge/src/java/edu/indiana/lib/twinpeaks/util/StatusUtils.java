@@ -78,7 +78,6 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StatusUtils
 	{
 		HashMap statusMap = (HashMap) sessionContext.get("searchStatus");
 
-		_log.debug("Map for target " + target + " is " + statusMap.get(target));
 		return (statusMap == null) ? null : (HashMap) statusMap.get(target);
 	}
 
@@ -173,6 +172,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StatusUtils
 		{
 			throw new SearchException("No status map for target database " + target);
 		}
+  	_log.debug("Map for target " + target + ": " + targetMap);
 		/*
 		 * Update total hits from this search source
 		 */
