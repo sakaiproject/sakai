@@ -526,7 +526,7 @@ function sortAllCitations( formname, sortby )
 {
   document.getElementById('sakai_action').value='doSortAllCitations';
 // use hidden form element citationId to hold sort type
-  document.getElementById('citationId').value = sortby;
+  document.getElementById('sort').value = sortby;
   submitform( formname );
 }
 
