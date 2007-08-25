@@ -176,15 +176,13 @@ function doCitationAction( action ) {
 
 function doCitationSortAction( action ) 
 {
+// for debugging
   // do action
-  if( action == "sortByTitleSelected" ) 
-  {
-      sortAllCitations( "$FORM_NAME", "byTitle" );
-  } 
-  else 
-  {
-      alert( "$tlang.getString( "select.warn.list" )" );
-  }
+      sortAllCitations( "$FORM_NAME", action );
+//  else 
+//  {
+//      alert( "$tlang.getString( "select.warn.list" )" );
+//  }
   
   // reset select boxes
   $( ".citationActionSelect" ).each( function() {
