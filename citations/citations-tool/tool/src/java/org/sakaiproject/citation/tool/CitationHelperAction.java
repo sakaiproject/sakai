@@ -3275,7 +3275,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
 		}
-		
+
+        logger.debug("doSortCitations() sort type  = " + collectionId);
+
         collection = getCitationCollection(state, false);
 
 		if(collection == null)
