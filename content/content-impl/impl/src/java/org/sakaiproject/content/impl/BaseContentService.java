@@ -2542,7 +2542,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		
 		for(ContentEntity entity : (List<ContentEntity>) entities)
 		{
-			if(entity instanceof ContentResource)
+			if(entity == null)
+			{
+				// do nothing
+			}
+			else if(entity instanceof ContentResource)
 			{
 				ThreadLocalManager.set("findResource@" + entity.getId(), entity);
 			}
