@@ -427,6 +427,11 @@
         <managed-bean-class>org.sakaiproject.tool.messageforums.ui.MessageForumSynopticBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
         <managed-property>
+        	<description>Forums Forum Manager</description>
+        	<property-name>forumsManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsForumManager"]}</value>
+        </managed-property>
+        <managed-property>
         	<description>Message Manager</description>
         	<property-name>messageManager</property-name>
         	<value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"]}</value>

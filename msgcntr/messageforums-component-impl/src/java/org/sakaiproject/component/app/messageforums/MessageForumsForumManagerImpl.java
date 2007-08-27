@@ -81,6 +81,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     private static final String QUERY_FOR_PRIVATE_TOPICS = "findPrivateTopicsByForumId";
 
+    private static final String QUERY_RECEIVED_UUID_BY_CONTEXT_ID = "findReceivedUuidByContextId";
+    
     private static final String QUERY_BY_FORUM_OWNER = "findPrivateForumByOwner";
     
     private static final String QUERY_BY_FORUM_OWNER_AREA = "findPrivateForumByOwnerArea";
@@ -308,6 +310,24 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     return Util.setToList(resultSet);    
   }
     
+  public List getReceivedUuidByContextId(final List siteList) {
+      if (siteList == null) {
+          throw new IllegalArgumentException("Null Argument");
+      }      
+
+     HibernateCallback hcb = new HibernateCallback() {
+          public Object doInHibernate(Session session) throws HibernateException, SQLException {
+              Query q = session.getNamedQuery(QUERY_RECEIVED_UUID_BY_CONTEXT_ID);
+              q.setParameterList("siteList", siteList);
+              q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+              return q.list();
+          }
+      };
+
+      return (List) getHibernateTemplate().execute(hcb);
+	  
+  }
+
     public Topic getTopicByIdWithMessagesAndAttachments(final Long topicId) {
 
       if (topicId == null) {

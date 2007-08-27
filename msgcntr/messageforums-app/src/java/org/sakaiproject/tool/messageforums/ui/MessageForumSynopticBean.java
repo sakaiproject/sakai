@@ -177,6 +177,7 @@ public class MessageForumSynopticBean {
 	private transient List multiMembershipSites = null;
 	private transient List compiledDFMessageCounts = null;
 	private transient Map currentUserMembershipsBySite = null;
+	private transient Map receivedFolderUuidByContextId = null;
 	
 	/** Used to get contextId when tool on MyWorkspace to set all private messages to Read status */
 	private final String CONTEXTID="contextId";
@@ -1524,6 +1525,34 @@ public class MessageForumSynopticBean {
 	}
 
 	/**
+	 * Returns a map of context id, Received folder uuid pairs 
+	 */
+	private void constructReceivedUuidMap(List receivedUuidsForAllSites) {
+		receivedFolderUuidByContextId = new HashMap();
+		
+		for (Iterator listIter = receivedUuidsForAllSites.iterator(); listIter.hasNext();) {
+			Object [] uuidRow = (Object []) listIter.next();
+			
+			receivedFolderUuidByContextId.put(uuidRow[0], uuidRow[1]);
+		}		
+	}
+
+	/**
+	 * Return Received folder uuid  
+	 */
+	private String getUuidFromMap(String contextId) {
+		if (receivedFolderUuidByContextId == null) {
+			List tempSiteList = new ArrayList();
+			tempSiteList.addAll(filterOutExcludedSites(getSiteList()));
+			List receivedUuidsForAllSites = forumsManager.
+												getReceivedUuidByContextId(tempSiteList);
+			constructReceivedUuidMap(receivedUuidsForAllSites);
+		}
+	
+		return (String) receivedFolderUuidByContextId.get(contextId);
+	}
+	
+	/**
 	 * Construct the Url to bring up the Private Message section
 	 * for the site whose id is passed in
 	 * 
@@ -1542,40 +1571,45 @@ public class MessageForumSynopticBean {
 			Topic receivedTopic = null;
 			String receivedTopicUuid = null;
 		
-			Area area = areaManager.getAreaByContextIdAndTypeId(contextId, typeManager.getPrivateMessageAreaType());
-        
-			if (area != null) {
-				if (isMessagesPageInSite() || area.getEnabled().booleanValue() || pvtMessageManager.isInstructor()){
-					PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
-					pf = pvtMessageManager.initializationHelper(pf, area);
-					List pvtTopics = pf.getTopics();
-					Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
-	      
-					receivedTopic = (Topic) pvtTopics.iterator().next();
-					receivedTopicUuid = receivedTopic.getUuid();
-				} 
+    		if ((receivedTopicUuid = getUuidFromMap(contextId)) == null) {
+    			Area area = areaManager.getAreaByContextIdAndTypeId(contextId, typeManager.getPrivateMessageAreaType());
 
-				ToolConfiguration mcTool = null;
-				String url = null;
+    			if (area != null) {
+    				if (isMessagesPageInSite() || area.getEnabled().booleanValue() || pvtMessageManager.isInstructor()){
+		    			/* TODO: determine if receivedTopicUuid = ""; // is OK? */
+		    			PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
+		    			pf = pvtMessageManager.initializationHelper(pf, area);
+		    			List pvtTopics = pf.getTopics();
+		    			Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
+
+						receivedTopic = (Topic) pvtTopics.iterator().next();
+						receivedTopicUuid = receivedTopic.getUuid();
+						receivedFolderUuidByContextId.put(contextId, receivedTopicUuid);
+		    		}
+				}
+    		}
+
+			ToolConfiguration mcTool = null;
+			String url = null;
 	    
-				try {
-					String toolId = "";
-					final Site site = SiteService.getSite(contextId);
+			try {
+				String toolId = "";
+				final Site site = SiteService.getSite(contextId);
 		    	
-					if (isMessageForumsPageInSite(site)) {
-						toolId = DiscussionForumService.MESSAGE_CENTER_ID;
-					}
-					else if (isMessagesPageInSite(site)) {
-						toolId = DiscussionForumService.MESSAGES_TOOL_ID;
-					}
-					else if (isForumsPageInSite(site)) {
-						toolId = DiscussionForumService.FORUMS_TOOL_ID;
-					}
+				if (isMessageForumsPageInSite(site)) {
+					toolId = DiscussionForumService.MESSAGE_CENTER_ID;
+				}
+				else if (isMessagesPageInSite(site)) {
+					toolId = DiscussionForumService.MESSAGES_TOOL_ID;
+				}
+				else if (isForumsPageInSite(site)) {
+					toolId = DiscussionForumService.FORUMS_TOOL_ID;
+				}
 
-					mcTool = site.getToolForCommonId(toolId);
+				mcTool = site.getToolForCommonId(toolId);
 
-					if (mcTool != null) {
-						pvtTopicMessageUrl = ServerConfigurationService.getPortalUrl() + "/directtool/"
+				if (mcTool != null) {
+					pvtTopicMessageUrl = ServerConfigurationService.getPortalUrl() + "/directtool/"
 		    					+ mcTool.getId() + "/sakai.messageforums.helper.helper/privateMsg/pvtMsg?pvtMsgTopicId=" 
 		    					+ receivedTopicUuid + "&contextId=" + contextId + "&selectedTopic=Received";
 	    			return pvtTopicMessageUrl;
@@ -1585,8 +1619,6 @@ public class MessageForumSynopticBean {
 	    		LOG.error("IdUnusedException attempting to move to Private Messages for a site. Site id used is: " + contextId);
 	    	}
 	    }
-			
-		}
 
 	    return "";
     }
