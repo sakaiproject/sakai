@@ -547,6 +547,7 @@ public class MessageForumSynopticBean {
 		Long currentTopicId = (Long) aCount[1];
 		String currentContextId = (String) aCount[0];
 		String oldContextId;
+		List currentUserMemberships = (List) currentUserMembershipsBySite.get(currentContextId);
 		
 		while (countIter.hasNext())
 		{
@@ -555,7 +556,8 @@ public class MessageForumSynopticBean {
 			// if still in current site, add this count
 			if (currentContextId.equals((String) anotherCount[0]))
 			{
-				if (currentTopicId.longValue() != ((Long) anotherCount[1]))
+				if (currentTopicId.longValue() != ((Long) anotherCount[1]) &&
+						currentUserMemberships.contains((String) anotherCount[2]) )
 				{
 					forumCount += ((Integer) anotherCount[3]).intValue();
 					
