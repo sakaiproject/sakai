@@ -497,18 +497,31 @@ public class ListItem
 		if(this.collection)
 		{
 			ContentCollection collection = (ContentCollection) entity;
+			String shortSizeStr = typeDef.getSizeLabel(entity);
         	int collection_size = collection.getMemberCount();
-        	if(collection_size == 1)
-        	{
-        		setSize(rb.getString("size.item"));
-        	}
-        	else
-        	{
-	        	String[] args = { Integer.toString(collection_size) };
-	        	setSize(rb.getFormattedMessage("size.items", args));
-	        	setSizzle(rb.getFormattedMessage("size.items", args));
-        	}
+			if(shortSizeStr == null)
+			{
+	        	if(collection_size == 1)
+	        	{
+	        		shortSizeStr = rb.getString("size.item");
+	        	}
+	        	else
+	        	{
+		        	String[] args = { Integer.toString(collection_size) };
+		        	shortSizeStr = rb.getFormattedMessage("size.items", args);
+	        	}
+			}
 			setIsEmpty(collection_size < 1);
+			setSize(shortSizeStr);
+			String longSizeStr = typeDef.getLongSizeLabel(entity);
+			if(longSizeStr == null)
+			{
+				setSizzle(shortSizeStr);
+			}
+			else
+			{
+				setSizzle(longSizeStr);
+			}
 			setSortable(contentService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT);
 			if(collection_size > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
 			{
@@ -550,9 +563,9 @@ public class ListItem
 			{
 				this.iconLocation = ContentTypeImageService.getContentTypeImage(this.mimetype);
 			}
-			String size = "";
-			String sizzle = "";
-			if(props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH) != null)
+			String size = typeDef.getSizeLabel(entity);
+			String sizzle = typeDef.getLongSizeLabel(entity);
+			if((size == null || sizzle == null) && props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH) != null)
 			{
 				long size_long = 0;
                 try
@@ -572,31 +585,63 @@ public class ListItem
 				formatter.setMaximumFractionDigits(1);
 				if(size_long > 700000000L)
 				{
-					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)) };
-					size = rb.getFormattedMessage("size.gb", args);
-					String[] argyles = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)), formatter.format(size_long) };
-					sizzle = rb.getFormattedMessage("size.gbytes", argyles);
+					if(size == null)
+					{
+						String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)) };
+						size = rb.getFormattedMessage("size.gb", args);
+					}
+					if(sizzle == null)
+					{
+						String[] argyles = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)), formatter.format(size_long) };
+						sizzle = rb.getFormattedMessage("size.gbytes", argyles);
+					}
 				}
 				else if(size_long > 700000L)
 				{
-					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)) };
-					size = rb.getFormattedMessage("size.mb", args);
-					String[] argyles = { formatter.format(1.0 * size_long / (1024L * 1024L)), formatter.format(size_long) };
-					sizzle = rb.getFormattedMessage("size.mbytes", argyles);
+					if(size == null)
+					{
+						String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)) };
+						size = rb.getFormattedMessage("size.mb", args);
+					}
+					if(sizzle == null)
+					{
+						String[] argyles = { formatter.format(1.0 * size_long / (1024L * 1024L)), formatter.format(size_long) };
+						sizzle = rb.getFormattedMessage("size.mbytes", argyles);
+					}
 				}
 				else if(size_long > 700L)
 				{
-					String[] args = { formatter.format(1.0 * size_long / 1024L) };
-					size = rb.getFormattedMessage("size.kb", args);
-					String[] argyles = { formatter.format(1.0 * size_long / 1024L), formatter.format(size_long) };
-					sizzle = rb.getFormattedMessage("size.kbytes", argyles);
+					if(size == null)
+					{
+						String[] args = { formatter.format(1.0 * size_long / 1024L) };
+						size = rb.getFormattedMessage("size.kb", args);
+					}
+					if(sizzle == null)
+					{
+						String[] argyles = { formatter.format(1.0 * size_long / 1024L), formatter.format(size_long) };
+						sizzle = rb.getFormattedMessage("size.kbytes", argyles);
+					}
 				}
 				else 
 				{
 					String[] args = { formatter.format(size_long) };
-					size = rb.getFormattedMessage("size.bytes", args);
-					sizzle = rb.getFormattedMessage("size.bytes", args);
+					if(size == null)
+					{
+						size = rb.getFormattedMessage("size.bytes", args);
+					}
+					if(sizzle == null)
+					{
+						sizzle = rb.getFormattedMessage("size.bytes", args);
+					}
 				}
+			}
+			if(size == null)
+			{
+				size = "";
+			}
+			if(sizzle == null)
+			{
+				sizzle = "";
 			}
 			setSize(size);
 			setSizzle(sizzle);

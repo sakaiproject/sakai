@@ -41,6 +41,32 @@ import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 public class BasicResourceType implements ResourceType
 {
 	/**
+	 * @author jreng
+	 *
+	 */
+	public interface SizeLabeler 
+	{
+		/**
+		 * Returns null to indicate that the Resources tool should display the byte count 
+		 * or member count for the entity (depending on whether the entity is a 
+		 * ContentResource or ContentCollection). If a different measure of the "size" of 
+		 * the entity is needed, overrid this method to return a short string (no more than 
+		 * 25 characters) describing the "size" of the entity as appropriate.
+		 */
+		public String getSizeLabel(ContentEntity entity);
+
+		/**
+		 * Returns null to indicate that the Resources tool should display the byte count 
+		 * or member count for the entity (depending on whether the entity is a 
+		 * ContentResource or ContentCollection). If a different measure of the "size" of 
+		 * the entity is needed, overrid this method to return a short string (no more than 
+		 * 80 characters) describing the "size" of the entity as appropriate.
+		 */
+		public String getLongSizeLabel(ContentEntity entity);
+
+	}
+
+	/**
 	 * Localizer provides a way for the registrant to take charge of localizing labels 
 	 * without extending BasicResourceType.  In defining types, a registrant can create
 	 * instances of BasicResourceType, implement the Localizer interface with methods
@@ -73,6 +99,7 @@ public class BasicResourceType implements ResourceType
 	protected String iconLocation;
 	
 	protected Localizer localizer = null;
+	protected SizeLabeler sizeLabeler = null;
 	
 	protected boolean hasRightsDialog = true;
 	protected boolean hasPublicDialog = true;
@@ -329,5 +356,49 @@ public class BasicResourceType implements ResourceType
     {
 	    return (this instanceof ExpandableResourceType);
     }
+
+	/**
+	 * Returns null to indicate that the Resources tool should display the byte count 
+	 * or member count for the entity (depending on whether the entity is a 
+	 * ContentResource or ContentCollection). If a different measure of the "size" of 
+	 * the entity is needed, overrid this method to return a short string (no more than 
+	 * 25 characters) describing the "size" of the entity as appropriate.
+	 */
+	public String getSizeLabel(ContentEntity entity) 
+	{
+		String label = null;
+		if(this.sizeLabeler != null)
+		{
+			label = this.sizeLabeler.getSizeLabel(entity);
+		}
+		return label;
+	}
+
+	/**
+	 * Returns null to indicate that the Resources tool should display the byte count 
+	 * or member count for the entity (depending on whether the entity is a 
+	 * ContentResource or ContentCollection). If a different measure of the "size" of 
+	 * the entity is needed, overrid this method to return a short string (no more than 
+	 * 80 characters) describing the "size" of the entity as appropriate.
+	 */
+	public String getLongSizeLabel(ContentEntity entity) 
+	{
+		String label = null;
+		if(this.sizeLabeler != null)
+		{
+			label = this.sizeLabeler.getLongSizeLabel(entity);
+		}
+		return label;
+	}
+
+	/**
+	 * Provide a SizeLabeler object to supply custom implementations of 
+	 * getSizeLabel(ContentEntity) and getLongSizeLabel(ContentEntity). 
+	 * @param labeler
+	 */
+	public void setSizeLabeler(SizeLabeler labeler) 
+	{
+		this.sizeLabeler = labeler;
+	}
 
 }

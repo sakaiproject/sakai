@@ -113,6 +113,34 @@ public interface ResourceType
 	public String getLocalizedHoverText(ContentEntity entity);
 	
 	/**
+	 * Access a short string that describes the "size" of an entity in some appropriate way.  For
+	 * example, the "size" of a folder might be the number of items it contains, the "size" of a text
+	 * document might be the number of bytes it contains, and the "size" of a audio file might be its
+	 * playing time at a normal speed.  If the method returns null, the Resources tool will display 
+	 * the number of bytes if the entity is a ContentResource or the number of members if the entity
+	 * is a ContentCollection.  The string must be short.  If it's longer than about 25 characters, 
+	 * it may be truncated arbitrarily, which may render it meaningless to users.
+	 * @param entity The resource that's being displayed, or null indicating that the entity might  
+	 * not yet exist.
+	 * @return A short string describing the size of an entity, or null. 
+	 */
+	public String getSizeLabel(ContentEntity entity);
+	
+	/**
+	 * Access a short string that describes the "size" of an entity in some appropriate way.  For
+	 * example, the "size" of a folder might be the number of items it contains, the "size" of a text
+	 * document might be the number of bytes it contains, and the "size" of a audio file might be its
+	 * playing time at a normal speed.  If the method returns null, the Resources tool will display 
+	 * the number of bytes if the entity is a ContentResource or the number of members if the entity
+	 * is a ContentCollection.  The string must be short.  If it's longer than about 80 characters, 
+	 * it may be truncated arbitrarily, which may render it meaningless to users.
+	 * @param entity The resource that's being displayed, or null indicating that the entity might  
+	 * not yet exist.
+	 * @return A short string describing the size of an entity, or null. 
+	 */
+	public String getLongSizeLabel(ContentEntity entity);
+
+	/**
 	 * Should the Resources tool support hiding and scheduled release and/or retraction for items of this type?
 	 * @return true if availability is included among the resource properties in the UI, false otherwise.
 	 */

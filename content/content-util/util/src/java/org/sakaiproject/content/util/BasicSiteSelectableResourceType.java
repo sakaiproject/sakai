@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.util;
 
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.SiteSpecificResourceType;
 
 /**

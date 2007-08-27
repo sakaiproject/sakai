@@ -24,6 +24,7 @@ package org.sakaiproject.content.util;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ExpandableResourceType;
 import org.sakaiproject.content.api.ResourceToolAction;
@@ -78,5 +79,29 @@ public abstract class BaseResourceType implements ResourceType
     {
 	    return (this instanceof ExpandableResourceType);
     }	
+
+	/**
+	 * Returns null to indicate that the Resources tool should display the byte count 
+	 * or member count for the entity (depending on whether the entity is a 
+	 * ContentResource or ContentCollection). If a different measure of the "size" of 
+	 * the entity is needed, overrid this method to return a short string (no more than 
+	 * 25 characters) describing the "size" of the entity as appropriate.
+	 */
+	public String getSizeLabel(ContentEntity entity) 
+	{
+		return null;
+	}
+
+	/**
+	 * Returns null to indicate that the Resources tool should display the byte count 
+	 * or member count for the entity (depending on whether the entity is a 
+	 * ContentResource or ContentCollection). If a different measure of the "size" of 
+	 * the entity is needed, overrid this method to return a short string (no more than 
+	 * 80 characters) describing the "size" of the entity as appropriate.
+	 */
+	public String getLongSizeLabel(ContentEntity entity) 
+	{
+		return null;
+	}
 
 }
