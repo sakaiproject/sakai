@@ -2202,6 +2202,9 @@ public abstract class BaseCitationService implements CitationService
 			if (!this.m_citations.keySet().contains(citation.getId()))
 			{
 				this.m_citations.put(citation.getId(), citation);
+			}
+			if(!this.m_order.contains(citation.getId()))
+			{
 				this.m_order.add(citation.getId());
 			}
 		}
@@ -4094,6 +4097,7 @@ public abstract class BaseCitationService implements CitationService
 	    		false );
 
 	    BasicSiteSelectableResourceType typedef = new BasicSiteSelectableResourceType(CitationService.CITATION_LIST_ID);
+	    typedef.setSizeLabeler(new CitationSizeLabeler());
 	    typedef.setLocalizer(new CitationLocalizer());
 	    typedef.addAction(createAction);
 	    typedef.addAction(reviseAction);
@@ -4538,6 +4542,46 @@ public abstract class BaseCitationService implements CitationService
 			return rb.getString("list.title");
 		}
 
+	}
+	
+	public class CitationSizeLabeler implements BasicResourceType.SizeLabeler
+	{
+		
+		public String getLongSizeLabel(ContentEntity entity) 
+		{
+			return getSizeLabel(entity);
+		}
+
+		public String getSizeLabel(ContentEntity entity) 
+		{
+			String label = null;
+			if(entity instanceof ContentResource)
+			{
+				byte[] collectionId = null;
+				ContentResource resource = (ContentResource) entity;
+				try
+				{
+					collectionId = resource.getContent();
+					if(collectionId != null)
+					{
+						CitationCollection collection = getCollection(collectionId.toString());
+						String[] args = new String[]{ Integer.toString(collection.size())};
+						label = rb.getFormattedMessage("citation.count", args);
+					}
+				}
+				catch(Exception e)
+				{
+					String citationCollectionId = "null";
+					if(collectionId != null)
+					{
+						citationCollectionId = collectionId.toString();
+					}
+					M_log.warn("Unable to determine size of CitationCollection for entity: entityId == " + entity.getId() + " citationCollectionId == " + collectionId + " exception == " + e.toString());
+				}
+			}
+			return label;
+		}
+	
 	}
 
 	public class CitationListCopyAction extends BaseServiceLevelAction
