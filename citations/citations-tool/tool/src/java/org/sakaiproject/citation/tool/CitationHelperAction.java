@@ -1043,6 +1043,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		Object[] emptyListArgs = { rb.getString( "label.menu" ) };
 		context.put( "emptyListArgs", emptyListArgs );
+		
+		String sort = (String) state.getAttribute("sort");
+		
+		if (sort == null)
+			sort = CitationCollection.SORT_BY_DEFAULT_ORDER;
+		
+		context.put("sort", sort);
+		state.removeAttribute("sort");
 
 		return TEMPLATE_LIST;
 
@@ -3293,13 +3301,15 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			
 	        logger.debug("doSortAllCitations() ready to sort");
 	        
-	        if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_AUTHOR))
-			  collection.setSort(CitationCollection.SORT_BY_AUTHOR, true);
-	        else
-		        if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_YEAR))
-					  collection.setSort(CitationCollection.SORT_BY_YEAR , true);
-	        	
-			
+	        if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_TITLE))
+				  collection.setSort(CitationCollection.SORT_BY_TITLE, true);
+	        else if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_AUTHOR))
+			       collection.setSort(CitationCollection.SORT_BY_AUTHOR, true);
+	        else if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_YEAR))
+				   collection.setSort(CitationCollection.SORT_BY_YEAR , true);
+	        
+	        state.setAttribute("sort", sort);
+	        
 			Iterator iter = collection.iterator();
 			
 			while (iter.hasNext())
