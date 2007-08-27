@@ -92,6 +92,7 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.javax.Filter;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -2197,6 +2198,7 @@ public abstract class BaseCitationService implements CitationService
 
 		public void add(Citation citation)
 		{
+			//checkForUpdates();
 			if (!this.m_citations.keySet().contains(citation.getId()))
 			{
 				this.m_citations.put(citation.getId(), citation);
@@ -2211,6 +2213,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public void addAll(CitationCollection other)
 		{
+			checkForUpdates();
 			if(this.m_order == null)
 			{
 				this.m_order = new TreeSet<String>();
@@ -2244,11 +2247,13 @@ public abstract class BaseCitationService implements CitationService
 
 		public boolean contains(Citation citation)
 		{
+			checkForUpdates();
 			return this.m_citations.containsKey(citation.getId());
 		}
 
 		protected void copy(BasicCitationCollection other)
 		{
+			checkForUpdates();
 			this.m_ascending = other.m_ascending;
 			/*
 			 * Get new instance of comparator
@@ -2269,6 +2274,7 @@ public abstract class BaseCitationService implements CitationService
 
 		public void exportRis(StringBuffer buffer, List<String>  citationIds) throws IOException
 		{
+			checkForUpdates();
 			// output "header" info to buffer
 
 			// Iterate over citations and output to ostream
@@ -2315,6 +2321,7 @@ public abstract class BaseCitationService implements CitationService
 
 		public Citation getCitation(String citationId) throws IdUnusedException
 		{
+			checkForUpdates();
 			Citation citation = (Citation) m_citations.get(citationId);
 			if (citation == null)
 			{
@@ -2403,6 +2410,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public String getDescription()
 		{
+			checkForUpdates();
 			return m_description;
 		}
 
@@ -2453,6 +2461,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public String getTitle()
 		{
+			checkForUpdates();
 			return m_title;
 		}
 
@@ -2469,6 +2478,7 @@ public abstract class BaseCitationService implements CitationService
 
 		public boolean isEmpty()
 		{
+			checkForUpdates();
 			return this.m_citations.isEmpty();
 		}
 
@@ -2479,6 +2489,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public CitationIterator iterator()
 		{
+			checkForUpdates();
 			return new BasicIterator();
 		}
 
@@ -2515,6 +2526,7 @@ public abstract class BaseCitationService implements CitationService
 		//
 		public boolean remove(Citation item)
 		{
+			checkForUpdates();
 			boolean success = true;
 			this.m_order.remove(item.getId());
 			Object obj = this.m_citations.remove(item.getId());
@@ -2532,6 +2544,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public void saveCitation(Citation citation)
 		{
+			//checkForUpdates();
 			// m_storage.saveCitation(citation);
 			save(citation);
 		}
@@ -2542,6 +2555,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public void setSort(Comparator comparator)
 		{
+			checkForUpdates();
 			this.m_comparator = comparator;
 			SortedSet oldSet = this.m_order;
             this.m_order = new TreeSet<String>(this.m_comparator);
@@ -2555,6 +2569,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public void setSort(String sortBy, boolean ascending)
 		{
+			checkForUpdates();
 			m_ascending = ascending;
 
 			String status = "UNSET";
@@ -2599,6 +2614,7 @@ public abstract class BaseCitationService implements CitationService
 
 		public int size()
 		{
+			checkForUpdates();
 			return m_order.size();
 		}
 
@@ -2670,6 +2686,7 @@ public abstract class BaseCitationService implements CitationService
 					M_log.warn("copy(" + oldCitation.getId() + ") ==> " + newCitation.getId(), e);
 				}
 			}
+			this.m_mostRecentUpdate = TimeService.newTime().getTime();
 
 		}
 
