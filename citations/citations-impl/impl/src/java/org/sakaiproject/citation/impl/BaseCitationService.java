@@ -4564,7 +4564,7 @@ public abstract class BaseCitationService implements CitationService
 					collectionId = resource.getContent();
 					if(collectionId != null)
 					{
-						CitationCollection collection = getCollection(collectionId.toString());
+						CitationCollection collection = getCollection(new String(collectionId));
 						String[] args = new String[]{ Integer.toString(collection.size())};
 						label = rb.getFormattedMessage("citation.count", args);
 					}
