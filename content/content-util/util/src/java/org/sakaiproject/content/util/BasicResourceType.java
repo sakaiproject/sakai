@@ -51,7 +51,7 @@ public class BasicResourceType implements ResourceType
 		 * or member count for the entity (depending on whether the entity is a 
 		 * ContentResource or ContentCollection). If a different measure of the "size" of 
 		 * the entity is needed, overrid this method to return a short string (no more than 
-		 * 25 characters) describing the "size" of the entity as appropriate.
+		 * 18 characters) describing the "size" of the entity as appropriate.
 		 */
 		public String getSizeLabel(ContentEntity entity);
 
@@ -362,7 +362,7 @@ public class BasicResourceType implements ResourceType
 	 * or member count for the entity (depending on whether the entity is a 
 	 * ContentResource or ContentCollection). If a different measure of the "size" of 
 	 * the entity is needed, overrid this method to return a short string (no more than 
-	 * 25 characters) describing the "size" of the entity as appropriate.
+	 * 18 characters) describing the "size" of the entity as appropriate.
 	 */
 	public String getSizeLabel(ContentEntity entity) 
 	{

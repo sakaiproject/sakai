@@ -511,17 +511,24 @@ public class ListItem
 		        	shortSizeStr = rb.getFormattedMessage("size.items", args);
 	        	}
 			}
+			else if(shortSizeStr.length() > ResourceType.MAX_LENGTH_SHORT_SIZE_LABEL)
+			{
+				shortSizeStr = shortSizeStr.substring(0, ResourceType.MAX_LENGTH_SHORT_SIZE_LABEL);
+			}
 			setIsEmpty(collection_size < 1);
 			setSize(shortSizeStr);
 			String longSizeStr = typeDef.getLongSizeLabel(entity);
 			if(longSizeStr == null)
 			{
-				setSizzle(shortSizeStr);
+				longSizeStr = shortSizeStr;
 			}
-			else
+			else if(longSizeStr.length() > ResourceType.MAX_LENGTH_LONG_SIZE_LABEL)
 			{
-				setSizzle(longSizeStr);
+				
+				longSizeStr = longSizeStr.substring(0, ResourceType.MAX_LENGTH_LONG_SIZE_LABEL);
 			}
+			setSizzle(longSizeStr);
+			
 			setSortable(contentService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT);
 			if(collection_size > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
 			{
