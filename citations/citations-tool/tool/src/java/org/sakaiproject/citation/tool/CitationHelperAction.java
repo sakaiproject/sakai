@@ -1816,35 +1816,50 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			logger.debug( "param = " + iter.next());			
 		}
+
+		String ristext = params.get("ristext");
+
+		// We're going to read the RIS file from the submitted form's textarea first. If that's
+		// empty we'll read it from the uploaded file.  We'll crate a BufferedReader in either
+		// circumstance so that the parsing code need not know where the ris text came from.
+		java.io.BufferedReader bread = null;
 		
-		String upload = params.get("risupload");
-		logger.debug( "Upload String = " + upload);
+		if (ristext.trim().length() > 0) // form has text in the risimport textarea
+		{
+			java.io.StringReader risStringReader = new java.io.StringReader(ristext);
+			bread = new java.io.BufferedReader(risStringReader);
+		} // end RIS text is in the textarea
+		else // textarea empty, set the read of the import from the file
+		{
+		  String upload = params.get("risupload");
+		  logger.debug( "Upload String = " + upload);
 
 		
-		FileItem risImport = params.getFileItem("risupload");
+		  FileItem risImport = params.getFileItem("risupload");
 		
 		
-		if (risImport == null)
+		  if (risImport == null)
 			logger.debug( "risImport is null.");
 
-	    logger.debug("Filename = " + risImport.getFileName());
+	      logger.debug("Filename = " + risImport.getFileName());
 	    
 
-		InputStream risImportStream = risImport.getInputStream();
+	      InputStream risImportStream = risImport.getInputStream();
+		  InputStreamReader isr = new InputStreamReader(risImportStream);
+		  bread = new java.io.BufferedReader(isr);
+		} // end set the read of the import from the uploaded file.
 		
-		InputStreamReader isr = new InputStreamReader(risImportStream);
-		
-		java.io.BufferedReader bread = new java.io.BufferedReader(isr);
-		
-		
-		// This is all a work in progress.  I am using a giant buffer to faciliate working on other
-		// pieces.  Before completed, I will construct the final filebuffer using reasonble smaller buffers.
-		
+		// The blow code is a major work in progress.  
 		// This code is for demonstration purposes only. No gambling or production use!
 		
 		String fileString = new String();		
 		String importLine = null;
-		
+		java.util.ArrayList importList = new java.util.ArrayList();
+
+		CitationCollection importCollection = CitationService.getTemporaryCollection();
+		Citation importCitation = null;
+		importCitation = CitationService.getTemporaryCitation();
+
 		boolean reading = true;
 
 		while (reading)
@@ -1860,11 +1875,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				reading = false;
 			}
 			
+			importList.add(importLine);
 			fileString = fileString + "\n" + importLine;
 			
 		} // end while
 
-		logger.debug("fileString = \n" + fileString);
+		logger.debug("fileString = \n" + fileString);		
+		
+		
+		
+
 /*
 		
 		String lineBuffer = new String();
