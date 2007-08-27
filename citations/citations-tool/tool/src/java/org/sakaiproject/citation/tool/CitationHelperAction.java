@@ -1834,7 +1834,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		
 		InputStreamReader isr = new InputStreamReader(risImportStream);
 		
-		char[] chars = new char[500];
+		
+		// This is all a work in progress.  I am using a giant buffer to faciliate working on other
+		// pieces.  Before completed, I will construct the final filebuffer using reasonble smaller buffers.
+		
+		// This code is for demonstration purposes only. No gambling or production use!
+		
+		char[] chars = new char[10000];
 		int charRead = 0;
 		
 		try
@@ -1846,13 +1852,63 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			logger.debug("ISR error = " + e);
 		}
 		
-		for (int i=0; i<charRead; i++)
+/*		for (int i=0; i<charRead; i++)
 		{
 			logger.debug("char[" + i + "] = " + chars[i]);
 		}
-		
+*/
 		String fileString = new String(chars);
-		logger.debug("fileString = " + fileString);
+		String lineBuffer = new String();
+		
+		int lines = 0;
+		
+		Citation importCitation = null;
+		CitationCollection importCollection = CitationService.getTemporaryCollection();
+		
+		for(int i=0; i< fileString.length(); i++)
+		{
+			char c = fileString.charAt(i);
+			
+			if (c == '\n')
+			{
+				if (lineBuffer.trim().length() > 0)
+				{
+					logger.debug("hit EOL at character " + i);
+					logger.debug("line #" + ++lines + " done");
+					logger.debug("line = " + lineBuffer);
+					// add linebuffer to current citation
+					logger.debug("Trying to add linebuffer to current citation");
+				
+					// clear linebuffer and go again
+					lineBuffer = new String();
+				} // end if len > 0
+				else
+				{
+					logger.debug("End of Citation Record. Individual citation is complete");
+					logger.debug("Saving citation");
+					importCollection.add(importCitation);
+					importCitation = null;
+				}
+			} // end if EOL
+			else
+			{
+			  if (importCitation == null)
+			  {
+				importCitation = CitationService.getTemporaryCitation();
+			  
+			    logger.debug("Starting new Citation");
+			  }
+			  
+			  lineBuffer = lineBuffer + String.valueOf(c);
+			}
+			
+		} // end for
+		
+		logger.debug("End of citation import");
+		logger.debug("Imported " + importCollection.size() + " citations");
+		
+
+//		logger.debug("fileString = " + fileString);
 		
 /*		
 		int charint = -1;
