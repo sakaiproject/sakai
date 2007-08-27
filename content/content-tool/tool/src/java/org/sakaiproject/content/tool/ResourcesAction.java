@@ -4297,10 +4297,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			catch (PermissionException e) {}
 		}
 		
-		if(!inMyWorkspace && !dropboxMode && atHome && SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+		if(!dropboxMode && atHome && SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
 		{
-			context.put("showPermissions", Boolean.TRUE.toString());
-			//buildListMenu(portlet, context, data, state);
+			if(!inMyWorkspace )
+			{
+				context.put("showPermissions", Boolean.TRUE.toString());
+				//buildListMenu(portlet, context, data, state);
+			}
 			
 			String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
 			Reference ref = EntityManager.newReference(ContentHostingService.getReference(home));
