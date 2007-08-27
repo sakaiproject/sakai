@@ -1828,6 +1828,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			java.io.StringReader risStringReader = new java.io.StringReader(ristext);
 			bread = new java.io.BufferedReader(risStringReader);
+			logger.debug( "String buffered reader ready");
+			
 		} // end RIS text is in the textarea
 		else // textarea empty, set the read of the import from the file
 		{
@@ -1848,10 +1850,21 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		  InputStreamReader isr = new InputStreamReader(risImportStream);
 		  bread = new java.io.BufferedReader(isr);
 		} // end set the read of the import from the uploaded file.
+
+/*		try
+		{
+          logger.debug( "First line of buffered reader is = " + bread.readLine());
+		}
+		catch(Exception e)
+		{
+			logger.debug( "Exception printing first line if buffered reader = " + e);
+		}
+*/
 		
-		// The blow code is a major work in progress.  
+		// The below code is a major work in progress.  
 		// This code is for demonstration purposes only. No gambling or production use!
-		
+
+
 		String fileString = new String();		
 		String importLine = null;
 		java.util.ArrayList importList = new java.util.ArrayList();
@@ -1860,30 +1873,22 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		Citation importCitation = null;
 		importCitation = CitationService.getTemporaryCitation();
 
-		boolean reading = true;
 
-		while (reading)
+		try
 		{
-			try
+			while ((importLine = bread.readLine()) != null)
 			{
-				importLine = bread.readLine();
-				reading = bread.ready();
-			}
-			catch(Exception e)
-			{
-				logger.debug("ISR error = " + e);
-				reading = false;
-			}
-			
-			importList.add(importLine);
-			fileString = fileString + "\n" + importLine;
-			
-		} // end while
-
+				importList.add(importLine);
+				fileString = fileString + "\n" + importLine;
+				
+			} // end while
+		} // end try
+		catch(Exception e)
+		{
+			logger.debug("ISR error = " + e);
+		} // end catch
+		
 		logger.debug("fileString = \n" + fileString);		
-		
-		
-		
 
 /*
 		
