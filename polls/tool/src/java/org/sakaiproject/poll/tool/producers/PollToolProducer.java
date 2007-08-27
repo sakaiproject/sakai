@@ -354,7 +354,7 @@ public class PollToolProducer implements ViewComponentProducer,
 	  if (poll.getDisplayResult().equals("afterVoting") && pollVoteManager.userHasVoted(poll.getPollId()))
 		  return true;
 	  
-	  if (poll.getDisplayResult().equals("afterClosing") && poll.getVoteClose().before(new Date()))
+	  if ((poll.getDisplayResult().equals("afterClosing") || poll.getDisplayResult().equals("afterVoting") )&& poll.getVoteClose().before(new Date()))
 		  return true;
 	  
 	  //the owner can view the results

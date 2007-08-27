@@ -287,12 +287,13 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		  
 		 
 		  
-		    String[] values = new String[] { "open", "never", "afterVoting", "afterClosing" };
+		    String[] values = new String[] { "open", "afterVoting", "afterClosing","never"};
 		    String[] labels = new String[] {
 		    		messageLocator.getMessage("new_poll_open"), 
-		    		messageLocator.getMessage("new_poll_never"),
 		    		messageLocator.getMessage("new_poll_aftervoting"),
-		    		messageLocator.getMessage("new_poll_afterClosing")};
+		    		messageLocator.getMessage("new_poll_afterClosing"),
+		    		messageLocator.getMessage("new_poll_never")
+		    		};
 		    
 		    
 
