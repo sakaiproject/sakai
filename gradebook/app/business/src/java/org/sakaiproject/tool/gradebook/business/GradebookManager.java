@@ -477,10 +477,11 @@ public interface GradebookManager {
      * @param assignment
      * @param Collection gradeRecords
      * @param grade_type
+     * @param studentId
      * @return The set of student UIDs who were given scores higher than the
      * assignment's value.
      */
-    public Set updateStudentGradeRecords(Collection gradeRecords, int grade_type);
+    public Set updateStudentGradeRecords(Collection gradeRecords, int grade_type, String studentId);
 
     
     /**

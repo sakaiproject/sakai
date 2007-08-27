@@ -268,7 +268,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 			}
 		}
 
-		Set excessiveScores = getGradebookManager().updateStudentGradeRecords(updatedGradeRecords, getGradebook().getGrade_type());
+		Set excessiveScores = getGradebookManager().updateStudentGradeRecords(updatedGradeRecords, getGradebook().getGrade_type(), getStudentUid());
 
 		if(updatedGradeRecords.size() > 0){
 			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());

@@ -687,8 +687,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
      * 
      * @return Returns set of Assignments given scores higher than the assignment's value.
      */
-    private Set updateStudentGradeRecords(final Collection gradeRecordsFromCall)
-            throws StaleObjectModificationException {
+    private Set updateStudentGradeRecords(final Collection gradeRecordsFromCall, final String studentId)
+            throws StaleObjectModificationException, IllegalArgumentException {
+    	if (studentId == null) {
+    		throw new IllegalArgumentException("no studentId passed to GradebookManagerHibernateImpl.updateStudentGradeRecords");
+    	}
         // If no grade records are sent, don't bother doing anything with the db
         if(gradeRecordsFromCall.size() == 0) {
             log.debug("updateStudentGradeRecords called for zero grade records");
@@ -704,35 +707,142 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
                 Set studentsWithUpdatedAssignmentGradeRecords = new HashSet();
                 Set assignmentsWithExcessiveScores = new HashSet();
+                
+                /** synchronize from external application*/
+                if(synchronizer != null)
+                {
+                	boolean isUpdateAll = Boolean.TRUE.equals(ThreadLocalManager.get("iquiz_update_all"));
+                	boolean isIquizCall = Boolean.TRUE.equals(ThreadLocalManager.get("iquiz_call"));
+                	boolean isStudentView = Boolean.TRUE.equals(ThreadLocalManager.get("iquiz_student_view"));
+           
+                	List legacyUpdates = new ArrayList();            
+                	Map convertedEidUidRecordMap = new HashMap();
 
-                for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
-                	AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
-                	Assignment assignment = gradeRecordFromCall.getAssignment();
-                	Double pointsPossible = assignment.getPointsPossible();
-                	
-                	gradeRecordFromCall.setGraderId(graderId);
-                	gradeRecordFromCall.setDateRecorded(now);
-                	try {
-                		session.saveOrUpdate(gradeRecordFromCall);
-                	} catch (TransientObjectException e) {
-                		// It's possible that a previously unscored student
-                		// was scored behind the current user's back before
-                		// the user saved the new score. This translates
-                		// that case into an optimistic locking failure.
-                		if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to add a new assignment grade record");
-                		throw new StaleObjectModificationException(e);
+                	convertedEidUidRecordMap = synchronizer.convertEidUid(gradeRecordsFromCall);
+     
+                	Map recordsFromCLDb = null;
+                	if(synchronizer != null && isIquizCall && isUpdateAll)
+                	{
+                		recordsFromCLDb = synchronizer.getPersistentRecordsForStudent(studentId);
                 	}
 
-                	// Check for excessive (AKA extra credit) scoring.
-                	if (gradeRecordFromCall.getPointsEarned() != null &&
-                			!assignment.isUngraded() && 
-                			gradeRecordFromCall.getPointsEarned().compareTo(pointsPossible) > 0) {
-                		assignmentsWithExcessiveScores.add(assignment);
+                	for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
+                		AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
+                		Assignment assignment = null;
+                		if (gradeRecordFromCall != null) {
+                			assignment = gradeRecordFromCall.getAssignment();
+                		}
+
+                		boolean updated = false;
+                		if(isIquizCall && synchronizer != null)
+                		{
+                			gradeRecordFromCall = synchronizer.convertIquizRecordToUid(gradeRecordFromCall, convertedEidUidRecordMap, isUpdateAll, graderId);
+                		}
+                		else
+                		{
+                			gradeRecordFromCall.setGraderId(graderId);
+                			gradeRecordFromCall.setDateRecorded(now);
+                		}
+                		try {
+                			/** sychronize - add condition for null value */
+                			if(gradeRecordFromCall != null)
+                			{
+                				if(gradeRecordFromCall.getId() == null && isIquizCall && isUpdateAll && recordsFromCLDb != null)
+                				{
+                					AssignmentGradeRecord returnedPersistentItem = (AssignmentGradeRecord) recordsFromCLDb.get(gradeRecordFromCall.getGradableObject().getId());
+                					if(returnedPersistentItem != null && returnedPersistentItem.getPointsEarned() != null && gradeRecordFromCall.getPointsEarned() != null
+                							&& !returnedPersistentItem.getPointsEarned().equals(gradeRecordFromCall.getPointsEarned()))
+                					{
+                						graderId = gradeRecordFromCall.getGraderId();
+                						updated = true;
+                						returnedPersistentItem.setGraderId(gradeRecordFromCall.getGraderId());
+                						returnedPersistentItem.setPointsEarned(gradeRecordFromCall.getPointsEarned());
+                						returnedPersistentItem.setDateRecorded(gradeRecordFromCall.getDateRecorded());
+                						session.saveOrUpdate(returnedPersistentItem);
+                					}
+                					else if(returnedPersistentItem == null)
+                					{
+                						graderId = gradeRecordFromCall.getGraderId();
+                						updated = true;
+                						session.saveOrUpdate(gradeRecordFromCall);
+                					}
+                				}
+                				else
+                				{
+                					updated = true;
+                					session.saveOrUpdate(gradeRecordFromCall);
+                				}
+                			}
+                			if (assignment != null && !isUpdateAll && !isStudentView && synchronizer != null && !synchronizer.isProjectSite())
+                			{
+                				Object updateIquizRecord = synchronizer.getNeededUpdateIquizRecord(assignment, gradeRecordFromCall);
+                				if(updateIquizRecord != null)
+                					legacyUpdates.add(updateIquizRecord);
+                			}
+                		} catch (TransientObjectException e) {
+                			// It's possible that a previously unscored student
+                			// was scored behind the current user's back before
+                			// the user saved the new score. This translates
+                			// that case into an optimistic locking failure.
+                			if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to add a new assignment grade record");
+                			throw new StaleObjectModificationException(e);
+                		}
+
+                		// Check for excessive (AKA extra credit) scoring.
+                		/** synchronize - add condition for null value*/
+                		if(gradeRecordFromCall != null && updated == true && assignment != null)
+                		{
+                			if (gradeRecordFromCall.getPointsEarned() != null &&
+                					!assignment.isUngraded() && 
+                					gradeRecordFromCall.getPointsEarned().compareTo(assignment.getPointsPossible()) > 0) {
+                				assignmentsWithExcessiveScores.add(assignment);
+                			}
+
+                			// Log the grading event, and keep track of the students with saved/updated grades
+                			session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
+                			studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
+                		}
+
+                		/** synchronize external records */
+                		if (legacyUpdates.size() > 0 && synchronizer != null && assignment != null)
+                		{
+                			synchronizer.updateLegacyGradeRecords(assignment.getName(), legacyUpdates);
+                		}
                 	}
 
-                	// Log the grading event, and keep track of the students with saved/updated grades
-                	session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
-                	studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
+                }
+                else
+                {
+
+	                for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
+	                	AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
+	                	Assignment assignment = gradeRecordFromCall.getAssignment();
+	                	Double pointsPossible = assignment.getPointsPossible();
+	                	
+	                	gradeRecordFromCall.setGraderId(graderId);
+	                	gradeRecordFromCall.setDateRecorded(now);
+	                	try {
+	                		session.saveOrUpdate(gradeRecordFromCall);
+	                	} catch (TransientObjectException e) {
+	                		// It's possible that a previously unscored student
+	                		// was scored behind the current user's back before
+	                		// the user saved the new score. This translates
+	                		// that case into an optimistic locking failure.
+	                		if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to add a new assignment grade record");
+	                		throw new StaleObjectModificationException(e);
+	                	}
+	
+	                	// Check for excessive (AKA extra credit) scoring.
+	                	if (gradeRecordFromCall.getPointsEarned() != null &&
+	                			!assignment.isUngraded() && 
+	                			gradeRecordFromCall.getPointsEarned().compareTo(pointsPossible) > 0) {
+	                		assignmentsWithExcessiveScores.add(assignment);
+	                	}
+	
+	                	// Log the grading event, and keep track of the students with saved/updated grades
+	                	session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
+	                	studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
+	                }
                 }
 				if (logData.isDebugEnabled()) logData.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " assignment score records");
 
@@ -1899,10 +2009,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
      * @param grade_type
      * @return
      */
-    public Set updateStudentGradeRecords(Collection gradeRecords, int grade_type)
+    public Set updateStudentGradeRecords(Collection gradeRecords, int grade_type, String studentId)
     {
     	if(grade_type == GradebookService.GRADE_TYPE_POINTS)
-    		return updateStudentGradeRecords(gradeRecords);
+    		return updateStudentGradeRecords(gradeRecords, studentId);
     	else if(grade_type == GradebookService.GRADE_TYPE_PERCENTAGE)
     	{
     		Collection convertList = new ArrayList();
@@ -1921,7 +2031,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     				convertList.add(agr);
     			}
     		}
-    		return updateStudentGradeRecords(convertList);
+    		return updateStudentGradeRecords(convertList, studentId);
     	}
     	else if(grade_type == GradebookService.GRADE_TYPE_LETTER)
     	{
@@ -1941,7 +2051,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     				convertList.add(agr);
     			}
     		}
-    		return updateStudentGradeRecords(convertList);
+    		return updateStudentGradeRecords(convertList, studentId);
     	}
     	else
     		return null;
