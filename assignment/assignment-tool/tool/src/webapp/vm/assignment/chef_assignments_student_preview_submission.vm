@@ -29,29 +29,7 @@
 				</th>
 				<td>
 					#if ($!submission)
-						#if ($!submission.getSubmitted())
-							#if ($submission.returned)
-								#if ($submission.TimeReturned.after($submission.TimeSubmitted))
-									Returned $submission.timeReturned.toStringLocalFull()
-								#else
-									Re-submitted $submission.TimeSubmitted.toStringLocalFull()
-									#if ($submission.getTimeSubmitted().after($assignment.DueTime))
-										<span class="highlight"> $tlang.getString("gen.late")</span>
-									#end
-								#end
-							#elseif ($submission.getGraded() && $submission.getGradeReleased())
-								#if ($!withGrade)
-									$tlang.getString("grad3")
-								#else
-									$tlang.getString("gen.commented")
-								#end
-							#else
-								Submitted $submission.timeSubmitted.toStringLocalFull()
-								<!--missing -if saved...In progress-->
-							#end
-						#else
-							$tlang.getString("gen.inpro")
-						#end
+						$!submission.Status
 					#else
 						$tlang.getString("gen.notsta")
 					#end
@@ -150,7 +128,9 @@
 		<input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x" />
 		<input type="hidden" name="option" value="cancel" />
 		<div class="act">
-			#if ($!submission && $submission.getSubmitted() && !$submission.Returned)
+			#set($timeSubmitted=false)
+			#set($timeSubmitted=$submission.TimeSubmitted)
+			#if ($!submission && $submission.getSubmitted() && $!timeSubmitted && !$submission.Returned)
 					<input name="eventSubmit_doSave_submission" type="submit" value="$tlang.getString("gen.sav")" disabled="disabled" />
 					<input name="eventSubmit_doPost_submission" type="submit" value="$tlang.getString("gen.subm3")" disabled="disabled" />
 					<input name="eventSubmit_doCancel_show_submission" type="submit" value="$tlang.getString("gen.revi")" disabled="disabled" />
