@@ -1834,30 +1834,39 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		
 		InputStreamReader isr = new InputStreamReader(risImportStream);
 		
+		java.io.BufferedReader bread = new java.io.BufferedReader(isr);
+		
 		
 		// This is all a work in progress.  I am using a giant buffer to faciliate working on other
 		// pieces.  Before completed, I will construct the final filebuffer using reasonble smaller buffers.
 		
 		// This code is for demonstration purposes only. No gambling or production use!
 		
-		char[] chars = new char[10000];
-		int charRead = 0;
+		String fileString = new String();		
+		String importLine = null;
 		
-		try
+		boolean reading = true;
+
+		while (reading)
 		{
-		  charRead = isr.read(chars);
-		}
-		catch(Exception e)
-		{
-			logger.debug("ISR error = " + e);
-		}
+			try
+			{
+				importLine = bread.readLine();
+				reading = bread.ready();
+			}
+			catch(Exception e)
+			{
+				logger.debug("ISR error = " + e);
+				reading = false;
+			}
+			
+			fileString = fileString + "\n" + importLine;
+			
+		} // end while
+
+		logger.debug("fileString = \n" + fileString);
+/*
 		
-/*		for (int i=0; i<charRead; i++)
-		{
-			logger.debug("char[" + i + "] = " + chars[i]);
-		}
-*/
-		String fileString = new String(chars);
 		String lineBuffer = new String();
 		
 		int lines = 0;
@@ -1907,7 +1916,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		logger.debug("End of citation import");
 		logger.debug("Imported " + importCollection.size() + " citations");
 		
-
+*/
 //		logger.debug("fileString = " + fileString);
 		
 /*		
