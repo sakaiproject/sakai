@@ -1264,7 +1264,6 @@ public class BaseSearchManager implements SearchManager, Observer
 				categoryStack = new java.util.Stack<BasicSearchCategory>();
 
 				parseXML(xmlContent);
-				isConfigured = true;
 			}
 			catch (Exception exception)
 			{
@@ -1282,6 +1281,14 @@ public class BaseSearchManager implements SearchManager, Observer
 	            // Parse the input
 	            SAXParser saxParser = factory.newSAXParser();
 	            saxParser.parse( source, this );
+	            if(this.hierarchyDepth > 0)
+	            {
+					isConfigured = true;
+	            }
+	            else
+	            {
+					isConfigured = false;
+	            }
 	        } catch (SAXParseException spe) {
 	            // Use the contained exception, if any
 	            Exception x = spe;
