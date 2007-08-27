@@ -109,7 +109,7 @@
     	<property name="maxElementsInMemory" ><value>50</value></property>
     	<property name="diskPersistent" ><value>true</value></property>
     	<property name="eternal" ><value>false</value></property>
-    	<property name="timeToLive" ><value>0</value></property>
+    	<property name="timeToLive" ><value>43200</value></property>
     	<property name="timeToIdle" ><value>900</value></property>
   	</bean>
 
