@@ -74,7 +74,9 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	public void init()
 	{
 		DecimalFormat df = new DecimalFormat("0000");
-		Info[] realNames = new Info[] {
+		try
+		{
+			Info[] realNames = new Info[] {
 				new Info("Victor", "van Dijk", "vvd@local.host"),
 				new Info("Peter", "van Keken", "pvk@local.host"),
 				new Info("Ben van", "der Pluijm", "bvdp@local.host"),
@@ -82,16 +84,19 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 				new Info("Aimee", "de L'Aigle", "adlg@local.host"),
 				new Info("Wong", "Kar-Wai", "wkw@local.host"),
 				new Info("John", "Fitz Gerald", "jfg@local.host"),
-				new Info("El", "Niño", "warmPacificWater@local.host"),
-				new Info("Ângeolo", "Haslip", "ah@local.host"),
+				new Info("El", 
+							new String("NiÃ±o".getBytes(), "UTF-8"), 
+							"warmPacificWater@local.host"),
+				new Info(new String("Ã‚ngeolo".getBytes(), "UTF-8"),
+							"Haslip", 
+							"ah@local.host"),
 				new Info("Albert", "Zimmerman", "az@local.host"),
 				new Info("Albert", "Albertson", "aa@local.host"),
 				new Info("Zachary", "Anderson", "za@local.host"),
 				new Info("Zachary", "Zurawik", "zz@local.host"),
 				new Info("Bhaktavatsalam", "Bhayakridbhayanashanachar", "bb@local.host"),
-		};
-		try
-		{
+			};
+			
 			// fill a set of users
 			m_info = new Hashtable();
 			m_info.put("user1", new Info("user1", "One", "User", "user1@local.host"));
