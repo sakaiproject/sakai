@@ -68,9 +68,9 @@ Added for column sort
           Sort by:
           <select name="citationSortAction"
             onchange="doCitationSortAction(this.value)">
-            <option class="selectAction" value="author">First Author</option>
-            <option class="selectAction" value="title" SELECTED>Title</option>
-            <option class="selectAction" value="year">Published Year</option>
+            <option class="selectAction" value="author" #if ($sort == "author") SELECTED #end>First Author</option>
+            <option class="selectAction" value="title"  #if ($sort == "default" || $sort == "title") SELECTED #end>Title</option>
+            <option class="selectAction" value="year"   #if ($sort == "year") SELECTED #end>Published Year</option>
           </select>
 		  <input type="button" name="savesort" value="Save Sort" />
         </div>
@@ -119,9 +119,9 @@ Added for column sort
           Sort by:
           <select name="citationSortAction"
             onchange="doCitationSortAction(this.value)">
-            <option class="selectAction" value="author">First Author</option>
-            <option class="selectAction" value="title" SELECTED>Title</option>
-            <option class="selectAction" value="year">Published Year</option>
+            <option class="selectAction" value="author" #if ($sort == "author") SELECTED #end>First Author</option>
+            <option class="selectAction" value="title"  #if ($sort == "default" || $sort == "title") SELECTED #end>Title</option>
+            <option class="selectAction" value="year"   #if ($sort == "year") SELECTED #end>Published Year</option>
           </select>
 		  <input type="button" name="savesort" value="Save Sort" />
         </div>
