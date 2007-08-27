@@ -2430,7 +2430,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	        if(hierarchy == null)
 	        {
 		        addAlert(state, rb.getString("search.problem"));
-				setMode(state, Mode.ERROR);
+		        setMode(state, Mode.ADD_CITATIONS);
 				return;
 	        }
 
