@@ -43,7 +43,7 @@ directions here
 	<p />
 	Import RIS Formatted Data from the Following Text:
 	<p />
-	<textarea cols="80" rows="4" name="formtext"></textarea>
+	<textarea cols="80" rows="4" name="ristext"></textarea>
 	<p />
 	<input type="button" value="Import" name="import2" type="button" />
 	<input type="button" value="Cancel" name="cancel2" type="button" />
