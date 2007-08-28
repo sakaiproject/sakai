@@ -383,11 +383,11 @@ public class DiscussionForumBean
 	public boolean getNonePermission()
 	{
 		if (nonePermission == null){
-			
+			nonePermission = true;
 			if(uiPermissionsManager.isChangeSettings(forum) ||  uiPermissionsManager.isNewTopic(forum))
 			{
 				nonePermission = false;
-				return nonePermission;
+				return nonePermission.booleanValue();
 			}
 			
 			if(topics != null)
@@ -403,7 +403,7 @@ public class DiscussionForumBean
 				}
 			}
 		}
-		return nonePermission;
+		return nonePermission.booleanValue();
 	}
 
 	public void setNonePermission(boolean nonePermission)
