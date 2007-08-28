@@ -1034,6 +1034,15 @@ public class ListItem
 		
 		String refstr = contentService.getReference(id);
 		this.isSiteCollection = this.siteCollection(refstr);
+		Reference ref = EntityManager.newReference(refstr);
+		String contextId = ref.getContext();
+		boolean isUserSite = false;
+		if(contextId != null)
+		{
+			isUserSite = SiteService.isUserSite(contextId);
+		}
+		setUserSite(isUserSite);
+
 	}
 
 	/**
