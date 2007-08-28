@@ -1521,10 +1521,42 @@ public abstract class BaseCitationService implements CitationService
 		 *
 		 * @see org.sakaiproject.citation.api.Citation#importFromRis(java.io.InputStream)
 		 */
-		public void importFromRis(InputStream istream) throws IOException
+	    public void importFromRis(InputStream ris) throws IOException
 		{
+			
 			// TODO Auto-generated method stub
 
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.sakaiproject.citation.api.Citation#importFromRis(java.io.InputStream)
+		 */
+		public boolean importFromRisList(List risList)
+		{
+/*
+ * "TY  - " Type of reference. This must contain one of the following field names as defined in the 
+ * section, Reference Type field names.
+ *
+ * "ER  - " End of reference. Must be the last tag in a reference.
+ *
+ * "ID  - " Reference ID. The Reference ID can consist of any alphanumeric characters—up to 20 characters in length.
+ *
+ * "T1  - "
+ * "TI  - "
+ * "CT  - "
+ * "BT  - " Title Primary. Note that the BT tag maps to this field only for Whole Book and 
+ * Unpublished Work references. This field can contain alphanumeric characters; there is no practical length limit to this field.
+ *
+ * "T2  - "
+ * "BT  - " Title Secondary. Note that the BT tag maps to this field for all reference types 
+ * except for Whole Book and Unpublished Work references. There is no practical limit to the length of this field.
+ *
+ * "T3  - " Title Series. This field can contain alphanumeric characters; there is no practical length 
+ * limit to this field.
+ */
+			return true;
 		}
 
 		/*
