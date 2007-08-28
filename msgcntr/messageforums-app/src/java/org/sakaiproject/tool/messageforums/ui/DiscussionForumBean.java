@@ -149,7 +149,7 @@ public class DiscussionForumBean
 	    	locked = Boolean.TRUE.toString();
 	    }
     }
-    return "false";
+    return locked;
   }
 
   /**
@@ -287,7 +287,7 @@ public class DiscussionForumBean
   public boolean isForumModerated()
   {
 	  if (forumModerated == null){
-		  forumModerated = forum.getModerated().booleanValue();
+		  forumModerated = forum.getModerated();
 	  }
 	  return forumModerated.booleanValue();
   }
