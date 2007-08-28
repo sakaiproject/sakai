@@ -233,7 +233,7 @@ public class DiscussionForumTool
   private boolean displayUnreadOnly;
   private boolean errorSynch = false;
   // attachment
-  private ArrayList attachments = null;
+  private ArrayList attachments = new ArrayList();
   private ArrayList prepareRemoveAttach = new ArrayList();
   // private boolean attachCaneled = false;
   // private ArrayList oldAttachments = new ArrayList();
@@ -854,9 +854,6 @@ public class DiscussionForumTool
     }
     
     List attachList = forum.getAttachments();
-    if (attachments == null){
-    	attachments = new ArrayList();
-    }
     if (attachList != null)
     {
       for (int i = 0; i < attachList.size(); i++)
@@ -948,11 +945,11 @@ public class DiscussionForumTool
     if (selectedTopic == null)
     {
       setErrorMessage(getResourceBundleString(FAILED_NEW_TOPIC));
-      attachments = null; //attachments.clear();
+      attachments.clear();
       prepareRemoveAttach.clear();
       return gotoMain();
     }
-    attachments = null; //attachments.clear();
+    attachments.clear();
     prepareRemoveAttach.clear();
     return TOPIC_SETTING_REVISE;
   }
@@ -1098,7 +1095,7 @@ public class DiscussionForumTool
     if (selectedTopic == null)
     {
       setErrorMessage(getResourceBundleString(FAILED_NEW_TOPIC));
-      attachments = null; //attachments.clear();
+      attachments.clear();
       prepareRemoveAttach.clear();
       return gotoMain();
     }
@@ -1107,7 +1104,7 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CREATE_TOPIC));
       return gotoMain();
     }
-    attachments = null; //attachments.clear();
+    attachments.clear();
     prepareRemoveAttach.clear();
     setFromMainOrForumOrTopic();
     return TOPIC_SETTING_REVISE;
@@ -1153,9 +1150,6 @@ public class DiscussionForumTool
       return gotoMain();
     }
     List attachList = selectedTopic.getTopic().getAttachments();
-    if (attachments == null){
-    	attachments = new ArrayList();
-    }
     if (attachList != null)
     {
       for (int i = 0; i < attachList.size(); i++)
@@ -1212,12 +1206,12 @@ public class DiscussionForumTool
     if (selectedTopic == null)
     {
       setErrorMessage(getResourceBundleString(FAILED_NEW_TOPIC));
-      attachments = null; //attachments.clear();
+      attachments.clear();
       prepareRemoveAttach.clear();
 
       return gotoMain();
     }
-    attachments = null; //attachments.clear();
+    attachments.clear();
     prepareRemoveAttach.clear();
     return TOPIC_SETTING_REVISE;
 
@@ -1401,9 +1395,6 @@ public class DiscussionForumTool
     }
     
     List attachList = selectedTopic.getTopic().getAttachments();
-    if (attachments == null){
-    	attachments = new ArrayList();
-    }
     if (attachList != null)
     {
       for (int i = 0; i < attachList.size(); i++)
@@ -2304,7 +2295,7 @@ public class DiscussionForumTool
     this.permissions=null;
     this.errorSynch = false;
     this.siteMembers=null;   
-    attachments = null; //attachments.clear();
+    attachments.clear();
     prepareRemoveAttach.clear();
     assignments.clear();
     refreshPendingMsgs = true;
@@ -2437,39 +2428,36 @@ public class DiscussionForumTool
   
   public ArrayList getAttachments()
   {
-	if (attachments == null){
-		attachments = new ArrayList();
-	    ToolSession session = SessionManager.getCurrentToolSession();
-	    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null
-	        && session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null)
-	    {
-	      List refs = (List) session
-	          .getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-	      if(refs != null && refs.size()>0)
-	      {
-	      	Reference ref = (Reference) refs.get(0);
-	      	
-	      	for (int i = 0; i < refs.size(); i++)
-	      	{
-	      		ref = (Reference) refs.get(i);
-	      		Attachment thisAttach = messageManager.createAttachment();
-	      		thisAttach.setAttachmentName(ref.getProperties().getProperty(
-	      				ref.getProperties().getNamePropDisplayName()));
-	      		thisAttach.setAttachmentSize(ref.getProperties().getProperty(
-	      				ref.getProperties().getNamePropContentLength()));
-	      		thisAttach.setAttachmentType(ref.getProperties().getProperty(
-	      				ref.getProperties().getNamePropContentType()));
-	      		thisAttach.setAttachmentId(ref.getId());
-	      		//thisAttach.setAttachmentUrl(ref.getUrl());
-	      		thisAttach.setAttachmentUrl("/url");
-	      		
-	      		attachments.add(new DecoratedAttachment(thisAttach));
-	      	}
-	      }
-	    }
-	    session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-	    session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
-	}
+    ToolSession session = SessionManager.getCurrentToolSession();
+    if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null
+        && session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null)
+    {
+      List refs = (List) session
+          .getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      if(refs != null && refs.size()>0)
+      {
+      	Reference ref = (Reference) refs.get(0);
+      	
+      	for (int i = 0; i < refs.size(); i++)
+      	{
+      		ref = (Reference) refs.get(i);
+      		Attachment thisAttach = messageManager.createAttachment();
+      		thisAttach.setAttachmentName(ref.getProperties().getProperty(
+      				ref.getProperties().getNamePropDisplayName()));
+      		thisAttach.setAttachmentSize(ref.getProperties().getProperty(
+      				ref.getProperties().getNamePropContentLength()));
+      		thisAttach.setAttachmentType(ref.getProperties().getProperty(
+      				ref.getProperties().getNamePropContentType()));
+      		thisAttach.setAttachmentId(ref.getId());
+      		//thisAttach.setAttachmentUrl(ref.getUrl());
+      		thisAttach.setAttachmentUrl("/url");
+      		
+      		attachments.add(new DecoratedAttachment(thisAttach));
+      	}
+      }
+    }
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+    session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
 
     return attachments;
   }
@@ -2527,7 +2515,7 @@ public class DiscussionForumTool
     this.composeLabel = null;
     this.composeTitle = null;
 
-    this.attachments = null; //this.attachments.clear();
+    this.attachments.clear();
 
     return ALL_MESSAGES;
   }
@@ -2553,7 +2541,7 @@ public class DiscussionForumTool
     this.composeLabel = null;
     this.composeTitle = null;
 
-    this.attachments = null; //this.attachments.clear();
+    this.attachments.clear();
 
     // refresh page with unread status     
     selectedTopic = getDecoratedTopic(forumManager.getTopicById(selectedTopic.getTopic().getId()));
@@ -2580,7 +2568,7 @@ public class DiscussionForumTool
     this.composeLabel = null;
     this.composeTitle = null;
 
-    this.attachments = null; //this.attachments.clear();
+    this.attachments.clear();
 
     return ALL_MESSAGES;
   }
@@ -2611,13 +2599,12 @@ public class DiscussionForumTool
 	  }
       aMsg.setTopic(selectedTopic.getTopic());
     }
-    if (attachments != null){
-	    for (int i = 0; i < attachments.size(); i++)
-	    {
-	      aMsg.addAttachment(((DecoratedAttachment) attachments.get(i)).getAttachment());
-	    }
-	    attachments = null; //attachments.clear();
+    for (int i = 0; i < attachments.size(); i++)
+    {
+      aMsg.addAttachment(((DecoratedAttachment) attachments.get(i)).getAttachment());
     }
+    attachments.clear();
+   
     // oldAttachments.clear();
 
     return aMsg;
@@ -2994,7 +2981,7 @@ public class DiscussionForumTool
 
   public String processDfMsgRvs()
   {
-    attachments = null; //attachments.clear();
+    attachments.clear();
 
     composeBody = selectedMessage.getMessage().getBody();
     composeLabel = selectedMessage.getMessage().getLabel();
@@ -3002,7 +2989,6 @@ public class DiscussionForumTool
     List attachList = selectedMessage.getMessage().getAttachments();
     if (attachList != null)
     {
-    	attachments = new ArrayList();
       for (int i = 0; i < attachList.size(); i++)
       {
         attachments.add(new DecoratedAttachment((Attachment) attachList.get(i)));
@@ -3099,7 +3085,7 @@ public class DiscussionForumTool
     this.composeLabel = null;
     this.composeTitle = null;
 
-    this.attachments = null; //this.attachments.clear();
+    this.attachments.clear();
 
     //return ALL_MESSAGES;
     //check selectedThreadHead exists
@@ -3160,7 +3146,7 @@ public class DiscussionForumTool
     this.composeLabel = null;
     this.composeTitle = null;
 
-    this.attachments = null; //this.attachments.clear();
+    this.attachments.clear();
 
     return processActionGetDisplayThread();
   }
@@ -3189,7 +3175,7 @@ public class DiscussionForumTool
       }
     }
 
-    if ((attachId != null) && (!attachId.equals("")) && attachments != null)
+    if ((attachId != null) && (!attachId.equals("")))
     {
       for (int i = 0; i < attachments.size(); i++)
       {
@@ -3223,26 +3209,24 @@ public class DiscussionForumTool
     }
 
     List oldList = dMsg.getAttachments();
-    if (attachments != null){
-	    for (int i = 0; i < attachments.size(); i++)
-	    {
-	    	DecoratedAttachment thisAttach = (DecoratedAttachment) attachments.get(i);
-	      boolean existed = false;
-	      for (int j = 0; j < oldList.size(); j++)
-	      {
-	        Attachment existedAttach = (Attachment) oldList.get(j);
-	        if (existedAttach.getAttachmentId()
-	            .equals(thisAttach.getAttachment().getAttachmentId()))
-	        {
-	          existed = true;
-	          break;
-	        }
-	      }
-	      if (!existed)
-	      {
-	        dMsg.addAttachment(thisAttach.getAttachment());
-	      }
-	    }
+    for (int i = 0; i < attachments.size(); i++)
+    {
+    	DecoratedAttachment thisAttach = (DecoratedAttachment) attachments.get(i);
+      boolean existed = false;
+      for (int j = 0; j < oldList.size(); j++)
+      {
+        Attachment existedAttach = (Attachment) oldList.get(j);
+        if (existedAttach.getAttachmentId()
+            .equals(thisAttach.getAttachment().getAttachmentId()))
+        {
+          existed = true;
+          break;
+        }
+      }
+      if (!existed)
+      {
+        dMsg.addAttachment(thisAttach.getAttachment());
+      }
     }
     String currentBody = getComposeBody();
     String revisedInfo = getResourceBundleString(LAST_REVISE_BY);
@@ -3327,7 +3311,7 @@ public class DiscussionForumTool
     composeBody = null;
     composeLabel = null;
     composeTitle = null;
-    attachments = null; //attachments.clear();
+    attachments.clear();
 
     getThreadFromMessage();
     return MESSAGE_VIEW;
@@ -3344,26 +3328,24 @@ public class DiscussionForumTool
     }
 
     List oldList = dMsg.getAttachments();
-    if (attachments != null){
-	    for (int i = 0; i < attachments.size(); i++)
-	    {
-	    	DecoratedAttachment thisAttach = (DecoratedAttachment) attachments.get(i);
-	      boolean existed = false;
-	      for (int j = 0; j < oldList.size(); j++)
-	      {
-	        Attachment existedAttach = (Attachment) oldList.get(j);
-	        if (existedAttach.getAttachmentId()
-	            .equals(thisAttach.getAttachment().getAttachmentId()))
-	        {
-	          existed = true;
-	          break;
-	        }
-	      }
-	      if (!existed)
-	      {
-	        dMsg.addAttachment(thisAttach.getAttachment());
-	      }
-	    }
+    for (int i = 0; i < attachments.size(); i++)
+    {
+    	DecoratedAttachment thisAttach = (DecoratedAttachment) attachments.get(i);
+      boolean existed = false;
+      for (int j = 0; j < oldList.size(); j++)
+      {
+        Attachment existedAttach = (Attachment) oldList.get(j);
+        if (existedAttach.getAttachmentId()
+            .equals(thisAttach.getAttachment().getAttachmentId()))
+        {
+          existed = true;
+          break;
+        }
+      }
+      if (!existed)
+      {
+        dMsg.addAttachment(thisAttach.getAttachment());
+      }
     }
     String currentBody = getComposeBody();
     String revisedInfo = getResourceBundleString(LAST_REVISE_BY);
@@ -3439,7 +3421,7 @@ public class DiscussionForumTool
     composeBody = null;
     composeLabel = null;
     composeTitle = null;
-    attachments = null; //attachments.clear();
+    attachments.clear();
 
     return ALL_MESSAGES;
   }
@@ -3451,7 +3433,7 @@ public class DiscussionForumTool
     this.composeLabel = null;
     this.composeTitle = null;
 
-    this.attachments = null; //this.attachments.clear();
+    this.attachments.clear();
     
     getThreadFromMessage();
     return MESSAGE_VIEW;
@@ -3464,7 +3446,7 @@ public class DiscussionForumTool
 	    this.composeLabel = null;
 	    this.composeTitle = null;
 
-	    this.attachments = null; //this.attachments.clear();
+	    this.attachments.clear();
 
 	    return processActionGetDisplayThread();
   }
@@ -3487,7 +3469,7 @@ public class DiscussionForumTool
     this.composeLabel = null;
     this.composeTitle = null;
 
-    this.attachments = null; //this.attachments.clear();
+    this.attachments.clear();
 
     return ALL_MESSAGES;
   }
@@ -3511,7 +3493,7 @@ public class DiscussionForumTool
     this.composeLabel = null;
     this.composeTitle = null;
 
-    this.attachments = null; //this.attachments.clear();
+    this.attachments.clear();
 
     return ALL_MESSAGES;
   }
@@ -3522,7 +3504,7 @@ public class DiscussionForumTool
     this.composeLabel = null;
     this.composeTitle = null;
 
-    this.attachments = null; //this.attachments.clear();
+    this.attachments.clear();
 
     return ALL_MESSAGES;
   }
@@ -4053,7 +4035,7 @@ public class DiscussionForumTool
     }
 
     prepareRemoveAttach.clear();
-    attachments = null; //attachments.clear();
+    attachments.clear();
   }
 
   public void saveTopicSelectedAssignment(DiscussionTopic topic)
@@ -4107,7 +4089,7 @@ public class DiscussionForumTool
     }
 
     prepareRemoveAttach.clear();
-    attachments = null; //attachments.clear();
+    attachments.clear();
   }
 
   public String processDeleteAttachSetting()
@@ -4136,7 +4118,7 @@ public class DiscussionForumTool
       }
     }
 
-    if ((attachId != null) && (!attachId.equals("")) && attachments != null)
+    if ((attachId != null) && (!attachId.equals("")))
     {
       for (int i = 0; i < attachments.size(); i++)
       {
