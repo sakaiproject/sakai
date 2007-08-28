@@ -24,7 +24,7 @@ package org.sakaiproject.search.index.impl;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,7 +84,7 @@ public class SegmentInfoImpl implements SegmentInfo
 	
 	private SegmentState liveSegmentState = null;
 
-	private static Hashtable<String, String> checked = new Hashtable<String, String>();
+	private static ConcurrentHashMap<String, String> lock = new ConcurrentHashMap<String, String>();;
 
 	public String toString()
 	{
@@ -532,6 +532,40 @@ public class SegmentInfoImpl implements SegmentInfo
 		f.delete();
 		if ( f.exists() ) {
 			log.warn("Failed to delete  "+f.getPath());
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.index.SegmentInfo#isLocalLock()
+	 */
+	public boolean isLocalLock()
+	{
+		String threadName = lock .get(this.name);
+		if ( threadName == null || threadName.equals(Thread.currentThread().getName()) ) {
+			return true;
+		}
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.index.SegmentInfo#lockLocalSegment()
+	 */
+	public void lockLocalSegment()
+	{
+		String threadName = lock.get(this.name);
+		if ( threadName == null ) {
+			lock.put(this.name,Thread.currentThread().getName());
+		}		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.index.SegmentInfo#unlockLocalSegment()
+	 */
+	public void unlockLocalSegment()
+	{
+		if ( isLocalLock() ) {
+			lock.remove(this.name);
 		}
 	}
 

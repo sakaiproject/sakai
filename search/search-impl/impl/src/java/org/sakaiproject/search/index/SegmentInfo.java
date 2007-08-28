@@ -167,5 +167,21 @@ public interface SegmentInfo
 	 */
 	void doFinalDelete();
 
+	/**
+	 * Perform a lock on the segment for local operations
+	 */
+	void lockLocalSegment();
+
+	/**
+	 * Does this thread have a local lock on the segment
+	 * @return
+	 */
+	boolean isLocalLock();
+
+	/**
+	 * Unlock the segment
+	 */
+	void unlockLocalSegment();
+
 
 }

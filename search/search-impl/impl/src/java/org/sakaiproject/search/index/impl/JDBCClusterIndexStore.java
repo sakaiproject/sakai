@@ -83,14 +83,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	 */
 	private boolean validate = false;
 
-	/**
-	 * This will be set to after the first update of a JVM run has been
-	 * completed, as its possible that IndexReaders may have open references to
-	 * the Segments that we try and remove. Update: 2007/02/27 Actualy since we
-	 * need to merge segments we not need to remove them so this is no longer
-	 * the case, okToRemove is always true
-	 */
-	private static boolean okToRemove = true;
 
 	private String sharedSegments = null;
 
@@ -162,7 +154,14 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	}
 
 	/**
+	 * 
+	 * Ther might need to be some locking here.
+	 * When readers use this, they will update the local segments with more information,
+	 * 
+	 * 
+	 * 
 	 * update the local Segmetns from the DB
+	 * @param locked A locak has been taken on the index
 	 */
 	public List<SegmentInfo> updateSegments()
 	{
@@ -183,15 +182,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			// from the db
 			deleteAllSegments(badLocalSegments);
 
-			List<SegmentInfo> deletedSegments = getDeletedLocalSegments();
-			// delete any segments marked as for deletion
-			deleteAllSegments(deletedSegments);
-
 			if (log.isDebugEnabled())
 				log.debug("Update: Local Segments = " + localSegments.size());
 
 			// which of the dbSegments are not present locally
-
 			List<SegmentInfo> updateLocalSegments = new ArrayList<SegmentInfo>();
 			for (Iterator i = dbSegments.iterator(); i.hasNext();)
 			{
@@ -245,82 +239,95 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				}
 			}
 
-			// which if the currentSegments need updating
-			// process the remove list
-			// we can only perform a remove, IF there is no other activity.
-			// ie only on the first time in any 1 JVM run
-			if (okToRemove)
-			{
-				okToRemove = true;
-				// with merge we need to remove local segments
-				// that are not present. This may cause problems with
-				// an open index, as it will suddenly see segments dissapear
-				// Update 2007/02/27 It does cause problems. We need to make it
-				// possible for
-				// search to recover, or to delay the removal of segments until
-				// the reload is complete.
 
 				List<SegmentInfo> removeLocalSegments = new ArrayList<SegmentInfo>();
 
-				// which segments exist locally but not in the DB, these should
-				// be
-				// removed
-				for (Iterator i = localSegments.iterator(); i.hasNext();)
-				{
+			// which segments exist locally but not in the DB, these should
+			// be
+			// removed
+			for (Iterator i = localSegments.iterator(); i.hasNext();)
+			{
 
-					SegmentInfo local_si = (SegmentInfo) i.next();
-					// only check local segments that are not new and not
-					if (local_si.isCreated())
+				SegmentInfo local_si = (SegmentInfo) i.next();
+				// only check local segments that are not new and not
+				if (local_si.isCreated())
+				{
+					boolean found = false;
+					String name = local_si.getName();
+					for (Iterator j = dbSegments.iterator(); j.hasNext();)
 					{
-						boolean found = false;
-						String name = local_si.getName();
-						for (Iterator j = dbSegments.iterator(); j.hasNext();)
+						SegmentInfo db_si = (SegmentInfo) j.next();
+						if (name.equals(db_si.getName()))
 						{
-							SegmentInfo db_si = (SegmentInfo) j.next();
-							if (name.equals(db_si.getName()))
-							{
-								found = true;
-								break;
-							}
-						}
-						if (!found)
-						{
-							removeLocalSegments.add(local_si);
-							if (log.isDebugEnabled())
-								log.debug("Will remove " + local_si);
-						}
-						else
-						{
-							if (log.isDebugEnabled())
-								log.debug("Ok Will not remove " + local_si);
+							found = true;
+							break;
 						}
 					}
-				}
-
-				// if we could mark the local segment for deletion so that
-				// its is only deleted some time later.
-				for (Iterator i = removeLocalSegments.iterator(); i.hasNext();)
-				{
-					SegmentInfo rmsi = (SegmentInfo) i.next();
-					removeLocalSegment(rmsi);
+					if (!found)
+					{
+						removeLocalSegments.add(local_si);
+						if (log.isDebugEnabled()) log.debug("Will remove " + local_si);
+					}
+					else
+					{
+						if (log.isDebugEnabled())
+							log.debug("Ok Will not remove " + local_si);
+					}
 				}
 			}
 
-			// process the get list
-			for (Iterator i = updateLocalSegments.iterator(); i.hasNext();)
+			// if we could mark the local segment for deletion so that
+			// its is only deleted the next time a lock is taken on the index
+			for (Iterator i = removeLocalSegments.iterator(); i.hasNext();)
 			{
-				SegmentInfo addsi = (SegmentInfo) i.next();
-				try
+				SegmentInfo rmsi = (SegmentInfo) i.next();
+				removeLocalSegment(rmsi);
+			}
+
+			// process the get list, first markign the segments as existing, so that other threads
+			// dont update them, then perform the update.
+			try
+			{
+				for (Iterator i = updateLocalSegments.iterator(); i.hasNext();)
 				{
-					updateLocalSegment(connection, addsi);
+					SegmentInfo addsi = (SegmentInfo) i.next();
+					addsi.lockLocalSegment();
 				}
-				catch (Exception ex)
+				for (Iterator i = updateLocalSegments.iterator(); i.hasNext();)
 				{
-					// ignore failures to unpack a local segment. It may have
-					// been removed by
-					// annother node
-					log.info("Segment was not unpacked " + ex.getClass().getName() + ":"
-							+ ex.getMessage());
+					SegmentInfo addsi = (SegmentInfo) i.next();
+					try
+					{
+						// This is thread safe strangely since the source doesnt
+						// change
+						// hence although it could be wastefull, more than one
+						// copy can perform an update at a
+						// time.
+						if (addsi.isLocalLock())
+						{
+							updateLocalSegment(connection, addsi);
+						} else {
+							log.warn("Not Updating Segment, since lock is not on this thread "+addsi.getName());
+						}
+					}
+					catch (Exception ex)
+					{
+						// ignore failures to unpack a local segment. It may
+						// have
+						// been removed by
+						// annother node
+						log.info("Segment was not unpacked " + ex.getClass().getName()
+								+ ":" + ex.getMessage());
+					}
+
+				}
+			}
+			finally
+			{
+				for (Iterator i = updateLocalSegments.iterator(); i.hasNext();)
+				{
+					SegmentInfo addsi = (SegmentInfo) i.next();
+					addsi.unlockLocalSegment();
 				}
 
 			}
@@ -2325,8 +2332,16 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		}
 	}
 
-	public void getLock()
+	public void getLock() throws IOException
 	{
+		List<SegmentInfo> deletedSegments = getDeletedLocalSegments();
+		// delete any segments marked as for deletion, by the last cycle.
+		// if this is due to a index reader event, we should not be performing this operation
+		// as the current reader will have these files open.
+		// we should only delete the old segments update thread
+		deleteAllSegments(deletedSegments);
+
+		
 		if (parallelIndex)
 		{
 			throw new RuntimeException("Parallel index is not implemented yet");

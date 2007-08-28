@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
@@ -150,14 +152,12 @@ public class SearchServiceImpl implements SearchService
 
 	private boolean diagnostics;
 
-	private long lastGet;
-
 	private Object reloadObjectSemaphore = new Object();
-
-	private boolean inreload = false;
 	
 	/** Configuration: to run the ddl on init or not. */
 	protected boolean autoDdl = false;
+
+	private Timer indexCloseTimer = new Timer(true);
 
 	/**
 	 * Configuration: to run the ddl on init or not.
@@ -379,7 +379,7 @@ public class SearchServiceImpl implements SearchService
 			Query textQuery = qp.parse(searchTerms);
 			query.add(contextQuery, BooleanClause.Occur.MUST);
 			query.add(textQuery, BooleanClause.Occur.MUST);
-			log.info("Compiled Query is " + query.toString()); //$NON-NLS-1$
+			log.debug("Compiled Query is " + query.toString()); //$NON-NLS-1$
 
 			if (localSearch.get() == null && searchServerUrl != null
 					&& searchServerUrl.length() > 0)
@@ -492,151 +492,95 @@ public class SearchServiceImpl implements SearchService
 		reloadStart = 0;
 	}
 
+	/**
+	 * The sequence is,
+	 * peform reload, 
+	 * @param reload
+	 * @return
+	 */
+	
 	public IndexSearcher getIndexSearcher(boolean reload)
 	{
-		long reloadWaitEnd = System.currentTimeMillis() + 10L * 1000L;
-		if (inreload)
-		{
-			long waitStart = System.currentTimeMillis();
-			log.info("Waiting for Index Reload to complete");
-			while (inreload && (System.currentTimeMillis() < reloadWaitEnd))
-			{
-				/*
-				 * When a reload is in progress we must wait here on a timeout
-				 * for it to have some chance of finishing. If it doesnt finish,
-				 * we will just grab the index searcher anyway It may cause
-				 * problems, but we cant throttle request threads for more than
-				 * 10 seconds.
-				 */
-				Thread.yield();
-			}
-			log.info("Reload Complete, request paused for "
-					+ (System.currentTimeMillis() - waitStart) + "ms");
-			if (System.currentTimeMillis() > reloadWaitEnd)
-			{
-				log.warn(" Index Reload Timeout, trying old Index ");
-			}
-		}
+		
 		if (runningIndexSearcher == null || (reload && !searchIndexBuilder.isLocalLock()))
 		{
 
+			
+			// there is a possiblity that we get more than one thread comming through this block.
+			// however this could oonly happen if more than one thread went throught the next 3 lines 
+			// at the same time.
+			// if more than one thread did go through the next 3 at the same time, then the local segments 
+			// might get updated more than once.
 			long lastUpdate = indexStorage.getLastUpdate();
-
 			if (lastUpdate > reloadStart || runningIndexSearcher == null)
 			{
-				synchronized (reloadObjectSemaphore)
+				reloadStart = System.currentTimeMillis();			
+				
+				long startLoad = System.currentTimeMillis();
+				if (log.isDebugEnabled())
 				{
-					/*
-					 * If we just go for reload, tehn there is a chance that
-					 * there will be an active search request depending on
-					 * search segments that are about to be deleted. on the
-					 * basis that a search typically < 100ms to complete and
-					 * release retrieve the results in fact it often takes <
-					 * 20ms, we should not try and reload if an index searcher
-					 * was retrieved in the last 100ms. That will prevent us
-					 * removing search index files from form an active search
-					 * load. The next problem that will happen is that searchers
-					 * will come in here when the index is being reloaded. This
-					 * is less of a problem, but we should probably throttle
-					 * while the load is going on to prevent a index sercher
-					 * that is in the process of being reloaded get into a
-					 * request cycle.
-					 */
+					log.debug("Reloading Index, force=" + reload); //$NON-NLS-1$
+				}
+				try
+				{
 
-					long endWait = System.currentTimeMillis() + 20L * 1000L;
-					while ((System.currentTimeMillis() < endWait)
-							&& (System.currentTimeMillis() < lastGet + 100L))
-					{
-						Thread.yield();
-					}
+					// dont leave closing the index searcher to
+					// the
+					// GC.
+					// It
+					// may
+					// not happen fast enough.
 
-					/*
-					 * Danger Zone, if something gets in here it may loose
-					 * segments.
-					 */
-					inreload = true;
-					try
+					// this makes the assumption that getIndexSearcher is thread safe.
+					// Care has to be taken here as there may be an update on the index being performed.
+					IndexSearcher newRunningIndexSearcher = indexStorage
+							.getIndexSearcher();
+
+					synchronized (reloadObjectSemaphore)
 					{
-						/**
-						 * check again if we really need to reload, annother
-						 * thread could have been in progress
-						 */
-						lastUpdate = indexStorage.getLastUpdate();
-						if (lastUpdate > reloadStart || runningIndexSearcher == null)
+						final IndexSearcher oldRunningIndexSearcher = runningIndexSearcher;
+						runningIndexSearcher = newRunningIndexSearcher;
+						reloadEnd = System.currentTimeMillis();
+
+						if (oldRunningIndexSearcher != null)
 						{
-							reloadStart = System.currentTimeMillis();
-							/*
-							 * Did we fail to get a reload lock, if so we just
-							 * have to ignore the reload request and wait for
-							 * the next one ?
-							 */
-							if (System.currentTimeMillis() < endWait)
+							indexCloseTimer.schedule(new TimerTask()
 							{
 
-								if (log.isDebugEnabled())
+								@Override
+								public void run()
 								{
-									log.debug("Reloading Index, force=" + reload); //$NON-NLS-1$
-								}
-								try
-								{
-
-									// dont leave closing the index searcher to
-									// the
-									// GC.
-									// It
-									// may
-									// not happen fast enough.
-
-									IndexSearcher newRunningIndexSearcher = indexStorage
-											.getIndexSearcher();
-
-									IndexSearcher oldRunningIndexSearcher = runningIndexSearcher;
-									runningIndexSearcher = newRunningIndexSearcher;
-
-									if (oldRunningIndexSearcher != null)
+									try
 									{
-										try
-										{
-											indexStorage
-													.closeIndexSearcher(oldRunningIndexSearcher);
-										}
-										catch (Exception ex)
-										{
-											log
-													.error(
-															"Failed to close old searcher ", ex); //$NON-NLS-1$
-										}
+										indexStorage
+												.closeIndexSearcher(oldRunningIndexSearcher);
 									}
-
-									reloadEnd = System.currentTimeMillis();
-									if (diagnostics)
+									catch (Exception ex)
 									{
-										log.info("Index Reloaded containing "
-												+ getNDocs() + " active documents and  "
-												+ getPendingDocs()
-												+ " pending documents in "
-												+ (reloadEnd - reloadStart) + "ms");
+										log.error("Failed to close old searcher ", ex); //$NON-NLS-1$
 									}
 								}
-								catch (IOException e)
-								{
-									reloadStart = reloadEnd;
-								}
-							}
-							else
-							{
-								log
-										.warn("Unable to reload index, there was too much search "
-												+ "activity on this node, will try again on the next "
-												+ "index reload event ");
-							}
+
+							}, 30 * 1000L);
 						}
 					}
-					finally
-					{
-						inreload = false;
-					}
 
+					if (diagnostics)
+					{
+						log.info("Index Reloaded containing " + getNDocs()
+								+ " active documents and  " + getPendingDocs()
+								+ " pending documents in " + (reloadEnd - reloadStart)
+								+ "ms");
+					}
+				}
+				catch (IOException e)
+				{
+					reloadStart = reloadEnd;
+				}
+				long loadPause = System.currentTimeMillis() - startLoad;
+				if (loadPause > 10 * 1000L)
+				{
+					log.warn("Reload of blocked this thread for " + loadPause + " ms ");
 				}
 			}
 			else
@@ -650,7 +594,6 @@ public class SearchServiceImpl implements SearchService
 			}
 		}
 
-		lastGet = System.currentTimeMillis();
 		return runningIndexSearcher;
 	}
 

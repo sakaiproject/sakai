@@ -142,8 +142,9 @@ public interface ClusterFilesystem
 	/**
 	 * if the thread already has a lock ignore get a lock on the index so that
 	 * it can be updated this should block untill a lock becomes free
+	 * @throws IOException 
 	 */
-	void getLock();
+	void getLock() throws IOException;
 
 	/**
 	 * release the lock, only if there is one this should block untill a lock
