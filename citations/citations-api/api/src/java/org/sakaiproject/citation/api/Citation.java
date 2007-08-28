@@ -159,9 +159,14 @@ public interface Citation 	// extends Entity
      * @param istream
 	 * @throws IOException 
      */
-    public void importFromRis(InputStream istream) throws IOException;
+    public void importFromRis(InputStream ris) throws IOException;
     
     /**
+	 * @return
+	 */
+	public boolean importFromRisList(List risList);
+
+	/**
 	 * @return
 	 */
 	public boolean isAdded();
