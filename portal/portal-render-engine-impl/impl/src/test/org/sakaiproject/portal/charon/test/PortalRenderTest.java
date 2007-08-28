@@ -58,17 +58,14 @@ public class PortalRenderTest extends TestCase
 	{
 		try
 		{
-			System.err.println("It is not possible to unit test the portal while there are  static covers in org.sakaiproject.util ");
-			//MockCharonPortal mock = new MockCharonPortal();
-			// mock.doError();
-			//mock.doGalleryTabs();
-			//mock.doGallery();
-			//mock.doNavLogin();
-			//mock.doNavLoginGallery();
-			//mock.doPage();
-			//mock.doSite();
-			//mock.doSiteTabs();
-			//mock.doWorksite();
+			MockCharonPortal mock = new MockCharonPortal();
+			mock.doError();
+			mock.doGallery();
+			mock.doNavLogin();
+			mock.doNavLoginGallery();
+			mock.doPage();
+			mock.doSite();
+			mock.doWorksite();
 		}
 		catch (Exception ex)
 		{

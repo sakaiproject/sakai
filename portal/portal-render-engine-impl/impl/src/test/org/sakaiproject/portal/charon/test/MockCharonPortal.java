@@ -30,9 +30,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +48,7 @@ import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.portal.charon.velocity.VelocityPortalRenderEngine;
@@ -61,7 +65,7 @@ import org.w3c.tidy.Tidy;
 public class MockCharonPortal extends HttpServlet
 {
 
-	private static ResourceLoader rloader = new ResourceLoader("sitenav");
+	private static Object rloader = isLiveSakai()? new ResourceLoader("sitenav") : new MockResourceLoader();
 
 	/** Our log (commons). */
 	private static Log log = LogFactory.getLog(MockCharonPortal.class);
@@ -79,7 +83,11 @@ public class MockCharonPortal extends HttpServlet
 
 	}
 
-	public void doError() throws IOException
+	private static boolean isLiveSakai() {
+	   return ComponentManager.contains("org.sakaiproject.log.api.LogConfigurationManager");
+      }
+
+  public void doError() throws IOException
 	{
 
 		// start the response
@@ -122,22 +130,6 @@ public class MockCharonPortal extends HttpServlet
 		sendResponse(rcontext, "gallery");
 	}
 
-	public void doGalleryTabs() throws IOException
-	{
-
-		PortalRenderContext rcontext = startPageContext();
-
-		// Remove the logout button from gallery since it is designed to be
-		// included within
-		// some other application (like a portal) which will want to control
-		// logout.
-
-		// includeTabs(out, req, session, siteId, "gallery", true);
-		includeTabs(rcontext);
-
-		sendResponse(rcontext, "gallery-tabs");
-	}
-
 	public void doNavLogin() throws IOException
 	{
 		// start the response
@@ -164,6 +156,8 @@ public class MockCharonPortal extends HttpServlet
 		PortalRenderContext rcontext = startPageContext();
 
 		includePage(rcontext);
+		
+		includeBottom(rcontext);
 
 		sendResponse(rcontext, "page");
 	}
@@ -179,7 +173,9 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("pageSiteType", "class=\"siteType\" ");
 		rcontext.put("toolParamResetState", "PARM_STATE_RESET");
 		rcontext.put("rloader", rloader);
-
+		
+		rcontext.put("sitReset", "sitReset");
+	
 		return rcontext;
 	}
 
@@ -198,23 +194,14 @@ public class MockCharonPortal extends HttpServlet
 		sendResponse(rcontext, "site");
 	}
 
-	public void doSiteTabs() throws IOException
-	{
-		// start the response
-		PortalRenderContext rcontext = startPageContext();
-
-		includeLogo(rcontext);
-		includeTabs(rcontext);
-
-		sendResponse(rcontext, "site-tabs");
-	}
-
 	public void doWorksite() throws IOException
 	{
 
 		PortalRenderContext rcontext = startPageContext();
 
 		includeWorksite(rcontext);
+		
+	    includeBottom(rcontext);
 
 		// end the response
 		sendResponse(rcontext, "worksite");
@@ -327,7 +314,7 @@ public class MockCharonPortal extends HttpServlet
 		}
 	}
 
-	protected void includePageNav(PortalRenderContext rcontext) throws IOException
+	protected void includePageNav(Map rcontext) throws IOException
 	{
 		rcontext.put("pageNavPublished", Boolean.valueOf(true));
 		rcontext.put("pageNavType", "type");
@@ -361,6 +348,7 @@ public class MockCharonPortal extends HttpServlet
 		// rcontext.put("pageNavSitPresenceTitle", "sit_presencetitle");
 		// rcontext.put("pageNavSitPresenceFrameTitle",
 		// "sit_presenceiframetit");
+		rcontext.put("pageNavToolsCount", Integer.toString(l.size()));
 		rcontext.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(true));
 		rcontext.put("pageNavPresenceUrl", "presenceUrl");
 		// rcontext.put("pageNavSitContentshead", "sit_contentshead");
@@ -434,13 +422,16 @@ public class MockCharonPortal extends HttpServlet
 		toolMap.put("toolShowResetButton", Boolean.valueOf(true));
 		toolMap.put("toolShowHelpButton", Boolean.valueOf(true));
 		toolMap.put("toolHelpActionUrl", "helpActionUrl");
+		toolMap.put("toolResetActionUrl", "toolResetActionUrl");
 		return toolMap;
 	}
 
 	protected void includeWorksite(PortalRenderContext rcontext) throws IOException
 	{
+	    Map sitePages = new HashMap();
+	    rcontext.put("sitePages", sitePages);
 		// add the page navigation with presence
-		includePageNav(rcontext);
+		includePageNav(sitePages);
 
 		// add the page
 		includePage(rcontext);
