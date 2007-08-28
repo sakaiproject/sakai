@@ -706,11 +706,16 @@ public class DiscussionTopicBean
 				if(uiPermissionsManager.isChangeSettings(topic, (DiscussionForum)topic.getBaseForum())
 						|| uiPermissionsManager.isNewResponse(topic, (DiscussionForum)topic.getBaseForum())
 						|| uiPermissionsManager.isRead(topic, (DiscussionForum)topic.getBaseForum()))
-			{
-				nonePermission = false;
-			}
+				{
+					nonePermission = false;
+				}
+				else
+				{
+					nonePermission = true;
+				}
+					
 		}
-		return nonePermission;
+		return nonePermission.booleanValue();
 	}
 
 	public void setNonePermission(boolean nonePermission)
