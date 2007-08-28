@@ -1789,8 +1789,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	}
 
 	/**
-	*
-	*/
+	 * 
+	 * @param data
+	 */
 	public void doImportPage ( RunData data)
 	{
 		// get the state object
@@ -1800,7 +1801,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	}	// doImportPage
 	
-	
+	/**
+	 * 
+	 * @param data
+	 */
 	public void doImport ( RunData data)
 	{
 		// get the state object
@@ -1998,6 +2002,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		setMode(state, Mode.IMPORT_CITATIONS);
 	} // end doImport()
 	
+	/**
+	 * 
+	 * @param citation
+	 * @param risImportList
+	 */
 	private void testImport(Citation citation, List risImportList)
 	{
 		String currentLine = null;
