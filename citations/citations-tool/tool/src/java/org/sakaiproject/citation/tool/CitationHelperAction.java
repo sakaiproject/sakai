@@ -1864,22 +1864,26 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// The below code is a major work in progress.  
 		// This code is for demonstration purposes only. No gambling or production use!
 
+		CitationCollection importCollection = CitationService.getTemporaryCollection();
+		
 
 		String fileString = new String();		
 		String importLine = null;
-		java.util.ArrayList importList = new java.util.ArrayList();
+		java.util.List importList = new java.util.ArrayList();
 
-		CitationCollection importCollection = CitationService.getTemporaryCollection();
-		Citation importCitation = null;
-		importCitation = CitationService.getTemporaryCitation();
 
 
 		try
 		{
 			while ((importLine = bread.readLine()) != null)
 			{
-				importList.add(importLine);
-				fileString = fileString + "\n" + importLine;
+				importLine = importLine.trim();
+				
+				if (importLine != null && importLine.length() > 2)
+				{
+				  importList.add(importLine);
+				  fileString = fileString + "\n" + importLine;
+				}
 				
 			} // end while
 		} // end try
@@ -1888,8 +1892,29 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			logger.debug("ISR error = " + e);
 		} // end catch
 		
-		logger.debug("fileString = \n" + fileString);		
+		logger.debug("fileString = \n" + fileString);	
+		
 
+		List tempList = new java.util.ArrayList();
+		Citation importCitation = CitationService.getTemporaryCitation();
+		
+		for(int i=0; i< importList.size(); i++)
+		{
+			String importEntryString = (String) importList.get(i);
+//			logger.debug("Import line (#1) = " + importEntryString);
+//			logger.debug("Substring is = " + importEntryString.substring(0, 2));
+			tempList.add(importEntryString);
+			
+			if (importEntryString != null && importEntryString.length() > 1 && 
+				importEntryString.substring(0, 2).equalsIgnoreCase("ER"))
+			{
+//				importCitation.importFromRisList(tempList);
+//				importCollection.add(importCitation);
+				testImport(importCitation, tempList);
+				tempList.clear();
+				// importCitation = CitationService.getTemporaryCitation();
+			}
+		} // end for
 /*
 		
 		String lineBuffer = new String();
@@ -1972,6 +1997,27 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		
 		setMode(state, Mode.IMPORT_CITATIONS);
 	} // end doImport()
+	
+	private void testImport(Citation citation, List risImportList)
+	{
+		String currentLine = null;
+		String[] tokens = null;
+
+		logger.debug("In testImport. list size is " + risImportList.size());
+		for(int i=0; i< risImportList.size(); i++)
+		{
+			currentLine = (String) risImportList.get(i);
+			logger.debug("currentLine = " + currentLine);
+			
+			tokens = currentLine.split("-");
+			
+			if (tokens != null && ! tokens[0].trim().equalsIgnoreCase("ER"))
+			{
+			  logger.debug("token 0 = " + tokens[0]);
+			  logger.debug("token 1 = " + tokens[1]);
+			}
+		}
+	}
 	
 	/**
 	*
