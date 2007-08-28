@@ -33,11 +33,11 @@
 				
 				<div id="contentDiv${DOT}$i" class="actionitem highlightPanel">
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
-					<p class="shorttext">
+					<p class="shorttext" style="border:none">
 						<label for="content${DOT}$i">$tlang.getString("label.upload")</label>
 						<input type="file" name="content${DOT}$i" id="content${DOT}$i" class="upload" />
 					</p>
-					<p class="shorttext"> 
+					<p class="shorttext" style="border:none"> 
 						<label for="displayName${DOT}$i">$tlang.getString("label.display")</label> 
 						<input type="text" id="displayName${DOT}$i" name="displayName${DOT}$i" /> 
 						<a class="indnt2" href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
@@ -48,7 +48,7 @@
 						<input type="hidden" id="next${DOT}$i" name="next${DOT}$i" value="#if($next < $pipes.size())${next}#end" />
 					</p>
 				</div>
-				<div id="propertiesDiv${DOT}$i" style="display:none;">
+				<div id="propertiesDiv${DOT}$i" style="border:none">
 					#parse("/vm/resources/sakai_properties.vm")
 					<hr class="itemSeparator" />
 				</div>

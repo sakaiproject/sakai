@@ -31,7 +31,7 @@
 				#set($next = $i + 1)
 				<div id="contentDiv${DOT}$i" class="actionitem highlightPanel">
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
-					<p class="shorttext">
+					<p class="shorttext" style="border:none">
 						<label for="content${DOT}$i">$tlang.getString("label.folder")</label>
 						<input type="text" name="content${DOT}$i" id="content${DOT}$i" />
 						##  onkeypress="return handleEnterKey(this, event)"
