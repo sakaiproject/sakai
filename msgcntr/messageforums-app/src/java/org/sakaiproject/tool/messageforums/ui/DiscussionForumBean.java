@@ -50,7 +50,14 @@ public class DiscussionForumBean
   private ArrayList contributorsList = new ArrayList();
   private ArrayList accessorList = new ArrayList();
   private String gradeAssign;
-  private boolean nonePermission = true;
+  private Boolean nonePermission = null;
+  
+  private Boolean newTopic = null;
+  private Boolean changeSettings = null;
+  private ArrayList decoAttachList = null;
+  private Boolean hasExtendedDescription = null;
+  private String locked;
+  private Boolean forumModerated = null;
    
    
   /**
@@ -131,12 +138,18 @@ public class DiscussionForumBean
   public String getLocked()
   {
     LOG.debug("getLocked()");
-    if (forum == null || forum.getLocked() == null
-        || forum.getLocked().booleanValue() == false)
-    {
-      return Boolean.FALSE.toString();
+    if (locked == null || locked.equals("")){
+	    if (forum == null || forum.getLocked() == null
+	        || forum.getLocked().booleanValue() == false)
+	    {
+	      locked = Boolean.FALSE.toString();
+	    }
+	    else
+	    {
+	    	locked = Boolean.TRUE.toString();
+	    }
     }
-    return Boolean.TRUE.toString();
+    return "false";
   }
 
   /**
@@ -156,6 +169,7 @@ public class DiscussionForumBean
     }
   }
   
+  private String moderated = null;
   /**
    * Returns whether the forum is moderated or not
    * @return
@@ -163,13 +177,16 @@ public class DiscussionForumBean
   public String getModerated()
   {
 	  LOG.debug("getModerated()");
-	  if (forum == null || forum.getModerated() == null || 
-		  forum.getModerated().booleanValue() == false)
-	  {
-		  return Boolean.FALSE.toString();
+	  if (moderated == null){
+		  if (forum == null || forum.getModerated() == null || 
+			  forum.getModerated().booleanValue() == false)
+		  {
+			  moderated = Boolean.FALSE.toString();
+		  }
+	
+		  moderated = Boolean.TRUE.toString();
 	  }
-
-	  return Boolean.TRUE.toString();
+	  return moderated;
   }
   
   /**
@@ -211,13 +228,17 @@ public class DiscussionForumBean
     this.markForDeletion = markForDeletion;
   }
 
+  
   /**
    * @return
    */
   public boolean getChangeSettings()
   {
     LOG.debug("getChangeSettings()");
-    return uiPermissionsManager.isChangeSettings(forum); 
+    if (changeSettings == null){
+    	changeSettings = uiPermissionsManager.isChangeSettings(forum);
+    }
+    return changeSettings.booleanValue();
   }
    
   /**
@@ -226,7 +247,10 @@ public class DiscussionForumBean
   public boolean isNewTopic()
   {
     LOG.debug("isNewTopic()");
-    return uiPermissionsManager.isNewTopic(forum);
+    if (newTopic == null){
+    	newTopic = uiPermissionsManager.isNewTopic(forum);
+    }
+    return newTopic.booleanValue();
   }
 
   /**
@@ -235,13 +259,16 @@ public class DiscussionForumBean
   public boolean getHasExtendedDesciption()
   {
     LOG.debug("getHasExtendedDesciption()");
-    if (forum.getExtendedDescription() != null
-        && forum.getExtendedDescription().trim().length() > 0
-        && (!readFullDesciption))
-    {
-      return true;
+    if (hasExtendedDescription == null){
+	    if (forum.getExtendedDescription() != null
+	        && forum.getExtendedDescription().trim().length() > 0
+	        && (!readFullDesciption))
+	    {
+	      hasExtendedDescription = true;
+	    }
+	    hasExtendedDescription = false;
     }
-    return false;
+    return hasExtendedDescription.booleanValue();
   }
   
   /**
@@ -259,7 +286,10 @@ public class DiscussionForumBean
    */
   public boolean isForumModerated()
   {
-	  return forum.getModerated().booleanValue();
+	  if (forumModerated == null){
+		  forumModerated = forum.getModerated().booleanValue();
+	  }
+	  return forumModerated.booleanValue();
   }
 
   /**
@@ -349,26 +379,27 @@ public class DiscussionForumBean
   {
     this.gradeAssign = gradeAssign;
   }
-
+  
 	public boolean getNonePermission()
 	{
-		nonePermission = true;
-		
-		if(uiPermissionsManager.isChangeSettings(forum) ||  uiPermissionsManager.isNewTopic(forum))
-		{
-			nonePermission = false;
-			return nonePermission;
-		}
-		
-		if(topics != null)
-		{
-			for(int i=0; i<topics.size(); i++)
+		if (nonePermission == null){
+			
+			if(uiPermissionsManager.isChangeSettings(forum) ||  uiPermissionsManager.isNewTopic(forum))
 			{
-				DiscussionTopicBean dtb = (DiscussionTopicBean) topics.get(i);
-				if(!dtb.getNonePermission())
+				nonePermission = false;
+				return nonePermission;
+			}
+			
+			if(topics != null)
+			{
+				for(int i=0; i<topics.size(); i++)
 				{
-					nonePermission = false;
-					break;
+					DiscussionTopicBean dtb = (DiscussionTopicBean) topics.get(i);
+					if(!dtb.getNonePermission())
+					{
+						nonePermission = false;
+						break;
+					}
 				}
 			}
 		}
@@ -382,14 +413,16 @@ public class DiscussionForumBean
 	
 	public ArrayList getAttachList()
 	{
-		ArrayList decoAttachList = new ArrayList();
-		List attachList = forum.getAttachments(); 
-		if(attachList != null)
-		{
-			for(int i=0; i<attachList.size(); i++)
+		if (decoAttachList == null){
+			decoAttachList = new ArrayList();
+			List attachList = forum.getAttachments(); 
+			if(attachList != null)
 			{
-				DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
-				decoAttachList.add(decoAttach);
+				for(int i=0; i<attachList.size(); i++)
+				{
+					DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
+					decoAttachList.add(decoAttach);
+				}
 			}
 		}
 		return decoAttachList;
