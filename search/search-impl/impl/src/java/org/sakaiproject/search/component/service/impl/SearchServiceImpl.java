@@ -294,6 +294,14 @@ public class SearchServiceImpl implements SearchService
 				log.debug("init end"); //$NON-NLS-1$
 			}
 			
+			if ( diagnostics ) {
+				indexStorage.enableDiagnostics();
+				searchIndexBuilder.enableDiagnostics();
+			} else {
+				indexStorage.disableDiagnostics();
+				searchIndexBuilder.disableDiagnostics();			
+			}
+			
 			
 		}
 		catch (Throwable t)
@@ -1143,9 +1151,12 @@ public class SearchServiceImpl implements SearchService
 	 */
 	public void disableDiagnostics()
 	{
-		diagnostics = false;
-		indexStorage.disableDiagnostics();
-		searchIndexBuilder.disableDiagnostics();
+		diagnostics = false;		
+		if ( indexStorage != null && searchIndexBuilder != null ) 
+		{
+			indexStorage.disableDiagnostics();
+			searchIndexBuilder.disableDiagnostics();
+		}
 
 	}
 
@@ -1157,8 +1168,11 @@ public class SearchServiceImpl implements SearchService
 	public void enableDiagnostics()
 	{
 		diagnostics = true;
-		indexStorage.enableDiagnostics();
-		searchIndexBuilder.enableDiagnostics();
+		if ( indexStorage != null && searchIndexBuilder != null ) 
+		{
+			indexStorage.enableDiagnostics();
+			searchIndexBuilder.enableDiagnostics();
+		}
 	}
 
 	/*
