@@ -4989,21 +4989,42 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
 		context.put("inMyWorkspace", Boolean.toString(inMyWorkspace));
+		String homeCollectionId = (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
+
+		boolean dropboxMode = RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES));
+		context.put("dropboxMode", Boolean.toString(dropboxMode));
+		boolean maintainer = false;
+		if(dropboxMode)
+		{
+			String[] parts = homeCollectionId.split(Entity.SEPARATOR);
+			if(parts.length >= 4)
+			{
+				maintainer = false;
+			}
+			else if(parts.length >= 3)
+			{
+				maintainer = true;
+			}
+		}
+		context.put("maintainer", Boolean.toString(maintainer));
 
 		context.put("server_url", ServerConfigurationService.getServerUrl());
 		context.put("site_id", ToolManager.getCurrentPlacement().getContext());
 		context.put("site_title", state.getAttribute(STATE_SITE_TITLE));
 		context.put("user_id", UserDirectoryService.getCurrentUser().getEid());
+		
 		if (ContentHostingService.isShortRefs())
 		{
 			// with short refs, this is prettier
 			context.put ("dav_group", "/dav/");
 			context.put ("dav_user", "/dav/~");
+			context.put ("dav_group_user", "/dav/group-user/");
 		}
 		else
 		{
 			context.put ("dav_group", "/dav/group/");
 			context.put ("dav_user", "/dav/user/");
+			context.put ("dav_group_user", "/dav/group-user/");
 		}
 
 		String webdav_instructions = ServerConfigurationService.getString("webdav.instructions.url");

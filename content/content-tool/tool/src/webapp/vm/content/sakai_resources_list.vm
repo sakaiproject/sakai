@@ -22,20 +22,18 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 #set($num = 0)
 <div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
-	#if(!$dropboxMode)
-		#if ($atHome && $atHome == $TRUE)
-				<div class="navIntraTool">
-					$tlang.getString("list.site")
-					| <a href="#toolLink("ResourcesAction" "doShow_webdav")" title="$tlang.getString('dav.webdav')">$tlang.getString("dav.webdav").trim()</a> 
-					#if($showPermissions)
-					| <a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$validator.escapeUrl(${site.id})")" title="$tlang.getString('list.sPerm')">$tlang.getString("list.sPerm").trim()</a>
-					#end
-					#if($showOptions)
-					| <a href="#toolLinkParam("ResourcesAction" "doOptions" "siteId=$validator.escapeUrl(${site.id})")" title="$tlang.getString('list.options')">$tlang.getString("list.options").trim()</a>
-					#end
-				</div>
-		#end 
-	#end
+	#if ($atHome && $atHome == $TRUE)
+			<div class="navIntraTool">
+				$tlang.getString("list.site")
+				| <a href="#toolLink("ResourcesAction" "doShow_webdav")" title="$tlang.getString('dav.webdav')">$tlang.getString("dav.webdav").trim()</a> 
+				#if($showPermissions)
+				| <a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$validator.escapeUrl(${site.id})")" title="$tlang.getString('list.sPerm')">$tlang.getString("list.sPerm").trim()</a>
+				#end
+				#if($showOptions)
+				| <a href="#toolLinkParam("ResourcesAction" "doOptions" "siteId=$validator.escapeUrl(${site.id})")" title="$tlang.getString('list.options')">$tlang.getString("list.options").trim()</a>
+				#end
+			</div>
+	#end 
 	#if ($alertMessage)
 		<br /><div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear" ></div>
 	#end

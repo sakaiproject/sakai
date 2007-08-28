@@ -78,6 +78,10 @@
 	<p class="indnt3">
 		#if("$!inMyWorkspace" == "true")
 			<strong>${server_url}${dav_user}$user_id</strong>
+		#elseif("$!dropboxMode" == "true" && "$!maintainer" == "true")
+			<strong>${server_url}${dav_group_user}$site_id</strong>
+		#elseif("$!dropboxMode" == "true")
+			<strong>${server_url}${dav_group_user}$site_id/$user_id</strong>
 		#else
 			<strong>${server_url}${dav_group}$site_id</strong>
 		#end
@@ -90,6 +94,14 @@
 			#if("$!inMyWorkspace" == "true")
 				<a href="${server_url}${dav_user}$user_id" folder="${server_url}${dav_user}$user_id" target="_blank" class="ahref">
 					<strong>${server_url}${dav_user}$user_id</strong>
+				</a>
+			#elseif("$!dropboxMode" == "true" && "$!maintainer" == "true")
+				<a href="${server_url}${dav_group_user}$site_id" folder="${server_url}${dav_group_user}$site_id" target="_blank" class="ahref">
+					<strong>${server_url}${dav_group_user}$site_id</strong>
+				</a>
+			#elseif("$!dropboxMode" == "true")
+				<a href="${server_url}${dav_group_user}$site_id/$user_id" folder="${server_url}${dav_group_user}$site_id/$user_id" target="_blank" class="ahref">
+					<strong>${server_url}${dav_group_user}$site_id/$user_id</strong>
 				</a>
 			#else
 				<a href="${server_url}${dav_group}$site_id" folder="${server_url}${dav_group}$site_id" target="_blank" class="ahref">
