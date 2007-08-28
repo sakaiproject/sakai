@@ -113,7 +113,7 @@ ${responseHead}
 		<div class="portletTitle">
 			<div class="title">
 #if (${toolPlacement.toolShowResetButton})
-                <a href="${toolPlacement.toolResetActionUrl} target="${toolPlacement.toolPlacementIDJS}" title="${sitReset}">
+                <a href="${toolPlacement.toolResetActionUrl}" target="${toolPlacement.toolPlacementIDJS}" title="${sitReset}">
                         <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" /></a>
 #end	
 				<h2>${toolPlacement.toolTitle}</h2>
