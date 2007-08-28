@@ -39,17 +39,19 @@
 				</td>
 			</tr>
 		</table>
-		#if ($item.resourceTypeDef.hasNotificationDialog())
-			<p class="shorttext">
-				<label for="notify">
-					$tlang.getString("gen.email1")
-				</label>	
-				<select name="notify" id="notify">
-					<option value="r">$tlang.getString("gen.email2")</option>
-					<option value="o">$tlang.getString("gen.email3")</option>
-					<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
-				</select>
-			</p>	
+		#if(! $item.isDropbox())
+			#if ($item.resourceTypeDef.hasNotificationDialog())
+				<p class="shorttext">
+					<label for="notify">
+						$tlang.getString("gen.email1")
+					</label>	
+					<select name="notify" id="notify">
+						<option value="r">$tlang.getString("gen.email2")</option>
+						<option value="o">$tlang.getString("gen.email3")</option>
+						<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+					</select>
+				</p>	
+			#end
 		#end
 		
 		<p class="act">

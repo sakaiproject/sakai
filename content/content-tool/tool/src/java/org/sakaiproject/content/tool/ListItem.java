@@ -924,7 +924,7 @@ public class ListItem
 
 		}
 		
-		if(this.id != null)
+		if(this.id != null && ! this.id.trim().equals(""))
 		{
 			this.isDropbox = contentService.isInDropbox(id);
 		}

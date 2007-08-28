@@ -28,7 +28,7 @@
 			<hr class="itemSeparator" />
 		</div>		
 	
-		#if (!$dropboxMode)
+		#if(! $item.isDropbox())
 			#if ($type.hasNotificationDialog())
 				#if ($notification)
 					<p class="shorttext">

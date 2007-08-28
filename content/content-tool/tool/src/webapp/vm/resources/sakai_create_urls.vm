@@ -58,7 +58,7 @@
 		<p class="act">
 			<a href="#" onclick="javascript:addFileInput();">$tlang.getString("label.addurl")</a>
 		</p>
-		#if(!$dropboxMode)
+		#if(!$model.isDropbox())
 			#if ($model.resourceTypeDef.hasNotificationDialog())
 				<p class="shorttext">
 					<label for="notify">
