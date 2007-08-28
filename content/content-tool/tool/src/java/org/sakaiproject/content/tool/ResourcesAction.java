@@ -1609,7 +1609,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch(IdLengthException e)
 			{
-				addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{e.getMessage()}));
+				addAlert(state, trb.getFormattedMessage("alert.toolong", new String[]{e.getMessage()}));
 			}
 			catch(IdUniquenessException e)
 			{
@@ -1726,7 +1726,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch(IdLengthException e)
 		{
-			addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{e.getMessage()}));
+			addAlert(state, trb.getFormattedMessage("alert.toolong", new String[]{e.getMessage()}));
 		}
 		catch(IdUniquenessException e)
 		{
@@ -5566,7 +5566,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
             }
             catch (IdLengthException e)
             {
-				addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{e.getMessage()}));
+				addAlert(state, trb.getFormattedMessage("alert.toolong", new String[]{e.getMessage()}));
 	            // TODO Auto-generated catch block
 	            logger.warn("IdLengthException " + e);
             }
@@ -8107,7 +8107,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (IdLengthException e)
 			{
-				addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{e.getMessage()}));
+				addAlert(state, trb.getFormattedMessage("alert.toolong", new String[]{e.getMessage()}));
 				// TODO Auto-generated catch block
 				logger.warn("IdLengthException ", e);
 			}
