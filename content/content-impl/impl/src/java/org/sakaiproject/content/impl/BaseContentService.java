@@ -8304,7 +8304,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 //			M_log.warn("createDropboxCollection(): PermissionException: " + dropbox);
 //			return;
 //		}
-
+		
+		SortedSet<String> members = new TreeSet<String>();
+		try
+		{
+			ContentCollection topDropbox = findCollection(dropbox);
+			members.addAll((List<String>) topDropbox.getMembers());
+		}
+		catch(TypeException e)
+		{
+			// do nothing
+		}
+		
 		// The AUTH_DROPBOX_OWN is granted within the site, so we can ask for all the users who have this ability
 		// using just the dropbox collection
 		List users = SecurityService.unlockUsers(AUTH_DROPBOX_OWN, getReference(dropbox));
@@ -8315,6 +8326,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// the folder id for this user's dropbox in this group
 			String userFolder = dropbox + user.getId() + "/";
 
+			if(members.contains(userFolder))
+			{
+				members.remove(userFolder);
+				continue;
+			}
 			// see if it exists - add if it doesn't
 			try
 			{
@@ -8343,6 +8359,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 //			{
 //				M_log.warn("createDropboxCollection(): PermissionException: " + userFolder);
 //			}
+			
+			// the SortedSet "members" now contains id's for all folders that are not associated with a particular member of the site
 		}
 	}
 
