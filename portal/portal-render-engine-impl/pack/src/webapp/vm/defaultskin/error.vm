@@ -1,74 +1,74 @@
 #start_response()
 <h2>Session</h2>
-#if ($s)
+#if (${s})
 no session established
 <br />
 #else
-session:  $s.getId() user id: $s.getUserId() enterprise id: $s.getUserEid() started: $s.getCreationTime() accessed: s.getLastAccessedTime() inactive after: s.getMaxInactiveInterval()
+session:  ${s.getId()} user id: ${s.getUserId()} enterprise id: ${s.getUserEid()} started: ${s.getCreationTime()} accessed: ${s.getLastAccessedTime()} inactive after: ${s.getMaxInactiveInterval()}
 <br />
 #end
 #if ($ts)
 no tool session established
 <br />
 #else
-tool session: $ts.getId() started: $ts.getCreationTime() accessed: $ts.getLastAccessedTime()
+tool session: ${ts.getId()} started: ${ts.getCreationTime()} accessed: ${ts.getLastAccessedTime()}
 <br />
 #end
 <h2>Unknown Request</h2>
 <h1>Snoop for request</h1>
-$req.toString()
-#if ($config)
+${req.toString()}
+#if (${config})
 <h1>Init Parameters</h1>
 <pre>
 #foreach( $param in $params ) 
-	$param.name : $param.value
+	${param.name} : ${param.value}
 #end
 </pre>
 <h1>Request information:</h1>
 <pre>
-Request method $req.getMethod()
+Request method ${req.getMethod()}
 Request URI requestUri
 requestUriChars
-Request protocol $req.getProtocol()
+Request protocol ${req.getProtocol()}
 Servlet path servletPath
 servletPathChars
 Context path contextPath
 contextPathChars
 Path info pathInfo
 pathInfoChars
-Path translated $req.getPathTranslated()
-Query string $req.getQueryString()
-Content length $req.getContentLength()
-Content type $req.getContentType()
-Server name $req.getServerName()
-Server port $req.getServerPort()
-Remote user $req.getRemoteUser()
-Remote address $req.getRemoteAddr()
-Authorization scheme $req.getAuthType()
+Path translated ${req.getPathTranslated()}
+Query string ${req.getQueryString()}
+Content length ${req.getContentLength()}
+Content type ${req.getContentType()}
+Server name ${req.getServerName()}
+Server port ${req.getServerPort()}
+Remote user ${req.getRemoteUser()}
+Remote address ${req.getRemoteAddr()}
+Authorization scheme ${req.getAuthType()}
 </pre>
 #end
 <h1>Request headers</h1>
 <pre>
 #foreach( $header in $headers )
-	$header.name : $header.value
+	${header.name} : ${header.value}
 #end
 </pre>
 <h1>Servlet parameters (Single Value style):</h1>
 <pre>
 #foreach( $prameter in $parameters )
-	$parameter.name = $parameter.name
+	${parameter.name} = ${parameter.name}
 #end
 </pre>
 <h1>Servlet parameters (Multiple Value style):</h1>
 <pre>
 #foreach( $parameter in $parameters ) 
-	$parameter.name = $parameter.name
+	${parameter.name} = ${parameter.name}
 #end
 </pre>
 <h1>Request Attributes:</h1>
 <pre>
 #foreach( $attribute in $attributes ) 
-	$attribute.name = $attribute.value
+	${attribute.name} = ${attribute.value}
 #end
 </pre>
 #end_response()

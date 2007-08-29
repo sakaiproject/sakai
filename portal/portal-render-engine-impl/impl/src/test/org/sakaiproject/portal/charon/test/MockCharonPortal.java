@@ -23,34 +23,20 @@ package org.sakaiproject.portal.charon.test;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.AbstractMap;
-import java.util.AbstractSet;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.portal.api.PortalRenderContext;
-import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.portal.charon.velocity.VelocityPortalRenderEngine;
 import org.sakaiproject.util.ResourceLoader;
 import org.w3c.tidy.Tidy;
@@ -65,7 +51,8 @@ import org.w3c.tidy.Tidy;
 public class MockCharonPortal extends HttpServlet
 {
 
-	private static Object rloader = isLiveSakai()? new ResourceLoader("sitenav") : new MockResourceLoader();
+	private static Object rloader = isLiveSakai() ? new ResourceLoader("sitenav")
+			: new MockResourceLoader();
 
 	/** Our log (commons). */
 	private static Log log = LogFactory.getLog(MockCharonPortal.class);
@@ -83,11 +70,21 @@ public class MockCharonPortal extends HttpServlet
 
 	}
 
-	private static boolean isLiveSakai() {
-	   return ComponentManager.contains("org.sakaiproject.log.api.LogConfigurationManager");
-      }
+	private static boolean isLiveSakai()
+	{
+		try
+		{
+			return ComponentManager
+					.contains("org.sakaiproject.log.api.LogConfigurationManager");
+		}
+		catch (Throwable t)
+		{
+			// if runing outside Sakai, a class not found will be thrown, the above will never work.
+			return false;
+		}
+	}
 
-  public void doError() throws IOException
+	public void doError() throws IOException
 	{
 
 		// start the response
@@ -156,7 +153,7 @@ public class MockCharonPortal extends HttpServlet
 		PortalRenderContext rcontext = startPageContext();
 
 		includePage(rcontext);
-		
+
 		includeBottom(rcontext);
 
 		sendResponse(rcontext, "page");
@@ -173,9 +170,9 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("pageSiteType", "class=\"siteType\" ");
 		rcontext.put("toolParamResetState", "PARM_STATE_RESET");
 		rcontext.put("rloader", rloader);
-		
+
 		rcontext.put("sitReset", "sitReset");
-	
+
 		return rcontext;
 	}
 
@@ -200,8 +197,8 @@ public class MockCharonPortal extends HttpServlet
 		PortalRenderContext rcontext = startPageContext();
 
 		includeWorksite(rcontext);
-		
-	    includeBottom(rcontext);
+
+		includeBottom(rcontext);
 
 		// end the response
 		sendResponse(rcontext, "worksite");
@@ -428,8 +425,8 @@ public class MockCharonPortal extends HttpServlet
 
 	protected void includeWorksite(PortalRenderContext rcontext) throws IOException
 	{
-	    Map sitePages = new HashMap();
-	    rcontext.put("sitePages", sitePages);
+		Map sitePages = new HashMap();
+		rcontext.put("sitePages", sitePages);
 		// add the page navigation with presence
 		includePageNav(sitePages);
 
@@ -455,7 +452,25 @@ public class MockCharonPortal extends HttpServlet
 			throws IOException
 	{
 		// get the writer
-		FileWriter f = new FileWriter(template + ".html");
+		File parent = new File("m2-target");
+		if ( !parent.exists() ) {
+			parent = new File("target");
+			if ( !parent.exists() ) {
+			 parent = null;
+			} 
+		} 
+		if ( parent == null ) {
+			parent = new File("test-render");
+		} else {
+			parent = new File(parent,"test-render");
+		}
+		if ( !parent.exists() ) {
+			parent.mkdirs();
+		}
+		File htmlOut = new File(parent,template+".html");
+		File tidyOut = new File(parent,template+".html.tidy.txt");
+		
+		FileWriter f = new FileWriter(htmlOut);
 
 		log.info("Context Dump is " + rcontext.dump());
 
@@ -471,10 +486,10 @@ public class MockCharonPortal extends HttpServlet
 		f.close();
 
 		Tidy t = new Tidy();
-		FileOutputStream fo = new FileOutputStream(template + ".html.tidy.txt");
+		FileOutputStream fo = new FileOutputStream(tidyOut);
 		t.setIndentContent(true);
 		t.setXHTML(true);
-		t.parse(new FileInputStream(template + ".html"), fo);
+		t.parse(new FileInputStream(htmlOut), fo);
 
 	}
 
