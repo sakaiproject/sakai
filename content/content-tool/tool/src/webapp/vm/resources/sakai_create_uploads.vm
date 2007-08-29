@@ -48,7 +48,7 @@
 						<input type="hidden" id="next${DOT}$i" name="next${DOT}$i" value="#if($next < $pipes.size())${next}#end" />
 					</p>
 				</div>
-				<div id="propertiesDiv${DOT}$i" style="border:none">
+				<div id="propertiesDiv${DOT}$i" style="display:none;">
 					#parse("/vm/resources/sakai_properties.vm")
 					<hr class="itemSeparator" />
 				</div>

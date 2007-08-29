@@ -564,6 +564,7 @@
 			if(display && display == "none")
 			{
 				propertiesDiv.style.display = "block";
+				propertiesDiv.style.border = "none";
 				removeTextNodes(element);
 				var newText = document.createTextNode("$tlang.getString("edit.hide")");
 				element.appendChild(newText);
