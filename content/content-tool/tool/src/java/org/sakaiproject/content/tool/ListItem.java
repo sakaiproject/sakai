@@ -416,17 +416,12 @@ public class ListItem
 			return;
 		}
 	    String refstr = entity.getReference();
-		Reference ref = EntityManager.newReference(refstr);
-		String contextId = ref.getContext();
-		boolean isUserSite = false;
-		if(contextId != null)
-		{
-			isUserSite = SiteService.isUserSite(contextId);
-		}
-		setUserSite(isUserSite);
-		
 		this.isSiteCollection = this.siteCollection(refstr);
 
+		boolean isUserSite = isInWorkspace(parent, refstr);
+		setUserSite(isUserSite);
+		
+		Reference ref = EntityManager.newReference(refstr);
 		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
 		if(entity.getContainingCollection() == null)
 		{
@@ -537,7 +532,7 @@ public class ListItem
 			// setup for quota - ADMIN only, site-root collection only
 			if (SecurityService.isSuperUser())
 			{
-				String siteCollectionId = contentService.getSiteCollection(contextId);
+				String siteCollectionId = contentService.getSiteCollection(ref.getContext());
 				if(siteCollectionId.equals(entity.getId()))
 				{
 					setCanSetQuota(true);
@@ -988,7 +983,29 @@ public class ListItem
 		this.useRetractDate = false;
 		Time retractDate = TimeService.newTime(defaultRetractTime.getTime());
 		this.isAvailable = parent.isAvailable();
+		
+		String refstr = contentService.getReference(id);
+		this.isSiteCollection = this.siteCollection(refstr);
 
+		boolean isUserSite = isInWorkspace(parent, refstr);
+		setUserSite(isUserSite);
+
+	}
+
+	/**
+	 * @param parent
+	 * @param refstr
+	 * @return
+	 */
+	protected boolean isInWorkspace(ListItem parent, String refstr) 
+	{
+		Reference ref = EntityManager.newReference(refstr);
+		String contextId = ref.getContext();
+		boolean isUserSite = (parent != null && parent.isUserSite()) 
+						|| (contextId != null && SiteService.isUserSite(contextId)) 
+						|| (refstr != null && refstr.trim().startsWith("/content/user/")) 
+						|| (this.containingCollectionId != null && this.containingCollectionId.trim().startsWith("/content/user/"));
+		return isUserSite;
 	}
 
 	/**
@@ -1034,13 +1051,8 @@ public class ListItem
 		
 		String refstr = contentService.getReference(id);
 		this.isSiteCollection = this.siteCollection(refstr);
-		Reference ref = EntityManager.newReference(refstr);
-		String contextId = ref.getContext();
-		boolean isUserSite = false;
-		if(contextId != null)
-		{
-			isUserSite = SiteService.isUserSite(contextId);
-		}
+		
+		boolean isUserSite = isInWorkspace(parent, refstr);
 		setUserSite(isUserSite);
 
 	}

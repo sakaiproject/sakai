@@ -22,7 +22,7 @@
 				</tr>
 			</table>
 		</div>
-		#if(! $model.isDropbox())
+		#if(! $item.isDropbox() && ! $item.isUserSite())
 			#if ($hasNotificationDialog)
 				<p class="shorttext">
 					<label for="notify">

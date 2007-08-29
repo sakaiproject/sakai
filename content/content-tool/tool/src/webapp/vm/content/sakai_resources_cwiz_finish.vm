@@ -28,20 +28,18 @@
 			<hr class="itemSeparator" />
 		</div>		
 	
-		#if(! $item.isDropbox())
+		#if(! $item.isDropbox() && ! $item.isUserSite())
 			#if ($type.hasNotificationDialog())
-				#if ($notification)
-					<p class="shorttext">
-						<label for="notify">
-							$tlang.getString("gen.email1")
-						</label>	
-						<select name="notify" id="notify">
-							<option value="r">$tlang.getString("gen.email2")</option>
-							<option value="o">$tlang.getString("gen.email3")</option>
-							<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
-						</select>
-					</p>	
-				#end
+				<p class="shorttext">
+					<label for="notify">
+						$tlang.getString("gen.email1")
+					</label>	
+					<select name="notify" id="notify">
+						<option value="r">$tlang.getString("gen.email2")</option>
+						<option value="o">$tlang.getString("gen.email3")</option>
+						<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+					</select>
+				</p>	
 			#end
 		#end
 		

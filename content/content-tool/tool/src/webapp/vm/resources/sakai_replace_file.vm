@@ -39,7 +39,7 @@
 				</td>
 			</tr>
 		</table>
-		#if(! $item.isDropbox())
+		#if(! $item.isDropbox() && ! $item.isUserSite())
 			#if ($item.resourceTypeDef.hasNotificationDialog())
 				<p class="shorttext">
 					<label for="notify">

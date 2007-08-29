@@ -16,7 +16,7 @@
 			<label for="content" class="block">$tlang.getString("label.url")</label>
 			<input type="text" name="content" id="content" size="60" value="$!validator.escapeHtml("$!pipe.contentstring")" />
 		</p>
-		#if(! $item.isDropbox())
+		#if(! $item.isDropbox() && ! $item.isUserSite())
 			#if ($hasNotificationDialog)
 				<p class="longtext" >
 					<label for="notify" class="block">

@@ -15,7 +15,7 @@
 		#end
 			<textarea name="content" id="content" rows="10" cols="60" wrap="virtual">$!validator.escapeHtmlTextarea($!{pipe.contentstring})</textarea>
 		</p>
-		#if(! $item.isDropbox())
+		#if(! $item.isDropbox() && ! $item.isUserSite())
 			#if ($hasNotificationDialog)
 				<p class="shorttext">
 					<label for="notify">
