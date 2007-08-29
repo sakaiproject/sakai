@@ -97,3 +97,6 @@ CREATE TABLE GB_PERMISSION_T (
     GROUP_ID    	 varchar(255) NULL,
     PRIMARY KEY(GB_PERMISSION_ID)
 );
+
+--OSP SAK-10553
+ALTER TABLE osp_wizard_page_def ADD SUPPRESS_ITEMS bit(1) not null default false;

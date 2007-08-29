@@ -102,3 +102,5 @@ CREATE TABLE GB_PERMISSION_T (
 
 create sequence GB_PERMISSION_S;
 
+--OSP SAK-10553
+alter table osp_wizard_page_def add SUPPRESS_ITEMS number(1, 0) default '0' not null;
