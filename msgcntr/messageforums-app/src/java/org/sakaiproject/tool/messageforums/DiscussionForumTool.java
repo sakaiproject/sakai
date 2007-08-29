@@ -4937,7 +4937,7 @@ public class DiscussionForumTool
   
   public List getSiteRoles()
   {
-	if (siteRoles == null){
+	if (siteRoles == null || siteMembers == null){
 		siteRoles = new ArrayList();
 	    //for group awareness
 	    //return getSiteMembers(false);
