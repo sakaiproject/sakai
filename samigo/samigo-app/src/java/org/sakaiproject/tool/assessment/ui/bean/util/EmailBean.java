@@ -39,6 +39,7 @@ import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.impl.ReferenceComponent;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
@@ -329,13 +330,13 @@ public class EmailBean implements Serializable {
 		if (result.equals("send")) {
 			String msgSent = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","sent_email_confirmation");
 			FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(msgSent));
-			
+			EventTrackingService.post(EventTrackingService.newEvent("sam.email", "Email sent ok: toName=" + toName + ", toEmail=" + toEmailAddress, true));       
 			return "confirmEmailSent";
 		}
 		else {
 			String msgError = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","sent_email_error");
 			FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(msgError));
-			
+			EventTrackingService.post(EventTrackingService.newEvent("sam.email", "Email sent error: toName=" + toName + ", toEmail=" + toEmailAddress, true));			
 			return "emailError";
 		}
 	}

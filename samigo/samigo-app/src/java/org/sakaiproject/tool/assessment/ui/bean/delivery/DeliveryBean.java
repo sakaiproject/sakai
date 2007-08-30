@@ -78,6 +78,7 @@ import org.sakaiproject.tool.api.Placement;
 import java.text.SimpleDateFormat;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 
 
@@ -1291,7 +1292,9 @@ public class DeliveryBean
     SubmitToGradingActionListener listener =
       new SubmitToGradingActionListener();
     listener.processAction(null);
-
+    
+    EventTrackingService.post(EventTrackingService.newEvent("sam.submit", "submissionId=" + adata.getAssessmentGradingId(), true));
+    
     // We don't need to call completeItemGradingData to create new ItemGradingData for linear access
     // because each ItemGradingData is created when it is viewed/answered 
     if (!navigation.equals("1")) {
