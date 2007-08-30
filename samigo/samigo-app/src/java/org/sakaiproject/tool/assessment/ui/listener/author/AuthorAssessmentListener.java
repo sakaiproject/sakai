@@ -32,6 +32,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
@@ -120,6 +121,7 @@ AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil
     try{
       assessment = createAssessment(
          assessmentTitle.trim(), description, typeId, templateId);
+      EventTrackingService.post(EventTrackingService.newEvent("sam.createAssessment", "assessmentId=" + assessment.getAssessmentId(), true));
     }
     catch(Exception e){
       // can't create assesment because gradebookService is not ready
