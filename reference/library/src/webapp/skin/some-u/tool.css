@@ -944,7 +944,7 @@ right now "namespaced" for mneme only to avoid any possible conflicts*/
 
 ul.makeMenu, ul.makeMenu ul {
   width: auto;
-  border: 1px solid #ddd;
+  border: 1px solid #ddd !important;
   background:#fff; 
   padding: 3px;
   padding-left: 6px;
@@ -957,7 +957,7 @@ ul.makeMenu, ul.makeMenu ul {
 	white-space: nowrap;
 }
 ul.makeMenu:hover{
-	border:1px solid #666;
+	border:1px solid #666  !important;
 }	
 .listHier ul.makeMenu img{
 	margin-right: 0;
@@ -968,7 +968,7 @@ ul.makeMenu li {
   list-style-type: none;
   margin: 0px;
   position: relative;
-  color: #000000;
+  color: #000000 !important;
  display:inline;
 }
 ul.makeMenu li > ul {
@@ -978,7 +978,7 @@ ul.makeMenu li > ul {
   left: 0;
 }
 ul.makeMenu li:hover, ul.makeMenu li.CSStoHighlight {
-  color: #000;
+  color: #000  !important;
 }
 ul.makeMenu ul.CSStoShow {
   display: block;
@@ -989,11 +989,11 @@ ul.makeMenu li:hover > ul {
 	background-color:#ffffff;
 	background-image:none;
 	position:absolute;
-	border:1px solid #666;
+	border:1px solid #666 !important;
 	margin-top:9px;
  	z-index:3
 }
-ul.makeMenu li a { display: block; width: 100%; text-decoration: underline;   padding:6px; }
-ul.makeMenu li a:hover, ul.makeMenu li a.CSStoHighLink { color: #000; }
+ul.makeMenu li a { display: block; width: 100%; text-decoration: underline;   padding:6px; color:#35B !important}
+ul.makeMenu li a:hover, ul.makeMenu li a.CSStoHighLink { color: #000 !important; }
 ul.makeMenu li:hover > a { color: #000; }
 
