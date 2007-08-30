@@ -175,7 +175,7 @@ public abstract class BaseCitationService implements CitationService
 		protected Integer m_serialNumber = null;
 		protected boolean m_temporary = false;
 		protected boolean m_isAdded = false;
-
+		
 		/**
 		 * Constructs a temporary citation.
 		 */
@@ -1533,31 +1533,104 @@ public abstract class BaseCitationService implements CitationService
 		 *
 		 * @see org.sakaiproject.citation.api.Citation#importFromRis(java.io.InputStream)
 		 */
-		public boolean importFromRisList(List risList)
+		public boolean importFromRisList(List risImportList)
 		{
-/*
- * "TY  - " Type of reference. This must contain one of the following field names as defined in the 
- * section, Reference Type field names.
- *
- * "ER  - " End of reference. Must be the last tag in a reference.
- *
- * "ID  - " Reference ID. The Reference ID can consist of any alphanumeric characters—up to 20 characters in length.
- *
- * "T1  - "
- * "TI  - "
- * "CT  - "
- * "BT  - " Title Primary. Note that the BT tag maps to this field only for Whole Book and 
- * Unpublished Work references. This field can contain alphanumeric characters; there is no practical length limit to this field.
- *
- * "T2  - "
- * "BT  - " Title Secondary. Note that the BT tag maps to this field for all reference types 
- * except for Whole Book and Unpublished Work references. There is no practical limit to the length of this field.
- *
- * "T3  - " Title Series. This field can contain alphanumeric characters; there is no practical length 
- * limit to this field.
- */
+			Log logger = LogFactory.getLog(BasicCitationService.class);
+
+			String currentLine = null;
+			String[] tokens = null;
+			int startpage = -1;
+			int endpage = -1;
+			Schema schema = null;
+			String schemaName = null;
+			
+			logger.debug("In timportFromRisList. List size is " + risImportList.size());
+			for(int i=0; i< risImportList.size(); i++)
+			{
+				currentLine = (String) risImportList.get(i);
+//				logger.debug("currentLine = " + currentLine);
+				
+				tokens = currentLine.split("-");
+
+				// Make sure tokens were created and that there are only two 
+				// tokens[0] = CODE  tokens[1] = VALUE
+				if (tokens != null  && tokens.length == 2)
+				{
+					tokens[0] = tokens[0].trim();
+					tokens[1] = tokens[1].trim();
+					
+					if (i == 0)
+					{
+						if (! tokens[0].equalsIgnoreCase("TY"))
+					    {
+//					    	logger.equals("1st entry in RIS must be TY. It isn't it is " + tokens[0]);
+					    	return false; // TY MUST be the first entry in a RIS citation
+					    }
+					    else
+					    {
+					    	schemaName = (String) m_RISTypeInverse.get(tokens[1]);
+							schema = org.sakaiproject.citation.cover.CitationService.getSchema(schemaName);
+							setSchema(schema);
+					    }
+					}
+					else
+					{	
+						if (tokens[0].equalsIgnoreCase("ER"))
+						{
+							return true; // ER signals end of citation
+						} // end of citation
+						else // citation has valid data (maybe). Read it in.
+						{
+//							logger.debug("token 0 = " + tokens[0]);
+//							logger.debug("token 1 = " + tokens[1]);
+							
+					    
+							if (tokens[0].equalsIgnoreCase("A1"))  // Author
+							{
+								this.addPropertyValue(Schema.CREATOR, tokens[1]);
+							}
+							else if (tokens[0].equalsIgnoreCase("EP")) // end page. Pages = EP-SP
+							{
+								endpage = Integer.parseInt(tokens[1]);
+							}
+							else if (tokens[0].equalsIgnoreCase("IS"))
+							{
+								this.addPropertyValue(Schema.ISSUE, tokens[1]);
+							}
+							else if (tokens[0].equalsIgnoreCase("PB"))
+							{
+								this.addPropertyValue(Schema.PUBLISHER, tokens[1]);
+							}
+							else if (tokens[0].equalsIgnoreCase("SN"))
+							{
+								this.addPropertyValue(Schema.ISN, tokens[1]);
+							}
+							else if (tokens[0].equalsIgnoreCase("SP")) // Start Page. Pages = EP-SP
+							{
+								startpage = Integer.parseInt(tokens[1]);
+							}
+							else if (tokens[0].equalsIgnoreCase("T1"))
+							{
+								this.addPropertyValue(Schema.TITLE, tokens[1]);
+							}
+							else if(tokens[0].equalsIgnoreCase("TI"))
+							{
+								this.addPropertyValue(Schema.SOURCE_TITLE, tokens[1]);
+							}
+							else if (tokens[0].equalsIgnoreCase("VL"))
+							{
+								this.addPropertyValue(Schema.VOLUME, tokens[1]);
+							}
+							else if (tokens[0].equalsIgnoreCase("Y1"))
+							{
+								this.addPropertyValue(Schema.YEAR, tokens[1]);
+							}
+						} // end else = citation has valid data (maybe)
+					} // end else i==0
+				} // end if tokens != null && tokens.length == 2
+			} // end for i
 			return true;
-		}
+		}  // end ImportFromRisList
 
 		/*
 		 * (non-Javadoc)
@@ -3417,6 +3490,8 @@ public abstract class BaseCitationService implements CitationService
 	 * Set up a mapping of our type to RIS 'TY - ' values
 	 */
 	protected static final Map m_RISType = new Hashtable();
+	
+	protected static final Map m_RISTypeInverse = new Hashtable();
 
 	/**
 	 * Which fields map onto the RIS Notes field? Include a prefix for the data,
@@ -3436,6 +3511,11 @@ public abstract class BaseCitationService implements CitationService
 		m_RISType.put("book", "BOOK");
 		m_RISType.put("chapter", "CHAP");
 		m_RISType.put("report", "RPRT");
+
+		m_RISTypeInverse.put("BOOK", "book");
+		m_RISTypeInverse.put("CHAP", "chapter");
+		m_RISTypeInverse.put("JOUR", "article");
+		m_RISTypeInverse.put("RPRT", "report");
 	}
 
 	static
