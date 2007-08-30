@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
@@ -246,6 +247,8 @@ public class SaveAssessmentSettings
 
     // added by daisyf, 10/10/06
     updateAttachment(assessment.getAssessmentAttachmentList(), assessmentSettings.getAttachmentList(),(AssessmentIfc)assessment.getData());
+    EventTrackingService.post(EventTrackingService.newEvent("sam.editSetting", "assessmentId=" + assessmentSettings.getAssessmentId(), true));
+    
     assessment = assessmentService.getAssessment(assessmentId.toString());
     return assessment;
   }

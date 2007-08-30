@@ -37,6 +37,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -270,6 +271,8 @@ public class SavePartListener
         assessmentBean.getAssessmentId());
     assessmentBean.setAssessment(assessment);
     assessmentService.updateAssessmentLastModifiedInfo(assessment);
+    
+    EventTrackingService.post(EventTrackingService.newEvent("sam.editPart", "sectionId=" + section.getSectionId(), true));
   }
 
   public SectionFacade addPart(String assessmentId){

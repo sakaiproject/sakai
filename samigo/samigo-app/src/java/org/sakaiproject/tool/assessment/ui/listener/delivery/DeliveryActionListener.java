@@ -39,6 +39,7 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -137,6 +138,7 @@ public class DeliveryActionListener
     	  log.debug("From Begin Assessment button clicks");
     	  delivery.setPartIndex(0);
     	  delivery.setQuestionIndex(0);
+    	  EventTrackingService.post(EventTrackingService.newEvent("sam.takeAssessment", "publishedAssessmentId=" + delivery.getAssessmentId(), true));
       }
       else {
     	  // If comes from TOC, set the indexes from request parameters

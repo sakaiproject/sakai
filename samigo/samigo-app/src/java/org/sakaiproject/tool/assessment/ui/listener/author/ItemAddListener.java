@@ -40,6 +40,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
@@ -194,6 +195,7 @@ public class ItemAddListener
     if (!saveItem(itemauthorbean)){
 	throw new RuntimeException("failed to saveItem.");
     }
+    EventTrackingService.post(EventTrackingService.newEvent("sam.addItem", "itemId=" + itemauthorbean.getItemId(), true));
     item.setOutcome("editAssessment");
     item.setPoolOutcome("editPool");
     itemauthorbean.setItemTypeString("");
