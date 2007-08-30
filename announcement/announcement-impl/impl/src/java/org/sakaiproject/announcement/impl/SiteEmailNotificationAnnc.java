@@ -140,7 +140,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	/**
 	 * @inheritDoc
 	 */
-	protected String getMessage(Event event)
+	protected String htmlContent()
 	{
 		StringBuffer buf = new StringBuffer();
 		String newline = "<br />\n";
@@ -217,6 +217,11 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 				buf.append("<a href=\"" + attachment.getUrl() + "\">" + attachmentTitle + "</a>" + newline);
 			}
 		}
+		
+		buf.append("<hr/>" + newline + rb.getString("this") + " "
+				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (<a href=\""
+				+ ServerConfigurationService.getPortalUrl() + "\">" + ServerConfigurationService.getPortalUrl() + "</a>) "
+				+ rb.getString("forthe") + " " + title + " " + rb.getString("site") + newline + rb.getString("youcan") + newline);
 
 		return buf.toString();
 	}
@@ -229,7 +234,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		List rv = super.getHeaders(event);
 
 		// Set the content type of the message body to HTML
-		rv.add("Content-Type: text/html");
+		// rv.add("Content-Type: text/html");
 
 		// set the subject
 		rv.add("Subject: " + getSubject(event));
@@ -248,12 +253,8 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	 */
 	protected String getTag(String newline, String title)
 	{
-		// tag the message - HTML version
-		String rv = newline + rb.getString("separator") + newline + rb.getString("this") + " "
-				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (<a href=\""
-				+ ServerConfigurationService.getPortalUrl() + "\">" + ServerConfigurationService.getPortalUrl() + "</a>) "
-				+ rb.getString("forthe") + " " + title + " " + rb.getString("site") + newline + rb.getString("youcan") + newline;
-		return rv;
+		// We handle this in the bodies of the messages
+		return "";
 	}
 
 	/**
@@ -387,10 +388,6 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		});
 	}
 
-	@Override
-	protected String htmlContent() {
-		return getMessage(this.event);
-	}
 
 	@Override
 	protected EmailNotification makeEmailNotification() {
@@ -400,7 +397,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	@Override
 	protected String plainTextContent() {
 		// TODO replace this with a reasonable plain text equivalent
-		return getMessage(this.event);
+		return htmlContent();
 	}
 
 }
