@@ -119,7 +119,7 @@ public class SegmentState
 		}
 		else
 		{
-			log.warn("Unrecognized version number " + version);
+			log.warn("Segment ("+name+"): Unrecognized version number " + version);
 		}
 		fr.close();
 	}
@@ -140,7 +140,7 @@ public class SegmentState
 		}
 		catch (NoSuchAlgorithmException e)
 		{
-			log.error("MD5 not available ", e);
+			log.error("Segment ("+name+"): MD5 not available ", e);
 		}
 		byte[] buffer = new byte[4096];
 		if (files != null)
@@ -181,7 +181,7 @@ public class SegmentState
 				}
 				catch (Exception ex)
 				{
-					log.error("Failed to generate checksum of "
+					log.error("Segment ("+name+"): Failed to generate checksum of "
 							+ files[i].getAbsolutePath(), ex);
 				}
 			}
@@ -299,7 +299,7 @@ public class SegmentState
 		{
 			if ( logging ) {
 				log
-					.info(" The segment has no stored state, it may be new or it could be dammaged ");
+					.info("Segment ("+name+"): The segment has no stored state, it may be new or it could be dammaged ");
 			}
 			return true;
 		}
@@ -326,7 +326,7 @@ public class SegmentState
 			}
 		}
 		if ( logging ) {
-			log.info("Checked "+name+"\n"+sb.toString());
+			log.info("Segment ("+name+"): Checked "+name+"\n"+sb.toString());
 		}
 		return true;
 	}

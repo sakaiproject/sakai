@@ -183,5 +183,17 @@ public interface SegmentInfo
 	 */
 	void unlockLocalSegment();
 
+	/**
+	 * @param string
+	 */
+	void debugSegment(String string);
+
+	/**
+	 * Compares this segment to the supplied segment, based on the in memory state of the live segment state
+	 * @param string
+	 * @param recoverSegInfo
+	 */
+	void compareTo(String message, SegmentInfo recoverSegInfo);
+
 
 }

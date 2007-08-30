@@ -22,7 +22,9 @@
 package org.sakaiproject.search.index.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.channels.FileLock;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -79,9 +81,9 @@ public class SegmentInfoImpl implements SegmentInfo
 	public static final int STATE_CREATED = 1;
 
 	public static final int STATE_DELETED = 2;
-	
+
 	private SegmentState storedSegmentState = null;
-	
+
 	private SegmentState liveSegmentState = null;
 
 	private static ConcurrentHashMap<String, String> lock = new ConcurrentHashMap<String, String>();;
@@ -91,27 +93,47 @@ public class SegmentInfoImpl implements SegmentInfo
 		return name + ":" + version + ":" + indb + ": State:" + states[getState()]
 				+ ":Created:" + name + ": Update" + new Date(version);
 	}
-	
+
 	public static SegmentInfo newSharedSegmentInfo(String name, long version,
-			boolean localStructuredStorage, String searchIndexDirectory) {
-		return new SegmentInfoImpl(name,version,true,localStructuredStorage,searchIndexDirectory);
+			boolean localStructuredStorage, String searchIndexDirectory)
+	{
+		return new SegmentInfoImpl(name, version, true, localStructuredStorage,
+				searchIndexDirectory);
 	}
-	public static SegmentInfo newLocalSegmentInfo(File file, boolean localStructuredStorage,
-			String searchIndexDirectory) {
+
+	public static SegmentInfo newLocalSegmentInfo(File file,
+			boolean localStructuredStorage, String searchIndexDirectory)
+	{
 		return new SegmentInfoImpl(file, false, localStructuredStorage,
-				 searchIndexDirectory);
+				searchIndexDirectory);
 	}
 
 	/**
-	 * Create  Segment Info and set the version number explicity, 
-	 * normally as a result of the Segment vomming from the DB
+	 * Create a new copy of the segment refreshing from the local disk.
+	 * 
+	 * @param recoverSegInfo
+	 * @return
+	 */
+	public static SegmentInfo newLocalSegmentInfo(SegmentInfo recoverSegInfo)
+	{
+		SegmentInfoImpl si = (SegmentInfoImpl) recoverSegInfo;
+		File segmentLocation = getSegmentLocation(si.getName(),
+				si.localStructuredStorage, si.searchIndexDirectory);
+		return new SegmentInfoImpl(segmentLocation, false, si.localStructuredStorage,
+				si.searchIndexDirectory);
+	}
+
+	/**
+	 * Create Segment Info and set the version number explicity, normally as a
+	 * result of the Segment vomming from the DB
+	 * 
 	 * @param name
 	 * @param version
 	 * @param indb
 	 * @param localStructuredStorage
 	 * @param searchIndexDirectory
 	 */
-	private  SegmentInfoImpl(String name, long version, boolean indb,
+	private SegmentInfoImpl(String name, long version, boolean indb,
 			boolean localStructuredStorage, String searchIndexDirectory)
 	{
 		this.searchIndexDirectory = searchIndexDirectory;
@@ -124,10 +146,10 @@ public class SegmentInfoImpl implements SegmentInfo
 		this.indb = indb;
 		this.version = version;
 		this.name = name;
-		
+
 		try
 		{
-			storedSegmentState = new SegmentState(this,timestampFile);
+			storedSegmentState = new SegmentState(this, timestampFile);
 		}
 		catch (IOException e)
 		{
@@ -135,7 +157,7 @@ public class SegmentInfoImpl implements SegmentInfo
 		}
 		try
 		{
-			liveSegmentState = new SegmentState(this,null);
+			liveSegmentState = new SegmentState(this, null);
 			liveSegmentState.setTimeStamp(version);
 		}
 		catch (IOException e)
@@ -146,6 +168,7 @@ public class SegmentInfoImpl implements SegmentInfo
 
 	/**
 	 * Initialize a local segment
+	 * 
 	 * @param file
 	 * @param indb
 	 * @param localStructuredStorage
@@ -163,26 +186,34 @@ public class SegmentInfoImpl implements SegmentInfo
 		this.indb = indb;
 		this.name = file.getName();
 		/*
-		 * The stored segment state is null, hence we have a potentially broken segment.
-		 * We should set the version to -1 and let it update from the database if it can.
+		 * The stored segment state is null, hence we have a potentially broken
+		 * segment. We should set the version to -1 and let it update from the
+		 * database if it can.
 		 */
 		this.version = -1;
-		try
+		if (segmentLocation.isDirectory())
 		{
-			storedSegmentState = new SegmentState(this,timestampFile);
-			this.version = storedSegmentState.getTimeStamp();
-		}
-		catch (IOException e)
-		{
-			log.debug("Cant Load Stored Segment State");
-		}
-		try
-		{
-			liveSegmentState = new SegmentState(this,null);
-		}
-		catch (IOException e)
-		{
-			log.debug("Cant Load Live Segment State");
+			try
+			{
+				storedSegmentState = new SegmentState(this, timestampFile);
+				this.version = storedSegmentState.getTimeStamp();
+			}
+			catch (IOException e)
+			{
+				log.info("Segment (" + name + "): Cant Load Stored Segment State");
+			}
+			try
+			{
+				// this might cause a performance problem with a structured index
+				// since this is called hierachically and so may generate a checksum
+				// of the entire tree. Perhapse we should look for the existance 
+				// of the lucene segments file before performing this operation
+				liveSegmentState = new SegmentState(this, null);
+			}
+			catch (IOException e)
+			{
+				log.info("Segment (" + name + "): Cant Load Live Segment State");
+			}
 		}
 	}
 
@@ -225,7 +256,8 @@ public class SegmentInfoImpl implements SegmentInfo
 				}
 				catch (IOException e)
 				{
-					log.error("Failed to create new segment marker at " + newFile);
+					log.error("Segment (" + name
+							+ "): Failed to create new segment marker at " + newFile);
 				}
 			}
 			if (deletedFile.exists())
@@ -255,9 +287,9 @@ public class SegmentInfoImpl implements SegmentInfo
 				}
 				catch (IOException e)
 				{
-					log
-							.error("Failed to create deleted segment marker at "
-									+ deletedFile);
+					log.error("Segment (" + name
+							+ "): Failed to create deleted segment marker at "
+							+ deletedFile);
 				}
 			}
 			if (newFile.exists())
@@ -340,14 +372,6 @@ public class SegmentInfoImpl implements SegmentInfo
 	{
 		return (getState() == STATE_DELETED);
 	}
-	
-	
-	
-	
-
-
-
-
 
 	/**
 	 * set the timestamp in the segment
@@ -382,17 +406,17 @@ public class SegmentInfoImpl implements SegmentInfo
 	 * localStructuredStorage, searchIndexDirectory); return
 	 * getCheckSum(segmentLocation); }
 	 */
-	public boolean checkSegmentValidity(boolean logging, String message) 
+	public boolean checkSegmentValidity(boolean logging, String message)
 	{
 		/**
 		 * Dont check new segments, there will not be any state to check
 		 */
-		if ( isCreated() ) {
-			return liveSegmentState.checkValidity(logging,message,storedSegmentState);
+		if (isCreated())
+		{
+			return liveSegmentState.checkValidity(logging, message, storedSegmentState);
 		}
 		return true;
 	}
-
 
 	public long getLocalSegmentLastModified()
 	{
@@ -487,20 +511,27 @@ public class SegmentInfoImpl implements SegmentInfo
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.SegmentInfo#doFinalDelete()
 	 */
 	public void doFinalDelete()
 	{
-		if ( isDeleted() ) {
+		if (isDeleted())
+		{
 			File f = getSegmentLocation();
 			deleteAll(f);
-		} else {
-			log.error("Attempt to delete current Segment Data "+this);
+			log.info("Segment (" + name + "): Deleted ");
 		}
-		
+		else
+		{
+			log.error("Segment (" + name + "): Attempt to delete current Segment Data "
+					+ this);
+		}
+
 	}
-	
+
 	/**
 	 * delete all files under this file and including this file
 	 * 
@@ -522,52 +553,144 @@ public class SegmentInfoImpl implements SegmentInfo
 					else
 					{
 						files[i].delete();
-						if ( files[i].exists() ) {
-							log.warn("Failed to delete  "+files[i].getPath());
+						if (files[i].exists())
+						{
+							log.warn("Failed to delete  " + files[i].getPath());
 						}
 					}
 				}
 			}
 		}
 		f.delete();
-		if ( f.exists() ) {
-			log.warn("Failed to delete  "+f.getPath());
+		if (f.exists())
+		{
+			log.warn("Failed to delete  " + f.getPath());
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.SegmentInfo#isLocalLock()
 	 */
 	public boolean isLocalLock()
 	{
-		String threadName = lock .get(this.name);
-		if ( threadName == null || threadName.equals(Thread.currentThread().getName()) ) {
+		String threadName = lock.get(this.name);
+		if (threadName == null || threadName.equals(Thread.currentThread().getName()))
+		{
 			return true;
 		}
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.SegmentInfo#lockLocalSegment()
 	 */
 	public void lockLocalSegment()
 	{
 		String threadName = lock.get(this.name);
-		if ( threadName == null ) {
-			lock.put(this.name,Thread.currentThread().getName());
-		}		
+		if (threadName == null)
+		{
+			lock.put(this.name, Thread.currentThread().getName());
+		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.SegmentInfo#unlockLocalSegment()
 	 */
 	public void unlockLocalSegment()
 	{
-		if ( isLocalLock() ) {
+		if (isLocalLock())
+		{
 			lock.remove(this.name);
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.index.SegmentInfo#debugSegment(java.lang.String)
+	 */
+	public void debugSegment(String message)
+	{
+
+		liveSegmentState.checkValidity(true, message, storedSegmentState);
+		dumpAllFiles(getSegmentLocation(), message);
+	}
+
+	/**
+	 * @param message
+	 */
+	private void dumpAllFiles(File f, String message)
+	{
+		dumpFileInfo(f, message);
+		File[] files = f.listFiles();
+		if (files != null)
+		{
+			for (int i = 0; i < files.length; i++)
+			{
+				if (files[i].isDirectory())
+				{
+					dumpAllFiles(files[i], message);
+				}
+				else
+				{
+					dumpFileInfo(files[i], message);
+
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param f
+	 * @param message
+	 */
+	private void dumpFileInfo(File f, String message)
+	{
+		String fileInfo = message + "(" + f.getPath() + "):";
+		if (!f.exists())
+		{
+			log.error(fileInfo + " File No longer exists");
+
+		}
+		else
+		{
+			log.info(fileInfo + " size=[" + f.length() + "] lastModified=["
+					+ f.lastModified() + "] read=[" + f.canRead() + "] write=["
+					+ f.canWrite() + "] hidden=[" + f.isHidden() + "]");
+			try
+			{
+				FileInputStream fin = new FileInputStream(f);
+				fin.read(new byte[4096]);
+				log.info(fileInfo + " readOk");
+				FileLock fl = fin.getChannel().tryLock();
+				fl.release();
+				fin.close();
+				log.info(fileInfo + " lockOk");
+			}
+			catch (Exception ex)
+			{
+				log.warn(fileInfo + " Lock or Read failed: ", ex);
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.index.SegmentInfo#compareTo(java.lang.String,
+	 *      org.sakaiproject.search.index.SegmentInfo)
+	 */
+	public void compareTo(String message, SegmentInfo compare)
+	{
+		SegmentInfoImpl si = (SegmentInfoImpl) compare;
+		liveSegmentState.checkValidity(true, message, si.liveSegmentState);
+	}
 
 }

@@ -181,6 +181,17 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			// updated
 			// from the db
 			deleteAllSegments(badLocalSegments);
+			
+			
+			List<SegmentInfo> deletedSegments = getDeletedLocalSegments();
+			// delete any segments marked as for deletion, by the last cycle.
+			// if this is due to a index reader event, we should not be performing this operation
+			// as the current reader will have these files open.
+			// we should only delete the old segments update thread
+			// If this call forms part of an exception, then we should look at doing a 
+			// timeout on the delete files.
+			deleteAllSegments(deletedSegments);
+			
 
 			if (log.isDebugEnabled())
 				log.debug("Update: Local Segments = " + localSegments.size());
@@ -984,8 +995,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 						throw new SQLException(" Failed to add patch packet  ");
 					}
 				}
+				
+				long st = System.currentTimeMillis();
 				sharedTempFile.renameTo(sharedFinalFile);
-				if (log.isDebugEnabled()) log.debug("DB Patch ");
+				if ( searchService.hasDiagnostics() ) {
+					log.info("Renamed "+sharedTempFile.getPath()+" to "+sharedFinalFile.getPath()+" in "+(System.currentTimeMillis()-st)+"ms");
+				}
 			}
 			else
 			{
@@ -1605,7 +1620,14 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	public void recoverSegment(SegmentInfo recoverSegInfo)
 	{
-
+		SegmentInfo segInfo = SegmentInfoImpl.newLocalSegmentInfo(recoverSegInfo);
+		segInfo.debugSegment("Pre Recovery Check :");
+		
+		segInfo.compareTo("Comparing Disk Segment to Recovered Segment",recoverSegInfo);
+		
+		
+		
+		
 		recoverSegInfo.setDeleted();
 		recoverSegInfo.doFinalDelete();
 		recoverSegInfo.setNew();
@@ -1641,6 +1663,11 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 			}
 		}
+		
+		SegmentInfo newSegInfo = SegmentInfoImpl.newLocalSegmentInfo(recoverSegInfo);
+		newSegInfo.debugSegment("Recovered Segment");
+		newSegInfo.compareTo("Comparing Recoverd Segment to Previous Disk Segment",segInfo);
+		
 
 	}
 
@@ -1883,7 +1910,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				}
 				addsi.setVersion(newVersion);
 				sharedFinalFile.getParentFile().mkdirs();
+				long st = System.currentTimeMillis();
 				sharedTempFile.renameTo(sharedFinalFile);
+				if ( searchService.hasDiagnostics() ) {
+					log.info("Renamed "+sharedTempFile.getPath()+" to "+sharedFinalFile.getPath()+" in "+(System.currentTimeMillis()-st)+"ms");
+				}
+
 				log.info("DB Updated " + addsi);
 			}
 			else
@@ -2334,12 +2366,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	public void getLock() throws IOException
 	{
-		List<SegmentInfo> deletedSegments = getDeletedLocalSegments();
-		// delete any segments marked as for deletion, by the last cycle.
-		// if this is due to a index reader event, we should not be performing this operation
-		// as the current reader will have these files open.
-		// we should only delete the old segments update thread
-		deleteAllSegments(deletedSegments);
 
 		
 		if (parallelIndex)
