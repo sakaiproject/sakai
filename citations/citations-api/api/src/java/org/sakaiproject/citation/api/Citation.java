@@ -164,7 +164,7 @@ public interface Citation 	// extends Entity
     /**
 	 * @return
 	 */
-	public boolean importFromRisList(List risList);
+	public boolean importFromRisList(List risImportList);
 
 	/**
 	 * @return
