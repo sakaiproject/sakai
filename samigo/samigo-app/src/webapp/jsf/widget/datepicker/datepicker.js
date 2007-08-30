@@ -69,7 +69,7 @@ function cal_popup2 (str_datetime,root) {
 		root+'calendar.html?datetime=' + this.dt_current.valueOf()+ '&id=' + this.id + '&root=' + root,
 //		root+'datepicker.faces?datetime=' + this.dt_current.valueOf()+ '&id=' + this.id + '&root=' + root,
 		'Calendar', 'width=200,height='+(this.time_comp ? 215 : 190)+
-		',status=no,resizable=no,top=200,left=200,dependent=yes,alwaysRaised=yes'
+		',status=no,resizable=yes,top=200,left=200,dependent=yes,alwaysRaised=yes'
 	);
 	obj_calwindow.opener = window;
 	obj_calwindow.focus();
