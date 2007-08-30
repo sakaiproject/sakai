@@ -1918,8 +1918,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				importEntryString.substring(0, 2).equalsIgnoreCase("ER"))
 			{
 				// end of citation (signaled by ER).
-//				importCitation.importFromRisList(tempList);
-				testImportSingleCitation(importCitation, tempList);
+				importCitation.importFromRisList(tempList);
+//				testImportSingleCitation(importCitation, tempList);
 				importCollection.add(importCitation);
 				tempList.clear();
 				importCitation = CitationService.getTemporaryCitation();
