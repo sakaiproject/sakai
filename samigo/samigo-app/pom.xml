@@ -529,6 +529,11 @@
       <type>jar</type>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-spreadsheet</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

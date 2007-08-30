@@ -407,6 +407,12 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
+    <description>For evaluation: Export Responses backing bean.</description>
+    <managed-bean-name>exportResponses</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.evaluation.ExportResponsesBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
     <description>For evaluation: Retake Assessment backing bean.</description>
     <managed-bean-name>retakeAssessment</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.evaluation.RetakeAssessmentBean</managed-bean-class>
@@ -955,6 +961,10 @@
     <navigation-case>
       <from-outcome>histogramScores</from-outcome>
       <to-view-id>/jsf/evaluation/histogramScores.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>exportResponses</from-outcome>
+      <to-view-id>/jsf/evaluation/exportResponses.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>exportZip</from-outcome>

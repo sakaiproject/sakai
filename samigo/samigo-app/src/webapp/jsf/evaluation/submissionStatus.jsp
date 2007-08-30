@@ -100,6 +100,13 @@ document.location='../evaluation/submissionStatus';
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
     </h:commandLink>
+
+    <h:outputText value=" #{evaluationMessages.separator} " />
+    <h:commandLink title="#{evaluationMessages.t_export}" action="exportResponses" immediate="true">
+      <h:outputText value="#{evaluationMessages.export}" />
+  	  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportResponsesListener" />
+    </h:commandLink>
+
   </p>
 
   <h:messages styleClass="validation"/>

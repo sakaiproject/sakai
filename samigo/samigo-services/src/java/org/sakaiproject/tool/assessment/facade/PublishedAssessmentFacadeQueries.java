@@ -2031,4 +2031,21 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		    }
 		    else return null;
 		  }
+	  
+	public Integer getPublishedItemCount(final Long publishedAssessmentId) {
+		final HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query q = session
+						.createQuery("select count(i) from PublishedItemData i, PublishedSectionData s, "
+								+ " PublishedAssessmentData p where p.publishedAssessmentId=? and "
+								+ " p = s.assessment and i.section = s");
+				q.setLong(0, publishedAssessmentId.longValue());
+				return q.list();
+			};
+		};
+		List list = getHibernateTemplate().executeFind(hcb);
+		return (Integer) list.get(0);
+	}
+		
 }

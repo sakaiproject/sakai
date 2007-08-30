@@ -311,4 +311,5 @@ public interface PublishedAssessmentFacadeQueriesAPI
   
   public String getPublishedAssessmentSiteId(String publishedAssessmentId);
  
+  public Integer getPublishedItemCount(Long publishedAssessmentId);
 }

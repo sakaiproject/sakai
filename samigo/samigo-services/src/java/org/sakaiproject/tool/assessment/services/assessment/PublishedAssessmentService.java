@@ -509,4 +509,10 @@ public class PublishedAssessmentService {
        getPublishedAssessmentFacadeQueries().
        getPublishedAssessmentSiteId(publishedAssessmentId);
   }
+   
+   public Integer getPublishedItemCount(Long publishedAssessmentId) {
+	    return PersistenceService.getInstance().
+      getPublishedAssessmentFacadeQueries().
+      getPublishedItemCount(publishedAssessmentId);
+ }
 }

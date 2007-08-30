@@ -29,12 +29,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -48,17 +53,23 @@ import org.hibernate.criterion.Order;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -1482,4 +1493,339 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 	    return assessmentGradings.size();
   }
+  
+  public List getAllOrderedSubmissions(final String publishedId)
+  {
+      final HibernateCallback hcb = new HibernateCallback(){
+      	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+      		Query q = session.createQuery("from AssessmentGradingData a " +
+      				"where a.publishedAssessmentId=? and a.forGrade=? " +
+			        "order by a.agentId ASC, a.submittedDate");
+      		q.setLong(0, Long.parseLong(publishedId));
+      		q.setBoolean(1, true);
+      		return q.list();
+      	};
+      };
+      return getHibernateTemplate().executeFind(hcb);
+  }
+  public List getExportResponsesData(final String publishedAssessmentId, final boolean anonymous) {
+	  ArrayList finalList = new ArrayList();
+	  PublishedAssessmentService pubService = new PublishedAssessmentService();
+	  HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(pubService.getPublishedAssessment(publishedAssessmentId.toString()));
+	  HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(pubService.getPublishedAssessment(publishedAssessmentId.toString()));
+	  HashMap publishedItemHash = pubService.preparePublishedItemHash(pubService.getPublishedAssessment(publishedAssessmentId.toString()));
+	  List list = getAllOrderedSubmissions(publishedAssessmentId);
+	  Iterator assessmentGradingIter = list.iterator();	  
+	  int numSubmission = 1;
+	  String lastAgentId = "";
+	  while(assessmentGradingIter.hasNext()) {
+		  ArrayList responseList = new ArrayList();
+		  AssessmentGradingData assessmentGradingData = (AssessmentGradingData) assessmentGradingIter.next();
+		  String agentId = assessmentGradingData.getAgentId();
+		  if (anonymous) {
+			  responseList.add(assessmentGradingData.getAssessmentGradingId());
+		  }
+		  else {
+			  String agentEid = "";
+			  String firstName = "";
+			  String lastName = "";
+			  try {
+				  agentEid = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getEid();
+				  firstName = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getFirstName();
+				  lastName = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getLastName();
+			  } catch (Exception e) {
+				  log.error("Cannot get user");
+			  }
+			  responseList.add(lastName);
+			  responseList.add(firstName);
+			  responseList.add(agentEid);
+			  if (lastAgentId.equals(agentId)) {
+				  numSubmission++;
+			  }
+			  else {
+				  numSubmission = 1;
+				  lastAgentId = agentId;
+			  }
+			  responseList.add(Integer.valueOf(numSubmission));
+		  }
+		  
+		  Float finalScore = assessmentGradingData.getFinalScore();
+		  responseList.add(finalScore);
+		  Long assessmentGradingId = assessmentGradingData.getAssessmentGradingId();
+		  HashMap studentGradingMap = getStudentGradingData(assessmentGradingData.getAssessmentGradingId().toString());
+		  ArrayList grades = new ArrayList();
+          grades.addAll(studentGradingMap.values());
+	      Collections.sort(grades, new QuestionComparator(publishedItemHash));
+	      
+	       for (Object oo: grades) {	   
+
+	    	   // There can be more than one answer to a question, e.g. for
+	    	   // FIB with more than one blank or matching questions. So sort
+	    	   // by sequence number of answer. (don't bother to sort if just 1)
+
+	    	   List l = (List)oo;
+	    	   if (l.size() > 1)
+	    		   Collections.sort(l, new AnswerComparator(publishedAnswerHash));
+
+	    	   String maintext = "";
+	    	   // loop over answers per question
+	    	   int count = 0;
+	    	   ItemGradingIfc grade = null;
+	    	   boolean isAudioFileUpload = false;
+	    	   boolean isFinFib = false;
+	    	   for (Object ooo: l) {
+	    		   grade = (ItemGradingIfc)ooo;
+	    		   // now print answer data
+	    		   log.debug("<br> "+ grade.getPublishedItemId() + " " + grade.getRationale() + " " + grade.getAnswerText() + " " + grade.getComments() + " " + grade.getReview());
+	    		   Long publishedItemId = grade.getPublishedItemId();
+	    		   ItemDataIfc publishedItemData = (ItemDataIfc) publishedItemHash.get(publishedItemId);
+	    		   Long typeId = publishedItemData.getTypeId();
+	    		   if (typeId.equals(TypeIfc.FILL_IN_BLANK) || typeId.equals(TypeIfc.FILL_IN_NUMERIC)) {
+	    			   log.debug("FILL_IN_BLANK, FILL_IN_NUMERIC");
+	    			   isFinFib = true;
+	    			   String thistext = "";
+	    			   
+	    			   Long answerid = grade.getPublishedAnswerId();
+		    		   Long sequence = null;
+		    		   if (answerid != null) {
+		    			   AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
+		    			   sequence = answer.getSequence();
+		    		   }
+		    		   
+		    		   String temptext = grade.getAnswerText();
+		    		   if (temptext == null) {
+		    			   temptext = "No Answer";
+		    		   }
+		    		   thistext = sequence + ": " + temptext;
+		    		   
+		    		   if (count == 0)
+		    			   maintext = thistext;
+		    		   else
+		    			   maintext = maintext + "|" + thistext;
+
+		    		   count++;
+	    		   }
+	    		   else if (typeId.equals(TypeIfc.MATCHING)) {
+	    			   log.debug("MATCHING");
+	    			   String thistext = "";
+
+		    		   // for some question types we have another text field
+		    		   Long answerid = grade.getPublishedAnswerId();
+		    		   String temptext = "No Answer";
+		    		   Long sequence = null;
+		    		   if (answerid != null) {
+		    			   AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
+		    			   temptext = answer.getText();
+		    			   if (temptext == null) {
+			    			   temptext = "No Answer";
+			    		   }
+		    			   sequence = answer.getItemText().getSequence();
+		    		   }
+		    		   else {
+		    			   ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
+		    			   sequence = itemTextIfc.getSequence();
+		    		   }
+		    		   thistext = sequence + ": " + temptext;
+		    		   
+		    		   if (count == 0)
+		    			   maintext = thistext;
+		    		   else
+		    			   maintext = maintext + "|" + thistext;
+
+		    		   count++;
+	    		   }
+	    		   else if (typeId.equals(TypeIfc.AUDIO_RECORDING) || typeId.equals(TypeIfc.FILE_UPLOAD)) {
+	    			   log.debug("AUDIO_RECORDING and FILE_UPLOAD: export nothing");
+	    			   isAudioFileUpload = true;
+	    		   }
+	    		   else {
+	    			   log.debug("other type");
+	    			   String thistext = "";
+	    			   
+		    		   // for some question types we have another text field
+		    		   Long answerid = grade.getPublishedAnswerId();
+		    		   if (answerid != null) {
+		    			   AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
+		    			   String temptext = answer.getText();
+		    			   if (temptext != null)
+		    				   thistext = temptext;
+		    		   }
+
+		    		   String temp2text = grade.getAnswerText();
+		    		   if (temp2text != null)
+		    			   thistext = temp2text;
+
+		    		   if (count == 0)
+		    			   maintext = thistext;
+		    		   else
+		    			   maintext = maintext + "|" + thistext;
+
+		    		   count++;
+	    		   }
+	    	   }
+	    	   
+	    	   if (isAudioFileUpload) {
+	    		   maintext = "";
+	    	   }
+	    	   else if (isFinFib && maintext.indexOf("No Answer") >= 0 && count == 1) {
+	    		   maintext = "No Answer";
+	    	   }
+	    	   else if (maintext.equals("")) {
+	    		   maintext = "No Answer";
+	    	   }
+	    	   
+	    	   responseList.add(maintext);
+	       }
+	       finalList.add(responseList);
+	  }
+	  Collections.sort(finalList, new ResponsesComparator(anonymous));
+	  return finalList;
+  }
+  
+    /*
+	 sort answers by sequence number within question if one is defined
+	 normally it will be, but use id number if not
+	 hint: "item" things are specific to the user's answer
+	 sequence numbers are stored with the published assessment, not
+	 separate with each user, so we need to use the hash to find the
+	 published answer
+	 */
+	class AnswerComparator implements Comparator {
+
+		HashMap publishedAnswerHash;
+
+		public AnswerComparator(HashMap m) {
+			publishedAnswerHash = m;
+		}
+
+		public int compare(Object a, Object b) {
+			ItemGradingIfc agrade = (ItemGradingIfc) a;
+			ItemGradingIfc bgrade = (ItemGradingIfc) b;
+
+			Long aindex = agrade.getItemGradingId();
+			Long bindex = bgrade.getItemGradingId();
+
+			Long aanswerid = agrade.getPublishedAnswerId();
+			Long banswerid = bgrade.getPublishedAnswerId();
+
+			if (aanswerid != null && banswerid != null) {
+				AnswerIfc aanswer = (AnswerIfc) publishedAnswerHash
+						.get(aanswerid);
+				AnswerIfc banswer = (AnswerIfc) publishedAnswerHash
+						.get(banswerid);
+				aindex = aanswer.getSequence();
+				bindex = banswer.getSequence();
+			}
+
+			if (aindex < bindex)
+				return -1;
+			else if (aindex > bindex)
+				return 1;
+			else
+				return 0;
+
+		}
+	}
+
+	/*
+	 sort questions in same order presented to users
+	 first by section then by question within section
+	 hint: "item" things are specific to the user's answer
+	 sequence numbers are stored with the published assessment, not
+	 separate with each user, so we need to use the hash to find the
+	 published question
+	 */
+	class QuestionComparator implements Comparator {
+
+		HashMap publishedItemHash;
+
+		public QuestionComparator(HashMap m) {
+			publishedItemHash = m;
+		}
+
+		public int compare(Object a, Object b) {
+			ItemGradingIfc agrade = (ItemGradingIfc) ((List) a).get(0);
+			ItemGradingIfc bgrade = (ItemGradingIfc) ((List) b).get(0);
+
+			ItemDataIfc aitem = (ItemDataIfc) publishedItemHash.get(agrade
+					.getPublishedItemId());
+			ItemDataIfc bitem = (ItemDataIfc) publishedItemHash.get(bgrade
+					.getPublishedItemId());
+
+			Integer asectionseq = aitem.getSection().getSequence();
+			Integer bsectionseq = bitem.getSection().getSequence();
+
+			if (asectionseq < bsectionseq)
+				return -1;
+			else if (asectionseq > bsectionseq)
+				return 1;
+
+			Integer aitemseq = aitem.getSequence();
+			Integer bitemseq = bitem.getSequence();
+
+			if (aitemseq < bitemseq)
+				return -1;
+			else if (aitemseq > bitemseq)
+				return 1;
+			else
+				return 0;
+
+		}
+	}
+	
+	/*
+	 sort questions in same order presented to users
+	 first by section then by question within section
+	 hint: "item" things are specific to the user's answer
+	 sequence numbers are stored with the published assessment, not
+	 separate with each user, so we need to use the hash to find the
+	 published question
+	 */
+	class ResponsesComparator implements Comparator {
+		boolean anonymous;
+		public ResponsesComparator(boolean anony) {
+			anonymous = anony;
+		}
+
+		public int compare(Object a, Object b) {
+			// For anonymous, it should return after the first element comparison
+			if (anonymous) {
+				Long aFirstElement = (Long) ((ArrayList) a).get(0);
+				Long bFirstElement = (Long) ((ArrayList) b).get(0);
+				if (aFirstElement.compareTo(bFirstElement) < 0)
+					return -1;
+				else if (aFirstElement.compareTo(bFirstElement) > 0)
+					return 1;
+				else
+					return 0;
+			}
+			// For non-anonymous, it compares last names first, if it is the same,
+			// compares first name, and then Eid
+			else {
+				String aFirstElement = (String) ((ArrayList) a).get(0);
+				String bFirstElement = (String) ((ArrayList) b).get(0);
+				if (aFirstElement.compareTo(bFirstElement) < 0)
+					return -1;
+				else if (aFirstElement.compareTo(bFirstElement) > 0)
+					return 1;
+				else {
+					String aSecondElement = (String) ((ArrayList) a).get(1);
+					String bSecondElement = (String) ((ArrayList) b).get(1);
+					if (aSecondElement.compareTo(bSecondElement) < 0)
+						return -1;
+					else if (aSecondElement.compareTo(bSecondElement) > 0)
+						return 1;
+					else {
+						String aThirdElement = (String) ((ArrayList) a).get(2);
+						String bThirdElement = (String) ((ArrayList) b).get(2);
+						if (aThirdElement.compareTo(bThirdElement) < 0)
+							return -1;
+						else if (aThirdElement.compareTo(bThirdElement) > 0)
+							return 1;
+					}
+				}
+				return 0;
+			}
+		}
+	}
 }

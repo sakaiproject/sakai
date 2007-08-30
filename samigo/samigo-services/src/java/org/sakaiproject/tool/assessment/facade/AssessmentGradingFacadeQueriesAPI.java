@@ -186,4 +186,6 @@ public interface AssessmentGradingFacadeQueriesAPI
   public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData);
 
   public int getLateSubmissionsNumberByAgentId(Long publishedAssessmentId, String agentIdString, Date dueDate);
+  
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous);
 }
