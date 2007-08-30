@@ -56,7 +56,7 @@
 			#end
 		</div>
 		<p class="act">
-			<a href="#" onclick="javascript:addFileInput();">$tlang.getString("label.addurl")</a>
+			<a href="#" onclick="javascript:addFileInput();return false">$tlang.getString("label.addurl")</a>
 		</p>
 		#if(! $model.isDropbox() && ! $model.isUserSite())
 			#if ($model.resourceTypeDef.hasNotificationDialog())

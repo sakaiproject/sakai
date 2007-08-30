@@ -50,7 +50,7 @@
 			#end
 		</div>
 		<p class="act">
-			<a href="#" onclick="javascript:addFileInput();">$tlang.getString("label.addFolder")</a>
+			<a href="#" onclick="javascript:addFileInput();return false">$tlang.getString("label.addFolder")</a>
 		</p>
 #*
 		#if ($model.resourceTypeDef.hasNotificationDialog())
