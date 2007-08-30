@@ -796,6 +796,7 @@ table.hierItemBlock td h4,table.hierItemBlock td h5,table.hierItemBlock td h6,
 
 .chatListMonitor {
 	height: 300px;
+	overflow: auto;
 	overflow-y: auto;
 	overflow-x: visible;
 	/* This overflow is for Netscape*/
