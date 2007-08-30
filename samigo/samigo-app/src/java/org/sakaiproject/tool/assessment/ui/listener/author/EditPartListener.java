@@ -85,6 +85,7 @@ public class EditPartListener
 
     sectionBean.setNoOfItems(String.valueOf(section.getItemSet().size()));
     populateMetaData(section, sectionBean);
+    
 // todo: get poolsavailable and then add the current pool used, because we need to show it as one of the choices.
 
 /* Huong moved to getPoolsAvailable in SectionBean.java 
@@ -118,6 +119,7 @@ public class EditPartListener
     Set metaDataSet= section.getSectionMetaDataSet();
     Iterator iter = metaDataSet.iterator();
     boolean isRandomizationTypeSet = false;
+    boolean isPointValueHasOverrided = false;
     while (iter.hasNext()){
        SectionMetaData meta= (SectionMetaData) iter.next();
        if (meta.getLabel().equals(SectionMetaDataIfc.OBJECTIVES)){
@@ -150,9 +152,21 @@ public class EditPartListener
            bean.setRandomizationType(meta.getEntry());
            isRandomizationTypeSet = true;
        }
+       
+       if (meta.getLabel().equals(SectionDataIfc.POINT_VALUE_FOR_QUESTION)){
+    	   if (meta.getEntry() != null && !meta.getEntry().equals("")) {
+    		   bean.setPointValueHasOverrided(true);
+    		   isPointValueHasOverrided = true;
+    	   }
+           bean.setRandomPartScore(meta.getEntry());
+       }
     }
     if (!isRandomizationTypeSet) {
  	   bean.setRandomizationType(SectionDataIfc.PER_SUBMISSION);
+    }
+    if (!isPointValueHasOverrided) {
+        bean.setPointValueHasOverrided(false);
+        bean.setRandomPartScore(null);
     }
   }
 

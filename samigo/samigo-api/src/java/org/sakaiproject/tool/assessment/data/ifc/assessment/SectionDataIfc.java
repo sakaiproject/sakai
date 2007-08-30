@@ -48,6 +48,8 @@ public interface SectionDataIfc
   public static String PER_SUBMISSION = "1";
   public static String PER_STUDENT = "2";
   
+  public static String POINT_VALUE_FOR_QUESTION = "POINT_VALUE_FOR_QUESTION";
+  
    Long getSectionId() ;
 
    void setSectionId(Long sectionId);

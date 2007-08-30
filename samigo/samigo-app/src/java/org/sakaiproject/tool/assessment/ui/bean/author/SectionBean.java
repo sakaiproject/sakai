@@ -25,10 +25,11 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import org.sakaiproject.util.ResourceLoader;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -57,6 +58,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.author.SavePartAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Used to be org.navigoproject.ui.web.asi.author.section.SectionActionForm.java
@@ -79,11 +81,13 @@ private ArrayList assessmentSectionIdents;
 private ArrayList poolsAvailable;  // selectItems for pools
 private ArrayList items;
 private boolean random;
+private String randomPartScore;
 private String removeAllQuestions; // 1=Yes, 0=No
 private SectionFacade section;
 private AssessmentIfc assessment;
 private String destSectionId; //destinated section where questions will be moved to
 private String randomizationType;
+private boolean pointValueHasOverrided;
 
 private String numberSelected;
 private String selectedPool;  // pool id for the item to be added to
@@ -379,10 +383,17 @@ private List attachmentList;
         } 
     }
 
+    Collections.sort(resultPoolList, new itemComparator());
     return resultPoolList;
   }
 
-
+  class itemComparator implements Comparator {
+	  public int compare(Object o1, Object o2) {
+		  SelectItem i1 = (SelectItem)o1;
+		  SelectItem i2 = (SelectItem)o2;
+		  return i1.getLabel().compareToIgnoreCase(i2.getLabel());
+	  }
+  }
 
   /**List of available question pools.
    * @param list ArrayList of selectItems
@@ -501,6 +512,26 @@ private List attachmentList;
     this.items = items;
   }
 
+  public String getRandomPartScore()
+  {
+    if (randomPartScore != null)
+	return randomPartScore;
+
+    if (section == null)
+	return "";
+
+    if (section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION) != null) {
+    	return section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION);
+    }
+    else {
+    	return "";
+    }
+  }
+
+  public void setRandomPartScore(String score)
+  {
+    randomPartScore = score;
+  }
   /**
    * If removing part, do questions go with it?
    * @return true if questions are deleted too.
@@ -786,6 +817,15 @@ private List attachmentList;
   public void setRandomizationType(String randomizationType)
   {
       this.randomizationType = randomizationType;
+  }
+  
+  public boolean getPointValueHasOverrided() {
+      return pointValueHasOverrided;
+  }
+
+  public void setPointValueHasOverrided(boolean pointValueHasOverrided)
+  {
+      this.pointValueHasOverrided = pointValueHasOverrided;
   }
   
 }

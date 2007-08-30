@@ -37,6 +37,9 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
@@ -45,6 +48,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -120,9 +124,25 @@ public class SavePartListener
       if (validateItemsDrawn(sectionBean)) {
         // if the author type was random draw type,  and the new type is random draw , then we need to disassociate sectionid with each items. Cannot delete items, 'cuz these items are linked in the pool
     	  section = getOrAddSection(assessmentService, assessmentId, sectionId);
+    	  
     	  if( (section !=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
 
           assessmentService.removeAllItems(sectionId);
+          
+          QuestionPoolService qpService = new QuestionPoolService();
+          ItemService itemService = new ItemService();
+          String agentId = AgentFacade.getAgentString();
+          
+          Set itemSet = section.getItemSet();
+          Iterator itemIter = itemSet.iterator();
+          while (itemIter.hasNext()) {
+        	  ItemDataIfc item = (ItemDataIfc) itemIter.next();
+              List poolIds = qpService.getPoolIdsByItem(item.getItemId().toString());
+              if (poolIds.size() == 0) {
+            	  //  System.out.println("not in pool " + item.getItemId());
+            	  itemService.deleteItem(item.getItemId(), agentId);
+              } // else System.out.println("in pool " + item.getItemId());
+          }		  
         // need to reload
           section = assessmentService.getSection(sectionId);
         }
@@ -192,18 +212,52 @@ public class SavePartListener
     {
       QuestionPoolService qpservice = new QuestionPoolService();
       //ItemService itemservice = new ItemService();
-
-    ArrayList itemlist = qpservice.getAllItems(new Long(sectionBean.getSelectedPool()) );
-    int i = 0;
-    Iterator iter = itemlist.iterator();
-    while(iter.hasNext())
-    {
-      ItemFacade item= (ItemFacade) iter.next();
-      item.setSection(section);
-      item.setSequence(new Integer(i+1));
-      section.addItem(item);
-      i= i+1;
-    }
+      boolean hasRandomPartScore = false;
+      Float score = null;
+      String requestedScore = sectionBean.getRandomPartScore();
+      if (requestedScore != null && !requestedScore.equals("")) {
+    	  hasRandomPartScore = true;
+    	  score = new Float(requestedScore);
+      }
+      ArrayList itemlist = qpservice.getAllItems(new Long(sectionBean.getSelectedPool()) );
+      int i = 0;
+      Iterator iter = itemlist.iterator();
+      while(iter.hasNext())
+      {
+    	  ItemFacade item= (ItemFacade) iter.next();
+    	  //copy item so we can have it in more than one assessment
+    	  item = qpservice.copyItemFacade2(item);
+    	  item.setSection(section);
+    	  item.setSequence(new Integer(i+1));
+    	  if (hasRandomPartScore) {
+    		  item.setScore(score);
+    	  
+    		  ItemDataIfc data = item.getData();
+    		  Set itemTextSet = data.getItemTextSet();
+    		  if (itemTextSet != null) {
+    			  Iterator iterITS = itemTextSet.iterator();
+    			  while (iterITS.hasNext()) {
+    				  ItemTextIfc itemText = (ItemTextIfc) iterITS.next();
+    				  Set answerSet = itemText.getAnswerSet();
+    				  if (answerSet != null) {
+    					  Iterator iterAS = answerSet.iterator();
+    					  while (iterAS.hasNext()) {
+    						  AnswerIfc answer = (AnswerIfc)iterAS.next();
+    						  answer.setScore(score);
+    					  }
+    				  }
+    			  }
+    		  }
+    	  }
+    	  section.addItem(item);
+    	  i= i+1;
+      }
+      if (hasRandomPartScore && score != null) {
+    	  section.addSectionMetaData(SectionDataIfc.POINT_VALUE_FOR_QUESTION, score.toString());
+      }
+      else {
+    	  section.addSectionMetaData(SectionDataIfc.POINT_VALUE_FOR_QUESTION, "");
+      }
     }
 
     assessmentService.saveOrUpdateSection(section);
@@ -263,10 +317,24 @@ public class SavePartListener
 	 return false;
      }
      
+     String randomScore = sectionBean.getRandomPartScore();
+     if (randomScore == null || randomScore.equals("")) {
+    	 return true;
+     }
+     try{
+    	 float randomScoreFloat = Float.parseFloat(randomScore);
+    	 if(randomScoreFloat < 0.0){
+    		 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_pt_error");
+    	     context.addMessage(null,new FacesMessage(err ));
+    	     return false;
+    	 }
+     } catch(NumberFormatException e){
+    	err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_pt_error");
+    	context.addMessage(null,new FacesMessage(err ));
+    	return false;
+     }
      return true;
-           
   }
-
 
     private void updateAttachment(List oldList, List newList, SectionDataIfc section){
     if ((oldList == null || oldList.size() == 0 ) && (newList == null || newList.size() == 0)) return;

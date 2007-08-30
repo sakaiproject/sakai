@@ -112,18 +112,29 @@
 <h:panelGrid columns="2" columnClasses="longtext" >
  
    <h:outputText value="#{authorMessages.pool_name} #{authorMessages.number_questions} " />
+   <h:panelGrid>
    <h:selectOneMenu disabled="#{sectionBean.type == '1'}" id="assignToPool" value="#{sectionBean.selectedPool}">
      <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_for_random_draw}(###)" />
      <f:selectItems value="#{sectionBean.poolsAvailable}" />
-  </h:selectOneMenu>
+   </h:selectOneMenu>
+   </h:panelGrid>
+
 <!--h:message for="assignToPool" rendered="#{sectionBean.type != '1'}" styleClass="validate"/-->
- <h:outputText value="#{authorMessages.number_of_qs}" />
+   <h:outputText value="#{authorMessages.number_of_qs}" />
 
 <!--h:selectOneMenu disabled="#{sectionBean.type == '1'}" required="true" id="sumSelected" value="#{sectionBean.numberSelected}"-->
     
      <!--f:selectItems value="#{sectionBean.poolsAvailable}" /-->
   <!--/h:selectOneMenu-->
+   <h:panelGrid>
    <h:inputText id="numSelected" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.numberSelected}" />
+   </h:panelGrid>
+
+   <h:outputText value="#{authorMessages.point_value_of_questons}"  />
+   <h:panelGrid>
+   <h:inputText id="numPointsRandom" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.randomPartScore}" />
+   <h:outputText value="#{authorMessages.note_point_value_for_question}" rendered="#{!sectionBean.pointValueHasOverrided}"/>
+   </h:panelGrid>
 
   <h:outputText value="#{authorMessages.type_of_randomization}" />
   <h:selectOneRadio value="#{sectionBean.randomizationType}" layout="pageDirection" disabled="#{sectionBean.type == '1'}" id="randomizationType">

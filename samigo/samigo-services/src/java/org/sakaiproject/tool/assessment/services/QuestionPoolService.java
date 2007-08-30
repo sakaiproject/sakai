@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 
@@ -501,6 +502,10 @@ public class QuestionPoolService
  public Long copyItemFacade(ItemDataIfc itemData){
    return PersistenceService.getInstance().getQuestionPoolFacadeQueries().copyItemFacade(itemData);
  }
+ 
+ public ItemFacade copyItemFacade2(ItemDataIfc itemData){
+	   return PersistenceService.getInstance().getQuestionPoolFacadeQueries().copyItemFacade2(itemData);
+	 }
  
  /**
   * Get the count of items for a published assessment from the back end.
