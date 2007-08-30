@@ -11,9 +11,9 @@
 			<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}" title=" #{msgs.cdfm_message_forums}"/>
 			<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			
-			<h:outputText value="#{PrivateMessagesTool.msgNavMode}" rendered="#{PrivateMessagesTool.searchPvtMsgsEmpty}" />
+			<h:outputText value="#{PrivateMessagesTool.selectedTopic.topic.title}" rendered="#{PrivateMessagesTool.searchPvtMsgsEmpty}" />
 		
-			<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" title=" #{msgs.cdfm_message_forums}"
+			<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.selectedTopic.topic.title}" title=" #{msgs.cdfm_message_forums}"
 								rendered="#{! PrivateMessagesTool.searchPvtMsgsEmpty}" />
 			<h:outputText value=" " />
 			<h:outputText value=" / " rendered="#{! PrivateMessagesTool.searchPvtMsgsEmpty}" />

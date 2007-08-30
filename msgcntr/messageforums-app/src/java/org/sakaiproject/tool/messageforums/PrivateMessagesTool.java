@@ -143,7 +143,7 @@ public class PrivateMessagesTool
   /** Dependency Injected   */
   private MessageForumsTypeManager typeManager;
  
-  /** Naigation for JSP   */
+  /** Navigation for JSP   */
   public static final String MAIN_PG="main";
   public static final String DISPLAY_MESSAGES_PG="pvtMsg";
   public static final String SELECTED_MESSAGE_PG="pvtMsgDetail";
@@ -157,7 +157,7 @@ public class PrivateMessagesTool
   public static final String MESSAGE_STATISTICS_PG="pvtMsgStatistics";
   public static final String MESSAGE_HOME_PG="pvtMsgHpView";
   public static final String MESSAGE_REPLY_PG="pvtMsgReply";
-  //SAKAI-10505
+  //SAKAI-1050
   public static final String MESSAGE_FORWARD_PG="pvtMsgForward";
   public static final String DELETE_MESSAGE_PG="pvtMsgDelete";
   public static final String REVISE_FOLDER_PG="pvtMsgFolderRevise";
@@ -180,6 +180,9 @@ public class PrivateMessagesTool
   public static final String SET_AS_NO="no";    
   
   public static final String THREADED_VIEW = "threaded";
+  
+  public static final String EXTERNAL_TOPIC_ID = "pvtMsgTopicId";
+  public static final String EXTERNAL_WHICH_TOPIC = "selectedTopic";
   
   PrivateForumDecoratedBean decoratedForum;
   
@@ -327,7 +330,7 @@ public class PrivateMessagesTool
       pf = prtMsgManager.initializationHelper(pf, area);
       pvtTopics = pf.getTopics();
       Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
-      forum=pf;           
+      forum=pf;
       activatePvtMsg = (Boolean.TRUE.equals(area.getEnabled())) ? SET_AS_YES : SET_AS_NO;
       forwardPvtMsg = (Boolean.TRUE.equals(pf.getAutoForward())) ? SET_AS_YES : SET_AS_NO;
       forwardPvtMsgEmail = pf.getAutoForwardEmail();      
@@ -395,9 +398,11 @@ public class PrivateMessagesTool
   {
   	/** 
   	    avoid apply_request_values and render_response from calling this method on postback
-  	    solution -- only call durig render_response phase
+  	    solution -- only call during render_response phase
+  	    8/29/07 JLR - if coming from the synoptic tool, we need to process
   	*/
-  	if (!FacesContext.getCurrentInstance().getRenderResponse() && !viewChanged){
+  	if (!FacesContext.getCurrentInstance().getRenderResponse() && !viewChanged &&
+  			getExternalParameterByKey(EXTERNAL_WHICH_TOPIC) == null) { 
   		return decoratedPvtMsgs;
   	}
   	
@@ -406,10 +411,19 @@ public class PrivateMessagesTool
     	this.rearrageTopicMsgsThreaded(false);
     	return decoratedPvtMsgs;
     }
-  	  	  	
-  	decoratedPvtMsgs=new ArrayList() ;
-
-  	String typeUuid = getPrivateMessageTypeFromContext(msgNavMode);
+  	
+  	// coming from synoptic view, need to change the msgNavMode
+	if (msgNavMode == null)
+	{
+		msgNavMode = (getExternalParameterByKey(EXTERNAL_WHICH_TOPIC) == null) ? 
+						forumManager.getTopicByUuid(getExternalParameterByKey(EXTERNAL_TOPIC_ID)).getTitle() :
+						getExternalParameterByKey(EXTERNAL_WHICH_TOPIC);
+	}
+	
+  	decoratedPvtMsgs=new ArrayList();
+  	String typeUuid;
+  	
+   	typeUuid = getPrivateMessageTypeFromContext(msgNavMode);
 
   	/** support for sorting */
   	/* if the view was changed to "All Messages", we want to retain the previous
@@ -509,7 +523,7 @@ public class PrivateMessagesTool
     decoratedPvtMsgs = createDecoratedDisplay(decoratedPvtMsgs);    
 
     //pre/next message
-    if(decoratedPvtMsgs != null)
+    if(decoratedPvtMsgs != null )
     {
    		setMessageBeanPreNextStatus();
     }
@@ -1070,6 +1084,35 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	searchPvtMsgs.clear();
     return SELECTED_MESSAGE_PG;
   }
+  
+  public void initializeFromSynoptic()
+  {
+	    /** reset sort type */
+	    sortType = SORT_DATE_DESC;    
+	    
+	    setSelectedTopicId(getExternalParameterByKey(EXTERNAL_TOPIC_ID));
+	   	selectedTopic = new PrivateTopicDecoratedBean(forumManager.getTopicByUuid(getExternalParameterByKey(EXTERNAL_TOPIC_ID)));
+	    selectedTopicTitle = getExternalParameterByKey(EXTERNAL_WHICH_TOPIC);
+
+	    //set prev/next topic details
+	    PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNullWithAllTopics(getUserId());
+	    
+	    if (pf == null)
+	    {
+	    	initializePrivateMessageArea();
+	    }
+	    else
+	    {
+	    	pvtTopics = pf.getTopics();
+	    	forum = pf;
+	    }
+
+	    msgNavMode=getSelectedTopicTitle();
+	    
+	    //set prev/next topic details
+	    setPrevNextTopicDetails(msgNavMode);
+  }
+  
   public String processPvtMsgTopic()
   {
     LOG.debug("processPvtMsgTopic()");
@@ -1077,12 +1120,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
     /** reset sort type */
     sortType = SORT_DATE_DESC;    
     
-    //get external parameter
-    //selectedTopicTitle = getExternalParameterByKey("pvtMsgTopicTitle") ;
-    selectedTopicTitle = forumManager.getTopicByUuid(getExternalParameterByKey("pvtMsgTopicId")).getTitle();
-    setSelectedTopicId(getExternalParameterByKey("pvtMsgTopicId")) ;
+    setSelectedTopicId(getExternalParameterByKey(EXTERNAL_TOPIC_ID));
+   	selectedTopic = new PrivateTopicDecoratedBean(forumManager.getTopicByUuid(getExternalParameterByKey(EXTERNAL_TOPIC_ID)));
+   	selectedTopicTitle = forumManager.getTopicByUuid(getExternalParameterByKey(EXTERNAL_TOPIC_ID)).getTitle();
+   	
     msgNavMode=getSelectedTopicTitle();
-
+    
     //set prev/next topic details
     setPrevNextTopicDetails(msgNavMode);
     
@@ -3206,7 +3249,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
         numberChecked++;
       }
        
-      //getRecipients() is filtered for this perticular user i.e. returned list of only one PrivateMessageRecipient object
+      //getRecipients() is filtered for this particular user i.e. returned list of only one PrivateMessageRecipient object
       for (Iterator iterator = element.getRecipients().iterator(); iterator.hasNext();)
       {
         PrivateMessageRecipient el = (PrivateMessageRecipient) iterator.next();
