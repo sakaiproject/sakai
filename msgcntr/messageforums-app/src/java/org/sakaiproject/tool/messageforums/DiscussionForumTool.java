@@ -1602,7 +1602,7 @@ public class DiscussionForumTool
   
   public String processActionGetDisplayThread()
   {
-	  	//selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
+	  	selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
 	  	
 	  	setTopicBeanAssign();
 	  	getSelectedTopic();

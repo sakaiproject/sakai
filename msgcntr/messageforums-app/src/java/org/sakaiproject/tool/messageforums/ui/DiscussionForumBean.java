@@ -183,8 +183,10 @@ public class DiscussionForumBean
 		  {
 			  moderated = Boolean.FALSE.toString();
 		  }
-	
-		  moderated = Boolean.TRUE.toString();
+		  else
+		  {
+			  moderated = Boolean.TRUE.toString();
+		  }
 	  }
 	  return moderated;
   }
