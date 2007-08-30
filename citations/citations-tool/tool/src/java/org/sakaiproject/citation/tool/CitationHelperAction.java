@@ -1807,12 +1807,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	public void doImport ( RunData data)
 	{
+		logger.debug( "doImport called.");
+
 		// get the state object
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
 		ParameterParser params = data.getParameters();
-		
-		logger.debug( "doImport called.");
 
 		Iterator iter = params.getNames();
 
@@ -1820,6 +1819,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			logger.debug( "param = " + iter.next());			
 		}
+
+		String collectionId = params.getString("collectionId");
+		
+		if(collectionId == null)
+		{
+			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+		}
+		
+		CitationCollection collection = null;
+        collection = getCitationCollection(state, false);
 
 		String ristext = params.get("ristext");
 
@@ -1839,13 +1848,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 		  String upload = params.get("risupload");
 		  logger.debug( "Upload String = " + upload);
-
 		
 		  FileItem risImport = params.getFileItem("risupload");
 		
-		
 		  if (risImport == null)
+		  {
 			logger.debug( "risImport is null.");
+			return;
+		  }
 
 	      logger.debug("Filename = " + risImport.getFileName());
 	    
@@ -1855,28 +1865,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		  bread = new java.io.BufferedReader(isr);
 		} // end set the read of the import from the uploaded file.
 
-/*		try
-		{
-          logger.debug( "First line of buffered reader is = " + bread.readLine());
-		}
-		catch(Exception e)
-		{
-			logger.debug( "Exception printing first line if buffered reader = " + e);
-		}
-*/
 		
 		// The below code is a major work in progress.  
 		// This code is for demonstration purposes only. No gambling or production use!
-
-		CitationCollection importCollection = CitationService.getTemporaryCollection();
-		
 
 		String fileString = new String();		
 		String importLine = null;
 		java.util.List importList = new java.util.ArrayList();
 
-
-
+		// Read the BufferedReader and populate the importList. Each entry in the list
+		// is a line in the RIS import "file".
 		try
 		{
 			while ((importLine = bread.readLine()) != null)
@@ -1899,107 +1897,40 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		logger.debug("fileString = \n" + fileString);	
 		
 
+		// tempList holds the entries read in to make a citation up to and
+		// including the ER entry from importList
 		List tempList = new java.util.ArrayList();
-		Citation importCitation = CitationService.getTemporaryCitation();
 		
+		Citation importCitation = CitationService.getTemporaryCitation();
+		CitationCollection importCollection = CitationService.getTemporaryCollection();
+
+		// Read each entry in the RIS List and build a citation
 		for(int i=0; i< importList.size(); i++)
 		{
 			String importEntryString = (String) importList.get(i);
 //			logger.debug("Import line (#1) = " + importEntryString);
 //			logger.debug("Substring is = " + importEntryString.substring(0, 2));
 			tempList.add(importEntryString);
-			
+
+			// make sure importEntryString can be tested for "ER" existence. It could
+			// be a dinky invalid line less than 2 characters.
 			if (importEntryString != null && importEntryString.length() > 1 && 
 				importEntryString.substring(0, 2).equalsIgnoreCase("ER"))
 			{
+				// end of citation (signaled by ER).
 //				importCitation.importFromRisList(tempList);
-//				importCollection.add(importCitation);
-				testImport(importCitation, tempList);
+				testImportSingleCitation(importCitation, tempList);
+				importCollection.add(importCitation);
 				tempList.clear();
-				// importCitation = CitationService.getTemporaryCitation();
-			}
-		} // end for
-/*
-		
-		String lineBuffer = new String();
-		
-		int lines = 0;
-		
-		Citation importCitation = null;
-		CitationCollection importCollection = CitationService.getTemporaryCollection();
-		
-		for(int i=0; i< fileString.length(); i++)
-		{
-			char c = fileString.charAt(i);
-			
-			if (c == '\n')
-			{
-				if (lineBuffer.trim().length() > 0)
-				{
-					logger.debug("hit EOL at character " + i);
-					logger.debug("line #" + ++lines + " done");
-					logger.debug("line = " + lineBuffer);
-					// add linebuffer to current citation
-					logger.debug("Trying to add linebuffer to current citation");
-				
-					// clear linebuffer and go again
-					lineBuffer = new String();
-				} // end if len > 0
-				else
-				{
-					logger.debug("End of Citation Record. Individual citation is complete");
-					logger.debug("Saving citation");
-					importCollection.add(importCitation);
-					importCitation = null;
-				}
-			} // end if EOL
-			else
-			{
-			  if (importCitation == null)
-			  {
 				importCitation = CitationService.getTemporaryCitation();
-			  
-			    logger.debug("Starting new Citation");
-			  }
-			  
-			  lineBuffer = lineBuffer + String.valueOf(c);
 			}
-			
 		} // end for
 		
-		logger.debug("End of citation import");
-		logger.debug("Imported " + importCollection.size() + " citations");
+		logger.debug("Done reading in " + importCollection.size() + " citations.");
 		
-*/
-//		logger.debug("fileString = " + fileString);
+//		collection.addAll(importCollection);
 		
-/*		
-		int charint = -1;
-		
-		try
-		{
-		  while ((charint = risImportStream.read()) != -1)
-		  {
-		    logger.debug( "Read in integer: " + charint);
-			
-		  }
-		}
-		catch(Exception e)
-		{
-			logger.debug( "Error in reading file: " + e);
-		}
-
-		byte[] bytes = risImport.get();
-		
-		logger.debug("Bytes length = " + bytes.length);
-		
-		for(int i=0; i<bytes.length; i++)
-		{
-			logger.debug("byte[" + i + "] = " + bytes[i]);
-		}
-*/
-		
-		setMode(state, Mode.IMPORT_CITATIONS);
+		setMode(state, Mode.LIST);
 	} // end doImport()
 	
 	/**
@@ -2007,11 +1938,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 * @param citation
 	 * @param risImportList
 	 */
-	private void testImport(Citation citation, List risImportList)
+	private void testImportSingleCitation(Citation citation, List risImportList)
 	{
 		String currentLine = null;
 		String[] tokens = null;
-
+		int startpage = -1;
+		int endpage = -1;
+		Schema schema = null;
+		
 		logger.debug("In testImport. list size is " + risImportList.size());
 		for(int i=0; i< risImportList.size(); i++)
 		{
@@ -2019,14 +1953,94 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			logger.debug("currentLine = " + currentLine);
 			
 			tokens = currentLine.split("-");
-			
-			if (tokens != null && ! tokens[0].trim().equalsIgnoreCase("ER"))
+
+			// Make sure tokens were created and that there are only two 
+			// tokens[0] = CODE  tokens[1] = VALUE
+			if (tokens != null  && tokens.length == 2)
 			{
-			  logger.debug("token 0 = " + tokens[0]);
-			  logger.debug("token 1 = " + tokens[1]);
-			}
-		}
-	}
+				tokens[0] = tokens[0].trim();
+				tokens[1] = tokens[1].trim();
+				
+				if (i == 0)
+				{
+					if (! tokens[0].equalsIgnoreCase("TY"))
+				    {
+				    	logger.equals("1st entry in RIS must be TY. It isn't it is " + tokens[0]);
+				    	return;
+				    }
+				    else
+				    {
+				    	String schemaName = "default";
+				    	
+				    	if (tokens[1].equalsIgnoreCase("JOUR"))
+				    		schemaName = "article";
+				    	
+				    	schema = CitationService.getSchema(schemaName);
+				    }
+				}
+				else
+				{	
+					if (tokens[0].equalsIgnoreCase("ER"))
+					{
+						// See if both start and end pages have been read in. If so, compute
+						// number of pages
+						if (startpage != -1 && endpage != -1)
+						{
+							citation.addPropertyValue(Schema.PAGES, Integer.toString(endpage - startpage));
+						}
+					
+						return; // ER signals end of citation
+					} // end of citation
+					else // citation has valid data (maybe). Read it in.
+					{
+						logger.debug("token 0 = " + tokens[0]);
+						logger.debug("token 1 = " + tokens[1]);
+										    
+						if (tokens[0].equalsIgnoreCase("A1"))  // Author
+						{
+							citation.addPropertyValue(Schema.CREATOR, tokens[1]);
+						}
+						else if (tokens[0].equalsIgnoreCase("EP")) // end page. Pages = EP-SP
+						{
+							endpage = Integer.parseInt(tokens[1]);
+						}
+						else if (tokens[0].equalsIgnoreCase("IS"))
+						{
+							citation.addPropertyValue(Schema.ISSUE, tokens[1]);
+						}
+						else if (tokens[0].equalsIgnoreCase("PB"))
+						{
+							citation.addPropertyValue(Schema.PUBLISHER, tokens[1]);
+						}
+						else if (tokens[0].equalsIgnoreCase("SN"))
+						{
+							citation.addPropertyValue(Schema.ISN, tokens[1]);
+						}
+						else if (tokens[0].equalsIgnoreCase("SP")) // Start Page. Pages = EP-SP
+						{
+							startpage = Integer.parseInt(tokens[1]);
+						}
+						else if (tokens[0].equalsIgnoreCase("T1"))
+						{
+							citation.addPropertyValue(Schema.TITLE, tokens[1]);
+						}
+						else if(tokens[0].equalsIgnoreCase("TI"))
+						{
+							citation.addPropertyValue(Schema.SOURCE_TITLE, tokens[1]);
+						}
+						else if (tokens[0].equalsIgnoreCase("VL"))
+						{
+							citation.addPropertyValue(Schema.VOLUME, tokens[1]);
+						}
+						else if (tokens[0].equalsIgnoreCase("Y1"))
+						{
+							citation.addPropertyValue(Schema.YEAR, tokens[1]);
+						}
+					} // end else = citation has valid data (maybe)
+				} // end else i==0
+			} // end if tokens != null && tokens.length == 2
+		} // end for i
+	}  // end testImportSingleCitation
 	
 	/**
 	*
@@ -3419,7 +3433,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters();
 
-		// collecitonId holds the string method (reused HTML hidden variable)
 		String collectionId = params.getString("collectionId");
 		
 		String sort = params.getString("sort");
