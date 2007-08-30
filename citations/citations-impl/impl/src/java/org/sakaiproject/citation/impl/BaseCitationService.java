@@ -1531,11 +1531,11 @@ public abstract class BaseCitationService implements CitationService
 		/*
 		 * (non-Javadoc)
 		 *
-		 * @see org.sakaiproject.citation.api.Citation#importFromRis(java.io.InputStream)
+		 * @see org.sakaiproject.citation.api.Citation#importFromRisList(java.util.List)
 		 */
 		public boolean importFromRisList(List risImportList)
 		{
-			Log logger = LogFactory.getLog(BasicCitationService.class);
+			Log logger = LogFactory.getLog(BasicCitation.class);
 
 			String currentLine = null;
 			String[] tokens = null;
@@ -1544,7 +1544,7 @@ public abstract class BaseCitationService implements CitationService
 			Schema schema = null;
 			String schemaName = null;
 			
-			logger.debug("In timportFromRisList. List size is " + risImportList.size());
+			logger.debug("In importFromRisList. List size is " + risImportList.size());
 			for(int i=0; i< risImportList.size(); i++)
 			{
 				currentLine = (String) risImportList.get(i);
