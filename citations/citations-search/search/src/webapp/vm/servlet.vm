@@ -1,0 +1,52 @@
+#* 
+ * macro to easily show multivalued fields
+ *#
+#macro(showMultivalued $values)
+	#if(! $values.isEmpty())
+		#foreach($value in $values)
+			<p style="margin-top: 0; padding-top: 0; margin-bottom: 0.3em; padding-bottom: 0;">$!value</p>
+		#end
+	#end
+#end
+
+#*
+ * return HTML
+ *#
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<title>$tlang.getString( "window.gscholar" )</title>
+		<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+		<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+	</head>
+  	<body>
+		<div class="portletBody">
+			<div class="indnt1">
+				#if( $success )
+					<script type="text/javascript">
+					  if( opener && opener.citationsHelperFrame && opener.citationsHelperFrame.refreshCitationsHelper ) {
+						opener.citationsHelperFrame.refreshCitationsHelper();
+					  }
+					</script>
+					
+					<h3>$tlang.getFormattedMessage( "title.gscholar", $titleArgs )</h3>
+					
+					#parse( "vm/_citation.vm" )
+					
+					<p class="act">
+						<button type="button" onclick="history.back();">$tlang.getString( "back.gscholar" )</button>
+						<button type="button" onclick="window.close();">$tlang.getString( "close.gscholar" )</button>
+					</p>
+				#else
+					<h3>$tlang.getString( "error.gscholar" )</h3>
+					<p class="instruction">$tlang.getString( "error.sub.gscholar" )</p>
+					<p class="act">
+						<button type="button" onclick="window.close();">$tlang.getString( "close.gscholar" )</button>
+					</p>
+				#end
+			</div>
+		</div>
+	</body>
+</html>

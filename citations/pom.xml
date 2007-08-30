@@ -13,6 +13,7 @@
   <packaging>pom</packaging>
   <modules>
     <module>citations-servlet/servlet</module>
+    <module>citations-search/search</module>
     <module>citations-api/api</module>
     <module>citations-tool/tool</module>
     <module>citations-util/util</module>
