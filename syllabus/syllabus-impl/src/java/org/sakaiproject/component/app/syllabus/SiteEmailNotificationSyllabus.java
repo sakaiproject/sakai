@@ -118,58 +118,49 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 
 		return returnedString;
 	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected String getMessage(Event event)
-	{
+	
+	protected String plainTextContent() {
+		// TODO add suitable plain text version here
+		return htmlContent();
+	}
+	
+	protected String htmlContent() {
 		StringBuffer buf = new StringBuffer();
+		
+		String newline = "<br />\n";
+		
+		Reference ref = EntityManager.newReference(event.getResource());
+		String siteId = (getSite() != null) ? getSite() : ref.getContext();
+
+		int lastIndex = ref.getReference().lastIndexOf("/");
+		String dataId = ref.getReference().substring(lastIndex + 1);
+		SyllabusData syllabusData = syllabusManager.getSyllabusData(dataId);
+		SyllabusItem syllabusItem = syllabusData.getSyllabusItem();
+		if (siteId == null)
+		{
+			siteId = syllabusItem.getContextId();
+		}
+		
+
+		// get a site title
+		String title = siteId;
+		try
+		{
+			Site site = SiteService.getSite(siteId);
+			title = site.getTitle();
+		}
+		catch (Exception ignore)
+		{
+		}
 
 		if (SyllabusService.EVENT_SYLLABUS_POST_NEW.equals(event.getEvent())
 				|| SyllabusService.EVENT_SYLLABUS_POST_CHANGE.equals(event.getEvent()))
 		{
-			String newline = "<br />\n";
-
-			Reference ref = EntityManager.newReference(event.getResource());
-			String siteId = (getSite() != null) ? getSite() : ref.getContext();
-
-			int lastIndex = ref.getReference().lastIndexOf("/");
-			String dataId = ref.getReference().substring(lastIndex + 1);
-			SyllabusData syllabusData = syllabusManager.getSyllabusData(dataId);
-			SyllabusItem syllabusItem = syllabusData.getSyllabusItem();
-			if (siteId == null)
-			{
-				siteId = syllabusItem.getContextId();
-			}
-			// get a site title
-			String title = siteId;
-			try
-			{
-				Site site = SiteService.getSite(siteId);
-				title = site.getTitle();
-			}
-			catch (Exception ignore)
-			{
-			}
 
 			buf.append(syllabusData.getAsset() + newline);
 		}
 		else if (SyllabusService.EVENT_SYLLABUS_DELETE_POST.equals(event.getEvent()))
 		{
-			String newline = "<br />\n";
-
-			Reference ref = EntityManager.newReference(event.getResource());
-			String siteId = (getSite() != null) ? getSite() : ref.getContext();
-
-			int lastIndex = ref.getReference().lastIndexOf("/");
-			String dataId = ref.getReference().substring(lastIndex + 1);
-			SyllabusData syllabusData = syllabusManager.getSyllabusData(dataId);
-			SyllabusItem syllabusItem = syllabusData.getSyllabusItem();
-			if (siteId == null)
-			{
-				siteId = syllabusItem.getContextId();
-			}
 
 			buf.append(" Syllabus Item - ");
 			buf.append(syllabusData.getTitle());
@@ -178,6 +169,12 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 			buf.append(" has been deleted.");
 			buf.append(newline);
 		}
+		
+		// tag the message - HTML version
+		buf.append("<hr/>" + newline + rb.getString("this") + " "
+				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (<a href=\""
+				+ ServerConfigurationService.getPortalUrl() + "\">" + ServerConfigurationService.getPortalUrl() + "</a>) "
+				+ rb.getString("forthe") + " " + title + " " + rb.getString("site") + newline + rb.getString("youcan") + newline);
 
 		return buf.toString();
 	}
@@ -187,10 +184,10 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 	 */
 	protected List getHeaders(Event event)
 	{
-		List rv = new Vector();
+		List rv = super.getHeaders(event);
 
 		// Set the content type of the message body to HTML
-		rv.add("Content-Type: text/html");
+		// rv.add("Content-Type: text/html");
 
 		// set the subject
 		rv.add("Subject: " + getSubject(event));
@@ -217,12 +214,7 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 	 */
 	protected String getTag(String newline, String title)
 	{
-		// tag the message - HTML version
-		String rv = newline + rb.getString("separator") + newline + rb.getString("this") + " "
-				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (<a href=\""
-				+ ServerConfigurationService.getPortalUrl() + "\">" + ServerConfigurationService.getPortalUrl() + "</a>) "
-				+ rb.getString("forthe") + " " + title + " " + rb.getString("site") + newline + rb.getString("youcan") + newline;
-		return rv;
+		return "";
 	}
 
 	protected void addSpecialRecipients(List users, Reference ref)
