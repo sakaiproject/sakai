@@ -89,6 +89,12 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
       <version>${sakai.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>jsf</groupId>
+            <artifactId>jsf-api</artifactId>
+          </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
