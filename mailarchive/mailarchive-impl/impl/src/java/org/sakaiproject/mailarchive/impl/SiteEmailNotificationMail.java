@@ -40,6 +40,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.SiteEmailNotification;
+import org.sakaiproject.util.Web;
 
 /**
  * <p>
@@ -165,7 +166,7 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 		}
 
 		// use the message's body
-		buf.append(msg.getBody());
+		buf.append(Web.encodeUrlsAsHtml(msg.getBody()));
 
 		// add any attachments
 		List attachments = hdr.getAttachments();
