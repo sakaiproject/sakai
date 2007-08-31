@@ -186,6 +186,6 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	 */
 	public String getInsertIndividualDropboxChangeSql() 
 	{
-		return "insert into CONTENT_DROPBOX_CHANGES (DROPBOX_ID, IN_COLLECTION, LAST_UPDATE) values (? , ? , ?)";
+		return "insert into CONTENT_DROPBOX_CHANGES (DROPBOX_ID, IN_COLLECTION, LAST_UPDATE) values (? , ? , ?) on duplicate key update (IN_COLLECTION = ?, LAST_UPDATE = ?)";
 	}
 }

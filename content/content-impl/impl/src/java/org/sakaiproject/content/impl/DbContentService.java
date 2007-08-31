@@ -1047,10 +1047,12 @@ public class DbContentService extends BaseContentService
 		{
 			String sql = contentServiceSql.getInsertIndividualDropboxChangeSql();
 			
-			Object[] fields = new Object[3];
+			Object[] fields = new Object[5];
 			fields[0] = individualDropboxId;
 			fields[1] = isolateContainingId(individualDropboxId);
 			fields[2] = Long.toString(TimeService.newTime().getTime());
+			fields[3] = isolateContainingId(individualDropboxId);
+			fields[4] = Long.toString(TimeService.newTime().getTime());
 			
 			boolean ok = m_sqlService.dbWrite(sql, fields);
 			
