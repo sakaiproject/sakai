@@ -138,6 +138,7 @@ public class AssignmentAction extends PagedResourceActionII
 {
 	private static ResourceLoader rb = new ResourceLoader("assignment");
 
+	private static final String ASSIGNMENT_TOOL_ID = "sakai.assignment.grades";
 	
 	private static final Boolean allowReviewService = ServerConfigurationService.getBoolean("assignment.useContentReview", false);
 	
@@ -2294,7 +2295,7 @@ public class AssignmentAction extends PagedResourceActionII
     **/
    private String getToolTitle()
    {
-      Tool tool = ToolManager.getTool("sakai.assignment.grades");
+      Tool tool = ToolManager.getTool(ASSIGNMENT_TOOL_ID);
       String toolTitle = null;
 
       if (tool == null)
@@ -8455,7 +8456,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	private void validLetterGrade(SessionState state, String grade)
 	{
-		String VALID_CHARS_FOR_LETTER_GRADE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ+-";
+		String VALID_CHARS_FOR_LETTER_GRADE = " ABCDEFGHIJKLMNOPQRSTUVWXYZ+-";
 		boolean invalid = false;
 		if (grade != null)
 		{
@@ -9030,7 +9031,7 @@ public class AssignmentAction extends PagedResourceActionII
 		ParameterParser params = data.getParameters();
 		
 		String contextString = ToolManager.getCurrentPlacement().getContext();
-		String toolTitle = ToolManager.getTool("sakai.assignment").getTitle();
+		String toolTitle = ToolManager.getTool(ASSIGNMENT_TOOL_ID).getTitle();
 		String aReference = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
 		String associateGradebookAssignment = null;
 		
@@ -9092,8 +9093,11 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
 					User[] users = s.getSubmitters();
-					String uName = getUserLastNameFirstName(users[0]);
-					submissionTable.put(uName, new UploadGradeWrapper("", "", "", new Vector()));
+					if (users.length > 0 && users[0] != null)
+					{
+						String uName = getUserLastNameFirstName(users[0]);
+						submissionTable.put(uName, new UploadGradeWrapper("", "", "", new Vector()));
+					}
 				}
 			}
 			catch (Exception e)
@@ -9147,10 +9151,10 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						while ((entry=zin.getNextEntry()) != null)
 						{
-							if (!entry.isDirectory())
+							String entryName = entry.getName();
+							if (!entry.isDirectory() && entryName.indexOf("/._") == -1)
 							{
-								String entryName = entry.getName();
-								if (entryName.endsWith("grades.csv") && !entryName.endsWith("._grades.csv"))
+								if (entryName.endsWith("grades.csv"))
 								{
 									if (hasGradeFile)
 									{
@@ -9171,25 +9175,28 @@ public class AssignmentAction extends PagedResourceActionII
 									        		try
 									        		{
 									        			User u = UserDirectoryService.getUserByEid(items[0]/*user id*/);
-									        			String name = getUserLastNameFirstName(u);
-									        			UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(name);
-									        			if (w != null)
+									        			if (u != null)
 									        			{
-									        				String itemString = items[3];
-									        				int gradeType = assignment.getContent().getTypeOfGrade();
-									        				if (gradeType == Assignment.SCORE_GRADE_TYPE)
-									        				{
-									        					validPointGrade(state, itemString);
-									        				}
-									        				else
-									        				{
-									        					validLetterGrade(state, itemString);
-									        				}
-									        				if (state.getAttribute(STATE_MESSAGE) == null)
-									        				{
-										        				w.setGrade(gradeType == Assignment.SCORE_GRADE_TYPE?scalePointGrade(state, itemString):itemString);
-										        				submissionTable.put(name, w);
-									        				}
+										        			String name = getUserLastNameFirstName(u);
+										        			UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(name);
+										        			if (w != null)
+										        			{
+										        				String itemString = items[3];
+										        				int gradeType = assignment.getContent().getTypeOfGrade();
+										        				if (gradeType == Assignment.SCORE_GRADE_TYPE)
+										        				{
+										        					validPointGrade(state, itemString);
+										        				}
+										        				else
+										        				{
+										        					validLetterGrade(state, itemString);
+										        				}
+										        				if (state.getAttribute(STATE_MESSAGE) == null)
+										        				{
+											        				w.setGrade(gradeType == Assignment.SCORE_GRADE_TYPE?scalePointGrade(state, itemString):itemString);
+											        				submissionTable.put(name, w);
+										        				}
+										        			}
 									        			}
 									        		}
 									        		catch (Exception e )
@@ -9305,59 +9312,62 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
 						User[] users = s.getSubmitters();
-						String uName = getUserLastNameFirstName(users[0]);
-						if (submissionTable.containsKey(uName))
+						if (users.length > 0 && users[0] != null)
 						{
-							// update the AssignmetnSubmission record
-							try
+							String uName = getUserLastNameFirstName(users[0]);
+							if (submissionTable.containsKey(uName))
 							{
-								AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(s.getReference());
-								
-								UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(uName);
-								// add all attachment
-								if (hasSubmissions)
+								// update the AssignmetnSubmission record
+								try
 								{
+									AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(s.getReference());
 									
-									sEdit.clearFeedbackAttachments();
-									for (Iterator attachments = w.getAttachments().iterator(); attachments.hasNext();)
+									UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(uName);
+									// add all attachment
+									if (hasSubmissions)
 									{
-										sEdit.addFeedbackAttachment((Reference) attachments.next());
+										
+										sEdit.clearFeedbackAttachments();
+										for (Iterator attachments = w.getAttachments().iterator(); attachments.hasNext();)
+										{
+											sEdit.addFeedbackAttachment((Reference) attachments.next());
+										}
+										sEdit.setFeedbackText(w.getText());
 									}
-									sEdit.setFeedbackText(w.getText());
-								}
-								
-								if (hasComments)
-								{
-									// add comment
-									sEdit.setFeedbackComment(w.getComment());
-								}
-								
-								if (hasGradeFile)
-								{
-									// set grade
-									sEdit.setGrade(w.getGrade());
-									sEdit.setGraded(true);
-								}
-								
-								// release or not
-								sEdit.setGradeReleased(releaseGrades);
-								sEdit.setReturned(releaseGrades);
-								if (releaseGrades)
-								{
-									sEdit.setTimeReturned(TimeService.newTime());
-									// update grade in gradebook
-									if (associateGradebookAssignment != null)
+									
+									if (hasComments)
 									{
-										integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sEdit.getReference(), "update");
+										// add comment
+										sEdit.setFeedbackComment(w.getComment());
 									}
+									
+									if (hasGradeFile)
+									{
+										// set grade
+										sEdit.setGrade(w.getGrade());
+										sEdit.setGraded(true);
+									}
+									
+									// release or not
+									sEdit.setGradeReleased(releaseGrades);
+									sEdit.setReturned(releaseGrades);
+									if (releaseGrades)
+									{
+										sEdit.setTimeReturned(TimeService.newTime());
+										// update grade in gradebook
+										if (associateGradebookAssignment != null)
+										{
+											integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sEdit.getReference(), "update");
+										}
+									}
+									
+									// commit
+									AssignmentService.commitEdit(sEdit);
 								}
-								
-								// commit
-								AssignmentService.commitEdit(sEdit);
-							}
-							catch (Exception ee)
-							{
-								Log.debug("chef", ee.toString());
+								catch (Exception ee)
+								{
+									Log.debug("chef", ee.toString());
+								}
 							}
 						}	
 					}
