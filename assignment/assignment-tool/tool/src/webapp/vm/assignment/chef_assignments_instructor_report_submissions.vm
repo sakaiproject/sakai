@@ -208,7 +208,7 @@
 								#set ($gradeScale = $assignment.getContent().getTypeOfGrade())
 									#if ($gradeScale == -1)
 										## Grade type not set 
-										$tlang.getString("gen.noset")
+										$tlang.getString("gen.notset")
 									#elseif ($gradeScale == 1)
 										## Ungraded grade type
 										$tlang.getString("gen.nograd")
