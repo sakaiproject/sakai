@@ -228,6 +228,13 @@
       <version>3.0</version>
       <type>jar</type>
     </dependency>
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.5</version>
+      <type>jar</type>
+      <scope>test</scope>
+    </dependency>
     
   </dependencies>
 </project>

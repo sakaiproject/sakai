@@ -20,6 +20,9 @@
  **********************************************************************************/
 package org.sakaiproject.search.model;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -133,6 +136,8 @@ public interface SearchBuilderItem
 	 * Locked for processng
 	 */
 	public static final Integer STATE_LOCKED = new Integer(5);
+	
+	public static final Integer STATE_FAILED = new Integer(6);
 
 
 	public static final Integer ITEM = new Integer(0);
@@ -190,7 +195,9 @@ public interface SearchBuilderItem
 		"Pending",
 		"Complete",
 		"Pending2",
-		"Locked"
+		"-",
+		"Locked",
+		"Failed"
 	};
 	public static final String[] actions = new String[] {
 		"Unknown",
@@ -211,6 +218,17 @@ public interface SearchBuilderItem
 		"Global Master",
 		"Site Master"
 	};
+
+	/**
+	 * @param dataOutputStream
+	 * @throws IOException
+	 */
+	void output(DataOutputStream dataOutputStream) throws IOException;
+	/**
+	 * @param dataInputStream
+	 * @throws IOException
+	 */
+	void input(DataInputStream dataInputStream) throws IOException;
 
 
 	

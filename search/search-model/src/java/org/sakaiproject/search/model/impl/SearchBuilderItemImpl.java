@@ -21,6 +21,9 @@
 
 package org.sakaiproject.search.model.impl;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Date;
 
 import org.sakaiproject.search.model.SearchBuilderItem;
@@ -30,6 +33,8 @@ import org.sakaiproject.search.model.SearchBuilderItem;
  */
 public class SearchBuilderItemImpl implements SearchBuilderItem
 {
+	private static final int OBJECT_VERSION = 1;
+
 	private String id = null;
 
 	private String name = null;
@@ -175,5 +180,43 @@ public class SearchBuilderItemImpl implements SearchBuilderItem
 	{
 		this.itemscope = itemscope;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.model.SearchBuilderItem#output(java.io.DataOutputStream)
+	 */
+	public void output(DataOutputStream dataOutputStream) throws IOException
+	{
+		dataOutputStream.writeInt(OBJECT_VERSION);
+		dataOutputStream.writeInt(searchaction);
+		dataOutputStream.writeInt(searchstate);
+		dataOutputStream.writeInt(itemscope);
+		dataOutputStream.writeLong(version.getTime());
+		dataOutputStream.writeUTF(id);
+		dataOutputStream.writeUTF(name);
+		dataOutputStream.writeUTF(context);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.model.SearchBuilderItem#input(java.io.DataInputStream)
+	 */
+	public void input(DataInputStream dataInputStream) throws IOException
+	{
+		int objectVersion = dataInputStream.readInt();
+		switch( objectVersion) {
+			case 1:
+				searchaction = dataInputStream.readInt();
+				searchstate = dataInputStream.readInt();
+				itemscope = dataInputStream.readInt();
+				version = new Date(dataInputStream.readLong());
+				id = dataInputStream.readUTF();
+				name = dataInputStream.readUTF();
+				context = dataInputStream.readUTF();
+				break;
+			default:
+				throw new RuntimeException("Unknown object Version while loading SearchBuiderItem");
+		}
+	}
+
+
 
 }
