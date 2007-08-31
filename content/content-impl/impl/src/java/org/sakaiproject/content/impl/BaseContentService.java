@@ -1137,6 +1137,64 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return entityId.startsWith("/group-user");
 	}
 	
+	public boolean isSiteLevelDropbox(String id) 
+	{
+		boolean isSiteLevelDropbox = (id != null) && isInDropbox(id);
+		if(isSiteLevelDropbox)
+		{
+			String[] parts = id.split(Entity.SEPARATOR);
+			isSiteLevelDropbox = parts.length == 3;
+		}
+		return isSiteLevelDropbox;
+	}
+
+	public boolean isIndividualDropbox(String id) 
+	{
+		boolean isIndividualDropbox = (id != null) && isInDropbox(id);
+		if(isIndividualDropbox)
+		{
+			String[] parts = id.split(Entity.SEPARATOR);
+			isIndividualDropbox = parts.length == 4;
+		}
+		return isIndividualDropbox;
+	}
+	
+	public boolean isInsideIndividualDropbox(String id) 
+	{
+		boolean isIndividualDropbox = (id != null) && isInDropbox(id);
+		if(isIndividualDropbox)
+		{
+			String[] parts = id.split(Entity.SEPARATOR);
+			isIndividualDropbox = parts.length > 4;
+		}
+		return isIndividualDropbox;
+	}
+	
+	public String getSiteLevelDropboxId(String id)
+	{
+		String dropboxId = null;
+		if(isSiteLevelDropbox(id))
+		{
+			String[] parts = id.split(Entity.SEPARATOR);
+			dropboxId = Entity.SEPARATOR + parts[1] + Entity.SEPARATOR + parts[2] + Entity.SEPARATOR;
+		}
+		return dropboxId;
+	}
+
+	public String getIndividualDropboxId(String id)
+	{
+		String dropboxId = null;
+		if(isInDropbox(id))
+		{
+			String[] parts = id.split(Entity.SEPARATOR);
+			if(parts.length >= 4)
+			{
+				dropboxId = Entity.SEPARATOR + parts[1] + Entity.SEPARATOR + parts[2]  + Entity.SEPARATOR + parts[3] + Entity.SEPARATOR;
+			}
+		}
+		return dropboxId;
+	}
+
 	/**
 	 * Check whether the resource is hidden.
 	 * @param id

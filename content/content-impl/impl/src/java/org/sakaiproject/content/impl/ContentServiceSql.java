@@ -105,4 +105,25 @@ public interface ContentServiceSql
 	 * returns the sql statement which updates the file path and xml fields in the content_resource table for a given resource id.
 	 */
 	String getUpdateContentResource3Sql();
+
+	/**
+	 * returns the sql statement which retrieves pairs of individual-dropbox-id and last-update fields from the content_dropbox_changes table for a given site-level dropbox-id.
+	 */
+	String getSiteDropboxChangeSql();
+
+	/**
+	 * returns the sql statement which retrieves the last-update field from the content_dropbox_changes table for a given individual-dropbox-id.
+	 */
+	String getIndividualDropboxChangeSql();
+
+	/**
+	 * returns the sql statement which updates the last-update field in the content_dropbox_changes table for a given site-level dropbox-id and individual-dropbox-id.
+	 */
+	String getUpdateIndividualDropboxChangeSql();
+
+	/**
+	 * returns the sql statement which inserts the individual-dropbox-id, site-level dropbox-id and last-update fields into the content_dropbox_changes table.
+	 */
+	String getInsertIndividualDropboxChangeSql();
+
 }

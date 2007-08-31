@@ -156,4 +156,36 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	{
 		return "update CONTENT_RESOURCE set FILE_PATH = ?, XML = ? where RESOURCE_ID = ?";
 	}
+
+	/**
+	 * returns the sql statement which retrieves pairs of individual-dropbox-id and last-update fields from the content_dropbox_changes table for a given site-level dropbox-id.
+	 */
+	public String getIndividualDropboxChangeSql() 
+	{
+		return "select LAST_UPDATE from CONTENT_DROPBOX_CHANGES where (DROPBOX_ID = ?)";
+	}
+
+	/**
+	 * returns the sql statement which retrieves the last-update field from the content_dropbox_changes table for a given individual-dropbox-id.
+	 */
+	public String getSiteDropboxChangeSql() 
+	{
+		return "select DROPBOX_ID, LAST_UPDATE from CONTENT_DROPBOX_CHANGES where (IN_COLLECTION = ?)";
+	}
+
+	/**
+	 * returns the sql statement which updates the last-update field in the content_dropbox_changes table for a given site-level dropbox-id and individual-dropbox-id.
+	 */
+	public String getUpdateIndividualDropboxChangeSql() 
+	{
+		return "update CONTENT_DROPBOX_CHANGES set (IN_COLLECTION = ?, LAST_UPDATE = ?) where (DROPBOX_ID = ?)";
+	}
+
+	/**
+	 * returns the sql statement which inserts the individual-dropbox-id, site-level dropbox-id and last-update fields into the content_dropbox_changes table.
+	 */
+	public String getInsertIndividualDropboxChangeSql() 
+	{
+		return "insert into CONTENT_DROPBOX_CHANGES (DROPBOX_ID, IN_COLLECTION, LAST_UPDATE) values (? , ? , ?)";
+	}
 }

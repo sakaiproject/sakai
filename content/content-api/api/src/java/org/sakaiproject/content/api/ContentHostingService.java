@@ -147,6 +147,9 @@ public interface ContentHostingService extends EntityProducer
 	
 	/** Property name on a Resource that will cause getUrl() and getRefernce() to return an alternal root reference. */
 	public static final String PROP_ALTERNATE_REFERENCE = "sakai:reference-root";
+	
+	/** Property name on an Individual Dropbox identifying the time when items in the dropbox were most recently added, removed or modified. */
+	public static final String PROP_DROPBOX_CHANGE_TIMESTAMP = "sakai:dropbox_change_timestamp";
 
 	/** The maximum number of characters allowed in a new resource ID: make is so the reference, /content/<id>, is 255 or less */
 	public static final int MAXIMUM_RESOURCE_ID_LENGTH = 247;

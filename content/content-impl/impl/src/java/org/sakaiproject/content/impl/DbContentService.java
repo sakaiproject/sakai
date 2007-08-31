@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.Collection;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.LockManager;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdInvalidException;
@@ -723,6 +725,22 @@ public class DbContentService extends BaseContentService
 					if (collections == null)
 					{
 						collections = m_collectionStore.getAllResourcesWhere("IN_COLLECTION", target);
+						if(collections != null && collections.size() > 0 && isSiteLevelDropbox(target))
+						{
+							Map<String,Long> updateTimes = getMostRecentUpdate(collection.getId());
+							Iterator it = collections.iterator();
+							while(it.hasNext())
+							{
+								BaseCollectionEdit dropbox = (BaseCollectionEdit) it.next();
+								Long update = updateTimes.get(dropbox.getId());
+								if(update != null)
+								{
+									ResourcePropertiesEdit props = dropbox.getPropertiesEdit();
+									Time time = TimeService.newTime(update);
+									props.addProperty(PROP_DROPBOX_CHANGE_TIMESTAMP, time.toStringSql());
+								}
+							}
+						}
 						ThreadLocalManager.set("getCollections@" + target, collections);
 						cacheEntities(collections);
 					}
@@ -870,6 +888,10 @@ public class DbContentService extends BaseContentService
 				}
 				else
 				{
+					if(isInsideIndividualDropbox(edit.getId()))
+					{
+						updateIndividualDropboxRecord(getIndividualDropboxId(edit.getId()));
+					}
 					m_collectionStore.removeResource(edit);
 				}
 			}
@@ -1008,6 +1030,10 @@ public class DbContentService extends BaseContentService
 				}
 				else
 				{
+					if(isInsideIndividualDropbox(id))
+					{
+						insertIndividualDropboxRecord(getIndividualDropboxId(id));
+					}
 					return (ContentResourceEdit) m_resourceStore.putResource(id, null);
 				}
 			}
@@ -1015,6 +1041,32 @@ public class DbContentService extends BaseContentService
 			{
 				out();
 			}
+		}
+
+		protected void insertIndividualDropboxRecord(String individualDropboxId) 
+		{
+			String sql = contentServiceSql.getInsertIndividualDropboxChangeSql();
+			
+			Object[] fields = new Object[3];
+			fields[0] = individualDropboxId;
+			fields[1] = isolateContainingId(individualDropboxId);
+			fields[2] = Long.toString(TimeService.newTime().getTime());
+			
+			boolean ok = m_sqlService.dbWrite(sql, fields);
+			
+		}
+
+		protected void updateIndividualDropboxRecord(String individualDropboxId) 
+		{
+			String sql = contentServiceSql.getUpdateIndividualDropboxChangeSql();
+			
+			Object[] fields = new Object[3];
+			fields[0] = isolateContainingId(individualDropboxId);
+			fields[1] = Long.toString(TimeService.newTime().getTime());
+			fields[2] = individualDropboxId;
+			
+			boolean ok = m_sqlService.dbWrite(sql, fields);
+			
 		}
 
 		public ContentResourceEdit editResource(String id)
@@ -1060,7 +1112,7 @@ public class DbContentService extends BaseContentService
 						if (redit.m_contentStream == null)
 						{
 							// no body and no stream -- may result from edit in which body is not accessed or modified
-							M_log.info("ContentResource committed with no change to contents (i.e. no body and no stream for content): "
+							M_log.debug("ContentResource committed with no change to contents (i.e. no body and no stream for content): "
 									+ edit.getReference());
 						}
 						else
@@ -1109,6 +1161,10 @@ public class DbContentService extends BaseContentService
 								putResourceBodyDb(edit, body);
 							}
 						}
+					}
+					if(isInsideIndividualDropbox(edit.getId()))
+					{
+						updateIndividualDropboxRecord(getIndividualDropboxId(edit.getId()));
 					}
 					m_resourceStore.commitResource(edit);
 				}
@@ -1199,6 +1255,10 @@ public class DbContentService extends BaseContentService
 					byte[] body = ((BaseResourceEdit) edit).m_body;
 					((BaseResourceEdit) edit).m_body = null;
 
+					if(isInsideIndividualDropbox(edit.getId()))
+					{
+						updateIndividualDropboxRecord(getIndividualDropboxId(edit.getId()));
+					}
 					m_resourceStore.removeResource(edit);
 
 				}
@@ -1773,6 +1833,29 @@ public class DbContentService extends BaseContentService
 		return m_bodyPath + ((BaseResourceEdit) resource).m_filePath;
 	}
 
+	public Map<String, Long> getMostRecentUpdate(String id) 
+	{
+		Map<String, Long> map = new Hashtable();
+		
+		String sql = contentServiceSql.getSiteDropboxChangeSql();
+		
+		Object[] fields = new Object[1];
+		fields[0] = id;
+		
+		List<TimeEntry> list = m_sqlService.dbRead(sql, fields, new TimeReader());
+		
+		for(TimeEntry entry : list)
+		{
+			if(entry == null)
+			{
+				continue;
+			}
+			map.put(entry.getKey(), entry.getValue());
+		}
+		
+		return map;
+	}
+	
 	/** We allow these characters to go un-escaped into the file name. */
 	static protected final String VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.";
 
@@ -2045,4 +2128,62 @@ public class DbContentService extends BaseContentService
 	{
 		return (this.contentHostingHandlerResolver != null);
 	}
+	
+	public class TimeEntry implements Map.Entry<String, Long>
+	{
+		protected String key;
+		protected Long value;
+		
+		/**
+		 * @param key
+		 * @param value
+		 */
+		public TimeEntry(String key, Long value) 
+		{
+			this.key = key;
+			this.value = value;
+		}
+		public String getKey() 
+		{
+			return key;
+		}
+
+		public Long getValue() 
+		{
+			return value;
+		}
+		
+		public void setKey(String arg0)
+		{
+			this.key = arg0;
+		}
+
+		public Long setValue(Long arg0) 
+		{
+			this.value = arg0;
+			return this.value;
+		}
+
+	}
+	
+	public class TimeReader implements SqlReader
+	{
+		public Object readSqlResultRecord(ResultSet result) 
+		{
+			try
+			{
+				String individualDropboxId = result.getString(1);
+				long time = result.getLong(2);
+				
+				return new TimeEntry(individualDropboxId, new Long(time));
+			}
+			catch(Exception e)
+			{
+				M_log.warn("TimeReader.readSqlResultRecord(): " + result.toString() + " exception: " + e);
+			}
+			return null;
+		}
+		
+	}
+
 }
