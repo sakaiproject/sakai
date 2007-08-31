@@ -112,14 +112,14 @@ public class BaseFilteringBean extends InitializableBean {
 	private String				searchKeyword		= null;
 
 	/** Statistics Manager object */
-	private BaseBean			baseBean			= null;
-	private StatsManager		sm					= (StatsManager) ComponentManager.get(StatsManager.class.getName());
-	private Collator			collator			= Collator.getInstance();
+	private transient BaseBean			baseBean			= null;
+	private transient StatsManager		sm					= (StatsManager) ComponentManager.get(StatsManager.class.getName());
+	private transient Collator			collator			= Collator.getInstance();
 
 	// ######################################################################################
 	// Main methods
 	// ######################################################################################
-	public void init() {
+	public String getInit() {
 		LOG.debug("BaseFilteringBean.init()");
 
 		initializeBaseBean();
@@ -132,6 +132,7 @@ public class BaseFilteringBean extends InitializableBean {
 			// initial values for lastDate selectors
 			if(fromYear == null) initializeDates();
 		}
+		return " ";
 	}
 
 	private void initializeBaseBean() {

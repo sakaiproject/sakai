@@ -14,7 +14,8 @@
 
 <f:view>
 <sakai:view title="#{msgs.tool_title}">
-	<sakai:flowState bean="#{EventsBean}"/>
+	<%--<sakai:flowState bean="#{EventsBean}"/>--%>
+	<h:outputText value="#{EventsBean.init}"/>
 
 	<f:subview id="allowed">
 		<h:message for="allowed" fatalClass="alertMessage" fatalStyle="margin-top: 15px;" showDetail="true"/>
@@ -24,7 +25,7 @@
 		@import url("sitestats/css/sitestats.css");
 	</style>	
 	        
-	        
+	<h:form rendered="#{BaseBean.allowed}">        
 	<%/* MENU */%>
 	<h:panelGroup rendered="#{BaseBean.allowed}">
 		<t:aliasBean  alias="#{viewName}" value="EventsBean">
@@ -33,6 +34,7 @@
 			</f:subview>
         </t:aliasBean>
     </h:panelGroup>    
+	</h:form>
     
     
 	<%/* TITLE */%>

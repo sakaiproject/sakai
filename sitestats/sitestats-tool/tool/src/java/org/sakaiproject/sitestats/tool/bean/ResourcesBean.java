@@ -45,17 +45,17 @@ public class ResourcesBean extends BaseFilteringBean implements Serializable {
 	private static Log			LOG							= LogFactory.getLog(ResourcesBean.class);
 
 	/** Statistics Manager object */
-	private BaseBean			baseBean					= null;
-	private StatsManager		sm							= getStatsManager();
-	private Collator			collator					= Collator.getInstance();
+	private transient BaseBean			baseBean					= null;
+	private transient StatsManager		sm							= getStatsManager();
+	private transient Collator			collator					= Collator.getInstance();
 
 	// ######################################################################################
 	// Main methods
 	// ######################################################################################
-	public void init() {
-		super.init();
+	public String  getInit() {
 		LOG.debug("ResourcesBean.init()");
-		
+		super.getInit();	
+	
 		initializeBaseBean();
 
 		if(baseBean.isAllowed()){
@@ -78,6 +78,7 @@ public class ResourcesBean extends BaseFilteringBean implements Serializable {
 			setEvents(events);
 			setGroups(groups);
 		}
+		return " ";
 	}
 	
 	private void initializeBaseBean(){

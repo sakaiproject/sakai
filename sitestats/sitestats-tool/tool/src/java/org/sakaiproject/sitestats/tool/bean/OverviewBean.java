@@ -86,15 +86,15 @@ public class OverviewBean extends InitializableBean implements Serializable {
 	private boolean				eventIdsChanged					= true;
 
 	/** Statistics Manager object */
-	private BaseBean			baseBean						= null;
-	private StatsManager		sm								= (StatsManager) ComponentManager.get(StatsManager.class.getName());
+	private transient BaseBean			baseBean						= null;
+	private transient StatsManager		sm								= (StatsManager) ComponentManager.get(StatsManager.class.getName());
 	
 	// ######################################################################################
 	// Main methods
 	// ######################################################################################
 	
 	
-	public void init() {
+	public String getInit() {
 		LOG.debug("OverviewBean.init()");
 		initializeBaseBean();
 		
@@ -152,6 +152,7 @@ public class OverviewBean extends InitializableBean implements Serializable {
 				yearSiteStatsActivity = getYearSiteStatsActivity();
 			}
 		}
+		return " ";
 	}
 	
 	private void initializeBaseBean(){

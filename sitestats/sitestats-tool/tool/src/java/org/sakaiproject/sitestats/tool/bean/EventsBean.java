@@ -50,16 +50,16 @@ public class EventsBean extends BaseFilteringBean implements Serializable {
 	private DateTimeConverter	dateConverter				= null;
 
 	/** Statistics Manager object */
-	private BaseBean			baseBean					= null;
-	private StatsManager		sm							= getStatsManager();
-	private Collator			collator					= Collator.getInstance();
+	private transient BaseBean			baseBean					= null;
+	private transient StatsManager		sm							= getStatsManager();
+	private transient Collator			collator					= Collator.getInstance();
 
 	// ######################################################################################
 	// Main methods
 	// ######################################################################################
-	public void init() {
-		super.init();
+	public String getInit() {
 		LOG.debug("EventsBean.init()");
+		super.getInit();
 		
 		initializeBaseBean();
 		
@@ -83,6 +83,7 @@ public class EventsBean extends BaseFilteringBean implements Serializable {
 			setEvents(events);
 			setGroups(groups);
 		}
+		return " ";
 	}
 	
 	private void initializeBaseBean(){

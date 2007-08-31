@@ -15,7 +15,8 @@
 
 <f:view>
 <sakai:view title="#{msgs.tool_title}">
-	<sakai:flowState bean="#{SiteListBean}"/>
+	<%--<sakai:flowState bean="#{SiteListBean}"/>--%>
+	<h:outputText value="#{SiteListBean.init}"/>
 
 	<f:subview id="allowed">
 		<h:message for="allowed" fatalClass="alertMessage" fatalStyle="margin-top: 15px;" showDetail="true"/>

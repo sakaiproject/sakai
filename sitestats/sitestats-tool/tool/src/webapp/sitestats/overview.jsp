@@ -15,7 +15,8 @@
 
 <f:view>
 <sakai:view title="#{msgs.tool_title}">
-	<sakai:flowState bean="#{OverviewBean}"/>
+	<%--<sakai:flowState bean="#{OverviewBean}"/>--%>
+	<h:outputText value="#{OverviewBean.init}"/>
 
 	<f:subview id="allowed">
 		<h:message for="allowed" fatalClass="alertMessage" fatalStyle="margin-top: 15px;" showDetail="true"/>

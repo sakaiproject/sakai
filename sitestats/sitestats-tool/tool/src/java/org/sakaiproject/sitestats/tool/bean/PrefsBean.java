@@ -62,14 +62,14 @@ public class PrefsBean extends InitializableBean implements Serializable {
 	private boolean					updatedEvents			= false;
 	private boolean					noEPEventsSelected		= false;
 	private boolean					noOPEventsSelected		= false;
-	private BaseBean				baseBean				= null;
-	private StatsManager			sm						= getStatsManager();
-	private Collator				collator				= Collator.getInstance();
+	private transient BaseBean				baseBean				= null;
+	private transient StatsManager			sm						= getStatsManager();
+	private transient Collator				collator				= Collator.getInstance();
 
 	// ######################################################################################
 	// Main methods
 	// ######################################################################################
-	public void init() {
+	public String getInit() {
 		LOG.debug("PrefsBean.init()");
 		
 		initializeBaseBean();
@@ -96,6 +96,7 @@ public class PrefsBean extends InitializableBean implements Serializable {
 			Collections.sort(availableEPEvents, getComboItemsComparator(collator));
 			Collections.sort(availableOPEvents, getComboItemsComparator(collator));
 		}
+		return " ";
 	}
 	
 	private void initializeBaseBean(){

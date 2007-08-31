@@ -83,19 +83,20 @@ public class SiteListBean extends InitializableBean implements Serializable {
 	private String					sortColumn			= COL_TITLE;
 
 	/** Manager APIs */
-	private SiteService				M_ss				= (SiteService) ComponentManager.get(SiteService.class.getName());
-	private Authz					authz				= (Authz) ComponentManager.get(Authz.class.getName());
-	private StatsManager			sm					= (StatsManager) ComponentManager.get(StatsManager.class.getName());
+	private transient SiteService				M_ss				= (SiteService) ComponentManager.get(SiteService.class.getName());
+	private transient Authz					authz				= (Authz) ComponentManager.get(Authz.class.getName());
+	private transient StatsManager			sm					= (StatsManager) ComponentManager.get(StatsManager.class.getName());
 
 	// ######################################################################################
 	// Main methods
 	// ######################################################################################
-	public void init() {
+	public String getInit() {
 		LOG.debug("SiteListsBean.init()");
 
 		if(isAllowed()){
 			getSiteRows();
 		}
+		return " ";
 	}
 
 	/*public boolean isAllowed() {
