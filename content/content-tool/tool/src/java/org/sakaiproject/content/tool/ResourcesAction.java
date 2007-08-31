@@ -4222,7 +4222,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 										RunData data,
 										SessionState state)
 	{
-		context.put("tlang",rb);
+		context.put("clang",rb);
+		context.put("tlang",trb);
 		
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));

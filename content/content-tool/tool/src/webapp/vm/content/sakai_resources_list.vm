@@ -30,7 +30,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 				| <a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$validator.escapeUrl(${site.id})")" title="$tlang.getString('list.sPerm')">$tlang.getString("list.sPerm").trim()</a>
 				#end
 				#if($showOptions)
-				| <a href="#toolLinkParam("ResourcesAction" "doOptions" "siteId=$validator.escapeUrl(${site.id})")" title="$tlang.getString('list.options')">$tlang.getString("list.options").trim()</a>
+				| <a href="#toolLinkParam("ResourcesAction" "doOptions" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.options')">$clang.getString("list.options").trim()</a>
 				#end
 			</div>
 	#end 
@@ -91,38 +91,38 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 		#set ($actionCount=2000)
 		#set ($actionCount2=1000)
 		######################  Heirarchical list of resource folders/items  ##############
-		<table class="listHier lines" cellspacing="0" border="0"  summary="$tlang.getString("sh.listsum")">
+		<table class="listHier lines" cellspacing="0" border="0"  summary="$clang.getString("sh.listsum")">
 			######################  Column labels, sort controls, expand/collapse all  ##############
-			<caption class="skip"  style="display:none">$tlang.getString("sh.listcap")</caption>
+			<caption class="skip"  style="display:none">$clang.getString("sh.listcap")</caption>
 			<tr>
 				<th id="expansion" style="border:none">
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
 						<a href="#" onclick="javascript:document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
-							title= "$tlang.getString('collapseall')">
-							<img src = "#imageLink("sakai/collapse-expand.gif")" border="0" title="$tlang.getString('collapseall')" alt="$tlang.getString('collapseall')" hspace="0" />
+							title= "$clang.getString('collapseall')">
+							<img src = "#imageLink("sakai/collapse-expand.gif")" border="0" title="$clang.getString('collapseall')" alt="$clang.getString('collapseall')" hspace="0" />
 						</a>								 
 					#else
 						<a href="#"
 							onclick="javascript:document.getElementById('sakai_action').value='doExpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
-							title= "$tlang.getString('expandall')">
-							<img src = "#imageLink("sakai/expand-collapse.gif")" border="0" title="$tlang.getString('expandall')" alt="$tlang.getString('expandall')" hspace="0" />
+							title= "$clang.getString('expandall')">
+							<img src = "#imageLink("sakai/expand-collapse.gif")" border="0" title="$clang.getString('expandall')" alt="$clang.getString('expandall')" hspace="0" />
 						</a>								 
 					#end
 				</th>
 				<th id="checkboxes"  style="border:none">
-						<input type="checkbox" name="selectall" id="selectall" disabled="disabled" title="$tlang.getString("list.select")"
+						<input type="checkbox" name="selectall" id="selectall" disabled="disabled" title="$clang.getString("list.select")"
 							onclick="javascript:toggleSelectAll(this, 'selectedMembers')" value="" />
 				</th>
 				<th id="title"  style="border:none">
 					<a href="#"
 						onclick="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='title';document.getElementById('showForm').submit();"
-						title= "$tlang.getString('sh.sorttit')">
-						$tlang.getString("gen.title1")
+						title= "$clang.getString('sh.sorttit')">
+						$clang.getString("gen.title1")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropDisplayName)) 
 							#if ($currentSortAsc.equals("true")) 
-								<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('sh.sorttitas')" alt ="$tlang.getString('sh.sorttitas')" /> 
+								<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$clang.getString('sh.sorttitas')" alt ="$clang.getString('sh.sorttitas')" /> 
 							#else 
-								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('sh.sorttitdesc')" alt ="$tlang.getString('sh.sorttitdesc')" /> 
+								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$clang.getString('sh.sorttitdesc')" alt ="$clang.getString('sh.sorttitdesc')" /> 
 							#end 
 						#end 
 					</a>
@@ -137,18 +137,18 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 					##$tlang.getString("gen.actions")
 				</th>
 				<th id="access"  style="border:none">
-					$tlang.getString("gen.access")
+					$clang.getString("gen.access")
 				</th>
 				<th id="creator"  style="border:none">
 					<a href="#"
 						onclick="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='created by';document.getElementById('showForm').submit();"
-						title= "$tlang.getString('sh.sortaut')">
-						$tlang.getString("gen.created")
+						title= "$clang.getString('sh.sortaut')">
+						$clang.getString("gen.created")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropCreator)) 
 							#if ($currentSortAsc.equals("true")) 
-								<img src = "#imageLink("sakai/sortascending.gif")" border="0"  title ="$tlang.getString('sh.sortautas')"  alt ="$tlang.getString('sh.sortautas')" /> 
+								<img src = "#imageLink("sakai/sortascending.gif")" border="0"  title ="$clang.getString('sh.sortautas')"  alt ="$clang.getString('sh.sortautas')" /> 
 							#else 
-								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('sh.sortautdesc')"  alt ="$tlang.getString('sh.sortautdesc')" /> 
+								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$clang.getString('sh.sortautdesc')"  alt ="$clang.getString('sh.sortautdesc')" /> 
 							#end 
 						#end 
 					</a>
@@ -156,13 +156,13 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 				<th id="modified"  style="border:none">
 					<a href="#"
 						onclick="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='last modified';document.getElementById('showForm').submit();"
-						title= "$tlang.getString('sh.sortdate')">
-						$tlang.getString("gen.last1")
+						title= "$clang.getString('sh.sortdate')">
+						$clang.getString("gen.last1")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropModifiedDate)) 
 							#if ($currentSortAsc.equals("true")) 
-								<img src = "#imageLink("sakai/sortascending.gif")" border="0"  title ="$tlang.getString('sh.sortdateas')"  alt ="$tlang.getString('sh.sortdateas')" /> 
+								<img src = "#imageLink("sakai/sortascending.gif")" border="0"  title ="$clang.getString('sh.sortdateas')"  alt ="$clang.getString('sh.sortdateas')" /> 
 							#else 
-								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('sh.sortdatedesc')"  alt ="$tlang.getString('sh.sortdatedesc')" /> 
+								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$clang.getString('sh.sortdatedesc')"  alt ="$clang.getString('sh.sortdatedesc')" /> 
 							#end 
 						#end 
 					</a>
@@ -170,13 +170,13 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 				<th id="size"  style="border:none">
 					<a href="#"
 						onclick="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='size';document.getElementById('showForm').submit();"
-						title= "$tlang.getString('sh.sortsize')">
-						$tlang.getString("gen.size")
+						title= "$clang.getString('sh.sortsize')">
+						$clang.getString("gen.size")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropContentLength)) 
 							#if ($currentSortAsc.equals("true")) 
-								<img src = "#imageLink("sakai/sortascending.gif")" border="0"  title ="$tlang.getString('sh.sortsizeas')"  alt ="$tlang.getString('sh.sortsizeas')" /> 
+								<img src = "#imageLink("sakai/sortascending.gif")" border="0"  title ="$clang.getString('sh.sortsizeas')"  alt ="$clang.getString('sh.sortsizeas')" /> 
 							#else 
-								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('sh.sortsizedesc')"  alt ="$tlang.getString('sh.sortsizedesc')" /> 
+								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$clang.getString('sh.sortsizedesc')"  alt ="$clang.getString('sh.sortsizedesc')" /> 
 							#end 
 						#end 
 					</a>
@@ -367,10 +367,10 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 						<h3>
 							<a href="#"
 								onclick="javascript:document.getElementById('sakai_action').value='doHideOtherSites';document.getElementById('showForm').submit();"
-								title= "$tlang.getString('list.hide')">
-							##<a href="#toolLink("ResourcesAction" "doHideOtherSites")" title= "$tlang.getString('list.hide')">
-								<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString('list.hide')" border="0" align="top" />
-								$validator.escapeHtml("$tlang.getString('list.hide')")
+								title= "$clang.getString('list.hide')">
+							##<a href="#toolLink("ResourcesAction" "doHideOtherSites")" title= "$clang.getString('list.hide')">
+								<img src="#imageLink("sakai/collapse.gif")" alt="$clang.getString('list.hide')" border="0" align="top" />
+								$validator.escapeHtml("$clang.getString('list.hide')")
 							</a>
 						</h3>
 						</th>
@@ -599,9 +599,9 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 						<th colspan="10"  style="border:none">
 						<h3>
 							<a href="#"  		onclick="javascript:document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
-								title= "$tlang.getString('list.show')">
-								<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('list.show')" border="0" align="top" />
-								$validator.escapeHtml("$tlang.getString('list.show')")
+								title= "$clang.getString('list.show')">
+								<img src="#imageLink("sakai/expand.gif")" alt="$clang.getString('list.show')" border="0" align="top" />
+								$validator.escapeHtml("$clang.getString('list.show')")
 							</a>
 						</h3>
 						</th>
@@ -649,7 +649,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 			
 			if(newValue == true)
 			{
-				caller.title = "$tlang.getString("list.unselect")";
+				caller.title = "$clang.getString("list.unselect")";
 				#foreach($key in $listActions.keySet())
 					var ${key}_button = document.getElementById("${key}-button");
 					if(${key}_button)
@@ -662,7 +662,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 			}
 			else
 			{
-				caller.title = "$tlang.getString("list.select")";
+				caller.title = "$clang.getString("list.select")";
 				#foreach($key in $listActions.keySet())
 					var ${key}_button = document.getElementById("${key}-button");
 					if(${key}_button)
