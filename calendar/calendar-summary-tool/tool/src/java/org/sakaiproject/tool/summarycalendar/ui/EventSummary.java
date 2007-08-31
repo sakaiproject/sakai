@@ -22,11 +22,13 @@ package org.sakaiproject.tool.summarycalendar.ui;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 
 
@@ -67,9 +69,17 @@ public class EventSummary implements Serializable {
 
 	public void setDate(TimeRange range) {
 		StringBuffer tmp = new StringBuffer();
-		tmp.append(range.firstTime().toStringLocalTime());
-		tmp.append(" - ");
-		tmp.append(range.lastTime().toStringLocalTime());
+		Time firstTime = range.firstTime();
+		Time lastTime = range.lastTime();
+		if(isSameDay(firstTime.getTime(), lastTime.getTime())) {
+			tmp.append(firstTime.toStringLocalTime());
+			tmp.append(" - ");
+			tmp.append(lastTime.toStringLocalTime());
+		} else {
+			tmp.append(firstTime.toStringLocalFull());
+			tmp.append(" - ");
+			tmp.append(lastTime.toStringLocalFull());
+		}
 		this.date = tmp.toString();
 	}
 
@@ -186,5 +196,15 @@ public class EventSummary implements Serializable {
 	
 	public List getAttachmentsWrapper() {
 		return this.attachmentsWrp;
+	}
+
+	private boolean isSameDay(long startMs, long endMs) {
+		Calendar s = Calendar.getInstance();
+		Calendar e = (Calendar) s.clone();
+		s.setTimeInMillis(startMs);
+		e.setTimeInMillis(endMs);
+		return (s.get(Calendar.ERA) == e.get(Calendar.ERA) &&
+        		s.get(Calendar.YEAR) == e.get(Calendar.YEAR) &&
+        		s.get(Calendar.DAY_OF_YEAR) == e.get(Calendar.DAY_OF_YEAR));
 	}
 }
