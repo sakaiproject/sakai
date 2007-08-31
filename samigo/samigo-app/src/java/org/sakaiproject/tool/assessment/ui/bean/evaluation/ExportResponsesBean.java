@@ -26,6 +26,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.event.ActionEvent;
@@ -133,8 +134,11 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
     }
 	
     private List<List<Object>> getSpreadsheetData() {
+    	String audioMessage = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","audio_message");
+    	String fileUploadMessage = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","file_upload_message");
         GradingService gradingService = new GradingService();
-        List<List<Object>> list = gradingService.getExportResponsesData(assessmentId, anonymous);
+        List<List<Object>> list = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage);
+        
         // Now insert the header line
         ArrayList<Object> headerList = new ArrayList<Object>();
         if (anonymous) {
