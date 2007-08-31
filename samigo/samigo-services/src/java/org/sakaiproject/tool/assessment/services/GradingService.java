@@ -1582,11 +1582,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return numberRetake;
   }
   
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous) {
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage) {
 	  List list = null;
 	    try {
 	    	list = PersistenceService.getInstance().
-	        getAssessmentGradingFacadeQueries().getExportResponsesData(publishedAssessmentId, anonymous);
+	        getAssessmentGradingFacadeQueries().getExportResponsesData(publishedAssessmentId, anonymous,audioMessage, fileUploadMessage);
 	    } catch (Exception e) {
 	      e.printStackTrace();
 	    }

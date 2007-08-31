@@ -1508,7 +1508,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       };
       return getHibernateTemplate().executeFind(hcb);
   }
-  public List getExportResponsesData(final String publishedAssessmentId, final boolean anonymous) {
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage) {
 	  ArrayList finalList = new ArrayList();
 	  PublishedAssessmentService pubService = new PublishedAssessmentService();
 	  HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(pubService.getPublishedAssessment(publishedAssessmentId.toString()));
@@ -1571,7 +1571,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	   // loop over answers per question
 	    	   int count = 0;
 	    	   ItemGradingIfc grade = null;
-	    	   boolean isAudioFileUpload = false;
+	    	   //boolean isAudioFileUpload = false;
 	    	   boolean isFinFib = false;
 	    	   for (Object ooo: l) {
 	    		   grade = (ItemGradingIfc)ooo;
@@ -1634,9 +1634,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 		    		   count++;
 	    		   }
-	    		   else if (typeId.equals(TypeIfc.AUDIO_RECORDING) || typeId.equals(TypeIfc.FILE_UPLOAD)) {
-	    			   log.debug("AUDIO_RECORDING and FILE_UPLOAD: export nothing");
-	    			   isAudioFileUpload = true;
+	    		   else if (typeId.equals(TypeIfc.AUDIO_RECORDING)) {
+	    			   log.debug("AUDIO_RECORDING");
+	    			   maintext = audioMessage;
+	    			   //isAudioFileUpload = true;    			  
+	    		   }
+	    		   else if (typeId.equals(TypeIfc.FILE_UPLOAD)) {
+	    			   log.debug("FILE_UPLOAD");
+	    			   maintext = fileUploadMessage;
+	    			   //isAudioFileUpload = true;
 	    		   }
 	    		   else {
 	    			   log.debug("other type");
@@ -1664,10 +1670,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    		   }
 	    	   }
 	    	   
-	    	   if (isAudioFileUpload) {
-	    		   maintext = "";
-	    	   }
-	    	   else if (isFinFib && maintext.indexOf("No Answer") >= 0 && count == 1) {
+	    	   if (isFinFib && maintext.indexOf("No Answer") >= 0 && count == 1) {
 	    		   maintext = "No Answer";
 	    	   }
 	    	   else if (maintext.equals("")) {

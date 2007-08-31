@@ -187,5 +187,5 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public int getLateSubmissionsNumberByAgentId(Long publishedAssessmentId, String agentIdString, Date dueDate);
   
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous);
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage);
 }
