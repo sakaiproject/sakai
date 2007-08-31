@@ -299,7 +299,7 @@ public class InputDateRenderer
         calendar = "calendar1";
       }
       String calScript =
-        "var " + calRand + " = new calendar2(" +
+        "var " + calRand + " = new " + calendar+ "(" +
         "document.getElementById('" + dateId + "'));" +
         "" + calRand + ".year_scroll = true;" +
         "" + calRand + ".time_comp = false;";
