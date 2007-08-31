@@ -21,8 +21,6 @@
 
   <modules>
     <module>app</module>
-    <module>devtool</module>
-    <module>example</module>
     <module>resource</module>
     <module>tool</module>
     <module>widgets</module>
