@@ -666,7 +666,19 @@ public class AssignmentAction extends PagedResourceActionII
 
 		
 		//Is the review service allowed?
-		context.put("allowReviewService", allowReviewService);
+		Site s = null;
+		try {
+		 s = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+		}
+		catch (IdUnusedException iue) {
+			Log.warn("chef", "Site not found!");
+		}
+		getContentReviewService();
+		if (allowReviewService && contentReviewService.isSiteAcceptable(s)) {
+			context.put("allowReviewService", allowReviewService);
+		} else {
+			context.put("allowReviewService", false);
+		}
 
 		// grading option
 		context.put("withGrade", state.getAttribute(WITH_GRADES));
@@ -9616,11 +9628,14 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	private ContentReviewService contentReviewService;
 	public String getReportURL(Long score) {
+		getContentReviewService();
+		return contentReviewService.getIconUrlforScore(score);
+	}
+	
+	private void getContentReviewService() {
 		if (contentReviewService == null)
 		{
 			contentReviewService = (ContentReviewService) ComponentManager.get(ContentReviewService.class.getName());
 		}
-		return contentReviewService.getIconUrlforScore(score);
 	}
-
 }
