@@ -455,6 +455,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String typeId = pipe.getAction().getTypeId();
 		String mimetype = pipe.getMimeType();
 		
+		ListItem item = new ListItem(pipe.getContentEntity());
+		context.put("item", item);
+		
 		// context.put("inDropbox", ContentHostingService.isInDropbox(pipe.getContentEntity().getId()));
 		ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get(ResourceTypeRegistry.class);
 		if(registry != null)

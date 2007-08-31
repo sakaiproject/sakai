@@ -1,4 +1,4 @@
-<!-- resources/sakai_edit_text.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
+<!-- resources/sakai_revise_url.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <div class="portletBody specialLink">
 	<h3>
 		$tlang.getString("revise.url")
@@ -18,8 +18,8 @@
 		</p>
 		#if(! $item.isDropbox() && ! $item.isUserSite())
 			#if ($hasNotificationDialog)
-				<p class="longtext" >
-					<label for="notify" class="block">
+				<p class="shorttext">
+					<label for="notify">
 						$tlang.getString("gen.email1")
 					</label>	
 					<select name="notify" id="notify">
