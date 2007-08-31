@@ -44,6 +44,7 @@ import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
@@ -54,7 +55,10 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -69,6 +73,10 @@ public class CalendarBean {
 	public static final String						DATE_FORMAT				= "MMM dd, yyyy";
 	private static final String 					imgLocation				= "../../../library/image/sakai/";
 	private static final String 					SCHEDULE_TOOL_ID		= "sakai.schedule";
+	
+	/** Used to retrieve non-notification sites for MyWorkspace page */
+	private static final String 					TABS_EXCLUDED_PREFS 	= "sakai:portal:sitenav";
+	private final String 							TAB_EXCLUDED_SITES 		= "exclude";
 	
 	/** Our log (commons). */
 	private static Log								LOG						= LogFactory.getLog(CalendarBean.class);
@@ -120,6 +128,8 @@ public class CalendarBean {
 	private transient SiteService					M_ss					= (SiteService) ComponentManager.get(SiteService.class.getName());
 	private transient SecurityService				M_as					= (SecurityService) ComponentManager.get(SecurityService.class.getName());
 	private transient ToolManager					M_tm					= (ToolManager) ComponentManager.get(ToolManager.class.getName());
+	private transient PreferencesService			M_ps					= (PreferencesService) ComponentManager.get(PreferencesService.class.getName());
+	private transient SessionManager				M_sm					= (SessionManager) ComponentManager.get(SessionManager.class.getName());
 	
 
 	// ######################################################################################
@@ -171,29 +181,27 @@ public class CalendarBean {
 	}
 	
 	private List getCalendarReferences() {
-		if(calendarReferences == null || calendarReferences.size() == 0){
-			MergedList mergedCalendarList = new MergedList();
+		MergedList mergedCalendarList = new MergedList();
 
-			String[] channelArray = null;
-			boolean isOnWorkspaceTab = M_ss.isUserSite(getSiteId());
-			boolean isSuperUser = M_as.isSuperUser();
+		String[] channelArray = null;
+		boolean isOnWorkspaceTab = M_ss.isUserSite(getSiteId());
+		boolean isSuperUser = M_as.isSuperUser();
 
-			// Figure out the list of channel references that we'll be using.
-			// If we're on the workspace tab, we get everything.
-			// Don't do this if we're the super-user, since we'd be
-			// overwhelmed.
-			calendarReferences = new ArrayList();
-			if(isOnWorkspaceTab && !isSuperUser){
-				channelArray = mergedCalendarList.getAllPermittedChannels(new CalendarChannelReferenceMaker());
-				if(channelArray != null){
-					for(int i = 0; i < channelArray.length; i++)
-						calendarReferences.add(channelArray[i]);
-				}
+		// Figure out the list of channel references that we'll be using.
+		// If we're on the workspace tab, we get everything.
+		// Don't do this if we're the super-user, since we'd be
+		// overwhelmed.
+		calendarReferences = new ArrayList();
+		if(isOnWorkspaceTab && !isSuperUser){
+			channelArray = mergedCalendarList.getAllPermittedChannels(new CalendarChannelReferenceMaker(getExcludedSitesFromTabs()));
+			if(channelArray != null){
+				for(int i = 0; i < channelArray.length; i++)
+					calendarReferences.add(channelArray[i]);
 			}
-
-			// add current site
-			calendarReferences.add(M_ca.calendarReference(getSiteId(), SiteService.MAIN_CONTAINER));
 		}
+
+		// add current site
+		calendarReferences.add(M_ca.calendarReference(getSiteId(), SiteService.MAIN_CONTAINER));
 		return calendarReferences;
 	}
 
@@ -202,8 +210,26 @@ public class CalendarBean {
 	 * copied from Calendar legacy module: CalendarAction.java
 	 */
 	private final class CalendarChannelReferenceMaker implements MergedList.ChannelReferenceMaker {
+		private List excludedSites = null;
+		
+		public CalendarChannelReferenceMaker(List excludedSites) {
+			this.excludedSites = excludedSites;
+		}
+		
 		public String makeReference(String siteId) {
-			return M_ca.calendarReference(siteId, SiteService.MAIN_CONTAINER);
+			if(siteHasScheduleTool(siteId)
+					&& (excludedSites == null || !excludedSites.contains(siteId)) )
+				return M_ca.calendarReference(siteId, SiteService.MAIN_CONTAINER);
+			else
+				return null;
+		}
+		
+		private boolean siteHasScheduleTool(String siteId) {
+			try{
+				return M_ss.getSite(siteId).getToolForCommonId(SCHEDULE_TOOL_ID) != null;
+			}catch(IdUnusedException e){
+				return false;
+			}
 		}
 	}
 
@@ -794,5 +820,14 @@ public class CalendarBean {
 	public void setViewingDate(Date selectedMonth) {
 		this.viewingDate = selectedMonth;
 	}
-
+	
+	/**
+	 * Pulls excluded site ids from Tabs preferences
+	 */
+	private List getExcludedSitesFromTabs() {
+		final Preferences prefs = M_ps.getPreferences(M_sm.getCurrentSessionUserId());
+		final ResourceProperties props = prefs.getProperties(TABS_EXCLUDED_PREFS);
+		final List l = props.getPropertyList(TAB_EXCLUDED_SITES);
+		return l;		
+	}
 }
