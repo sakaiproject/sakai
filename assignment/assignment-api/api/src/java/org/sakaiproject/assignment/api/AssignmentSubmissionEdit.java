@@ -21,6 +21,8 @@
 
 package org.sakaiproject.assignment.api;
 
+import java.util.List;
+
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.time.api.Time;
@@ -210,6 +212,9 @@ public interface AssignmentSubmissionEdit extends AssignmentSubmission, Edit
 	
 	
 	
-	// post an attachment
-	public void postAttachment(Reference attachment);
+	/**
+	 * Post attachments to the content review service
+	 * @param attachments
+	 */
+	public void postAttachment(List attachments);
 }

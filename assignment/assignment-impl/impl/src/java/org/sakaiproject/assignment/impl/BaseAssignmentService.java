@@ -7064,7 +7064,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			else
 			{
 				try {
-					String contentId = ((Reference) m_submittedAttachments.get(0)).getId();
+					//we need to find the first attachment the CR will accept
+					
+					ContentResource cr = getFirstAcceptableAttachement();
+					if (cr == null )
+					{
+						M_log.debug("No suitable attachments found in list");
+						return -2;
+					}
+					String contentId = cr.getId();
 					return contentReviewService.getReviewScore(contentId);
 						
 				} 
@@ -7073,15 +7081,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					try {
 						if (this.getAssignment().getContent().getAllowReviewService())
 						{
-							String contentId = ((Reference) m_submittedAttachments.get(0)).getId();
+							ContentResource cr = getFirstAcceptableAttachement();
+							if (cr == null )
+							{
+								M_log.debug("No suitable attachments found in list");
+								return -2;
+							}
+							String contentId = cr.getId();
 							String userId = (String)this.getSubmitterIds().get(0);
 							try {
-								if (contentReviewService.isAcceptableContent((ContentResource)m_submittedAttachments.get(0)))
-									contentReviewService.queueContent(userId, null, getAssignment().getReference(), contentId);
+								contentReviewService.queueContent(userId, null, getAssignment().getReference(), contentId);
 							}
 							catch (QueueException qe) {
 								M_log.warn("Unable to queue content with content review Service: " + qe.getMessage());
 							}
+								
+							
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -7106,7 +7121,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			else
 			{
 				try {
-					String contentId = ((Reference) m_submittedAttachments.get(0)).getId();
+					ContentResource cr = getFirstAcceptableAttachement();
+					if (cr == null )
+					{
+						M_log.debug("No suitable attachments found in list");
+						return "error";
+					}
+					String contentId = cr.getId();
 					return contentReviewService.getReviewReport(contentId);
 					
 				} catch (Exception e) {
@@ -7116,6 +7137,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					
 			}
 			return "Error";
+		}
+		
+		private ContentResource getFirstAcceptableAttachement() {
+			String contentId = null;
+			for( int i =0; i < m_submittedAttachments.size();i++ ) { 
+				if (contentReviewService.isAcceptableContent((ContentResource)m_submittedAttachments.get(i))) {
+					return (ContentResource)m_submittedAttachments.get(i);
+				}
+			}
+			return null;
 		}
 		
 		public String getReviewStatus() {
@@ -8396,14 +8427,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		
 		
-		public void postAttachment(Reference attachment){
+		public void postAttachment(List attachments){
 			//Send the attachment to the review service
 
 			try {
+				ContentResource cr = getFirstAcceptableAttachement(attachments);
 				Assignment ass = this.getAssignment();
-				ContentResource res = ContentHostingService.getResource(attachment.getId());
-				if (contentReviewService.isAcceptableContent(res))
-					contentReviewService.queueContent(null, null, ass.getReference(), attachment.getId());
+				contentReviewService.queueContent(null, null, ass.getReference(), cr.getId());
 			} catch (QueueException qe) {
 				M_log.warn("Unable to add content to Content Review queue: " + qe.getMessage());
 			} catch (Exception e) {
@@ -8412,6 +8442,31 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		}
 
+		private ContentResource getFirstAcceptableAttachement(List attachments) {
+			
+			for( int i =0; i < attachments.size();i++ ) { 
+				Reference attachment = (Reference)attachments.get(i);
+				try {
+					ContentResource res = ContentHostingService.getResource(attachment.getId());
+					if (contentReviewService.isAcceptableContent(res)) {
+						return (ContentResource)attachments.get(i);
+					}
+				} catch (PermissionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IdUnusedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (TypeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				
+			}
+			return null;
+		}
+		
 		/**
 		 * Take all values from this object.
 		 * 

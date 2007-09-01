@@ -3468,7 +3468,7 @@ public class AssignmentAction extends PagedResourceActionII
 								//Check if we need to post the attachments
 								if (a.getContent().getAllowReviewService()) {
 									if (!attachments.isEmpty()) { 
-										sEdit.postAttachment((Reference) attachments.get(0));
+										sEdit.postAttachment(attachments);
 									}
 								}
 																 
@@ -3517,7 +3517,7 @@ public class AssignmentAction extends PagedResourceActionII
 							{
 	 							// add each attachment
 								if ((!attachments.isEmpty()) && a.getContent().getAllowReviewService()) 
-									edit.postAttachment((Reference) attachments.get(0));								
+									edit.postAttachment(attachments);								
 								
 								// add each attachment
 								Iterator it = attachments.iterator();
