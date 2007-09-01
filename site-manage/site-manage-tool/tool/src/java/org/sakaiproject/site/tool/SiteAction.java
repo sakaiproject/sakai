@@ -72,6 +72,7 @@ import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.Enrollment;
+import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.email.cover.EmailService;
@@ -8045,34 +8046,42 @@ public class SiteAction extends PagedResourceActionII {
 			for (Iterator i=providerCourseList.iterator(); i.hasNext();)
 			{
 				String providerCourseEid = (String) i.next();
-				Set enrollmentSet = cms.getEnrollments(providerCourseEid);
-				if (enrollmentSet != null)
+				Set enrollmentSets = cms.getEnrollmentSets(providerCourseEid);
+				if (enrollmentSets != null)
 				{
-					for (Iterator eIterator = enrollmentSet.iterator();eIterator.hasNext();)
+					for (Iterator eSetsIterator = enrollmentSets.iterator();eSetsIterator.hasNext();)
 					{
-						Enrollment e = (Enrollment) eIterator.next();
-						try 
+						EnrollmentSet enrollmentSet = (EnrollmentSet) eSetsIterator.next();
+						if (enrollmentSet != null)
 						{
-							User user = UserDirectoryService.getUserByEid(e.getUserId());
-							Member member = realm.getMember(user.getId());
-							if (member != null && member.isProvided())
+							Set enrollments = cms.getEnrollments(enrollmentSet.getEid());
+							for (Iterator eIterator = enrollments.iterator();eIterator.hasNext();)
 							{
-								// add provided participant
-								Participant participant = new Participant();
-								participant.credits = e.getCredits();
-								participant.name = user.getSortName();
-								participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
-								participant.regId = "";
-								participant.removeable = false;
-								participant.role = member.getRole()!=null?member.getRole().getId():"";
-								participant.section = cms.getSection(providerCourseEid).getTitle();
-								participant.uniqname = user.getId();
-								participants.add(participant);
+								Enrollment e = (Enrollment) eIterator.next();
+								try 
+								{
+									User user = UserDirectoryService.getUserByEid(e.getUserId());
+									Member member = realm.getMember(user.getId());
+									if (member != null && member.isProvided())
+									{
+										// add provided participant
+										Participant participant = new Participant();
+										participant.credits = e.getCredits();
+										participant.name = user.getSortName();
+										participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
+										participant.regId = "";
+										participant.removeable = false;
+										participant.role = member.getRole()!=null?member.getRole().getId():"";
+										participant.section = cms.getSection(providerCourseEid).getTitle();
+										participant.uniqname = user.getId();
+										participants.add(participant);
+									}
+								} catch (UserNotDefinedException exception) {
+									// deal with missing user quietly without throwing a
+									// warning message
+									M_log.warn(exception.getMessage());
+								}
 							}
-						} catch (UserNotDefinedException exception) {
-							// deal with missing user quietly without throwing a
-							// warning message
-							M_log.warn(exception.getMessage());
 						}
 					}
 				}
