@@ -8449,7 +8449,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				try {
 					ContentResource res = ContentHostingService.getResource(attachment.getId());
 					if (contentReviewService.isAcceptableContent(res)) {
-						return (ContentResource)attachments.get(i);
+						return res;
 					}
 				} catch (PermissionException e) {
 					// TODO Auto-generated catch block
