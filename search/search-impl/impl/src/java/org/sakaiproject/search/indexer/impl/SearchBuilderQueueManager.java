@@ -68,6 +68,8 @@ public class SearchBuilderQueueManager implements TransactionListener
 
 	private static final String SEARCH_BUILDER_ITEM_FIELDS_UPDATE = " name = ?, context = ?,  searchaction = ?, searchstate = ?, version = ?, itemscope = ? where id = ? "; //$NON-NLS-1$
 
+	public static final String BATCH_SIZE = "batch-size";
+
 	private IdentifierGenerator idgenerator = new VersionFourGenerator();
 
 	/**
@@ -80,10 +82,6 @@ public class SearchBuilderQueueManager implements TransactionListener
 	 */
 	private DataSource datasource;
 
-	/**
-	 * dependency
-	 */
-	private int batchSize;
 
 	/**
 	 * Does nothing at the moment.
@@ -189,6 +187,11 @@ public class SearchBuilderQueueManager implements TransactionListener
 		try
 		{
 			connection = datasource.getConnection();
+			Integer bs = (Integer)transaction.get(BATCH_SIZE);
+			int batchSize = 100;
+			if ( bs != null ) {
+				batchSize = bs.intValue();
+			}
 			List<SearchBuilderItem> items = findPendingAndLock(batchSize, connection);
 			transaction.setItems(items);
 			connection.commit();
@@ -892,23 +895,6 @@ public class SearchBuilderQueueManager implements TransactionListener
 	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder)
 	{
 		this.searchIndexBuilder = searchIndexBuilder;
-	}
-
-	/**
-	 * @return the batchSize
-	 */
-	public int getBatchSize()
-	{
-		return batchSize;
-	}
-
-	/**
-	 * @param batchSize
-	 *        the batchSize to set
-	 */
-	public void setBatchSize(int batchSize)
-	{
-		this.batchSize = batchSize;
 	}
 
 	/**

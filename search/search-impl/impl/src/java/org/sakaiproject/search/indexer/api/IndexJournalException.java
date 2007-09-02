@@ -19,9 +19,8 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.cluster.impl;
+package org.sakaiproject.search.indexer.api;
 
-import org.sakaiproject.search.indexer.api.IndexTransactionException;
 
 /**
  * @author ieb

@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
-import org.sakaiproject.search.model.SearchWriterLock;
 
 /**
  * A SearchIndexBuilder builds a search index, it must manage its own list of
@@ -33,7 +32,7 @@ import org.sakaiproject.search.model.SearchWriterLock;
  * 
  * @author ieb
  */
-public interface SearchIndexBuilder extends Diagnosable
+public interface SearchIndexBuilder 
 {
 
 	/**
@@ -138,34 +137,34 @@ public interface SearchIndexBuilder extends Diagnosable
 	 * get the current search lock
 	 * @return
 	 */
-	SearchWriterLock getCurrentLock();
+	//SearchWriterLock getCurrentLock();
 
 	/**
 	 * provide a list of node statuses for all indexer nodes in a cluster
 	 * @return
 	 */
-	List getNodeStatus();
+	//List getNodeStatus();
 
 	/**
 	 * force the removal of a worker lock
 	 * @return
 	 */
-	boolean removeWorkerLock();
+	//boolean removeWorkerLock();
 
-	String getLastDocument();
+	//String getLastDocument();
 
-	String getLastElapsed();
+	//String getLastElapsed();
 
-	String getCurrentDocument();
+	//String getCurrentDocument();
 
-	String getCurrentElapsed();
+	//String getCurrentElapsed();
 
 	boolean isOnlyIndexSearchToolSites();
 
 	/**
 	 * @return
 	 */
-	boolean isLocalLock();
+	//boolean isLocalLock();
 
 	
 

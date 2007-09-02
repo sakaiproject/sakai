@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,10 +83,10 @@ public class TransactionIndexManagerImpl implements TransactionIndexManager
 	 * 
 	 * @see org.sakaiproject.search.component.service.index.transactional.api.TransactionIndexManager#openTransaction(java.util.List)
 	 */
-	public IndexUpdateTransaction openTransaction() throws IndexTransactionException
+	public IndexUpdateTransaction openTransaction(Map<String, Object> m) throws IndexTransactionException
 	{
 		
-		return new IndexUpdateTransactionImpl(this);
+		return new IndexUpdateTransactionImpl(this,m);
 
 	}
 

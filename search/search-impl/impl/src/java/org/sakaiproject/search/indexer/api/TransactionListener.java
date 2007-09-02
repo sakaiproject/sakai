@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.indexer.api;
 
-import org.sakaiproject.search.cluster.impl.IndexJournalException;
 
 /**
  * This listener is notified of changes in the transaction state.

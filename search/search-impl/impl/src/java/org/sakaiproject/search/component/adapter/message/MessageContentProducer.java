@@ -31,8 +31,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -74,26 +73,22 @@ public class MessageContentProducer implements EntityContentProducer
 	// injected dependency
 	private MessageService messageService = null;
 
-	// runtime dependency
+	// injected dependency
 	private SearchService searchService = null;
 
-	// runtime dependency
+	// injected dependency
 	private SearchIndexBuilder searchIndexBuilder = null;
 
+	// injected dependency
 	private EntityManager entityManager = null;
+
+	// injected dependency
+	private ServerConfigurationService serverConfigurationService;
 
 	public void init()
 	{
-		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
-				.getInstance();
 
-		searchService = (SearchService) load(cm, SearchService.class.getName());
-		searchIndexBuilder = (SearchIndexBuilder) load(cm,
-				SearchIndexBuilder.class.getName());
-
-		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
-
-		if ( "true".equals(ServerConfigurationService.getString(
+		if ( "true".equals(serverConfigurationService.getString(
 				"search.enable", "false")))
 		{
 			for (Iterator i = addEvents.iterator(); i.hasNext();)
@@ -108,15 +103,6 @@ public class MessageContentProducer implements EntityContentProducer
 		}
 	}
 
-	private Object load(ComponentManager cm, String name)
-	{
-		Object o = cm.get(name);
-		if (o == null)
-		{
-			log.error("Cant find Spring component named " + name); //$NON-NLS-1$
-		}
-		return o;
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -700,6 +686,79 @@ public class MessageContentProducer implements EntityContentProducer
 		} catch ( Exception ex ) {
 			return "";
 		}
+	}
+
+
+	/**
+	 * @return the entityManager
+	 */
+	public EntityManager getEntityManager()
+	{
+		return entityManager;
+	}
+
+
+	/**
+	 * @param entityManager the entityManager to set
+	 */
+	public void setEntityManager(EntityManager entityManager)
+	{
+		this.entityManager = entityManager;
+	}
+
+
+	/**
+	 * @return the searchIndexBuilder
+	 */
+	public SearchIndexBuilder getSearchIndexBuilder()
+	{
+		return searchIndexBuilder;
+	}
+
+
+	/**
+	 * @param searchIndexBuilder the searchIndexBuilder to set
+	 */
+	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder)
+	{
+		this.searchIndexBuilder = searchIndexBuilder;
+	}
+
+
+	/**
+	 * @return the searchService
+	 */
+	public SearchService getSearchService()
+	{
+		return searchService;
+	}
+
+
+	/**
+	 * @param searchService the searchService to set
+	 */
+	public void setSearchService(SearchService searchService)
+	{
+		this.searchService = searchService;
+	}
+
+
+	/**
+	 * @return the serverConfigurationService
+	 */
+	public ServerConfigurationService getServerConfigurationService()
+	{
+		return serverConfigurationService;
+	}
+
+
+	/**
+	 * @param serverConfigurationService the serverConfigurationService to set
+	 */
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService)
+	{
+		this.serverConfigurationService = serverConfigurationService;
 	}
 
 }

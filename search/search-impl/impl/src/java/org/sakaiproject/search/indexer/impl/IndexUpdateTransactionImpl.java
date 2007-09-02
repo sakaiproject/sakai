@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -65,19 +64,21 @@ public class IndexUpdateTransactionImpl implements IndexUpdateTransaction
 	
 	private int transactionState = IndexUpdateTransaction.STATUS_UNKNOWN;
 
-	private Map<String, Object> attributes = new HashMap<String, Object>();
+	private Map<String, Object> attributes;
 
 
 	/**
+	 * @param m 
 	 * @param impl
 	 * @throws IndexTransactionException 
 	 */
-	public IndexUpdateTransactionImpl(TransactionIndexManagerImpl manager) throws IndexTransactionException
+	public IndexUpdateTransactionImpl(TransactionIndexManagerImpl manager, Map<String, Object> m) throws IndexTransactionException
 	{
 		transactionState = IndexUpdateTransaction.STATUS_NO_TRANSACTION;
 		this.manager  = manager;
 		transactionId = manager.sequence.getLocalId();	
 		transactionState = IndexUpdateTransaction.STATUS_ACTIVE;
+		attributes = m;
 		manager.fireOpen(this);
 	}
 

@@ -24,6 +24,7 @@ package org.sakaiproject.search.cluster.impl;
 import java.io.File;
 import java.io.FileOutputStream;
 
+import org.sakaiproject.search.indexer.api.IndexJournalException;
 import org.sakaiproject.search.indexer.api.IndexTransactionException;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
 import org.sakaiproject.search.indexer.api.TransactionListener;
@@ -32,13 +33,13 @@ import org.sakaiproject.search.util.FileUtils;
 /**
  * @author ieb
  */
-public class ClusterJournal implements TransactionListener
+public class ClusterSharedFilesystem implements TransactionListener
 {
 
 	private String journalLocation;
 
 	/**
-	 * @throws IndexJournalException 
+	 * @throws IndexJournalException
 	 * @see org.sakaiproject.search.indexer.api.TransactionListener#prepare(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
 	public void prepare(IndexUpdateTransaction transaction) throws IndexJournalException
@@ -47,22 +48,25 @@ public class ClusterJournal implements TransactionListener
 		{
 			String location = transaction.getTempIndex();
 			File indexLocation = new File(location);
-			File tmpZip = new File(journalLocation, transaction.getTransactionId() + ".zip."
-					+ System.currentTimeMillis());
+			File tmpZip = new File(journalLocation, transaction.getTransactionId()
+					+ ".zip." + System.currentTimeMillis());
 			tmpZip.getParentFile().mkdirs();
 			FileOutputStream zout = new FileOutputStream(tmpZip);
 			String basePath = indexLocation.getPath();
-			String replacePath = String.valueOf(transaction.getTransactionId())+"/";
+			String replacePath = String.valueOf(transaction.getTransactionId()) + "/";
 			FileUtils.pack(indexLocation, basePath, replacePath, zout);
-			File journalZip = new File(journalLocation, transaction.getTransactionId() + ".zip");
-			transaction.put(ClusterJournal.class.getName()+".journalZip",journalZip);
-			transaction.put(ClusterJournal.class.getName()+".tmpZip",tmpZip);
+			File journalZip = new File(journalLocation, transaction.getTransactionId()
+					+ ".zip");
+			transaction.put(ClusterSharedFilesystem.class.getName() + ".journalZip", journalZip);
+			transaction.put(ClusterSharedFilesystem.class.getName() + ".tmpZip", tmpZip);
 			FileUtils.listDirectory(journalZip.getParentFile());
 			
+
 		}
 		catch (Exception ex)
 		{
 			throw new IndexJournalException("Failed to transfer index ", ex);
+		} finally {
 		}
 
 	}
@@ -75,12 +79,14 @@ public class ClusterJournal implements TransactionListener
 	{
 		try
 		{
-			File journalZip = (File) transaction.get(ClusterJournal.class.getName()+".journalZip");
-			File tmpZip = (File) transaction.get(ClusterJournal.class.getName()+".tmpZip");
+			File journalZip = (File) transaction.get(ClusterSharedFilesystem.class.getName()
+					+ ".journalZip");
+			File tmpZip = (File) transaction.get(ClusterSharedFilesystem.class.getName()
+					+ ".tmpZip");
 			tmpZip.renameTo(journalZip);
-			transaction.clear(ClusterJournal.class.getName()+".journalZip");
-			transaction.clear(ClusterJournal.class.getName()+".tmpZip");
-			FileUtils.listDirectory(journalZip.getParentFile());
+			transaction.clear(ClusterSharedFilesystem.class.getName() + ".journalZip");
+			transaction.clear(ClusterSharedFilesystem.class.getName() + ".tmpZip");
+			FileUtils.listDirectory(journalZip.getParentFile());			
 		}
 		catch (Exception ex)
 		{
@@ -101,16 +107,31 @@ public class ClusterJournal implements TransactionListener
 	 */
 	public void rollback(IndexUpdateTransaction transaction)
 	{
-		File journalZip = (File) transaction.get(ClusterJournal.class.getName()+".journalZip");
-		File tmpZip = (File) transaction.get(ClusterJournal.class.getName()+".tmpZip");
-		if ( tmpZip != null && tmpZip.exists() ) {
-			tmpZip.delete();
+		try
+		{
+			File journalZip = (File) transaction.get(ClusterSharedFilesystem.class.getName()
+					+ ".journalZip");
+			File tmpZip = (File) transaction.get(ClusterSharedFilesystem.class.getName()
+					+ ".tmpZip");
+			if (tmpZip != null && tmpZip.exists())
+			{
+				tmpZip.delete();
+			}
+			if (journalZip != null && journalZip.exists())
+			{
+				journalZip.delete();
+			}
+			
+			transaction.clear(ClusterSharedFilesystem.class.getName() + ".journalZip");
+			transaction.clear(ClusterSharedFilesystem.class.getName() + ".tmpZip");
 		}
-		if ( journalZip != null && journalZip.exists() ) {
-			journalZip.delete();
+		catch (Exception ex)
+		{
+
 		}
-		transaction.clear(ClusterJournal.class.getName()+".journalZip");
-		transaction.clear(ClusterJournal.class.getName()+".tmpZip");
+		finally
+		{
+		}
 	}
 
 	/**
@@ -122,7 +143,8 @@ public class ClusterJournal implements TransactionListener
 	}
 
 	/**
-	 * @param journalLocation the journalLocation to set
+	 * @param journalLocation
+	 *        the journalLocation to set
 	 */
 	public void setJournalLocation(String journalLocation)
 	{

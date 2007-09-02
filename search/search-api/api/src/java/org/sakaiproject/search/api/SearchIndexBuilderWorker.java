@@ -26,7 +26,7 @@ import java.util.List;
 
 import org.sakaiproject.search.model.SearchWriterLock;
 
-public interface SearchIndexBuilderWorker extends Diagnosable
+public interface SearchIndexBuilderWorker 
 {
 
 
@@ -62,24 +62,6 @@ public interface SearchIndexBuilderWorker extends Diagnosable
 	 * @return
 	 */
 	boolean removeWorkerLock();
-
-	/**
-	 * Increment the activity counter
-	 *
-	 */
-	void incrementActivity();
-
-	/**
-	 * get an indication of the current activity level
-	 * @return
-	 */
-	int getActivity();
-
-	/**
-	 * reset the activity levels
-	 *
-	 */
-	void resetActivity();
 
 	/**
 	 * Get the ms time of the last search add/remove event (excluding master events)

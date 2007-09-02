@@ -54,15 +54,6 @@ public class SearchSecurityFilter implements SearchItemFilter
 
 	public void init()
 	{
-		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
-				.getInstance();
-		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
-		if (entityManager == null)
-		{
-			log.error(" entityManager must be set"); //$NON-NLS-1$
-			throw new RuntimeException("Must set entityManager"); //$NON-NLS-1$
-		}
-
 	}
 
 	private Object load(ComponentManager cm, String name)
@@ -218,6 +209,22 @@ public class SearchSecurityFilter implements SearchItemFilter
 			sb.append(" url=\"\" />"); //$NON-NLS-1$
 		}
 
+	}
+
+	/**
+	 * @return the entityManager
+	 */
+	public EntityManager getEntityManager()
+	{
+		return entityManager;
+	}
+
+	/**
+	 * @param entityManager the entityManager to set
+	 */
+	public void setEntityManager(EntityManager entityManager)
+	{
+		this.entityManager = entityManager;
 	}
 
 }

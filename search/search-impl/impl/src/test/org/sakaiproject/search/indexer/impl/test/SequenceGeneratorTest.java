@@ -1,20 +1,13 @@
 package org.sakaiproject.search.indexer.impl.test;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
-import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
+import junit.framework.TestCase;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.search.indexer.api.TransactionSequence;
 import org.sakaiproject.search.indexer.impl.TransactionSequenceImpl;
-
-import junit.framework.TestCase;
 
 /**********************************************************************************
  * $URL$

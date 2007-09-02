@@ -28,7 +28,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.exception.IdUnusedException;
@@ -36,10 +35,9 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchIndexBuilderWorker;
 import org.sakaiproject.search.dao.SearchBuilderItemDao;
+import org.sakaiproject.search.indexer.api.IndexQueueListener;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.search.model.SearchWriterLock;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -62,42 +60,21 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 
 	private static Log log = LogFactory.getLog(SearchIndexBuilderImpl.class);
 
+	/**
+	 * dependency
+	 */
 	private SearchBuilderItemDao searchBuilderItemDao = null;
-
-	private SearchIndexBuilderWorker searchIndexBuilderWorker = null;
 
 	private List producers = new ArrayList();
 
 	private boolean onlyIndexSearchToolSites = false;
 
-	private boolean diagnostics = false;
+	private List<IndexQueueListener> indexQueueListeners = new ArrayList<IndexQueueListener>();
 
 	public void init()
 	{
-		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
-				.getInstance();
-		searchIndexBuilderWorker = (SearchIndexBuilderWorker) load(cm,
-				SearchIndexBuilderWorker.class.getName());
-		try
-		{
-
-		}
-		catch (Throwable t)
-		{
-			log.error("Failed to init ", t);
-		}
-		log.info(this + " completed init()");
 	}
 
-	private Object load(ComponentManager cm, String name)
-	{
-		Object o = cm.get(name);
-		if (o == null)
-		{
-			log.error("Cant find Spring component named " + name);
-		}
-		return o;
-	}
 
 	/**
 	 * register an entity content producer to provide content to the search
@@ -192,6 +169,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			}
 			searchBuilderItemDao.update(sb);
 			log.debug("SEARCHBUILDER: Added Resource " + action + " " + sb.getName());
+			fireResourceAdded(resourceName);
 		}
 		catch (Throwable t)
 		{
@@ -199,10 +177,36 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 					+ " in search engine this resource will"
 					+ " not be indexed untill it is modified");
 		}
-		searchIndexBuilderWorker.incrementActivity();
-		restartBuilder();
 	}
 
+	protected void fireResourceAdded(String name) 
+	{
+		for (Iterator<IndexQueueListener> itl = indexQueueListeners.iterator(); itl
+				.hasNext();)
+		{
+			IndexQueueListener tl = itl.next();
+			tl.added(name);
+		}
+	}
+
+	public void addIndexQueueListener(IndexQueueListener indexQueueListener)
+	{
+		List<IndexQueueListener> tl = new ArrayList<IndexQueueListener>();
+		tl.addAll(indexQueueListeners);
+		tl.add(indexQueueListener);
+		indexQueueListeners = tl;
+	}
+
+	public void removeIndexQueueListener(IndexQueueListener indexQueueListener)
+	{
+		List<IndexQueueListener> tl = new ArrayList<IndexQueueListener>();
+		tl.addAll(indexQueueListeners);
+		tl.remove(indexQueueListener);
+		indexQueueListeners = tl;
+	}
+
+	
+	
 	/**
 	 * refresh the index from the current stored state {@inheritDoc}
 	 */
@@ -230,7 +234,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			searchBuilderItemDao.update(sb);
 			log.debug("SEARCHBUILDER: REFRESH ALL " + sb.getSearchaction() + " "
 					+ sb.getName());
-			restartBuilder();
+			fireResourceAdded(String.valueOf(SearchBuilderItem.GLOBAL_MASTER));
 		}
 		else
 		{
@@ -241,7 +245,6 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 
 	public void destroy()
 	{
-		searchIndexBuilderWorker.destroy();
 	}
 
 	/*
@@ -280,13 +283,12 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			searchBuilderItemDao.update(sb);
 			log.debug("SEARCHBUILDER: REBUILD ALL " + sb.getSearchaction() + " "
 					+ sb.getName());
-
+			fireResourceAdded(String.valueOf(SearchBuilderItem.GLOBAL_MASTER));
 		}
 		catch (Exception ex)
 		{
 			log.warn(" rebuild index encountered a problme " + ex.getMessage());
 		}
-		restartBuilder();
 	}
 
 	/*
@@ -296,16 +298,6 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	 * contentList.iterator(); ci.hasNext();) { String resourceName = (String)
 	 * ci.next(); } } }
 	 */
-	/**
-	 * This adds and event to the list and if necessary starts a processing
-	 * thread The method is syncronised with removeFromList
-	 * 
-	 * @param e
-	 */
-	private void restartBuilder()
-	{
-		searchIndexBuilderWorker.checkRunning();
-	}
 
 	/**
 	 * Generates a SearchableEntityProducer
@@ -430,13 +422,12 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			searchBuilderItemDao.update(sb);
 			log.debug("SEARCHBUILDER: REBUILD CONTEXT " + sb.getSearchaction() + " "
 					+ sb.getName());
-
+			fireResourceAdded(sb.getName());
 		}
 		catch (Exception ex)
 		{
 			log.warn(" rebuild index encountered a problme " + ex.getMessage());
 		}
-		restartBuilder();
 	}
 
 	/**
@@ -474,8 +465,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			searchBuilderItemDao.update(sb);
 			log.debug("SEARCHBUILDER: REFRESH CONTEXT " + sb.getSearchaction() + " "
 					+ sb.getName());
-
-			restartBuilder();
+			fireResourceAdded(sb.getName());
 		}
 		else
 		{
@@ -500,6 +490,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		return searchBuilderItemDao.getSiteMasters();
 	}
 
+	/*
 	public SearchWriterLock getCurrentLock()
 	{
 		return searchIndexBuilderWorker.getCurrentLock();
@@ -534,6 +525,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	{
 		return searchIndexBuilderWorker.getCurrentElapsed();
 	}
+	*/
 
 	/**
 	 * @return the onlyIndexSearchToolSites
@@ -557,40 +549,48 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	 * 
 	 * @see org.sakaiproject.search.api.SearchIndexBuilder#isLocalLock()
 	 */
+	/*
 	public boolean isLocalLock()
 	{
 		return searchIndexBuilderWorker.isLocalLock();
 	}
-
+	*/
+	
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
 	 */
+	/*
 	public void disableDiagnostics()
 	{
 		diagnostics = false;
 		searchIndexBuilderWorker.enableDiagnostics();
 	}
+	*/
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
 	 */
+	/*
 	public void enableDiagnostics()
 	{
 		diagnostics = true;
 		searchIndexBuilderWorker.disableDiagnostics();
 	}
+	*/
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
 	 */
+	/*
 	public boolean hasDiagnostics()
 	{
 		return diagnostics;
 	}
+	*/
 }

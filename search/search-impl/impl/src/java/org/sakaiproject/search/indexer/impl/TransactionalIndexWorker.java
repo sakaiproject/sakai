@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -101,14 +102,16 @@ public class TransactionalIndexWorker implements IndexWorker
 
 	}
 
-	public int process()
+	public int process(int batchSize)
 	{
 		// get a list to perform this transaction
 		List<SearchBuilderItem> runtimeToDo = null;
 		IndexUpdateTransaction t = null;
 		try
 		{
-			t = transactionIndexManager.openTransaction();
+			Map<String,Object> m = new HashMap<String, Object>();
+			m.put(SearchBuilderQueueManager.BATCH_SIZE, batchSize);
+			t = transactionIndexManager.openTransaction(m);
 			int n = processTransaction(t);
 			t.prepare();
 			t.commit();

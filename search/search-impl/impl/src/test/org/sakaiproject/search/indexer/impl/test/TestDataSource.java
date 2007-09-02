@@ -93,7 +93,26 @@ public class TestDataSource
 		{
 			log.warn("Create Table Said :" + ex.getMessage());
 		}
-
+		try
+		{
+			s.execute("DROP TABLE search_journal" );
+		}
+		catch (Exception ex)
+		{
+		}
+		try
+		{
+			s.execute("CREATE TABLE search_journal ( " +
+					" txid bigint NOT NULL, " +
+					" txts bigint NOT NULL, " +
+					" indexwriter varchar(255) NOT NULL, " +
+					" PRIMARY KEY  (txid) )" );
+		}
+		catch (Exception ex)
+		{
+			log.warn("Create Table Said :" + ex.getMessage());
+		}
+		
 		ResultSet rs = s.executeQuery("select txname, txid from search_transaction");
 		log.info("Record ++++++++++");
 		while (rs.next())

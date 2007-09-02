@@ -48,12 +48,8 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.hibernate.HibernateException;
-import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
-// import org.sakaiproject.entity.api.Entity;
-// import org.sakaiproject.entity.api.EntityManager;
-// import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchIndexBuilderWorker;
@@ -113,18 +109,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 
 	public void init()
 	{
-		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
-				.getInstance();
-		// entityManager = (EntityManager) load(cm,
-		// EntityManager.class.getName(),
-		// true);
-		searchIndexBuilder = (SearchIndexBuilder) load(cm, SearchIndexBuilder.class
-				.getName(), true);
-		rdfSearchService = (RDFSearchService) load(cm, RDFSearchService.class.getName(),
-				false);
-		
-		serverConfigurationService = (ServerConfigurationService)load(cm, ServerConfigurationService.class.getName(),
-				false);
 		
 
 		enabled = "true".equals(serverConfigurationService.getString("search.enable",
@@ -132,19 +116,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 
 		try
 		{
-			if (searchIndexBuilder == null)
-			{
-				log.error("Search Index Worker needs searchIndexBuilder "); //$NON-NLS-1$
-			}
-			// if (entityManager == null)
-			// {
-			// log.error("Search Index Worker needs EntityManager ");
-			// //$NON-NLS-1$
-			// }
-			if (indexStorage == null)
-			{
-				log.error("Search Index Worker needs indexStorage "); //$NON-NLS-1$
-			}
 			if (rdfSearchService == null)
 			{
 				log
@@ -248,18 +219,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		}
 	}
 
-	private Object load(ComponentManager cm, String name, boolean aserror)
-	{
-		Object o = cm.get(name);
-		if (o == null)
-		{
-			if (aserror)
-			{
-				log.error("Cant find Spring component named " + name); //$NON-NLS-1$
-			}
-		}
-		return o;
-	}
 
 	private void processDeletes(SearchIndexBuilderWorker worker, Connection connection,
 			List runtimeToDo) throws SQLException, IOException
@@ -1369,7 +1328,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		// delete all and return the master action only
 		// the caller will then rebuild the index from scratch
 		log
-				.debug("DELETE ALL RECORDS =========================================================="); //$NON-NLS-1$
+				.info("DELETE ALL RECORDS =========================================================="); //$NON-NLS-1$
 		Statement stm = null;
 		try
 		{
@@ -1429,7 +1388,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			for (Iterator c = contextList.iterator(); c.hasNext();)
 			{
 				String siteContext = (String) c.next();
-				log.info("Rebuild for " + siteContext); //$NON-NLS-1$
+				log.debug("Rebuild for " + siteContext); //$NON-NLS-1$
 				for (Iterator i = searchIndexBuilder.getContentProducers().iterator(); i
 						.hasNext();)
 				{
@@ -1497,7 +1456,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				}
 			}
 			log
-					.debug("DONE ADD ALL RECORDS ==========================================================="); //$NON-NLS-1$
+					.info("DONE ADD ALL RECORDS ==========================================================="); //$NON-NLS-1$
 			controlItem.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
 			updateOrSave(connection, controlItem);
 			connection.commit();
@@ -1605,6 +1564,61 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 	public boolean indexExists()
 	{
 		return indexStorage.centralIndexExists();
+	}
+
+
+	/**
+	 * @return the rdfSearchService
+	 */
+	public RDFSearchService getRdfSearchService()
+	{
+		return rdfSearchService;
+	}
+
+
+	/**
+	 * @param rdfSearchService the rdfSearchService to set
+	 */
+	public void setRdfSearchService(RDFSearchService rdfSearchService)
+	{
+		this.rdfSearchService = rdfSearchService;
+	}
+
+
+	/**
+	 * @return the searchIndexBuilder
+	 */
+	public SearchIndexBuilder getSearchIndexBuilder()
+	{
+		return searchIndexBuilder;
+	}
+
+
+	/**
+	 * @param searchIndexBuilder the searchIndexBuilder to set
+	 */
+	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder)
+	{
+		this.searchIndexBuilder = searchIndexBuilder;
+	}
+
+
+	/**
+	 * @return the serverConfigurationService
+	 */
+	public ServerConfigurationService getServerConfigurationService()
+	{
+		return serverConfigurationService;
+	}
+
+
+	/**
+	 * @param serverConfigurationService the serverConfigurationService to set
+	 */
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService)
+	{
+		this.serverConfigurationService = serverConfigurationService;
 	}
 
 }

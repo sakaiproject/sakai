@@ -31,8 +31,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.EntityManager;
@@ -100,6 +99,8 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	 * A list of custom properties in the form indexkey.entitykey;indexkey.entitykey;indexkey.entitykey;
 	 */
 	private List<String> customProperties = null;
+
+	private ServerConfigurationService serverConfigurationService;
 	
 	
 	public ContentHostingContentProducer() {
@@ -121,20 +122,8 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	{
 		try
 		{
-			ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
-					.getInstance();
 
-			contentHostingService = (ContentHostingService) load(cm,
-					ContentHostingService.class.getName());
-
-			searchService = (SearchService) load(cm, SearchService.class.getName());
-			searchIndexBuilder = (SearchIndexBuilder) load(cm, SearchIndexBuilder.class
-					.getName());
-
-			entityManager = (EntityManager) load(cm, EntityManager.class.getName());
-			siteService = (SiteService) load(cm, SiteService.class.getName());
-
-			if ("true".equals(ServerConfigurationService.getString("search.enable",
+			if ("true".equals(serverConfigurationService.getString("search.enable",
 					"false")))
 			{
 
@@ -165,15 +154,6 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		digesters.remove(digester);
 	}
 
-	private Object load(ComponentManager cm, String name)
-	{
-		Object o = cm.get(name);
-		if (o == null)
-		{
-			log.error("Cant find Spring component named " + name);
-		}
-		return o;
-	}
 
 	public boolean isContentFromReader(String ref)
 	{
@@ -847,6 +827,103 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	public void setCustomProperties(List<String> customProperties)
 	{
 		this.customProperties = customProperties;
+	}
+
+	/**
+	 * @return the contentHostingService
+	 */
+	public ContentHostingService getContentHostingService()
+	{
+		return contentHostingService;
+	}
+
+	/**
+	 * @param contentHostingService the contentHostingService to set
+	 */
+	public void setContentHostingService(ContentHostingService contentHostingService)
+	{
+		this.contentHostingService = contentHostingService;
+	}
+
+	/**
+	 * @return the entityManager
+	 */
+	public EntityManager getEntityManager()
+	{
+		return entityManager;
+	}
+
+	/**
+	 * @param entityManager the entityManager to set
+	 */
+	public void setEntityManager(EntityManager entityManager)
+	{
+		this.entityManager = entityManager;
+	}
+
+	/**
+	 * @return the searchIndexBuilder
+	 */
+	public SearchIndexBuilder getSearchIndexBuilder()
+	{
+		return searchIndexBuilder;
+	}
+
+	/**
+	 * @param searchIndexBuilder the searchIndexBuilder to set
+	 */
+	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder)
+	{
+		this.searchIndexBuilder = searchIndexBuilder;
+	}
+
+	/**
+	 * @return the searchService
+	 */
+	public SearchService getSearchService()
+	{
+		return searchService;
+	}
+
+	/**
+	 * @param searchService the searchService to set
+	 */
+	public void setSearchService(SearchService searchService)
+	{
+		this.searchService = searchService;
+	}
+
+	/**
+	 * @return the serverConfigurationService
+	 */
+	public ServerConfigurationService getServerConfigurationService()
+	{
+		return serverConfigurationService;
+	}
+
+	/**
+	 * @param serverConfigurationService the serverConfigurationService to set
+	 */
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService)
+	{
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	/**
+	 * @return the siteService
+	 */
+	public SiteService getSiteService()
+	{
+		return siteService;
+	}
+
+	/**
+	 * @param siteService the siteService to set
+	 */
+	public void setSiteService(SiteService siteService)
+	{
+		this.siteService = siteService;
 	}
 
 }

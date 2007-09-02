@@ -28,8 +28,18 @@
   <bean id="org.sakaiproject.search.api.SearchService"
     class="org.sakaiproject.search.component.service.impl.SearchServiceImpl" 
     init-method="init" >
-    <property name="autoDdl"><value>${auto.ddl}</value></property>
+    
+	<property name="notificationService"><ref bean="org.sakaiproject.event.api.NotificationService" /></property>
+	<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService" /></property>
+	<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
+	<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
+    
+    <property name="searchIndexBuilderWorker"><ref bean="org.sakaiproject.search.api.SearchIndexBuilderWorker" /></property>
+	<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
     <property name="indexStorage"><ref bean="org.sakaiproject.search.index.IndexStorage" /></property>
+    
+    
+    <property name="autoDdl"><value>${auto.ddl}</value></property>
     <property name="filter"><ref bean="searchSecurityFilterImpl" /></property>
     <property name="defaultSorter"><value>none</value></property>
     <!--
@@ -64,6 +74,16 @@
   <bean id="org.sakaiproject.search.api.SearchIndexBuilderWorker"
     class="org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorkerImpl" 
     init-method="init" destroy-method="destroy">
+    
+	<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService" /></property>
+	<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>
+	<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
+	<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
+	
+	<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+    <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService" /></property>
+    <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
+        
     <property name="sleepTime"><value>30000</value></property>
     <property name="dataSource">
       <ref bean="javax.sql.DataSource"/>      
@@ -109,6 +129,14 @@
   <bean id="searchIndexBuilderWorkerDaoJdbcImpl"
     class="org.sakaiproject.search.component.dao.impl.SearchIndexBuilderWorkerDaoJdbcImpl" 
     init-method="init" >
+    
+	<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+    <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
+	<!--
+	If you have an RDF service, you can uncomment this 
+    <property name="rdfSearchService"><ref bean="org.sakaiproject.search.api.rdf.RDFSearchService" /></property>
+    -->
+    
     <property name="dataSource">
       <ref bean="javax.sql.DataSource"/>      
     </property>
@@ -198,6 +226,7 @@
   <bean id="searchSecurityFilterImpl" 
     class="org.sakaiproject.search.filter.impl.SearchSecurityFilter" 
     init-method="init">
+    <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>    
     <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
   </bean>
   

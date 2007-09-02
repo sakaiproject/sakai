@@ -29,6 +29,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.sql.DataSource;
 
@@ -38,14 +40,13 @@ import org.apache.commons.id.uuid.VersionFourGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
-import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchIndexBuilderWorker;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.dao.SearchIndexBuilderWorkerDao;
+import org.sakaiproject.search.indexer.api.IndexQueueListener;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.SearchWriterLock;
 import org.sakaiproject.search.model.impl.SearchWriterLockImpl;
@@ -56,6 +57,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilderWorker
 {
 
+	private static Log log = LogFactory.getLog(SearchIndexBuilderWorkerImpl.class);
 	/**
 	 * The lock we use to ensure single search index writer
 	 */
@@ -67,7 +69,6 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 
 	private static final String NODE_LOCK = "nodelockkey";
 
-	private static Log log = LogFactory.getLog(SearchIndexBuilderWorkerImpl.class);
 
 	private final int numThreads = 2;
 
@@ -103,6 +104,10 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 	 * index
 	 */
 	private SearchService searchService = null;
+	/**
+	 * dependency 
+	 */
+	private ServerConfigurationService serverConfigurationService;
 
 	private DataSource dataSource = null;
 
@@ -136,12 +141,6 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 
 	private long lastLock = System.currentTimeMillis();
 
-	/**
-	 * Activity acts as a counter that indicates the number of events recieved.
-	 * The Workers may consult this to determine if they should run.
-	 */
-	private int activity = 0;
-
 	private long lastEvent = System.currentTimeMillis();
 
 	private long lastIndex;
@@ -154,11 +153,10 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 
 	private boolean soakTest = false;
 
-	private boolean diagnostics = false;
-
 	private boolean started = false;
 
 	private boolean indexExists = false;
+	
 
 	private static HashMap nodeIDList = new HashMap();;
 
@@ -207,25 +205,19 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		}
 		started = true;
 		runThreads = true;
-		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
-				.getInstance();
-		eventTrackingService = (EventTrackingService) load(cm, EventTrackingService.class
-				.getName());
-		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
-		userDirectoryService = (UserDirectoryService) load(cm, UserDirectoryService.class
-				.getName());
-		searchIndexBuilder = (SearchIndexBuilderImpl) load(cm, SearchIndexBuilder.class
-				.getName());
-		searchService = (SearchService) load(cm, SearchService.class.getName());
+		
+		
+		
+		
 
-		sessionManager = (SessionManager) load(cm, SessionManager.class.getName());
-
-		enabled = "true".equals(ServerConfigurationService.getString("search.enable",
+		enabled = "true".equals(serverConfigurationService.getString("search.enable",
 				"false"));
 
 		enabled = enabled
-				& "true".equals(ServerConfigurationService.getString("search.indexbuild",
+				& "true".equals(serverConfigurationService.getString("search.indexbuild",
 						"true"));
+		
+
 		try
 		{
 			if (searchIndexBuilder == null)
@@ -264,6 +256,25 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				indexBuilderThread[i].start();
 			}
 
+			
+			eventTrackingService.addLocalObserver(new Observer(){
+
+				public void update(Observable arg0, Object arg1)
+				{
+					lastEvent = System.currentTimeMillis();
+				}
+				
+			});
+			
+			searchIndexBuilder.addIndexQueueListener(new IndexQueueListener() {
+
+				public void added(String name)
+				{
+					checkRunning();
+				}
+				
+			});
+
 			/*
 			 * Capture shutdown
 			 */
@@ -288,15 +299,6 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		}
 	}
 
-	private Object load(ComponentManager cm, String name)
-	{
-		Object o = cm.get(name);
-		if (o == null)
-		{
-			log.error("Cant find Spring component named " + name);
-		}
-		return o;
-	}
 
 	/**
 	 * Main run target of the worker thread {@inheritDoc}
@@ -341,7 +343,6 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 					{
 						int totalDocs = searchIndexBuilder.getPendingDocuments();
 						long lastEvent = getLastEventTime();
-						int activity = getActivity();
 						long now = System.currentTimeMillis();
 						long interval = now - lastEvent;
 						boolean process = false;
@@ -386,10 +387,6 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 							else if (totalDocs > ((90 * loadFactor) / 1000))
 							{
 								process = true;
-							}
-							if (process)
-							{
-								resetActivity();
 							}
 						}
 
@@ -1596,34 +1593,13 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		}
 	}
 
-	/**
-	 * @return Returns the activity.
-	 */
-	public int getActivity()
-	{
-		return activity;
-	}
 
 	public long getLastEventTime()
 	{
 		return lastEvent;
 	}
 
-	/**
-	 * @param activity
-	 *        The activity to set.
-	 */
-	public void resetActivity()
-	{
-		this.activity = 0;
 
-	}
-
-	public void incrementActivity()
-	{
-		activity++;
-		lastEvent = System.currentTimeMillis();
-	}
 
 	public void setLastIndex(long l)
 	{
@@ -1760,35 +1736,118 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
+	/**
+	 * @return the entityManager
 	 */
-	public void disableDiagnostics()
+	public EntityManager getEntityManager()
 	{
-		diagnostics = false;
-
+		return entityManager;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
+	/**
+	 * @param entityManager the entityManager to set
 	 */
-	public void enableDiagnostics()
+	public void setEntityManager(EntityManager entityManager)
 	{
-		diagnostics = true;
+		this.entityManager = entityManager;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
+	/**
+	 * @return the eventTrackingService
 	 */
-	public boolean hasDiagnostics()
+	public EventTrackingService getEventTrackingService()
 	{
-		return diagnostics;
+		return eventTrackingService;
 	}
+
+	/**
+	 * @param eventTrackingService the eventTrackingService to set
+	 */
+	public void setEventTrackingService(EventTrackingService eventTrackingService)
+	{
+		this.eventTrackingService = eventTrackingService;
+	}
+
+	/**
+	 * @return the searchIndexBuilder
+	 */
+	public SearchIndexBuilderImpl getSearchIndexBuilder()
+	{
+		return searchIndexBuilder;
+	}
+
+	/**
+	 * @param searchIndexBuilder the searchIndexBuilder to set
+	 */
+	public void setSearchIndexBuilder(SearchIndexBuilderImpl searchIndexBuilder)
+	{
+		this.searchIndexBuilder = searchIndexBuilder;
+	}
+
+	/**
+	 * @return the searchService
+	 */
+	public SearchService getSearchService()
+	{
+		return searchService;
+	}
+
+	/**
+	 * @param searchService the searchService to set
+	 */
+	public void setSearchService(SearchService searchService)
+	{
+		this.searchService = searchService;
+	}
+
+	/**
+	 * @return the serverConfigurationService
+	 */
+	public ServerConfigurationService getServerConfigurationService()
+	{
+		return serverConfigurationService;
+	}
+
+	/**
+	 * @param serverConfigurationService the serverConfigurationService to set
+	 */
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService)
+	{
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	/**
+	 * @return the sessionManager
+	 */
+	public SessionManager getSessionManager()
+	{
+		return sessionManager;
+	}
+
+	/**
+	 * @param sessionManager the sessionManager to set
+	 */
+	public void setSessionManager(SessionManager sessionManager)
+	{
+		this.sessionManager = sessionManager;
+	}
+
+	/**
+	 * @return the userDirectoryService
+	 */
+	public UserDirectoryService getUserDirectoryService()
+	{
+		return userDirectoryService;
+	}
+
+	/**
+	 * @param userDirectoryService the userDirectoryService to set
+	 */
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
+	{
+		this.userDirectoryService = userDirectoryService;
+	}
+
 
 }

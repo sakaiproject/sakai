@@ -25,19 +25,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import junit.framework.TestCase;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.search.cluster.impl.ClusterJournal;
+import org.sakaiproject.search.cluster.impl.ClusterDbJournal;
+import org.sakaiproject.search.cluster.impl.ClusterSharedFilesystem;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
 import org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener;
 import org.sakaiproject.search.indexer.api.IndexWorkerListener;
-import org.sakaiproject.search.indexer.api.TransactionIndexManager;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerDocumentListener;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerListener;
 import org.sakaiproject.search.indexer.debug.DebugTransactionListener;
@@ -49,8 +49,6 @@ import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.util.FileUtils;
-
-import junit.framework.TestCase;
 
 /**
  * @author ieb
@@ -107,8 +105,11 @@ public class TransactionalIndexWorkerTest extends TestCase
 		sequence.setDatasource(tds.getDataSource());
 		sequence.setName("TransactionalIndexWorkerTest");
 
-		ClusterJournal journal = new ClusterJournal();
-		journal.setJournalLocation(shared.getAbsolutePath());
+		ClusterSharedFilesystem sharedFileSystem = new ClusterSharedFilesystem();
+		sharedFileSystem.setJournalLocation(shared.getAbsolutePath());
+		
+		ClusterDbJournal journal = new ClusterDbJournal();
+		journal.setDatasource(tds.getDataSource());
 
 		transactionIndexManager = new TransactionIndexManagerImpl();
 		transactionIndexManager.setAnalyzerFactory(new StandardAnalyzerFactory());
@@ -116,11 +117,11 @@ public class TransactionalIndexWorkerTest extends TestCase
 		transactionIndexManager.setSequence(sequence);
 
 		searchBuilderQueueManager = new SearchBuilderQueueManager();
-		searchBuilderQueueManager.setBatchSize(100);
 		searchBuilderQueueManager.setDatasource(tds.getDataSource());
 		searchBuilderQueueManager.setSearchIndexBuilder(mockSearchIndexBuilder);
 
 		transactionIndexManager.addTransactionListener(searchBuilderQueueManager);
+		transactionIndexManager.addTransactionListener(sharedFileSystem);
 		transactionIndexManager.addTransactionListener(journal);
 		transactionIndexManager.addTransactionListener(new DebugTransactionListener());
 
@@ -167,7 +168,7 @@ public class TransactionalIndexWorkerTest extends TestCase
 	{
 
 		testInit();
-		assertEquals("Should not have processed any documents ", 0, tiw.process());
+		assertEquals("Should not have processed any documents ", 0, tiw.process(100));
 		FileUtils.listDirectory(testBase);
 	}
 
@@ -175,7 +176,7 @@ public class TransactionalIndexWorkerTest extends TestCase
 	{
 		testInit();
 		int n = populateDocuments();
-		assertEquals("Should not have processed some documents ", n, tiw.process());
+		assertEquals("Should not have processed some documents ", n, tiw.process(100));
 		FileUtils.listDirectory(testBase);
 		for (int i = 0; i < 100; i++)
 		{
