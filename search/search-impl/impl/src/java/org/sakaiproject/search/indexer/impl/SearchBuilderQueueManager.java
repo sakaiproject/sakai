@@ -39,11 +39,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
-import org.sakaiproject.search.transaction.api.TransactionListener;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -54,8 +54,11 @@ import org.sakaiproject.site.cover.SiteService;
  * This class manages the Search Build Queue, it retrieves the
  * 
  * @author ieb
+ * 
+ * Unit test 
+ * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
-public class SearchBuilderQueueManager implements TransactionListener
+public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 {
 
 	private static final Log log = LogFactory.getLog(SearchBuilderQueueManager.class);

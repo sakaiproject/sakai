@@ -40,6 +40,8 @@ import org.sakaiproject.search.journal.api.JournalManagerState;
  * A database backed Journal Manager
  * 
  * @author ieb
+ * Unit test @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
+ * Unit test @see org.sakaiproject.search.indexer.impl.test.DbJournalManagerTest
  */
 public class DbJournalManager implements JournalManager
 {
@@ -209,19 +211,12 @@ public class DbJournalManager implements JournalManager
 		try
 		{
 
-			connection.commit();
+			connection.rollback();
 
 		}
 		catch (Exception ex)
 		{
-			try
-			{
-				connection.rollback();
-			}
-			catch (Exception ex2)
-			{
-			}
-
+			log.error("Failed to Rollback");
 		}
 		finally
 		{

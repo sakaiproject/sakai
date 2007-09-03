@@ -24,15 +24,17 @@ package org.sakaiproject.search.indexer.debug;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.indexer.api.IndexJournalException;
+import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;
+import org.sakaiproject.search.journal.impl.MergeTransactionListener;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
-import org.sakaiproject.search.transaction.api.TransactionListener;
 
 /**
  * @author ieb
- *
+ * Unit test 
+ * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
-public class DebugTransactionListener implements TransactionListener
+public class DebugTransactionListener implements MergeTransactionListener, IndexUpdateTransactionListener
 {
 
 	private static final Log log = LogFactory.getLog(DebugTransactionListener.class);

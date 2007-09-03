@@ -31,6 +31,8 @@ import java.sql.Timestamp;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
@@ -57,6 +59,8 @@ import org.sakaiproject.search.util.FileUtils;
  */
 public class TransactionalIndexWorkerTest extends TestCase
 {
+
+	private static final Log log = LogFactory.getLog(TransactionalIndexWorkerTest.class);
 
 	private SearchIndexBuilder mockSearchIndexBuilder;
 
@@ -170,6 +174,8 @@ public class TransactionalIndexWorkerTest extends TestCase
 		tiw.addIndexWorkerDocumentListener(new DebugIndexWorkerDocumentListener());
 		tiw.addIndexWorkerListener(new DebugIndexWorkerListener());
 		tiw.init();
+		log.info("testInit passed");
+
 	}
 
 	/**
@@ -184,12 +190,13 @@ public class TransactionalIndexWorkerTest extends TestCase
 		testInit();
 		assertEquals("Should not have processed any documents ", 0, tiw.process(100));
 		FileUtils.listDirectory(testBase);
+		log.info("testProcessNone passed");
 	}
 
 	public final void testProcessSome() throws Exception
 	{
 		testInit();
-		int n = populateDocuments();
+		int n = tds.populateDocuments();
 		assertEquals("Should not have processed some documents ", n, tiw.process(100));
 		FileUtils.listDirectory(testBase);
 		for (int i = 0; i < 100; i++)
@@ -202,66 +209,12 @@ public class TransactionalIndexWorkerTest extends TestCase
 				FileUtils.listDirectory(work2);
 			}
 		}
+		log.info("testProcessSome passed");
 	}
 
 	/**
 	 * @throws SQLException 
 	 */
-	private int populateDocuments() throws SQLException
-	{
-		int nitems = 0;
-		Connection connection = null;
-		PreparedStatement insertPST = null;
-		try
-		{
-			connection = tds.getDataSource().getConnection();
-			insertPST = connection
-					.prepareStatement("insert into searchbuilderitem "
-							+ "(id,version,name,context,searchaction,searchstate,itemscope) values "
-							+ "(?,?,?,?,?,?,?)");
-			for (int i = 0; i < 100; i++)
-			{
-				int state = i % SearchBuilderItem.states.length;
-				String name = SearchBuilderItem.states[state];
-				int action = i % 3;
-				if (state == SearchBuilderItem.STATE_PENDING
-						&& action == SearchBuilderItem.ACTION_ADD)
-				{
-					nitems++;
-				}
-				insertPST.clearParameters();
-				insertPST.setString(1, String.valueOf(System.currentTimeMillis())
-						+ String.valueOf(i));
-				insertPST.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-				insertPST.setString(3, "/" + name + "/at/a/location/" + i);
-				insertPST.setString(4, "/" + name + "/at/a");
-				insertPST.setInt(5, action);
-				insertPST.setInt(6, state);
-				insertPST.setInt(7, SearchBuilderItem.ITEM);
-				insertPST.execute();
-			}
-			connection.commit();
-		}
-		finally
-		{
-			try
-			{
-				insertPST.close();
-			}
-			catch (Exception ex2)
-			{
-			}
-			try
-			{
-				connection.close();
-			}
-			catch (Exception ex2)
-			{
-			}
-		}
-		return nitems;
-
-	}
 
 	/**
 	 * Test method for
@@ -271,6 +224,7 @@ public class TransactionalIndexWorkerTest extends TestCase
 	{
 		testInit();
 		tiw.addIndexWorkerListener(new DebugIndexWorkerListener());
+		log.info("testAddIndexWorkerListener passed");
 	}
 
 	/**
@@ -283,6 +237,7 @@ public class TransactionalIndexWorkerTest extends TestCase
 		IndexWorkerListener iwdl = new DebugIndexWorkerListener();
 		tiw.addIndexWorkerListener(iwdl);
 		tiw.removeIndexWorkerListener(iwdl);
+		log.info("testRemoveIndexWorkerListener passed");
 	}
 
 	/**
@@ -293,6 +248,7 @@ public class TransactionalIndexWorkerTest extends TestCase
 	{
 		testInit();
 		tiw.addIndexWorkerDocumentListener(new DebugIndexWorkerDocumentListener());
+		log.info("testAddIndexWorkerDocumentListener passed");
 	}
 
 	/**
@@ -305,6 +261,7 @@ public class TransactionalIndexWorkerTest extends TestCase
 		IndexWorkerDocumentListener iwdl = new DebugIndexWorkerDocumentListener();
 		tiw.addIndexWorkerDocumentListener(iwdl);
 		tiw.removeIndexWorkerDocumentListener(iwdl);
+		log.info("testRemoveIndexWorkerDocumentListener passed");
 	}
 
 }

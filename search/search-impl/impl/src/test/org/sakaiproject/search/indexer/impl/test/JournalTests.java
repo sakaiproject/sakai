@@ -39,6 +39,8 @@ public class JournalTests
 		suite.addTestSuite(SequenceGeneratorTest.class);
 		suite.addTestSuite(SearchBuilderItemSerializerTest.class);
 		suite.addTestSuite(TransactionalIndexWorkerTest.class);
+		suite.addTestSuite(ConcurrentIndexManagerTest.class);
+		suite.addTestSuite(DbJournalManagerTest.class);
 		//$JUnit-END$
 		return suite;
 	}

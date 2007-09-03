@@ -23,18 +23,19 @@ package org.sakaiproject.search.indexer.impl;
 
 import org.sakaiproject.search.indexer.api.IndexJournalException;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
+import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;
 import org.sakaiproject.search.journal.api.JournalStorage;
 import org.sakaiproject.search.journal.api.JournalStorageState;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
-import org.sakaiproject.search.transaction.api.TransactionListener;
 
 /**
  * A transaction listener that connects to the journal storage
  * @author ieb
- *
+ * 
+ * Unit test @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
-public class JournalStorageUpdateTransactionListener implements TransactionListener
+public class JournalStorageUpdateTransactionListener implements IndexUpdateTransactionListener
 {
 	private JournalStorage journalStorage;
 

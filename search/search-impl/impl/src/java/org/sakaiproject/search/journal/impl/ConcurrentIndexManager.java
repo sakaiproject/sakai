@@ -30,6 +30,7 @@ import java.util.Timer;
  * tasks associated with index management.
  * 
  * @author ieb
+ * Unit test @see org.sakaiproject.search.indexer.impl.test.ConcurrentIndexManagerTest
  */
 public class ConcurrentIndexManager
 {

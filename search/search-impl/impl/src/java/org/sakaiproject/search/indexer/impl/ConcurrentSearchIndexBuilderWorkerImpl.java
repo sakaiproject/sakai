@@ -41,6 +41,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 /**
  * A management operation to perform indexing to the journal
  * @author ieb
+ * 
+ * No unit test TODO Unit Test
  */
 public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperation,
 		IndexWorkerDocumentListener

@@ -410,13 +410,11 @@ public class SearchListResponseImpl implements SearchList, ContentHandler
 
 		public Attributes getAttributes()
 		{
-			// TODO Auto-generated method stub
 			return atts;
 		}
 
 		public String getContent()
 		{
-			// TODO Auto-generated method stub
 			return content.toString();
 		}
 

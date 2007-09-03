@@ -132,7 +132,6 @@ public class SearchSecurityFilter implements SearchItemFilter
 
 		public String[] getFieldNames()
 		{
-			// TODO Auto-generated method stub
 			return new String[0];
 		}
 

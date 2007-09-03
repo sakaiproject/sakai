@@ -43,6 +43,8 @@ import org.sakaiproject.search.util.FileUtils;
 /**
  * A trnasaction to manage the 2PC of a journaled indexing operation, this is created by a Transaction Manager
  * @author ieb
+ * 
+ * Unit test @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
 public class IndexUpdateTransactionImpl extends IndexTransactionImpl implements IndexUpdateTransaction
 {

@@ -30,7 +30,6 @@ import org.apache.lucene.search.Query;
  * 
  * @author mark@searcharea.co.uk
  */
-// TODO: provide option to boost score of fragments near beginning of document
 // based on fragment.getFragNum()
 public class QueryScorer implements Scorer
 {

@@ -34,6 +34,7 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 /**
  * Base for index transactions
  * @author ieb
+ * Unit test @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
 public abstract class IndexTransactionImpl implements IndexTransaction
 {

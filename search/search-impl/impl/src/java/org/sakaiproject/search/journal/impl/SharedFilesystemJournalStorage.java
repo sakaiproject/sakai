@@ -36,6 +36,7 @@ import org.sakaiproject.search.util.FileUtils;
 
 /**
  * @author ieb
+ * TODO Unit test
  */
 public class SharedFilesystemJournalStorage implements JournalStorage
 {

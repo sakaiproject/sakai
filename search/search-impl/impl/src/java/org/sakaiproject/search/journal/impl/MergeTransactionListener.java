@@ -19,46 +19,15 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.transaction.api;
+package org.sakaiproject.search.journal.impl;
+
+import org.sakaiproject.search.transaction.api.TransactionListener;
 
 /**
- * An exception to reprenset a problem with the Index transactions
  * @author ieb
  *
  */
-public class IndexTransactionException extends Exception
+public interface MergeTransactionListener extends TransactionListener
 {
-
-	/**
-	 * 
-	 */
-	public IndexTransactionException()
-	{
-	}
-
-	/**
-	 * @param arg0
-	 */
-	public IndexTransactionException(String arg0)
-	{
-		super(arg0);
-	}
-
-	/**
-	 * @param arg0
-	 */
-	public IndexTransactionException(Throwable arg0)
-	{
-		super(arg0);
-	}
-
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public IndexTransactionException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-	}
 
 }

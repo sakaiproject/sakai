@@ -53,6 +53,7 @@ import org.sakaiproject.search.util.FileUtils;
  * transactional way for the moment.
  * 
  * @author ieb
+ * TODO Unit test
  */
 public class JournaledFSIndexStorage extends BaseIndexStorage implements JournaledIndex
 {
@@ -69,7 +70,7 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 
 	private ThreadLocal<Long> lastJournalEntryHolder = new ThreadLocal<Long>();
 
-	private JournalManager journalMonitor;
+	private JournalManager journalManager;
 
 	private String workingSpace;
 
@@ -492,15 +493,12 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 		return true;
 	}
 
-	/*
-	 * *
-	 * 
+	/**
 	 * @see org.sakaiproject.search.index.IndexStorage#setRecoverCorruptedIndex(boolean)
 	 */
 	public void setRecoverCorruptedIndex(boolean recover)
 	{
-		// TODO Auto-generated method stub
-
+		log.warn("Recover Indexes not implemented, yet");
 	}
 
 	public class SizeAction implements FileUtils.RecurseAction
@@ -608,7 +606,8 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	}
 
 	/**
-	 * @param datasource the datasource to set
+	 * @param datasource
+	 *        the datasource to set
 	 */
 	public void setDatasource(DataSource datasource)
 	{
@@ -618,17 +617,18 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	/**
 	 * @return the journalMonitor
 	 */
-	public JournalManager getJournalMonitor()
+	public JournalManager getJournalManager()
 	{
-		return journalMonitor;
+		return journalManager;
 	}
 
 	/**
-	 * @param journalMonitor the journalMonitor to set
+	 * @param journalMonitor
+	 *        the journalMonitor to set
 	 */
-	public void setJournalMonitor(JournalManager journalMonitor)
+	public void setJournalManager(JournalManager journalManager)
 	{
-		this.journalMonitor = journalMonitor;
+		this.journalManager = journalManager;
 	}
 
 	/**
@@ -640,7 +640,8 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	}
 
 	/**
-	 * @param searchIndexDirectory the searchIndexDirectory to set
+	 * @param searchIndexDirectory
+	 *        the searchIndexDirectory to set
 	 */
 	public void setSearchIndexDirectory(String searchIndexDirectory)
 	{
@@ -656,7 +657,8 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	}
 
 	/**
-	 * @param serverConfigurationService the serverConfigurationService to set
+	 * @param serverConfigurationService
+	 *        the serverConfigurationService to set
 	 */
 	public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService)
@@ -665,7 +667,8 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	}
 
 	/**
-	 * @param workingSpace the workingSpace to set
+	 * @param workingSpace
+	 *        the workingSpace to set
 	 */
 	public void setWorkingSpace(String workingSpace)
 	{

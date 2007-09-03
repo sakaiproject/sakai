@@ -38,7 +38,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getAccessPath()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -47,7 +46,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getAccessUrl()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -56,7 +54,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public boolean getBoolean(String name, boolean dflt)
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -65,7 +62,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public List getDefaultTools(String category)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -74,7 +70,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getGatewaySiteId()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -83,7 +78,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getHelpUrl(String helpContext)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -92,7 +86,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public int getInt(String name, int dflt)
 	{
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -101,7 +94,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getLoggedOutUrl()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -110,7 +102,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getPortalUrl()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -119,7 +110,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getSakaiHomePath()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -128,7 +118,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getServerId()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -137,7 +126,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getServerIdInstance()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -146,7 +134,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getServerInstance()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -155,7 +142,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getServerName()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -172,7 +158,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getString(String name)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -181,7 +166,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getString(String name, String dflt)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -190,7 +174,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String[] getStrings(String name)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -199,7 +182,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public List<String> getToolCategories(String category)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -208,7 +190,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public Map<String, List<String>> getToolCategoriesAsMap(String category)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -217,7 +198,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public List getToolOrder(String category)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -226,7 +206,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public Map<String, String> getToolToCategoryMap(String category)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -235,7 +214,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getToolUrl()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -244,7 +222,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public List getToolsRequired(String category)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -253,7 +230,6 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getUserHomeUrl()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 

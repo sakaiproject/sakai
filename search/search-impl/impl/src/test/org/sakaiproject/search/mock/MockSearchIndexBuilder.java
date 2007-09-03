@@ -45,7 +45,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public void addResource(Notification notification, Event event)
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -54,7 +53,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public void destroy()
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -63,7 +61,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public List getAllSearchItems()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -72,7 +69,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public List getContentProducers()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -81,7 +77,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public String getCurrentDocument()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -90,7 +85,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public String getCurrentElapsed()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -99,7 +93,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public SearchWriterLock getCurrentLock()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -108,7 +101,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public List getGlobalMasterSearchItems()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -117,7 +109,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public String getLastDocument()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -126,7 +117,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public String getLastElapsed()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -135,7 +125,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public List getNodeStatus()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -144,7 +133,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public int getPendingDocuments()
 	{
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -153,7 +141,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public List getSiteMasterSearchItems()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -162,7 +149,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public boolean isBuildQueueEmpty()
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -171,7 +157,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public boolean isLocalLock()
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -180,7 +165,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public boolean isOnlyIndexSearchToolSites()
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -189,7 +173,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public EntityContentProducer newEntityContentProducer(Event event)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -208,19 +191,16 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 
 			public Integer getAction(Event event)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public List getAllContent()
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public String getContainer(String ref)
 			{
-				// TODO Auto-generated method stub
 				return ref.substring(0,ref.lastIndexOf("/"));
 			}
 
@@ -245,7 +225,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 
 			public String getCustomRDF(String ref)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -256,13 +235,11 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 
 			public List getSiteContent(String context)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public Iterator getSiteContentIterator(String context)
 			{
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -324,8 +301,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public void rebuildIndex()
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -333,8 +308,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public void rebuildIndex(String currentSiteId)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -342,8 +315,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public void refreshIndex()
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -351,8 +322,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public void refreshIndex(String currentSiteId)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -360,8 +329,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public void registerEntityContentProducer(EntityContentProducer ecp)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -369,7 +336,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public boolean removeWorkerLock()
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -378,8 +344,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public void disableDiagnostics()
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -387,8 +351,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public void enableDiagnostics()
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -396,7 +358,6 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 	 */
 	public boolean hasDiagnostics()
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 

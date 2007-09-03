@@ -35,7 +35,6 @@ public class JournalErrorException extends IndexTransactionException
 	 */
 	public JournalErrorException()
 	{
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -44,7 +43,6 @@ public class JournalErrorException extends IndexTransactionException
 	public JournalErrorException(String arg0)
 	{
 		super(arg0);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -53,7 +51,6 @@ public class JournalErrorException extends IndexTransactionException
 	public JournalErrorException(Throwable arg0)
 	{
 		super(arg0);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -63,7 +60,6 @@ public class JournalErrorException extends IndexTransactionException
 	public JournalErrorException(String arg0, Throwable arg1)
 	{
 		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
 	}
 
 }

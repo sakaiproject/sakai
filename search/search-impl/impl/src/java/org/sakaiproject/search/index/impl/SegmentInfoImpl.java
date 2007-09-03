@@ -580,7 +580,6 @@ public class SegmentInfoImpl implements SegmentInfo
 		{
 			return true;
 		}
-		// TODO Auto-generated method stub
 		return false;
 	}
 

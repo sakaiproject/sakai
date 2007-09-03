@@ -29,6 +29,8 @@ import java.util.List;
 
 import org.apache.commons.id.IdentifierGenerator;
 import org.apache.commons.id.uuid.VersionFourGenerator;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
@@ -38,14 +40,19 @@ import junit.framework.TestCase;
 
 /**
  * @author ieb
- *
  */
 public class SearchBuilderItemSerializerTest extends TestCase
 {
 
+	private static final Log log = LogFactory
+			.getLog(SearchBuilderItemSerializerTest.class);
+
 	private File testBase;
+
 	private File work;
+
 	private IdentifierGenerator idgenerator = new VersionFourGenerator();
+
 	private SearchBuilderItemSerializer sbis = new SearchBuilderItemSerializer();
 
 	/**
@@ -56,7 +63,9 @@ public class SearchBuilderItemSerializerTest extends TestCase
 		super(name);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception
@@ -69,7 +78,9 @@ public class SearchBuilderItemSerializerTest extends TestCase
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception
@@ -79,15 +90,19 @@ public class SearchBuilderItemSerializerTest extends TestCase
 	}
 
 	/**
-	 * Test method for {@link org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer#saveTransactionList(java.io.File, java.util.List)}.
-	 * @throws IOException 
+	 * Test method for
+	 * {@link org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer#saveTransactionList(java.io.File, java.util.List)}.
+	 * 
+	 * @throws IOException
 	 */
 	public final void testSaveTransactionList() throws IOException
 	{
 		List<SearchBuilderItem> testList = newSearchBuilderItemList();
-		File f = new File(work,"testSaveTransactionList");
+		File f = new File(work, "testSaveTransactionList");
 		f.mkdirs();
 		sbis.saveTransactionList(f, testList);
+		log.info("testSaveTransactionList passed");
+
 	}
 
 	/**
@@ -96,43 +111,52 @@ public class SearchBuilderItemSerializerTest extends TestCase
 	private List<SearchBuilderItem> newSearchBuilderItemList()
 	{
 		List<SearchBuilderItem> lsbi = new ArrayList<SearchBuilderItem>();
-		for( int i = 0; i < 100; i++ ) {
+		for (int i = 0; i < 100; i++)
+		{
 			SearchBuilderItem sbi = new SearchBuilderItemImpl();
-			sbi.setContext(String.valueOf("Context"+idgenerator.nextIdentifier()));
+			sbi.setContext(String.valueOf("Context" + idgenerator.nextIdentifier()));
 			sbi.setId(String.valueOf(idgenerator.nextIdentifier()));
 			sbi.setItemscope(SearchBuilderItem.ITEM);
-			sbi.setName("Name"+String.valueOf(idgenerator.nextIdentifier()));
-			sbi.setSearchaction(i%SearchBuilderItem.actions.length);
-			sbi.setSearchstate(i%SearchBuilderItem.states.length);
-			sbi.setVersion(new Date(System.currentTimeMillis()+i+2000));
+			sbi.setName("Name" + String.valueOf(idgenerator.nextIdentifier()));
+			sbi.setSearchaction(i % SearchBuilderItem.actions.length);
+			sbi.setSearchstate(i % SearchBuilderItem.states.length);
+			sbi.setVersion(new Date(System.currentTimeMillis() + i + 2000));
 			lsbi.add(sbi);
 		}
 		return lsbi;
 	}
 
 	/**
-	 * Test method for {@link org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer#loadTransactionList(java.io.File)}.
-	 * @throws IOException 
+	 * Test method for
+	 * {@link org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer#loadTransactionList(java.io.File)}.
+	 * 
+	 * @throws IOException
 	 */
 	public final void testLoadTransactionList() throws IOException
 	{
 		List<SearchBuilderItem> testList = newSearchBuilderItemList();
-		File f = new File(work,"testLoadTransactionList");
+		File f = new File(work, "testLoadTransactionList");
 		f.mkdirs();
 		sbis.saveTransactionList(f, testList);
 		List<SearchBuilderItem> loadedList = sbis.loadTransactionList(f);
-		assertEquals("Size of locaded list not the same",testList.size(), loadedList.size());
-		for ( int i = 0; i < testList.size(); i++ ) {
+		assertEquals("Size of locaded list not the same", testList.size(), loadedList
+				.size());
+		for (int i = 0; i < testList.size(); i++)
+		{
 			SearchBuilderItem sbit = testList.get(i);
 			SearchBuilderItem sbil = loadedList.get(i);
 			assertEquals("Contexts dont match ", sbit.getContext(), sbil.getContext());
 			assertEquals("Id dont match ", sbit.getId(), sbil.getId());
-			assertEquals("Itemscope dont match ", sbit.getItemscope(), sbil.getItemscope());
+			assertEquals("Itemscope dont match ", sbit.getItemscope(), sbil
+					.getItemscope());
 			assertEquals("Name dont match ", sbit.getName(), sbil.getName());
-			assertEquals("Search Action dont match ", sbit.getSearchaction(), sbil.getSearchaction());
-			assertEquals("Search State dont match ", sbit.getSearchstate(), sbil.getSearchstate());
+			assertEquals("Search Action dont match ", sbit.getSearchaction(), sbil
+					.getSearchaction());
+			assertEquals("Search State dont match ", sbit.getSearchstate(), sbil
+					.getSearchstate());
 			assertEquals("Version dont match ", sbit.getVersion(), sbil.getVersion());
 		}
+		log.info("testLoadTransactionList passed");
 	}
 
 }

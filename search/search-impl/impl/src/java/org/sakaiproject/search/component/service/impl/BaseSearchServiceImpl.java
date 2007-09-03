@@ -614,7 +614,6 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	{
 		final TermFreqVector tf = getIndexSearcher(false).getIndexReader()
 				.getTermFreqVector(documentId, FIELD_CONTENTS);
-		// TODO Auto-generated method stub
 		return new TermFrequency()
 		{
 			public String[] getTerms()

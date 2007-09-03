@@ -23,6 +23,7 @@ package org.sakaiproject.search.indexer.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -30,11 +31,16 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
+import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
+import org.sakaiproject.search.transaction.api.TransactionListener;
 import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 
 /**
  * @author ieb
+ * Unit test 
+ * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
+ * 
  */
 public class TransactionIndexManagerImpl extends  TransactionManagerImpl 
 {
@@ -134,6 +140,31 @@ public class TransactionIndexManagerImpl extends  TransactionManagerImpl
 		this.searchIndexWorkingDirectory = searchIndexWorkingDirectory;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.transaction.impl.TransactionManagerImpl#addTransactionListener(org.sakaiproject.search.transaction.api.TransactionListener)
+	 */
+	@Override
+	public void addTransactionListener(TransactionListener transactionListener)
+	{
+		if ( transactionListener instanceof IndexUpdateTransactionListener ) {
+			super.addTransactionListener(transactionListener);
+		} else {
+			throw new RuntimeException("transactionListener must implement JournalTransactionListener "+transactionListener);
+		}
+	}
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.transaction.impl.TransactionManagerImpl#setTransactionListeners(java.util.List)
+	 */
+	@Override
+	public void setTransactionListeners(List<TransactionListener> transactionListeners)
+	{
+		for ( TransactionListener tl : transactionListeners ) {
+			if ( !(tl instanceof IndexUpdateTransactionListener ) ) {
+				throw new RuntimeException("transactionListener must implement JournalTransactionListener "+tl);				
+			}
+		}
+		super.setTransactionListeners(transactionListeners);
+	}
 
 
 }

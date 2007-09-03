@@ -33,6 +33,7 @@ import org.sakaiproject.search.transaction.api.TransactionSequence;
 
 /**
  * @author ieb
+ * Unit test @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
 public abstract class TransactionManagerImpl implements TransactionIndexManager
 {

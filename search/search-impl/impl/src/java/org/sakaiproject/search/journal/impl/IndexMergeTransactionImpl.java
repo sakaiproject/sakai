@@ -33,6 +33,8 @@ import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
  * local search index
  * 
  * @author ieb
+ * TODO Unit test
+ * 
  */
 public class IndexMergeTransactionImpl extends IndexTransactionImpl implements
 		IndexMergeTransaction

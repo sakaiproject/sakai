@@ -37,15 +37,15 @@ import org.sakaiproject.search.journal.api.JournaledObject;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
-import org.sakaiproject.search.transaction.api.TransactionListener;
 
 /**
  * Listens for Transaction changes in the 2PC associated with an index update
  * 
  * @author ieb
+ * TODO Unit test
  */
 public class JournaledFSIndexStorageUpdateTransactionListener implements
-		TransactionListener
+		MergeTransactionListener
 {
 
 	private JournaledIndex journaledIndex;

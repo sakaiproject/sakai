@@ -33,6 +33,7 @@ import org.sakaiproject.search.transaction.api.TransactionSequence;
 
 /**
  * @author ieb
+ * Unit test @see org.sakaiproject.search.indexer.impl.test.SequenceGeneratorTest
  */
 public class TransactionSequenceImpl implements TransactionSequence
 {
@@ -56,7 +57,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 	 *
 	 */
 	public void init() {
-		log.info("Transaction Sequece "+getName()+" Started at "+getNextId());
+		log.debug("Transaction Sequece "+getName()+" Started at "+getNextId());
 	}
 
 	/*
@@ -89,7 +90,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 				rs = selectpst.executeQuery();
 				if (!rs.next())
 				{
-					log.info("Adding Seed transaction");
+					log.debug("Adding Seed transaction");
 					insertpst.executeUpdate();
 					rs.close();
 					rs = selectpst.executeQuery();

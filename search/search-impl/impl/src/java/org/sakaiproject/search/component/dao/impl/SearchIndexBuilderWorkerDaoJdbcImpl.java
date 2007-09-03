@@ -70,7 +70,6 @@ import org.sakaiproject.site.cover.SiteService;
 public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWorkerDao
 {
 
-	// TODO Fix columns
 	private static final String SEARCH_BUILDER_ITEM_FIELDS = " name, context,  searchaction, searchstate, version, itemscope, id "; //$NON-NLS-1$
 
 	private static final String SEARCH_BUILDER_ITEM_T = "searchbuilderitem"; //$NON-NLS-1$
@@ -897,7 +896,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		ResultSet rst = null;
 		try
 		{
-			// TODO Fix Columns
 			pst = connection.prepareStatement("select " //$NON-NLS-1$
 					+ SEARCH_BUILDER_ITEM_FIELDS + " from " //$NON-NLS-1$
 					+ SEARCH_BUILDER_ITEM_T + " where itemscope =   ?  "); //$NON-NLS-1$
@@ -946,7 +944,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		ResultSet rst = null;
 		try
 		{
-			// TODO Fix Columns
 			pst = connection.prepareStatement("select " //$NON-NLS-1$
 					+ SEARCH_BUILDER_ITEM_FIELDS + " from " //$NON-NLS-1$
 					+ SEARCH_BUILDER_ITEM_T + " where itemscope = ? "); //$NON-NLS-1$
@@ -1025,7 +1022,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			catch (SQLException sqlex)
 			{
-				// TODO Fix columns
 				pst = connection.prepareStatement("update " //$NON-NLS-1$
 						+ SEARCH_BUILDER_ITEM_T + " set " //$NON-NLS-1$
 						+ SEARCH_BUILDER_ITEM_FIELDS_UPDATE);
@@ -1055,7 +1051,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		PreparedStatement pst = null;
 		try
 		{
-			// TODO Fix Columns
 			pst = connection.prepareStatement(" insert into " //$NON-NLS-1$
 					+ SEARCH_BUILDER_ITEM_T + " ( " //$NON-NLS-1$
 					+ SEARCH_BUILDER_ITEM_FIELDS + " ) values ( " //$NON-NLS-1$
@@ -1225,7 +1220,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			ResultSet rst = null;
 			try
 			{
-				// TODO Fix columns
 				pst = connection.prepareStatement("select " //$NON-NLS-1$
 						+ SEARCH_BUILDER_ITEM_FIELDS + " from " //$NON-NLS-1$
 						+ SEARCH_BUILDER_ITEM_T + " where searchstate = ? and     " //$NON-NLS-1$

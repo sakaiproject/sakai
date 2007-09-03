@@ -114,7 +114,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			clusterStorage = new ClusterSegmentsStorage(searchService,
 					searchIndexDirectory, this, localStructuredStorage, debug);
 
-			// TODO: We should migrate to the correct storage format, on the
+			// We should migrate to the correct storage format, on the
 			// local
 			// and shared space, by looking at the DB and then checking what is
 			// there

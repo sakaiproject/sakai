@@ -31,6 +31,7 @@ import org.sakaiproject.search.journal.api.ManagementOperation;
  * A timer Task for a management operation in the search code
  * 
  * @author ieb
+ * 
  */
 public class IndexManagementTimerTask extends TimerTask
 {

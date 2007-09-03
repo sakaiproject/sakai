@@ -29,6 +29,8 @@ import org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener;
 /**
  * Debug listenwe to the Documents being indexed
  * @author ieb
+ * Unit test 
+ * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  *
  */
 public class DebugIndexWorkerDocumentListener implements IndexWorkerDocumentListener

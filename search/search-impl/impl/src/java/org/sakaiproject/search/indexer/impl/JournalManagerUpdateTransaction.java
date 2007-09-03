@@ -22,6 +22,7 @@
 package org.sakaiproject.search.indexer.impl;
 
 import org.sakaiproject.search.indexer.api.IndexJournalException;
+import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;
 import org.sakaiproject.search.journal.api.JournalManager;
 import org.sakaiproject.search.journal.api.JournalManagerState;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
@@ -32,8 +33,9 @@ import org.sakaiproject.search.transaction.api.TransactionListener;
  * A transaction listener that connects to the journalManager
  * @author ieb
  *
+ * Unit test @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
-public class JournalManagerUpdateTransaction implements TransactionListener
+public class JournalManagerUpdateTransaction implements IndexUpdateTransactionListener
 {
 	
 	

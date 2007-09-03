@@ -1,14 +1,3 @@
-package org.sakaiproject.search.indexer.impl.test;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import junit.framework.TestCase;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
-
 /**********************************************************************************
  * $URL$
  * $Id$
@@ -29,6 +18,16 @@ import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
  * limitations under the License.
  *
  **********************************************************************************/
+package org.sakaiproject.search.indexer.impl.test;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 
 /**
  * @author ieb
@@ -115,7 +114,7 @@ public class SequenceGeneratorTest extends TestCase
 							}
 							seq.put(n, n);
 						}
-						log.info("Last " + n);
+						log.debug("Last " + n);
 						for (long nx : seq.values())
 						{
 							if (m.get(nx) != null)
@@ -144,5 +143,7 @@ public class SequenceGeneratorTest extends TestCase
 			}
 			Thread.yield();
 		}
+		log.info("testGetNextId passed");
+
 	}
 }

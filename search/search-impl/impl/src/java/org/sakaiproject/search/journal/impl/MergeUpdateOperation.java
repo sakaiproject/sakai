@@ -35,6 +35,7 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
  * @author ieb
+ * TODO Unit test
  */
 public class MergeUpdateOperation implements ManagementOperation
 {
@@ -62,6 +63,7 @@ public class MergeUpdateOperation implements ManagementOperation
 
 		if (journaledObject.aquireUpdateLock())
 		{
+			log.info("Loacked");
 			try
 			{
 				try
@@ -118,13 +120,15 @@ public class MergeUpdateOperation implements ManagementOperation
 				}
 				catch (JournalExhausetedException ex)
 				{
-					// this is Ok, no more entries to process
+					log.info("No More Transactions ",ex);
 				}
 			}
 			finally
 			{
 				journaledObject.releaseUpdateLock();
 			}
+		} else {
+			log.warn("No Lock, index update abandoned");
 		}
 	}
 

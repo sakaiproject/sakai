@@ -59,6 +59,8 @@ import org.sakaiproject.site.cover.SiteService;
 
 /**
  * @author ieb
+ * Unit test 
+ * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
 public class TransactionalIndexWorker implements IndexWorker
 {
@@ -191,7 +193,9 @@ public class TransactionalIndexWorker implements IndexWorker
 				try
 				{
 					SearchBuilderItem sbi = tditer.next();
-					log.info("Item ["+sbi.getName()+"] state ["+SearchBuilderItem.states[sbi.getSearchstate()]+" action ["+SearchBuilderItem.actions[sbi.getSearchaction()]+"]");
+					if ( log.isDebugEnabled() ) {
+						log.debug("Item ["+sbi.getName()+"] state ["+SearchBuilderItem.states[sbi.getSearchstate()]+" action ["+SearchBuilderItem.actions[sbi.getSearchaction()]+"]");
+					}
 					ref = sbi.getName();
 					fireStartDocument(ref);
 

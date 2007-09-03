@@ -147,7 +147,6 @@ public class HtmlContentDigester extends BaseContentDigester
 	 */
 	public Reader getContentReader(ContentResource contentResource)
 	{
-		// TODO Auto-generated method stub
 		return new StringReader(getContent(contentResource));
 	}
 }
