@@ -39,6 +39,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
+ * A management operation to perform indexing to the journal
  * @author ieb
  */
 public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperation,
@@ -85,10 +86,6 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	 */
 	private EventTrackingService eventTrackingService;
 
-	/**
-	 * Setting The maximum sleep time for the wait/notify semaphore
-	 */
-	public long sleepTime = 5L * 60000L;
 
 	/**
 	 * Setting A load factor 1 is full load, 100 is normal The load factor
@@ -327,6 +324,135 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	{
 		nowIndexing.set(ref);
 
+	}
+
+	/**
+	 * @return the componentManager
+	 */
+	public ComponentManager getComponentManager()
+	{
+		return componentManager;
+	}
+
+	/**
+	 * @param componentManager the componentManager to set
+	 */
+	public void setComponentManager(ComponentManager componentManager)
+	{
+		this.componentManager = componentManager;
+	}
+
+	/**
+	 * @return the eventTrackingService
+	 */
+	public EventTrackingService getEventTrackingService()
+	{
+		return eventTrackingService;
+	}
+
+	/**
+	 * @param eventTrackingService the eventTrackingService to set
+	 */
+	public void setEventTrackingService(EventTrackingService eventTrackingService)
+	{
+		this.eventTrackingService = eventTrackingService;
+	}
+
+	/**
+	 * @return the indexWorker
+	 */
+	public IndexWorker getIndexWorker()
+	{
+		return indexWorker;
+	}
+
+	/**
+	 * @param indexWorker the indexWorker to set
+	 */
+	public void setIndexWorker(IndexWorker indexWorker)
+	{
+		this.indexWorker = indexWorker;
+	}
+
+	/**
+	 * @return the loadFactor
+	 */
+	public long getLoadFactor()
+	{
+		return loadFactor;
+	}
+
+	/**
+	 * @param loadFactor the loadFactor to set
+	 */
+	public void setLoadFactor(long loadFactor)
+	{
+		this.loadFactor = loadFactor;
+	}
+
+	/**
+	 * @return the searchService
+	 */
+	public SearchService getSearchService()
+	{
+		return searchService;
+	}
+
+	/**
+	 * @param searchService the searchService to set
+	 */
+	public void setSearchService(SearchService searchService)
+	{
+		this.searchService = searchService;
+	}
+
+	/**
+	 * @return the serverConfigurationService
+	 */
+	public ServerConfigurationService getServerConfigurationService()
+	{
+		return serverConfigurationService;
+	}
+
+	/**
+	 * @param serverConfigurationService the serverConfigurationService to set
+	 */
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService)
+	{
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	/**
+	 * @return the sessionManager
+	 */
+	public SessionManager getSessionManager()
+	{
+		return sessionManager;
+	}
+
+	/**
+	 * @param sessionManager the sessionManager to set
+	 */
+	public void setSessionManager(SessionManager sessionManager)
+	{
+		this.sessionManager = sessionManager;
+	}
+
+	/**
+	 * @return the userDirectoryService
+	 */
+	public UserDirectoryService getUserDirectoryService()
+	{
+		return userDirectoryService;
+	}
+
+	/**
+	 * @param userDirectoryService the userDirectoryService to set
+	 */
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
+	{
+		this.userDirectoryService = userDirectoryService;
 	}
 
 }

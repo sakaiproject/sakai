@@ -26,28 +26,33 @@ import java.util.List;
 import java.util.Timer;
 
 /**
- * The ConcurrentIndexManager,  manages a single thread performs a number of tasks associated with index management.
+ * The ConcurrentIndexManager, manages a single thread performs a number of
+ * tasks associated with index management.
+ * 
  * @author ieb
- *
  */
 public class ConcurrentIndexManager
 {
 	private Timer timer = new Timer(true);;
-	private List<IndexManagementTimerTask> tasks;
-	
 
-	public void init() {
-		for ( Iterator<IndexManagementTimerTask> i = tasks.iterator(); i.hasNext(); ) {
+	private List<IndexManagementTimerTask> tasks;
+
+	public void init()
+	{
+		for (Iterator<IndexManagementTimerTask> i = tasks.iterator(); i.hasNext();)
+		{
 			IndexManagementTimerTask task = i.next();
-			if ( task.isFixedRate() ) {
+			if (task.isFixedRate())
+			{
 				timer.scheduleAtFixedRate(task, task.getDelay(), task.getPeriod());
-			} else {
+			}
+			else
+			{
 				timer.schedule(task, task.getDelay(), task.getPeriod());
-				
+
 			}
 		}
 	}
-
 
 	/**
 	 * @return the tasks
@@ -57,9 +62,9 @@ public class ConcurrentIndexManager
 		return tasks;
 	}
 
-
 	/**
-	 * @param tasks the tasks to set
+	 * @param tasks
+	 *        the tasks to set
 	 */
 	public void setTasks(List<IndexManagementTimerTask> tasks)
 	{

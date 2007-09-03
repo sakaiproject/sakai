@@ -22,6 +22,7 @@
 package org.sakaiproject.search.journal.api;
 
 /**
+ * Management operations are scheduled to be run to maintain the state of the index.
  * @author ieb
  *
  */

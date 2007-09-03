@@ -32,6 +32,7 @@ import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
+ * Base for index transactions
  * @author ieb
  */
 public abstract class IndexTransactionImpl implements IndexTransaction

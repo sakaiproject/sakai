@@ -22,6 +22,7 @@
 package org.sakaiproject.search.indexer.api;
 
 /**
+ * Listens to the index queue
  * @author ieb
  *
  */

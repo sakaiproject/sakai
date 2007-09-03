@@ -29,6 +29,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer;
+import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.JournalManager;
 import org.sakaiproject.search.journal.api.JournalStorage;
 import org.sakaiproject.search.journal.api.JournaledIndex;
@@ -39,13 +40,13 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 import org.sakaiproject.search.transaction.api.TransactionListener;
 
 /**
+ * Listens for Transaction changes in the 2PC associated with an index update
+ * 
  * @author ieb
  */
 public class JournaledFSIndexStorageUpdateTransactionListener implements
 		TransactionListener
 {
-
-	private ThreadLocal<Long> lastJournalEntryHolder = new ThreadLocal<Long>();
 
 	private JournaledIndex journaledIndex;
 
@@ -104,7 +105,9 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 				List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
 						.loadTransactionList(f);
 				IndexReader deleteIndexReader = journaledIndex.getDeletionIndexReader();
-				transaction.put(JournaledFSIndexStorageUpdateTransactionListener.class.getName()+".deleteIndexReader", deleteIndexReader);
+				transaction.put(JournaledFSIndexStorageUpdateTransactionListener.class
+						.getName()
+						+ ".deleteIndexReader", deleteIndexReader);
 
 				for (SearchBuilderItem sbi : deleteDocuments)
 				{
@@ -128,9 +131,12 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 	 */
 	public void rollback(IndexTransaction transaction) throws IndexTransactionException
 	{
-		IndexReader deleteIndexReader = 
-			(IndexReader) transaction.get(JournaledFSIndexStorageUpdateTransactionListener.class.getName()+".deleteIndexReader");
-		transaction.clear(JournaledFSIndexStorageUpdateTransactionListener.class.getName()+".deleteIndexReader");
+		IndexReader deleteIndexReader = (IndexReader) transaction
+				.get(JournaledFSIndexStorageUpdateTransactionListener.class.getName()
+						+ ".deleteIndexReader");
+		transaction.clear(JournaledFSIndexStorageUpdateTransactionListener.class
+				.getName()
+				+ ".deleteIndexReader");
 
 		// how do we perform a roll back ?
 		// undo the delete operations and remove the index from the reader
@@ -152,8 +158,9 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 	 */
 	public void commit(IndexTransaction transaction) throws IndexTransactionException
 	{
-		IndexReader deleteIndexReader = 
-			(IndexReader) transaction.get(JournaledFSIndexStorageUpdateTransactionListener.class.getName()+".deleteIndexReader");
+		IndexReader deleteIndexReader = (IndexReader) transaction
+				.get(JournaledFSIndexStorageUpdateTransactionListener.class.getName()
+						+ ".deleteIndexReader");
 		try
 		{
 			deleteIndexReader.close();
@@ -162,10 +169,61 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 		{
 			throw new IndexTransactionException("Failed to close index with deletions");
 		}
-		transaction.clear(JournaledFSIndexStorageUpdateTransactionListener.class.getName()+".deleteIndexReader");
+		transaction.clear(JournaledFSIndexStorageUpdateTransactionListener.class
+				.getName()
+				+ ".deleteIndexReader");
 
 	}
 
+	/**
+	 * @return the journaledIndex
+	 */
+	public JournaledIndex getJournaledIndex()
+	{
+		return journaledIndex;
+	}
 
+	/**
+	 * @param journaledIndex
+	 *        the journaledIndex to set
+	 */
+	public void setJournaledIndex(JournaledIndex journaledIndex)
+	{
+		this.journaledIndex = journaledIndex;
+	}
+
+	/**
+	 * @return the journalManager
+	 */
+	public JournalManager getJournalManager()
+	{
+		return journalManager;
+	}
+
+	/**
+	 * @param journalManager
+	 *        the journalManager to set
+	 */
+	public void setJournalManager(JournalManager journalManager)
+	{
+		this.journalManager = journalManager;
+	}
+
+	/**
+	 * @return the journalStorage
+	 */
+	public JournalStorage getJournalStorage()
+	{
+		return journalStorage;
+	}
+
+	/**
+	 * @param journalStorage
+	 *        the journalStorage to set
+	 */
+	public void setJournalStorage(JournalStorage journalStorage)
+	{
+		this.journalStorage = journalStorage;
+	}
 
 }

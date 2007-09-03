@@ -74,7 +74,7 @@ public class DebugTransactionListener implements TransactionListener
 
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#close(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
 	public void close(IndexTransaction transaction) throws IndexTransactionException

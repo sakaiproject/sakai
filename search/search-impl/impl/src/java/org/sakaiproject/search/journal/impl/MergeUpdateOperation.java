@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.JournalExhausetedException;
 import org.sakaiproject.search.journal.api.JournaledObject;
 import org.sakaiproject.search.journal.api.ManagementOperation;
@@ -41,14 +42,12 @@ public class MergeUpdateOperation implements ManagementOperation
 	private static final Log log = LogFactory.getLog(MergeUpdateOperation.class);
 
 	private JournaledObject journaledObject;
-	
+
 	private MergeUpdateManager mergeUpdateManager;
 
-	private ThreadLocal<Long> lastJournalEntryHolder = new ThreadLocal<Long>();
-	
-	public void init() {
+	public void init()
+	{
 	}
-
 
 	/**
 	 * @see org.sakaiproject.search.journal.api.ManagementOperation#runOnce()
@@ -78,7 +77,8 @@ public class MergeUpdateOperation implements ManagementOperation
 							mergeUpdateTransaction.prepare();
 							mergeUpdateTransaction.commit();
 						}
-						catch (JournalErrorException jex ) {
+						catch (JournalErrorException jex)
+						{
 							log.warn("Failed to compete transaction ", jex);
 							try
 							{
@@ -143,6 +143,23 @@ public class MergeUpdateOperation implements ManagementOperation
 	public void setJournaledObject(JournaledObject journaledObject)
 	{
 		this.journaledObject = journaledObject;
+	}
+
+	/**
+	 * @return the mergeUpdateManager
+	 */
+	public MergeUpdateManager getMergeUpdateManager()
+	{
+		return mergeUpdateManager;
+	}
+
+	/**
+	 * @param mergeUpdateManager
+	 *        the mergeUpdateManager to set
+	 */
+	public void setMergeUpdateManager(MergeUpdateManager mergeUpdateManager)
+	{
+		this.mergeUpdateManager = mergeUpdateManager;
 	}
 
 }

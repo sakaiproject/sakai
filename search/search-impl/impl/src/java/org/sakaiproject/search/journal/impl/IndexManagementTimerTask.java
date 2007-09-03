@@ -28,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.journal.api.ManagementOperation;
 
 /**
+ * A timer Task for a management operation in the search code
+ * 
  * @author ieb
  */
 public class IndexManagementTimerTask extends TimerTask
@@ -117,6 +119,22 @@ public class IndexManagementTimerTask extends TimerTask
 		{
 			log.error("Management Operation failed ", t);
 		}
+	}
+
+	/**
+	 * @return the managementOperation
+	 */
+	public ManagementOperation getManagementOperation()
+	{
+		return managementOperation;
+	}
+
+	/**
+	 * @param managementOperation the managementOperation to set
+	 */
+	public void setManagementOperation(ManagementOperation managementOperation)
+	{
+		this.managementOperation = managementOperation;
 	}
 
 }

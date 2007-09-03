@@ -27,6 +27,8 @@ import java.io.IOException;
 import org.apache.lucene.index.IndexReader;
 
 /**
+ * A Journaled index is a in index that contains a number of journaled segments. These segments 
+ * may be merged into a local version periodically
  * @author ieb
  *
  */

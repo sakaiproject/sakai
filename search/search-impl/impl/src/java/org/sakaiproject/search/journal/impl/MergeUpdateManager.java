@@ -28,20 +28,19 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 
 /**
+ * Manages the index update operations
  * @author ieb
- *
  */
-public class MergeUpdateManager extends TransactionManagerImpl 
+public class MergeUpdateManager extends TransactionManagerImpl
 {
 
-	/** 
+	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionIndexManager#openTransaction(java.util.Map)
 	 */
-	public IndexTransaction openTransaction(Map<String, Object> m) throws IndexTransactionException
+	public IndexTransaction openTransaction(Map<String, Object> m)
+			throws IndexTransactionException
 	{
-		return new IndexMergeTransactionImpl(this,m);
+		return new IndexMergeTransactionImpl(this, m);
 	}
-
-	
 
 }

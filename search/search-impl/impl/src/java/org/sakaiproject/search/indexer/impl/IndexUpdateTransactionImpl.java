@@ -41,6 +41,7 @@ import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 import org.sakaiproject.search.util.FileUtils;
 
 /**
+ * A trnasaction to manage the 2PC of a journaled indexing operation, this is created by a Transaction Manager
  * @author ieb
  */
 public class IndexUpdateTransactionImpl extends IndexTransactionImpl implements IndexUpdateTransaction

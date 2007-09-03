@@ -35,6 +35,7 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
 
 /**
+ * A utility class to serialise update lists to and from disk
  * @author ieb
  */
 public class SearchBuilderItemSerializer

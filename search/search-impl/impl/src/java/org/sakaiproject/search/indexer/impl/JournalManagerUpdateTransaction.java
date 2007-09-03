@@ -29,6 +29,7 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 import org.sakaiproject.search.transaction.api.TransactionListener;
 
 /**
+ * A transaction listener that connects to the journalManager
  * @author ieb
  *
  */

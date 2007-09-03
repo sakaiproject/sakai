@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.journal.impl;
+package org.sakaiproject.search.journal.api;
 
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 

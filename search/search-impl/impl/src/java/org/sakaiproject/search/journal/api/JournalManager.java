@@ -22,9 +22,9 @@
 package org.sakaiproject.search.journal.api;
 
 import org.sakaiproject.search.indexer.api.IndexJournalException;
-import org.sakaiproject.search.journal.impl.JournalErrorException;
 
 /**
+ * The journal manage manages the state of the journal for the current node
  * @author ieb
  *
  */

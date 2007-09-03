@@ -47,6 +47,7 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	{
 
 		protected File tmpZip;
+
 		protected File journalZip;
 
 		/**
@@ -61,10 +62,10 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 
 	}
 
-	private static final Log log = LogFactory.getLog(SharedFilesystemJournalStorage.class);
+	private static final Log log = LogFactory
+			.getLog(SharedFilesystemJournalStorage.class);
 
 	private String journalLocation;
-
 
 	/**
 	 * @param transactionId
@@ -75,27 +76,28 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 		return new File(journalLocation, transactionId + ".zip");
 	}
 
-
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.sakaiproject.search.journal.api.JournalStorage#prepareSave(java.lang.String,
 	 *      long)
 	 */
-	public JournalStorageState prepareSave(String location, long transactionId) throws IOException
+	public JournalStorageState prepareSave(String location, long transactionId)
+			throws IOException
 	{
-			File indexLocation = new File(location);
-			File tmpZip = new File(journalLocation, transactionId
-					+ ".zip." + System.currentTimeMillis());
-			tmpZip.getParentFile().mkdirs();
-			FileOutputStream zout = new FileOutputStream(tmpZip);
-			String basePath = indexLocation.getPath();
-			String replacePath = String.valueOf(transactionId) + "/";
-			FileUtils.pack(indexLocation, basePath, replacePath, zout);
-			File journalZip = getTransactionFile(transactionId);
+		File indexLocation = new File(location);
+		File tmpZip = new File(journalLocation, transactionId + ".zip."
+				+ System.currentTimeMillis());
+		tmpZip.getParentFile().mkdirs();
+		FileOutputStream zout = new FileOutputStream(tmpZip);
+		String basePath = indexLocation.getPath();
+		String replacePath = String.valueOf(transactionId) + "/";
+		FileUtils.pack(indexLocation, basePath, replacePath, zout);
+		File journalZip = getTransactionFile(transactionId);
 
-			return new JournalStorageStateImpl(tmpZip,journalZip); 
+		return new JournalStorageStateImpl(tmpZip, journalZip);
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -103,19 +105,21 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	 */
 	public void commitSave(JournalStorageState jss) throws IOException
 	{
-		File journalZip = ((JournalStorageStateImpl)jss).journalZip;
-		File tmpZip = ((JournalStorageStateImpl)jss).tmpZip;
+		File journalZip = ((JournalStorageStateImpl) jss).journalZip;
+		File tmpZip = ((JournalStorageStateImpl) jss).tmpZip;
 		tmpZip.renameTo(journalZip);
 		FileUtils.listDirectory(journalZip.getParentFile());
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.journal.api.JournalStorage#rollbackSave(org.sakaiproject.search.journal.api.JournalStorageState)
 	 */
 	public void rollbackSave(JournalStorageState jss)
 	{
-		File journalZip = ((JournalStorageStateImpl)jss).journalZip;
-		File tmpZip = ((JournalStorageStateImpl)jss).tmpZip;
+		File journalZip = ((JournalStorageStateImpl) jss).journalZip;
+		File tmpZip = ((JournalStorageStateImpl) jss).tmpZip;
 		if (tmpZip != null && tmpZip.exists())
 		{
 			tmpZip.delete();
@@ -125,6 +129,7 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 			journalZip.delete();
 		}
 	}
+
 	/**
 	 * @return the journalLocation
 	 */
@@ -143,7 +148,7 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	}
 
 	/**
-	 * @throws IOException 
+	 * @throws IOException
 	 * @throws IOException
 	 * @see org.sakaiproject.search.maintanence.api.JournalStorage#retrieveLaterVersions(long[],
 	 *      java.lang.String)
@@ -165,7 +170,5 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	public void close(IndexTransaction transaction) throws IndexTransactionException
 	{
 	}
-
-
 
 }

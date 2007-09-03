@@ -27,6 +27,7 @@ import org.sakaiproject.search.indexer.api.IndexWorker;
 import org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener;
 
 /**
+ * Debug listenwe to the Documents being indexed
  * @author ieb
  *
  */

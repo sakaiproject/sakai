@@ -22,6 +22,7 @@
 package org.sakaiproject.search.journal.api;
 
 /**
+ * The storage state associated with the JournalStorage
  * @author ieb
  *
  */

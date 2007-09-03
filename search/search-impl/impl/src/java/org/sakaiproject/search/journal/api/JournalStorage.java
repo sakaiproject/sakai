@@ -25,6 +25,7 @@ import java.io.IOException;
 
 
 /**
+ * Journal storare provides bulk storage to the journal objects being stored.
  * @author ieb
  *
  */
@@ -32,6 +33,7 @@ public interface JournalStorage
 {
 
 	/**
+	 * Get a version from the commited store into a permanent local space, indexed on the transaction or version id
 	 * @param version
 	 * @param workingSpace
 	 * @throws IOException 
@@ -39,6 +41,7 @@ public interface JournalStorage
 	void retrieveVersion(long version, String workingSpace) throws IOException;
 
 	/**
+	 * prepare the current transaction for commit, 2PC
 	 * @param location
 	 * @param transactionId
 	 * @return
@@ -47,12 +50,14 @@ public interface JournalStorage
 	JournalStorageState prepareSave(String location, long transactionId) throws IOException;
 
 	/**
+	 * perform the commit on the transaction in jss
 	 * @param jss
 	 * @throws IOException 
 	 */
 	void commitSave(JournalStorageState jss) throws IOException;
 
 	/**
+	 * rollback the transaction in jss
 	 * @param jss
 	 */
 	void rollbackSave(JournalStorageState jss);

@@ -29,20 +29,21 @@ import org.sakaiproject.search.transaction.impl.IndexTransactionImpl;
 import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 
 /**
+ * A merge transaction that control the merging of the journal redo log with the
+ * local search index
+ * 
  * @author ieb
- *
  */
-public class IndexMergeTransactionImpl extends IndexTransactionImpl implements IndexMergeTransaction
+public class IndexMergeTransactionImpl extends IndexTransactionImpl implements
+		IndexMergeTransaction
 {
 	/**
 	 * 
 	 */
 	public IndexMergeTransactionImpl(TransactionManagerImpl manager, Map<String, Object> m)
-	throws IndexTransactionException
-	{		
-		super(manager,m);
+			throws IndexTransactionException
+	{
+		super(manager, m);
 	}
-
-
 
 }

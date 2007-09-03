@@ -22,6 +22,7 @@
 package org.sakaiproject.search.journal.api;
 
 /**
+ * A journal object is an object that is managed by a jornal redo log
  * @author ieb
  *
  */

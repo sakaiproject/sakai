@@ -31,19 +31,21 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.indexer.api.IndexJournalException;
+import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.JournalExhausetedException;
 import org.sakaiproject.search.journal.api.JournalManager;
 import org.sakaiproject.search.journal.api.JournalManagerState;
 
 /**
+ * A database backed Journal Manager
+ * 
  * @author ieb
  */
-public class DbJournalManager implements  JournalManager
+public class DbJournalManager implements JournalManager
 {
 
 	/**
 	 * @author ieb
-	 *
 	 */
 	public class JournalManagerStateImpl implements JournalManagerState
 	{
@@ -55,7 +57,6 @@ public class DbJournalManager implements  JournalManager
 	private static final Log log = LogFactory.getLog(DbJournalManager.class);
 
 	private DataSource datasource;
-
 
 	/**
 	 * @return the datasource
@@ -75,8 +76,7 @@ public class DbJournalManager implements  JournalManager
 	}
 
 	/**
-	 * 
-	 * @throws JournalErrorException 
+	 * @throws JournalErrorException
 	 * @see org.sakaiproject.search.journal.api.JournalManager#getLaterVersions(long)
 	 */
 	public long getNextVersion(long version) throws JournalErrorException
@@ -101,7 +101,7 @@ public class DbJournalManager implements  JournalManager
 		catch (SQLException ex)
 		{
 			log.error("Failed to retrieve list of journal items ", ex);
-			throw new JournalErrorException("Journal Error ",ex);
+			throw new JournalErrorException("Journal Error ", ex);
 		}
 		finally
 		{
@@ -129,17 +129,17 @@ public class DbJournalManager implements  JournalManager
 		}
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.sakaiproject.search.journal.api.JournalManager#prepareSave(long)
 	 */
-	public JournalManagerState prepareSave(long transactionId) throws IndexJournalException
+	public JournalManagerState prepareSave(long transactionId)
+			throws IndexJournalException
 	{
 		PreparedStatement insertPst = null;
 		JournalManagerStateImpl jms = new JournalManagerStateImpl();
 		try
 		{
 
-			
 			Connection connection = datasource.getConnection();
 			jms.connection = connection;
 
@@ -176,12 +176,12 @@ public class DbJournalManager implements  JournalManager
 		return jms;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.sakaiproject.search.journal.api.JournalManager#commitSave()
 	 */
 	public void commitSave(JournalManagerState jms) throws IndexJournalException
 	{
-		Connection connection = ((JournalManagerStateImpl)jms).connection;
+		Connection connection = ((JournalManagerStateImpl) jms).connection;
 		try
 		{
 			connection.commit();
@@ -197,15 +197,15 @@ public class DbJournalManager implements  JournalManager
 			}
 			throw new IndexJournalException("Failed to commit index ", ex);
 		}
-		
+
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.sakaiproject.search.journal.api.JournalManager#rollbackSave(org.sakaiproject.search.journal.api.JournalManagerState)
 	 */
 	public void rollbackSave(JournalManagerState jms)
 	{
-		Connection connection = ((JournalManagerStateImpl)jms).connection;
+		Connection connection = ((JournalManagerStateImpl) jms).connection;
 		try
 		{
 
@@ -235,6 +235,5 @@ public class DbJournalManager implements  JournalManager
 
 		}
 	}
-
 
 }

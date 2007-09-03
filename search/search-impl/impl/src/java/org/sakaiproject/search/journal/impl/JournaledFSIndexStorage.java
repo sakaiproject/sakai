@@ -599,4 +599,77 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 
 	}
 
+	/**
+	 * @return the datasource
+	 */
+	public DataSource getDatasource()
+	{
+		return datasource;
+	}
+
+	/**
+	 * @param datasource the datasource to set
+	 */
+	public void setDatasource(DataSource datasource)
+	{
+		this.datasource = datasource;
+	}
+
+	/**
+	 * @return the journalMonitor
+	 */
+	public JournalManager getJournalMonitor()
+	{
+		return journalMonitor;
+	}
+
+	/**
+	 * @param journalMonitor the journalMonitor to set
+	 */
+	public void setJournalMonitor(JournalManager journalMonitor)
+	{
+		this.journalMonitor = journalMonitor;
+	}
+
+	/**
+	 * @return the searchIndexDirectory
+	 */
+	public String getSearchIndexDirectory()
+	{
+		return searchIndexDirectory;
+	}
+
+	/**
+	 * @param searchIndexDirectory the searchIndexDirectory to set
+	 */
+	public void setSearchIndexDirectory(String searchIndexDirectory)
+	{
+		this.searchIndexDirectory = searchIndexDirectory;
+	}
+
+	/**
+	 * @return the serverConfigurationService
+	 */
+	public ServerConfigurationService getServerConfigurationService()
+	{
+		return serverConfigurationService;
+	}
+
+	/**
+	 * @param serverConfigurationService the serverConfigurationService to set
+	 */
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService)
+	{
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	/**
+	 * @param workingSpace the workingSpace to set
+	 */
+	public void setWorkingSpace(String workingSpace)
+	{
+		this.workingSpace = workingSpace;
+	}
+
 }
