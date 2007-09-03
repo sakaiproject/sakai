@@ -7059,7 +7059,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		// Get new values from review service if defaults
 		public int getReviewScore() {
 			// Code to get updated score if default
-		
+			M_log.debug("GetReviewScore for submission " + this.getId() + " and review service is: " + if (this.getAssignment().getContent().getAllowReviewService()));
+			if (!this.getAssignment().getContent().getAllowReviewService())
+				return -2;
+			
 			if (m_submittedAttachments.isEmpty()) M_log.debug("No attachments submitted.");
 			else
 			{
@@ -7079,8 +7082,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				catch (QueueException cie) {
 					//should we add the item
 					try {
-						if (this.getAssignment().getContent().getAllowReviewService())
-						{
+						
+						
 							ContentResource cr = getFirstAcceptableAttachement();
 							if (cr == null )
 							{
@@ -7097,7 +7100,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							}
 								
 							
-						}
+						
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
