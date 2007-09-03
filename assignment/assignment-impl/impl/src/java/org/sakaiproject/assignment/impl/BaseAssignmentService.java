@@ -7059,7 +7059,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		// Get new values from review service if defaults
 		public int getReviewScore() {
 			// Code to get updated score if default
-			M_log.debug("GetReviewScore for submission " + this.getId() + " and review service is: " + if (this.getAssignment().getContent().getAllowReviewService()));
+			M_log.debug("GetReviewScore for submission " + this.getId() + " and review service is: " + (this.getAssignment().getContent().getAllowReviewService()));
 			if (!this.getAssignment().getContent().getAllowReviewService())
 				return -2;
 			
