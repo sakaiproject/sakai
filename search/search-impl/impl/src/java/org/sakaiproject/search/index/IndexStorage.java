@@ -55,10 +55,11 @@ public interface IndexStorage extends Diagnosable
 	
 	/**
 	 * get an index searcher
+	 * @param reload force a reload of the searcher, if the implementation is caching a searcher
 	 * @return
 	 * @throws IOException
 	 */
-	IndexSearcher getIndexSearcher() throws IOException;
+	IndexSearcher getIndexSearcher(boolean reload) throws IOException;
 
 	/**
 	 * perform all operations necessary after an update cycle
@@ -128,5 +129,32 @@ public interface IndexStorage extends Diagnosable
 	 * @return
 	 */
 	boolean centralIndexExists();
+
+	/**
+	 * When the index was last loaded
+	 * @return
+	 */
+	long getLastLoad();
+
+	/**
+	 * The ammount of time (ms) that it took to load the index last time
+	 * @return
+	 */
+	long getLastLoadTime();
+
+	/**
+	 * @param indexReloadListener
+	 */
+	void addReloadListener(IndexReloadListener indexReloadListener);
+
+	/**
+	 * @param indexReloadListener
+	 */
+	void removeReloadListener(IndexReloadListener indexReloadListener);
+
+	/**
+	 * 
+	 */
+	void forceNextReload();
 
 }

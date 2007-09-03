@@ -19,23 +19,19 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.api;
-
-import org.sakaiproject.search.transaction.api.IndexTransactionException;
-
+package org.sakaiproject.search.journal.api;
 
 /**
- * When there are no items to index, this Exception is thrown. The Indexer should not start a transaction
  * @author ieb
  *
  */
-public class NoItemsToIndexException extends IndexTransactionException
+public class JournalExhausetedException extends RuntimeException
 {
 
 	/**
 	 * 
 	 */
-	public NoItemsToIndexException()
+	public JournalExhausetedException()
 	{
 		// TODO Auto-generated constructor stub
 	}
@@ -43,7 +39,7 @@ public class NoItemsToIndexException extends IndexTransactionException
 	/**
 	 * @param arg0
 	 */
-	public NoItemsToIndexException(String arg0)
+	public JournalExhausetedException(String arg0)
 	{
 		super(arg0);
 		// TODO Auto-generated constructor stub
@@ -52,7 +48,7 @@ public class NoItemsToIndexException extends IndexTransactionException
 	/**
 	 * @param arg0
 	 */
-	public NoItemsToIndexException(Throwable arg0)
+	public JournalExhausetedException(Throwable arg0)
 	{
 		super(arg0);
 		// TODO Auto-generated constructor stub
@@ -62,7 +58,7 @@ public class NoItemsToIndexException extends IndexTransactionException
 	 * @param arg0
 	 * @param arg1
 	 */
-	public NoItemsToIndexException(String arg0, Throwable arg1)
+	public JournalExhausetedException(String arg0, Throwable arg1)
 	{
 		super(arg0, arg1);
 		// TODO Auto-generated constructor stub

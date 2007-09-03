@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.impl;
+package org.sakaiproject.search.transaction.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,7 +29,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.search.indexer.api.TransactionSequence;
+import org.sakaiproject.search.transaction.api.TransactionSequence;
 
 /**
  * @author ieb

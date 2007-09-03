@@ -19,53 +19,27 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.api;
-
-import org.sakaiproject.search.transaction.api.IndexTransactionException;
-
+package org.sakaiproject.search.transaction.api;
 
 /**
- * When there are no items to index, this Exception is thrown. The Indexer should not start a transaction
+ * Generates a transaction sequence. The implementation of this interface must operate in thread safe fashon over the
+ * entire cluster returning the next id in the sequence at all times.
  * @author ieb
  *
  */
-public class NoItemsToIndexException extends IndexTransactionException
+public interface TransactionSequence
 {
 
 	/**
-	 * 
+	 * This returns a safe clusterwide id
+	 * @return
 	 */
-	public NoItemsToIndexException()
-	{
-		// TODO Auto-generated constructor stub
-	}
+	long getNextId();
 
 	/**
-	 * @param arg0
+	 * This retuns the next id for the local JVM
+	 * @return
 	 */
-	public NoItemsToIndexException(String arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param arg0
-	 */
-	public NoItemsToIndexException(Throwable arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public NoItemsToIndexException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
-	}
+	long getLocalId();
 
 }

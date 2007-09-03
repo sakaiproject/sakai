@@ -21,50 +21,26 @@
 
 package org.sakaiproject.search.component.service.impl;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Timer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.search.IndexSearcher;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.db.cover.SqlService;
-import org.sakaiproject.search.api.SearchIndexBuilderWorker;
 import org.sakaiproject.search.api.SearchStatus;
 import org.sakaiproject.search.component.Messages;
-import org.sakaiproject.search.model.SearchWriterLock;
 
 /**
  * The search service
  * 
  * @author ieb
  */
-public class SearchServiceImpl extends BaseSearchServiceImpl
+public class ConcurrentSearchServiceImpl extends BaseSearchServiceImpl
 {
 
-	private static Log log = LogFactory.getLog(SearchServiceImpl.class);
-
-	/**
-	 * The index builder dependency
-	 */
-	private SearchIndexBuilderWorker searchIndexBuilderWorker;
-	/**
-	 * the currently running index searcher
-	 */
-	private IndexSearcher runningIndexSearcher;
-
-
-	private Object reloadObjectSemaphore = new Object();
-
-	private Timer indexCloseTimer = new Timer(true);
-
-	private long reloadStart;
-
-	private long reloadEnd;
+	private static Log log = LogFactory.getLog(ConcurrentSearchServiceImpl.class);
 
 
 	/**
@@ -85,7 +61,7 @@ public class SearchServiceImpl extends BaseSearchServiceImpl
 				if (autoDdl)
 				{
 					SqlService.getInstance().ddl(this.getClass().getClassLoader(),
-							"sakai_search");
+							"sakai_concurrent_search");
 				}
 			}
 			catch (Exception ex)
@@ -95,6 +71,7 @@ public class SearchServiceImpl extends BaseSearchServiceImpl
 
 			initComplete = true;
 
+			
 
 		}
 		catch (Throwable t)
@@ -105,15 +82,12 @@ public class SearchServiceImpl extends BaseSearchServiceImpl
 	}
 
 
-
 	@Override
 	public String getStatus()
 	{
 
-		String lastLoad = (new Date(reloadEnd)).toString();
-		String loadTime = String.valueOf((double) (0.001 * (reloadEnd - reloadStart)));
-		SearchWriterLock lock = searchIndexBuilderWorker.getCurrentLock();
-		List lockNodes = searchIndexBuilderWorker.getNodeStatus();
+		String lastLoad = (new Date(indexStorage.getLastLoad())).toString();
+		String loadTime = String.valueOf((double) (0.001 * (indexStorage.getLastLoadTime())));
 
 		return Messages.getString("SearchServiceImpl.40") + lastLoad + Messages.getString("SearchServiceImpl.38") + loadTime + Messages.getString("SearchServiceImpl.37"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
@@ -123,15 +97,17 @@ public class SearchServiceImpl extends BaseSearchServiceImpl
 	{
 		String ll = Messages.getString("SearchServiceImpl.36"); //$NON-NLS-1$
 		String lt = ""; //$NON-NLS-1$
+		long reloadEnd = indexStorage.getLastLoad();
 		if (reloadEnd != 0)
 		{
 			ll = (new Date(reloadEnd)).toString();
-			lt = String.valueOf((double) (0.001 * (reloadEnd - reloadStart)));
+			lt = String.valueOf((double) (0.001 * (indexStorage.getLastLoadTime())));
 		}
 		final String lastLoad = ll;
 		final String loadTime = lt;
-		final SearchWriterLock lock = searchIndexBuilderWorker.getCurrentLock();
-		final List lockNodes = searchIndexBuilderWorker.getNodeStatus();
+		// final SearchWriterLock lock =
+		// searchIndexBuilderWorker.getCurrentLock();
+		// final List lockNodes = searchIndexBuilderWorker.getNodeStatus();
 		final String pdocs = String.valueOf(getPendingDocs());
 		final String ndocs = String.valueOf(getNDocs());
 
@@ -149,49 +125,51 @@ public class SearchServiceImpl extends BaseSearchServiceImpl
 
 			public String getCurrentWorker()
 			{
-				return lock.getNodename();
+				return "concurrent indexing, no locks ";
 			}
 
 			public String getCurrentWorkerETC()
 			{
 				if (SecurityService.isSuperUser())
 				{
-					return MessageFormat.format(Messages
-							.getString("SearchServiceImpl.35"), //$NON-NLS-1$
-							new Object[] { lock.getExpires(),
-									searchIndexBuilderWorker.getLastDocument(),
-									searchIndexBuilderWorker.getLastElapsed(),
-									searchIndexBuilderWorker.getCurrentDocument(),
-									searchIndexBuilderWorker.getCurrentElapsed(),
-									serverConfigurationService.getServerIdInstance() });
+					return "List of current activity, superuser";
+					/*
+					 * MessageFormat.format(Messages
+					 * .getString("SearchServiceImpl.35"), //$NON-NLS-1$ new
+					 * Object[] { lock.getExpires(),
+					 * searchIndexBuilderWorker.getLastDocument(),
+					 * searchIndexBuilderWorker.getLastElapsed(),
+					 * searchIndexBuilderWorker.getCurrentDocument(),
+					 * searchIndexBuilderWorker.getCurrentElapsed(),
+					 * serverConfigurationService.getServerIdInstance() });
+					 */
 				}
 				else
 				{
-					return MessageFormat.format(Messages
-							.getString("SearchServiceImpl.39"), new Object[] { lock //$NON-NLS-1$
-							.getExpires() });
+					return "List of current activity, normal user ";
+					/*
+					 * MessageFormat.format(Messages
+					 * .getString("SearchServiceImpl.39"), new Object[] { lock
+					 * //$NON-NLS-1$ .getExpires() });
+					 */
 				}
 			}
 
 			public List getWorkerNodes()
 			{
-				List l = new ArrayList();
-				for (Iterator i = lockNodes.iterator(); i.hasNext();)
-				{
-					SearchWriterLock swl = (SearchWriterLock) i.next();
-					Object[] result = new Object[3];
-					result[0] = swl.getNodename();
-					result[1] = swl.getExpires();
-					if (lock.getNodename().equals(swl.getNodename()))
-					{
-						result[2] = Messages.getString("SearchServiceImpl.47"); //$NON-NLS-1$
-					}
-					else
-					{
-						result[2] = Messages.getString("SearchServiceImpl.48"); //$NON-NLS-1$
-					}
-					l.add(result);
-				}
+				List<Object> l = new ArrayList<Object>();
+				l.add(new Object[] { "NodeName", new Date(), "running status " });
+				/*
+				 * for (Iterator i = lockNodes.iterator(); i.hasNext();) {
+				 * SearchWriterLock swl = (SearchWriterLock) i.next(); Object[]
+				 * result = new Object[3]; result[0] = swl.getNodename();
+				 * result[1] = swl.getExpires(); if
+				 * (lock.getNodename().equals(swl.getNodename())) { result[2] =
+				 * Messages.getString("SearchServiceImpl.47"); //$NON-NLS-1$ }
+				 * else { result[2] =
+				 * Messages.getString("SearchServiceImpl.48"); //$NON-NLS-1$ }
+				 * l.add(result); }
+				 */
 				return l;
 			}
 
@@ -212,31 +190,11 @@ public class SearchServiceImpl extends BaseSearchServiceImpl
 	@Override
 	public boolean removeWorkerLock()
 	{
-		return searchIndexBuilderWorker.removeWorkerLock();
+		// no locks
+		return true;
 
 	}
 
 
-
-
-
-	/**
-	 * @return the searchIndexBuilderWorker
-	 */
-	public SearchIndexBuilderWorker getSearchIndexBuilderWorker()
-	{
-		return searchIndexBuilderWorker;
-	}
-
-	/**
-	 * @param searchIndexBuilderWorker the searchIndexBuilderWorker to set
-	 */
-	public void setSearchIndexBuilderWorker(SearchIndexBuilderWorker searchIndexBuilderWorker)
-	{
-		this.searchIndexBuilderWorker = searchIndexBuilderWorker;
-	}
-
-	
-	
 
 }

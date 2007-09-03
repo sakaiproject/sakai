@@ -19,11 +19,11 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.debug;
+package org.sakaiproject.search.indexer.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.indexer.api.IndexJournalException;
+import org.sakaiproject.search.journal.api.JournalManager;
+import org.sakaiproject.search.journal.api.JournalManagerState;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 import org.sakaiproject.search.transaction.api.TransactionListener;
@@ -32,10 +32,22 @@ import org.sakaiproject.search.transaction.api.TransactionListener;
  * @author ieb
  *
  */
-public class DebugTransactionListener implements TransactionListener
+public class JournalManagerUpdateTransaction implements TransactionListener
 {
+	
+	
+	private JournalManager journalManager;
 
-	private static final Log log = LogFactory.getLog(DebugTransactionListener.class);
+	/**
+	 * @throws IndexJournalException
+	 * @see org.sakaiproject.search.transaction.api.TransactionListener#prepare(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
+	 */
+	public void prepare(IndexTransaction transaction) throws IndexJournalException
+	{
+		JournalManagerState jms = journalManager.prepareSave(transaction.getTransactionId());
+		transaction.put(JournalManagerUpdateTransaction.class.getName()+".state",jms); 
+
+	}
 
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#commit(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
@@ -43,43 +55,53 @@ public class DebugTransactionListener implements TransactionListener
 	public void commit(IndexTransaction transaction)
 			throws IndexTransactionException
 	{
-		log.info("Commit on Transaction ["+transaction+"]");
+		JournalManagerState jms = (JournalManagerState) transaction.get(JournalManagerUpdateTransaction.class.getName()+".state"); 
+		journalManager.commitSave(jms);
+		transaction.clear(JournalManagerUpdateTransaction.class.getName()+".state"); 
+
 	}
 
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#open(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
-	public void open(IndexTransaction transaction) throws IndexTransactionException
+	public void open(IndexTransaction transaction)
 	{
-		log.info("Open on Transaction ["+transaction+"]");
-
 	}
 
 	/**
-	 * @see org.sakaiproject.search.transaction.api.TransactionListener#prepare(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
+	 * 
+	 * @see org.sakaiproject.search.transaction.api.TransactionListener#close(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
-	public void prepare(IndexTransaction transaction) throws IndexJournalException
+	public void close(IndexTransaction transaction) throws IndexTransactionException
 	{
-		log.info("Prepare on Transaction ["+transaction+"]");
-
+		transaction.clear(JournalManagerUpdateTransaction.class.getName()+".state"); 
 	}
 
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#rollback(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
 	public void rollback(IndexTransaction transaction)
-			throws IndexTransactionException
 	{
-		log.info("Rollback on Transaction ["+transaction+"]");
+		JournalManagerState jms = (JournalManagerState) transaction.get(JournalManagerUpdateTransaction.class.getName()+".state"); 
+		journalManager.rollbackSave(jms);
+		transaction.clear(JournalManagerUpdateTransaction.class.getName()+".state"); 
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.search.transaction.api.TransactionListener#close(org.sakaiproject.search.transaction.api.IndexTransaction)
+	/**
+	 * @return the journalManager
 	 */
-	public void close(IndexTransaction transaction) throws IndexTransactionException
+	public JournalManager getJournalManager()
 	{
-		log.info("Close on Transaction ["+transaction+"]");
+		return journalManager;
+	}
+
+	/**
+	 * @param journalManager the journalManager to set
+	 */
+	public void setJournalManager(JournalManager journalManager)
+	{
+		this.journalManager = journalManager;
 	}
 
 }

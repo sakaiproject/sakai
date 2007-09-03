@@ -39,11 +39,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.indexer.api.IndexTransactionException;
-import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
-import org.sakaiproject.search.indexer.api.TransactionListener;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
+import org.sakaiproject.search.transaction.api.IndexTransaction;
+import org.sakaiproject.search.transaction.api.IndexTransactionException;
+import org.sakaiproject.search.transaction.api.TransactionListener;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -96,7 +96,7 @@ public class SearchBuilderQueueManager implements TransactionListener
 	 * 
 	 * @see org.sakaiproject.search.indexer.api.TransactionListener#prepare(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
-	public void prepare(IndexUpdateTransaction transaction)
+	public void prepare(IndexTransaction transaction)
 	{
 		// At the moment I dont think that we need to do anything here, we could
 		// brign the work of the
@@ -109,7 +109,7 @@ public class SearchBuilderQueueManager implements TransactionListener
 	 * 
 	 * @see org.sakaiproject.search.component.service.index.transactional.api.TransactionListener#commit(org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction)
 	 */
-	public void commit(IndexUpdateTransaction transaction)
+	public void commit(IndexTransaction transaction)
 	{
 		Connection connection = null;
 		try
@@ -145,7 +145,7 @@ public class SearchBuilderQueueManager implements TransactionListener
 	 * 
 	 * @see org.sakaiproject.search.component.service.index.transactional.api.TransactionListener#rollback(org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction)
 	 */
-	public void rollback(IndexUpdateTransaction transaction)
+	public void rollback(IndexTransaction transaction)
 	{
 		Connection connection = null;
 		try
@@ -181,7 +181,7 @@ public class SearchBuilderQueueManager implements TransactionListener
 	 * 
 	 * @see org.sakaiproject.search.component.service.index.transactional.api.TransactionListener#open(org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction)
 	 */
-	public void open(IndexUpdateTransaction transaction) throws IndexTransactionException
+	public void open(IndexTransaction transaction) throws IndexTransactionException
 	{
 		Connection connection = null;
 		try
@@ -222,6 +222,14 @@ public class SearchBuilderQueueManager implements TransactionListener
 			}
 		}
 
+	}
+
+	/** 
+	 * 
+	 * @see org.sakaiproject.search.transaction.api.TransactionListener#close(org.sakaiproject.search.transaction.api.IndexTransaction)
+	 */
+	public void close(IndexTransaction transaction) throws IndexTransactionException
+	{
 	}
 
 	private List<SearchBuilderItem> findPendingAndLock(int batchSize,
@@ -913,5 +921,6 @@ public class SearchBuilderQueueManager implements TransactionListener
 	{
 		this.datasource = datasource;
 	}
+
 
 }

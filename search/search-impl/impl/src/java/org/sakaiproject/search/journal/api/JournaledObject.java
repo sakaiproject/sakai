@@ -19,53 +19,47 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.api;
-
-import org.sakaiproject.search.transaction.api.IndexTransactionException;
-
+package org.sakaiproject.search.journal.api;
 
 /**
- * When there are no items to index, this Exception is thrown. The Indexer should not start a transaction
  * @author ieb
  *
  */
-public class NoItemsToIndexException extends IndexTransactionException
+public interface JournaledObject
 {
 
 	/**
-	 * 
+	 * Get the current Journaled Version
+	 * @return
 	 */
-	public NoItemsToIndexException()
-	{
-		// TODO Auto-generated constructor stub
-	}
+	long getJournalVersion();
+
+
 
 	/**
-	 * @param arg0
+	 * get a lock on on the object for update
+	 * @return true is lock was granted, false if not
 	 */
-	public NoItemsToIndexException(String arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
+	boolean aquireUpdateLock();
+
 
 	/**
-	 * @param arg0
+	 * release the update lock
 	 */
-	public NoItemsToIndexException(Throwable arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
+	void releaseUpdateLock();
+	
 	/**
-	 * @param arg0
-	 * @param arg1
+	 * Aquires a lock to read the object
+	 * @return true if lock was granted, false if not
 	 */
-	public NoItemsToIndexException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
-	}
+	boolean auquireReadLock();
+	
+	/**
+	 * releases a lock to read object
+	 *
+	 */
+	void releaseReadLock();
+
+
 
 }

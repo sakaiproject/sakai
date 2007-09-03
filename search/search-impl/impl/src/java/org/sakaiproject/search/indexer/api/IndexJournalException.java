@@ -21,6 +21,8 @@
 
 package org.sakaiproject.search.indexer.api;
 
+import org.sakaiproject.search.transaction.api.IndexTransactionException;
+
 
 /**
  * @author ieb

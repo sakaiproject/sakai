@@ -19,53 +19,51 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.api;
+package org.sakaiproject.search.journal.impl;
 
-import org.sakaiproject.search.transaction.api.IndexTransactionException;
-
+import java.util.Iterator;
+import java.util.List;
+import java.util.Timer;
 
 /**
- * When there are no items to index, this Exception is thrown. The Indexer should not start a transaction
+ * The ConcurrentIndexManager,  manages a single thread performs a number of tasks associated with index management.
  * @author ieb
  *
  */
-public class NoItemsToIndexException extends IndexTransactionException
+public class ConcurrentIndexManager
 {
+	private Timer timer = new Timer(true);;
+	private List<IndexManagementTimerTask> tasks;
+	
 
-	/**
-	 * 
-	 */
-	public NoItemsToIndexException()
-	{
-		// TODO Auto-generated constructor stub
+	public void init() {
+		for ( Iterator<IndexManagementTimerTask> i = tasks.iterator(); i.hasNext(); ) {
+			IndexManagementTimerTask task = i.next();
+			if ( task.isFixedRate() ) {
+				timer.scheduleAtFixedRate(task, task.getDelay(), task.getPeriod());
+			} else {
+				timer.schedule(task, task.getDelay(), task.getPeriod());
+				
+			}
+		}
 	}
 
-	/**
-	 * @param arg0
-	 */
-	public NoItemsToIndexException(String arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
 
 	/**
-	 * @param arg0
+	 * @return the tasks
 	 */
-	public NoItemsToIndexException(Throwable arg0)
+	public List<IndexManagementTimerTask> getTasks()
 	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
+		return tasks;
 	}
 
+
 	/**
-	 * @param arg0
-	 * @param arg1
+	 * @param tasks the tasks to set
 	 */
-	public NoItemsToIndexException(String arg0, Throwable arg1)
+	public void setTasks(List<IndexManagementTimerTask> tasks)
 	{
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
+		this.tasks = tasks;
 	}
 
 }

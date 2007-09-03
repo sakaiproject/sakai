@@ -53,6 +53,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
@@ -64,6 +65,8 @@ import org.sakaiproject.search.api.SearchStatus;
 import org.sakaiproject.search.api.TermFrequency;
 import org.sakaiproject.search.component.Messages;
 import org.sakaiproject.search.filter.SearchItemFilter;
+import org.sakaiproject.search.index.IndexReloadListener;
+import org.sakaiproject.search.index.IndexStorage;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -101,6 +104,8 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	 */
 	private SessionManager sessionManager;
 
+	protected ServerConfigurationService serverConfigurationService;
+
 	/**
 	 * Optional dependencies
 	 */
@@ -110,6 +115,8 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	 * the notification object
 	 */
 	private NotificationEdit notification = null;
+
+	protected IndexStorage indexStorage;
 
 	/**
 	 * init completed
@@ -136,7 +143,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 
 	private boolean searchServer = false;
 
-	private ThreadLocal localSearch = new ThreadLocal();
+	private ThreadLocal<String> localSearch = new ThreadLocal<String>();
 
 	private HttpClient httpClient;
 
@@ -146,6 +153,17 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	
 	/** Configuration: to run the ddl on init or not. */
 	protected boolean autoDdl = false;
+
+	
+	private boolean diagnostics;
+
+
+	
+	public abstract String getStatus();
+	
+	public abstract SearchStatus getSearchStatus();
+
+	public abstract boolean removeWorkerLock();
 
 	/**
 	 * Configuration: to run the ddl on init or not.
@@ -214,7 +232,30 @@ public abstract class BaseSearchServiceImpl implements SearchService
 			// Finally set up the static multithreaded HttpClient
 			httpClient = new HttpClient(httpConnectionManager);
 			
-									
+			if (diagnostics)
+			{
+				indexStorage.enableDiagnostics();
+			}
+			else
+			{
+				indexStorage.disableDiagnostics();
+			}
+				
+			indexStorage.addReloadListener(new IndexReloadListener() {
+
+				public void reloaded(long reloadStart, long reloadEnd)
+				{
+					if (diagnostics)
+					{
+						log.info("Index Reloaded containing " + getNDocs()
+								+ " active documents and  " + getPendingDocs()
+								+ " pending documents in " + (reloadEnd - reloadStart)
+								+ "ms");
+					}
+				}
+				
+			});
+
 			
 		}
 		catch (Throwable t)
@@ -390,13 +431,6 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	}
 
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	public abstract void reload();
-
-	public abstract void forceReload();
-
 
 	public void refreshInstance()
 	{
@@ -418,6 +452,39 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	{
 		searchIndexBuilder.rebuildIndex(currentSiteId);
 
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void reload()
+	{
+		getIndexSearcher(true);
+	}
+
+	public void forceReload()
+	{
+		indexStorage.forceNextReload();
+	}
+
+	/**
+	 * The sequence is, peform reload,
+	 * 
+	 * @param reload
+	 * @return
+	 */
+
+	public IndexSearcher getIndexSearcher(boolean reload)
+	{
+		try
+		{
+			return indexStorage.getIndexSearcher(reload);
+		}
+		catch (Exception ex)
+		{
+			log.error("Failed to get an index searcher ", ex);
+			throw new RuntimeException("Failed to get an index searcher ", ex);
+		}
 	}
 
 
@@ -653,7 +720,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 			int searchStart = Integer.parseInt(ss);
 			int searchEnd = Integer.parseInt(se);
 			String[] ctxa = contexts.split(";"); //$NON-NLS-1$
-			List ctx = new ArrayList(ctxa.length);
+			List<String> ctx = new ArrayList<String>(ctxa.length);
 			for (int i = 0; i < ctxa.length; i++)
 			{
 				ctx.add(ctxa[i]);
@@ -832,46 +899,9 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		}
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
-	 */
-	public abstract void disableDiagnostics();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
-	 */
-	public abstract void enableDiagnostics();
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
-	 */
-	public abstract boolean hasDiagnostics();
-
-	/**
-	 * @return
-	 */
-	protected abstract Analyzer getAnalyzer();
+		
 	
-	/**
-	 * @param b
-	 * @return
-	 */
-	public abstract IndexSearcher getIndexSearcher(boolean b);
-
-	
-	public abstract String getStatus();
-	
-	public abstract SearchStatus getSearchStatus();
-
-	public abstract boolean removeWorkerLock();
-
-	public abstract List getSegmentInfo();
 	/**
 	 * @return the eventTrackingService
 	 */
@@ -942,6 +972,84 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	{
 		this.userDirectoryService = userDirectoryService;
 	}
+	/**
+	 * @return Returns the indexStorage.
+	 */
+	public IndexStorage getIndexStorage()
+	{
+		return indexStorage;
+	}
 
+	/**
+	 * @param indexStorage
+	 *        The indexStorage to set.
+	 */
+	public void setIndexStorage(IndexStorage indexStorage)
+	{
+		this.indexStorage = indexStorage;
+	}
+
+	protected Analyzer getAnalyzer()
+	{
+		return indexStorage.getAnalyzer();
+	}
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
+	 */
+	public void disableDiagnostics()
+	{
+		diagnostics = false;
+		if (indexStorage != null)
+		{
+			indexStorage.disableDiagnostics();
+		}
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
+	 */
+	public void enableDiagnostics()
+	{
+		diagnostics = true;
+		if (indexStorage != null)
+		{
+			indexStorage.enableDiagnostics();
+		}
+	}
+
+	/**
+	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
+	 */
+	public boolean hasDiagnostics()
+	{
+		return diagnostics;
+	}
+	
+	public List getSegmentInfo()
+	{
+		return indexStorage.getSegmentInfoList();
+	}
+
+	/**
+	 * @return the serverConfigurationService
+	 */
+	public ServerConfigurationService getServerConfigurationService()
+	{
+		return serverConfigurationService;
+	}
+
+	/**
+	 * @param serverConfigurationService the serverConfigurationService to set
+	 */
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService)
+	{
+		this.serverConfigurationService = serverConfigurationService;
+	}
 
 }

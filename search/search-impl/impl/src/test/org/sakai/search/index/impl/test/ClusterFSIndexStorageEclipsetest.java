@@ -187,7 +187,7 @@ public class ClusterFSIndexStorageEclipsetest extends TestCase
 	public void testGetIndexSearcher() throws Exception
 	{
 
-		IndexSearcher is = cfs.getIndexSearcher();
+		IndexSearcher is = cfs.getIndexSearcher(false);
 		assertNotNull(is);
 		BooleanQuery query = new BooleanQuery();
 
@@ -296,7 +296,7 @@ public class ClusterFSIndexStorageEclipsetest extends TestCase
 		
 		long start = System.currentTimeMillis();
 		
-		IndexSearcher is = cfs.getIndexSearcher();
+		IndexSearcher is = cfs.getIndexSearcher(false);
 		
 		log.info("----Open took "+(System.currentTimeMillis()-start));
 		start = System.currentTimeMillis();

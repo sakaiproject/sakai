@@ -19,27 +19,43 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.api;
+package org.sakaiproject.search.journal.api;
+
+import java.io.IOException;
+
 
 /**
- * Generates a transaction sequence. The implementation of this interface must operate in thread safe fashon over the
- * entire cluster returning the next id in the sequence at all times.
  * @author ieb
  *
  */
-public interface TransactionSequence
+public interface JournalStorage
 {
 
 	/**
-	 * This returns a safe clusterwide id
-	 * @return
+	 * @param version
+	 * @param workingSpace
+	 * @throws IOException 
 	 */
-	long getNextId();
+	void retrieveVersion(long version, String workingSpace) throws IOException;
 
 	/**
-	 * This retuns the next id for the local JVM
+	 * @param location
+	 * @param transactionId
 	 * @return
+	 * @throws IOException 
 	 */
-	long getLocalId();
+	JournalStorageState prepareSave(String location, long transactionId) throws IOException;
 
+	/**
+	 * @param jss
+	 * @throws IOException 
+	 */
+	void commitSave(JournalStorageState jss) throws IOException;
+
+	/**
+	 * @param jss
+	 */
+	void rollbackSave(JournalStorageState jss);
+
+	
 }

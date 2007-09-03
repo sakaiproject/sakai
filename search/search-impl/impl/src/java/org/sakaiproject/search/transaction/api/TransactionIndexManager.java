@@ -19,53 +19,35 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.api;
+package org.sakaiproject.search.transaction.api;
 
-import org.sakaiproject.search.transaction.api.IndexTransactionException;
+import java.util.Map;
 
 
 /**
- * When there are no items to index, this Exception is thrown. The Indexer should not start a transaction
+ * Acts as a transaction factory for index operations and provides a location where listeners can register
  * @author ieb
  *
  */
-public class NoItemsToIndexException extends IndexTransactionException
+public interface TransactionIndexManager 
 {
 
 	/**
-	 * 
+	 * Creates a new trasaction for index update
+	 * @param m the properties of the transaction
+	 * @return
+	 * @throws IndexTransactionException 
 	 */
-	public NoItemsToIndexException()
-	{
-		// TODO Auto-generated constructor stub
-	}
+	IndexTransaction openTransaction(Map<String, Object> m) throws IndexTransactionException;
 
 	/**
-	 * @param arg0
+	 * @param transactionListener
 	 */
-	public NoItemsToIndexException(String arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
+	void addTransactionListener(TransactionListener transactionListener);
 
 	/**
-	 * @param arg0
+	 * @param transactionListener
 	 */
-	public NoItemsToIndexException(Throwable arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public NoItemsToIndexException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
-	}
+	void removeTransactionListener(TransactionListener transactionListener);
 
 }

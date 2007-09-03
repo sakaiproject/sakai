@@ -19,53 +19,19 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.api;
-
-import org.sakaiproject.search.transaction.api.IndexTransactionException;
-
+package org.sakaiproject.search.index;
 
 /**
- * When there are no items to index, this Exception is thrown. The Indexer should not start a transaction
  * @author ieb
  *
  */
-public class NoItemsToIndexException extends IndexTransactionException
+public interface IndexReloadListener
 {
 
 	/**
-	 * 
+	 * @param reloadStart
+	 * @param reloadEnd
 	 */
-	public NoItemsToIndexException()
-	{
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param arg0
-	 */
-	public NoItemsToIndexException(String arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param arg0
-	 */
-	public NoItemsToIndexException(Throwable arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public NoItemsToIndexException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
-	}
+	void reloaded(long reloadStart, long reloadEnd);
 
 }

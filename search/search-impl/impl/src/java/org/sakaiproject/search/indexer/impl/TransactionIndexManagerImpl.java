@@ -23,25 +23,20 @@ package org.sakaiproject.search.indexer.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.sakaiproject.search.index.AnalyzerFactory;
-import org.sakaiproject.search.indexer.api.IndexTransactionException;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
-import org.sakaiproject.search.indexer.api.TransactionIndexManager;
-import org.sakaiproject.search.indexer.api.TransactionListener;
-import org.sakaiproject.search.indexer.api.TransactionSequence;
+import org.sakaiproject.search.transaction.api.IndexTransactionException;
+import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 
 /**
  * @author ieb
  */
-public class TransactionIndexManagerImpl implements TransactionIndexManager
+public class TransactionIndexManagerImpl extends  TransactionManagerImpl 
 {
 	private static final Log log = LogFactory.getLog(TransactionIndexManagerImpl.class);
 
@@ -59,15 +54,6 @@ public class TransactionIndexManagerImpl implements TransactionIndexManager
 	 */
 	private String searchIndexWorkingDirectory;
 
-	/**
-	 * dependency
-	 */
-	private List<TransactionListener> transactionListeners = new ArrayList<TransactionListener>();
-
-	/**
-	 * dependency
-	 */
-	protected TransactionSequence sequence;
 	
 
 	/**
@@ -113,46 +99,6 @@ public class TransactionIndexManagerImpl implements TransactionIndexManager
 		return analyzerFactory.newAnalyzer();
 	}
 
-	protected void firePrepare(IndexUpdateTransaction transaction) throws IndexTransactionException
-	{
-		for (Iterator<TransactionListener> itl = transactionListeners.iterator(); itl
-				.hasNext();)
-		{
-			TransactionListener tl = itl.next();
-			tl.prepare(transaction);
-		}
-	}
-
-	protected void fireCommit(IndexUpdateTransaction transaction) throws IndexTransactionException
-	{
-		for (Iterator<TransactionListener> itl = transactionListeners.iterator(); itl
-				.hasNext();)
-		{
-			TransactionListener tl = itl.next();
-			tl.commit(transaction);
-		}
-	}
-
-	protected void fireRollback(IndexUpdateTransaction transaction) throws IndexTransactionException
-	{
-		for (Iterator<TransactionListener> itl = transactionListeners.iterator(); itl
-				.hasNext();)
-		{
-			TransactionListener tl = itl.next();
-			tl.rollback(transaction);
-		}
-
-	}
-	protected void fireOpen(IndexUpdateTransaction transaction) throws IndexTransactionException
-	{
-		for (Iterator<TransactionListener> itl = transactionListeners.iterator(); itl
-				.hasNext();)
-		{
-			TransactionListener tl = itl.next();
-			tl.open(transaction);
-		}
-
-	}
 
 	/**
 	 * @return the analyzerFactory
@@ -188,54 +134,6 @@ public class TransactionIndexManagerImpl implements TransactionIndexManager
 		this.searchIndexWorkingDirectory = searchIndexWorkingDirectory;
 	}
 
-	/**
-	 * @return the sequence
-	 */
-	public TransactionSequence getSequence()
-	{
-		return sequence;
-	}
 
-	/**
-	 * @param sequence
-	 *        the sequence to set
-	 */
-	public void setSequence(TransactionSequence sequence)
-	{
-		this.sequence = sequence;
-	}
-
-	/**
-	 * @return the transactionListeners
-	 */
-	public List<TransactionListener> getTransactionListeners()
-	{
-		return transactionListeners;
-	}
-
-	/**
-	 * @param transactionListeners
-	 *        the transactionListeners to set
-	 */
-	public void setTransactionListeners(List<TransactionListener> transactionListeners)
-	{
-		this.transactionListeners = transactionListeners;
-	}
-
-	public void addTransactionListener(TransactionListener transactionListener)
-	{
-		List<TransactionListener> tl = new ArrayList<TransactionListener>();
-		tl.addAll(transactionListeners);
-		tl.add(transactionListener);
-		transactionListeners = tl;
-	}
-
-	public void removeTransactionListener(TransactionListener transactionListener)
-	{
-		List<TransactionListener> tl = new ArrayList<TransactionListener>();
-		tl.addAll(transactionListeners);
-		tl.remove(transactionListener);
-		transactionListeners = tl;
-	}
 
 }

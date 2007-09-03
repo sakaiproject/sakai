@@ -19,53 +19,44 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.api;
+package org.sakaiproject.search.journal.api;
 
-import org.sakaiproject.search.transaction.api.IndexTransactionException;
+import java.io.File;
+import java.io.IOException;
 
+import org.apache.lucene.index.IndexReader;
 
 /**
- * When there are no items to index, this Exception is thrown. The Indexer should not start a transaction
  * @author ieb
  *
  */
-public class NoItemsToIndexException extends IndexTransactionException
+public interface JournaledIndex extends JournaledObject
 {
 
 	/**
-	 * 
+	 * @return
 	 */
-	public NoItemsToIndexException()
-	{
-		// TODO Auto-generated constructor stub
-	}
+	String getWorkingSpace();
 
 	/**
-	 * @param arg0
+	 * @param f
 	 */
-	public NoItemsToIndexException(String arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
+	void addSegment(File f);
 
 	/**
-	 * @param arg0
+	 * @return
+	 * @throws IOException 
 	 */
-	public NoItemsToIndexException(Throwable arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
+	IndexReader getDeletionIndexReader() throws IOException;
 
 	/**
-	 * @param arg0
-	 * @param arg1
+	 * @return
 	 */
-	public NoItemsToIndexException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
-	}
+	long getLastJournalEntry();
+
+	/**
+	 * @param nextJournalEntry
+	 */
+	void setLastJournalEntry(long nextJournalEntry);
 
 }

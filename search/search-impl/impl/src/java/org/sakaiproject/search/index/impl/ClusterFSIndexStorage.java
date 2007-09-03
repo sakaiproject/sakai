@@ -32,16 +32,13 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.index.ClusterFilesystem;
-import org.sakaiproject.search.index.IndexStorage;
 import org.sakaiproject.search.index.SegmentInfo;
 
 /**
@@ -54,14 +51,10 @@ import org.sakaiproject.search.index.SegmentInfo;
  * 
  * @author ieb
  */
-public class ClusterFSIndexStorage implements IndexStorage
+public class ClusterFSIndexStorage extends BaseIndexStorage
 {
 	private static final Log log = LogFactory.getLog(ClusterFSIndexStorage.class);
 
-	/**
-	 * The token analyzer
-	 */
-	private AnalyzerFactory analyzerFactory = null;
 
 	/**
 	 * Maximum size of a segment on write
@@ -81,7 +74,6 @@ public class ClusterFSIndexStorage implements IndexStorage
 	// maximum size of a segment considered for merge operations
 	private long maxMegeSegmentSize = 1024L * 1024L * 1200L; // 1.2G
 
-	private boolean diagnostics;
 
 	public void init()
 	{
@@ -271,7 +263,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 		return indexWriter;
 	}
 
-	public IndexSearcher getIndexSearcher() throws IOException
+	protected IndexSearcher getIndexSearcher() throws IOException
 	{
 
 		IndexSearcher indexSearcher = null;
@@ -326,10 +318,6 @@ public class ClusterFSIndexStorage implements IndexStorage
 		return (segments.size() > 0);
 	}
 
-	public Analyzer getAnalyzer()
-	{
-		return analyzerFactory.newAnalyzer();
-	}
 
 	public void doPreIndexUpdate() throws IOException
 	{
@@ -714,22 +702,6 @@ public class ClusterFSIndexStorage implements IndexStorage
 			log.debug("+++++++++++++++++++++++++++++++++++++End Index Cycle");
 	}
 
-	/**
-	 * @return Returns the analzyserFactory.
-	 */
-	public AnalyzerFactory getAnalyzerFactory()
-	{
-		return analyzerFactory;
-	}
-
-	/**
-	 * @param analzyserFactory
-	 *        The analzyserFactory to set.
-	 */
-	public void setAnalyzerFactory(AnalyzerFactory analzyserFactory)
-	{
-		this.analyzerFactory = analzyserFactory;
-	}
 
 	public void setRecoverCorruptedIndex(boolean recover)
 	{
@@ -878,30 +850,6 @@ public class ClusterFSIndexStorage implements IndexStorage
 	{
 		log.info("New Segment Size threshold set to "+segmentThreshold);
 		this.segmentThreshold = segmentThreshold;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
-	 */
-	public void disableDiagnostics()
-	{
-		diagnostics = false;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
-	 */
-	public void enableDiagnostics()
-	{
-		diagnostics = true;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
-	 */
-	public boolean hasDiagnostics()
-	{
-		return diagnostics;
 	}
 
 	/* (non-Javadoc)

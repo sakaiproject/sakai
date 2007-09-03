@@ -19,53 +19,44 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.api;
+package org.sakaiproject.search.transaction.api;
 
-import org.sakaiproject.search.transaction.api.IndexTransactionException;
+import org.sakaiproject.search.indexer.api.IndexJournalException;
 
 
 /**
- * When there are no items to index, this Exception is thrown. The Indexer should not start a transaction
+ * This listener is notified of changes in the transaction state.
  * @author ieb
  *
  */
-public class NoItemsToIndexException extends IndexTransactionException
+public interface TransactionListener
 {
+	/**
+	 * Prepare to commit the transaction
+	 * @param transaction
+	 * @throws IndexJournalException 
+	 */
+	void prepare(IndexTransaction transaction) throws IndexTransactionException;
 
 	/**
-	 * 
+	 * @param transaction
+	 * @throws IndexTransactionException 
 	 */
-	public NoItemsToIndexException()
-	{
-		// TODO Auto-generated constructor stub
-	}
+	void commit(IndexTransaction transaction) throws IndexTransactionException;
 
 	/**
-	 * @param arg0
+	 * @param transaction
 	 */
-	public NoItemsToIndexException(String arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
+	void rollback(IndexTransaction transaction) throws IndexTransactionException;
 
 	/**
-	 * @param arg0
+	 * @param transaction
 	 */
-	public NoItemsToIndexException(Throwable arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
+	void open(IndexTransaction transaction) throws IndexTransactionException;
 	/**
-	 * @param arg0
-	 * @param arg1
+	 * @param transaction
 	 */
-	public NoItemsToIndexException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
-	}
+	void close(IndexTransaction transaction) throws IndexTransactionException;
+
 
 }

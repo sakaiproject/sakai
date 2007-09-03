@@ -19,38 +19,28 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.api;
+package org.sakaiproject.search.indexer.impl.test;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
- * This listener is notified of changes in the transaction state.
  * @author ieb
  *
  */
-public interface TransactionListener
+public class JournalTests
 {
-	/**
-	 * Prepare to commit the transaction
-	 * @param transaction
-	 * @throws IndexJournalException 
-	 */
-	void prepare(IndexUpdateTransaction transaction) throws IndexJournalException;
 
-	/**
-	 * @param transaction
-	 * @throws IndexTransactionException 
-	 */
-	void commit(IndexUpdateTransaction transaction) throws IndexTransactionException;
-
-	/**
-	 * @param transaction
-	 */
-	void rollback(IndexUpdateTransaction transaction) throws IndexTransactionException;
-
-	/**
-	 * @param transaction
-	 */
-	void open(IndexUpdateTransaction transaction) throws IndexTransactionException;
-
+	public static Test suite()
+	{
+		TestSuite suite = new TestSuite(
+				"Test for org.sakaiproject.search.indexer.impl.test");
+		//$JUnit-BEGIN$
+		suite.addTestSuite(SequenceGeneratorTest.class);
+		suite.addTestSuite(SearchBuilderItemSerializerTest.class);
+		suite.addTestSuite(TransactionalIndexWorkerTest.class);
+		//$JUnit-END$
+		return suite;
+	}
 
 }

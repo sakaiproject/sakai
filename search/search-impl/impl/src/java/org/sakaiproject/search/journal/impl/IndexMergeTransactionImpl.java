@@ -19,53 +19,30 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.api;
+package org.sakaiproject.search.journal.impl;
 
+import java.util.Map;
+
+import org.sakaiproject.search.journal.api.IndexMergeTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
-
+import org.sakaiproject.search.transaction.impl.IndexTransactionImpl;
+import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 
 /**
- * When there are no items to index, this Exception is thrown. The Indexer should not start a transaction
  * @author ieb
  *
  */
-public class NoItemsToIndexException extends IndexTransactionException
+public class IndexMergeTransactionImpl extends IndexTransactionImpl implements IndexMergeTransaction
 {
-
 	/**
 	 * 
 	 */
-	public NoItemsToIndexException()
-	{
-		// TODO Auto-generated constructor stub
+	public IndexMergeTransactionImpl(TransactionManagerImpl manager, Map<String, Object> m)
+	throws IndexTransactionException
+	{		
+		super(manager,m);
 	}
 
-	/**
-	 * @param arg0
-	 */
-	public NoItemsToIndexException(String arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
 
-	/**
-	 * @param arg0
-	 */
-	public NoItemsToIndexException(Throwable arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public NoItemsToIndexException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
-	}
 
 }

@@ -44,14 +44,15 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.rdf.RDFIndexException;
 import org.sakaiproject.search.api.rdf.RDFSearchService;
-import org.sakaiproject.search.indexer.api.IndexTransactionException;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
 import org.sakaiproject.search.indexer.api.IndexWorker;
 import org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener;
 import org.sakaiproject.search.indexer.api.IndexWorkerListener;
 import org.sakaiproject.search.indexer.api.NoItemsToIndexException;
-import org.sakaiproject.search.indexer.api.TransactionIndexManager;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.search.transaction.api.IndexTransaction;
+import org.sakaiproject.search.transaction.api.IndexTransactionException;
+import org.sakaiproject.search.transaction.api.TransactionIndexManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -106,7 +107,7 @@ public class TransactionalIndexWorker implements IndexWorker
 	{
 		// get a list to perform this transaction
 		List<SearchBuilderItem> runtimeToDo = null;
-		IndexUpdateTransaction t = null;
+		IndexTransaction t = null;
 		try
 		{
 			Map<String,Object> m = new HashMap<String, Object>();
@@ -169,7 +170,7 @@ public class TransactionalIndexWorker implements IndexWorker
 		}
 	}
 
-	private int processTransaction(IndexUpdateTransaction transaction)
+	private int processTransaction(IndexTransaction transaction)
 			throws IndexTransactionException
 	{
 		IndexWriter indexWrite = null;
@@ -177,10 +178,11 @@ public class TransactionalIndexWorker implements IndexWorker
 		try
 		{
 			fireIndexStart();
-			indexWrite = transaction.getIndexWriter();
+			
+			indexWrite = ((IndexUpdateTransaction)transaction).getIndexWriter();
 			long last = System.currentTimeMillis();
 
-			for (Iterator<SearchBuilderItem> tditer = transaction.addItemIterator(); tditer
+			for (Iterator<SearchBuilderItem> tditer = ((IndexUpdateTransaction)transaction).addItemIterator(); tditer
 					.hasNext();)
 			{
 

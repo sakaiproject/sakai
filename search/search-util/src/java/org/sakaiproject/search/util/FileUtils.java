@@ -96,7 +96,7 @@ public class FileUtils
 		});
 	}
 
-	private static void recurse(File f, RecurseAction action) throws IOException
+	public static void recurse(File f, RecurseAction action) throws IOException
 	{
 		action.doBeforeFile(f);
 		if (f.isDirectory())
@@ -120,7 +120,7 @@ public class FileUtils
 		action.doFile(f);
 	}
 
-	private static void recurseGrouped(File f, RecurseAction action) throws IOException
+	public static void recurseGrouped(File f, RecurseAction action) throws IOException
 	{
 		action.doBeforeFile(f);
 		if (f.isDirectory())

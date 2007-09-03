@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.search.indexer.impl.TransactionSequenceImpl;
+import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 
 /**********************************************************************************
  * $URL$
@@ -85,7 +85,7 @@ public class SequenceGeneratorTest extends TestCase
 
 	/**
 	 * Test method for
-	 * {@link org.sakaiproject.search.indexer.impl.TransactionSequenceImpl#getNextId()}.
+	 * {@link org.sakaiproject.search.transaction.impl.TransactionSequenceImpl#getNextId()}.
 	 */
 	public final void testGetNextId()
 	{

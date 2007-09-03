@@ -31,6 +31,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
+import org.sakaiproject.search.index.IndexReloadListener;
 import org.sakaiproject.search.index.IndexStorage;
 
 /**
@@ -90,10 +91,6 @@ public class SearchIndexStorage implements IndexStorage
 		return runningIndexStorage.getIndexWriter(create);
 	}
 
-	public IndexSearcher getIndexSearcher() throws IOException
-	{
-		return runningIndexStorage.getIndexSearcher();
-	}
 
 	public void doPostIndexUpdate() throws IOException
 	{
@@ -248,6 +245,55 @@ public class SearchIndexStorage implements IndexStorage
 	public boolean centralIndexExists()
 	{
 		return runningIndexStorage.centralIndexExists();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.index.IndexStorage#addReloadListener(org.sakaiproject.search.index.IndexReloadListener)
+	 */
+	public void addReloadListener(IndexReloadListener indexReloadListener)
+	{
+		 runningIndexStorage.addReloadListener(indexReloadListener);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.index.IndexStorage#forceNextReload()
+	 */
+	public void forceNextReload()
+	{
+		runningIndexStorage.forceNextReload();		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.index.IndexStorage#getIndexSearcher(boolean)
+	 */
+	public IndexSearcher getIndexSearcher(boolean reload) throws IOException
+	{
+		return runningIndexStorage.getIndexSearcher(reload);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.index.IndexStorage#getLastLoad()
+	 */
+	public long getLastLoad()
+	{
+		return runningIndexStorage.getLastLoad();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.index.IndexStorage#getLastLoadTime()
+	 */
+	public long getLastLoadTime()
+	{	
+		return runningIndexStorage.getLastLoadTime();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.index.IndexStorage#removeReloadListener(org.sakaiproject.search.index.IndexReloadListener)
+	 */
+	public void removeReloadListener(IndexReloadListener indexReloadListener)
+	{
+		runningIndexStorage.removeReloadListener(indexReloadListener);
+		
 	}
 
 }

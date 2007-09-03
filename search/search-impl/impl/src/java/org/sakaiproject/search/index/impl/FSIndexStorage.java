@@ -30,7 +30,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
@@ -38,37 +37,33 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.search.index.AnalyzerFactory;
-import org.sakaiproject.search.index.IndexStorage;
 
 /**
  * A local only filestore implementation. This is a simple IndexImplementation
- * that performs all its indexing in a single, unoptimzed segment on the local 
- * filesystem
+ * that performs all its indexing in a single, unoptimzed segment on the local
+ * filesystem To set the location use
+ * location@org.sakaiproject.search.api.SearchService.LocalIndexStorage in
+ * sakai.properties Check that the bean name is correct in the spring
+ * components.xml file
  * 
- * To set the location use location@org.sakaiproject.search.api.SearchService.LocalIndexStorage in sakai.properties
- * Check that the bean name is correct in the spring components.xml file
  * @author ieb
- *
  */
-public class FSIndexStorage implements IndexStorage
+public class FSIndexStorage extends  BaseIndexStorage
 {
 	private static Log log = LogFactory.getLog(FSIndexStorage.class);
 
 	protected String searchIndexDirectory = "searchindex";
 
-	protected AnalyzerFactory analyzerFactory = null;
-
 	protected boolean recoverCorruptedIndex = false;
 
 	private long lastUpdate = System.currentTimeMillis();
-
-	private boolean diagnostics;
-
-	public void init() {
-		
-	}
 	
+
+	public void init()
+	{
+
+	}
+
 	public void doPreIndexUpdate() throws IOException
 	{
 		log.debug("Starting process List on " + searchIndexDirectory);
@@ -87,8 +82,7 @@ public class FSIndexStorage implements IndexStorage
 			// already prevents multiple modifiers.
 			// A more
 
-			IndexReader.unlock(FSDirectory.getDirectory(searchIndexDirectory,
-					true));
+			IndexReader.unlock(FSDirectory.getDirectory(searchIndexDirectory, true));
 			log.warn("Unlocked Lucene Directory for update, hope this is Ok");
 		}
 	}
@@ -118,7 +112,7 @@ public class FSIndexStorage implements IndexStorage
 	}
 
 
-	public IndexSearcher getIndexSearcher() throws IOException
+	protected IndexSearcher getIndexSearcher() throws IOException
 	{
 		IndexSearcher indexSearcher = null;
 		try
@@ -137,7 +131,7 @@ public class FSIndexStorage implements IndexStorage
 
 			}
 			long reloadEnd = System.currentTimeMillis();
-			if (  diagnostics )
+			if (diagnostics)
 			{
 				log.info("Reload Complete " + indexSearcher.getIndexReader().numDocs()
 						+ " in " + (reloadEnd - reloadStart));
@@ -171,15 +165,13 @@ public class FSIndexStorage implements IndexStorage
 		{
 			IndexWriter iw = getIndexWriter(true);
 			Document doc = new Document();
-			String message = "Index Recovery performed on "
-					+ (new Date()).toString();
+			String message = "Index Recovery performed on " + (new Date()).toString();
 			doc.add(new Field(SearchService.FIELD_CONTENTS, message, Field.Store.NO,
 					Field.Index.TOKENIZED));
 			iw.addDocument(doc);
 			iw.close();
 			log.error("Sucess fully recoverd From a corrupted index, "
-					+ "the index will be empty and require a "
-					+ "complete rebuild");
+					+ "the index will be empty and require a " + "complete rebuild");
 			return true;
 		}
 		return false;
@@ -190,27 +182,6 @@ public class FSIndexStorage implements IndexStorage
 		return IndexReader.indexExists(searchIndexDirectory);
 	}
 
-	/**
-	 * @return Returns the analyzerFactory.
-	 */
-	public AnalyzerFactory getAnalyzerFactory()
-	{
-		return analyzerFactory;
-	}
-
-	/**
-	 * @param analyzerFactory
-	 *        The analyzerFactory to set.
-	 */
-	public void setAnalyzerFactory(AnalyzerFactory analyzerFactory)
-	{
-		this.analyzerFactory = analyzerFactory;
-	}
-
-	public Analyzer getAnalyzer()
-	{
-		return analyzerFactory.newAnalyzer();
-	}
 
 	/**
 	 * @return Returns the recoverCorruptedIndex.
@@ -236,7 +207,7 @@ public class FSIndexStorage implements IndexStorage
 	public void setLocation(String location)
 	{
 		searchIndexDirectory = location;
-		
+
 	}
 
 	public long getLastUpdate()
@@ -248,13 +219,16 @@ public class FSIndexStorage implements IndexStorage
 	public List getSegmentInfoList()
 	{
 		List l = new ArrayList();
-		l.add(new Object[] {"Index Segment Info is not implemented for Local file system index stores","",""});
+		l
+				.add(new Object[] {
+						"Index Segment Info is not implemented for Local file system index stores",
+						"", "" });
 		return l;
 	}
 
 	public void closeIndexReader(IndexReader indexReader) throws IOException
 	{
-		if ( indexReader != null  ) 
+		if (indexReader != null)
 		{
 			indexReader.close();
 		}
@@ -262,32 +236,33 @@ public class FSIndexStorage implements IndexStorage
 
 	public void closeIndexWriter(IndexWriter indexWrite) throws IOException
 	{
-		if ( indexWrite != null ) 
+		if (indexWrite != null)
 		{
 			indexWrite.close();
 		}
-		
+
 	}
-	
+
 	public boolean isMultipleIndexers()
 	{
 		return false;
 	}
-	
+
 	public void closeIndexSearcher(IndexSearcher indexSearcher)
 	{
 		IndexReader indexReader = indexSearcher.getIndexReader();
 		boolean closedAlready = false;
 		try
 		{
-			if ( indexReader != null ) {
+			if (indexReader != null)
+			{
 				indexReader.close();
 				closedAlready = true;
 			}
 		}
 		catch (Exception ex)
 		{
-			log.error("Failed to close Index Reader "+ex.getMessage());
+			log.error("Failed to close Index Reader " + ex.getMessage());
 		}
 		try
 		{
@@ -295,45 +270,29 @@ public class FSIndexStorage implements IndexStorage
 		}
 		catch (Exception ex)
 		{
-			if ( closedAlready )  {
-				log.debug("Failed to close Index Searcher "+ex.getMessage());
-			} else {
-				log.error("Failed to close Index Searcher "+ex.getMessage());
+			if (closedAlready)
+			{
+				log.debug("Failed to close Index Searcher " + ex.getMessage());
+			}
+			else
+			{
+				log.error("Failed to close Index Searcher " + ex.getMessage());
 			}
 
 		}
 	}
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
-	 */
-	public void disableDiagnostics()
-	{
-		diagnostics = false;
-	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
-	 */
-	public void enableDiagnostics()
-	{
-		diagnostics = true;
-	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
-	 */
-	public boolean hasDiagnostics()
-	{
-		return diagnostics;
-	}
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#centralIndexExists()
 	 */
 	public boolean centralIndexExists()
 	{
 		return indexExists();
 	}
+
 
 
 }

@@ -19,53 +19,42 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.api;
+package org.sakaiproject.search.journal.api;
 
-import org.sakaiproject.search.transaction.api.IndexTransactionException;
-
+import org.sakaiproject.search.indexer.api.IndexJournalException;
+import org.sakaiproject.search.journal.impl.JournalErrorException;
 
 /**
- * When there are no items to index, this Exception is thrown. The Indexer should not start a transaction
  * @author ieb
  *
  */
-public class NoItemsToIndexException extends IndexTransactionException
+public interface JournalManager
 {
 
 	/**
+	 * @param version
+	 * @return
+	 * @throws JournalErrorException if there was an error getting the next version 
+	 */
+	long getNextVersion(long version) throws JournalErrorException;
+
+	/**
+	 * @param transactionId
+	 * @return
+	 * @throws IndexJournalException 
+	 */
+	JournalManagerState prepareSave(long transactionId) throws IndexJournalException;
+
+	/**
+	 * @param jms 
+	 * @throws IndexJournalException 
 	 * 
 	 */
-	public NoItemsToIndexException()
-	{
-		// TODO Auto-generated constructor stub
-	}
+	void commitSave(JournalManagerState jms) throws IndexJournalException;
 
 	/**
-	 * @param arg0
+	 * @param jms
 	 */
-	public NoItemsToIndexException(String arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param arg0
-	 */
-	public NoItemsToIndexException(Throwable arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public NoItemsToIndexException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
-	}
+	void rollbackSave(JournalManagerState jms);
 
 }

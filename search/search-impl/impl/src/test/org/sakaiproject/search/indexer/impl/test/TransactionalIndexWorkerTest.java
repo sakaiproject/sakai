@@ -33,21 +33,23 @@ import junit.framework.TestCase;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.cluster.impl.ClusterDbJournal;
-import org.sakaiproject.search.cluster.impl.ClusterSharedFilesystem;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
 import org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener;
 import org.sakaiproject.search.indexer.api.IndexWorkerListener;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerDocumentListener;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerListener;
 import org.sakaiproject.search.indexer.debug.DebugTransactionListener;
+import org.sakaiproject.search.indexer.impl.JournalManagerUpdateTransaction;
+import org.sakaiproject.search.indexer.impl.JournalStorageUpdateTransactionListener;
 import org.sakaiproject.search.indexer.impl.SearchBuilderQueueManager;
 import org.sakaiproject.search.indexer.impl.TransactionIndexManagerImpl;
-import org.sakaiproject.search.indexer.impl.TransactionSequenceImpl;
 import org.sakaiproject.search.indexer.impl.TransactionalIndexWorker;
+import org.sakaiproject.search.journal.impl.DbJournalManager;
+import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 import org.sakaiproject.search.util.FileUtils;
 
 /**
@@ -75,6 +77,10 @@ public class TransactionalIndexWorkerTest extends TestCase
 	private File shared;
 
 	private File work2;
+
+	private JournalManagerUpdateTransaction journalManagerUpdateTransaction;
+
+	private SharedFilesystemJournalStorage sharedFilesystemJournalStorage;
 
 	/**
 	 * @param name
@@ -105,24 +111,32 @@ public class TransactionalIndexWorkerTest extends TestCase
 		sequence.setDatasource(tds.getDataSource());
 		sequence.setName("TransactionalIndexWorkerTest");
 
-		ClusterSharedFilesystem sharedFileSystem = new ClusterSharedFilesystem();
+		SharedFilesystemJournalStorage sharedFileSystem = new SharedFilesystemJournalStorage();
 		sharedFileSystem.setJournalLocation(shared.getAbsolutePath());
 		
-		ClusterDbJournal journal = new ClusterDbJournal();
-		journal.setDatasource(tds.getDataSource());
+		DbJournalManager journalManager = new DbJournalManager();
+		journalManager.setDatasource(tds.getDataSource());
+		
+		
 
 		transactionIndexManager = new TransactionIndexManagerImpl();
 		transactionIndexManager.setAnalyzerFactory(new StandardAnalyzerFactory());
 		transactionIndexManager.setSearchIndexWorkingDirectory(work.getAbsolutePath());
 		transactionIndexManager.setSequence(sequence);
 
+		journalManagerUpdateTransaction = new JournalManagerUpdateTransaction();
+		journalManagerUpdateTransaction.setJournalManager(journalManager);
+		
+		JournalStorageUpdateTransactionListener journalStorageUpdateTransactionListener = new JournalStorageUpdateTransactionListener();
+		journalStorageUpdateTransactionListener.setJournalStorage(sharedFileSystem);
+		
 		searchBuilderQueueManager = new SearchBuilderQueueManager();
 		searchBuilderQueueManager.setDatasource(tds.getDataSource());
 		searchBuilderQueueManager.setSearchIndexBuilder(mockSearchIndexBuilder);
 
 		transactionIndexManager.addTransactionListener(searchBuilderQueueManager);
-		transactionIndexManager.addTransactionListener(sharedFileSystem);
-		transactionIndexManager.addTransactionListener(journal);
+		transactionIndexManager.addTransactionListener(journalStorageUpdateTransactionListener);
+		transactionIndexManager.addTransactionListener(journalManagerUpdateTransaction);
 		transactionIndexManager.addTransactionListener(new DebugTransactionListener());
 
 		sequence.init();

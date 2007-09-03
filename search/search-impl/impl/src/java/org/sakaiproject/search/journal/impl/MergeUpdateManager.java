@@ -19,35 +19,29 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.api;
+package org.sakaiproject.search.journal.impl;
 
 import java.util.Map;
 
+import org.sakaiproject.search.transaction.api.IndexTransaction;
+import org.sakaiproject.search.transaction.api.IndexTransactionException;
+import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 
 /**
- * Acts as a transaction factory for index operations and provides a location where listeners can register
  * @author ieb
  *
  */
-public interface TransactionIndexManager
+public class MergeUpdateManager extends TransactionManagerImpl 
 {
 
-	/**
-	 * Creates a new trasaction for index update
-	 * @param m the properties of the transaction
-	 * @return
-	 * @throws IndexTransactionException 
+	/** 
+	 * @see org.sakaiproject.search.transaction.api.TransactionIndexManager#openTransaction(java.util.Map)
 	 */
-	IndexUpdateTransaction openTransaction(Map<String, Object> m) throws IndexTransactionException;
+	public IndexTransaction openTransaction(Map<String, Object> m) throws IndexTransactionException
+	{
+		return new IndexMergeTransactionImpl(this,m);
+	}
 
-	/**
-	 * @param transactionListener
-	 */
-	void addTransactionListener(TransactionListener transactionListener);
-
-	/**
-	 * @param transactionListener
-	 */
-	void removeTransactionListener(TransactionListener transactionListener);
+	
 
 }

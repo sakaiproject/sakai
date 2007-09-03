@@ -33,6 +33,7 @@
 	<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService" /></property>
 	<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
 	<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
+    <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
     
     <property name="searchIndexBuilderWorker"><ref bean="org.sakaiproject.search.api.SearchIndexBuilderWorker" /></property>
 	<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
