@@ -53,19 +53,6 @@ public interface UserDirectoryProvider
 	boolean authenticateWithProviderFirst(String eid);
 
 	/**
-	 * Does the provider wish for the service to create an internal User record for this user?
-	 * 
-	 * @param eid
-	 *        The user eid.
-	 */
-	boolean createUserRecord(String eid);
-
-	/**
-	 * Remove any authentication traces for the current user / request
-	 */
-	void destroyAuthentication();
-
-	/**
 	 * Find a user object who has this email address. Update the object with the information found.
 	 * 
 	 * @param email
@@ -90,20 +77,4 @@ public interface UserDirectoryProvider
 	 *        The UserEdit objects (with eid set) to fill in or remove.
 	 */
 	void getUsers(Collection users);
-
-	/**
-	 * Will this provider update user records on successfull authentication? If so, the UserDirectoryService will cause these updates to be stored.
-	 * 
-	 * @return true if the user record may be updated after successfull authentication, false if not.
-	 */
-	boolean updateUserAfterAuthentication();
-
-	/**
-	 * See if a user by this eid is known to the provider.
-	 * 
-	 * @param eid
-	 *        The user eid string.
-	 * @return true if a user by this id exists, false if not.
-	 */
-	boolean userExists(String eid);
 }

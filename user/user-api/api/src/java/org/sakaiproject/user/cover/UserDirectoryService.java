@@ -98,14 +98,6 @@ public class UserDirectoryService
 		return service.getUsers(param0);
 	}
 
-	public static java.util.List getUsers()
-	{
-		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
-		if (service == null) return null;
-
-		return service.getUsers();
-	}
-
 	public static java.util.List getUsers(int param0, int param1)
 	{
 		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
@@ -261,6 +253,9 @@ public class UserDirectoryService
 		return service.authenticate(param0, param1);
 	}
 
+	/**
+	 * @deprecated Unused; will likely be removed from the interface
+	 */
 	public static void destroyAuthentication()
 	{
 		org.sakaiproject.user.api.UserDirectoryService service = getInstance();

@@ -144,55 +144,21 @@ public interface UserDirectoryService extends EntityProducer
 	 * @return true if the user is allowed to update the user, false if not.
 	 */
 	boolean allowUpdateUser(String id);
-	
-	
-	/**
-	 * check permissions for editUser()
-	 * 
-	 * @param id
-	 *        The user id.
-	 * @return true if the user is allowed to update their own first and last names, false if not.
-	 */
-	public boolean allowUpdateUserName(String id);
-	
-	/**
-	 * check permissions for editUser()
-	 * 
-	 * @param id
-	 *        The user id.
-	 * @return true if the user is allowed to update their own email address, false if not.
-	 */
-	public boolean allowUpdateUserEmail(String id);
-	
-	/**
-	 * check permissions for editUser()
-	 * 
-	 * @param id
-	 *        The user id.
-	 * @return true if the user is allowed to update their own password, false if not.
-	 */
-	public boolean allowUpdateUserPassword(String id);
-	
-	/**
-	 * check permissions for editUser()
-	 * 
-	 * @param id
-	 *        The user id.
-	 * @return true if the user is allowed to update their own type, false if not.
-	 */
-	public boolean allowUpdateUserType(String id);
-	
 
 	/**
 	 * Authenticate a user / password.
 	 * 
-	 * @param eid
-	 *        The user eid.
+	 * @param loginId
+	 *        The string identifying the user to the authentication system.
+	 *        If authenticated by basic Sakai services, this will be the user
+	 *        record's EID.
+	 *        If authenticated by a provider, it may or may not be equal to
+	 *        the EID.
 	 * @param password
 	 *        The password.
 	 * @return The User object of the authenticated user if successfull, null if not.
 	 */
-	User authenticate(String eid, String password);
+	User authenticate(String loginId, String password);
 
 	/**
 	 * Cancel the changes made to a UserEdit object, and release the lock. The UserEdit is disabled, and not to be used after this call.
@@ -228,6 +194,8 @@ public interface UserDirectoryService extends EntityProducer
 
 	/**
 	 * Remove authentication for the current user.
+	 * 
+	 * @deprecated Unused; will likely be removed from the interface
 	 */
 	void destroyAuthentication();
 
@@ -312,15 +280,6 @@ public interface UserDirectoryService extends EntityProducer
 	 *            if we don't know anything about the user with this eid.
 	 */
 	String getUserId(String eid) throws UserNotDefinedException;
-
-	/**
-	 * Access all user objects - known to us (not from external providers).
-	 * 
-	 * @return A list of user objects containing each user's information.
-	 * @exception IdUnusedException
-	 *            if not found.
-	 */
-	List getUsers();
 
 	/**
 	 * Access a bunch of user object.

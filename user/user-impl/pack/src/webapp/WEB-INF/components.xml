@@ -28,6 +28,9 @@
 		<lookup-method name="authzGroupService" bean="org.sakaiproject.authz.api.AuthzGroupService" />
 		<lookup-method name="timeService" bean="org.sakaiproject.time.api.TimeService" />
 		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
+		
+		<!--  The provider can also be injected directly via "setProvider(UserDirectoryProvider provider)" -->
+		<property name="providerName" value="org.sakaiproject.user.api.UserDirectoryProvider"/>
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
  		<property name="cacheMinutes"><value>5</value></property>
