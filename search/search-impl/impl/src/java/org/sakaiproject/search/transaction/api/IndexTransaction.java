@@ -125,6 +125,11 @@ public interface IndexTransaction
 	 * @param key
 	 * @param obj
 	 */
-	void put(String key, Object obj); 
+	void put(String key, Object obj);
+
+	/**
+	 * @throws IndexTransactionException
+	 */
+	void open() throws IndexTransactionException; 
 
 }

@@ -29,6 +29,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer;
+import org.sakaiproject.search.journal.api.IndexMergeTransaction;
 import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.JournalManager;
 import org.sakaiproject.search.journal.api.JournalStorage;
@@ -41,8 +42,7 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 /**
  * Listens for Transaction changes in the 2PC associated with an index update
  * 
- * @author ieb
- * TODO Unit test
+ * @author ieb TODO Unit test
  */
 public class JournaledFSIndexStorageUpdateTransactionListener implements
 		MergeTransactionListener
@@ -70,10 +70,9 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 					+ lastJournalEntry);
 		}
 		journaledIndex.setLastJournalEntry(nextJournalEntry);
+		((IndexMergeTransaction)transaction).setJournalEntry(nextJournalEntry);
 		transaction.put(JournaledObject.class.getName() + ".thisJournalEntry",
 				thisJournalEntry);
-		transaction.put(JournaledObject.class.getName() + ".nextJournalEntry",
-				nextJournalEntry);
 	}
 
 	/**
@@ -81,14 +80,12 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 	 */
 	public void prepare(IndexTransaction transaction) throws IndexTransactionException
 	{
-		// we should take a backup the directory ?
-		Long nl = (Long) transaction.get(JournaledObject.class.getName()
-				+ ".nextJournalEntry");
-		if (nl == null)
+		long journalEntry = ((IndexMergeTransaction)transaction).getJournalEntry();
+		if (journalEntry == -1)
 		{
 			throw new JournalErrorException("No target journal entry ");
 		}
-		long journalEntry = nl.longValue();
+
 
 		try
 		{
@@ -104,17 +101,22 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 				journaledIndex.addSegment(f);
 				List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
 						.loadTransactionList(f);
-				IndexReader deleteIndexReader = journaledIndex.getDeletionIndexReader();
-				transaction.put(JournaledFSIndexStorageUpdateTransactionListener.class
-						.getName()
-						+ ".deleteIndexReader", deleteIndexReader);
-
-				for (SearchBuilderItem sbi : deleteDocuments)
+				if (deleteDocuments.size() > 0)
 				{
-					if (SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()))
+					IndexReader deleteIndexReader = journaledIndex
+							.getDeletionIndexReader();
+					transaction.put(
+							JournaledFSIndexStorageUpdateTransactionListener.class
+									.getName()
+									+ ".deleteIndexReader", deleteIndexReader);
+
+					for (SearchBuilderItem sbi : deleteDocuments)
 					{
-						deleteIndexReader.deleteDocuments(new Term(
-								SearchService.FIELD_REFERENCE, sbi.getName()));
+						if (SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()))
+						{
+							deleteIndexReader.deleteDocuments(new Term(
+									SearchService.FIELD_REFERENCE, sbi.getName()));
+						}
 					}
 				}
 			}
@@ -161,9 +163,19 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 		IndexReader deleteIndexReader = (IndexReader) transaction
 				.get(JournaledFSIndexStorageUpdateTransactionListener.class.getName()
 						+ ".deleteIndexReader");
+		long journalEntry = ((IndexMergeTransaction)transaction).getJournalEntry();
+		if (journalEntry == -1)
+		{
+			throw new JournalErrorException("No target journal entry ");
+		}
+
 		try
 		{
-			deleteIndexReader.close();
+
+			if ( deleteIndexReader != null ) {
+				deleteIndexReader.close();
+			}
+			journaledIndex.setJournalIndexEntry(journalEntry);
 		}
 		catch (IOException e)
 		{

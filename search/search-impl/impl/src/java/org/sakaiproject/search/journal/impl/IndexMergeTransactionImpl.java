@@ -39,6 +39,8 @@ import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 public class IndexMergeTransactionImpl extends IndexTransactionImpl implements
 		IndexMergeTransaction
 {
+	private long journalEntry;
+
 	/**
 	 * 
 	 */
@@ -46,6 +48,22 @@ public class IndexMergeTransactionImpl extends IndexTransactionImpl implements
 			throws IndexTransactionException
 	{
 		super(manager, m);
+	}
+
+	/**
+	 * @see org.sakaiproject.search.journal.api.IndexMergeTransaction#getJournalEntry()
+	 */
+	public long getJournalEntry()
+	{
+		return journalEntry;
+	}
+
+	/**
+	 * @see org.sakaiproject.search.journal.api.IndexMergeTransaction#setJournalEntry(long)
+	 */
+	public void setJournalEntry(long journalEntry)
+	{
+		this.journalEntry = journalEntry;
 	}
 
 }

@@ -118,7 +118,7 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getServerId()
 	{
-		return null;
+		return "testserverid";
 	}
 
 	/* (non-Javadoc)

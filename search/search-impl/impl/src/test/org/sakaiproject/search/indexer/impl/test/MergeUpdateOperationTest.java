@@ -22,12 +22,12 @@
 package org.sakaiproject.search.indexer.impl.test;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 
-import org.sakaiproject.search.index.AnalyzerFactory;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerDocumentListener;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerListener;
@@ -37,7 +37,6 @@ import org.sakaiproject.search.indexer.impl.JournalStorageUpdateTransactionListe
 import org.sakaiproject.search.indexer.impl.SearchBuilderQueueManager;
 import org.sakaiproject.search.indexer.impl.TransactionIndexManagerImpl;
 import org.sakaiproject.search.indexer.impl.TransactionalIndexWorker;
-import org.sakaiproject.search.journal.api.JournalExhausetedException;
 import org.sakaiproject.search.journal.impl.DbJournalManager;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorage;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorageUpdateTransactionListener;
@@ -46,17 +45,16 @@ import org.sakaiproject.search.journal.impl.MergeUpdateOperation;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
-import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 import org.sakaiproject.search.util.FileUtils;
-
-import junit.framework.TestCase;
 
 /**
  * @author ieb
  */
 public class MergeUpdateOperationTest extends TestCase
 {
+
+	private static final Log log = LogFactory.getLog(MergeUpdateOperationTest.class);
 
 	private TestDataSource tds;
 
@@ -69,6 +67,8 @@ public class MergeUpdateOperationTest extends TestCase
 	private File index;
 
 	private MergeUpdateOperation mu;
+
+	private TransactionalIndexWorker tiw;
 
 	/**
 	 * @param name
@@ -162,7 +162,7 @@ public class MergeUpdateOperationTest extends TestCase
 		transactionIndexManager.addTransactionListener(journalManagerUpdateTransaction);
 		transactionIndexManager.addTransactionListener(new DebugTransactionListener());
 
-		TransactionalIndexWorker tiw = new TransactionalIndexWorker();
+		tiw = new TransactionalIndexWorker();
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(serverConfigurationService);
 		tiw.setTransactionIndexManager(transactionIndexManager);
@@ -178,8 +178,6 @@ public class MergeUpdateOperationTest extends TestCase
 		
 		tiw.init();
 
-		int n = tds.populateDocuments();
-		assertEquals("Should not have processed some documents ", n, tiw.process(100));
 
 		
 		
@@ -200,9 +198,18 @@ public class MergeUpdateOperationTest extends TestCase
 	/**
 	 * Test method for
 	 * {@link org.sakaiproject.search.journal.impl.MergeUpdateOperation#runOnce()}.
+	 * @throws Exception 
 	 */
-	public final void testRunOnce()
+	public final void testRunOnce() throws Exception
 	{
+		int n = tds.populateDocuments(5000);
+		int i = 0;
+		while( (n = tiw.process(10)) > 0 ) {
+			log.info("Processing "+i+" gave "+n);
+			assertEquals("Runaway Cyclic Indexing, should have completed processing by now ",true, i < 500);
+			i++;
+		}
+		log.info("Indexing Complete at "+i+" with "+n);
 
 		// need to populate the index with some data first.
 		mu.runOnce();

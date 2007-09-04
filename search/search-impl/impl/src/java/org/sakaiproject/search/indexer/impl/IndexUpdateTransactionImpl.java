@@ -51,21 +51,11 @@ public class IndexUpdateTransactionImpl extends IndexTransactionImpl implements 
 
 	private static final Log log = LogFactory.getLog(IndexUpdateTransactionImpl.class);
 
-	private long transactionId = -2;
+	private IndexWriter indexWriter;
 
-	private IndexWriter indexWriter = null;
+	private File tempIndex;
 
-	private File tempIndex = null;
-
-	private List<SearchBuilderItem> txList = null;
-
-	private TransactionIndexManagerImpl manager = null;
-
-	private List<SearchBuilderItem> itemList = null;
-
-	private int transactionState = IndexTransaction.STATUS_UNKNOWN;
-
-	private Map<String, Object> attributes;
+	private List<SearchBuilderItem> txList;
 
 	private SearchBuilderItemSerializer searchBuilderItemSerializer = new SearchBuilderItemSerializer();
 
@@ -78,12 +68,6 @@ public class IndexUpdateTransactionImpl extends IndexTransactionImpl implements 
 			Map<String, Object> m) throws IndexTransactionException
 	{
 		super(manager, m);
-		transactionState = IndexTransaction.STATUS_NO_TRANSACTION;
-		this.manager = (TransactionIndexManagerImpl)manager;
-		transactionId = manager.getSequence().getLocalId();
-		transactionState = IndexTransaction.STATUS_ACTIVE;
-		attributes = m;
-		manager.fireOpen(this);
 	}
 
 	/**
@@ -96,6 +80,7 @@ public class IndexUpdateTransactionImpl extends IndexTransactionImpl implements 
 			throw new IndexTransactionException("Transaction is not active ");
 		}
 
+		log.info("Tx list on "+this+" is now "+txList);
 		return txList.iterator();
 	}
 
@@ -153,8 +138,8 @@ public class IndexUpdateTransactionImpl extends IndexTransactionImpl implements 
 		{
 			try
 			{
-				tempIndex = manager.getTemporarySegment(transactionId);
-				indexWriter = new IndexWriter(tempIndex, manager.getAnalyzer(), true);
+				tempIndex = ((TransactionIndexManagerImpl)manager).getTemporarySegment(transactionId);
+				indexWriter = new IndexWriter(tempIndex, ((TransactionIndexManagerImpl)manager).getAnalyzer(), true);
 				indexWriter.setUseCompoundFile(true);
 				// indexWriter.setInfoStream(System.out);
 				indexWriter.setMaxMergeDocs(50);
@@ -239,7 +224,10 @@ public class IndexUpdateTransactionImpl extends IndexTransactionImpl implements 
 	 */
 	public void setItems(List<SearchBuilderItem> items) throws IndexTransactionException
 	{
+		log.info("Setting Items ");
 		super.setItems(items);
+		log.info("Extracting Setting Items ");
+		
 		txList = new ArrayList<SearchBuilderItem>();
 		for (Iterator<SearchBuilderItem> itxList = items.iterator(); itxList.hasNext();)
 		{
@@ -259,49 +247,16 @@ public class IndexUpdateTransactionImpl extends IndexTransactionImpl implements 
 				}
 			}
 		}
-		if (txList.size() > 0)
+		if (txList.size() == 0)
 		{
-			transactionId = manager.getSequence().getNextId();
-		}
-		else
-		{
+			log.warn("No Items found to index, only deletes");
 			txList = null;
 			items = null;
 			throw new NoItemsToIndexException("No Items available to index");
 		}
+		log.info("TX Items on "+this+" is "+txList+" and items "+items);
 	}
 
-	/**
-	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#getItems()
-	 */
-	public List<SearchBuilderItem> getItems()
-	{
-		return itemList;
-	}
 
-	/**
-	 * @see org.sakaiproject.search.indexer.api.IndexUpdateTransaction#clear(java.lang.String)
-	 */
-	public void clear(String key)
-	{
-		attributes.remove(key);
-	}
-
-	/**
-	 * @see org.sakaiproject.search.indexer.api.IndexUpdateTransaction#get(java.lang.String)
-	 */
-	public Object get(String key)
-	{
-		return attributes.get(key);
-	}
-
-	/**
-	 * @see org.sakaiproject.search.indexer.api.IndexUpdateTransaction#put(java.lang.String,
-	 *      java.lang.Object)
-	 */
-	public void put(String key, Object obj)
-	{
-		attributes.put(key, obj);
-	}
 
 }

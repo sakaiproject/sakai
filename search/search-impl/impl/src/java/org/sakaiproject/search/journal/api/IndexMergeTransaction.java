@@ -31,4 +31,14 @@ import org.sakaiproject.search.transaction.api.IndexTransaction;
 public interface IndexMergeTransaction extends IndexTransaction
 {
 
+	/**
+	 * @return
+	 */
+	long getJournalEntry();
+
+	/**
+	 * @param nextJournalEntry
+	 */
+	void setJournalEntry(long nextJournalEntry);
+
 }

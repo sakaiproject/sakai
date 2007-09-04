@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,10 +37,13 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.index.impl.BaseIndexStorage;
@@ -52,8 +56,7 @@ import org.sakaiproject.search.util.FileUtils;
  * versions from the jorunal. This is going to be performed in a non
  * transactional way for the moment.
  * 
- * @author ieb
- * TODO Unit test
+ * @author ieb TODO Unit test
  */
 public class JournaledFSIndexStorage extends BaseIndexStorage implements JournaledIndex
 {
@@ -80,6 +83,8 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 
 	private long lastUpdate;
 
+	private long journalVersion = -1;
+
 	/**
 	 * @see org.sakaiproject.search.index.impl.FSIndexStorage#init()
 	 */
@@ -89,58 +94,63 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	}
 
 	/**
+	 * Since this is a singleton, we can cahce the version only updating on
+	 * change
+	 * 
 	 * @see org.sakaiproject.search.maintanence.impl.JournaledObject#getJounalVersion()
 	 */
 	public long getJournalVersion()
 	{
-		long version = -1;
-		Connection connection = null;
-		PreparedStatement getJournalVersionPst = null;
-		ResultSet rs = null;
-		try
+		if (journalVersion == -1)
 		{
-			connection = datasource.getConnection();
-			getJournalVersionPst = connection
-					.prepareStatement("select jid from search_node_status where serverid = ? ");
-			getJournalVersionPst.clearParameters();
-			getJournalVersionPst.setString(1, serverId);
-			rs = getJournalVersionPst.executeQuery();
-			if (rs.next())
+			Connection connection = null;
+			PreparedStatement getJournalVersionPst = null;
+			ResultSet rs = null;
+			try
 			{
-				version = rs.getLong(1);
-			}
+				connection = datasource.getConnection();
+				getJournalVersionPst = connection
+						.prepareStatement("select jid from search_node_status where serverid = ? ");
+				getJournalVersionPst.clearParameters();
+				getJournalVersionPst.setString(1, serverId);
+				rs = getJournalVersionPst.executeQuery();
+				if (rs.next())
+				{
+					journalVersion = rs.getLong(1);
+				}
 
-		}
-		catch (Exception ex)
-		{
-			log.warn("Unable to get Search Jorunal Version ", ex);
-		}
-		finally
-		{
-			try
-			{
-				rs.close();
 			}
 			catch (Exception ex)
 			{
+				log.warn("Unable to get Search Jorunal Version ", ex);
 			}
-			try
+			finally
 			{
-				getJournalVersionPst.close();
-			}
-			catch (Exception ex)
-			{
-			}
-			try
-			{
-				connection.close();
-			}
-			catch (Exception ex)
-			{
-			}
+				try
+				{
+					rs.close();
+				}
+				catch (Exception ex)
+				{
+				}
+				try
+				{
+					getJournalVersionPst.close();
+				}
+				catch (Exception ex)
+				{
+				}
+				try
+				{
+					connection.close();
+				}
+				catch (Exception ex)
+				{
+				}
 
+			}
 		}
-		return version;
+		return journalVersion;
 	}
 
 	/**
@@ -151,15 +161,16 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 		try
 		{
 			boolean locked = rwlock.writeLock().tryLock(10, TimeUnit.SECONDS);
+
 			if (locked)
 			{
 				setLastJournalEntry(-1);
 			}
+			return locked;
 
 		}
 		catch (InterruptedException iex)
 		{
-
 		}
 		return false;
 	}
@@ -385,9 +396,20 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 			IndexReader.unlock(FSDirectory.getDirectory(searchIndexDirectory, true));
 			log.warn("Unlocked Lucene Directory for update, hope this is Ok");
 		}
+		Directory d = FSDirectory.getDirectory(f, true);
+		if ( !d.fileExists("segments") ) {
+			IndexWriter iw  = new IndexWriter(f,getAnalyzer(),true);
+			iw.setUseCompoundFile(true);
+			iw.setMaxBufferedDocs(50);
+			iw.setMaxMergeDocs(50);
+			Document doc = new Document();
+			doc.add(new Field("indexcreated",(new Date()).toString(),Field.Store.YES,Field.Index.UN_TOKENIZED, Field.TermVector.NO ));
+			iw.addDocument(doc);
+			iw.close();
+		}
 
 		IndexReader[] indexReaders = new IndexReader[segments.size() + 1];
-		indexReaders[0] = IndexReader.open(FSDirectory.getDirectory(f, true));
+		indexReaders[0] = IndexReader.open(d);
 		int i = 1;
 		for (File s : segments)
 		{
@@ -424,7 +446,18 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 			IndexReader.unlock(FSDirectory.getDirectory(searchIndexDirectory, true));
 			log.warn("Unlocked Lucene Directory for update, hope this is Ok");
 		}
-		return new IndexWriter(searchIndexDirectory, getAnalyzer(), create);
+		Directory d = FSDirectory.getDirectory(f, true);
+		if ( !d.fileExists("segments") ) {
+			IndexWriter iw  = new IndexWriter(f,getAnalyzer(),true);
+			iw.setUseCompoundFile(true);
+			iw.setMaxBufferedDocs(50);
+			iw.setMaxMergeDocs(50);
+			Document doc = new Document();
+			doc.add(new Field("indexcreated",(new Date()).toString(),Field.Store.YES,Field.Index.UN_TOKENIZED, Field.TermVector.NO ));
+			iw.addDocument(doc);
+			iw.close();
+		}
+		return new IndexWriter(f, getAnalyzer(), create);
 	}
 
 	/*
@@ -673,6 +706,84 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	public void setWorkingSpace(String workingSpace)
 	{
 		this.workingSpace = workingSpace;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.journal.api.JournaledIndex#setJournalIndexEntry(long)
+	 */
+	public void setJournalIndexEntry(long journalEntry)
+	{
+		if (journalVersion != journalEntry)
+		{
+			Connection connection = null;
+			PreparedStatement updateJournalVersionPst = null;
+			PreparedStatement insertJournalVersionPst = null;
+			try
+			{
+				connection = datasource.getConnection();
+				updateJournalVersionPst = connection
+						.prepareStatement("update search_node_status set jid = ?, jidts = ? where  serverid = ? ");
+				updateJournalVersionPst.clearParameters();
+				updateJournalVersionPst.setLong(1, journalEntry);
+				updateJournalVersionPst.setLong(2, System.currentTimeMillis());
+				updateJournalVersionPst.setString(3, serverId);
+				if (updateJournalVersionPst.executeUpdate() != 1)
+				{
+					insertJournalVersionPst = connection
+							.prepareStatement("insert into  search_node_status (jid,jidts,serverid) values (?,?,?) ");
+					insertJournalVersionPst.clearParameters();
+					insertJournalVersionPst.setLong(1, journalEntry);
+					insertJournalVersionPst.setLong(2, System.currentTimeMillis());
+					insertJournalVersionPst.setString(3, serverId);
+					if (insertJournalVersionPst.executeUpdate() != 1)
+					{
+						throw new SQLException(
+								"Unable to update journal entry for some reason ");
+					}
+				}
+				connection.commit();
+				journalVersion = journalEntry;
+
+			}
+			catch (Exception ex)
+			{
+				try
+				{
+					connection.rollback();
+				}
+				catch (Exception ex2)
+				{
+				}
+				log.warn("Unable to get Search Jorunal Version ", ex);
+			}
+			finally
+			{
+				try
+				{
+					updateJournalVersionPst.close();
+				}
+				catch (Exception ex)
+				{
+				}
+				try
+				{
+					insertJournalVersionPst.close();
+				}
+				catch (Exception ex)
+				{
+				}
+				try
+				{
+					connection.close();
+				}
+				catch (Exception ex)
+				{
+				}
+
+			}
+		}
 	}
 
 }

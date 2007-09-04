@@ -78,7 +78,9 @@ public class TransactionIndexManagerImpl extends  TransactionManagerImpl
 	public IndexUpdateTransaction openTransaction(Map<String, Object> m) throws IndexTransactionException
 	{
 		
-		return new IndexUpdateTransactionImpl(this,m);
+		IndexUpdateTransaction it =  new IndexUpdateTransactionImpl(this,m);
+		it.open();
+		return it;
 
 	}
 

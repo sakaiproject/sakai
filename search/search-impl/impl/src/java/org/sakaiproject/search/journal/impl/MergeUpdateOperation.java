@@ -26,16 +26,15 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.search.journal.api.IndexMergeTransaction;
 import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.JournalExhausetedException;
 import org.sakaiproject.search.journal.api.JournaledObject;
 import org.sakaiproject.search.journal.api.ManagementOperation;
-import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
- * @author ieb
- * TODO Unit test
+ * @author ieb TODO Unit test
  */
 public class MergeUpdateOperation implements ManagementOperation
 {
@@ -63,25 +62,31 @@ public class MergeUpdateOperation implements ManagementOperation
 
 		if (journaledObject.aquireUpdateLock())
 		{
-			log.info("Loacked");
+			log.info("Locked");
 			try
 			{
 				try
 				{
 					while (true)
 					{
-						IndexTransaction mergeUpdateTransaction = null;
+						IndexMergeTransaction mergeUpdateTransaction = null;
 						try
 						{
 							Map<String, Object> m = new HashMap<String, Object>();
-							mergeUpdateTransaction = mergeUpdateManager
+							mergeUpdateTransaction = (IndexMergeTransaction) mergeUpdateManager
 									.openTransaction(m);
 							mergeUpdateTransaction.prepare();
 							mergeUpdateTransaction.commit();
+							log.info("Merged Journal "
+									+ mergeUpdateTransaction.getJournalEntry()
+									+ " from the redolog");
 						}
 						catch (JournalErrorException jex)
 						{
-							log.warn("Failed to compete transaction ", jex);
+							log
+									.warn("Failed to compete merge of "
+											+ mergeUpdateTransaction.getJournalEntry()
+											+ " ", jex);
 							try
 							{
 								mergeUpdateTransaction.rollback();
@@ -94,7 +99,9 @@ public class MergeUpdateOperation implements ManagementOperation
 						}
 						catch (IndexTransactionException iupex)
 						{
-							log.warn("Failed to compete transaction ", iupex);
+							log.warn("Failed to compete merge of "
+									+ mergeUpdateTransaction.getJournalEntry() + "",
+									iupex);
 							try
 							{
 								mergeUpdateTransaction.rollback();
@@ -112,7 +119,6 @@ public class MergeUpdateOperation implements ManagementOperation
 							}
 							catch (Exception ex)
 							{
-								log.warn("Failed to close transacttion ", ex);
 							}
 
 						}
@@ -120,14 +126,24 @@ public class MergeUpdateOperation implements ManagementOperation
 				}
 				catch (JournalExhausetedException ex)
 				{
-					log.info("No More Transactions ",ex);
+					if (log.isDebugEnabled())
+					{
+						log.debug("No More Jounral Entries ", ex);
+					}
+					else
+					{
+						log.info("Index upto date");
+					}
 				}
 			}
 			finally
 			{
 				journaledObject.releaseUpdateLock();
+				log.info("Unlocked");
 			}
-		} else {
+		}
+		else
+		{
 			log.warn("No Lock, index update abandoned");
 		}
 	}

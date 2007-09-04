@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.transaction.impl;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -30,26 +31,28 @@ import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
+import org.sakaiproject.search.transaction.api.TransactionListener;
 
 /**
  * Base for index transactions
- * @author ieb
- * Unit test @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
+ * 
+ * @author ieb Unit test
+ * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
 public abstract class IndexTransactionImpl implements IndexTransaction
 {
 
 	private static final Log log = LogFactory.getLog(IndexTransactionImpl.class);
 
-	private long transactionId = -2;
+	protected long transactionId = -2;
 
-	private TransactionManagerImpl manager = null;
+	protected TransactionManagerImpl manager;
 
-	private int transactionState = IndexTransaction.STATUS_UNKNOWN;
+	protected int transactionState = IndexTransaction.STATUS_UNKNOWN;
 
 	private Map<String, Object> attributes;
 
-	private List<SearchBuilderItem> itemList = null;
+	private List<SearchBuilderItem> itemList;
 
 	/**
 	 * @param m
@@ -57,16 +60,39 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 	 * @throws IndexTransactionException
 	 */
 	public IndexTransactionImpl(TransactionManagerImpl manager, Map<String, Object> m)
-			throws IndexTransactionException
+			
 	{
-		transactionState = IndexTransaction.STATUS_NO_TRANSACTION;
 		this.manager = manager;
+		attributes = m;
+	}
+	/**
+	 * 
+	 *
+	 */
+	public void open() throws IndexTransactionException {
+		transactionState = IndexTransaction.STATUS_NO_TRANSACTION;
 		transactionId = manager.sequence.getLocalId();
 		transactionState = IndexTransaction.STATUS_ACTIVE;
-		attributes = m;
-		manager.fireOpen(this);
+		doBeforeOpen();
+		fireOpen(this);
+		doAfterOpen();
 	}
 
+	/**
+	 * 
+	 */
+	protected void doAfterOpen()
+	{
+
+	}
+
+	/**
+	 * 
+	 */
+	protected void doBeforeOpen()
+	{
+
+	}
 
 	/**
 	 * @throws IndexTransactionException
@@ -86,7 +112,7 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 			{
 			}
 			doBeforeClose();
-			manager.fireClose(this);
+			fireClose(this);
 			doAfterClose();
 		}
 		transactionState = IndexTransaction.STATUS_UNKNOWN;
@@ -119,7 +145,7 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 		{
 			transactionState = IndexTransaction.STATUS_PREPARING;
 			doBeforePrepare();
-			manager.firePrepare(this);
+			firePrepare(this);
 			doAfterPrepare();
 			transactionState = IndexUpdateTransaction.STATUS_PREPARED;
 		}
@@ -156,7 +182,7 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 		{
 			transactionState = IndexTransaction.STATUS_COMMITTING;
 			doBeforeCommit();
-			manager.fireCommit(this);
+			fireCommit(this);
 			doAfterCommit();
 			transactionId = -1;
 			transactionState = IndexTransaction.STATUS_COMMITTED;
@@ -214,7 +240,7 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 		{
 			transactionState = IndexTransaction.STATUS_ROLLING_BACK;
 			doBeforeRollback();
-			manager.fireRollback(this);
+			fireRollback(this);
 			doAfterRollback();
 			transactionId = -1;
 			transactionState = IndexTransaction.STATUS_ROLLEDBACK;
@@ -264,7 +290,9 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 					"Once the items has been set, it cannot be reset while the transaction is in process");
 		}
 
+		
 		itemList = items;
+		log.info("Item List now set to "+itemList);
 	}
 
 	/**
@@ -298,6 +326,65 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 	public void put(String key, Object obj)
 	{
 		attributes.put(key, obj);
+	}
+
+	private void firePrepare(IndexTransaction transaction)
+			throws IndexTransactionException
+	{
+		for (Iterator<TransactionListener> itl = manager.getTransactionListeners().iterator(); itl
+				.hasNext();)
+		{
+			TransactionListener tl = itl.next();
+			tl.prepare(transaction);
+		}
+	}
+
+	private void fireCommit(IndexTransaction transaction)
+			throws IndexTransactionException
+	{
+		for (Iterator<TransactionListener> itl = manager.getTransactionListeners().iterator(); itl
+				.hasNext();)
+		{
+			TransactionListener tl = itl.next();
+			tl.commit(transaction);
+		}
+	}
+
+	/**
+	 * @param impl
+	 * @throws IndexTransactionException
+	 */
+	private void fireClose(IndexTransaction transaction) throws IndexTransactionException
+	{
+		for (Iterator<TransactionListener> itl = manager.getTransactionListeners().iterator(); itl
+				.hasNext();)
+		{
+			TransactionListener tl = itl.next();
+			tl.close(transaction);
+		}
+	}
+
+	private void fireRollback(IndexTransaction transaction)
+			throws IndexTransactionException
+	{
+		for (Iterator<TransactionListener> itl = manager.getTransactionListeners().iterator(); itl
+				.hasNext();)
+		{
+			TransactionListener tl = itl.next();
+			tl.rollback(transaction);
+		}
+
+	}
+
+	private void fireOpen(IndexTransaction transaction) throws IndexTransactionException
+	{
+		for (Iterator<TransactionListener> itl = manager.getTransactionListeners().iterator(); itl
+				.hasNext();)
+		{
+			TransactionListener tl = itl.next();
+			tl.open(transaction);
+		}
+
 	}
 
 }

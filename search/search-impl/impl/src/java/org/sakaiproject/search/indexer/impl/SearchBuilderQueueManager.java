@@ -196,6 +196,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 				batchSize = bs.intValue();
 			}
 			List<SearchBuilderItem> items = findPendingAndLock(batchSize, connection);
+			log.info("Adding "+items.size()+" items to indexing queue");
 			transaction.setItems(items);
 			connection.commit();
 		}
@@ -206,6 +207,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		}
 		catch (Exception ex)
 		{
+			log.info("Failed to Open Transaction ",ex);
 			try
 			{
 				connection.rollback();
@@ -213,6 +215,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			catch (Exception ex2)
 			{
 			}
+			throw new IndexTransactionException("Failed to open transaction ",ex);
 		}
 		finally
 		{

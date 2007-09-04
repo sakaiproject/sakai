@@ -45,65 +45,6 @@ public abstract class TransactionManagerImpl implements TransactionIndexManager
 
 	private List<TransactionListener> transactionListeners = new ArrayList<TransactionListener>();
 
-	public void firePrepare(IndexTransaction transaction)
-			throws IndexTransactionException
-	{
-		for (Iterator<TransactionListener> itl = transactionListeners.iterator(); itl
-				.hasNext();)
-		{
-			TransactionListener tl = itl.next();
-			tl.prepare(transaction);
-		}
-	}
-
-	public void fireCommit(IndexTransaction transaction)
-			throws IndexTransactionException
-	{
-		for (Iterator<TransactionListener> itl = transactionListeners.iterator(); itl
-				.hasNext();)
-		{
-			TransactionListener tl = itl.next();
-			tl.commit(transaction);
-		}
-	}
-
-	/**
-	 * @param impl
-	 * @throws IndexTransactionException 
-	 */
-	public void fireClose(IndexTransaction transaction) throws IndexTransactionException
-	{
-		for (Iterator<TransactionListener> itl = transactionListeners.iterator(); itl
-				.hasNext();)
-		{
-			TransactionListener tl = itl.next();
-			tl.close(transaction);
-		}
-	}
-
-	public void fireRollback(IndexTransaction transaction)
-			throws IndexTransactionException
-	{
-		for (Iterator<TransactionListener> itl = transactionListeners.iterator(); itl
-				.hasNext();)
-		{
-			TransactionListener tl = itl.next();
-			tl.rollback(transaction);
-		}
-
-	}
-
-	public void fireOpen(IndexTransaction transaction)
-			throws IndexTransactionException
-	{
-		for (Iterator<TransactionListener> itl = transactionListeners.iterator(); itl
-				.hasNext();)
-		{
-			TransactionListener tl = itl.next();
-			tl.open(transaction);
-		}
-
-	}
 
 	/**
 	 * @return the transactionListeners

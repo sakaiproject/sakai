@@ -39,9 +39,10 @@ import org.sakaiproject.search.journal.api.JournalManagerState;
 /**
  * A database backed Journal Manager
  * 
- * @author ieb
- * Unit test @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
- * Unit test @see org.sakaiproject.search.indexer.impl.test.DbJournalManagerTest
+ * @author ieb Unit test
+ * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
+ *      Unit test
+ * @see org.sakaiproject.search.indexer.impl.test.DbJournalManagerTest
  */
 public class DbJournalManager implements JournalManager
 {
@@ -198,6 +199,16 @@ public class DbJournalManager implements JournalManager
 			{
 			}
 			throw new IndexJournalException("Failed to commit index ", ex);
+		}
+		finally
+		{
+			try
+			{
+				connection.close();
+			}
+			catch (Exception ex)
+			{
+			}
 		}
 
 	}

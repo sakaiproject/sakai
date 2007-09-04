@@ -196,7 +196,7 @@ public class TransactionalIndexWorkerTest extends TestCase
 	public final void testProcessSome() throws Exception
 	{
 		testInit();
-		int n = tds.populateDocuments();
+		int n = tds.populateDocuments(100);
 		assertEquals("Should not have processed some documents ", n, tiw.process(100));
 		FileUtils.listDirectory(testBase);
 		for (int i = 0; i < 100; i++)

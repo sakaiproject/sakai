@@ -43,7 +43,9 @@ public class MergeUpdateManager extends TransactionManagerImpl
 	public IndexTransaction openTransaction(Map<String, Object> m)
 			throws IndexTransactionException
 	{
-		return new IndexMergeTransactionImpl(this, m);
+		IndexTransaction it =  new IndexMergeTransactionImpl(this, m);
+		it.open();
+		return it;
 	}
 	
 	/* (non-Javadoc)
