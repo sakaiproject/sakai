@@ -236,22 +236,6 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	 * See if a user by this id exists.
-	 * 
-	 * @param userId
-	 *        The user id string.
-	 * @return true if a user by this id exists, false if not.
-	 */
-	public boolean userExists(String userId)
-	{
-		if (m_requirelocalaccount) return false;
-
-		boolean knownKerb = userKnownToKerberos(userId);
-		M_log.info("userExists: " + userId + " Kerberos: " + knownKerb);
-		return knownKerb;
-	} // userExists
-
-	/**
 	 * Access a user object. Update the object with the information found.
 	 * 
 	 * @param edit
@@ -260,7 +244,8 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	 */
 	public boolean getUser(UserEdit edit)
 	{
-		if (!userExists(edit.getEid())) return false;
+		if (m_requirelocalaccount) return false;
+		if (!userKnownToKerberos(edit.getEid())) return false;
 
 		edit.setEmail(edit.getEid() + "@" + m_domain);
 		edit.setType("kerberos");
@@ -386,24 +371,6 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 			return false;
 		}
 	} // authenticateUser
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void destroyAuthentication()
-	{
-
-	}
-
-	/**
-	 * Will this provider update user records on successful authentication? If so, the UserDirectoryService will cause these updates to be stored.
-	 * 
-	 * @return true if the user record may be updated after successful authentication, false if not.
-	 */
-	public boolean updateUserAfterAuthentication()
-	{
-		return false;
-	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Kerberos stuff
@@ -562,8 +529,6 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 		 */
 		public void handle(Callback[] callbacks) throws java.io.IOException, UnsupportedCallbackException
 		{
-			ConfirmationCallback confirmation = null;
-
 			for (int i = 0; i < callbacks.length; i++)
 			{
 				if (callbacks[i] instanceof TextOutputCallback)
@@ -633,14 +598,6 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	 * {@inheritDoc}
 	 */
 	public boolean authenticateWithProviderFirst(String id)
-	{
-		return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean createUserRecord(String id)
 	{
 		return false;
 	}

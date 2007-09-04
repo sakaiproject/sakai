@@ -160,10 +160,6 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 		return returnVal;
 	}
 
-	public void destroyAuthentication()
-	{
-	}
-
 	public boolean findUserByEmail(UserEdit edit, String email)
 	{
 
@@ -202,12 +198,7 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 		}
 	}
 
-	public boolean updateUserAfterAuthentication()
-	{
-		return false;
-	}
-
-	public boolean userExists(String id)
+	protected boolean userExists(String id)
 	{
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		env.put(Context.SECURITY_CREDENTIALS, "secret");

@@ -174,11 +174,6 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider
 		}
 	}
 
-	public void destroyAuthentication()
-	{
-		// not sure what to do here
-	}
-
 	public boolean findUserByEmail(UserEdit edit, String email)
 	{
 
@@ -315,38 +310,6 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider
 				i.remove();
 			}
 		}
-	}
-
-	public boolean updateUserAfterAuthentication()
-	{
-		return false;
-	}
-
-	public boolean userExists(String id)
-	{
-		UserData existingUser = (UserData) users.get(id);
-
-		if (existingUser != null)
-		{
-			return true;
-		}
-		LDAPConnection conn = new LDAPConnection();
-		String sFilter = (String) attributeMappings.get("login") + "=" + id;
-
-		String thisDn = "";
-		String[] attrList = new String[] { (String) attributeMappings.get("distinguishedName") };
-		try
-		{
-			conn.connect(ldapHost, ldapPort);
-			// this will fail if user does not exist
-			LDAPEntry userEntry = getEntryFromDirectory(sFilter, attrList, conn);
-			conn.disconnect();
-		}
-		catch (Exception e)
-		{
-			return false;
-		}
-		return true;
 	}
 
 	// search the directory to get an entry
@@ -643,14 +606,6 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider
 	 * {@inheritDoc}
 	 */
 	public boolean authenticateWithProviderFirst(String id)
-	{
-		return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean createUserRecord(String id)
 	{
 		return false;
 	}

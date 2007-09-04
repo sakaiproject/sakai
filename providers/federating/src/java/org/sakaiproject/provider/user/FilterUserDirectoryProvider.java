@@ -148,27 +148,6 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Users
 	public FilterUserDirectoryProvider()
 	{
 	} // Switch
-	
-
-	/**
-	 * See if a user by this id exists.
-	 * 
-	 * @param userId
-	 *        The user id string.
-	 * @return true if a user by this id exists, false if not.
-	 */
-	public boolean userExists(String userId)
-	{
-		if (m_logger.isDebugEnabled()) {
-			m_logger.debug("userExists() as "+providerID + " on " + userId);
-		}
-		if (  myProvider.userExists(userId) ) {
-			return true;
-		} else if ( nextProvider != null ) {
-			return nextProvider.userExists(userId);
-		}
-		return false;
-	} // userExists
 
 	/**
 	 * Access a user object. Update the object with the information found.
@@ -520,57 +499,6 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Users
 		return false;
 
 	} // authenticateUser
-
-	/**
-	 * Will this provider update user records on successfull authentication? If so, the UserDirectoryService will cause these updates to be stored.
-	 * 
-	 * @return true if the user record may be updated after successfull authentication, false if not.
-	 */
-	public boolean updateUserAfterAuthentication()
-	{
-		m_logger.debug("updateUserAfterAuthnetication() as "+providerID);
-
-		// This is called directly after authenticateUser, so we should be able to 
-		// register which used we are talking about, provided none of the underlying 
-		// directroy providers calls this. It is also only called once, so we must remove 
-		// the thread local flag once the call has completed.
-		if ( providerID.equals(authenticatedProvider.get()) ) {
-			authenticatedProvider.set(null);
-			return myProvider.updateUserAfterAuthentication();
-		} else if ( nextProvider != null ) {
-			return nextProvider.updateUserAfterAuthentication();
-		}
-		return false;
-	}
-	/**
-	  *          
-	  *  {@inheritDoc}
-	  */
-	public boolean createUserRecord(String id)
-        {
-		if ( myProvider.createUserRecord(id) ) {
-			return true;
-		} else if ( nextProvider != null ) {
-			return nextProvider.createUserRecord(id);
-		}
-                return false;
-        }
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void destroyAuthentication()
-	{
-		m_logger.warn("destroyAuthentciation() as "+providerID);
-
-		// the provider must only destroy authentications for their own provider 
-		// source.
-		myProvider.destroyAuthentication();
-		if ( nextProvider != null ) {
-			nextProvider.destroyAuthentication();
-		}
-	}
 
 	/**
 	 * The UserDirectoryProvider used by this filter
