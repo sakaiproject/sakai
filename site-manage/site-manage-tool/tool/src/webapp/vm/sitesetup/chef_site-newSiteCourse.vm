@@ -244,12 +244,20 @@ function redirectBasedOnSelection(){
 						#end
 
 						#if ($!courseOfferingObject.sections.size() > 1)
-							<div id="selectAll$courseNumber">							
-								<a href="#" onclick="javascript:selectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.select_group_sections")</a>
-							</div>
-							<div id="unselectAll$courseNumber" style="display:none">
-								<a href="#" onclick="javascript:unselectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.unselect_group_sections")</a>
-							</div>
+							#set($hasAttachedSectionObject=false)
+							#foreach($sectionObject in $courseOfferingObject.sections)
+								#if ($sectionObject.attached)
+									#set($hasAttachedSectionObject=true)
+								#end
+							#end
+							#if(!$hasAttachedSectionObject)
+								<div id="selectAll$courseNumber">							
+									<a href="#" onclick="javascript:selectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.select_group_sections")</a>
+								</div>
+								<div id="unselectAll$courseNumber" style="display:none">
+									<a href="#" onclick="javascript:unselectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.unselect_group_sections")</a>
+								</div>
+							#end
 						#end
 						</td></tr>
 						#foreach($sectionObject in $courseOfferingObject.sections)
