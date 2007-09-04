@@ -1538,10 +1538,12 @@ public abstract class BaseCitationService implements CitationService
 			Log logger = LogFactory.getLog(BasicCitation.class);
 			String currentLine = null;
 			String[] tokens = null;
+			String[] newTokens = null;
+			int firstindex = 0;
 			int startpage = -1;
 			int endpage = -1;
 			Schema schema = null;
-			String schemaName = "blank";
+			String schemaName = null;
 			List Fields = null;
 			Field tempField = null;
 			Iterator iter = null;
@@ -1551,9 +1553,21 @@ public abstract class BaseCitationService implements CitationService
 			for(int i=0; i< risImportList.size(); i++)
 			{
 				currentLine = (String) risImportList.get(i);
+				currentLine = currentLine.trim();
 				logger.debug("importFromRisList: currentLine = " + currentLine);
 				
 				tokens = currentLine.split("-");
+
+				// Reconstitute any dashes that were in the value field
+				if (tokens != null && tokens.length > 2)
+				{
+					newTokens[0] = tokens[0];
+					newTokens[1] = tokens[1];
+					for(int j=2; i<tokens.length; j++)
+						newTokens[1] = newTokens[1] + "-" + tokens[j];
+					
+					tokens = newTokens;
+				}
 
 				if (tokens == null)
 					logger.debug("importFromRisList: tokens is null");
@@ -1574,7 +1588,7 @@ public abstract class BaseCitationService implements CitationService
 					{
 						if (! tokens[0].equalsIgnoreCase("TY"))
 					    {
-					    	logger.debug("importFromRisList: 1st entry in RIS must be TY. It isn't it is " + tokens[0]);
+					    	logger.debug("importFromRisList: FALSE - 1st entry in RIS must be TY. It isn't it is " + tokens[0]);
 					    	return false; // TY MUST be the first entry in a RIS citation
 					    }
 					    else
@@ -1582,6 +1596,13 @@ public abstract class BaseCitationService implements CitationService
 					    	logger.debug("importFromRisList: size of m_RISTypeInverse = " + m_RISTypeInverse.size());
 					    	logger.debug("importFromRisList: tokens[1] before schemaName = " + tokens[1]);
 					    	schemaName = (String) m_RISTypeInverse.get(tokens[1]);
+					    	
+					    	if (schemaName == null)
+					    	{
+						    	logger.debug("importFromRisList: Unknown Schema Name = " + tokens[1] +
+						    			     ". Setting schemeName to 'unknown'");
+					    		schemaName = "unknown";
+					    	}
 					    	logger.debug("importFromRisList: Schema Name = " + schemaName);
 							schema = org.sakaiproject.citation.cover.CitationService.getSchema(schemaName);
 							setSchema(schema);
@@ -1589,6 +1610,12 @@ public abstract class BaseCitationService implements CitationService
 					} // end if i == 0
 					else
 					{
+						if (tokens[0].equalsIgnoreCase("ER"))
+						{
+					    	logger.debug("importFromRisList: Read an ER (with something after the dash). End of citation.");
+							return true; // ER signals end of citation
+						} // end of citation
+
 						Fields = schema.getFields();
 						iter = Fields.iterator();
 						status = true;
@@ -1619,7 +1646,7 @@ public abstract class BaseCitationService implements CitationService
 				else
 				{
 			    	logger.debug("importFromRisList: tokens.length != 2. Close to end of citation.");
-					if (tokens != null)
+					if (tokens != null  && tokens.length < 2)
 					{
 						tokens[0] = tokens[0].trim();
 				    	logger.debug("importFromRisList: tokens != null. Close to end of citation.");
@@ -1632,7 +1659,8 @@ public abstract class BaseCitationService implements CitationService
 					} //end if tokens != null
 				}
 			} // end for i
-			return true;
+	    	logger.debug("importFromRisList: FALSE - End of Input. Citation not added.");
+			return false;
 
 		}  // end ImportFromRisList
 
