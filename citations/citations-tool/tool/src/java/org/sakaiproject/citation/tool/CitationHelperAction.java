@@ -1904,6 +1904,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		Citation importCitation = CitationService.getTemporaryCitation();
 		CitationCollection importCollection = CitationService.getTemporaryCollection();
 
+		int sucessfullyReadCitations = 0;
+		int totalNumberCitations = 0;
+		
 		// Read each entry in the RIS List and build a citation
 		for(int i=0; i< importList.size(); i++)
 		{
@@ -1918,17 +1921,21 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				importEntryString.substring(0, 2).equalsIgnoreCase("ER"))
 			{
 				// end of citation (signaled by ER).
+				
+				totalNumberCitations++;
+				logger.debug("------> Trying to add citation " + totalNumberCitations);
 				if (importCitation.importFromRisList(tempList)) // import went well
 				{
 //					testImportSingleCitation(importCitation, tempList);
 					importCollection.add(importCitation);
+					sucessfullyReadCitations++;
 				}
 				tempList.clear();
 				importCitation = CitationService.getTemporaryCitation();
 			}
 		} // end for
 		
-		logger.debug("Done reading in " + importCollection.size() + " citations.");
+		logger.debug("Done reading in " + sucessfullyReadCitations + " / " + totalNumberCitations + " citations.");
 		
 		collection.addAll(importCollection);
 		
