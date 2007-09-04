@@ -1536,21 +1536,29 @@ public abstract class BaseCitationService implements CitationService
 		public boolean importFromRisList(List risImportList)
 		{
 			Log logger = LogFactory.getLog(BasicCitation.class);
-
 			String currentLine = null;
 			String[] tokens = null;
 			int startpage = -1;
 			int endpage = -1;
 			Schema schema = null;
-			String schemaName = null;
+			String schemaName = "blank";
+			List Fields = null;
+			Field tempField = null;
+			Iterator iter = null;
+			boolean status = true;
 			
-			logger.debug("In importFromRisList. List size is " + risImportList.size());
+			logger.debug("importFromRisList: In importFromRisList. List size is " + risImportList.size());
 			for(int i=0; i< risImportList.size(); i++)
 			{
 				currentLine = (String) risImportList.get(i);
-//				logger.debug("currentLine = " + currentLine);
+				logger.debug("importFromRisList: currentLine = " + currentLine);
 				
 				tokens = currentLine.split("-");
+
+				if (tokens == null)
+					logger.debug("importFromRisList: tokens is null");
+				else
+					logger.debug("importFromRisList: tokens length = " + tokens.length);
 
 				// Make sure tokens were created and that there are only two 
 				// tokens[0] = CODE  tokens[1] = VALUE
@@ -1559,77 +1567,73 @@ public abstract class BaseCitationService implements CitationService
 					tokens[0] = tokens[0].trim();
 					tokens[1] = tokens[1].trim();
 					
+			    	logger.debug("importFromRisList: tokens[0] = " + tokens[0]);
+			    	logger.debug("importFromRisList: tokens[1] = " + tokens[1]);
+			    	
 					if (i == 0)
 					{
 						if (! tokens[0].equalsIgnoreCase("TY"))
 					    {
-//					    	logger.equals("1st entry in RIS must be TY. It isn't it is " + tokens[0]);
+					    	logger.debug("importFromRisList: 1st entry in RIS must be TY. It isn't it is " + tokens[0]);
 					    	return false; // TY MUST be the first entry in a RIS citation
 					    }
 					    else
 					    {
+					    	logger.debug("importFromRisList: size of m_RISTypeInverse = " + m_RISTypeInverse.size());
+					    	logger.debug("importFromRisList: tokens[1] before schemaName = " + tokens[1]);
 					    	schemaName = (String) m_RISTypeInverse.get(tokens[1]);
+					    	logger.debug("importFromRisList: Schema Name = " + schemaName);
 							schema = org.sakaiproject.citation.cover.CitationService.getSchema(schemaName);
 							setSchema(schema);
 					    }
-					}
+					} // end if i == 0
 					else
-					{	
+					{
+						Fields = schema.getFields();
+						iter = Fields.iterator();
+						status = true;
+						
+						while (iter.hasNext() && status == true)
+						{
+							tempField = (Field) iter.next();
+							if (tokens[0].equalsIgnoreCase(tempField.getIdentifier(RIS_FORMAT)))
+							{
+								status = false;
+						    	logger.debug("importFromRisList: Found field mapping");
+							}
+						} // end while
+						
+						if (status) // couldn't find the field mapping
+							logger.debug("importFromRisList: Cannot find Field mapping");
+						else
+						{
+							logger.debug("importFromRisList: Field mapping is " + tempField.getIdentifier() +
+									 " => " + tempField.getIdentifier(RIS_FORMAT));
+							
+							setCitationProperty(tempField.getIdentifier(), tokens[1]);
+						}
+							
+						
+					} // end else of i == 0
+				} // end if tokens != null && tokens.length == 2
+				else
+				{
+			    	logger.debug("importFromRisList: tokens.length != 2. Close to end of citation.");
+					if (tokens != null)
+					{
+						tokens[0] = tokens[0].trim();
+				    	logger.debug("importFromRisList: tokens != null. Close to end of citation.");
+				    	
 						if (tokens[0].equalsIgnoreCase("ER"))
 						{
+					    	logger.debug("importFromRisList: Read an ER. End of citation.");
 							return true; // ER signals end of citation
 						} // end of citation
-						else // citation has valid data (maybe). Read it in.
-						{
-//							logger.debug("token 0 = " + tokens[0]);
-//							logger.debug("token 1 = " + tokens[1]);
-							
-					    
-							if (tokens[0].equalsIgnoreCase("A1"))  // Author
-							{
-								this.addPropertyValue(Schema.CREATOR, tokens[1]);
-							}
-							else if (tokens[0].equalsIgnoreCase("EP")) // end page. Pages = EP-SP
-							{
-								endpage = Integer.parseInt(tokens[1]);
-							}
-							else if (tokens[0].equalsIgnoreCase("IS"))
-							{
-								this.addPropertyValue(Schema.ISSUE, tokens[1]);
-							}
-							else if (tokens[0].equalsIgnoreCase("PB"))
-							{
-								this.addPropertyValue(Schema.PUBLISHER, tokens[1]);
-							}
-							else if (tokens[0].equalsIgnoreCase("SN"))
-							{
-								this.addPropertyValue(Schema.ISN, tokens[1]);
-							}
-							else if (tokens[0].equalsIgnoreCase("SP")) // Start Page. Pages = EP-SP
-							{
-								startpage = Integer.parseInt(tokens[1]);
-							}
-							else if (tokens[0].equalsIgnoreCase("T1"))
-							{
-								this.addPropertyValue(Schema.TITLE, tokens[1]);
-							}
-							else if(tokens[0].equalsIgnoreCase("TI"))
-							{
-								this.addPropertyValue(Schema.SOURCE_TITLE, tokens[1]);
-							}
-							else if (tokens[0].equalsIgnoreCase("VL"))
-							{
-								this.addPropertyValue(Schema.VOLUME, tokens[1]);
-							}
-							else if (tokens[0].equalsIgnoreCase("Y1"))
-							{
-								this.addPropertyValue(Schema.YEAR, tokens[1]);
-							}
-						} // end else = citation has valid data (maybe)
-					} // end else i==0
-				} // end if tokens != null && tokens.length == 2
+					} //end if tokens != null
+				}
 			} // end for i
 			return true;
+
 		}  // end ImportFromRisList
 
 		/*
