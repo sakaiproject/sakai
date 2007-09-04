@@ -91,7 +91,7 @@ public class SequenceGeneratorTest extends TestCase
 		nt = 0;
 		fail = 0;
 		final ConcurrentHashMap<Long, Long> m = new ConcurrentHashMap<Long, Long>();
-		for (int i = 0; i < 50; i++)
+		for (int i = 0; i < 20; i++)
 		{
 			Thread t = new Thread(new Runnable()
 			{
