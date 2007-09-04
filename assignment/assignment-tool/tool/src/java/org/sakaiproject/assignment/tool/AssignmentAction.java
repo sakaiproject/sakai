@@ -6950,7 +6950,12 @@ public class AssignmentAction extends PagedResourceActionII
 		if (!criteria.equals(state.getAttribute(SORTED_GRADE_SUBMISSION_BY)))
 		{
 			state.setAttribute(SORTED_GRADE_SUBMISSION_BY, criteria);
-			asc = Boolean.TRUE.toString();
+			//for content review default is desc
+			if (criteria.equals(SORTED_GRADE_SUBMISSION_CONTENTREVIEW))
+				asc = Boolean.FALSE.toString();
+			else
+				asc = Boolean.TRUE.toString();
+			
 			state.setAttribute(SORTED_GRADE_SUBMISSION_ASC, asc);
 		}
 		else
