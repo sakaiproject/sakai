@@ -1918,9 +1918,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				importEntryString.substring(0, 2).equalsIgnoreCase("ER"))
 			{
 				// end of citation (signaled by ER).
-				importCitation.importFromRisList(tempList);
-//				testImportSingleCitation(importCitation, tempList);
-				importCollection.add(importCitation);
+				if (importCitation.importFromRisList(tempList)) // import went well
+				{
+//					testImportSingleCitation(importCitation, tempList);
+					importCollection.add(importCitation);
+				}
 				tempList.clear();
 				importCitation = CitationService.getTemporaryCitation();
 			}
@@ -1928,7 +1930,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		
 		logger.debug("Done reading in " + importCollection.size() + " citations.");
 		
-//		collection.addAll(importCollection);
+		collection.addAll(importCollection);
 		
 		setMode(state, Mode.LIST);
 	} // end doImport()
@@ -1938,21 +1940,27 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 * @param citation
 	 * @param risImportList
 	 */
-	private void testImportSingleCitation(Citation citation, List risImportList)
+	private boolean testImportSingleCitation(Citation citation, List risImportList)
 	{
 		String currentLine = null;
 		String[] tokens = null;
 		int startpage = -1;
 		int endpage = -1;
 		Schema schema = null;
+		String schemaName = "blank";
 		
-		logger.debug("In testImport. list size is " + risImportList.size());
+		logger.debug("importFromRisList: In importFromRisList. List size is " + risImportList.size());
 		for(int i=0; i< risImportList.size(); i++)
 		{
 			currentLine = (String) risImportList.get(i);
-			logger.debug("currentLine = " + currentLine);
+			logger.debug("importFromRisList: currentLine = " + currentLine);
 			
 			tokens = currentLine.split("-");
+
+			if (tokens == null)
+				logger.debug("importFromRisList: tokens is null");
+			else
+				logger.debug("importFromRisList: tokens length = " + tokens.length);
 
 			// Make sure tokens were created and that there are only two 
 			// tokens[0] = CODE  tokens[1] = VALUE
@@ -1961,85 +1969,46 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				tokens[0] = tokens[0].trim();
 				tokens[1] = tokens[1].trim();
 				
+		    	logger.debug("importFromRisList: tokens[0] = " + tokens[0]);
+		    	logger.debug("importFromRisList: tokens[1] = " + tokens[1]);
+		    	
 				if (i == 0)
 				{
 					if (! tokens[0].equalsIgnoreCase("TY"))
 				    {
-				    	logger.equals("1st entry in RIS must be TY. It isn't it is " + tokens[0]);
-				    	return;
+				    	logger.debug("importFromRisList: 1st entry in RIS must be TY. It isn't it is " + tokens[0]);
+				    	return false; // TY MUST be the first entry in a RIS citation
 				    }
 				    else
 				    {
-				    	String schemaName = "default";
-				    	
-				    	if (tokens[1].equalsIgnoreCase("JOUR"))
-				    		schemaName = "article";
-				    	
-				    	schema = CitationService.getSchema(schemaName);
+//				    	schemaName = (String) RISTypeInverse.get(tokens[1]);
+//						schema = org.sakaiproject.citation.cover.CitationService.getSchema(schemaName);
+//						setSchema(schema);
+				    	logger.debug("importFromRisList: Schema Name = " + schemaName);
 				    }
-				}
+				} // end if i == 0
 				else
-				{	
+				{
+					
+				} // end else of i == 0
+			} // end if tokens != null && tokens.length == 2
+			else
+			{
+		    	logger.debug("importFromRisList: tokens.length != 2. Close to end of citation.");
+				if (tokens != null)
+				{
+					tokens[0] = tokens[0].trim();
+			    	logger.debug("importFromRisList: tokens != null. Close to end of citation.");
+			    	
 					if (tokens[0].equalsIgnoreCase("ER"))
 					{
-						// See if both start and end pages have been read in. If so, compute
-						// number of pages
-						if (startpage != -1 && endpage != -1)
-						{
-							citation.addPropertyValue(Schema.PAGES, Integer.toString(endpage - startpage));
-						}
-					
-						return; // ER signals end of citation
+				    	logger.debug("importFromRisList: Read an ER. End of citation.");
+						return true; // ER signals end of citation
 					} // end of citation
-					else // citation has valid data (maybe). Read it in.
-					{
-						logger.debug("token 0 = " + tokens[0]);
-						logger.debug("token 1 = " + tokens[1]);
-										    
-						if (tokens[0].equalsIgnoreCase("A1"))  // Author
-						{
-							citation.addPropertyValue(Schema.CREATOR, tokens[1]);
-						}
-						else if (tokens[0].equalsIgnoreCase("EP")) // end page. Pages = EP-SP
-						{
-							endpage = Integer.parseInt(tokens[1]);
-						}
-						else if (tokens[0].equalsIgnoreCase("IS"))
-						{
-							citation.addPropertyValue(Schema.ISSUE, tokens[1]);
-						}
-						else if (tokens[0].equalsIgnoreCase("PB"))
-						{
-							citation.addPropertyValue(Schema.PUBLISHER, tokens[1]);
-						}
-						else if (tokens[0].equalsIgnoreCase("SN"))
-						{
-							citation.addPropertyValue(Schema.ISN, tokens[1]);
-						}
-						else if (tokens[0].equalsIgnoreCase("SP")) // Start Page. Pages = EP-SP
-						{
-							startpage = Integer.parseInt(tokens[1]);
-						}
-						else if (tokens[0].equalsIgnoreCase("T1"))
-						{
-							citation.addPropertyValue(Schema.TITLE, tokens[1]);
-						}
-						else if(tokens[0].equalsIgnoreCase("TI"))
-						{
-							citation.addPropertyValue(Schema.SOURCE_TITLE, tokens[1]);
-						}
-						else if (tokens[0].equalsIgnoreCase("VL"))
-						{
-							citation.addPropertyValue(Schema.VOLUME, tokens[1]);
-						}
-						else if (tokens[0].equalsIgnoreCase("Y1"))
-						{
-							citation.addPropertyValue(Schema.YEAR, tokens[1]);
-						}
-					} // end else = citation has valid data (maybe)
-				} // end else i==0
-			} // end if tokens != null && tokens.length == 2
+				} //end if tokens != null
+			}
 		} // end for i
+		return true;
 	}  // end testImportSingleCitation
 	
 	/**
