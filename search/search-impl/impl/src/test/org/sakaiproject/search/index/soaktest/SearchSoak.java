@@ -36,6 +36,7 @@ public class SearchSoak extends TestCase
 {
 
 	private File testBase;
+	private File dbFile;
 
 	public SearchSoak(String name) {
 		super(name);
@@ -71,6 +72,7 @@ public class SearchSoak extends TestCase
 	{
 		testBase = new File("m2-target");
 		testBase = new File(testBase, "SearchSoak");
+		dbFile = new File(testBase, "searchsoakdb");
 		FileUtils.deleteAll(testBase);
 	}
 
@@ -83,7 +85,10 @@ public class SearchSoak extends TestCase
 	*/
 	public void testSoakTenCLuster() throws Exception {
 		for ( int i = 0; i < 10; i++ ) {
-			SearchIndexerNode node = new SearchIndexerNode(testBase.getAbsolutePath(),"node"+i);
+			SearchIndexerNode node = new SearchIndexerNode(testBase.getAbsolutePath(),"node"+i,
+					"org.hsqldb.jdbcDriver",
+					"jdbc:hsqldb:file:"+dbFile.getAbsolutePath(),
+					"sa","");
 			node.init();
 		}
 		Thread.sleep(600*1000);

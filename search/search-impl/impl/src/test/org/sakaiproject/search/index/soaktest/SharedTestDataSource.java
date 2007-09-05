@@ -56,9 +56,8 @@ public class SharedTestDataSource
 
 	private int docid = 0;
 
-	private static boolean running = false;
 
-	public SharedTestDataSource(String dblocation, int pool, final boolean poolLogging) throws Exception
+	public SharedTestDataSource(String dblocation, int pool, final boolean poolLogging, String driver, String url, String username, String password) throws Exception
 	{
 		DriverAdapterCPDS cpds = new DriverAdapterCPDS();
 		cpds.setDriver("org.hsqldb.jdbcDriver");
@@ -332,31 +331,11 @@ public class SharedTestDataSource
 		Statement s = connection.createStatement();
 		try
 		{
-			if (!running )
-			{
-				s.execute("DROP TABLE search_transaction");
-			}
-		}
-		catch (Exception ex)
-		{
-		}
-		try
-		{
 			s.execute("create table search_transaction ( txname varchar, txid bigint )");
 		}
 		catch (Exception ex)
 		{
 			log.warn("Create Table Said :" + ex.getMessage());
-		}
-		try
-		{
-			if (!running)
-			{
-				s.execute("DROP TABLE searchbuilderitem");
-			}
-		}
-		catch (Exception ex)
-		{
 		}
 		try
 		{
@@ -373,16 +352,6 @@ public class SharedTestDataSource
 		}
 		try
 		{
-			if (!running)
-			{
-				s.execute("DROP TABLE search_journal");
-			}
-		}
-		catch (Exception ex)
-		{
-		}
-		try
-		{
 			s.execute("CREATE TABLE search_journal ( " + " txid bigint NOT NULL, "
 					+ " txts bigint NOT NULL, " + " indexwriter varchar(255) NOT NULL, "
 					+ " PRIMARY KEY  (txid) )");
@@ -392,16 +361,6 @@ public class SharedTestDataSource
 			log.warn("Create Table Said :" + ex.getMessage());
 		}
 
-		try
-		{
-			if (!running)
-			{
-				s.execute("DROP TABLE search_node_status");
-			}
-		}
-		catch (Exception ex)
-		{
-		}
 		try
 		{
 			s.execute("CREATE TABLE search_node_status ( " + " jid bigint NOT NULL, "
@@ -415,7 +374,6 @@ public class SharedTestDataSource
 
 		connection.commit();
 		connection.close();
-		running = true;
 	}
 
 	/**

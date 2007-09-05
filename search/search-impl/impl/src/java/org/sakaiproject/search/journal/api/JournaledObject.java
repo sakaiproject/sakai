@@ -61,6 +61,24 @@ public interface JournaledObject
 	 */
 	void releaseReadLock();
 
+	/**
+	 * get the last journal entry we tried to migrate to 
+	 * @return
+	 */
+	long getLastJournalEntry();
+
+	/**
+	 * Set the last journal entry we tried to migrate to 
+	 * @param nextJournalEntry
+	 */
+	void setLastJournalEntry(long nextJournalEntry);
+
+	/**
+	 * Set the current index entry for the journal
+	 * @param journalEntry
+	 */
+	void setJournalIndexEntry(long journalEntry);
+
 
 
 }

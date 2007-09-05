@@ -72,7 +72,15 @@ public class SearchIndexerNode
 
 	private ConcurrentIndexManager cim;
 
-	public SearchIndexerNode(String base, String instanceName) 
+	private String driver;
+
+	private String url;
+
+	private String userame;
+
+	private String password;
+
+	public SearchIndexerNode(String base, String instanceName, String driver, String url, String username, String password) 
 	{
 		this.base = base;
 		this.instanceName = instanceName;
@@ -85,7 +93,7 @@ public class SearchIndexerNode
 		String indexerwork = instanceBase + "/indexerwork";
 		String indexwork = instanceBase + "/index/work";
 		String index = instanceBase + "/index/main";
-		tds = new SharedTestDataSource(base,10,false);
+		tds = new SharedTestDataSource(base,10,false,driver,url,userame,password);
 
 		mu = new MergeUpdateOperation();
 		JournaledFSIndexStorage journaledFSIndexStorage = new JournaledFSIndexStorage();
@@ -211,9 +219,7 @@ public class SearchIndexerNode
 			{
 				try
 				{
-					log.info("Loading Documents");
 					tds.populateDocuments(500,instanceName);
-					log.info("Done Loading Documents");
 				}
 				catch (Exception e)
 				{

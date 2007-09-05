@@ -80,7 +80,11 @@ public class SingleSearchSoakTest extends TestCase
 	
 	public void testSoakOneNode() throws Exception {
 		log.info("================================== "+this.getClass().getName()+".testSoakOneNode");
-		SearchIndexerNode node = new SearchIndexerNode(testBase.getAbsolutePath(),"onethread");
+		SearchIndexerNode node = new SearchIndexerNode(testBase.getAbsolutePath(),
+				"onethread",
+				"org.hsqldb.jdbcDriver",
+				"jdbc:hsqldb:mem:aname",
+				"sa","");
 		node.init();
 		Thread.sleep(15 * 1000);
 		node.close();

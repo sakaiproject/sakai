@@ -85,12 +85,28 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 
 	private long journalVersion = -1;
 
+	private MultiReader multiReader;
+
 	/**
 	 * @see org.sakaiproject.search.index.impl.FSIndexStorage#init()
 	 */
 	public void init()
 	{
 		serverId = serverConfigurationService.getServerId();
+		// ensure that the index is closed to avoid stale locks 
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			/* (non-Javadoc)
+			 * @see java.lang.Thread#run()
+			 */
+			@Override
+			public void run()
+			{
+				try {
+					multiReader.close();
+				} catch ( Exception ex ){
+				}
+			}
+		});
 	}
 
 	/**
@@ -211,13 +227,14 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 		rwlock.readLock().unlock();
 	}
 
+	
+	
 	/**
 	 * @param nextJournalEntry
 	 */
 	public void setLastJournalEntry(long lastJournalEntry)
 	{
 		lastJournalEntryHolder.set(lastJournalEntry);
-
 	}
 
 	/**
@@ -276,7 +293,7 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	 */
 	public IndexReader getDeletionIndexReader() throws IOException
 	{
-		return getIndexReader();
+		return getIndexReaderInternal();
 	}
 
 	/*
@@ -370,13 +387,20 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	{
 
 	}
+	public IndexReader getIndexReader() throws IOException {
+		if (multiReader == null ) {
+			// TODO: sort out any locking required here
+			getIndexReaderInternal();
+		}
+		return multiReader;
+	}
 
 	/*
 	 * *
 	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#getIndexReader()
 	 */
-	public IndexReader getIndexReader() throws IOException
+	public IndexReader getIndexReaderInternal() throws IOException
 	{
 		File f = new File(searchIndexDirectory);
 		if (!f.exists())
@@ -416,8 +440,16 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 			indexReaders[i] = IndexReader.open(s);
 			i++;
 		}
-
-		return new MultiReader(indexReaders);
+		MultiReader newMultiReader =  new MultiReader(indexReaders);
+		MultiReader oldMultiReader = multiReader;
+		multiReader = newMultiReader;
+		
+		try {
+			oldMultiReader.close();
+		} catch ( Exception ex ) {
+			
+		}
+		return multiReader;
 
 	}
 
