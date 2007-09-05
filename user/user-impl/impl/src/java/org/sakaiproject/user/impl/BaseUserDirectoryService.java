@@ -1367,22 +1367,22 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		
 		if (authenticateWithProviderFirst)
 		{
-			user = getRemotelyAuthenticatedUser(loginId, password);
+			user = getProviderAuthenticatedUser(loginId, password);
 			if (user != null) return user;
 		}
 		
-		user = getBaseAuthenticatedUser(loginId, password);
+		user = getInternallyAuthenticatedUser(loginId, password);
 		if (user != null) return user;
 		
 		if ((m_provider != null) && !authenticateWithProviderFirst)
 		{
-			return getRemotelyAuthenticatedUser(loginId, password);
+			return getProviderAuthenticatedUser(loginId, password);
 		}
 		
 		return null;
 	}
 	
-	protected UserEdit getBaseAuthenticatedUser(String eid, String password)
+	protected UserEdit getInternallyAuthenticatedUser(String eid, String password)
 	{
 		try
 		{
@@ -1395,7 +1395,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 	}
 	
-	protected UserEdit getRemotelyAuthenticatedUser(String loginId, String password)
+	protected UserEdit getProviderAuthenticatedUser(String loginId, String password)
 	{
 		UserEdit user = null;
 		if (m_provider instanceof AuthenticatedUserProvider)
