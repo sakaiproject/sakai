@@ -75,9 +75,9 @@ public class CourierTool extends HttpServlet
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
-		// lets see what we have ([0] will be "", [1] is the placement id, the rest is to make it unique to disable browser caching)
+		// support two "/" separated parameters [1] and [2]) - both get presence updated, the first is the address for delivery (second optional)
 		String[] parts = req.getPathInfo().split("/");
-		if (parts.length >= 2)
+		if ((parts.length == 2) || (parts.length == 3))
 		{
 			String placementId = parts[1];
 
@@ -107,15 +107,14 @@ public class CourierTool extends HttpServlet
 				// refresh our presence at the location (placement)
 				if (M_log.isDebugEnabled()) M_log.debug("setting presence: " + placementId);
 				PresenceService.setPresence(placementId);
-            
-            // the 3rd part. if it has one dash then it's the add on from  \/ the head script:
-            //    updateReq.open("GET", url + "/" + new Date().getTime() + "-" + Math.random() + "?auto=true", true);
-            if(parts.length >= 3 && parts[2].split("-").length != 1) {
-               String subContextId = parts[2];
-               // refresh our presence at the location (placement)
-               if (M_log.isDebugEnabled()) M_log.debug("setting presence subcontext: " + subContextId);
-               PresenceService.setPresence(subContextId);
-            }
+
+				// register another presence if present
+				if (parts.length == 3)
+				{
+					String secondPlacementId = parts[2];
+					if (M_log.isDebugEnabled()) M_log.debug("setting second presence: " + secondPlacementId);
+					PresenceService.setPresence(secondPlacementId);
+				}
 			}
 		}
 
