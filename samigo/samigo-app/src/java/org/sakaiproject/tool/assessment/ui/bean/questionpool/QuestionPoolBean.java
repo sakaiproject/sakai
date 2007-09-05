@@ -1188,6 +1188,31 @@ public String getAddOrEdit()
 		return "poolList";
 	}
 
+    // This is the link in edit assessment to copy all questions to a pool
+	// in order to use copyPool, we need to set up a valid pool context.
+	// that's what most of this is. The only actual work is setting sourcePart
+	public String startCopyFromAssessment() {
+		System.out.println("startcopyfromassessment");
+
+		// find the first pool, and set it up
+		QuestionPoolService delegate = new QuestionPoolService();
+		ArrayList pools = delegate.getBasicInfoOfAllPools(AgentFacade
+				.getAgentString());
+		Iterator iter = pools.iterator();
+
+		if (iter.hasNext()) {
+			// first pool, if there is one
+			QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();
+			String poolId = pool.getQuestionPoolId().toString();
+			buildTree();
+			startEditPoolAgain(poolId);
+			setActionType("item");
+			this.sourcePart = ContextUtil.lookupParam("sectionId");
+			return "copyPool";
+		}
+		return "editAssessment";
+	}
+     
   public boolean hasItemInDestPool(String sourceItemId, String destId){
   
               QuestionPoolService delegate = new QuestionPoolService();
@@ -1279,14 +1304,9 @@ public String getAddOrEdit()
 
 					Iterator iter2 = itemSet.iterator();
 					while (iter2.hasNext()) {
-						ItemDataIfc sourceItem = (ItemDataIfc) iter2.next();
-						String sourceItemId = sourceItem.getItemIdString();
-
-						if (!hasItemInDestPool(sourceItemId, destId)) {
-							delegate.addItemToPool(sourceItemId, new Long(
-									destId));
-						}
-
+			            ItemDataIfc sourceItem = (ItemDataIfc)iter2.next();
+			            String sourceItemId = delegate.copyItemFacade(sourceItem).toString();
+		                delegate.addItemToPool(sourceItemId, new Long(destId));
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -1294,7 +1314,7 @@ public String getAddOrEdit()
 				}
 			}
 		}
-
+		
 		return "editAssessment";
 	}
 

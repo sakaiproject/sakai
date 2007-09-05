@@ -167,7 +167,13 @@ document.links[newindex].onclick();
 
      </h:panelGroup>
       <h:panelGroup>
-    
+		<h:commandLink title="#{authorMessages.copy_to_pool}" id="copyToPool" immediate="true" action="#{questionpool.startCopyFromAssessment}">
+          <h:outputText value="#{authorMessages.copy_to_pool}" rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '1'}"/>
+          <f:param name="sectionId" value="#{partBean.sectionId}"/>
+        </h:commandLink>
+
+		<h:outputText value=" #{authorMessages.separator} " rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '1'}"/>
+
         <h:commandLink title="#{authorMessages.t_removeP}" action="confirmRemovePart" immediate="true"
           rendered="#{partBean.number ne 1}">
           <h:outputText value="#{authorMessages.remove_part}" />
