@@ -847,6 +847,10 @@ public class DbContentService extends BaseContentService
 				}
 				else
 				{
+					if(isInsideIndividualDropbox(edit.getId()) || isIndividualDropbox(edit.getId()))
+					{
+						insertIndividualDropboxRecord(getIndividualDropboxId(edit.getId()));
+					}
 					m_collectionStore.commitResource(edit);
 				}
 			}
@@ -890,7 +894,7 @@ public class DbContentService extends BaseContentService
 				{
 					if(isInsideIndividualDropbox(edit.getId()))
 					{
-						updateIndividualDropboxRecord(getIndividualDropboxId(edit.getId()));
+						insertIndividualDropboxRecord(getIndividualDropboxId(edit.getId()));
 					}
 					m_collectionStore.removeResource(edit);
 				}
@@ -1166,7 +1170,7 @@ public class DbContentService extends BaseContentService
 					}
 					if(isInsideIndividualDropbox(edit.getId()))
 					{
-						updateIndividualDropboxRecord(getIndividualDropboxId(edit.getId()));
+						insertIndividualDropboxRecord(getIndividualDropboxId(edit.getId()));
 					}
 					m_resourceStore.commitResource(edit);
 				}
@@ -1259,7 +1263,7 @@ public class DbContentService extends BaseContentService
 
 					if(isInsideIndividualDropbox(edit.getId()))
 					{
-						updateIndividualDropboxRecord(getIndividualDropboxId(edit.getId()));
+						insertIndividualDropboxRecord(getIndividualDropboxId(edit.getId()));
 					}
 					m_resourceStore.removeResource(edit);
 
