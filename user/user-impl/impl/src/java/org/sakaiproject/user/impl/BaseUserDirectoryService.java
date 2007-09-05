@@ -843,6 +843,127 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * @inheritDoc
 	 */
+	public boolean allowUpdateUserName(String id)
+	{
+		// clean up the id
+		id = cleanId(id);
+		if (id == null) return false;
+		
+		//		 is this the user's own?
+		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		{
+			ArrayList locks = new ArrayList();
+			locks.add(SECURE_UPDATE_USER_OWN);
+			locks.add(SECURE_UPDATE_USER_ANY);
+			locks.add(SECURE_UPDATE_USER_OWN_NAME);
+			
+			
+			// own or any
+			return unlockCheck(locks, userReference(id));
+		}
+
+		else
+		{
+			// just any
+			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
+		}
+		
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public boolean allowUpdateUserEmail(String id)
+	{
+		// clean up the id
+		id = cleanId(id);
+		if (id == null) return false;
+		
+		//		 is this the user's own?
+		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		{
+			ArrayList locks = new ArrayList();
+			locks.add(SECURE_UPDATE_USER_OWN);
+			locks.add(SECURE_UPDATE_USER_ANY);
+			locks.add(SECURE_UPDATE_USER_OWN_EMAIL);
+			
+			
+			// own or any
+			return unlockCheck(locks, userReference(id));
+		}
+
+		else
+		{
+			// just any
+			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
+		}
+		
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public boolean allowUpdateUserPassword(String id)
+	{
+		// clean up the id
+		id = cleanId(id);
+		if (id == null) return false;
+		
+		//		 is this the user's own?
+		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		{
+			ArrayList locks = new ArrayList();
+			locks.add(SECURE_UPDATE_USER_OWN);
+			locks.add(SECURE_UPDATE_USER_ANY);
+			locks.add(SECURE_UPDATE_USER_OWN_PASSWORD);
+			
+			
+			// own or any
+			return unlockCheck(locks, userReference(id));
+		}
+
+		else
+		{
+			// just any
+			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
+		}
+		
+	}
+	
+
+	/**
+	 * @inheritDoc
+	 */
+	public boolean allowUpdateUserType(String id)
+	{
+		// clean up the id
+		id = cleanId(id);
+		if (id == null) return false;
+		
+		//		 is this the user's own?
+		if (id.equals(sessionManager().getCurrentSessionUserId()))
+		{
+			ArrayList locks = new ArrayList();
+			locks.add(SECURE_UPDATE_USER_OWN);
+			locks.add(SECURE_UPDATE_USER_ANY);
+			locks.add(SECURE_UPDATE_USER_OWN_TYPE);
+			
+			
+			// own or any
+			return unlockCheck(locks, userReference(id));
+		}
+
+		else
+		{
+			// just any
+			return unlockCheck(SECURE_UPDATE_USER_ANY, userReference(id));
+		}
+		
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public UserEdit editUser(String id) throws UserNotDefinedException, UserPermissionException, UserLockedException
 	{
 		// clean up the id

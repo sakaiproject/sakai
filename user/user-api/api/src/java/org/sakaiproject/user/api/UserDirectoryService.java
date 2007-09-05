@@ -146,6 +146,42 @@ public interface UserDirectoryService extends EntityProducer
 	boolean allowUpdateUser(String id);
 
 	/**
+	 * check permissions for editUser()
+	 * 
+	 * @param id
+	 *        The user id.
+	 * @return true if the user is allowed to update their own first and last names, false if not.
+	 */
+	public boolean allowUpdateUserName(String id);
+	
+	/**
+	 * check permissions for editUser()
+	 * 
+	 * @param id
+	 *        The user id.
+	 * @return true if the user is allowed to update their own email address, false if not.
+	 */
+	public boolean allowUpdateUserEmail(String id);
+	
+	/**
+	 * check permissions for editUser()
+	 * 
+	 * @param id
+	 *        The user id.
+	 * @return true if the user is allowed to update their own password, false if not.
+	 */
+	public boolean allowUpdateUserPassword(String id);
+	
+	/**
+	 * check permissions for editUser()
+	 * 
+	 * @param id
+	 *        The user id.
+	 * @return true if the user is allowed to update their own type, false if not.
+	 */
+	public boolean allowUpdateUserType(String id);
+
+	/**
 	 * Authenticate a user / password.
 	 * 
 	 * @param loginId
