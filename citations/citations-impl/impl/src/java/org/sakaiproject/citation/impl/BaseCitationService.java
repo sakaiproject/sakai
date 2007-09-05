@@ -1598,13 +1598,13 @@ public abstract class BaseCitationService implements CitationService
 						   	logger.debug("importFromRisList: Unknown Schema Name = " + RISvalue +
 						    			     ". Setting schemeName to 'unknown'");
 					    		schemaName = "unknown";
-					    	}
+					    }
 					    	logger.debug("importFromRisList: Schema Name = " + schemaName);
 							schema = org.sakaiproject.citation.cover.CitationService.getSchema(schemaName);
 					    	logger.debug("importFromRisList: Retrieved Schema Name = " + schema.getIdentifier());
 							setSchema(schema);
-					    }
-					} // end if i == 0
+					}
+				} // end if i == 0
 				else
 				{
 					if (RIScode.equalsIgnoreCase("ER"))
