@@ -1537,8 +1537,9 @@ public abstract class BaseCitationService implements CitationService
 		{
 			Log logger = LogFactory.getLog(BasicCitation.class);
 			String currentLine = null;
-			String[] tokens = null;
-			String[] newTokens = null;
+//			String[] tokens = null;
+			String RIScode = null;
+			String RISvalue = null;
 			int firstindex = 0;
 			int startpage = -1;
 			int endpage = -1;
@@ -1556,108 +1557,91 @@ public abstract class BaseCitationService implements CitationService
 				currentLine = currentLine.trim();
 				logger.debug("importFromRisList: currentLine = " + currentLine);
 				
-				tokens = currentLine.split("-");
+//				tokens = currentLine.split("-");
 
-				// Reconstitute any dashes that were in the value field
-				if (tokens != null && tokens.length > 2)
+				if (currentLine.length() < 4)
 				{
-					newTokens[0] = tokens[0];
-					newTokens[1] = tokens[1];
-					for(int j=2; i<tokens.length; j++)
-						newTokens[1] = newTokens[1] + "-" + tokens[j];
+					RIScode = "";
+					RISvalue = "";
+				}
+				else
+				{
+					RIScode = currentLine.substring(0, 2);
+					logger.debug("importFromRisList: substr code = " + RIScode);
 					
-					tokens = newTokens;
+					if (currentLine.length() >= 7)
+						RISvalue = currentLine.substring(6);
+					else
+						RISvalue = "";
+					
+					logger.debug("importFromRisList: substr value = " + RISvalue);
 				}
 
-				if (tokens == null)
-					logger.debug("importFromRisList: tokens is null");
-				else
-					logger.debug("importFromRisList: tokens length = " + tokens.length);
-
-				// Make sure tokens were created and that there are only two 
-				// tokens[0] = CODE  tokens[1] = VALUE
-				if (tokens != null  && tokens.length == 2)
-				{
-					tokens[0] = tokens[0].trim();
-					tokens[1] = tokens[1].trim();
+				RISvalue = RISvalue.trim();
 					
-			    	logger.debug("importFromRisList: tokens[0] = " + tokens[0]);
-			    	logger.debug("importFromRisList: tokens[1] = " + tokens[1]);
 			    	
-					if (i == 0)
+				if (i == 0)
+				{
+					if (! RIScode.equalsIgnoreCase("TY"))
 					{
-						if (! tokens[0].equalsIgnoreCase("TY"))
-					    {
-					    	logger.debug("importFromRisList: FALSE - 1st entry in RIS must be TY. It isn't it is " + tokens[0]);
-					    	return false; // TY MUST be the first entry in a RIS citation
-					    }
-					    else
-					    {
-					    	logger.debug("importFromRisList: size of m_RISTypeInverse = " + m_RISTypeInverse.size());
-					    	logger.debug("importFromRisList: tokens[1] before schemaName = " + tokens[1]);
-					    	schemaName = (String) m_RISTypeInverse.get(tokens[1]);
+					   	logger.debug("importFromRisList: FALSE - 1st entry in RIS must be TY. It isn't it is " + RISvalue);
+					   	return false; // TY MUST be the first entry in a RIS citation
+					}
+					else
+					{
+					   	logger.debug("importFromRisList: size of m_RISTypeInverse = " + m_RISTypeInverse.size());
+					 	logger.debug("importFromRisList: RISvalue before schemaName = " + RISvalue);
+				    	schemaName = (String) m_RISTypeInverse.get(RISvalue);
 					    	
-					    	if (schemaName == null)
-					    	{
-						    	logger.debug("importFromRisList: Unknown Schema Name = " + tokens[1] +
+					    if (schemaName == null)
+					    {
+						   	logger.debug("importFromRisList: Unknown Schema Name = " + RISvalue +
 						    			     ". Setting schemeName to 'unknown'");
 					    		schemaName = "unknown";
 					    	}
 					    	logger.debug("importFromRisList: Schema Name = " + schemaName);
 							schema = org.sakaiproject.citation.cover.CitationService.getSchema(schemaName);
+					    	logger.debug("importFromRisList: Retrieved Schema Name = " + schema.getIdentifier());
 							setSchema(schema);
 					    }
 					} // end if i == 0
-					else
-					{
-						if (tokens[0].equalsIgnoreCase("ER"))
-						{
-					    	logger.debug("importFromRisList: Read an ER (with something after the dash). End of citation.");
-							return true; // ER signals end of citation
-						} // end of citation
-
-						Fields = schema.getFields();
-						iter = Fields.iterator();
-						status = true;
-						
-						while (iter.hasNext() && status == true)
-						{
-							tempField = (Field) iter.next();
-							if (tokens[0].equalsIgnoreCase(tempField.getIdentifier(RIS_FORMAT)))
-							{
-								status = false;
-						    	logger.debug("importFromRisList: Found field mapping");
-							}
-						} // end while
-						
-						if (status) // couldn't find the field mapping
-							logger.debug("importFromRisList: Cannot find Field mapping");
-						else
-						{
-							logger.debug("importFromRisList: Field mapping is " + tempField.getIdentifier() +
-									 " => " + tempField.getIdentifier(RIS_FORMAT));
-							
-							setCitationProperty(tempField.getIdentifier(), tokens[1]);
-						}
-							
-						
-					} // end else of i == 0
-				} // end if tokens != null && tokens.length == 2
 				else
 				{
-			    	logger.debug("importFromRisList: tokens.length != 2. Close to end of citation.");
-					if (tokens != null  && tokens.length < 2)
+					if (RIScode.equalsIgnoreCase("ER"))
 					{
-						tokens[0] = tokens[0].trim();
-				    	logger.debug("importFromRisList: tokens != null. Close to end of citation.");
-				    	
-						if (tokens[0].equalsIgnoreCase("ER"))
+					   	logger.debug("importFromRisList: Read an ER. End of citation.");
+						return true; // ER signals end of citation
+					} // end of citation
+
+					Fields = schema.getFields();
+					iter = Fields.iterator();
+					status = true;
+						
+					while (iter.hasNext() && status == true)
+					{
+						tempField = (Field) iter.next();
+
+						logger.debug("importFromRisList: Seeing if " + RIScode + " == " + tempField.getIdentifier(RIS_FORMAT) + " for Schema " + schema.getIdentifier());
+						
+						if (RIScode.equalsIgnoreCase(tempField.getIdentifier(RIS_FORMAT)))
 						{
-					    	logger.debug("importFromRisList: Read an ER. End of citation.");
-							return true; // ER signals end of citation
-						} // end of citation
-					} //end if tokens != null
-				}
+							status = false;
+					    	logger.debug("importFromRisList: Found field mapping");
+						}
+					} // end while
+						
+					if (status) // couldn't find the field mapping
+						logger.debug("importFromRisList: Cannot find Field mapping");
+					else
+					{
+						logger.debug("importFromRisList: Field mapping is " + tempField.getIdentifier() +
+								     " => " + tempField.getIdentifier(RIS_FORMAT));
+							
+						setCitationProperty(tempField.getIdentifier(), RISvalue);
+					}
+							
+						
+				} // end else of i == 0
 			} // end for i
 	    	logger.debug("importFromRisList: FALSE - End of Input. Citation not added.");
 			return false;
