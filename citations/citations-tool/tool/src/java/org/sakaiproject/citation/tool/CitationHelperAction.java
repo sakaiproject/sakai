@@ -1926,7 +1926,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				logger.debug("------> Trying to add citation " + totalNumberCitations);
 				if (importCitation.importFromRisList(tempList)) // import went well
 				{
-//					testImportSingleCitation(importCitation, tempList);
 					importCollection.add(importCitation);
 					sucessfullyReadCitations++;
 				}
@@ -1943,82 +1942,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		
 		setMode(state, Mode.LIST);
 	} // end doImport()
-	
-	/**
-	 * 
-	 * @param citation
-	 * @param risImportList
-	 */
-	private boolean testImportSingleCitation(Citation citation, List risImportList)
-	{
-		String currentLine = null;
-		String[] tokens = null;
-		int startpage = -1;
-		int endpage = -1;
-		Schema schema = null;
-		String schemaName = "blank";
-		
-		logger.debug("importFromRisList: In importFromRisList. List size is " + risImportList.size());
-		for(int i=0; i< risImportList.size(); i++)
-		{
-			currentLine = (String) risImportList.get(i);
-			logger.debug("importFromRisList: currentLine = " + currentLine);
-			
-			tokens = currentLine.split("-");
-
-			if (tokens == null)
-				logger.debug("importFromRisList: tokens is null");
-			else
-				logger.debug("importFromRisList: tokens length = " + tokens.length);
-
-			// Make sure tokens were created and that there are only two 
-			// tokens[0] = CODE  tokens[1] = VALUE
-			if (tokens != null  && tokens.length == 2)
-			{
-				tokens[0] = tokens[0].trim();
-				tokens[1] = tokens[1].trim();
-				
-		    	logger.debug("importFromRisList: tokens[0] = " + tokens[0]);
-		    	logger.debug("importFromRisList: tokens[1] = " + tokens[1]);
-		    	
-				if (i == 0)
-				{
-					if (! tokens[0].equalsIgnoreCase("TY"))
-				    {
-				    	logger.debug("importFromRisList: 1st entry in RIS must be TY. It isn't it is " + tokens[0]);
-				    	return false; // TY MUST be the first entry in a RIS citation
-				    }
-				    else
-				    {
-//				    	schemaName = (String) RISTypeInverse.get(tokens[1]);
-//						schema = org.sakaiproject.citation.cover.CitationService.getSchema(schemaName);
-//						setSchema(schema);
-				    	logger.debug("importFromRisList: Schema Name = " + schemaName);
-				    }
-				} // end if i == 0
-				else
-				{
-					
-				} // end else of i == 0
-			} // end if tokens != null && tokens.length == 2
-			else
-			{
-		    	logger.debug("importFromRisList: tokens.length != 2. Close to end of citation.");
-				if (tokens != null)
-				{
-					tokens[0] = tokens[0].trim();
-			    	logger.debug("importFromRisList: tokens != null. Close to end of citation.");
-			    	
-					if (tokens[0].equalsIgnoreCase("ER"))
-					{
-				    	logger.debug("importFromRisList: Read an ER. End of citation.");
-						return true; // ER signals end of citation
-					} // end of citation
-				} //end if tokens != null
-			}
-		} // end for i
-		return true;
-	}  // end testImportSingleCitation
 	
 	/**
 	*
