@@ -1383,7 +1383,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (PermissionException e)
 			{
-				// TODO Auto-generated catch block
+				addAlert(trb.getString("alert.perm"));
 				logger.warn("PermissionException ", e);
 			}
 			catch (IdUnusedException e)
@@ -1410,8 +1410,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (OverQuotaException e)
 			{
-				// TODO Auto-generated catch block
-				logger.warn("OverQuotaException ", e);
+				addAlert(trb.getFormattedMessage("alert.overquota", new String[]{name}));
+				logger.warn("OverQuotaException " + e);
 			}
 			catch (ServerOverloadException e)
 			{
@@ -1501,13 +1501,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (OverQuotaException e)
 			{
-				addAlert(state, rb.getString("overquota"));
-			}	// try-catch
+				addAlert(state, trb.getFormattedMessage("alert.overquota", new String[]{ itemId }) );
+			}
 			catch(RuntimeException e)
 			{
 				logger.debug("ResourcesAction.doMoveitems ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, rb.getString("failed"));
-			}
+			}	// try-catch
 
 			if (state.getAttribute(STATE_MESSAGE) == null)
 			{
@@ -3668,8 +3668,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch (PermissionException e)
 		{
+			addAlert(trb.getString("alert.noperm"));
 			// TODO Auto-generated catch block
-			logger.warn("PermissionException ", e);
+			logger.warn("PermissionException " + e);
 		}
 		catch (IdUnusedException e)
 		{
@@ -3688,8 +3689,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch (OverQuotaException e)
 		{
-			// TODO Auto-generated catch block
-			logger.warn("OverQuotaException ", e);
+			addAlert(trb.getString("alert.quota"));
+			logger.warn("OverQuotaException " + e);
 		}
 		catch (ServerOverloadException e)
 		{
@@ -5212,17 +5213,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch(PermissionException e)
 			{
-				
+				logger.warn("PermissionException", e);
 			} 
 			catch (IdUnusedException e) 
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("IdUnusedException", e);
 			} 
 			catch (TypeException e) 
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("TypeException", e);
 			}
 		}
 
@@ -5558,8 +5557,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (OverQuotaException e)
 			{
-				// TODO Auto-generated catch block
-				logger.warn("OverQuotaException ", e);
+				addAlert(trb.getFormattedMessage("alert.overquota", new Object[]{name}));
+				logger.warn("OverQuotaException " + e);
 			}
             catch (IdUniquenessException e)
             {
@@ -6634,7 +6633,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				// TODO: log error
 				// TODO: move strings to rb
-				addAlert(state, "Unable to complete Sort");
+				addAlert(state, trb.getString("alert.nosort"));
 			}
 			else
 			{
@@ -6673,27 +6672,23 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				catch(IdUnusedException e)
 				{
-					// TODO: log error
-					// TODO: move strings to rb
-					addAlert(state, "Unable to complete Sort");
+					addAlert(state, trb.getString("alert.nosort"));
+					logger.warn("IdUnusedException" + e);
 				}
 				catch(TypeException e)
 				{
-					// TODO: log error
-					// TODO: move strings to rb
-					addAlert(state, "Unable to complete Sort");
+					addAlert(state, trb.getString("alert.nosort"));
+					logger.warn("TypeException" + e);
 				}
 				catch(PermissionException e)
 				{
-					// TODO: log error
-					// TODO: move strings to rb
-					addAlert(state, "Unable to complete Sort");
+					addAlert(state, trb.getString("alert.nosort"));
+					logger.warn("PermissionException" + e);
 				}
 				catch(InUseException e)
 				{
-					// TODO: log error
-					// TODO: move strings to rb
-					addAlert(state, "Unable to complete Sort");
+					addAlert(state, trb.getString("alert.nosort"));
+					logger.warn("InUseException" + e);
 				}
 			}
 		}
@@ -7066,15 +7061,37 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			break;
 		case REVISE_CONTENT:
 			reviseContent(pipe);
+			if(pipe.isErrorEncountered())
+			{
+				String msg = pipe.getErrorMessage();
+				if(msg == null || msg.trim().equals(""))
+				{
+					msg = rb.getString("alert.unknown");
+				}
+				addAlert(state, msg);
+			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			state.setAttribute(STATE_MODE, MODE_LIST);
 			break;
 		case REPLACE_CONTENT:
 			replaceContent(pipe);
+			if(pipe.isErrorEncountered())
+			{
+				String msg = pipe.getErrorMessage();
+				if(msg == null || msg.trim().equals(""))
+				{
+					msg = rb.getString("alert.unknown");
+				}
+				addAlert(state, msg);
+				toolSession.removeAttribute(ResourceToolAction.DONE);
+				return;
+			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			state.setAttribute(STATE_MODE, MODE_LIST);
+			break;
 		default:
 			state.setAttribute(STATE_MODE, MODE_LIST);
+			break;
 		}
 		if(toolSession.getAttribute(STATE_MESSAGE_LIST) != null)
 		{
@@ -7153,32 +7170,34 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch (PermissionException e)
 		{
-			// TODO Auto-generated catch block
-			logger.warn("PermissionException ", e);
+			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.noperm"));
+			logger.warn("PermissionException " + e);
 		}
 		catch (IdUnusedException e)
 		{
-			// TODO Auto-generated catch block
+			pipe.setErrorEncountered(true);
 			logger.warn("IdUnusedException ", e);
 		}
 		catch (TypeException e)
 		{
-			// TODO Auto-generated catch block
+			pipe.setErrorEncountered(true);
 			logger.warn("TypeException ", e);
 		}
 		catch (InUseException e)
 		{
-			// TODO Auto-generated catch block
+			pipe.setErrorEncountered(true);
 			logger.warn("InUseException ", e);
 		}
 		catch (OverQuotaException e)
 		{
-			// TODO Auto-generated catch block
-			logger.warn("OverQuotaException ", e);
+			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.quota"));
+			logger.warn("OverQuotaException " + e);
 		}
 		catch (ServerOverloadException e)
 		{
-			// TODO Auto-generated catch block
+			pipe.setErrorEncountered(true);
 			logger.warn("ServerOverloadException ", e);
 		}
 	}
@@ -8131,7 +8150,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (PermissionException e)
 			{
-				// TODO Auto-generated catch block
+				addAlert(state, trb.getString("alert.perm"));
 				logger.warn("PermissionException ", e);
 			}
 			catch (IdUnusedException e)
@@ -8157,7 +8176,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (OverQuotaException e)
 			{
-				// TODO Auto-generated catch block
+				addAlert(trb.getFormattedMessage("alert.overquota", new String[]{name}));
 				logger.warn("OverQuotaException ", e);
 			}
 			catch (ServerOverloadException e)
