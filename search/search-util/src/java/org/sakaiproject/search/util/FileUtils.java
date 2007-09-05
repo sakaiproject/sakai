@@ -159,6 +159,7 @@ public class FileUtils
 	 */
 	public static void pack(File source,final String basePath, final String replacePath, OutputStream output) throws IOException
 	{
+		log.debug("Packing "+source+" repacing "+basePath+" with "+replacePath);
 		final ZipOutputStream zout = new ZipOutputStream(output);
 		final byte[] buffer = new byte[1024 * 100];
 		FileInputStream fin = null;
@@ -195,6 +196,13 @@ public class FileUtils
 			zout.flush();
 			try
 			{
+				zout.close();
+			}
+			catch (Exception e)
+			{
+			}
+			try
+			{
 				fin.close();
 			}
 			catch (Exception e)
@@ -217,6 +225,7 @@ public class FileUtils
 		zout.putNextEntry(ze);
 		try
 		{
+			
 			InputStream fin = new FileInputStream(file);
 			try
 			{
@@ -232,7 +241,7 @@ public class FileUtils
 			}
 		}
 		finally
-		{
+		{	
 			zout.closeEntry();
 		}
 

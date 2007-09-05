@@ -27,7 +27,6 @@ import org.sakaiproject.search.journal.api.JournalManager;
 import org.sakaiproject.search.journal.api.JournalManagerState;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
-import org.sakaiproject.search.transaction.api.TransactionListener;
 
 /**
  * A transaction listener that connects to the journalManager

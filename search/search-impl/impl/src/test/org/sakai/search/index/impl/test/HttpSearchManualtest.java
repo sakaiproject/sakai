@@ -22,10 +22,10 @@ import org.sakaiproject.search.api.SearchService;
 /**
  * @author ieb
  */
-public class HttpSearchTest extends TestCase
+public class HttpSearchManualtest extends TestCase
 {
 
-	private static final Log log = LogFactory.getLog(HttpSearchTest.class);
+	private static final Log log = LogFactory.getLog(HttpSearchManualtest.class);
 	private String sharedKey = "";
 	private String searchServerUrl = "http://localhost:8080/sakai-search-tool/xmlsearch/";
 //	 The HttpClient used for processing transactions
@@ -51,7 +51,7 @@ public class HttpSearchTest extends TestCase
 	/**
 	 * @param arg0
 	 */
-	public HttpSearchTest(String arg0)
+	public HttpSearchManualtest(String arg0)
 	{
 		super(arg0);
 	}

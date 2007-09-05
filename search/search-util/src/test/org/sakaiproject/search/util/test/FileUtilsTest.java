@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Random;
 
 import junit.framework.TestCase;
 
@@ -73,8 +74,8 @@ public class FileUtilsTest extends TestCase
 	protected void tearDown() throws Exception
 	{
 		super.tearDown();
-		testSpace.delete();
-		testSpace.getParentFile().delete();
+		//testSpace.delete();
+		//testSpace.getParentFile().delete();
 	}
 
 	/**
@@ -111,6 +112,8 @@ public class FileUtilsTest extends TestCase
 	private void createFiles(File base) throws GeneralSecurityException, IOException
 	{
 		log.info("Create Test Tree "+base.getAbsolutePath());
+		Random random = new Random();
+		byte[] buffer = new byte[1024];
 		for ( int i = 0; i < 20; i++ ) {
 			String name = FileUtils.digest(String.valueOf(System.currentTimeMillis()+i));
 			File f = base;
@@ -118,8 +121,27 @@ public class FileUtilsTest extends TestCase
 				f = new File(f,String.valueOf(name.charAt(j)));
 			}
 			f.getParentFile().mkdirs();
-			FileWriter fw = new FileWriter(f);
-			fw.write("TESTDATASPACE OK to delete");
+			FileOutputStream fw = new FileOutputStream(f);
+			random.nextBytes(buffer);
+			fw.write(buffer);
+			fw.close();
+			
+		}
+		assertEquals("Failed to create test tree ",true,base.exists());
+
+	}
+	private void createFlatFiles(File base) throws GeneralSecurityException, IOException
+	{
+		Random random = new Random();
+		byte[] buffer = new byte[1024];
+		log.info("Create Test Tree "+base.getAbsolutePath());
+		for ( int i = 0; i < 20; i++ ) {
+			String name = FileUtils.digest(String.valueOf(System.currentTimeMillis()+i));
+			File f = new File(base,name);
+			f.getParentFile().mkdirs();
+			FileOutputStream fw = new FileOutputStream(f);
+			random.nextBytes(buffer);
+			fw.write(buffer);
 			fw.close();
 			
 		}
@@ -135,20 +157,48 @@ public class FileUtilsTest extends TestCase
 	{
 		File target = new File(testSpace,"testPack");
 		File zipFile = new File(target.getParentFile(),"testPack.zip");
+		FileUtils.deleteAll(target);
+		FileUtils.deleteAll(zipFile);
 		createFiles(target);
-		FileOutputStream fout = new FileOutputStream(zipFile);
 		log.info("Packing From "+target.getAbsolutePath());
 		log.info("Packing Into "+zipFile.getAbsolutePath());
 		String basePath = target.getPath();
 		String replacePath = "somethingelse/";
+		
+		FileOutputStream fout = new FileOutputStream(zipFile);
 		FileUtils.pack(target, basePath, replacePath, fout);
 		fout.close();
+		
 		assertEquals("Packed File Does not exist",true, zipFile.exists());
 		assertEquals("File Size == 0 ",true,zipFile.length() > 0);
+		//FileUtils.deleteAll(target);
+		//FileUtils.deleteAll(zipFile);
+		//assertEquals("Delete Failed of source tree ",false,target.exists());
+		//assertEquals("Delete Failed of zip file ",false,zipFile.exists());
+		log.info("Test Pack Ok  ");
+	}
+	public final void testPackFlat() throws Exception
+	{
+		File target = new File(testSpace,"testPackFlat");
+		File zipFile = new File(target.getParentFile(),"testPackFlat.zip");
 		FileUtils.deleteAll(target);
 		FileUtils.deleteAll(zipFile);
-		assertEquals("Delete Failed of source tree ",false,target.exists());
-		assertEquals("Delete Failed of zip file ",false,zipFile.exists());
+		createFlatFiles(target);
+		log.info("Packing From "+target.getAbsolutePath());
+		log.info("Packing Into "+zipFile.getAbsolutePath());
+		String basePath = target.getPath();
+		String replacePath = "somethingelse";
+		
+		FileOutputStream fout = new FileOutputStream(zipFile);
+		FileUtils.pack(target, basePath, replacePath, fout);
+		fout.close();
+		
+		assertEquals("Packed File Does not exist",true, zipFile.exists());
+		assertEquals("File Size == 0 ",true,zipFile.length() > 0);
+		//FileUtils.deleteAll(target);
+		//FileUtils.deleteAll(zipFile);
+		//assertEquals("Delete Failed of source tree ",false,target.exists());
+		//assertEquals("Delete Failed of zip file ",false,zipFile.exists());
 		log.info("Test Pack Ok  ");
 	}
 
@@ -162,13 +212,15 @@ public class FileUtilsTest extends TestCase
 		File outtarget = new File(testSpace,"testUnpackOut");
 		File zipFile = new File(target.getParentFile(),"testUnpack.zip");
 		createFiles(target);
-		FileOutputStream fout = new FileOutputStream(zipFile);
 		log.info("Packing From "+target.getAbsolutePath());
 		log.info("Packing Into "+zipFile.getAbsolutePath());
 		String basePath = target.getPath();
-		String replacePath = "somethingelse/";
+		String replacePath = "somethingelse";
+		
+		FileOutputStream fout = new FileOutputStream(zipFile);
 		FileUtils.pack(target, basePath, replacePath, fout);
 		fout.close();
+		
 		assertEquals("Packed File Does not exist",true, zipFile.exists());
 		assertEquals("File Size == 0 ",true,zipFile.length() > 0);
 		

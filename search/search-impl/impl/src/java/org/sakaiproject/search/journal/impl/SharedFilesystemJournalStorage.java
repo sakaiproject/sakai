@@ -90,10 +90,13 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 		File tmpZip = new File(journalLocation, transactionId + ".zip."
 				+ System.currentTimeMillis());
 		tmpZip.getParentFile().mkdirs();
-		FileOutputStream zout = new FileOutputStream(tmpZip);
 		String basePath = indexLocation.getPath();
-		String replacePath = String.valueOf(transactionId) + "/";
+		String replacePath = String.valueOf(transactionId);
+		
+		FileOutputStream zout = new FileOutputStream(tmpZip);
 		FileUtils.pack(indexLocation, basePath, replacePath, zout);
+		zout.close();
+		
 		File journalZip = getTransactionFile(transactionId);
 
 		return new JournalStorageStateImpl(tmpZip, journalZip);
@@ -109,7 +112,6 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 		File journalZip = ((JournalStorageStateImpl) jss).journalZip;
 		File tmpZip = ((JournalStorageStateImpl) jss).tmpZip;
 		tmpZip.renameTo(journalZip);
-		FileUtils.listDirectory(journalZip.getParentFile());
 	}
 
 	/*

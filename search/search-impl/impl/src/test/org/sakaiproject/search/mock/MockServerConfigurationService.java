@@ -33,6 +33,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 public class MockServerConfigurationService implements ServerConfigurationService
 {
 
+	private String instanceName = "testserverid";
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.component.api.ServerConfigurationService#getAccessPath()
 	 */
@@ -118,7 +120,7 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getServerId()
 	{
-		return "testserverid";
+		return instanceName;
 	}
 
 	/* (non-Javadoc)
@@ -158,6 +160,12 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getString(String name)
 	{
+		if ( name.equals("search.enable") ) {
+			return "true";
+		}
+		if ( name.equals("search.indexbuild") ) {
+			return "true";
+		}
 		return null;
 	}
 
@@ -166,7 +174,13 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	 */
 	public String getString(String name, String dflt)
 	{
-		return null;
+		if ( name.equals("search.enable") ) {
+			return "true";
+		}
+		if ( name.equals("search.indexbuild") ) {
+			return "true";
+		}
+		return dflt;
 	}
 
 	/* (non-Javadoc)
@@ -231,6 +245,14 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 	public String getUserHomeUrl()
 	{
 		return null;
+	}
+
+	/**
+	 * @param instanceName
+	 */
+	public void setInstanceName(String instanceName)
+	{
+		this.instanceName = instanceName;
 	}
 
 }

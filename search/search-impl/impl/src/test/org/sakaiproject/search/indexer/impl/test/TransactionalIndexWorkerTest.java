@@ -24,10 +24,6 @@ package org.sakaiproject.search.indexer.impl.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 
 import junit.framework.TestCase;
 
@@ -50,7 +46,6 @@ import org.sakaiproject.search.journal.impl.DbJournalManager;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
-import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 import org.sakaiproject.search.util.FileUtils;
 
@@ -68,7 +63,7 @@ public class TransactionalIndexWorkerTest extends TestCase
 
 	private TransactionIndexManagerImpl transactionIndexManager;
 
-	private TestDataSource tds;
+	private TDataSource tds;
 
 	private SearchBuilderQueueManager searchBuilderQueueManager;
 
@@ -102,7 +97,7 @@ public class TransactionalIndexWorkerTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		super.setUp();
-		tds = new TestDataSource();
+		tds = new TDataSource(5,false);
 		testBase = new File("m2-target");
 		testBase = new File(testBase, "TransactionalIndexWorkerTest");
 		work = new File(testBase, "work");
@@ -167,6 +162,17 @@ public class TransactionalIndexWorkerTest extends TestCase
 	 */
 	public final void testInit()
 	{
+		log.info("================================== "+this.getClass().getName()+".doInit");
+		doInit();
+		log.info("==PASSED========================== "+this.getClass().getName()+".doInit");
+
+	}
+
+	/**
+	 * 
+	 */
+	private void doInit()
+	{
 		tiw = new TransactionalIndexWorker();
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(mockServerConfigurationService);
@@ -174,8 +180,6 @@ public class TransactionalIndexWorkerTest extends TestCase
 		tiw.addIndexWorkerDocumentListener(new DebugIndexWorkerDocumentListener());
 		tiw.addIndexWorkerListener(new DebugIndexWorkerListener());
 		tiw.init();
-		log.info("testInit passed");
-
 	}
 
 	/**
@@ -187,18 +191,18 @@ public class TransactionalIndexWorkerTest extends TestCase
 	public final void testProcessNone() throws IOException
 	{
 
-		testInit();
+		log.info("================================== "+this.getClass().getName()+".testProcessNone");
+		doInit();
 		assertEquals("Should not have processed any documents ", 0, tiw.process(100));
-		FileUtils.listDirectory(testBase);
-		log.info("testProcessNone passed");
+		log.info("==PASSED========================== "+this.getClass().getName()+".testProcessNone");
 	}
 
 	public final void testProcessSome() throws Exception
 	{
-		testInit();
+		log.info("================================== "+this.getClass().getName()+".testProcessSome");
+		doInit();
 		int n = tds.populateDocuments(100);
 		assertEquals("Should not have processed some documents ", n, tiw.process(100));
-		FileUtils.listDirectory(testBase);
 		for (int i = 0; i < 100; i++)
 		{
 			File zipFile = new File(shared, String.valueOf(i) + ".zip");
@@ -206,10 +210,10 @@ public class TransactionalIndexWorkerTest extends TestCase
 			{
 				FileInputStream fin = new FileInputStream(zipFile);
 				FileUtils.unpack(fin, work2);
-				FileUtils.listDirectory(work2);
 			}
 		}
-		log.info("testProcessSome passed");
+		FileUtils.listDirectory(work2);
+		log.info("==PASSED========================== "+this.getClass().getName()+".testProcessSome");
 	}
 
 	/**
@@ -222,9 +226,10 @@ public class TransactionalIndexWorkerTest extends TestCase
 	 */
 	public final void testAddIndexWorkerListener()
 	{
-		testInit();
+		log.info("================================== "+this.getClass().getName()+".testAddIndexWorkerListener");
+		doInit();
 		tiw.addIndexWorkerListener(new DebugIndexWorkerListener());
-		log.info("testAddIndexWorkerListener passed");
+		log.info("==PASSED========================== "+this.getClass().getName()+".testAddIndexWorkerListener");
 	}
 
 	/**
@@ -233,11 +238,12 @@ public class TransactionalIndexWorkerTest extends TestCase
 	 */
 	public final void testRemoveIndexWorkerListener()
 	{
-		testInit();
+		log.info("================================== "+this.getClass().getName()+".testRemoveIndexWorkerListener");
+		doInit();
 		IndexWorkerListener iwdl = new DebugIndexWorkerListener();
 		tiw.addIndexWorkerListener(iwdl);
 		tiw.removeIndexWorkerListener(iwdl);
-		log.info("testRemoveIndexWorkerListener passed");
+		log.info("==PASSED========================== "+this.getClass().getName()+".testRemoveIndexWorkerListener");
 	}
 
 	/**
@@ -246,9 +252,10 @@ public class TransactionalIndexWorkerTest extends TestCase
 	 */
 	public final void testAddIndexWorkerDocumentListener()
 	{
-		testInit();
+		log.info("================================== "+this.getClass().getName()+".testAddIndexWorkerDocumentListener");
+		doInit();
 		tiw.addIndexWorkerDocumentListener(new DebugIndexWorkerDocumentListener());
-		log.info("testAddIndexWorkerDocumentListener passed");
+		log.info("==PASSED========================== "+this.getClass().getName()+".testAddIndexWorkerDocumentListener");
 	}
 
 	/**
@@ -257,11 +264,12 @@ public class TransactionalIndexWorkerTest extends TestCase
 	 */
 	public final void testRemoveIndexWorkerDocumentListener()
 	{
-		testInit();
+		log.info("================================== "+this.getClass().getName()+".testRemoveIndexWorkerDocumentListener");
+		doInit();
 		IndexWorkerDocumentListener iwdl = new DebugIndexWorkerDocumentListener();
 		tiw.addIndexWorkerDocumentListener(iwdl);
 		tiw.removeIndexWorkerDocumentListener(iwdl);
-		log.info("testRemoveIndexWorkerDocumentListener passed");
+		log.info("==PASSED========================== "+this.getClass().getName()+".testRemoveIndexWorkerDocumentListener");
 	}
 
 }

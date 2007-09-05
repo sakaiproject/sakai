@@ -97,11 +97,12 @@ public class SearchBuilderItemSerializerTest extends TestCase
 	 */
 	public final void testSaveTransactionList() throws IOException
 	{
+		log.info("================================== "+this.getClass().getName()+".testSaveTransactionList");
 		List<SearchBuilderItem> testList = newSearchBuilderItemList();
 		File f = new File(work, "testSaveTransactionList");
 		f.mkdirs();
 		sbis.saveTransactionList(f, testList);
-		log.info("testSaveTransactionList passed");
+		log.info("==PASSED========================== "+this.getClass().getName()+".testSaveTransactionList");
 
 	}
 
@@ -134,6 +135,7 @@ public class SearchBuilderItemSerializerTest extends TestCase
 	 */
 	public final void testLoadTransactionList() throws IOException
 	{
+		log.info("================================== "+this.getClass().getName()+".testLoadTransactionList");
 		List<SearchBuilderItem> testList = newSearchBuilderItemList();
 		File f = new File(work, "testLoadTransactionList");
 		f.mkdirs();
@@ -156,7 +158,7 @@ public class SearchBuilderItemSerializerTest extends TestCase
 					.getSearchstate());
 			assertEquals("Version dont match ", sbit.getVersion(), sbil.getVersion());
 		}
-		log.info("testLoadTransactionList passed");
+		log.info("==PASSED========================== "+this.getClass().getName()+".testLoadTransactionList");
 	}
 
 }

@@ -22,11 +22,8 @@
 package org.sakaiproject.search.transaction.impl;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.sakaiproject.search.transaction.api.IndexTransaction;
-import org.sakaiproject.search.transaction.api.IndexTransactionException;
 import org.sakaiproject.search.transaction.api.TransactionIndexManager;
 import org.sakaiproject.search.transaction.api.TransactionListener;
 import org.sakaiproject.search.transaction.api.TransactionSequence;

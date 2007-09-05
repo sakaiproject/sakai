@@ -292,7 +292,6 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 
 		
 		itemList = items;
-		log.info("Item List now set to "+itemList);
 	}
 
 	/**

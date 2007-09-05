@@ -44,9 +44,9 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 /**
  * @author ieb
  */
-public class TestDataSource
+public class TDataSource
 {
-	private static final Log log = LogFactory.getLog(TestDataSource.class);
+	private static final Log log = LogFactory.getLog(TDataSource.class);
 
 	private SharedPoolDataSource tds;
 
@@ -54,7 +54,7 @@ public class TestDataSource
 
 	protected int nopen = 0;
 
-	public TestDataSource() throws Exception
+	public TDataSource(int poolSize, final boolean logging) throws Exception
 	{
 		DriverAdapterCPDS cpds = new DriverAdapterCPDS();
 		cpds.setDriver("org.hsqldb.jdbcDriver");
@@ -64,9 +64,10 @@ public class TestDataSource
 
 		tds = new SharedPoolDataSource();
 		tds.setConnectionPoolDataSource(cpds);
-		tds.setMaxActive(30);
-		tds.setMaxWait(50);
+		tds.setMaxActive(poolSize);
+		tds.setMaxWait(5);
 		tds.setDefaultAutoCommit(false);
+		
 
 		wds = new DataSource()
 		{
@@ -75,7 +76,7 @@ public class TestDataSource
 			{
 				final Connection c = tds.getConnection();
 				nopen ++;
-				log.info("Opened "+nopen);
+				if ( logging ) log.info("+++++++++++Opened "+nopen);
 				Exception ex = new Exception();
 				StackTraceElement[] ste = ex.getStackTrace();
 				log.debug("Stack Trace "+ste[1].toString());
@@ -91,7 +92,7 @@ public class TestDataSource
 					{
 						c.close();
 						nopen--;
-						log.info("Closed "+nopen);
+						if ( logging ) log.info("--------------Closed "+nopen);
 
 					}
 

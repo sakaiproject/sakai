@@ -70,7 +70,7 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 					+ lastJournalEntry);
 		}
 		journaledIndex.setLastJournalEntry(nextJournalEntry);
-		((IndexMergeTransaction)transaction).setJournalEntry(nextJournalEntry);
+		((IndexMergeTransaction) transaction).setJournalEntry(nextJournalEntry);
 		transaction.put(JournaledObject.class.getName() + ".thisJournalEntry",
 				thisJournalEntry);
 	}
@@ -80,12 +80,11 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 	 */
 	public void prepare(IndexTransaction transaction) throws IndexTransactionException
 	{
-		long journalEntry = ((IndexMergeTransaction)transaction).getJournalEntry();
+		long journalEntry = ((IndexMergeTransaction) transaction).getJournalEntry();
 		if (journalEntry == -1)
 		{
 			throw new JournalErrorException("No target journal entry ");
 		}
-
 
 		try
 		{
@@ -140,6 +139,17 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 				.getName()
 				+ ".deleteIndexReader");
 
+		try ///TODO: make this work correctly, roll back the index
+		{
+			if (deleteIndexReader != null)
+			{
+				deleteIndexReader.close();
+			}
+		}
+		catch (IOException e)
+		{
+			throw new IndexTransactionException("Failed to close index with deletions");
+		}
 		// how do we perform a roll back ?
 		// undo the delete operations and remove the index from the reader
 	}
@@ -163,7 +173,7 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 		IndexReader deleteIndexReader = (IndexReader) transaction
 				.get(JournaledFSIndexStorageUpdateTransactionListener.class.getName()
 						+ ".deleteIndexReader");
-		long journalEntry = ((IndexMergeTransaction)transaction).getJournalEntry();
+		long journalEntry = ((IndexMergeTransaction) transaction).getJournalEntry();
 		if (journalEntry == -1)
 		{
 			throw new JournalErrorException("No target journal entry ");
@@ -172,7 +182,8 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 		try
 		{
 
-			if ( deleteIndexReader != null ) {
+			if (deleteIndexReader != null)
+			{
 				deleteIndexReader.close();
 			}
 			journaledIndex.setJournalIndexEntry(journalEntry);

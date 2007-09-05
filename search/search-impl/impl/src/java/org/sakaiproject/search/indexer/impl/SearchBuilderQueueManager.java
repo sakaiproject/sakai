@@ -389,7 +389,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 					if ( deletePst.executeUpdate() != 1 ) {
 						log.warn("Failed to delete " + sbi.getName() + "  ");						
 					} else {
-						log.info("Delete " + sbi.getName() + "  ");						
+						log.debug("Delete " + sbi.getName() + "  ");						
 						
 					}
 				}
@@ -404,7 +404,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 					{
 						log.warn("Failed to mark " + sbi.getName() + " as completed ");
 					} else {
-						log.info("Marked " + sbi.getName() + " as completed ");
+						log.debug("Marked " + sbi.getName() + " as completed ");
 					}
 					connection.commit();
 				}

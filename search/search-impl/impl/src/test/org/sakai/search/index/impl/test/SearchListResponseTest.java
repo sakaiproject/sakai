@@ -141,15 +141,15 @@ public class SearchListResponseTest extends TestCase
 				null, 0, 10, null, filter,  null, null);
 		for ( Iterator i = slri.iterator(); i.hasNext(); ) {
 			SearchResult sr = (SearchResult) i.next();
-			log.info("    Id         :"+sr.getId());
-			log.info("    Index      :"+sr.getIndex());
-			log.info("    Reference  :"+sr.getReference());
-			log.info("    Score      :"+sr.getScore());
-			log.info("    Title      :"+sr.getTitle());
-			log.info("    Tool       :"+sr.getTool());
-			log.info("    Url        :"+sr.getUrl());
-			log.info("    Terms      :"+sr.getTerms());
-			log.info("    Field Names:"+sr.getFieldNames());
+			log.debug("    Id         :"+sr.getId());
+			log.debug("    Index      :"+sr.getIndex());
+			log.debug("    Reference  :"+sr.getReference());
+			log.debug("    Score      :"+sr.getScore());
+			log.debug("    Title      :"+sr.getTitle());
+			log.debug("    Tool       :"+sr.getTool());
+			log.debug("    Url        :"+sr.getUrl());
+			log.debug("    Terms      :"+sr.getTerms());
+			log.debug("    Field Names:"+sr.getFieldNames());
 		}
 	}
 	
@@ -198,15 +198,15 @@ public class SearchListResponseTest extends TestCase
 				null, 0, 10, null, filter,  null, null);
 		for ( Iterator i = slri.iterator(); i.hasNext(); ) {
 			SearchResult sr = (SearchResult) i.next();
-			log.info("    Id         :"+sr.getId());
-			log.info("    Index      :"+sr.getIndex());
-			log.info("    Reference  :"+sr.getReference());
-			log.info("    Score      :"+sr.getScore());
-			log.info("    Title      :"+sr.getTitle());
-			log.info("    Tool       :"+sr.getTool());
-			log.info("    Url        :"+sr.getUrl());
-			log.info("    Terms      :"+sr.getTerms());
-			log.info("    Field Names:"+sr.getFieldNames());
+			log.debug("    Id         :"+sr.getId());
+			log.debug("    Index      :"+sr.getIndex());
+			log.debug("    Reference  :"+sr.getReference());
+			log.debug("    Score      :"+sr.getScore());
+			log.debug("    Title      :"+sr.getTitle());
+			log.debug("    Tool       :"+sr.getTool());
+			log.debug("    Url        :"+sr.getUrl());
+			log.debug("    Terms      :"+sr.getTerms());
+			log.debug("    Field Names:"+sr.getFieldNames());
 		}
 	}
 

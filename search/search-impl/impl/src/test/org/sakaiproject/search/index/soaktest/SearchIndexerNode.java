@@ -19,85 +19,80 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.impl.test;
+package org.sakaiproject.search.index.soaktest;
 
-import java.io.File;
-
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
-import org.sakaiproject.search.indexer.debug.DebugIndexWorkerDocumentListener;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerListener;
-import org.sakaiproject.search.indexer.debug.DebugTransactionListener;
+import org.sakaiproject.search.indexer.impl.ConcurrentSearchIndexBuilderWorkerImpl;
 import org.sakaiproject.search.indexer.impl.JournalManagerUpdateTransaction;
 import org.sakaiproject.search.indexer.impl.JournalStorageUpdateTransactionListener;
 import org.sakaiproject.search.indexer.impl.SearchBuilderQueueManager;
 import org.sakaiproject.search.indexer.impl.TransactionIndexManagerImpl;
 import org.sakaiproject.search.indexer.impl.TransactionalIndexWorker;
+import org.sakaiproject.search.journal.api.ManagementOperation;
+import org.sakaiproject.search.journal.impl.ConcurrentIndexManager;
 import org.sakaiproject.search.journal.impl.DbJournalManager;
+import org.sakaiproject.search.journal.impl.IndexManagementTimerTask;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorage;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorageUpdateTransactionListener;
 import org.sakaiproject.search.journal.impl.MergeUpdateManager;
 import org.sakaiproject.search.journal.impl.MergeUpdateOperation;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
+import org.sakaiproject.search.mock.MockComponentManager;
+import org.sakaiproject.search.mock.MockEventTrackingService;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
+import org.sakaiproject.search.mock.MockSearchService;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
+import org.sakaiproject.search.mock.MockSessionManager;
+import org.sakaiproject.search.mock.MockUserDirectoryService;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
-import org.sakaiproject.search.util.FileUtils;
 
 /**
  * @author ieb
  */
-public class MergeUpdateOperationTest extends TestCase
+public class SearchIndexerNode
 {
 
-	private static final Log log = LogFactory.getLog(MergeUpdateOperationTest.class);
+	protected static final Log log = LogFactory.getLog(SearchIndexerNode.class);
 
-	private TDataSource tds;
-
-	private File testBase;
-
-	private File work;
-
-	private File shared;
-
-	private File index;
+	private SharedTestDataSource tds;
 
 	private MergeUpdateOperation mu;
 
 	private TransactionalIndexWorker tiw;
 
-	/**
-	 * @param name
-	 */
-	public MergeUpdateOperationTest(String name)
+	private String instanceName;
+
+	private String base;
+
+	private ConcurrentIndexManager cim;
+
+	public SearchIndexerNode(String base, String instanceName) 
 	{
-		super(name);
+		this.base = base;
+		this.instanceName = instanceName;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	protected void setUp() throws Exception
+	public void init() throws Exception
 	{
-		super.setUp();
-		testBase = new File("m2-target");
-		testBase = new File(testBase, "MergeUpdateOperationTest");
-		work = new File(testBase, "work");
-		shared = new File(testBase, "shared");
-		index = new File(testBase, "index");
-
-		tds = new TDataSource(5,false);
+		String shared = base + "/shared";
+		String instanceBase = base + "/" + instanceName;
+		String indexerwork = instanceBase + "/indexerwork";
+		String indexwork = instanceBase + "/index/work";
+		String index = instanceBase + "/index/main";
+		tds = new SharedTestDataSource(base,10,false);
 
 		mu = new MergeUpdateOperation();
 		JournaledFSIndexStorage journaledFSIndexStorage = new JournaledFSIndexStorage();
 		StandardAnalyzerFactory analyzerFactory = new StandardAnalyzerFactory();
 		DbJournalManager journalManager = new DbJournalManager();
 		MockServerConfigurationService serverConfigurationService = new MockServerConfigurationService();
+		serverConfigurationService.setInstanceName(instanceName);
 		MergeUpdateManager mergeUpdateManager = new MergeUpdateManager();
 		TransactionSequenceImpl sequence = new TransactionSequenceImpl();
 
@@ -114,7 +109,7 @@ public class MergeUpdateOperationTest extends TestCase
 		journaledFSIndexStorageUpdateTransactionListener
 				.setJournalStorage(sharedFilesystemJournalStorage);
 
-		sharedFilesystemJournalStorage.setJournalLocation(shared.getAbsolutePath());
+		sharedFilesystemJournalStorage.setJournalLocation(shared);
 
 		sequence.setDatasource(tds.getDataSource());
 
@@ -129,43 +124,41 @@ public class MergeUpdateOperationTest extends TestCase
 		journaledFSIndexStorage.setDatasource(tds.getDataSource());
 		journaledFSIndexStorage.setJournalManager(journalManager);
 		journaledFSIndexStorage.setRecoverCorruptedIndex(false);
-		journaledFSIndexStorage.setSearchIndexDirectory(index.getAbsolutePath());
+		journaledFSIndexStorage.setSearchIndexDirectory(index);
 		journaledFSIndexStorage.setServerConfigurationService(serverConfigurationService);
-		journaledFSIndexStorage.setWorkingSpace(work.getAbsolutePath());
+		journaledFSIndexStorage.setWorkingSpace(indexwork);
 		mu.setJournaledObject(journaledFSIndexStorage);
 		mu.setMergeUpdateManager(mergeUpdateManager);
 
-
-
-		//index updater
-		
 		JournalManagerUpdateTransaction journalManagerUpdateTransaction = new JournalManagerUpdateTransaction();
 		MockSearchIndexBuilder mockSearchIndexBuilder = new MockSearchIndexBuilder();
 		TransactionIndexManagerImpl transactionIndexManager = new TransactionIndexManagerImpl();
 		SearchBuilderQueueManager searchBuilderQueueManager = new SearchBuilderQueueManager();
-		
+
 		transactionIndexManager.setAnalyzerFactory(new StandardAnalyzerFactory());
-		transactionIndexManager.setSearchIndexWorkingDirectory(work.getAbsolutePath());
+		transactionIndexManager.setSearchIndexWorkingDirectory(indexerwork);
 		transactionIndexManager.setSequence(sequence);
 
 		journalManagerUpdateTransaction.setJournalManager(journalManager);
-		
+
 		JournalStorageUpdateTransactionListener journalStorageUpdateTransactionListener = new JournalStorageUpdateTransactionListener();
-		journalStorageUpdateTransactionListener.setJournalStorage(sharedFilesystemJournalStorage);
-		
+		journalStorageUpdateTransactionListener
+				.setJournalStorage(sharedFilesystemJournalStorage);
+
 		searchBuilderQueueManager.setDatasource(tds.getDataSource());
 		searchBuilderQueueManager.setSearchIndexBuilder(mockSearchIndexBuilder);
 
+		transactionIndexManager
+		.addTransactionListener(journalStorageUpdateTransactionListener);
 		transactionIndexManager.addTransactionListener(searchBuilderQueueManager);
-		transactionIndexManager.addTransactionListener(journalStorageUpdateTransactionListener);
 		transactionIndexManager.addTransactionListener(journalManagerUpdateTransaction);
-		transactionIndexManager.addTransactionListener(new DebugTransactionListener());
+//		transactionIndexManager.addTransactionListener(new DebugTransactionListener());
 
 		tiw = new TransactionalIndexWorker();
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(serverConfigurationService);
 		tiw.setTransactionIndexManager(transactionIndexManager);
-		tiw.addIndexWorkerDocumentListener(new DebugIndexWorkerDocumentListener());
+//		tiw.addIndexWorkerDocumentListener(new DebugIndexWorkerDocumentListener());
 		tiw.addIndexWorkerListener(new DebugIndexWorkerListener());
 
 		sequence.init();
@@ -174,49 +167,81 @@ public class MergeUpdateOperationTest extends TestCase
 		mu.init();
 		journaledFSIndexStorage.init();
 
-		
 		tiw.init();
 
+		 cim = new ConcurrentIndexManager();
+		IndexManagementTimerTask indexer = new IndexManagementTimerTask();
+		IndexManagementTimerTask merger = new IndexManagementTimerTask();
 
+		MockComponentManager componentManager = new MockComponentManager();
+		MockEventTrackingService eventTrackingService = new MockEventTrackingService();
+		MockSearchService searchService = new MockSearchService();
+		searchService.setDatasource(tds.getDataSource());
+		MockSessionManager sessionManager = new MockSessionManager();
+		MockUserDirectoryService userDirectoryService = new MockUserDirectoryService();
+
+		ConcurrentSearchIndexBuilderWorkerImpl csibw = new ConcurrentSearchIndexBuilderWorkerImpl();
+		csibw.setComponentManager(componentManager);
+		csibw.setServerConfigurationService(serverConfigurationService);
+		csibw.setEventTrackingService(eventTrackingService);
+		csibw.setIndexWorker(tiw);
+		csibw.setSearchService(searchService);
+		csibw.setSessionManager(sessionManager);
+		csibw.setSoakTest(true);
+		csibw.setUserDirectoryService(userDirectoryService);
+		csibw.init();
+
+		indexer.setManagementOperation(csibw);
+		merger.setManagementOperation(mu);
+
+		List<IndexManagementTimerTask> taskList = new ArrayList<IndexManagementTimerTask>();
+		taskList.add(indexer);
+		indexer.setDelay(10);
+		indexer.setPeriod(1000);
+		taskList.add(merger);
+		merger.setDelay(10);
+		merger.setPeriod(10000);
+		
+		IndexManagementTimerTask docloader = new IndexManagementTimerTask();
+		docloader.setDelay(5);
+		docloader.setPeriod(500);
+		docloader.setManagementOperation(new ManagementOperation() {
+
+			public void runOnce()
+			{
+				try
+				{
+					log.info("Loading Documents");
+					tds.populateDocuments(500,instanceName);
+					log.info("Done Loading Documents");
+				}
+				catch (Exception e)
+				{
+					log.error("Failed to LoadDocuments ",e);
+				}
+			}
+			
+		});
+		
+		taskList.add(docloader);
+		
+		cim.setTasks(taskList);
 		
 		
-	}
+		cim.init();
+		
 
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see junit.framework.TestCase#tearDown()
-	 */
-	protected void tearDown() throws Exception
-	{
-		super.tearDown();
-		FileUtils.deleteAll(testBase);
-		tds.close();
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.sakaiproject.search.journal.impl.MergeUpdateOperation#runOnce()}.
 	 * @throws Exception 
+	 * 
 	 */
-	public final void testRunOnce() throws Exception
+	public void close() throws Exception
 	{
-		log.info("================================== "+this.getClass().getName()+".testRunOnce");
-
-		int n = tds.populateDocuments(5000);
-		int i = 0;
-		while( (n = tiw.process(10)) > 0 ) {
-			log.info("Processing "+i+" gave "+n);
-			assertEquals("Runaway Cyclic Indexing, should have completed processing by now ",true, i < 500);
-			i++;
-		}
-		log.info("Indexing Complete at "+i+" with "+n);
-
-		// need to populate the index with some data first.
-		mu.runOnce();
-		log.info("==PASSED========================== "+this.getClass().getName()+".testRunOnce");
-
+		cim.close();
+		tds.close();
+		
 	}
 
 }

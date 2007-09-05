@@ -52,7 +52,7 @@
       </testResource>
 <!--includes:  include: **/*Test -->
     </testResources>
-<!-- other resources for the jar - the message bundles -->
+<!-- other resources for the jar - the message bundles -->    
   </build>
   <dependencies>
     <dependency>

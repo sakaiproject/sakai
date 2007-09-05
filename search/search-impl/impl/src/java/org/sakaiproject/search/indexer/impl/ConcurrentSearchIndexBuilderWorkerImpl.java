@@ -132,7 +132,7 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 			log.warn("JVM Shutdown in progress, will not startup");
 			return;
 		}
-		if (org.sakaiproject.component.cover.ComponentManager.hasBeenClosed())
+		if (componentManager.hasBeenClosed())
 		{
 			log.warn("Component manager Shutdown in progress, will not startup");
 			return;
@@ -141,6 +141,9 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 		runThreads = true;
 
 		enabled = "true".equals(serverConfigurationService.getString("search.enable",
+				"false"));
+		
+		log.info("Enable = "+serverConfigurationService.getString("search.enable",
 				"false"));
 
 		enabled = enabled
@@ -164,8 +167,14 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	 */
 	public void runOnce()
 	{
-		if (!enabled) return;
-		if (componentManager.hasBeenClosed()) return;
+		if (!enabled) {
+			log.info("Search not enabled ");
+			return;
+		}
+		if (componentManager.hasBeenClosed()) {
+			log.info("Component Manager has been closed");
+			return;
+		}
 
 		if (session == null)
 		{
@@ -177,7 +186,7 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 			}
 			catch (Exception ex)
 			{
-				log.error("Failed to login as admin");
+				log.error("Failed to login as admin ",ex);
 			}
 		}
 

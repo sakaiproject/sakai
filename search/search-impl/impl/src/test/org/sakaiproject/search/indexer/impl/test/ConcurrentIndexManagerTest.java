@@ -77,6 +77,7 @@ public class ConcurrentIndexManagerTest extends TestCase
 	 */
 	public final void testInit() throws InterruptedException
 	{
+		log.info("================================== "+this.getClass().getName()+".testInit");
 		ConcurrentIndexManager cim = new ConcurrentIndexManager();
 		List<IndexManagementTimerTask> limtt = new ArrayList<IndexManagementTimerTask>();
 		for (int i = 1; i < 11; i++)
@@ -106,7 +107,8 @@ public class ConcurrentIndexManagerTest extends TestCase
 		cim.init();
 		Thread.sleep(30 * 100);
 		assertEquals("Not all tasks ran ", 20, nrun);
-		log.info("testInit passed");
+		cim.close();
+		log.info("=PASSED=========================== "+this.getClass().getName()+".testInit");
 
 
 	}

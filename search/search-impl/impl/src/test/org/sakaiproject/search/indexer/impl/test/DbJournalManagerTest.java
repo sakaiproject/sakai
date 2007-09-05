@@ -41,7 +41,7 @@ public class DbJournalManagerTest extends TestCase
 {
 
 	private static final Log log = LogFactory.getLog(DbJournalManagerTest.class);
-	private TestDataSource tds;
+	private TDataSource tds;
 
 	/**
 	 * @param name
@@ -57,7 +57,7 @@ public class DbJournalManagerTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		super.setUp();
-		tds = new TestDataSource();
+		tds = new TDataSource(10,false);
 
 	}
 
@@ -67,6 +67,7 @@ public class DbJournalManagerTest extends TestCase
 	protected void tearDown() throws Exception
 	{
 		super.tearDown();
+		tds.close();
 	}
 
 	/**
@@ -75,6 +76,8 @@ public class DbJournalManagerTest extends TestCase
 	 */
 	public final void testGetNextVersion() throws Exception
 	{
+		log.info("================================== "+this.getClass().getName()+".testGetNextVersion");
+
 		DbJournalManager dbJournalManager = new DbJournalManager();
 		dbJournalManager.setDatasource(tds.getDataSource());
 		for ( int i = 0; i < 10; i++ ) {
@@ -90,7 +93,7 @@ public class DbJournalManagerTest extends TestCase
 		} catch ( JournalExhausetedException jex ) {
 			
 		}
-		log.info("testGetNextVersion passed");
+		log.info("==PASSED========================== "+this.getClass().getName()+".testGetNextVersion");
 	}
 
 	/**
@@ -99,12 +102,13 @@ public class DbJournalManagerTest extends TestCase
 	 */
 	public final void testPrepareSave() throws Exception
 	{
+		log.info("================================== "+this.getClass().getName()+".testPrepareSave");
 		DbJournalManager dbJournalManager = new DbJournalManager();
 		dbJournalManager.setDatasource(tds.getDataSource());
 		for ( int i = 0; i < 10; i++ ) {
 			assertNotNull("Journal State was null ",dbJournalManager.prepareSave(i));
 		}
-		log.info("testPrepareSave passed");
+		log.info("==PASSED========================== "+this.getClass().getName()+".testPrepareSave");
 	}
 
 	/**
@@ -113,6 +117,7 @@ public class DbJournalManagerTest extends TestCase
 	 */
 	public final void testCommitSave() throws Exception
 	{
+		log.info("================================== "+this.getClass().getName()+".testCommitSave");
 		DbJournalManager dbJournalManager = new DbJournalManager();
 		dbJournalManager.setDatasource(tds.getDataSource());
 		for ( int i = 0; i < 10; i++ ) {
@@ -128,7 +133,7 @@ public class DbJournalManagerTest extends TestCase
 		} catch ( JournalExhausetedException jex ) {
 			
 		}
-		log.info("testCommitSave passed");
+		log.info("==PASSED========================== "+this.getClass().getName()+".testCommitSave");
 	}
 
 	/**
@@ -137,6 +142,7 @@ public class DbJournalManagerTest extends TestCase
 	 */
 	public final void testRollbackSave() throws Exception
 	{
+		log.info("================================== "+this.getClass().getName()+".testRollbackSave");
 		DbJournalManager dbJournalManager = new DbJournalManager();
 		dbJournalManager.setDatasource(tds.getDataSource());
 		for ( int i = 0; i < 100; i++ ) {
@@ -149,7 +155,7 @@ public class DbJournalManagerTest extends TestCase
 		} catch ( JournalExhausetedException jex ) {
 			
 		}
-		log.info("testRollbackSave passed");
+		log.info("==PASSED========================== "+this.getClass().getName()+".testRollbackSave");
 
 	}
 

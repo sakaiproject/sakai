@@ -80,7 +80,9 @@ public class IndexUpdateTransactionImpl extends IndexTransactionImpl implements 
 			throw new IndexTransactionException("Transaction is not active ");
 		}
 
-		log.info("Tx list on "+this+" is now "+txList);
+		if ( log.isDebugEnabled() ) {
+			log.debug("Tx list on "+this+" is now "+txList);
+		}
 		return txList.iterator();
 	}
 
@@ -224,9 +226,7 @@ public class IndexUpdateTransactionImpl extends IndexTransactionImpl implements 
 	 */
 	public void setItems(List<SearchBuilderItem> items) throws IndexTransactionException
 	{
-		log.info("Setting Items ");
 		super.setItems(items);
-		log.info("Extracting Setting Items ");
 		
 		txList = new ArrayList<SearchBuilderItem>();
 		for (Iterator<SearchBuilderItem> itxList = items.iterator(); itxList.hasNext();)
@@ -254,7 +254,6 @@ public class IndexUpdateTransactionImpl extends IndexTransactionImpl implements 
 			items = null;
 			throw new NoItemsToIndexException("No Items available to index");
 		}
-		log.info("TX Items on "+this+" is "+txList+" and items "+items);
 	}
 
 

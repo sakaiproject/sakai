@@ -44,7 +44,7 @@ public class SequenceGeneratorTest extends TestCase
 
 	protected long fail;
 
-	private TestDataSource tds;
+	private TDataSource tds;
 
 	/**
 	 * @param name
@@ -63,7 +63,7 @@ public class SequenceGeneratorTest extends TestCase
 	{
 		super.setUp();
 
-		tds = new TestDataSource();
+		tds = new TDataSource(30,false);
 		sequenceGenerator = new TransactionSequenceImpl();
 		sequenceGenerator.setDatasource(tds.getDataSource());
 		sequenceGenerator.setName("testsequeence");
@@ -88,6 +88,7 @@ public class SequenceGeneratorTest extends TestCase
 	 */
 	public final void testGetNextId()
 	{
+		log.info("================================== "+this.getClass().getName()+".testGetNextId");
 		nt = 0;
 		fail = 0;
 		final ConcurrentHashMap<Long, Long> m = new ConcurrentHashMap<Long, Long>();
@@ -143,7 +144,7 @@ public class SequenceGeneratorTest extends TestCase
 			}
 			Thread.yield();
 		}
-		log.info("testGetNextId passed");
+		log.info("==PASSED========================== "+this.getClass().getName()+".testGetNextId");
 
 	}
 }

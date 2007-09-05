@@ -46,6 +46,8 @@ public class IndexManagementTimerTask extends TimerTask
 
 	private ManagementOperation managementOperation;
 
+	private boolean closed = false;
+
 	/**
 	 * 
 	 */
@@ -53,6 +55,12 @@ public class IndexManagementTimerTask extends TimerTask
 	{
 	}
 
+	public void init() {
+		
+	}
+	public void destory() {
+		closed = true;
+	}
 	/**
 	 * @return
 	 */
@@ -112,8 +120,12 @@ public class IndexManagementTimerTask extends TimerTask
 	@Override
 	public void run()
 	{
+		if ( closed ) {
+			return;
+		}
 		try
 		{
+			
 			managementOperation.runOnce();
 		}
 		catch (Throwable t)
@@ -136,6 +148,22 @@ public class IndexManagementTimerTask extends TimerTask
 	public void setManagementOperation(ManagementOperation managementOperation)
 	{
 		this.managementOperation = managementOperation;
+	}
+
+	/**
+	 * @return the closed
+	 */
+	public boolean isClosed()
+	{
+		return closed;
+	}
+
+	/**
+	 * @param closed the closed to set
+	 */
+	public void setClosed(boolean closed)
+	{
+		this.closed = closed;
 	}
 
 }

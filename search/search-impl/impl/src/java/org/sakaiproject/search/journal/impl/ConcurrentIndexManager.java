@@ -38,6 +38,8 @@ public class ConcurrentIndexManager
 
 	private List<IndexManagementTimerTask> tasks;
 
+	private boolean closed = false;
+
 	public void init()
 	{
 		for (Iterator<IndexManagementTimerTask> i = tasks.iterator(); i.hasNext();)
@@ -53,6 +55,19 @@ public class ConcurrentIndexManager
 
 			}
 		}
+	}
+	
+	public void destroy() {
+		close();
+	}
+	
+
+	public void close() {
+		timer.cancel();
+		for ( IndexManagementTimerTask itt : tasks ) {
+			itt.setClosed(true);
+		}
+		closed  = true;
 	}
 
 	/**

@@ -41,6 +41,7 @@ public class JournalTests
 		suite.addTestSuite(TransactionalIndexWorkerTest.class);
 		suite.addTestSuite(ConcurrentIndexManagerTest.class);
 		suite.addTestSuite(DbJournalManagerTest.class);
+		suite.addTestSuite(MergeUpdateOperationTest.class);
 		//$JUnit-END$
 		return suite;
 	}
