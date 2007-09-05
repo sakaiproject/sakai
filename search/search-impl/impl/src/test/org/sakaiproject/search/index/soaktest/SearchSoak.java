@@ -84,14 +84,14 @@ public class SearchSoak extends TestCase
 	}
 	*/
 	public void testSoakTenCLuster() throws Exception {
-		for ( int i = 0; i < 10; i++ ) {
+		for ( int i = 0; i < 4; i++ ) {
 			SearchIndexerNode node = new SearchIndexerNode(testBase.getAbsolutePath(),"node"+i,
 					"org.hsqldb.jdbcDriver",
 					"jdbc:hsqldb:file:"+dbFile.getAbsolutePath(),
 					"sa","");
 			node.init();
 		}
-		Thread.sleep(600*1000);
+		Thread.sleep(6000*1000);
 	}
 
 }

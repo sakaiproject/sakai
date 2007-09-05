@@ -128,6 +128,7 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 	}
 
 	/**
+	 * 
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#rollback(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
 	public void rollback(IndexTransaction transaction) throws IndexTransactionException
