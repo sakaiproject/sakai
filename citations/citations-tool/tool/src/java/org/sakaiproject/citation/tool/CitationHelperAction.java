@@ -1938,6 +1938,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		logger.debug("Done reading in " + sucessfullyReadCitations + " / " + totalNumberCitations + " citations.");
 		
 		collection.addAll(importCollection);
+        CitationService.save(collection);
+
 		
 		setMode(state, Mode.LIST);
 	} // end doImport()
