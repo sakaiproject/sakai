@@ -152,6 +152,8 @@ public class UserDirectoryServiceGetTest extends SakaiTestBase {
 	public void testLocalUser() throws Exception {
 		User user = userDirectoryService.getUserByEid("localuser");
 		Assert.assertTrue(isAsExpected(user, "localuser", true));
+		List users = userDirectoryService.getUsers();
+		Assert.assertTrue(users.size() >= 4);	// Will probably also include "admin" and "postmaster"
 	}
 	
 	public void testLocalUserByEmail() throws Exception {

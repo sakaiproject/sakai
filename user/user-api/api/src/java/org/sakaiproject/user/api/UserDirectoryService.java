@@ -282,6 +282,13 @@ public interface UserDirectoryService extends EntityProducer
 	String getUserId(String eid) throws UserNotDefinedException;
 
 	/**
+	 * Access all user objects - known to us (not from external providers).
+	 * 
+	 * @return A list of user objects containing each user's information.
+	 */
+	List getUsers();
+
+	/**
 	 * Access a bunch of user object.
 	 * 
 	 * @param ids

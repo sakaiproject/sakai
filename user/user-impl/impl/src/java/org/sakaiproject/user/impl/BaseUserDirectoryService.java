@@ -982,6 +982,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * @inheritDoc
 	 */
+	public List getUsers()
+	{
+		List users = m_storage.getAll();
+		return users;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public List getUsers(int first, int last)
 	{
 		List all = m_storage.getAll(first, last);
@@ -2442,6 +2451,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 * @return The Collection (User) of users with this email, or an empty collection if none found.
 		 */
 		public Collection findUsersByEmail(String email);
+
+		/**
+		 * Get all users.
+		 * 
+		 * @return The List (UserEdit) of all users.
+		 */
+		public List getAll();
 
 		/**
 		 * Get all the users in record range.

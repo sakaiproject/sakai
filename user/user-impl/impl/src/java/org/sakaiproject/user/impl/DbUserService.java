@@ -254,6 +254,13 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			return rv;
 		}
 
+		public List getAll()
+		{
+			// let the db do range selection
+			List all = super.getAllResources();
+			return all;
+		}
+
 		public List getAll(int first, int last)
 		{
 			// let the db do range selection
