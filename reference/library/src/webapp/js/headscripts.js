@@ -468,7 +468,7 @@ function loadXMLDoc(url)
 		updateReq.onreadystatechange = processReqChange;
 		// adjust the url with a unique (time based for sequence, plus random for multi user) value to disable caching
 		// and the auto parameter to indicate this is not user activity
-		updateReq.open("GET", url + "/" + new Date().getTime() + "-" + Math.random() + "?auto=true", true);
+		updateReq.open("GET", url + "?auto=true&unq=" + new Date().getTime() + "-" +  Math.random(), true);
 		updateReq.send(null);
 	}
 
@@ -481,7 +481,7 @@ function loadXMLDoc(url)
 			updateReq.onreadystatechange = processReqChange;
 			// adjust the url with a unique (time based for sequence, plus random for multi user) value to disable caching
 			// and the auto parameter to indicate this is not user activity
-			updateReq.open("GET", url + "/" + new Date().getTime() + "-" +  Math.random() + "?auto=true", true);
+			updateReq.open("GET", url + "?auto=true&unq=" + new Date().getTime() + "-" +  Math.random(), true);
 			updateReq.send();
 		}
 	}
