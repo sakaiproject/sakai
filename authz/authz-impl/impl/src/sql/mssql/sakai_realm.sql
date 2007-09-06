@@ -1137,6 +1137,90 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit.unp'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.globalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.suggestGlobalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.add'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.suggestPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+
+
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
@@ -1177,6 +1261,25 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'secti
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.view'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
+
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
@@ -1220,6 +1323,24 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.upd.grp.mbrshp'
 -- INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.view'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 
 
@@ -1849,6 +1970,88 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit.unp'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.globalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.suggestGlobalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.add'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.suggestPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
@@ -1866,6 +2069,25 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'secti
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.view'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
+
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.delete.any'
@@ -1913,6 +2135,24 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.ta'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.view'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 
 INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!group.template.portfolio', '', @role_cig_coordinator, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
