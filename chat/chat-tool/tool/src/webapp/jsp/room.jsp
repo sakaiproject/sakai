@@ -61,9 +61,18 @@
 				<div class="chatListHeadWrapper">
 					<h:outputText value="#{msgs.lay_user}" />
 				</div>
-				<div id="Presence">
-					<%@include file="roomUsers.jspf" %>
-				</div>
+				<iframe
+					name="Presence"
+					id="Presence"
+					title="<h:outputText value="#{msgs.control_panel}" />"
+					width="100%"
+					frameborder="0"
+					marginwidth="0"
+					marginheight="0"
+					scrolling="no"
+					align="right"
+					src="roomUsers">
+				</iframe>
 			</div>
 			<iframe
 					name="Control"

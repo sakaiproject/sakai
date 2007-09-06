@@ -755,6 +755,15 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public String getCourierString() {
       return "/courier/" + getCurrentChatChannelId() + "/" + getToolString();
    }
+
+   /**
+    * This allows us to change/give the courier address.
+    * We want the courier to respond to the chat room.
+    * @return String
+    */
+   public String getCourierPresenceString() {
+      return "/courier/" + getToolString() + "-presence";
+   }
    
    /**
     * Check for add/edit/del perms on the channel
