@@ -1573,7 +1573,7 @@ public abstract class BaseCitationService implements CitationService
 					// If the RIS line is of the right minimum length, get the RIS value. 
 					if (currentLine.length() >= 7)
 						RISvalue = currentLine.substring(6);
-					else // Just set the value to some defualt value
+					else // Just set the value to some default value
 						RISvalue = "";
 					
 					logger.debug("importFromRisList: substr value = " + RISvalue);
@@ -1617,10 +1617,17 @@ public abstract class BaseCitationService implements CitationService
 				} // end if i == 0
 				else // process the RIS entries after the first mandatory TY/Schema code
 				{
-					// RIScode "ER" signifies the end of a citation record
-					if (RIScode.equalsIgnoreCase("ER"))
+				   	if (RIScode.equalsIgnoreCase("ER")) // RIScode "ER" signifies the end of a citation record
 					{
 					   	logger.debug("importFromRisList: Read an ER. End of citation.");
+					   	
+					   	if (((String) getCitationProperty(Schema.TITLE)).length() == 0 &&
+					   		((String) getCitationProperty(Schema.SOURCE_TITLE)).length() > 0)
+					   	{
+						   	logger.debug("importFromRisList: Setting empty TITLE to non empty SOURCE_TITLE");
+					   		setCitationProperty(Schema.TITLE, getCitationProperty(Schema.SOURCE_TITLE));
+					   	}
+
 						return true; // ER signals end of citation
 					} // end of citation
 
@@ -1648,38 +1655,54 @@ public abstract class BaseCitationService implements CitationService
 					{
 						if (schema.getIdentifier().equalsIgnoreCase("book"))
 						{
-							if (RIScode.equalsIgnoreCase("T1")) // EndNote
+							if (RIScode.equalsIgnoreCase("T1")) // Refworks
 							{
 									setCitationProperty(Schema.TITLE, RISvalue);
 									logger.debug("importFromRisList: I manually mapped " + RIScode + 
 											     " to " + Schema.TITLE);
 							}
-						} // end book mapping exceptions
+							else
+								logger.debug("importFromRisList: Cannot find Field mapping");
+
+						} // end book schema mapping exceptions
 						else if (schema.getIdentifier().equalsIgnoreCase("article"))
 						{
-							if (RIScode.equalsIgnoreCase("AU")) // RefWorks
+							if (RIScode.equalsIgnoreCase("AU")) // EndNote
 							{
 									setCitationProperty(Schema.CREATOR, RISvalue);
 									logger.debug("importFromRisList: I manually mapped " + RIScode + 
 											     " to " + Schema.CREATOR);
 							}
-							else if (RIScode.equalsIgnoreCase("PY")) // RefWorks
+							else if (RIScode.equalsIgnoreCase("PY")) // EndNote
 							{
 									setCitationProperty(Schema.YEAR, RISvalue);
 									logger.debug("importFromRisList: I manually mapped " + RIScode + 
 											     " to " + Schema.YEAR);
 							}
-							else if (RIScode.equalsIgnoreCase("TI")) // RefWorks
+							else if (RIScode.equalsIgnoreCase("TI")) // EndNote
 							{
 									setCitationProperty(Schema.TITLE, RISvalue);
 									logger.debug("importFromRisList: I manually mapped " + RIScode + 
 											     " to " + Schema.TITLE);
 							}
-						} // end article mapping exceptions
+							else
+								logger.debug("importFromRisList: Cannot find Field mapping");
+						} // end article schema mapping exceptions
+						else if (schema.getIdentifier().equalsIgnoreCase("unknown"))
+						{
+							if (RIScode.equalsIgnoreCase("AU")) // EndNote
+							{
+									setCitationProperty(Schema.CREATOR, RISvalue);
+									logger.debug("importFromRisList: I manually mapped " + RIScode + 
+											     " to " + Schema.CREATOR);
+							}
+							else
+								logger.debug("importFromRisList: Cannot find Field mapping");
+						} // end unknown schema mapping exceptions
 						else
 						  logger.debug("importFromRisList: Cannot find Field mapping");
-					}
-					else
+					} // end if status (field not found)
+					else // ! status. We found a field in the Schema
 					{
 						logger.debug("importFromRisList: Field mapping is " + tempField.getIdentifier() +
 								     " => " + tempField.getIdentifier(RIS_FORMAT));
@@ -1687,7 +1710,6 @@ public abstract class BaseCitationService implements CitationService
 						// We found the mapping in the previous while loop. Set the citation property
 						setCitationProperty(tempField.getIdentifier(), RISvalue);
 					} // end we found the mapping
-							
 						
 				} // end else of i == 0
 			} // end for i
