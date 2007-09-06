@@ -13,8 +13,8 @@ deleteMsg = "<h:outputText value="#{msgs['list.del']}" />";
 deleteUrl = "<h:outputText value="#{ChatTool.toolContext}/sakai.chat.deleteMessage.helper/deleteMessageConfirm?session.current_message=" />";
 </script>
 
-	<sakai:script contextBase="/sakai-chat-tool" path="/js/chatscript.js"/>
 	<sakai:script contextBase="/library" path="/js/jquery.js" />
+	<sakai:script contextBase="/sakai-chat-tool" path="/js/chatscript.js"/>
 	
 	<sakai:messages />
 	

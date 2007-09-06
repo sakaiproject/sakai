@@ -80,3 +80,12 @@ function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
    objDiv.scrollTop = objDiv.scrollHeight;
 
 }
+
+//fix for double click stack traces in IE
+doubleclick_disabler = function(){
+	this.form.submit();
+	this.onclick="return false;";
+}
+$(document).ready(function(){
+   $("input[@type=button], input[@type=submit]").bind("click", doubleclick_disabler);
+});

@@ -36,6 +36,10 @@ function formSubmitOnEnterJSF(field, event)
 try { parent.updateNow(); } catch (error) {}
 </script>
 <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+
+	<sakai:script contextBase="/library" path="/js/jquery.js" />
+	<sakai:script contextBase="/sakai-chat-tool" path="/js/chatscript.js"/>
+
    <h:form id="mainForm">
 	  <input type="hidden" id="actionInjection" name="_idOfAction" value="some value" />
       <label for="message"></label>
