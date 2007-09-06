@@ -1536,29 +1536,29 @@ public abstract class BaseCitationService implements CitationService
 		public boolean importFromRisList(List risImportList)
 		{
 			Log logger = LogFactory.getLog(BasicCitation.class);
-			String currentLine = null;
-//			String[] tokens = null;
-			String RIScode = null;
-			String RISvalue = null;
-			int firstindex = 0;
-			int startpage = -1;
-			int endpage = -1;
-			Schema schema = null;
-			String schemaName = null;
-			List Fields = null;
-			Field tempField = null;
-			Iterator iter = null;
-			boolean status = true;
+			String currentLine = null; // The active line being parsed from the list (e.g. "TY - BOOK")
+			String RIScode = null; // The RIS Code (e.g. "TY" for "TY - BOOK")
+			String RISvalue = null; // The RIS Value (e.g. "BOOK" for "TY - BOOK")
+			Schema schema = null;  // The Citations Helper Schema to use based on the TY RIS field
+			String schemaName = null; // The name/string of the schema used to lookup the schema
+			List Fields = null; // This holds the mapped fields for a particular Schema
+			Field tempField = null; // This holds the current field being evaluated while iterating through 
+			                        // Fields
+			Iterator iter = null; // The iterator used to boogie through the Schema Fields
+			boolean status = true; // Used to maintain/exit the tag lookup while loop
 			
 			logger.debug("importFromRisList: In importFromRisList. List size is " + risImportList.size());
+			
+			// process loop that iterates list size many times
 			for(int i=0; i< risImportList.size(); i++)
 			{
+				// get current RIS line and trim off the spaces
 				currentLine = (String) risImportList.get(i);
 				currentLine = currentLine.trim();
 				logger.debug("importFromRisList: currentLine = " + currentLine);
 				
-//				tokens = currentLine.split("-");
-
+				// If the RIS line is less than 4, it isn't really a valid line. Set some default values
+				// that we know won't be processed for this line.
 				if (currentLine.length() < 4)
 				{
 					RIScode = "";
@@ -1566,20 +1566,24 @@ public abstract class BaseCitationService implements CitationService
 				}
 				else
 				{
+					// get the RIS code
 					RIScode = currentLine.substring(0, 2);
 					logger.debug("importFromRisList: substr code = " + RIScode);
 					
+					// If the RIS line is of the right minimum length, get the RIS value. 
 					if (currentLine.length() >= 7)
 						RISvalue = currentLine.substring(6);
-					else
+					else // Just set the value to some defualt value
 						RISvalue = "";
 					
 					logger.debug("importFromRisList: substr value = " + RISvalue);
 				}
 
+				// Trim the value
 				RISvalue = RISvalue.trim();
 					
-			    	
+
+				// The RIS code TY must be the first entry is a RIS record. This sets the Schema type.
 				if (i == 0)
 				{
 					if (! RIScode.equalsIgnoreCase("TY"))
@@ -1587,12 +1591,16 @@ public abstract class BaseCitationService implements CitationService
 					   	logger.debug("importFromRisList: FALSE - 1st entry in RIS must be TY. It isn't it is " + RISvalue);
 					   	return false; // TY MUST be the first entry in a RIS citation
 					}
-					else
+					else // process the schema
 					{
 					   	logger.debug("importFromRisList: size of m_RISTypeInverse = " + m_RISTypeInverse.size());
 					 	logger.debug("importFromRisList: RISvalue before schemaName = " + RISvalue);
+					 	
+					 	// get the Schema String name that we need to use for Schema look up from 
+					 	// the map m_RISTypeInverse using the RISvalue for RIScode "TY";
 				    	schemaName = (String) m_RISTypeInverse.get(RISvalue);
 					    	
+				    	// If we couldn't find a valid schema name mapping, set the name to "unknown"
 					    if (schemaName == null)
 					    {
 						   	logger.debug("importFromRisList: Unknown Schema Name = " + RISvalue +
@@ -1600,19 +1608,23 @@ public abstract class BaseCitationService implements CitationService
 					    		schemaName = "unknown";
 					    }
 					    	logger.debug("importFromRisList: Schema Name = " + schemaName);
+					    	
+					    	// Lookup the Schema based on the Schema string gotten from the reverse map
 							schema = org.sakaiproject.citation.cover.CitationService.getSchema(schemaName);
 					    	logger.debug("importFromRisList: Retrieved Schema Name = " + schema.getIdentifier());
 							setSchema(schema);
-					}
+					} // end else (else processes RIScode == "TY")
 				} // end if i == 0
-				else
+				else // process the RIS entries after the first mandatory TY/Schema code
 				{
+					// RIScode "ER" signifies the end of a citation record
 					if (RIScode.equalsIgnoreCase("ER"))
 					{
 					   	logger.debug("importFromRisList: Read an ER. End of citation.");
 						return true; // ER signals end of citation
 					} // end of citation
 
+					// Get all the valid RIS fields for this particular schema type
 					Fields = schema.getFields();
 					iter = Fields.iterator();
 					status = true;
@@ -1623,6 +1635,8 @@ public abstract class BaseCitationService implements CitationService
 
 						logger.debug("importFromRisList: Seeing if " + RIScode + " == " + tempField.getIdentifier(RIS_FORMAT) + " for Schema " + schema.getIdentifier());
 						
+						
+						// We found that this field is a valid field for this schema
 						if (RIScode.equalsIgnoreCase(tempField.getIdentifier(RIS_FORMAT)))
 						{
 							status = false;
@@ -1637,12 +1651,15 @@ public abstract class BaseCitationService implements CitationService
 						logger.debug("importFromRisList: Field mapping is " + tempField.getIdentifier() +
 								     " => " + tempField.getIdentifier(RIS_FORMAT));
 							
+						// We found the mapping in the previous while loop. Set the citation property
 						setCitationProperty(tempField.getIdentifier(), RISvalue);
-					}
+					} // end we found the mapping
 							
 						
 				} // end else of i == 0
 			} // end for i
+			
+			// if we got here, the record wasn't properly formatted with an "ER" record (or other issues).
 	    	logger.debug("importFromRisList: FALSE - End of Input. Citation not added.");
 			return false;
 
