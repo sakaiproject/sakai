@@ -1938,6 +1938,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		
 		collection.addAll(importCollection);
         CitationService.save(collection);
+        
+        // remove collection from state
+        state.removeAttribute(STATE_COLLECTION);
 
 		
 		setMode(state, Mode.LIST);
