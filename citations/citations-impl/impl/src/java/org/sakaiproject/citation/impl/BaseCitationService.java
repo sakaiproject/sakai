@@ -4153,24 +4153,25 @@ public abstract class BaseCitationService implements CitationService
 	 */
 	public void init()
 	{
+		m_storage = newStorage();
+		m_nextSerialNumber = new Integer(0);
+
+		m_relativeAccessPoint = CitationService.REFERENCE_ROOT;
+
+		rb = new ResourceLoader("citations");
+
+		//initializeSchemas();
+	    m_defaultSchema = "article";
+
+		// register as an entity producer
+		m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
+
 		if(m_configService.isCitationsEnabledByDefault() ||
 				m_configService.isAllowSiteBySiteOverride() )
 		{
-			m_storage = newStorage();
-			m_nextSerialNumber = new Integer(0);
-
-			m_relativeAccessPoint = CitationService.REFERENCE_ROOT;
-
-			// register as an entity producer
-			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
-
-			rb = new ResourceLoader("citations");
-
-			//initializeSchemas();
-		    m_defaultSchema = "article";
-
 			registerResourceType();
 		}
+		
 	}
 
 	/**

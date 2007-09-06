@@ -11,10 +11,10 @@
     destroy-method="destroy"
     singleton="true">
 
-    <property name="adminSiteName"><value></value></property>
-    <property name="configFolder"><value></value></property>
-    <property name="configXmlCache"><value></value></property>
-    <property name="databaseXmlCache"><value></value></property>
+    <property name="adminSiteName"><value>citationsAdmin</value></property>
+    <property name="configFolder"><value>config</value></property>
+    <property name="configXmlCache"><value>config.xml</value></property>
+    <property name="databaseXmlCache"><value>database.xml</value></property>
 
 	<!-- enable/disable entire helper -->
     <property name="citationsEnabledByDefault"><value>true</value></property>

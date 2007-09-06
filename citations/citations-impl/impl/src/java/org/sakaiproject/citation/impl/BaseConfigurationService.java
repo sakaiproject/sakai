@@ -740,9 +740,11 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
     ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
 
+    m_log.info("init() site m_adminSiteName == \"" + this.m_adminSiteName + "\"");
     if(isNull(this.m_adminSiteName))
     {
       // can't create
+        m_log.info("init() m_adminSiteName is null");
     }
     else if(siteService.siteExists(this.m_adminSiteName))
     {
