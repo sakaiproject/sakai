@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -73,6 +74,8 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.email.cover.DigestService;
@@ -122,6 +125,8 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.Blob;
+import org.sakaiproject.util.DefaultEntityHandler;
+import org.sakaiproject.util.SAXEntityReader;
 import org.sakaiproject.util.EmptyIterator;
 import org.sakaiproject.util.EntityCollections;
 import org.sakaiproject.util.FormattedText;
@@ -131,10 +136,14 @@ import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
 
 
@@ -224,7 +233,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/** Event for grading an assignment submission. */
 	public static final String EVENT_GRADE_ASSIGNMENT_SUBMISSION = "asn.grade.submission";
 
-	
+	protected static final String GROUP_LIST = "group";
+
+	protected static final String GROUP_NAME = "authzGroup";
 
 //	spring service injection
 	
@@ -4842,6 +4853,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected AssignmentAccess m_access = AssignmentAccess.SITE;
 
 		/**
+		 * constructor
+		 */
+		public BaseAssignment()
+		{
+			m_properties = new BaseResourcePropertiesEdit();
+		}// constructor
+		
+		/**
 		 * Copy constructor
 		 */
 		public BaseAssignment(Assignment assignment)
@@ -4974,6 +4993,111 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		}// storage constructor
 
+		/**
+		 * @param services
+		 * @return
+		 */
+		public ContentHandler getContentHandler(Map<String, Object> services)
+		{
+			final Entity thisEntity = this;
+			return new DefaultEntityHandler()
+			{
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see org.sakaiproject.util.DefaultEntityHandler#startElement(java.lang.String,
+				 *      java.lang.String, java.lang.String,
+				 *      org.xml.sax.Attributes)
+				 */
+				@Override
+				public void startElement(String uri, String localName, String qName,
+						Attributes attributes) throws SAXException
+				{
+					if (doStartElement(uri, localName, qName, attributes))
+					{
+						if ("assignment".equals(qName) && entity == null)
+						{
+							m_id = attributes.getValue("id");
+							m_properties = new BaseResourcePropertiesEdit();
+							
+							int numAttributes = 0;
+							String intString = null;
+							String attributeString = null;
+							String tempString = null;
+
+							m_title = attributes.getValue("title");
+							m_section = attributes.getValue("section");
+							m_draft = getBool(attributes.getValue("draft"));
+							if (M_log.isDebugEnabled())
+								M_log.debug("ASSIGNMENT : BASE SERVICE : BASE ASSIGNMENT : STORAGE CONSTRUCTOR : READ THROUGH REG ATTS");
+
+							m_assignmentContent = attributes.getValue("assignmentcontent");
+							if (M_log.isDebugEnabled())
+								M_log.debug("ASSIGNMENT : BASE SERVICE : BASE ASSIGNMENT : STORAGE CONSTRUCTOR : CONTENT ID : "
+										+ m_assignmentContent);
+
+							m_openTime = getTimeObject(attributes.getValue("opendate"));
+							m_dueTime = getTimeObject(attributes.getValue("duedate"));
+							m_dropDeadTime = getTimeObject(attributes.getValue("dropdeaddate"));
+							m_closeTime = getTimeObject(attributes.getValue("closedate"));
+							m_context = attributes.getValue("context");
+							m_position_order = 0; // prevents null pointer if there is no position_order defined as well as helps with the sorting
+							try
+							{
+								m_position_order = new Long(attributes.getValue("position_order")).intValue();
+							}
+							catch (Exception e){}
+
+							// READ THE AUTHORS
+							m_authors = new Vector();
+							intString = attributes.getValue("numberofauthors");
+							try
+							{
+								numAttributes = Integer.parseInt(intString);
+
+								for (int x = 0; x < numAttributes; x++)
+								{
+									attributeString = "author" + x;
+									tempString = attributes.getValue(attributeString);
+
+									if (tempString != null)
+									{
+										m_authors.add(tempString);
+									}
+								}
+							}
+							catch (Exception e)
+							{
+								M_log.warn("ASSIGNMENT : BASE SERVICE : BASE ASSIGNMENT " + this + " : Exception reading authors : " + e.toString());
+							}
+
+							// extract access
+							AssignmentAccess access = AssignmentAccess.fromString(attributes.getValue("access"));
+							if (access != null)
+							{
+								m_access = access;
+							}
+							
+							entity = thisEntity;
+						}
+						else if (GROUP_LIST.equals(qName))
+						{
+							String groupRef = attributes.getValue(GROUP_NAME);
+							if (groupRef != null)
+							{
+								m_groups.add(groupRef);
+							}
+						}
+						else
+						{
+							M_log.warn("Unexpected Element " + qName);
+						}
+
+					}
+				}
+			};
+		}
+		
 		/**
 		 * Takes the Assignment's attribute values and puts them into the xml document.
 		 * 
@@ -5932,6 +6056,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected Time m_timeCreated;
 
 		protected Time m_timeLastModified;
+		
+		/**
+		 * constructor
+		 */
+		public BaseAssignmentContent()
+		{
+			m_properties = new BaseResourcePropertiesEdit();
+		}// constructor
 
 		/**
 		 * Copy constructor.
@@ -6123,7 +6255,152 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			if (M_log.isDebugEnabled()) M_log.debug("ASSIGNMENT : BASE SERVICE : BASE CONTENT : LEAVING STORAGE CONSTRUTOR");
 
 		}// storage constructor
+		
+		/**
+		 * @param services
+		 * @return
+		 */
+		public ContentHandler getContentHandler(Map<String, Object> services)
+		{
+			final Entity thisEntity = this;
+			return new DefaultEntityHandler()
+			{
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see org.sakaiproject.util.DefaultEntityHandler#startElement(java.lang.String,
+				 *      java.lang.String, java.lang.String,
+				 *      org.xml.sax.Attributes)
+				 */
+				@Override
+				public void startElement(String uri, String localName, String qName,
+						Attributes attributes) throws SAXException
+				{
+					if (doStartElement(uri, localName, qName, attributes))
+					{
+						if ("content".equals(qName) && entity == null)
+						{
+							int numAttributes = 0;
+							String intString = null;
+							String attributeString = null;
+							String tempString = null;
+							Reference tempReference = null;
 
+							m_id = attributes.getValue("id");
+							m_context = attributes.getValue("context");
+							m_title = attributes.getValue("title");
+							m_groupProject = getBool(attributes.getValue("groupproject"));
+							m_individuallyGraded = getBool(attributes.getValue("indivgraded"));
+							m_releaseGrades = getBool(attributes.getValue("releasegrades"));
+							m_allowAttachments = getBool(attributes.getValue("allowattach"));
+							m_allowReviewService = getBool(attributes.getValue("allowreview"));
+							m_allowStudentViewReport = getBool(attributes.getValue("allowstudentview"));
+							
+							m_timeCreated = getTimeObject(attributes.getValue("datecreated"));
+							m_timeLastModified = getTimeObject(attributes.getValue("lastmod"));
+
+							m_instructions = FormattedTextDecodeFormattedTextAttribute(attributes, "instructions");
+
+							try
+							{
+								m_honorPledge = Integer.parseInt(attributes.getValue("honorpledge"));
+							}
+							catch (Exception e)
+							{
+								M_log.warn(this + " Exception parsing honor pledge int from xml file string : " + e);
+							}
+
+							try
+							{
+								m_typeOfSubmission = Integer.parseInt(attributes.getValue("submissiontype"));
+							}
+							catch (Exception e)
+							{
+								M_log.warn(this + " Exception parsing submission type int from xml file string : " + e);
+							}
+
+							try
+							{
+								m_typeOfGrade = Integer.parseInt(attributes.getValue("typeofgrade"));
+							}
+							catch (Exception e)
+							{
+								M_log.warn(this + " Exception parsing grade type int from xml file string : " + e);
+							}
+
+							try
+							{
+								// %%%zqian
+								// read the scaled max grade point first; if there is none, get the old max grade value and multiple by 10
+								String maxGradePoint = StringUtil.trimToNull(attributes.getValue("scaled_maxgradepoint"));
+								if (maxGradePoint == null)
+								{
+									maxGradePoint = StringUtil.trimToNull(attributes.getValue("maxgradepoint"));
+									if (maxGradePoint != null)
+									{
+										maxGradePoint = maxGradePoint + "0";
+									}
+								}
+								m_maxGradePoint = Integer.parseInt(maxGradePoint);
+							}
+							catch (Exception e)
+							{
+								M_log.warn(this + " Exception parsing maxgradepoint int from xml file string : " + e);
+							}
+
+							// READ THE AUTHORS
+							m_authors = new Vector();
+							intString = attributes.getValue("numberofauthors");
+							try
+							{
+								numAttributes = Integer.parseInt(intString);
+
+								for (int x = 0; x < numAttributes; x++)
+								{
+									attributeString = "author" + x;
+									tempString = attributes.getValue(attributeString);
+									if (tempString != null) m_authors.add(tempString);
+								}
+							}
+							catch (Exception e)
+							{
+								M_log.warn("DB : DbCachedContent : Exception reading authors : " + e);
+							}
+
+							// READ THE ATTACHMENTS
+							m_attachments = m_entityManager.newReferenceList();
+							intString = attributes.getValue("numberofattachments");
+							try
+							{
+								numAttributes = Integer.parseInt(intString);
+
+								for (int x = 0; x < numAttributes; x++)
+								{
+									attributeString = "attachment" + x;
+									tempString = attributes.getValue(attributeString);
+									if (tempString != null)
+									{
+										tempReference = m_entityManager.newReference(tempString);
+										m_attachments.add(tempReference);
+									}
+								}
+							}
+							catch (Exception e)
+							{
+								M_log.warn("DB : DbCachedContent : Exception reading attachments : " + e);
+							}
+							
+							entity = thisEntity;
+						}
+						else
+						{
+							M_log.warn("Unexpected Element " + qName);
+						}
+					}
+				}
+			};
+		}
+		
 		/**
 		 * Takes the AssignmentContent's attribute values and puts them into the xml document.
 		 * 
@@ -7164,6 +7441,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 		
 		/**
+		 * constructor
+		 */
+		public BaseAssignmentSubmission()
+		{
+			m_properties = new BaseResourcePropertiesEdit();
+		}// constructor
+		
+		/**
 		 * Copy constructor.
 		 */
 		public BaseAssignmentSubmission(AssignmentSubmission submission)
@@ -7436,6 +7721,178 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			if (M_log.isDebugEnabled()) M_log.debug("ASSIGNMENT : BASE SERVICE : BASE SUB : LEAVING STORAGE CONSTRUCTOR");
 
 		}// storage constructor
+		
+		/**
+		 * @param services
+		 * @return
+		 */
+		public ContentHandler getContentHandler(Map<String, Object> services)
+		{
+			final Entity thisEntity = this;
+			return new DefaultEntityHandler()
+			{
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see org.sakaiproject.util.DefaultEntityHandler#startElement(java.lang.String,
+				 *      java.lang.String, java.lang.String,
+				 *      org.xml.sax.Attributes)
+				 */
+				@Override
+				public void startElement(String uri, String localName, String qName,
+						Attributes attributes) throws SAXException
+				{
+					if (doStartElement(uri, localName, qName, attributes))
+					{
+						if ("submission".equals(qName) && entity == null)
+						{
+							try {
+								if (attributes.getValue("reviewScore")!=null)
+									m_reviewScore = Integer.parseInt(attributes.getValue("reviewScore"));
+								else
+									m_reviewScore = -1;
+							}
+							catch (NumberFormatException nfe) {
+								m_reviewScore = -1;
+							}
+							try {
+							// The report given by the content review service
+								if (attributes.getValue("reviewReport")!=null)
+									m_reviewReport = attributes.getValue("reviewReport");
+								else 
+									m_reviewReport = "no report available";
+								
+							// The status of the review service
+								if (attributes.getValue("reviewStatus")!=null)
+									m_reviewStatus = attributes.getValue("reviewStatus");
+								else 
+									m_reviewStatus = "";
+							}
+							catch (Exception e) {
+								M_log.error("error constructing Submission: " + e);
+							}
+							
+							
+							int numAttributes = 0;
+							String intString = null;
+							String attributeString = null;
+							String tempString = null;
+							Reference tempReference = null;
+
+							m_id = attributes.getValue("id");
+							// M_log.info("ASSIGNMENT : BASE SERVICE : BASE SUBMISSION : CONSTRUCTOR : m_id : " + m_id);
+							m_context = attributes.getValue("context");
+							// M_log.info("ASSIGNMENT : BASE SERVICE : BASE SUBMISSION : CONSTRUCTOR : m_context : " + m_context);
+
+							// %%%zqian
+							// read the scaled grade point first; if there is none, get the old grade value
+							String grade = StringUtil.trimToNull(attributes.getValue("scaled_grade"));
+							if (grade == null)
+							{
+								grade = StringUtil.trimToNull(attributes.getValue("grade"));
+								if (grade != null)
+								{
+									try
+									{
+										Integer.parseInt(grade);
+										// for the grades in points, multiple those by 10
+										grade = grade + "0";
+									}
+									catch (Exception e)
+									{
+									}
+								}
+							}
+							m_grade = grade;
+
+							m_assignment = attributes.getValue("assignment");
+
+							m_timeSubmitted = getTimeObject(attributes.getValue("datesubmitted"));
+							m_timeReturned = getTimeObject(attributes.getValue("datereturned"));
+							m_assignment = attributes.getValue("assignment");
+							m_timeLastModified = getTimeObject(attributes.getValue("lastmod"));
+
+							m_submitted = getBool(attributes.getValue("submitted"));
+							m_returned = getBool(attributes.getValue("returned"));
+							m_graded = getBool(attributes.getValue("graded"));
+							m_gradeReleased = getBool(attributes.getValue("gradereleased"));
+							m_honorPledgeFlag = getBool(attributes.getValue("pledgeflag"));
+
+							m_submittedText = FormattedTextDecodeFormattedTextAttribute(attributes, "submittedtext");
+							m_feedbackComment = FormattedTextDecodeFormattedTextAttribute(attributes, "feedbackcomment");
+							m_feedbackText = FormattedTextDecodeFormattedTextAttribute(attributes, "feedbacktext");
+
+							// READ THE SUBMITTERS
+							m_submitters = new Vector();
+							intString = attributes.getValue("numberofsubmitters");
+							try
+							{
+								numAttributes = Integer.parseInt(intString);
+
+								for (int x = 0; x < numAttributes; x++)
+								{
+									attributeString = "submitter" + x;
+									tempString = attributes.getValue(attributeString);
+									if (tempString != null) m_submitters.add(tempString);
+								}
+							}
+							catch (Exception e)
+							{
+								M_log.warn("ASSIGNMENT : BASE SERVICE : BASE SUB : CONSTRUCTOR : Exception reading submitters : " + e);
+							}
+
+							// READ THE FEEDBACK ATTACHMENTS
+							m_feedbackAttachments = m_entityManager.newReferenceList();
+							intString = attributes.getValue("numberoffeedbackattachments");
+							try
+							{
+								numAttributes = Integer.parseInt(intString);
+
+								for (int x = 0; x < numAttributes; x++)
+								{
+									attributeString = "feedbackattachment" + x;
+									tempString = attributes.getValue(attributeString);
+									if (tempString != null)
+									{
+										tempReference = m_entityManager.newReference(tempString);
+										m_feedbackAttachments.add(tempReference);
+									}
+								}
+							}
+							catch (Exception e)
+							{
+								M_log.warn("ASSIGNMENT : BASE SERVICE : BASE SUB : CONSTRUCTOR : Exception reading feedback attachments : " + e);
+							}
+
+							// READ THE SUBMITTED ATTACHMENTS
+							m_submittedAttachments = m_entityManager.newReferenceList();
+							intString = attributes.getValue("numberofsubmittedattachments");
+							try
+							{
+								numAttributes = Integer.parseInt(intString);
+
+								for (int x = 0; x < numAttributes; x++)
+								{
+									attributeString = "submittedattachment" + x;
+									tempString = attributes.getValue(attributeString);
+									if (tempString != null)
+									{
+										tempReference = m_entityManager.newReference(tempString);
+										m_submittedAttachments.add(tempReference);
+									}
+								}
+							}
+							catch (Exception e)
+							{
+								M_log.warn("ASSIGNMENT : BASE SERVICE : BASE SUB : CONSTRUCTOR : Exception reading submitted attachments : " + e);
+							}
+							
+							entity = thisEntity;
+						}
+					}
+				}
+			};
+		}
 
 		
 		/**
@@ -8937,8 +9394,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * AssignmentStorageUser implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	protected class AssignmentStorageUser implements StorageUser
+	protected class AssignmentStorageUser implements StorageUser, SAXEntityReader
 	{
+		private Map<String,Object> m_services;
+		
 		/**
 		 * Construct a new continer given just an id.
 		 * 
@@ -9152,6 +9611,67 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			return null;
 		}
+		
+		/***********************************************************************
+		 * SAXEntityReader
+		 */
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.util.SAXEntityReader#getDefaultHandler(java.util.Map)
+		 */
+		public DefaultEntityHandler getDefaultHandler(final Map<String, Object> services)
+		{
+			return new DefaultEntityHandler()
+			{
+
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+				 *      java.lang.String, java.lang.String,
+				 *      org.xml.sax.Attributes)
+				 */
+				@Override
+				public void startElement(String uri, String localName, String qName,
+						Attributes attributes) throws SAXException
+				{
+					if (doStartElement(uri, localName, qName, attributes))
+					{
+						if (entity == null)
+						{
+							if ("assignment".equals(qName))
+							{
+								BaseAssignment ba = new BaseAssignment();
+								entity = ba;
+								setContentHandler(ba.getContentHandler(services), uri,
+										localName, qName, attributes);
+							}
+							else
+							{
+								M_log.warn("Unexpected Element in XML [" + qName + "]");
+							}
+
+						}
+					}
+				}
+
+			};
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.util.SAXEntityReader#getServices()
+		 */
+		public Map<String, Object> getServices()
+		{
+			if (m_services == null)
+			{
+				m_services = new HashMap<String, Object>();
+			}
+			return m_services;
+		}
 
 	}// AssignmentStorageUser
 
@@ -9159,8 +9679,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * AssignmentContentStorageUser implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	protected class AssignmentContentStorageUser implements StorageUser
+	protected class AssignmentContentStorageUser implements StorageUser, SAXEntityReader
 	{
+		private Map<String,Object> m_services;
+		
 		/**
 		 * Construct a new continer given just an id.
 		 * 
@@ -9374,6 +9896,67 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			return null;
 		}
+		
+		/***********************************************************************
+		 * SAXEntityReader
+		 */
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.util.SAXEntityReader#getDefaultHandler(java.util.Map)
+		 */
+		public DefaultEntityHandler getDefaultHandler(final Map<String, Object> services)
+		{
+			return new DefaultEntityHandler()
+			{
+
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+				 *      java.lang.String, java.lang.String,
+				 *      org.xml.sax.Attributes)
+				 */
+				@Override
+				public void startElement(String uri, String localName, String qName,
+						Attributes attributes) throws SAXException
+				{
+					if (doStartElement(uri, localName, qName, attributes))
+					{
+						if (entity == null)
+						{
+							if ("content".equals(qName))
+							{
+								BaseAssignmentContent bac = new BaseAssignmentContent();
+								entity = bac;
+								setContentHandler(bac.getContentHandler(services), uri,
+										localName, qName, attributes);
+							}
+							else
+							{
+								M_log.warn("Unexpected Element in XML [" + qName + "]");
+							}
+
+						}
+					}
+				}
+
+			};
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.util.SAXEntityReader#getServices()
+		 */
+		public Map<String, Object> getServices()
+		{
+			if (m_services == null)
+			{
+				m_services = new HashMap<String, Object>();
+			}
+			return m_services;
+		}
 
 	}// ContentStorageUser
 
@@ -9381,8 +9964,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * SubmissionStorageUser implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	protected class AssignmentSubmissionStorageUser implements StorageUser
+	protected class AssignmentSubmissionStorageUser implements StorageUser, SAXEntityReader
 	{
+		private Map<String,Object> m_services;
+		
 		/**
 		 * Construct a new continer given just an id.
 		 * 
@@ -9595,6 +10180,67 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public Time getDate(Entity r)
 		{
 			return null;
+		}
+		
+		/***********************************************************************
+		 * SAXEntityReader
+		 */
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.util.SAXEntityReader#getDefaultHandler(java.util.Map)
+		 */
+		public DefaultEntityHandler getDefaultHandler(final Map<String, Object> services)
+		{
+			return new DefaultEntityHandler()
+			{
+
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+				 *      java.lang.String, java.lang.String,
+				 *      org.xml.sax.Attributes)
+				 */
+				@Override
+				public void startElement(String uri, String localName, String qName,
+						Attributes attributes) throws SAXException
+				{
+					if (doStartElement(uri, localName, qName, attributes))
+					{
+						if (entity == null)
+						{
+							if ("submission".equals(qName))
+							{
+								BaseAssignmentSubmission bas = new BaseAssignmentSubmission();
+								entity = bas;
+								setContentHandler(bas.getContentHandler(services), uri,
+										localName, qName, attributes);
+							}
+							else
+							{
+								M_log.warn("Unexpected Element in XML [" + qName + "]");
+							}
+
+						}
+					}
+				}
+
+			};
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.util.SAXEntityReader#getServices()
+		 */
+		public Map<String, Object> getServices()
+		{
+			if (m_services == null)
+			{
+				m_services = new HashMap<String, Object>();
+			}
+			return m_services;
 		}
 
 	}// SubmissionStorageUser
@@ -9818,6 +10464,60 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			return result;
 		}
+	}
+
+	/**
+	 * This is to mimic the FormattedText.decodeFormattedTextAttribute but use SAX serialization instead
+	 * @return
+	 */
+	protected String FormattedTextDecodeFormattedTextAttribute(Attributes attributes, String baseAttributeName)
+	{
+		String ret;
+
+		// first check if an HTML-encoded attribute exists, for example "foo-html", and use it if available
+		ret = StringUtil.trimToNull(XmlDecodeAttribute(attributes, baseAttributeName + "-html"));
+		if (ret != null) return ret;
+
+		// next try the older kind of formatted text like "foo-formatted", and convert it if found
+		ret = StringUtil.trimToNull(XmlDecodeAttribute(attributes, baseAttributeName + "-formatted"));
+		ret = FormattedText.convertOldFormattedText(ret);
+		if (ret != null) return ret;
+
+		// next try just a plaintext attribute and convert the plaintext to formatted text if found
+		// convert from old plaintext instructions to new formatted text instruction
+		ret = XmlDecodeAttribute(attributes, baseAttributeName);
+		ret = FormattedText.convertPlaintextToFormattedText(ret);
+		return ret;
+	}
+	
+	/**
+	 * this is to mimic the Xml.decodeAttribute
+	 * @param el
+	 * @param tag
+	 * @return
+	 */
+	protected String XmlDecodeAttribute(Attributes attributes, String tag)
+	{
+		String charset = StringUtil.trimToNull(attributes.getValue("charset"));
+		if (charset == null) charset = "UTF-8";
+
+		String body = StringUtil.trimToNull(attributes.getValue(tag));
+		if (body != null)
+		{
+			try
+			{
+				byte[] decoded = CommonsCodecBase64.decodeBase64(body.getBytes("UTF-8"));
+				body = new String(decoded, charset);
+			}
+			catch (Exception e)
+			{
+				M_log.warn("decodeAttribute: " + e);
+			}
+		}
+
+		if (body == null) body = "";
+
+		return body;
 	}
 
 } // BaseAssignmentService
