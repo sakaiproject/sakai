@@ -716,7 +716,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		AssessmentAccessControlIfc control = p.getAssessmentAccessControl();
 		String releaseTo = control.getReleaseTo();
 		if (releaseTo != null) {
-			String[] targetSelected = releaseTo.split(",");
+			String [] targetSelected = new String[1];
+			targetSelected[0] = releaseTo;
 			for (int i = 0; i < targetSelected.length; i++) {
 				String agentKey = targetSelected[i].trim();
 				// add agentId into v

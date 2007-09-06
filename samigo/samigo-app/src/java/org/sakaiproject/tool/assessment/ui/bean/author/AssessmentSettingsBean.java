@@ -32,22 +32,23 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import org.sakaiproject.util.ResourceLoader;
 import java.util.Set;
+
 import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.impl.ReferenceComponent;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -58,26 +59,14 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
-import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
-import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettings;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.entity.impl.ReferenceComponent;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.TypeException;
-
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  *
@@ -1325,11 +1314,10 @@ public class AssessmentSettingsBean
   }
 
   public String[] getTargetSelected(String releaseTo){
-    if (releaseTo != null){
-      this.targetSelected = releaseTo.split(",");
-      for (int i = 0; i < targetSelected.length; i++) {
-        targetSelected[i] = targetSelected[i].trim();
-      }
+	if (releaseTo != null){
+	  String [] releaseToArray = new String[1];
+	  releaseToArray[0] = releaseTo;
+	  this.targetSelected = releaseToArray;
     }
     return this.targetSelected;
   }
@@ -1345,8 +1333,10 @@ public class AssessmentSettingsBean
   }
 
   public String getFirstTargetSelected(String releaseTo){
-    if (releaseTo != null){
-      this.targetSelected = releaseTo.split(",");
+	if (releaseTo != null){
+      String [] releaseToArray = new String[1];
+      releaseToArray[0] = releaseTo;
+      this.targetSelected = releaseToArray;
       this.firstTargetSelected = targetSelected[0].trim();
     }
     return this.firstTargetSelected;

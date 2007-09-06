@@ -1161,12 +1161,11 @@ public class PublishedAssessmentSettingsBean
   }
 
   public String[] getTargetSelected(String releaseTo) {
-    if (releaseTo != null) {
-      this.targetSelected = releaseTo.split(",");
-      for (int i = 0; i < targetSelected.length; i++) {
-        targetSelected[i] = targetSelected[i].trim();
-      }
-    }
+	if (releaseTo != null){
+	  String [] releaseToArray = new String[1];
+	  releaseToArray[0] = releaseTo;
+	  this.targetSelected = releaseToArray;
+	}
     return this.targetSelected;
   }
 
@@ -1181,8 +1180,10 @@ public class PublishedAssessmentSettingsBean
 
   public String getFirstTargetSelected(String releaseTo){
     if (releaseTo != null){
-      this.targetSelected = releaseTo.split(",");
-      this.firstTargetSelected = targetSelected[0].trim();
+    	String [] releaseToArray = new String[1];
+        releaseToArray[0] = releaseTo;
+        this.targetSelected = releaseToArray;
+        this.firstTargetSelected = targetSelected[0].trim();
     }
     return this.firstTargetSelected;
   }
