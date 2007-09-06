@@ -22,6 +22,9 @@
 package org.sakaiproject.jsf.help;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Locale;
 
 import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
@@ -34,7 +37,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.cover.PreferencesService;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * render help frame set 
@@ -42,6 +51,8 @@ import org.sakaiproject.event.cover.EventTrackingService;
  */
 public class HelpFrameSetRender extends Renderer
 {
+  private static String DEFAULT_WELCOME_PAGE = "html/help.html";
+
   /**
    * supports component type
    * @param component
@@ -69,12 +80,8 @@ public class HelpFrameSetRender extends Renderer
     String helpParameter = ((HttpServletRequest) context.getExternalContext()
         .getRequest()).getParameter("help");
 
-    String welcomepage = ServerConfigurationService.getString("help.welcomepage");  
-    
-    if ("".equals(welcomepage)){
-        welcomepage = "html/help.html";
-    }
-              
+    String welcomepage = getWelcomePage(context);
+
     tocToolUrl = tocToolUrl + "?help=" + helpParameter;
 
     EventTrackingService.post(EventTrackingService.newEvent("help.access", helpParameter, false));
@@ -100,5 +107,68 @@ public class HelpFrameSetRender extends Renderer
     }
                                         
     writer.write("</FRAMESET></html>\n");
+  }
+
+  /**
+   * @param prefLocales
+   *            The prefLocales to set.
+   */
+  private Locale getSelectedLocale() {
+	  String language = "";
+	  String country = "";
+
+	  Preferences prefs = (PreferencesEdit) PreferencesService
+              .getPreferences(UserDirectoryService.getCurrentUser().getId());
+      ResourceProperties props = prefs
+              .getProperties(ResourceLoader.APPLICATION_ID);
+      String prefLocale = props.getProperty(ResourceLoader.LOCALE_KEY);
+
+      if (prefLocale != null && prefLocale.length() > 0) {
+    	  if (prefLocale.contains("_")) {
+    		 language = prefLocale.substring(0, prefLocale.indexOf("_"));
+    		 country = prefLocale.substring(prefLocale.indexOf("_") + 1);
+    	  }
+    	  else {
+    		  language = prefLocale;
+    	  }
+    	  return new Locale(language, country);
+      }
+      else {
+    	  return Locale.getDefault();
+      }
+  }
+
+  /**
+   * Gets localized welcome page if it exists or fall back on default
+   * @return welcome page
+   */
+  private String getWelcomePage(FacesContext context) {
+
+	  String page = ServerConfigurationService.getString("help.welcomepage");
+
+	  if ("".equals(page)){
+		  page = DEFAULT_WELCOME_PAGE;
+	  }
+
+	  // Build localized welcome page
+      URL urlResource = null;
+      StringBuffer sb = new StringBuffer();
+      sb.append(page.substring(0, page.lastIndexOf(".")));
+      sb.append("_");
+      sb.append(getSelectedLocale().toString());
+      sb.append(page.substring(page.lastIndexOf(".")));
+
+      // Get localized welcome page
+      try {
+    	  urlResource = FacesContext.getCurrentInstance().getExternalContext().getResource("/" + sb.toString());
+      } catch (MalformedURLException e) {
+    	  // Ignore
+      }
+
+      // If it doesn't exist, fall back on default
+      if (urlResource != null) {
+    	  page = sb.toString();
+      }
+      return page;
   }
 }

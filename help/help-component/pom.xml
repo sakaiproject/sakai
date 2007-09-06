@@ -30,6 +30,38 @@
       <artifactId>sakai-comp-shared-help</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+    <!-- New depencies for help improvement (Vanille) -->
+	<dependency>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>sakai-entity-api</artifactId>
+		<version>${sakai.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>sakai-tool-api</artifactId>
+		<version>${sakai.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>sakai-user-api</artifactId>
+		<version>${sakai.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>sakai-util-api</artifactId>
+		<version>${sakai.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>sakai-util</artifactId>
+		<version>${sakai.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>sakai-component-api</artifactId>
+		<version>${sakai.version}</version>
+	</dependency>
+	<!-- End of new depencies -->
     <dependency>
       <groupId>lucene</groupId>
       <artifactId>lucene</artifactId>

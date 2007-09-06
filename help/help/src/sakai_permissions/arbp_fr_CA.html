@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title>Types, realms, roles, and permissions</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>Types, realms, r&ocirc;les et droits d'acc&egrave;s</h2>
+
+<h3>Types</h3>
+
+<p>Le Type est l'appellation d'utilisateur la plus &eacute;tendue &agrave; l'int&eacute;rieur de Sakai. Les Types peuvent &ecirc;tre administratifs ou non administratifs:</p>
+
+<ul>
+  <li><strong>Administratif:</strong> Les utilisateurs ayant des comptes de type administratif peuvent acc&eacute;der &agrave; des outils (dans <a href="content.hlp?docId=aqzy">Zone de Travail</a>) auxquels les utilisateurs de type non administratif ne peuvent pas acc&eacute;der. Ces outils, tels que Utilisateurs, Realms et Sites permettent la cr&eacute;ation, la suppression et l'administration g&eacute;n&eacute;rale des sites, des participants et de leurs r&ocirc;les. Le type administratif a aussi des privil&egrave;ges et des droits d'acc&egrave;s qui ne sont disponibles &agrave; aucun autre utilisateur. Par exemple, il peut voir et &eacute;diter tous les sites.
+    <p>Lors de l'installation, le type administratif est le seul compte existant et est utilis&eacute; pour cr&eacute;er des sites. Apr&egrave;s l'ajout d'utilisateurs au syst&egrave;me (&agrave; l'aide de l'outil Utilisateurs), le type administratif peut accorder aux utilisateurs non administratifs la capacit&eacute; de cr&eacute;er de nouveaux sites en leur donnant le type d'utilisateur &quot;registered&quot; ou &quot;maintain&quot;  (d&eacute;finis ci-dessous).</p>
+</li>
+  <li><strong>Non-administratif:</strong> Les comptes de types non administratifs sont d&eacute;finis essentiellement par leur capacit&eacute; &agrave; cr&eacute;er de nouveaux sites. Il existe trois types de compte non administratifs par d&eacute;faut:<br />
+<br />
+
+<ul>
+  <li><strong>Registered (enregistr&eacute;):</strong> Ce type peut cr&eacute;er de nouveaux sites. Lorsque vous cr&eacute;ez un compte avec le &quot;dispositif de nouveau compte&quot;, vous cr&eacute;ez un compte de type &quot;registered&quot;.
+
+    <p><strong>Note:</strong> La capacit&eacute; &agrave; cr&eacute;er un site provient du droit d'acc&egrave;s <code>site.add</code> accord&eacute; dans <code>!user.template.registered</code> realm. Ce qui complique l'affaire, cependant, est le fait qu'un Type de compte utilisateur a, associ&eacute; &agrave; lui, les deux r&ocirc;les  <code>.auth</code> (autoris&eacute;) et <code>.anon</code>
+ (anonyme, c.-&agrave;-d. non connect&eacute;). &Agrave; proprement parler, c'est le droit d'acc&egrave;s <code>site.add</code> du r&ocirc;le <code>.auth</code> de <code>!user.template.registered</code> qui accorde le droit d'acc&egrave;s.</p>
+</li>
+  <li><strong>Maintain (entretenir):</strong> Ce type existe &agrave; l'int&eacute;rieur de l'application pour des raisons patrimoniales; sa fonction est la m&ecirc;me que "registered".
+
+
+    <p><strong>Note:</strong> Ne confondez pas le compte de type "maintain" et le r&ocirc;le "maintain",
+que vous pouvez accorder &agrave; un utilisateur pour un site particulier ou un outil particulier. Le type de compte et le r&ocirc;le dans un site ont des objectifs diff&eacute;rents.</p>
+
+
+
+</li>
+  <li><strong>Guest (invit&eacute;):</strong> Par d&eacute;faut, ce type d'utilisateur ne peut pas cr&eacute;er de sites.</li>
+</ul></li></ul>
+
+<p><strong>Note:</strong> Les sites peuvent aussi avoir des types (ex.: sites de cours et sites de projet), ce qui d&eacute;termine quels r&ocirc;les par d&eacute;faut le site reconna&icirc;t. Par exemple, un site de cours pourrait avoir les r&ocirc;les <code>!site.template.course</code>  (c.-&agrave;-d. ceux d&eacute;finis par le realm <code>!site.template.course</code>).</p>
+
+<p>Les r&ocirc;les par d&eacute;faut, qui peuvent &ecirc;tre modifi&eacute;s par l'utilisateur de type administratif, sont &quot;maintain&quot; et &quot;access&quot;. Chaque impl&eacute;mentation peut &ecirc;tre adapt&eacute;e diff&eacute;remment, avec des r&ocirc;les diff&eacute;rents accord&eacute;s aux utilisateurs.  Chacun de ces r&ocirc;les a une matrice diff&eacute;rente des capacit&eacute;s permises &agrave; l'int&eacute;rieur du site.</p>
+
+<h3>Realms et r&ocirc;les</h3>
+
+<p>Les realms sont des regroupements d'octrois de s&eacute;curit&eacute; qui d&eacute;terminent les r&ocirc;les pour les comptes &agrave; l'int&eacute;rieur d'un site. Les droits d'acc&egrave;s activ&eacute;s pour les r&ocirc;les peuvent &ecirc;tre uniques &agrave; chaque site. Les valeurs par d&eacute;faut sont r&eacute;gl&eacute;es dans le gabarit par d&eacute;faut du site (ex.: <code>!site.template.course</code> pour un site de cours, ou
+<code>!site.template.project</code> pour un site de projet).</p>
+
+<p>Pour les utilisateurs non administratifs, la capacit&eacute; de cr&eacute;er des sites d&eacute;borde le cadre d'un site particulier et est d&eacute;termin&eacute; par le type du compte (tel que d&eacute;crit ci-dessus dans la section &quot;Types&quot;). Le type du compte d&eacute;termine quel gabarit de realm l'utilisateur a, et c'est &agrave; l'int&eacute;rieur du gabarit de realm que le contr&ocirc;le de la capacit&eacute; de cr&eacute;er des sites existe, par exemple:</p>
+
+<ul>
+  <li>Par d&eacute;faut, le compte de type "registered" a le gabarit de realm <code>!user.template.registered</code>, dont le droit d'acc&egrave;s <code>site.add</code> est activ&eacute;. Par cons&eacute;quent, tout utilisateur ayant un compte de type "registered" sera capable de cr&eacute;er des sites.<br />
+<br />
+
+</li>
+  <li>Par d&eacute;faut, le compte de type "guest" a le gabarit de realm <code>!user.template.guest</code>, dont le droit d'acc&egrave;s <code>site.add</code> n'est pas activ&eacute;. Par cons&eacute;quent, tout utilisateur ayant un compte de type "guest" ne sera pas capable de cr&eacute;er de sites.</li>
+</ul>
+
+
+
+<p>Lorsque des utilisateurs "registered" cr&eacute;ent des sites, ils deviennent automatiquement membres du site, et ont (par d&eacute;faut) des r&ocirc;les qui leur donnent des droits d'acc&egrave;s complets. En sp&eacute;cifiant des r&ocirc;les pour les nouveaux utilisateurs, les cr&eacute;ateurs de site ont la capacit&eacute; de contr&ocirc;ler comment les participants utilisent et/ou interagissent avec les outils du site. Le r&ocirc;le peut &ecirc;tre un des r&ocirc;les par d&eacute;faut ("maintain" et"access"), ou peut &ecirc;tre un r&ocirc;le que l'administrateur a cr&eacute;&eacute; avec l'outil Realm.</p>
+
+
+<p>Tous les utilisateurs ont les droits d'acc&egrave;s les plus &eacute;tendus (c.-&agrave;-d. la capacit&eacute; de cr&eacute;er, &eacute;diter et supprimer) dans leurs onglets Zone de Travail respectifs.</p>
+
+<h3>Droits d'acc&egrave;s</h3>
+
+<p>En g&eacute;n&eacute;ral, le r&ocirc;le par d&eacute;faut &quot;maintain&quot; a les droits d'acc&egrave;s complets pour cr&eacute;er, &eacute;diter et supprimer &agrave; l'int&eacute;rieur d'un site. Le r&ocirc;le par d&eacute;faut &quot;access&quot; a moins de droits d'acc&egrave;s, et ne peut pas cr&eacute;er ou supprimer du contenu dans tous les outils (c.-&agrave;-d. par d&eacute;faut, le r&ocirc;le &quot;access&quot; ne peut pas t&eacute;l&eacute;verser des fichiers dans les ressources, mais il peut cr&eacute;er des messages de clavardage et des r&eacute;ponses de discussion.</p>
+
+<p> Les r&ocirc;les qui ont des capacit&eacute;s d'&eacute;dition du site (ex.: le r&ocirc;le par d&eacute;faut &quot;maintain&quot;) peuvent modifier les droits d'acc&egrave;s des outils, d&eacute;terminant ainsi la fa&ccedil;on dont les participants peuvent les utiliser.</p>
+
+
+<p> Pour avoir une liste d&eacute;taill&eacute;e, par outil, des diff&eacute;rents droits d'acc&egrave;s qui peuvent &ecirc;tre accord&eacute;s  ou refus&eacute;s, consultez					<a href="content.hlp?docId=armh">Droits d'accès, rôles et outils</a>.</p>
+
+<p>Pour plus d'information &agrave; propos des droits d'acc&egrave;s, consultez la liste des droits d'acc&egrave;s de Sakaipedia &agrave; l'adresse suivante:</p>
+
+<span class="example">  <a href="http://bugs.sakaiproject.org/confluence/display/ENC/Permissions+list" target="new">http://bugs.sakaiproject.org/confluence/display/ENC/Permissions+list</a></span>
+
+<p />
+
+</div>
+</body></html>
