@@ -1645,7 +1645,19 @@ public abstract class BaseCitationService implements CitationService
 					} // end while
 						
 					if (status) // couldn't find the field mapping
-						logger.debug("importFromRisList: Cannot find Field mapping");
+					{
+						if (schema.getIdentifier().equalsIgnoreCase("book"))
+						{
+							if (RIScode.equalsIgnoreCase("T1"))
+							{
+									setCitationProperty(Schema.TITLE, RISvalue);
+									logger.debug("importFromRisList: I manually mapped " + RIScode + 
+											     " to " + Schema.TITLE);
+							}		
+						} // end book mapping exceptions
+						else
+						  logger.debug("importFromRisList: Cannot find Field mapping");
+					}
 					else
 					{
 						logger.debug("importFromRisList: Field mapping is " + tempField.getIdentifier() +
