@@ -1284,8 +1284,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.gradeAssessment.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.gradeAssessment.own'
@@ -2113,8 +2111,6 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.revise'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
@@ -4467,8 +4463,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.gradeAssessment.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.gradeAssessment.own'
@@ -4672,8 +4666,6 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.revise'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
