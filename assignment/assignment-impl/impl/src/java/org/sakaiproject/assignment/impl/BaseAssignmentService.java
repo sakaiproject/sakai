@@ -2871,7 +2871,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			Site site = SiteService.getSite(context);
 			Collection groups = site.getGroups();
 
-			if (userId == null && SecurityService.isSuperUser())
+			if (SecurityService.isSuperUser())
 			{
 				// for super user, return all groups
 				return groups;
