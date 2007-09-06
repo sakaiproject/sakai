@@ -1648,13 +1648,34 @@ public abstract class BaseCitationService implements CitationService
 					{
 						if (schema.getIdentifier().equalsIgnoreCase("book"))
 						{
-							if (RIScode.equalsIgnoreCase("T1"))
+							if (RIScode.equalsIgnoreCase("T1")) // EndNote
 							{
 									setCitationProperty(Schema.TITLE, RISvalue);
 									logger.debug("importFromRisList: I manually mapped " + RIScode + 
 											     " to " + Schema.TITLE);
-							}		
+							}
 						} // end book mapping exceptions
+						else if (schema.getIdentifier().equalsIgnoreCase("article"))
+						{
+							if (RIScode.equalsIgnoreCase("AU")) // RefWorks
+							{
+									setCitationProperty(Schema.CREATOR, RISvalue);
+									logger.debug("importFromRisList: I manually mapped " + RIScode + 
+											     " to " + Schema.CREATOR);
+							}
+							else if (RIScode.equalsIgnoreCase("PY")) // RefWorks
+							{
+									setCitationProperty(Schema.YEAR, RISvalue);
+									logger.debug("importFromRisList: I manually mapped " + RIScode + 
+											     " to " + Schema.YEAR);
+							}
+							else if (RIScode.equalsIgnoreCase("TI")) // RefWorks
+							{
+									setCitationProperty(Schema.TITLE, RISvalue);
+									logger.debug("importFromRisList: I manually mapped " + RIScode + 
+											     " to " + Schema.TITLE);
+							}
+						} // end article mapping exceptions
 						else
 						  logger.debug("importFromRisList: Cannot find Field mapping");
 					}
