@@ -197,11 +197,11 @@ $Id$
               <h:panelGroup>
 
 <h:graphicImage id="image8" rendered="#{bar.isCorrect}" width="12" height="12"
-        alt="#{evaluationMessages.correct}" url="/images/delivery/checkmark.gif" >
+        alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
        </h:graphicImage>
 
 <h:graphicImage id="image9" rendered="#{!bar.isCorrect}" width="12" height="12"
-        alt="#{evaluationMessages.not_correct}" url="/images/delivery/spacer.gif" >
+        alt="#{evaluationMessages.alt_incorrect}" url="/images/delivery/spacer.gif" >
        </h:graphicImage>
 
                 <h:graphicImage url="/images/reddot.gif" height="12" width="#{bar.columnHeight}"/>
