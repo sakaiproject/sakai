@@ -160,10 +160,12 @@ public interface Citation 	// extends Entity
 	 * @throws IOException 
      */
     public void importFromRis(InputStream ris) throws IOException;
-    
+
     /**
-	 * @return
-	 */
+     * Read in a citation from a List of RIS lines.
+     * @param risImportList A list with each entry being a non blank String of an RIS file (e.g. "TY - BOOK").
+     * @return True if the import was successful. False otherwise.
+     */
 	public boolean importFromRisList(List risImportList);
 
 	/**
