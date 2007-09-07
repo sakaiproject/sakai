@@ -64,7 +64,10 @@ import org.adl.util.debug.DebugIndicator;
  */
 public class SeqObjective implements Serializable
 {
-
+	private static final long serialVersionUID = 1L;
+	
+	private long id;
+	
    /**
     * This controls display of log messages to the java console
     */

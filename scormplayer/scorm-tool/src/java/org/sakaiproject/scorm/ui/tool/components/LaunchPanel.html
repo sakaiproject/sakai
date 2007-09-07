@@ -1,0 +1,23 @@
+<wicket:panel>
+	<div class="scormButtonPanel">
+		<form wicket:id="buttonForm">
+			<input class="scormActionButton" type="submit" wicket:id="startButton" value="Start"/>
+			<input class="scormActionButton" type="submit" wicket:id="suspendButton" value="Suspend"/>
+			<input class="scormActionButton" type="submit" wicket:id="quitButton" value="Quit"/>
+			<input class="scormActionButton" type="submit" wicket:id="prevButton" value="Back"/>
+			<input class="scormActionButton" type="submit" wicket:id="nextButton" value="Next"/>
+		</form>
+	</div>
+	<div class="scormNavPanel" wicket:id="navPanel"/>
+	<iframe	name="scormContent" 
+			class="scormContentPanel"
+			title="Scorm Content Panel"
+			height="100%"
+			width="70%"
+			frameborder="0"
+			marginwidth="0"
+			marginheight="0"
+			scrolling="auto"
+			src=""></iframe>
+	<div wicket:id="comPanel"/>
+</wicket:panel>

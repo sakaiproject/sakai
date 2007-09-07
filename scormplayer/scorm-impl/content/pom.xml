@@ -61,6 +61,13 @@
 		
 		<!-- External dependencies -->
 		<dependency>
+	  		<groupId>net.sf.ehcache</groupId>
+      		<artifactId>ehcache</artifactId>
+      		<version>${sakai.ehcache.version}</version>
+      		<type>jar</type>
+      		<scope>provided</scope>
+    	</dependency>
+		<dependency>
 			<groupId>javax.activation</groupId>
 			<artifactId>activation</artifactId>
 			<version>1.0.2</version>

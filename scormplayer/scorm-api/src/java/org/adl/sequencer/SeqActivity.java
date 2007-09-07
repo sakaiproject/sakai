@@ -77,6 +77,8 @@ SeqActivityStateAccess, Serializable, ISeqActivity
 {
 	static final long serialVersionUID = 1L;
 	
+   private long id;
+	
    /**
     * Enumeration of the possible times for application of the Selection and
     * Randomization Processes.
@@ -1707,7 +1709,11 @@ SeqActivityStateAccess, Serializable, ISeqActivity
                             "getAuxResources");
       }
 
-      return mAuxResources;
+      List result = null;
+      if (mAuxResources != null && mAuxResources.size() > 0)
+    	  result = new Vector(mAuxResources);
+      
+      return result;
    }
 
    /**
@@ -2074,7 +2080,11 @@ SeqActivityStateAccess, Serializable, ISeqActivity
                             "getObjectives");
       }
 
-      return mObjectives;
+      List result = null;
+      if (mObjectives != null && mObjectives.size() > 0)
+    	  result = new Vector(mObjectives);
+      
+      return result;
    }
 
    /**
@@ -3455,7 +3465,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
          {
             status = getObjMeasureStatus(iIsRetry);
          }
-         else if ( mCurTracking != null )
+         else if ( mCurTracking != null && mCurTracking.mObjectives != null)
          {
             SeqObjectiveTracking obj = 
             ((SeqObjectiveTracking)(mCurTracking.
@@ -3560,7 +3570,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
             mCurTracking = track;
          }
    
-         if ( mCurTracking != null )
+         if ( mCurTracking != null && mCurTracking.mObjectives != null)
          {
             SeqObjectiveTracking obj = 
             ((SeqObjectiveTracking)(mCurTracking.
@@ -3633,7 +3643,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
 
       boolean statusChange = false;
 
-      if ( mCurTracking != null )
+      if ( mCurTracking != null && mCurTracking.mObjectives != null)
       {
          SeqObjectiveTracking obj = 
          ((SeqObjectiveTracking)(mCurTracking.
@@ -3697,7 +3707,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
       {
          statusChange = clearObjMeasure();
       }
-      else if ( mCurTracking != null )
+      else if ( mCurTracking != null && mCurTracking.mObjectives != null)
       {
          SeqObjectiveTracking obj = 
          ((SeqObjectiveTracking)(mCurTracking.
@@ -3758,7 +3768,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
 
       if ( mIsTracked )
       {
-         if ( mCurTracking != null )
+         if ( mCurTracking != null  && mCurTracking.mObjectives != null)
          {
             SeqObjectiveTracking obj = 
             ((SeqObjectiveTracking)(mCurTracking.
@@ -3841,7 +3851,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
          {
             statusChange = setObjMeasure(iMeasure);
          }
-         else if ( mCurTracking != null )
+         else if ( mCurTracking != null  && mCurTracking.mObjectives != null)
          {
             SeqObjectiveTracking obj = 
             ((SeqObjectiveTracking)(mCurTracking.
@@ -3909,7 +3919,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
 
       boolean byMeasure = false;
 
-      if ( mCurTracking != null )
+      if ( mCurTracking != null  && mCurTracking.mObjectives != null)
       {
          SeqObjectiveTracking obj = 
          ((SeqObjectiveTracking)(mCurTracking.
@@ -4049,7 +4059,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
          {
             measure = getObjMeasure(iIsRetry);
          }
-         else if ( mCurTracking != null )
+         else if ( mCurTracking != null  && mCurTracking.mObjectives != null)
          {
             SeqObjectiveTracking obj = 
             ((SeqObjectiveTracking)(mCurTracking.
@@ -4135,7 +4145,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
             mCurTracking = track;
          }
    
-         if ( mCurTracking != null )
+         if ( mCurTracking != null  && mCurTracking.mObjectives != null)
          {
             SeqObjectiveTracking obj = 
             ((SeqObjectiveTracking)(mCurTracking.
@@ -4216,7 +4226,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
             mCurTracking = track;
          }
    
-         if ( mCurTracking != null )
+         if ( mCurTracking != null  && mCurTracking.mObjectives != null)
          {
             SeqObjectiveTracking obj = 
             ((SeqObjectiveTracking)(mCurTracking.
@@ -4326,7 +4336,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
          {
             status = getObjStatus(iIsRetry);
          }
-         else if ( mCurTracking != null )
+         else if ( mCurTracking != null  && mCurTracking.mObjectives != null)
          {
             SeqObjectiveTracking obj = 
             ((SeqObjectiveTracking)(mCurTracking.
@@ -4435,7 +4445,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
             mCurTracking = track;
          }
    
-         if ( mCurTracking != null )
+         if ( mCurTracking != null && mCurTracking.mObjectives != null)
          {
             SeqObjectiveTracking obj = 
             ((SeqObjectiveTracking)(mCurTracking.
@@ -4607,7 +4617,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
 
       if ( mIsTracked )
       {
-         if ( mCurTracking != null )
+         if ( mCurTracking != null  && mCurTracking.mObjectives != null)
          {
             SeqObjectiveTracking obj = 
             ((SeqObjectiveTracking)(mCurTracking.
@@ -4705,7 +4715,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
          {
             status = getObjSatisfied(iIsRetry);
          }
-         else if ( mCurTracking != null )
+         else if ( mCurTracking != null  && mCurTracking.mObjectives != null)
          {
             SeqObjectiveTracking obj = 
             ((SeqObjectiveTracking)(mCurTracking.
@@ -4796,7 +4806,7 @@ SeqActivityStateAccess, Serializable, ISeqActivity
             mCurTracking = track;
          }
    
-         if ( mCurTracking != null )
+         if ( mCurTracking != null  && mCurTracking.mObjectives != null)
          {
             SeqObjectiveTracking obj = 
             ((SeqObjectiveTracking)(mCurTracking.
@@ -5757,13 +5767,15 @@ SeqActivityStateAccess, Serializable, ISeqActivity
 
       List result = null;
 
-      if ( iAll )
+      if ( iAll)
       {
-         result = mChildren;
+    	  if (null != mChildren && mChildren.size() > 0)
+    		  result = new Vector(mChildren);
       }
-      else
+      else 
       {
-         result = mActiveChildren;
+    	  if (null != mActiveChildren && mActiveChildren.size() > 0)
+    		  result = new Vector(mActiveChildren);
       }
 
       if ( _Debug )
@@ -5778,7 +5790,60 @@ SeqActivityStateAccess, Serializable, ISeqActivity
 
       return result;
    }
-
+   
+   /**
+    * Method added 8/24/2007 by JLR to facilitate SeqActivityTree implementing TreeModel
+    * 
+    */
+   public int getChildCount() {
+	   int count = 0;
+	   
+	   if (mActiveChildren != null)
+		   count = mActiveChildren.size();
+	   
+	   return count;
+   }
+   
+   /**
+    * Method added 8/24/2007 by JLR to facilitate SeqActivityTree implementing TreeModel
+    * 
+    */
+   public Object getChild(int i) {
+	   Object child = null;
+	   
+	   if (mActiveChildren != null)
+		   child = mActiveChildren.get(i);
+	   
+	   return child;
+   }
+   
+   /**
+    * Method added 8/24/2007 by JLR to facilitate SeqActivityTree implementing TreeModel
+    * 
+    */
+   public int getIndexOfChild(Object child) {
+	   int index = -1;
+	   
+	   if (mActiveChildren != null && mActiveChildren.contains(child)) {
+		   index = mActiveChildren.indexOf(child);   
+	   }
+	   
+	   return index;
+   }
+   
+   /**
+    * Method added 8/24/2007 by JLR to facilitate SeqActivityTree implementing TreeModel
+    * 
+    */
+   public void replaceChild(Object oldChild, Object newChild) {
+	   int i = getIndexOfChild(oldChild);
+	   
+	   if (i != -1) {
+		   mActiveChildren.set(i, newChild);
+	   }
+   }
+   
+   
    /**
     * Indicates if this activity has children.
     * 
@@ -5802,11 +5867,11 @@ SeqActivityStateAccess, Serializable, ISeqActivity
 
       if ( iAll )
       {
-         result = mChildren != null;
+         result = mChildren != null && mChildren.size() > 0;
       }
       else
       {
-         result = mActiveChildren != null;
+         result = mActiveChildren != null && mActiveChildren.size() > 0;
       }
 
       if ( _Debug )

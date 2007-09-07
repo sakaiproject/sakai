@@ -63,6 +63,10 @@ import org.adl.util.debug.DebugIndicator;
  */
 public class SeqRollupRule implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
+	private long id;
+	
    /**
     * Enumeration of possible rollup actions -- described in element 5.4 of the
     * IMS SS Specification.

@@ -67,7 +67,9 @@ import javax.swing.tree.TreeModel;
  */ 
 public class ADLValidRequests implements Serializable, IValidRequests
 {
-
+	private static final long serialVersionUID = 1L;
+	
+	private long id;
    /**
     * Should a 'Start' button be enabled before the sequencing session begins
     */
@@ -123,7 +125,9 @@ public class ADLValidRequests implements Serializable, IValidRequests
     Public Methods
    
    -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/  
-
+   public ADLValidRequests() {}
+   
+   
    public TreeModel getTreeModel() {
 	   return mTreeModel;
    }

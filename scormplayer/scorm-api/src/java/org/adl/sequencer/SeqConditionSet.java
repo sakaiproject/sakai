@@ -63,6 +63,8 @@ import org.adl.util.debug.DebugIndicator;
 public class SeqConditionSet implements Serializable
 {
 
+	private long id;
+	
 	static final long serialVersionUID = 1L; // -8248834341813485224L;
 	
    /**

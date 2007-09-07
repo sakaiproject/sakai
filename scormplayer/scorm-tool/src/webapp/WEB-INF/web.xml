@@ -25,7 +25,7 @@
 	
 	<filter>
 	    <filter-name>hibernate.filter</filter-name>
-	    <filter-class>org.sakaiproject.scorm.tool.HibernateFilter</filter-class>
+	    <filter-class>org.sakaiproject.scorm.ui.tool.HibernateFilter</filter-class>
 	    <init-param>
             <param-name>sessionFactoryBeanName</param-name>
             <param-value>org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory</param-value>
@@ -54,6 +54,14 @@
 	    <dispatcher>REQUEST</dispatcher>
 	    <dispatcher>FORWARD</dispatcher>
 	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+	
+	<filter-mapping>
+	    <filter-name>sakai.request</filter-name>
+	    <servlet-name>sakai.scorm.remove.helper</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>	
 		
   	<filter-mapping>
@@ -64,14 +72,14 @@
 	    <dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
   	
-  	<filter-mapping>
+  	<!--filter-mapping>
 	    <filter-name>hibernate.filter</filter-name>
 	    <servlet-name>sakai.scorm.tool</servlet-name>
 	    <dispatcher>REQUEST</dispatcher>
 	    <dispatcher>FORWARD</dispatcher>
 	    <dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-  	
+	</filter-mapping-->
+
 	<servlet>
 	    <servlet-name>sakai.ziparchive.helper</servlet-name>
 	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
@@ -108,6 +116,19 @@
 	    <init-param>
 			<param-name>applicationBean</param-name>
 			<param-value>helperWicketApplication</param-value>
+		</init-param>
+  	</servlet>
+  	
+  	<servlet>
+	    <servlet-name>sakai.scorm.remove.helper</servlet-name>
+	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
+	    <init-param>
+	      	<param-name>applicationFactoryClassName</param-name>
+	      	<param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
+	    </init-param>
+	    <init-param>
+			<param-name>applicationBean</param-name>
+			<param-value>removeHelperWicketApplication</param-value>
 		</init-param>
   	</servlet>
   	  	 	
@@ -173,9 +194,6 @@
   	<listener>
     	<listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
   	</listener>
-  	<!--listener>
-    	<listener-class>org.sakaiproject.scorm.util.ScormContextLoaderListener</listener-class>
-  	</listener-->
 
 	<session-config>
 		<session-timeout>15</session-timeout>

@@ -26,6 +26,17 @@
 		<property name="dataManagerDao"><ref bean="org.sakaiproject.scorm.dao.api.DataManagerDao"/></property>
 	</bean>
 
+	<bean id="org.sakaiproject.scorm.content.api.ZipCHH.cache" 
+		class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+  		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
+    	<property name="cacheName"><value>org.sakaiproject.scorm.content.api.ZipCHH</value></property>
+    	<property name="maxElementsInMemory" ><value>10000</value></property>
+    	<property name="diskPersistent" ><value>false</value></property>
+    	<property name="eternal" ><value>false</value></property>
+   	 	<property name="timeToLive" ><value>300</value></property>
+    	<property name="timeToIdle" ><value>600</value></property>
+  	</bean>
+
 	<bean id="org.sakaiproject.scorm.content.api.ZipCHH"
 		class="org.sakaiproject.scorm.content.impl.FastZipCHH"
 		singleton="true"
@@ -33,6 +44,7 @@
 		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
 		<property name="resolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
 		<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
+		<property name="cache"><ref bean="org.sakaiproject.scorm.content.api.ZipCHH.cache"/></property>
 	</bean>
 
 	<bean id="org.sakaiproject.scorm.content.api.ScormCHH"
@@ -43,6 +55,7 @@
 		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
 		<property name="resolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
 		<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
+		<property name="cache"><ref bean="org.sakaiproject.scorm.content.api.ZipCHH.cache"/></property>
 	</bean>
 	
 	<bean id="org.sakaiproject.scorm.service.api.ScormContentService"

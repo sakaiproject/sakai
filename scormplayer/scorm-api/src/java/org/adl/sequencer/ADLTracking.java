@@ -67,6 +67,8 @@ public class ADLTracking implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
+	private long id;
+	
 /**
     * Enumeration of possible values for tracking elements  -- described in 
     * Tracking Model elements 2.1 and 2.2 of the IMS SS Specification.
@@ -164,7 +166,14 @@ public class ADLTracking implements Serializable
     Public Methods
    
    -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
-   public ADLTracking() {}
+   public ADLTracking() {
+	   
+	   if ( mObjectives == null )
+       {
+          mObjectives = new Hashtable();
+       }
+	   
+   }
    
    
    /**

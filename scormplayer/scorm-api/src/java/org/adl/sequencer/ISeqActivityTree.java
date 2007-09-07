@@ -3,9 +3,11 @@ package org.adl.sequencer;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.tree.TreeModel;
+
 public interface ISeqActivityTree {
 
-	/**
+	/**WW
 	 * Sets the ID of the learner associated with this activity tree.
 	 * 
 	 * @param iLearnerID The ID of the student associated with this tree

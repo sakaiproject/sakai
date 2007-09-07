@@ -47,6 +47,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -404,7 +405,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 			
 			if (valid.mTOC != null) {
 				oValid.mTOC = (Vector) (((Vector) (valid.mTOC)).clone());
-				oValid.mTreeModel = convertTOC((Vector)oValid.mTOC);
+				oValid.mTreeModel = valid.mTreeModel;	//convertTOC((Vector)oValid.mTOC);
 			}
 
 			if (valid.mChoice != null) {
@@ -1388,8 +1389,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 			case SeqNavRequests.NAV_ABANDONALL:
 
 				// Issue a termination request of 'abandonAll'
-				seqReq = doTerminationRequest(ADLSequencer.TER_ABANDONALL,
-						false);
+				seqReq = doTerminationRequest(ADLSequencer.TER_ABANDONALL, false);
 
 				// The termination process cannot return a sequencing request
 				// because post condition rules are not evaluated.
@@ -1900,7 +1900,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 			// Test all 'Choice' requests
 			if (cur.getControlModeChoiceExit() || !cur.getIsActive()) {
 				valid.mTOC = getTOC(mSeqTree.getRoot());
-				valid.mTreeModel = convertTOC(valid.mTOC);
+				valid.mTreeModel = getTreeModel(mSeqTree.getRoot());		//convertTOC(valid.mTOC);
 			}
 			
 			// TODO: Remove this.
@@ -1911,7 +1911,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 
 				if (newTOC.size() > 0) {
 					valid.mTOC = newTOC;
-					valid.mTreeModel = convertTOC(newTOC);
+					//valid.mTreeModel = convertTOC(newTOC);
 				} else {
 					valid.mTOC = null;
 					valid.mTreeModel = null;
@@ -2012,7 +2012,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 
 			// Test all 'Choice' requests
 			valid.mTOC = getTOC(mSeqTree.getRoot());
-			valid.mTreeModel = convertTOC(valid.mTOC);
+			valid.mTreeModel = getTreeModel(mSeqTree.getRoot()); //convertTOC(valid.mTOC);
 
 			if (valid.mTOC != null) {
 				Vector newTOC = new Vector();
@@ -2021,8 +2021,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 
 				if (newTOC.size() > 0) {
 					valid.mTOC = newTOC;
-					valid.mTreeModel = convertTOC(newTOC);
-
+					//valid.mTreeModel = convertTOC(newTOC);
 				} else {
 					valid.mTOC = null;
 					valid.mTreeModel = null;
@@ -4713,14 +4712,13 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 				while (act != common) {
 					act.setIsSuspended(false);
 
-					Vector children = (Vector) act.getChildren(false);
+					List children = act.getChildren(false);
 
 					if (children != null) {
 						boolean done = false;
 
 						for (int i = 0; i < children.size() && !done; i++) {
-							SeqActivity lookAt = (SeqActivity) children
-									.elementAt(i);
+							SeqActivity lookAt = (SeqActivity) children.get(i);
 
 							if (lookAt.getIsSuspended()) {
 								act.setIsSuspended(true);
@@ -4873,7 +4871,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 		}
 
 		if (iTarget != null) {
-			Vector children = (Vector) iTarget.getChildren(false);
+			List children = iTarget.getChildren(false);
 
 			// Is the activity a tracked leaf
 			if (children == null && iTarget.getIsTracked()) {
@@ -4905,7 +4903,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 					iTarget.setIsSuspended(false);
 
 					for (int i = 0; i < children.size(); i++) {
-						SeqActivity act = (SeqActivity) children.elementAt(i);
+						SeqActivity act = (SeqActivity) children.get(i);
 
 						if (act.getIsSuspended()) {
 							iTarget.setIsSuspended(true);
@@ -5224,9 +5222,69 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 	}
 	
 	
-	private TreeModel convertTOC(List<ADLTOC> tocList) {
-		Map<String, TreeNode> nodeMap = new HashMap<String, TreeNode>();
+	private int addChildren(DefaultMutableTreeNode node, List copy){
+		SeqActivity activity = (SeqActivity)node.getUserObject();
 		
+		int count = activity.getCount();
+		int found = 0;
+		log.info("Node  (" + activity.getTitle() +")");
+		log.info("Remaining items ("+ copy.size() +")");
+		
+		/*
+		 * find any objects that have this node's number as parent (eg, tocObject.getParent()+1==this.count)
+		 * .... make a new node for it, add it to this node, then call this method with that new node
+		 */
+		for(int i=copy.size()-1;i>=0;i-=(found+1)){ /// original TOC objects build with higher order items last
+			ADLTOC t = (ADLTOC)copy.get(i);
+			if(t.mParent+1 == count){
+				log.info("Adding subnode (" + t.mID + ") to (" + activity.getTitle() +")");
+				SeqActivity newActivity = mSeqTree.getActivity(t.mID);
+				ActivityNode newNode = new ActivityNode(newActivity);
+				node.add(newNode);
+				found++;
+				copy.remove(i--);
+				found += addChildren(newNode, copy);
+			}
+		}
+		
+		///Now, do the same for all the children of this node
+		for(Enumeration<ActivityNode> children = node.children();children.hasMoreElements();) {
+			ActivityNode child = children.nextElement();
+			found += addChildren(child, copy);
+		}
+		
+		return found;
+	}
+	
+		
+	private TreeModel convertTOC(List<ADLTOC> tocList) {
+		ActivityNode root = null;
+		
+		List copy = new Vector(tocList);
+		ADLTOC temp;
+		
+		// Get the root
+		for (int i=0;i<copy.size();++i){
+			temp = (ADLTOC)copy.get(i);
+			if(temp.mParent == -1){ ///presumes that there is only one 'root'
+				SeqActivity activity = mSeqTree.getActivity(temp.mID);
+				root = new ActivityNode(activity);
+				copy.remove(i);
+				break;
+			}
+		}
+
+		// Traverse the tree while there are still outstanding objects && while there is still progress
+		for(int lastrun=0, thisrun = -1;copy.size()>0 && lastrun!=thisrun;lastrun=thisrun,thisrun=-1){
+			thisrun = addChildren(root, copy);
+		}
+		
+		root.sortChildrenRecursively();
+		
+
+		//fixTreeNodes(root);
+		
+		/*
 		MutableTreeNode root = null;
 		
 		for (int i=0;i<tocList.size();i++) {
@@ -5243,6 +5301,13 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 				root = node;
 		}
 		
+		
+		// FIXME: Currently, this screws up when there are multiple levels in the tree...
+		// we can't just traverse the tree once to do the mapping. 
+		
+		
+		
+		
 		for (int i=tocList.size()-1;i>=0;i--) {
 			ADLTOC current = tocList.get(i);
 			int parentIndex = current.mParent + 1;
@@ -5254,12 +5319,29 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 				parentNode = root;
 			else if (parentNode == null)
 				log.error("Parent node is null --- no node at index " + parentIndex);
-			else if (((DefaultMutableTreeNode)parentNode).isNodeAncestor(node))
-				log.error("Node " + current.mID + " at index " + i + " is an ancester of the parent at index " + parentIndex);
-			else
+			else if (((DefaultMutableTreeNode)parentNode).isNodeAncestor(node)) {
+				log.error("Node " + current.mID + " at index " + i + " is an ancestor of the parent at index " + parentIndex);
+				
+				SeqActivity parentActivity = (SeqActivity)((DefaultMutableTreeNode)parentNode).getUserObject();
+				SeqActivity childActivity = (SeqActivity)((DefaultMutableTreeNode)node).getUserObject();
+				log.error("The parent is " + parentActivity.getTitle());
+				log.error("The child is " + childActivity.getTitle());
+				
+				log.error("Parent has " + ((DefaultMutableTreeNode)parentNode).getChildCount() + " children");
+				
+				for (Enumeration<MutableTreeNode> childs = ((DefaultMutableTreeNode)parentNode).children();childs.hasMoreElements();) {
+					MutableTreeNode c = childs.nextElement();
+					
+					SeqActivity cActivity = (SeqActivity)((DefaultMutableTreeNode)c).getUserObject();
+					
+					log.error("The existing child is " + cActivity.getTitle());
+				}
+				
+				
+			} else
 				((DefaultMutableTreeNode)parentNode).add(node);
 		}
-		
+		*/
 		
 		
 		
@@ -5798,7 +5880,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 
 			int forwardAct = -1;
 			int backwardAct = -1;
-			Vector list = null;
+			List list = null;
 
 			Walk walkCon = new Walk();
 			walkCon.at = con;
@@ -5815,10 +5897,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 			}
 
 			String lookFor = "";
-			list = (Vector) walkCon.at.getChildren(false);
+			list = walkCon.at.getChildren(false);
 			if (list != null) {
 				int size = list.size();
-				lookFor = ((SeqActivity) list.elementAt(size - 1)).getID();
+				lookFor = ((SeqActivity) list.get(size - 1)).getID();
 			} else {
 				lookFor = walkCon.at.getID();
 			}
@@ -6162,5 +6244,771 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 
 		return toc;
 	}
+	
+	
+	private boolean canBeIncluded(SeqActivity walk, SeqActivity cur, ActivityNode node) {
+		
+		// If we're _not_ looking at the root node, and its parent is _not_ a choice event, then quit now.
+		if (walk.getParent() != null && !walk.getParent().getControlModeChoice())
+			return false;
+
+		// Attempt to get rule information from the activity
+		ISeqRuleset hiddenRules = walk.getPreSeqRules();
+
+		String result = null;
+
+		if (hiddenRules != null) {
+			result = hiddenRules.evaluate(SeqRuleset.RULE_TYPE_HIDDEN, walk, false);
+		}
+
+		// If the rule evaluation did not return null, the activity
+		// must be hidden.
+		if (result != null) {
+			node.setHidden(true);
+			return false;
+		}
+
+		// Check if this activity is prevented from activation		
+		if (walk.getPreventActivation() && !walk.getIsActive()) {
+			// Looks like we need a candidate
+			if (cur == null)
+				return false;
+			
+			// If we're not looking at the candidate or its parent, then we don't want to include
+			if (walk != cur && walk != cur.getParent()) 
+				return false;
+		}
+		
+		return true;
+	}
+	
+	
+	
+	/**
+	 * Method added 8/24/2007 JLR
+	 * 
+	 * This is an attempt to more efficiently generate the TreeModel object that we pass around
+	 * instead of the ADLTOC Vector that ADL uses in their reference implementation.
+	 * 
+	 */
+	private TreeModel getTreeModel(SeqActivity iStart) {
+		
+		Vector<ActivityNode> nodes = new Vector<ActivityNode>();
+
+		log.debug("Generating the table of contents tree model");
+		
+		boolean done = false;
+
+		// Make sure we have an activity tree
+		if (mSeqTree == null) {
+			log.warn("No activity tree found");
+			done = true;
+		}
+
+		// Perform a breadth-first walk of the activity tree.
+		SeqActivity walk = iStart;
+		int depth = 0;
+		int parentTOC = -1;
+		Vector lookAt = new Vector();
+		Vector flatTOC = new Vector();
+
+		// Tree traversal status indicators
+		boolean next = false;
+
+		// Make sure the activity has been associated with this sequencer
+		// If not, build the TOC from the root
+		if (walk == null) {
+			walk = mSeqTree.getRoot();
+		}
+
+		if (!done) {
+			if (log.isDebugEnabled()) {
+				log.debug("  ::--> Building TOC from:  " + walk.getID());
+			}
+		}
+
+		SeqActivity cur = mSeqTree.getFirstCandidate();
+		int curIdx = -1;
+
+		if (cur == null) {
+			cur = mSeqTree.getCurrentActivity();
+		}
+
+		while (!done) {
+			next = false;
+
+			ActivityNode node = new ActivityNode(walk);
+			node.setParentLocation(parentTOC);
+			node.setEnabled(!checkActivity(walk));
+			node.setHidden(!walk.getIsVisible());
+			node.setLeaf(!walk.hasChildren(false));
+			
+			// Check to see if this activity can be included -- JLR
+			if (canBeIncluded(walk, cur, node)) {
+				ISeqActivity parent = walk.getParent();
+				node.setIncluded(true);
+				
+				// Not sure why we're checking this twice... but I'm sticking with the ADL template here -- JLR
+				if (parent != null)
+					node.setInChoice(parent.getControlModeChoice());
+				else
+					node.setInChoice(true);
+				
+				node.setDepth(depth);
+				
+				// Check if we looking at the 'current' cluster
+				if (cur != null) {
+					if (walk.getID().equals(cur.getID())) {
+						node.setCurrent(true);
+						curIdx = nodes.size();
+					}
+				}
+			} else {
+				node.setDepth(-depth);
+				node.setSelectable(false);
+			}
+			
+			// Doesn't really matter if it's included or not, we still add it... strangely enough
+			nodes.add(node);
+			
+			// Add this activity to the "flat TOC"
+			flatTOC.add(walk);
+
+			// If this activity has children, look at them later...
+			if (walk.hasChildren(false)) {
+				// Remember where we are at and look at the children now,
+				// unless we are at the root
+				if (walk.getParent() != null) {
+					lookAt.add(walk);
+				}
+
+				// Go to the first child
+				walk = (SeqActivity) (walk.getChildren(false)).get(0);
+				parentTOC = nodes.size() - 1;
+				depth++;
+
+				next = true;
+			}
+
+			if (!next) {
+				// Move to its sibling
+				walk = walk.getNextSibling(false);
+				
+				ActivityNode tempNode = nodes.elementAt(nodes.size() - 1);
+				parentTOC = tempNode.getParentLocation();
+
+				while (walk == null && !done) {
+					if (lookAt.size() > 0) {
+						// Walk back up the tree to the parent's next sibling
+						walk = (SeqActivity) lookAt.elementAt(lookAt.size() - 1);
+						lookAt.remove(lookAt.size() - 1);
+						depth--;
+
+						// Find the correct parent
+						tempNode = nodes.elementAt(parentTOC);
+
+						String tempNodeId = tempNode.getActivity().getID();
+						String walkId = walk.getID();
+						
+						while (!tempNodeId.equals(walk.getID())) {
+							parentTOC = tempNode.getParentLocation();
+							tempNode = nodes.elementAt(parentTOC);
+							tempNodeId = tempNode.getActivity().getID();
+						}
+
+						walk = walk.getNextSibling(false);
+					} else {
+						done = true;
+					}
+				}
+
+				if (walk != null) {
+					parentTOC = tempNode.getParentLocation();
+				}
+			}
+		}
+
+		log.debug("  ::--> Completed first pass");
+		
+		
+
+		// After the TOC has been created, mark activites unselectable
+		// if the Prevent Activation prevents them being selected,
+		// and mark them invisible if they are descendents of a hidden
+		// from choice activity
+		int hidden = -1;
+		int prevented = -1;
+
+		for (int i = 0; i < nodes.size(); i++) {
+			SeqActivity tempAct = (SeqActivity) flatTOC.elementAt(i);
+			ActivityNode tempNode = nodes.elementAt(i);
+
+			if (log.isDebugEnabled()) {
+				log.debug("  ::--> Evaluating --> " + tempAct.getID());
+				log.debug("                   --> " + tempAct.getTitle());
+			}
+
+			int tempDepth = tempNode.getDepth();
+			
+			// Flipping the cardinality of the hidden depths, apparently -- JLR
+			int checkDepth = ((tempDepth >= 0) ? tempDepth : (-tempDepth));
+
+			if (hidden != -1) {
+				// Check to see if we are done hiding activities
+				if (checkDepth <= hidden) {
+					hidden = -1;
+				} else {
+					// This must be a descendent
+					tempNode.setDepth(-depth);
+					tempNode.setSelectable(false);
+					tempNode.setHidden(true);
+				}
+			}
+
+			// Evaluate hide from choice rules if we are not hidden
+			if (hidden == -1) {
+				// Attempt to get rule information from the activity
+				ISeqRuleset hiddenRules = tempAct.getPreSeqRules();
+
+				String result = null;
+
+				if (hiddenRules != null) {
+					result = hiddenRules.evaluate(SeqRuleset.RULE_TYPE_HIDDEN, tempAct, false);
+				}
+
+				// If the rule evaluation did not return null, the activity
+				// must be hidden.
+				if (result != null) {
+					// The depth we are looking for should be positive
+					hidden = -tempNode.getDepth();
+					prevented = -1;
+				} else {
+					if (log.isDebugEnabled()) 
+						log.debug("  ::--> Prevented ??" + prevented);
+					
+					if (prevented != -1) {
+						// Check to see if we are done preventing activities
+						if (checkDepth <= prevented) {
+							// Reset the check until we find another prevented
+							prevented = -1;
+						} else {
+							// This must be a prevented descendent
+							tempNode.setDepth(-1);
+							tempNode.setSelectable(false);
+						}
+					} else {
+						// Check if this activity is prevented from activation
+						if (tempAct.getPreventActivation() && !tempAct.getIsActive()) {
+							if (cur != null) {
+								if (tempAct != cur && cur.getParent() != tempAct) {
+									if (log.isDebugEnabled()) {
+										log.debug("  ::--> PREVENTED !!");
+										log.debug(" " + tempAct.getID() + " != " + cur.getParent().getID());
+									}
+
+									// Not sure why we need to check this again -- JLR
+									tempNode.setIncluded(false);
+
+									// Flipping the cardinality of the hidden depths, apparently -- JLR
+									int td = tempNode.getDepth();
+									prevented = (td > 0) ? td : -td;
+
+									// The activity cannot be selected
+									tempNode.setDepth(-1);
+									tempNode.setSelectable(false);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (log.isDebugEnabled()) {
+			log.debug("  ::--> Completed post-1 pass");
+		}
+
+		
+		// After the TOC has been created, mark activites unselectable
+		// if the Choice Exit control prevents them being selected
+		SeqActivity noExit = null;
+
+		if (mSeqTree.getFirstCandidate() != null) {
+			walk = mSeqTree.getFirstCandidate().getParent();
+		} else {
+			walk = null;
+		}
+
+		// Walk up the active path looking for a non-exiting cluster
+		while (walk != null && noExit == null) {
+			// We cannot choose any target that is outside of the activiy tree,
+			// so choice exit does not apply to the root of the tree
+			if (walk.getParent() != null) {
+				if (!walk.getControlModeChoiceExit()) {
+					noExit = walk;
+				}
+			}
+
+			// Move up the tree
+			walk = walk.getParent();
+		}
+
+		if (noExit != null) {
+			depth = -1;
+
+			if (log.isDebugEnabled()) {
+				log.debug("  ::--> Found NoExit Cluster -- " + noExit.getID());
+			}
+
+			// Only descendents of this activity can be selected.
+			for (int i = 0; i < nodes.size(); i++) {
+				ActivityNode tempNode = nodes.elementAt(i);
+				int td = tempNode.getDepth();
+				
+				// When we find the the 'non-exiting' activity, remember its
+				// depth
+				if (tempNode.getActivity().getID().equals(noExit.getID())) {
+					depth = (td > 0) ? td : -td;
+
+					// The cluster activity cannot be selected
+					tempNode.setDepth(-1);
+					tempNode.setSelectable(false);
+				}
+				// If we haven't found the the 'non-exiting' activity yet, then
+				// the
+				// activity being considered cannot be selected.
+				else if (depth == -1) {
+					tempNode.setDepth(-1);
+					tempNode.setSelectable(false);
+				}
+
+				// When we back out of the depth-first-walk and encounter a
+				// sibling
+				// or parent of the 'non-exiting' activity, start making
+				// activity
+				// unselectable
+				else if (((td > 0) ? td : -td) <= depth) {
+					depth = -1;
+
+					tempNode.setDepth(-1);
+					tempNode.setSelectable(false);
+				}
+			}
+		}
+
+		// Boundary Condition -- evaluate choice exit on root
+		ActivityNode tempNode = nodes.elementAt(0);
+		SeqActivity root = mSeqTree.getRoot();
+
+		if (!root.getControlModeChoiceExit()) {
+			tempNode.setSelectable(false);
+		}
+
+		log.debug("  ::--> Completed second pass");
+		
+
+		// Look for constrained activities relative to the current activity and
+		// mark activites unselectable if they are outside of the avaliable set
+		SeqActivity con = null;
+
+		if (mSeqTree.getFirstCandidate() != null) {
+			walk = mSeqTree.getFirstCandidate().getParent();
+		} else {
+			walk = null;
+		}
+
+		// Walk up the tree to the root
+		while (walk != null && con == null) {
+
+			if (walk.getConstrainChoice()) {
+				con = walk;
+			}
+
+			walk = walk.getParent();
+		}
+
+		// Evaluate constrained choice set
+		if (con != null) {
+
+			if (log.isDebugEnabled()) {
+				log.debug("  ::-->  Constrained Choice Activity Found");
+				log.debug("  ::-->  Stopped at --> " + con.getID());
+			}
+
+			int forwardAct = -1;
+			int backwardAct = -1;
+			Vector list = null;
+
+			Walk walkCon = new Walk();
+			walkCon.at = con;
+
+			// Find the next activity relative to the constrained activity.
+			processFlow(FLOW_FORWARD, false, walkCon, true);
+
+			if (walkCon.at == null) {
+				if (log.isDebugEnabled()) {
+					log.debug("  ::--> Walked forward off the tree");
+				}
+
+				walkCon.at = con;
+			}
+
+			String lookFor = "";
+			list = (Vector) walkCon.at.getChildren(false);
+			if (list != null) {
+				int size = list.size();
+				lookFor = ((SeqActivity) list.elementAt(size - 1)).getID();
+			} else {
+				lookFor = walkCon.at.getID();
+			}
+
+			for (int j = 0; j < nodes.size(); j++) {
+				tempNode = nodes.elementAt(j);
+
+				if (tempNode.getActivity().getID().equals(lookFor)) {
+					forwardAct = j;
+					break;
+				}
+			}
+
+			// Find the previous activity relative to the constrained activity.
+			walkCon.at = con;
+			processFlow(FLOW_BACKWARD, false, walkCon, true);
+
+			if (walkCon.at == null) {
+				log.debug("  ::--> Walked backward off the tree");
+				walkCon.at = con;
+			}
+
+			lookFor = walkCon.at.getID();
+			for (int j = 0; j < nodes.size(); j++) {
+				tempNode = nodes.elementAt(j);
+
+				if (tempNode.getActivity().getID().equals(lookFor)) {
+					backwardAct = j;
+					break;
+				}
+			}
+
+			// If the forward activity on either end of the range is a cluster,
+			// we need to include its descendents
+			tempNode = nodes.elementAt(forwardAct);
+			if (!tempNode.isLeaf()) {
+				int idx = forwardAct;
+				boolean foundLeaf = false;
+
+				while (!foundLeaf) {
+					for (int i = nodes.size() - 1; i > idx; i--) {
+						tempNode = nodes.elementAt(i);
+
+						if (tempNode.getParentLocation() == idx) {
+							idx = i;
+							foundLeaf = tempNode.isLeaf();
+							break;
+						}
+					}
+				}
+
+				if (idx != nodes.size()) {
+					forwardAct = idx;
+				}
+			}
+
+			if (log.isDebugEnabled()) {
+				log.debug("  ::--> Constrained Range == [ " + backwardAct + " , " + forwardAct + " ]");
+			}
+
+			// Disable activities outside of the avaliable range
+			for (int i = 0; i < nodes.size(); i++) {
+				tempNode = nodes.elementAt(i);
+
+				if (i < backwardAct || i > forwardAct) {
+					tempNode.setSelectable(false);
+
+					if (log.isDebugEnabled()) {
+						log.debug("  ::--> Turn off -- " + tempNode.getActivity().getID());
+					}
+				}
+			}
+		}
+
+		log.debug("  ::--> Completed third pass");
+		
+
+		// Walk the TOC looking for disabled activities...
+		if (nodes != null) {
+			depth = -1;
+
+			for (int i = 0; i < nodes.size(); i++) {
+				tempNode = nodes.elementAt(i);
+
+				if (depth != -1) {
+					int td = tempNode.getDepth();
+					if (depth >= ((td > 0) ? td	: -td)) {
+						depth = -1;
+					} else {
+						tempNode.setEnabled(false);
+						tempNode.setSelectable(false);
+					}
+				}
+
+				if (!tempNode.isEnabled() && depth == -1) {
+					int td = tempNode.getDepth();
+					// Remember where the disabled activity is
+					depth = (td > 0) ? td : -td;
+
+					if (log.isDebugEnabled()) {
+						log.debug("  ::--> [" + i + "]  " + "Found Disabled -->  " + tempNode.getActivity().getID() + "  <<" + tempNode.getDepth() + ">>");
+					}
+				}
+
+			}
+		}
+
+		log.debug("  ::--> Completed fourth pass");
+
+		// If there is a current activity, check availablity of its siblings
+		// This pass corresponds to Case #2 of the Choice Sequencing Request
+		if (nodes != null && curIdx != -1) {
+			log.debug("  ::--> Checking Current Activity Siblings");
+			
+			int par = (nodes.elementAt(curIdx)).getParentLocation();
+			int idx;
+
+			// Check if the current activity is in a forward only cluster
+			if (cur.getParent() != null
+					&& cur.getParent().getControlForwardOnly()) {
+				idx = curIdx - 1;
+
+				tempNode = nodes.elementAt(idx);
+				while (tempNode.getParentLocation() == par) {
+					tempNode.setSelectable(false);
+
+					idx--;
+					tempNode = nodes.elementAt(idx);
+				}
+			}
+
+			// Check for Stop Forward Traversal Rules
+			idx = curIdx;
+			boolean blocked = false;
+
+			while (idx < nodes.size()) {
+				tempNode = nodes.elementAt(idx);
+				if (tempNode.getParentLocation() == par) {
+					if (!blocked) {
+						ISeqRuleset stopTrav = tempNode.getActivity().getPreSeqRules();
+
+						String result = null;
+						if (stopTrav != null) 
+							result = stopTrav.evaluate(SeqRuleset.RULE_TYPE_FORWARDBLOCK, tempNode.getActivity(), false);
+
+						// If the rule evaluation did not return null, the
+						// activity is blocked
+						blocked = (result != null);
+					} else {
+						tempNode.setSelectable(false);
+					}
+				}
+
+				idx++;
+			}
+		}
+
+		log.debug("  ::--> Completed fifth pass");
+
+		
+		// Evaluate Stop Forward Traversal Rules -- this pass cooresponds to
+		// Case #3 and #5 of the Choice Sequencing Request Subprocess. In these
+		// cases, we need to check if the target activity is forward in the
+		// Activity Tree relative to the commen ancestor and cuurent activity
+		if (nodes != null && curIdx != -1) {
+			log.debug("  ::--> Checking Stop Forward Traversal");
+
+			int curParent = (nodes.elementAt(curIdx)).getParentLocation();
+
+			int idx = nodes.size() - 1;
+			tempNode = nodes.elementAt(idx);
+
+			// Walk backward from last available activity,
+			// checking each until we get to a sibling of the current activity
+			while (tempNode.getParentLocation() != -1 && tempNode.getParentLocation() != curParent) {
+				tempNode = nodes.elementAt(tempNode.getParentLocation());
+				ISeqRuleset stopTrav = tempNode.getActivity().getPreSeqRules();
+
+				String result = null;
+				if (stopTrav != null) {
+					result = stopTrav.evaluate(SeqRuleset.RULE_TYPE_FORWARDBLOCK,
+							tempNode.getActivity(), false);
+				}
+
+				// If the rule evaluation did not return null,
+				// then all of its descendents are blocked
+				if (result != null) {
+					if (log.isDebugEnabled()) {
+						log.debug("  ::--> BLOCKED SOURCE --> "
+								+ tempNode.getActivity().getID() + " [" + tempNode.getDepth() + "]");
+					}
+
+					// The depth of the blocked activity
+					int blocked = tempNode.getDepth();
+
+					for (int i = idx; i < nodes.size(); i++) {
+						ActivityNode tempAN = nodes.elementAt(i);
+
+						int td = tempAN.getDepth();
+						int checkDepth = ((td >= 0) ? td : (-td));
+
+						// Check to see if we are done blocking activities
+						if (checkDepth <= blocked) {
+							break;
+						}
+
+						// This activity must be a descendent
+						tempAN.setSelectable(false);
+					}
+				}
+
+				idx--;
+				tempNode = nodes.elementAt(idx);
+			}
+		}
+		
+		log.debug("  ::--> Completed sixth pass");
+		
+
+		// Boundary condition -- if there is a TOC make sure all "selectable"
+		// clusters actually flow into content
+		for (int i = 0; i < nodes.size(); i++) {
+			tempNode = nodes.elementAt(i);
+
+			if (!tempNode.isLeaf()) {
+				if (log.isDebugEnabled()) {
+					log.debug("  ::--> Process 'Continue' request from " + tempNode.getActivity().getID());
+				}
+
+				SeqActivity from = tempNode.getActivity();
+
+				// Confirm 'flow' is enabled from this cluster
+				if (from.getControlModeFlow()) {
+					// Begin traversing the activity tree from the root
+					Walk treeWalk = new Walk();
+					treeWalk.at = from;
+
+					boolean success = processFlow(ADLSequencer.FLOW_FORWARD,
+							true, treeWalk, false);
+
+					if (!success) {
+						tempNode.setSelectable(false);
+
+						if (log.isDebugEnabled()) {
+							log.debug("  :+: CONTINUE FAILED :+:  --> " + treeWalk.at.getID());
+						}
+					}
+				} else {
+					// Cluster does not have flow == true
+					tempNode.setSelectable(false);
+				}
+			}
+		}
+
+		log.debug("  ::--> Completed seventh pass");
+
+		for (int i = nodes.size() - 1; i >= 0; i--) {
+			tempNode = nodes.elementAt(i);
+
+			if (tempNode.isCurrent() && tempNode.isInChoice()) {
+				if (tempNode.getDepth() < 0) {
+					tempNode.setDepth(-tempNode.getDepth());
+				}
+			}
+
+			if (tempNode.getDepth() >= 0) {
+				while (tempNode.getParentLocation() != -1) {
+					tempNode = nodes.elementAt(tempNode.getParentLocation());
+
+					if (tempNode.getDepth() < 0) {
+						tempNode.setDepth(-tempNode.getDepth());
+					}
+				}
+			} else if (!tempNode.isHidden()) {
+				tempNode.setDepth(-1);
+			}
+		}
+
+		for (int i = 0; i < nodes.size(); i++) {
+			tempNode = nodes.elementAt(i);
+
+			if (tempNode.isHidden()) {
+				tempNode.setDepth(-1);
+				Vector parents = new Vector();
+
+				for (int j = i + 1; j < nodes.size(); j++) {
+					tempNode = nodes.elementAt(j);
+
+					if (tempNode.getParentLocation() == i && tempNode.getDepth() > 0) {
+						tempNode.setDepth(tempNode.getDepth() - 1);
+						parents.add(new Integer(j));
+					} else {
+						if (tempNode.getDepth() != -1) {
+							int idx = parents.indexOf(new Integer(tempNode.getParentLocation()));
+
+							if (idx != -1) {
+								tempNode.setDepth(tempNode.getDepth() - 1);
+								parents.add(new Integer(j));
+							}
+						}
+					}
+				}
+			}
+		}
+
+		log.debug("  ::--> Completed TOC walk up");
+
+		log.debug("  :: ADLSequencer --> END   - getTOC");
+
+		
+		
+		ActivityNode rootNode = null;
+		
+		for (int i=0;i<nodes.size();i++) {
+			ActivityNode node = nodes.get(i);
+			
+			if (node.getParentLocation() == -1) {
+				rootNode = node;
+			} else if (node.getDepth() >= 0){
+				ActivityNode parentNode = nodes.get(node.getParentLocation());
+				parentNode.add(node);
+			}
+		}
+		
+		TreeModel treeModel = new DefaultTreeModel(rootNode);
+		return treeModel;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 } // end ADLSequencer

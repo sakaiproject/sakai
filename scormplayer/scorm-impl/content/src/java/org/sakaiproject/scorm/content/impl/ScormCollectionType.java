@@ -56,7 +56,7 @@ public class ScormCollectionType extends ZipCollectionType {
 	public static final String SCORM_UPLOAD_HELPER_ID="sakai.scorm.helper"; //="sakai.resource.type.helper";
 	public static final String SCORM_LAUNCH_TOOL_ID="sakai.scorm.helper";
 	public static final String SCORM_ACCESS_HELPER_ID="sakai.scorm.access";
-	
+	public static final String SCORM_REMOVE_HELPER_ID="sakai.scorm.remove.helper";
 	
 	public ScormCollectionType() {	
 		List<String> requiredKeys = new ArrayList<String>();
@@ -82,7 +82,19 @@ public class ScormCollectionType extends ZipCollectionType {
 	    };
 	    
 	    //ResourceToolAction launch = new ScormLaunchAction();
-	    ResourceToolAction remove = new BaseServiceLevelAction(ResourceToolAction.DELETE, ResourceToolAction.ActionType.DELETE, SCORM_CONTENT_TYPE_ID, false);
+	    
+	    
+	    ResourceToolAction remove = new BaseInteractionAction(ResourceToolAction.DELETE, ResourceToolAction.ActionType.DELETE, SCORM_CONTENT_TYPE_ID, SCORM_REMOVE_HELPER_ID, requiredKeys) {
+	    	public String getLabel() {
+	    		return SCORM_REMOVE_LABEL;
+	    	}
+	    };
+	    	
+	    	
+	    	//new BaseServiceLevelAction(ResourceToolAction.DELETE, ResourceToolAction.ActionType.DELETE, SCORM_CONTENT_TYPE_ID, false);
+	    
+	    
+	    
 	    //ResourceToolAction intercept = new BaseInteractionAction(ResourceToolAction.INTERCEPT_CONTENT, ResourceToolAction.ActionType.INTERCEPT_CONTENT, SCORM_CONTENT_TYPE_ID, SCORM_LAUNCH_TOOL_ID, requiredKeys);   
 
 	    actionMap.put(create.getActionType(), makeList(create));

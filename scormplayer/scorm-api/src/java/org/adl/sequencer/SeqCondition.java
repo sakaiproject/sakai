@@ -57,7 +57,10 @@ import java.io.Serializable;
  */
 public class SeqCondition implements Serializable
 {
-  
+	private static final long serialVersionUID = 1L;
+	
+	private long id;
+	
    /**
     * Enumeration of possible evaluation criteria -- described in Sequencing
     * Rule Description (element 2.2.1) and Rollup Rule Description 

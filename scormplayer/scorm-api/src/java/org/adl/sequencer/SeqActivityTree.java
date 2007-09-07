@@ -33,7 +33,12 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.Enumeration;
 
+import javax.swing.event.EventListenerList;
+import javax.swing.event.TreeModelListener;
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 /**
  * Implementation of an activity tree.<br><br>
@@ -67,8 +72,12 @@ import javax.swing.tree.TreeModel;
  */
 public class SeqActivityTree implements Serializable, ISeqActivityTree
 {
-	static final long serialVersionUID = 1L; //1802091880012820747L;
+   static final long serialVersionUID = 1L; //1802091880012820747L;
 
+   //protected EventListenerList listenerList = new EventListenerList();
+	
+   private long id;
+   
    /**
     * This controls display of log messages to the java console
     */
@@ -1383,4 +1392,46 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree
       }
    }
 
+   /*public void addTreeModelListener(TreeModelListener l) {
+       listenerList.add(TreeModelListener.class, l);
+   }
+
+   public void removeTreeModelListener(TreeModelListener l) {
+       listenerList.remove(TreeModelListener.class, l);
+   }
+	
+	public Object getChild(Object parent, int index) {
+		SeqActivity parentActivity = (SeqActivity)parent;
+		
+		return parentActivity.getChild(index);
+	}
+	
+	public int getChildCount(Object parent) {
+		SeqActivity parentActivity = (SeqActivity)parent;
+		
+		return parentActivity.getChildCount();
+	}
+	
+	public int getIndexOfChild(Object parent, Object child) {
+		SeqActivity parentActivity = (SeqActivity)parent;
+		
+		return parentActivity.getIndexOfChild(child);
+	}
+	
+	public boolean isLeaf(Object node) {
+		SeqActivity activity = (SeqActivity)node;
+		
+		return activity.hasChildren(true);
+	}
+	
+	public void valueForPathChanged(TreePath path, Object newValue) {
+		SeqActivity activity = (SeqActivity)path.getLastPathComponent();
+
+        SeqActivity parentActivity = activity.getParent();
+
+        parentActivity.replaceChild(activity, newValue);
+        
+        //nodeChanged(parentActivity);
+	}*/
+   
 }  // end SeqActivityTree
