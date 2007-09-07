@@ -102,6 +102,7 @@ public class TotalScoresBean
   private PublishedAssessmentData publishedAssessment; 
   private ArrayList allAgents;
   
+  private String graderName;
   private String graderEmailInfo;
   
   // Paging.
@@ -912,7 +913,15 @@ public class TotalScoresBean
 	  return allAgents;
   }
 
+  public String getGraderName() {
+	  return Validator.check(graderName, "");
+  }
+  
 
+  public void setGraderName(String graderName) {
+	  this.graderName = graderName; 
+  }
+  
   public String getGraderEmailInfo() {
 	  return Validator.check(graderEmailInfo, "");
   }

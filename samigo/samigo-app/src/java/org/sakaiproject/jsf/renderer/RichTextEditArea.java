@@ -78,14 +78,16 @@ public class RichTextEditArea extends Renderer
     ResponseWriter writer = context.getResponseWriter();
 
     Object value = null;
-    if (component instanceof UIInput)
-    {
-      value = ( (UIInput) component).getSubmittedValue();
-    }
-    if (value == null && component instanceof ValueHolder)
-    {
-      value = ( (ValueHolder) component).getValue();
-
+    String reset = (String) component.getAttributes().get("reset");
+    if (reset == null || !reset.equals("true")) {
+    	if (component instanceof UIInput)
+    	{
+    		value = ( (UIInput) component).getSubmittedValue();
+    	}
+    	if (value == null && component instanceof ValueHolder)
+    	{
+    		value = ( (ValueHolder) component).getValue();
+    	}
     }
 
     boolean valueHasRichText = false;

@@ -33,7 +33,10 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 <f:view>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head><%= request.getAttribute("html.head") %>
-<title><h:outputText value="#{evaluationMessages.title_create_new_email}#{evaluationMessages.colon} <Assessment Title> #{evaluationMessages.feedback}" /></title>
+<title>
+<h:outputText value="#{evaluationMessages.title_create_new_email}#{evaluationMessages.colon} #{param.assessmentName} #{evaluationMessages.feedback}" rendered="#{param.fromEmailLinkClick == 'true'}"/>  
+<h:outputText value="#{evaluationMessages.title_create_new_email}#{evaluationMessages.colon} #{email.subject}" rendered="#{param.fromEmailLinkClick != 'true'}"/>
+</title>
 </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -49,13 +52,16 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 <h:panelGrid columns="1" columnClasses="navView,navView" border="0">	
 	<h:panelGrid columns="2" columnClasses="navView" border="0">	
 	<h:outputText value="#{evaluationMessages.from}" />
-	<h:outputText value="#{email.fromName} <#{email.fromEmailAddress}>" />
+	<h:outputText value="#{param.fromName} <#{param.fromEmailAddress}>" rendered="#{param.fromEmailLinkClick == 'true'}"/>  
+	<h:outputText value="#{email.fromName} <#{email.fromEmailAddress}>" rendered="#{param.fromEmailLinkClick != 'true'}"/>
 
-	<h:outputText value="#{evaluationMessages.to}" />    
-	<h:outputText value="#{email.toName} <#{email.toEmailAddress}>" />  
+	<h:outputText value="#{evaluationMessages.to}" />  
+	<h:outputText value="#{param.toName} <#{param.toEmailAddress}>" rendered="#{param.fromEmailLinkClick == 'true'}"/>  
+	<h:outputText value="#{email.toName} <#{email.toEmailAddress}>" rendered="#{param.fromEmailLinkClick != 'true'}"/>
 
 	<h:outputText value="#{evaluationMessages.subject}" />  
-	<h:outputText id="subject" value="#{email.subject}" />    
+	<h:outputText id="subject1" value="#{param.assessmentName} #{evaluationMessages.feedback}" rendered="#{param.fromEmailLinkClick == 'true'}"/>  
+	<h:outputText id="subject2" value="#{email.subject}" rendered="#{param.fromEmailLinkClick != 'true'}"/>
 
 	<h:outputText value="#{evaluationMessages.cc_me}" />
 	<h:selectOneRadio value="#{email.ccMe}">
@@ -67,12 +73,10 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 	<h:outputText value="" />
 	</h:panelGrid>
 
-        <h:inputHidden id="messageBode" value="#{email.message}" />
-
 	<f:facet name="footer">
 		<h:panelGrid columns="1" columnClasses="navView" border="0">	
 			<h:panelGroup>
-				<samigo:wysiwyg rows="140" value="#{email.message}">
+				<samigo:wysiwyg rows="140" value="#{email.message}" reset="#{param.fromEmailLinkClick}">
 					<f:validateLength minimum="1" maximum="4000"/>
 				</samigo:wysiwyg>
 			</h:panelGroup>

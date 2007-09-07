@@ -134,10 +134,17 @@ public class TotalScoreListener
     	}
     }
     
+    // Set grader info (for email feature)
+    AgentFacade agent = new AgentFacade();
+	StringBuffer sb = new StringBuffer(agent.getFirstName());
+	sb.append(" ");
+	sb.append(agent.getLastName());
+	bean.setGraderName(sb.toString());
+	emailBean.setFromName(agent.getEmail());
     // Set from email here. We need it to decide if the Email link should be displayed or not.
     // (if from email is null, we don't display the Email link)
     // as well.
-    AgentFacade agent = new AgentFacade();
+    bean.setGraderEmailInfo(agent.getEmail());
     emailBean.setFromEmailAddress(agent.getEmail());
    
     // checking for permission first

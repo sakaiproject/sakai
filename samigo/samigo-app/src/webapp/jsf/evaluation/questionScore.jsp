@@ -48,9 +48,10 @@ function toPoint(id)
   document.getElementById(id).value=x.replace(',','.')
 }
 
-function clickEmailLink(field){
+function clickEmailLink(field, fromName, fromEmailAddress, toName, toEmailAddress, assessmentName){
 var emaillinkid= field.id.replace("createEmail", "hiddenlink");
-
+//fromName = escapeApostrophe(fromName);
+//to = escapeApostrophe(toName);
 var newindex = 0;
 for (i=0; i<document.links.length; i++) {
   if(document.links[i].id == emaillinkid)
@@ -61,7 +62,7 @@ for (i=0; i<document.links.length; i++) {
 }
 
 document.links[newindex].onclick();
-window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height=600,scrollbars=yes, resizable=yes');
+window.open("../evaluation/createNewEmail.faces?fromEmailLinkClick=true&fromName=" + fromName + "&fromEmailAddress=" + fromEmailAddress + "&toName=" + toName + "&toEmailAddress=" + toEmailAddress +  "&assessmentName=" + assessmentName,'createEmail','width=600,height=600,scrollbars=yes, resizable=yes');
 
 document.location='../evaluation/questionScore';
 }
@@ -415,7 +416,7 @@ document.location='../evaluation/questionScore';
        </h:commandLink>
 	   <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:outputLink id="createEmail1" onclick="clickEmailLink(this);" value="#">
+	   <h:outputLink id="createEmail1" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", '#{totalScores.graderEmailInfo}', \"#{description.firstName} #{description.lastName}\", '#{description.email}', '#{totalScores.assessmentName}');" value="#">
 	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	   </span>
@@ -458,7 +459,7 @@ document.location='../evaluation/questionScore';
        </h:commandLink>
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:outputLink id="createEmail2" onclick="clickEmailLink(this);" value="#">
+	   <h:outputLink id="createEmail2" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", '#{totalScores.graderEmailInfo}', \"#{description.firstName} #{description.lastName}\",' #{description.email}', '#{totalScores.assessmentName}');" value="#">
 	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	   </span>
@@ -501,7 +502,7 @@ document.location='../evaluation/questionScore';
        </h:commandLink>
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:outputLink id="createEmail3" onclick="clickEmailLink(this);" value="#">
+	   <h:outputLink id="createEmail3" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", '#{totalScores.graderEmailInfo}', \"#{description.firstName} #{description.lastName}\", '#{description.email}', '#{totalScores.assessmentName}');" value="#">
 	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	   </span>

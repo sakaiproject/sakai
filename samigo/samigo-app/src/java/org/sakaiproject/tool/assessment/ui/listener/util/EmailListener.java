@@ -46,19 +46,16 @@ public class EmailListener implements ActionListener {
 		EmailBean emailBean = (EmailBean) ContextUtil.lookupBean("email");
 		TotalScoresBean totalScoreBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 			
+		emailBean.setMessage(null);
 		emailBean.setAttachmentList(null);
 		emailBean.setHasAttachment(false);
+		emailBean.setCcMe("no");
 			
-		// From Name
-		AgentFacade agent = new AgentFacade();
-		StringBuffer sb = new StringBuffer(agent.getFirstName());
-		sb.append(" ");
-		sb.append(agent.getLastName());
-		emailBean.setFromName(sb.toString());
+		// From Name and email are set in TotalScoreListener
 		
 		// To
 		String toUserId = ContextUtil.lookupParam("toUserId");
-		agent = new AgentFacade(toUserId);
+		AgentFacade agent = new AgentFacade(toUserId);
 		String toFirstName = agent.getFirstName();
 		String toName = toFirstName + " " + agent.getLastName();
 		String toEmailAddress = agent.getEmail();
@@ -73,12 +70,9 @@ public class EmailListener implements ActionListener {
 		emailBean.setAssessmentName(totalScoreBean.getAssessmentName());
 			
 		// Subject
-		sb = new StringBuffer(totalScoreBean.getAssessmentName());
+		StringBuffer sb = new StringBuffer(totalScoreBean.getAssessmentName());
 		sb.append(" ");
 		sb.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "feedback"));
 		emailBean.setSubject(sb.toString());
-			
-		// Message
-		emailBean.setMessageTemplate();
 	}
 }

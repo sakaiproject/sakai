@@ -34,6 +34,7 @@ public class RichTextEditArea extends UIComponentTag
   private String rows;
   private String justArea;
   private String hasToggle;
+  private String reset;
 
   public void setValue(String newValue)
   {
@@ -85,6 +86,16 @@ public class RichTextEditArea extends UIComponentTag
 	  return hasToggle;
   }
   
+  public void setReset(String newR)
+  {
+	  reset = newR;
+  }
+   
+  public String getReset()
+  {
+	  return reset;
+  }
+  
   public String getComponentType()
 	{
 		return "SakaiRichTextEditArea";
@@ -103,6 +114,7 @@ public class RichTextEditArea extends UIComponentTag
     setString(component, "rows", rows);
     setString(component, "justArea", justArea);
     setString(component, "hasToggle", hasToggle);
+    setString(component, "reset", reset);
 	}
 
 	public void release()
@@ -113,6 +125,7 @@ public class RichTextEditArea extends UIComponentTag
     rows = null;
     justArea = null;
     hasToggle = null;
+    reset = null;
   }
 
   public static void setString(UIComponent component, String attributeName,

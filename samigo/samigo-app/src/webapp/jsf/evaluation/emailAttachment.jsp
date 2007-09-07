@@ -21,7 +21,7 @@
 -->
 <!-- 2a ATTACHMENTS -->
  <div class="longtext"><h:outputLabel value="#{evaluationMessages.attachments}" />
-  <h:panelGroup rendered="#{email.hasAttachment}">
+  <h:panelGroup rendered="#{email.hasAttachment && param.fromEmailLinkClick != 'true'}">
     <h:dataTable value="#{email.attachmentList}" var="attach">
       <h:column>
         <%@ include file="/jsf/shared/mimeicon.jsp" %>
@@ -41,16 +41,16 @@
       </h:column>
     </h:dataTable>
   </h:panelGroup>
-  <h:panelGroup rendered="#{!email.hasAttachment}">
+  <h:panelGroup rendered="#{!email.hasAttachment || param.fromEmailLinkClick == 'true'}">
     <h:outputText escape="false" value="#{evaluationMessages.no_attachments_yet}" />
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{!email.hasAttachment}">
+  <h:panelGroup rendered="#{!email.hasAttachment || param.fromEmailLinkClick == 'true'}">
      <h:commandButton action="#{email.addAttachmentsRedirect}"
            value="#{evaluationMessages.add_attachments}" immediate="true"/>
   </h:panelGroup>
 
-  <h:panelGroup rendered="#{email.hasAttachment}">
+  <h:panelGroup rendered="#{email.hasAttachment && param.fromEmailLinkClick != 'true'}">
      <h:commandButton action="#{email.addAttachmentsRedirect}"
            value="#{evaluationMessages.add_remove_attachments}" immediate="true"/>
   </h:panelGroup>

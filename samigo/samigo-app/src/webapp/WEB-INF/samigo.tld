@@ -324,6 +324,15 @@
     </attribute>	
 
     <attribute>
+      <name>reset</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        reset the value field to null
+      </description>
+    </attribute>	
+
+    <attribute>
       <name>binding</name>
       <required>false</required>
       <rtexprvalue>false</rtexprvalue>

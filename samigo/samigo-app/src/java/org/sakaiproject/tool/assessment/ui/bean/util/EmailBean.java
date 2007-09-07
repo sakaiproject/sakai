@@ -158,25 +158,7 @@ public class EmailBean implements Serializable {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-
-	public void setMessageTemplate() {
-		StringBuffer sb = new StringBuffer(ContextUtil.getLocalizedString(
-				"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
-				"dear"));
-		sb.append(" ");
-		sb.append(toFirstName);
-		sb.append(ContextUtil.getLocalizedString(
-				"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
-				"comma"));
-		sb.append("<br/>");
-		sb.append(ContextUtil.getLocalizedString(
-				"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
-				"regarding"));
-		sb.append(" ");
-		sb.append(assessmentName);
-		this.message = sb.toString();
-	}
-
+	
 	public List getAttachmentList() {
 		return attachmentList;
 	}
@@ -192,7 +174,7 @@ public class EmailBean implements Serializable {
 	public void setHasAttachment(boolean hasAttachment) {
 		this.hasAttachment = hasAttachment;
 	}
-
+	
 	public String getOutcome() {
 		return outcome;
 	}
@@ -343,6 +325,7 @@ public class EmailBean implements Serializable {
 
 	public void cancel() {
 		log.debug("cancel");
+		setMessage(null);
 		setAttachmentList(null);
 		setHasAttachment(false);
 	}
