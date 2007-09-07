@@ -53,6 +53,7 @@ public interface Schema
 		public String getNamespaceAbbreviation();
 		public String getIdentifier();
 		public String getIdentifier(String format);
+		public String[] getIdentifierComplex(String format);		
 		public String getDescription();
 		public String getValueType();
 		public boolean isEditable();
