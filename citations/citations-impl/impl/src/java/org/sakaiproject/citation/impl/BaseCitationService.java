@@ -1641,9 +1641,6 @@ public abstract class BaseCitationService implements CitationService
 					while (iter.hasNext() && status == true)
 					{
 						tempField = (Field) iter.next();
-
-//						logger.debug("importFromRisList: Seeing if " + RIScode + " == " + tempField.getIdentifier(RIS_FORMAT) + " for Schema " + schema.getIdentifier());
-						
 						
 						// We found that this field is a valid field for this schema
 						
@@ -1651,7 +1648,13 @@ public abstract class BaseCitationService implements CitationService
 						
 						for(int j=0; j< RIScodes.length && status; j++)
 						{						
-							if (RIScode.equalsIgnoreCase(RIScodes[j]))
+							
+							logger.debug("importFromRisList: Seeing if " + RIScode + 
+									     " == " + RIScodes[j] + " for Schema " + schema.getIdentifier());
+
+							// Need Trim in case RIS complex value has a space after the delimiter
+							// (e.g. "BT, T1" vs "BT","T1")
+							if (RIScode.equalsIgnoreCase(RIScodes[j].trim()))
 							{
 								status = false;
 								logger.debug("importFromRisList: Found field mapping");
