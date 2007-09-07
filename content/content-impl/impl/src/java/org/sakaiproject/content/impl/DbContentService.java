@@ -55,6 +55,7 @@ import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.serialize.EntityReaderHandler;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -65,6 +66,7 @@ import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.BaseDbSingleStorage;
+import org.sakaiproject.util.EntityReaderAdapter;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
@@ -531,7 +533,26 @@ public class DbContentService extends BaseContentService
 	 */
 	protected Storage newStorage()
 	{
-		Storage storage =  new DbStorage(new CollectionStorageUser(), new ResourceStorageUser(), (m_bodyPath != null), contentHostingHandlerResolver);
+		EntityReaderAdapter cera = new EntityReaderAdapter();
+		CollectionStorageUser csu = new CollectionStorageUser();
+		csu.setEntityReaderAdapter(cera);
+		cera.setContainerEntryTagName("notdoublestorage");
+		cera.setResourceEntryTagName("collection");
+		cera.setSaxEntityReader(csu);
+		cera.setStorageUser(csu);
+		cera.setTarget(csu);
+		
+		EntityReaderAdapter rera = new EntityReaderAdapter();
+		ResourceStorageUser rsu = new ResourceStorageUser();
+		rsu.setEntityReaderAdapter(rera);
+		rera.setContainerEntryTagName("notdoublestorage");
+		rera.setResourceEntryTagName("resource");
+		rera.setSaxEntityReader(rsu);
+		rera.setStorageUser(rsu);
+		rera.setTarget(rsu);
+		
+		
+		Storage storage =  new DbStorage(csu, rsu, (m_bodyPath != null), contentHostingHandlerResolver);
 		if ( contentHostingHandlerResolver != null ) {
 			contentHostingHandlerResolver.setStorage(storage);
 		}

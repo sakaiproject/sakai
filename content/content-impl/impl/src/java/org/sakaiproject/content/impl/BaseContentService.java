@@ -78,6 +78,8 @@ import org.sakaiproject.content.api.providers.SiteContentAdvisor;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorTypeRegistry;
 import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess;
+import org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess;
 import org.sakaiproject.content.types.FileUploadType;
 import org.sakaiproject.content.types.FolderType;
 import org.sakaiproject.content.types.HtmlDocumentType;
@@ -98,6 +100,11 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.serialize.EntityParseException;
+import org.sakaiproject.entity.api.serialize.EntityReader;
+import org.sakaiproject.entity.api.serialize.EntityReaderHandler;
+import org.sakaiproject.entity.api.serialize.EntitySerializer;
+import org.sakaiproject.entity.api.serialize.SerializableEntity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
@@ -134,6 +141,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Blob;
 import org.sakaiproject.util.DefaultEntityHandler;
+import org.sakaiproject.util.EntityReaderAdapter;
 import org.sakaiproject.util.SAXEntityReader;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
@@ -562,6 +570,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	}
 	
 	protected boolean useResourceTypeRegistry = true;
+
+	public boolean migrateData = false;
+
+	public EntitySerializer collectionSerializer;
+
+	public EntitySerializer resourceSerializer;
 	
 	public void setUseResourceTypeRegistry(boolean useRegistry)
 	{
@@ -680,9 +694,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	/**
 	 * Storage user for collections - in the resource side, not container
 	 */
-	protected class CollectionStorageUser implements StorageUser, SAXEntityReader
+	protected class CollectionStorageUser implements StorageUser, SAXEntityReader, EntityReaderHandler, EntityReader
 	{
 		private Map<String,Object> m_services;
+		
+		private EntityReaderHandler entityReaderAdapter;
 
 		public Entity newContainer(String ref)
 		{
@@ -858,15 +874,84 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			return m_services;
 		}
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.util.EntityReader#accept(java.lang.String)
+		 */
+		public boolean accept(String blob)
+		{
+			return  collectionSerializer.accept(blob);
+		}
+		
+		
+		
+		
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.util.EntityReader#parseContainer(java.lang.String)
+		 */
+		public Entity parseResource(String blob) throws EntityParseException
+		{
+			BaseCollectionEdit bce = new BaseCollectionEdit();
+			collectionSerializer.parse(bce,blob);
+			return bce;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.util.EntityReader#toString(org.sakaiproject.entity.api.Entity)
+		 */
+		public String toString(Entity entry) throws EntityParseException
+		{
+			if ( entry instanceof SerializableEntity ) {
+				
+				return collectionSerializer.serialize((SerializableEntity)entry);
+			}
+			throw new EntityParseException("Unable to serialze entity to native format, entity is not serializable");
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.entity.api.EntityReader#getHandler()
+		 */
+		public EntityReaderHandler getHandler()
+		{
+			return entityReaderAdapter;
+		}
+
+		/**
+		 * @return the entityReaderAdapter
+		 */
+		public EntityReaderHandler getEntityReaderAdapter()
+		{
+			return entityReaderAdapter;
+		}
+
+		/**
+		 * @param entityReaderAdapter the entityReaderAdapter to set
+		 */
+		public void setEntityReaderAdapter(EntityReaderHandler entityReaderAdapter)
+		{
+			this.entityReaderAdapter = entityReaderAdapter;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.entity.api.EntityReader#isMigrateData()
+		 */
+		public boolean isMigrateData()
+		{
+			return migrateData;
+		}
+
 
 	} // class CollectionStorageUser
 
 	/**
 	 * Storage user for resources - in the resource side, not container
 	 */
-	protected class ResourceStorageUser implements StorageUser, SAXEntityReader
+	protected class ResourceStorageUser implements StorageUser, SAXEntityReader, EntityReaderHandler, EntityReader
 	{
 		private Map<String, Object> m_services;
+		
+		private EntityReaderHandler entityReaderAdapter;
 
 		public Entity newContainer(String ref)
 		{
@@ -1037,7 +1122,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 						{
 							if ("resource".equals(qName))
 							{
-								BaseResourceEdit bre = new BaseResourceEdit(container);
+								BaseResourceEdit bre = new BaseResourceEdit();
 								entity = bre;
 								setContentHandler(bre.getContentHandler(services), uri,
 										localName, qName, attributes);
@@ -1067,7 +1152,68 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			return m_services;
 		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.util.EntityReader#accept(java.lang.String)
+		 */
+		public boolean accept(String blob)
+		{
+			return resourceSerializer.accept(blob);
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.util.EntityReader#parseContainer(java.lang.String)
+		 */
+		public Entity parseResource(String blob) throws EntityParseException
+		{
+			BaseResourceEdit bre = new BaseResourceEdit();
+			resourceSerializer.parse(bre,blob);
+			return bre;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.util.EntityReader#toString(org.sakaiproject.entity.api.Entity)
+		 */
+		public String toString(Entity entry) throws EntityParseException
+		{
+			if ( entry instanceof SerializableEntity ) {
+				return resourceSerializer.serialize((SerializableEntity) entry);
+			}
+			throw new EntityParseException("Unable to parse entity, entity does not implement SerializableEntity ");
+		}
 		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.entity.api.EntityReader#getHandler()
+		 */
+		public EntityReaderHandler getHandler()
+		{
+			return entityReaderAdapter;
+		}
+
+		/**
+		 * @return the entityReaderAdapter
+		 */
+		public EntityReaderHandler getEntityReaderAdapter()
+		{
+			return entityReaderAdapter;
+		}
+
+		/**
+		 * @param entityReaderAdapter the entityReaderAdapter to set
+		 */
+		public void setEntityReaderAdapter(EntityReaderHandler entityReaderAdapter)
+		{
+			this.entityReaderAdapter = entityReaderAdapter;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.entity.api.EntityReader#isMigrateData()
+		 */
+		public boolean isMigrateData()
+		{
+			return migrateData;
+		}
+
 
 
 	} // class ResourceStorageUser
@@ -9224,7 +9370,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * ContentCollection implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
-	public class BaseCollectionEdit extends BasicGroupAwareEdit implements ContentCollectionEdit, SessionBindingListener
+	public class BaseCollectionEdit extends BasicGroupAwareEdit implements ContentCollectionEdit, SessionBindingListener, SerializableEntity,  SerializableCollectionAccess
 	{
 		/**
 		 * Construct with an id.
@@ -9349,6 +9495,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 			};
 		}
+
 
 		/**
 		 * Construct as a copy of another.
@@ -9892,6 +10039,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		} // toXml
 
+		
 		/**
 		 * Access the event code for this edit.
 		 * 
@@ -10128,13 +10276,131 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			*/
 		}
 
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#getSerializableAccess()
+		 */
+		public AccessMode getSerializableAccess()
+		{
+			return m_access;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#getSerializableGroup()
+		 */
+		public Collection<String> getSerializableGroup()
+		{
+			return m_groups;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#getSerializableHidden()
+		 */
+		public boolean getSerializableHidden()
+		{
+			return m_hidden;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#getSerializableId()
+		 */
+		public String getSerializableId()
+		{
+			return m_id;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#getSerializableProperties()
+		 */
+		public SerializableEntity getSerializableProperties()
+		{
+			return (SerializableEntity)m_properties;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#getSerializableReleaseDate()
+		 */
+		public Time getSerializableReleaseDate()
+		{
+			return m_releaseDate;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#getSerializableRetractDate()
+		 */
+		public Time getSerializableRetractDate()
+		{
+			return m_retractDate;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#setSerializableAccess(org.sakaiproject.content.api.GroupAwareEntity.AccessMode)
+		 */
+		public void setSerializableAccess(AccessMode access)
+		{
+			m_access = access;
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#setSerializableGroups(java.util.List)
+		 */
+		public void setSerializableGroups(Collection<String> groups)
+		{
+			m_groups = groups;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#setSerializableHidden(boolean)
+		 */
+		public void setSerializableHidden(boolean hidden)
+		{
+			m_hidden = hidden;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#setSerializableId(java.lang.String)
+		 */
+		public void setSerializableId(String id)
+		{
+			m_id = id;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#setSerializableReleaseDate(org.sakaiproject.time.api.Time)
+		 */
+		public void setSerializableReleaseDate(Time releaseDate)
+		{
+			m_releaseDate = releaseDate;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#setSerializableResourceType(java.lang.String)
+		 */
+		public void setSerializableResourceType(String resourceType)
+		{
+			m_resourceType = resourceType;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#setSerializableRetractDate(org.sakaiproject.time.api.Time)
+		 */
+		public void setSerializableRetractDate(Time retractDate)
+		{
+			m_retractDate = retractDate;
+		}
+
+
+
+
 	} // class BaseCollectionEdit
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * ContentResource implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
-	public class BaseResourceEdit extends BasicGroupAwareEdit implements ContentResourceEdit, SessionBindingListener
+	public class BaseResourceEdit extends BasicGroupAwareEdit implements ContentResourceEdit, SessionBindingListener, SerializableEntity, SerializableResourceAccess
 	{
+
 		/** The content type. */
 		protected String m_contentType = null;
 
@@ -10171,6 +10437,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				setFilePath(TimeService.newTime());
 			}
 		} // BaseResourceEdit
+
+
 
 
 		/**
@@ -10267,7 +10535,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		/**
 		 * 
 		 */
-		public BaseResourceEdit(Entity container)
+		public BaseResourceEdit()
 		{
 			// we ignore the container
 			m_properties = new BaseResourcePropertiesEdit();
@@ -10988,6 +11256,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		private ContentHostingHandler chh = null;
 		private ContentEntity chh_vce = null; // the wrapped virtual content entity
+
 		public ContentHostingHandler getContentHandler() {return chh;}
 		public void setContentHandler(ContentHostingHandler chh) {this.chh = chh;}
 		public ContentEntity getVirtualContentEntity() {return chh_vce;}
@@ -10999,6 +11268,281 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public ContentEntity getMember(String nextId)
 		{
 			return null;
+		}
+
+
+
+		/** Serializable Resource Access */
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getResourceTypeRegistry()
+		 */
+		public ResourceTypeRegistry getResourceTypeRegistry()
+		{
+			return m_resourceTypeRegistry;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableAccess()
+		 */
+		public AccessMode getSerializableAccess()
+		{
+			return m_access;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableBody()
+		 */
+		public byte[] getSerializableBody()
+		{
+			if ( m_body != null ) {
+				M_log.warn("Serializing Body to Entiry Blob, this is bad and will make Sakai crawl");
+			}
+			return m_body;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableContentLength()
+		 */
+		public long getSerializableContentLength()
+		{
+			return m_contentLength;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableContentType()
+		 */
+		public String getSerializableContentType()
+		{
+			return m_contentType;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableFilePath()
+		 */
+		public String getSerializableFilePath()
+		{
+			return m_filePath;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableGroup()
+		 */
+		public Collection<String> getSerializableGroup()
+		{
+			return m_groups;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableHidden()
+		 */
+		public boolean getSerializableHidden()
+		{
+			return m_hidden;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableId()
+		 */
+		public String getSerializableId()
+		{
+			return m_id;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableProperties()
+		 */
+		public SerializableEntity getSerializableProperties()
+		{
+			return (SerializableEntity)m_properties;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableReleaseDate()
+		 */
+		public Time getSerializableReleaseDate()
+		{
+			return m_releaseDate;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableResourceType()
+		 */
+		public String getSerializableResourceType()
+		{
+			return m_resourceType;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableRetractDate()
+		 */
+		public Time getSerializableRetractDate()
+		{
+			return m_retractDate;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableAccess(org.sakaiproject.content.api.GroupAwareEntity.AccessMode)
+		 */
+		public void setSerializableAccess(AccessMode access)
+		{
+			m_access = access;			
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableBody(byte[])
+		 */
+		public void setSerializableBody(byte[] body)
+		{
+			if ( body != null ) {
+				M_log.warn("Body serialization from Entity, this is bad and will slow Sakai right down ");
+			}
+			m_body = body;			
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableContentLength(long)
+		 */
+		public void setSerializableContentLength(long contentLength)
+		{
+			if ( contentLength > (long)Integer.MAX_VALUE ) {
+				M_log.warn("File is longer than "+Integer.MAX_VALUE+", length may be truncated ");
+			}
+			m_contentLength = (int)contentLength;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableContentType(java.lang.String)
+		 */
+		public void setSerializableContentType(String contentType)
+		{
+			m_contentType = contentType;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableFilePath(java.lang.String)
+		 */
+		public void setSerializableFilePath(String filePath)
+		{
+			m_filePath = filePath;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableGroups(java.util.Collection)
+		 */
+		public void setSerializableGroups(Collection<String> groups)
+		{
+			m_groups = groups;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableHidden(boolean)
+		 */
+		public void setSerializableHidden(boolean hidden)
+		{
+			m_hidden = hidden;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableId(java.lang.String)
+		 */
+		public void setSerializableId(String id)
+		{
+			m_id = id;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableReleaseDate(org.sakaiproject.time.api.Time)
+		 */
+		public void setSerializableReleaseDate(Time releaseDate)
+		{
+			m_releaseDate = releaseDate;
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableResourceType(java.lang.String)
+		 */
+		public void setSerializableResourceType(String resourceType)
+		{
+			m_resourceType = resourceType;			
+		}
+
+
+
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableRetractDate(org.sakaiproject.time.api.Time)
+		 */
+		public void setSerializableRetractDate(Time retractDate)
+		{
+			m_retractDate = retractDate;
 		}
 
 	} // BaseResourceEdit
@@ -11238,6 +11782,59 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public void registerSiteContentAdvisorProvidor(SiteContentAdvisorProvider advisor, String type)
 	{
 		siteContentAdvisorsProviders.put(type, advisor);		
+	}
+
+	/**
+	 * @return the migrateData
+	 */
+	public boolean isMigrateData()
+	{
+		return migrateData;
+	}
+
+	/**
+	 * @param migrateData the migrateData to set
+	 */
+	public void setMigrateData(boolean migrateData)
+	{
+		this.migrateData = migrateData;
+		if ( !migrateData ) {
+			M_log.info("New CHS Data will be stored in XML in the database ");
+		} else {
+			M_log.info("New CHS Data will be stored in Binary in the database ");		
+		}
+	}
+
+	/**
+	 * @return the collectionSerializer
+	 */
+	public EntitySerializer getCollectionSerializer()
+	{
+		return collectionSerializer;
+	}
+
+	/**
+	 * @param collectionSerializer the collectionSerializer to set
+	 */
+	public void setCollectionSerializer(EntitySerializer collectionSerializer)
+	{
+		this.collectionSerializer = collectionSerializer;
+	}
+
+	/**
+	 * @return the resourceSerializer
+	 */
+	public EntitySerializer getResourceSerializer()
+	{
+		return resourceSerializer;
+	}
+
+	/**
+	 * @param resourceSerializer the resourceSerializer to set
+	 */
+	public void setResourceSerializer(EntitySerializer resourceSerializer)
+	{
+		this.resourceSerializer = resourceSerializer;
 	}
 
 	

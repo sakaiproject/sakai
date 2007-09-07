@@ -25,7 +25,19 @@
         <property name="lockManager">                <ref bean="org.sakaiproject.content.api.LockManager"/>                  </property>
         <property name="authzGroupService">          <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>              </property>
         <property name="resourceTypeRegistry">       <ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/>         </property>
+        
+        <!--
         <property name="contentHostingHandlerResolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
+		-->
+        <property name="collectionSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"/></property>
+        <property name="resourceSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.resourceSerializer"/></property>
+        <!--
+        If you want to use the new serializers you have to let them migrate the data, set to true
+        so that they can write the new format when they update an item.
+        
+        -->
+        <property name="migrateData"><value>true</value></property>
+
 
         <property name="collectionTableName">       <value>CONTENT_COLLECTION</value>           </property>
         <property name="resourceTableName">         <value>CONTENT_RESOURCE</value>             </property>
@@ -122,5 +134,24 @@
         	<ref bean="org.sakaiproject.entity.api.EntityManager"/>
 		</property>
 	</bean>
+
+
+
+	<bean id="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"
+			class="org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer"
+			singleton="true">
+        <property name="timeService">
+        	<ref bean="org.sakaiproject.time.api.TimeService"/>
+		</property>			
+	</bean>
+	
+	<bean id="org.sakaiproject.content.api.ContentHostingService.resourceSerializer"
+			class="org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer"
+			singleton="true">
+        <property name="timeService">
+        	<ref bean="org.sakaiproject.time.api.TimeService"/>
+		</property>			
+	</bean>
+
 
 </beans>
