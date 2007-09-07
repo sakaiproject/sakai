@@ -162,7 +162,7 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 
 			List h2 = new ArrayList(gradebook.getHeadings());
 
-			StringBuffer gradeBuffer = new StringBuffer();
+			StringBuilder gradeBuffer = new StringBuilder();
 			gradeBuffer.append("<table class=\"itemSummary\">");
 
 			if (h2.size() != 0) {
@@ -199,7 +199,7 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 	}
 
 	public String getGradesRow() {
-		StringBuffer gradeBuffer = new StringBuffer();
+		StringBuilder gradeBuffer = new StringBuilder();
 		// gradeBuffer.append("<table><tr>");
 		int totalWidth = 0;
 

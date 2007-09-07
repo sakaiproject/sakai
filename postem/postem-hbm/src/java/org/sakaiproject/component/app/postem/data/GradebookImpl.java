@@ -293,7 +293,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 	public String getHeadingsRow() {
 		List h2 = new ArrayList(headings);
 		h2.remove(0);
-		StringBuffer headingBuffer = new StringBuffer();
+		StringBuilder headingBuffer = new StringBuilder();
 		// headingBuffer.append("<table><tr>");
 		int totalWidth = 0;
 
