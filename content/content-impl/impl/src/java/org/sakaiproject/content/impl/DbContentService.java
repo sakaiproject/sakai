@@ -2300,4 +2300,30 @@ public class DbContentService extends BaseContentService
 		}
 	}
 
+	protected long getSizeForContext(String context) 
+	{
+		long size = 0L;
+		
+		String sql = contentServiceSql.getQuotaQuerySql();
+		
+		Object [] fields = new Object[1];
+		fields[0] = context;
+
+		List list = m_sqlService.dbRead(sql, fields, null);
+		if(list != null && ! list.isEmpty())
+		{
+			String result = (String) list.get(0);
+			try
+			{
+				size = Long.parseLong(result);
+			}
+			catch(Exception e)
+			{
+				M_log.warn("getSizeForContext() unable to parse long from \"" + result + "\" for context \"" + context + "\"");
+			}
+		}
+		
+		return size;
+	}
+
 }

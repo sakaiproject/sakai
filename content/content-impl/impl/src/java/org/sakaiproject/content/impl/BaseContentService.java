@@ -587,6 +587,24 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return useResourceTypeRegistry;
 	}
 	
+	public boolean m_useContextQueryForCollectionSize = false;
+
+	/**
+	 * @return the useContextQueryForCollectionSize
+	 */
+	public boolean isUseContextQueryForCollectionSize() 
+	{
+		return m_useContextQueryForCollectionSize;
+	}
+
+	/**
+	 * @param useContextQueryForCollectionSize the useContextQueryForCollectionSize to set
+	 */
+	public void setUseContextQueryForCollectionSize(boolean useContextQueryForCollectionSize) 
+	{
+		this.m_useContextQueryForCollectionSize = useContextQueryForCollectionSize;
+	}
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -9774,32 +9792,48 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public long getBodySizeK()
 		{
 			long size = 0;
-
-			// get the member objects
-			List members = getMemberResources();
-
-			// for each member
-			for (Iterator it = members.iterator(); it.hasNext();)
+			
+			if(m_useContextQueryForCollectionSize)
 			{
-				Object obj = it.next();
-				if (obj == null) continue;
-
-				// do not count the size of virtual objects
-				if (obj instanceof BaseCollectionEdit && ((BaseCollectionEdit)obj).getVirtualContentEntity() != null) continue;
-				
-				// if a resource, add the body size
-				if (obj instanceof ContentResource)
+				Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
+				Matcher contextMatcher = contextPattern.matcher(this.m_id);
+				String context = null;
+				if(contextMatcher.find())
 				{
-					size += bytes2k(((ContentResource) obj).getContentLength());
-				}
-
-				// if a collection, count it's size
-				else
-				{
-					size += ((BaseCollectionEdit) obj).getBodySizeK();
+					context = contextMatcher.group(1);
+					if(context != null)
+					{
+						size = getSizeForContext(context)/1000L;
+					}
 				}
 			}
-
+			else
+			{
+				// get the member objects
+				List members = getMemberResources();
+	
+				// for each member
+				for (Iterator it = members.iterator(); it.hasNext();)
+				{
+					Object obj = it.next();
+					if (obj == null) continue;
+	
+					// do not count the size of virtual objects
+					if (obj instanceof BaseCollectionEdit && ((BaseCollectionEdit)obj).getVirtualContentEntity() != null) continue;
+					
+					// if a resource, add the body size
+					if (obj instanceof ContentResource)
+					{
+						size += bytes2k(((ContentResource) obj).getContentLength());
+					}
+	
+					// if a collection, count it's size
+					else
+					{
+						size += ((BaseCollectionEdit) obj).getBodySizeK();
+					}
+				}
+			}
 			// if (M_log.isDebugEnabled())
 			// M_log.debug("getBodySizeK(): collection: " + getId() + " size: " + size);
 
@@ -11783,7 +11817,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		siteContentAdvisorsProviders.put(type, advisor);		
 	}
-
 	/**
 	 * @return the migrateData
 	 */
@@ -11838,6 +11871,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	}
 
 	
+	protected long getSizeForContext(String context) 
+	{
+		return 0;
+	}
 
 } // BaseContentService
 
