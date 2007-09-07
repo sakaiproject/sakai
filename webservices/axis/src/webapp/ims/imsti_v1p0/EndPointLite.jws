@@ -71,7 +71,7 @@ public class EndPointLite {
 
 	String userEid = tm.get("/LaunchRequest/LaunchData/LaunchProfile/UserProfile/IMSSourcedid/SourceID");
 	String placementId = tm.get("/LaunchRequest/Deployment/ToolSettings/SettingsDefinition/instance/placementId");
-	String secret = tm.get("/LaunchRequest/Deployment/SecurityProfile/SharedSecret");
+	String secret = tm.get("/LaunchRequest/DeploymentProfile/SecurityProfile/SharedSecret");
 	String portalType = tm.get("/LaunchRequest/LaunchData/Ancillary/PortalType");
 	System.out.println("Eid = "+userEid+" placement="+placementId+" secret="+secret);
 
