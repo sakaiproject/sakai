@@ -97,7 +97,7 @@ public class SyllabusAttachmentImpl implements SyllabusAttachment, Comparable
   
   public String toString()
   {
-    StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
     sb.append("{syllabusAttachId=");
     sb.append(syllabusAttachId);
     sb.append(", attachmentId=");

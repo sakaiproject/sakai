@@ -351,7 +351,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
       List attachments)
   {
 
-    StringBuffer results = new StringBuffer();
+	StringBuilder results = new StringBuilder();
 
     try
     {
@@ -488,7 +488,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
       Set userListAllowImport)
   {
     // buffer for the results log
-    StringBuffer results = new StringBuffer();
+	StringBuilder results = new StringBuilder();
     // populate SyllabusItem
     int syDataCount = 0;
     SyllabusItem syItem = null;
