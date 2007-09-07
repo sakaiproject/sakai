@@ -288,7 +288,7 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 			tree.setCourseID(courseId);
 			tree.setLearnerID(userId);
 	        
-	        seqActivityTreeDao.save(tree);
+	        //seqActivityTreeDao.save(tree);
 		}
 		
 		return tree;
@@ -410,7 +410,7 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 	 * API IMPLEMENTATION
 	 */
 	public IDataManager initialize(IRunState runState, String numberOfAttempts) {
-		log.info("Service - Initialize");
+		log.debug("Service - Initialize");
    
 		if (null == runState)
 			return null;
@@ -574,6 +574,9 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
         return scoDataManager;
 	}
 	
+	public void persistActivityTree(ISeqActivityTree tree) {
+		seqActivityTreeDao.save(tree);
+	}
 	
 	private void persistDataManager(IRunState runState, IDataManager scoDataManager) {
 		if (null != runState.getCurrentNavState()) {
@@ -589,7 +592,7 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 	
 	
 	public IValidRequests commit(IRunState runState) {
-		log.info("Service - Commit");
+		log.debug("Service - Commit");
 		
 		if (null == runState)
 			return null;
@@ -640,10 +643,10 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 					scoDataManager, dmInfo);
 
 			if (err == DMErrorCodes.NO_ERROR) {
-				log.info("Got score, with no error");
+				log.debug("Got score, with no error");
 				score = dmInfo.mValue;
 			} else {
-				log.info("Failed getting score, got err: " + err);
+				log.warn("Failed getting score, got err: " + err);
 				score = "";
 			}
 
@@ -663,9 +666,11 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 				if (act.getIsTracked()) {
 
 					// Update the activity's status
-					log.info(act.getID() + " is TRACKED -- ");
-					log.info("Performing default mapping to TM");
-
+					if (log.isDebugEnabled()) {
+						log.debug(act.getID() + " is TRACKED -- ");
+						log.debug("Performing default mapping to TM");
+					}
+					
 					String primaryObjID = null;
 					boolean foundPrimaryObj = false;
 					boolean setPrimaryObjSuccess = false;
@@ -695,7 +700,7 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 
 					// Loop through objectives updating TM
 					for (int i = 0; i < numObjs; i++) {
-						log.info("CMISerlet - IN MAP OBJ LOOP");
+						log.debug("CMISerlet - IN MAP OBJ LOOP");
 						String objID = new String("");
 						String objMS = new String("");
 						String objScore = new String("");
@@ -762,7 +767,7 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 								log.error("  ::--> ERROR: Invalid score");
 								log.error("  ::  " + normalScore);
 
-								log.error(e);
+								log.error("Exception was: ", e);
 							}
 						} else {
 							theSequencer.clearAttemptObjMeasure(activityId,
@@ -811,7 +816,7 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 							log.error("  ::--> ERROR: Invalid score");
 							log.error("  ::  " + normalScore);
 
-							log.error(e);
+							log.error("Exception was: ", e);
 						}
 					} else {
 						if (!setPrimaryObjScore) {
@@ -825,20 +830,20 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 				ADLValidRequests validRequests = new ADLValidRequests();
 				theSequencer.getValidRequests(validRequests);
 
-				log.info("Sequencer is initialized and statuses have been set");
+				log.debug("Sequencer is initialized and statuses have been set");
 
 				ISeqActivityTree theTempTree = theSequencer.getActivityTree();
 
 				theTempTree.clearSessionState();
 
-				
+				//persistActivityTree(theTempTree);
 				persistDataManager(runState, scoDataManager);
 				
 				
 				return validRequests;
 			}
 		} catch (Exception e) {
-			log.error(e);
+			log.error("Caught an exception:", e);
 		}
 
 		return null;
@@ -958,10 +963,7 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 			DMInterface.processSetValue(element, lang, true, ioSCOData);
 
 		} catch (Exception e) {
-			log
-					.error(
-							"Caught an exception while trying to initalize the sco data",
-							e);
+			log.error("Caught an exception while trying to initalize the sco data", e);
 		}
 	}
 	
@@ -1123,7 +1125,7 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 						allocateString += "{minimum=" + minSize + "}";
 					}
 	
-					// Check for OPTIONAL reducible
+					// Check for OPTIONAL reducibler
 					if ((reducible == null) || (reducible.equals(""))) {
 						allocateString = allocateString;
 					} else {

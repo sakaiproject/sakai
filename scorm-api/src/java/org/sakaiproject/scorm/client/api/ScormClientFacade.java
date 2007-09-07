@@ -113,7 +113,7 @@ public interface ScormClientFacade extends EntityProducer, Serializable {
 	
 	public ISeqActivityTree getActivityTree(String contentPackageId, String courseId, String userId, boolean isFresh);
 	
-	
+	public void persistActivityTree(ISeqActivityTree tree);
 	
 	public IDataManager initialize(IRunState runState, String numberOfAttempts);
 	

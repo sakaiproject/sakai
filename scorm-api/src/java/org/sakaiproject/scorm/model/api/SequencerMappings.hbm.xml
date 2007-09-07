@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-cascade="all" default-access="field" package="org.adl.sequencer" default-lazy="true">
+<hibernate-mapping default-cascade="all" default-access="field" package="org.adl.sequencer" default-lazy="false">
 
 	<class name="org.adl.sequencer.ADLTOC" table="SCORM_ADL_TOC">
 	
-		<id column="TOC_ID" type="long">
+		<id name="id" column="TOC_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -37,7 +37,7 @@
 	
 	<class name="org.adl.sequencer.ADLValidRequests" table="SCORM_ADL_VALID_REQUESTS_T">
 	
-		<id column="VALID_REQUESTS_ID" type="long">
+		<id name="id" column="VALID_REQUESTS_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -71,7 +71,7 @@
 	
 	<class name="org.adl.sequencer.SeqCondition" table="SCORM_ADL_SEQ_CONDITION_T">
 	
-		<id column="SEQ_CONDITION_ID" type="long">
+		<id name="id" column="SEQ_CONDITION_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -89,7 +89,7 @@
 	
 	<class name="org.adl.sequencer.SeqRule" table="SCORM_ADL_SEQ_RULE_T">
 	
-		<id column="SEQ_RULE_ID" type="long">
+		<id name="id" column="SEQ_RULE_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -103,7 +103,7 @@
 	
 	<class name="org.adl.sequencer.SeqConditionSet" table="SCORM_ADL_SEQ_CONDITION_SET_T">
 	
-		<id column="SEQ_CONDITION_SET_ID" type="long">
+		<id name="id" column="SEQ_CONDITION_SET_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -126,7 +126,7 @@
 	
 	<class name="org.adl.sequencer.SeqRuleset" table="SCORM_ADL_SEQ_RULESET_T">
 	
-		<id column="SEQ_RULESET_ID" type="long">
+		<id name="id" column="SEQ_RULESET_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -142,7 +142,7 @@
 	
 	<class name="org.adl.sequencer.ADLDuration" table="SCORM_ADL_DURATION_T">
 	
-		<id column="DURATION_ID" type="long">
+		<id name="id" column="DURATION_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -154,7 +154,7 @@
 	
 	<class name="org.adl.sequencer.ADLAuxiliaryResource" table="SCORM_ADL_AUX_RESOURCE_T">
 	
-		<id column="AUX_RESOURCE_ID" type="long">
+		<id name="id" column="AUX_RESOURCE_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -170,7 +170,7 @@
 	
 	<class name="org.adl.sequencer.SeqRollupRule" table="SCORM_ADL_ROLLUP_RULE_T">
 	
-		<id column="SEQ_ROLLUP_RULE_ID" type="long">
+		<id name="id" column="SEQ_ROLLUP_RULE_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -190,7 +190,7 @@
 	
 	<class name="org.adl.sequencer.SeqRollupRuleset" table="SCORM_ADL_ROLLUP_RULESET_T">
 	
-		<id column="SEQ_ROLLUP_RULESET_ID" type="long">
+		<id name="id" column="SEQ_ROLLUP_RULESET_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -214,7 +214,7 @@
 	
 	<class name="org.adl.sequencer.SeqObjectiveMap" table="SCORM_ADL_SEQ_OBJECTIVE_MAP_T">
 	
-		<id column="SEQ_OBJECTIVE_MAP_ID" type="long">
+		<id name="id" column="SEQ_OBJECTIVE_MAP_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -234,7 +234,7 @@
 	
 	<class name="org.adl.sequencer.SeqObjectiveTracking" table="SCORM_ADL_SEQ_OBJ_TRACKING_T">
 	
-		<id column="SEQ_OBJ_TRACKING_ID" type="long">
+		<id name="id" column="SEQ_OBJ_TRACKING_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -278,7 +278,7 @@
 	
 	<class name="org.adl.sequencer.SeqObjective" table="SCORM_ADL_SEQ_OBJECTIVE_T">
 	
-		<id column="SEQ_OBJECTIVE_ID" type="long">
+		<id name="id" column="SEQ_OBJECTIVE_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -305,7 +305,7 @@
 	
 	<class name="org.adl.sequencer.ADLTracking" table="SCORM_ADL_TRACKING">
 	
-		<id column="ADL_TRACKING_ID" type="long">
+		<id name="id" column="ADL_TRACKING_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -334,7 +334,7 @@
 	
 	<class name="org.adl.sequencer.SeqActivity" table="SCORM_ADL_SEQ_ACTIVITY_T">
 	
-		<id column="ACTIVITY_ID" type="long">
+		<id name="id" column="ACTIVITY_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>
@@ -516,7 +516,7 @@
 	
 	<class name="org.adl.sequencer.SeqActivityTree" table="SCORM_ADL_SEQ_ACTIVITY_TREE_T">
 	
-		<id column="TREE_ID" type="long">
+		<id name="id" column="TREE_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
             </generator>

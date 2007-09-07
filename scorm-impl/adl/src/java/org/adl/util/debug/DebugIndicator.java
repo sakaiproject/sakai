@@ -22,6 +22,9 @@
 ******************************************************************************/
 package org.adl.util.debug;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * <strong>Filename:</strong>  DebugIndicator.java<br><br>
  * <strong>Description:</strong>  This class is used to control debug 
@@ -30,9 +33,13 @@ package org.adl.util.debug;
  */
 public class DebugIndicator
 {
+	private static Log log = LogFactory.getLog(DebugIndicator.class);
    
+	
    /**
     * This controls display of log messages to the java console 
+    * 
+    * JLR 8/24/2007 -- wiring this up to log4j for consistency's sake.
     */
-   public static boolean ON = true;
+   public static boolean ON = log.isDebugEnabled();
 }

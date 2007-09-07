@@ -68,6 +68,7 @@ public class SeqRuleset implements Serializable, ISeqRuleset
 {
 	static final long serialVersionUID = 1L; //-1546682264123089317L;
 
+	private long id;
 
    /**
     * Enumeration of the possible types of rules that may be evaluated.

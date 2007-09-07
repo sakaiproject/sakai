@@ -1,24 +1,51 @@
+/**********************************************************************************
+ * $URL:  $
+ * $Id:  $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2007 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 package org.sakaiproject.scorm.content.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
 public class FastZipCHH extends ZipCHH {
 	protected static final String VIRTUAL_FS_CACHE_KEY = "scormCHHVirtualFileSystem@";
 	
 	private static Log log = LogFactory.getLog(FastZipCHH.class);
+	
+	protected Cache cache = null;
+	protected boolean isCacheDirty = false;
 	
 	public String getContentHostingHandlerName() {
 		return "org.sakaiproject.scorm.content.api.ZipCHH";
@@ -33,6 +60,7 @@ public class FastZipCHH extends ZipCHH {
 		return fs.getCount(relativePath);
 	}
 	
+	@Override
 	protected List<ContentEntity> extractChildren(ContentEntity parent, int depth) {
 		ContentResource realParent = (ContentResource) getRealParent(parent.getId());
 		String realParentId = realParent.getId();
@@ -54,12 +82,13 @@ public class FastZipCHH extends ZipCHH {
 		return list;
 	}
 	
-	
 	protected VirtualFileSystem getVirtualFileSystem(ContentEntity parent) {
 		ContentResource realParent = (ContentResource) getRealParent(parent.getId());
 		String realParentId = realParent.getId();
 		
-		VirtualFileSystem fs = uncacheVirtualFileSystem(realParentId);
+		VirtualFileSystem fs = null;
+		if (!isCacheDirty)
+			fs = uncacheVirtualFileSystem(realParentId);
 		if (fs == null) {
 			fs = buildVirtualFileSystem(parent, realParent);
 			if (fs != null)
@@ -71,17 +100,22 @@ public class FastZipCHH extends ZipCHH {
 	protected VirtualFileSystem uncacheVirtualFileSystem(String key) {
 		VirtualFileSystem fs = null;
 		try {
-			fs = (VirtualFileSystem) ThreadLocalManager.get(VIRTUAL_FS_CACHE_KEY + key);
-		} catch(ClassCastException e) {
-			log.error("Caught a class cast exception finding virtual file system with key " + key, e);
+			Element element = cache.get(VIRTUAL_FS_CACHE_KEY + key);
+			if (element != null)
+				fs = (VirtualFileSystem) element.getValue();
+		} catch(ClassCastException cce) {
+			log.error("Caught a class cast exception finding virtual file system with key " + key, cce);
+		} catch (Exception e) {
+			log.error("Caught an exception uncaching virtual file system with key " + key, e);
 		}
 		
 		return fs;
 	}
 	
 	protected void cacheVirtualFileSystem(String key, VirtualFileSystem fs) {
-		if (null != fs) {			
-			ThreadLocalManager.set(VIRTUAL_FS_CACHE_KEY + key, fs);
+		if (null != fs) {		
+			Element e = new Element(VIRTUAL_FS_CACHE_KEY + key, fs);
+			cache.put(e);
 		}
 	}
 	
@@ -130,6 +164,63 @@ public class FastZipCHH extends ZipCHH {
 		
 		return fs;
 	}
+
+	public Collection<String> getMemberCollectionIds(ContentEntity ce) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Collection<String> getMemberResourceIds(ContentEntity ce) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void getUuid(String id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public String moveCollection(ContentCollectionEdit thisCollection,
+			String new_folder_id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String moveResource(ContentResourceEdit thisResource, String new_id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setResourceUuid(String resourceId, String uuid) {
+		// TODO Auto-generated method stub
+		
+	}
 	
+	@Override 
+	public void add(File file, String id) {
+		super.add(file, id);
+		isCacheDirty = true;
+	}
 	
+	@Override
+	public void commitDeleted(ContentResourceEdit edit, String uuid) {
+		super.commitDeleted(edit, uuid);
+		isCacheDirty = true;
+	}
+	
+	/**
+	 * @return the cache
+	 */
+	public Cache getCache()
+	{
+		return cache;
+	}
+
+	/**
+	 * @param cache the cache to set
+	 */
+	public void setCache(Cache cache)
+	{
+		this.cache = cache;
+	}
 }

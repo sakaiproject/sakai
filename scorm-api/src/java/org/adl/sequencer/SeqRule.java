@@ -62,6 +62,8 @@ public class SeqRule implements Serializable, ISeqRule
 {
 	private static final long serialVersionUID = 1L; //-8090230866628470772L;
 
+	private long id;
+	
 /**
     * Enumeration of possible sequencing rule actions -- 
     *    This value is only as a place holder.

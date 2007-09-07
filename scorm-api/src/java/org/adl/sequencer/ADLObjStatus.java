@@ -24,6 +24,8 @@
 
 package org.adl.sequencer;
 
+import java.io.Serializable;
+
 
 /**
  * Encapsulation of objective status information associated with an activity.
@@ -55,10 +57,11 @@ package org.adl.sequencer;
  * 
  * @author ADL Technical Team
  */
-public class ADLObjStatus 
+public class ADLObjStatus implements Serializable
 {
+	private static final long serialVersionUID = 1L;
 
-   /**
+/**
     * Identifier of this objective.
     */
    public String mObjID = null;
@@ -79,5 +82,8 @@ public class ADLObjStatus
     */
    public String mStatus = ADLTracking.TRACK_UNKNOWN;
 
+   
+   public ADLObjStatus() {}
+   
 
 }  // end ADLObjStatus

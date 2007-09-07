@@ -60,6 +60,10 @@ import java.io.Serializable;
  */
 public class ADLTOC implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
+	private long id;
+	
    /**
     * The title of this entry in the TOC.
     */
@@ -122,6 +126,8 @@ public class ADLTOC implements Serializable
    
    -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 
+   public ADLTOC() {}
+   
    /**
     * This method provides the state this <code>ADLTOC</code> object for
     * diagnostic purposes.

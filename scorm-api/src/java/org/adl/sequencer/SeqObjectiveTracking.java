@@ -63,6 +63,8 @@ public class SeqObjectiveTracking implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
+	private long id;
+	
 /**
     * This controls display of log messages to the java console
     */
@@ -141,6 +143,8 @@ public class SeqObjectiveTracking implements Serializable
    
    -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 
+   public SeqObjectiveTracking() {}
+   
    /**
     * Initializes the objective tracking information for one objective.
     * 

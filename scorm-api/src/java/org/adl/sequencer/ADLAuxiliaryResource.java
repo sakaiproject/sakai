@@ -58,6 +58,10 @@ import java.io.Serializable;
  */
 public class ADLAuxiliaryResource implements Serializable 
 {
+	private static final long serialVersionUID = 1L;
+	
+	private long id;
+	
    /**
     * This controls display of log messages to the java console
     */
@@ -78,6 +82,9 @@ public class ADLAuxiliaryResource implements Serializable
     */
    public String mParameter = null;
 
+   
+   public ADLAuxiliaryResource() {}
+   
    /**
     * This method provides the state this <code>ADLAuxiliaryResource</code> obje
     * diagnostic purposes.
