@@ -821,7 +821,7 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 	{
 		//prepare the buffer for the results log
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 		int channelCount = 0;
 
 		try 
@@ -917,7 +917,7 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 		M_log.debug("trying to merge chat");
 
 		// buffer for the results log
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		int count = 0;
 

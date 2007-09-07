@@ -146,7 +146,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
    public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
    {
       //prepare the buffer for the results log
-      StringBuffer results = new StringBuffer();
+	   StringBuilder results = new StringBuilder();
       int channelCount = 0;
 
       try 
@@ -504,7 +504,7 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       logger.debug("trying to merge chat");
 
       // buffer for the results log
-      StringBuffer results = new StringBuffer();
+      StringBuilder results = new StringBuilder();
 
       int count = 0;
 
