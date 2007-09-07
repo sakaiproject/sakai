@@ -345,7 +345,7 @@ This is not needed now that pluto have been released
            <dependency>
                 <groupId>hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
-                <version>1.8.0.5</version>
+                <version>1.8.0.7</version>
                 <scope>provided</scope>
            </dependency>
 
