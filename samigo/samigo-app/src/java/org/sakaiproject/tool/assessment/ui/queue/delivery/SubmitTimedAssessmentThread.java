@@ -33,6 +33,8 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.TimerTask;
@@ -52,6 +54,8 @@ public class SubmitTimedAssessmentThread extends TimerTask
   public SubmitTimedAssessmentThread(){}
 
   public void run(){
+    log.debug("run!!");
+    ArrayList<TimedAssessmentGradingModel> removeTimedAGList = new ArrayList<TimedAssessmentGradingModel>();
     // get the queue, go through the queue till it is empty     
     TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
     Iterator iter = queue.iterator();
@@ -87,10 +91,16 @@ public class SubmitTimedAssessmentThread extends TimerTask
       }
       else{ //submitted, remove from queue if transaction buffer is also reached
         if (currentTime > (bufferedExpirationTime + timedAG.getTransactionBuffer()*1000)){
-          queue.remove(timedAG);
+          //queue.remove(timedAG);
+          removeTimedAGList.add(timedAG);
           log.debug("**** 4b. transaction buffer reached");
         }
       }
+    }
+    Iterator i = removeTimedAGList.iterator();
+    while(i.hasNext()) {
+    	log.debug("removing from queue");
+    	queue.remove((TimedAssessmentGradingModel)i.next());
     }
   }
 
