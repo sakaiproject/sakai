@@ -143,7 +143,7 @@ public class ChatDelivery extends BaseDelivery
          
          Time messageTime = TimeService.newTime(message.getMessageDate().getTime());
 
-			StringBuffer retvalBuf = new StringBuffer();
+         StringBuilder retvalBuf = new StringBuilder();
 			retvalBuf.append( "try { appendMessage('" );
 			retvalBuf.append( sender.getDisplayName() );
 			retvalBuf.append( "', '" );
