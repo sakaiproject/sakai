@@ -43,6 +43,8 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -939,20 +941,32 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public Object[] storageFields(Entity r)
 		{
+			Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
+			Matcher contextMatcher = contextPattern.matcher(r.getId());
+			String context = null;
+			if(contextMatcher.find())
+			{
+				context = contextMatcher.group(1);
+			}
+
 			// include the file path field if we are doing body in the file system
 			if (m_bodyPath != null)
 			{
-				Object[] rv = new Object[2];
+				Object[] rv = new Object[4];
 				rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
-				rv[1] = StringUtil.trimToZero(((BaseResourceEdit) r).m_filePath);
+				rv[1] = context;
+				rv[2] = new Integer(((ContentResource) r).getContentLength());
+				rv[3] = StringUtil.trimToZero(((BaseResourceEdit) r).m_filePath);
 				return rv;
 			}
 
 			// otherwise don't include the file path field
 			else
 			{
-				Object[] rv = new Object[1];
+				Object[] rv = new Object[3];
 				rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
+				rv[1] = context;
+				rv[2] = new Integer(((ContentResource) r).getContentLength());
 				return rv;
 			}
 		}

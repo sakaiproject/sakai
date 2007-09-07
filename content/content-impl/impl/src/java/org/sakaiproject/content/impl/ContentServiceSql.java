@@ -126,4 +126,39 @@ public interface ContentServiceSql
 	 */
 	String getInsertIndividualDropboxChangeSql();
 
+	/**
+	 * returns the sql statement to add the FILE_SIZE column to the CONTENT_RESOURCE table.
+	 */
+	String getAddFilesizeColumnSql();
+
+	/**
+	 * returns the sql statement to add the CONTEXT column to the CONTENT_RESOURCE table.
+	 */
+	String getAddContextColumnSql();
+
+	/**
+	 * returns the sql statement to add an index of the CONTEXT column to the CONTENT_RESOURCE table.
+	 */
+	String getAddContextIndexSql();
+	
+	/**
+	 * returns the sql statement which updates all rows of the CONTENT_RESOURCE table to provide initial calculated values for the FILE_SIZE and CONTEXT columns.
+	 */
+	String getPopulateNewColumnsSql();
+
+	/**
+	 * returns the sql statement which retrieves the total number of bytes within a site-level collection (context) in the CONTENT_RESOURCE table.
+	 */
+	String getQuotaQuerySql();
+
+	/**
+	 * returns the sql statement which retrieves the RESOURCE_ID and XML values for all entries in the CONTENT_RESOURCE table where file-size is null.
+	 */
+	String getAccessResourceIdAndXmlSql();
+
+	/**
+	 * returns the sql statement which updates a row in the CONTENT_RESOURCE table with values for CONTEXT and FILE_SIZE.
+	 */
+	String getContextFilesizeValuesSql();
+	
 }

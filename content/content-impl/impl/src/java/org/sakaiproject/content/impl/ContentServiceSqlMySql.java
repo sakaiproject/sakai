@@ -26,4 +26,27 @@ package org.sakaiproject.content.impl;
  */
 public class ContentServiceSqlMySql extends ContentServiceSqlDefault
 {
+	/**
+	 * returns the sql statement to add the FILE_SIZE column to the CONTENT_RESOURCE table.
+	 */
+	public String getAddFilesizeColumnSql()
+	{
+		return "alter table CONTENT_RESOURCE add FILE_SIZE BIGINT;";
+	}
+
+	/**
+	 * returns the sql statement to add the CONTEXT column to the CONTENT_RESOURCE table.
+	 */
+	public String getAddContextColumnSql()
+	{
+		return "alter table CONTENT_RESOURCE add CONTEXT VARCHAR(99);";
+	}
+
+	/**
+	 * returns the sql statement to add an index of the CONTENT column to the CONTENT_RESOURCE table.
+	 */
+	public String getAddContextIndexSql()
+	{
+		return "create index  CONTENT_RESOURCE_CONTEXT_INDEX on CONTENT_RESOURCE (CONTEXT);";
+	}
 }

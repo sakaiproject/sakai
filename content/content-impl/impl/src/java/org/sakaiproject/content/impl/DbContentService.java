@@ -36,6 +36,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -104,12 +107,12 @@ public class DbContentService extends BaseContentService
 	/**
 	 * The extra field(s) to write to the database - resources - when we are doing bodys in files.
 	 */
-	protected static final String[] RESOURCE_FIELDS_FILE = {"IN_COLLECTION", "FILE_PATH"};
+	protected static final String[] RESOURCE_FIELDS_FILE = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "FILE_PATH"};
 
 	/**
 	 * The extra field(s) to write to the database - resources - when we are doing bodys the db.
 	 */
-	protected static final String[] RESOURCE_FIELDS = {"IN_COLLECTION"};
+	protected static final String[] RESOURCE_FIELDS = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE"};
 
 	/** Table name for resources delete. */
 	protected String m_resourceDeleteTableName = "CONTENT_RESOURCE_DELETE";
@@ -317,6 +320,7 @@ public class DbContentService extends BaseContentService
 				M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName + " "
 						+ m_groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath);
 			}
+			
 		}
 		catch (Throwable t)
 		{
@@ -1914,6 +1918,8 @@ public class DbContentService extends BaseContentService
 	protected void convertToFile()
 	{
 		M_log.info("convertToFile");
+		
+		final Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
 
 		try
 		{
@@ -2020,12 +2026,21 @@ public class DbContentService extends BaseContentService
 						edit.toXml(doc, new Stack());
 						xml = Xml.writeDocumentToString(doc);
 
+						Matcher contextMatcher = contextPattern.matcher(id);
+						String context = null;
+						if(contextMatcher.find())
+						{
+							context = contextMatcher.group(1);
+						}
+						
 						// update the record
 						sql = contentServiceSql.getUpdateContentResource3Sql();
-						fields = new Object[3];
+						fields = new Object[5];
 						fields[0] = edit.m_filePath;
 						fields[1] = xml;
 						fields[2] = id;
+						fields[3] = context;
+						fields[4] = new Integer(edit.m_contentLength);
 						m_sqlService.dbWrite(connection, sql, fields);
 
 						// m_logger.info(" ** converted: " + id + " size: " +
@@ -2190,6 +2205,78 @@ public class DbContentService extends BaseContentService
 			return null;
 		}
 		
+	}
+	
+	public boolean addNewColumns()
+	{
+		String sql1 = contentServiceSql.getAddFilesizeColumnSql();
+		boolean ok1 = m_sqlService.dbWrite(sql1);
+		String sql2 = contentServiceSql.getAddContextColumnSql();
+		boolean ok2 = m_sqlService.dbWrite(sql2);
+		String sql3 = contentServiceSql.getAddContextIndexSql();
+		boolean ok3 = m_sqlService.dbWrite(sql3);
+		
+		return (ok1 && ok2 && ok3);
+	}
+	
+	public void populateNewColumns()
+	{
+		String sql = contentServiceSql.getAccessResourceIdAndXmlSql();
+		
+		m_sqlService.dbRead(sql, null, new ContextAndFilesizeReader());
+	}
+	
+
+	public class ContextAndFilesizeReader implements SqlReader
+	{
+		protected Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
+		protected Pattern filesizePattern = Pattern.compile(" content-length=\"(\\d+)\" ");
+		
+		public Object readSqlResultRecord(ResultSet result) 
+		{
+			try
+			{
+				String resourceId = result.getString(1);
+				String xml = result.getString(2);
+				String context = null;
+				int filesize = 0;
+				String sql = contentServiceSql.getContextFilesizeValuesSql();
+				
+				Matcher contextMatcher = contextPattern.matcher(resourceId);
+				Matcher filesizeMatcher = filesizePattern.matcher(xml);
+				
+				if(contextMatcher.find())
+				{
+					context = contextMatcher.group(1);
+				}
+				if(filesizeMatcher.find())
+				{
+					try
+					{
+						filesize = Integer.parseInt(filesizeMatcher.group(1));
+					}
+					catch(Exception e)
+					{
+						// do nothing
+					}
+				}
+				
+				M_log.info("adding new fields: resourceId == \"" + resourceId + "\" context == \"" + context + "\" filesize == \"" + filesize + "\"");
+				
+				// update the record
+				Object [] fields = new Object[3];
+				fields[0] = context;
+				fields[1] = new Integer(filesize);
+				fields[2] = resourceId;
+				m_sqlService.dbWrite(sql, fields);
+			}
+			catch(Exception e)
+			{
+				M_log.warn("ContextAndFilesizeReader.readSqlResultRecord() failed. result skipped");
+			}
+			
+			return null;
+		}
 	}
 
 }

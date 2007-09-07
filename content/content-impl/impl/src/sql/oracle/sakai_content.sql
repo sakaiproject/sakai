@@ -127,8 +127,10 @@ CREATE TABLE CONTENT_RESOURCE
     RESOURCE_ID VARCHAR2 (255) NOT NULL,
     RESOURCE_UUID VARCHAR2 (36),
 	IN_COLLECTION VARCHAR2 (255),
+	CONTEXT VARCHAR2 (99),
 	FILE_PATH VARCHAR2 (128),
-    XML LONG
+	FILE_SIZE NUMBER(18),
+    XML CLOB
 -- for BLOB body, add BODY BLOB -- and drop the content_resource_body_binary tables -ggolden
 );
 
@@ -146,6 +148,12 @@ CREATE INDEX CONTENT_UUID_RESOURCE_INDEX ON CONTENT_RESOURCE
 (
 	RESOURCE_UUID
 );
+
+CREATE INDEX CONTENT_RESOURCE_CONTEXT_INDEX ON CONTENT_RESOURCE
+(
+	CONTEXT
+);
+
 -----------------------------------------------------------------------------
 -- CONTENT_RESOURCE_BODY_BINARY
 -----------------------------------------------------------------------------
