@@ -1027,7 +1027,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       
 
       User currentUser = UserDirectoryService.getCurrentUser();
-      StringBuffer body = new StringBuffer(message.getBody());
+      StringBuilder body = new StringBuilder(message.getBody());
       
       body.insert(0, "From: " + currentUser.getDisplayName() + "<p/>"); 
       

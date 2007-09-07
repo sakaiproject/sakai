@@ -184,7 +184,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {		
-		StringBuffer buffer = new StringBuffer("[");
+		StringBuilder buffer = new StringBuilder("[");
 		buffer.append(changeSettings);		
 		buffer.append("," + markAsRead);
 		//buffer.append("," + movePosting);

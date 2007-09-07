@@ -125,7 +125,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 	{
 		Base64 base64Encoder = new Base64();
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		try { 	
 			int forumCount = 0;
@@ -555,7 +555,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		int numExistingForums = existingForums.size();
 		
 		Base64 base64Encoder = new Base64();
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 		if (siteId != null && siteId.trim().length() > 0)
 		{
 			try
