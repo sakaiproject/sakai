@@ -364,6 +364,7 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'realm.add')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'realm.del')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'realm.upd')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'realm.upd.own')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'reports.view')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'section.role.instructor')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'section.role.student')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'section.role.ta')
@@ -567,6 +568,9 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @function_realm_del)
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @function_realm_upd)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.upd'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.upd.site.mbrshp'
@@ -879,6 +883,9 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metao
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @function_realm_del)
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @function_realm_upd)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.view'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.admin'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.create'
@@ -1115,6 +1122,9 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metao
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @function_realm_del)
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @function_realm_upd)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.view'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.admin'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.create'
@@ -1464,6 +1474,9 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_c
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.export'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.suggest.global.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.view'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm.del'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
