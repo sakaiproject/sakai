@@ -98,7 +98,7 @@ public class ChatMessage implements Entity {
          {
             if ( parts[i].matches(urlRegexp) )
             {
-               StringBuffer href = new StringBuffer(href_1b);
+            	StringBuilder href = new StringBuilder(href_1b);
                href.append(parts[i]);
                href.append(href_2);
                href.append(parts[i]);
