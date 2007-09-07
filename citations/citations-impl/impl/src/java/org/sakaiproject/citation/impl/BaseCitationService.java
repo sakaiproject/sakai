@@ -1546,6 +1546,7 @@ public abstract class BaseCitationService implements CitationService
 			                        // Fields
 			Iterator iter = null; // The iterator used to boogie through the Schema Fields
 			boolean status = true; // Used to maintain/exit the tag lookup while loop
+			String[] RIScodes = null; // This holds the RISCodes valid for a given schema
 			
 			logger.debug("importFromRisList: In importFromRisList. List size is " + risImportList.size());
 			
@@ -1621,13 +1622,14 @@ public abstract class BaseCitationService implements CitationService
 					{
 					   	logger.debug("importFromRisList: Read an ER. End of citation.");
 					   	
+/*
 					   	if (((String) getCitationProperty(Schema.TITLE)).length() == 0 &&
 					   		((String) getCitationProperty(Schema.SOURCE_TITLE)).length() > 0)
 					   	{
 						   	logger.debug("importFromRisList: Setting empty TITLE to non empty SOURCE_TITLE");
 					   		setCitationProperty(Schema.TITLE, getCitationProperty(Schema.SOURCE_TITLE));
 					   	}
-
+*/
 						return true; // ER signals end of citation
 					} // end of citation
 
@@ -1640,21 +1642,28 @@ public abstract class BaseCitationService implements CitationService
 					{
 						tempField = (Field) iter.next();
 
-						logger.debug("importFromRisList: Seeing if " + RIScode + " == " + tempField.getIdentifier(RIS_FORMAT) + " for Schema " + schema.getIdentifier());
+//						logger.debug("importFromRisList: Seeing if " + RIScode + " == " + tempField.getIdentifier(RIS_FORMAT) + " for Schema " + schema.getIdentifier());
 						
 						
 						// We found that this field is a valid field for this schema
-						if (RIScode.equalsIgnoreCase(tempField.getIdentifier(RIS_FORMAT)))
-						{
-							status = false;
-					    	logger.debug("importFromRisList: Found field mapping");
-						}
+						
+						RIScodes = tempField.getIdentifierComplex(RIS_FORMAT);
+						
+						for(int j=0; j< RIScodes.length && status; j++)
+						{						
+							if (RIScode.equalsIgnoreCase(RIScodes[j]))
+							{
+								status = false;
+								logger.debug("importFromRisList: Found field mapping");
+							}
+						} // end for j (loop through complex RIS codes)
 					} // end while
 						
 					if (status) // couldn't find the field mapping
 					{
-						if (schema.getIdentifier().equalsIgnoreCase("book"))
+/*						if (schema.getIdentifier().equalsIgnoreCase("book"))
 						{
+
 							if (RIScode.equalsIgnoreCase("T1")) // Refworks
 							{
 									setCitationProperty(Schema.TITLE, RISvalue);
@@ -1700,12 +1709,13 @@ public abstract class BaseCitationService implements CitationService
 								logger.debug("importFromRisList: Cannot find Field mapping");
 						} // end unknown schema mapping exceptions
 						else
-						  logger.debug("importFromRisList: Cannot find Field mapping");
+*/						  logger.debug("importFromRisList: Cannot find field mapping for RIScode " + 
+		                               RIScode + " for Schema = " + schema);
 					} // end if status (field not found)
 					else // ! status. We found a field in the Schema
 					{
 						logger.debug("importFromRisList: Field mapping is " + tempField.getIdentifier() +
-								     " => " + tempField.getIdentifier(RIS_FORMAT));
+								     " => " + RISvalue);
 							
 						// We found the mapping in the previous while loop. Set the citation property
 						setCitationProperty(tempField.getIdentifier(), RISvalue);
@@ -2917,6 +2927,9 @@ public abstract class BaseCitationService implements CitationService
 
 		protected boolean isEditable;
 
+		// delimiter used to separate Field identifiers
+		public final static String DELIMITER = ",";
+
 		/**
 		 * @param field
 		 */
@@ -2977,8 +2990,54 @@ public abstract class BaseCitationService implements CitationService
 
 		public String getIdentifier(String format)
 		{
-			return (String) this.identifiers.get(format);
+			String tempString = null;
+			String[] tokens = null;
+			
+			tempString = (String) this.identifiers.get(format);
+			
+			if (tempString == null)
+				tempString = "";
+			
+			tempString = tempString.trim();
+
+			// Is this a compound/delimited value?
+			if (tempString.indexOf(DELIMITER) != -1)
+			{
+				// split the string based on the delimiter
+				tokens = tempString.split(DELIMITER);
+				// use the first delimiter as the identifier
+				tempString = tokens[0];
+			} // end getIdentifier
+			
+			return tempString;
 		}
+
+		public String[] getIdentifierComplex(String format)
+		{
+			String tempString = null;
+			String[] tokens = null;
+			
+			tempString = (String) this.identifiers.get(format);
+
+			if (tempString == null)
+				tempString = "";
+			
+			tempString = tempString.trim();
+
+			// Is this a compound/delimited value?
+			if (tempString.indexOf(DELIMITER) != -1)
+			{
+				// split the string based on the delimiter
+				tokens = tempString.split(DELIMITER);
+			}
+			else // it's a simple value
+			{
+				tokens = new String[1];
+				tokens[0] = tempString;
+			}
+			
+			return tokens;
+		} // end getComplexIdentifers
 
 		public String getLabel()
 		{
