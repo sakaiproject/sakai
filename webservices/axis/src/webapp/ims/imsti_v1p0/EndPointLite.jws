@@ -66,16 +66,18 @@ public class EndPointLite {
 	if ( configSecret == null || configSecret.trim().length() < 1 ) 
 		throw new AxisFault("Sakai instance is not configured to support TI EndPoint");
 
-	System.out.println("Incoming="+xmlStr);
+	System.out.println("EndPoint.jws Incoming Message\n"+xmlStr);
         Map<String, String> tm = XMLMap.getMap(xmlStr);
 
 	String userEid = tm.get("/LaunchRequest/LaunchData/LaunchProfile/UserProfile/IMSSourcedid/SourceID");
-	String placementId = tm.get("/LaunchRequest/Deployment/ToolSettings/SettingsDefinition/instance/placementId");
+	String placementId = tm.get("/LaunchRequest/DeploymentProfile/ToolSettings/SettingsDefinition/instance/placementId");
 	String secret = tm.get("/LaunchRequest/DeploymentProfile/SecurityProfile/SharedSecret");
 	String portalType = tm.get("/LaunchRequest/LaunchData/Ancillary/PortalType");
 	System.out.println("Eid = "+userEid+" placement="+placementId+" secret="+secret);
 
-	if ( ! configSecret.equals(secret) ) throw new AxisFault("Error in SecurityProfile");
+	if ( userEid == null )  throw new AxisFault("Error in XML /LaunchRequest/LaunchData/LaunchProfile/UserProfile/IMSSourcedid/SourceID is null");
+	if ( placementId == null ) throw new AxisFault("Error in XML /LaunchRequest/DeploymentProfile/ToolSettings/SettingsDefinition/instance/placementId is null");
+	if ( ! configSecret.equals(secret) ) throw new AxisFault("Error in Launch XML /LaunchRequest/DeploymentProfile/SecurityProfile/SharedSecret is null");
 
         User user = null ;
 
@@ -172,7 +174,8 @@ public class EndPointLite {
 		retMap.put("/LaunchResponse/LaunchAction","Unable to resolve placement "+placementId);
 	}
 	String ret = XMLMap.getXML(retMap);
-	// System.out.println("ret="+ret);
+	String pretty = XMLMap.getXML(retMap, true);
+	System.out.println("EndPoint.jws returning\n"+pretty);
 	return ret;
     }
 
