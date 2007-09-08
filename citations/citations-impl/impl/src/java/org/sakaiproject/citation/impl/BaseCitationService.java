@@ -113,6 +113,8 @@ public abstract class BaseCitationService implements CitationService
 	static
 	{
 		AUTHOR_AS_KEY.add( CitationCollection.SORT_BY_AUTHOR );
+		AUTHOR_AS_KEY.add( CitationCollection.SORT_BY_YEAR );
+		AUTHOR_AS_KEY.add( CitationCollection.SORT_BY_TITLE );
 		AUTHOR_AS_KEY.add( CitationCollection.SORT_BY_UUID );
 	};
 
@@ -121,6 +123,8 @@ public abstract class BaseCitationService implements CitationService
 	static
 	{
 		YEAR_AS_KEY.add( CitationCollection.SORT_BY_YEAR );
+		YEAR_AS_KEY.add( CitationCollection.SORT_BY_AUTHOR );
+		YEAR_AS_KEY.add( CitationCollection.SORT_BY_TITLE );
 		YEAR_AS_KEY.add( CitationCollection.SORT_BY_UUID );
 	};
 
@@ -130,6 +134,7 @@ public abstract class BaseCitationService implements CitationService
 	{
 		TITLE_AS_KEY.add( CitationCollection.SORT_BY_TITLE );
 		TITLE_AS_KEY.add( CitationCollection.SORT_BY_AUTHOR );
+		TITLE_AS_KEY.add( CitationCollection.SORT_BY_YEAR );
 		TITLE_AS_KEY.add( CitationCollection.SORT_BY_UUID );
 	};
 
@@ -2787,29 +2792,20 @@ public abstract class BaseCitationService implements CitationService
 			{
 				this.m_comparator = null;
 			}
-			else
+			else if (sortBy.equalsIgnoreCase(SORT_BY_AUTHOR))
 			{
-				if (sortBy.equalsIgnoreCase(SORT_BY_AUTHOR))
-			    {
-				  this.m_comparator = new AuthorComparator(ascending);
-				  status = "AUTHOR SET";
-			    }
-			    else 
-			    {
-			    	if (sortBy.equalsIgnoreCase(SORT_BY_TITLE))
-			        {
-				      this.m_comparator = new TitleComparator(ascending);
-					  status = "TITLE SET";
-			        }
-			    	else
-			    	{
-			    		if (sortBy.equalsIgnoreCase(SORT_BY_YEAR))
-			    		{
-			    			this.m_comparator = new YearComparator(ascending);
-							status = "YEAR SET";
-			    		}
-			    	}
-			    }
+				 this.m_comparator = new AuthorComparator(ascending);
+				 status = "AUTHOR SET";
+			}
+			else if (sortBy.equalsIgnoreCase(SORT_BY_TITLE))
+			{
+			      this.m_comparator = new TitleComparator(ascending);
+				  status = "TITLE SET";
+			}
+			else if (sortBy.equalsIgnoreCase(SORT_BY_YEAR))
+			{
+					this.m_comparator = new YearComparator(ascending);
+					status = "YEAR SET";
 			}
 			
 			if (this.m_comparator != null)
