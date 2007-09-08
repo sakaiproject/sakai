@@ -1649,12 +1649,12 @@ public abstract class BaseCitationService implements CitationService
 						for(int j=0; j< RIScodes.length && status; j++)
 						{						
 							
-							logger.debug("importFromRisList: Seeing if " + RIScode + 
-									     " == " + RIScodes[j] + " for Schema " + schema.getIdentifier());
+//							logger.debug("importFromRisList: Seeing if I can find a match that has the " + 
+//									     "given code '" + RIScode + "' == '" + RIScodes[j] + "' for Schema " + schema.getIdentifier());
 
 							// Need Trim in case RIS complex value has a space after the delimiter
 							// (e.g. "BT, T1" vs "BT","T1")
-							if (RIScode.equalsIgnoreCase(RIScodes[j].trim()))
+							if (RIScode.equalsIgnoreCase(RIScodes[j]))
 							{
 								status = false;
 								logger.debug("importFromRisList: Found field mapping");
