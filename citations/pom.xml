@@ -20,11 +20,6 @@
     <module>citations-osid/xserver</module>
     <module>citations-impl/impl</module>
     <module>citations-impl/pack</module>
-
-<!-- Shared deployment is not required at present
-
     <module>citations-shared-deploy</module>
--->
-
   </modules>
 </project>
