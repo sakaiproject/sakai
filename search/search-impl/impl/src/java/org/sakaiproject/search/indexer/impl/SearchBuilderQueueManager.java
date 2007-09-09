@@ -30,11 +30,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.id.IdentifierGenerator;
-import org.apache.commons.id.uuid.VersionFourGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -72,8 +71,6 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 	private static final String SEARCH_BUILDER_ITEM_FIELDS_UPDATE = " name = ?, context = ?,  searchaction = ?, searchstate = ?, version = ?, itemscope = ? where id = ? "; //$NON-NLS-1$
 
 	public static final String BATCH_SIZE = "batch-size";
-
-	private IdentifierGenerator idgenerator = new VersionFourGenerator();
 
 	/**
 	 * dependency
@@ -724,7 +721,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 						sbi.setName(resourceName);
 						sbi.setSearchaction(SearchBuilderItem.ACTION_ADD);
 						sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
-						sbi.setId(idgenerator.nextIdentifier().toString());
+						sbi.setId(UUID.randomUUID().toString());
 						sbi.setVersion(new Date(System.currentTimeMillis()));
 						sbi.setItemscope(SearchBuilderItem.ITEM);
 						String context = null;

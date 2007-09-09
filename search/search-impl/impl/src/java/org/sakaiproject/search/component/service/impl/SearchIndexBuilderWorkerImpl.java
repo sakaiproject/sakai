@@ -31,12 +31,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.id.IdentifierGenerator;
-import org.apache.commons.id.uuid.UUID;
-import org.apache.commons.id.uuid.VersionFourGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -110,8 +108,6 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 	private ServerConfigurationService serverConfigurationService;
 
 	private DataSource dataSource = null;
-
-	private IdentifierGenerator idgenerator = new VersionFourGenerator();
 
 	/**
 	 * Semaphore
@@ -548,8 +544,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		String nodeID = (String) nodeIDHolder.get();
 		if (nodeID == null)
 		{
-			UUID uuid = (UUID) idgenerator.nextIdentifier();
-			nodeID = uuid.toString();
+			nodeID = UUID.randomUUID().toString();
 			nodeIDHolder.set(nodeID);
 			if (nodeIDList.get(nodeID) == null)
 			{

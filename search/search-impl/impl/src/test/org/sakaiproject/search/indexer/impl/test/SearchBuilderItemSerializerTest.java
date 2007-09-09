@@ -26,9 +26,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
-import org.apache.commons.id.IdentifierGenerator;
-import org.apache.commons.id.uuid.VersionFourGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer;
@@ -50,8 +49,6 @@ public class SearchBuilderItemSerializerTest extends TestCase
 	private File testBase;
 
 	private File work;
-
-	private IdentifierGenerator idgenerator = new VersionFourGenerator();
 
 	private SearchBuilderItemSerializer sbis = new SearchBuilderItemSerializer();
 
@@ -115,10 +112,10 @@ public class SearchBuilderItemSerializerTest extends TestCase
 		for (int i = 0; i < 100; i++)
 		{
 			SearchBuilderItem sbi = new SearchBuilderItemImpl();
-			sbi.setContext(String.valueOf("Context" + idgenerator.nextIdentifier()));
-			sbi.setId(String.valueOf(idgenerator.nextIdentifier()));
+			sbi.setContext(String.valueOf("Context" + UUID.randomUUID().toString()));
+			sbi.setId(String.valueOf(UUID.randomUUID().toString()));
 			sbi.setItemscope(SearchBuilderItem.ITEM);
-			sbi.setName("Name" + String.valueOf(idgenerator.nextIdentifier()));
+			sbi.setName("Name" + String.valueOf(UUID.randomUUID().toString()));
 			sbi.setSearchaction(i % SearchBuilderItem.actions.length);
 			sbi.setSearchstate(i % SearchBuilderItem.states.length);
 			sbi.setVersion(new Date(System.currentTimeMillis() + i + 2000));

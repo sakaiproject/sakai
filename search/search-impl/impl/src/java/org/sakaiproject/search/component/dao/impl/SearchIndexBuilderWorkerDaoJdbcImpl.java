@@ -34,11 +34,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.id.IdentifierGenerator;
-import org.apache.commons.id.uuid.VersionFourGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
@@ -94,8 +93,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 	// private EntityManager entityManager;
 
 	private RDFSearchService rdfSearchService = null;
-
-	private IdentifierGenerator idgenerator = new VersionFourGenerator();
 
 	/**
 	 * injected to abstract the storage impl
@@ -1417,7 +1414,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 						sbi.setName(resourceName);
 						sbi.setSearchaction(SearchBuilderItem.ACTION_ADD);
 						sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
-						sbi.setId(idgenerator.nextIdentifier().toString());
+						sbi.setId(UUID.randomUUID().toString());
 						sbi.setVersion(new Date(System.currentTimeMillis()));
 						sbi.setItemscope(SearchBuilderItem.ITEM);
 						String context = null;
