@@ -59,12 +59,6 @@
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>commons-id</groupId>
-      <artifactId>commons-id</artifactId>
-      <version>0.1-dev</version>
-<!--url: http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/ -->
-    </dependency>
-    <dependency>
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>

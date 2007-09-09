@@ -46,10 +46,6 @@
       		<artifactId>commons-digester</artifactId>
       	</exclusion>
       	<exclusion>
- 		<groupId>commons-id</groupId>
-      		<artifactId>commons-id</artifactId>
-      	</exclusion>
-      	<exclusion>
  		<groupId>odmg</groupId>
       		<artifactId>odmg</artifactId>
       	</exclusion>
