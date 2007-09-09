@@ -8049,6 +8049,7 @@ public class SiteAction extends PagedResourceActionII {
 				String providerCourseEid = (String) i.next();
 				if (cms.isCourseOfferingDefined(providerCourseEid))
 				{
+					// in case of CourseOffering eid
 					Set enrollmentSets = cms.getEnrollmentSets(providerCourseEid);
 					if (enrollmentSets != null)
 					{
@@ -8056,42 +8057,20 @@ public class SiteAction extends PagedResourceActionII {
 						{
 							EnrollmentSet enrollmentSet = (EnrollmentSet) eSetsIterator.next();
 							addParticipantsFromEnrollmentSet(participants, realm, providerCourseEid, enrollmentSet);
+							// add membership
+							Set memberships = cms.getCourseOfferingMemberships(providerCourseEid);
+							addParticipantsFromMemberships(participants, realm, providerCourseEid, memberships);
 						}
 					}
 				}
 				else if (cms.isSectionDefined(providerCourseEid))
 				{
+					// in case of Section eid
 					EnrollmentSet enrollmentSet = cms.getSection(providerCourseEid).getEnrollmentSet();
 					addParticipantsFromEnrollmentSet(participants, realm, providerCourseEid, enrollmentSet);
 					// add memberships
 					Set memberships = cms.getSectionMemberships(providerCourseEid);
-					for (Iterator mIterator = memberships.iterator();mIterator.hasNext();)
-					{
-						Membership m = (Membership) mIterator.next();
-						try 
-						{
-							User user = UserDirectoryService.getUserByEid(m.getUserId());
-							Member member = realm.getMember(user.getId());
-							if (member != null && member.isProvided())
-							{
-								// add provided participant
-								Participant participant = new Participant();
-								participant.credits = "";
-								participant.name = user.getSortName();
-								participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
-								participant.regId = "";
-								participant.removeable = false;
-								participant.role = member.getRole()!=null?member.getRole().getId():"";
-								participant.section = cms.getSection(providerCourseEid).getTitle();
-								participant.uniqname = user.getId();
-								participants.add(participant);
-							}
-						} catch (UserNotDefinedException exception) {
-							// deal with missing user quietly without throwing a
-							// warning message
-							M_log.warn(exception.getMessage());
-						}
-					}
+					addParticipantsFromMemberships(participants, realm, providerCourseEid, memberships);
 				}
 			}
 			
@@ -8123,6 +8102,53 @@ public class SiteAction extends PagedResourceActionII {
 		return participants;
 	}
 
+	/**
+	 * Add participant from provider-defined membership set
+	 * @param participants
+	 * @param realm
+	 * @param providerCourseEid
+	 * @param memberships
+	 */
+	private void addParticipantsFromMemberships(Vector participants, AuthzGroup realm, String providerCourseEid, Set memberships) {
+		if (memberships != null)
+		{
+			for (Iterator mIterator = memberships.iterator();mIterator.hasNext();)
+			{
+				Membership m = (Membership) mIterator.next();
+				try 
+				{
+					User user = UserDirectoryService.getUserByEid(m.getUserId());
+					Member member = realm.getMember(user.getId());
+					if (member != null && member.isProvided())
+					{
+						// add provided participant
+						Participant participant = new Participant();
+						participant.credits = "";
+						participant.name = user.getSortName();
+						participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
+						participant.regId = "";
+						participant.removeable = false;
+						participant.role = member.getRole()!=null?member.getRole().getId():"";
+						participant.section = cms.getSection(providerCourseEid).getTitle();
+						participant.uniqname = user.getId();
+						participants.add(participant);
+					}
+				} catch (UserNotDefinedException exception) {
+					// deal with missing user quietly without throwing a
+					// warning message
+					M_log.warn(exception.getMessage());
+				}
+			}
+		}
+	}
+
+	/**
+	 * Add participant from provider-defined enrollment set
+	 * @param participants
+	 * @param realm
+	 * @param providerCourseEid
+	 * @param enrollmentSet
+	 */
 	private void addParticipantsFromEnrollmentSet(Vector participants, AuthzGroup realm, String providerCourseEid, EnrollmentSet enrollmentSet) {
 		if (enrollmentSet != null)
 		{
