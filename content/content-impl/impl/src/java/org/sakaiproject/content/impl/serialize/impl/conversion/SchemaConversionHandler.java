@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.content.impl.serialize.impl;
+package org.sakaiproject.content.impl.serialize.impl.conversion;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -116,8 +116,9 @@ public interface SchemaConversionHandler
 	 * @param id
 	 * @param source
 	 * @param updateRecord
+	 * @throws SQLException 
 	 */
-	void convertSource(String id, Object source, PreparedStatement updateRecord);
+	boolean convertSource(String id, Object source, PreparedStatement updateRecord) throws SQLException;
 
 
 

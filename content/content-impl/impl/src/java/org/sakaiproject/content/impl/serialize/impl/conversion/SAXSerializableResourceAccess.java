@@ -1,0 +1,550 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/ecl1.php
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
+package org.sakaiproject.content.impl.serialize.impl.conversion;
+
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.ResourceTypeRegistry;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
+import org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess;
+import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer;
+import org.sakaiproject.entity.api.serialize.EntityParseException;
+import org.sakaiproject.entity.api.serialize.SerializableEntity;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Xml;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
+/**
+ * @author ieb
+ */
+public class SAXSerializableResourceAccess implements SerializableResourceAccess,
+		SerializableEntity
+{
+	protected static final long END_OF_TIME = 8000L * 365L * 24L * 60L * 60L * 1000L;
+
+	protected static final long START_OF_TIME = 365L * 24L * 60L * 60L * 1000L;
+
+	protected static final Log log = LogFactory
+			.getLog(SAXSerializableResourceAccess.class);
+
+	private Type1BaseContentResourceSerializer type1ResourceSerializer;
+
+	private ThreadLocal<SAXParser> parserHolder = new ThreadLocal<SAXParser>();
+
+	private SAXParserFactory parserFactory;
+
+	private AccessMode accessMode;
+
+	private long contentLength;
+
+	private String contentType;
+
+	private String filePath;
+
+	private Collection<String> group;
+
+	private boolean hidden;
+
+	private String id;
+
+	private SerializableEntity saxSerializableProperties;
+
+	private Time releaseDate;
+
+	private String resourceType;
+
+	private Time retractDate;
+
+	private byte[] body;
+
+	private ConversionTimeService conversionTimeService;
+
+	public SAXSerializableResourceAccess()
+	{
+		type1ResourceSerializer = new Type1BaseContentResourceSerializer();
+		conversionTimeService = new ConversionTimeService();
+		type1ResourceSerializer.setTimeService(conversionTimeService);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getResourceTypeRegistry()
+	 */
+	public ResourceTypeRegistry getResourceTypeRegistry()
+	{
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableAccess()
+	 */
+	public AccessMode getSerializableAccess()
+	{
+		return accessMode;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableBody()
+	 */
+	public byte[] getSerializableBody()
+	{
+		return body;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableContentLength()
+	 */
+	public long getSerializableContentLength()
+	{
+		return contentLength;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableContentType()
+	 */
+	public String getSerializableContentType()
+	{
+		return contentType;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableFilePath()
+	 */
+	public String getSerializableFilePath()
+	{
+		return filePath;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableGroup()
+	 */
+	public Collection<String> getSerializableGroup()
+	{
+		return group;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableHidden()
+	 */
+	public boolean getSerializableHidden()
+	{
+		return hidden;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableId()
+	 */
+	public String getSerializableId()
+	{
+		return id;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableProperties()
+	 */
+	public SerializableEntity getSerializableProperties()
+	{
+		return saxSerializableProperties;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableReleaseDate()
+	 */
+	public Time getSerializableReleaseDate()
+	{
+		return releaseDate;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableResourceType()
+	 */
+	public String getSerializableResourceType()
+	{
+		return resourceType;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#getSerializableRetractDate()
+	 */
+	public Time getSerializableRetractDate()
+	{
+		return retractDate;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableAccess(org.sakaiproject.content.api.GroupAwareEntity.AccessMode)
+	 */
+	public void setSerializableAccess(AccessMode access)
+	{
+		accessMode = access;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableBody(byte[])
+	 */
+	public void setSerializableBody(byte[] body)
+	{
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableContentLength(long)
+	 */
+	public void setSerializableContentLength(long contentLength)
+	{
+		this.contentLength = contentLength;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableContentType(java.lang.String)
+	 */
+	public void setSerializableContentType(String contentType)
+	{
+		this.contentType = contentType;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableFilePath(java.lang.String)
+	 */
+	public void setSerializableFilePath(String filePath)
+	{
+		this.filePath = filePath;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableGroups(java.util.Collection)
+	 */
+	public void setSerializableGroups(Collection<String> groups)
+	{
+		this.group = groups;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableHidden(boolean)
+	 */
+	public void setSerializableHidden(boolean hidden)
+	{
+		this.hidden = hidden;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableId(java.lang.String)
+	 */
+	public void setSerializableId(String id)
+	{
+		this.id = id;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableReleaseDate(org.sakaiproject.time.api.Time)
+	 */
+	public void setSerializableReleaseDate(Time releaseDate)
+	{
+		this.releaseDate = releaseDate;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableResourceType(java.lang.String)
+	 */
+	public void setSerializableResourceType(String resourceType)
+	{
+		this.resourceType = resourceType;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess#setSerializableRetractDate(org.sakaiproject.time.api.Time)
+	 */
+	public void setSerializableRetractDate(Time retractDate)
+	{
+		this.retractDate = retractDate;
+	}
+
+	/**
+	 * @param xml
+	 * @throws EntityParseException
+	 */
+	public void parse(String xml) throws Exception
+	{
+		if (xml.startsWith(Type1BaseContentResourceSerializer.BLOB_ID))
+		{
+			type1ResourceSerializer.parse(this, xml);
+		}
+		else
+		{
+			Reader r = new StringReader(xml);
+			InputSource ss = new InputSource(r);
+
+			SAXParser p = parserHolder.get();
+			if (p == null)
+			{
+				if (parserFactory == null)
+				{
+					parserFactory = SAXParserFactory.newInstance();
+					parserFactory.setNamespaceAware(false);
+					parserFactory.setValidating(false);
+				}
+				try
+				{
+					p = parserFactory.newSAXParser();
+					parserHolder.set(p);
+				}
+				catch (ParserConfigurationException e)
+				{
+					throw new SAXException("Failed to get a parser ", e);
+				}
+			}
+			else
+			{
+				p.reset();
+			}
+			final Map<String, Object> props = new HashMap<String, Object>();
+			p.parse(ss, new DefaultHandler()
+			{
+
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+				 *      java.lang.String, java.lang.String,
+				 *      org.xml.sax.Attributes)
+				 */
+				@Override
+				public void startElement(String uri, String localName, String qName,
+						Attributes attributes) throws SAXException
+				{
+
+					if ("property".equals(qName))
+					{
+
+						String name = attributes.getValue("name");
+						String enc = StringUtil.trimToNull(attributes.getValue("enc"));
+						String value = null;
+						if ("BASE64".equalsIgnoreCase(enc))
+						{
+							String charset = StringUtil.trimToNull(attributes
+									.getValue("charset"));
+							if (charset == null) charset = "UTF-8";
+
+							value = Xml.decode(charset, attributes.getValue("value"));
+						}
+						else
+						{
+							value = attributes.getValue("value");
+						}
+
+						// deal with multiple valued lists
+						if ("list".equals(attributes.getValue("list")))
+						{
+							// accumulate multiple values in a list
+							Object current = props.get(name);
+
+							// if we don't have a value yet, make a list to
+							// hold
+							// this one
+							if (current == null)
+							{
+								List values = new Vector();
+								props.put(name, values);
+								values.add(value);
+							}
+
+							// if we do and it's a list, add this one
+							else if (current instanceof List)
+							{
+								((List) current).add(value);
+							}
+
+							// if it's not a list, it's wrong!
+							else
+							{
+								log.warn("construct(el): value set not a list: " + name);
+							}
+						}
+						else
+						{
+							props.put(name, value);
+						}
+					}
+					else if ("resource".equals(qName))
+					{
+						id = attributes.getValue("id");
+						contentType = StringUtil.trimToNull(attributes
+								.getValue("content-type"));
+						contentLength = 0;
+						try
+						{
+							contentLength = Integer.parseInt(attributes
+									.getValue("content-length"));
+						}
+						catch (Exception ignore)
+						{
+						}
+						resourceType = StringUtil.trimToNull(attributes
+								.getValue("resource-type"));
+
+						String enc = StringUtil.trimToNull(attributes.getValue("body"));
+						if (enc != null)
+						{
+							byte[] decoded = null;
+							try
+							{
+								decoded = Base64.decodeBase64(enc.getBytes("UTF-8"));
+							}
+							catch (UnsupportedEncodingException e)
+							{
+								log.error(e);
+							}
+							body = new byte[(int) contentLength];
+							System.arraycopy(decoded, 0, body, 0, (int) contentLength);
+						}
+
+						filePath = StringUtil.trimToNull(attributes.getValue("filePath"));
+						AccessMode access = AccessMode.INHERITED;
+						String access_mode = attributes.getValue("sakai:access_mode");
+						if (access_mode != null && !access_mode.trim().equals(""))
+						{
+							access = AccessMode.fromString(access_mode);
+						}
+						if (access == null || AccessMode.SITE == access)
+						{
+							access = AccessMode.INHERITED;
+						}
+
+						String shidden = attributes.getValue("sakai:hidden");
+						hidden = shidden != null && !shidden.trim().equals("")
+								&& !Boolean.FALSE.toString().equalsIgnoreCase(shidden);
+
+						if (hidden)
+						{
+							releaseDate = null;
+							retractDate = null;
+						}
+						else
+						{
+							// extract release date
+							String date0 = attributes.getValue("sakai:release_date");
+							if (date0 != null && !date0.trim().equals(""))
+							{
+								releaseDate = conversionTimeService.newTimeGmt(date0);
+								if (releaseDate.getTime() <= START_OF_TIME)
+								{
+									releaseDate = null;
+								}
+							}
+
+							// extract retract date
+							String date1 = attributes.getValue("sakai:retract_date");
+							if (date1 != null && !date1.trim().equals(""))
+							{
+								retractDate = conversionTimeService.newTimeGmt(date1);
+								if (retractDate.getTime() >= END_OF_TIME)
+								{
+									retractDate = null;
+								}
+							}
+						}
+					}
+					else if ("sakai:authzGroup".equals(qName))
+					{
+						if (group == null)
+						{
+							group = new ArrayList<String>();
+						}
+						group.add(attributes.getValue("sakai:group_name"));
+					}
+					else
+					{
+						log.warn("Unexpected Element " + qName);
+					}
+
+				}
+			});
+		}
+	}
+
+}

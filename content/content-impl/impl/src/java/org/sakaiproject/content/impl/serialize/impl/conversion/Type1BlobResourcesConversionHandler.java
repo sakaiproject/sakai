@@ -19,19 +19,32 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.content.impl.serialize.impl;
+package org.sakaiproject.content.impl.serialize.impl.conversion;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer;
 
 /**
  * @author ieb
- *
  */
-public class Type1BlobConversionHandler implements SchemaConversionHandler
+public class Type1BlobResourcesConversionHandler implements SchemaConversionHandler
 {
-	/* (non-Javadoc)
+
+	private static final Log log = LogFactory
+			.getLog(Type1BlobResourcesConversionHandler.class);
+
+	private Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getCreateMigrateTable()
 	 */
 	public String getCreateMigrateTable()
@@ -39,14 +52,19 @@ public class Type1BlobConversionHandler implements SchemaConversionHandler
 		return "create table content_col_t1register ( id varchar(99), status varchar(99), primary key id )";
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getDropMigrateTable()
 	 */
 	public String getDropMigrateTable()
 	{
 		return "drop table content_col_t1register";
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getCheckMigrateTable()
 	 */
 	public String getCheckMigrateTable()
@@ -54,7 +72,9 @@ public class Type1BlobConversionHandler implements SchemaConversionHandler
 		return "select count(*) from content_col_t1register";
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getPopulateMigrateTable()
 	 */
 	public String getPopulateMigrateTable()
@@ -62,10 +82,9 @@ public class Type1BlobConversionHandler implements SchemaConversionHandler
 		return "insert into content_col_t1register (id,status) select collection_id, 'pending' from content_collection";
 	}
 
-	
-
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getSelectNextBatch()
 	 */
 	public String getSelectNextBatch()
@@ -73,14 +92,19 @@ public class Type1BlobConversionHandler implements SchemaConversionHandler
 		return "select id from content_col_t1register where status = 'pending' ";
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getCompleteNextBatch()
 	 */
 	public String getCompleteNextBatch()
 	{
 		return "update content_col_t1register set status = 'done' where id = ? ";
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getMarkNextBatch()
 	 */
 	public String getMarkNextBatch()
@@ -88,39 +112,82 @@ public class Type1BlobConversionHandler implements SchemaConversionHandler
 		return "update content_col_t1register set status = 'locked' where id = ? ";
 	}
 
-
-
-
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getSelectRecord()
 	 */
 	public String getSelectRecord()
 	{
 		return "select xml from content_collection where collection_id = ?";
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getUpdateRecord()
 	 */
 	public String getUpdateRecord()
 	{
-		return "update content_collection set xml = ? where collection_id = ? ";
+		return "update CONTENT_RESOURCE set CONTEXT = ?, FILE_SIZE = ?, xml = ? where RESOURCE_ID = ? ";
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getSource(java.lang.String, java.sql.ResultSet)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getSource(java.lang.String,
+	 *      java.sql.ResultSet)
 	 */
 	public Object getSource(String id, ResultSet rs) throws SQLException
 	{
 		return rs.getString(1);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#convertSource(java.lang.String, java.lang.Object, java.sql.PreparedStatement)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#convertSource(java.lang.String,
+	 *      java.lang.Object, java.sql.PreparedStatement)
 	 */
-	public void convertSource(String id, Object source, PreparedStatement updateRecord)
+	public boolean convertSource(String id, Object source, PreparedStatement updateRecord)
+			throws SQLException
 	{
-		// TODO Auto-generated method stub
+
+		String xml = (String) source;
+
+		SAXSerializableResourceAccess sax = new SAXSerializableResourceAccess();
+		try
+		{
+			sax.parse(xml);
+		}
+		catch (Exception e1)
+		{
+			log.warn("Failed to parse "+id);
+			return false;
+		}
+
+		Type1BaseContentResourceSerializer t1b = new Type1BaseContentResourceSerializer();
+		try
+		{
+			String result = t1b.serialize(sax);
+			Matcher contextMatcher = contextPattern.matcher(sax.getSerializableId());
+			String context = null;
+			if (contextMatcher.find())
+			{
+				context = contextMatcher.group(1);
+			}
+
+			updateRecord.setString(1, context);
+			updateRecord.setLong(2, sax.getSerializableContentLength());
+			updateRecord.setString(3, result);
+			updateRecord.setString(4, id);
+			return true;
+		}
+		catch (Exception e)
+		{
+			log.warn("Failed to process record " + id, e);
+		}
+		return false;
 
 	}
 
