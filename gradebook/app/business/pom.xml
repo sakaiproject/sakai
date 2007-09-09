@@ -82,12 +82,6 @@
       <artifactId>sakai-util-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-    <dependency>
-      <groupId>commons-id</groupId>
-      <artifactId>commons-id</artifactId>
-      <version>0.1-dev</version>
-<!--url: http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/ -->
-    </dependency>
 <!-- End Sakai2 Dependencies -->
 <!-- Database dependencies used for integration testing and schema generation -->
 <!-- Please contact the gradebook development team before removing these -->
