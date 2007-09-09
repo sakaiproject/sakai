@@ -152,9 +152,8 @@ public interface ContentServiceSql
 	String getAccessResourceIdAndXmlSql(String table);
 
 	/**
-	 * returns the sql statement which updates a row in the CONTENT_RESOURCE table with values for CONTEXT and FILE_SIZE.
-	 * @param table TODO
+	 * returns the sql statement which updates a row in the specified table with values for CONTEXT, FILE_SIZE and (possibly) RESOURCE_UUID.
 	 */
-	String getContextFilesizeValuesSql(String table);
+	String getContextFilesizeValuesSql(String table, boolean addingUuid);
 
 }

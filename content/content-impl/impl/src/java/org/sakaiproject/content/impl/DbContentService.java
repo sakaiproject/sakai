@@ -2283,6 +2283,7 @@ public class DbContentService extends BaseContentService
 	{
 		String sql1 = contentServiceSql.getAccessResourceIdAndXmlSql(m_resourceTableName);
 		m_sqlService.dbRead(sql1, null, new ContextAndFilesizeReader(m_resourceTableName));
+		
 		String sql2 = contentServiceSql.getAccessResourceIdAndXmlSql(m_resourceDeleteTableName);
 		m_sqlService.dbRead(sql2, null, new ContextAndFilesizeReader(m_resourceDeleteTableName));
 	}
@@ -2290,6 +2291,7 @@ public class DbContentService extends BaseContentService
 
 	public class ContextAndFilesizeReader implements SqlReader
 	{
+		protected IdManager uuidManager = (IdManager) ComponentManager.get(IdManager.class);
 		protected Pattern filesizePattern1 = Pattern.compile(" content-length=\"(\\d+)\" ");
 		protected Pattern filesizePattern2 = Pattern.compile("e\\s*DAV:getcontentlength\\s+(\\d+)\\s*e");
 		protected String table;
@@ -2303,11 +2305,18 @@ public class DbContentService extends BaseContentService
 		{
 			try
 			{
+				boolean addingUuid = false;
 				String resourceId = result.getString(1);
-				String xml = result.getString(2);
+				String uuid = result.getString(2);
+				String xml = result.getString(3);
+				if(uuid == null)
+				{
+					addingUuid = true;
+					uuid = uuidManager.createUuid();
+				}
 				String context = null;
 				int filesize = 0;
-				String sql = contentServiceSql.getContextFilesizeValuesSql(table);
+				String sql = contentServiceSql.getContextFilesizeValuesSql(table, addingUuid);
 				
 				Matcher contextMatcher = contextPattern.matcher(resourceId);
 				Matcher filesizeMatcher = filesizePattern2.matcher(xml);
@@ -2337,14 +2346,27 @@ public class DbContentService extends BaseContentService
 					}
 				}
 				
-				M_log.info("adding new field values: resourceId == \"" + resourceId + "\" context == \"" + context + "\" filesize == \"" + filesize + "\"");
+				M_log.info("adding new field values: resourceId == \"" + resourceId + "\" uuid == \"" + uuid + "\" context == \"" + context + "\" filesize == \"" + filesize + "\" addingUuid == " + addingUuid);
 				
-				// update the record
-				Object [] fields = new Object[3];
-				fields[0] = context;
-				fields[1] = new Integer(filesize);
-				fields[2] = resourceId;
-				m_sqlService.dbWrite(sql, fields);
+				if(addingUuid)
+				{
+					// update the record
+					Object [] fields = new Object[4];
+					fields[0] = context;
+					fields[1] = new Integer(filesize);
+					fields[2] = uuid;
+					fields[3] = resourceId;
+					m_sqlService.dbWrite(sql, fields);
+				}
+				else
+				{
+					// update the record
+					Object [] fields = new Object[3];
+					fields[0] = context;
+					fields[1] = new Integer(filesize);
+					fields[2] = uuid;
+					m_sqlService.dbWrite(sql, fields);
+				}
 			}
 			catch(Exception e)
 			{

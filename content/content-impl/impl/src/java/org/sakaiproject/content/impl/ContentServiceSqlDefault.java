@@ -226,15 +226,20 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	 */
 	public String getAccessResourceIdAndXmlSql(String table)
 	{
-		return "select RESOURCE_ID, XML from CONTENT_RESOURCE where FILE_SIZE is NULL";
+		return "select RESOURCE_ID, RESOURCE_UUID, XML from " + table + " where FILE_SIZE is NULL";
 	}
 
 	/**
 	 * returns the sql statement which updates a row in the CONTENT_RESOURCE table with values for CONTEXT and FILE_SIZE.
 	 */
-	public String getContextFilesizeValuesSql(String table)
+	public String getContextFilesizeValuesSql(String table, boolean addingUuid)
 	{
-		return "update " + table + " set CONTEXT = ?, FILE_SIZE = ? where RESOURCE_ID = ?";
+		String sql = "update " + table + " set CONTEXT = ?, FILE_SIZE = ? where RESOURCE_UUID = ?";
+		if(addingUuid)
+		{
+			sql = "update " + table + " set CONTEXT = ?, FILE_SIZE = ?, RESOURCE_UUID = ? where RESOURCE_ID = ?";
+		}
+		return sql;
 	}
 
 }
