@@ -121,13 +121,6 @@
       <version>${sakai.version}</version>
       <scope>provided</scope> <!-- FIXME: is this required here ? -->
     </dependency>
-    <dependency>
-      <groupId>commons-id</groupId>
-      <artifactId>commons-id</artifactId>
-      <version>0.1-dev</version>
-      <scope>provided</scope> <!-- FIXME: is this required here ? -->
-<!--url: http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/ -->
-    </dependency>
 <!-- Sakai plugin -->
 <!-- End Sakai2 Dependencies -->
 <!-- Database dependencies -->
