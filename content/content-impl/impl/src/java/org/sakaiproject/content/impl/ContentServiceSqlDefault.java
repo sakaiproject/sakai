@@ -190,45 +190,29 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	}
 
 	/**
-	 * returns the sql statement to add the CONTEXT and SIZE columns to CONTENT_RESOURCE along with an index of the CONTENT column.
-	 */
-	public String getAddColumnsSql() 
-	{
-		return "alter table CONTENT_RESOURCE add column CONTEXT VARCHAR2(99) after IN_COLLECTION, add column SIZE INTEGER after FILE_PATH, add index CONTEXT;";
-	}
-
-	/**
 	 * returns the sql statement to add the FILE_SIZE column to the CONTENT_RESOURCE table.
 	 */
-	public String getAddFilesizeColumnSql()
+	public String getAddFilesizeColumnSql(String table)
 	{
-		return "alter table CONTENT_RESOURCE add FILE_SIZE NUMBER(18) default null";
+		return "alter table " + table + " add FILE_SIZE NUMBER(18) default null";
 	}
 
 	/**
 	 * returns the sql statement to add the CONTEXT column to the CONTENT_RESOURCE table.
 	 */
-	public String getAddContextColumnSql()
+	public String getAddContextColumnSql(String table)
 	{
-		return "alter table CONTENT_RESOURCE add CONTEXT VARCHAR2(99) default null";
+		return "alter table " + table + " add CONTEXT VARCHAR2(99) default null";
 	}
 
 	/**
 	 * returns the sql statement to add an index of the CONTENT column to the CONTENT_RESOURCE table.
 	 */
-	public String getAddContextIndexSql()
+	public String getAddContextIndexSql(String table)
 	{
-		return "create index CONTENT_RESOURCE_CONTEXT_INDEX on CONTENT_RESOURCE (CONTEXT)";
+		return "create index " + table.trim() + "_CONTEXT_INDEX on " + table + " (CONTEXT)";
 	}
 	
-	/**
-	 * returns the sql statement which updates all rows of the CONTENT_RESOURCE table to provide initial calculated values for the FILE_SIZE and CONTEXT columns.
-	 */
-	public String getPopulateNewColumnsSql()
-	{
-		return "";
-	}
-
 	/**
 	 * returns the sql statement which retrieves the total number of bytes within a site-level collection (context) in the CONTENT_RESOURCE table.
 	 */
@@ -240,7 +224,7 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	/**
 	 * returns the sql statement which retrieves the RESOURCE_ID and XML values for all entries in the CONTENT_RESOURCE table where file-size is null.
 	 */
-	public String getAccessResourceIdAndXmlSql()
+	public String getAccessResourceIdAndXmlSql(String table)
 	{
 		return "select RESOURCE_ID, XML from CONTENT_RESOURCE where FILE_SIZE is NULL";
 	}
@@ -248,9 +232,9 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	/**
 	 * returns the sql statement which updates a row in the CONTENT_RESOURCE table with values for CONTEXT and FILE_SIZE.
 	 */
-	public String getContextFilesizeValuesSql()
+	public String getContextFilesizeValuesSql(String table)
 	{
-		return "update CONTENT_RESOURCE set CONTEXT = ?, FILE_SIZE = ? where RESOURCE_ID = ?";
+		return "update " + table + " set CONTEXT = ?, FILE_SIZE = ? where RESOURCE_ID = ?";
 	}
 
 }

@@ -170,6 +170,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	protected static final long END_OF_TIME = 8000L * 365L * 24L * 60L * 60L * 1000L;
 	protected static final long START_OF_TIME = 365L * 24L * 60L * 60L * 1000L;
 	
+	protected static final Pattern contextPattern = Pattern.compile("\\A/(group/|user/|~)(.+?)/");
+
+	
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
 
@@ -1044,33 +1047,48 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public Object[] storageFields(Entity r)
 		{
-			Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
-			Matcher contextMatcher = contextPattern.matcher(r.getId());
-			String context = null;
-			if(contextMatcher.find())
+			if(m_useContextQueryForCollectionSize)
 			{
-				context = contextMatcher.group(1);
+				// include the file path field if we are doing body in the file system
+				if (m_bodyPath != null)
+				{
+					Object[] rv = new Object[4];
+					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
+					rv[1] = ((BasicGroupAwareEdit) r).getContext();
+					rv[2] = new Integer(((ContentResource) r).getContentLength());
+					rv[3] = StringUtil.trimToZero(((BaseResourceEdit) r).m_filePath);
+					return rv;
+				}
+	
+				// otherwise don't include the file path field
+				else
+				{
+					Object[] rv = new Object[3];
+					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
+					rv[1] = ((BasicGroupAwareEdit) r).getContext();
+					rv[2] = new Integer(((ContentResource) r).getContentLength());
+					return rv;
+				}
 			}
-
-			// include the file path field if we are doing body in the file system
-			if (m_bodyPath != null)
-			{
-				Object[] rv = new Object[4];
-				rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
-				rv[1] = context;
-				rv[2] = new Integer(((ContentResource) r).getContentLength());
-				rv[3] = StringUtil.trimToZero(((BaseResourceEdit) r).m_filePath);
-				return rv;
-			}
-
-			// otherwise don't include the file path field
 			else
 			{
-				Object[] rv = new Object[3];
-				rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
-				rv[1] = context;
-				rv[2] = new Integer(((ContentResource) r).getContentLength());
-				return rv;
+				// include the file path field if we are doing body in the file system
+				if (m_bodyPath != null)
+				{
+					Object[] rv = new Object[2];
+					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
+					rv[1] = StringUtil.trimToZero(((BaseResourceEdit) r).m_filePath);
+					return rv;
+				}
+	
+				// otherwise don't include the file path field
+				else
+				{
+					Object[] rv = new Object[1];
+					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
+					return rv;
+				}
+
 			}
 		}
 
@@ -8981,6 +8999,26 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 		
 		/**
+		 * @param context
+		 * @return
+		 */
+		public String getContext() 
+		{
+			String context = null;
+			Matcher contextMatcher = contextPattern.matcher(this.m_id);
+			if(contextMatcher.find())
+			{
+				String root = contextMatcher.group(1);
+				context = contextMatcher.group(2);
+				if(! root.equals("group/"))
+				{
+					context = "~" + context;
+				}
+			}
+			return context;
+		}
+
+		/**
 		 * @inheritDoc
 		 */
 		public void clearGroupAccess() throws InconsistentException, PermissionException 
@@ -9795,16 +9833,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 			if(m_useContextQueryForCollectionSize)
 			{
-				Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
-				Matcher contextMatcher = contextPattern.matcher(this.m_id);
-				String context = null;
-				if(contextMatcher.find())
+				String context = getContext();
+				if(context != null)
 				{
-					context = contextMatcher.group(1);
-					if(context != null)
-					{
-						size = getSizeForContext(context)/1000L;
-					}
+					size = getSizeForContext(context)/1000L;
 				}
 			}
 			else

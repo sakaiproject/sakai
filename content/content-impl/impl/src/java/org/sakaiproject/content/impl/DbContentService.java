@@ -107,14 +107,24 @@ public class DbContentService extends BaseContentService
 	protected static final String[] COLLECTION_FIELDS = {"IN_COLLECTION"};
 
 	/**
-	 * The extra field(s) to write to the database - resources - when we are doing bodys in files.
+	 * The extra field(s) to write to the database - resources - when we are doing bodys in files without the context-query conversion.
 	 */
-	protected static final String[] RESOURCE_FIELDS_FILE = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "FILE_PATH"};
+	protected static final String[] RESOURCE_FIELDS_FILE = {"IN_COLLECTION", "FILE_PATH"};
 
 	/**
-	 * The extra field(s) to write to the database - resources - when we are doing bodys the db.
+	 * The extra field(s) to write to the database - resources - when we are doing bodys in files with the context-query conversion.
 	 */
-	protected static final String[] RESOURCE_FIELDS = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE"};
+	public static final String[] RESOURCE_FIELDS_FILE_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "FILE_PATH"};
+	
+	/**
+	 * The extra field(s) to write to the database - resources - when we are doing bodys the db without the context-query conversion.
+	 */
+	protected static final String[] RESOURCE_FIELDS = {"IN_COLLECTION"};
+
+	/**
+	 * The extra field(s) to write to the database - resources - when we are doing bodys the db with the context-query conversion.
+	 */
+	protected static final String[] RESOURCE_FIELDS_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE"};
 
 	/** Table name for resources delete. */
 	protected String m_resourceDeleteTableName = "CONTENT_RESOURCE_DELETE";
@@ -259,6 +269,16 @@ public class DbContentService extends BaseContentService
 	/** The db handler we are using. */
 	protected ContentServiceSql contentServiceSql;
 
+	protected boolean convertToContextQueryForCollectionSize;
+	
+	/**
+	 * @param convertToContextQueryForCollectionSize the convertToContextQueryForCollectionSize to set
+	 */
+	public void setConvertToContextQueryForCollectionSize(boolean convertToContextQueryForCollectionSize) 
+	{
+		this.convertToContextQueryForCollectionSize = convertToContextQueryForCollectionSize;
+	}
+
 	public void setDatabaseBeans(Map databaseBeans)
 	{
 		this.databaseBeans = databaseBeans;
@@ -327,6 +347,12 @@ public class DbContentService extends BaseContentService
 		catch (Throwable t)
 		{
 			M_log.warn("init(): ", t);
+		}
+		
+		if(convertToContextQueryForCollectionSize)
+		{
+			addNewColumns();
+			populateNewColumns();
 		}
 	}
 
@@ -600,13 +626,17 @@ public class DbContentService extends BaseContentService
 					collectionUser, m_sqlService);
 
 			// build the resources store - a single level store
-			m_resourceStore = new BaseDbSingleStorage(m_resourceTableName, "RESOURCE_ID", (bodyInFile ? RESOURCE_FIELDS_FILE : RESOURCE_FIELDS),
+			m_resourceStore = new BaseDbSingleStorage(m_resourceTableName, "RESOURCE_ID", 
+					(bodyInFile ? (m_useContextQueryForCollectionSize? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_FILE) 
+							: (m_useContextQueryForCollectionSize? RESOURCE_FIELDS_CONTEXT : RESOURCE_FIELDS)),
 					m_locksInDb, "resource", resourceUser, m_sqlService);
 
 			// htripath-build the resource for store of deleted record-single
 			// level store
-			m_resourceDeleteStore = new BaseDbSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", (bodyInFile ? RESOURCE_FIELDS_FILE
-					: RESOURCE_FIELDS), m_locksInDb, "resource", resourceUser, m_sqlService);
+			m_resourceDeleteStore = new BaseDbSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", 
+					(bodyInFile ? (m_useContextQueryForCollectionSize? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_FILE) 
+							: (m_useContextQueryForCollectionSize? RESOURCE_FIELDS_CONTEXT : RESOURCE_FIELDS)),
+					m_locksInDb, "resource", resourceUser, m_sqlService);
 
 		} // DbStorage
 
@@ -2230,28 +2260,44 @@ public class DbContentService extends BaseContentService
 	
 	public boolean addNewColumns()
 	{
-		String sql1 = contentServiceSql.getAddFilesizeColumnSql();
+		String sql1 = contentServiceSql.getAddFilesizeColumnSql(m_resourceTableName);
 		boolean ok1 = m_sqlService.dbWrite(sql1);
-		String sql2 = contentServiceSql.getAddContextColumnSql();
+		String sql2 = contentServiceSql.getAddContextColumnSql(m_resourceTableName);
 		boolean ok2 = m_sqlService.dbWrite(sql2);
-		String sql3 = contentServiceSql.getAddContextIndexSql();
+		String sql3 = contentServiceSql.getAddContextIndexSql(m_resourceTableName);
 		boolean ok3 = m_sqlService.dbWrite(sql3);
+		String sql4 = contentServiceSql.getAddFilesizeColumnSql(m_resourceDeleteTableName);
+		boolean ok4 = m_sqlService.dbWrite(sql4);
+		String sql5 = contentServiceSql.getAddContextColumnSql(m_resourceDeleteTableName);
+		boolean ok5 = m_sqlService.dbWrite(sql5);
+		String sql6 = contentServiceSql.getAddContextIndexSql(m_resourceDeleteTableName);
+		boolean ok6 = m_sqlService.dbWrite(sql6);
 		
-		return (ok1 && ok2 && ok3);
+		System.out.println(m_resourceTableName + ": AddFilesizeColumn == " + ok1 + " AddContextColumn == " + ok2 + " AddContextIndex == " + ok3);
+		System.out.println(m_resourceDeleteTableName + ": AddFilesizeColumn == " + ok4 + " AddContextColumn == " + ok5 + " AddContextIndex == " + ok6);
+		
+		return (ok1 && ok2 && ok3 && ok4 && ok5 && ok6);
 	}
 	
 	public void populateNewColumns()
 	{
-		String sql = contentServiceSql.getAccessResourceIdAndXmlSql();
-		
-		m_sqlService.dbRead(sql, null, new ContextAndFilesizeReader());
+		String sql1 = contentServiceSql.getAccessResourceIdAndXmlSql(m_resourceTableName);
+		m_sqlService.dbRead(sql1, null, new ContextAndFilesizeReader(m_resourceTableName));
+		String sql2 = contentServiceSql.getAccessResourceIdAndXmlSql(m_resourceDeleteTableName);
+		m_sqlService.dbRead(sql2, null, new ContextAndFilesizeReader(m_resourceDeleteTableName));
 	}
 	
 
 	public class ContextAndFilesizeReader implements SqlReader
 	{
-		protected Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
-		protected Pattern filesizePattern = Pattern.compile(" content-length=\"(\\d+)\" ");
+		protected Pattern filesizePattern1 = Pattern.compile(" content-length=\"(\\d+)\" ");
+		protected Pattern filesizePattern2 = Pattern.compile("e\\s*DAV:getcontentlength\\s+(\\d+)\\s*e");
+		protected String table;
+		
+		public ContextAndFilesizeReader(String table)
+		{
+			this.table = table;
+		}
 		
 		public Object readSqlResultRecord(ResultSet result) 
 		{
@@ -2261,14 +2307,23 @@ public class DbContentService extends BaseContentService
 				String xml = result.getString(2);
 				String context = null;
 				int filesize = 0;
-				String sql = contentServiceSql.getContextFilesizeValuesSql();
+				String sql = contentServiceSql.getContextFilesizeValuesSql(table);
 				
 				Matcher contextMatcher = contextPattern.matcher(resourceId);
-				Matcher filesizeMatcher = filesizePattern.matcher(xml);
+				Matcher filesizeMatcher = filesizePattern2.matcher(xml);
+				if(! filesizeMatcher.find())
+				{
+					filesizeMatcher = filesizePattern1.matcher(xml);
+				}
 				
 				if(contextMatcher.find())
 				{
-					context = contextMatcher.group(1);
+					String root = contextMatcher.group(1);
+					context = contextMatcher.group(2);
+					if(! root.equals("group/"))
+					{
+						context = "~" + context;
+					}
 				}
 				if(filesizeMatcher.find())
 				{
@@ -2282,7 +2337,7 @@ public class DbContentService extends BaseContentService
 					}
 				}
 				
-				M_log.info("adding new fields: resourceId == \"" + resourceId + "\" context == \"" + context + "\" filesize == \"" + filesize + "\"");
+				M_log.info("adding new field values: resourceId == \"" + resourceId + "\" context == \"" + context + "\" filesize == \"" + filesize + "\"");
 				
 				// update the record
 				Object [] fields = new Object[3];

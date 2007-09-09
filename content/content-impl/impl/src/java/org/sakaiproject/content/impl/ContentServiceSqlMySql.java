@@ -29,24 +29,24 @@ public class ContentServiceSqlMySql extends ContentServiceSqlDefault
 	/**
 	 * returns the sql statement to add the FILE_SIZE column to the CONTENT_RESOURCE table.
 	 */
-	public String getAddFilesizeColumnSql()
+	public String getAddFilesizeColumnSql(String table)
 	{
-		return "alter table CONTENT_RESOURCE add FILE_SIZE BIGINT;";
+		return "alter table " + table + " add FILE_SIZE BIGINT;";
 	}
 
 	/**
 	 * returns the sql statement to add the CONTEXT column to the CONTENT_RESOURCE table.
 	 */
-	public String getAddContextColumnSql()
+	public String getAddContextColumnSql(String table)
 	{
-		return "alter table CONTENT_RESOURCE add CONTEXT VARCHAR(99);";
+		return "alter table " + table + " add CONTEXT VARCHAR(99);";
 	}
 
 	/**
 	 * returns the sql statement to add an index of the CONTENT column to the CONTENT_RESOURCE table.
 	 */
-	public String getAddContextIndexSql()
+	public String getAddContextIndexSql(String table)
 	{
-		return "create index  CONTENT_RESOURCE_CONTEXT_INDEX on CONTENT_RESOURCE (CONTEXT);";
+		return "create index " + table.trim() + "_CONTEXT_INDEX on " + table + " (CONTEXT);";
 	}
 }
