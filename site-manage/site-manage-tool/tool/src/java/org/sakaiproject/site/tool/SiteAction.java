@@ -73,6 +73,7 @@ import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
+import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.email.cover.EmailService;
@@ -8046,42 +8047,49 @@ public class SiteAction extends PagedResourceActionII {
 			for (Iterator i=providerCourseList.iterator(); i.hasNext();)
 			{
 				String providerCourseEid = (String) i.next();
-				Set enrollmentSets = cms.getEnrollmentSets(providerCourseEid);
-				if (enrollmentSets != null)
+				if (cms.isCourseOfferingDefined(providerCourseEid))
 				{
-					for (Iterator eSetsIterator = enrollmentSets.iterator();eSetsIterator.hasNext();)
+					Set enrollmentSets = cms.getEnrollmentSets(providerCourseEid);
+					if (enrollmentSets != null)
 					{
-						EnrollmentSet enrollmentSet = (EnrollmentSet) eSetsIterator.next();
-						if (enrollmentSet != null)
+						for (Iterator eSetsIterator = enrollmentSets.iterator();eSetsIterator.hasNext();)
 						{
-							Set enrollments = cms.getEnrollments(enrollmentSet.getEid());
-							for (Iterator eIterator = enrollments.iterator();eIterator.hasNext();)
+							EnrollmentSet enrollmentSet = (EnrollmentSet) eSetsIterator.next();
+							addParticipantsFromEnrollmentSet(participants, realm, providerCourseEid, enrollmentSet);
+						}
+					}
+				}
+				else if (cms.isSectionDefined(providerCourseEid))
+				{
+					EnrollmentSet enrollmentSet = cms.getSection(providerCourseEid).getEnrollmentSet();
+					addParticipantsFromEnrollmentSet(participants, realm, providerCourseEid, enrollmentSet);
+					// add memberships
+					Set memberships = cms.getSectionMemberships(providerCourseEid);
+					for (Iterator mIterator = memberships.iterator();mIterator.hasNext();)
+					{
+						Membership m = (Membership) mIterator.next();
+						try 
+						{
+							User user = UserDirectoryService.getUserByEid(m.getUserId());
+							Member member = realm.getMember(user.getId());
+							if (member != null && member.isProvided())
 							{
-								Enrollment e = (Enrollment) eIterator.next();
-								try 
-								{
-									User user = UserDirectoryService.getUserByEid(e.getUserId());
-									Member member = realm.getMember(user.getId());
-									if (member != null && member.isProvided())
-									{
-										// add provided participant
-										Participant participant = new Participant();
-										participant.credits = e.getCredits();
-										participant.name = user.getSortName();
-										participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
-										participant.regId = "";
-										participant.removeable = false;
-										participant.role = member.getRole()!=null?member.getRole().getId():"";
-										participant.section = cms.getSection(providerCourseEid).getTitle();
-										participant.uniqname = user.getId();
-										participants.add(participant);
-									}
-								} catch (UserNotDefinedException exception) {
-									// deal with missing user quietly without throwing a
-									// warning message
-									M_log.warn(exception.getMessage());
-								}
+								// add provided participant
+								Participant participant = new Participant();
+								participant.credits = "";
+								participant.name = user.getSortName();
+								participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
+								participant.regId = "";
+								participant.removeable = false;
+								participant.role = member.getRole()!=null?member.getRole().getId():"";
+								participant.section = cms.getSection(providerCourseEid).getTitle();
+								participant.uniqname = user.getId();
+								participants.add(participant);
 							}
+						} catch (UserNotDefinedException exception) {
+							// deal with missing user quietly without throwing a
+							// warning message
+							M_log.warn(exception.getMessage());
 						}
 					}
 				}
@@ -8113,6 +8121,40 @@ public class SiteAction extends PagedResourceActionII {
 			M_log.warn(this + "  IdUnusedException " + realmId);
 		}
 		return participants;
+	}
+
+	private void addParticipantsFromEnrollmentSet(Vector participants, AuthzGroup realm, String providerCourseEid, EnrollmentSet enrollmentSet) {
+		if (enrollmentSet != null)
+		{
+			Set enrollments = cms.getEnrollments(enrollmentSet.getEid());
+			for (Iterator eIterator = enrollments.iterator();eIterator.hasNext();)
+			{
+				Enrollment e = (Enrollment) eIterator.next();
+				try 
+				{
+					User user = UserDirectoryService.getUserByEid(e.getUserId());
+					Member member = realm.getMember(user.getId());
+					if (member != null && member.isProvided())
+					{
+						// add provided participant
+						Participant participant = new Participant();
+						participant.credits = e.getCredits();
+						participant.name = user.getSortName();
+						participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
+						participant.regId = "";
+						participant.removeable = false;
+						participant.role = member.getRole()!=null?member.getRole().getId():"";
+						participant.section = cms.getSection(providerCourseEid).getTitle();
+						participant.uniqname = user.getId();
+						participants.add(participant);
+					}
+				} catch (UserNotDefinedException exception) {
+					// deal with missing user quietly without throwing a
+					// warning message
+					M_log.warn(exception.getMessage());
+				}
+			}
+		}
 	}
 
 	/**
