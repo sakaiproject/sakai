@@ -358,10 +358,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	}
 
 	/** Configuration: Do we protect attachments in sites with the site AuthZGroup. */
-	// TODO: Make sure to set this to true before the 2.5 release
-	// To be upwards compatible for 2.4 releases - this must be false but
-	// it should be set to true for 2.5 - Chuck - Sat Jul 14 10:59:35 EDT 2007
-	protected boolean m_siteAttachments = false; // Default to true
+	protected boolean m_siteAttachments = true; // Default to true for Sakai 2.5 and later
 
 	/**
 	 * Configuration: Do we protect attachments in sites with the site AuthZGroup. 
