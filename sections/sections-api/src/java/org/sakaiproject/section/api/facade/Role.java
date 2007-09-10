@@ -112,7 +112,7 @@ public class Role implements Serializable {
      * @return a String description of this object.
      */
     public String toString() {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         result.append("Role[");
         result.append("name=").append(getName());
         result.append(", ");

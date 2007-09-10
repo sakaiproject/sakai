@@ -38,7 +38,7 @@ public class EntryServlet extends HttpServlet {
         boolean viewAllSections = authzService.isViewAllSectionsAllowed(userUid, siteContext);
         boolean viewOwnSections = authzService.isViewOwnSectionsAllowed(userUid, siteContext);
 
-        StringBuffer path = new StringBuffer(request.getContextPath());
+        StringBuilder path = new StringBuilder(request.getContextPath());
         if(viewAllSections) {
             if(log.isDebugEnabled()) log.debug("Sending user to the overview page");
             path.append("/overview.jsf");

@@ -92,7 +92,7 @@ public class HtmlSortHeaderRenderer extends HtmlLinkRendererBase {
             	if (StringUtils.indexOf(styleClass, unStyleClass) != -1) {
             		styleClass = StringUtils.replace(styleClass, unStyleClass, newStyleClass);
             	} else if (styleClass != null) {
-            		styleClass = (new StringBuffer(styleClass)).append(' ').append(newStyleClass).toString();
+            		styleClass = (new StringBuilder(styleClass)).append(' ').append(newStyleClass).toString();
             	} else {
             		styleClass = newStyleClass;
             	}

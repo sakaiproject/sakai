@@ -115,7 +115,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 		Course course = getCourse();
 		
 		sections = new ArrayList<CourseSection>();
-		StringBuffer rowClasses = new StringBuffer();
+		StringBuilder rowClasses = new StringBuilder();
 		if(StringUtils.trimToNull(category) != null) {
 			if(log.isDebugEnabled()) log.debug("populating sections");
 			String categoryName = getCategoryName(category);
@@ -166,7 +166,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 
 		// Validation passed, so save the new sections
 		String courseUuid = getCourse().getUuid();
-		StringBuffer titles = new StringBuffer();
+		StringBuilder titles = new StringBuilder();
 		String sepChar = JsfUtil.getLocalizedMessage("section_separator");
 		
 		for(Iterator iter = sections.iterator(); iter.hasNext();) {

@@ -140,7 +140,7 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 				return null;
 			}
 		}
-		StringBuffer titles = new StringBuffer();
+		StringBuilder titles = new StringBuilder();
 		titles.append(sectionTitle);
 		if(StringUtils.trimToNull(availableSectionUuid) != null) {
 			titles.append(" ");

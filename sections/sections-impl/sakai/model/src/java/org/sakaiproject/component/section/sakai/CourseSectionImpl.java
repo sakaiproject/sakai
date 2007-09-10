@@ -288,7 +288,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     	}
     	
     	// Add the properties that containing the meeting metadata
-    	StringBuffer locationBuffer = new StringBuffer();
+    	StringBuilder locationBuffer = new StringBuilder();
 
     	// Ensure that we've got a meetings object
     	if(meetings == null) {
@@ -312,7 +312,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.LOCATION + " to " + locationBuffer.toString());
     	props.addProperty(CourseSectionImpl.LOCATION, locationBuffer.toString());
 
-    	StringBuffer startTimeBuffer = new StringBuffer();
+    	StringBuilder startTimeBuffer = new StringBuilder();
     	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
     		Meeting meeting = (Meeting)iter.next();
     		Time meetingStart = meeting.getStartTime();
@@ -326,7 +326,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.START_TIME + " to " + startTimeBuffer.toString());
     	props.addProperty(CourseSectionImpl.START_TIME, startTimeBuffer.toString());
 
-    	StringBuffer endTimeBuffer = new StringBuffer();
+    	StringBuilder endTimeBuffer = new StringBuilder();
     	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
     		Meeting meeting = (Meeting)iter.next();
     		Time meetingEnd = meeting.getEndTime();
@@ -340,7 +340,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.END_TIME + " to " + endTimeBuffer.toString());
     	props.addProperty(CourseSectionImpl.END_TIME, endTimeBuffer.toString());
     		
-    	StringBuffer mondayBuffer = new StringBuffer();
+    	StringBuilder mondayBuffer = new StringBuilder();
     	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
     		Meeting meeting = (Meeting)iter.next();
         	mondayBuffer.append(meeting.isMonday());
@@ -351,7 +351,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.MONDAY + " to " + mondayBuffer.toString());
     	props.addProperty(CourseSectionImpl.MONDAY, mondayBuffer.toString());
 
-    	StringBuffer tuesdayBuffer = new StringBuffer();
+    	StringBuilder tuesdayBuffer = new StringBuilder();
     	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
     		Meeting meeting = (Meeting)iter.next();
         	tuesdayBuffer.append(meeting.isTuesday());
@@ -362,7 +362,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.TUESDAY + " to " + tuesdayBuffer.toString());
     	props.addProperty(CourseSectionImpl.TUESDAY, tuesdayBuffer.toString());
 
-    	StringBuffer wednesdayBuffer = new StringBuffer();
+    	StringBuilder wednesdayBuffer = new StringBuilder();
     	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
     		Meeting meeting = (Meeting)iter.next();
         	wednesdayBuffer.append(Boolean.valueOf(meeting.isWednesday()));
@@ -373,7 +373,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.WEDNESDAY + " to " + wednesdayBuffer.toString());
     	props.addProperty(CourseSectionImpl.WEDNESDAY, wednesdayBuffer.toString());
 
-    	StringBuffer thursdayBuffer = new StringBuffer();
+    	StringBuilder thursdayBuffer = new StringBuilder();
     	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
     		Meeting meeting = (Meeting)iter.next();
         	thursdayBuffer.append(Boolean.valueOf(meeting.isThursday()));
@@ -384,7 +384,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.THURSDAY + " to " + thursdayBuffer.toString());
     	props.addProperty(CourseSectionImpl.THURSDAY, thursdayBuffer.toString());
 
-    	StringBuffer fridayBuffer = new StringBuffer();
+    	StringBuilder fridayBuffer = new StringBuilder();
     	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
     		Meeting meeting = (Meeting)iter.next();
         	fridayBuffer.append(Boolean.valueOf(meeting.isFriday()));
@@ -395,7 +395,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.FRIDAY + " to " + fridayBuffer.toString());
     	props.addProperty(CourseSectionImpl.FRIDAY, fridayBuffer.toString());
     	
-    	StringBuffer saturdayBuffer = new StringBuffer();
+    	StringBuilder saturdayBuffer = new StringBuilder();
     	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
     		Meeting meeting = (Meeting)iter.next();
         	saturdayBuffer.append(Boolean.valueOf(meeting.isSaturday()));
@@ -406,7 +406,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     	if(log.isDebugEnabled()) log.debug("Setting group property " + CourseSectionImpl.SATURDAY+ " to " + saturdayBuffer.toString());
     	props.addProperty(CourseSectionImpl.SATURDAY, saturdayBuffer.toString());
 
-    	StringBuffer sundayBuffer = new StringBuffer();
+    	StringBuilder sundayBuffer = new StringBuilder();
     	for(Iterator iter = meetings.iterator(); iter.hasNext();) {
     		Meeting meeting = (Meeting)iter.next();
         	sundayBuffer.append(Boolean.valueOf(meeting.isSunday()));

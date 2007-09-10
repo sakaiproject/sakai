@@ -235,7 +235,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
      * @return A string that sorts in the order of the meetings' days of the week.
      */
     private static final String generateSortableDayString(MeetingDecorator meeting) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if(meeting.isMonday()) {
             sb.append("a");
         }
@@ -475,7 +475,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
         public String getTimes() {
             String timeSepChar = JsfUtil.getLocalizedMessage("time_sep_char");
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             // Start time
             DateFormat df = new SimpleDateFormat("h:mm a");
@@ -500,7 +500,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
         public String getAbbreviatedDays() {
             String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             for(Iterator iter = getAbbreviatedDayList().iterator(); iter.hasNext();) {
                 String day = (String)iter.next();
                 sb.append(JsfUtil.getLocalizedMessage(day));
@@ -515,7 +515,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
         public String getDays() {
             String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             for(Iterator iter = getDayList().iterator(); iter.hasNext();) {
                 String day = (String)iter.next();
                 sb.append(JsfUtil.getLocalizedMessage(day));
