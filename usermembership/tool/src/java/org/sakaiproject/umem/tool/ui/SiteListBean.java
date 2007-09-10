@@ -374,7 +374,7 @@ public class SiteListBean {
 	 * @return A String with group list.
 	 */
 	private String getGroups2(String userId, String siteId) {
-		StringBuffer groups = new StringBuffer();
+		StringBuilder groups = new StringBuilder();
 		try{
 			Connection c = M_sql.borrowConnection();
 			String sql = "select TITLE " + "from SAKAI_SITE_GROUP,SAKAI_REALM,SAKAI_REALM_RL_GR " + "where SITE_ID=? "
@@ -406,7 +406,7 @@ public class SiteListBean {
 	 */
 	public String getGroups(String userId, Site site) {
 		long start = (new Date()).getTime();
-		StringBuffer groups = new StringBuffer();
+		StringBuilder groups = new StringBuilder();
 		Iterator ig = site.getGroupsWithMember(userId).iterator();
 		while (ig.hasNext()){
 			Group g = (Group) ig.next();
@@ -421,7 +421,7 @@ public class SiteListBean {
 	
 	public String getGroups(String userId, String siteId) {
 		long start = (new Date()).getTime();
-		StringBuffer groups = new StringBuffer();
+		StringBuilder groups = new StringBuilder();
 		String siteReference = M_site.siteReference(siteId);
 		try{
 			Connection c = M_sql.borrowConnection();
@@ -559,7 +559,7 @@ public class SiteListBean {
 	}
 
 	private String getAsCsv(List list) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		// Add the headers
 		Export.appendQuoted(sb, msgs.getString("site_name"));

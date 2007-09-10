@@ -71,7 +71,7 @@ public class Export {
 		stateManager.saveSerializedView(faces);
 	}
 
-	public static StringBuffer appendQuoted(StringBuffer sb, String toQuote) {
+	public static StringBuilder appendQuoted(StringBuilder sb, String toQuote) {
 		if(toQuote == null){
 			;
 		}else if((toQuote.indexOf(',') >= 0) || (toQuote.indexOf('"') >= 0)){
@@ -92,7 +92,7 @@ public class Export {
 	public static String getFileName(String prefix) {
 		Date now = new Date();
 		DateFormat df = new SimpleDateFormat(msgs.getString("export_filename_date_format"));
-		StringBuffer fileName = new StringBuffer(prefix);
+		StringBuilder fileName = new StringBuilder(prefix);
 		fileName.append("-");
 		fileName.append(df.format(now));
 		return fileName.toString();

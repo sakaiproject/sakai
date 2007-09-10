@@ -603,7 +603,7 @@ public class UserListBean {
 	}
 
 	private String getAsCsv(List list) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		// Add the headers
 		Export.appendQuoted(sb, msgs.getString("user_id"));
