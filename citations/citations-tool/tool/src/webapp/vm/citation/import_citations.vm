@@ -35,20 +35,29 @@ directions here
 <form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post" 
 	  enctype="multipart/form-data" >
     <input name="sakai_action" id="sakai_action" value="" type="hidden" />
-	<input type="button" value="Import" name="import1" 
-	       onclick="document.getElementById('sakai_action').value='doImport';submitform('$FORM_NAME');"/>
-	<input type="button" value="Cancel" name="cancel1" type="button" 
+	<input type="button" value="Import" id="import1"
+	       onclick="importCitations('$FORM_NAME');"/>
+	<input type="button" value="Cancel" id="cancel1" type="button" 
 	       onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>
 	<p />
-	Import File From: <input name="risupload" type="file" />
-	<p />
-	Import RIS Formatted Data from the Following Text:
-	<p />
-	<textarea cols="80" rows="4" name="ristext"></textarea>
-	<p />
-	<input type="button" value="Import" name="import2" 
-	       onclick="document.getElementById('sakai_action').value='doImport';submitform('$FORM_NAME');"/>
-	<input type="button" value="Cancel" name="cancel2" type="button"
-	       onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>
+	<span id="risFileUpload">
+	Import File From: <input name="risupload" id="risupload" type="file" /> 
+	</span>
+	<span id="importingMessage" style="display: none;">
+	  <img src="/library/image/sakai/spinner.gif" alt="importing"> 
+      Importing
+	</span>
 
+	<p />
+	<span id="risTextUpload">
+  	  Import RIS Formatted Data from the Following Text:
+	  <p />
+	  <textarea cols="80" rows="4" name="ristext" id="ristext"></textarea>
+	</span>
+    <p />
+	<input type="button" value="Import" id="import2"
+	       onclick="importCitations('$FORM_NAME');"/>
+	<input type="button" value="Cancel" id="cancel2" type="button"
+	       onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>
+	
 </form>
