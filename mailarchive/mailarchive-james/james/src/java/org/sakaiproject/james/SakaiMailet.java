@@ -312,8 +312,8 @@ public class SakaiMailet extends GenericMailet
 						attachments = EntityManager.newReferenceList();
 						try
 						{
-							StringBuffer bodyBuf = new StringBuffer();
-							StringBuffer bodyContentType = new StringBuffer();
+							StringBuilder bodyBuf = new StringBuilder();
+							StringBuilder bodyContentType = new StringBuilder();
 							Integer embedCount = parseParts(msg, id, bodyBuf, bodyContentType, attachments, new Integer(-1));
 							body = bodyBuf.toString();
 							// treat the message exactly as-is - as plaintext. Stuff like "<b>" will appear
@@ -489,7 +489,7 @@ public class SakaiMailet extends GenericMailet
 	 *        An Integer that counts embedded messages (outer message is zero).
 	 * @return Value of embedCount (updated if this call processed any embedded messages).
 	 */
-	protected Integer parseParts(Part p, String id, StringBuffer bodyBuf, StringBuffer bodyContentType, List attachments,
+	protected Integer parseParts(Part p, String id, StringBuilder bodyBuf, StringBuilder bodyContentType, List attachments,
 			Integer embedCount) throws MessagingException, IOException
 	{
 		String closing = "";
@@ -676,7 +676,7 @@ public class SakaiMailet extends GenericMailet
 	 * @param embedCount
 	 *        An Integer that counts embedded messages (Outer message is zero).
 	 */
-	protected void parseEnvelope(Message innerMsg, String id, StringBuffer bodyBuf, List attachments, Integer embedCount)
+	protected void parseEnvelope(Message innerMsg, String id, StringBuilder bodyBuf, List attachments, Integer embedCount)
 			throws MessagingException, IOException
 	{
 		Address[] innerFroms = innerMsg.getFrom();

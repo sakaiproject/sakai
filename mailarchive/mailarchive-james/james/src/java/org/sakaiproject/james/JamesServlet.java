@@ -178,7 +178,7 @@ public class JamesServlet extends HttpServlet
 			// read the config file
 			File f = new File(m_phoenixHome + "/apps/james/SAR-INF/config.xml");
 			BufferedReader input = new BufferedReader(new FileReader(f));
-			StringBuffer contents = new StringBuffer();
+			StringBuilder contents = new StringBuilder();
 			String line = null;
 			while ((line = input.readLine()) != null)
 			{
@@ -255,7 +255,7 @@ public class JamesServlet extends HttpServlet
 			// read the environment file
 			File f = new File(m_phoenixHome + "/apps/james/SAR-INF/environment.xml");
 			BufferedReader input = new BufferedReader(new FileReader(f));
-			StringBuffer contents = new StringBuffer();
+			StringBuilder contents = new StringBuilder();
 			String line = null;
 			while ((line = input.readLine()) != null)
 			{

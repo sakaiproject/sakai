@@ -144,7 +144,7 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 
 	@Override
 	protected String htmlContent() {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 
 		// get the message
 		Reference ref = EntityManager.newReference(event.getResource());
@@ -197,7 +197,7 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 
 	@Override
 	protected String plainTextContent() {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 
 		// get the message
 		Reference ref = EntityManager.newReference(event.getResource());
