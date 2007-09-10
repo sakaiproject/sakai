@@ -1119,7 +1119,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 						}
 						else
 						{
-							StringBuffer buf = new StringBuffer();
+							StringBuilder buf = new StringBuilder();
 							for (int i = 0; i < values.length; i++)
 							{
 								buf.append(values[i] + "^");
@@ -1547,7 +1547,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 	{
 		// prepare the buffer for the results log
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		// start with an element with our very own (service) name
 		Element element = doc.createElement(CalendarService.class.getName());
@@ -1608,7 +1608,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		Map ids = new HashMap();
 
 		// prepare the buffer for the results log
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		// get the channel associated with this site
 		String calendarRef = calendarReference(siteId, SiteService.MAIN_CONTAINER);

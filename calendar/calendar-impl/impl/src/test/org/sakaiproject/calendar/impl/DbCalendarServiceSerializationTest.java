@@ -187,7 +187,7 @@ public class DbCalendarServiceSerializationTest extends TestCase
 				
 			}
 
-			public Connection dbReadLock(String sql, StringBuffer field)
+			public Connection dbReadLock(String sql, StringBuilder field)
 			{
 				// TODO Auto-generated method stub
 				return null;

@@ -232,7 +232,7 @@ public class DbCalendarService
 			if ( M_log.isErrorEnabled() ) {
 				M_log.debug("Selecting Range from "+(new Date(startDate)).toGMTString()+" to "+(new Date(endDate)).toGMTString());
 			}
-            StringBuffer filter = new StringBuffer("(");
+            StringBuilder filter = new StringBuilder("(");
             filter.append(" (RANGE_START > ");
             filter.append( startDateHours );
             filter.append( " and RANGE_START < ");

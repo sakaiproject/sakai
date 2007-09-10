@@ -409,7 +409,7 @@ class CalendarFilter
 	public boolean setStartAndEndListViewDates(
 		String startingDateStr,
 		String endingDateStr,
-		StringBuffer errorMessage)
+		StringBuilder errorMessage)
 	{
 		Date startDate, endDate;
 

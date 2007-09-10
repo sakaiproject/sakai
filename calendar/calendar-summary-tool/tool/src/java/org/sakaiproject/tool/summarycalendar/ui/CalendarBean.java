@@ -743,7 +743,7 @@ public class CalendarBean {
 				if(M_as.unlock("calendar.all.groups", "/site/"+calendar.getContext())){
 					Collection grps = event.getGroupObjects();
 					if(grps.size() > 0){
-						StringBuffer sb = new StringBuffer();
+						StringBuilder sb = new StringBuilder();
 						Iterator gi = grps.iterator();
 						while(gi.hasNext()){
 							Group g = (Group) gi.next();
@@ -766,7 +766,7 @@ public class CalendarBean {
 	}
 	
 	private String buildEventUrl(Site site, String eventRef) {
-		StringBuffer url = new StringBuffer();
+		StringBuilder url = new StringBuilder();
 		ToolConfiguration tc = site.getToolForCommonId(SCHEDULE_TOOL_ID);
 		if(tc != null) {
 			url.append(ServerConfigurationService.getPortalUrl());

@@ -845,7 +845,7 @@ extends VelocityPortletStateAction
 		 */
 		public String trimFormattedText(String formattedText, int maxNumOfChars)
 		{
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			FormattedText.trimFormattedText(formattedText, maxNumOfChars, sb);
 			return sb.toString();
 		}
@@ -1261,7 +1261,7 @@ extends VelocityPortletStateAction
 				
 				Calendar calendarObj = null;
 				
-				StringBuffer exceptionMessage = new StringBuffer();
+				StringBuilder exceptionMessage = new StringBuilder();
 				
 				String calId = state.getPrimaryCalendarReference();
 				try
@@ -1532,7 +1532,7 @@ extends VelocityPortletStateAction
 					addfields = addfields.substring(ADDFIELDS_DELIMITER.length());
 				}
 				
-				StringBuffer exceptionMessage = new StringBuffer();
+				StringBuilder exceptionMessage = new StringBuilder();
 				
 				String calId = state.getPrimaryCalendarReference();
 				try
@@ -2137,7 +2137,7 @@ extends VelocityPortletStateAction
 		context.put("wizardImportedEvents", state.getWizardImportedEvents());
 		
 		String calId = state.getPrimaryCalendarReference();
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		try
 		{
 			Calendar calendarObj = CalendarService.getCalendar(calId);
@@ -2282,7 +2282,7 @@ extends VelocityPortletStateAction
 		dateObj1 = new MyDate();
 		boolean getEventsFlag = false;
 		
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		
 		List attachments = state.getAttachments();
 		
@@ -2505,7 +2505,7 @@ extends VelocityPortletStateAction
 		MyDate dateObj1 = null;
 		dateObj1 = new MyDate();
 		
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
@@ -2687,7 +2687,7 @@ extends VelocityPortletStateAction
 		monthObj1 = new MyMonth();
 		dayObj = new MyDay();
 		dateObj1 = new MyDate();
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		
 		int month = 1;
 		int col = 3;
@@ -2816,7 +2816,7 @@ extends VelocityPortletStateAction
 		MyMonth monthObj2 = null;
 		
 		MyDate dateObj1 = null;
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		CalendarEventVector CalendarEventVectorObj = null;
 		
 		dateObj1 = new MyDate();
@@ -3052,7 +3052,7 @@ extends VelocityPortletStateAction
 		Calendar calendarObj = null;
 		boolean allowed = false;
 		MyDate dateObj1 = null;
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		CalendarEventVector CalendarEventVectorObj = null;
 		
 		String peid = ((JetspeedRunData)runData).getJs_peid();
@@ -3292,7 +3292,7 @@ extends VelocityPortletStateAction
 		dayObj.setDay(calObj.getDayOfMonth());
 		String calId = state.getPrimaryCalendarReference();
 		
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		
 		// this loop will move the calendar to the begining of the week
 		
@@ -3528,7 +3528,7 @@ extends VelocityPortletStateAction
 		
 		String calId = state.getPrimaryCalendarReference();
 		Calendar calendarObj = null;
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		
 		try
 		{
@@ -3671,7 +3671,7 @@ extends VelocityPortletStateAction
 		
 		Calendar calendarObj = null;
 		CalendarEvent calEvent = null;
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		
 		// get the event id from the CalendarService.
 		// send the event to the vm
@@ -3731,7 +3731,7 @@ extends VelocityPortletStateAction
 		Time startTime = null;
 		Time endTime = null;
 		TimeRange timeRange = null;
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		
 		// new objects of myYear, myMonth, myDay, myWeek classes.
 		monthObj = new MyMonth();
@@ -3923,7 +3923,7 @@ extends VelocityPortletStateAction
 		if (intentionStr == null) intentionStr = "";
 		
 		Calendar calendarObj = null;
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		
 		String calId = State.getPrimaryCalendarReference();
 		try
@@ -4607,7 +4607,7 @@ extends VelocityPortletStateAction
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
 		
 		Calendar calendarObj = null;
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		String currentState = state.getState();
 		String returnState = state.getReturnState();
 		
@@ -4693,7 +4693,7 @@ extends VelocityPortletStateAction
 		
 		Calendar calendarObj = null;
 		String calId = state.getPrimaryCalendarReference();
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		
 		try
 		{
@@ -4734,7 +4734,7 @@ extends VelocityPortletStateAction
 		CalendarEvent calendarEventObj = null;
 		Calendar calendarObj = null;
 		String calId = state.getPrimaryCalendarReference();
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		
 		try
 		{
@@ -4811,7 +4811,7 @@ extends VelocityPortletStateAction
 		int intention = CalendarService.MOD_NA;
 		if ("t".equals(intentionStr)) intention = CalendarService.MOD_THIS;
 
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		
 		String calId = state.getPrimaryCalendarReference();
 		
@@ -4982,7 +4982,7 @@ extends VelocityPortletStateAction
 		String endingDateStr   = eM + "/" + eD + "/" + eY;
 		
 		// Pass in a buffer for a possible error message.
-		StringBuffer errorMessage = new StringBuffer();
+		StringBuilder errorMessage = new StringBuilder();
 		
 		// Try to simultaneously set the start/end dates.
 		// If that doesn't work, add an error message.
@@ -5040,7 +5040,7 @@ extends VelocityPortletStateAction
 		
 		CalendarUtil m_calObj = new CalendarUtil();
 		
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		String id = state.getCalendarEventId();
 		
 		String calId = state.getPrimaryCalendarReference();
@@ -5464,7 +5464,7 @@ extends VelocityPortletStateAction
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
 		
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		
 		Time m_time = TimeService.newTime();
 		TimeBreakdown b = m_time.breakdownLocal();
@@ -5827,7 +5827,7 @@ extends VelocityPortletStateAction
 				int houri;
 				Calendar calendarObj = null;
 				
-				StringBuffer exceptionMessage = new StringBuffer();
+				StringBuilder exceptionMessage = new StringBuilder();
 				
 				String hour = "";
 				hour = runData.getParameters().getString("startHour");
@@ -6527,7 +6527,7 @@ extends VelocityPortletStateAction
 		sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
 		
 		// Pass in a buffer for a possible error message.
-		StringBuffer errorMessage = new StringBuffer();
+		StringBuilder errorMessage = new StringBuilder();
 		
 		// Try to simultaneously set the start/end dates.
 		// If that doesn't work, add an error message.
@@ -6595,7 +6595,7 @@ extends VelocityPortletStateAction
 		context.put("tlang",rb);
 		MyMonth monthObj2 = null;
 		MyDate dateObj1 = new MyDate();
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		CalendarEventVector calendarEventVectorObj = null;
 		boolean allowed = false;
 		LinkedHashMap yearMap = new LinkedHashMap();
@@ -7360,7 +7360,7 @@ extends VelocityPortletStateAction
 		String intentionStr = rundata.getParameters().getString("intention");
 		if (intentionStr == null) intentionStr = "";
 		
-		StringBuffer exceptionMessage = new StringBuffer();
+		StringBuilder exceptionMessage = new StringBuilder();
 		
 		try
 		{
@@ -7623,7 +7623,7 @@ extends VelocityPortletStateAction
 	  */
 	 protected String arrayToString(String[] array, String separators)
 	 {
-		 StringBuffer sb = new StringBuffer("");
+		 StringBuilder sb = new StringBuilder("");
 		 String empty = "";
         
 		 if (array == null)
@@ -7656,7 +7656,7 @@ extends VelocityPortletStateAction
 	 */
 	private String processFormattedTextFromBrowser(SessionState state, String strFromBrowser)
 	{
-		StringBuffer alertMsg = new StringBuffer();
+		StringBuilder alertMsg = new StringBuilder();
 		try
 		{
 			String text = FormattedText.processFormattedText(strFromBrowser, alertMsg);

@@ -81,7 +81,7 @@ public class Day implements Serializable {
 	}
 
 	public String getStyleClass() {
-		StringBuffer buff = new StringBuffer();
+		StringBuilder buff = new StringBuilder();
 		if(isToday) buff.append(" " + STYLE_TODAY + " ");
 		if(occursInOtherMonth && !hasEvents) buff.append(" " + STYLE_OTHER_WITHOUT_ACTIVITY + " ");
 		else{

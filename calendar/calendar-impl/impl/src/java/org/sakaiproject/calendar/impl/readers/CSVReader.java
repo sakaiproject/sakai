@@ -143,7 +143,7 @@ public class CSVReader extends Reader
 	 */
 	private String getHexStringForDelimiter()
 	{
-		StringBuffer delimiter = new StringBuffer();
+		StringBuilder delimiter = new StringBuilder();
 		
 		for ( int i=0; i < columnDelimiter.length(); i++)
 		{
