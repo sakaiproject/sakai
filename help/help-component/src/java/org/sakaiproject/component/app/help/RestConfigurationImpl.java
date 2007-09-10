@@ -185,7 +185,7 @@ public class RestConfigurationImpl implements RestConfiguration
     }
 
     URL url = null;
-    StringBuffer sBuffer = new StringBuffer();
+    StringBuilder sBuffer = new StringBuilder();
     BufferedReader br = null;
     try
     {

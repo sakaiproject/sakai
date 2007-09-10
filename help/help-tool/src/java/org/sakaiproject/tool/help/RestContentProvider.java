@@ -332,13 +332,13 @@ public class RestContentProvider
    * @return
    */
   private static Document getTransformedDocument(ServletContext context,
-      StringBuffer sBuffer)
+      StringBuilder sBuffer)
   {
 
     if (LOG.isDebugEnabled())
     {
       LOG.debug("getTransformedDocument(ServletContext " + context
-          + ", StringBuffer " + sBuffer + ")");
+          + ", StringBuilder " + sBuffer + ")");
     }
 
     initializeXsl(context);
@@ -434,7 +434,7 @@ public class RestContentProvider
 
       urlConnection.setRequestProperty("Authorization", "Basic " + encoding);
 
-      StringBuffer sBuffer = new StringBuffer();
+      StringBuilder sBuffer = new StringBuilder();
 
       BufferedReader br = new BufferedReader(
               new InputStreamReader(urlConnection.getInputStream(),"UTF-8"), 512);

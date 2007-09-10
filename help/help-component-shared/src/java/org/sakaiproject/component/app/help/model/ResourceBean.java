@@ -232,7 +232,7 @@ public class ResourceBean implements Resource, Comparable
    */
   private String businessKey()
   {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     sb.append(docId);
     return sb.toString();
   }
@@ -261,7 +261,7 @@ public class ResourceBean implements Resource, Comparable
    */
   public String toString()
   {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     sb.append("docId=");
     sb.append(docId);
     sb.append(", name=");

@@ -152,7 +152,7 @@ public class HelpFrameSetRender extends Renderer
 
 	  // Build localized welcome page
       URL urlResource = null;
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       sb.append(page.substring(0, page.lastIndexOf(".")));
       sb.append("_");
       sb.append(getSelectedLocale().toString());

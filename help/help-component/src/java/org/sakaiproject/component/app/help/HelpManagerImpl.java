@@ -483,7 +483,7 @@ public List getActiveContexts(Map session)
 
     URL urlResource;
     URLConnection urlConnection = null;
-    StringBuffer sBuffer = new StringBuffer();
+    StringBuilder sBuffer = new StringBuilder();
     if (resource.getLocation() == null || resource.getLocation().startsWith("/"))
     {
       // handle REST content
@@ -499,7 +499,7 @@ public List getActiveContexts(Map session)
 
         urlConnection.setRequestProperty("Authorization", "Basic " + encoding);
 
-        sBuffer = new StringBuffer();
+        sBuffer = new StringBuilder();
 
         BufferedReader br = new BufferedReader(new InputStreamReader(
             urlConnection.getInputStream()), 512);
