@@ -628,10 +628,21 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		// make the cache
 		if (m_caching)
 		{
-			m_assignmentCache = m_memoryService.newCache(new AssignmentCacheRefresher(), assignmentReference(null, ""));
-			m_contentCache = m_memoryService.newCache(new AssignmentContentCacheRefresher(), contentReference(null, ""));
-			m_submissionCache = m_memoryService.newCache(new AssignmentSubmissionCacheRefresher(),
-					submissionReference(null, "", ""));
+			m_assignmentCache = m_memoryService
+					.newCache(
+							"org.sakaiproject.assignment.api.AssignmentService.assignmentCache",
+							new AssignmentCacheRefresher(),
+							assignmentReference(null, ""));
+			m_contentCache = m_memoryService
+					.newCache(
+							"org.sakaiproject.assignment.api.AssignmentService.contentCache",
+							new AssignmentContentCacheRefresher(),
+							contentReference(null, ""));
+			m_submissionCache = m_memoryService
+					.newCache(
+							"org.sakaiproject.assignment.api.AssignmentService.submissionCache",
+							new AssignmentSubmissionCacheRefresher(),
+							submissionReference(null, "", ""));
 		}
 
 		// register as an entity producer
