@@ -5114,7 +5114,7 @@ public class SiteAction extends PagedResourceActionII {
 			int requestListSize, List requestFields, String fromContext) {
 		User cUser = UserDirectoryService.getCurrentUser();
 		boolean sendEmailToRequestee = false;
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
@@ -5326,7 +5326,7 @@ public class SiteAction extends PagedResourceActionII {
 
 	} // sendSiteRequest
 
-	private void addRequestedSectionIntoNotification(SessionState state, List requestFields, StringBuffer buf) {
+	private void addRequestedSectionIntoNotification(SessionState state, List requestFields, StringBuilder buf) {
 		// what are the required fields shown in the UI
 		List requiredFields = state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS) != null ?(List) state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS):new Vector();
 		for (int i = 0; i < requiredFields.size(); i++) {
@@ -5342,7 +5342,7 @@ public class SiteAction extends PagedResourceActionII {
 		}
 	}
 	
-	private void addRequestedCMSectionIntoNotification(SessionState state, List cmRequestedSections, StringBuffer buf) {
+	private void addRequestedCMSectionIntoNotification(SessionState state, List cmRequestedSections, StringBuilder buf) {
 		// what are the required fields shown in the UI
 		for (int i = 0; i < cmRequestedSections.size(); i++) {
 			SectionObject so = (SectionObject) cmRequestedSections.get(i);
@@ -5356,7 +5356,7 @@ public class SiteAction extends PagedResourceActionII {
 			List<SectionObject> cmRequestedSections) {
 		User cUser = UserDirectoryService.getCurrentUser();
 		boolean sendEmailToRequestee = false;
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
@@ -5622,7 +5622,7 @@ public class SiteAction extends PagedResourceActionII {
 			to = requestEmail;
 			headerTo = requestEmail;
 			replyTo = UserDirectoryService.getCurrentUser().getEmail();
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			buf.append("\n" + rb.getString("java.fromwork") + " "
 					+ ServerConfigurationService.getServerName() + " "
 					+ rb.getString("java.supp") + ":\n\n");
@@ -9651,7 +9651,7 @@ public class SiteAction extends PagedResourceActionII {
 		String content = "";
 
 		if (from != null && newUserEmail != null) {
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			buf.setLength(0);
 
 			// email body
@@ -9702,7 +9702,7 @@ public class SiteAction extends PagedResourceActionII {
 			String message_subject = productionSiteName + " "
 					+ rb.getString("java.sitenoti");
 			String content = "";
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			buf.setLength(0);
 
 			// email body differs between newly added emailInIdAccount account
@@ -9757,7 +9757,7 @@ public class SiteAction extends PagedResourceActionII {
 		// return the list of user eids for successfully added user
 		List addedUserEIds = new Vector();
 
-		StringBuffer message = new StringBuffer();
+		StringBuilder message = new StringBuilder();
 
 		if (eIdRoles != null && !eIdRoles.isEmpty()) {
 			// get the current site
