@@ -1046,11 +1046,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		
 		String sort = (String) state.getAttribute("sort");
 		
-		if (sort == null)
-			sort = CitationCollection.SORT_BY_DEFAULT_ORDER;
+		if (sort == null  || sort.trim().length() == 0)
+			sort = collection.getSort();
 		
 		context.put("sort", sort);
-		state.removeAttribute("sort");
 
 		return TEMPLATE_LIST;
 
@@ -1577,6 +1576,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 
 		cleanup(toolSession, CitationHelper.CITATION_PREFIX);
+		
+		// Remove session sort
+		state.removeAttribute("sort");
+		
+		// Remove session collection
+		state.removeAttribute(STATE_COLLECTION_ID);
+		state.removeAttribute(STATE_COLLECTION);
 
 	}	// doFinish
 
@@ -3335,7 +3341,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	}
 	
-	public void doSortAllCitations( RunData data )
+	public void doSortCollection( RunData data )
 	{
 		// get the state object
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
@@ -3352,20 +3358,20 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
 		}
 
-        logger.debug("doSortAllCitations() sort type  = " + sort);
+        logger.debug("doSortCollection sort type  = " + sort);
 
         collection = getCitationCollection(state, false);
 
 		if(collection == null)
 		{
 			// TODO add alert and log error
-	        logger.warn("doSortAllCitations() collection null: " + collectionId);
+	        logger.warn("doSortCollection() collection null: " + collectionId);
 		}
 		else
 		{
 			// sort the citation list
 			
-	        logger.debug("doSortAllCitations() ready to sort");
+	        logger.debug("doSortCollection() ready to sort");
 	        
 	        if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_TITLE))
 				  collection.setSort(CitationCollection.SORT_BY_TITLE, true);
@@ -3382,17 +3388,56 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			{
 				Citation tempCit = (Citation) iter.next();
 				
-				logger.debug("doSortAllCitaitons() tempcit 1 -------------");
-				logger.debug("doSortAllCitaitons() tempcit 1 (author) = " + tempCit.getFirstAuthor());
-		        logger.debug("doSortAllCitations() tempcit 1 (year)   = " + tempCit.getYear());
+				logger.debug("doSortCollection() tempcit 1 -------------");
+				logger.debug("doSortCollection() tempcit 1 (author) = " + tempCit.getFirstAuthor());
+		        logger.debug("doSortCollection() tempcit 1 (year)   = " + tempCit.getYear());
 				
-		        logger.debug("doSortAllCitations() tempcit 1 = " + tempCit.getDisplayName());
+		        logger.debug("doSortCollection() tempcit 1 = " + tempCit.getDisplayName());
 			} // end while
 		} // end else
+		
 		setMode(state, Mode.LIST);
 
-	}  // doSortCitations
+	}  // doSortCollection
 
+	public void doSaveCollection(RunData data )
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters();
+
+		String collectionId = params.getString("collectionId");
+		
+		CitationCollection collection = null;
+
+		if(collectionId == null)
+		{
+			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+		}
+
+        collection = getCitationCollection(state, false);
+
+		if(collection == null)
+		{
+			// TODO add alert and log error
+	        logger.warn("doSaveCollection() collection null: " + collectionId);
+	        return;
+		}
+		else
+		{
+			// save the collection (this will persist the sort order to the db)
+	        CitationService.save(collection);
+	        
+	        String sort = collection.getSort();
+	        
+	        if (sort != null)
+	          state.setAttribute("sort", sort);
+	        
+			setMode(state, Mode.LIST);
+		
+		}
+	} // end doSaveCollection
+  
 	public class CitationListSecurityAdviser implements SecurityAdvisor
 	{
 		String userId;
