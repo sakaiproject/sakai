@@ -368,7 +368,7 @@ public class SampleGroupProvider implements GroupProvider
 			return ids[0];
 		}
 		
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for(int i=0; i<ids.length; i++)
 		{
 			sb.append(ids[i]);
