@@ -544,8 +544,11 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			// make the calendar cache
 			if (m_caching)
 			{
-				m_calendarCache = m_memoryService.newCache(this, getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR
-						+ Entity.SEPARATOR);
+				m_calendarCache = m_memoryService
+						.newCache(
+								"org.sakaiproject.calendar.api.CalendarService.calendarCache",
+								this, getAccessPoint(true) + Entity.SEPARATOR
+										+ REF_TYPE_CALENDAR + Entity.SEPARATOR);
 
 				// make the table to hold the event caches
 				m_eventCaches = new Hashtable();
@@ -2332,7 +2335,11 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 						// if still not there, make one
 						if (eventCache == null)
 						{
-							eventCache = m_memoryService.newCache(service(), eventReference(m_context, m_id, ""));
+							eventCache = m_memoryService
+									.newCache(
+											"org.sakaiproject.calendar.api.CalendarService.eventCache",
+											service(), eventReference(
+													m_context, m_id, ""));
 							m_eventCaches.put(getReference(), eventCache);
 						}
 					}
@@ -3270,7 +3277,11 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 						// if still not there, make one
 						if (eventCache == null)
 						{
-							eventCache = m_memoryService.newCache(service(), eventReference(m_context, m_id, ""));
+							eventCache = m_memoryService
+									.newCache(
+											"org.sakaiproject.calendar.api.CalendarService.eventCache",
+											service(), eventReference(
+													m_context, m_id, ""));
 							m_eventCaches.put(getReference(), eventCache);
 						}
 					}
