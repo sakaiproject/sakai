@@ -87,8 +87,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 import org.springframework.orm.hibernate3.HibernateTransactionManager;
@@ -179,7 +178,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     return (List) helpContextConfig.get(mappedView);
   }
 
-  public List getActiveContexts(Map session)
+public List getActiveContexts(Map session)
   {
     List contexts = (List) session.get("help_contexts");
     if (contexts == null)
@@ -1105,7 +1104,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
         try
         {
           org.springframework.core.io.Resource resource =
-        	  new InputStreamResource(urlResource.openStream(), classpathUrl);
+        	  new ClassPathResource(classpathUrl);  
           BeanFactory beanFactory = new XmlBeanFactory(resource);
           TableOfContents tocTemp = (TableOfContents) beanFactory.getBean(TOC_API);
           Set categories = tocTemp.getCategories();
