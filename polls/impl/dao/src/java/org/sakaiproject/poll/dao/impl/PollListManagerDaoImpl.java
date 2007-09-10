@@ -271,7 +271,7 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 				List attachments) {
 			 log.debug("archive: poll " + siteId);
 			// prepare the buffer for the results log
-			StringBuffer results = new StringBuffer();
+			StringBuilder results = new StringBuilder();
 
 			// String assignRef = assignmentReference(siteId, SiteService.MAIN_CONTAINER);
 			results.append("archiving " + getLabel() + " context " + Entity.SEPARATOR + siteId + Entity.SEPARATOR

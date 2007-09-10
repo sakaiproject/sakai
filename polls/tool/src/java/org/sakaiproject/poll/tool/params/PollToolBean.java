@@ -138,7 +138,7 @@ public class PollToolBean {
 			  poll.setDetails(poll.getDetails());
 	  }
 	  
-	  poll.setDetails(FormattedText.processFormattedText(poll.getDetails(), new StringBuffer()));
+	  poll.setDetails(FormattedText.processFormattedText(poll.getDetails(), new StringBuilder()));
 	  m_log.debug("about to save poll " + poll);
       manager.savePoll(poll);
      
@@ -233,7 +233,7 @@ public class PollToolBean {
 		// return null;
 	 }
 		 
-	 option.setOptionText(FormattedText.processFormattedText(option.getOptionText(), new StringBuffer()));
+	 option.setOptionText(FormattedText.processFormattedText(option.getOptionText(), new StringBuilder()));
 	 
 	 manager.saveOption(option);
 	 m_log.info("Succesuly save option with id" + option.getId());
