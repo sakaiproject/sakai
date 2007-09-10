@@ -661,7 +661,7 @@ public class SyllabusTool
         }
         if(entry.getEntry().getAsset()!=null)
         {
-        	StringBuffer alertMsg = new StringBuffer();
+        	StringBuilder alertMsg = new StringBuilder();
         	String errorMsg= null;
     		try
     		{
@@ -735,7 +735,7 @@ public class SyllabusTool
         }
         if(entry.getEntry().getAsset()!=null)
         {
-        	StringBuffer alertMsg = new StringBuffer();
+        	StringBuilder alertMsg = new StringBuilder();
         	String errorMsg= null;
         	try
     		{
@@ -919,7 +919,7 @@ public class SyllabusTool
         }
         if(entry.getEntry().getAsset()!=null)
         {
-        	StringBuffer alertMsg = new StringBuffer();
+        	StringBuilder alertMsg = new StringBuilder();
         	String errorMsg= null;
         	try
     		{
@@ -996,7 +996,7 @@ public class SyllabusTool
         }
         if(entry.getEntry().getAsset()!=null)
         {
-        	StringBuffer alertMsg = new StringBuffer();
+        	StringBuilder alertMsg = new StringBuilder();
         	String errorMsg= null;
         	try
     		{
@@ -1114,7 +1114,7 @@ public class SyllabusTool
     }
     if(entry.getEntry().getAsset()!=null)
     {
-    	StringBuffer alertMsg = new StringBuffer();
+    	StringBuilder alertMsg = new StringBuilder();
     	String errorMsg= null;
     	try
 		{
@@ -1156,7 +1156,7 @@ public class SyllabusTool
     }
     if(entry.getEntry().getAsset()!=null)
     {
-    	StringBuffer alertMsg = new StringBuffer();
+    	StringBuilder alertMsg = new StringBuilder();
     	String errorMsg= null;
     	try
 		{
