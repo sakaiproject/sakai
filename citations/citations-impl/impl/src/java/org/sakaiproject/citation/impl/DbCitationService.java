@@ -348,6 +348,11 @@ public class DbCitationService extends BaseCitationService
 			fields[1] = PROP_MOST_RECENT_UPDATE;
 			fields[2] = Long.toString(mostRecentUpdate);
 			ok = m_sqlService.dbWrite(statement, fields);
+			
+			fields[1] = PROP_SORT_ORDER;
+			fields[2] = collection.getSort();
+			ok = m_sqlService.dbWrite(statement, fields);
+
         }
 
  		/**
@@ -849,7 +854,7 @@ public class DbCitationService extends BaseCitationService
 							// do nothing
 						}
 					}
-					else if(triple.getName().equals(PROP_CURRENT_SORT))
+					else if(triple.getName().equals(PROP_SORT_ORDER))
 					{
 						try
 						{
@@ -1318,7 +1323,7 @@ public class DbCitationService extends BaseCitationService
 	private static Log M_log = LogFactory.getLog(DbCitationService.class);
 	protected static final Pattern MULTIVALUED_PATTERN = Pattern.compile("^(.*)\\t(\\d+)$");
 	
-	protected static final String PROP_CURRENT_SORT = "sakai:current_sort";
+	protected static final String PROP_SORT_ORDER = "sakai:sort_order";
 
 	protected static final String PROP_MOST_RECENT_UPDATE = "sakai:most_recent_update";
 	
