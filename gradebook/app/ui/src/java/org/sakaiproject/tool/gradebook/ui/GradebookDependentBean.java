@@ -452,7 +452,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
     public String getDownloadFileName(String prefix) {
 		Date now = new Date();
 		DateFormat df = new SimpleDateFormat(getLocalizedString("export_filename_date_format"));
-		StringBuffer fileName = new StringBuffer(prefix);
+		StringBuilder fileName = new StringBuilder(prefix);
         String gbName = getGradebook().getName();
         if(StringUtils.trimToNull(gbName) != null) {
             gbName = gbName.replaceAll("\\s", "_"); // replace whitespace with '_'

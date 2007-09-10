@@ -500,7 +500,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	
 	public String getRowClasses()
 	{
-		StringBuffer rowClasses = new StringBuffer();
+		StringBuilder rowClasses = new StringBuilder();
 		//first add the row class "bogus" for current categories
 		for (int i=0; i<categories.size(); i++){
 			Object obj = categories.get(i);

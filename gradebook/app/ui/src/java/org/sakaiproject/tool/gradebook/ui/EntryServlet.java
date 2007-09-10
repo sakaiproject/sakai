@@ -62,7 +62,7 @@ public class EntryServlet extends HttpServlet {
 
         try {
             if (gradebookUid != null) {
-                StringBuffer path = new StringBuffer(request.getContextPath());
+                StringBuilder path = new StringBuilder(request.getContextPath());
                 if (authzService.isUserAbleToGrade(gradebookUid)) {
 		            if(logger.isDebugEnabled()) logger.debug("Sending user to the overview page");
                     path.append("/overview.jsf");

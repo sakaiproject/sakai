@@ -218,7 +218,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
      * @return The comma-separated list of css styles to use in displaying the rows
      */
     public String getRowStyles() {
-    	StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
     	for(Iterator iter = gradebookItemList.iterator(); iter.hasNext();) {
     		Object gradebookItem = iter.next();
     		if (gradebookItem instanceof GradableObject) {

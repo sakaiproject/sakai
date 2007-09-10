@@ -455,7 +455,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	 * @return String representation of the student's sections/groups
 	 */
 	private String getStudentSectionsForDisplay() {
-		StringBuffer sectionList = new StringBuffer();
+		StringBuilder sectionList = new StringBuilder();
 		List studentMemberships = getGradebookBean().getAuthzService().getStudentSectionMembershipNames(getGradebookUid(), getStudentUid());
 		if (studentMemberships != null && !studentMemberships.isEmpty()) {
 			Collections.sort(studentMemberships);

@@ -470,7 +470,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     
 
         // Set the columnClasses on the data table
-        StringBuffer colClasses = new StringBuffer("left,left,");
+        StringBuilder colClasses = new StringBuilder("left,left,");
         for(Iterator iter = gradableObjectColumns.iterator(); iter.hasNext();) {
         	iter.next();
             colClasses.append("center");

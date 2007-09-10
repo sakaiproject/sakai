@@ -69,7 +69,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     
     private boolean isInstructorView = false;
 
-    private StringBuffer rowStyles;
+    private StringBuilder rowStyles;
     private Map commentMap;
 
     private List gradebookItems;
@@ -201,7 +201,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	assignmentsReleased = gradebook.isAssignmentsDisplayed();
 
     	// Reset the row styles
-    	rowStyles = new StringBuffer();
+    	rowStyles = new StringBuilder();
 
     	// Display course grade if we've been instructed to.
     	CourseGradeRecord gradeRecord = getGradebookManager().getStudentCourseGradeRecord(gradebook, studentUid);

@@ -84,7 +84,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private List categoriesSelectList;
     private String selectedCategory;
     private Gradebook localGradebook;
-    private StringBuffer externallyMaintainedImportMsg;
+    private StringBuilder externallyMaintainedImportMsg;
 
     // Used for bulk upload of gradebook items
     // Holds list of unknown user ids
@@ -269,7 +269,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
 
     public String getRowStyles() {
-    	StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
     	if (studentRows != null) {
     		for(Iterator iter = studentRows.iterator(); iter.hasNext();){
     			SpreadsheetRow row = (SpreadsheetRow)iter.next();
@@ -420,7 +420,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         if(logger.isDebugEnabled())logger.debug("loading viewItem()");
 
         org.sakaiproject.tool.gradebook.Spreadsheet sp = getGradebookManager().getSpreadsheet(spreadsheetId);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(sp.getContent());
 
         List contents = new ArrayList();
@@ -746,7 +746,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
      */
     public String saveFile(){
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         List contents =  spreadsheet.getLineitems();
         Iterator it = contents.iterator();
         while(it.hasNext()){
@@ -856,7 +856,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     public String importDataAndSaveAll(){
     	boolean gbUpdated = false;
     	hasUnknownAssignments = false;
-    	externallyMaintainedImportMsg = new StringBuffer();
+    	externallyMaintainedImportMsg = new StringBuilder();
     	
     	LetterGradePercentMapping lgpm = new LetterGradePercentMapping();
     	if (getGradeEntryByLetter()) {
@@ -1786,7 +1786,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
          */
         public List parse(String line)
         {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             list.clear();      // recycle to initial state
             int i = 0;
 
@@ -1805,7 +1805,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                 i++;
             } while (i < line.length());
             if(logger.isDebugEnabled()) {
-                StringBuffer logBuffer = new StringBuffer("Parsed " + line + " as: ");
+                StringBuilder logBuffer = new StringBuilder("Parsed " + line + " as: ");
                 for(Iterator iter = list.iterator(); iter.hasNext();) {
                 	logBuffer.append(iter.next());
                 	if(iter.hasNext()) {
@@ -1819,7 +1819,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         }
 
         /** advQuoted: quoted field; return index of next separator */
-        protected int advQuoted(String s, StringBuffer sb, int i)
+        protected int advQuoted(String s, StringBuilder sb, int i)
         {
             int j;
             int len= s.length();
@@ -1840,7 +1840,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         }
 
         /** advPlain: unquoted field; return index of next separator */
-        protected int advPlain(String s, StringBuffer sb, int i)
+        protected int advPlain(String s, StringBuilder sb, int i)
         {
             int j;
 
