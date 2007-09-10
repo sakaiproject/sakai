@@ -524,7 +524,7 @@ function removeAllCitations( formname ) {
  */
 function sortAllCitations( formname, sortby ) 
 {
-  document.getElementById('sakai_action').value='doSortAllCitations';
+  document.getElementById('sakai_action').value='doSortCollection';
 
   document.getElementById('sort').value = sortby;
   submitform( formname );
