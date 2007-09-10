@@ -115,8 +115,8 @@ public abstract class SakaiSecurity implements SecurityService
 		// <= 0 minutes indicates no caching desired
 		if (m_cacheMinutes > 0)
 		{
-			// build a synchronized map for the call cache, automatiaclly checking for expiration every 15 mins.
-			m_callCache = memoryService().newMultiRefCache(15 * 60);
+			m_callCache = memoryService().newMultiRefCache(
+					"org.sakaiproject.authz.api.SecurityService.cache");
 		}
 
 		M_log.info("init() - caching minutes: " + m_cacheMinutes);
@@ -155,10 +155,10 @@ public abstract class SakaiSecurity implements SecurityService
 
 		// check the cache
 		String command = "super@" + userId;
-		if ((m_callCache != null) && (m_callCache.containsKey(command)))
+		if (m_callCache != null)
 		{
-			boolean rv = ((Boolean) m_callCache.get(command)).booleanValue();
-			return rv;
+			final Boolean value = (Boolean) m_callCache.get(command);
+			if(value != null) return value.booleanValue();
 		}
 
 		boolean rv = false;
@@ -273,10 +273,10 @@ public abstract class SakaiSecurity implements SecurityService
 	{
 		// check the cache
 		String command = "unlock@" + userId + "@" + function + "@" + entityRef;
-		if ((m_callCache != null) && (m_callCache.containsKey(command)))
+		if (m_callCache != null)
 		{
-			boolean rv = ((Boolean) m_callCache.get(command)).booleanValue();
-			return rv;
+			final Boolean value = (Boolean) m_callCache.get(command);
+			if(value != null) return value.booleanValue();
 		}
 
 		// get this entity's AuthzGroups if needed
