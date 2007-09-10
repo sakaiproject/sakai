@@ -7337,8 +7337,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public int getReviewScore() {
 			// Code to get updated score if default
 			M_log.debug("GetReviewScore for submission " + this.getId() + " and review service is: " + (this.getAssignment().getContent().getAllowReviewService()));
-			if (!this.getAssignment().getContent().getAllowReviewService())
+			if (!this.getAssignment().getContent().getAllowReviewService()) {
+				M_log.debug("Content review is not enabled for this assignment");
 				return -2;
+			}
 			
 			if (m_submittedAttachments.isEmpty()) M_log.debug("No attachments submitted.");
 			else
@@ -7388,7 +7390,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					
 				}
 				catch (Exception e) {
-					
+					if (M_log.isDebugEnabled())
+						e.printStackTrace();
 					return -1;
 				}
 					
@@ -7424,10 +7427,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		private ContentResource getFirstAcceptableAttachement() {
 			String contentId = null;
-			for( int i =0; i < m_submittedAttachments.size();i++ ) { 
-				if (contentReviewService.isAcceptableContent((ContentResource)m_submittedAttachments.get(i))) {
-					return (ContentResource)m_submittedAttachments.get(i);
+			try {
+			for( int i =0; i < m_submittedAttachments.size();i++ ) {
+				Reference ref = (Reference)m_submittedAttachments.get(i);
+				ContentResource contentResource = (ContentResource)ref.getEntity();
+				if (contentReviewService.isAcceptableContent(contentResource)) {
+					return (ContentResource)contentResource;
 				}
+			}
+			}
+			catch (Exception e) {
+				e.printStackTrace();
 			}
 			return null;
 		}
