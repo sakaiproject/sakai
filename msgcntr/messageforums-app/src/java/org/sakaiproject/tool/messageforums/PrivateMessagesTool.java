@@ -1273,7 +1273,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		formatter.setTimeZone(TimeService.getLocalTimeZone());
 		String formattedCreateDate = formatter.format(pm.getCreated());
 		
-		StringBuffer forwardedText = new StringBuffer();
+		StringBuilder forwardedText = new StringBuilder();
 	    
 	    // populate replyToBody with the forwarded text
 		forwardedText.append(getResourceBundleString("pvt_msg_fwd_heading") + "<br /><br />" +

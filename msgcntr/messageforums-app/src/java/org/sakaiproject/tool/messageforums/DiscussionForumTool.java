@@ -2581,7 +2581,7 @@ public class DiscussionForumTool
 
     if (aMsg != null)
     {
-      StringBuffer alertMsg = new StringBuffer();
+      StringBuilder alertMsg = new StringBuilder();
       aMsg.setTitle(FormattedText.processFormattedText(getComposeTitle(), alertMsg));
       aMsg.setBody(FormattedText.processFormattedText(getComposeBody(), alertMsg));
       
@@ -3862,7 +3862,7 @@ public class DiscussionForumTool
 	  
 	  Message currMessage = selectedMessage.getMessage();
 	  
-	  StringBuffer sb = new StringBuffer();
+	  StringBuilder sb = new StringBuilder();
 	  sb.append("<div style=\"font-style:italic; padding-bottom: 1.0em;\">");
 	  sb.append("<div style=\"font-weight:bold;\">");
 	  sb.append(getResourceBundleString(MOD_COMMENT_TEXT) + " ");
@@ -5168,7 +5168,7 @@ public class DiscussionForumTool
   	PermissionLevel noneLevel = permissionLevelManager.getDefaultNonePermissionLevel();
   	PermissionLevel contributorLevel = permissionLevelManager.getDefaultContributorPermissionLevel();
   	  	
-  	StringBuffer sBuffer = new StringBuffer();  	
+  	StringBuilder sBuffer = new StringBuilder();  	
   	sBuffer.append("<script type=\"text/javascript\">\n");   	  	
   	sBuffer.append("var ownerLevelArray = " + ownerLevel + ";\n");
   	sBuffer.append("var authorLevelArray = " + authorLevel + ";\n");
