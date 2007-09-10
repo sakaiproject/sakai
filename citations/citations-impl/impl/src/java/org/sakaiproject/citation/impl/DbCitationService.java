@@ -849,6 +849,17 @@ public class DbCitationService extends BaseCitationService
 							// do nothing
 						}
 					}
+					else if(triple.getName().equals(PROP_CURRENT_SORT))
+					{
+						try
+						{
+							edit.setSort(triple.getValue().toString(), true);
+						}
+						catch(Exception e)
+						{
+							// do nothing
+						}
+					}
 					/*
 					 * TODO: else add property??
 					 */
@@ -1307,8 +1318,10 @@ public class DbCitationService extends BaseCitationService
 	private static Log M_log = LogFactory.getLog(DbCitationService.class);
 	protected static final Pattern MULTIVALUED_PATTERN = Pattern.compile("^(.*)\\t(\\d+)$");
 	
-	protected static final String PROP_MOST_RECENT_UPDATE = "sakai:most_recent_update";
+	protected static final String PROP_CURRENT_SORT = "sakai:current_sort";
 
+	protected static final String PROP_MOST_RECENT_UPDATE = "sakai:most_recent_update";
+	
 	protected static final String PROP_ADDED = "sakai:added";
 	protected static final String PROP_DISPLAYNAME = "sakai:displayname";
 
