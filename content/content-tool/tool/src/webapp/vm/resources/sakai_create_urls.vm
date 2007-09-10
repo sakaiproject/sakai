@@ -58,8 +58,11 @@
 		<p class="act">
 			<a href="#" onclick="javascript:addFileInput();return false">$tlang.getString("label.addurl")</a>
 		</p>
-		#if(! $model.isDropbox() && ! $model.isUserSite())
-			#if ($model.resourceTypeDef.hasNotificationDialog())
+		#if ($model.resourceTypeDef.hasNotificationDialog())
+			#if($model.isDropbox())
+				
+			#elseif($model.isUserSite())
+			#else
 				<p class="shorttext">
 					<label for="notify">
 						$tlang.getString("gen.email1")

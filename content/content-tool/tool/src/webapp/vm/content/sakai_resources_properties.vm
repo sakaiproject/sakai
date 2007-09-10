@@ -34,8 +34,11 @@
 			<hr class="itemSeparator" />
 		</div>			
 	
-		#if(! $model.isDropbox() && ! $model.isUserSite())
-			#if (! $item.isCollection())
+		#if ($model.resourceTypeDef.hasNotificationDialog())
+			#if($model.isDropbox())
+				
+			#elseif($model.isUserSite())
+			#else
 				<p>
 					<label for="notify">
 						$tlang.getString("gen.email1")
