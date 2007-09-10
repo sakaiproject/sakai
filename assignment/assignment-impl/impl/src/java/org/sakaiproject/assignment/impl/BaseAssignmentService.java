@@ -7353,6 +7353,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						return -2;
 					}
 					String contentId = cr.getId();
+					M_log.debug("checking for socre for content: " + contentId);
+					int score =contentReviewService.getReviewScore(contentId);
+					M_log.debug("CR returned a score of: " + score);
 					return contentReviewService.getReviewScore(contentId);
 						
 				} 
@@ -7360,7 +7363,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					//should we add the item
 					try {
 						
-						
+							M_log.debug("Item is not in queue we will try add it");
 							ContentResource cr = getFirstAcceptableAttachement();
 							if (cr == null )
 							{
@@ -7501,34 +7504,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public BaseAssignmentSubmission(Element el)
 		{
 			
-			
-			try {
-				if (el.getAttribute("reviewScore")!=null)
-					m_reviewScore = Integer.parseInt(el.getAttribute("reviewScore"));
-				else
-					m_reviewScore = -1;
-			}
-			catch (NumberFormatException nfe) {
-				m_reviewScore = -1;
-			}
-			try {
-			// The report given by the content review service
-				if (el.getAttribute("reviewReport")!=null)
-					m_reviewReport = el.getAttribute("reviewReport");
-				else 
-					m_reviewReport = "no report available";
-				
-			// The status of the review service
-				if (el.getAttribute("reviewStatus")!=null)
-					m_reviewStatus = el.getAttribute("reviewStatus");
-				else 
-					m_reviewStatus = "";
-			}
-			catch (Exception e) {
-				M_log.error("error constructing Submission: " + e);
-			}
-			
-			
+	
+		
 			int numAttributes = 0;
 			String intString = null;
 			String attributeString = null;
@@ -7718,6 +7695,40 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				}
 			}
 
+		
+			
+			try {
+				if (el.getAttribute("reviewScore")!=null)
+					m_reviewScore = Integer.parseInt(el.getAttribute("reviewScore"));
+				else
+					m_reviewScore = -1;
+			}
+			catch (NumberFormatException nfe) {
+				m_reviewScore = -1;
+			}
+			try {
+			// The report given by the content review service
+				if (el.getAttribute("reviewReport")!=null)
+					m_reviewReport = el.getAttribute("reviewReport");
+				else 
+					m_reviewReport = "no report available";
+				
+			// The status of the review service
+				if (el.getAttribute("reviewStatus")!=null)
+					m_reviewStatus = el.getAttribute("reviewStatus");
+				else 
+					m_reviewStatus = "";
+			}
+			catch (Exception e) {
+				M_log.error("error constructing Submission: " + e);
+			}
+			
+			//get the review Status from ContentReview rather than using old ones
+			m_reviewStatus = this.getReviewStatus();
+			m_reviewScore  = this.getReviewScore();
+			
+			
+			
 			if (M_log.isDebugEnabled()) M_log.debug("ASSIGNMENT : BASE SERVICE : BASE SUB : LEAVING STORAGE CONSTRUCTOR");
 
 		}// storage constructor
@@ -7821,6 +7832,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_submittedText = FormattedTextDecodeFormattedTextAttribute(attributes, "submittedtext");
 							m_feedbackComment = FormattedTextDecodeFormattedTextAttribute(attributes, "feedbackcomment");
 							m_feedbackText = FormattedTextDecodeFormattedTextAttribute(attributes, "feedbacktext");
+							 
 
 							// READ THE SUBMITTERS
 							m_submitters = new Vector();
