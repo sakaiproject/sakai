@@ -30,7 +30,7 @@ import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.memory.api.MemoryPermissionException;
-import org.sakaiproject.memory.cover.MemoryService;
+import org.sakaiproject.memory.cover.MemoryServiceLocator;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -38,6 +38,7 @@ import org.sakaiproject.util.ResourceLoader;
  * MemoryAction is the Sakai memory tool.
  * </p>
  */
+@SuppressWarnings("serial")
 public class MemoryAction extends VelocityPortletPaneledAction
 {
 
@@ -61,7 +62,8 @@ public class MemoryAction extends VelocityPortletPaneledAction
 		context.put(Menu.CONTEXT_ACTION, state.getAttribute(STATE_ACTION));
 
 		// put the current available memory into the context
-		context.put("memory", Long.toString(MemoryService.getAvailableMemory()));
+		context.put("memory", Long.toString(MemoryServiceLocator.getInstance()
+				.getAvailableMemory()));
 
 		// status, if there
 		if (state.getAttribute("status") != null)
@@ -83,7 +85,7 @@ public class MemoryAction extends VelocityPortletPaneledAction
 
 		try
 		{
-			MemoryService.resetCachers();
+			MemoryServiceLocator.getInstance().resetCachers();
 		}
 		catch (MemoryPermissionException e)
 		{
@@ -99,7 +101,8 @@ public class MemoryAction extends VelocityPortletPaneledAction
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		state.setAttribute("status", MemoryService.getStatus());
+		state.setAttribute("status", MemoryServiceLocator.getInstance()
+				.getStatus());
 
 	} // doReset
 

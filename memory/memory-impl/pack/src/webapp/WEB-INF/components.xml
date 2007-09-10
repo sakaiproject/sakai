@@ -14,6 +14,8 @@
  		<lookup-method name="usageSessionService" bean="org.sakaiproject.event.api.UsageSessionService" />
 
  		<property name="cacheLogging"><value>false</value></property>
+ 		
+  		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
 	</bean>
 
 

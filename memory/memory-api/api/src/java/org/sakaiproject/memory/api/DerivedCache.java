@@ -34,7 +34,7 @@ public interface DerivedCache
 	 * @param key
 	 *        The cache key.
 	 * @param payload
-	 *        The cached objed.
+	 *        The cached object.
 	 */
 	void notifyCachePut(Object key, Object payload);
 
@@ -49,7 +49,7 @@ public interface DerivedCache
 	 * @param key
 	 *        The cache key.
 	 * @param payload
-	 *        The cached objed.
+	 *        The cached object.
 	 */
 	void notifyCacheRemove(Object key, Object payload);
 }

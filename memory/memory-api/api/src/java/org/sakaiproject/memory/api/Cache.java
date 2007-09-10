@@ -42,6 +42,8 @@ public interface Cache extends Cacher
 	 *        The object to cache.
 	 * @param duration
 	 *        The time to cache the object (seconds).
+	 * @deprecated Since Sakai 2.5.0
+	 * @see Cache#put(Object, Object)
 	 */
 	void put(Object key, Object payload, int duration);
 
@@ -63,6 +65,8 @@ public interface Cache extends Cacher
 	 * @param key
 	 *        The cache key.
 	 * @return true if the key maps to a cache entry, false if not.
+	 * @deprecated Since Sakai 2.5.0
+	 * @see Cache#containsKey(Object)
 	 */
 	boolean containsKeyExpiredOrNot(Object key);
 
@@ -89,6 +93,8 @@ public interface Cache extends Cacher
 	 * @param key
 	 *        The cache key.
 	 * @return The payload, or null if the payload is null, the key is not found. (Note: use containsKey() to remove this ambiguity).
+	 * @deprecated Since Sakai 2.5.0
+	 * @see Cache#get(Object)
 	 */
 	Object getExpiredOrNot(Object key);
 
@@ -105,6 +111,7 @@ public interface Cache extends Cacher
 	 * Get all the non-expired non-null entries.
 	 * 
 	 * @return all the non-expired non-null entries, or an empty list if none.
+	 * @deprecated Since Sakai 2.5.0
 	 */
 	List getAll();
 
@@ -114,6 +121,7 @@ public interface Cache extends Cacher
 	 * @param path
 	 *        The reference path.
 	 * @return all the non-expired non-null entries, or an empty list if none.
+	 * @deprecated Since Sakai 2.5.0
 	 */
 	List getAll(String path);
 
@@ -128,6 +136,7 @@ public interface Cache extends Cacher
 	 * Get all the keys, modified from resource references to ids by removing the resource prefix. Note: only works with String keys.
 	 * 
 	 * @return The List of keys converted from references to ids (String).
+	 * @deprecated Since Sakai 2.5.0
 	 */
 	List getIds();
 

@@ -24,6 +24,9 @@ package org.sakaiproject.memory.impl;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.MultiRefCache;
 
 /**
  * <p>
@@ -53,6 +56,27 @@ public class MemoryServiceTest extends BasicMemoryService
 	 */
 	protected UsageSessionService usageSessionService()
 	{
+		return null;
+	}
+
+	public Cache newCache(String cacheName, CacheRefresher refresher,
+			String pattern) {
+		return null;
+	}
+
+	public Cache newCache(String cacheName, String pattern) {
+		return null;
+	}
+
+	public Cache newCache(String cacheName, CacheRefresher refresher) {
+		return null;
+	}
+
+	public Cache newCache(String cacheName) {
+		return null;
+	}
+
+	public MultiRefCache newMultiRefCache(String cacheName) {
 		return null;
 	}
 }

@@ -21,12 +21,15 @@
 
 package org.sakaiproject.memory.impl;
 
+import net.sf.ehcache.Ehcache;
+
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.CacheRefresher;
 
 /**
  * <p>
  * HardCache is a MemCache set to use hard, not soft references.
+ * @deprecated
  * </p>
  */
 public class HardCache extends MemCache
@@ -34,10 +37,10 @@ public class HardCache extends MemCache
 	/**
 	 * Construct the Cache. No automatic refresh handling.
 	 */
-	public HardCache(BasicMemoryService memoryService, EventTrackingService eventTrackingService)
+	public HardCache(BasicMemoryService memoryService,
+			EventTrackingService eventTrackingService, Ehcache cache)
 	{
-		super(memoryService, eventTrackingService);
-		m_softRefs = false;
+		super(memoryService, eventTrackingService, cache);
 	}
 
 	/**
@@ -48,11 +51,11 @@ public class HardCache extends MemCache
 	 * @param pattern
 	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
 	 */
-	public HardCache(BasicMemoryService memoryService, EventTrackingService eventTrackingService, CacheRefresher refresher,
-			String pattern)
+	public HardCache(BasicMemoryService memoryService,
+			EventTrackingService eventTrackingService,
+			CacheRefresher refresher, String pattern, Ehcache cache)
 	{
-		super(memoryService, eventTrackingService, refresher, pattern);
-		m_softRefs = false;
+		super(memoryService, eventTrackingService, refresher, pattern, cache);
 	}
 
 	/**
@@ -62,12 +65,13 @@ public class HardCache extends MemCache
 	 *        The object that will handle refreshing of expired entries.
 	 * @param sleep
 	 *        The number of seconds to sleep between expiration checks.
+	 * @deprecated
 	 */
-	public HardCache(BasicMemoryService memoryService, EventTrackingService eventTrackingService, CacheRefresher refresher,
-			long sleep)
+	public HardCache(BasicMemoryService memoryService,
+			EventTrackingService eventTrackingService,
+			CacheRefresher refresher, long sleep, Ehcache cache)
 	{
-		super(memoryService, eventTrackingService, refresher, sleep);
-		m_softRefs = false;
+		super(memoryService, eventTrackingService, refresher, sleep, cache);
 	}
 
 	/**
@@ -77,10 +81,20 @@ public class HardCache extends MemCache
 	 *        The number of seconds to sleep between expiration checks.
 	 * @param pattern
 	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
+	 * @deprecated
 	 */
-	public HardCache(BasicMemoryService memoryService, EventTrackingService eventTrackingService, long sleep, String pattern)
+	public HardCache(BasicMemoryService memoryService,
+			EventTrackingService eventTrackingService, long sleep,
+			String pattern, Ehcache cache)
 	{
-		super(memoryService, eventTrackingService, sleep, pattern);
-		m_softRefs = false;
+		super(memoryService, eventTrackingService, sleep, pattern, cache);
 	}
+
+	public HardCache(BasicMemoryService memoryService,
+			EventTrackingService eventTrackingService, String pattern,
+			Ehcache cache) 
+	{
+		super(memoryService, eventTrackingService, pattern, cache);
+	}
+
 }

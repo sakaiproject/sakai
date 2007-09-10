@@ -22,15 +22,17 @@
 package org.sakaiproject.memory.impl;
 
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
+
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,22 +51,19 @@ import org.sakaiproject.memory.api.DerivedCache;
  * When the object expires, the cache calls upon a CacheRefresher to update the key's value. The update is done in a separate thread.
  * </p>
  */
-public class MemCache implements Cache, Runnable, Observer
+public class MemCache implements Cache, Observer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(MemCache.class);
-
-	/** Map holding cached entries. */
-	protected Map m_map = null;
+	
+	/** Underlying cache implementation */
+	protected net.sf.ehcache.Ehcache cache;
 
 	/** The object that will deal with expired entries. */
 	protected CacheRefresher m_refresher = null;
 
 	/** The string that all resources in this cache will start with. */
 	protected String m_resourcePattern = null;
-
-	/** The number of seconds to sleep between expiration checks. */
-	protected long m_refresherSleep = 60;
 
 	/** If true, we are disabled. */
 	protected boolean m_disabled = false;
@@ -73,31 +72,19 @@ public class MemCache implements Cache, Runnable, Observer
 	protected boolean m_complete = false;
 
 	/** Alternate isComplete, based on patterns. */
-	protected Set m_partiallyComplete = new HashSet();
+	protected Set<String> m_partiallyComplete = new HashSet<String>();
 
 	/** If true, we are going to hold any events we see in the m_heldEvents list for later processing. */
 	protected boolean m_holdEventProcessing = false;
 
 	/** The events we are holding for later processing. */
-	protected List m_heldEvents = new Vector();
+	protected List<Event> m_heldEvents = new Vector<Event>();
 
 	/** Constructor injected memory service. */
 	protected BasicMemoryService m_memoryService = null;
 
 	/** Constructor injected event tracking service. */
 	protected EventTrackingService m_eventTrackingService = null;
-
-	/** If true, we do soft references, else we do hard ones. */
-	protected boolean m_softRefs = true;
-
-	/** Count of access requests. */
-	protected long m_getCount = 0;
-
-	/** Count of access requests satisfied with a cached entry. */
-	protected long m_hitCount = 0;
-
-	/** Count of things put into the cache. */
-	protected long m_putCount = 0;
 
 	/** My (optional) DerivedCache. */
 	protected DerivedCache m_derivedCache = null;
@@ -107,17 +94,8 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	protected class CacheEntry extends SoftReference
 	{
-		/** currentTimeMillis when this expires. */
-		protected long m_expires = 0;
-
-		/** The time (seconds) to keep this cached (0 means don't exipre). */
-		protected int m_duration = 0;
-
 		/** Set if our payload is supposed to be null. */
 		protected boolean m_nullPayload = false;
-
-		/** Hard reference to the payload, if needed. */
-		protected Object m_hardPayload = null;
 
 		/**
 		 * Construct to cache the payload for the duration.
@@ -126,35 +104,17 @@ public class MemCache implements Cache, Runnable, Observer
 		 *        The thing to cache.
 		 * @param duration
 		 *        The time (seconds) to keep this cached.
+		 * @deprecated
 		 */
 		public CacheEntry(Object payload, int duration)
 		{
 			// put the payload into the soft reference
 			super(payload);
 
-			// if we are not doing soft refs, make the hard ref and clear the soft
-			if (!m_softRefs)
-			{
-				this.clear();
-				m_hardPayload = payload;
-			}
-
 			// is it supposed to be null?
 			m_nullPayload = (payload == null);
 
-			m_duration = duration;
-			reset();
-
 		} // CacheEntry
-
-		/**
-		 * Access the hard payload directly.
-		 * @return The hard payload.
-		 */
-		public Object getHardPayload()
-		{
-			return m_hardPayload;
-		}
 
 		/**
 		 * Get the cached object.
@@ -169,12 +129,6 @@ public class MemCache implements Cache, Runnable, Observer
 			if (m_nullPayload)
 			{
 				return null;
-			}
-
-			// for our hard, not soft, option
-			if (!m_softRefs)
-			{
-				return m_hardPayload;
 			}
 
 			// get the payload
@@ -194,7 +148,7 @@ public class MemCache implements Cache, Runnable, Observer
 					}
 
 					// store this new value
-					put(key, payload, m_duration);
+					put(key, payload);
 				}
 				else
 				{
@@ -205,37 +159,7 @@ public class MemCache implements Cache, Runnable, Observer
 				}
 			}
 
-			// TODO: stash hard ref in the current LRU...
-
 			return payload;
-		}
-
-		/**
-		 * Check for expiration.
-		 * 
-		 * @return true if expired, false if still good.
-		 */
-		public boolean hasExpired()
-		{
-			return ((m_duration > 0) ? (System.currentTimeMillis() > m_expires) : false);
-		}
-
-		/**
-		 * Access the duration.
-		 * 
-		 * @return The time (seconds) before the entry expires.
-		 */
-		public int getDuration()
-		{
-			return m_duration;
-		}
-
-		/**
-		 * If we have a duration, reset our expiration time.
-		 */
-		public void reset()
-		{
-			if (m_duration > 0) m_expires = System.currentTimeMillis() + (m_duration * 1000);
 		}
 
 	} // CacheEntry
@@ -243,13 +167,13 @@ public class MemCache implements Cache, Runnable, Observer
 	/**
 	 * Construct the Cache. No automatic refresh handling.
 	 */
-	public MemCache(BasicMemoryService memoryService, EventTrackingService eventTrackingService)
+	public MemCache(BasicMemoryService memoryService,
+			EventTrackingService eventTrackingService, Ehcache cache)
 	{
 		// inject our dependencies
 		m_memoryService = memoryService;
 		m_eventTrackingService = eventTrackingService;
-
-		m_map = new ConcurrentHashMap();
+		this.cache = cache;
 
 		// register as a cacher
 		m_memoryService.registerCacher(this);
@@ -263,12 +187,16 @@ public class MemCache implements Cache, Runnable, Observer
 	 * @param pattern
 	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
 	 */
-	public MemCache(BasicMemoryService memoryService, EventTrackingService eventTrackingService, CacheRefresher refresher,
-			String pattern)
+	public MemCache(BasicMemoryService memoryService,
+			EventTrackingService eventTrackingService,
+			CacheRefresher refresher, String pattern, Ehcache cache)
 	{
-		this(memoryService, eventTrackingService);
-		m_refresher = refresher;
+		this(memoryService, eventTrackingService, cache);
 		m_resourcePattern = pattern;
+		if (refresher != null)
+		{
+			m_refresher = refresher;
+		}
 
 		// register to get events - first, before others
 		if (pattern != null)
@@ -284,19 +212,33 @@ public class MemCache implements Cache, Runnable, Observer
 	 *        The object that will handle refreshing of expired entries.
 	 * @param sleep
 	 *        The number of seconds to sleep between expiration checks.
+	 * @deprecated long sleep no longer used with ehcache
 	 */
-	public MemCache(BasicMemoryService memoryService, EventTrackingService eventTrackingService, CacheRefresher refresher,
-			long sleep)
+	public MemCache(BasicMemoryService memoryService,
+			EventTrackingService eventTrackingService,
+			CacheRefresher refresher, long sleep, Ehcache cache)
 	{
-		this(memoryService, eventTrackingService);
-		m_refresherSleep = sleep;
-
+		this(memoryService, eventTrackingService, cache);
 		if (refresher != null)
 		{
 			m_refresher = refresher;
+		}
+	}
 
-			// start the expiration thread
-			start();
+	/**
+	 * Construct the Cache. Automatic refresh handling if refresher is not null.
+	 * 
+	 * @param refresher
+	 *        The object that will handle refreshing of expired entries.
+	 */
+	public MemCache(BasicMemoryService memoryService,
+			EventTrackingService eventTrackingService,
+			CacheRefresher refresher, Ehcache cache)
+	{
+		this(memoryService, eventTrackingService, cache);
+		if (refresher != null)
+		{
+			m_refresher = refresher;
 		}
 	}
 
@@ -307,15 +249,29 @@ public class MemCache implements Cache, Runnable, Observer
 	 *        The number of seconds to sleep between expiration checks.
 	 * @param pattern
 	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for expiration.
+	 * @deprecated long sleep no longer used with ehcache
 	 */
-	public MemCache(BasicMemoryService memoryService, EventTrackingService eventTrackingService, long sleep, String pattern)
+	public MemCache(BasicMemoryService memoryService,
+			EventTrackingService eventTrackingService, long sleep,
+			String pattern, Ehcache cache)
 	{
-		this(memoryService, eventTrackingService);
-		m_refresherSleep = sleep;
-		m_resourcePattern = pattern;
+		this(memoryService, eventTrackingService, pattern, cache);
+	}
 
-		// start the expiration thread
-		start();
+	/**
+	 * Construct the Cache. Event scanning if pattern not null - will expire entries.
+	 * 
+	 * @param sleep
+	 *        The number of seconds to sleep between expiration checks.
+	 * @param pattern
+	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for expiration.
+	 */
+	public MemCache(BasicMemoryService memoryService,
+			EventTrackingService eventTrackingService, String pattern,
+			Ehcache cache)
+	{
+		this(memoryService, eventTrackingService, cache);
+		m_resourcePattern = pattern;
 
 		// register to get events - first, before others
 		if (pattern != null)
@@ -329,7 +285,8 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public void destroy()
 	{
-		clear();
+		cache.removeAll();  //TODO Do we boolean doNotNotifyCacheReplicators? Ian?
+		cache.getStatistics().clearStatistics();
 
 		// if we are not in a global shutdown
 		if (!ComponentManager.hasBeenClosed())
@@ -340,9 +297,6 @@ public class MemCache implements Cache, Runnable, Observer
 			// remove my event notification registration
 			m_eventTrackingService.deleteObserver(this);
 		}
-
-		// stop our expiration thread (if any)
-		stop();
 	}
 
 	/**
@@ -377,16 +331,15 @@ public class MemCache implements Cache, Runnable, Observer
 	 *        The object to cache.
 	 * @param duration
 	 *        The time to cache the object (seconds).
+	 * @deprecated 
 	 */
 	public void put(Object key, Object payload, int duration)
 	{
-		if (disabled()) return;
-
-		m_map.put(key, new CacheEntry(payload, duration));
-
-		m_putCount++;
-
-		if (m_derivedCache != null) m_derivedCache.notifyCachePut(key, payload);
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("put(Object " + key + ", Object " + payload + ", int "
+					+ duration + ")");
+		}
+		put(key, payload);
 	}
 
 	/**
@@ -401,7 +354,15 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public void put(Object key, Object payload)
 	{
-		put(key, payload, 0);
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("put(Object " + key + ", Object " + payload + ")");
+		}
+
+		if (disabled()) return;
+		
+		cache.put(new Element(key, payload));
+
+		if (m_derivedCache != null) m_derivedCache.notifyCachePut(key, payload);
 	}
 
 	/**
@@ -410,22 +371,11 @@ public class MemCache implements Cache, Runnable, Observer
 	 * @param key
 	 *        The cache key.
 	 * @return true if the key maps to a cache entry, false if not.
+	 * @deprecated
 	 */
 	public boolean containsKeyExpiredOrNot(Object key)
 	{
-		if (disabled()) return false;
-
-		// is it there?
-		boolean rv = m_map.containsKey(key);
-
-		m_getCount++;
-		if (rv)
-		{
-			m_hitCount++;
-		}
-
-		return rv;
-
+		return containsKey(key);
 	} // containsKeyExpiredOrNot
 
 	/**
@@ -435,29 +385,15 @@ public class MemCache implements Cache, Runnable, Observer
 	 *        The cache key.
 	 * @return true if the key maps to a non-expired cache entry, false if not.
 	 */
-	public boolean containsKey(Object key)
-	{
-		if (disabled()) return false;
-
-		m_getCount++;
-
-		// is it there?
-		CacheEntry entry = (CacheEntry) m_map.get(key);
-		if (entry != null)
+	public boolean containsKey(Object key) {
+		if (M_log.isDebugEnabled()) 
 		{
-			// has it expired?
-			if (entry.hasExpired())
-			{
-				// if so, remove it
-				remove(key);
-				return false;
-			}
-			m_hitCount++;
-			return true;
+			M_log.debug("containsKey(Object " + key + ")");
 		}
+		if (disabled())
+			return false;
 
-		return false;
-
+		return cache.isKeyInCache(key);
 	} // containsKey
 
 	/**
@@ -468,6 +404,11 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public void expire(Object key)
 	{
+		if (M_log.isDebugEnabled()) 
+		{
+			M_log.debug("expire(Object " + key + ")");
+		}
+		
 		if (disabled()) return;
 
 		// remove it
@@ -481,19 +422,16 @@ public class MemCache implements Cache, Runnable, Observer
 	 * @param key
 	 *        The cache key.
 	 * @return The payload, or null if the payload is null, the key is not found. (Note: use containsKey() to remove this ambiguity).
+	 * @deprecated
 	 */
 	public Object getExpiredOrNot(Object key)
 	{
-		if (disabled()) return null;
-
-		// is it there?
-		CacheEntry entry = (CacheEntry) m_map.get(key);
-		if (entry != null)
+		if (M_log.isDebugEnabled())
 		{
-			return entry.getPayload(key);
+			M_log.debug("getExpiredOrNot(Object " + key + ")");
 		}
 
-		return null;
+		return get(key);
 
 	} // getExpiredOrNot
 
@@ -506,23 +444,15 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public Object get(Object key)
 	{
-		if (disabled()) return null;
-
-		// get it if there
-		CacheEntry entry = (CacheEntry) m_map.get(key);
-		if (entry != null)
+		if (M_log.isDebugEnabled())
 		{
-			// has it expired?
-			if (entry.hasExpired())
-			{
-				// if so, remove it
-				remove(key);
-				return null;
-			}
-			return entry.getPayload(key);
+			M_log.debug("get(Object " + key + ")");
 		}
 
-		return null;
+		if (disabled()) return null;
+
+		final Element e = cache.get(key);
+		return(e != null ? e.getObjectValue() : null);
 
 	} // get
 
@@ -530,36 +460,20 @@ public class MemCache implements Cache, Runnable, Observer
 	 * Get all the non-expired non-null entries.
 	 * 
 	 * @return all the non-expired non-null entries, or an empty list if none.
+	 * @deprecated
 	 */
 	public List getAll()
-	{
-		List rv = new Vector();
+	{ //TODO Why would you ever getAll objects from cache?
+		M_log.debug("getAll()");
+		
+		if (disabled()) return Collections.emptyList();
 
-		if (disabled()) return rv;
-		if (m_map.isEmpty()) return rv;
-
-		// for each entry in the cache
-		for (Iterator iKeys = m_map.entrySet().iterator(); iKeys.hasNext();)
-		{
-			Map.Entry e = (Map.Entry) iKeys.next();
-			CacheEntry entry = (CacheEntry) e.getValue();
-
-			// skip expired
-			if (entry.hasExpired()) continue;
-
-			Object payload = entry.getPayload(e.getKey());
-
-			// skip nulls
-			if (payload == null) continue;
-
-			// skip inappropriate types
-			// if ((type != null) && (!(type.isInstance(payload)))) continue;
-
-			// filter out those not matching the filter
-			// if ((filter != null) && (((String) keys[i]).startsWith(filter))) continue;
-
-			// we'll take it
-			rv.add(payload);
+		final List<Object> keys = cache.getKeysWithExpiryCheck();
+		final List<Object> rv = new ArrayList<Object>(keys.size()); // return value
+		for (Object key : keys) {
+			final Object value = cache.get(key).getObjectValue();
+			if (value != null)
+				rv.add(value);
 		}
 
 		return rv;
@@ -575,33 +489,20 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public List getAll(String path)
 	{
-		List rv = new Vector();
-
-		if (disabled()) return rv;
-		if (m_map.isEmpty()) return rv;
-
-		// for each entry in the cache
-		for (Iterator iKeys = m_map.entrySet().iterator(); iKeys.hasNext();)
-		{
-			Map.Entry e = (Map.Entry) iKeys.next();
-			CacheEntry entry = (CacheEntry) e.getValue();
-
-			// skip expired
-			if (entry.hasExpired()) continue;
-
-			Object payload = entry.getPayload(e.getKey());
-
-			// skip nulls
-			if (payload == null) continue;
-
-			// take only if keys start with path, and have no SEPARATOR following other than at the end %%%
-			String keyPath = referencePath((String) e.getKey());
-			if (!keyPath.equals(path)) continue;
-
-			// we'll take it
-			rv.add(payload);
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("getAll(String " + path + ")");
 		}
-
+		
+		if (disabled()) return Collections.emptyList();
+		
+		final List<Object> keys = cache.getKeysWithExpiryCheck();
+		final List<Object> rv = new ArrayList<Object>(keys.size()); // return value
+		for (Object key : keys) {
+			// take only if keys start with path, and have no SEPARATOR following other than at the end %%%
+			if (key instanceof String && referencePath((String) key).equals(path)) {
+				rv.add(cache.get(key).getObjectValue());
+			}
+		}
 		return rv;
 
 	} // getAll
@@ -613,44 +514,48 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public List getKeys()
 	{
-		List rv = new Vector();
-		rv.addAll(m_map.keySet());
-		return rv;
-
+		M_log.debug("getKeys()");
+		
+		return cache.getKeys();
+		
 	} // getKeys
 
 	/**
-	 * Get all the keys, eache modified to remove the resourcePattern prefix. Note: only works with String keys.
+	 * Get all the keys, each modified to remove the resourcePattern prefix. Note: only works with String keys.
 	 * 
 	 * @return The List of keys converted from references to ids (String).
 	 */
-	public List getIds()
-	{
-		List rv = new Vector();
+	public List getIds() {
+		M_log.debug("getIds()");
 
-		for (Iterator it = m_map.keySet().iterator(); it.hasNext();)
-		{
-			String key = (String) it.next();
-			int i = key.indexOf(m_resourcePattern);
-			if (i != -1) key = key.substring(i + m_resourcePattern.length());
-			rv.add(key);
+		if (disabled())
+			return Collections.emptyList();
+
+		final List<Object> keys = cache.getKeysWithExpiryCheck();
+		final List<Object> rv = new ArrayList<Object>(keys.size()); // return
+																	// value
+		for (Object key : keys) {
+			if (key instanceof String) {
+				int i = ((String) key).indexOf(m_resourcePattern);
+				if (i != -1)
+					key = ((String) key).substring(i
+							+ m_resourcePattern.length());
+				rv.add(key);
+			}
 		}
-
 		return rv;
 
-	} // getKeys
+	} // getIds
 
 	/**
 	 * Clear all entries.
 	 */
 	public void clear()
 	{
-		m_map.clear();
-		m_complete = false;
-		m_partiallyComplete.clear();
-		m_getCount = 0;
-		m_hitCount = 0;
-		m_putCount = 0;
+		M_log.debug("clear()");
+
+		cache.removeAll();
+		cache.getStatistics().clearStatistics();
 
 		if (m_derivedCache != null) m_derivedCache.notifyCacheClear();
 
@@ -664,16 +569,21 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public void remove(Object key)
 	{
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("remove(Object " + key + ")");
+		}
+
 		if (disabled()) return;
 
-		CacheEntry entry = (CacheEntry) m_map.remove(key);
-		
+		final Object value = get(key);
+		boolean found = cache.remove(key);
+
 		if (m_derivedCache != null)
 		{
 			Object old = null;
-			if (entry != null)
+			if (found)
 			{
-				old = entry.getHardPayload();
+				old = value;
 			}
 
 			m_derivedCache.notifyCacheRemove(key, old);
@@ -686,6 +596,8 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public void disable()
 	{
+		M_log.debug("disable()");
+		
 		m_disabled = true;
 		m_eventTrackingService.deleteObserver(this);
 		clear();
@@ -697,6 +609,8 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public void enable()
 	{
+		M_log.debug("enable()");
+
 		m_disabled = false;
 
 		if (m_resourcePattern != null)
@@ -713,6 +627,8 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public boolean disabled()
 	{
+		M_log.debug("disabled()");
+
 		return m_disabled;
 
 	} // disabled
@@ -724,6 +640,8 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public boolean isComplete()
 	{
+		M_log.debug("isComplete()");
+
 		if (disabled()) return false;
 
 		return m_complete;
@@ -735,6 +653,8 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public void setComplete()
 	{
+		M_log.debug("setComplete()");
+
 		if (disabled()) return;
 
 		m_complete = true;
@@ -750,6 +670,10 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public boolean isComplete(String path)
 	{
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("isComplete(String " + path + ")");
+		}
+
 		return m_partiallyComplete.contains(path);
 
 	} // isComplete
@@ -762,6 +686,10 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public void setComplete(String path)
 	{
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("setComplete(String " + path + ")");
+		}
+
 		m_partiallyComplete.add(path);
 
 	} // setComplete
@@ -771,6 +699,8 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public void holdEvents()
 	{
+		M_log.debug("holdEvents()");
+		
 		m_holdEventProcessing = true;
 
 	} // holdEvents
@@ -780,6 +710,8 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public void processEvents()
 	{
+		M_log.debug("processEvents()");
+
 		m_holdEventProcessing = false;
 
 		for (int i = 0; i < m_heldEvents.size(); i++)
@@ -801,6 +733,8 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public void resetCache()
 	{
+		M_log.debug("resetCache()");
+		
 		clear();
 
 	} // resetCache
@@ -812,7 +746,9 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public long getSize()
 	{
-		return m_map.size();
+		M_log.debug("getSize()");
+		
+		return cache.getStatistics().getObjectCount();
 	}
 
 	/**
@@ -822,12 +758,8 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public String getDescription()
 	{
-		StringBuffer buf = new StringBuffer();
+		final StringBuilder buf = new StringBuilder();
 		buf.append("MemCache");
-		if (m_softRefs)
-		{
-			buf.append(" soft");
-		}
 		if (m_disabled)
 		{
 			buf.append(" disabled");
@@ -840,161 +772,23 @@ public class MemCache implements Cache, Runnable, Observer
 		{
 			buf.append(" " + m_resourcePattern);
 		}
-		if (m_refresher != null)
-		{
-			buf.append(" " + m_refresher.toString());
-		}
-		if (m_thread != null)
-		{
-			buf.append(" thread_sleep: " + m_refresherSleep);
-		}
 		if (m_partiallyComplete.size() > 0)
 		{
 			buf.append(" partially_complete[");
-			for (Iterator i = m_partiallyComplete.iterator(); i.hasNext();)
-			{
-				buf.append(" " + i.next());
+			for (Object element : m_partiallyComplete) {
+				buf.append(" " + element);
 			}
 			buf.append("]");
 		}
-
-		buf.append("  puts:" + m_putCount + "  gets:" + m_getCount + "  hits:" + m_hitCount + "  hit%:"
-				+ ((m_getCount > 0) ? "" + ((100l * m_hitCount) / m_getCount) : "n/a"));
+		final long hits = cache.getStatistics().getCacheHits();
+		final long misses = cache.getStatistics().getCacheMisses();
+		final long total = hits + misses;
+		buf.append("  hits:" + hits + "  misses:" + misses + "  hit%:"
+				+ ((total > 0) ? "" + ((100l * hits) / total) : "n/a"));
 
 		return buf.toString();
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Runnable implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/** The thread which runs the expiration check. */
-	protected Thread m_thread = null;
-
-	/** My thread's quit flag. */
-	protected boolean m_threadStop = false;
-
-	/**
-	 * Start the expiration thread.
-	 */
-	protected void start()
-	{
-		m_threadStop = false;
-
-		m_thread = new Thread(this, getClass().getName());
-		m_thread.setDaemon(true);
-		m_thread.setPriority(Thread.MIN_PRIORITY + 2);
-		m_thread.start();
-
-	} // start
-
-	/**
-	 * Stop the expiration thread.
-	 */
-	protected void stop()
-	{
-		if (m_thread == null) return;
-
-		// signal the thread to stop
-		m_threadStop = true;
-
-		// wake up the thread
-		m_thread.interrupt();
-
-		m_thread = null;
-
-	} // stop
-
-	/**
-	 * Run the expiration thread.
-	 */
-	public void run()
-	{
-		// since we might be running while the component manager is still being created and populated, such as at server
-		// startup, wait here for a complete component manager
-		ComponentManager.waitTillConfigured();
-
-		// loop till told to stop
-		while ((!m_threadStop) && (!Thread.currentThread().isInterrupted()))
-		{
-			long startTime = 0;
-			try
-			{
-				if (M_log.isDebugEnabled())
-				{
-					startTime = System.currentTimeMillis();
-					M_log.debug(this + ".checking ...");
-				}
-
-				// collect keys of expired entries in the cache
-				List expired = new Vector();
-				for (Iterator iKeys = m_map.entrySet().iterator(); iKeys.hasNext();)
-				{
-					Map.Entry e = (Map.Entry) iKeys.next();
-					String key = (String) e.getKey();
-					CacheEntry entry = (CacheEntry) e.getValue();
-
-					// if it has expired
-					if (entry.hasExpired())
-					{
-						expired.add(key);
-					}
-				}
-
-				// if we have a refresher, for each expired, try to refresh
-				if (m_refresher != null)
-				{
-					for (Iterator iKeys = expired.iterator(); iKeys.hasNext();)
-					{
-						String key = (String) iKeys.next();
-						CacheEntry entry = (CacheEntry) m_map.get(key);
-						if (entry != null)
-						{
-							Object newValue = m_refresher.refresh(key, entry.getPayload(null), null);
-
-							remove(key);
-
-							// if the response is not null, replace and rejuvinate
-							if (newValue != null)
-							{
-								put(key, newValue, entry.getDuration());
-							}
-						}
-					}
-				}
-
-				// if no refresher, for each expired, remove
-				else
-				{
-					for (Iterator iKeys = expired.iterator(); iKeys.hasNext();)
-					{
-						String key = (String) iKeys.next();
-						remove(key);
-					}
-				}
-			}
-			catch (Throwable e)
-			{
-				M_log.warn(this + ": exception: ", e);
-			}
-
-			if (M_log.isDebugEnabled())
-			{
-				M_log.debug(this + ".done. Time: " + (System.currentTimeMillis() - startTime));
-			}
-
-			// take a small nap
-			try
-			{
-				Thread.sleep(m_refresherSleep * 1000);
-			}
-			catch (Exception ignore)
-			{
-			}
-
-		} // while
-
-	} // run
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Observer implementation
@@ -1047,11 +841,12 @@ public class MemCache implements Cache, Runnable, Observer
 		String key = event.getResource();
 
 		if (M_log.isDebugEnabled())
-			M_log.debug(this + ".update() [" + m_resourcePattern + "] resource: " + key + " event: " + event.getEvent());
+			M_log.debug(this + ".update() [" + m_resourcePattern
+					+ "] resource: " + key + " event: " + event.getEvent());
 
 		// do we have this in our cache?
 		Object oldValue = get(key);
-		if (m_map.containsKey(key))
+		if (oldValue != null)
 		{
 			// invalidate our copy
 			remove(key);
@@ -1135,4 +930,5 @@ public class MemCache implements Cache, Runnable, Observer
 		return path;
 
 	} // referencePath
+
 }

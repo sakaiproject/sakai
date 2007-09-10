@@ -48,11 +48,13 @@ public interface MemoryService
 
 	/**
 	 * Register as a cache user
+	 * @deprecated Since Sakai 2.5.0
 	 */
 	void registerCacher(Cacher cacher);
 
 	/**
 	 * Unregister as a cache user
+	 * @deprecated Since Sakai 2.5.0
 	 */
 	void unregisterCacher(Cacher cacher);
 
@@ -63,8 +65,30 @@ public interface MemoryService
 	 *        The object that will handle refreshing of event notified modified or added entries.
 	 * @param pattern
 	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
+	 * @deprecated Since Sakai 2.5.0
+	 * @see MemoryService#newCache(String, CacheRefresher, String)
 	 */
 	Cache newCache(CacheRefresher refresher, String pattern);
+
+	/**
+	 * Construct a Cache. Attempts to keep complete on Event notification by calling the refresher.
+	 * 
+	 * @param cacheName Load a defined bean from ComponentManager or create a default cache with this name.
+	 * @param refresher
+	 *        The object that will handle refreshing of event notified modified or added entries.
+	 * @param pattern
+	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
+	 */
+	Cache newCache(String cacheName, CacheRefresher refresher, String pattern);
+
+	/**
+	 * Construct a Cache. Attempts to keep complete on Event notification by calling the refresher.
+	 * 
+	 * @param cacheName Load a defined bean from ComponentManager or create a default cache with this name.
+	 * @param pattern
+	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
+	 */
+	Cache newCache(String cacheName, String pattern);
 
 	/**
 	 * Construct a special Cache that uses hard references. Attempts to keep complete on Event notification by calling the refresher.
@@ -73,6 +97,8 @@ public interface MemoryService
 	 *        The object that will handle refreshing of event notified modified or added entries.
 	 * @param pattern
 	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
+	 * @deprecated Since Sakai 2.5.0
+	 * @see MemoryService#newCache(String, CacheRefresher, String)
 	 */
 	Cache newHardCache(CacheRefresher refresher, String pattern);
 
@@ -83,8 +109,19 @@ public interface MemoryService
 	 *        The object that will handle refreshing of expired entries.
 	 * @param sleep
 	 *        The number of seconds to sleep between expiration checks.
+	 * @deprecated Since Sakai 2.5.0
+	 * @see MemoryService#newCache(String, CacheRefresher)
 	 */
 	Cache newCache(CacheRefresher refresher, long sleep);
+
+	/**
+	 * Construct a Cache. Automatic refresh handling if refresher is not null.
+	 * 
+	 * @param cacheName Load a defined bean from ComponentManager or create a default cache with this name.
+	 * @param refresher
+	 *        The object that will handle refreshing of expired entries.
+	 */
+	Cache newCache(String cacheName, CacheRefresher refresher);
 
 	/**
 	 * Construct a Cache. Automatic refresh handling if refresher is not null.
@@ -93,6 +130,8 @@ public interface MemoryService
 	 *        The object that will handle refreshing of expired entries.
 	 * @param sleep
 	 *        The number of seconds to sleep between expiration checks.
+	 * @deprecated Since Sakai 2.5.0
+	 * @see MemoryService#newCache(String, CacheRefresher)
 	 */
 	Cache newHardCache(CacheRefresher refresher, long sleep);
 
@@ -103,16 +142,28 @@ public interface MemoryService
 	 *        The number of seconds to sleep between expiration checks.
 	 * @param pattern
 	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for expiration.
+	 * @deprecated Since Sakai 2.5.0
+	 * @see MemoryService#newCache(String, String)
 	 */
 	Cache newHardCache(long sleep, String pattern);
 
 	/**
 	 * Construct a Cache. No automatic refresh handling.
+	 * @deprecated Since Sakai 2.5.0
+	 * @see MemoryService#newCache(String)
 	 */
 	Cache newCache();
 
 	/**
 	 * Construct a Cache. No automatic refresh handling.
+	 * @param cacheName Load a defined bean from ComponentManager or create a default cache with this name.
+	 */
+	Cache newCache(String cacheName);
+
+	/**
+	 * Construct a Cache. No automatic refresh handling.
+	 * @deprecated Since Sakai 2.5.0
+	 * @see MemoryService#newCache(String)
 	 */
 	Cache newHardCache();
 
@@ -121,8 +172,17 @@ public interface MemoryService
 	 * 
 	 * @param sleep
 	 *        The number of seconds to sleep between expiration checks.
+	 * @deprecated Since Sakai 2.5.0
+	 * @see MemoryService#newMultiRefCache(String)
 	 */
 	MultiRefCache newMultiRefCache(long sleep);
+
+	/**
+	 * Construct a multi-ref Cache. No automatic refresh: expire only, from time and events.
+	 * 
+	 * @param cacheName Load a defined bean from ComponentManager or create a default cache with this name.
+	 */
+	MultiRefCache newMultiRefCache(String cacheName);
 
 	/**
 	 * Get a status report of memory users.
