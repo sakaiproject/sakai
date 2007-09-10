@@ -2335,6 +2335,8 @@ public abstract class BaseCitationService implements CitationService
 		protected Map<String, Citation> m_citations = new Hashtable<String, Citation>();
 
 		protected Comparator m_comparator = DEFAULT_COMPARATOR;
+		
+		protected String m_sortOrder;
 
 		protected SortedSet<String> m_order;
 
@@ -2661,6 +2663,17 @@ public abstract class BaseCitationService implements CitationService
 		/* (non-Javadoc)
          * @see org.sakaiproject.citation.api.CitationCollection#getSaveUrl()
          */
+        public String getSort()
+        {
+        	if (m_sortOrder == null)
+        		m_sortOrder = this.SORT_BY_DEFAULT_ORDER;
+        	
+	        return m_sortOrder;
+        }
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.citation.api.CitationCollection#getSaveUrl()
+         */
         public String getSaveUrl()
         {
 	        String url = m_serverConfigurationService.getServerUrl() + "/savecite/" + this.getId() + "/";
@@ -2783,7 +2796,6 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public void setSort(String sortBy, boolean ascending)
 		{
-			checkForUpdates();
 			m_ascending = ascending;
 
 			String status = "UNSET";
@@ -2810,6 +2822,7 @@ public abstract class BaseCitationService implements CitationService
 			
 			if (this.m_comparator != null)
 			{
+				this.m_sortOrder = sortBy;
 				SortedSet oldSet = this.m_order;
 				this.m_order = new TreeSet<String>(this.m_comparator);
                 this.m_order.addAll(oldSet);
