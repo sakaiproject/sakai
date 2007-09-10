@@ -785,7 +785,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 						String placementId = placement.getId();
 						// compute the URL root "back" to this servlet
 						// Note: this must not be pre-computed, as it can change as things are dispatched
-						StringBuffer full = new StringBuffer();
+						StringBuilder full = new StringBuilder();
 						full.append(m_req.getScheme());
 						full.append("://");
 						full.append(m_req.getServerName());
@@ -797,7 +797,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 						}
 
 						// include just the context path - anything to this context will get the encoding
-						StringBuffer rel = new StringBuffer();
+						StringBuilder rel = new StringBuilder();
 						rel.append(m_req.getContextPath());
 
 						full.append(rel.toString());
@@ -806,7 +806,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 						if ((url.startsWith(full.toString()) || url.startsWith(rel.toString())))
 						{
 							// put the placementId in as a parameter
-							StringBuffer newUrl = new StringBuffer(url);
+							StringBuilder newUrl = new StringBuilder(url);
 							if (url.indexOf('?') != -1)
 							{
 								newUrl.append('&');

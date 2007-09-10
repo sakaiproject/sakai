@@ -393,7 +393,7 @@ public class RequestFilter implements Filter
 				if (placementId != null)
 				{
 					// compute the URL root "back" to this servlet context (rel and full)
-					StringBuffer full = new StringBuffer();
+					StringBuilder full = new StringBuilder();
 					full.append(m_req.getScheme());
 					full.append("://");
 					full.append(m_req.getServerName());
@@ -404,7 +404,7 @@ public class RequestFilter implements Filter
 						full.append(m_req.getServerPort());
 					}
 
-					StringBuffer rel = new StringBuffer();
+					StringBuilder rel = new StringBuilder();
 					rel.append(m_req.getContextPath());
 
 					full.append(rel.toString());
@@ -413,7 +413,7 @@ public class RequestFilter implements Filter
 					if ((url.startsWith(full.toString()) || url.startsWith(rel.toString())))
 					{
 						// put the placementId in as a parameter
-						StringBuffer newUrl = new StringBuffer(url);
+						StringBuilder newUrl = new StringBuilder(url);
 						if (url.indexOf('?') != -1)
 						{
 							newUrl.append('&');
@@ -1267,7 +1267,7 @@ public class RequestFilter implements Filter
 			secure = req.isSecure();
 		}
 
-		StringBuffer url = new StringBuffer();
+		StringBuilder url = new StringBuilder();
 		url.append(transport);
 		url.append("://");
 		url.append(req.getServerName());

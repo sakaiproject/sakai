@@ -187,7 +187,7 @@ public abstract class ToolComponent implements ToolManager
 		}
 		
 		// collect the hiddens for logging
-		StringBuffer hidden = new StringBuffer();
+		StringBuilder hidden = new StringBuilder();
 
 		if (!toHide.isEmpty())
 		{
