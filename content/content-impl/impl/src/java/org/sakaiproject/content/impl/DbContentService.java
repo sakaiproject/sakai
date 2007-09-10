@@ -269,16 +269,6 @@ public class DbContentService extends BaseContentService
 	/** The db handler we are using. */
 	protected ContentServiceSql contentServiceSql;
 
-	protected boolean convertToContextQueryForCollectionSize;
-	
-	/**
-	 * @param convertToContextQueryForCollectionSize the convertToContextQueryForCollectionSize to set
-	 */
-	public void setConvertToContextQueryForCollectionSize(boolean convertToContextQueryForCollectionSize) 
-	{
-		this.convertToContextQueryForCollectionSize = convertToContextQueryForCollectionSize;
-	}
-
 	public void setDatabaseBeans(Map databaseBeans)
 	{
 		this.databaseBeans = databaseBeans;
@@ -627,15 +617,15 @@ public class DbContentService extends BaseContentService
 
 			// build the resources store - a single level store
 			m_resourceStore = new BaseDbSingleStorage(m_resourceTableName, "RESOURCE_ID", 
-					(bodyInFile ? (m_useContextQueryForCollectionSize? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_FILE) 
-							: (m_useContextQueryForCollectionSize? RESOURCE_FIELDS_CONTEXT : RESOURCE_FIELDS)),
+					(bodyInFile ? (m_useContextQueryForCollectionSize || convertToContextQueryForCollectionSize ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_FILE) 
+							: (m_useContextQueryForCollectionSize || convertToContextQueryForCollectionSize ? RESOURCE_FIELDS_CONTEXT : RESOURCE_FIELDS)),
 					m_locksInDb, "resource", resourceUser, m_sqlService);
 
 			// htripath-build the resource for store of deleted record-single
 			// level store
 			m_resourceDeleteStore = new BaseDbSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", 
-					(bodyInFile ? (m_useContextQueryForCollectionSize? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_FILE) 
-							: (m_useContextQueryForCollectionSize? RESOURCE_FIELDS_CONTEXT : RESOURCE_FIELDS)),
+					(bodyInFile ? (m_useContextQueryForCollectionSize || convertToContextQueryForCollectionSize ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_FILE) 
+							: (m_useContextQueryForCollectionSize || convertToContextQueryForCollectionSize ? RESOURCE_FIELDS_CONTEXT : RESOURCE_FIELDS)),
 					m_locksInDb, "resource", resourceUser, m_sqlService);
 
 		} // DbStorage

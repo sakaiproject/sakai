@@ -605,6 +605,16 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		this.m_useContextQueryForCollectionSize = useContextQueryForCollectionSize;
 	}
 	
+	protected boolean convertToContextQueryForCollectionSize;
+	
+	/**
+	 * @param convertToContextQueryForCollectionSize the convertToContextQueryForCollectionSize to set
+	 */
+	public void setConvertToContextQueryForCollectionSize(boolean convertToContextQueryForCollectionSize) 
+	{
+		this.convertToContextQueryForCollectionSize = convertToContextQueryForCollectionSize;
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -1044,7 +1054,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public Object[] storageFields(Entity r)
 		{
-			if(m_useContextQueryForCollectionSize)
+			if(m_useContextQueryForCollectionSize || convertToContextQueryForCollectionSize)
 			{
 				// include the file path field if we are doing body in the file system
 				if (m_bodyPath != null)
