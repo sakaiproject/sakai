@@ -790,7 +790,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 
 			// // TODO: TIMING
 			// if (CurrentService.getInThread("DEBUG") == null)
-			// CurrentService.setInThread("DEBUG", new StringBuffer());
+			// CurrentService.setInThread("DEBUG", new StringBuilder());
 			// long startTime = System.currentTimeMillis();
 
 			List msgs = ChatService.getMessages((String) state.getAttribute(STATE_CHANNEL_REF), filter.getAfterDate(), filter
@@ -803,7 +803,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 			// long endTime = System.currentTimeMillis();
 			// if (endTime-startTime > /*5*/000)
 			// {
-			// StringBuffer buf = (StringBuffer) CurrentService.getInThread("DEBUG");
+			// StringBuilder buf = (StringBuilder) CurrentService.getInThread("DEBUG");
 			// if (buf != null)
 			// {
 			// buf.insert(0,"ChatAction.list: "
@@ -925,7 +925,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 
 		// // TODO: TIMING
 		// if (CurrentService.getInThread("DEBUG") == null)
-		// CurrentService.setInThread("DEBUG", new StringBuffer());
+		// CurrentService.setInThread("DEBUG", new StringBuilder());
 		// long startTime = System.currentTimeMillis();
 
 		ChatChannel channel = getChannel(state, (String) state.getAttribute(STATE_CHANNEL_REF));
@@ -934,7 +934,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 		// long endTime = System.currentTimeMillis();
 		// if (endTime-startTime > /*5*/000)
 		// {
-		// StringBuffer buf = (StringBuffer) CurrentService.getInThread("DEBUG");
+		// StringBuilder buf = (StringBuilder) CurrentService.getInThread("DEBUG");
 		// if (buf != null)
 		// {
 		// buf.insert(0,"ChatAction.doSend: "
@@ -1007,7 +1007,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 
 		// // TODO: TIMING
 		// if (CurrentService.getInThread("DEBUG") == null)
-		// CurrentService.setInThread("DEBUG", new StringBuffer());
+		// CurrentService.setInThread("DEBUG", new StringBuilder());
 		// long startTime = System.currentTimeMillis();
 
 		Iterator aChannel = ChatService.getChannelIds(placementContext).iterator();
@@ -1016,7 +1016,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 		// long endTime = System.currentTimeMillis();
 		// if (endTime-startTime > /*5*/000)
 		// {
-		// StringBuffer buf = (StringBuffer) CurrentService.getInThread("DEBUG");
+		// StringBuilder buf = (StringBuilder) CurrentService.getInThread("DEBUG");
 		// if (buf != null)
 		// {
 		// buf.insert(0,"ChatAction.options: "
@@ -1070,7 +1070,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 
 			// // TODO: TIMING
 			// if (CurrentService.getInThread("DEBUG") == null)
-			// CurrentService.setInThread("DEBUG", new StringBuffer());
+			// CurrentService.setInThread("DEBUG", new StringBuilder());
 			// long startTime = System.currentTimeMillis();
 
 			// Message msg = ChatService.getMessage(msgRef);
@@ -1082,7 +1082,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 			// long endTime = System.currentTimeMillis();
 			// if (endTime-startTime > /*5*/000)
 			// {
-			// StringBuffer buf = (StringBuffer) CurrentService.getInThread("DEBUG");
+			// StringBuilder buf = (StringBuilder) CurrentService.getInThread("DEBUG");
 			// if (buf != null)
 			// {
 			// buf.insert(0,"ChatAction.confirmDelete: "
