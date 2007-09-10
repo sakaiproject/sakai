@@ -2119,12 +2119,16 @@ public class DeliveryActionListener
 	  log.debug("input seed = " + seed);
 	  if (sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE) != null && sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE).equals(SectionDataIfc.PER_SUBMISSION)) {
 		  Long id = delivery.getAssessmentGradingId();
-		  if (id == null) { // this happens during preview assessment
+		  log.debug("assessmentGradingId = " + id);
+		  if (delivery.getActionMode() == 2) { // this happens during preview assessment
 			  log.debug("preview assessment: seed = " + seed);
 		  }
-		  else {
+		  else if (id != null) {
 			  seed = (long) (id.toString() + "_" + sectionData.getSectionId().toString()).hashCode();
 			  log.debug("seed = " + seed);
+		  }
+		  else {
+			  log.error("assessmentGradingId is null");
 		  }
 	  }
 	  return seed;
