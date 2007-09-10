@@ -463,7 +463,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			{
 				// trim the body, as formatted text
 				String body = announcementMesssage.getBody();
-				StringBuffer buf = new StringBuffer();
+				StringBuilder buf = new StringBuilder();
 				body = FormattedText.escapeHtmlFormattedTextSupressNewlines(body);
 				boolean didTrim = FormattedText.trimFormattedText(body, this.maxNumberOfChars, buf);
 				if (didTrim)
@@ -4209,7 +4209,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	private String processFormattedTextFromBrowser(SessionState state, String strFromBrowser)
 	{
-		StringBuffer alertMsg = new StringBuffer();
+		StringBuilder alertMsg = new StringBuilder();
 		try
 		{
 			String text = FormattedText.processFormattedText(strFromBrowser, alertMsg);

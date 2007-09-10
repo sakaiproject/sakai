@@ -142,7 +142,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	 */
 	protected String htmlContent()
 	{
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		String newline = "<br />\n";
 
 		// get the message
