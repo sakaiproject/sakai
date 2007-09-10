@@ -121,7 +121,8 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 		{
 			M_log.info("init()");
 
-			m_storage = m_memoryService.newCache();
+			m_storage = m_memoryService
+					.newCache("org.sakaiproject.news.api.NewsService.cache");
 		}
 		catch (Throwable t)
 		{
