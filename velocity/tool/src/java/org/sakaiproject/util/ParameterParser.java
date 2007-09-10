@@ -150,7 +150,7 @@ public class ParameterParser
 		if (value.length() == 0) return value;
 
 		final int len = value.length();
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 
 		for (int i = 0; i < len; i++)
 		{

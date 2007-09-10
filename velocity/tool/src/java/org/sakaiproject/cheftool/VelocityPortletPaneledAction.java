@@ -405,7 +405,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 				template = "/vm/" + template + ".vm";
 
 				// setup for old style alert
-				StringBuffer buf = new StringBuffer();
+				StringBuilder buf = new StringBuilder();
 				String msg = (String) getState(req).getAttribute(STATE_MESSAGE);
 				if (msg != null)
 				{
