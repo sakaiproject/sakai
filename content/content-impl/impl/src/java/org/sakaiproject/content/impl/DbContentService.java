@@ -311,6 +311,9 @@ public class DbContentService extends BaseContentService
 
 				// do the 2.1.0 conversions
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_2_1_0");
+				
+				// if the newest autoddl has been run, CONTEXT and FILE_SIZE columns exits, so we begin using them 
+				m_useContextQueryForCollectionSize = true;
 			}
 
 			// If CHH resolvers are turned off in sakai.properties, unset the resolver property.
@@ -339,7 +342,9 @@ public class DbContentService extends BaseContentService
 			M_log.warn("init(): ", t);
 		}
 		
-		if(convertToContextQueryForCollectionSize)
+		// if the convert flag is set to add CONTEXT and FILE_SIZE columns
+		// start doing the conversion
+		if(convertToContextQueryForCollectionSize && m_sqlService != null)
 		{
 			addNewColumns();
 			populateNewColumns();
