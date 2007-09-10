@@ -881,6 +881,15 @@
     </attribute>
 
       <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+		Pass throught style for this widget
+      </description>
+    </attribute>
+
+      <attribute>
       <name>columnClasses</name>
       <required>false</required>
       <rtexprvalue>false</rtexprvalue>
