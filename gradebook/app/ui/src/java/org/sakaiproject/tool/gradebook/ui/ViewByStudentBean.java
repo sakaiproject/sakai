@@ -417,6 +417,10 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		
     	}
 
+    	Map goEventListMap = getGradebookManager().getGradingEventsForStudent(studentUid, assignments);
+    	if (goEventListMap != null) {
+    		getGradebookManager().convertGradingEventsConvertedForStudent(gradebook, goEventListMap, gradebook.getGrade_type());
+    	}
 
     	//iterate through the assignments and update the comments and grading events
     	Iterator assignmentIterator = assignments.iterator();
@@ -427,14 +431,14 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		
     		// Grading events
     		if (isInstructorView) {
-	    		List studentList = new ArrayList();
-	    		studentList.add(studentUid);
-	    		GradingEvents events = getGradebookManager().getGradingEvents(assignment, studentList);
-	    		getGradebookManager().convertGradingEventsConverted(assignment, events, studentList, getGradebook().getGrade_type());
-	    		List eventList = events.getEvents(studentUid);
-	    		if (eventList != null && !eventList.isEmpty()) {
+        		List assignEventList = new ArrayList();
+        		if (goEventListMap != null) {
+        			assignEventList = (List) goEventListMap.get(assignment);
+        		}
+	    		
+	    		if (assignEventList != null && !assignEventList.isEmpty()) {
 	    			List eventRows = new ArrayList();
-	    			for (Iterator iter = eventList.iterator(); iter.hasNext();) {
+	    			for (Iterator iter = assignEventList.iterator(); iter.hasNext();) {
 	    				GradingEvent gradingEvent = (GradingEvent)iter.next();
 	    				eventRows.add(new GradingEventRow(gradingEvent));
 	    			}

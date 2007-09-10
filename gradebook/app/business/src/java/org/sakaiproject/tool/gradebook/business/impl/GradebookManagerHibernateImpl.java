@@ -1307,6 +1307,67 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         }
         return events;
     }
+    
+    public Map getGradingEventsForStudent(final String studentId, final Collection gradableObjects) {
+    	if (log.isDebugEnabled()) log.debug("getGradingEventsForStudent called for studentId:" + studentId);
+    	Map goEventListMap = new HashMap();
+    	
+        // Don't attempt to run the query if there are no gradableObjects or student id
+        if(gradableObjects == null || gradableObjects.size() == 0) {
+            log.debug("No gb items were specified.  Returning an empty GradingEvents object");
+            return goEventListMap;
+        }
+        if (studentId == null) {
+        	log.debug("No student id was specified.  Returning an empty GradingEvents object");
+        	return goEventListMap;
+        }
+        
+        
+        for (Iterator goIter = gradableObjects.iterator(); goIter.hasNext();) {
+        	GradableObject go = (GradableObject) goIter.next();
+        	goEventListMap.put(go, new ArrayList());
+        }
+
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                List eventsList;
+                if (gradableObjects.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+                    Query q = session.createQuery("from GradingEvent as ge where ge.studentId=:studentId and ge.gradableObject in (:gradableObjects)");
+                    q.setParameterList("gradableObjects", gradableObjects, Hibernate.entity(GradableObject.class));
+                    q.setParameter("studentId", studentId);
+                    eventsList = q.list();
+                } else {
+                    Query q = session.createQuery("from GradingEvent as ge where ge.studentId=:studentId");
+                    q.setParameter("studentId", studentId);
+                    eventsList = new ArrayList();
+                    for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
+                        GradingEvent event = (GradingEvent)iter.next();
+                        if (gradableObjects.contains(event.getGradableObject())) {
+                            eventsList.add(event);
+                        }
+                    }
+                }
+                return eventsList;
+            }
+        };
+
+        List list = (List)getHibernateTemplate().execute(hc);
+
+        for(Iterator iter = list.iterator(); iter.hasNext();) {
+            GradingEvent event = (GradingEvent)iter.next();
+            GradableObject go = event.getGradableObject();
+            List goEventList = (List) goEventListMap.get(go);
+            if (goEventList != null) {
+            	goEventList.add(event);
+                goEventListMap.put(go, goEventList);
+            } 
+            else {
+            	log.debug("event retrieved by getGradingEventsForStudent not associated with passed go list");
+            }
+        }
+        
+        return goEventListMap;
+    }
 
 
     /**
@@ -2431,6 +2492,45 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 	    				ge.setGrade(letterGrade);	
 	    			}
     			}
+    		}
+    	}
+    }
+    
+    public void convertGradingEventsConvertedForStudent(Gradebook gradebook, Map gradableObjectEventListMap, int grade_type) {
+    	if (gradableObjectEventListMap == null || gradableObjectEventListMap.isEmpty()) {
+    		return;
+    	}
+    	
+    	LetterGradePercentMapping lgpm = new LetterGradePercentMapping();
+    	if (grade_type == GradebookService.GRADE_TYPE_LETTER) {
+    		lgpm = getLetterGradePercentMapping(gradebook);
+    	}
+    	
+    	for (Iterator goIter = gradableObjectEventListMap.keySet().iterator(); goIter.hasNext();) {
+    		GradableObject go = (GradableObject)goIter.next();
+    		if (go instanceof Assignment) {
+    			Assignment assign = (Assignment) go;
+    			Double pointsPossible = assign.getPointsPossible();
+    			
+	    		List eventList = (List) gradableObjectEventListMap.get(go);
+	    		if (eventList != null && eventList.size() > 0) {
+	    			for(Iterator eventIter = eventList.iterator(); eventIter.hasNext();)
+	        		{
+	        			GradingEvent ge = (GradingEvent) eventIter.next();
+	        			if (ge.getGrade() != null) {
+	    	    			if(grade_type == GradebookService.GRADE_TYPE_PERCENTAGE)
+	    	    			{
+	    	    				ge.setGrade(calculateEquivalentPercent(pointsPossible, new Double(ge.getGrade())).toString());
+	    	    			} else if(grade_type == GradebookService.GRADE_TYPE_LETTER) {
+	    	    				String letterGrade = null;
+	    	    				if (lgpm != null) {
+	    	    					letterGrade = lgpm.getGrade(calculateEquivalentPercent(pointsPossible, new Double(ge.getGrade())));
+	    	    				}
+	    	    				ge.setGrade(letterGrade);	
+	    	    			}
+	        			}
+	        		}
+	    		}
     		}
     	}
     }

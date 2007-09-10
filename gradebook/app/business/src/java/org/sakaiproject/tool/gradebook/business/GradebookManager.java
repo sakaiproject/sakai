@@ -232,6 +232,14 @@ public interface GradebookManager {
      * @return
      */
     public GradingEvents getGradingEvents(GradableObject gradableObject, Collection studentUids);
+    
+    /**
+     * Gets the grading events for the given student for the given gradableObjects
+     * @param studentId
+     * @param gradableObjects
+     * @return Map of GradableObject to associated GradingEvent objects
+     */
+    public Map getGradingEventsForStudent(final String studentId, final Collection gradableObjects);
 
     /**
      * Fetches a List of Assignments, but does not populate non-persistent
@@ -535,7 +543,7 @@ public interface GradebookManager {
     public List getAssignmentsWithNoCategoryWithStats(Long gradebookId, String assignmentSort, boolean assignAscending);
     
     /**
-     * Convert grading events to percentage value if grade_type is set to percentage inputs. 
+     * Convert grading events to percentage or letter value depending upon grade_type
      *  
      * @param assign Assignment
      * @param events GradingEvents
@@ -543,6 +551,14 @@ public interface GradebookManager {
      * @param grade_type gradebook's grade_type
      */
     public void convertGradingEventsConverted(Assignment assign, GradingEvents events, List studentUids, int grade_type);
+    
+    /**
+     * Convert grading events to percentage or letter value depending upon grade_type
+     * @param gradebook
+     * @param gradableObjectEventListMap map of student's gradableObjects to their associated grading events
+     * @param grade_type gradebook's grade_type
+     */
+    public void convertGradingEventsConvertedForStudent(Gradebook gradebook, Map gradableObjectEventListMap, int grade_type);
     
     /**
      * Check if there's any students that haven't submit their assignment(s) - null value for points or 

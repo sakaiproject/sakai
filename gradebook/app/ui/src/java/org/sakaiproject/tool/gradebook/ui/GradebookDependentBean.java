@@ -93,8 +93,13 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	/**
 	 * Convenience method to load the current gradebook object.
 	 */
+	private transient Gradebook gradebook;
 	Gradebook getGradebook() {
-		return getGradebookManager().getGradebook(getGradebookId());
+		if (gradebook == null) {
+			gradebook = getGradebookManager().getGradebook(getGradebookId());
+		}
+		
+		return gradebook;
 	}
 
     /**
