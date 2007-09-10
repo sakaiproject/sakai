@@ -1815,9 +1815,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		Iterator iter = params.getNames();
 
+		String param = null;
+		
 		while (iter.hasNext())
 		{
-			logger.debug( "param = " + iter.next());			
+			param = (String) iter.next();
+			logger.debug( "param = " + param);
+			logger.debug( param + " value = " + params.get(param));			
 		}
 
 		String collectionId = params.getString("collectionId");
