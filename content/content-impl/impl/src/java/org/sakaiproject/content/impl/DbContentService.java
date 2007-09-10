@@ -1923,7 +1923,7 @@ public class DbContentService extends BaseContentService
 
 		try
 		{
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			for (int i = 0; i < id.length(); i++)
 			{
 				char c = id.charAt(i);

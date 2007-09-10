@@ -655,7 +655,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// set the action
 			edit.setAction(new SiteEmailNotificationContent());
 
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			if (m_bodyVolumes != null)
 			{
 				for (int i = 0; i < m_bodyVolumes.length; i++)
@@ -6455,7 +6455,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 	{
 		// prepare the buffer for the results log
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		// start with an element with our very own name
 		Element element = doc.createElement(ContentHostingService.class.getName());
@@ -6489,7 +6489,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public String archiveResources(List attachments, Document doc, Stack stack, String archivePath)
 	{
 		// prepare the buffer for the results log
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		// start with an element with our very own name
 		Element element = doc.createElement(APPLICATION_ID);
@@ -6607,7 +6607,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		// prepare the buffer for the results log
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		try
 		{
@@ -7413,7 +7413,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *        A log of messages from the archive.
 	 */
 	protected void archiveCollection(ContentCollection collection, Document doc, Stack stack, String storagePath,
-			String siteCollectionId, StringBuffer results)
+			String siteCollectionId, StringBuilder results)
 	{
 		// first the collection
 		Element el = collection.toXml(doc, stack);

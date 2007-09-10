@@ -83,7 +83,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		{
 		}
 		
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		addMessageText(buf, ref, subject, title, function, shouldProduceHtml);
 		return buf.toString();
 	}
@@ -118,7 +118,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	/**
 	 * @inheritDoc
 	 */
-	private void addMessageText(StringBuffer buf, Reference ref, String subject, String title, String function, boolean doHtml)
+	private void addMessageText(StringBuilder buf, Reference ref, String subject, String title, String function, boolean doHtml)
 	{
 		ResourceProperties props = ref.getProperties();
 		String resourceName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
@@ -272,7 +272,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	 */
 	protected String constructPath(String ref)
 	{
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 
 		// expect the ref to be /content/group/site/folder/folder2/folderEtc/file.ext
 		String[] parts = StringUtil.split(ref, Entity.SEPARATOR);
