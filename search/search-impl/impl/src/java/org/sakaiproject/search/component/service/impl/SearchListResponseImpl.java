@@ -396,7 +396,7 @@ public class SearchListResponseImpl implements SearchList, ContentHandler
 
 		private Attributes atts;
 
-		private StringBuffer content;
+		private StringBuilder content;
 
 		public StackElement(String uri, String localName, String name,
 				Attributes atts)
@@ -405,7 +405,7 @@ public class SearchListResponseImpl implements SearchList, ContentHandler
 			this.localName = localName;
 			this.name = name;
 			this.atts = new AttributesImpl(atts);
-			this.content = new StringBuffer();
+			this.content = new StringBuilder();
 		}
 
 		public Attributes getAttributes()

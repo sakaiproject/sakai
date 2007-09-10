@@ -339,7 +339,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 				{
 					PostMethod post = new PostMethod(searchServerUrl);
 					String userId = sessionManager.getCurrentSessionUserId();
-					StringBuffer sb = new StringBuffer();
+					StringBuilder sb = new StringBuilder();
 					for (Iterator ci = contexts.iterator(); ci.hasNext();)
 					{
 						sb.append(ci.next()).append(";"); //$NON-NLS-1$
@@ -657,7 +657,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 			String[] ssA = (String[]) parameterMap.get(REST_START);
 			String[] seA = (String[]) parameterMap.get(REST_END);
 
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append("<?xml version=\"1.0\"?>"); //$NON-NLS-1$
 
 			boolean requestError = false;
@@ -765,7 +765,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		}
 		catch (Exception ex)
 		{
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append("<?xml version=\"1.0\"?>"); //$NON-NLS-1$
 			sb.append("<fault>"); //$NON-NLS-1$
 			sb.append("<request>"); //$NON-NLS-1$

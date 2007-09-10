@@ -348,7 +348,7 @@ public class ClusterFSIndexStorageEclipsetest extends TestCase
 			iw = reopen(iw);
 		}
 		BufferedReader br = new BufferedReader(new FileReader(file));
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		String s = null;
 		while ((sb.length() < 1000000) && (s = br.readLine()) != null )
 		{

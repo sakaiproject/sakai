@@ -24,7 +24,7 @@ package org.apache.lucene.search.highlight;
  */
 public class TextFragment
 {
-	StringBuffer markedUpText;
+	StringBuilder markedUpText;
 
 	int fragNum;
 
@@ -34,7 +34,7 @@ public class TextFragment
 
 	float score;
 
-	public TextFragment(StringBuffer markedUpText, int textStartPos, int fragNum)
+	public TextFragment(StringBuilder markedUpText, int textStartPos, int fragNum)
 	{
 		this.markedUpText = markedUpText;
 		this.textStartPos = textStartPos;

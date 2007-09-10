@@ -190,7 +190,7 @@ public class Highlighter
 			throws IOException
 	{
 		ArrayList docFrags = new ArrayList();
-		StringBuffer newText = new StringBuffer();
+		StringBuilder newText = new StringBuilder();
 
 		TextFragment currentFrag = new TextFragment(newText, newText.length(),
 				docFrags.size());
@@ -436,7 +436,7 @@ public class Highlighter
 			int maxNumFragments, String separator) throws IOException
 	{
 		String sections[] = getBestFragments(tokenStream, text, maxNumFragments);
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		for (int i = 0; i < sections.length; i++)
 		{
 			if (i > 0)

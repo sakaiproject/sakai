@@ -51,10 +51,10 @@ public class SimpleHTMLFormatter implements Formatter
 	 */
 	public String highlightTerm(String originalText, TokenGroup tokenGroup)
 	{
-		StringBuffer returnBuffer;
+		StringBuilder returnBuffer;
 		if (tokenGroup.getTotalScore() > 0)
 		{
-			returnBuffer = new StringBuffer();
+			returnBuffer = new StringBuilder();
 			returnBuffer.append(preTag);
 			returnBuffer.append(originalText);
 			returnBuffer.append(postTag);

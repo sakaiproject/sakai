@@ -196,7 +196,7 @@ public class SearchSecurityFilter implements SearchItemFilter
 			return ""; //$NON-NLS-1$
 		}
 
-		public void toXMLString(StringBuffer sb)
+		public void toXMLString(StringBuilder sb)
 		{
 			sb.append("<result"); //$NON-NLS-1$
 			sb.append(" index=\"0\" "); //$NON-NLS-1$

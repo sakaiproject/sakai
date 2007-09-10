@@ -28,10 +28,10 @@ public class StringUtils
 
 		try
 		{
-			// lazily allocate the StringBuffer
+			// lazily allocate the StringBuilder
 			// only if changes are actually made; otherwise
 			// just return the given string without changing it.
-			StringBuffer buf = null;
+			StringBuilder buf = null;
 			final int len = value.length();
 			for (int i = 0; i < len; i++)
 			{
@@ -40,28 +40,28 @@ public class StringUtils
 				{
 					case '<':
 					{
-						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						if (buf == null) buf = new StringBuilder(value.substring(0, i));
 						buf.append("&lt;");
 					}
 						break;
 
 					case '>':
 					{
-						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						if (buf == null) buf = new StringBuilder(value.substring(0, i));
 						buf.append("&gt;");
 					}
 						break;
 
 					case '&':
 					{
-						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						if (buf == null) buf = new StringBuilder(value.substring(0, i));
 						buf.append("&amp;");
 					}
 						break;
 
 					case '"':
 					{
-						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						if (buf == null) buf = new StringBuilder(value.substring(0, i));
 						buf.append("&quot;");
 					}
 						break;
@@ -69,7 +69,7 @@ public class StringUtils
 					{
 						if (escapeNewlines)
 						{
-							if (buf == null) buf = new StringBuffer(value.substring(0, i));
+							if (buf == null) buf = new StringBuilder(value.substring(0, i));
 							buf.append("<br />\n");
 						}
 						else
@@ -88,7 +88,7 @@ public class StringUtils
 						{
 							// escape higher Unicode characters using an
 							// HTML numeric character entity reference like "&#15672;"
-							if (buf == null) buf = new StringBuffer(value.substring(0, i));
+							if (buf == null) buf = new StringBuilder(value.substring(0, i));
 							buf.append("&#");
 							buf.append(Integer.toString((int) c));
 							buf.append(";");
@@ -124,7 +124,7 @@ public class StringUtils
 	{
 		char[] chars = toEscape.toCharArray();
 		int lastEscapedBefore = 0;
-		StringBuffer escapedString = null;
+		StringBuilder escapedString = null;
 		for (int i = 0; i < chars.length; i++)
 		{
 			if (chars[i] <= HIGHEST_CHARACTER)
@@ -134,7 +134,7 @@ public class StringUtils
 				{
 					if (lastEscapedBefore == 0)
 					{
-						escapedString = new StringBuffer(chars.length + 5);
+						escapedString = new StringBuilder(chars.length + 5);
 					}
 					if (lastEscapedBefore < i)
 					{

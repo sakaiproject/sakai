@@ -185,7 +185,7 @@ public class SearchResultResponseImpl implements SearchResult
 		{
 			Scorer scorer = new QueryScorer(query);
 			Highlighter hightlighter = new Highlighter(new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), scorer);
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			// contents no longer contains the digested contents, so we need to
 			// fetch it from the EntityContentProducer
 
@@ -216,7 +216,7 @@ public class SearchResultResponseImpl implements SearchResult
 		return null;
 	}
 
-	public void toXMLString(StringBuffer sb)
+	public void toXMLString(StringBuilder sb)
 	{
 		sb.append("<result"); //$NON-NLS-1$
 		sb.append(" index=\"").append(getIndex()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$

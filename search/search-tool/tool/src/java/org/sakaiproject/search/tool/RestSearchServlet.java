@@ -84,7 +84,7 @@ public class RestSearchServlet extends HttpServlet
 /*
 		String test = (String) request.getParameter("test");
 		if ( "true".equals(test) ) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append("<html><head></head><body><form method=\"post\" action=\"?\" >");
 			sb.append("CheckSum <input type=\"text\" name=\"").append(SearchService.REST_CHECKSUM).append("\" /> <br />");
 			sb.append("Contexts <input type=\"text\" name=\"").append(SearchService.REST_CONTEXTS).append("\" /> <br />");

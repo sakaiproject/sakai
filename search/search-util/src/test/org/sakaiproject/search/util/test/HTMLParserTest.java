@@ -94,7 +94,7 @@ public class HTMLParserTest extends TestCase
 	{
 		System.err.println("Loading :"+property+":");
 		BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(property),"UTF-8"));
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for ( String s = br.readLine(); s != null; s = br.readLine()) {
 			sb.append(s).append("\n");
 		}

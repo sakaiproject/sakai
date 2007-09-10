@@ -227,7 +227,7 @@ public class SearchBeanImpl implements SearchBean
 	 */
 	public String getSearchResults(String searchItemFormat, String errorFeedbackFormat)
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		List searchResults = search();
 		if (errorMessage != null)
 		{
@@ -254,7 +254,7 @@ public class SearchBeanImpl implements SearchBean
 
 	private void loadTermVectors()
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		List searchResults = search();
 		if (searchResults != null)
 		{
@@ -368,7 +368,7 @@ public class SearchBeanImpl implements SearchBean
 		{
 			cpage = 0;
 		}
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		int lastPage = Math.min(cpage + nlistPages, npages);
 		boolean first = true;

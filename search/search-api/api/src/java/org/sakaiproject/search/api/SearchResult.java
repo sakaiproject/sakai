@@ -112,7 +112,7 @@ public interface SearchResult
 	 */
 	String getTool();
 
-	void toXMLString(StringBuffer sb);
+	void toXMLString(StringBuilder sb);
 	
 
 }

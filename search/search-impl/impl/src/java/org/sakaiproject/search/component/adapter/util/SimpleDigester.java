@@ -37,7 +37,7 @@ public class SimpleDigester implements ContentHandler
 
 	private Stack stack = new Stack();
 
-	private StringBuffer buffer = new StringBuffer();
+	private StringBuilder buffer = new StringBuilder();
 
 	private HashMap tags = new HashMap();
 

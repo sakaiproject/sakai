@@ -308,7 +308,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 
 	public String getWorkers(String rowFormat) {
 		SearchStatus ss = searchService.getSearchStatus();
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		List l = ss.getWorkerNodes();
 		for ( Iterator i = l.iterator(); i.hasNext(); ) {
 			Object[] worker = (Object[]) i.next();
@@ -319,7 +319,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	}
 
 	public String getIndexDocuments( String rowFormat ) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		List l = searchService.getAllSearchItems();
 		for ( Iterator i = l.iterator(); i.hasNext(); ) {
 			SearchBuilderItem sbi = (SearchBuilderItem) i.next();
@@ -335,7 +335,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 		return sb.toString();
 	}
 	public String getGlobalMasterDocuments( String rowFormat ) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		List l = searchService.getGlobalMasterSearchItems();
 		for ( Iterator i = l.iterator(); i.hasNext(); ) {
 			SearchBuilderItem sbi = (SearchBuilderItem) i.next();
@@ -352,7 +352,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	}
 	
 	public String getSiteMasterDocuments( String rowFormat ) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		List l = searchService.getSiteMasterSearchItems();
 		for ( Iterator i = l.iterator(); i.hasNext(); ) {
 			SearchBuilderItem sbi = (SearchBuilderItem) i.next();
@@ -373,7 +373,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	 */
 	public String getAdminOptions(String adminOptionsFormat)
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
 				COMMAND_REFRESHSTATUS, Messages.getString("searchadmin_cmd_refreshstat"),"" }));
 		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
@@ -412,7 +412,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	public String getSegmentInfo(String rowFormat)
 	{
 		List segmentInfo = searchService.getSegmentInfo();
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for ( Iterator i = segmentInfo.iterator(); i.hasNext(); ) {
 			sb.append(MessageFormat.format(rowFormat, (Object[]) i.next() ));
 		}
@@ -501,7 +501,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	{
 		List<Segment> segments = new ArrayList<Segment>();
 		List segmentInfo = searchService.getSegmentInfo();
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for ( Iterator i = segmentInfo.iterator(); i.hasNext(); ) {
 			// name, size, lastup
 			final Object[] r  =(Object[]) i.next();
@@ -629,7 +629,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	{
 		List<WorkerThread> workers = new ArrayList<WorkerThread>();
 		SearchStatus ss = searchService.getSearchStatus();
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		List l = ss.getWorkerNodes();
 		for ( Iterator i = l.iterator(); i.hasNext(); ) {
 			final Object[] w = (Object[]) i.next();

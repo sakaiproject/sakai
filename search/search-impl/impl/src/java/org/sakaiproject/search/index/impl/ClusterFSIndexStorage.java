@@ -531,7 +531,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 					}
 					if (j > 0)
 					{
-						StringBuffer status = new StringBuffer();
+						StringBuilder status = new StringBuilder();
 						for (int i = 0; i < segments.size(); i++)
 						{
 							SegmentInfo si = segments.get(i);
@@ -556,7 +556,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 				{
 					if (groupstomerge[i] != 0)
 					{
-						StringBuffer status = new StringBuffer();
+						StringBuilder status = new StringBuilder();
 						status.append("Group ").append(i).append(" Merge ").append(
 								groupstomerge[i]).append("\n");
 						
