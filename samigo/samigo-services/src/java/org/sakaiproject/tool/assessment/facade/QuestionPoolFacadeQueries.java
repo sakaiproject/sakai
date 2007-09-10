@@ -1175,7 +1175,7 @@ public class QuestionPoolFacadeQueries
     int startIndex = 0;
     int endIndex = 0;
     int maxNum=0;
-	StringBuffer prependString = new StringBuffer(prependString1);
+	StringBuilder prependString = new StringBuilder(prependString1);
 	prependString.append(" ");
 	prependString.append(prependString2);
 	prependString.append(" ");

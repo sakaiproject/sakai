@@ -55,7 +55,7 @@ public class Question {
 
 
 	public String getQuestion() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		
 		for (Iterator it = questionLines.iterator();it.hasNext();) {
 			String line = (String)it.next();

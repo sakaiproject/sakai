@@ -199,7 +199,7 @@ public class PagerRenderer
    */
   private String onclickCode(String formId, String id, String value)
   {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     buffer.append("document.forms[");
     buffer.append("'");
     buffer.append(formId);
@@ -367,7 +367,7 @@ public class PagerRenderer
     String separator = "" + NamingContainer.SEPARATOR_CHAR;
     String[] idSplit = id.split(separator);
     String[] baseIdSplit = baseId.split(separator);
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     for (int i = 0; i < baseIdSplit.length - idSplit.length; i++)
     {
       buffer.append(baseIdSplit[i]);

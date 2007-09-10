@@ -46,8 +46,8 @@ public class TextFormat
   private static final String PLAIN;
   private static final Vector vProtocols;
   //private String upperText;
-  private StringBuffer returnText;
-  private StringBuffer resource;
+  private StringBuilder returnText;
+  private StringBuilder resource;
   private ArrayList arrLst;
 
   static
@@ -83,7 +83,7 @@ public class TextFormat
         iconPath + ")");
     }
 
-    returnText = new StringBuffer();
+    returnText = new StringBuilder();
 
     if((texttype == null) || (text == null))
     {
@@ -132,7 +132,7 @@ public class TextFormat
           end = text.length();
         }
 
-        // extract text and resource text from StringBuffer
+        // extract text and resource text from StringBuilder
         if(start != 0)
         {
           returnText.append(text.substring(0, start));
@@ -142,7 +142,7 @@ public class TextFormat
 
         log.debug("end: " + String.valueOf(end));
 
-        resource = new StringBuffer();
+        resource = new StringBuilder();
         String upper = text.substring(start, end).toUpperCase();
         try
         {

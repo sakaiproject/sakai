@@ -114,7 +114,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
     }
     else {
     	res.setContentType("application/x-zip-compressed");
-  	    StringBuffer zipFilename = new StringBuffer();
+  	    StringBuilder zipFilename = new StringBuilder();
   	    zipFilename.append(assessmentName);
   	    String partAndQues = getPartNumAndQuestionNum(publishedItemId);
 	    log.debug("partAndQues = " + partAndQues);
@@ -409,7 +409,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 	  log.debug("partNum = " + partNum);
 	  Integer questionNum = item.getSequence();
 	  log.debug("questionNum=" + questionNum);
-	  StringBuffer partAndQues = new StringBuffer("_Part");
+	  StringBuilder partAndQues = new StringBuilder("_Part");
 	  partAndQues.append(partNum);
 	  partAndQues.append("_Ques");
 	  partAndQues.append(questionNum);
@@ -419,7 +419,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
 
   private String getFilename(MediaIfc mediaData, boolean anonymous, int numberSubmission) {
 	  log.debug("numberSubmission = " + numberSubmission);
-	  StringBuffer filename = new StringBuffer();
+	  StringBuilder filename = new StringBuilder();
 	  ItemGradingData itemGradingData = (ItemGradingData) mediaData.getItemGradingData();
 	  if (anonymous) {
 		  Long assessmentGradingId = itemGradingData.getAssessmentGradingId();

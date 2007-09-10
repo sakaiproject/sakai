@@ -362,7 +362,7 @@ public class Iso8601TimeInterval
 
     int seconds = (int) (remainder / SECONDS);
 
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     if(negative)
     {
       sb.append("-");

@@ -135,7 +135,7 @@ public class SamigoEmailService {
 
 			EmailBean emailBean = (EmailBean) ContextUtil.lookupBean("email");
 			attachmentList = emailBean.getAttachmentList();
-			StringBuffer content = new StringBuffer(message);
+			StringBuilder content = new StringBuilder(message);
 			ArrayList fileList = new ArrayList();
 			ArrayList fileNameList = new ArrayList();
 			if (attachmentList != null) {
@@ -201,10 +201,10 @@ public class SamigoEmailService {
 		} finally {
 			if (attachmentList != null) {
 				if (prefixedPath != null && !prefixedPath.equals("")) {
-					StringBuffer sbPrefixedPath;
+					StringBuilder sbPrefixedPath;
 					Iterator iter = attachmentList.iterator();
 					while (iter.hasNext()) {
-						sbPrefixedPath = new StringBuffer(prefixedPath);
+						sbPrefixedPath = new StringBuilder(prefixedPath);
 						sbPrefixedPath.append("/email_tmp/");
 						a = (AttachmentData) iter.next();
 						if (!a.getIsLink().booleanValue()) {
@@ -221,7 +221,7 @@ public class SamigoEmailService {
 		ContentResource cr = ContentHostingService.getResource(resourceId);
 		log.debug("getAttachedFile(): resourceId = " + resourceId);
 		byte[] data = cr.getContent();
-		StringBuffer sbPrefixedPath = new StringBuffer(prefixedPath);
+		StringBuilder sbPrefixedPath = new StringBuilder(prefixedPath);
 		sbPrefixedPath.append("/email_tmp/");
 		sbPrefixedPath.append(resourceId);
 		String filename = sbPrefixedPath.toString().replace(" ", "");

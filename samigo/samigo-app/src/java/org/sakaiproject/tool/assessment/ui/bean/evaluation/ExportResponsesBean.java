@@ -173,7 +173,7 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 		Date now = new Date();
 		String dateFormat = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","export_filename_date_format");
 		DateFormat df = new SimpleDateFormat(dateFormat);
-		StringBuffer fileName = new StringBuffer(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","assessment"));
+		StringBuilder fileName = new StringBuilder(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","assessment"));
         if(StringUtils.trimToNull(assessmentName) != null) {
         	assessmentName = assessmentName.replaceAll("\\s", "_"); // replace whitespace with '_'
             fileName.append("-");

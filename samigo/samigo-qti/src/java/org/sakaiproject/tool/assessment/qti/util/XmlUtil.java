@@ -300,7 +300,7 @@ public final class XmlUtil
       {
         BufferedReader in = new BufferedReader(new FileReader(path));
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         String s = "";
         while ( (s = in.readLine()) != null)
         {

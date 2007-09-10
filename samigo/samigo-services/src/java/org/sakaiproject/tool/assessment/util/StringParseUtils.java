@@ -50,8 +50,8 @@ public class StringParseUtils
     // normalize to lowercase
     s = s.toLowerCase();
 
-    // hold in a StringBuffer
-    StringBuffer sb = new StringBuffer();
+    // hold in a StringBuilder
+    StringBuilder sb = new StringBuilder();
 
     // replace any non alphanumeric chars with underscore
     for (int i = 0; (i < s.length()) && (i < max); i++)
@@ -77,7 +77,7 @@ public class StringParseUtils
       sb.append('_');
     }
 
-    // return the StringBuffer as a String.
+    // return the StringBuilder as a String.
     return sb.toString();
   }
 

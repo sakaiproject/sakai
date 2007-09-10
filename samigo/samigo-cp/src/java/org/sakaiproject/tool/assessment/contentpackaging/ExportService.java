@@ -56,7 +56,7 @@ public class ExportService {
 		ZipEntry entry = null;
 
 		ExternalContext external = FacesContext.getCurrentInstance().getExternalContext();
-		StringBuffer unzipLocation = new StringBuffer((String)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_REPOSITORY_PATH"));
+		StringBuilder unzipLocation = new StringBuilder((String)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_REPOSITORY_PATH"));
 	    log.debug("****"+unzipLocation);
 	    unzipLocation.append("/jsf/upload_tmp/qti_imports/");
 	    unzipLocation.append(AgentFacade.getAgentString());

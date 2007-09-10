@@ -148,7 +148,7 @@ public class RenderMaker
     if (!valid) throw new IllegalArgumentException(methodName);
 
     BufferedReader br = new BufferedReader(reader);
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     sb.append(JAVADOC + METHODSIGNATURE + methodName + METHODSIGNATUREEND);
     sb.append(GETAWRITER);
@@ -171,7 +171,7 @@ public class RenderMaker
 
   private static String normalize(String abnormal)
   {
-    StringBuffer normal = new StringBuffer();
+    StringBuilder normal = new StringBuilder();
     StringTokenizer st = new StringTokenizer(abnormal, QUOTE + VARIABLEESCAPE, true);
 
     while(st.hasMoreTokens()){

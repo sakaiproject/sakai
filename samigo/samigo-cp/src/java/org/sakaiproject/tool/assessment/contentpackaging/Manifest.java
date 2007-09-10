@@ -91,7 +91,7 @@ public class Manifest extends ASIBaseClass
   public void setFieldentry(String prefixPath, String fieldlabel, String setValue)
   {
     //String xpath = "questestinterop/assessment/qtimetadata/qtimetadatafield/fieldlabel[text()='" + fieldlabel + "']/following-sibling::fieldentry";
-	  StringBuffer xpath = new StringBuffer(prefixPath);
+	  StringBuilder xpath = new StringBuilder(prefixPath);
 	  xpath.append("/fieldlabel[text()='");
 	  xpath.append(fieldlabel);
 	  xpath.append("']/following-sibling::fieldentry");

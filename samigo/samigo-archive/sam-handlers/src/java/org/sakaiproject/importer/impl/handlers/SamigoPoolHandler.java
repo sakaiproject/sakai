@@ -156,7 +156,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 				answerSet = new HashSet();
 				answerFeedbackSet = new HashSet();
 				Collection answers = importableQuestion.getAnswers().values();
-				StringBuffer answerBuffer = new StringBuffer();
+				StringBuilder answerBuffer = new StringBuilder();
 				for (Iterator j = answers.iterator();j.hasNext();) {
 					importableAnswer = (AssessmentAnswer)j.next();
 					answerBuffer.append(importableAnswer.getAnswerText());

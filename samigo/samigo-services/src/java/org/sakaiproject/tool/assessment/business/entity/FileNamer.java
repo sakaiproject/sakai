@@ -86,8 +86,8 @@ public class FileNamer
     //timestamp this access
     Date date = new Date();
 
-    // hold in a StringBuffer
-    StringBuffer sb = new StringBuffer();
+    // hold in a StringBuilder
+    StringBuilder sb = new StringBuilder();
 
     // make a unique random signature
     String rand = "" + Math.random() + "" + Math.random();

@@ -136,7 +136,7 @@ public class TotalScoreListener
     
     // Set grader info (for email feature)
     AgentFacade agent = new AgentFacade();
-	StringBuffer sb = new StringBuffer(agent.getFirstName());
+	StringBuilder sb = new StringBuilder(agent.getFirstName());
 	sb.append(" ");
 	sb.append(agent.getLastName());
 	bean.setGraderName(sb.toString());

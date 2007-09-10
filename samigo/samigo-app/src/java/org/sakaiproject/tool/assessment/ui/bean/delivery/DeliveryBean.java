@@ -2650,7 +2650,7 @@ public class DeliveryBean
   }
 
   public String getSelectURL(){
-	  StringBuffer url = new StringBuffer(ServerConfigurationService.getString("portalPath"));
+	  StringBuilder url = new StringBuilder(ServerConfigurationService.getString("portalPath"));
 	  url.append("/site/");
 	  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 	  String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(getAssessmentId());
