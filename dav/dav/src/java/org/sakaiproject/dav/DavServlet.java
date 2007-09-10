@@ -576,7 +576,7 @@ public class DavServlet extends HttpServlet
 				}
 				else
 				{
-					StringBuffer buf = new StringBuffer();
+					StringBuilder buf = new StringBuilder();
 					for (int i = 0; i < values.length; i++)
 					{
 						buf.append(values[i] + FORM_VALUE_DELIMETER);
@@ -590,7 +590,7 @@ public class DavServlet extends HttpServlet
 		/** return the m_options as a string */
 		public String optionsString()
 		{
-			StringBuffer buf = new StringBuffer(1024);
+			StringBuilder buf = new StringBuilder(1024);
 			Enumeration e = m_options.keys();
 			while (e.hasMoreElements())
 			{
@@ -811,7 +811,7 @@ public class DavServlet extends HttpServlet
 
 		int maxBytesPerChar = 10;
 		int caseDiff = ('a' - 'A');
-		StringBuffer rewrittenPath = new StringBuffer(path.length());
+		StringBuilder rewrittenPath = new StringBuilder(path.length());
 		ByteArrayOutputStream buf = new ByteArrayOutputStream(maxBytesPerChar);
 		OutputStreamWriter writer = null;
 		try
@@ -4631,7 +4631,7 @@ public class DavServlet extends HttpServlet
 	 */
 	private String getISOCreationDate(long creationDate)
 	{
-		StringBuffer creationDateValue = new StringBuffer(creationDateFormat.format(new Date(creationDate)));
+		StringBuilder creationDateValue = new StringBuilder(creationDateFormat.format(new Date(creationDate)));
 		/*
 		 * int offset = Calendar.getInstance().getTimeZone().getRawOffset() / 3600000; // FIXME ? if (offset < 0) { creationDateValue.append("-"); offset = -offset; } else if (offset > 0) { creationDateValue.append("+"); } if (offset != 0) { if (offset <
 		 * 10) creationDateValue.append("0"); creationDateValue.append(offset + ":00"); } else { creationDateValue.append("Z"); }
