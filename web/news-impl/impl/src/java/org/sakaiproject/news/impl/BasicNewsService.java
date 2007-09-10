@@ -441,7 +441,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 	public String archive(String siteId, Document doc, Stack stack, String arg3,
 		      List attachments)
 	{
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
         Base64 codec = new Base64();
 		try
 		{

@@ -87,7 +87,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 	
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 	{
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		Base64 codec = new Base64();
 		try

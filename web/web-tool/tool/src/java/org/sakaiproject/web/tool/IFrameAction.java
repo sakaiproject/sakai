@@ -593,7 +593,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	 * @param text Expand macros found in this text
 	 * @param macroName Macro name
 	 */
-	private void expand(StringBuffer sb, String macroName)
+	private void expand(StringBuilder sb, String macroName)
 	{
 		int index;
 
@@ -617,7 +617,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	 */
 	private String doMacroExpansion(String originalText)
 	{
-		StringBuffer  sb;
+		StringBuilder  sb;
 
 		/*
 		 * Quit now if no macros are embedded in the text
@@ -629,7 +629,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		/*
 		 * Expand each macro
 		 */
-		sb = new StringBuffer(originalText);
+		sb = new StringBuilder(originalText);
 
 		Iterator i = allowedMacrosList.iterator();
 		
