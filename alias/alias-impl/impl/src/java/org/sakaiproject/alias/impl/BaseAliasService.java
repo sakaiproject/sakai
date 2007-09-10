@@ -348,8 +348,10 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			// <= 0 indicates no caching desired
 			if ((m_cacheSeconds > 0) && (m_cacheCleanerSeconds > 0))
 			{
-				// build a synchronized map for the call cache, automatiaclly checking for expiration every 15 mins, expire on user events, too.
-				m_callCache = memoryService().newHardCache(m_cacheCleanerSeconds, aliasReference(""));
+				// build a synchronized map for the call cache, automatically checking for expiration every 15 mins, expire on user events, too.
+				m_callCache = memoryService().newCache(
+						"org.sakaiproject.alias.api.AliasService.callCache",
+						aliasReference(""));
 			}
 
 			// register as an entity producer
