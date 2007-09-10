@@ -501,7 +501,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			if ((m_cacheSeconds > 0) && (m_cacheCleanerSeconds > 0))
 			{
 				// build a synchronized map for the call cache, automatiaclly checking for expiration every 15 mins, expire on user events, too.
-				m_callCache = memoryService().newHardCache(m_cacheCleanerSeconds, userReference(""));
+				m_callCache = memoryService()
+						.newCache(
+								"org.sakaiproject.user.api.UserDirectoryService.callCache",
+								userReference(""));
 			}
 
 			// register as an entity producer
