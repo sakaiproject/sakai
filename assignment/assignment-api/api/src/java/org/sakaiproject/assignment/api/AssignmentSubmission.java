@@ -125,6 +125,13 @@ public interface AssignmentSubmission extends Entity
 	public String getFeedbackText();
 
 	/**
+	 * Access the formatted text part of the instructors feedback; usually an annotated copy of the submittedText
+	 * 
+	 * @return The formatted text of the grader's feedback.
+	 */
+	public String getFeedbackFormattedText();
+
+	/**
 	 * Access the list of attachments returned to the students in the process of grading this assignment; usually a modified or annotated version of the attachment submitted.
 	 * 
 	 * @return List of the Resource objects pointing to the attachments.

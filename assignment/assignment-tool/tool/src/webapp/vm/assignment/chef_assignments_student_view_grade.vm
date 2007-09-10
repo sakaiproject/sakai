@@ -172,7 +172,7 @@
 				## show feedback text when submission is released or returned
 				#if ($!submission.FeedbackText && ($submission.FeedbackText.length()>0))
 					<h5>$tlang.getString("gen.orisub2")</h5>
-					<div class="textPanel">$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)</div>
+					<div class="textPanel">$submission.FeedbackFormattedText</div>
 				#else
 					#set ($text = $submission.getSubmittedText())
 					#if ($!text && $text.length() > 0)

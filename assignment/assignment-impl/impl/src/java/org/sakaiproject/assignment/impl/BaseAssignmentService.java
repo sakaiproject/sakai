@@ -8346,6 +8346,76 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		/**
+		 * Access the formatted text part of the instructors feedback; usually an annotated copy of the submittedText
+		 * 
+		 * @return The formatted text of the grader's feedback.
+		 */
+		public String getFeedbackFormattedText()
+		{
+			if (m_feedbackText == null || m_feedbackText.length() == 0) 
+				return m_feedbackText;
+
+			String value = fixAssignmentFeedback(m_feedbackText);
+
+			StringBuffer buf = new StringBuffer(value);
+			int pos = -1;
+
+			while ((pos = buf.indexOf("{{")) != -1)
+			{
+				buf.replace(pos, pos + "{{".length(), "<span class='highlight'>");
+			}
+
+			while ((pos = buf.indexOf("}}")) != -1)
+			{
+				buf.replace(pos, pos + "}}".length(), "</span>");
+			}
+
+			return FormattedText.escapeHtmlFormattedText(buf.toString());
+		}
+
+		/**
+		 * Apply the fix to pre 1.1.05 assignments submissions feedback.
+		 */
+		private String fixAssignmentFeedback(String value)
+		{
+			if (value == null || value.length() == 0) return value;
+			
+			StringBuffer buf = new StringBuffer(value);
+			int pos = -1;
+			
+			// <br/> -> \n
+			while ((pos = buf.indexOf("<br/>")) != -1)
+			{
+				buf.replace(pos, pos + "<br/>".length(), "\n");
+			}
+			
+			// <span class='chefAlert'>( -> {{
+			while ((pos = buf.indexOf("<span class='chefAlert'>(")) != -1)
+			{
+				buf.replace(pos, pos + "<span class='chefAlert'>(".length(), "{{");
+			}
+			
+			// )</span> -> }}
+			while ((pos = buf.indexOf(")</span>")) != -1)
+			{
+				buf.replace(pos, pos + ")</span>".length(), "}}");
+			}
+			
+			while ((pos = buf.indexOf("<ins>")) != -1)
+			{
+				buf.replace(pos, pos + "<ins>".length(), "{{");
+			}
+			
+			while ((pos = buf.indexOf("</ins>")) != -1)
+			{
+				buf.replace(pos, pos + "</ins>".length(), "}}");
+			}
+			
+			return buf.toString();
+			
+		} // fixAssignmentFeedback
+
+		/**
 		 * Access the list of attachments returned to the students in the process of grading this assignment; usually a modified or annotated version of the attachment submitted.
 		 * 
 		 * @return ReferenceVector of the Resource objects pointing to the attachments.
