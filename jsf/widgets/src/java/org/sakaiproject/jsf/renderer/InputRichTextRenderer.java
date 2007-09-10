@@ -551,7 +551,7 @@ public class InputRichTextRenderer extends Renderer
    }
 
    protected String outputFiles(Map map, MessageFormat format, boolean first) {
-      StringBuffer sb = new StringBuffer();
+	   StringBuffer sb = new StringBuffer();
 
       for (Iterator i=map.entrySet().iterator();i.hasNext();) {
          Map.Entry entry = (Map.Entry)i.next();
@@ -568,7 +568,7 @@ public class InputRichTextRenderer extends Renderer
    }
 
    protected String outputFiles(List list, MessageFormat format, boolean first) {
-      StringBuffer sb = new StringBuffer();
+	   StringBuffer sb = new StringBuffer();
 
       for (Iterator i=list.iterator();i.hasNext();) {
          Object value = i.next();
@@ -626,7 +626,7 @@ public class InputRichTextRenderer extends Renderer
    *
    */
   private static String makeToolbarScript(String buttonList) {
-    StringBuffer script = new StringBuffer();
+    StringBuilder script = new StringBuilder();
     String q = "\"";
 
     script.append("[[");

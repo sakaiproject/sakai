@@ -87,7 +87,7 @@ public class CourierRenderer extends Renderer
 	 */
 	private static String serverUrl(HttpServletRequest req)
 	{
-		StringBuffer url = new StringBuffer();
+		StringBuilder url = new StringBuilder();
 		url.append(req.getScheme());
 		url.append("://");
 		url.append(req.getServerName());
