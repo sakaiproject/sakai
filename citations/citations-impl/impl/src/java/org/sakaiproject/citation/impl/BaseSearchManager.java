@@ -1281,14 +1281,8 @@ public class BaseSearchManager implements SearchManager, Observer
 	            // Parse the input
 	            SAXParser saxParser = factory.newSAXParser();
 	            saxParser.parse( source, this );
-	            if(this.hierarchyDepth > 0)
-	            {
-					isConfigured = true;
-	            }
-	            else
-	            {
-					isConfigured = false;
-	            }
+              m_log.debug("After parse, categories found = " + categoryMap.size());
+	            isConfigured = (this.categoryMap.size() > 0) ? true : false;
 	        } catch (SAXParseException spe) {
 	            // Use the contained exception, if any
 	            Exception x = spe;
@@ -2265,13 +2259,13 @@ public class BaseSearchManager implements SearchManager, Observer
 
 	public void init()
 	{
-		
-		
-		
+
+
+
 		SessionContext.setCache(sessionContextCache);
 		MetasearchSessionManager.setCache(metasearchSessionManagerCache);
 
-		
+
 		m_log.info("BaseSearchManager.init()");
 
 		EventTrackingService.addObserver(this);
@@ -2539,7 +2533,7 @@ m_log.debug("******input: " + input);
 	{
 		return metasearchSessionManagerCache;
 	}
-	
+
 	/**
 	 * @param metasearchSessionManagerCache the metasearchSessionManagerCache to set
 	 */
@@ -2547,7 +2541,7 @@ m_log.debug("******input: " + input);
 	{
 		this.metasearchSessionManagerCache = metasearchSessionManagerCache;
 	}
-	
+
 	/**
 	 * @return the sessionContextCache
 	 */
@@ -2555,7 +2549,7 @@ m_log.debug("******input: " + input);
 	{
 		return sessionContextCache;
 	}
-	
+
 	/**
 	 * @param sessionContextCache the sessionContextCache to set
 	 */
