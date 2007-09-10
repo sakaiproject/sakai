@@ -2119,7 +2119,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			if (rv == null)
 			{
 				// or do it this way
-				StringBuffer buf = new StringBuffer(128);
+				StringBuilder buf = new StringBuilder(128);
 				if (m_firstName != null) buf.append(m_firstName);
 				if (m_lastName != null)
 				{
@@ -2186,7 +2186,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public String getSortName()
 		{
-			StringBuffer buf = new StringBuffer(128);
+			StringBuilder buf = new StringBuilder(128);
 			if (m_lastName != null) buf.append(m_lastName);
 			if (m_firstName != null)
 			{
