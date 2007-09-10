@@ -71,7 +71,7 @@ public class VelocityPortletRenderContext implements PortletRenderContext
 		if (debug)
 		{
 			Object[] keys = vcontext.getKeys();
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < keys.length; i++)
 			{
 				Object o = vcontext.get((String) keys[i]);
@@ -85,7 +85,7 @@ public class VelocityPortletRenderContext implements PortletRenderContext
 		}
 	}
 
-	private void dumpObject(StringBuffer sb, Object key, Object o)
+	private void dumpObject(StringBuilder sb, Object key, Object o)
 	{
 		if (o instanceof Map)
 		{
@@ -106,7 +106,7 @@ public class VelocityPortletRenderContext implements PortletRenderContext
 		}
 	}
 
-	private void dumpCollection(StringBuffer sb, Object key,
+	private void dumpCollection(StringBuilder sb, Object key,
 			Collection collection)
 	{
 		int n = 0;
@@ -118,7 +118,7 @@ public class VelocityPortletRenderContext implements PortletRenderContext
 		}
 	}
 
-	private void dumpMap(StringBuffer sb, Object key, Map map)
+	private void dumpMap(StringBuilder sb, Object key, Map map)
 	{
 		for (Iterator i = map.keySet().iterator(); i.hasNext();)
 		{

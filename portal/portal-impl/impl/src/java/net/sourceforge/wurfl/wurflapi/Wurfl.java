@@ -586,7 +586,7 @@ class Wurfl {
    
     private String reduceText(String str)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
 	String sl1 = str.toLowerCase();
 
