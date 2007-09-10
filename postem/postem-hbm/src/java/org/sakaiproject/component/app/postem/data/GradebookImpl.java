@@ -316,7 +316,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 			headingBuffer.append("<th style=\"padding: 0.6em;\" scope=\"col\">" + current + "</th>");
 			ii++;
 		}
-		/*StringBuffer newBuffer = new StringBuffer();
+		/*StringBuilder newBuffer = new StringBuilder();
 		newBuffer.append("<table width='");
 		newBuffer.append(totalWidth);
 		newBuffer.append("px' style='min-width: ");

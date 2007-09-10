@@ -222,7 +222,7 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 			gradeBuffer.append("</td>");
 			ii++;
 		}
-		/*StringBuffer newBuffer = new StringBuffer();
+		/*StringBuilder newBuffer = new StringBuilder();
 		newBuffer.append("<table width='");
 		newBuffer.append(totalWidth);
 		newBuffer.append("px' style='min-width: ");

@@ -100,7 +100,7 @@ public class CSV {
 	}
 
 	public static String createFromContents(List rows) {
-		StringBuffer csv = new StringBuffer();
+		StringBuilder csv = new StringBuilder();
 
 		Iterator riter = rows.iterator();
 		while (riter.hasNext()) {
@@ -128,7 +128,7 @@ public class CSV {
 
 		List all = new ArrayList();
 		List current = new ArrayList();
-		StringBuffer it = new StringBuffer();
+		StringBuilder it = new StringBuilder();
 
 		boolean inQuotes = false;
 
@@ -170,7 +170,7 @@ public class CSV {
 				if (csv.charAt(ii) == delimiter) {
 					it = truncateIt(it);
 					current.add((it.length() == 0) ? " " : it.toString());
-					it = new StringBuffer();
+					it = new StringBuilder();
 					// this line would trim leading spaces per the spec, but not trailing
 					// ones.
 					// we don't care about it so much anyways, since the info
@@ -182,7 +182,7 @@ public class CSV {
 					}	
 					it = truncateIt(it);
 					current.add((it.length() == 0) ? " " : it.toString());
-					it = new StringBuffer();
+					it = new StringBuilder();
 		            all.add(current);
 					current = new ArrayList();
 					
@@ -264,12 +264,12 @@ public class CSV {
 	 * @param buffer
 	 * @return
 	 */
-	private static StringBuffer truncateIt(StringBuffer buffer)
+	private static StringBuilder truncateIt(StringBuilder buffer)
 	{
 		if (buffer.length() > MAX_COL_LENGTH)   // truncate text longer than MAX_COL_LENGTH
 		{
 			String truncatedString = buffer.substring(0, MAX_COL_LENGTH);
-			buffer = new StringBuffer();
+			buffer = new StringBuilder();
 			buffer.append(truncatedString);
 			
 			if (!truncatingWarningDisplayed) {
