@@ -286,7 +286,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 
 		// // TODO: TIMING
 		// if (CurrentService.getInThread("DEBUG") == null)
-		// CurrentService.setInThread("DEBUG", new StringBuffer());
+		// CurrentService.setInThread("DEBUG", new StringBuilder());
 		// long startTime = System.currentTimeMillis();
 
 		// different title of Option link for different tools.
@@ -359,7 +359,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		// long endTime = System.currentTimeMillis();
 		// if (endTime-startTime > /*5*/000)
 		// {
-		// StringBuffer buf = (StringBuffer) CurrentService.getInThread("DEBUG");
+		// StringBuilder buf = (StringBuilder) CurrentService.getInThread("DEBUG");
 		// if (buf != null)
 		// {
 		// buf.insert(0,"synopticMessageAction: "
@@ -446,7 +446,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 
 			// // TODO: TIMING
 			// if (CurrentService.getInThread("DEBUG") == null)
-			// CurrentService.setInThread("DEBUG", new StringBuffer());
+			// CurrentService.setInThread("DEBUG", new StringBuilder());
 			// long startTime = System.currentTimeMillis();
 
 			Iterator aChannel = ((MessageService) state.getAttribute(STATE_SERVICE)).getChannelIds(placementContext).iterator();
@@ -455,7 +455,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 			// long endTime = System.currentTimeMillis();
 			// if (endTime-startTime > /*5*/000)
 			// {
-			// StringBuffer buf = (StringBuffer) CurrentService.getInThread("DEBUG");
+			// StringBuilder buf = (StringBuilder) CurrentService.getInThread("DEBUG");
 			// if (buf != null)
 			// {
 			// buf.insert(0,"synopticMessageAction.options: "

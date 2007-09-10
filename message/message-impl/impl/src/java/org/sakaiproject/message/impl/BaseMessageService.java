@@ -514,7 +514,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	 */
 	public String messageReference(String channelRef, String id)
 	{
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 
 		// start with the channel ref
 		buf.append(channelRef);
@@ -1585,7 +1585,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 	{
 		// prepare the buffer for the results log
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		// start with an element with our very own (service) name
 		Element element = doc.createElement(serviceName());
@@ -1700,7 +1700,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		Map ids = new HashMap();
 
 		// prepare the buffer for the results log
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		// get the channel associated with this site
 		String channelRef = channelReference(siteId, SiteService.MAIN_CONTAINER);
