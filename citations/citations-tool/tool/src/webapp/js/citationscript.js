@@ -525,9 +525,30 @@ function removeAllCitations( formname ) {
 function sortAllCitations( formname, sortby ) 
 {
   document.getElementById('sakai_action').value='doSortAllCitations';
-// use hidden form element citationId to hold sort type
+
   document.getElementById('sort').value = sortby;
   submitform( formname );
+}
+
+/*
+ * Import citations
+ */
+ 
+function importCitations(formname)
+{
+  if (document.getElementById('risupload').value.length == 0 && 
+      document.getElementById('ristext').value.length == 0)
+      alert('You must either upload a file or place RIS formatted text in the textbox');
+  else
+  {
+  	$( '#risFileUpload' ).hide();
+  	$( '#risTextUpload' ).hide();
+  	$( '#import1' ).attr("disabled","disabled");
+  	$( '#import2' ).attr("disabled","disabled");
+  	$( '#importingMessage' ).show();
+  	document.getElementById('sakai_action').value='doImport';
+  	submitform( formname);
+  }
 }
 
 function changePageSize( action, location, formname ) {
