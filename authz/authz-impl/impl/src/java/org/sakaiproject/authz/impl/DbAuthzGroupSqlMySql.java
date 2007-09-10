@@ -117,7 +117,7 @@ public class DbAuthzGroupSqlMySql extends DbAuthzGroupSqlDefault
 
 	public String getSelectRealmRoleGroupUserIdSql(String inClause1, String inClause2)
 	{
-		StringBuffer sqlBuf = new StringBuffer();
+		StringBuilder sqlBuf = new StringBuilder();
 
 		sqlBuf.append("select SRRG.USER_ID ");
 		sqlBuf.append("from SAKAI_REALM_RL_GR SRRG ");

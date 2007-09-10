@@ -263,7 +263,7 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 
 	public String getSelectRealmFunctionFunctionNameSql(String inClause)
 	{
-		StringBuffer sqlBuf = new StringBuffer();
+		StringBuilder sqlBuf = new StringBuilder();
 
 		sqlBuf.append("select DISTINCT FUNCTION_NAME ");
 		sqlBuf.append("from SAKAI_REALM_FUNCTION SRF ");
@@ -318,7 +318,7 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 
 	public String getSelectRealmProviderSql(String inClause)
 	{
-		StringBuffer sqlBuf = new StringBuffer();
+		StringBuilder sqlBuf = new StringBuilder();
 		sqlBuf.append("select distinct SRP.REALM_KEY, SR.PROVIDER_ID ");
 		sqlBuf.append("from SAKAI_REALM_PROVIDER SRP ");
 		sqlBuf.append("inner join SAKAI_REALM SR on SRP.REALM_KEY = SR.REALM_KEY ");
@@ -359,7 +359,7 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 
 	public String getSelectRealmRoleGroup3Sql()
 	{
-		StringBuffer sqlBuf = new StringBuffer();
+		StringBuilder sqlBuf = new StringBuilder();
 		sqlBuf.append("select SRRG.REALM_KEY, SRR.ROLE_NAME, SRRG.ACTIVE, SRRG.PROVIDED ");
 		sqlBuf.append("from SAKAI_REALM_ROLE SRR ");
 		sqlBuf.append("inner join SAKAI_REALM_RL_GR SRRG on SRR.ROLE_KEY = SRRG.ROLE_KEY ");
@@ -369,7 +369,7 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 
 	public String getSelectRealmRoleGroup4Sql()
 	{
-		StringBuffer sqlBuf = new StringBuffer();
+		StringBuilder sqlBuf = new StringBuilder();
 		sqlBuf.append("select SRRG.USER_ID, SRR.ROLE_NAME, SRRG.ACTIVE, SRRG.PROVIDED ");
 		sqlBuf.append("from SAKAI_REALM_RL_GR SRRG ");
 		sqlBuf.append("inner join SAKAI_REALM SR on SRRG. REALM_KEY = SR. REALM_KEY ");
@@ -380,7 +380,7 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 
 	public String getSelectRealmRoleGroupUserIdSql(String inClause1, String inClause2)
 	{
-		StringBuffer sqlBuf = new StringBuffer();
+		StringBuilder sqlBuf = new StringBuilder();
 
 		sqlBuf.append("select SRRG.USER_ID ");
 		sqlBuf.append("from SAKAI_REALM_RL_GR SRRG ");

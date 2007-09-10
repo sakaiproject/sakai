@@ -1598,8 +1598,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			String sql = dbAuthzGroupSql.getSelectRealmRoleGroup3Sql();
 			String sqlParam = "";
-			StringBuffer sqlBuf = null;
-			StringBuffer sqlParamBuf = null;
+			StringBuilder sqlBuf = null;
+			StringBuilder sqlParamBuf = null;
 
 			// read this user's grants from all realms
 			Object[] fields = new Object[1];
@@ -1790,7 +1790,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			if ((realm == null) || (m_provider == null)) return;
 
 			String sql = "";
-			StringBuffer sqlBuf = null;
+			StringBuilder sqlBuf = null;
 
 			// Note: the realm is still lazy - we have the realm id but don't need to worry about changing grants
 
@@ -2182,7 +2182,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		// ORs -ggolden
 		int ors = size / MAX_IN_CLAUSE;
 		int leftover = size - (ors * MAX_IN_CLAUSE);
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 
 		// enclose them all in parens if we have > 1
 		if (ors > 0)
