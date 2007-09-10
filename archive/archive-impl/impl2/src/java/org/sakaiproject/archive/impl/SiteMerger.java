@@ -107,7 +107,7 @@ public class SiteMerger {
 	public String merge(String fileName, String siteId, String creatorId, String m_storagePath,
 						boolean filterSakaiServices, String[] filteredSakaiServices, boolean filterSakaiRoles, String[] filteredSakaiRoles)
 	{
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		File[] files = null;
 
@@ -187,7 +187,7 @@ public class SiteMerger {
 	* @param useIdTrans A map of old WorkTools id to new Ctools id
 	* @param creatorId The creator id
 	*/
-	protected void processMerge(String fileName, String siteId, StringBuffer results, Map attachmentNames, String creatorId, boolean filterSakaiService, String[] filteredSakaiService, boolean filterSakaiRoles, String[] filteredSakaiRoles)
+	protected void processMerge(String fileName, String siteId, StringBuilder results, Map attachmentNames, String creatorId, boolean filterSakaiService, String[] filteredSakaiService, boolean filterSakaiRoles, String[] filteredSakaiRoles)
 	{
 		// correct for windows backslashes
 		fileName = fileName.replace('\\', '/');

@@ -97,7 +97,7 @@ public class SiteArchiver {
 
 	public String archive(String siteId, String m_storagePath, String fromSystem)
 	{
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		if (M_log.isDebugEnabled())
 			M_log.debug("archive(): site: " + siteId);

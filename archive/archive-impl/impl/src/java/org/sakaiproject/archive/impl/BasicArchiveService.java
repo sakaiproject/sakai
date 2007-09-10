@@ -191,7 +191,7 @@ public class BasicArchiveService
 	*/
 	public String archive(String siteId)
 	{
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		if (M_log.isDebugEnabled())
 			M_log.debug("archive(): site: " + siteId);
@@ -440,7 +440,7 @@ public class BasicArchiveService
 	*/
 	public String merge(String fileName, String siteId, String creatorId)
 	{
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		File[] files = null;
 
@@ -641,7 +641,7 @@ public class BasicArchiveService
 	* @param useIdTrans A map of old WorkTools id to new Ctools id
 	* @param creatorId The creator id
 	*/
-	protected void processMerge(String fileName, String siteId, StringBuffer results, Map attachmentNames, String creatorId)
+	protected void processMerge(String fileName, String siteId, StringBuilder results, Map attachmentNames, String creatorId)
 	{
 		// correct for windows backslashes
 		fileName = fileName.replace('\\', '/');
