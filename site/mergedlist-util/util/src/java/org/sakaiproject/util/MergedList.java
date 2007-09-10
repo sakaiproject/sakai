@@ -534,7 +534,7 @@ public class MergedList extends ArrayList
 	 */
 	public String getDelimitedChannelReferenceString()
 	{
-		StringBuffer mergedReferences = new StringBuffer("");
+		StringBuilder mergedReferences = new StringBuilder("");
 			
 		Iterator it = this.iterator();
 		boolean firstEntry = true;

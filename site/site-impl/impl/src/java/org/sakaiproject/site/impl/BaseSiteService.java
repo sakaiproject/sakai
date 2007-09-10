@@ -2571,7 +2571,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	public String merge(String siteId, Element el, String creatorId)
 	{
-		StringBuffer msg = new StringBuffer();
+		StringBuilder msg = new StringBuilder();
 
 		try
 		{

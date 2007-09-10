@@ -498,7 +498,7 @@ public abstract class DbSiteService extends BaseSiteService
 			// not based on super user status
 
 			// if we are joining, start our where with the join clauses
-			StringBuffer where = new StringBuffer();
+			StringBuilder where = new StringBuilder();
 			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE))
 			{
 				// join on site id and also select the proper user
@@ -840,7 +840,7 @@ public abstract class DbSiteService extends BaseSiteService
 		public int countSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria)
 		{
 			// if we are joining, start our where with the join clauses
-			StringBuffer where = new StringBuffer();
+			StringBuilder where = new StringBuilder();
 			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE))
 			{
 				// join on site id and also select the proper user
