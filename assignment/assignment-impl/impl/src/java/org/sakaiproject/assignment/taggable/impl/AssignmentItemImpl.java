@@ -66,7 +66,7 @@ public class AssignmentItemImpl implements TaggableItem {
 	}
 
 	public String getReference() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(submission.getReference());
 		sb.append(ITEM_REF_SEPARATOR);
 		sb.append(userId);
@@ -74,7 +74,7 @@ public class AssignmentItemImpl implements TaggableItem {
 	}
 
 	public String getTitle() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		try {
 			User user = UserDirectoryService.getUser(userId);
 			sb.append(user.getFirstName());

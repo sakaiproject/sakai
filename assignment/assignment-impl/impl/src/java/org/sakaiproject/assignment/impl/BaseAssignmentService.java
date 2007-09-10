@@ -2061,7 +2061,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			M_log.warn("commitEdit(), site id =" + context, ee);
 		}
 		
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		// site title and id
 		buffer.append(rb.getString("noti.site.title") + " " + siteTitle +"\n");
 		buffer.append(rb.getString("noti.site.id") + " " + siteId +"\n\n");
@@ -3439,7 +3439,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			Assignment a = getAssignment(assignmentReferenceFromSubmissionsZipReference(ref));
 			Iterator submissions = getSubmissions(a).iterator();
 
-			StringBuffer exceptionMessage = new StringBuffer();
+			StringBuilder exceptionMessage = new StringBuilder();
 
 			if (allowGradeSubmission(a.getReference()))
 			{
@@ -3467,7 +3467,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 	} // getSubmissionsZip
 
-	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuffer exceptionMessage) 
+	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage) 
 	{
 		try
 		{
@@ -3483,7 +3483,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			
 			// the buffer used to store grade information
-			StringBuffer gradesBuffer = new StringBuffer(assignmentTitle + "," + gradeTypeString + "\n\n");
+			StringBuilder gradesBuffer = new StringBuilder(assignmentTitle + "," + gradeTypeString + "\n\n");
 			gradesBuffer.append(rb.getString("grades.id") + "," + rb.getString("grades.lastname") + "," + rb.getString("grades.firstname") + "," + rb.getString("grades.grade") + "\n");
 
 			// allow add assignment members
@@ -4057,7 +4057,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		// M_log.info("archive: stubbed");
 		// prepare the buffer for the results log
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		// String assignRef = assignmentReference(siteId, SiteService.MAIN_CONTAINER);
 		results.append("archiving " + getLabel() + " context " + Entity.SEPARATOR + siteId + Entity.SEPARATOR
@@ -4206,7 +4206,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			Set userListAllowImport)
 	{
 		// prepare the buffer for the results log
-		StringBuffer results = new StringBuffer();
+		StringBuilder results = new StringBuilder();
 
 		int count = 0;
 

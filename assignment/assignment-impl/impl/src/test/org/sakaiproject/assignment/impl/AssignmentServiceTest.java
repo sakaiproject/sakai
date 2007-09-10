@@ -22,7 +22,7 @@
 package org.sakaiproject.assignment.impl;
 
 import java.util.Random;
-import java.lang.StringBuffer;
+import java.lang.StringBuilder;
 import java.lang.Runtime;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -89,7 +89,7 @@ public class AssignmentServiceTest extends TestCase
 	private String generateBigTestString(int sizeKB)
 	{
 		// auto generate string with size specified
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		
 		int realSize = sizeKB * 1024;
 		

@@ -8616,7 +8616,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	private String processFormattedTextFromBrowser(SessionState state, String strFromBrowser, boolean checkForFormattingErrors)
 	{
-		StringBuffer alertMsg = new StringBuffer();
+		StringBuilder alertMsg = new StringBuilder();
 		try
 		{
 			boolean replaceWhitespaceTags = true;
@@ -8639,7 +8639,7 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		if (strFromBrowser == null || strFromBrowser.length() == 0) return strFromBrowser;
 
-		StringBuffer buf = new StringBuffer(strFromBrowser);
+		StringBuilder buf = new StringBuilder(strFromBrowser);
 		int pos = -1;
 		int numopentags = 0;
 
@@ -8662,7 +8662,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		boolean checkForFormattingErrors = false; // so that grading isn't held up by formatting errors
-		buf = new StringBuffer(processFormattedTextFromBrowser(state, buf.toString(), checkForFormattingErrors));
+		buf = new StringBuilder(processFormattedTextFromBrowser(state, buf.toString(), checkForFormattingErrors));
 
 		while ((pos = buf.indexOf("<ins>")) != -1)
 		{
@@ -8690,7 +8690,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		value = fixAssignmentFeedback(value);
 
-		StringBuffer buf = new StringBuffer(value);
+		StringBuilder buf = new StringBuilder(value);
 		int pos = -1;
 
 		while ((pos = buf.indexOf("{{")) != -1)
@@ -8725,7 +8725,7 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		if (value == null || value.length() == 0) return value;
 
-		StringBuffer buf = new StringBuffer(value);
+		StringBuilder buf = new StringBuilder(value);
 		int pos = -1;
 
 		// <br/> -> \n
@@ -8767,7 +8767,7 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		if (value == null || value.length() == 0) return value;
 
-		StringBuffer buf = new StringBuffer(value);
+		StringBuilder buf = new StringBuilder(value);
 		int pos = -1;
 
 		// <br/> -> \n
@@ -9417,7 +9417,7 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 		private byte[] readIntoBytes(ZipInputStream zin, String fName, long length) throws IOException {
 		
-			StringBuffer b = new StringBuffer();
+			StringBuilder b = new StringBuilder();
 			
 			byte[] buffer = new byte[4096];
 			
@@ -9447,7 +9447,7 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	private String readIntoString(ZipInputStream zin) throws IOException 
 	{
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		int size = 2048;
 		byte[] data = new byte[2048];
 		while (true)
