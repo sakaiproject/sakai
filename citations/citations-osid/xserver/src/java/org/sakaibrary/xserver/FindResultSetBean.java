@@ -29,9 +29,9 @@ public class FindResultSetBean {
 	private String baseName;
 	private String sourceId;
 	private String setNumber;
-	private StringBuffer fullName;
+	private StringBuilder fullName;
 	private String status;
-	private StringBuffer findErrorText;
+	private StringBuilder findErrorText;
 	private String numDocs;
 	
 	public FindResultSetBean( String baseName ) {
@@ -60,7 +60,7 @@ public class FindResultSetBean {
 	
 	public void setFullName( String name ) {
 		if( fullName == null ) {
-			fullName = new StringBuffer();
+			fullName = new StringBuilder();
 		}
 		
 		fullName.append( name );
@@ -80,7 +80,7 @@ public class FindResultSetBean {
 	
 	public void setFindErrorText( String text ) {
 		if( findErrorText == null ) {
-			findErrorText = new StringBuffer();
+			findErrorText = new StringBuilder();
 		}
 		
 		findErrorText.append( text );

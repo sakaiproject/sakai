@@ -159,7 +159,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(ParameterMa
 	 *         <code>PREFIXSIZE</code> digits of the original value.
 	 */
 	private String generateFillText() {
-	  StringBuffer  result;
+	  StringBuilder  result;
 	  int           value;
 
 		value = getFillSeed();
@@ -167,7 +167,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(ParameterMa
       throw new UnsupportedOperationException("Value " +  value + " out of range");
     }
 
-	  result  = new StringBuffer();
+	  result  = new StringBuilder();
 
     for (int i = 0; i < PREFIXSIZE; i++) {
       result.insert(0, Integer.toHexString(value & 0xf));

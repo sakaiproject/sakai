@@ -84,7 +84,7 @@ public class XServer extends DefaultHandler {
 	private SAXParser saxParser;
 
 	// text buffer to hold SAXParser character data
-	private StringBuffer textBuffer;
+	private StringBuilder textBuffer;
 
 	// create parser flags
 	private boolean parsingMergeSort = false;
@@ -217,7 +217,7 @@ public class XServer extends DefaultHandler {
 	private boolean loginURL( String username, String password )
 	throws XServerException {
 		// build URL query string
-		StringBuffer query = new StringBuffer( xserverBaseUrl );
+		StringBuilder query = new StringBuilder( xserverBaseUrl );
 		query.append( "?op=login_request&user_name=" + username +
 				"&user_password=" + password );
 
@@ -276,14 +276,14 @@ public class XServer extends DefaultHandler {
 	private void findURL( String findCommand, String waitFlag )
 	throws XServerException {
 		// build a query string containing all sources that need to be searched
-		StringBuffer findBaseString = new StringBuffer();
+		StringBuilder findBaseString = new StringBuilder();
 		for( int i = 0; i < searchSourceIds.size(); i++ ) {
 			findBaseString.append( "&find_base_001=" + ( String )
 					searchSourceIds.get( i ) );
 		}
 
 		// build URL query string
-		StringBuffer query = new StringBuffer( xserverBaseUrl );
+		StringBuilder query = new StringBuilder( xserverBaseUrl );
 		query.append( "?op=find_request" +
 				"&wait_flag=" + waitFlag +
 				"&find_request_command=" + findCommand +
@@ -326,7 +326,7 @@ public class XServer extends DefaultHandler {
 	private void findGroupInfoURL() throws XServerException {
 		findResultSets = new java.util.ArrayList();
 
-		StringBuffer query = new StringBuffer( xserverBaseUrl );
+		StringBuilder query = new StringBuilder( xserverBaseUrl );
 		query.append( "?op=find_group_info_request" +
 				"&group_number=" + foundGroupNumber +
 				"&session_id=" + sessionId );
@@ -376,7 +376,7 @@ public class XServer extends DefaultHandler {
 		}
 
 		// build URL query string
-		StringBuffer query = new StringBuffer( xserverBaseUrl );
+		StringBuilder query = new StringBuilder( xserverBaseUrl );
 		query.append( "?op=merge_sort_request" +
 				"&group_number=" + foundGroupNumber +
 				"&action=" + action +
@@ -422,7 +422,7 @@ public class XServer extends DefaultHandler {
 	throws XServerException {
 
 		// build URL query string
-		StringBuffer query = new StringBuffer( xserverBaseUrl );
+		StringBuilder query = new StringBuilder( xserverBaseUrl );
 		query.append( "?op=present_request" +
 				"&set_number=" + setNumber +
 				"&set_entry=" + setEntry +
@@ -842,7 +842,7 @@ public class XServer extends DefaultHandler {
 		String text = new String( buf, offset, len );
 
 		if( textBuffer == null ) {
-			textBuffer = new StringBuffer( text );
+			textBuffer = new StringBuilder( text );
 		} else {
 			textBuffer.append( text );
 		}

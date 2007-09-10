@@ -56,7 +56,7 @@ implements org.osid.repository.AssetIterator {
 	private org.osid.repository.Record record;
 
 	// for SAX parsing
-	private StringBuffer textBuffer;
+	private StringBuilder textBuffer;
 
 	// session
 	private MetasearchSessionManager msm;
@@ -248,7 +248,7 @@ implements org.osid.repository.AssetIterator {
 	}
 	
 	/**
-	 * This method parses the xml StringBuffer and creates Assets, Records
+	 * This method parses the xml StringBuilder and creates Assets, Records
 	 * and Parts in the Repository with the given repositoryId.
 	 *
 	 * @param xml input xml in "sakaibrary" format
@@ -263,7 +263,7 @@ implements org.osid.repository.AssetIterator {
 		throws org.osid.repository.RepositoryException {
 		this.repositoryId = repositoryId;
 		recordStructureId = RecordStructure.getInstance().getId();
-		textBuffer = new StringBuffer();
+		textBuffer = new StringBuilder();
 
 		// use a SAX parser
 		javax.xml.parsers.SAXParserFactory factory;
@@ -348,7 +348,7 @@ implements org.osid.repository.AssetIterator {
 		String text = new String( buf, offset, len );
 		
 		if( textBuffer == null ) {
-			textBuffer = new StringBuffer( text );
+			textBuffer = new StringBuilder( text );
 		} else {
 			textBuffer.append( text );
 		}

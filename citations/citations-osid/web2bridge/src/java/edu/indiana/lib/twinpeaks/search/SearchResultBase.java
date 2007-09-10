@@ -286,7 +286,7 @@ public abstract class SearchResultBase implements SearchResultInterface
 	 * @return (Possibly) updated URL string
 	 */
 	public String prependProxy(String url, String proxy) {
-		StringBuffer fullUrl;
+		StringBuilder fullUrl;
 
 		_log.debug("prependProxy: proxy [" + proxy + "] vs. [" + url + "]");
 
@@ -298,7 +298,7 @@ public abstract class SearchResultBase implements SearchResultInterface
 			return url;
 		}
 
-		fullUrl = new StringBuffer(proxy);
+		fullUrl = new StringBuilder(proxy);
 		fullUrl.append(url);
 
 		return fullUrl.toString();

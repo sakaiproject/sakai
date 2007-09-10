@@ -64,7 +64,7 @@ public class HttpTransactionUtils
 	 */
   public static String formatParameter(String name, String value,
   																		 String separator, String cs) {
-  	StringBuffer parameter = new StringBuffer();
+  	StringBuilder parameter = new StringBuilder();
 
     if (!StringUtils.isNull(value)) {
 
@@ -169,10 +169,10 @@ public class HttpTransactionUtils
    */
   public static String formatUrl(URL url, boolean preserveFile)
   																				throws MalformedURLException {
-    StringBuffer	result;
+    StringBuilder	result;
 		int						port;
 
-		result = new StringBuffer(url.getProtocol());
+		result = new StringBuilder(url.getProtocol());
 
     result.append("://");
     result.append(url.getHost());
@@ -288,7 +288,7 @@ public class HttpTransactionUtils
 	 * @return Original URL with (possibly) encoded parameters
 	 */
 	public static String urlEncodeFullUrl(String original) {
-		StringBuffer 	encoded;
+		StringBuilder 	encoded;
 		String				base, file, params;
 
 		try {
@@ -305,7 +305,7 @@ public class HttpTransactionUtils
 			return original;
 		}
 
-		encoded = new StringBuffer();
+		encoded = new StringBuilder();
 		encoded.append(base);
 
 		if (!StringUtils.isNull(file)) {
@@ -322,7 +322,7 @@ public class HttpTransactionUtils
 	 * @return Possibly encoded parameter list
 	 */
 	public static String urlEncodeParameters(String original) {
-		StringBuffer 	encoded	= new StringBuffer();
+		StringBuilder 	encoded	= new StringBuilder();
 
 		for (int i = 0; i < original.length(); i++) {
 			String c = original.substring(i, i + 1);

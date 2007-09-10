@@ -624,7 +624,7 @@ public abstract class BaseCitationService implements CitationService
 		 *         XX  - prefix: value
 		 */
 
-        public void exportRisField(String rislabel,  String value, StringBuffer buffer, String prefix)
+        public void exportRisField(String rislabel,  String value, StringBuilder buffer, String prefix)
 		{
 			// Get rid of the newlines and spaces
 			value = value.replaceAll("\n", " ");
@@ -648,7 +648,7 @@ public abstract class BaseCitationService implements CitationService
          * Again, without the prefix
          */
 
-        public void exportRisField(String rislabel,  String value, StringBuffer buffer)
+        public void exportRisField(String rislabel,  String value, StringBuilder buffer)
 		{
         	exportRisField(rislabel, value, buffer, "");
         }
@@ -658,7 +658,7 @@ public abstract class BaseCitationService implements CitationService
 		 *
 		 */
 
-        public void exportRisField(String rislabel, List propvalues, StringBuffer buffer,  String prefix)
+        public void exportRisField(String rislabel, List propvalues, StringBuilder buffer,  String prefix)
 		{
 			Iterator propvaliter = propvalues.iterator();
 			while (propvaliter.hasNext())
@@ -671,7 +671,7 @@ public abstract class BaseCitationService implements CitationService
          * And again, to do the dispatch
          */
 
-        public void exportRisField(String rislabel, Object val, StringBuffer buffer, String prefix)
+        public void exportRisField(String rislabel, Object val, StringBuilder buffer, String prefix)
 		{
           if (val instanceof List)
           {
@@ -685,7 +685,7 @@ public abstract class BaseCitationService implements CitationService
         /*
          * And, finally, a dispatcher to deal with items without a prefix
          */
-        public void exportRisField(String rislabel, Object val, StringBuffer buffer)
+        public void exportRisField(String rislabel, Object val, StringBuilder buffer)
 		{
         	exportRisField(rislabel, val, buffer, "");
 		}
@@ -696,7 +696,7 @@ public abstract class BaseCitationService implements CitationService
 		 *
 		 * @see org.sakaiproject.citation.api.Citation#exportToRis(java.io.OutputStream)
 		 */
-		public void exportRis(StringBuffer buffer) throws IOException
+		public void exportRis(StringBuilder buffer) throws IOException
 		{
 			// Get the RISType and write a blank line and the TY tag
 			String type = "article";
@@ -1053,10 +1053,10 @@ public abstract class BaseCitationService implements CitationService
 			}
 
 			// start building the OpenUrl
-			StringBuffer openUrl = null;
+			StringBuilder openUrl = null;
 			try
 			{
-				openUrl = new StringBuffer();
+				openUrl = new StringBuilder();
 
 				openUrl.append("?url_ver=" + URLEncoder.encode(OPENURL_VERSION, "utf8")
 						+ "&url_ctx_fmt=" + URLEncoder.encode(OPENURL_CONTEXT_FORMAT, "utf8")
@@ -1075,7 +1075,7 @@ public abstract class BaseCitationService implements CitationService
 				if (author != null)
 				{
 					String aulast;
-					StringBuffer aufirst = new StringBuffer();
+					StringBuilder aufirst = new StringBuilder();
 					String[] authorNames = author.split(",");
 					if (authorNames.length == 2)
 					{
@@ -1471,7 +1471,7 @@ public abstract class BaseCitationService implements CitationService
 				List subjectList = ( List ) subjects;
 				ListIterator subjectListIterator = subjectList.listIterator();
 
-				StringBuffer subjectStringBuf = new StringBuffer();
+				StringBuilder subjectStringBuf = new StringBuilder();
 
 				while ( subjectListIterator.hasNext() )
 				{
@@ -2488,7 +2488,7 @@ public abstract class BaseCitationService implements CitationService
 			
 		}
 
-		public void exportRis(StringBuffer buffer, List<String>  citationIds) throws IOException
+		public void exportRis(StringBuilder buffer, List<String>  citationIds) throws IOException
 		{
 			checkForUpdates();
 			// output "header" info to buffer
@@ -3702,7 +3702,7 @@ public abstract class BaseCitationService implements CitationService
 			// convert the string to bytes in UTF-8
 			byte[] bytes = original.getBytes("UTF-8");
 
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			for (int i = 0; i < bytes.length; i++)
 			{
 				byte b = bytes[i];

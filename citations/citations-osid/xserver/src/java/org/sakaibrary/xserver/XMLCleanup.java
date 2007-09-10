@@ -37,7 +37,7 @@ public class XMLCleanup extends DefaultHandler {
     private ByteArrayOutputStream bytes;
     private Writer out;
     private InputStream inputXml;
-    StringBuffer textBuffer;
+    StringBuilder textBuffer;
     private String indentString = "  "; // Amount to indent
     private int indentLevel = 0;
     
@@ -214,7 +214,7 @@ public class XMLCleanup extends DefaultHandler {
 //    	s = s.replaceAll( "\"", "&quot;" );
 
         if (textBuffer == null) {
-            textBuffer = new StringBuffer(s);
+            textBuffer = new StringBuilder(s);
         } else {
             textBuffer.append(s);
         }

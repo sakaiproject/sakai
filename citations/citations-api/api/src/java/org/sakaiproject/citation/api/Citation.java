@@ -56,7 +56,7 @@ public interface Citation 	// extends Entity
      * @param buffer
      * @throws IOException 
      */
-    public void exportRis(StringBuffer buffer) throws IOException;
+    public void exportRis(StringBuilder buffer) throws IOException;
     
     /**
 	 * Access a mapping of name-value pairs for various bibliographic information about the resource.

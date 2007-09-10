@@ -499,7 +499,7 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
   	QueryBase         query;
   	HashMap		        parameterMap;
   	ArrayList<String> targetList;
-  	StringBuffer      targetBuffer;
+  	StringBuilder      targetBuffer;
 
   	parameterMap = new HashMap();
   	parameterMap.put("searchString", searchString);
@@ -518,7 +518,7 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
     /*
      * Add in the target database list
      */
-    targetBuffer  = new StringBuffer();
+    targetBuffer  = new StringBuilder();
     targetList    = (java.util.ArrayList<String>)
                                searchProperties.getProperty("databaseIds");
 

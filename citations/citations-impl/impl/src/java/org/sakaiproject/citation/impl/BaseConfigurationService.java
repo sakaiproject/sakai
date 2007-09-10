@@ -667,14 +667,14 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
   protected String normalizeText(String original, String update)
   {
-    StringBuffer  result;
+    StringBuilder  result;
 
     if (original == null)
     {
       return (update == null) ? "" : update.trim();
     }
 
-    result = new StringBuffer(original.trim());
+    result = new StringBuilder(original.trim());
     result.append(' ');
     result.append(update.trim());
 
@@ -1109,7 +1109,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
     public String getConfigXmlCache()
     {
-      StringBuffer buf = new StringBuffer();
+      StringBuilder buf = new StringBuilder();
 
       for(Iterator<String> it = this.m_configs.iterator(); it.hasNext();)
       {
@@ -1145,7 +1145,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
   public String getDatabaseXmlCache()
   {
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
 
     for(Iterator<String> it = this.m_categories.iterator(); it.hasNext();)
     {

@@ -3293,7 +3293,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				// convert the string to bytes in UTF-8
 				byte[] bytes = string.getBytes("UTF-8");
 
-				StringBuffer buf = new StringBuffer();
+				StringBuilder buf = new StringBuilder();
 				for (int i = 0; i < bytes.length; i++)
 				{
 					byte b = bytes[i];

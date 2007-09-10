@@ -40,26 +40,26 @@ implements org.sakaiproject.citation.util.api.CQLSearchQuery {
         + subjectString + "; year: " + yearString );
     
 		// concatenate criteria strings
-		StringBuffer searchStringBuffer = new StringBuffer();
+		StringBuilder searchStringBuilder = new StringBuilder();
 		
 		if( keywordString != null ) {
-			searchStringBuffer.append( keywordString + " " );
+			searchStringBuilder.append( keywordString + " " );
 		}
 		if( titleString != null ) {
-			searchStringBuffer.append( titleString + " ");
+			searchStringBuilder.append( titleString + " ");
 		}
 		if( authorString != null ) {
-			searchStringBuffer.append( authorString + " ");
+			searchStringBuilder.append( authorString + " ");
 		}
 		if( subjectString != null ) {
-			searchStringBuffer.append( subjectString + " ");
+			searchStringBuilder.append( subjectString + " ");
 		}
 		if( yearString != null ) {
-			searchStringBuffer.append( yearString + " ");
+			searchStringBuilder.append( yearString + " ");
 		}
 		
 		// manipulate the buffer
-		String searchString = searchStringBuffer.toString();
+		String searchString = searchStringBuilder.toString();
 		searchString = searchString.substring( 0, searchString.length() - 1 );
 		searchString = searchString.replaceAll( "\\s", " and " );
 		
@@ -145,7 +145,7 @@ implements org.sakaiproject.citation.util.api.CQLSearchQuery {
 			String criteriaName ) {
 		java.util.Iterator criteria = criteriaSet.iterator();
 		
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		while( criteria.hasNext() ) {
 			result.append( " " + criteriaName + "=" );
 			String criterion = ( String ) criteria.next();

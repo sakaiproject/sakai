@@ -189,7 +189,7 @@ public abstract class HttpTransactionQueryBase
 	 * @return Full session context name
 	 */
 	private String scn(String base, String consumer) {
-		StringBuffer name = new StringBuffer(base);
+		StringBuilder name = new StringBuilder(base);
 
 		if (!StringUtils.isNull(consumer))
 		{
@@ -206,7 +206,7 @@ public abstract class HttpTransactionQueryBase
 	 * @return Full session context name
 	 */
 	private String gp_scn(String base, String consumer) {
-		StringBuffer name = new StringBuffer(GP_PREFIX);
+		StringBuilder name = new StringBuilder(GP_PREFIX);
 
 		name.append(scn(base, consumer));
 		return name.toString();

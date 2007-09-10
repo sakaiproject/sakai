@@ -170,8 +170,8 @@ public class CitationListAccessServlet implements HttpAccess
 			// We need to write to a temporary stream for better speed, plus
 			// so we can get a byte count. Internet Explorer has problems
 			// if we don't make the setContentLength() call.
-			StringBuffer buffer = new StringBuffer(4096);
-			// StringBuffer contentType = new StringBuffer();
+			StringBuilder buffer = new StringBuilder(4096);
+			// StringBuilder contentType = new StringBuilder();
 
 			try 
 			{

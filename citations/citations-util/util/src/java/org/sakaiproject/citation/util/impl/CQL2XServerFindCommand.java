@@ -34,8 +34,8 @@ implements org.sakaiproject.citation.util.api.CQL2MetasearchCommand {
 	
 	// for SAX Parsing
 	SAXParser saxParser;
-	StringBuffer textBuffer;
-	StringBuffer searchClause;
+	StringBuilder textBuffer;
+	StringBuilder searchClause;
 	boolean inSearchClause;
 	java.util.Stack cqlStack;
 	
@@ -176,7 +176,7 @@ implements org.sakaiproject.citation.util.api.CQL2MetasearchCommand {
 		String text = new String( buf, offset, len );
 		
 		if( textBuffer == null ) {
-			textBuffer = new StringBuffer( text );
+			textBuffer = new StringBuilder( text );
 		} else {
 			textBuffer.append( text );
 		}
@@ -205,7 +205,7 @@ implements org.sakaiproject.citation.util.api.CQL2MetasearchCommand {
 		// construct a search clause
 		if( inSearchClause ) {
 			if( searchClause == null ) {
-				searchClause = new StringBuffer();
+				searchClause = new StringBuilder();
 			}
 
 			if( element.equals( "index" ) ) {

@@ -37,8 +37,8 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.c
 	// SAX Parsing
 	//
 	SAXParser       saxParser;
-	StringBuffer    textBuffer;
-	StringBuffer    searchClause;
+	StringBuilder    textBuffer;
+	StringBuilder    searchClause;
 	boolean         inSearchClause;
 	java.util.Stack cqlStack;
   //
@@ -204,7 +204,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.c
 		String text = new String( buf, offset, len );
 
 		if( textBuffer == null ) {
-			textBuffer = new StringBuffer( text );
+			textBuffer = new StringBuilder( text );
 		} else {
 			textBuffer.append( text );
 		}
@@ -241,7 +241,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CqlParser.c
 		{
 			if (searchClause == null)
 			{
-				searchClause = new StringBuffer();
+				searchClause = new StringBuilder();
 			}
       //
       // General syntax: title=macbeth

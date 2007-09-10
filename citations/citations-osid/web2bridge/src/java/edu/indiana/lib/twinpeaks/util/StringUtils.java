@@ -173,10 +173,10 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StringUtils
 	 * @return Capitalized text
 	 */
 	public static String capitalize(String text) {
-		StringBuffer	resultText;
+		StringBuilder	resultText;
 		char 					previousC;
 
-    resultText	= new StringBuffer();
+    resultText	= new StringBuilder();
     previousC 	= '.';
 
     for (int i = 0;  i < text.length();  i++ ) {
@@ -232,7 +232,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StringUtils
 	 */
 	private static String removeCharacterOrRange(String source, String pattern,
 								 														  boolean removeAsWord) {
-		StringBuffer 	patternBuffer	= new StringBuffer();
+		StringBuilder 	patternBuffer	= new StringBuilder();
 		String 				rangePattern, result;
 
 		patternBuffer.append('[');

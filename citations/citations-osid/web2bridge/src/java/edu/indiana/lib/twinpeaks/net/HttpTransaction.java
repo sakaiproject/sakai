@@ -310,7 +310,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpTransac
 	 */
 	private String getResponseCharacterSet(boolean verify) {
 		String				contentType;
-		StringBuffer	buffer;
+		StringBuilder	buffer;
 		int						index;
 
 		if (verify) {
@@ -328,7 +328,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpTransac
 			return getDefaultCharacterSet();
 		}
 
-		buffer = new StringBuffer();
+		buffer = new StringBuilder();
 		for (int i = (index + CHARSETEQ.length()); i < contentType.length(); i++) {
 
 			switch (contentType.charAt(i)) {
@@ -373,7 +373,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpTransac
   private URL addParametersAndCreateUrl(String url)
   																				throws MalformedURLException,
   																						   UnsupportedEncodingException {
-	 	StringBuffer	urlBuffer	= new StringBuffer(url);
+	 	StringBuilder	urlBuffer	= new StringBuilder(url);
 
     if ((!doPost) && (parameters != null)) {
 	    String  	separator 	= "?";
@@ -496,11 +496,11 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpTransac
 
 	/**
 	 * Append a cookie attribute to the current cookie text
-	 * @param sb Cookie text (StringBuffer)
+	 * @param sb Cookie text (StringBuilder)
 	 * @param attribute Attribute name
 	 * @param value Attribute value
 	 */
-  private void append(StringBuffer sb, String attribute, String value, boolean writeSeperator) {
+  private void append(StringBuilder sb, String attribute, String value, boolean writeSeperator) {
     if (value != null) {
 
       sb.append(attribute);
@@ -518,11 +518,11 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpTransac
    */
   private String setRequestCookies() {
     List          cookieList;
-    StringBuffer  cookieValues;
+    StringBuilder  cookieValues;
     Iterator      iterator;
     String        value;
 
-    cookieValues  = new StringBuffer();
+    cookieValues  = new StringBuilder();
     cookieList    = CookieUtils.findCookiesForServer(responseCookies, url);
     iterator      = cookieList.iterator();
 

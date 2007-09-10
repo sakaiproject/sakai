@@ -1503,7 +1503,7 @@ public class DbCitationService extends BaseCitationService
 	 */
 	protected String insertFields(String before, String[] fields, String after)
 	{
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		buf.append(" (");
 
 		buf.append(before);

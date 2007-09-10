@@ -115,14 +115,14 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
    *         removed, with a space seperator)
    */
   public static String normalizeText(String original, String update) {
-  	StringBuffer	result;
+  	StringBuilder	result;
 
     if (original == null) {
       return (update == null) ? ""
       												: StringUtils.replace(update.trim(), "\\s", " ");
     }
 
-    result = new StringBuffer(original.trim());
+    result = new StringBuilder(original.trim());
     result.append(' ');
     result.append(update.trim());
 

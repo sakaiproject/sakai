@@ -724,7 +724,7 @@ public class Web2Query extends HttpTransactionQueryBase {
 		String resultSetName = getSessionParameter(APPLICATION, "resultSetName");
 
 		if (resultSetName == null) {
-			StringBuffer name = new StringBuffer("sakaibrary");
+			StringBuilder name = new StringBuilder("sakaibrary");
 
 			name.append(getTransactionId());
 			name.append(".xml");

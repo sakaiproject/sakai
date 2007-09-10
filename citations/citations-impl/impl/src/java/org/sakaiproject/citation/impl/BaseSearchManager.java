@@ -1193,7 +1193,7 @@ public class BaseSearchManager implements SearchManager, Observer
 		protected boolean isConfigured;
 
 		// for SAX parsing
-		protected StringBuffer textBuffer;
+		protected StringBuilder textBuffer;
 		protected boolean recommendedDatabaseFlag;
 		protected int hierarchyDepth;
 		protected java.util.Stack<BasicSearchCategory> categoryStack;
@@ -1425,7 +1425,7 @@ public class BaseSearchManager implements SearchManager, Observer
 
 	        if( textBuffer == null )
 	        {
-	            textBuffer = new StringBuffer( s );
+	            textBuffer = new StringBuilder( s );
 	        }
 	        else
 	        {
@@ -2474,7 +2474,7 @@ public class BaseSearchManager implements SearchManager, Observer
                                    throws IOException, ServerOverloadException
   {
     InputStream   input     = resource.streamContent();
-    StringBuffer  content   = new StringBuffer();
+    StringBuilder  content   = new StringBuilder();
     byte[]        bytesIn   = new byte[1024 * 8];
     int           count;
 m_log.debug("******Content resource: " + resource);
