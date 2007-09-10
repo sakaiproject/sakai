@@ -346,8 +346,10 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// make the channel cache
 			if (m_caching)
 			{
-				m_channelCache = m_memoryService.newCache(this, getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CHANNEL
-						+ Entity.SEPARATOR);
+				m_channelCache = m_memoryService.newCache(
+						"org.sakaiproject.message.api.MessageService.channelCache",
+						this, getAccessPoint(true) + Entity.SEPARATOR
+								+ REF_TYPE_CHANNEL + Entity.SEPARATOR);
 
 				// make the table to hold the message caches
 				m_messageCaches = new Hashtable();
@@ -2977,7 +2979,10 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 					// if still not there, make one
 					if (msgCache == null)
 					{
-						msgCache = m_memoryService.newCache(service(), messageReference(m_context, m_id, ""));
+						msgCache = m_memoryService.newCache(
+								"org.sakaiproject.message.api.MessageService.msgCache",
+								service(),
+								messageReference(m_context, m_id, ""));
 						m_messageCaches.put(getReference(), msgCache);
 					}
 				}
@@ -3039,7 +3044,11 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 					// if still not there, make one
 					if (msgCache == null)
 					{
-						msgCache = m_memoryService.newCache(service(), messageReference(m_context, m_id, ""));
+						msgCache = m_memoryService
+								.newCache(
+										"org.sakaiproject.message.api.MessageService.msgCache",
+										service(), messageReference(m_context,
+												m_id, ""));
 						m_messageCaches.put(getReference(), msgCache);
 					}
 				}
