@@ -526,7 +526,7 @@ public class AccessServlet extends VmServlet
 				}
 				else
 				{
-					StringBuffer buf = new StringBuffer();
+					StringBuilder buf = new StringBuilder();
 					for (int i = 0; i < values.length; i++)
 					{
 						buf.append(values[i] + FORM_VALUE_DELIMETER);
@@ -539,7 +539,7 @@ public class AccessServlet extends VmServlet
 		/** return the m_options as a string - obscure any "password" fields */
 		public String optionsString()
 		{
-			StringBuffer buf = new StringBuffer(1024);
+			StringBuilder buf = new StringBuilder(1024);
 			Enumeration e = m_options.keys();
 			while (e.hasMoreElements())
 			{
