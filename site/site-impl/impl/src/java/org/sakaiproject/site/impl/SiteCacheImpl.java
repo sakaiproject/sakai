@@ -62,7 +62,8 @@ public class SiteCacheImpl implements DerivedCache
 	 */
 	public SiteCacheImpl(MemoryService memoryService, long sleep, String pattern)
 	{
-		m_cache = memoryService.newHardCache(sleep, pattern);
+		m_cache = memoryService.newCache(
+				"org.sakaiproject.site.impl.SiteCacheImpl.cache", pattern);
 
 		// setup as the derived cache
 		m_cache.attachDerivedCache(this);
