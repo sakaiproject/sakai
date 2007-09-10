@@ -635,7 +635,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// make the cache
 			if (m_caching)
 			{
-				m_cache = m_memoryService.newCache(this, getAccessPoint(true));
+				m_cache = m_memoryService
+						.newCache(
+								"org.sakaiproject.content.api.ContentHostingService.cache",
+								this, getAccessPoint(true));
 			}
 
 			// register a transient notification for resources
