@@ -238,6 +238,11 @@ public interface CitationCollection extends Entity
 	/**
      * @return
      */
+    public String getSort();
+
+    /**
+     * @return
+     */
     public String getTitle();
 
 	/**
