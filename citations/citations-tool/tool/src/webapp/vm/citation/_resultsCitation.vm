@@ -1,13 +1,24 @@
   <tr id="row_$citation.id">
     <td style="text-align: center;" class="attach" headers="actions" id="save_$citation.id">
-      <input type="button" id="$citation.id"
-        onclick="toggleCitation( '#toolForm("CitationHelperAction")', this, '$collectionId', 'spinner_$citation.id', '$tlang.getString("add.results")', '$tlang.getString("remove.results")' );"
-        #if($citation.isAdded())
-          value="$tlang.getString("remove.results")"
-        #else
+      #if( $resourcesTool )
+        <input type="button" id="$citation.id"
+          onclick="toggleCitation( '#toolForm("CitationHelperAction")', this, '$collectionId', 'spinner_$citation.id', '$tlang.getString("add.results")', '$tlang.getString("remove.results")' );"
+          #if($citation.isAdded())
+            value="$tlang.getString("remove.results")"
+          #else
+            value="$tlang.getString("add.results")"
+          #end
+        />
+      #end
+      #if( $editorIntegration )
+        <input type="button" id="$citation.id"
+          onclick="SRC_addCitation('$citation.openurl',
+                                   '$TextValidator.escapeHtmlAndJsQuoted($!{citation.displayName})',
+                                   '$TextValidator.escapeHtmlAndJsQuoted($!{citation.creator})',
+                                   '$TextValidator.escapeHtmlAndJsQuoted($!{citation.source})');"
           value="$tlang.getString("add.results")"
-        #end
-      />
+        />
+      #end
       <div style="display: none;" id="spinner_$citation.id" class="addSpinner">
         <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.list" )" />
       </div>

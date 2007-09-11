@@ -2,7 +2,7 @@
 <registration>
     <tool id="sakai.citation.tool" title="Citation Tool" description="Citation Tool.">
 		<category name="sakai.helper" />
-    
+
 		<!--
     	<category name="course" />
 		<category name="project" />
@@ -10,5 +10,9 @@
 		<category name="mercury" />
 		<category name="myworkspace" />
 		-->
+    </tool>
+
+    <tool id="sakai.citation.editor.integration" title="Citation Editor Integration Tool" description="Citation Editor Integration.">
+      <category name="sakai.helper" />
     </tool>
 </registration>

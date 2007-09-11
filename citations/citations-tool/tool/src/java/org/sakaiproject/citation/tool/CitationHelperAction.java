@@ -466,6 +466,17 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String ELEMENT_ID_RESULTS_FORM = "resultsForm";
 	protected static final String ELEMENT_ID_VIEW_FORM = "viewForm";
 
+  /**
+   * The calling application reflects the nature of our caller
+   */
+  public final static String CITATIONS_HELPER_CALLER = "citations_helper_caller";
+
+  public enum Caller
+  {
+    RESOURCE_TOOL,
+    EDITOR_INTEGRATION;
+  }
+
 	/**
 	 * Mode defines a complete set of values describing the user's navigation intentions
 	 */
@@ -500,7 +511,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String STATE_CURRENT_DATABASES = CitationHelper.CITATION_PREFIX + "current_databases";
 	protected static final String STATE_BACK_BUTTON_STACK = CitationHelper.CITATION_PREFIX + "back-button_stack";
 	protected static final String STATE_COLLECTION_ID = CitationHelper.CITATION_PREFIX + "collection_id";
-	protected static final String STATE_COLLECTION = CitationHelper.CITATION_PREFIX + "collection"; 
+	protected static final String STATE_COLLECTION = CitationHelper.CITATION_PREFIX + "collection";
 	protected static final String STATE_CITATION_ID = CitationHelper.CITATION_PREFIX + "citation_id";
 	protected static final String STATE_COLLECTION_TITLE = CitationHelper.CITATION_PREFIX + "collection_name";
 	protected static final String STATE_CURRENT_REPOSITORY = CitationHelper.CITATION_PREFIX + "current_repository";
@@ -713,7 +724,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		return TEMPLATE_IMPORT_CITATIONS;
 
 	}	// buildImportPanelContext
-	
+
 	/**
      *
      * @param portlet
@@ -1043,12 +1054,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		Object[] emptyListArgs = { rb.getString( "label.menu" ) };
 		context.put( "emptyListArgs", emptyListArgs );
-		
+
 		String sort = (String) state.getAttribute("sort");
-		
+
 		if (sort == null  || sort.trim().length() == 0)
 			sort = collection.getSort();
-		
+
 		context.put("sort", sort);
 
 		return TEMPLATE_LIST;
@@ -1056,23 +1067,23 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	}	// buildListPanelContext
 
 	/**
-	 * This method retrieves the CitationCollection for the current session.  
+	 * This method retrieves the CitationCollection for the current session.
 	 * If the CitationCollection is already in session-state and has not been
-	 * updated in the persistent storage since it was last accessed, the copy 
+	 * updated in the persistent storage since it was last accessed, the copy
 	 * in session-state will be returned.  If it has been updated in storage,
-	 * the copy in session-state will be updated and returned. If the 
-	 * CitationCollection has not yet been created in storage and the second 
+	 * the copy in session-state will be updated and returned. If the
+	 * CitationCollection has not yet been created in storage and the second
 	 * parameter is true, this method will create the collection and return it.
-	 * In that case, values will be added to session-state for attributes named 
-	 * STATE_COLLECTION_ID and STATE_COLLECTION. If the CitationCollection has 
+	 * In that case, values will be added to session-state for attributes named
+	 * STATE_COLLECTION_ID and STATE_COLLECTION. If the CitationCollection has
 	 * not yet been created in storage and the second parameter is false, the
 	 * method will return null.
 	 * @param state The SessionState object for the current session.
 	 * @param create A flag indicating whether the collection should be created
 	 * 	if it does not already exist.
-	 * @return The CitationCollection for the current session, or null. 
+	 * @return The CitationCollection for the current session, or null.
 	 */
-	protected CitationCollection getCitationCollection(SessionState state, boolean create) 
+	protected CitationCollection getCitationCollection(SessionState state, boolean create)
 	{
 		CitationCollection collection = (CitationCollection) state.getAttribute(STATE_COLLECTION);
 		if(collection == null)
@@ -1236,6 +1247,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
      */
     public String buildResultsPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
     {
+    Caller caller = getCaller(state);
+
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
 
@@ -1243,11 +1256,29 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put("TextValidator", new QuotedTextValidator());
 		context.put("xilator", new Validator());
 
-		// javascript to run on page load
-		context.put("sakai_onload", "setMainFrameHeight( window.name ); highlightButtonSelections( '" + rb.getString("remove.results") + "' )");
+		// Set:
+		//  * the javascript to run on page load
+		//  * the page execution context (resources tool or editor integration)
+    switch (caller)
+    {
+      case EDITOR_INTEGRATION:
+    		context.put("sakai_onload", "SRC_timedWindowVerification(); highlightButtonSelections( '" + rb.getString("remove.results") + "' )");
 
-		// put the citation list title and size
-		putCitationCollectionDetails(context, state);
+   			context.put("editorIntegration", Boolean.TRUE);
+   			context.put("resourcesTool", Boolean.FALSE);
+        break;
+
+      case RESOURCE_TOOL:
+      default:
+    		context.put("sakai_onload", "setMainFrameHeight( window.name ); highlightButtonSelections( '" + rb.getString("remove.results") + "' )");
+
+   			context.put("editorIntegration", Boolean.FALSE);
+   			context.put("resourcesTool", Boolean.TRUE);
+
+    		// put the citation list title and size
+		    putCitationCollectionDetails(context, state);
+        break;
+    }
 
 		// signal basic/advanced search
 		Object basicSearch = state.getAttribute( STATE_BASIC_SEARCH );
@@ -1343,6 +1374,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	public String buildSearchPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
+ 		Caller caller = getCaller(state);
+
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
 
@@ -1350,11 +1383,29 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put("TextValidator", new QuotedTextValidator());
 		context.put("xilator", new Validator());
 
-		// javascript to run on page load
-		context.put("sakai_onload", "setMainFrameHeight( window.name ); showTopCategory()");
+		// Set:
+		//  * the javascript to run on page load
+		//  * the page execution context (resources tool or editor integration)
+		switch (caller)
+		{
+  	  case EDITOR_INTEGRATION:
+  		  context.put("sakai_onload", "SRC_timedWindowVerification(); showTopCategory();");
 
-		// put citation list title/size
-		putCitationCollectionDetails(context, state);
+   			context.put("editorIntegration", Boolean.TRUE);
+   			context.put("resourcesTool", Boolean.FALSE);
+  		  break;
+
+  	  case RESOURCE_TOOL:
+  	  default:
+  		  context.put("sakai_onload", "setMainFrameHeight( window.name ); showTopCategory();");
+
+   			context.put("editorIntegration", Boolean.FALSE);
+   			context.put("resourcesTool", Boolean.TRUE);
+
+    		// put citation list title/size
+		    putCitationCollectionDetails(context, state);
+        break;
+    }
 
 		// resource-related
 		String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
@@ -1576,10 +1627,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 
 		cleanup(toolSession, CitationHelper.CITATION_PREFIX);
-		
+
 		// Remove session sort
 		state.removeAttribute("sort");
-		
+
 		// Remove session collection
 		state.removeAttribute(STATE_COLLECTION_ID);
 		state.removeAttribute(STATE_COLLECTION);
@@ -1795,7 +1846,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	}
 
 	/**
-	 * 
+	 *
 	 * @param data
 	 */
 	public void doImportPage ( RunData data)
@@ -1806,9 +1857,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		setMode(state, Mode.IMPORT_CITATIONS);
 
 	}	// doImportPage
-	
+
 	/**
-	 * 
+	 *
 	 * @param data
 	 */
 	public void doImport ( RunData data)
@@ -1822,21 +1873,21 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		Iterator iter = params.getNames();
 
 		String param = null;
-		
+
 		while (iter.hasNext())
 		{
 			param = (String) iter.next();
 			logger.debug( "param = " + param);
-			logger.debug( param + " value = " + params.get(param));			
+			logger.debug( param + " value = " + params.get(param));
 		}
 
 		String collectionId = params.getString("collectionId");
-		
+
 		if(collectionId == null)
 		{
 			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
 		}
-		
+
 		CitationCollection collection = null;
         collection = getCitationCollection(state, false);
 
@@ -1846,21 +1897,21 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// empty we'll read it from the uploaded file.  We'll crate a BufferedReader in either
 		// circumstance so that the parsing code need not know where the ris text came from.
 		java.io.BufferedReader bread = null;
-		
+
 		if (ristext.trim().length() > 0) // form has text in the risimport textarea
 		{
 			java.io.StringReader risStringReader = new java.io.StringReader(ristext);
 			bread = new java.io.BufferedReader(risStringReader);
 			logger.debug( "String buffered reader ready");
-			
+
 		} // end RIS text is in the textarea
 		else // textarea empty, set the read of the import from the file
 		{
 		  String upload = params.get("risupload");
 		  logger.debug( "Upload String = " + upload);
-		
+
 		  FileItem risImport = params.getFileItem("risupload");
-		
+
 		  if (risImport == null)
 		  {
 			logger.debug( "risImport is null.");
@@ -1868,18 +1919,18 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		  }
 
 	      logger.debug("Filename = " + risImport.getFileName());
-	    
+
 
 	      InputStream risImportStream = risImport.getInputStream();
 		  InputStreamReader isr = new InputStreamReader(risImportStream);
 		  bread = new java.io.BufferedReader(isr);
 		} // end set the read of the import from the uploaded file.
 
-		
-		// The below code is a major work in progress.  
+
+		// The below code is a major work in progress.
 		// This code is for demonstration purposes only. No gambling or production use!
 
-		String fileString = new String();		
+		String fileString = new String();
 		String importLine = null;
 		java.util.List importList = new java.util.ArrayList();
 
@@ -1890,33 +1941,33 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			while ((importLine = bread.readLine()) != null)
 			{
 				importLine = importLine.trim();
-				
+
 				if (importLine != null && importLine.length() > 2)
 				{
 				  importList.add(importLine);
 				  fileString = fileString + "\n" + importLine;
 				}
-				
+
 			} // end while
 		} // end try
 		catch(Exception e)
 		{
 			logger.debug("ISR error = " + e);
 		} // end catch
-		
-		logger.debug("fileString = \n" + fileString);	
-		
+
+		logger.debug("fileString = \n" + fileString);
+
 
 		// tempList holds the entries read in to make a citation up to and
 		// including the ER entry from importList
 		List tempList = new java.util.ArrayList();
-		
+
 		Citation importCitation = CitationService.getTemporaryCitation();
 		CitationCollection importCollection = CitationService.getTemporaryCollection();
 
 		int sucessfullyReadCitations = 0;
 		int totalNumberCitations = 0;
-		
+
 		// Read each entry in the RIS List and build a citation
 		for(int i=0; i< importList.size(); i++)
 		{
@@ -1927,11 +1978,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 			// make sure importEntryString can be tested for "ER" existence. It could
 			// be a dinky invalid line less than 2 characters.
-			if (importEntryString != null && importEntryString.length() > 1 && 
+			if (importEntryString != null && importEntryString.length() > 1 &&
 				importEntryString.substring(0, 2).equalsIgnoreCase("ER"))
 			{
 				// end of citation (signaled by ER).
-				
+
 				totalNumberCitations++;
 				logger.debug("------> Trying to add citation " + totalNumberCitations);
 				if (importCitation.importFromRisList(tempList)) // import went well
@@ -1943,19 +1994,19 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				importCitation = CitationService.getTemporaryCitation();
 			}
 		} // end for
-		
+
 		logger.debug("Done reading in " + sucessfullyReadCitations + " / " + totalNumberCitations + " citations.");
-		
+
 		collection.addAll(importCollection);
         CitationService.save(collection);
-        
+
         // remove collection from state
         state.removeAttribute(STATE_COLLECTION);
 
-		
+
 		setMode(state, Mode.LIST);
 	} // end doImport()
-	
+
 	/**
 	*
 	*/
@@ -1968,6 +2019,28 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		//state.setAttribute(CitationHelper.SPECIAL_HELPER_ID, CitationHelper.CITATION_ID);
 
 	}	// doCreate
+
+  /**
+   * Fetch the calling application
+   * @param state The session state
+   * @return The calling application (default to Resources if nothing is set)
+   */
+  protected Caller getCaller(SessionState state)
+  {
+    Caller caller = (Caller) state.getAttribute(CITATIONS_HELPER_CALLER);
+
+    return (caller == null) ? Caller.RESOURCE_TOOL : Caller.EDITOR_INTEGRATION;
+  }
+
+  /**
+   * Set the calling applcation
+   * @param state The session state
+   * @param caller The calling application
+   */
+  protected void setCaller(SessionState state, Caller caller)
+  {
+    state.setAttribute(CITATIONS_HELPER_CALLER, caller);
+  }
 
 	/**
 	 * Pushes a non-ignorable Mode onto the back-button stack within the given
@@ -2427,13 +2500,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				try
 	            {
 					Citation citation = collection.getCitation(citationId);
-	
+
 		            String schemaId = params.getString("type");
 		            Schema schema = CitationService.getSchema(schemaId);
 		            citation.setSchema(schema);
-	
+
 		    		updateCitationFromParams(citation, params);
-	
+
 		       		// add citation to current collection
 		    		collection.saveCitation(citation);
 		        }
@@ -2441,7 +2514,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	            {
 		            // TODO add alert and log error
 	            }
-	
+
 	       		CitationService.save(collection);
 			}
  		}
@@ -2489,14 +2562,26 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	}  // doCancelSearch
 
-	/**
-	*
-	*/
-	public void doSearch ( RunData data)
-	{
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+  /**
+   * Resources Tool/Citation Helper search
+   * @param data Runtime data
+   */
+ 	public void doSearch ( RunData data)
+ 	{
+ 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
+    logger.debug("doSearch()");
+
+    doSearchCommon(state, Mode.ADD_CITATIONS);
+ 	}
+
+  /**
+   * Common "doSearch()" support
+   * @param state Session state
+   * @param errorMode Next mode to set if we have database hiersrchy problems
+   */
+  protected void doSearchCommon(SessionState state, Mode errorMode)
+  {
 		// remove attributes from an old search session, if any
 		state.removeAttribute( STATE_SEARCH_RESULTS );
 		state.removeAttribute( STATE_CURRENT_RESULTS );
@@ -2506,26 +2591,30 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		state.setAttribute( STATE_BASIC_SEARCH, new Object() );
 
 		try
+    {
+      SearchDatabaseHierarchy hierarchy = SearchManager.getSearchHierarchy();
+	    if (hierarchy == null)
 	    {
-	        SearchDatabaseHierarchy hierarchy = SearchManager.getSearchHierarchy();
-	        if(hierarchy == null)
-	        {
-		        addAlert(state, rb.getString("search.problem"));
-		        setMode(state, Mode.ADD_CITATIONS);
+		    addAlert(state, rb.getString("search.problem"));
+		    setMode(state, errorMode);
 				return;
-	        }
+	    }
 
-	        state.setAttribute(STATE_SEARCH_HIERARCHY, hierarchy);
-
+	    state.setAttribute(STATE_SEARCH_HIERARCHY, hierarchy);
 			setMode(state, Mode.SEARCH);
-	    }
-	    catch (SearchException e)
-	    {
-	        // addAlert(state, rb.getString("search.problem"));
-	        addAlert(state, e.getMessage());
+	  }
+	  catch (SearchException exception)
+    {
+      String error = exception.getMessage();
+
+      if ((error == null) || (error.length() == 0))
+      {
+        error = rb.getString("search.problem");
+      }
+      addAlert(state, error);
 			setMode(state, Mode.ERROR);
-	    }
-	}	// doSearch
+    }
+  }
 
 	/**
 	 *
@@ -3044,7 +3133,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		String collectionId = params.getString("collectionId");
 
 		CitationCollection collection = getCitationCollection(state, false);
-		
+
 		if(collection == null)
 		{
 			addAlert(state, rb.getString("alert.access"));
@@ -3080,7 +3169,34 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected void initHelper(VelocityPortlet portlet, Context context,
 	        RunData rundata, SessionState state)
 	{
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
+    Mode mode;
+
+    /*
+     * Editor Integration support?
+     */
+    if (getCaller(state) == Caller.EDITOR_INTEGRATION)
+    {
+  		mode = (Mode) state.getAttribute(CitationHelper.STATE_HELPER_MODE);
+
+      if (mode == null)
+      {
+        logger.debug("initHelper(): mode is undefined, using " + Mode.SEARCH);
+        setMode(state, Mode.SEARCH);
+      }
+
+  		if (state.getAttribute(STATE_RESULTS_PAGE_SIZE) == null)
+  		{
+        logger.debug("initHelper(): result page size is undefined, using "
+                +    DEFAULT_RESULTS_PAGE_SIZE);
+  			state.setAttribute(STATE_RESULTS_PAGE_SIZE, DEFAULT_RESULTS_PAGE_SIZE);
+  		}
+
+      return;
+    }
+    /*
+     * Resources Tool support
+     */
+    ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		// TODO: if not enterring as a helper, we will need to create pipe???
 
@@ -3088,8 +3204,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			return;
 		}
-
-		Mode mode = (Mode) state.getAttribute(CitationHelper.STATE_HELPER_MODE);
+    /*
+     * Resources Tool/Citation Helper support
+     */
+		mode = (Mode) state.getAttribute(CitationHelper.STATE_HELPER_MODE);
 		if(mode == null)
 		{
 			switch(pipe.getAction().getActionType())
@@ -3320,6 +3438,21 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			}
 
 		} // escapeQuotedString
+
+  	/**
+	   * Return a string that is safe to place into a JavaScript value wrapped
+	   * in single quotes.  In addition, all double quotes (") are replaced by
+	   * the entity <i>&quot</i>.
+	   *
+		 * @param string The original string
+		 * @return The [possibly] escaped string
+		 */
+		public static String escapeHtmlAndJsQuoted(String string)
+		{
+		  String escapedText = Validator.escapeJsQuoted(string);
+
+		  return escapedText.replaceAll("\"", "&quot;");
+		}
 	}
 
 	/**
@@ -3340,7 +3473,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 
 	}
-	
+
 	public void doSortCollection( RunData data )
 	{
 		// get the state object
@@ -3348,7 +3481,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		ParameterParser params = data.getParameters();
 
 		String collectionId = params.getString("collectionId");
-		
+
 		String sort = params.getString("sort");
 
 		CitationCollection collection = null;
@@ -3370,32 +3503,32 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		else
 		{
 			// sort the citation list
-			
+
 	        logger.debug("doSortCollection() ready to sort");
-	        
+
 	        if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_TITLE))
 				  collection.setSort(CitationCollection.SORT_BY_TITLE, true);
 	        else if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_AUTHOR))
 			       collection.setSort(CitationCollection.SORT_BY_AUTHOR, true);
 	        else if (sort.equalsIgnoreCase(CitationCollection.SORT_BY_YEAR))
 				   collection.setSort(CitationCollection.SORT_BY_YEAR , true);
-	        
+
 	        state.setAttribute("sort", sort);
-	        
+
 			Iterator iter = collection.iterator();
-			
+
 			while (iter.hasNext())
 			{
 				Citation tempCit = (Citation) iter.next();
-				
+
 				logger.debug("doSortCollection() tempcit 1 -------------");
 				logger.debug("doSortCollection() tempcit 1 (author) = " + tempCit.getFirstAuthor());
 		        logger.debug("doSortCollection() tempcit 1 (year)   = " + tempCit.getYear());
-				
+
 		        logger.debug("doSortCollection() tempcit 1 = " + tempCit.getDisplayName());
 			} // end while
 		} // end else
-		
+
 		setMode(state, Mode.LIST);
 
 	}  // doSortCollection
@@ -3407,7 +3540,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		ParameterParser params = data.getParameters();
 
 		String collectionId = params.getString("collectionId");
-		
+
 		CitationCollection collection = null;
 
 		if(collectionId == null)
@@ -3427,17 +3560,17 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			// save the collection (this will persist the sort order to the db)
 	        CitationService.save(collection);
-	        
+
 	        String sort = collection.getSort();
-	        
+
 	        if (sort != null)
 	          state.setAttribute("sort", sort);
-	        
+
 			setMode(state, Mode.LIST);
-		
+
 		}
 	} // end doSaveCollection
-  
+
 	public class CitationListSecurityAdviser implements SecurityAdvisor
 	{
 		String userId;

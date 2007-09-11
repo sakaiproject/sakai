@@ -2,6 +2,10 @@
 </script>
 <script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
 </script>
+#if( $editorIntegration )
+  <script type="text/javascript" src="/sakai-citations-tool/js/searchresultcommon.js">
+  </script>
+#end
 
 <!-- template: sakai_citation-search.vm -->
 
@@ -10,22 +14,24 @@
 
   <h3 id="advancedSearchHeader" style="display: none;">$tlang.getString("title.adv.search")</h3>
   <h3 id="basicSearchHeader">$tlang.getString("title.basic.search")</h3>
-  
-  #parse( "vm/citation/_details.vm" )
-  
+
+  #if( $resourcesTool )
+    #parse( "vm/citation/_details.vm" )
+  #end
+
   <form name="$FORM_NAME" id="$FORM_NAME" method="post"
     action="#toolForm("CitationHelperAction")">
     <input name="sakai_action" id="sakai_action" value="doBeginSearch" type="hidden" />
     <input name="searchType" id="searchType" value="$basicSearchType" type="hidden" />
     <input name="cancelOp" id="cancelOp" value="$FORM_NAME" type="hidden" />
-    
+
     <p class="instruction">$tlang.getString("instr.search.main")</p>
     <p class="instruction">$tlang.getString("instr.search.sub")</p>
 
     #parse( "vm/citation/_advSearch.vm" )
-    
+
     #parse( "vm/citation/_basicSearch.vm" )
-    
+
     <div id="categories" class="shorttext">
       #set( $count = 0 )
       #foreach( $category in $categoryListing )
@@ -37,7 +43,7 @@
             #else $tlang.getString("select.sub.search")
             #end
             </label>
- 
+
             <select name="$category.id" id="$category.id" class="selectCategory" onchange="categoryChange($count, this.value)">
               #if( $velocityCount == 1 )
                 #if( $defaultCategory )
@@ -53,7 +59,7 @@
                 <option value="$subCategory.id">$xilator.escapeHtml($subCategory.displayName)</option>
               #end
             </select>
-            
+
             #if( $velocityCount == 1 )
               <span id="databasesSelectedWidget" style="margin-left:1em;">($tlang.getString( "dbSelected.search" ) <span id="dbSelectedCount"></span>)</span>
             #end
@@ -68,7 +74,7 @@
         $tlang.getString( "dbLoad.search" )
       </p>
     </div>
- 
+
     <!-- database list is dynamically loaded using AJAX (see showDatabases()) -->
     <div id="databaseArea"></div>
 
@@ -93,20 +99,28 @@
         value="$tlang.getString("cancel.search")" style="color: #FF0000; display: none;"
         onclick="javascript: cancelSearchForm( '$FORM_NAME', '#toolForm("CitationHelperAction")' );"
       />
-      <input type="button" name="AddCitations" id="AddCitations"
-        value="$tlang.getString("label.back.search")"
-        onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"
-      />
-      #if( $resourcesAddAction )
-      <input type="button" name="Cancel" id="Cancel"
-        value="$tlang.getString("label.cancel")"
-        onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
-      />
-      #else
-      <input type="button" name="Done" id="Done"
-        value="$tlang.getString("label.done")"
-        onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
-      />
+      #if( $resourcesTool )
+        <input type="button" name="AddCitations" id="AddCitations"
+          value="$tlang.getString("label.back.search")"
+          onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"
+        />
+        #if( $resourcesAddAction )
+        <input type="button" name="Cancel" id="Cancel"
+          value="$tlang.getString("label.cancel")"
+          onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
+        />
+        #else
+        <input type="button" name="Done" id="Done"
+          value="$tlang.getString("label.done")"
+          onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+        />
+        #end
+      #end
+      #if( $editorIntegration )
+        <input type="button" name="Done" id="Done"
+          value="$tlang.getString("close.integration")"
+          onclick="javascript:window.close();"
+        />
       #end
       <span class="basicSearchLoad" style="display: none;">
         <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.search" )" />
@@ -142,7 +156,7 @@ top.citationsHelperFrame = new CitationsHelperFrame( "#toolForm("CitationHelperA
       return false;
     }
   });
-  
+
 function showTopCategory() {
   // get first div underneath #categories div
   $( ".categoryDiv:first" ).show();
@@ -161,7 +175,7 @@ function categoryChange( level, id ) {
 
   // hide categories below this level
   $( ".categoryDiv" ).gt( level-1 ).hide();
-  
+
   // set selected count to 0
   $( "#dbSelectedCount" ).html( "0" );
 
@@ -213,7 +227,7 @@ function resizeFrame() {
 function highlightCheckedSelections() {
   $( "tr[input]" ).removeClass( "highLightAdded" );
   $( "tr[input[@checked]]" ).addClass( "highLightAdded" );
-  
+
   // set selected count
   var count = $( "tr[input[@checked]]" ).size();
   if( !count || count == "" ) {
@@ -238,7 +252,7 @@ function legalSearch( searchType ) {
       alert("$tlang.getString( "noDbs.search" )");
       return false;
   }
-  
+
   // user has entered search terms & selected at least one db
   return true;
 }
