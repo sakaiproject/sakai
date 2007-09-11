@@ -527,7 +527,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			}
 
 			M_log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName())
-					+ " - caching minutes: " + m_cacheSeconds / 60 + " - cache cleaner minutes: " + m_cacheCleanerSeconds / 60
 					+ " separateIdEid: " + m_separateIdEid);
 		}
 		catch (Throwable t)
