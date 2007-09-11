@@ -447,8 +447,6 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			functionManager().registerFunction(SECURE_VIEW_ROSTER);
 			functionManager().registerFunction(SECURE_UPDATE_SITE_MEMBERSHIP);
 			functionManager().registerFunction(SECURE_UPDATE_GROUP_MEMBERSHIP);
-
-			M_log.info("init() - caching minutes: " + m_cacheSeconds / 60);
 		}
 		catch (Throwable t)
 		{
