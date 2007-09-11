@@ -178,7 +178,7 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	 */
 	public String getUpdateIndividualDropboxChangeSql() 
 	{
-		return "update CONTENT_DROPBOX_CHANGES set (IN_COLLECTION = ?, LAST_UPDATE = ?) where (DROPBOX_ID = ?)";
+		return "update CONTENT_DROPBOX_CHANGES set IN_COLLECTION = ?, LAST_UPDATE = ? where DROPBOX_ID = ?";
 	}
 
 	/**
@@ -186,7 +186,7 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	 */
 	public String getInsertIndividualDropboxChangeSql() 
 	{
-		return "insert into CONTENT_DROPBOX_CHANGES (DROPBOX_ID, IN_COLLECTION, LAST_UPDATE) values (? , ? , ?) on duplicate key update (IN_COLLECTION = ?, LAST_UPDATE = ?)";
+		return "insert into CONTENT_DROPBOX_CHANGES (DROPBOX_ID, IN_COLLECTION, LAST_UPDATE) values (? , ? , ?) on duplicate key update IN_COLLECTION = ?, LAST_UPDATE = ?";
 	}
 
 	/**

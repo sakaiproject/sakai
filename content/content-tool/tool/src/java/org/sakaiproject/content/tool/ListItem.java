@@ -111,6 +111,8 @@ public class ListItem
 	protected static final long ONE_WEEK = 1000L * 60L * 60L * 24L * 7L;
 
 	public static final String DOT = "_";
+
+	public static final long ONE_DAY = 24L * 60L * 60L * 1000L;
 	
 	/**
 	 * @param entity
@@ -322,6 +324,7 @@ public class ListItem
 	protected boolean expandable = false;
 	protected boolean isEmpty = true;
 	protected boolean isExpanded = false;
+	protected boolean isHot = false;
 	protected boolean isSortable = false;
 	protected boolean isTooBig = false;
 	protected String size = "";
@@ -468,6 +471,24 @@ public class ListItem
 			}
 		}
 		this.description = props.getProperty(ResourceProperties.PROP_DESCRIPTION);
+		
+		if(this.isDropbox)
+		{
+			try
+			{
+				Time lastChange = props.getTimeProperty(org.sakaiproject.content.api.ContentHostingService.PROP_DROPBOX_CHANGE_TIMESTAMP);
+				long oneDayAgo = TimeService.newTime().getTime() - ONE_DAY;
+				
+				if(lastChange != null && lastChange.getTime() > oneDayAgo)
+				{
+					setHot(true);
+				}
+			}
+			catch(Exception e)
+			{
+				// ignore
+			}
+		}
 		
 		this.permissions = new TreeSet<ContentPermissions>();
 		this.selected = false;
@@ -3408,6 +3429,20 @@ public class ListItem
 		}
 	    return typeSupportsOptionalProperties;
     }
+
+	/**
+	 * @return the isHot
+	 */
+	public boolean isHot() {
+		return isHot;
+	}
+
+	/**
+	 * @param isHot the isHot to set
+	 */
+	public void setHot(boolean isHot) {
+		this.isHot = isHot;
+	}
 
 
 }

@@ -218,6 +218,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 						#end
 					</td>
 					<td headers="title" style="text-indent:$width" class="specialLink">
+#if($item.isHot())**HOT**#end
 						<h$headerDepth> 
 							#if ($item.canRead())
 								#if($item.isCollection())
@@ -455,6 +456,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 								#end
 							</td>
 							<td headers="title" style="text-indent:$width" class="specialLink">
+#if($item.isHot())**HOT**#end
 								<h$headerDepth> 
 									#if ($item.canRead())
 										#if($item.isCollection())

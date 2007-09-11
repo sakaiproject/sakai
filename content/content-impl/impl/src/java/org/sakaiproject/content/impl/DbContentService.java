@@ -787,7 +787,7 @@ public class DbContentService extends BaseContentService
 								{
 									ResourcePropertiesEdit props = dropbox.getPropertiesEdit();
 									Time time = TimeService.newTime(update);
-									props.addProperty(PROP_DROPBOX_CHANGE_TIMESTAMP, time.toStringSql());
+									props.addProperty(PROP_DROPBOX_CHANGE_TIMESTAMP, time.toString());
 								}
 							}
 						}
