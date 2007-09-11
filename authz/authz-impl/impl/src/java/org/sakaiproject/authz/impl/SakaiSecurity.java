@@ -118,8 +118,6 @@ public abstract class SakaiSecurity implements SecurityService
 			m_callCache = memoryService().newMultiRefCache(
 					"org.sakaiproject.authz.api.SecurityService.cache");
 		}
-
-		M_log.info("init() - caching minutes: " + m_cacheMinutes);
 	}
 
 	/**
