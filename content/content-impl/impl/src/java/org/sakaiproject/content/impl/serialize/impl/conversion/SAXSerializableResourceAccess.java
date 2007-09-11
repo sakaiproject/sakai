@@ -71,7 +71,7 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 
 	private SAXParserFactory parserFactory;
 
-	private AccessMode accessMode;
+	private AccessMode accessMode = AccessMode.INHERITED;
 
 	private long contentLength;
 
@@ -79,13 +79,13 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 
 	private String filePath;
 
-	private Collection<String> group;
+	private Collection<String> group = new ArrayList<String>();
 
 	private boolean hidden;
 
 	private String id;
 
-	private SerializableEntity saxSerializableProperties;
+	private SAXSerializablePropertiesAccess saxSerializableProperties = new SAXSerializablePropertiesAccess();
 
 	private Time releaseDate;
 
@@ -397,7 +397,6 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 				public void startElement(String uri, String localName, String qName,
 						Attributes attributes) throws SAXException
 				{
-
 					if ("property".equals(qName))
 					{
 
@@ -537,6 +536,10 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 						}
 						group.add(attributes.getValue("sakai:group_name"));
 					}
+					else if ("properties".equals(qName))
+					{
+						
+					}
 					else
 					{
 						log.warn("Unexpected Element " + qName);
@@ -544,6 +547,95 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 
 				}
 			});
+		}
+	}
+
+	/**
+	 * @param sax2
+	 * @throws Exception 
+	 */
+	public void check(SAXSerializableResourceAccess sax2) throws Exception
+	{
+		StringBuilder sb = new StringBuilder();
+		if ( (accessMode != null && !accessMode.equals(sax2.accessMode)) || 
+				(accessMode == null && sax2.accessMode != null) ||
+				(accessMode != null && sax2.accessMode == null)) {
+			sb.append("     ").append("Access Mode not equal ["+accessMode+"]!=["+sax2.accessMode+"]").append("\n");
+		}
+		if ( this.hidden != sax2.hidden  ) {
+			sb.append("     ").append("Hidden not equal ["+hidden+"]!=["+sax2.hidden+"]").append("\n");
+		}
+		if ( (id != null && !id.equals(sax2.id)) ||
+				(id == null && sax2.id != null) ||
+				(id != null && sax2.id == null)) {
+			sb.append("     ").append("ID not equal ["+id+"]!=["+sax2.id+"]").append("\n");
+		}
+		if ( ( releaseDate != null && sax2.releaseDate != null && (this.releaseDate.getTime() != sax2.releaseDate.getTime())) || 
+				(releaseDate == null && sax2.releaseDate != null) ||
+				(releaseDate != null && sax2.releaseDate == null)) {
+			sb.append("     ").append("Release not equal ["+releaseDate+"]!=["+sax2.releaseDate+"]").append("\n");
+		}
+		if ( ( retractDate != null && sax2.retractDate != null && (this.retractDate.getTime() != sax2.retractDate.getTime())) || 
+				(retractDate == null && sax2.retractDate != null) ||
+				(retractDate != null && sax2.retractDate == null)) {
+			sb.append("     ").append("Release not equal ["+retractDate+"]!=["+sax2.retractDate+"]").append("\n");
+		}
+		if ( ( resourceType != null && !resourceType.equals(sax2.resourceType)) ||
+				(resourceType == null && sax2.resourceType != null) ||
+				(resourceType != null && sax2.resourceType == null)) {
+			sb.append("     ").append("ID not equal ["+resourceType+"]!=["+sax2.resourceType+"]").append("\n");
+		}
+		if ((group == null && sax2.group != null) ||
+				(group != null && sax2.group == null)) {
+			sb.append("     ").append("group not equal ["+group+"]!=["+sax2.group+"]").append("\n");			
+		}
+		if ( group != null && sax2.group != null ) {
+			if (this.group.size() != sax2.group.size()) {
+				sb.append("     ").append("group not equal ["+group+"]!=["+sax2.group+"]").append("\n");							
+			} else {
+				for (String g : group ) {
+					if ( !sax2.group.contains(g) ) {
+						sb.append("     ").append("group not present in other object ["+g+"]").append("\n");																	
+					}
+				}
+				for (String g : sax2.group ) {
+					if ( !group.contains(g) ) {
+						sb.append("     ").append("group not present in this object ["+g+"]").append("\n");																	
+					}
+				}
+			}
+		}
+		if ((body == null && sax2.body != null) ||
+				(body != null && sax2.body == null)) {
+			sb.append("     ").append("group not equal ["+body+"]!=["+sax2.body+"]").append("\n");			
+		}
+		if ( body != null && sax2.body != null ) {
+			if (this.body.length != sax2.body.length) {
+				sb.append("     ").append("group not equal ["+body+"]!=["+sax2.body+"]").append("\n");							
+			} else {
+				for (int i = 0; i < body.length; i++  ) {
+					if ( body[i] != sax2.body[i] ) {
+						sb.append("     ").append("group not equal ["+body[i]+"]!=["+sax2.body[i]+"]").append("\n");							
+					}
+				}
+			}
+		}
+		if ( this.contentLength != sax2.contentLength  ) {
+			sb.append("     ").append("ContentLength not equal ["+contentLength+"]!=["+sax2.contentLength+"]").append("\n");
+		}
+		if ( (contentType != null && !contentType.equals(sax2.contentType)) || 
+				(contentType == null && sax2.contentType != null) ||
+				(contentType != null && sax2.contentType == null)) {
+			sb.append("     ").append("Content Type not equal ["+contentType+"]!=["+sax2.contentType+"]").append("\n");
+		}
+		if ( (filePath != null && !filePath.equals(sax2.filePath)) || 
+				(filePath == null && sax2.filePath != null) ||
+				(filePath != null && sax2.filePath == null)) {
+			sb.append("     ").append("FilePath not equal ["+filePath+"]!=["+sax2.filePath+"]").append("\n");
+		}
+		if ( sb.length()  != 0 ) {
+			log.error(sb.toString());
+			throw new Exception("Serialization Items do not match ");
 		}
 	}
 

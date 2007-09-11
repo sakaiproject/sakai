@@ -242,7 +242,7 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 	public String serialize(SerializableEntity se) throws EntityParseException
 	{
 		if ( !(se instanceof SerializableCollectionAccess) ) {
-			throw new EntityParseException("Cant serialize "+se+" as it is not a SerializableCollection "); 
+			throw new EntityParseException("Cant serialize "+se+" as it is not a SerializableCollectionAccess "); 
 		}
 		SerializableCollectionAccess sc = (SerializableCollectionAccess) se;
 		

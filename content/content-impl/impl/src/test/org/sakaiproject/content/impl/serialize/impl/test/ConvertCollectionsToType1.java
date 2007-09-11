@@ -21,8 +21,17 @@
 
 package org.sakaiproject.content.impl.serialize.impl.test;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Iterator;
+import java.util.Properties;
+
 import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.persister.entity.PropertyMapping;
+import org.sakaiproject.content.impl.serialize.impl.conversion.FileSizeResourcesConversionHandler;
 import org.sakaiproject.content.impl.serialize.impl.conversion.SchemaConversionController;
 import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobCollectionConversionHandler;
 import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobResourcesConversionHandler;
@@ -36,6 +45,8 @@ import junit.framework.TestCase;
 public class ConvertCollectionsToType1 extends TestCase
 {
 
+	private static final Log log = LogFactory.getLog(ConvertCollectionsToType1.class);
+	
 	private SharedPoolDataSource tds;
 
 
@@ -52,12 +63,30 @@ public class ConvertCollectionsToType1 extends TestCase
 	 */
 	protected void setUp() throws Exception
 	{
+		
 		super.setUp();
 		DriverAdapterCPDS cpds = new DriverAdapterCPDS();
-		cpds.setDriver("org.hsqldb.jdbcDriver");
-		cpds.setUrl("jdbc:hsqldb:mem:aname");
-		cpds.setUser("sa");
-		cpds.setPassword("");
+
+		String config = System.getProperty("migrate.config"); //,"migrate.properties");
+		Properties p = new Properties();
+		if ( config != null ) {
+			log.info("Using Config "+config);
+			File f = new File(config);
+			FileInputStream fin = new FileInputStream(config);
+			p.load(fin);
+			fin.close();
+			for(Iterator<Object> i = p.keySet().iterator(); i.hasNext(); ) {
+				Object k = i.next();
+				log.info("   Test Properties "+k+":"+p.get(k));
+			}
+		}
+		
+		
+		
+		cpds.setDriver(p.getProperty("dbDriver","com.mysql.jdbc.Driver"));
+		cpds.setUrl(p.getProperty("dbURL","jdbc:mysql://127.0.0.1:3306/sakai22?useUnicode=true&characterEncoding=UTF-8"));
+		cpds.setUser(p.getProperty("dbUser","sakai22"));
+		cpds.setPassword(p.getProperty("dbPass","sakai22"));
 
 		tds = new SharedPoolDataSource();
 		tds.setConnectionPoolDataSource(cpds);
@@ -78,10 +107,16 @@ public class ConvertCollectionsToType1 extends TestCase
 
 	
 	public void testConvertCollections() {
-		SchemaConversionController scc = new SchemaConversionController();
-		Type1BlobCollectionConversionHandler bch = new Type1BlobCollectionConversionHandler();
-		while(scc.migrate(tds, bch));
-		Type1BlobResourcesConversionHandler brh = new Type1BlobResourcesConversionHandler();
-		while(scc.migrate(tds, brh));
+		try {
+			SchemaConversionController scc = new SchemaConversionController();
+			Type1BlobCollectionConversionHandler bch = new Type1BlobCollectionConversionHandler();
+			while(scc.migrate(tds, bch));
+			Type1BlobResourcesConversionHandler brh = new Type1BlobResourcesConversionHandler();
+			while(scc.migrate(tds, brh));
+			FileSizeResourcesConversionHandler fsh = new FileSizeResourcesConversionHandler();
+			while(scc.migrate(tds, fsh));
+		} catch ( Exception ex ) {
+			log.info("Failed ",ex);
+		}
 	}
 }

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.impl.serialize.impl.conversion;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
@@ -33,7 +34,7 @@ import org.sakaiproject.entity.api.serialize.SerializablePropertiesAccess;
 public class SAXSerializablePropertiesAccess implements SerializablePropertiesAccess, SerializableEntity
 {
 
-	private Map<String, Object> properties;
+	private Map<String, Object> properties = new HashMap<String, Object>();
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.entity.api.serialize.SerializablePropertiesAccess#getSerializableProperties()

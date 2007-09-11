@@ -76,13 +76,17 @@ public class SchemaConversionController
 				l.add(rs.getString(1));
 			}
 			rs.close();
+			
+			log.info("Migrating "+l.size()+" records ");
+			
 			for (String id : l)
 			{
+				
 				markNextBatch.clearParameters();
 				markNextBatch.setString(1, id);
 				if (markNextBatch.executeUpdate() != 1)
 				{
-					throw new SQLException("Failed to mark id " + id + " for processing ");
+					log.warn("Failed to mark id [" + id + "][" +id.length()+"] for processing ");
 				}
 			}
 
@@ -104,7 +108,7 @@ public class SchemaConversionController
 					{
 						if (updateRecord.executeUpdate() != 1)
 						{
-							throw new SQLException("Failed to update record " + id);
+							log.warn("Failed to update record " + id);
 						}
 					}
 					else
@@ -116,10 +120,11 @@ public class SchemaConversionController
 				completeNextBatch.setString(1, id);
 				if (completeNextBatch.executeUpdate() != 1)
 				{
-					throw new SQLException("Failed to mark id " + id + " for processing ");
+					log.warn("Failed to mark id " + id + " for processing ");
 				}
 
 			}
+			log.info("Done ");
 
 			if (l.size() == 0)
 			{
@@ -130,7 +135,7 @@ public class SchemaConversionController
 		}
 		catch (SQLException e)
 		{
-			log.error("Failed to perform migration ");
+			log.error("Failed to perform migration ",e);
 			try
 			{
 				connection.rollback();
@@ -216,7 +221,8 @@ public class SchemaConversionController
 		try
 		{
 			stmt = connection.createStatement();
-			stmt.execute(convert.getDropMigrateTable());
+			String sql = convert.getDropMigrateTable();
+			stmt.execute(sql);
 		}
 		finally
 		{
@@ -247,7 +253,8 @@ public class SchemaConversionController
 			try
 			{
 				// select count(*) from content_migrate;
-				rs = stmt.executeQuery(convert.getCheckMigrateTable());
+				String sql = convert.getCheckMigrateTable();
+				rs = stmt.executeQuery(sql);
 				if (rs.next())
 				{
 					nrecords = rs.getLong(1);
@@ -255,7 +262,8 @@ public class SchemaConversionController
 			}
 			catch (SQLException sqle)
 			{
-				stmt.execute(convert.getCreateMigrateTable());
+				String sql = convert.getCreateMigrateTable();
+				stmt.execute(sql);
 			}
 			finally
 			{
@@ -269,7 +277,8 @@ public class SchemaConversionController
 			}
 			if (nrecords == 0)
 			{
-				stmt.executeUpdate(convert.getPopulateMigrateTable());
+				String sql = convert.getPopulateMigrateTable();
+				stmt.executeUpdate(sql);
 			}
 
 		}

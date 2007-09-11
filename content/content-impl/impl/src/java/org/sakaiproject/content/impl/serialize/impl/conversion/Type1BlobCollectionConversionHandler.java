@@ -27,7 +27,7 @@ import java.sql.SQLException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer;
+import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer;
 
 /**
  * @author ieb
@@ -43,7 +43,7 @@ public class Type1BlobCollectionConversionHandler implements SchemaConversionHan
 	 */
 	public String getCreateMigrateTable()
 	{
-		return "create table content_col_t1register ( id varchar(99), status varchar(99), primary key id )";
+		return "create table content_col_t1register ( id varchar(1024), status varchar(99) )";
 	}
 
 	/*
@@ -73,7 +73,7 @@ public class Type1BlobCollectionConversionHandler implements SchemaConversionHan
 	 */
 	public String getPopulateMigrateTable()
 	{
-		return "insert into content_col_t1register (id,status) select collection_id, 'pending' from content_collection";
+		return "insert into content_col_t1register (id,status) select COLLECTION_ID, 'pending' from CONTENT_COLLECTION";
 	}
 
 	/*
@@ -113,7 +113,7 @@ public class Type1BlobCollectionConversionHandler implements SchemaConversionHan
 	 */
 	public String getSelectRecord()
 	{
-		return "select xml from content_collection where collection_id = ?";
+		return "select XML from CONTENT_COLLECTION where COLLECTION_ID = ?";
 	}
 
 	/*
@@ -123,7 +123,7 @@ public class Type1BlobCollectionConversionHandler implements SchemaConversionHan
 	 */
 	public String getUpdateRecord()
 	{
-		return "update content_collection set xml = ? where collection_id = ? ";
+		return "update CONTENT_COLLECTION set XML = ? where COLLECTION_ID = ? ";
 	}
 
 	/*
@@ -149,21 +149,25 @@ public class Type1BlobCollectionConversionHandler implements SchemaConversionHan
 
 		String xml = (String) source;
 
-		SAXSerializableResourceAccess sax = new SAXSerializableResourceAccess();
+		SAXSerializableCollectionAccess sax = new SAXSerializableCollectionAccess();
+		SAXSerializableCollectionAccess sax2 = new SAXSerializableCollectionAccess();
 		try
 		{
 			sax.parse(xml);
 		}
 		catch (Exception e1)
 		{
-			log.warn("Failed to parse "+id);
+			log.warn("Failed to parse "+id+"["+xml+"]",e1);
 			return false;
 		}
 
-		Type1BaseContentResourceSerializer t1b = new Type1BaseContentResourceSerializer();
+		Type1BaseContentCollectionSerializer t1b = new Type1BaseContentCollectionSerializer();
+		t1b.setTimeService(new ConversionTimeService());
 		try
 		{
 			String result = t1b.serialize(sax);
+			t1b.parse(sax2, result);
+			sax.check(sax2);
 			updateRecord.setString(1, result);
 			updateRecord.setString(2, id);
 			return true;

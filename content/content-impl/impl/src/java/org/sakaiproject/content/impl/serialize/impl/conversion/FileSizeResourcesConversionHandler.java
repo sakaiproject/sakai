@@ -32,13 +32,14 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer;
 
 /**
+ * Performs just the file size conversion for quota calculations 
  * @author ieb
  */
-public class Type1BlobResourcesConversionHandler implements SchemaConversionHandler
+public class FileSizeResourcesConversionHandler implements SchemaConversionHandler
 {
 
 	private static final Log log = LogFactory
-			.getLog(Type1BlobResourcesConversionHandler.class);
+			.getLog(FileSizeResourcesConversionHandler.class);
 
 	private Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
 
@@ -49,7 +50,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 	 */
 	public String getCreateMigrateTable()
 	{
-		return "create table content_res_t1register ( id varchar(1024), status varchar(99) )";
+		return "create table content_res_fsregister ( id varchar(1024), status varchar(99) )";
 	}
 
 	/*
@@ -59,7 +60,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 	 */
 	public String getDropMigrateTable()
 	{
-		return "drop table content_res_t1register";
+		return "drop table content_res_fsregister";
 	}
 
 	/*
@@ -69,7 +70,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 	 */
 	public String getCheckMigrateTable()
 	{
-		return "select count(*) from content_res_t1register";
+		return "select count(*) from content_res_fsregister";
 	}
 
 	/*
@@ -79,7 +80,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 	 */
 	public String getPopulateMigrateTable()
 	{
-		return "insert into content_res_t1register (id,status) select RESOURCE_ID, 'pending' from CONTENT_RESOURCE";
+		return "insert into content_res_fsregister (id,status) select RESOURCE_ID, 'pending' from CONTENT_RESOURCE";
 	}
 
 	/*
@@ -89,7 +90,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 	 */
 	public String getSelectNextBatch()
 	{
-		return "select id from content_res_t1register where status = 'pending' ";
+		return "select id from content_res_fsregister where status = 'pending' ";
 	}
 
 	/*
@@ -99,7 +100,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 	 */
 	public String getCompleteNextBatch()
 	{
-		return "update content_res_t1register set status = 'done' where id = ? ";
+		return "update content_res_fsregister set status = 'done' where id = ? ";
 	}
 
 	/*
@@ -109,7 +110,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 	 */
 	public String getMarkNextBatch()
 	{
-		return "update content_res_t1register set status = 'locked' where id = ? ";
+		return "update content_res_fsregister set status = 'locked' where id = ? ";
 	}
 
 	/*
@@ -129,7 +130,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 	 */
 	public String getUpdateRecord()
 	{
-		return "update CONTENT_RESOURCE set CONTEXT = ?, FILE_SIZE = ?, XML = ? where RESOURCE_ID = ? ";
+		return "update CONTENT_RESOURCE set CONTEXT = ?, FILE_SIZE = ? where RESOURCE_ID = ? ";
 	}
 
 	/*
@@ -156,7 +157,6 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 		String xml = (String) source;
 
 		SAXSerializableResourceAccess sax = new SAXSerializableResourceAccess();
-		SAXSerializableResourceAccess sax2 = new SAXSerializableResourceAccess();
 		try
 		{
 			sax.parse(xml);
@@ -171,10 +171,6 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 		t1b.setTimeService(new ConversionTimeService());
 		try
 		{
-			String result = t1b.serialize(sax);
-			t1b.parse(sax2, result);
-			sax.check(sax2);
-
 			Matcher contextMatcher = contextPattern.matcher(sax.getSerializableId());
 			String context = null;
 			if (contextMatcher.find())
@@ -184,8 +180,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 
 			updateRecord.setString(1, context);
 			updateRecord.setLong(2, sax.getSerializableContentLength());
-			updateRecord.setString(3, result);
-			updateRecord.setString(4, id);
+			updateRecord.setString(3, id);
 			return true;
 		}
 		catch (Exception e)
@@ -195,5 +190,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 		return false;
 
 	}
+	
+	
 
 }
