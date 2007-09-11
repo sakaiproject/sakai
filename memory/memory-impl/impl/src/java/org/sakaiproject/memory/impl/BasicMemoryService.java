@@ -415,7 +415,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		}
 		if(cache != null)
 		{
-			M_log.info("Loaded Cache " + name);
+			M_log.info("Loaded Cache " + cache);
 
 			return cache;
 		}
@@ -423,7 +423,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		{
 			cacheManager.addCache(name);
 			cache = cacheManager.getEhcache(name);
-			M_log.info("Loaded Default Cache for " + name);
+			M_log.info("Loaded Default Cache " + cache);
 
 			return cache;			
 		}
