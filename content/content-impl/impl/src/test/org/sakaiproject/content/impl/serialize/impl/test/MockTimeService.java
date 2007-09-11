@@ -21,7 +21,6 @@
 
 package org.sakaiproject.content.impl.serialize.impl.test;
 
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -88,7 +87,7 @@ public class MockTimeService implements TimeService
 	 */
 	public Time newTime(long value)
 	{
-		return new org.sakaiproject.mock.domain.Time(new Date(value));
+		return new MockTime(value);
 	}
 
 	/* (non-Javadoc)

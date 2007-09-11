@@ -43,8 +43,8 @@ public class MockSerializableCollectionAcccess implements SerializableCollection
 	public MockSerializablePropertiesAccess properties = new MockSerializablePropertiesAccess();
 	public Collection<String> group = new Vector<String>();
 	public String id = "sdfsd'sdfsdf'sdfsdfs'dfsdfssdfsd'sdfsdf'sdfsdfs'dfsdfs";
-	public Time retractDate = new org.sakaiproject.mock.domain.Time(new Date());
-	public Time releaseDate = new org.sakaiproject.mock.domain.Time(new Date(System.currentTimeMillis()-3600*1000));
+	public Time retractDate = new MockTime(System.currentTimeMillis());
+	public Time releaseDate = new MockTime(System.currentTimeMillis()-3600*1000);
 	public boolean hidden;
 	public AccessMode access;
 	
