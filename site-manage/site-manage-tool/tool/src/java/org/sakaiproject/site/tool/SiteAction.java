@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
@@ -1757,8 +1758,7 @@ public class SiteAction extends PagedResourceActionII {
 				// set participant list
 				if (allowUpdateSite || allowViewRoster
 						|| allowUpdateSiteMembership) {
-					List participants = new Vector();
-					participants = getParticipantList(state);
+					Collection participantsCollection = getParticipantList(state);
 					sortedBy = (String) state.getAttribute(SORTED_BY);
 					sortedAsc = (String) state.getAttribute(SORTED_ASC);
 					if (sortedBy == null) {
@@ -1774,18 +1774,7 @@ public class SiteAction extends PagedResourceActionII {
 						context.put("currentSortedBy", sortedBy);
 					if (sortedAsc != null)
 						context.put("currentSortAsc", sortedAsc);
-					Iterator sortedParticipants = null;
-					if (sortedBy != null) {
-						sortedParticipants = new SortedIterator(participants
-								.iterator(), new SiteComparator(sortedBy,
-								sortedAsc));
-						participants.clear();
-						while (sortedParticipants.hasNext()) {
-							participants.add(sortedParticipants.next());
-						}
-					}
-					context.put("participantListSize", new Integer(participants
-							.size()));
+					context.put("participantListSize", new Integer(participantsCollection.size()));
 					context.put("participantList", prepPage(state));
 					pagingInfoToContext(state, context);
 				}
@@ -3428,7 +3417,7 @@ public class SiteAction extends PagedResourceActionII {
 		// for SiteInfo list page
 		else if (state.getAttribute(STATE_TEMPLATE_INDEX).toString().equals(
 				"12")) {
-			List l = (List) state.getAttribute(STATE_PARTICIPANT_LIST);
+			Collection l = (Collection) state.getAttribute(STATE_PARTICIPANT_LIST);
 			size = (l != null) ? l.size() : 0;
 		}
 		return size;
@@ -3572,13 +3561,22 @@ public class SiteAction extends PagedResourceActionII {
 		// if in Site Info list view
 		else if (state.getAttribute(STATE_TEMPLATE_INDEX).toString().equals(
 				"12")) {
-			List participants = (state.getAttribute(STATE_PARTICIPANT_LIST) != null) ? (List) state
-					.getAttribute(STATE_PARTICIPANT_LIST)
-					: new Vector();
+			List participants = (state.getAttribute(STATE_PARTICIPANT_LIST) != null) ? collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST)): new Vector();
+			String sortedBy = (String) state.getAttribute(SORTED_BY);
+			String sortedAsc = (String) state.getAttribute(SORTED_ASC);
+			Iterator sortedParticipants = null;
+			if (sortedBy != null) {
+				sortedParticipants = new SortedIterator(participants
+						.iterator(), new SiteComparator(sortedBy,
+						sortedAsc));
+				participants.clear();
+				while (sortedParticipants.hasNext()) {
+					participants.add(sortedParticipants.next());
+				}
+			}
 			PagingPosition page = new PagingPosition(first, last);
 			page.validate(participants.size());
-			participants = participants.subList(page.getFirst() - 1, page
-					.getLast());
+			participants = participants.subList(page.getFirst() - 1, page.getLast());
 
 			return participants;
 		}
@@ -6551,9 +6549,7 @@ public class SiteAction extends PagedResourceActionII {
 						maintainRoleString).isEmpty();
 
 				// update participant roles
-				List participants = (List) state
-						.getAttribute(STATE_PARTICIPANT_LIST);
-				;
+				List participants = collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
 				// remove all roles and then add back those that were checked
 				for (int i = 0; i < participants.size(); i++) {
 					String id = null;
@@ -8017,9 +8013,8 @@ public class SiteAction extends PagedResourceActionII {
 	 * getParticipantList
 	 * 
 	 */
-	private List getParticipantList(SessionState state) {
+	private Collection getParticipantList(SessionState state) {
 		List members = new Vector();
-		List participants = new Vector();
 		String realmId = SiteService.siteReference((String) state
 				.getAttribute(STATE_SITE_INSTANCE_ID));
 
@@ -8030,15 +8025,15 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(SITE_PROVIDER_COURSE_LIST, providerCourseList);
 		}
 
-		participants = prepareParticipants(realmId, providerCourseList);
+		Collection participants = prepareParticipants(realmId, providerCourseList);
 		state.setAttribute(STATE_PARTICIPANT_LIST, participants);
 
 		return participants;
 
 	} // getParticipantList
 
-	private Vector prepareParticipants(String realmId, List providerCourseList) {
-		Vector participants = new Vector();
+	private Collection prepareParticipants(String realmId, List providerCourseList) {
+		Map participantsMap = new ConcurrentHashMap();
 		try {
 			AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
 			realm.getProviderGroupId();
@@ -8047,30 +8042,14 @@ public class SiteAction extends PagedResourceActionII {
 			for (Iterator i=providerCourseList.iterator(); i.hasNext();)
 			{
 				String providerCourseEid = (String) i.next();
-				if (cms.isCourseOfferingDefined(providerCourseEid))
-				{
-					// in case of CourseOffering eid
-					Set enrollmentSets = cms.getEnrollmentSets(providerCourseEid);
-					if (enrollmentSets != null)
-					{
-						for (Iterator eSetsIterator = enrollmentSets.iterator();eSetsIterator.hasNext();)
-						{
-							EnrollmentSet enrollmentSet = (EnrollmentSet) eSetsIterator.next();
-							addParticipantsFromEnrollmentSet(participants, realm, providerCourseEid, enrollmentSet);
-							// add membership
-							Set memberships = cms.getCourseOfferingMemberships(providerCourseEid);
-							addParticipantsFromMemberships(participants, realm, providerCourseEid, memberships);
-						}
-					}
-				}
-				else if (cms.isSectionDefined(providerCourseEid))
+				if (cms.isSectionDefined(providerCourseEid))
 				{
 					// in case of Section eid
 					EnrollmentSet enrollmentSet = cms.getSection(providerCourseEid).getEnrollmentSet();
-					addParticipantsFromEnrollmentSet(participants, realm, providerCourseEid, enrollmentSet);
+					addParticipantsFromEnrollmentSet(participantsMap, realm, providerCourseEid, enrollmentSet);
 					// add memberships
 					Set memberships = cms.getSectionMemberships(providerCourseEid);
-					addParticipantsFromMemberships(participants, realm, providerCourseEid, memberships);
+					addParticipantsFromMemberships(participantsMap, realm, providerCourseEid, memberships);
 				}
 			}
 			
@@ -8082,12 +8061,21 @@ public class SiteAction extends PagedResourceActionII {
 				{
 					try {
 						User user = UserDirectoryService.getUserByEid(g.getUserEid());
-						Participant participant = new Participant();
+						String userId = user.getId();
+						Participant participant;
+						if (participantsMap.containsKey(userId))
+						{
+							participant = (Participant) participantsMap.get(userId);
+						}
+						else
+						{
+							participant = new Participant();
+						}
 						participant.name = user.getSortName();
-						participant.uniqname = user.getId();
+						participant.uniqname = userId;
 						participant.role = g.getRole()!=null?g.getRole().getId():"";
 						participant.removeable = true;
-						participants.add(participant);
+						participantsMap.put(userId, participant);
 					} catch (UserNotDefinedException e) {
 						// deal with missing user quietly without throwing a
 						// warning message
@@ -8099,7 +8087,7 @@ public class SiteAction extends PagedResourceActionII {
 		} catch (GroupNotDefinedException ee) {
 			M_log.warn(this + "  IdUnusedException " + realmId);
 		}
-		return participants;
+		return participantsMap.values();
 	}
 
 	/**
@@ -8109,7 +8097,7 @@ public class SiteAction extends PagedResourceActionII {
 	 * @param providerCourseEid
 	 * @param memberships
 	 */
-	private void addParticipantsFromMemberships(Vector participants, AuthzGroup realm, String providerCourseEid, Set memberships) {
+	private void addParticipantsFromMemberships(Map participantsMap, AuthzGroup realm, String providerCourseEid, Set memberships) {
 		if (memberships != null)
 		{
 			for (Iterator mIterator = memberships.iterator();mIterator.hasNext();)
@@ -8118,20 +8106,31 @@ public class SiteAction extends PagedResourceActionII {
 				try 
 				{
 					User user = UserDirectoryService.getUserByEid(m.getUserId());
-					Member member = realm.getMember(user.getId());
+					String userId = user.getId();
+					Member member = realm.getMember(userId);
 					if (member != null && member.isProvided())
 					{
-						// add provided participant
-						Participant participant = new Participant();
-						participant.credits = "";
-						participant.name = user.getSortName();
-						participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
-						participant.regId = "";
-						participant.removeable = false;
-						participant.role = member.getRole()!=null?member.getRole().getId():"";
-						participant.section = cms.getSection(providerCourseEid).getTitle();
-						participant.uniqname = user.getId();
-						participants.add(participant);
+						// get or add provided participant
+						Participant participant;
+						if (participantsMap.containsKey(userId))
+						{
+							participant = (Participant) participantsMap.get(userId);
+							participant.section = participant.section.concat(", <br />" + cms.getSection(providerCourseEid).getTitle());
+						}
+						else
+						{
+							participant = new Participant();
+							participant.credits = "";
+							participant.name = user.getSortName();
+							participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
+							participant.regId = "";
+							participant.removeable = false;
+							participant.role = member.getRole()!=null?member.getRole().getId():"";
+							participant.section = cms.getSection(providerCourseEid).getTitle();
+							participant.uniqname = userId;
+						}
+						
+						participantsMap.put(userId, participant);
 					}
 				} catch (UserNotDefinedException exception) {
 					// deal with missing user quietly without throwing a
@@ -8149,7 +8148,7 @@ public class SiteAction extends PagedResourceActionII {
 	 * @param providerCourseEid
 	 * @param enrollmentSet
 	 */
-	private void addParticipantsFromEnrollmentSet(Vector participants, AuthzGroup realm, String providerCourseEid, EnrollmentSet enrollmentSet) {
+	private void addParticipantsFromEnrollmentSet(Map participantsMap, AuthzGroup realm, String providerCourseEid, EnrollmentSet enrollmentSet) {
 		if (enrollmentSet != null)
 		{
 			Set enrollments = cms.getEnrollments(enrollmentSet.getEid());
@@ -8159,20 +8158,38 @@ public class SiteAction extends PagedResourceActionII {
 				try 
 				{
 					User user = UserDirectoryService.getUserByEid(e.getUserId());
-					Member member = realm.getMember(user.getId());
+					String userId = user.getId();
+					Member member = realm.getMember(userId);
 					if (member != null && member.isProvided())
 					{
-						// add provided participant
-						Participant participant = new Participant();
-						participant.credits = e.getCredits();
-						participant.name = user.getSortName();
-						participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
-						participant.regId = "";
-						participant.removeable = false;
-						participant.role = member.getRole()!=null?member.getRole().getId():"";
-						participant.section = cms.getSection(providerCourseEid).getTitle();
-						participant.uniqname = user.getId();
-						participants.add(participant);
+						try
+						{
+						// get or add provided participant
+						Participant participant;
+						if (participantsMap.containsKey(userId))
+						{
+							participant = (Participant) participantsMap.get(userId);
+							participant.section = participant.section.concat(", <br />" + cms.getSection(providerCourseEid).getTitle());
+							participant.credits = participant.credits.concat(", <br />" + e.getCredits());
+						}
+						else
+						{
+							participant = new Participant();
+							participant.credits = e.getCredits();
+							participant.name = user.getSortName();
+							participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
+							participant.regId = "";
+							participant.removeable = false;
+							participant.role = member.getRole()!=null?member.getRole().getId():"";
+							participant.section = cms.getSection(providerCourseEid).getTitle();
+							participant.uniqname = userId;
+						}
+						participantsMap.put(userId, participant);
+						}
+						catch (Exception ee)
+						{
+							M_log.warn(ee.getMessage());
+						}
 					}
 				} catch (UserNotDefinedException exception) {
 					// deal with missing user quietly without throwing a
@@ -10648,8 +10665,7 @@ public class SiteAction extends PagedResourceActionII {
 	private void setSelectedParticipantRoles(SessionState state) {
 		List selectedUserIds = (List) state
 				.getAttribute(STATE_SELECTED_USER_LIST);
-		List participantList = (List) state
-				.getAttribute(STATE_PARTICIPANT_LIST);
+		List participantList = collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
 		List selectedParticipantList = new Vector();
 
 		Hashtable selectedParticipantRoles = new Hashtable();
@@ -12513,6 +12529,24 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		}
 		return list;
+	}
+	
+	/**
+	 * change collection object to list object
+	 * @param c
+	 * @return
+	 */
+	private List collectionToList(Collection c)
+	{
+		List rv = new Vector();
+		if (c!=null)
+		{
+			for (Iterator i = c.iterator(); i.hasNext();)
+			{
+				rv.add(i.next());
+			}
+		}
+		return rv;
 	}
 
 }
