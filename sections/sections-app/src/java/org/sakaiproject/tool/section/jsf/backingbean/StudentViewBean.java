@@ -23,8 +23,10 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -39,6 +41,7 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.exception.SectionFullException;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -155,35 +158,59 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 			return;
 		}
         refresh();
-        //check that there are still places available
+
+        // Check that there are still places available
 		int maxEnrollments = Integer.MAX_VALUE;
 		if(section.getMaxEnrollments() != null) {
 			maxEnrollments = section.getMaxEnrollments().intValue();
 		}
-		int numEnrolled = getSectionManager().getTotalEnrollments(section.getUuid());
-		if (numEnrolled >= maxEnrollments) {
-			if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
-			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
-			return;
-		}
-		try {
-			EnrollmentRecord er;
+
+		if (maxEnrollments == Integer.MAX_VALUE) {
+			// No maximum size is set for this section
+			try {				
+				if(getSectionManager().joinSection(sectionUuid) == null) {
+					// This operation failed
+					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_already_member_in_category"));
+				}
+			} catch (RoleConfigurationException rce) {
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+			} 
 			
-			if (maxEnrollments == Integer.MAX_VALUE)
-				er = getSectionManager().joinSection(sectionUuid);
-			else
-				er = getSectionManager().joinSection(sectionUuid, maxEnrollments);
-			
-			if(er == null) {
-				// This operation failed
-				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_already_member_in_category"));
+		} else {
+
+			// Enforce a maximum size
+			Map roleMap = getSectionManager().getTotalEnrollmentsMap(sectionUuid);
+
+			if (roleMap.size() < 3) {
+				log.warn("Cannot get section enrollment information for section " + sectionUuid);
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+				return;
 			}
-		} catch (RoleConfigurationException rce) {
-			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
-		} catch (SectionFullException sfe) {
-			if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
-			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
+			int studentsEnrolled = ((Integer) roleMap.get(Role.STUDENT)).intValue();
+			int otherMembers = ((Integer) roleMap.get(Role.TA)).intValue() + 
+								((Integer) roleMap.get(Role.INSTRUCTOR)).intValue();
+			
+			if (studentsEnrolled >= maxEnrollments) {
+				if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
+				return;
+			}
+
+			try {
+				if(getSectionManager().joinSection(sectionUuid, maxEnrollments + otherMembers) == null) {
+					// This operation failed
+					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_already_member_in_category"));
+				}
+			} catch (RoleConfigurationException rce) {
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+			} catch (SectionFullException sfe) {
+				if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
+			}
+
 		}
+	
+		return;
 	}
 
 	public void processSwitchSection(ActionEvent event) {
@@ -199,28 +226,50 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 		}
 		refresh();
 		
-		//check that there are still places available
+		// Check that there are still places available
+		
 		int maxEnrollments = Integer.MAX_VALUE;
 		if(section.getMaxEnrollments() != null) {
 			maxEnrollments = section.getMaxEnrollments().intValue();
 		}
-		int numEnrolled = getSectionManager().getTotalEnrollments(section.getUuid());
-		if (numEnrolled >= maxEnrollments) {
-			if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
-			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
-			return;
+		
+		if (maxEnrollments == Integer.MAX_VALUE) {
+			// No maximum size is set for this section
+			try {
+				getSectionManager().switchSection(sectionUuid);
+			} catch (RoleConfigurationException rce) {
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+			} 
+		} else {
+			// Enforce a maximum size
+			Map roleMap = getSectionManager().getTotalEnrollmentsMap(sectionUuid);
+
+			if (roleMap.size() < 3) {
+				log.warn("Cannot get section enrollment information for section " + sectionUuid);
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+				return;
+			}
+			int studentsEnrolled = ((Integer) roleMap.get(Role.STUDENT)).intValue();
+			int otherMembers = ((Integer) roleMap.get(Role.TA)).intValue() + 
+								((Integer) roleMap.get(Role.INSTRUCTOR)).intValue();
+			
+			if (studentsEnrolled >= maxEnrollments) {
+				if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
+				return;
+			}
+			try {
+				getSectionManager().switchSection(sectionUuid, maxEnrollments + otherMembers);
+			} catch (RoleConfigurationException rce) {
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+			} catch (SectionFullException sfe) {
+				if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
+			}
+			
 		}
-		try {
-			if (maxEnrollments == Integer.MAX_VALUE)
-			getSectionManager().switchSection(sectionUuid);
-			else
-				getSectionManager().switchSection(sectionUuid, maxEnrollments);
-		} catch (RoleConfigurationException rce) {
-			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
-		} catch (SectionFullException sfe) {
-			if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
-			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
-		}
+		
+		return;
 	}
 
 	public boolean isExternallyManaged() {

@@ -24,10 +24,12 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -693,13 +695,24 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		return (String)roleStrings.iterator().next();
 	}
 
-	private String getSectionTaRole(Group group) throws RoleConfigurationException {
+	private String getSectionTaRole(AuthzGroup group) throws RoleConfigurationException {
 		Set roleStrings = group.getRolesIsAllowed(SectionAwareness.TA_MARKER);
 		if(roleStrings.size() != 1) {
 			if(log.isDebugEnabled()) log.debug("Group " + group +
 				" must have one and only one role with permission " +
 				SectionAwareness.TA_MARKER);
 			throw new RoleConfigurationException("Can't add a user to a section as a TA, since there is no TA-flagged role");
+		}
+		return (String)roleStrings.iterator().next();
+	}
+
+	private String getSectionInstructorRole(AuthzGroup group) throws RoleConfigurationException {
+		Set roleStrings = group.getRolesIsAllowed(SectionAwareness.INSTRUCTOR_MARKER);
+		if(roleStrings.size() != 1) {
+			if(log.isDebugEnabled()) log.debug("Group " + group +
+				" must have one and only one role with permission " +
+				SectionAwareness.INSTRUCTOR_MARKER);
+			throw new RoleConfigurationException("Can't add a user to a section as an Instructor, since there is no Instructor-flagged role");
 		}
 		return (String)roleStrings.iterator().next();
 	}
@@ -1036,6 +1049,39 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		return users.size();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public Map getTotalEnrollmentsMap(String learningContextUuid) {
+
+		Map roleMap = new HashMap<Role, Integer>();
+
+		AuthzGroup authzGroup;
+		try {
+			authzGroup = authzGroupService.getAuthzGroup(learningContextUuid);
+		} catch (GroupNotDefinedException e) {
+			log.error("learning context " + learningContextUuid + " is neither a site nor a section");
+			return roleMap;
+		}
+
+		String studentRole, taRole, instructorRole;
+		try {
+			studentRole = getSectionStudentRole(authzGroup);
+			taRole = getSectionTaRole(authzGroup);
+			instructorRole = getSectionInstructorRole(authzGroup);
+		} catch (RoleConfigurationException rce) {
+			log.warn("Can't get total enrollments map, since one of the student, TA or Instructor-flagged roles occurs more than once in " + learningContextUuid);
+			return roleMap;
+		}
+		
+        roleMap.put(Role.STUDENT, authzGroup.getUsersHasRole(studentRole).size());
+        roleMap.put(Role.TA, authzGroup.getUsersHasRole(taRole).size());
+        roleMap.put(Role.INSTRUCTOR, authzGroup.getUsersHasRole(instructorRole).size());
+        return roleMap;
+	}
+
+	
 	/**
 	 * {@inheritDoc}
 	 */

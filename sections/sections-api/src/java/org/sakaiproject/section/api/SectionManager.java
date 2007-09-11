@@ -24,6 +24,7 @@ import java.sql.Time;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.section.api.coursemanagement.Course;
@@ -209,6 +210,15 @@ public interface SectionManager {
      * @return
      */
     public int getTotalEnrollments(String learningContextUuid);
+    
+    /**
+     * Returns the total number of students enrolled in a learning context by section role.
+     * Useful for comparing to the max number of enrollments allowed in a section.
+     * 
+     * @param sectionUuid
+     * @return
+     */
+    public Map getTotalEnrollmentsMap(String learningContextUuid);
     
     /**
      * Adds a user to a section under the specified role.  If a student is added

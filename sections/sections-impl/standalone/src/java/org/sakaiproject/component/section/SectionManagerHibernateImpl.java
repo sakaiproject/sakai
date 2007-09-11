@@ -25,10 +25,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -612,6 +614,20 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return ((Integer)getHibernateTemplate().execute(hc)).intValue();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public Map getTotalEnrollmentsMap(String learningContextUuid) {
+
+		// Not fully implemented, which is OK as this implementation does
+		// not support transaction-backed enforcement of maximum section size anyway
+		Map roleMap = new HashMap<Role, Integer>();
+		roleMap.put(Role.STUDENT, getTotalEnrollments(learningContextUuid));
+		roleMap.put(Role.TA, 0);
+		roleMap.put(Role.INSTRUCTOR, 0);
+		return roleMap;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
