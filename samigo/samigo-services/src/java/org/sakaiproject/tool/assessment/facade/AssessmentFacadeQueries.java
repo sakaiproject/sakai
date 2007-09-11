@@ -43,6 +43,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAttachment;
@@ -1792,7 +1793,29 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			PersistenceService.getInstance().getAuthzQueriesFacade()
 					.createAuthorization(toContext, "EDIT_ASSESSMENT",
 							a.getAssessmentId().toString());
+			
+			// reset PARTID in ItemMetaData to the section of the newly created section
+			Set sectionSet = a.getSectionSet();
+			Iterator sectionIter = sectionSet.iterator();
+			while (sectionIter.hasNext()) {
+				SectionData section = (SectionData) sectionIter.next();
+				Set itemSet = section.getItemSet();
+				Iterator itemIter = itemSet.iterator();
+				while (itemIter.hasNext()) {
+					ItemData item = (ItemData) itemIter.next();
+					Set itemMetaDataSet = item.getItemMetaDataSet();
+					Iterator itemMetaDataIter = itemMetaDataSet.iterator();
+					while (itemMetaDataIter.hasNext()) {
+						ItemMetaData itemMetaData = (ItemMetaData) itemMetaDataIter.next();
+						if (itemMetaData.getLabel() != null && itemMetaData.getLabel().equals(ItemMetaDataIfc.PARTID)) {
+							log.debug("sectionId = " + section.getSectionId());
+							itemMetaData.setEntry(section.getSectionId().toString());
+						}
+					}
+				}
+			}
 		}
+		getHibernateTemplate().saveOrUpdateAll(newList); // write
 	}
 
 	public AssessmentData prepareAssessment(AssessmentData a, String protocol) {
@@ -2038,6 +2061,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		}
 		return h;
 	}
+	
 
 	public Set prepareItemFeedbackSet(ItemData newItem, Set itemFeedbackSet) {
 		HashSet h = new HashSet();
