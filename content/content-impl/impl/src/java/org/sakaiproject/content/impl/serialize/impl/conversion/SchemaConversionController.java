@@ -131,6 +131,7 @@ public class SchemaConversionController
 				dropRegisterTable(connection, convert);
 				alldone = true;
 			}
+			connection.commit();
 
 		}
 		catch (SQLException e)

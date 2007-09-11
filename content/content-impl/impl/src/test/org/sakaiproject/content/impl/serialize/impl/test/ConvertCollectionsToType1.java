@@ -115,6 +115,7 @@ public class ConvertCollectionsToType1 extends TestCase
 			while(scc.migrate(tds, brh));
 			FileSizeResourcesConversionHandler fsh = new FileSizeResourcesConversionHandler();
 			while(scc.migrate(tds, fsh));
+			
 		} catch ( Exception ex ) {
 			log.info("Failed ",ex);
 		}
