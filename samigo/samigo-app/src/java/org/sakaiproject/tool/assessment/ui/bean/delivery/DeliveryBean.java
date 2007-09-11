@@ -2718,12 +2718,14 @@ public class DeliveryBean
 	  }
 
 	  // This is for SAK-9505
-	  // We reset the time limit to the smaller one of
+	  // Preview is fixed for SAK-11474
+	  // If not during preview, dueDate is not null, and Late Submission is not allowed,
+	  // we reset the time limit to the smaller one of
 	  // 1. assessment "time limit" and 2. the difference of due date and current. 
 	  public String updateTimeLimit(String timeLimit) {
   	    boolean acceptLateSubmission = AssessmentAccessControlIfc.
 	        ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
-		if (this.dueDate != null && !acceptLateSubmission) {
+  	    if (!("previewAssessment").equals(actionString) && (this.dueDate != null && !acceptLateSubmission)) {
 			int timeBeforeDue  = Math.round((this.dueDate.getTime() - (new Date()).getTime())/1000); //in sec
 			if (timeBeforeDue < Integer.parseInt(timeLimit)) {
 				return String.valueOf(timeBeforeDue);
