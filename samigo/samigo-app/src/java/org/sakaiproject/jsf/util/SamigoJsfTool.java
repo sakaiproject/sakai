@@ -39,8 +39,12 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
@@ -57,6 +61,8 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
   public class SamigoJsfTool extends JsfTool {
     private static final String HELPER_EXT = ".helper";
     private static final String HELPER_SESSION_PREFIX = "session.";
+    private static final String HELPER_RETURN_NOTIFICATION = "/returnToCaller";
+    private static final String RESET_ASSESSMENT_BEAN = "/resetAssessmentBean";
     private static Log log = LogFactory.getLog(SamigoJsfTool.class);
 
     /**
@@ -100,6 +106,36 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
       // build up the target that will be dispatched to
       String target = req.getPathInfo();
       log.debug("***0. dispatch, target ="+target);
+
+      // see if we need to reset the assessmentBean, such as when returning
+		// from a helper
+		// TODO: there MUST be a cleaner way to do this!! These dependencies
+		// shouldn't be here!!
+		if (target != null && target.startsWith(RESET_ASSESSMENT_BEAN)) {
+			AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
+					.lookupBeanFromExternalServlet("assessmentBean", req, res);
+			AssessmentService assessmentService = new AssessmentService();
+			AssessmentFacade assessment = assessmentService
+					.getAssessment(assessmentBean.getAssessmentId());
+			assessmentBean.setAssessment(assessment);
+
+			target = target.replaceFirst(RESET_ASSESSMENT_BEAN, "");
+		}
+
+		// see if this is a helper trying to return to caller
+		if (HELPER_RETURN_NOTIFICATION.equals(target)) {
+			ToolSession session = SessionManager.getCurrentToolSession();
+			target = (String) session.getAttribute(ToolManager.getCurrentTool()
+					.getId()
+					+ Tool.HELPER_DONE_URL);
+			if (target != null) {
+				session.removeAttribute(ToolManager.getCurrentTool().getId()
+						+ Tool.HELPER_DONE_URL);
+				res.sendRedirect(target);
+				return;
+			}
+		}
+      
 
       boolean sendToHelper = sendToHelper(req, res);
       boolean isResourceRequest = isResourceRequest(target);
@@ -287,9 +323,9 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 
       String url = req.getContextPath() + req.getServletPath();
       if (toolSession.getAttribute(helperTool.getId() + Tool.HELPER_DONE_URL) == null) {
-	toolSession.setAttribute(helperTool.getId() + Tool.HELPER_DONE_URL,
-				 url + computeDefaultTarget(true));
-      }
+			toolSession.setAttribute(helperTool.getId() + Tool.HELPER_DONE_URL,
+					url + RESET_ASSESSMENT_BEAN + computeDefaultTarget(true));
+		}
 
       log.debug("****g. sendToHelper, url="+url);
       String context = url + "/"+ helperPath;

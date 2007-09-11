@@ -29,8 +29,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
@@ -314,7 +316,7 @@ public class ItemAuthorBean
 
   public void setItemId(String string)
   {
-    itemId= string;
+    itemId = string;
   }
 
 
@@ -714,9 +716,60 @@ public class ItemAuthorBean
   }
 
   /**
-   * Derived property.
-   * @return ArrayList of model SelectItems
-   */
+	 * Returns a generic Map of section options (for use by helpers that won't
+	 * be in the same class loader and would thus get class cast issues from
+	 * using SelectItem)
+	 */
+	public Map getSectionList() {
+		Map items = new Hashtable();
+
+		ResourceLoader rb = new ResourceLoader(
+				"org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+		AssessmentBean assessbean = (AssessmentBean) ContextUtil
+				.lookupBean("assessmentBean");
+		ArrayList sectionSet = assessbean.getSections();
+		Iterator iter = sectionSet.iterator();
+		int i = 0;
+		while (iter.hasNext()) {
+			i = i + 1;
+			SectionContentsBean part = (SectionContentsBean) iter.next();
+
+			// need to filter out all the random draw parts
+			if (part.getSectionAuthorType().equals(
+					SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL)) {
+				// skip random draw parts, cannot add items to this part
+				// manually
+			} else {
+				if ("".equals(part.getTitle())) {
+					items.put(rb.getString("p") + " " + i, part.getSectionId());
+				} else {
+					items.put(rb.getString("p") + " " + i + " - "
+							+ part.getTitle(), part.getSectionId());
+				}
+			}
+		}
+
+		// create a new part if there are no non-randomDraw parts available
+		if (items.size() < 1) {
+			i = i + 1;
+			items.put(rb.getString("p") + " " + i, "-1"); // use -1 to
+															// indicate this is
+															// a temporary part.
+															// if the user
+															// decides to cancel
+															// the operation,
+															// this part will
+															// not be created
+		}
+
+		return items;
+	}
+
+  /**
+	 * Derived property.
+	 * 
+	 * @return ArrayList of model SelectItems
+	 */
   public ArrayList getPoolSelectList() {
 
     poolListSelectItems = new ArrayList();
@@ -837,15 +890,52 @@ public class ItemAuthorBean
   }
 
 
-  public String doit() {
-	//  navigation for ItemModifyListener
-	return outcome;
-  }
+    public String doit() {
+		if ("searchQuestionBank".equals(outcome)) {
+			try {
+				ExternalContext context = FacesContext.getCurrentInstance()
+						.getExternalContext();
+				context
+						.redirect("sakai.questionbank.client.helper/authorIndex");
+			} catch (Exception e) {
+				log.error("fail to redirect to question bank: "
+						+ e.getMessage());
+			}
+		}
 
+		// navigation for ItemModifyListener
+		return outcome;
+	}
+
+    /**
+	 * Launch the print helper
+	 */
+	public String print() {
+
+		try {
+			AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
+					.lookupBean("assessmentBean");
+			ToolSession currentToolSession = SessionManager
+					.getCurrentToolSession();
+			currentToolSession.setAttribute("QB_assessemnt_id", assessmentBean
+					.getAssessmentId());
+			ExternalContext context = FacesContext.getCurrentInstance()
+					.getExternalContext();
+			context
+					.redirect("sakai.questionbank.printout.helper/printAssessment?assessmentId="
+							+ assessmentBean.getAssessmentId()
+							+ "&actionString=previewAssessment");
+		} catch (Exception e) {
+			log.error("fail to redirect to assessment print out: "
+					+ e.getMessage());
+		}
+
+		return outcome;
+	}
 
 /**
-   * delete specified Item
-   */
+ * delete specified Item
+ */
   public String deleteItem() {
 	  ItemService delegate = new ItemService();
 	  Long deleteId= this.getItemToDelete().getItemId();

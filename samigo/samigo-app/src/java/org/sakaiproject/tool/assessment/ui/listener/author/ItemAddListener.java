@@ -598,6 +598,11 @@ public class ItemAddListener
         // return to edit pool
         itemauthor.setOutcome("editPool");
       }
+      // Came from Questionbank Authoring
+      else if (itemauthor.getTarget() != null && (itemauthor.getTarget().equals("sambank"))) {
+		delegate.saveItem(item);
+		itemauthor.setItemNo(item.getItemId().toString());
+      }
       else {
         // Came from Assessment Authoring
 

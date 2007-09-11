@@ -33,6 +33,7 @@ import javax.faces.event.ValueChangeListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -42,6 +43,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * <p>Title: Samigo</p>
@@ -129,6 +131,7 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
 
    String nextpage= null;
    ItemBean item = new ItemBean();
+   AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
    try{
     // check to see if we arrived here from question pool
 
@@ -214,6 +217,14 @@ log.debug("after getting item.getItemType() ");
 			qpoolBean.setImportToAuthoring(true);
                         nextpage = "poolList";
                         break;
+                case 100:
+				ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+				currentToolSession.setAttribute("QB_insert_possition", itemauthorbean.getInsertPosition());
+				currentToolSession.setAttribute("QB_assessemnt_id",	assessmentBean.getAssessmentId());
+				currentToolSession.setAttribute("QB_assessemnt_sections", itemauthorbean.getSectionList());
+				currentToolSession.setAttribute("QB_insert_section", itemauthorbean.getInsertToSection());
+				nextpage = "searchQuestionBank";
+				break;                        
         }
    }
     catch(RuntimeException e)
@@ -225,7 +236,6 @@ log.debug("after getting item.getItemType() ");
 // check for metadata settings
     if ("assessment".equals(itemauthorbean.getTarget())) {
       AssessmentService assessdelegate = new AssessmentService();
-      AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
       AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
       itemauthorbean.setShowMetadata(assessment.getHasMetaDataForQuestions());
       itemauthorbean.setShowFeedbackAuthoring(assessment.getShowFeedbackAuthoring());

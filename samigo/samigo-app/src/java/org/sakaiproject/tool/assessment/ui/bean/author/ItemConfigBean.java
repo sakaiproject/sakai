@@ -26,6 +26,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.faces.model.SelectItem;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader; 
 
 /**
@@ -58,6 +61,7 @@ private static final String msgResource =
   private boolean showFillInTheBlank;
   private boolean showFillInNumeric;
   private boolean selectFromQuestionPool;
+  private boolean selectFromQuestionBank = true;
 
   /**
    * Should we show file upload question?
@@ -248,6 +252,23 @@ private static final String msgResource =
 
     list.add(new SelectItem("", getResourceDisplayName("select_qtype")));
 
+    // Check if the question bank tool is installed and not stealthed or hidden
+    // and only show the option if it's reasonable, such as when questionpools are
+    if (ToolManager.getTool("sakai.questionbank.client") != null
+			&& !ServerConfigurationService
+					.getString(
+							"stealthTools@org.sakaiproject.tool.api.ActiveToolManager")
+					.contains("sakai.questionbank.client")
+			&& !ServerConfigurationService
+					.getString(
+							"hiddenTools@org.sakaiproject.tool.api.ActiveToolManager")
+					.contains("sakai.questionbank.client")
+			&& selectFromQuestionBank) {
+
+			list.add(new SelectItem("100",
+					getResourceDisplayName("import_from_question_bank")));
+    }
+
     if (isShowAllMultipleChoice())
       list.add(new SelectItem("1",
         getResourceDisplayName("multiple_choice_type")));
@@ -294,6 +315,7 @@ if (showFillInNumeric)
     }
 
     bean.setSelectFromQuestionPool(true);
+    bean.setSelectFromQuestionBank(true);
     bean.setShowAudio(true);
     bean.setShowEssay(true);
     bean.setShowFileUpload(true);
@@ -341,6 +363,24 @@ if (showFillInNumeric)
   {
     this.selectFromQuestionPool = selectFromQuestionPool;
   }
+
+    /**
+     * Can we select items from a question bank?
+     * @return if we can select from question pool.
+     */
+    public boolean isSelectFromQuestionBank()
+    {
+      return selectFromQuestionBank;
+    }
+  
+    /**
+     * Set whether we can select items from a question bank.
+     * @return if we can select from question bank.
+     */
+    public void setSelectFromQuestionBank(boolean selectFromQuestionBank)
+    {
+      this.selectFromQuestionBank = selectFromQuestionBank;
+    }
 
   /**
    * Utility for looking up item resources.
