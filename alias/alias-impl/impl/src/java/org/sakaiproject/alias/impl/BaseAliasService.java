@@ -361,9 +361,6 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			functionManager().registerFunction(SECURE_ADD_ALIAS);
 			functionManager().registerFunction(SECURE_UPDATE_ALIAS);
 			functionManager().registerFunction(SECURE_REMOVE_ALIAS);
-
-			M_log.info("init()" + " - caching minutes: " + m_cacheSeconds / 60 + " - cache cleaner minutes: "
-					+ m_cacheCleanerSeconds / 60);
 		}
 		catch (Throwable t)
 		{
