@@ -32,16 +32,12 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Random;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.content.impl.serialize.impl.conversion.FileSizeResourcesConversionHandler;
-import org.sakaiproject.content.impl.serialize.impl.conversion.SchemaConversionController;
-import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobCollectionConversionHandler;
-import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobResourcesConversionHandler;
-
-import junit.framework.TestCase;
 
 /**
  * @author ieb
@@ -153,15 +149,13 @@ public class MySQLByteStorage extends TestCase
 
 	public void testBlobData() throws SQLException
 	{
-		byte[] b = new byte[256];
-		byte[] b2 = new byte[256];
-		byte[] b3 = new byte[256];
-		char[] cin = new char[256];
-		int l = 0;
-		for (int i = Byte.MIN_VALUE; i <= Byte.MAX_VALUE; i++)
-		{
-			b[l++] = (byte)i;
-		}
+		byte[] b = new byte[102400];
+		byte[] b2 = new byte[102400];
+		byte[] b3 = new byte[102400];
+		char[] cin = new char[102400];
+		Random r = new Random();
+		r.nextBytes(b);
+		
 		for (int i = 0; i < b.length; i++)
 		{
 			cin[i] = (char) (b[i]);
@@ -233,7 +227,7 @@ public class MySQLByteStorage extends TestCase
 			for (int i = 0; i < b.length; i++)
 			{
 				b3[i] = (byte) (cout[i]);
-				log.info("Byte at "+i+" is "+b3[i]+"  char "+(int)cout[i]);
+		//		log.info("Byte at "+i+" is "+b3[i]+"  char "+(int)cout[i]);
 			}
 			for (int i = 0; i < cin.length; i++)
 			{
