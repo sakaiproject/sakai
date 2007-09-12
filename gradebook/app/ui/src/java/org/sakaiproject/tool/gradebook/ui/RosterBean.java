@@ -197,20 +197,21 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		}
 		
 		List categories = new ArrayList();
-		if (getCategoriesEnabled()) {
-			//next get all of the categories
-			List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 
-			// first, remove the CourseGrade from the Category list
-			for (Iterator catIter = categoryListWithCG.iterator(); catIter.hasNext();) {
-				Object catOrCourseGrade = catIter.next();
-				if (catOrCourseGrade instanceof Category) {
-					categories.add((Category)catOrCourseGrade);
-				} else if (catOrCourseGrade instanceof CourseGrade) {
-					avgCourseGrade = (CourseGrade)catOrCourseGrade;
-				}
+		//next get all of the categories
+		List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+
+		// first, remove the CourseGrade from the Category list
+		for (Iterator catIter = categoryListWithCG.iterator(); catIter.hasNext();) {
+			Object catOrCourseGrade = catIter.next();
+			if (catOrCourseGrade instanceof Category) {
+				categories.add((Category)catOrCourseGrade);
+			} else if (catOrCourseGrade instanceof CourseGrade) {
+				avgCourseGrade = (CourseGrade)catOrCourseGrade;
 			}
-			
+		}
+		
+		if (getCategoriesEnabled()) {
 			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
 				categories = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categories, getGradebook().getCategory_type());
 			}
