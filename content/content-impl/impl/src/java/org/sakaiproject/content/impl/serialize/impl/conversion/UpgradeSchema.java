@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.content.impl.serialize.impl.test;
+package org.sakaiproject.content.impl.serialize.impl.conversion;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,94 +30,104 @@ import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.persister.entity.PropertyMapping;
-import org.sakaiproject.content.impl.serialize.impl.conversion.FileSizeResourcesConversionHandler;
-import org.sakaiproject.content.impl.serialize.impl.conversion.SchemaConversionController;
-import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobCollectionConversionHandler;
-import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobResourcesConversionHandler;
-
-import junit.framework.TestCase;
 
 /**
  * @author ieb
- *
  */
-public class ConvertCollectionsToType1 extends TestCase
+public class UpgradeSchema
 {
 
-	private static final Log log = LogFactory.getLog(ConvertCollectionsToType1.class);
-	
+	private static final Log log = LogFactory.getLog(UpgradeSchema.class);
+
 	private SharedPoolDataSource tds;
 
-
-	/**
-	 * @param name
-	 */
-	public ConvertCollectionsToType1(String name)
+	public static void main(String[] argv)
 	{
-		super(name);
+		UpgradeSchema cc = new UpgradeSchema();
+		String configFile = null;
+		if ( argv.length > 0 ) {
+			configFile = argv[0];
+		}
+		try
+		{
+			cc.convert(configFile);
+		}
+		catch (Exception ex)
+		{
+			log.info("Failed to perform conversion ", ex);
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#setUp()
+	/**
+	 * @throws Exception
+	 * @throws Exception
 	 */
-	protected void setUp() throws Exception
+	private void convert(String config) throws Exception
 	{
-		
-		super.setUp();
+
 		DriverAdapterCPDS cpds = new DriverAdapterCPDS();
 
-		String config = System.getProperty("migrate.config"); //,"migrate.properties");
 		Properties p = new Properties();
-		if ( config != null ) {
-			log.info("Using Config "+config);
+		if (config != null)
+		{
+			log.info("Using Config " + config);
 			File f = new File(config);
 			FileInputStream fin = new FileInputStream(config);
 			p.load(fin);
 			fin.close();
-			for(Iterator<Object> i = p.keySet().iterator(); i.hasNext(); ) {
+			for (Iterator<Object> i = p.keySet().iterator(); i.hasNext();)
+			{
 				Object k = i.next();
-				log.info("   Test Properties "+k+":"+p.get(k));
+				log.info("   Test Properties " + k + ":" + p.get(k));
 			}
 		}
-		
-		
-		
-		cpds.setDriver(p.getProperty("dbDriver","com.mysql.jdbc.Driver"));
-		cpds.setUrl(p.getProperty("dbURL","jdbc:mysql://127.0.0.1:3306/sakai22?useUnicode=true&characterEncoding=UTF-8"));
-		cpds.setUser(p.getProperty("dbUser","sakai22"));
-		cpds.setPassword(p.getProperty("dbPass","sakai22"));
+
+		cpds.setDriver(p.getProperty("dbDriver", "com.mysql.jdbc.Driver"));
+		cpds
+				.setUrl(p
+						.getProperty("dbURL",
+								"jdbc:mysql://127.0.0.1:3306/sakai22?useUnicode=true&characterEncoding=UTF-8"));
+		cpds.setUser(p.getProperty("dbUser", "sakai22"));
+		cpds.setPassword(p.getProperty("dbPass", "sakai22"));
 
 		tds = new SharedPoolDataSource();
 		tds.setConnectionPoolDataSource(cpds);
 		tds.setMaxActive(10);
 		tds.setMaxWait(5);
 		tds.setDefaultAutoCommit(false);
-	}
 
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#tearDown()
-	 */
-	protected void tearDown() throws Exception
-	{
+		doMigrate();
+
 		tds.close();
-		super.tearDown();
-		
+
 	}
 
-	
-	public void testConvertCollections() {
-		try {
+	public void doMigrate()
+	{
+		try
+		{
+			CheckConnection cc = new CheckConnection();
+			cc.check(tds);
+			
+			
 			SchemaConversionController scc = new SchemaConversionController();
 			Type1BlobCollectionConversionHandler bch = new Type1BlobCollectionConversionHandler();
-			while(scc.migrate(tds, bch));
+			log.info("Migrating Collection to Type 1 Binary Block Encoding");
+			while (scc.migrate(tds, bch));
+			log.info("Done Migrating Collection to Type 1 Binary Block Encoding");
 			Type1BlobResourcesConversionHandler brh = new Type1BlobResourcesConversionHandler();
-			while(scc.migrate(tds, brh));
+			log.info("Migrating Resources to Type 1 Binary Block Encoding");
+		    while (scc.migrate(tds, brh));
+			log.info("Done Migrating Resources to Type 1 Binary Block Encoding");
 			FileSizeResourcesConversionHandler fsh = new FileSizeResourcesConversionHandler();
-			while(scc.migrate(tds, fsh));
-			
-		} catch ( Exception ex ) {
-			log.info("Failed ",ex);
+			log.info("Migrating Resources to Size/Quota Patch");
+			while (scc.migrate(tds, fsh));
+			log.info("Done Migrating Resources to Size/Quota Patch ");
+
+		}
+		catch (Exception ex)
+		{
+			log.info("Failed ", ex);
 		}
 	}
 }

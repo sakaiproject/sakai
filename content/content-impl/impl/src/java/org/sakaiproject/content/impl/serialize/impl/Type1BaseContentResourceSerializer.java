@@ -32,7 +32,6 @@ import java.util.Vector;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
-import org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess;
 import org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.entity.api.serialize.EntitySerializer;

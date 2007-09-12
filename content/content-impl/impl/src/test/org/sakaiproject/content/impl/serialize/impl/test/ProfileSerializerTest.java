@@ -30,15 +30,15 @@ import junit.framework.TestCase;
 /**
  * @author ieb
  */
-public class ProfileSerializer extends TestCase
+public class ProfileSerializerTest extends TestCase
 {
 
-	private static final Log log = LogFactory.getLog(ProfileSerializer.class);
+	private static final Log log = LogFactory.getLog(ProfileSerializerTest.class);
 
 	/**
 	 * @param name
 	 */
-	public ProfileSerializer(String name)
+	public ProfileSerializerTest(String name)
 	{
 		super(name);
 	}
