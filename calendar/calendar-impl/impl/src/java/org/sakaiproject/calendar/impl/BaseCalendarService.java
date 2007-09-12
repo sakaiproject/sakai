@@ -25,6 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,6 +68,10 @@ import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.TzId;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.model.property.Location;
+import net.fortuna.ical4j.model.property.Description;
+import net.fortuna.ical4j.model.property.Comment;
+import net.fortuna.ical4j.model.property.Organizer;
 
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.commons.logging.Log;
@@ -128,6 +134,8 @@ import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.DefaultEntityHandler;
@@ -6398,18 +6406,31 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			icalEvent.getProperty(Property.DTSTART).getParameters().add(tzId);
 			icalEvent.getProperty(Property.DTSTART).getParameters().add(Value.DATE_TIME);
 			icalEvent.getProperties().add(new Uid(event.getId()));
+			if ( event.getDescription() != null && !event.getDescription().equals("") )
+				icalEvent.getProperties().add(new Description(event.getDescription()));
+			if ( event.getLocation() != null && !event.getLocation().equals("") )
+            icalEvent.getProperties().add(new Location(event.getLocation()));
+			
+			try
+			{
+				String organizer = UserDirectoryService.getUser( event.getCreator() ).getDisplayName();
+				organizer = organizer.replaceAll(" ","%20"); // get rid of illegal URI characters
+				icalEvent.getProperties().add(new Organizer(new URI("CN="+organizer)));
+			}
+			catch (UserNotDefinedException e) {} // ignore
+			catch (URISyntaxException e) {} // ignore
+         
+			StringBuffer comment = new StringBuffer(event.getType());
+			comment.append(" (");
+			comment.append(getSiteName(event));
+			comment.append(")");
+			icalEvent.getProperties().add(new Comment(comment.toString()));
 			
 			ical.getComponents().add( icalEvent );
 			numEvents++;
 			
 			/* TBD: add to VEvent: recurring schedule, ...
-			String x = getSiteName(event);
-			String x = event.getCreator();
-			String x = event.getDisplayName();
-			String x = event.getType();
-			String x = event.getLocation();
 			RecurenceRUle x = event.getRecurrenceRule();
-			String x = event.getDescription();
 			*/
 		}
 		
