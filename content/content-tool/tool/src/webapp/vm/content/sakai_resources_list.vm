@@ -218,10 +218,11 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 						#end
 					</td>
 					<td headers="title" style="text-indent:$width" class="specialLink">
-#if($item.isHot())**HOT**#end
+					#if($item.isHot()) #set($iconDecor="recentItem") #else  #set($iconDecor="nil") #end
 						<h$headerDepth> 
 							#if ($item.canRead())
 								#if($item.isCollection())
+									<span class="$iconDecor">
 									#if($item.isEmpty() || $item.isTooBig() || $item.depth < 1)
 										<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
 									#else
@@ -235,6 +236,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 										<img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel" hspace="0" />
 										</a>
 									#end
+									</span>
 								#else
 									#if ($item.hasCopyrightAlert())
 										## if there is a copyright alert, show the alert page first
@@ -456,10 +458,11 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 								#end
 							</td>
 							<td headers="title" style="text-indent:$width" class="specialLink">
-#if($item.isHot())**HOT**#end
+						#if($item.isHot()) #set($iconDecor="recentItem") #else  #set($iconDecor="nil") #end
 								<h$headerDepth> 
 									#if ($item.canRead())
 										#if($item.isCollection())
+										<span class="$iconDecor">	
 											#if($item.isEmpty() || $item.isTooBig())
 												<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
 											#else
@@ -473,6 +476,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 												<img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel" hspace="0" />
 												</a>
 											#end
+											</span>
 										#else
 											#if ($item.hasCopyrightAlert())
 												## if there is a copyright alert, show the alert page first
