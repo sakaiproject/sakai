@@ -32,7 +32,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer;
 
 /**
- * Performs just the file size conversion for quota calculations 
+ * Performs just the file size conversion for quota calculations
+ * 
  * @author ieb
  */
 public class FileSizeResourcesConversionHandler implements SchemaConversionHandler
@@ -41,8 +42,7 @@ public class FileSizeResourcesConversionHandler implements SchemaConversionHandl
 	private static final Log log = LogFactory
 			.getLog(FileSizeResourcesConversionHandler.class);
 
-	private Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
-
+	private Pattern contextPattern =  Pattern.compile("\\A/(group/|user/|~)(.+?)/");
 
 	/*
 	 * (non-Javadoc)
@@ -74,7 +74,7 @@ public class FileSizeResourcesConversionHandler implements SchemaConversionHandl
 		}
 		catch (Exception e1)
 		{
-			log.warn("Failed to parse "+id+"["+xml+"]",e1);
+			log.warn("Failed to parse " + id + "[" + xml + "]", e1);
 			return false;
 		}
 
@@ -82,11 +82,16 @@ public class FileSizeResourcesConversionHandler implements SchemaConversionHandl
 		t1b.setTimeService(new ConversionTimeService());
 		try
 		{
-			Matcher contextMatcher = contextPattern.matcher(sax.getSerializableId());
 			String context = null;
+			Matcher contextMatcher = contextPattern.matcher(sax.getSerializableId());
 			if (contextMatcher.find())
 			{
-				context = contextMatcher.group(1);
+				String root = contextMatcher.group(1);
+				context = contextMatcher.group(2);
+				if (!root.equals("group/"))
+				{
+					context = "~" + context;
+				}
 			}
 
 			updateRecord.setString(1, context);
@@ -102,14 +107,15 @@ public class FileSizeResourcesConversionHandler implements SchemaConversionHandl
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.content.impl.serialize.impl.conversion.SchemaConversionHandler#validate(java.lang.String, java.lang.Object, java.lang.Object)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.serialize.impl.conversion.SchemaConversionHandler#validate(java.lang.String,
+	 *      java.lang.Object, java.lang.Object)
 	 */
 	public void validate(String id, Object source, Object result) throws Exception
 	{
 		// this conversion did not modify source data.
 	}
-	
-	
 
 }
