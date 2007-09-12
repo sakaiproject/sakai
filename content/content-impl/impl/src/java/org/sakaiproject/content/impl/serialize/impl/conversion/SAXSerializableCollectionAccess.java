@@ -65,8 +65,6 @@ public class SAXSerializableCollectionAccess implements SerializableCollectionAc
 
 	private Type1BaseContentCollectionSerializer type1CollectionSerializer;
 
-	private ThreadLocal<SAXParser> parserHolder = new ThreadLocal<SAXParser>();
-
 	private SAXParserFactory parserFactory;
 
 	private AccessMode accessMode = AccessMode.INHERITED;
@@ -250,30 +248,23 @@ public class SAXSerializableCollectionAccess implements SerializableCollectionAc
 			Reader r = new StringReader(xml);
 			InputSource ss = new InputSource(r);
 
-			SAXParser p = parserHolder.get();
-			if (p == null)
+			SAXParser p = null;
+			if (parserFactory == null)
 			{
-				if (parserFactory == null)
-				{
-					parserFactory = SAXParserFactory.newInstance();
-					parserFactory.setNamespaceAware(false);
-					parserFactory.setValidating(false);
-				}
-				try
-				{
-					p = parserFactory.newSAXParser();
-					parserHolder.set(p);
-				}
-				catch (ParserConfigurationException e)
-				{
-					throw new SAXException("Failed to get a parser ", e);
-				}
+				parserFactory = SAXParserFactory.newInstance();
+				parserFactory.setNamespaceAware(false);
+				parserFactory.setValidating(false);
 			}
-			else
+			try
 			{
-				p.reset();
+				p = parserFactory.newSAXParser();
+			}
+			catch (ParserConfigurationException e)
+			{
+				throw new SAXException("Failed to get a parser ", e);
 			}
 			final Map<String, Object> props = new HashMap<String, Object>();
+			saxSerializableProperties.setSerializableProperties(props);
 			p.parse(ss, new DefaultHandler()
 			{
 
@@ -340,7 +331,8 @@ public class SAXSerializableCollectionAccess implements SerializableCollectionAc
 						{
 							props.put(name, value);
 						}
-					} else if ("collection".equals(qName))
+					}
+					else if ("collection".equals(qName))
 					{
 						id = attributes.getValue("id");
 						resourceType = ResourceType.TYPE_FOLDER;
@@ -401,7 +393,7 @@ public class SAXSerializableCollectionAccess implements SerializableCollectionAc
 					}
 					else if ("properties".equals(qName))
 					{
-						
+
 					}
 
 					else
@@ -416,64 +408,101 @@ public class SAXSerializableCollectionAccess implements SerializableCollectionAc
 
 	/**
 	 * @param sax2
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void check(SAXSerializableCollectionAccess sax2) throws Exception
 	{
 		StringBuilder sb = new StringBuilder();
-		if ( (accessMode != null && !accessMode.equals(sax2.accessMode)) || 
-				(accessMode == null && sax2.accessMode != null) ||
-				(accessMode != null && sax2.accessMode == null)) {
-			sb.append("     ").append("Access Mode not equal ["+accessMode+"]!=["+sax2.accessMode+"]").append("\n");
+		if ((accessMode != null && !accessMode.equals(sax2.accessMode))
+				|| (accessMode == null && sax2.accessMode != null)
+				|| (accessMode != null && sax2.accessMode == null))
+		{
+			sb.append("     ").append(
+					"Access Mode not equal [" + accessMode + "]!=[" + sax2.accessMode
+							+ "]").append("\n");
 		}
-		if ( this.hidden != sax2.hidden  ) {
-			sb.append("     ").append("Hidden not equal ["+hidden+"]!=["+sax2.hidden+"]").append("\n");
+		if (this.hidden != sax2.hidden)
+		{
+			sb.append("     ").append(
+					"Hidden not equal [" + hidden + "]!=[" + sax2.hidden + "]").append(
+					"\n");
 		}
-		if ( (id != null && !id.equals(sax2.id)) ||
-				(id == null && sax2.id != null) ||
-				(id != null && sax2.id == null)) {
-			sb.append("     ").append("ID not equal ["+id+"]!=["+sax2.id+"]").append("\n");
+		if ((id != null && !id.equals(sax2.id)) || (id == null && sax2.id != null)
+				|| (id != null && sax2.id == null))
+		{
+			sb.append("     ").append("ID not equal [" + id + "]!=[" + sax2.id + "]")
+					.append("\n");
 		}
-		if ( ( releaseDate != null && sax2.releaseDate != null && (this.releaseDate.getTime() != sax2.releaseDate.getTime())) || 
-				(releaseDate == null && sax2.releaseDate != null) ||
-				(releaseDate != null && sax2.releaseDate == null)) {
-			sb.append("     ").append("Release not equal ["+releaseDate+"]!=["+sax2.releaseDate+"]").append("\n");
+		if ((releaseDate != null && sax2.releaseDate != null && (this.releaseDate
+				.getTime() != sax2.releaseDate.getTime()))
+				|| (releaseDate == null && sax2.releaseDate != null)
+				|| (releaseDate != null && sax2.releaseDate == null))
+		{
+			sb.append("     ")
+					.append(
+							"Release not equal [" + releaseDate + "]!=["
+									+ sax2.releaseDate + "]").append("\n");
 		}
-		if ( ( retractDate != null && sax2.retractDate != null && (this.retractDate.getTime() != sax2.retractDate.getTime())) || 
-				(retractDate == null && sax2.retractDate != null) ||
-				(retractDate != null && sax2.retractDate == null)) {
-			sb.append("     ").append("Release not equal ["+retractDate+"]!=["+sax2.retractDate+"]").append("\n");
+		if ((retractDate != null && sax2.retractDate != null && (this.retractDate
+				.getTime() != sax2.retractDate.getTime()))
+				|| (retractDate == null && sax2.retractDate != null)
+				|| (retractDate != null && sax2.retractDate == null))
+		{
+			sb.append("     ")
+					.append(
+							"Release not equal [" + retractDate + "]!=["
+									+ sax2.retractDate + "]").append("\n");
 		}
-		if ( ( resourceType != null && !resourceType.equals(sax2.resourceType)) ||
-				(resourceType == null && sax2.resourceType != null) ||
-				(resourceType != null && sax2.resourceType == null)) {
-			sb.append("     ").append("ID not equal ["+resourceType+"]!=["+sax2.resourceType+"]").append("\n");
+		if ((resourceType != null && !resourceType.equals(sax2.resourceType))
+				|| (resourceType == null && sax2.resourceType != null)
+				|| (resourceType != null && sax2.resourceType == null))
+		{
+			sb.append("     ").append(
+					"ID not equal [" + resourceType + "]!=[" + sax2.resourceType + "]")
+					.append("\n");
 		}
-		if ((group == null && sax2.group != null) ||
-				(group != null && sax2.group == null)) {
-			sb.append("     ").append("group not equal ["+group+"]!=["+sax2.group+"]").append("\n");			
+		if ((group == null && sax2.group != null)
+				|| (group != null && sax2.group == null))
+		{
+			sb.append("     ").append(
+					"group not equal [" + group + "]!=[" + sax2.group + "]").append("\n");
 		}
-		if ( group != null && sax2.group != null ) {
-			if (this.group.size() != sax2.group.size()) {
-				sb.append("     ").append("group not equal ["+group+"]!=["+sax2.group+"]").append("\n");							
-			} else {
-				for (String g : group ) {
-					if ( !sax2.group.contains(g) ) {
-						sb.append("     ").append("group not present in other object ["+g+"]").append("\n");																	
+		if (group != null && sax2.group != null)
+		{
+			if (this.group.size() != sax2.group.size())
+			{
+				sb.append("     ").append(
+						"group not equal [" + group + "]!=[" + sax2.group + "]").append(
+						"\n");
+			}
+			else
+			{
+				for (String g : group)
+				{
+					if (!sax2.group.contains(g))
+					{
+						sb.append("     ").append(
+								"group not present in other object [" + g + "]").append(
+								"\n");
 					}
 				}
-				for (String g : sax2.group ) {
-					if ( !group.contains(g) ) {
-						sb.append("     ").append("group not present in this object ["+g+"]").append("\n");																	
+				for (String g : sax2.group)
+				{
+					if (!group.contains(g))
+					{
+						sb.append("     ").append(
+								"group not present in this object [" + g + "]").append(
+								"\n");
 					}
 				}
 			}
 		}
-		if ( sb.length()  != 0 ) {
+		if (sb.length() != 0)
+		{
 			log.error(sb.toString());
 			throw new Exception("Serialization Items do not match ");
 		}
-		
+
 	}
 
 }

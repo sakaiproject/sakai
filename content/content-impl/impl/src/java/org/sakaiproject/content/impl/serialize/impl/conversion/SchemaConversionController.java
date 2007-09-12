@@ -136,7 +136,6 @@ public class SchemaConversionController
 				}
 
 			}
-			log.info("Done ");
 
 			if (l.size() == 0)
 			{
@@ -223,7 +222,7 @@ public class SchemaConversionController
 			}
 
 		}
-		return alldone;
+		return !alldone;
 	}
 
 	/**

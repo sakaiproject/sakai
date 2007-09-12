@@ -52,4 +52,31 @@ public class SAXSerializablePropertiesAccess implements SerializablePropertiesAc
 		this.properties = properties;		
 	}
 
+	/**
+	 * @param access
+	 * @throws Exception 
+	 */
+	public void check(SAXSerializablePropertiesAccess access) throws Exception
+	{
+		if ( properties.size() != access.properties.size() ) {
+			throw new Exception("Differing number of properties ");
+		}
+		for ( Object key: properties.keySet() ) {
+			if ( !access.properties.containsKey(key) ) {
+				throw new Exception("Missing Property "+key);							
+			}
+			if (!properties.get(key).equals(access.properties.get(key)) ) {
+				throw new Exception("Property Changed "+key+"["+properties.get(key)+"]["+access.properties.get(key)+"]");											
+			}
+		}
+		for ( Object key: access.properties.keySet() ) {
+			if ( !properties.containsKey(key) ) {
+				throw new Exception("Missing Property "+key);							
+			}
+			if (!properties.get(key).equals(access.properties.get(key)) ) {
+				throw new Exception("Property Changed "+key+"["+properties.get(key)+"]["+access.properties.get(key)+"]");											
+			}
+		}
+	}
+
 }

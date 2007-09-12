@@ -41,41 +41,42 @@ import org.sakaiproject.util.serialize.Type1BaseResourcePropertiesSerializer;
 
 /**
  * <pre>
- * Serializes ContentCollections using a Type1 block serializer, outputs a string with 
- * char in the byte range 0-255 that can be saved in a CBLOB or BLOB or on file.
- * These MUST be saved as UTF8.
- * If you need to modify this class think very carefully about what data might be in production databases.
- * DO NOT add new fields to existing blocks
- * DO NOT remove fields from blocks.
- * If you need more structure add new unique blocks.
- * If you need to change the structure, create a Type2 class and change the Type number so that type 1 
- * serializations continue to work.
- * 
- * The general structure of a serialization is
- * char 1-6 : BLOB_ID identifying the blob.
- * First Int: Type Number (int)
- * Next Int: Block number identifying block
- * The contents and length of the block is determined by the serailizer writing the block
- * When the serializer has finished writing the block the next int should be the next block number.
- * 
- * BLOB_ID's MUST be unique over all BLOBS.
- * TYPE Numbers MUST be unique within BLOBS of the same type
- * BLOCK Numbers MUST be unique within Types, but SHOULD be unique within BLOBS of the same type.
- * For variable lenght data, always serialize the length before the data. (eg number of elements, size of byte[])
- * For UTF Strings that are likely to be over 64K, you MUST serialize as lenght:UTF8byte[] as writeUTF will only
- * handle 64K
- * 
- * This structure is shared with the Type1ResoruceSerializer
- * BLOCK1 
- * General Attributes
- * BLOCK2 
- * release and retract dates
- * BLOCK3 (varialble)
- * Groups
- * BLOCK4 
- * Properties (managed by a seperate serializer
- * BLOCK_END
+ *  Serializes ContentCollections using a Type1 block serializer, outputs a string with 
+ *  char in the byte range 0-255 that can be saved in a CBLOB or BLOB or on file.
+ *  These MUST be saved as UTF8.
+ *  If you need to modify this class think very carefully about what data might be in production databases.
+ *  DO NOT add new fields to existing blocks
+ *  DO NOT remove fields from blocks.
+ *  If you need more structure add new unique blocks.
+ *  If you need to change the structure, create a Type2 class and change the Type number so that type 1 
+ *  serializations continue to work.
+ *  
+ *  The general structure of a serialization is
+ *  char 1-6 : BLOB_ID identifying the blob.
+ *  First Int: Type Number (int)
+ *  Next Int: Block number identifying block
+ *  The contents and length of the block is determined by the serailizer writing the block
+ *  When the serializer has finished writing the block the next int should be the next block number.
+ *  
+ *  BLOB_ID's MUST be unique over all BLOBS.
+ *  TYPE Numbers MUST be unique within BLOBS of the same type
+ *  BLOCK Numbers MUST be unique within Types, but SHOULD be unique within BLOBS of the same type.
+ *  For variable lenght data, always serialize the length before the data. (eg number of elements, size of byte[])
+ *  For UTF Strings that are likely to be over 64K, you MUST serialize as lenght:UTF8byte[] as writeUTF will only
+ *  handle 64K
+ *  
+ *  This structure is shared with the Type1ResoruceSerializer
+ *  BLOCK1 
+ *  General Attributes
+ *  BLOCK2 
+ *  release and retract dates
+ *  BLOCK3 (varialble)
+ *  Groups
+ *  BLOCK4 
+ *  Properties (managed by a seperate serializer
+ *  BLOCK_END
  * </pre>
+ * 
  * @author ieb
  */
 public class Type1BaseContentCollectionSerializer implements EntitySerializer
@@ -107,18 +108,17 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 	public void parse(SerializableEntity se, String serialized)
 			throws EntityParseException
 	{
-		
-		if ( !(se instanceof SerializableCollectionAccess) ) {
-			throw new EntityParseException("Cant serialize "+se+" as it is not a SerializableCollection "); 
+
+		if (!(se instanceof SerializableCollectionAccess))
+		{
+			throw new EntityParseException("Cant serialize " + se
+					+ " as it is not a SerializableCollection ");
 		}
 		SerializableCollectionAccess sc = (SerializableCollectionAccess) se;
 
 		try
 		{
-			
-			
-			
-			
+
 			if (!serialized.startsWith(BLOB_ID))
 			{
 				throw new EntityParseException(
@@ -126,12 +126,11 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 								+ serialized.substring(0, BLOB_ID.length())
 								+ "] expected [" + BLOB_ID + "]");
 			}
-			char[] cbuf = serialized.toCharArray();			
+			char[] cbuf = serialized.toCharArray();
 			byte[] sb = new byte[cbuf.length - BLOB_ID.length()];
-			
+
 			ByteStorageConversion.toByte(cbuf, BLOB_ID.length(), sb, 0, sb.length);
-			
-			
+
 			String id = null;
 			AccessMode access = AccessMode.INHERITED;
 			boolean hidden = false;
@@ -140,7 +139,6 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 			Time retractDate = null;
 			Collection<String> groups = new Vector<String>();
 
-			
 			ByteArrayInputStream baos = new ByteArrayInputStream(sb);
 			DataInputStream ds = new DataInputStream(baos);
 			int type = ds.readInt();
@@ -202,15 +200,18 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 							}
 							break;
 						case BLOCK4:
-							baseResourcePropertiesSerializer.parse(sc.getSerializableProperties(),ds);
+							baseResourcePropertiesSerializer.parse(sc
+									.getSerializableProperties(), ds);
 							break;
 						case BLOCK_END:
 							finished = true;
 							break;
 					}
 				}
-			} else {
-				throw new EntityParseException("Unrecognised Record Type "+type);
+			}
+			else
+			{
+				throw new EntityParseException("Unrecognised Record Type " + type);
 			}
 			sc.setSerializableId(id);
 			sc.setSerializableAccess(access);
@@ -221,7 +222,8 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 			sc.setSerializableGroups(groups);
 
 		}
-		catch ( EntityParseException  epe ) {
+		catch (EntityParseException epe)
+		{
 			throw epe;
 		}
 		catch (Exception ex)
@@ -237,11 +239,13 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 	 */
 	public String serialize(SerializableEntity se) throws EntityParseException
 	{
-		if ( !(se instanceof SerializableCollectionAccess) ) {
-			throw new EntityParseException("Cant serialize "+se+" as it is not a SerializableCollectionAccess "); 
+		if (!(se instanceof SerializableCollectionAccess))
+		{
+			throw new EntityParseException("Cant serialize " + se
+					+ " as it is not a SerializableCollectionAccess ");
 		}
 		SerializableCollectionAccess sc = (SerializableCollectionAccess) se;
-		
+
 		try
 		{
 			String id = sc.getSerializableId();
@@ -257,8 +261,8 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 			ds.writeInt(BLOCK1);
 			ds.writeUTF(id);
 			ds.writeUTF(ResourceType.TYPE_FOLDER);
-			
-			if(access == null || AccessMode.SITE == access)
+
+			if (access == null || AccessMode.SITE == access)
 			{
 				access = AccessMode.INHERITED;
 			}
@@ -294,7 +298,8 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 			}
 
 			ds.writeInt(BLOCK4);
-			baseResourcePropertiesSerializer.serialize(sc.getSerializableProperties(),ds);
+			baseResourcePropertiesSerializer
+					.serialize(sc.getSerializableProperties(), ds);
 			ds.writeInt(BLOCK_END);
 
 			ds.flush();
@@ -302,13 +307,13 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 			byte[] op = baos.toByteArray();
 			char[] opc = new char[op.length + BLOB_ID.length()];
 			int bid = BLOB_ID.length();
-			
+
 			ByteStorageConversion.toChar(op, 0, opc, bid, op.length);
-			
+
 			for (int i = 0; i < bid; i++)
 			{
 				opc[i] = BLOB_ID.charAt(i);
-			}			
+			}
 			return new String(opc);
 		}
 		catch (Exception ex)
@@ -317,7 +322,9 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.entity.api.serialize.EntitySerializer#accept(java.lang.String)
 	 */
 	public boolean accept(String blob)
@@ -334,7 +341,8 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 	}
 
 	/**
-	 * @param timeService the timeService to set
+	 * @param timeService
+	 *        the timeService to set
 	 */
 	public void setTimeService(TimeService timeService)
 	{
