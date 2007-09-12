@@ -318,6 +318,9 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String NEWS_DEFAULT_URL = ServerConfigurationService
 			.getString("news.feedURL");
 
+	private final static String SITE_DEFAULT_LIST = ServerConfigurationService
+			.getString("site.types");
+
 	private final static String STATE_WEB_CONTENT_TITLES = "webcontenttitles";
 
 	private final static String STATE_WEB_CONTENT_URLS = "wcUrls";
@@ -6448,9 +6451,10 @@ public class SiteAction extends PagedResourceActionII {
 		if (state.getAttribute(STATE_SITE_TYPES) == null) {
 			PortletConfig config = portlet.getPortletConfig();
 
-			// all site types
-			String t = StringUtil.trimToNull(config
-					.getInitParameter("siteTypes"));
+			// all site types (SITE_DEFAULT_LIST overrides tool config)
+			String t = StringUtil.trimToNull(SITE_DEFAULT_LIST);
+			if ( t == null )
+				t = StringUtil.trimToNull(config.getInitParameter("siteTypes"));
 			if (t != null) {
 				state.setAttribute(STATE_SITE_TYPES, new ArrayList(Arrays
 						.asList(t.split(","))));
