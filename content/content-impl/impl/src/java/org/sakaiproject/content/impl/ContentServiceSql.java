@@ -156,4 +156,8 @@ public interface ContentServiceSql
 	 */
 	String getContextFilesizeValuesSql(String table, boolean addingUuid);
 
+	String getFilesizeColumnExistsSql();
+
+	String getFilesizeColumnCountSql();
+
 }

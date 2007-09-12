@@ -587,6 +587,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return useResourceTypeRegistry;
 	}
 	
+	protected boolean filesizeColumnExists = false;
+	protected boolean filesizeColumnReady = false;
+	
+	public boolean readyToUseFilesizeColumn()
+	{
+		return filesizeColumnExists && filesizeColumnReady;
+	}
+
 	public boolean m_useContextQueryForCollectionSize = false;
 
 	/**
@@ -1057,7 +1065,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public Object[] storageFields(Entity r)
 		{
-			if(m_useContextQueryForCollectionSize || convertToContextQueryForCollectionSize)
+			if(filesizeColumnExists)
 			{
 				// include the file path field if we are doing body in the file system
 				if (m_bodyPath != null)
@@ -9841,7 +9849,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			long size = 0;
 			
-			if(m_useContextQueryForCollectionSize)
+			if(readyToUseFilesizeColumn())
 			{
 				String context = getContext();
 				if(context != null)

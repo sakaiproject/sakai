@@ -242,4 +242,14 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 		return sql;
 	}
 
+	public String getFilesizeColumnExistsSql() 
+	{
+		return "show columns from CONTENT_RESOURCE like 'FILE_SIZE'";
+	}
+
+	public String getFilesizeColumnCountSql() 
+	{
+		return "select COUNT(RESOURCE_ID) from CONTENT_RESOURCE where FILE_SIZE is NULL";
+	}
+
 }

@@ -311,9 +311,6 @@ public class DbContentService extends BaseContentService
 
 				// do the 2.1.0 conversions
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_2_1_0");
-				
-				// if the newest autoddl has been run, CONTEXT and FILE_SIZE columns exits, so we begin using them 
-				m_useContextQueryForCollectionSize = true;
 			}
 
 			// If CHH resolvers are turned off in sakai.properties, unset the resolver property.
@@ -342,13 +339,85 @@ public class DbContentService extends BaseContentService
 			M_log.warn("init(): ", t);
 		}
 		
-		// if the convert flag is set to add CONTEXT and FILE_SIZE columns
-		// start doing the conversion
-		if(convertToContextQueryForCollectionSize && m_sqlService != null)
+		filesizeColumnExists = filesizeColumnExists();
+		
+		if(!filesizeColumnExists)
 		{
 			addNewColumns();
-			populateNewColumns();
+			filesizeColumnExists = filesizeColumnExists();
 		}
+		if(! readyToUseFilesizeColumn())
+		{
+			// if the convert flag is set to add CONTEXT and FILE_SIZE columns
+			// start doing the conversion
+			if(convertToContextQueryForCollectionSize)
+			{
+				populateNewColumns();
+			}
+		}
+	}
+
+	protected long filesizeColumnCheckExpires = 0L;
+	protected static final long TWENTY_MINUTES = 20L * 60L * 1000L;
+	
+	protected boolean filesizeColumnExists() 
+	{
+		String sql = contentServiceSql.getFilesizeColumnExistsSql();
+		
+		List list = m_sqlService.dbRead(sql);
+		
+		return list != null && ! list.isEmpty();
+	}
+	
+	public boolean readyToUseFilesizeColumn()
+	{
+		if(! filesizeColumnExists)
+		{
+			// do nothing
+		}
+		else if(filesizeColumnReady)
+		{
+			// do nothing
+		}
+		else 
+		{
+			long now = TimeService.newTime().getTime();
+			if(now > filesizeColumnCheckExpires)
+			{
+				// cached value has expired -- time to renew
+				int filesizeColumnCheckNullCount = countNullFilesizeValues();
+				if(filesizeColumnCheckNullCount > 0)
+				{
+					filesizeColumnCheckExpires = now + TWENTY_MINUTES;
+				}
+				else
+				{
+					filesizeColumnReady = true;
+				}
+			}
+		}
+		return filesizeColumnReady;
+	}
+	
+
+	protected int countNullFilesizeValues() 
+	{
+		int count = 0;
+		String sql = contentServiceSql.getFilesizeColumnCountSql();
+		List list = m_sqlService.dbRead(sql);
+		if(list != null && ! list.isEmpty())
+		{
+			try
+			{
+				String value = (String) list.get(0);
+				count = Integer.parseInt(value);
+			}
+			catch(Exception e)
+			{
+				// ignore
+			}
+		}
+		return count;
 	}
 
 	/**
@@ -622,15 +691,13 @@ public class DbContentService extends BaseContentService
 
 			// build the resources store - a single level store
 			m_resourceStore = new BaseDbSingleStorage(m_resourceTableName, "RESOURCE_ID", 
-					(bodyInFile ? (m_useContextQueryForCollectionSize || convertToContextQueryForCollectionSize ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_FILE) 
-							: (m_useContextQueryForCollectionSize || convertToContextQueryForCollectionSize ? RESOURCE_FIELDS_CONTEXT : RESOURCE_FIELDS)),
+					(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
 					m_locksInDb, "resource", resourceUser, m_sqlService);
 
 			// htripath-build the resource for store of deleted record-single
 			// level store
 			m_resourceDeleteStore = new BaseDbSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", 
-					(bodyInFile ? (m_useContextQueryForCollectionSize || convertToContextQueryForCollectionSize ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_FILE) 
-							: (m_useContextQueryForCollectionSize || convertToContextQueryForCollectionSize ? RESOURCE_FIELDS_CONTEXT : RESOURCE_FIELDS)),
+					(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
 					m_locksInDb, "resource", resourceUser, m_sqlService);
 
 		} // DbStorage
