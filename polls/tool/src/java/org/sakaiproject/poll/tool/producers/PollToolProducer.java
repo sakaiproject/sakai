@@ -62,6 +62,8 @@ import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UILink;
+import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UIAlternativeTextDecorator;
 import uk.org.ponder.rsf.viewstate.EntityCentredViewParameters;
 import uk.org.ponder.beanutil.entity.EntityID;
 
@@ -218,20 +220,26 @@ public class PollToolProducer implements ViewComponentProducer,
       m_log.debug("adding poll row for " + poll.getText());
    
       if (canVote) {
-    	  UIInternalLink.make(pollrow, NAVIGATE_VOTE, poll.getText(),
+    	  UIInternalLink voteLink = UIInternalLink.make(pollrow, NAVIGATE_VOTE, poll.getText(),
               new EntityCentredViewParameters(PollVoteProducer.VIEW_ID, 
-                      new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT)); 
+                      new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
+    	  //we need to add a decorator for the alt text
+    	  voteLink.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("poll_vote_title") +":" + poll.getText()));
+    	  
       } else {
     	  UIOutput.make(pollrow,"poll-text",poll.getText());
       }
       
       
       
-      if (isAllowedViewResults(poll))
-		  UIInternalLink.make(pollrow, "poll-results", messageLocator.getMessage("action_view_results"),
+      if (isAllowedViewResults(poll)) {
+    	  UIInternalLink resultsLink =  UIInternalLink.make(pollrow, "poll-results", messageLocator.getMessage("action_view_results"),
 	              new EntityCentredViewParameters(ResultsProducer.VIEW_ID, 
 	                      new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
-
+    	  resultsLink.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("action_view_results")+ ":" + poll.getText()));
+    	  
+      }
+      
       if (poll.getVoteOpen()!=null)
     	  UIOutput.make(pollrow,"poll-open-date",df.format(poll.getVoteOpen()));
       else 
@@ -243,10 +251,10 @@ public class PollToolProducer implements ViewComponentProducer,
     	  UIVerbatim.make(pollrow,"poll-close-date","  ");
     	  
       if (pollCanEdit(poll)) {
-    	  UIInternalLink.make(pollrow,"poll-revise",messageLocator.getMessage("action_revise_poll"),  
+    	  UIInternalLink editLink = UIInternalLink.make(pollrow,"poll-revise",messageLocator.getMessage("action_revise_poll"),  
     			  new EntityCentredViewParameters(AddPollProducer.VIEW_ID, 
                   new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
-    	  
+    	  editLink.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("action_revise_poll")+ ":" + poll.getText()));
     	  
       }
       if (pollCanDelete(poll)) {
