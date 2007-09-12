@@ -70,6 +70,13 @@ tr.selectedMove a:link,tr.selectedMove a:visited{
 	color: silver;
 }
 
+/*used as background class for recent items in dropbox, anywhere*/
+.recentItem{
+	padding:1px;
+	background: url(images/new_item_back.gif) top right no-repeat
+}	
+
+
 /*links associated with an item in alist*/
 /*see links below announcement title in ann list*/
 .itemAction  a,.itemAction  a:link{
