@@ -21,12 +21,12 @@
 
 package org.sakaiproject.portal.service;
 
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -67,11 +67,11 @@ public class PortalServiceImpl implements PortalService
 	 */
 	public static final String PARM_STATE_RESET = "sakai.state.reset";
 
-	private Map<String, PortalRenderEngine> renderEngines = new HashMap<String, PortalRenderEngine>();
+	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<String, PortalRenderEngine>();
 
-	private Map<String, Map<String, PortalHandler>> handlerMaps = new HashMap<String, Map<String, PortalHandler>>();
+	private Map<String, Map<String, PortalHandler>> handlerMaps = new ConcurrentHashMap<String, Map<String, PortalHandler>>();
 
-	private Map<String, Portal> portals = new HashMap<String, Portal>();
+	private Map<String, Portal> portals = new ConcurrentHashMap<String, Portal>();
 
 	private StyleAbleProvider stylableServiceProvider;
 
@@ -324,7 +324,7 @@ public class PortalServiceImpl implements PortalService
 			context = Portal.DEFAULT_PORTAL_CONTEXT;
 		}
 
-		return (PortalRenderEngine) safeGet(renderEngines, context);
+		return (PortalRenderEngine) renderEngines.get(context);
 	}
 
 	/*
@@ -335,7 +335,7 @@ public class PortalServiceImpl implements PortalService
 	public void addRenderEngine(String context, PortalRenderEngine vengine)
 	{
 
-		safePut(renderEngines, context, vengine);
+		renderEngines.put(context, vengine);
 	}
 
 	/*
@@ -345,7 +345,7 @@ public class PortalServiceImpl implements PortalService
 	 */
 	public void removeRenderEngine(String context, PortalRenderEngine vengine)
 	{
-		safePut(renderEngines, context, null);
+		renderEngines.put(context, null);
 	}
 
 	/*
@@ -359,7 +359,7 @@ public class PortalServiceImpl implements PortalService
 		String portalContext = portal.getPortalContext();
 		Map<String, PortalHandler> handlerMap = getHandlerMap(portal);
 		String urlFragment = handler.getUrlFragment();
-		PortalHandler ph = (PortalHandler) safeGet(handlerMap, urlFragment);
+		PortalHandler ph = handlerMap.get(urlFragment);
 		if (ph != null)
 		{
 			handler.deregister(portal);
@@ -367,11 +367,26 @@ public class PortalServiceImpl implements PortalService
 					+ " with " + handler);
 		}
 		handler.register(portal, this, portal.getServletContext());
-		safePut(handlerMap, urlFragment, handler);
+		handlerMap.put(urlFragment, handler);
 
 		log.info("URL " + portalContext + ":/" + urlFragment + " will be handled by "
 				+ handler);
 
+	}
+	
+	public void addHandler(String portalContext, PortalHandler handler) 
+	{
+		Portal portal = portals.get(portalContext);
+		if (portal == null)
+		{
+			Map<String, PortalHandler> handlerMap = getHandlerMap(portalContext, true);
+			handlerMap.put(handler.getUrlFragment(), handler);
+			log.debug("Registered handler ("+ handler+ ") for portal ("+portalContext+ ") that doesn't yet exist.");
+		}
+		else
+		{
+			addHandler(portal, handler);
+		}
 	}
 
 	/*
@@ -381,19 +396,17 @@ public class PortalServiceImpl implements PortalService
 	 */
 	public Map<String, PortalHandler> getHandlerMap(Portal portal)
 	{
-		return getHandlerMap(portal, true);
+		return getHandlerMap(portal.getPortalContext(), true);
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, PortalHandler> getHandlerMap(Portal portal, boolean create)
+	private Map<String, PortalHandler> getHandlerMap(String portalContext, boolean create)
 	{
-		String portalContext = portal.getPortalContext();
-		Map<String, PortalHandler> handlerMap = (Map<String, PortalHandler>) safeGet(
-				handlerMaps, portalContext);
+		Map<String, PortalHandler> handlerMap = handlerMaps.get(portalContext);
 		if (create && handlerMap == null)
 		{
-			handlerMap = new HashMap<String, PortalHandler>();
-			safePut(handlerMaps, portalContext, handlerMap);
+			handlerMap = new ConcurrentHashMap<String, PortalHandler>();
+			handlerMaps.put(portalContext, handlerMap);
 		}
 		return handlerMap;
 	}
@@ -407,64 +420,33 @@ public class PortalServiceImpl implements PortalService
 	 */
 	public void removeHandler(Portal portal, String urlFragment)
 	{
-		Map<String, PortalHandler> handlerMap = getHandlerMap(portal, false);
+		Map<String, PortalHandler> handlerMap = getHandlerMap(portal.getPortalContext(), false);
 		if (handlerMap != null)
 		{
-			PortalHandler ph = (PortalHandler) safeGet(handlerMap, urlFragment);
+			PortalHandler ph = handlerMap.get(urlFragment);
 			if (ph != null)
 			{
 				ph.deregister(portal);
-				safePut(handlerMap, urlFragment, null);
+				handlerMap.put(urlFragment, null);
 				log.warn("Handler Present on  " + urlFragment + " " + ph
 						+ " will be removed ");
 			}
 		}
 	}
-
-	/**
-	 * @param handlerMap
-	 * @param urlFragment
-	 * @param object
-	 */
-	@SuppressWarnings("unchecked")
-	private void safePut(Map map, String key, Object object)
+	
+	public void removeHandler(String portalContext, String urlFragment)
 	{
-		int i = 3;
-		while (i > 0)
+		Portal portal = portals.get(portalContext);
+		if (portal == null)
 		{
-			try
-			{
-				map.put(key, object);
-				i = -1;
-			}
-			catch (ConcurrentModificationException ex)
-			{
-				i--;
-			}
+			log.warn("Attempted to remove handler("+ urlFragment+ ") from non existent portal ("+portalContext+")");
 		}
-		if (i != -1)
+		else
 		{
-			map.put(key, object);
+			removeHandler(portal, urlFragment);
 		}
 	}
 
-	private Object safeGet(Map map, String key)
-	{
-		int i = 3;
-		while (i > 0)
-		{
-			try
-			{
-				return map.get(key);
-			}
-			catch (ConcurrentModificationException ex)
-			{
-
-				i--;
-			}
-		}
-		return map.get(key);
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -474,7 +456,7 @@ public class PortalServiceImpl implements PortalService
 	public void addPortal(Portal portal)
 	{
 		String portalContext = portal.getPortalContext();
-		safePut(portals, portalContext, portal);
+		portals.put(portalContext, portal);
 		// reconnect any handlers
 		Map<String, PortalHandler> phm = getHandlerMap(portal);
 		for (Iterator<PortalHandler> pIterator = phm.values().iterator(); pIterator
@@ -493,7 +475,7 @@ public class PortalServiceImpl implements PortalService
 	public void removePortal(Portal portal)
 	{
 		String portalContext = portal.getPortalContext();
-		safePut(portals, portalContext, null);
+		portals.put(portalContext, null);
 	}
 
 	/*

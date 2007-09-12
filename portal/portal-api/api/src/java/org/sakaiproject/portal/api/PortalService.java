@@ -237,4 +237,19 @@ public interface PortalService
 	 */
 	StyleAbleProvider getStylableService();
 
+	/**
+	 * Add a PortalHandler when you don't have a reference to the portal.
+	 * Eg. If the portal handler is in a different servlet context to the portal.
+	 * @param portalContext The context of the portal. Eg: charon.
+	 * @param handler The portal handler to add.
+	 * @see PortalService#removeHandler(String, String)
+	 */
+	void addHandler(String portalContext, PortalHandler handler);
+
+	/**
+	 * Remove a PortalHandler when you don't have a reference to the portal.
+	 * @see PortalService#addHandler(String, PortalHandler)
+	 */
+	void removeHandler(String portalContext, String urlFragment);
+
 }
