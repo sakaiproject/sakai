@@ -46,6 +46,7 @@ import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.impl.readers.CSVReader;
 import org.sakaiproject.calendar.impl.readers.MeetingMakerReader;
 import org.sakaiproject.calendar.impl.readers.OutlookReader;
+import org.sakaiproject.calendar.impl.readers.IcalendarReader;
 import org.sakaiproject.calendar.impl.readers.Reader;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -1054,6 +1055,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 			readerMap.put(OUTLOOK_IMPORT, OutlookReader.class);
 			readerMap.put(MEETINGMAKER_IMPORT, MeetingMakerReader.class);
 			readerMap.put(CSV_IMPORT, CSVReader.class);
+			readerMap.put(ICALENDAR_IMPORT, IcalendarReader.class);
 		}
 		catch (Throwable t)
 		{

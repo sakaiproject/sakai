@@ -25,6 +25,9 @@
 		#elseif ($importWizardState == "OTHER_SELECT_FILE")
       			<p class="instruction">$tlang.getString("imp.mm.outlook")<br />
 
+		#elseif ($importWizardState == "ICAL_SELECT_FILE")
+      			<p class="instruction">$tlang.getString("imp.ical.todo")<br />
+      
 		#elseif ($importWizardState == "GENERIC_SELECT_FILE")
 			<p class="instruction">$tlang.getString("imp.todo")<br /><br />
 				<a href="#scheduleLink("CalendarTemplate.zip")" title="CalendarTemplate.zip" target="_blank">
@@ -45,6 +48,9 @@
 			<p class="checkbox">
 				<input type="radio" name="importType" id="importType_Outlook" value="Outlook" /><label for="importType_Outlook">$tlang.getString("imp.micro")</label><br />
 				<input type="radio" name="importType" id="importType_MeetingMaker" value="MeetingMaker" /><label for="importType_MeetingMaker">$tlang.getString("imp.mmaker")</label><br />
+            #if ($icalEnable == "true")
+				<input type="radio" name="importType" id="importType_Icalendar" value="Icalendar" /><label for="importType_Icalendar">$tlang.getString("imp.ical")</label><br />
+            #end
 				<input type="radio" name="importType" id="importType_Generic" value="CSV" checked="checked" /><label for="importType_Generic">$tlang.getString("imp.gcalendar")</label><br />
 			</p>
 			<p class="act">
@@ -61,7 +67,7 @@
 				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')" accesskey="x" />
 			</p>
 		</form>
-	#elseif ($importWizardState == "OTHER_SELECT_FILE")
+	#elseif ($importWizardState == "OTHER_SELECT_FILE" || $importWizardState == "ICAL_SELECT_FILE")
 		<form name="Options" action="#toolForm("$action")" method="post" enctype="multipart/form-data">
 			<p class="shorttext"><label for="importFile">$tlang.getString("gen.file")</label> <input type="file" name="importFile" id="importFile" class="upload" /></p>
 			<p class="act">

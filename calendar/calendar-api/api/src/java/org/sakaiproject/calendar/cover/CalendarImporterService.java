@@ -42,6 +42,9 @@ public class CalendarImporterService
 	
 	/** Outlook import type */
 	public static final String OUTLOOK_IMPORT = org.sakaiproject.calendar.api.CalendarImporterService.OUTLOOK_IMPORT;
+
+	/** ical import type */
+	public static final String ICALENDAR_IMPORT = org.sakaiproject.calendar.api.CalendarImporterService.ICALENDAR_IMPORT;
 	
 	/**
 	 * Access the component instance: special cover only method.

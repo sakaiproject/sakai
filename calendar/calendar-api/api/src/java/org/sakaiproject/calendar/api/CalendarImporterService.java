@@ -40,6 +40,9 @@ public interface CalendarImporterService
 	
 	/** Outlook import type */
 	public static final String OUTLOOK_IMPORT = "Outlook";
+
+	/** icalendar import type */
+	public static final String ICALENDAR_IMPORT = "Icalendar";
 	
 	/**
 	 * Get the default column mapping (keys are column headers, values are property names).

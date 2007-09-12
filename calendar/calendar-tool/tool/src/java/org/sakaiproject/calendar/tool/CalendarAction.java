@@ -114,6 +114,7 @@ extends VelocityPortletStateAction
 	private static final String WIZARD_IMPORT_FILE = "importFile";
 	private static final String GENERIC_SELECT_FILE_IMPORT_WIZARD_STATE = "GENERIC_SELECT_FILE";
 	private static final String OTHER_SELECT_FILE_IMPORT_WIZARD_STATE = "OTHER_SELECT_FILE";
+	private static final String ICAL_SELECT_FILE_IMPORT_WIZARD_STATE = "ICAL_SELECT_FILE";
 	private static final String WIZARD_IMPORT_TYPE = "importType";
 	private static final String SELECT_TYPE_IMPORT_WIZARD_STATE = "SELECT_TYPE";
 	private static final String IMPORT_WIZARD_SELECT_TYPE_STATE = SELECT_TYPE_IMPORT_WIZARD_STATE;
@@ -2130,6 +2131,10 @@ extends VelocityPortletStateAction
 			state.setImportWizardState(IMPORT_WIZARD_SELECT_TYPE_STATE);
 		}
 		
+      // (optional) ical.experimental import
+		context.put("icalEnable", 
+						ServerConfigurationService.getString("ical.experimental"));
+      
 		// Set whatever the current wizard state is.
 		context.put("importWizardState", state.getImportWizardState());
 		context.put("tlang",rb);
@@ -4267,18 +4272,23 @@ extends VelocityPortletStateAction
 			String importType = data.getParameters ().getString(WIZARD_IMPORT_TYPE);
 			
 			
-			if ( CalendarImporterService.OUTLOOK_IMPORT.equals(importType) || CalendarImporterService.MEETINGMAKER_IMPORT.equals(importType))
+			if ( CalendarImporterService.OUTLOOK_IMPORT.equals(importType) || CalendarImporterService.MEETINGMAKER_IMPORT.equals(importType) || CalendarImporterService.ICALENDAR_IMPORT.equals(importType))
 			{
 				if (CalendarImporterService.OUTLOOK_IMPORT.equals(importType))
 				{
 					state.setImportWizardType(CalendarImporterService.OUTLOOK_IMPORT);
+					state.setImportWizardState(OTHER_SELECT_FILE_IMPORT_WIZARD_STATE);
+				}
+				else if (CalendarImporterService.MEETINGMAKER_IMPORT.equals(importType))
+				{
+					state.setImportWizardType(CalendarImporterService.MEETINGMAKER_IMPORT);
+					state.setImportWizardState(OTHER_SELECT_FILE_IMPORT_WIZARD_STATE);
 				}
 				else
 				{
-					state.setImportWizardType(CalendarImporterService.MEETINGMAKER_IMPORT);
+					state.setImportWizardType(CalendarImporterService.ICALENDAR_IMPORT);
+					state.setImportWizardState(ICAL_SELECT_FILE_IMPORT_WIZARD_STATE);
 				}
-				
-				state.setImportWizardState(OTHER_SELECT_FILE_IMPORT_WIZARD_STATE);
 			}
 			else
 			{
@@ -4288,8 +4298,7 @@ extends VelocityPortletStateAction
 				state.setImportWizardState(GENERIC_SELECT_FILE_IMPORT_WIZARD_STATE);
 			}
 		}
-		else
-		if ( GENERIC_SELECT_FILE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState()) )
+		else if ( GENERIC_SELECT_FILE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState()) )
 		{ 
 			boolean importSucceeded = false;
 			
@@ -4339,8 +4348,8 @@ extends VelocityPortletStateAction
 				state.setImportWizardState(GENERIC_SELECT_FILE_IMPORT_WIZARD_STATE);
 			}
 		}
-		else
-		if ( OTHER_SELECT_FILE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState()) )
+		else if ( OTHER_SELECT_FILE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState()) ||
+					 ICAL_SELECT_FILE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState()) )
 		{ 
 			boolean importSucceeded = false;
 
@@ -4376,8 +4385,7 @@ extends VelocityPortletStateAction
 				state.setImportWizardState(OTHER_SELECT_FILE_IMPORT_WIZARD_STATE);
 			}
 		}
-		else
-		if ( CONFIRM_IMPORT_WIZARD_STATE.equals(state.getImportWizardState()) )
+		else if ( CONFIRM_IMPORT_WIZARD_STATE.equals(state.getImportWizardState()) )
 		{
 			// If there are errors, send us back to Either
 			// the OTHER_SELECT_FILE or GENERIC_SELECT_FILE states.
@@ -4572,6 +4580,10 @@ extends VelocityPortletStateAction
 				|| CalendarImporterService.MEETINGMAKER_IMPORT.equals(state.getImportWizardType()))
 			{
 				state.setImportWizardState(OTHER_SELECT_FILE_IMPORT_WIZARD_STATE);
+			}
+			else if (CalendarImporterService.ICALENDAR_IMPORT.equals(state.getImportWizardType()))
+			{
+				state.setImportWizardState(ICAL_SELECT_FILE_IMPORT_WIZARD_STATE);
 			}
 			else
 			{
@@ -7172,7 +7184,8 @@ extends VelocityPortletStateAction
 		
 		// See if we are allowed to export items.
 		String calId = state.getPrimaryCalendarReference();
-		if ( allow_import_export || CalendarService.getExportEnabled(calId) )
+		if ( (allow_import_export || CalendarService.getExportEnabled(calId)) && 
+			  ServerConfigurationService.getBoolean("ical.experimental",false))
 		{
 			bar.add( new MenuEntry(rb.getString("java.export"), null, allow_new, MenuItem.CHECKED_NA, "doIcalExportName") );
 		}
