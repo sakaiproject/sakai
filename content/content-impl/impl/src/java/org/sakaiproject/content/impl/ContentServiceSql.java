@@ -160,4 +160,20 @@ public interface ContentServiceSql
 
 	String getFilesizeColumnCountSql();
 
+	/**
+	 * A statement to create a UTF test table based on the name
+	 * 
+	 * @param tempTableName
+	 * @return
+	 */
+	String getCreateTemporaryUTF8TestTable(String tempTableName);
+
+	/**
+	 * SQL to drop the table
+	 * 
+	 * @param tempTableName
+	 * @return
+	 */
+	String getDropTemporaryUTF8TestTable(String tempTableName);
+
 }

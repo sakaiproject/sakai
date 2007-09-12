@@ -21,8 +21,6 @@
 
 package org.sakaiproject.content.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * methods for accessing content data in a database.
@@ -250,6 +248,27 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	public String getFilesizeColumnCountSql() 
 	{
 		return "select COUNT(RESOURCE_ID) from CONTENT_RESOURCE where FILE_SIZE is NULL";
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.ContentServiceSql#getCreateTemporaryUTF8TestTable(java.lang.String)
+	 */
+	public String getCreateTemporaryUTF8TestTable(String tempTableName)
+	{
+		return "create table " + tempTableName + " ( id int, bval varchar(2048) )";
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.ContentServiceSql#getDropTemporaryUTF8TestTable(java.lang.String)
+	 */
+	public String getDropTemporaryUTF8TestTable(String tempTableName)
+	{
+		return "drop table " + tempTableName;
 	}
 
 }

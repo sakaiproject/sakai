@@ -29,7 +29,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -39,6 +42,8 @@ import java.util.Stack;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,6 +55,7 @@ import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.LockManager;
+import org.sakaiproject.content.impl.serialize.impl.ByteStorageConversion;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
@@ -298,6 +304,26 @@ public class DbContentService extends BaseContentService
 	{
 		if ( m_sqlService != null ) {
 			setContentServiceSql(m_sqlService.getVendor());
+			try {
+			validateUTF8Db();
+			} catch ( Exception ex ) {
+				M_log.fatal("Check on Database Failed ",ex);
+				M_log.fatal("===========================================================");
+				M_log.fatal("STOP \n" +
+						"  The connection from this instance of Sakai to the database\n" +
+						"  has been tested and found to corrupt UTF-8 Data. \n" +
+						"  In order for Sakai to operate correctly you must ensure that your \n" +
+						"  database setup is correct for UTF-8 data. This includes both the \n" +
+						"  JDBC connection to the database and the underlying storage in the \n" +
+						"  database.\n" +
+						"  The test that was performed on your database create a table\n" +
+						"  wrote some data to that table and read it back again. On reading \n" +
+						"  that data back it found some form of corruption, reported above.\n" +
+						"\n" +
+						" More information on database setup for sakai can be found at \n" +
+						" http://bugs.sakaiproject.org/confluence/display/DOC/Install+Guide+-+DB+(2.4)");
+				System.exit(-10);
+			}
 		}
 		try
 		{
@@ -2465,4 +2491,158 @@ public class DbContentService extends BaseContentService
 		return size;
 	}
 
+	/**
+	 * @throws Exception 
+	 * 
+	 */
+	private void validateUTF8Db() throws Exception
+	{
+			Connection connection = m_sqlService.borrowConnection();
+			Statement statement = null;
+			String tempTableName = "utf8test"+System.currentTimeMillis();
+			try
+			{
+				statement = connection.createStatement();
+				statement.execute(contentServiceSql.getCreateTemporaryUTF8TestTable(tempTableName));
+				testUTF8Transport(connection,tempTableName);
+			}
+			finally
+			{
+				try
+				{
+					statement.execute(contentServiceSql.getDropTemporaryUTF8TestTable(tempTableName));
+				}
+				catch (Exception ex)
+				{
+				}
+				
+				try
+				{
+					statement.close();
+				}
+				catch (Exception ex)
+				{
+
+				}
+				try
+				{
+					m_sqlService.returnConnection(connection);
+				}
+				catch (Exception ex)
+				{
+
+				}
+			}
+
+		}	
+	
+	public void testUTF8Transport(Connection connection, String testtable) throws Exception
+	{
+		/*
+		 * byte[] b = new byte[102400]; byte[] b2 = new byte[102400]; byte[] b3 =
+		 * new byte[102400]; char[] cin = new char[102400]; Random r = new
+		 * Random(); r.nextBytes(b);
+		 */
+		byte[] bin = new byte[1024];
+		char[] cin = new char[1024];
+		byte[] bout = new byte[1024];
+
+		{
+			int i = 0;
+			for (int bx = 0; i < bin.length; bx++)
+			{
+				bin[i++] = (byte) bx;
+			}
+		}
+		ByteStorageConversion.toChar(bin, 0, cin, 0, cin.length);
+		String sin = new String(cin);
+
+		char[] cout = sin.toCharArray();
+		ByteStorageConversion.toByte(cout, 0, bout, 0, cout.length);
+
+		for (int i = 0; i < bin.length; i++)
+		{
+			if (bin[i] != bout[i])
+			{
+				throw new Exception("Internal Byte conversion failed at " + bin[i] + "=>"
+						+ (int) cin[i] + "=>" + bout[i]);
+			}
+		}
+
+		PreparedStatement statement = null;
+		PreparedStatement statement2 = null;
+		ResultSet rs = null;
+		try
+		{
+			statement = connection
+					.prepareStatement("insert into "+testtable+" ( id, bval ) values ( ?, ? )");
+			statement.clearParameters();
+			statement.setInt(1, 20);
+			statement.setString(2, sin);
+			statement.executeUpdate();
+
+			statement2 = connection
+					.prepareStatement("select bval from "+testtable+" where id =  ? ");
+			statement2.clearParameters();
+			statement2.setInt(1, 20);
+			rs = statement2.executeQuery();
+			String sout = null;
+			if (rs.next())
+			{
+				sout = rs.getString(1);
+			}
+
+			cout = sout.toCharArray();
+			ByteStorageConversion.toByte(cout, 0, bout, 0, cout.length);
+
+			if (sin.length() != sout.length())
+			{
+				throw new Exception(
+						"UTF-8 Data was lost communicating with the database, please "
+								+ "check connection string and default table types (Truncation/Expansion)");
+			}
+
+			for (int i = 0; i < bin.length; i++)
+			{
+				if (bin[i] != bout[i])
+				{
+					throw new Exception(
+							"UTF-8 Data was corrupted communicating with the database, "
+									+ "please check connectionstring and default table types (Conversion)"
+									+ "" + bin[i] + "=>" + (int) cin[i] + "=>" + bout[i]);
+				}
+			}
+
+			M_log.info("DB Connection passes UTF-8 tests");
+
+		}
+		finally
+		{
+			try
+			{
+				rs.close();
+			}
+			catch (Exception ex)
+			{
+
+			}
+			try
+			{
+				statement2.close();
+			}
+			catch (Exception ex)
+			{
+
+			}
+			try
+			{
+				statement.close();
+			}
+			catch (Exception ex)
+			{
+
+			}
+		}
+
+	}
 }
