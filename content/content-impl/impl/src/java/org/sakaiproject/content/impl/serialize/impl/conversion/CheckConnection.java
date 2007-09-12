@@ -25,12 +25,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Random;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.impl.serialize.impl.ByteStorageConversion;
 
 /**
  * @author ieb
@@ -97,55 +97,29 @@ public class CheckConnection
 		 * new byte[102400]; char[] cin = new char[102400]; Random r = new
 		 * Random(); r.nextBytes(b);
 		 */
-		byte[] b = new byte[1024];
-		byte[] b2 = new byte[1024];
-		byte[] b3 = new byte[1024];
-		char[] cin = new char[1024];
+		byte[] bin = new byte[102400];
+		char[] cin = new char[102400];
+		byte[] bout = new byte[102400];
 
 		{
 			int i = 0;
-			for (byte bx = Byte.MIN_VALUE; bx <= Byte.MAX_VALUE && i < b.length; bx++)
+			for (int bx = 0; i < bin.length; bx++)
 			{
-				b[i++] = bx;
+				bin[i++] = (byte) bx;
 			}
 		}
-		for (int i = 0; i < b.length; i++)
+		ByteStorageConversion.toChar(bin, 0, cin, 0, cin.length);
+		String sin = new String(cin);
+
+		char[] cout = sin.toCharArray();
+		ByteStorageConversion.toByte(cout, 0, bout, 0, cout.length);
+
+		for (int i = 0; i < bin.length; i++)
 		{
-			cin[i] = (char) (b[i]);
-			log.info("Byte "+b[i]+":"+(int)cin[i]);
-		}
-		for (int i = 0; i < b.length; i++)
-		{
-			b2[i] = (byte) (cin[i]);
-		}
-		for (int i = 0; i < cin.length; i++)
-		{
-			if (b[i] != b2[i])
+			if (bin[i] != bout[i])
 			{
-				log.info("Internal Byte First test at " + i + " does not match "
-						+ (int) b[i] + ":" + b[i] + " != " + (int) b2[i] + ":" + b2[i]);
-
-				throw new Exception("Internal Check Failed, byte char conversion failed");
-			}
-		}
-
-		String bin = new String(cin);
-		String bout = null;
-
-		char[] cin2 = bin.toCharArray();
-		for (int i = 0; i < b.length; i++)
-		{
-			b2[i] = (byte) (cin2[i]);
-		}
-		for (int i = 0; i < cin2.length; i++)
-		{
-			if (b[i] != b2[i])
-			{
-				log.info("Internal  Char String Byte First test at " + i
-						+ " does not match " + (int) b[i] + ":" + b[i] + " != "
-						+ (int) b2[i] + ":" + b2[i]);
-
-				throw new Exception("Internal Check Failed, byte char conversion ");
+				throw new Exception("Internal Byte conversion failed at " + bin[i] + "=>"
+						+ (int) cin[i] + "=>" + bout[i]);
 			}
 		}
 
@@ -157,38 +131,39 @@ public class CheckConnection
 			statement = connection
 					.prepareStatement("insert into blobtest ( id, bval ) values ( ?, ? )");
 			statement.clearParameters();
-			statement.setInt(1, 1);
-			statement.setString(2, bin);
+			statement.setInt(1, 20);
+			statement.setString(2, sin);
 			statement.executeUpdate();
 
 			statement2 = connection
 					.prepareStatement("select bval from blobtest where id =  ? ");
 			statement2.clearParameters();
-			statement2.setInt(1, 1);
+			statement2.setInt(1, 20);
 			rs = statement2.executeQuery();
+			String sout = null;
 			if (rs.next())
 			{
-				bout = rs.getString(1);
+				sout = rs.getString(1);
 			}
-			char[] cout = bout.toCharArray();
-			if (cout.length != cin.length)
+
+			cout = sout.toCharArray();
+			ByteStorageConversion.toByte(cout, 0, bout, 0, cout.length);
+
+			if (sin.length() != sout.length())
 			{
-				log.info("Dropped " + (cin.length - cout.length));
-				throw new Exception("Truncation Error on transport");
+				throw new Exception(
+						"UTF-8 Data was lost communicating with the database, please "
+								+ "check connection string and default table types (Truncation/Expansion)");
 			}
-			for (int i = 0; i < b.length; i++)
+
+			for (int i = 0; i < bin.length; i++)
 			{
-				b3[i] = (byte) (cout[i]);
-				// log.info("Byte at "+i+" is "+b3[i]+" char "+(int)cout[i]);
-			}
-			for (int i = 0; i < cin.length; i++)
-			{
-				if (b[i] != b3[i])
+				if (bin[i] != bout[i])
 				{
-					log.info("External Byte at " + i + " does not match " + ":" + b[i]
-							+ " != " + b3[i]);
 					throw new Exception(
-							"UTF-8 Transport and/or database is NOT Ok for UTF8 usage ");
+							"UTF-8 Data was corrupted communicating with the database, "
+									+ "please check connectionstring and default table types (Conversion)"
+									+ "" + bin[i] + "=>" + (int) cin[i] + "=>" + bout[i]);
 				}
 			}
 

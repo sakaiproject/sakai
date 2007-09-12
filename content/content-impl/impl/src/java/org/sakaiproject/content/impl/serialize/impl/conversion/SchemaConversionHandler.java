@@ -27,99 +27,48 @@ import java.sql.SQLException;
 
 /**
  * @author ieb
- *
  */
 public interface SchemaConversionHandler
 {
 
 	/**
-	 * An SQL statement to select the next list of items to process, 
-	 * It should select these from the Register table, in such a way as to ensure that they
-	 * are only selected by the current node. 
-	 * it will take the first column returned as the unique id of the item
-	 * eg select id from migrate_content_collection where status = 'pending';
-	 * @return
-	 */
-	String getSelectNextBatch();
-
-	/**
-	 * SQL to mark the id as being worked on in the register table eg
-	 * eg update migrate_content_collection set status = 'locked' where id = ?;
-	 * @return
-	 */
-	String getMarkNextBatch();
-
-	/**
-	 * SQL to mark the is as completed in the register table eg
-	 * parameter 1 is the ID
-	 * update migrate_content_collection set status = 'completed' where id = ?;
-	 * @return
-	 */
-	String getCompleteNextBatch();
-
-	/**
-	 * SQL to select the record form the table to be converted, colums are passed for processing to getSource 
-	 * select * from content_collection where collection_id = ?;
-	 * @return 
-	 */
-	String getSelectRecord();
-
-	/**
-	 * SQL to Update the target record after conversion, the prepared statement is passed to convert source
-	 * for polulating eg
-	 * update content_collection set xml = ? where collection_id = ?
-	 * @return
-	 */
-	String getUpdateRecord();
-
-	/**
-	 * SQL to drop the migration regisgter
-	 * eg drop table migrate_content_collection
-	 * @return
-	 */
-	String getDropMigrateTable();
-
-	/**
-	 * SQL to check if the migration register exists and has been populated with pendign records
-	 * column 1 should be 0 if this is not the case
-	 * select count(*) from migrate_content_collection;
-	 * @return
-	 */
-	String getCheckMigrateTable();
-
-	/**
-	 * SQL to create the migration table
-	 * create table migrate_content_collection ( id varchar(99), status varchar(99), primary key id );
-	 * @return
-	 */
-	String getCreateMigrateTable();
-
-	/**
-	 * SQL to populate the migration table with ID's  in the correct state.
-	 * insert into migrate_content_collection (id, status) select collection_id, 'pending' from content_collection
-	 * @return
-	 */
-	String getPopulateMigrateTable();
-
-	/**
-	 * Retrievs a single source object form a ResultSet, returns null if the source record does not require conversion
-	 * the result set was produiced from selectRecord SQL
+	 * Retrievs a single source object form a ResultSet, returns null if the
+	 * source record does not require conversion the result set was produiced
+	 * from selectRecord SQL
+	 * 
 	 * @param id
 	 * @param rs
 	 * @return
-	 * @throws SQLException 
+	 * @throws SQLException
 	 */
 	Object getSource(String id, ResultSet rs) throws SQLException;
 
 	/**
-	 * Converts the source object and populates the preapred statement, the prepared statement is from getUpdateRecord.
+	 * Converts the source object and populates the preapred statement, the
+	 * prepared statement is from getUpdateRecord.
+	 * 
 	 * @param id
 	 * @param source
 	 * @param updateRecord
-	 * @throws SQLException 
+	 * @throws SQLException
 	 */
-	boolean convertSource(String id, Object source, PreparedStatement updateRecord) throws SQLException;
+	boolean convertSource(String id, Object source, PreparedStatement updateRecord)
+			throws SQLException;
 
-
+	/**
+	 * Validate that the source object before conversion is the same as the
+	 * result object, after conversion, re-read from the database
+	 * 
+	 * @param id
+	 *        the ID of the record
+	 * @param source
+	 *        the source object created by the same implementation
+	 * @param result
+	 *        the result object created by the same implementation
+	 * @throws Exception
+	 *         if the result is not equivalent to the source, at which point the
+	 *         whole transaction will be rolled back
+	 */
+	void validate(String id, Object source, Object result) throws Exception;
 
 }

@@ -38,6 +38,7 @@ import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.impl.serialize.impl.ByteStorageConversion;
 
 /**
  * @author ieb
@@ -85,10 +86,7 @@ public class MySQLByteStorage extends TestCase
 		}
 
 		cpds.setDriver(p.getProperty("dbDriver", "com.mysql.jdbc.Driver"));
-		cpds
-				.setUrl(p
-						.getProperty("dbURL",
-								"jdbc:mysql://127.0.0.1:3306/sakai22?useUnicode=true&characterEncoding=UTF-8"));
+		cpds.setUrl(p.getProperty("dbURL", "jdbc:mysql://127.0.0.1:3306/sakai22?useUnicode=true&characterEncoding=UTF-8"));
 		cpds.setUser(p.getProperty("dbUser", "sakai22"));
 		cpds.setPassword(p.getProperty("dbPass", "sakai22"));
 
@@ -149,143 +147,100 @@ public class MySQLByteStorage extends TestCase
 
 	public void testBlobData() throws SQLException
 	{
-		byte[] b = new byte[102400];
-		byte[] b2 = new byte[102400];
-		byte[] b3 = new byte[102400];
-		char[] cin = new char[102400];
-		Random r = new Random();
-		r.nextBytes(b);
-		
-		for (int i = 0; i < b.length; i++)
+		// run the test 10 times to make really certain there is no problem
+		for (int k = 0; k < 10; k++)
 		{
-			cin[i] = (char) (b[i]);
-		}
-		for (int i = 0; i < b.length; i++)
-		{
-			b2[i] = (byte) (cin[i]);
-		}
-		for (int i = 0; i < cin.length; i++)
-		{
-			if (b[i] != b2[i])
-			{
-				log.info("Internal Byte First test at " + i + " does not match "
-						+ (int) b[i] + ":" + b[i] + " != " + (int) b2[i] + ":" + b2[i]);
+			byte[] bin = new byte[102400];
+			char[] cin = new char[102400];
 
-				fail("Did not transfer Ok internally");
+			byte[] bout = new byte[102400];
+			Random r = new Random();
+			r.nextBytes(bin);
+
+			ByteStorageConversion.toChar(bin, 0, cin, 0, cin.length);
+			String sin = new String(cin);
+
+			char[] cout = sin.toCharArray();
+			ByteStorageConversion.toByte(cout, 0, bout, 0, cout.length);
+
+			for (int i = 0; i < bin.length; i++)
+			{
+				assertEquals("Internal Byte conversion failed at " + bin[i] + "=>"
+						+ (int) cin[i] + "=>" + bout[i], bin[i], bout[i]);
 			}
-		}
-		log.info("Internal trasfer Ok");
 
-		String bin = new String(cin);
-		String bout = null;
-		
-		char[] cin2 = bin.toCharArray();
-		for (int i = 0; i < b.length; i++)
-		{
-			b2[i] = (byte) (cin2[i]);
-		}
-		for (int i = 0; i < cin2.length; i++)
-		{
-			if (b[i] != b2[i])
+			Connection connection = null;
+			PreparedStatement statement = null;
+			PreparedStatement statement2 = null;
+			ResultSet rs = null;
+			try
 			{
-				log.info("Internal  Char String Byte First test at " + i + " does not match "
-						+ (int) b[i] + ":" + b[i] + " != " + (int) b2[i] + ":" + b2[i]);
+				connection = tds.getConnection();
+				statement = connection
+						.prepareStatement("insert into blobtest ( id, bval ) values ( ?, ? )");
+				statement.clearParameters();
+				statement.setInt(1, k);
+				statement.setString(2, sin);
+				statement.executeUpdate();
 
-				fail("Did not transfer Ok internally with char");
-			}
-		}
-
-
-		Connection connection = null;
-		PreparedStatement statement = null;
-		PreparedStatement statement2 = null;
-		ResultSet rs = null;
-		try
-		{
-			connection = tds.getConnection();
-			statement = connection
-					.prepareStatement("insert into blobtest ( id, bval ) values ( ?, ? )");
-			statement.clearParameters();
-			statement.setInt(1, 1);
-			statement.setString(2, bin);
-			statement.executeUpdate();
-
-			statement2 = connection
-					.prepareStatement("select bval from blobtest where id =  ? ");
-			statement2.clearParameters();
-			statement2.setInt(1, 1);
-			rs = statement2.executeQuery();
-			if (rs.next())
-			{
-				bout = rs.getString(1);
-			}
-			char[] cout = bout.toCharArray();
-			if (cout.length != cin.length)
-			{
-				log.info("Dropped " + (cin.length - cout.length));
-			}
-			for (int i = 0; i < b.length; i++)
-			{
-				b3[i] = (byte) (cout[i]);
-		//		log.info("Byte at "+i+" is "+b3[i]+"  char "+(int)cout[i]);
-			}
-			for (int i = 0; i < cin.length; i++)
-			{
-				if (b[i] != b3[i])
+				statement2 = connection
+						.prepareStatement("select bval from blobtest where id =  ? ");
+				statement2.clearParameters();
+				statement2.setInt(1, k);
+				rs = statement2.executeQuery();
+				String sout = null;
+				if (rs.next())
 				{
-					log.info("External Byte at " + i + " does not match " + ":" + b[i] + " != " + b3[i]);
-					fail("Did not transfer Ok internally ");
+					sout = rs.getString(1);
 				}
-			}
+				
+				cout = sout.toCharArray();
+				ByteStorageConversion.toByte(cout, 0, bout, 0, cout.length);
 
-			for (int i = 0; i < cin.length; i++)
-			{
-				if (cin[i] != cout[i])
+				assertEquals("Input and Output Lenghts are not the same ", sin.length(),
+						sout.length());
+
+				for (int i = 0; i < bin.length; i++)
 				{
-					log.info("External Char at " + i + " does not match " + (int) cin[i]
-							+ ":" + cin[i] + " != " + (int) cout[i] + ":" + cout[i]);
-					log.info("Bytes:" + b[i]);
-
-					fail("DId not serialize Ok");
+					assertEquals("Database Byte conversion failed at " + bin[i] + "=>"
+							+ (int) cin[i] + "=>" + bout[i], bin[i], bout[i]);
 				}
-			}
-
-			assertEquals(bin, bout);
-
-		}
-		finally
-		{
-			try
-			{
-				rs.close();
-			}
-			catch (Exception ex)
-			{
 
 			}
-			try
+			finally
 			{
-				statement2.close();
-			}
-			catch (Exception ex)
-			{
+				try
+				{
+					rs.close();
+				}
+				catch (Exception ex)
+				{
 
-			}
-			try
-			{
-				statement.close();
-			}
-			catch (Exception ex)
-			{
+				}
+				try
+				{
+					statement2.close();
+				}
+				catch (Exception ex)
+				{
 
-			}
-			try
-			{
-				connection.close();
-			}
-			catch (Exception ex)
-			{
+				}
+				try
+				{
+					statement.close();
+				}
+				catch (Exception ex)
+				{
 
+				}
+				try
+				{
+					connection.close();
+				}
+				catch (Exception ex)
+				{
+
+				}
 			}
 		}
 

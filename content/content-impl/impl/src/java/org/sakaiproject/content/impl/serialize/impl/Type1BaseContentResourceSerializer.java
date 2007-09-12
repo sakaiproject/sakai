@@ -29,6 +29,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
 
+import javax.print.DocFlavor.BYTE_ARRAY;
+
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
@@ -133,16 +135,14 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 			{
 				throw new EntityParseException(
 						"Data Block does not belong to this serializer got ["
-								+ serialized.substring(0, BLOB_ID.length())
+								+ serialized
 								+ "] expected [" + BLOB_ID + "]");
 			}
 			char[] cbuf = serialized.toCharArray();
 			int blobIdLength = BLOB_ID.length();
 			byte[] sb = new byte[cbuf.length - blobIdLength];
-			for (int i = blobIdLength; i < cbuf.length; i++)
-			{
-				sb[i - blobIdLength] = (byte) cbuf[i];
-			}
+			
+			ByteStorageConversion.toByte(cbuf, BLOB_ID.length(), sb, 0, sb.length);
 
 			AccessMode access = AccessMode.INHERITED;
 			boolean hidden = false;
@@ -377,13 +377,13 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 			byte[] op = baos.toByteArray();
 			int bid = BLOB_ID.length();
 			char[] opc = new char[op.length + bid];
+			
+			
+			ByteStorageConversion.toChar(op, 0, opc, bid, op.length);
+			
 			for (int i = 0; i < bid; i++)
 			{
 				opc[i] = BLOB_ID.charAt(i);
-			}
-			for (int i = bid; i < opc.length; i++)
-			{
-				opc[i] = (char) op[i-bid];
 			}
 			return new String(opc);
 		}

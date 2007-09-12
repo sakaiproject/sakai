@@ -23,7 +23,9 @@ package org.sakaiproject.content.impl.serialize.impl.conversion;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
@@ -45,7 +47,8 @@ public class UpgradeSchema
 	{
 		UpgradeSchema cc = new UpgradeSchema();
 		String configFile = null;
-		if ( argv.length > 0 ) {
+		if (argv.length > 0)
+		{
 			configFile = argv[0];
 		}
 		try
@@ -75,20 +78,30 @@ public class UpgradeSchema
 			FileInputStream fin = new FileInputStream(config);
 			p.load(fin);
 			fin.close();
+			StringBuilder sb = new StringBuilder();
 			for (Iterator<Object> i = p.keySet().iterator(); i.hasNext();)
 			{
 				Object k = i.next();
-				log.info("   Test Properties " + k + ":" + p.get(k));
+				sb.append("\n " + k + ":" + p.get(k));
 			}
+			log.info("Loaded Properties from " + config + " as " + sb.toString());
+		}
+		else
+		{
+			p.load(this.getClass().getResourceAsStream("upgradeschema.config"));
+			StringBuilder sb = new StringBuilder();
+			for (Iterator<Object> i = p.keySet().iterator(); i.hasNext();)
+			{
+				Object k = i.next();
+				sb.append("\n " + k + ":" + p.get(k));
+			}
+			log.info("Loaded Default Properties " + config + " as " + sb.toString());
 		}
 
-		cpds.setDriver(p.getProperty("dbDriver", "com.mysql.jdbc.Driver"));
-		cpds
-				.setUrl(p
-						.getProperty("dbURL",
-								"jdbc:mysql://127.0.0.1:3306/sakai22?useUnicode=true&characterEncoding=UTF-8"));
-		cpds.setUser(p.getProperty("dbUser", "sakai22"));
-		cpds.setPassword(p.getProperty("dbPass", "sakai22"));
+		cpds.setDriver(p.getProperty("dbDriver"));
+		cpds.setUrl(p.getProperty("dbURL"));
+		cpds.setUser(p.getProperty("dbUser"));
+		cpds.setPassword(p.getProperty("dbPass"));
 
 		tds = new SharedPoolDataSource();
 		tds.setConnectionPoolDataSource(cpds);
@@ -96,33 +109,48 @@ public class UpgradeSchema
 		tds.setMaxWait(5);
 		tds.setDefaultAutoCommit(false);
 
-		doMigrate();
+		CheckConnection cc = new CheckConnection();
+		cc.check(tds);
+
+		List<SchemaConversionDriver> sequence = new ArrayList<SchemaConversionDriver>();
+		int k = 0;
+		while(true) {
+			if ( p.get("convert."+k) != null ) {
+				SchemaConversionDriver s = new SchemaConversionDriver();
+				s.load(p, "convert."+k);
+				sequence.add(s);
+				k++;
+			} else {
+				break;
+			}
+			
+
+		}
+
+		doMigrate(sequence);
 
 		tds.close();
 
 	}
 
-	public void doMigrate()
+	public void doMigrate(List<SchemaConversionDriver> sequence)
 	{
 		try
 		{
-			CheckConnection cc = new CheckConnection();
-			cc.check(tds);
-			
-			
 			SchemaConversionController scc = new SchemaConversionController();
-			Type1BlobCollectionConversionHandler bch = new Type1BlobCollectionConversionHandler();
-			log.info("Migrating Collection to Type 1 Binary Block Encoding");
-			while (scc.migrate(tds, bch));
-			log.info("Done Migrating Collection to Type 1 Binary Block Encoding");
-			Type1BlobResourcesConversionHandler brh = new Type1BlobResourcesConversionHandler();
-			log.info("Migrating Resources to Type 1 Binary Block Encoding");
-		    while (scc.migrate(tds, brh));
-			log.info("Done Migrating Resources to Type 1 Binary Block Encoding");
-			FileSizeResourcesConversionHandler fsh = new FileSizeResourcesConversionHandler();
-			log.info("Migrating Resources to Size/Quota Patch");
-			while (scc.migrate(tds, fsh));
-			log.info("Done Migrating Resources to Size/Quota Patch ");
+			for (SchemaConversionDriver spec : sequence)
+			{
+
+				Class handlerClass = Class.forName(spec.getHandlerClass());
+				SchemaConversionHandler sch = (SchemaConversionHandler) handlerClass
+						.newInstance();
+				log.info("Migrating using Handler " + spec.getHandler());
+				int k = 0;
+				while (scc.migrate(tds, sch, spec)) {
+					log.info("Completed Batch "+(k++));
+				}
+				log.info("Done Migrating using Handler " + spec.getHandler());
+			}
 
 		}
 		catch (Exception ex)

@@ -43,95 +43,6 @@ public class FileSizeResourcesConversionHandler implements SchemaConversionHandl
 
 	private Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getCreateMigrateTable()
-	 */
-	public String getCreateMigrateTable()
-	{
-		return "create table content_res_fsregister ( id varchar(1024), status varchar(99) )";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getDropMigrateTable()
-	 */
-	public String getDropMigrateTable()
-	{
-		return "drop table content_res_fsregister";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getCheckMigrateTable()
-	 */
-	public String getCheckMigrateTable()
-	{
-		return "select count(*) from content_res_fsregister";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getPopulateMigrateTable()
-	 */
-	public String getPopulateMigrateTable()
-	{
-		return "insert into content_res_fsregister (id,status) select RESOURCE_ID, 'pending' from CONTENT_RESOURCE";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getSelectNextBatch()
-	 */
-	public String getSelectNextBatch()
-	{
-		return "select id from content_res_fsregister where status = 'pending' ";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getCompleteNextBatch()
-	 */
-	public String getCompleteNextBatch()
-	{
-		return "update content_res_fsregister set status = 'done' where id = ? ";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getMarkNextBatch()
-	 */
-	public String getMarkNextBatch()
-	{
-		return "update content_res_fsregister set status = 'locked' where id = ? ";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getSelectRecord()
-	 */
-	public String getSelectRecord()
-	{
-		return "select XML from CONTENT_RESOURCE where RESOURCE_ID = ?";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getUpdateRecord()
-	 */
-	public String getUpdateRecord()
-	{
-		return "update CONTENT_RESOURCE set CONTEXT = ?, FILE_SIZE = ? where RESOURCE_ID = ? ";
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -189,6 +100,14 @@ public class FileSizeResourcesConversionHandler implements SchemaConversionHandl
 		}
 		return false;
 
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.impl.serialize.impl.conversion.SchemaConversionHandler#validate(java.lang.String, java.lang.Object, java.lang.Object)
+	 */
+	public void validate(String id, Object source, Object result) throws Exception
+	{
+		// this conversion did not modify source data.
 	}
 	
 	

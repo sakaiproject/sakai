@@ -42,7 +42,7 @@ public class SchemaConversionController
 
 	private static final Log log = LogFactory.getLog(SchemaConversionController.class);
 
-	public boolean migrate(DataSource datasource, SchemaConversionHandler convert)
+	public boolean migrate(DataSource datasource, SchemaConversionHandler convert, SchemaConversionDriver driver) throws SchemaConversionException
 	{
 		boolean alldone = false;
 		Connection connection = null;
@@ -55,18 +55,18 @@ public class SchemaConversionController
 		try
 		{
 			connection = datasource.getConnection();
-			selectNextBatch = connection.prepareStatement(convert.getSelectNextBatch());
-			markNextBatch = connection.prepareStatement(convert.getMarkNextBatch());
-			completeNextBatch = connection.prepareStatement(convert
+			selectNextBatch = connection.prepareStatement(driver.getSelectNextBatch());
+			markNextBatch = connection.prepareStatement(driver.getMarkNextBatch());
+			completeNextBatch = connection.prepareStatement(driver
 					.getCompleteNextBatch());
-			selectRecord = connection.prepareStatement(convert.getSelectRecord());
-			updateRecord = connection.prepareStatement(convert.getUpdateRecord());
+			selectRecord = connection.prepareStatement(driver.getSelectRecord());
+			updateRecord = connection.prepareStatement(driver.getUpdateRecord());
 
 			// we need some way of identifying those records that have not been
 			// convertd.
 			// 1. Create a register table to map progress.
 
-			createRegisterTable(connection, convert);
+			createRegisterTable(connection, convert, driver);
 
 			// 2. select x at a time
 			rs = selectNextBatch.executeQuery();
@@ -115,6 +115,18 @@ public class SchemaConversionController
 					{
 						log.warn("Did not update record " + id);
 					}
+					selectRecord.clearParameters();
+					selectRecord.setString(1, id);
+					rs = selectRecord.executeQuery();
+					Object result = null;
+					if (rs.next())
+					{
+						result = convert.getSource(id, rs);
+					}
+					rs.close();
+					
+					convert.validate(id, source, result);
+					
 				}
 				completeNextBatch.clearParameters();
 				completeNextBatch.setString(1, id);
@@ -128,22 +140,25 @@ public class SchemaConversionController
 
 			if (l.size() == 0)
 			{
-				dropRegisterTable(connection, convert);
+				dropRegisterTable(connection, convert, driver);
 				alldone = true;
 			}
 			connection.commit();
 
 		}
-		catch (SQLException e)
+		catch (Exception e)
 		{
 			log.error("Failed to perform migration ",e);
 			try
 			{
 				connection.rollback();
+				log.error("Rollback Sucessfull ",e);
 			}
 			catch (Exception ex)
 			{
+				log.error("Rollback Failed ",e);
 			}
+			throw new SchemaConversionException("Schema Conversion has been aborted due to earlier errors, please investigate ");
 
 		}
 		finally
@@ -214,7 +229,7 @@ public class SchemaConversionController
 	/**
 	 * @throws SQLException
 	 */
-	private void dropRegisterTable(Connection connection, SchemaConversionHandler convert)
+	private void dropRegisterTable(Connection connection, SchemaConversionHandler convert, SchemaConversionDriver driver)
 			throws SQLException
 	{
 		Statement stmt = null;
@@ -222,7 +237,7 @@ public class SchemaConversionController
 		try
 		{
 			stmt = connection.createStatement();
-			String sql = convert.getDropMigrateTable();
+			String sql = driver.getDropMigrateTable();
 			stmt.execute(sql);
 		}
 		finally
@@ -243,7 +258,7 @@ public class SchemaConversionController
 	 * @throws SQLException
 	 */
 	private void createRegisterTable(Connection connection,
-			SchemaConversionHandler convert) throws SQLException
+			SchemaConversionHandler convert, SchemaConversionDriver driver) throws SQLException
 	{
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -254,7 +269,7 @@ public class SchemaConversionController
 			try
 			{
 				// select count(*) from content_migrate;
-				String sql = convert.getCheckMigrateTable();
+				String sql = driver.getCheckMigrateTable();
 				rs = stmt.executeQuery(sql);
 				if (rs.next())
 				{
@@ -263,7 +278,7 @@ public class SchemaConversionController
 			}
 			catch (SQLException sqle)
 			{
-				String sql = convert.getCreateMigrateTable();
+				String sql = driver.getCreateMigrateTable();
 				stmt.execute(sql);
 			}
 			finally
@@ -278,7 +293,7 @@ public class SchemaConversionController
 			}
 			if (nrecords == 0)
 			{
-				String sql = convert.getPopulateMigrateTable();
+				String sql = driver.getPopulateMigrateTable();
 				stmt.executeUpdate(sql);
 			}
 

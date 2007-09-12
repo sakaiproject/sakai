@@ -39,96 +39,6 @@ public class Type1BlobCollectionConversionHandler implements SchemaConversionHan
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getCreateMigrateTable()
-	 */
-	public String getCreateMigrateTable()
-	{
-		return "create table content_col_t1register ( id varchar(1024), status varchar(99) )";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getDropMigrateTable()
-	 */
-	public String getDropMigrateTable()
-	{
-		return "drop table content_col_t1register";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getCheckMigrateTable()
-	 */
-	public String getCheckMigrateTable()
-	{
-		return "select count(*) from content_col_t1register";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getPopulateMigrateTable()
-	 */
-	public String getPopulateMigrateTable()
-	{
-		return "insert into content_col_t1register (id,status) select COLLECTION_ID, 'pending' from CONTENT_COLLECTION";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getSelectNextBatch()
-	 */
-	public String getSelectNextBatch()
-	{
-		return "select id from content_col_t1register where status = 'pending' ";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getCompleteNextBatch()
-	 */
-	public String getCompleteNextBatch()
-	{
-		return "update content_col_t1register set status = 'done' where id = ? ";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getMarkNextBatch()
-	 */
-	public String getMarkNextBatch()
-	{
-		return "update content_col_t1register set status = 'locked' where id = ? ";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getSelectRecord()
-	 */
-	public String getSelectRecord()
-	{
-		return "select XML from CONTENT_COLLECTION where COLLECTION_ID = ?";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getUpdateRecord()
-	 */
-	public String getUpdateRecord()
-	{
-		return "update CONTENT_COLLECTION set XML = ? where COLLECTION_ID = ? ";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getSource(java.lang.String,
 	 *      java.sql.ResultSet)
 	 */
@@ -179,5 +89,24 @@ public class Type1BlobCollectionConversionHandler implements SchemaConversionHan
 		return false;
 
 	}
+
+	/** 
+	 * @see org.sakaiproject.content.impl.serialize.impl.conversion.SchemaConversionHandler#validate(java.lang.String, java.lang.Object, java.lang.Object)
+	 */
+	public void validate(String id, Object source, Object result) throws Exception
+	{
+		String xml = (String) source;
+		String type1 = (String) result;
+
+		SAXSerializableCollectionAccess sourceCollection = new SAXSerializableCollectionAccess();
+		SAXSerializableCollectionAccess resultCollection = new SAXSerializableCollectionAccess();
+		sourceCollection.parse(xml);
+		resultCollection.parse(type1);
+		
+		sourceCollection.check(resultCollection);
+		
+	}
+	
+	
 
 }
