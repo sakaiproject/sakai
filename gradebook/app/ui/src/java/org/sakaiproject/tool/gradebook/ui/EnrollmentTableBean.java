@@ -190,12 +190,14 @@ public abstract class EnrollmentTableBean
     public void setFirstRow(int firstRow) {
     	if (log.isDebugEnabled()) log.debug("setFirstRow from " + firstScoreRow + " to " + firstRow);
     	firstScoreRow = firstRow;
+    	setRefreshRoster(true);
     }
     public int getMaxDisplayedRows() {
         return maxDisplayedScoreRows;
     }
     public void setMaxDisplayedRows(int maxDisplayedRows) {
         maxDisplayedScoreRows = maxDisplayedRows;
+        setRefreshRoster(true);
     }
     public int getDataRows() {
         return scoreDataRows;
