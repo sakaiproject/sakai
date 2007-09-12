@@ -60,10 +60,12 @@
 				</th>
 				<td>
 					#foreach($id in $!providerCourseList)
-						$id<br />
+						#set($pSection = false)
+						#set($pSection = $!cms.getSection($id))
+						#if ($!pSection)$pSection.getTitle()#end<br />
 					#end
 					#foreach($id in $!cmRequestedCourseList)
-						$id.eid $tlang.getString("man.requested")<br />
+						$id.title $tlang.getString("man.requested")<br />
 					#end
 					#foreach($id in $!manualCourseList)
 						$id $tlang.getString("man.requested")<br />
@@ -341,7 +343,7 @@
 							<td headers="coursename">
 								#set($partSection = "")
 								#set($partSection = $participant.getSection())
-								$!partSection
+								$partSection
 							</td>
 							<td headers="id">
 								#set($partId = "")

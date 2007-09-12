@@ -19,14 +19,16 @@
 		$tlang.getString("sitegen.addcourse.foll")<br />
 	</p>
 	<ul>
-		#foreach($c in $providerCourseList)
+		#foreach($id in $providerCourseList)
 			<li>
-				$c
+				#set($pSection = false)
+				#set($pSection = $!cms.getSection($id))
+				#if ($!pSection)$pSection.getTitle()#end
 			</li>
 		#end
 		#foreach($id in $!cmRequestedCourseList)
 				<li>
-						$id.eid $tlang.getString("man.requested")<br />
+						$id.title $tlang.getString("man.requested")<br />
 				</li>
 			#end
 		#foreach($c in $manualCourseList)
@@ -39,9 +41,11 @@
 		$tlang.getString("sitegen.addcourse.you")<br />
 	</p>
 	<ul>
-		#foreach($c in $providerAddCourses)
+		#foreach($id in $providerAddCourses)
 			<li>
-				$c
+				#set($pSection = false)
+				#set($pSection = $!cms.getSection($id))
+				#if ($!pSection)$pSection.getTitle()#end
 			</li>
 		#end
 	</ul>
@@ -49,7 +53,7 @@
 			<ul>
 				## for cm request section based on course lookup
 				<li>
-						$c.eid
+						$c.title
 					</li>
 			</ul>
 		#end	

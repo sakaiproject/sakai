@@ -60,25 +60,26 @@
 		<input type="hidden" name="option" id="option" value="continue" />
 		<input type="hidden" name="eventSubmit_doSite_information" value="x" />	
 	#if ($isCourseSite)
+	 <ul>
 		#if ($!selectedProviderCourse)
 		$tlang.getString("sinfo.youare")
-		<ul>
 			#foreach ($item in $!selectedProviderCourse)
-				<li>$item 
+				<li>
+					#set($pSection = false)
+					#set($pSection = $!cms.getSection($item))
+					#if ($!pSection)$pSection.getTitle()#end
 					<!-- Remove Section -->
 					(<a href="#" onclick="javascript:submitRemoveSection('$item');">Remove</a>)
 					<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
 				</li>
 			#end
-		</ul>
 		#end
-
+  <br />
 		#if ($!cmAuthorizerSections || $!cmRequestedSections || $!manualAddNumber)
 			$tlang.getString("sinfo.requestedSections")
-			<ul>
 			#foreach ($sect in $!cmRequestedSections)
 				<li>
-			$sect.eid
+			$sect.title
                                         <!-- Remove Section -->
                                         (<a href="#" onclick="javascript:submitRemoveSection('$sect.eid');">Remove</a>)
                                         <input type="hidden" id="removeSection$sect.eid" name="removeSection$sect.eid" value="" />
@@ -102,8 +103,8 @@
 							#end
 						</li>
 				#end
-			</ul>
 		#end
+		</ul>
 	#end
 	
 	<p class="instruction">

@@ -50,7 +50,9 @@
 						#foreach($item in $!selectedProviderCourse)
 							<li>
 								<label for = "$id">
-									$item
+									#set($pSection = false)
+									#set($pSection = $!cms.getSection($item))
+									#if ($!pSection)$pSection.getTitle()#end
 									<!-- Remove Section -->
 									(<a href="#" onclick="javascript:submitRemoveSection('$item');">Remove</a>)
 									<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
@@ -61,7 +63,7 @@
 							#foreach($section in $!cmRequestedSections)
 								<li>
 									<label for = "$id">
-										$section.eid
+										$section.Title
 										<!-- Remove Section -->
 										(<a href="#" onclick="javascript:submitRemoveSection('$section.eid');">Remove</a>)
 										<input type="hidden" id="removeSection$section.eid" name="removeSection$section.eid" value="" />
@@ -72,7 +74,7 @@
 							#foreach($s in $!cmSelectedSections)
 								<li>
 									<label for = "$id">
-										$s.eid
+										$s.title
 										<!-- Remove Section -->
 										(<a href="#" onclick="javascript:submitRemoveSection('$s.eid');">Remove</a>)
 										<input type="hidden" id="removeSection$s.eid" name="removeSection$s.eid" value="" />

@@ -25,7 +25,11 @@
 				#set ($providerCourseListNum =$providerCourseListNum + 1)	
 					<tr>
 						<td headers="class">
-							<h4><label for="pcl$providerCourseListNum">$id</label></h4>
+							<h4><label for="pcl$providerCourseListNum">
+								#set($pSection = false)
+								#set($pSection = $!cms.getSection($id))
+								#if ($!pSection)$pSection.getTitle()#end
+							</label></h4>
 						</td>
 						<td headers="remove" class="screenOnly">
 							<span class="skip">$tlang.getString("sitedicla.rem")</span><input type="checkbox" name="providerClassDeletes" value="$id" id="pcl$providerCourseListNum" />
@@ -39,7 +43,7 @@
 						<td headers="class">
 							<h4>
 								<label for="cmrcl$cmRequestedCourseListNum">
-									$id.eid $tlang.getString("sitedicla.requested")
+									$id.title $tlang.getString("sitedicla.requested")
 								</label>
 							</h4>
 						</td>

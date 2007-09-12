@@ -20,11 +20,13 @@
 		$tlang.getString("newsc.youare")
 		<ul>
 			#foreach ($item in $!selectedProviderCourse)
-				<li>$item </li>
+				<li>
+					#set($pSection = false)
+					#set($pSection = $!cms.getSection($item))
+					#if ($!pSection)$pSection.getTitle()#end
+				</li>
 			#end
-		</ul>
 		#if ($!manualAddNumber)
-			<ul>
 				##for manually entered requested sites
 				#foreach ($k in [0..$manualAddNumber])
 						#set($courseFieldValues = $!fieldValues.get($k))
@@ -36,17 +38,14 @@
 							#end
 						</li>
 				#end
-			</ul>
 		#end
-		<ul>
 			#foreach ($sect in $!selectedRequestedCourse)
 				<li>
-					$sect.eid
+					$sect.title
+				</li>
 				#end
-		</ul>
-		<ul>
 			#foreach ($item in $!selectedAuthorizerCourse)
-			<li>$item.eid </li>
+			<li>$item.title </li>
 			#end
 		</ul>
 		<br />

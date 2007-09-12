@@ -44,7 +44,9 @@
 				</p>	
 				#foreach($id in $!providerCourseList)
 					<p class="indnt2">
-						$id
+						#set($pSection = false)
+						#set($pSection = $!cms.getSection($id))
+						#if ($!pSection)$pSection.getTitle()#end
 					</p>
 				#end
 				#foreach($id in $!manualCourseList)
@@ -56,13 +58,16 @@
 			#if ($!editSite)
 							#foreach($section in $!cmRequestedSections)
 								<p class="indnt2">
-										$section.eid <span class="highlight">$tlang.getString("man.requested")</span>
+										$section.title <span class="highlight">$tlang.getString("man.requested")</span>
 								</p>
 							#end
 				#end
 				<p class="instruction">$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this")</p> 
 					#foreach ($item in $!selectedProviderCourse)
-						<p class="indnt2">$item 
+						<p class="indnt2">
+							#set($pSection = false)
+							#set($pSection = $!cms.getSection($item))
+							#if ($!pSection)$pSection.getTitle()#end
 							<!-- Remove Section -->
 							(<a href="#" onclick="javascript:submitRemoveSection('$item');">Remove</a>)
 							<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
@@ -71,7 +76,7 @@
 						#if (!$!editSite)
 							#foreach($section in $!cmRequestedSections)
 								<p class="indnt2">
-										$section.eid
+										$section.title
 										<!-- Remove Section -->
 										(<a href="#" onclick="javascript:submitRemoveRequestedSection('$section.eid');">Remove</a>)
 										<input type="hidden" id="removeRequestedSection$section.eid" name="removeRequestedSection$section.eid" value="" />
@@ -80,7 +85,7 @@
 						#else
 							#foreach($s in $!cmSelectedSections)
 								<p class="indnt2">
-										$s.eid
+										$s.title
 										<!-- Remove Section -->
 										(<a href="#" onclick="javascript:submitRemoveSelectedSection('$s.eid');">Remove</a>)
 										<input type="hidden" id="removeSelectedSection$s.eid" name="removeSelectedSection$s.eid" value="" />

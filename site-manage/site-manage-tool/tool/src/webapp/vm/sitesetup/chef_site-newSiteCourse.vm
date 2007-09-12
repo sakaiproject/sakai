@@ -150,14 +150,16 @@ function redirectBasedOnSelection(){
 		</h4>	
 		$tlang.getString("nscourse.already")
 		<ul>
-			#foreach($id in $!providerCourseList)
+		#foreach($id in $!providerCourseList)
 				<li>
-						$id
+					#set($pSection = false)
+					#set($pSection = $!cms.getSection($id))
+					#if ($!pSection)$pSection.getTitle()#end
 				</li>
 			#end
 			#foreach($id in $!cmRequestedCourseList)
 				<li>
-						$id.eid $tlang.getString("man.requested")<br />
+						$id.title $tlang.getString("man.requested")<br />
 				</li>
 			#end
 			#foreach($id in $!manualCourseList)
@@ -228,7 +230,7 @@ function redirectBasedOnSelection(){
 					<table class="listHier lines nolines specialLink" cellpadding="0" cellspacing="0" >
 					<tr>	
 					<th colspan="2">
-					$courseObject.eid : $courseObject.title 
+					$courseObject.title 
 					#if ($!courseObject.courseOfferingObjects.size() > 1)
 						(cross-listed)
 						#set($crosslisted=1)	
@@ -278,8 +280,7 @@ function redirectBasedOnSelection(){
 								/>
 								</td>
 								<td>
- 								<label for="course$courseNumber">
-									$validator.escapeHtml($sectionObject.eid) : $sectionObject.title, $sectionObject.getCategoryDescription()</label>
+ 								<label for="course$courseNumber">$sectionObject.title: $sectionObject.getCategoryDescription()</label>
 								#if ($sectionObject.attached)
 									<span class="instruction">($tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">$tlang.getString("nscourse.select_anyways")</a>)</span>
 								#end
