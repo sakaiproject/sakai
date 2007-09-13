@@ -1336,6 +1336,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 	                Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM);
 	                q.setParameterList("membershipList", membershipList);
 	                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+	                q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
 	                return q.uniqueResult();
 	            }
 	        };

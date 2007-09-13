@@ -222,7 +222,7 @@
              topic.draft = false and
              messages.draft = false and
              messages.deleted = false and
-             (((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and pl.name = membershipItem.permissionLevelName) or
+             (((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
                      membershipItem.permissionLevel = pl.id)  and
                (pl.read = true and (pl.moderatePostings = false or 
                               		messages.approved = true or
@@ -252,7 +252,7 @@
              messages.deleted = false and
              f.draft = false and
              topic.draft = false and
-             (((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and pl.name = membershipItem.permissionLevelName) or
+             (((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
                      membershipItem.permissionLevel = pl.id)  and
                (pl.read = true and (pl.moderatePostings = false or 
                               		messages.approved = true or
@@ -278,7 +278,7 @@
              messages.deleted = false and
              f.draft = false and
              topic.draft = false and
-             (((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and pl.name = membershipItem.permissionLevelName) or
+             (((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
                      membershipItem.permissionLevel = pl.id)  and
                (pl.read = true and (pl.moderatePostings = false or 
                               		messages.approved = true or
@@ -306,7 +306,7 @@
              messages.deleted = false and
              f.draft = false and
              topic.draft = false and
-             (((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and pl.name = membershipItem.permissionLevelName) or
+             (((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
                      membershipItem.permissionLevel = pl.id)  and
                (pl.read = true and (pl.moderatePostings = false or 
                               		messages.approved = true or
@@ -395,7 +395,7 @@
              membershipItem.name in ( :membershipList ) and
              message.deleted = false and
              message.approved = null and
-             ((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and 
+             ((pl.typeUuid != :customTypeUuid and 
                pl.name = membershipItem.permissionLevelName) or
               membershipItem.permissionLevel = pl.id) and
              pl.moderatePostings = true

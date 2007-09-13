@@ -79,7 +79,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
 	  LOG.info("init()");           
 	  try {
 	  	//  run ddl 
-		  if (autoDdl.booleanValue()){
+		  /*if (autoDdl.booleanValue()){
 			  try
 			  {                        
 				  sqlService.ddl(this.getClass().getClassLoader(), "mfr");
@@ -88,7 +88,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
 			  {
 				  LOG.warn(this + ".init(): ", t);
 			  }
-		  }
+		  }*/
 		  loadInitialDefaultPermissionType();
 	  }
 	  catch (Exception e) {

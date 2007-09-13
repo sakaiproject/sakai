@@ -351,8 +351,12 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.DELETE_ANY, new Boolean(true));
 		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
 		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(true));
-
-		  return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER, typeUuid, mask);
+		  
+		  PermissionLevel permLevel = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER, typeUuid, mask);
+		  
+		  savePermissionLevel(permLevel);
+		  
+		  return permLevel;
 	  }
 	  else
 		  return level;
@@ -390,7 +394,10 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(true));
 		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
 
-		  return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_AUTHOR, typeUuid, mask);
+		  PermissionLevel permLevel = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_AUTHOR, typeUuid, mask);
+		  savePermissionLevel(permLevel);
+		  
+		  return permLevel;
 	  }
 	  else
 		  return level;
@@ -427,7 +434,11 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(true));
 		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
 
-		  return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR, typeUuid, mask);
+		  PermissionLevel permLevel = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR, typeUuid, mask);
+		  
+		  savePermissionLevel(permLevel);
+		  
+		  return permLevel;
 	  }
 	  else
 		  return level;
@@ -464,7 +475,11 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
 		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
 
-		  return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER, typeUuid, mask);
+		  PermissionLevel permLevel = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER, typeUuid, mask);
+		  
+		  savePermissionLevel(permLevel);
+		  
+		  return permLevel;
 	  }
 	  else
 		  return level;
@@ -502,7 +517,11 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
 		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
 		  
-		  return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR, typeUuid, mask);
+		  PermissionLevel permLevel = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR, typeUuid, mask);
+		  
+		  savePermissionLevel(permLevel);
+		  
+		  return permLevel;
 	  }
 	  else
 		  return level;	
@@ -539,7 +558,11 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
 		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
 
-		  return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE, typeUuid, mask);
+		  PermissionLevel permLevel = createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE, typeUuid, mask);
+		  
+		  savePermissionLevel(permLevel);
+		  
+		  return permLevel;
 	  }
 	  else
 		  return level;

@@ -283,7 +283,7 @@
 		    topic.moderated = true and
 		    membershipItem.name in ( :membershipList ) and
 		    pl.moderatePostings = true and
-		    ((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and 
+		    ((pl.typeUuid != :customTypeUuid and 
                pl.name = membershipItem.permissionLevelName) or
               membershipItem.permissionLevel = pl.id)
 		]]>

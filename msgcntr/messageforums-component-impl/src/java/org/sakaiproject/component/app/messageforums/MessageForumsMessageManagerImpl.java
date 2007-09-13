@@ -148,6 +148,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
                     q.setParameterList("siteList", siteList);
                     q.setParameterList("roleList", roleList);
                     q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                    q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
                    return q.list();
                }
     	};
@@ -166,7 +167,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
                    Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForAllSites");
                    q.setParameterList("siteList", siteList);
                    q.setParameterList("roleList", roleList);
-                   	q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
                    return q.list();
                }
     	};
@@ -186,7 +188,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
                    Query q = session.getNamedQuery("findDiscussionForumMessageCountsForGroupedSitesByTopic");
                    q.setParameterList("siteList", siteList);
                    q.setParameterList("roleList", roleList);
-                   	q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
                    return q.list();
                }
     	};
@@ -207,6 +210,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
                    q.setParameterList("siteList", siteList);
                    q.setParameterList("roleList", roleList);
                    	q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   	q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
                    return q.list();
                }
     	};
@@ -1104,6 +1108,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 				Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER);
 				q.setParameter("contextId", getContextId(), Hibernate.STRING);
 				q.setParameterList("membershipList", membershipList);
+				q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
 				
 				return q.list();
 			}
