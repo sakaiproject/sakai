@@ -656,11 +656,25 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			edit.addFunction(EVENT_RESOURCE_WRITE);
 
 			// set the filter to any site related resource
-			edit.setResourceFilter(getAccessPoint(true) + Entity.SEPARATOR + "group");
+			edit.setResourceFilter(getAccessPoint(true) + Entity.SEPARATOR + "group" + Entity.SEPARATOR);
 			// %%% is this the best we can do? -ggolden
 
 			// set the action
 			edit.setAction(new SiteEmailNotificationContent());
+			
+			NotificationEdit dbNoti = m_notificationService.addTransientNotification();
+			
+			// set functions
+			dbNoti.setFunction(EVENT_RESOURCE_ADD);
+			dbNoti.addFunction(EVENT_RESOURCE_WRITE);
+
+			// set the filter to any site related resource
+			dbNoti.setResourceFilter(getAccessPoint(true) + Entity.SEPARATOR + "group-user" + Entity.SEPARATOR);
+			// %%% is this the best we can do? -ggolden
+
+			// set the action
+			edit.setAction(new DropboxNotification());
+			
 
 			StringBuilder buf = new StringBuilder();
 			if (m_bodyVolumes != null)

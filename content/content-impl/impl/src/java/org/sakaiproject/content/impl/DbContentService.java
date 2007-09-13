@@ -272,6 +272,8 @@ public class DbContentService extends BaseContentService
 	/** The db handler we are using. */
 	protected ContentServiceSql contentServiceSql;
 
+	private boolean addNewColumnsCompleted = false;
+
 	public void setDatabaseBeans(Map databaseBeans)
 	{
 		this.databaseBeans = databaseBeans;
@@ -400,16 +402,23 @@ public class DbContentService extends BaseContentService
 	
 	protected boolean filesizeColumnExists() 
 	{
-		String sql = contentServiceSql.getFilesizeColumnExistsSql();
-		
-		List list = m_sqlService.dbRead(sql);
-		
-		return list != null && ! list.isEmpty();
+		boolean ok = false;
+		if(m_sqlService.getVendor().toLowerCase().contains("hsql"))
+		{
+			ok = m_autoDdl || addNewColumnsCompleted;
+		}
+		else
+		{
+			String sql = contentServiceSql.getFilesizeColumnExistsSql();
+			List list = m_sqlService.dbRead(sql);
+			ok = list != null && ! list.isEmpty();
+		}
+		return ok;
 	}
 	
 	public boolean readyToUseFilesizeColumn()
 	{
-		if(! filesizeColumnExists)
+		if(!filesizeColumnExists)
 		{
 			// do nothing
 		}
@@ -2531,10 +2540,9 @@ public class DbContentService extends BaseContentService
 		String sql6 = contentServiceSql.getAddContextIndexSql(m_resourceDeleteTableName);
 		boolean ok6 = m_sqlService.dbWrite(sql6);
 		
-		System.out.println(m_resourceTableName + ": AddFilesizeColumn == " + ok1 + " AddContextColumn == " + ok2 + " AddContextIndex == " + ok3);
-		System.out.println(m_resourceDeleteTableName + ": AddFilesizeColumn == " + ok4 + " AddContextColumn == " + ok5 + " AddContextIndex == " + ok6);
+		addNewColumnsCompleted = (ok1 && ok2 && ok3 && ok4 && ok5 && ok6);
 		
-		return (ok1 && ok2 && ok3 && ok4 && ok5 && ok6);
+		return addNewColumnsCompleted;
 	}
 	
 	public void populateNewColumns()

@@ -192,7 +192,7 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	 */
 	public String getAddFilesizeColumnSql(String table)
 	{
-		return "alter table " + table + " add FILE_SIZE NUMBER(18) default null";
+		return "alter table " + table + " add FILE_SIZE BIGINT default null";
 	}
 
 	/**
@@ -200,7 +200,7 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	 */
 	public String getAddContextColumnSql(String table)
 	{
-		return "alter table " + table + " add CONTEXT VARCHAR2(99) default null";
+		return "alter table " + table + " add CONTEXT VARCHAR(99) default null";
 	}
 
 	/**
