@@ -371,7 +371,7 @@
 								#if ($gradeType == 1)
 									<p class="shorttext">
 										<label for="grade">$tlang.getString("gen.gra2")</label>
-										<input type="hidden" name="$name_grade" value="ungraded" />
+										<input type="hidden" name="$name_grade" value="$tlang.getString('gen.nograd')" />
 										<span class="highlight"> $tlang.getString("gen.nograd")</span>
 									</p>	
 								#elseif ($gradeType == 2)

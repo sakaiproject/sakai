@@ -2000,10 +2000,10 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("userSubmissions", state.getAttribute(USER_SUBMISSIONS));
 			
 			// ever set the default grade for no-submissions
-			String noSubmissionDefaultGrade = assignment.getProperties().getProperty(GRADE_NO_SUBMISSION_DEFAULT_GRADE);
-			if (noSubmissionDefaultGrade != null)
+			String defaultGrade = assignment.getProperties().getProperty(GRADE_NO_SUBMISSION_DEFAULT_GRADE);
+			if (defaultGrade != null)
 			{
-				context.put("noSubmissionDefaultGrade", noSubmissionDefaultGrade);
+				context.put("defaultGrade", defaultGrade);
 			}
 		}
 		catch (IdUnusedException e)
@@ -2996,7 +2996,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				if (typeOfGrade == 1)
 				{
-					sEdit.setGrade("no grade");
+					sEdit.setGrade(rb.getString("gen.nograd"));
 				}
 				else
 				{
@@ -8922,6 +8922,98 @@ public class AssignmentAction extends PagedResourceActionII
 	        toolSession.setAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID, collectionId);
 			doAttachments(data);
 		}
+	}
+	
+	/**
+	 * Set default score for all ungraded non electronic submissions
+	 * @param data
+	 */
+	public void doSet_defaultNotGradedNonElectronicScore(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ()); 
+		ParameterParser params = data.getParameters();
+		
+		String grade = StringUtil.trimToNull(params.getString("defaultGrade"));
+		if (grade == null)
+		{
+			addAlert(state, rb.getString("plespethe2"));
+		}
+		
+		String assignmentId = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
+		try
+		{
+			// record the default grade setting for no-submission
+			AssignmentEdit aEdit = AssignmentService.editAssignment(assignmentId); 
+			aEdit.getPropertiesEdit().addProperty(GRADE_NO_SUBMISSION_DEFAULT_GRADE, grade);
+			AssignmentService.commitEdit(aEdit);
+			
+			Assignment a = AssignmentService.getAssignment(assignmentId);
+			if (a.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
+			{
+				//for point-based grades
+				validPointGrade(state, grade);
+				
+				if (state.getAttribute(STATE_MESSAGE) == null)
+				{
+					int maxGrade = a.getContent().getMaxGradePoint();
+					try
+					{
+						if (Integer.parseInt(scalePointGrade(state, grade)) > maxGrade)
+						{
+							if (state.getAttribute(GRADE_GREATER_THAN_MAX_ALERT) == null)
+							{
+								// alert user first when he enters grade bigger than max scale
+								addAlert(state, rb.getString("grad2"));
+								state.setAttribute(GRADE_GREATER_THAN_MAX_ALERT, Boolean.TRUE);
+							}
+							else
+							{
+								// remove the alert once user confirms he wants to give student higher grade
+								state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
+							}
+						}
+					}
+					catch (NumberFormatException e)
+					{
+						alertInvalidPoint(state, grade);
+					}
+				}
+				
+				if (state.getAttribute(STATE_MESSAGE) == null)
+				{
+					grade = scalePointGrade(state, grade);
+				}
+			}
+			
+			
+			if (grade != null && state.getAttribute(STATE_MESSAGE) == null)
+			{
+				// get the user list
+				List submissions = AssignmentService.getSubmissions(a);
+				
+				for (int i = 0; i<submissions.size(); i++)
+				{
+					// get the submission object
+					AssignmentSubmission submission = (AssignmentSubmission) submissions.get(i);
+					if (submission.getSubmitted() && !submission.getGraded())
+					{
+						// update the grades for those existing non-submissions
+						AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(submission.getReference());
+						sEdit.setGrade(grade);
+						sEdit.setGraded(true);
+						AssignmentService.commitEdit(sEdit);
+					}
+				}
+			}
+			
+		}
+		catch (Exception e)
+		{
+			Log.warn("chef", e.toString());
+		
+		}
+		
+		
 	}
 	
 	/**
