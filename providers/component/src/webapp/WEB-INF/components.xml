@@ -54,38 +54,8 @@
 	</bean>
 -->
 
-<!--    Uncomment and configure to use the JLDAP Provider.
-                Default values below point to a test account at nldap.com (free ldap test server). 
-                To login with the nldap.com test account -      username: ldap-admin 
-                                                                password: admin
-                
-                 Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
-
-	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
-			class="edu.amc.sakai.user.JLDAPDirectoryProvider"
-			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
-		<property name="ldapHost"><value>nldap.com</value></property>
-		<property name="ldapPort"><value>389</value></property> 
-		<property name="secureConnection"><value>false</value></property>
-		<property name="keystoreLocation"><value></value></property>
-		<property name="keystorePassword"><value></value></property>
-		<property name="basePath"><value>ou=sakai-ldap,ou=user,o=novell</value></property>
-		<property name="operationTimeout"><value>5000</value></property>
-		<property name="cacheTTL"><value>18000000</value></property>
-		<property name="attributeMappings">
-			<map>
-				<entry key="login"><value>cn</value></entry>    
-				<entry key="distinguishedName"><value>dn</value></entry>        
-				<entry key="firstName"><value>givenName</value></entry> 
-				<entry key="lastName"><value>sn</value></entry> 
-				<entry key="email"><value>mail</value></entry>  
-				<entry key="groupMembership"><value>groupMembership</value></entry>     
-			</map>
-		</property>
-    </bean>
--->
+<!-- Uncomment and configure to use the JLDAPDirectoryProvider -->
+	<!--  import resource="jldap-beans.xml" / -->
 
 <!--	Uncomment and configure to use the Kerberos Provider.
 

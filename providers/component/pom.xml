@@ -28,7 +28,7 @@
       <version>${sakai.version}</version>
     </dependency>
 <!-- -->
-<!-- Needed for the JLDAP Provider
+<!-- Needed for the JLDAP Provider 
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-jldap-provider</artifactId>
@@ -40,7 +40,7 @@
 			<artifactId>ldap</artifactId> 
  			<version>2005.03.29</version> 
 		</dependency> 
-	 	-->
+	--> 	
 <!-- Needed for the Kerberos Provider 
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
