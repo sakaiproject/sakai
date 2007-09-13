@@ -28,36 +28,37 @@ doubleDeep = true;
 <script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
 </script>
 
-Import Citations
+$tlang.getString("import.title")
 <p />
-directions here
+$tlang.getString("import.directions")
 <p />
 <form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post" 
 	  enctype="multipart/form-data" >
     <input name="sakai_action" id="sakai_action" value="" type="hidden" />
-	<input type="button" value="Import" id="import1"
+	<input type="button" value='$tlang.getString("label.import")' id="import1"
 	       onclick="importCitations('$FORM_NAME');"/>
-	<input type="button" value="Cancel" id="cancel1" type="button" 
+	<input type="button" value='$tlang.getString("label.cancel")' id="cancel1" type="button" 
 	       onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>
 	<p />
 	<span id="risFileUpload">
-	Import File From: <input name="risupload" id="risupload" type="file" /> 
+		$tlang.getString("import.file"): 
+		<input name="risupload" id="risupload" type="file" /> 
 	</span>
 	<span id="importingMessage" style="display: none;">
 	  <img src="/library/image/sakai/spinner.gif" alt="importing"> 
-      Importing
+      $tlang.getString("label.importing")
 	</span>
 
 	<p />
 	<span id="risTextUpload">
-  	  Import RIS Formatted Data from the Following Text:
+		$tlang.getString("import.ristext"):
 	  <p />
 	  <textarea cols="80" rows="4" name="ristext" id="ristext"></textarea>
 	</span>
     <p />
-	<input type="button" value="Import" id="import2"
+	<input type="button" value='$tlang.getString("label.import")' id="import2"
 	       onclick="importCitations('$FORM_NAME');"/>
-	<input type="button" value="Cancel" id="cancel2" type="button"
+	<input type="button" value='$tlang.getString("label.cancel")' id="cancel2" type="button"
 	       onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>
 	
 </form>
