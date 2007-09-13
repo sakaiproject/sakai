@@ -281,6 +281,12 @@ public class DbCalendarServiceSerializationTest extends TestCase
 				// TODO Auto-generated method stub
 				return false;
 			}
+
+			public Connection dbReadLock(String sql, SqlReader reader)
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
 			
 		};
 		timeService = new TimeService() {
