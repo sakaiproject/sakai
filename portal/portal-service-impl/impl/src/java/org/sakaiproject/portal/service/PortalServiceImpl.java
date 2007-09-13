@@ -345,7 +345,7 @@ public class PortalServiceImpl implements PortalService
 	 */
 	public void removeRenderEngine(String context, PortalRenderEngine vengine)
 	{
-		renderEngines.put(context, null);
+		renderEngines.remove(context);
 	}
 
 	/*
@@ -427,7 +427,7 @@ public class PortalServiceImpl implements PortalService
 			if (ph != null)
 			{
 				ph.deregister(portal);
-				handlerMap.put(urlFragment, null);
+				handlerMap.remove(urlFragment);
 				log.warn("Handler Present on  " + urlFragment + " " + ph
 						+ " will be removed ");
 			}
@@ -475,7 +475,7 @@ public class PortalServiceImpl implements PortalService
 	public void removePortal(Portal portal)
 	{
 		String portalContext = portal.getPortalContext();
-		portals.put(portalContext, null);
+		portals.remove(portalContext);
 	}
 
 	/*
