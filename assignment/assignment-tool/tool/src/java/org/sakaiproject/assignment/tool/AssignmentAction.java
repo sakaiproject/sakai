@@ -4223,6 +4223,9 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		String assignmentId = params.getString("assignmentId");
 		String assignmentContentId = params.getString("assignmentContentId");
+		
+		// whether this is an editing which changes non-electronic assignment to any other type?
+		boolean bool_change_from_non_electronic = false;
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
@@ -4231,6 +4234,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 			// Assignment
 			AssignmentEdit a = getAssignmentEdit(state, assignmentId);
+			
+			bool_change_from_non_electronic = change_from_non_electronic(state, assignmentId, assignmentContentId, ac);
 
 			// put the names and values into vm file
 			String title = (String) state.getAttribute(NEW_ASSIGNMENT_TITLE);
@@ -4369,6 +4374,32 @@ public class AssignmentAction extends PagedResourceActionII
 						HashSet<String> addSubmissionUserIdSet = (HashSet<String>) getAllowAddSubmissionUsersIdSet(AssignmentService.allowAddSubmissionUsers(a.getReference()));	
 						addRemoveSubmissionsForNonElectronicAssignment(state, submissions, addSubmissionUserIdSet, new HashSet(), a);
 					}
+					else if (bool_change_from_non_electronic)
+					{
+						// not non_electronic type any more
+						List submissions = AssignmentService.getSubmissions(a);
+						if (submissions != null && submissions.size() >0)
+						{
+							// assignment already exist and with submissions
+							for (Iterator iSubmissions = submissions.iterator(); iSubmissions.hasNext();)
+							{
+								AssignmentSubmission s = (AssignmentSubmission) iSubmissions.next();
+								try
+								{
+									AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(s.getReference());
+									sEdit.setSubmitted(false);
+									sEdit.setTimeSubmitted(null);
+									AssignmentService.commitEdit(sEdit);
+								}
+								catch (Exception e)
+								{
+									Log.debug("chef", this + e.getMessage() + s.getReference());
+								}
+							}
+						}
+								
+					}
+						
 
 					// add the due date to schedule if the schedule exists
 					integrateWithCalendar(state, a, title, dueTime, checkAddDueTime, oldDueTime, aPropertiesEdit);
@@ -4386,7 +4417,7 @@ public class AssignmentAction extends PagedResourceActionII
 						addAlert(state, rb.getString("addtogradebook.illegalPoints"));
 					}
 	
-				} // if
+				} //if
 
 			} // if
 
@@ -4396,6 +4427,25 @@ public class AssignmentAction extends PagedResourceActionII
 		setDefaultSort(state);
 		
 	} // doPost_assignment
+
+	/**
+	 * 
+	 */
+	private boolean change_from_non_electronic(SessionState state, String assignmentId, String assignmentContentId, AssignmentContentEdit ac) 
+	{
+		// whether this is an editing which changes non-electronic assignment to any other type?
+		if (StringUtil.trimToNull(assignmentId) != null && StringUtil.trimToNull(assignmentContentId) != null)
+		{
+			// editing
+			if (ac.getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION
+					&& ((Integer) state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE)).intValue() != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+			{
+				// changing from non-electronic type
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * default sorting
