@@ -39,11 +39,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,17 +48,14 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
-import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.LockManager;
 import org.sakaiproject.content.impl.serialize.impl.ByteStorageConversion;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.api.serialize.EntityReaderHandler;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -71,7 +65,10 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.util.BaseDbBinarySingleStorage;
+import org.sakaiproject.util.BaseDbDualSingleStorage;
 import org.sakaiproject.util.BaseDbSingleStorage;
+import org.sakaiproject.util.DbSingleStorage;
 import org.sakaiproject.util.EntityReaderAdapter;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.Xml;
@@ -304,25 +301,37 @@ public class DbContentService extends BaseContentService
 	{
 		if ( m_sqlService != null ) {
 			setContentServiceSql(m_sqlService.getVendor());
-			try {
-			validateUTF8Db();
-			} catch ( Exception ex ) {
-				M_log.fatal("Check on Database Failed ",ex);
-				M_log.fatal("===========================================================");
-				M_log.fatal("STOP \n" +
-						"  The connection from this instance of Sakai to the database\n" +
-						"  has been tested and found to corrupt UTF-8 Data. \n" +
-						"  In order for Sakai to operate correctly you must ensure that your \n" +
-						"  database setup is correct for UTF-8 data. This includes both the \n" +
-						"  JDBC connection to the database and the underlying storage in the \n" +
-						"  database.\n" +
-						"  The test that was performed on your database create a table\n" +
-						"  wrote some data to that table and read it back again. On reading \n" +
-						"  that data back it found some form of corruption, reported above.\n" +
-						"\n" +
-						" More information on database setup for sakai can be found at \n" +
-						" http://bugs.sakaiproject.org/confluence/display/DOC/Install+Guide+-+DB+(2.4)");
-				System.exit(-10);
+			try
+			{
+				validateUTF8Db();
+			}
+			catch (Exception ex)
+			{
+				M_log.fatal("Check on Database Failed ", ex);
+				M_log
+						.fatal("===========================================================");
+				M_log
+						.fatal("WARNING \n"
+								+ "  The connection from this instance of Sakai to the database\n"
+								+ "  has been tested and found to corrupt UTF-8 Data. \n"
+								+ "  In order for Sakai to operate correctly you must ensure that your \n"
+								+ "  database setup is correct for UTF-8 data. This includes both the \n"
+								+ "  JDBC connection to the database and the underlying storage in the \n"
+								+ "  database.\n"
+								+ "  The test that was performed on your database create a table\n"
+								+ "  wrote some data to that table and read it back again. On reading \n"
+								+ "  that data back it found some form of corruption, reported above.\n"
+								+ "\n"
+								+ " More information on database setup for sakai can be found at \n"
+								+ " http://bugs.sakaiproject.org/confluence/display/DOC/Install+Guide+-+DB+(2.4) \n"
+								+ "\n"
+								+ " Sakai Startup will continue but you might want to address this issue ASAP.\n");
+			}
+			if ( migrateData ) {
+				M_log.info("Migration of data to the Binary format will be performed by this node ");
+			} else {
+				M_log.info("Migration of data to the Binary format will NOT be performed by this node ");
+				
 			}
 		}
 		try
@@ -384,6 +393,9 @@ public class DbContentService extends BaseContentService
 	}
 
 	protected long filesizeColumnCheckExpires = 0L;
+
+	public boolean migrateData = true;
+	
 	protected static final long TWENTY_MINUTES = 20L * 60L * 1000L;
 	
 	protected boolean filesizeColumnExists() 
@@ -681,13 +693,13 @@ public class DbContentService extends BaseContentService
 	protected class DbStorage implements Storage
 	{
 		/** A storage for collections. */
-		protected BaseDbSingleStorage m_collectionStore = null;
+		protected DbSingleStorage m_collectionStore = null;
 
 		/** A storage for resources. */
-		protected BaseDbSingleStorage m_resourceStore = null;
+		protected DbSingleStorage m_resourceStore = null;
 
 		/** htripath- Storage for resources delete */
-		protected BaseDbSingleStorage m_resourceDeleteStore = null;
+		protected DbSingleStorage m_resourceDeleteStore = null;
 
 		protected ContentHostingHandlerResolverImpl resolver = null;
 
@@ -710,21 +722,179 @@ public class DbContentService extends BaseContentService
 				this.resolver.setCollectionUser(collectionUser);
 			}
 			
+			Connection connection = null;
+			Statement statement = null;
+			ResultSet rs = null;
+			boolean binaryCollection = false;
+			boolean xmlCollection = true;
+			boolean binaryResource = false;
+			boolean xmlResource = true;
+			boolean binaryDelete = false;
+			boolean xmlDelete = true;
+			try {
+				connection = m_sqlService.borrowConnection();
+				statement = connection.createStatement();
+				try {
+					statement.execute("select BINARY_ENTITY from CONTENT_COLLECTION where COLLECTION_ID = 'does-not-exist' " );
+					binaryCollection = true;
+				} catch ( Exception ex ) {
+					binaryCollection = false;
+				}
+				try {
+					statement.execute("select XML from CONTENT_COLLECTION where COLLECTION_ID = 'does-not-exist' ");
+					xmlCollection = true;
+				} catch ( Exception ex ) {
+					xmlCollection = false;
+				}
+				
+				try {
+					statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' " );
+					binaryResource = true;
+				} catch ( Exception ex ) {
+					binaryResource = false;
+				}
+				try {
+					statement.execute("select XML from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' ");
+					xmlResource = true;
+				} catch ( Exception ex ) {
+					xmlResource = false;
+				}
+				try {
+					statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' " );
+					binaryDelete = true;
+				} catch ( Exception ex ) {
+					binaryDelete = false;
+				}
+				try {
+					statement.execute("select XML from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' ");
+					xmlDelete= true;
+				} catch ( Exception ex ) {
+					xmlDelete = false;
+				}
+				
+				if ( !migrateData && binaryCollection ) {
+					rs = statement.executeQuery("select count(*) from CONTENT_COLLECTION where BINARY_ENTITY IS NOT NULL ");
+					int n = 0;
+					if ( rs.next() ) {
+						n = rs.getInt(1);
+					}
+					if ( n != 0 ) {
+						M_log.fatal("\n" +
+								"There are migrated content collection entries in the \n" +
+								"BINARY_ENTITY column  of CONTENT_COLLECTION you must ensure that this \n" +
+								"data is not required and set all entries to null before staring \n" +
+								"up with migrate data disabled. Failure to do this could loose \n" +
+								"updates since this database was upgraded \n");
+						M_log.fatal("STOP ============================================");
+						System.exit(-10);
+					}
+				}
+				if ( !migrateData && binaryResource ) {
+					rs = statement.executeQuery("select count(*) from CONTENT_RESOURCE where BINARY_ENTITY IS NOT NULL ");
+					int n = 0;
+					if ( rs.next() ) {
+						n = rs.getInt(1);
+					}
+					if ( n != 0 ) {
+						M_log.fatal("\n" +
+								"There are migrated content collection entries in the \n" +
+								"BINARY_ENTITY column  of CONTENT_RESOURCE you must ensure that this \n" +
+								"data is not required and set all entries to null before staring \n" +
+								"up with migrate data disabled. Failure to do this could loose \n" +
+								"updates since this database was upgraded \n");
+						M_log.fatal("STOP ============================================");
+						System.exit(-10);
+					}
+				}
+				if ( !migrateData && binaryResource ) {
+					rs = statement.executeQuery("select count(*) from CONTENT_RESOURCE_DELETE where BINARY_ENTITY IS NOT NULL ");
+					int n = 0;
+					if ( rs.next() ) {
+						n = rs.getInt(1);
+					}
+					if ( n != 0 ) {
+						M_log.fatal("\n" +
+								"There are migrated content collection entries in the \n" +
+								"BINARY_ENTITY column  of CONTENT_RESOURCE_DELETE you must ensure that this \n" +
+								"data is not required and set all entries to null before staring \n" +
+								"up with migrate data disabled. Failure to do this could loose \n" +
+								"updates since this database was upgraded \n");
+						M_log.fatal("STOP ============================================");
+						System.exit(-10);
+					}
+				}
+				
+			}
+			catch (SQLException e)
+			{
+				M_log.warn("Unable to get database setatemnt ",e);
+				
+			} finally {
+				try { statement.close(); } catch ( Exception ex ) {}
+				m_sqlService.returnConnection(connection);
+			}
+			
+			
 
-			// build the collection store - a single level store
-			m_collectionStore = new BaseDbSingleStorage(m_collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
-					collectionUser, m_sqlService);
+			if (migrateData && binaryCollection && xmlCollection) {
+				// build the collection store - a single level store
+				m_collectionStore = new BaseDbDualSingleStorage(m_collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
+						collectionUser, m_sqlService);
+				
+			} else if ( migrateData && binaryCollection) {
+				// build the collection store - a single level store
+				m_collectionStore = new BaseDbBinarySingleStorage(m_collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
+						collectionUser, m_sqlService);
+				
+			} else {
+				// build the collection store - a single level store
+				m_collectionStore = new BaseDbSingleStorage(m_collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
+						collectionUser, m_sqlService);
+				
+			}
 
-			// build the resources store - a single level store
-			m_resourceStore = new BaseDbSingleStorage(m_resourceTableName, "RESOURCE_ID", 
-					(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-					m_locksInDb, "resource", resourceUser, m_sqlService);
+			if (  migrateData && binaryResource && xmlResource) {
+				// build the resources store - a single level store
+				m_resourceStore = new BaseDbDualSingleStorage(m_resourceTableName, "RESOURCE_ID", 
+						(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
+						m_locksInDb, "resource", resourceUser, m_sqlService);
+				
+			} else if ( migrateData && binaryResource) {
+				// build the resources store - a single level store
+				m_resourceStore = new BaseDbBinarySingleStorage(m_resourceTableName, "RESOURCE_ID", 
+						(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
+						m_locksInDb, "resource", resourceUser, m_sqlService);
+				
+			}else {
+				// build the resources store - a single level store
+				m_resourceStore = new BaseDbSingleStorage(m_resourceTableName, "RESOURCE_ID", 
+						(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
+						m_locksInDb, "resource", resourceUser, m_sqlService);
+				
+			}
 
-			// htripath-build the resource for store of deleted record-single
-			// level store
-			m_resourceDeleteStore = new BaseDbSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", 
-					(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-					m_locksInDb, "resource", resourceUser, m_sqlService);
+			if ( migrateData && xmlDelete && binaryDelete ) {
+				// htripath-build the resource for store of deleted record-single
+				// level store
+				m_resourceDeleteStore = new BaseDbDualSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", 
+						(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
+						m_locksInDb, "resource", resourceUser, m_sqlService);
+				
+			} else if ( migrateData && binaryDelete) {
+				// htripath-build the resource for store of deleted record-single
+				// level store
+				m_resourceDeleteStore = new BaseDbBinarySingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", 
+						(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
+						m_locksInDb, "resource", resourceUser, m_sqlService);
+				
+			} else {
+				// htripath-build the resource for store of deleted record-single
+				// level store
+				m_resourceDeleteStore = new BaseDbSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", 
+						(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
+						m_locksInDb, "resource", resourceUser, m_sqlService);
+				
+			}
 
 		} // DbStorage
 
@@ -2643,6 +2813,23 @@ public class DbContentService extends BaseContentService
 
 			}
 		}
+
+	}
+
+	/**
+	 * @return the migrateData
+	 */
+	public boolean isMigrateData()
+	{
+		return migrateData;
+	}
+
+	/**
+	 * @param migrateData the migrateData to set
+	 */
+	public void setMigrateData(boolean migrateData)
+	{
+		this.migrateData = migrateData;
 
 	}
 }

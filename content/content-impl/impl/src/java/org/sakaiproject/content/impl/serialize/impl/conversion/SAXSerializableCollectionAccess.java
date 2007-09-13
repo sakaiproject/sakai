@@ -239,171 +239,163 @@ public class SAXSerializableCollectionAccess implements SerializableCollectionAc
 	 */
 	public void parse(String xml) throws Exception
 	{
-		if (xml.startsWith(Type1BaseContentCollectionSerializer.BLOB_ID))
+		Reader r = new StringReader(xml);
+		InputSource ss = new InputSource(r);
+
+		SAXParser p = null;
+		if (parserFactory == null)
 		{
-			type1CollectionSerializer.parse(this, xml);
+			parserFactory = SAXParserFactory.newInstance();
+			parserFactory.setNamespaceAware(false);
+			parserFactory.setValidating(false);
 		}
-		else
+		try
 		{
-			Reader r = new StringReader(xml);
-			InputSource ss = new InputSource(r);
+			p = parserFactory.newSAXParser();
+		}
+		catch (ParserConfigurationException e)
+		{
+			throw new SAXException("Failed to get a parser ", e);
+		}
+		final Map<String, Object> props = new HashMap<String, Object>();
+		saxSerializableProperties.setSerializableProperties(props);
+		p.parse(ss, new DefaultHandler()
+		{
 
-			SAXParser p = null;
-			if (parserFactory == null)
-			{
-				parserFactory = SAXParserFactory.newInstance();
-				parserFactory.setNamespaceAware(false);
-				parserFactory.setValidating(false);
-			}
-			try
-			{
-				p = parserFactory.newSAXParser();
-			}
-			catch (ParserConfigurationException e)
-			{
-				throw new SAXException("Failed to get a parser ", e);
-			}
-			final Map<String, Object> props = new HashMap<String, Object>();
-			saxSerializableProperties.setSerializableProperties(props);
-			p.parse(ss, new DefaultHandler()
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+			 *      java.lang.String, java.lang.String, org.xml.sax.Attributes)
+			 */
+			@Override
+			public void startElement(String uri, String localName, String qName,
+					Attributes attributes) throws SAXException
 			{
 
-				/*
-				 * (non-Javadoc)
-				 * 
-				 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
-				 *      java.lang.String, java.lang.String,
-				 *      org.xml.sax.Attributes)
-				 */
-				@Override
-				public void startElement(String uri, String localName, String qName,
-						Attributes attributes) throws SAXException
+				if ("property".equals(qName))
 				{
 
-					if ("property".equals(qName))
+					String name = attributes.getValue("name");
+					String enc = StringUtil.trimToNull(attributes.getValue("enc"));
+					String value = null;
+					if ("BASE64".equalsIgnoreCase(enc))
 					{
+						String charset = StringUtil.trimToNull(attributes
+								.getValue("charset"));
+						if (charset == null) charset = "UTF-8";
 
-						String name = attributes.getValue("name");
-						String enc = StringUtil.trimToNull(attributes.getValue("enc"));
-						String value = null;
-						if ("BASE64".equalsIgnoreCase(enc))
-						{
-							String charset = StringUtil.trimToNull(attributes
-									.getValue("charset"));
-							if (charset == null) charset = "UTF-8";
-
-							value = Xml.decode(charset, attributes.getValue("value"));
-						}
-						else
-						{
-							value = attributes.getValue("value");
-						}
-
-						// deal with multiple valued lists
-						if ("list".equals(attributes.getValue("list")))
-						{
-							// accumulate multiple values in a list
-							Object current = props.get(name);
-
-							// if we don't have a value yet, make a list to
-							// hold
-							// this one
-							if (current == null)
-							{
-								List values = new Vector();
-								props.put(name, values);
-								values.add(value);
-							}
-
-							// if we do and it's a list, add this one
-							else if (current instanceof List)
-							{
-								((List) current).add(value);
-							}
-
-							// if it's not a list, it's wrong!
-							else
-							{
-								log.warn("construct(el): value set not a list: " + name);
-							}
-						}
-						else
-						{
-							props.put(name, value);
-						}
+						value = Xml.decode(charset, attributes.getValue("value"));
 					}
-					else if ("collection".equals(qName))
-					{
-						id = attributes.getValue("id");
-						resourceType = ResourceType.TYPE_FOLDER;
-
-						// extract access
-						AccessMode access = AccessMode.INHERITED;
-						String access_mode = attributes.getValue("sakai:access_mode");
-						if (access_mode != null && !access_mode.trim().equals(""))
-						{
-							access = AccessMode.fromString(access_mode);
-						}
-
-						if (access == null || AccessMode.SITE == access)
-						{
-							access = AccessMode.INHERITED;
-						}
-
-						// extract release date
-						// m_releaseDate = TimeService.newTime(0);
-						String date0 = attributes.getValue("sakai:release_date");
-						if (date0 != null && !date0.trim().equals(""))
-						{
-							releaseDate = conversionTimeService.newTimeGmt(date0);
-							if (releaseDate.getTime() <= START_OF_TIME)
-							{
-								releaseDate = null;
-							}
-						}
-
-						// extract retract date
-						// m_retractDate = TimeService.newTimeGmt(9999,12,
-						// 31, 23, 59, 59, 999);
-						String date1 = attributes.getValue("sakai:retract_date");
-						if (date1 != null && !date1.trim().equals(""))
-						{
-							retractDate = conversionTimeService.newTimeGmt(date1);
-							if (retractDate.getTime() >= END_OF_TIME)
-							{
-								retractDate = null;
-							}
-						}
-
-						String shidden = attributes.getValue("sakai:hidden");
-						hidden = shidden != null && !shidden.trim().equals("")
-								&& !Boolean.FALSE.toString().equalsIgnoreCase(shidden);
-					}
-					else if ("sakai:authzGroup".equals(qName))
-					{
-						String groupRef = attributes.getValue("sakai:group_name");
-						if (groupRef != null)
-						{
-							group.add(groupRef);
-						}
-					}
-					else if ("rightsAssignment".equals(qName))
-					{
-
-					}
-					else if ("properties".equals(qName))
-					{
-
-					}
-
 					else
 					{
-						log.warn("Unexpected Element " + qName);
+						value = attributes.getValue("value");
 					}
 
+					// deal with multiple valued lists
+					if ("list".equals(attributes.getValue("list")))
+					{
+						// accumulate multiple values in a list
+						Object current = props.get(name);
+
+						// if we don't have a value yet, make a list to
+						// hold
+						// this one
+						if (current == null)
+						{
+							List values = new Vector();
+							props.put(name, values);
+							values.add(value);
+						}
+
+						// if we do and it's a list, add this one
+						else if (current instanceof List)
+						{
+							((List) current).add(value);
+						}
+
+						// if it's not a list, it's wrong!
+						else
+						{
+							log.warn("construct(el): value set not a list: " + name);
+						}
+					}
+					else
+					{
+						props.put(name, value);
+					}
 				}
-			});
-		}
+				else if ("collection".equals(qName))
+				{
+					id = attributes.getValue("id");
+					resourceType = ResourceType.TYPE_FOLDER;
+
+					// extract access
+					AccessMode access = AccessMode.INHERITED;
+					String access_mode = attributes.getValue("sakai:access_mode");
+					if (access_mode != null && !access_mode.trim().equals(""))
+					{
+						access = AccessMode.fromString(access_mode);
+					}
+
+					if (access == null || AccessMode.SITE == access)
+					{
+						access = AccessMode.INHERITED;
+					}
+
+					// extract release date
+					// m_releaseDate = TimeService.newTime(0);
+					String date0 = attributes.getValue("sakai:release_date");
+					if (date0 != null && !date0.trim().equals(""))
+					{
+						releaseDate = conversionTimeService.newTimeGmt(date0);
+						if (releaseDate.getTime() <= START_OF_TIME)
+						{
+							releaseDate = null;
+						}
+					}
+
+					// extract retract date
+					// m_retractDate = TimeService.newTimeGmt(9999,12,
+					// 31, 23, 59, 59, 999);
+					String date1 = attributes.getValue("sakai:retract_date");
+					if (date1 != null && !date1.trim().equals(""))
+					{
+						retractDate = conversionTimeService.newTimeGmt(date1);
+						if (retractDate.getTime() >= END_OF_TIME)
+						{
+							retractDate = null;
+						}
+					}
+
+					String shidden = attributes.getValue("sakai:hidden");
+					hidden = shidden != null && !shidden.trim().equals("")
+							&& !Boolean.FALSE.toString().equalsIgnoreCase(shidden);
+				}
+				else if ("sakai:authzGroup".equals(qName))
+				{
+					String groupRef = attributes.getValue("sakai:group_name");
+					if (groupRef != null)
+					{
+						group.add(groupRef);
+					}
+				}
+				else if ("rightsAssignment".equals(qName))
+				{
+
+				}
+				else if ("properties".equals(qName))
+				{
+
+				}
+
+				else
+				{
+					log.warn("Unexpected Element " + qName);
+				}
+
+			}
+		});
 	}
 
 	/**

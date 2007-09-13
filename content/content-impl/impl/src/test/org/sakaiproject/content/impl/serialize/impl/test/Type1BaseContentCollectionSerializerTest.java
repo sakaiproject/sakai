@@ -62,7 +62,7 @@ public class Type1BaseContentCollectionSerializerTest extends TestCase
 		Type1BaseContentCollectionSerializer t1 = new Type1BaseContentCollectionSerializer();
 		t1.setTimeService(new MockTimeService());
 		MockSerializableCollectionAcccess sc = new MockSerializableCollectionAcccess();
-		String serialized = t1.serialize(sc);
+		byte[] serialized = t1.serialize(sc);
 		t1.parse(sc, serialized);
 		sc.check();
 	}
@@ -76,10 +76,10 @@ public class Type1BaseContentCollectionSerializerTest extends TestCase
 		Type1BaseContentCollectionSerializer t1 = new Type1BaseContentCollectionSerializer();
 		t1.setTimeService(new MockTimeService());
 		MockSerializableCollectionAcccess sc = new MockSerializableCollectionAcccess();
-		String s = t1.serialize(sc);
+		byte[] s = t1.serialize(sc);
 		MockSerializableResourceAcccess sr = new MockSerializableResourceAcccess();
 		try {
-			String s1 = t1.serialize(sr);
+			byte[] s1 = t1.serialize(sr);
 			fail("Should have refused to serialize a ResourceAccess Object ");
 		} catch ( EntityParseException epe ) {
 			
@@ -93,11 +93,11 @@ public class Type1BaseContentCollectionSerializerTest extends TestCase
 	{
 		Type1BaseContentCollectionSerializer t1 = new Type1BaseContentCollectionSerializer();
 		
-		assertEquals(true,t1.accept(Type1BaseContentCollectionSerializer.BLOB_ID+"the rest of the  blob"));
-		assertEquals(false,t1.accept(Type1BaseContentResourceSerializer.BLOB_ID+"the rest of the  blob"));
-		assertEquals(false,t1.accept("0"+Type1BaseContentCollectionSerializer.BLOB_ID+"the rest of the  blob"));
+		assertEquals(true,t1.accept((Type1BaseContentCollectionSerializer.BLOB_ID+"the rest of the  blob").getBytes()));
+		assertEquals(false,t1.accept((Type1BaseContentResourceSerializer.BLOB_ID+"the rest of the  blob").getBytes()));
+		assertEquals(false,t1.accept(("0"+Type1BaseContentCollectionSerializer.BLOB_ID+"the rest of the  blob").getBytes()));
 		assertEquals(false,t1.accept(null));
-		assertEquals(false,t1.accept("0somethisdfjsdkjfs dfjsldkf"));
+		assertEquals(false,t1.accept(("0somethisdfjsdkjfs dfjsldkf").getBytes()));
 	}
 
 }

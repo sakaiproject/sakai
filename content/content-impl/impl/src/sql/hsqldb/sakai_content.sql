@@ -7,6 +7,7 @@ CREATE TABLE CONTENT_COLLECTION
     COLLECTION_ID VARCHAR (255) NOT NULL,
 	IN_COLLECTION VARCHAR (255),
     XML LONGVARCHAR,
+    BINARY_ENTITY VARBINARY,
     CONSTRAINT CONTENT_COLLECTION_INDEX UNIQUE (COLLECTION_ID)
  );
 
@@ -27,7 +28,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/','',
 		<property name="DAV:creationdate" value="20020401000000000"/>
 	</properties>
 </collection>
-');
+',NULL);
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/group/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
@@ -41,7 +42,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/group/','/',
 		<property name="DAV:creationdate" value="20020401000000000"/>
 	</properties>
 </collection>
-');
+',NULL);
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/public/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
@@ -55,7 +56,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/public/','/',
 		<property name="DAV:creationdate" value="20020401000000000"/>
 	</properties>
 </collection>
-');
+',NULL);
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/attachment/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
@@ -69,7 +70,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/attachment/','/',
 		<property name="DAV:creationdate" value="20020401000000000"/>
 	</properties>
 </collection>
-');
+',NULL);
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/private/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
@@ -83,7 +84,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/private/','/',
 		<property name="DAV:creationdate" value="20020401000000000"/>
 	</properties>
 </collection>
-');
+',NULL);
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/user/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
@@ -97,7 +98,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/user/','/',
 		<property name="DAV:creationdate" value="20020401000000000"/>
 	</properties>
 </collection>
-');
+',NULL);
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/group-user/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
@@ -111,7 +112,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/group-user/','/',
 			<property name="DAV:creationdate" value="20020401000000000"/>
 		</properties>
 	</collection>
-');
+',NULL);
 
 -----------------------------------------------------------------------------
 -- CONTENT_RESOURCE
@@ -126,6 +127,7 @@ CREATE TABLE CONTENT_RESOURCE
 	FILE_PATH VARCHAR (128),
 	FILE_SIZE BIGINT,
     XML LONGVARCHAR,
+    BINARY_ENTITY VARBINARY,
     CONSTRAINT CONTENT_RESOURCE_INDEX UNIQUE (RESOURCE_ID)
 -- for BINARY body, add BODY BINARY -- and drop the content_resource_body_binary tables -ggolden
 );

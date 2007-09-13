@@ -6,7 +6,8 @@ CREATE TABLE CONTENT_COLLECTION
 (
     COLLECTION_ID VARCHAR (255) NOT NULL,
 	IN_COLLECTION VARCHAR (255),
-    XML LONGTEXT
+    XML LONGTEXT,
+    BINARY_ENTITY BLOB
 );
 
 CREATE UNIQUE INDEX CONTENT_COLLECTION_INDEX ON CONTENT_COLLECTION
@@ -31,7 +32,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/','',
 		<property name="DAV:creationdate" value="20020401000000000"/>
 	</properties>
 </collection>
-');
+', NULL);
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/group/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
@@ -45,7 +46,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/group/','/',
 		<property name="DAV:creationdate" value="20020401000000000"/>
 	</properties>
 </collection>
-');
+', NULL);
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/public/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
@@ -59,7 +60,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/public/','/',
 		<property name="DAV:creationdate" value="20020401000000000"/>
 	</properties>
 </collection>
-');
+', NULL);
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/attachment/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
@@ -73,7 +74,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/attachment/','/',
 		<property name="DAV:creationdate" value="20020401000000000"/>
 	</properties>
 </collection>
-');
+', NULL);
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/private/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
@@ -87,7 +88,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/private/','/',
 		<property name="DAV:creationdate" value="20020401000000000"/>
 	</properties>
 </collection>
-');
+', NULL);
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/user/', '/',
 '<?xml version="1.0" encoding="UTF-8"?>
@@ -101,7 +102,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/user/', '/',
 		<property name="DAV:creationdate" value="20020401000000000"/>
 	</properties>
 </collection>
-');
+', NULL);
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/group-user/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
@@ -115,7 +116,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/group-user/','/',
 			<property name="DAV:creationdate" value="20020401000000000"/>
 		</properties>
 	</collection>
-');
+', NULL);
 
 -----------------------------------------------------------------------------
 -- CONTENT_RESOURCE
@@ -129,7 +130,9 @@ CREATE TABLE CONTENT_RESOURCE
 	CONTEXT VARCHAR (99),
 	FILE_PATH VARCHAR (128),
 	FILE_SIZE BIGINT,
-    XML LONGTEXT
+    XML LONGTEXT,
+    BINARY_ENTITY BLOB
+    
 -- for BLOB body, add BODY BLOB -- and drop the content_resource_body_binary tables -ggolden
 );
 

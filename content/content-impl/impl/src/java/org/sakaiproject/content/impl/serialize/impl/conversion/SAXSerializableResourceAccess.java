@@ -348,197 +348,189 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 	 */
 	public void parse(String xml) throws Exception
 	{
-		if (xml.startsWith(Type1BaseContentResourceSerializer.BLOB_ID))
+		Reader r = new StringReader(xml);
+		InputSource ss = new InputSource(r);
+
+		SAXParser p = null;
+		if (parserFactory == null)
 		{
-			type1ResourceSerializer.parse(this, xml);
+			parserFactory = SAXParserFactory.newInstance();
+			parserFactory.setNamespaceAware(false);
+			parserFactory.setValidating(false);
 		}
-		else
+		try
 		{
-			Reader r = new StringReader(xml);
-			InputSource ss = new InputSource(r);
+			p = parserFactory.newSAXParser();
+		}
+		catch (ParserConfigurationException e)
+		{
+			throw new SAXException("Failed to get a parser ", e);
+		}
+		final Map<String, Object> props = new HashMap<String, Object>();
+		saxSerializableProperties.setSerializableProperties(props);
+		p.parse(ss, new DefaultHandler()
+		{
 
-			SAXParser p = null;
-			if (parserFactory == null)
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+			 *      java.lang.String, java.lang.String, org.xml.sax.Attributes)
+			 */
+			@Override
+			public void startElement(String uri, String localName, String qName,
+					Attributes attributes) throws SAXException
 			{
-				parserFactory = SAXParserFactory.newInstance();
-				parserFactory.setNamespaceAware(false);
-				parserFactory.setValidating(false);
-			}
-			try
-			{
-				p = parserFactory.newSAXParser();
-			}
-			catch (ParserConfigurationException e)
-			{
-				throw new SAXException("Failed to get a parser ", e);
-			}
-			final Map<String, Object> props = new HashMap<String, Object>();
-			saxSerializableProperties.setSerializableProperties(props);
-			p.parse(ss, new DefaultHandler()
-			{
-
-				/*
-				 * (non-Javadoc)
-				 * 
-				 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
-				 *      java.lang.String, java.lang.String,
-				 *      org.xml.sax.Attributes)
-				 */
-				@Override
-				public void startElement(String uri, String localName, String qName,
-						Attributes attributes) throws SAXException
+				if ("property".equals(qName))
 				{
-					if ("property".equals(qName))
+
+					String name = attributes.getValue("name");
+					String enc = StringUtil.trimToNull(attributes.getValue("enc"));
+					String value = null;
+					if ("BASE64".equalsIgnoreCase(enc))
 					{
+						String charset = StringUtil.trimToNull(attributes
+								.getValue("charset"));
+						if (charset == null) charset = "UTF-8";
 
-						String name = attributes.getValue("name");
-						String enc = StringUtil.trimToNull(attributes.getValue("enc"));
-						String value = null;
-						if ("BASE64".equalsIgnoreCase(enc))
-						{
-							String charset = StringUtil.trimToNull(attributes
-									.getValue("charset"));
-							if (charset == null) charset = "UTF-8";
-
-							value = Xml.decode(charset, attributes.getValue("value"));
-						}
-						else
-						{
-							value = attributes.getValue("value");
-						}
-
-						// deal with multiple valued lists
-						if ("list".equals(attributes.getValue("list")))
-						{
-							// accumulate multiple values in a list
-							Object current = props.get(name);
-
-							// if we don't have a value yet, make a list to
-							// hold
-							// this one
-							if (current == null)
-							{
-								List values = new Vector();
-								props.put(name, values);
-								values.add(value);
-							}
-
-							// if we do and it's a list, add this one
-							else if (current instanceof List)
-							{
-								((List) current).add(value);
-							}
-
-							// if it's not a list, it's wrong!
-							else
-							{
-								log.warn("construct(el): value set not a list: " + name);
-							}
-						}
-						else
-						{
-							props.put(name, value);
-						}
-					}
-					else if ("resource".equals(qName))
-					{
-						id = attributes.getValue("id");
-						contentType = StringUtil.trimToNull(attributes
-								.getValue("content-type"));
-						contentLength = 0;
-						try
-						{
-							contentLength = Integer.parseInt(attributes
-									.getValue("content-length"));
-						}
-						catch (Exception ignore)
-						{
-						}
-						resourceType = StringUtil.trimToNull(attributes
-								.getValue("resource-type"));
-
-						String enc = StringUtil.trimToNull(attributes.getValue("body"));
-						if (enc != null)
-						{
-							byte[] decoded = null;
-							try
-							{
-								decoded = Base64.decodeBase64(enc.getBytes("UTF-8"));
-							}
-							catch (UnsupportedEncodingException e)
-							{
-								log.error(e);
-							}
-							body = new byte[(int) contentLength];
-							System.arraycopy(decoded, 0, body, 0, (int) contentLength);
-						}
-
-						filePath = StringUtil.trimToNull(attributes.getValue("filePath"));
-						AccessMode access = AccessMode.INHERITED;
-						String access_mode = attributes.getValue("sakai:access_mode");
-						if (access_mode != null && !access_mode.trim().equals(""))
-						{
-							access = AccessMode.fromString(access_mode);
-						}
-						if (access == null || AccessMode.SITE == access)
-						{
-							access = AccessMode.INHERITED;
-						}
-
-						String shidden = attributes.getValue("sakai:hidden");
-						hidden = shidden != null && !shidden.trim().equals("")
-								&& !Boolean.FALSE.toString().equalsIgnoreCase(shidden);
-
-						if (hidden)
-						{
-							releaseDate = null;
-							retractDate = null;
-						}
-						else
-						{
-							// extract release date
-							String date0 = attributes.getValue("sakai:release_date");
-							if (date0 != null && !date0.trim().equals(""))
-							{
-								releaseDate = conversionTimeService.newTimeGmt(date0);
-								if (releaseDate.getTime() <= START_OF_TIME)
-								{
-									releaseDate = null;
-								}
-							}
-
-							// extract retract date
-							String date1 = attributes.getValue("sakai:retract_date");
-							if (date1 != null && !date1.trim().equals(""))
-							{
-								retractDate = conversionTimeService.newTimeGmt(date1);
-								if (retractDate.getTime() >= END_OF_TIME)
-								{
-									retractDate = null;
-								}
-							}
-						}
-					}
-					else if ("sakai:authzGroup".equals(qName))
-					{
-						if (group == null)
-						{
-							group = new ArrayList<String>();
-						}
-						group.add(attributes.getValue("sakai:group_name"));
-					}
-					else if ("properties".equals(qName))
-					{
-
+						value = Xml.decode(charset, attributes.getValue("value"));
 					}
 					else
 					{
-						log.warn("Unexpected Element " + qName);
+						value = attributes.getValue("value");
 					}
 
+					// deal with multiple valued lists
+					if ("list".equals(attributes.getValue("list")))
+					{
+						// accumulate multiple values in a list
+						Object current = props.get(name);
+
+						// if we don't have a value yet, make a list to
+						// hold
+						// this one
+						if (current == null)
+						{
+							List values = new Vector();
+							props.put(name, values);
+							values.add(value);
+						}
+
+						// if we do and it's a list, add this one
+						else if (current instanceof List)
+						{
+							((List) current).add(value);
+						}
+
+						// if it's not a list, it's wrong!
+						else
+						{
+							log.warn("construct(el): value set not a list: " + name);
+						}
+					}
+					else
+					{
+						props.put(name, value);
+					}
 				}
-			});
-		}
+				else if ("resource".equals(qName))
+				{
+					id = attributes.getValue("id");
+					contentType = StringUtil.trimToNull(attributes
+							.getValue("content-type"));
+					contentLength = 0;
+					try
+					{
+						contentLength = Integer.parseInt(attributes
+								.getValue("content-length"));
+					}
+					catch (Exception ignore)
+					{
+					}
+					resourceType = StringUtil.trimToNull(attributes
+							.getValue("resource-type"));
+
+					String enc = StringUtil.trimToNull(attributes.getValue("body"));
+					if (enc != null)
+					{
+						byte[] decoded = null;
+						try
+						{
+							decoded = Base64.decodeBase64(enc.getBytes("UTF-8"));
+						}
+						catch (UnsupportedEncodingException e)
+						{
+							log.error(e);
+						}
+						body = new byte[(int) contentLength];
+						System.arraycopy(decoded, 0, body, 0, (int) contentLength);
+					}
+
+					filePath = StringUtil.trimToNull(attributes.getValue("filePath"));
+					AccessMode access = AccessMode.INHERITED;
+					String access_mode = attributes.getValue("sakai:access_mode");
+					if (access_mode != null && !access_mode.trim().equals(""))
+					{
+						access = AccessMode.fromString(access_mode);
+					}
+					if (access == null || AccessMode.SITE == access)
+					{
+						access = AccessMode.INHERITED;
+					}
+
+					String shidden = attributes.getValue("sakai:hidden");
+					hidden = shidden != null && !shidden.trim().equals("")
+							&& !Boolean.FALSE.toString().equalsIgnoreCase(shidden);
+
+					if (hidden)
+					{
+						releaseDate = null;
+						retractDate = null;
+					}
+					else
+					{
+						// extract release date
+						String date0 = attributes.getValue("sakai:release_date");
+						if (date0 != null && !date0.trim().equals(""))
+						{
+							releaseDate = conversionTimeService.newTimeGmt(date0);
+							if (releaseDate.getTime() <= START_OF_TIME)
+							{
+								releaseDate = null;
+							}
+						}
+
+						// extract retract date
+						String date1 = attributes.getValue("sakai:retract_date");
+						if (date1 != null && !date1.trim().equals(""))
+						{
+							retractDate = conversionTimeService.newTimeGmt(date1);
+							if (retractDate.getTime() >= END_OF_TIME)
+							{
+								retractDate = null;
+							}
+						}
+					}
+				}
+				else if ("sakai:authzGroup".equals(qName))
+				{
+					if (group == null)
+					{
+						group = new ArrayList<String>();
+					}
+					group.add(attributes.getValue("sakai:group_name"));
+				}
+				else if ("properties".equals(qName))
+				{
+
+				}
+				else
+				{
+					log.warn("Unexpected Element " + qName);
+				}
+
+			}
+		});
 	}
 
 	/**
@@ -685,7 +677,8 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 			log.error(sb.toString());
 			throw new Exception("Serialization Items do not match ");
 		}
-		saxSerializableProperties.check((SAXSerializablePropertiesAccess)sax2.getSerializableProperties());
+		saxSerializableProperties.check((SAXSerializablePropertiesAccess) sax2
+				.getSerializableProperties());
 	}
 
 }

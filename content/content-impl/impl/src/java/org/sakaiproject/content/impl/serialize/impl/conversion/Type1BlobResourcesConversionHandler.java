@@ -82,7 +82,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 		t1b.setTimeService(new ConversionTimeService());
 		try
 		{
-			String result = t1b.serialize(sax);
+			byte[] result = t1b.serialize(sax);
 			t1b.parse(sax2, result);
 			sax.check(sax2);
 
@@ -95,7 +95,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 
 			updateRecord.setString(1, context);
 			updateRecord.setLong(2, sax.getSerializableContentLength());
-			updateRecord.setString(3, result);
+			updateRecord.setBytes(3, result);
 			updateRecord.setString(4, id);
 			return true;
 		}

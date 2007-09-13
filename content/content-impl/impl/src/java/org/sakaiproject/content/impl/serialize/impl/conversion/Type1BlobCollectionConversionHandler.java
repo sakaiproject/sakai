@@ -75,10 +75,10 @@ public class Type1BlobCollectionConversionHandler implements SchemaConversionHan
 		t1b.setTimeService(new ConversionTimeService());
 		try
 		{
-			String result = t1b.serialize(sax);
+			byte[] result = t1b.serialize(sax);
 			t1b.parse(sax2, result);
 			sax.check(sax2);
-			updateRecord.setString(1, result);
+			updateRecord.setBytes(1, result);
 			updateRecord.setString(2, id);
 			return true;
 		}

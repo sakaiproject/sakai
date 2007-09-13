@@ -29,8 +29,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
 
-import javax.print.DocFlavor.BYTE_ARRAY;
-
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
@@ -89,6 +87,8 @@ import org.sakaiproject.util.serialize.Type1BaseResourcePropertiesSerializer;
 public class Type1BaseContentResourceSerializer implements EntitySerializer
 {
 	public static final String BLOB_ID = "CHSBRE";
+	
+	private static final byte[] BYTE_BLOB_ID = new byte[] { 'C', 'H', 'S', 'B', 'R', 'E' };
 
 	private static final int TYPE1 = 1;
 
@@ -110,13 +110,10 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 
 	private TimeService timeService;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.entity.api.EntitySerializer#parse(org.sakaiproject.entity.api.SerializableEntity,
-	 *      java.lang.String)
+	/**
+	 * @deprecated
 	 */
-	public void parse(SerializableEntity se, String serialized)
+	public void parseString(SerializableEntity se, String serialized)
 			throws EntityParseException
 	{
 
@@ -143,6 +140,184 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 			byte[] sb = new byte[cbuf.length - blobIdLength];
 			
 			ByteStorageConversion.toByte(cbuf, BLOB_ID.length(), sb, 0, sb.length);
+			ByteArrayInputStream baos = new ByteArrayInputStream(sb);
+			DataInputStream ds = new DataInputStream(baos);
+
+			doParse(sc, ds);
+
+		}
+		catch (EntityParseException epe)
+		{
+			throw epe;
+		}
+		catch (Exception ex)
+		{
+			throw new EntityParseException("Failed to parse entity ["+id+"]", ex);
+		}
+	}
+
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.entity.api.serialize.DataStreamEntitySerializer#parse(org.sakaiproject.entity.api.serialize.SerializableEntity,
+	 *      java.io.DataInputStream)
+	 */
+	public void parse(SerializableEntity se, byte[] buffer)
+			throws EntityParseException
+	{
+		if (!(se instanceof SerializableResourceAccess))
+		{
+			throw new EntityParseException("Cant serialize " + se
+					+ " as it is not a SerializableResourceAccess ");
+		}
+		SerializableResourceAccess sc = (SerializableResourceAccess) se;
+		for (int i = 0; i < BYTE_BLOB_ID.length; i++)
+		{
+			if (buffer[i] != BYTE_BLOB_ID[i])
+			{
+				throw new EntityParseException(
+						"Data Block does not belong to this serializer got ["
+								+ new String(buffer,0,BYTE_BLOB_ID.length) + "] expected [" + new String(BYTE_BLOB_ID) + "]");
+			}
+		}
+		try
+		{
+			ByteArrayInputStream bais = new ByteArrayInputStream(buffer);
+			DataInputStream ds = new DataInputStream(bais);
+			byte[] signature = new byte[BYTE_BLOB_ID.length];
+			ds.read(signature);
+			doParse(sc, ds);
+		}
+		catch (EntityParseException epe)
+		{
+			throw epe;
+		}
+		catch (Exception ex)
+		{
+			throw new EntityParseException("Failed to parse entity", ex);
+		}
+
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public String serializeString(SerializableEntity se) throws EntityParseException
+	{
+		if (!(se instanceof SerializableResourceAccess))
+		{
+			throw new EntityParseException("Cant serialize " + se
+					+ " as it is not a SerializableResourceAccess ");
+		}
+		SerializableResourceAccess sc = (SerializableResourceAccess) se;
+
+		try
+		{
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			DataOutputStream ds = new DataOutputStream(baos);
+			
+			doSerialize(sc, ds);
+			
+			ds.flush();
+			baos.flush();
+			byte[] op = baos.toByteArray();
+			int bid = BLOB_ID.length();
+			char[] opc = new char[op.length + bid];
+			
+			
+			ByteStorageConversion.toChar(op, 0, opc, bid, op.length);
+			
+			for (int i = 0; i < bid; i++)
+			{
+				opc[i] = BLOB_ID.charAt(i);
+			}
+			return new String(opc);
+		}
+		catch (Exception ex)
+		{
+			throw new EntityParseException("Failed to serialize entity ", ex);
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.entity.api.serialize.DataStreamEntitySerializer#serialize(org.sakaiproject.entity.api.serialize.SerializableEntity,
+	 *      java.io.DataOutputStream)
+	 */
+	public byte[] serialize(SerializableEntity se)
+			throws EntityParseException
+	{
+		if (!(se instanceof SerializableResourceAccess))
+		{
+			throw new EntityParseException("Cant serialize " + se
+					+ " as it is not a SerializableCollectionAccess ");
+		}
+		SerializableResourceAccess sc = (SerializableResourceAccess) se;
+		try
+		{
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			DataOutputStream ds = new DataOutputStream(baos);
+			ds.write(BYTE_BLOB_ID);
+			doSerialize(sc, ds);
+			ds.flush();
+			baos.flush();
+			byte[] b = baos.toByteArray();
+			baos.close();
+			return b;
+		}
+		catch (Exception ex)
+		{
+			throw new EntityParseException("Failed to serialize entity ", ex);
+		}
+
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.entity.api.serialize.EntitySerializer#accept(java.lang.String)
+	 */
+	public boolean accept(byte[] buffer)
+	{
+		if ( buffer == null || buffer.length < BYTE_BLOB_ID.length ) {
+			return false;
+		}
+		for (int i = 0; i < BYTE_BLOB_ID.length; i++)
+		{
+			if (buffer[i] != BYTE_BLOB_ID[i])
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @return the timeService
+	 */
+	public TimeService getTimeService()
+	{
+		return timeService;
+	}
+
+	/**
+	 * @param timeService the timeService to set
+	 */
+	public void setTimeService(TimeService timeService)
+	{
+		this.timeService = timeService;
+	}
+
+	
+	private void doParse(SerializableResourceAccess sc, DataInputStream ds)
+			throws EntityParseException
+	{
+
+		String id = null;
+
+		try
+		{
 
 			AccessMode access = AccessMode.INHERITED;
 			boolean hidden = false;
@@ -155,8 +330,6 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 			String filePath = null;
 			byte[] body = null;
 
-			ByteArrayInputStream baos = new ByteArrayInputStream(sb);
-			DataInputStream ds = new DataInputStream(baos);
 			int type = ds.readInt();
 			if (type == TYPE1)
 			{
@@ -276,19 +449,8 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.entity.api.EntitySerializer#serialize(org.sakaiproject.entity.api.SerializableEntity)
-	 */
-	public String serialize(SerializableEntity se) throws EntityParseException
+	private void doSerialize(SerializableResourceAccess sc, DataOutputStream ds) throws EntityParseException
 	{
-		if (!(se instanceof SerializableResourceAccess))
-		{
-			throw new EntityParseException("Cant serialize " + se
-					+ " as it is not a SerializableResourceAccess ");
-		}
-		SerializableResourceAccess sc = (SerializableResourceAccess) se;
 
 		try
 		{
@@ -321,8 +483,6 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 				access = AccessMode.INHERITED;
 			}
 
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			DataOutputStream ds = new DataOutputStream(baos);
 			ds.writeInt(TYPE1);
 			ds.writeInt(BLOCK1);
 			ds.writeUTF(id);
@@ -372,49 +532,11 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 				ds.write(body);
 			}
 			ds.writeInt(BLOCK_END);
-			ds.flush();
-			baos.flush();
-			byte[] op = baos.toByteArray();
-			int bid = BLOB_ID.length();
-			char[] opc = new char[op.length + bid];
-			
-			
-			ByteStorageConversion.toChar(op, 0, opc, bid, op.length);
-			
-			for (int i = 0; i < bid; i++)
-			{
-				opc[i] = BLOB_ID.charAt(i);
-			}
-			return new String(opc);
 		}
 		catch (Exception ex)
 		{
 			throw new EntityParseException("Failed to serialize entity ", ex);
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.serialize.EntitySerializer#accept(java.lang.String)
-	 */
-	public boolean accept(String blob)
-	{
-		return (blob != null && blob.startsWith(BLOB_ID));
-	}
-
-	/**
-	 * @return the timeService
-	 */
-	public TimeService getTimeService()
-	{
-		return timeService;
-	}
-
-	/**
-	 * @param timeService the timeService to set
-	 */
-	public void setTimeService(TimeService timeService)
-	{
-		this.timeService = timeService;
 	}
 
 }

@@ -571,7 +571,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	
 	protected boolean useResourceTypeRegistry = true;
 
-	public boolean migrateData = false;
 
 	public EntitySerializer collectionSerializer;
 
@@ -917,7 +916,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.util.EntityReader#accept(java.lang.String)
 		 */
-		public boolean accept(String blob)
+		public boolean accept(byte[] blob)
 		{
 			return  collectionSerializer.accept(blob);
 		}
@@ -929,7 +928,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.util.EntityReader#parseContainer(java.lang.String)
 		 */
-		public Entity parseResource(String blob) throws EntityParseException
+		public Entity parse(String xml, byte[] blob) throws EntityParseException
 		{
 			BaseCollectionEdit bce = new BaseCollectionEdit();
 			collectionSerializer.parse(bce,blob);
@@ -939,7 +938,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.util.EntityReader#toString(org.sakaiproject.entity.api.Entity)
 		 */
-		public String toString(Entity entry) throws EntityParseException
+		public byte[] serialize(Entity entry) throws EntityParseException
 		{
 			if ( entry instanceof SerializableEntity ) {
 				
@@ -972,13 +971,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			this.entityReaderAdapter = entityReaderAdapter;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.entity.api.EntityReader#isMigrateData()
-		 */
-		public boolean isMigrateData()
-		{
-			return migrateData;
-		}
 
 
 	} // class CollectionStorageUser
@@ -1210,7 +1202,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.util.EntityReader#accept(java.lang.String)
 		 */
-		public boolean accept(String blob)
+		public boolean accept(byte[] blob)
 		{
 			return resourceSerializer.accept(blob);
 		}
@@ -1218,7 +1210,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.util.EntityReader#parseContainer(java.lang.String)
 		 */
-		public Entity parseResource(String blob) throws EntityParseException
+		public Entity parse(String xml, byte[] blob) throws EntityParseException
 		{
 			BaseResourceEdit bre = new BaseResourceEdit();
 			resourceSerializer.parse(bre,blob);
@@ -1228,7 +1220,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.util.EntityReader#toString(org.sakaiproject.entity.api.Entity)
 		 */
-		public String toString(Entity entry) throws EntityParseException
+		public byte[] serialize(Entity entry) throws EntityParseException
 		{
 			if ( entry instanceof SerializableEntity ) {
 				return resourceSerializer.serialize((SerializableEntity) entry);
@@ -1260,13 +1252,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			this.entityReaderAdapter = entityReaderAdapter;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.entity.api.EntityReader#isMigrateData()
-		 */
-		public boolean isMigrateData()
-		{
-			return migrateData;
-		}
 
 
 
@@ -11866,26 +11851,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public void registerSiteContentAdvisorProvidor(SiteContentAdvisorProvider advisor, String type)
 	{
 		siteContentAdvisorsProviders.put(type, advisor);		
-	}
-	/**
-	 * @return the migrateData
-	 */
-	public boolean isMigrateData()
-	{
-		return migrateData;
-	}
-
-	/**
-	 * @param migrateData the migrateData to set
-	 */
-	public void setMigrateData(boolean migrateData)
-	{
-		this.migrateData = migrateData;
-		if ( !migrateData ) {
-			M_log.info("New CHS Data will be stored in XML in the database ");
-		} else {
-			M_log.info("New CHS Data will be stored in Binary in the database ");		
-		}
 	}
 
 	/**

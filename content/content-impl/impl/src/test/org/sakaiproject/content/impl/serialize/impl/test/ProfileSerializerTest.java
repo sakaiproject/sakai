@@ -74,7 +74,7 @@ public class ProfileSerializerTest extends TestCase
 		Type1BaseContentCollectionSerializer t1 = new Type1BaseContentCollectionSerializer();
 		t1.setTimeService(new MockTimeService());
 		MockSerializableCollectionAcccess sc = new MockSerializableCollectionAcccess();
-		String serialized = null;
+		byte[] serialized = null;
 		Runtime r = Runtime.getRuntime();
 		r.gc();
 		Thread.sleep(2000);
