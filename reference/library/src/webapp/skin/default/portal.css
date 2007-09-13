@@ -709,7 +709,7 @@ below they are contextually defined depending on the column as an example,as you
 }
 
 .icon-sakai-iframe {
-	background-image : url(../../image/silk/page_world.png);
+/*	background-image : url(../../image/silk/page_world.png); */
 }
 	
 .icon-sakai-rwiki {
