@@ -538,7 +538,7 @@ function importCitations(formname)
 {
   if (document.getElementById('risupload').value.length == 0 && 
       document.getElementById('ristext').value.length == 0)
-      alert('You must either upload a file or place RIS formatted text in the textbox');
+      alert('$tlang.getString("import.alert")');
   else
   {
   	$( '#risFileUpload' ).hide();
