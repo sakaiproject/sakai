@@ -13,8 +13,18 @@ div.my-tree div.wicket-tree {
 	/*overflow-y: hidden;*/
 }
 
+.smalltext {
+	font-size:9;
+	font-color:lightgray;	
+}
+
+.scormPlayerPanel {
+	height: 100%;	
+}
+
 .scormNavPanel {
 	float: left;
+	height: 95%;
 	width: 300px;
 	border-right: 0px solid black;
 	margin: 0px;
@@ -29,11 +39,17 @@ div.my-tree div.wicket-tree {
 }
 
 .scormButtonPanel {
-	background: lightgray;	
+	background:url(/sakai-scorm-tool/images/buttonBarBackground.gif) repeat-x;
+	height: 44px;
+	padding-top: 4px;
 }
 
 .scormActionButton {
 
+}
+
+.scormNotification {
+		
 }
 
 .scormRoundbox{
@@ -46,11 +62,12 @@ div.my-tree div.wicket-tree {
 }
 
 .scormRoundbox h3{
-font-size:1.55em;
-padding: 15px 15px 10px 15px;
-border-bottom: 1px dotted #e8e8e8;
-margin-bottom:10px;
-clear:both;
+	font-size:1.55em;
+	font-color:white;
+	padding: 15px 15px 10px 15px;
+	border-bottom: 1px dotted #e8e8e8;
+	margin-bottom:10px;
+	clear:both;
 }
 
 .scormRoundbox p{

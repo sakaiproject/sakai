@@ -1,6 +1,5 @@
 package org.sakaiproject.scorm.ui.tool;
 
-import java.net.URLEncoder;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -15,13 +14,11 @@ import org.adl.sequencer.SeqNavRequests;
 import org.adl.validator.contentpackage.ILaunchData;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.scorm.client.api.IRunState;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
-import org.sakaiproject.scorm.ui.tool.pages.ContentPage;
 
 public class RunState implements IRunState {
 	private static final long serialVersionUID = 1L;
@@ -50,15 +47,13 @@ public class RunState implements IRunState {
 	private String baseHref;
 	private String contentPackageId;
 	private String completionUrl;
-	private String contentUrl;
 	
 	ScormClientFacade clientFacade;
 	
-	public RunState(ScormClientFacade clientFacade, String contentPackageId, String courseId, String userId, String completionUrl, String contentUrl) {
+	public RunState(ScormClientFacade clientFacade, String contentPackageId, String courseId, String userId, String completionUrl) {
 		this.clientFacade = clientFacade;
 		this.contentPackageId = contentPackageId;
 		this.completionUrl = completionUrl;
-		this.contentUrl = contentUrl;
 		manifest = clientFacade.getManifest(contentPackageId);
 		baseHref = manifest.getResourceId();
 		currentUserId = userId;
@@ -122,6 +117,7 @@ public class RunState implements IRunState {
         		|| status.equals("_SEQABANDONALL_")) ) {
         	getSequencer().clearSeqState();
         	
+        	log.warn("Status is " + status + " -- ending course!");
         	isEnded = true;
         } 
         

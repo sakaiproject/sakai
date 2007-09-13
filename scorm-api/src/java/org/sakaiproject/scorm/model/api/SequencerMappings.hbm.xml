@@ -3,7 +3,7 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping default-cascade="all" default-access="field" package="org.adl.sequencer" default-lazy="false">
 
-	<class name="org.adl.sequencer.ADLTOC" table="SCORM_ADL_TOC">
+	<!--class name="org.adl.sequencer.ADLTOC" table="SCORM_ADL_TOC">
 	
 		<id name="id" column="TOC_ID" type="long">
             <generator class="native">
@@ -33,7 +33,7 @@
 	
 		<property name="mID" column="ACTIVITY_ID" />
 	
-	</class>
+	</class-->
 	
 	<class name="org.adl.sequencer.ADLValidRequests" table="SCORM_ADL_VALID_REQUESTS_T">
 	
@@ -55,7 +55,7 @@
 	
 		<property name="mSuspend" column="IS_SUSPEND_VALID" />
 	
-		<map name="mChoice" table="SCORM_MAP_TOC_T">
+		<!--map name="mChoice" table="SCORM_MAP_TOC_T">
     		<key column="VALID_REQUESTS_ID"/>
     		<map-key column="TARGET" type="string"/>
     		<many-to-many column="TOC_ID" class="org.adl.sequencer.ADLTOC"/>
@@ -65,7 +65,7 @@
 			<key column="VALID_REQUESTS_ID" />
 			<list-index column="SORT_ORDER"/>
 			<many-to-many column="TOC_ID" class="org.adl.sequencer.ADLTOC"/>
-		</list>
+		</list-->
 	
 	</class>
 	
@@ -524,7 +524,8 @@
 	
 		<many-to-one name="mRoot" column="ROOT_ACTIVITY_ID" index="SCORM_ADL_ACTIVITY_IDX" class="org.adl.sequencer.SeqActivity" />
 		
-		<many-to-one name="mValidReq" column="VALID_REQUESTS" index="SCORM_ADL_VALID_REQS_IDX" class="org.adl.sequencer.ADLValidRequests" />	
+		<!-- JLR: 9/7/2007 - maybe we don't have to persist valid requests -->
+		<!--many-to-one name="mValidReq" column="VALID_REQUESTS" index="SCORM_ADL_VALID_REQS_IDX" class="org.adl.sequencer.ADLValidRequests" /-->	
 		
 		<property name="mLastLeaf" column="LAST_LEAF" />
 		
@@ -540,23 +541,26 @@
 		
 		<many-to-one name="mSuspendAll" column="SUSPEND_ACTIVITY_ID" index="SCORM_ADL_SUSP_ACTIVITY_IDX" class="org.adl.sequencer.SeqActivity" />
 		
-		<map name="mActivityMap" table="SCORM_MAP_ACTIVITY_NODES_T">
+		<!-- JLR: 9/7/2007 - maybe we don't have to persist the activity map -->
+		<!--map name="mActivityMap" table="SCORM_MAP_ACTIVITY_NODES_T">
     		<key column="TREE_ID"/>
     		<map-key column="ACTIVITY_REF" type="string"/>
     		<many-to-many column="ACTIVITY_ID" class="org.adl.sequencer.SeqActivity"/>
-		</map>
+		</map-->
 		
-		<list name="mObjSet" table="SCORM_LIST_ACTIVITY_T">
+		<!-- JLR: 9/7/2007 - maybe we don't have to persist the objective set -->
+		<!--list name="mObjSet" table="SCORM_LIST_ACTIVITY_T">
 			<key column="TREE_ID" />
 			<list-index column="SORT_ORDER"/>
 			<many-to-many column="ACTIVITY_ID" class="org.adl.sequencer.SeqActivity"/>
-		</list>
+		</list-->
 		
-		<map name="mObjMap" table="SCORM_MAP_ACTIVITY_T">
+		<!-- JLR: 9/7/2007 - maybe we don't have to persist the objective map -->
+		<!--map name="mObjMap" table="SCORM_MAP_ACTIVITY_T">
     		<key column="TREE_ID"/>
     		<map-key column="ACTIVITY_REF" type="string"/>
     		<many-to-many column="ACTIVITY_ID" class="org.adl.sequencer.SeqActivity"/>
-		</map>
+		</map-->
 		
 		<property name="mObjScan" column="IS_OBJECT_SCANNED" />
 		
