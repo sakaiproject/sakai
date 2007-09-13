@@ -8359,54 +8359,53 @@ public class SiteAction extends PagedResourceActionII {
 							.hasNext();) {
 						ToolConfiguration tool = (ToolConfiguration) iToolList
 								.next();
-						if (tool.getTool().getId().equals(
-								"sakai.synoptic.announcement")) {
-							hadAnnouncement = true;
-							if (!hasAnnouncement) {
-								removeToolList.add(tool);// if Announcement
-								// tool isn't
-								// selected, remove
-								// the synotic
-								// Announcement
+						Tool t = tool.getTool();
+						if (t!= null)
+						{ 
+							if (t.getId().equals("sakai.synoptic.announcement")) {
+								hadAnnouncement = true;
+								if (!hasAnnouncement) {
+									removeToolList.add(tool);// if Announcement
+									// tool isn't
+									// selected, remove
+									// the synotic
+									// Announcement
+								}
 							}
-						}
-						if (tool.getTool().getId().equals(
-								TOOL_ID_SUMMARY_CALENDAR)) {
-							hadSchedule = true;
-							if (!hasSchedule || !notStealthOrHiddenTool(TOOL_ID_SUMMARY_CALENDAR)) {
-								// if Schedule tool isn't selected, or the summary calendar tool is stealthed or hidden, remove the synotic Schedule
-								removeToolList.add(tool);
+							else if (t.getId().equals(TOOL_ID_SUMMARY_CALENDAR)) {
+								hadSchedule = true;
+								if (!hasSchedule || !notStealthOrHiddenTool(TOOL_ID_SUMMARY_CALENDAR)) {
+									// if Schedule tool isn't selected, or the summary calendar tool is stealthed or hidden, remove the synotic Schedule
+									removeToolList.add(tool);
+								}
 							}
-						}
-						if (tool.getTool().getId().equals(
-								"sakai.synoptic.discussion")) {
-							hadDiscussion = true;
-							if (!hasDiscussion) {
-								removeToolList.add(tool);// if Discussion
-								// tool isn't
-								// selected, remove
-								// the synoptic
-								// Discussion
+							else if (t.getId().equals("sakai.synoptic.discussion")) {
+								hadDiscussion = true;
+								if (!hasDiscussion) {
+									removeToolList.add(tool);// if Discussion
+									// tool isn't
+									// selected, remove
+									// the synoptic
+									// Discussion
+								}
 							}
-						}
-						if (tool.getTool().getId()
-								.equals("sakai.synoptic.chat")) {
-							hadChat = true;
-							if (!hasChat) {
-								removeToolList.add(tool);// if Chat tool
-								// isn't selected,
-								// remove the
-								// synoptic Chat
+							else if (t.getId().equals("sakai.synoptic.chat")) {
+								hadChat = true;
+								if (!hasChat) {
+									removeToolList.add(tool);// if Chat tool
+									// isn't selected,
+									// remove the
+									// synoptic Chat
+								}
 							}
-						}
-						if (tool.getTool().getId()
-								.equals("sakai.synoptic.messagecenter")) {
-							hadMessageCenter = true;
-							if (!hasMessageCenter) {
-								removeToolList.add(tool);// if Messages and/or Forums tools
-								// isn't selected,
-								// remove the
-								// synoptic Message Center tool
+							else if (t.getId().equals("sakai.synoptic.messagecenter")) {
+								hadMessageCenter = true;
+								if (!hasMessageCenter) {
+									removeToolList.add(tool);// if Messages and/or Forums tools
+									// isn't selected,
+									// remove the
+									// synoptic Message Center tool
+								}
 							}
 						}
 					}
