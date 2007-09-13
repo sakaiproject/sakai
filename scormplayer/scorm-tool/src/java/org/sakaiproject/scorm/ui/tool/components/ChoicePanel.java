@@ -16,8 +16,13 @@ public class ChoicePanel extends Panel {
 	private static final long serialVersionUID = 1L;
 
 	
-	public ChoicePanel(String id, String contentPackageId, String error) {
+	public ChoicePanel(String id, PageParameters pageParams, String error) {
 		super(id);
+		
+		String contentPackageId = pageParams.getString("contentPackage");
+		
+		if (contentPackageId != null) 
+			contentPackageId = contentPackageId.replace(':', '/');
 		
 		add(new Label("error", error));
 		

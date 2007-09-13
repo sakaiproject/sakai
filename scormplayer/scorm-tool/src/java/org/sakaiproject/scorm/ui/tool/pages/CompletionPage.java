@@ -27,12 +27,14 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 
 public class CompletionPage extends NotificationPage {
-	private static final ResourceReference JQUERY_JS = new CompressedResourceReference(CompletionPage.class, "res/jquery-latest.pack.js");
-	private static final ResourceReference THICKBOX_JS = new CompressedResourceReference(CompletionPage.class, "res/thickbox-compressed.js");
-	private static final ResourceReference THICKBOX_CSS = new CompressedResourceReference(CompletionPage.class, "res/thickbox.css");
+	//private static final ResourceReference JQUERY_JS = new CompressedResourceReference(CompletionPage.class, "res/jquery-latest.pack.js");
+	//private static final ResourceReference THICKBOX_JS = new CompressedResourceReference(CompletionPage.class, "res/thickbox-compressed.js");
+	//private static final ResourceReference THICKBOX_CSS = new CompressedResourceReference(CompletionPage.class, "res/thickbox.css");
 
-	private static final String ONLOAD_JS = "tb_show('Google', 'http://www.google.com', null);";
-	private static final String UNLOAD_JS = "tb_remove();";
+	//private static final String ONLOAD_JS = "tb_show('Google', 'http://www.google.com', null);";
+	//private static final String UNLOAD_JS = "tb_remove();";
+	
+	private static final String CLOSE_ON_LOAD = "setTimeout(window.close(), 3);";
 	
 	private static final long serialVersionUID = 1L;
 
@@ -42,15 +44,13 @@ public class CompletionPage extends NotificationPage {
 	
 	public CompletionPage(PageParameters pageParams) {
 		super();
-		//add(new Label("title", "SCORM 2004 3rd Edition"));
-		
-		
-		
 	}
 	
 	
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
+		
+		response.renderOnLoadJavascript(CLOSE_ON_LOAD);
 		
 		//response.renderCSSReference(THICKBOX_CSS);
 		//response.renderJavascriptReference(JQUERY_JS);

@@ -21,7 +21,6 @@
 package org.sakaiproject.scorm.ui.tool;
 
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
-import org.sakaiproject.scorm.ui.tool.pages.ContentPage;
 import org.sakaiproject.scorm.ui.tool.pages.ManageContent;
 import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
 
@@ -32,9 +31,6 @@ public class ScormTool extends SakaiWebApplication {
 	@Override
 	public void init() {
 		super.init();
-		
-		mountBookmarkablePage("/contents", ContentPage.class);
-		
 	}
 	
 	@Override

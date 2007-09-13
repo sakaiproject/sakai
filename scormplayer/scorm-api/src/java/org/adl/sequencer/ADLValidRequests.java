@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 
 /**
@@ -109,13 +110,14 @@ public class ADLValidRequests implements Serializable, IValidRequests
    /**
     * Set of valid targets for a choice navigation request
     */
-   public Map mChoice = null;
+   public Map<String, DefaultMutableTreeNode> mChoice = null;
 
    /**
     * The currently valid table of contents (list of <code>ADLTOC</code>) to be
     * provided during the current activity.
     */
-   public List mTOC = null;
+   // TODO: Remove this
+   //public List mTOC = null;
 
 
    public TreeModel mTreeModel = null;

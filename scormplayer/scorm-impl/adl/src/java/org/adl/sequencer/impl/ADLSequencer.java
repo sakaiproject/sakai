@@ -26,7 +26,6 @@ package org.adl.sequencer.impl;
 
 import org.adl.sequencer.ADLAuxiliaryResource;
 import org.adl.sequencer.ADLDuration;
-import org.adl.sequencer.ADLTOC;
 import org.adl.sequencer.ADLTracking;
 import org.adl.sequencer.ADLValidRequests;
 import org.adl.sequencer.IDuration;
@@ -403,8 +402,9 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 			oValid.mContinueExit = valid.mContinueExit;
 			oValid.mPrevious = valid.mPrevious;
 			
-			if (valid.mTOC != null) {
-				oValid.mTOC = (Vector) (((Vector) (valid.mTOC)).clone());
+			if (valid.mTreeModel != null) {
+				// TODO: Remove this
+				//oValid.mTOC = (Vector) (((Vector) (valid.mTOC)).clone());
 				oValid.mTreeModel = valid.mTreeModel;	//convertTOC((Vector)oValid.mTOC);
 			}
 
@@ -423,7 +423,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 			oValid.mContinueExit = false;
 			oValid.mPrevious = false;
 			oValid.mChoice = null;
-			oValid.mTOC = null;
+			// TODO: Remove this
+			//oValid.mTOC = null;
 			oValid.mTreeModel = null;
 		}
 
@@ -983,9 +984,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 				if (valid != null) {
 					// Confirm the target activity is allowed
 					if (valid.mChoice != null) {
-						ADLTOC test = (ADLTOC) valid.mChoice.get(iTarget);
+						ActivityNode testNode = (ActivityNode)valid.mChoice.get(iTarget);
+						//ADLTOC test = (ADLTOC) valid.mChoice.get(iTarget);
 
-						if (test == null) {
+						if (testNode == null) {
 							if (_Debug) {
 								System.out
 										.println("  ::--> Target not available");
@@ -994,7 +996,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 							launch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR_INVALIDNAVREQ;
 
 							process = false;
-						} else if (!test.mIsSelectable) {
+						} else if (!testNode.isSelectable()) {
 							if (_Debug) {
 								System.out
 										.println("  ::--> Target not selectable");
@@ -1545,7 +1547,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 				launch.mNavState = mSeqTree.getValidRequests();
 
 				// Make sure that a TOC is realy available
-				if (launch.mNavState.mTOC == null) {
+				// TODO: Moved from mTOC to mTreeModel
+				if (launch.mNavState.mTreeModel == null) {
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR_INVALIDNAVREQ;
 				}
 
@@ -1899,12 +1902,22 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 			// If the current activity does not prevent choiceExit,
 			// Test all 'Choice' requests
 			if (cur.getControlModeChoiceExit() || !cur.getIsActive()) {
-				valid.mTOC = getTOC(mSeqTree.getRoot());
+				// TODO: Remove this
+				//valid.mTOC = getTOC(mSeqTree.getRoot());
 				valid.mTreeModel = getTreeModel(mSeqTree.getRoot());		//convertTOC(valid.mTOC);
 			}
 			
+			
+			if (valid.mTreeModel != null) {
+				valid.mChoice = getChoiceSet(valid.mTreeModel);
+			}
+			
+			if (valid.mTreeModel != null && valid.mTreeModel.getRoot() != null && ((ActivityNode)valid.mTreeModel.getRoot()).getChildCount() == 0) {
+				valid.mTreeModel = null;
+			}
+			
 			// TODO: Remove this.
-			if (valid.mTOC != null) {
+			/*if (valid.mTOC != null) {
 				Vector newTOC = new Vector();
 
 				valid.mChoice = getChoiceSet((Vector) valid.mTOC, newTOC);
@@ -1916,7 +1929,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 					valid.mTOC = null;
 					valid.mTreeModel = null;
 				}
-			}
+			}*/
 
 			if (cur.getParent() != null) {
 				if (_Debug) {
@@ -2011,10 +2024,20 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 			}
 
 			// Test all 'Choice' requests
-			valid.mTOC = getTOC(mSeqTree.getRoot());
+			// TODO: Remove this
+			//valid.mTOC = getTOC(mSeqTree.getRoot());
 			valid.mTreeModel = getTreeModel(mSeqTree.getRoot()); //convertTOC(valid.mTOC);
 
-			if (valid.mTOC != null) {
+			if (valid.mTreeModel != null) {
+				valid.mChoice = getChoiceSet(valid.mTreeModel);
+			}
+			
+			if (valid.mTreeModel != null && valid.mTreeModel.getRoot() != null && ((ActivityNode)valid.mTreeModel.getRoot()).getChildCount() == 0) {
+				valid.mTreeModel = null;
+			}
+			
+			// TODO: Remove this
+			/*if (valid.mTOC != null) {
 				Vector newTOC = new Vector();
 
 				valid.mChoice = getChoiceSet((Vector) valid.mTOC, newTOC);
@@ -2026,7 +2049,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 					valid.mTOC = null;
 					valid.mTreeModel = null;
 				}
-			}
+			}*/
 		}
 
 		// If an updated set of valid requests has completed, associated it with
@@ -5022,42 +5045,6 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 
 	 -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 
-	/*private Hashtable getChoiceSet(TreeModel treeModel) {
-		Hashtable set = null;
-		String lastLeaf = null;
-		
-		if (treeModel != null) {
-			set = new Hashtable();
-			DefaultMutableTreeNode root = (DefaultMutableTreeNode)treeModel.getRoot();
-			
-			for (Enumeration<DefaultMutableTreeNode> e = root.breadthFirstEnumeration();e.hasMoreElements();) {
-				DefaultMutableTreeNode node = e.nextElement();
-				SeqActivity activity = (SeqActivity)node.getUserObject();
-				
-				if (activity.getDepth() == -1) {
-
-					if (activity.) {
-						// Not in the TOC, but still a valid target
-						set.put(temp.mID, temp);
-					}
-				} else if (temp.mI.mIsSelectablesVisible) {
-					set.put(temp.mID, temp);
-					oNewTOC.add(temp);
-				}
-
-				if (lastLeaf == null) {
-					if (temp.mLeaf && temp.mIsEnabled) {
-						lastLeaf = temp.mID;
-					}
-				}
-				
-			}
-
-		}
-		
-		return set;
-	}*/
-	
 	
 	/**
 	 * Displays the values of the <code>ADLTOC</code> objects that constitute
@@ -5073,7 +5060,87 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 	 * 
 	 * @return The set of valid activity IDs for 'Choice' navigation requests.
 	 */
-	private Hashtable getChoiceSet(Vector iOldTOC, Vector oNewTOC) {
+	private Hashtable getChoiceSet(TreeModel treeModel) {
+		Hashtable set = null;
+		String lastLeaf = null;
+
+		
+		if (treeModel != null) {
+			ActivityNode tempNode = null;
+			set = new Hashtable();
+
+			ActivityNode rootNode = (ActivityNode)treeModel.getRoot();
+		
+			if (rootNode != null) {
+				Enumeration<ActivityNode> breadthFirst = rootNode.breadthFirstEnumeration();
+				
+				List<ActivityNode> bfList = Collections.list(breadthFirst);
+				
+				// Traverse the breadth-first search backwards
+				for (int i=bfList.size() - 1;i>0;i--) {
+					tempNode = bfList.get(i);
+										
+					if (tempNode.getDepth() == -1) {
+						if (tempNode.isSelectable()) {
+							set.put(tempNode.getActivity().getID(), tempNode);
+						}
+					} else if (!tempNode.isHidden()) {
+						set.put(tempNode.getActivity().getID(), tempNode);
+					}
+					
+					if (lastLeaf == null) {
+						if (tempNode.isLeaf() && tempNode.isEnabled())
+							lastLeaf = tempNode.getActivity().getID();
+					}
+					
+				}
+			}
+		}
+
+		if (lastLeaf != null) {
+			if (_Debug) {
+				System.out.println("  ::--> Setting last leaf --> " + lastLeaf);
+			}
+
+			mSeqTree.setLastLeaf(lastLeaf);
+		}
+
+		// If there are no items in the set, there is no TOC.
+		if (set.size() == 0) {
+			set = null;
+		}
+
+		
+		// TODO: JLR -- think we might be able to live without this... 9/10/2007
+		
+		// If there is only one item in the set, it must be the root -- remove
+		// it
+		// If there is only one item in the set, it is the parent of a
+		// choiceExit == false cluster, it cannot be selected -- no TOC
+		/*if (oNewTOC.size() == 1) {
+			ADLTOC temp = (ADLTOC) oNewTOC.elementAt(0);
+
+			if (!temp.mIsEnabled) {
+				if (_Debug) {
+					System.out.println("  ::--> Clearing single non-enabled "
+							+ " activity");
+				}
+
+				oNewTOC.remove(0);
+			} else if (!temp.mLeaf) {
+				if (_Debug) {
+					System.out.println("  ::--> Clearing root activity");
+				}
+
+				oNewTOC.remove(0);
+			}
+		}*/
+
+		return set;
+	}
+
+	
+	/*private Hashtable getChoiceSet(Vector iOldTOC, Vector oNewTOC) {
 		if (_Debug) {
 			System.out.println("  :: ADLSequencer  --> BEGIN - getChoiceSet");
 
@@ -5179,7 +5246,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 
 		return set;
 	}
-
+	
+	
+	
+	
 	private MutableTreeNode addNode(Map<Integer, MutableTreeNode> nodeMap, SeqActivity activity) {
 		Integer i = Integer.valueOf(activity.getCount());
 		
@@ -5230,10 +5300,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 		log.info("Node  (" + activity.getTitle() +")");
 		log.info("Remaining items ("+ copy.size() +")");
 		
-		/*
-		 * find any objects that have this node's number as parent (eg, tocObject.getParent()+1==this.count)
-		 * .... make a new node for it, add it to this node, then call this method with that new node
-		 */
+		//
+		// find any objects that have this node's number as parent (eg, tocObject.getParent()+1==this.count)
+		// .... make a new node for it, add it to this node, then call this method with that new node
+		//
 		for(int i=copy.size()-1;i>=0;i-=(found+1)){ /// original TOC objects build with higher order items last
 			ADLTOC t = (ADLTOC)copy.get(i);
 			if(t.mParent+1 == count){
@@ -5284,97 +5354,9 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 
 		//fixTreeNodes(root);
 		
-		/*
-		MutableTreeNode root = null;
-		
-		for (int i=0;i<tocList.size();i++) {
-			ADLTOC current = tocList.get(i);
-			
-			SeqActivity activity = mSeqTree.getActivity(current.mID);
-			
-			MutableTreeNode node = new DefaultMutableTreeNode(activity);
-			
-			nodeMap.put("" + current.mCount, node);
-			
-			int parentIndex = current.mParent + 1;
-			if (parentIndex == 0)
-				root = node;
-		}
-		
-		
-		// FIXME: Currently, this screws up when there are multiple levels in the tree...
-		// we can't just traverse the tree once to do the mapping. 
-		
-		
-		
-		
-		for (int i=tocList.size()-1;i>=0;i--) {
-			ADLTOC current = tocList.get(i);
-			int parentIndex = current.mParent + 1;
-			
-			MutableTreeNode node = (MutableTreeNode)nodeMap.get("" + current.mCount);
-			MutableTreeNode parentNode = (MutableTreeNode)nodeMap.get("" + parentIndex);
-			
-			if (parentIndex == 0)
-				parentNode = root;
-			else if (parentNode == null)
-				log.error("Parent node is null --- no node at index " + parentIndex);
-			else if (((DefaultMutableTreeNode)parentNode).isNodeAncestor(node)) {
-				log.error("Node " + current.mID + " at index " + i + " is an ancestor of the parent at index " + parentIndex);
-				
-				SeqActivity parentActivity = (SeqActivity)((DefaultMutableTreeNode)parentNode).getUserObject();
-				SeqActivity childActivity = (SeqActivity)((DefaultMutableTreeNode)node).getUserObject();
-				log.error("The parent is " + parentActivity.getTitle());
-				log.error("The child is " + childActivity.getTitle());
-				
-				log.error("Parent has " + ((DefaultMutableTreeNode)parentNode).getChildCount() + " children");
-				
-				for (Enumeration<MutableTreeNode> childs = ((DefaultMutableTreeNode)parentNode).children();childs.hasMoreElements();) {
-					MutableTreeNode c = childs.nextElement();
-					
-					SeqActivity cActivity = (SeqActivity)((DefaultMutableTreeNode)c).getUserObject();
-					
-					log.error("The existing child is " + cActivity.getTitle());
-				}
-				
-				
-			} else
-				((DefaultMutableTreeNode)parentNode).add(node);
-		}
-		*/
-		
-		
-		
-		/*for (int i=tocList.size() - 1;i>=0;i--) {
-			ADLTOC current = tocList.get(i);
-			int parentIndex = current.mParent;
-			SeqActivity activity = mSeqTree.getActivity(current.mID);
-			
-			MutableTreeNode node = new DefaultMutableTreeNode(activity);
-			nodeMap.put("" + current.mCount, node);
-			
-			TreeNode parentNode = null;
-			if (parentIndex == -1) {
-				root = node;
-				continue;
-			} else if (parentIndex == 0) {
-				parentNode = root;
-			} else {
-				parentNode = nodeMap.get("" + parentIndex);
-			}
-				
-			if (parentNode == null)
-				log.error("Parent node is null --- no node at index " + parentIndex);
-			else if (((DefaultMutableTreeNode)parentNode).isNodeAncestor(node))
-				log.error("Node " + current.mID + " at index " + i + " is an ancester of the parent at index " + parentIndex);
-			else
-				((DefaultMutableTreeNode)parentNode).add(node);
-			
-		}*/
-				
 		TreeModel treeModel = new DefaultTreeModel(root);
 		return treeModel;
-	}
+	}*/
 	
 	/*
 	 * This is a method inserted for the Sakai SCORM implementation
@@ -5427,7 +5409,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 	 * 
 	 * @return A vector of <code>ADLTOC</code> objects describing the current.
 	 */
-	private Vector getTOC(SeqActivity iStart) {
+	/*private Vector getTOC(SeqActivity iStart) {
 
 		if (_Debug) {
 			System.out.println("  :: ADLSequencer --> BEGIN - getTOC");
@@ -6243,7 +6225,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus,
 		}
 
 		return toc;
-	}
+	}*/
 	
 	
 	private boolean canBeIncluded(SeqActivity walk, SeqActivity cur, ActivityNode node) {
