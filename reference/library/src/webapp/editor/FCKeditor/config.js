@@ -38,6 +38,8 @@ FCKConfig.PluginsPath = FCKConfig.BasePath + 'plugins/' ;
 
 FCKConfig.Plugins.Add( 'attachments', 'en' ) ;
 
+FCKConfig.Plugins.Add( 'resourcesearch', 'en' ) ;
+
 // FCKConfig.Plugins.Add( 'placeholder', 'en,it' ) ;
 
 FCKConfig.AutoDetectLanguage	= true ;
@@ -87,7 +89,7 @@ FCKConfig.ToolbarSets["Default"] = [
         ['OrderedList','UnorderedList','Outdent','Indent'],
         ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull','TextColor','BGColor'],
         ['Link','Unlink','Anchor'],
-        ['Image','Flash','Table','Rule','Smiley','SpecialChar'],['Style'],
+        ['ResourceSearch','Image','Flash','Table','Rule','Smiley','SpecialChar'],['Style'],
         ['FontFormat','FontName','FontSize'],
         ['About']
 ] ;
@@ -100,7 +102,7 @@ FCKConfig.ToolbarSets["Attachments"] = [
    ['OrderedList','UnorderedList','Outdent','Indent'],
    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull','TextColor','BGColor'],
    ['Link','Unlink','Anchor'],
-   ['Image','Flash','Table','Rule','Smiley','SpecialChar'],['Style'],
+   ['ResourceSearch','Image','Flash','Table','Rule','Smiley','SpecialChar'],['Style'],
    ['FontFormat','FontName','FontSize'],
    ['About'],
    '/',
