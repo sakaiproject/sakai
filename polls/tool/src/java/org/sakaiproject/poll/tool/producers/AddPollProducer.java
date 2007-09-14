@@ -61,6 +61,7 @@ import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UIAlternativeTextDecorator;
 import uk.org.ponder.rsf.components.decorators.UITextDimensionsDecorator;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
@@ -224,12 +225,15 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 				List votes = pollVoteManager.getAllVotesForPoll(poll);
 				if (votes == null || votes.size() == 0 ) {
 					
-					UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
+					UIInternalLink editPoll = UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
 							new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
 									new EntityID("Option", "Option_" + o.getOptionId().toString()), EntityCentredViewParameters.MODE_EDIT));
-					UIInternalLink.make(oRow,"option-delete",messageLocator.getMessage("new_poll_option_delete"),
+					editPoll.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("new_poll_option_edit") +":" + o.getOptionText()));
+					
+					UIInternalLink deletePoll = UIInternalLink.make(oRow,"option-delete",messageLocator.getMessage("new_poll_option_delete"),
 							new EntityCentredViewParameters(PollOptionDeleteProducer.VIEW_ID, 
 									new EntityID("Option", "Option_" + o.getOptionId().toString())));
+					deletePoll.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("new_poll_option_delete") +":" + o.getOptionText()));
 				}
 			}
 	    }
