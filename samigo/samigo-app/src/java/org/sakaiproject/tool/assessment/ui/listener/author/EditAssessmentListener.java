@@ -31,6 +31,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -47,6 +48,7 @@ import java.util.Iterator;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * <p>Title: Samigo</p>2
@@ -122,7 +124,8 @@ public class EditAssessmentListener
     // initalize the itemtype
     itemauthorBean.setItemType("");
     itemauthorBean.setItemTypeString("");
-
+    
+    showPrintLink(assessmentBean);
   }
 
   public boolean passAuthz(FacesContext context, String ownerId){
@@ -145,5 +148,23 @@ public class EditAssessmentListener
     isOwner = agentId.equals(ownerId);
     log.debug("***isOwner="+isOwner);
     return isOwner;
+  }
+  
+  private void showPrintLink(AssessmentBean assessmentBean) {
+	log.debug("first condition = " + (ToolManager.getTool("sakai.questionbank.printout") != null));
+	log.debug("second conditon = " + !ServerConfigurationService.getString("stealthTools@org.sakaiproject.tool.api.ActiveToolManager").contains("sakai.questionbank.printout"));
+	log.debug("third condition = " + !ServerConfigurationService.getString("hiddenTools@org.sakaiproject.tool.api.ActiveToolManager").contains("sakai.questionbank.printout"));
+	if (ToolManager.getTool("sakai.questionbank.printout") != null
+	      && !ServerConfigurationService.getString(
+	         "stealthTools@org.sakaiproject.tool.api.ActiveToolManager")
+	           .contains("sakai.questionbank.printout")
+	       && !ServerConfigurationService.getString(
+	         "hiddenTools@org.sakaiproject.tool.api.ActiveToolManager")
+	          .contains("sakai.questionbank.printout")) {
+		assessmentBean.setShowPrintLink(true);
+	}
+	else {
+		assessmentBean.setShowPrintLink(false);
+	}
   }
 }

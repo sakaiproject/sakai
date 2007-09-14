@@ -121,8 +121,8 @@ document.links[newindex].onclick();
         <f:param name="actionString" value="previewAssessment" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
       </h:commandLink>
-	  <h:outputText value=" #{authorMessages.separator} " />
-      <h:commandLink action="#{itemauthor.print}">
+	  <h:outputText value=" #{authorMessages.separator} " rendered="#{assessmentBean.showPrintLink eq 'true'}"/>
+      <h:commandLink action="#{itemauthor.print}" rendered="#{assessmentBean.showPrintLink eq 'true'}">
         <h:outputText value="#{authorMessages.subnav_print}" escape="false" />
      </h:commandLink>
   </p>

@@ -64,6 +64,7 @@ public class AssessmentBean  implements Serializable {
   private String newQuestionTypeId;
   private String firstSectionId;
   private boolean hasRandomDrawPart;
+  private boolean showPrintLink;
 
   /*
    * Creates a new AssessmentBean object.
@@ -255,6 +256,14 @@ public class AssessmentBean  implements Serializable {
 
   public void setHasRandomDrawPart(boolean param) {
     this.hasRandomDrawPart= param;
+  }
+  
+  public boolean getShowPrintLink() {
+	return this.showPrintLink;
+  }
+
+  public void setShowPrintLink(boolean showPrintLink) {
+	this.showPrintLink= showPrintLink;
   }
 
 }
