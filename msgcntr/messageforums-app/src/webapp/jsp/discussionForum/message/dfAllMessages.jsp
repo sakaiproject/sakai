@@ -43,9 +43,10 @@
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
 			      		rendered="#{ForumTool.forumsTool}" />
       			  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
-					  <h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" title=" #{ForumTool.selectedForum.forum.title}">
+					  <h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" title=" #{ForumTool.selectedForum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}">
 						  <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					  </h:commandLink>
+					  <h:outputText value="#{ForumTool.selectedForum.forum.title}" rendered="#{!ForumTool.showForumLinksInNav}"/>
 					  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 					  <h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 					  <f:verbatim></h3></div></f:verbatim>
@@ -129,8 +130,8 @@
 					<%-- Rendered to view current thread only --%>
 					<h:commandLink action="#{ForumTool.processActionDisplayThread}" immediate="true" title="#{message.message.title}"
 						rendered="#{message.depth == 0}">
-				   		<h:outputText escape="false" value="#{message.message.title}" rendered="#{message.read}" />
-    	        		<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}"/>
+				   		<h:outputText escape="false" value="#{message.message.title}" rendered="#{message.read && message.childUnread == 0 }" />
+    	        		<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read || message.childUnread > 0}"/>
 
 	       	    		<f:param value="#{message.message.id}" name="messageId"/>
     	    	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
@@ -167,8 +168,10 @@
 				</h:panelGroup>
                	
    	       		<h:outputText escape="false" value="<br />&nbsp;" rendered="#{message.depth == 0}" />
-    	   		<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 0}"
-           	   			value="#{msgs.cdfm_openb} #{message.childCount} #{msgs.cdfm_lowercase_msg} - #{message.childUnread} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
+    	   		<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 0 && message.read}"
+           	   			value="#{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msg} - #{message.childUnread} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
+           	   	<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 0 && !message.read}"
+           	   			value="#{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msg} - #{message.childUnread +1} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />		
 			</h:column>
 
 			<h:column>
@@ -176,8 +179,8 @@
 					<h:outputText value="#{msgs.cdfm_authoredby}" />
 				</f:facet>
 				<h:panelGroup rendered="#{!message.deleted}" >
-				 	<h:outputText value="#{message.message.author}" rendered="#{message.read}"/>
-    	        	<h:outputText styleClass="unreadMsg" value="#{message.message.author}" rendered="#{!message.read}"/>
+				 	<h:outputText value="#{message.message.author}" rendered="#{message.read && message.childUnread == 0}"/>
+    	        	<h:outputText styleClass="unreadMsg" value="#{message.message.author}" rendered="#{!message.read || message.childUnread > 0}"/>
 				</h:panelGroup>
 			</h:column>
 
@@ -186,10 +189,10 @@
 					<h:outputText value="#{msgs.cdfm_date}" />
 				</f:facet>
 				<h:panelGroup rendered="#{!message.deleted}" >
-				 	<h:outputText value="#{message.message.created}" rendered="#{message.read}">
+				 	<h:outputText value="#{message.message.created}" rendered="#{message.read && message.childUnread == 0}">
 					 	<f:convertDateTime pattern="#{msgs.date_format}" />
 					</h:outputText>
-    	        	<h:outputText styleClass="unreadMsg" value="#{message.message.created}" rendered="#{!message.read}">
+    	        	<h:outputText styleClass="unreadMsg" value="#{message.message.created}" rendered="#{!message.read || message.childUnread > 0}">
 					 	<f:convertDateTime pattern="#{msgs.date_format}" />
 				    </h:outputText>    	        	
 				</h:panelGroup>

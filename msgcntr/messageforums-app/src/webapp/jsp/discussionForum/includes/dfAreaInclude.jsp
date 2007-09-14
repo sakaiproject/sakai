@@ -11,9 +11,10 @@
 	      <h:graphicImage url="/images/lock.gif" alt="#{msgs.cdfm_forum_locked}"  rendered="#{forum.locked == 'true'}"/>
 	      <h:outputText id="emptyspace" value="  " rendered="#{forum.locked == 'true'}"/>
 	      <f:verbatim><h4></f:verbatim>
-	        <h:commandLink action="#{ForumTool.processActionDisplayForum}"  value="#{forum.forum.title}" title=" #{forum.forum.title}">
+	        <h:commandLink action="#{ForumTool.processActionDisplayForum}"  value="#{forum.forum.title}" title=" #{forum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}">
 		        <f:param value="#{forum.forum.id}" name="forumId"/>
 	        </h:commandLink>
+	        <h:outputText value="#{forum.forum.title}" rendered="#{!ForumTool.showForumLinksInNav}"/>
 	      <f:verbatim></h4></f:verbatim>
 	  	  </h:panelGroup>
 	  	  <h:panelGroup styleClass="msgNav">
@@ -92,6 +93,9 @@
 				<f:verbatim><div class="hierItemBlockChild"></f:verbatim>
 		      <h:panelGrid columns="2" summary="layout" width="100%" styleClass="specialLink" cellpadding="0" cellspacing="0" columnClasses="bogus,itemAction">
 		      	<h:panelGroup>
+		      	<h:graphicImage url="/images/folder.gif" alt="Topic Folder" rendered="#{topic.unreadNoMessages == 0 }" />
+					      <h:graphicImage url="/images/folder_unread.gif" alt="Topic Folder" rendered="#{topic.unreadNoMessages > 0 }" />
+					  <f:verbatim>&nbsp;&nbsp;</f:verbatim>
 						<h:outputText styleClass="highlight" id="draft" value="#{msgs.cdfm_draft}" rendered="#{topic.topic.draft == 'true'}"/>
 				      <h:outputText id="draft_space" value="  - " rendered="#{topic.topic.draft == 'true'}"/>
 				      <h:graphicImage url="/images/lock.gif" alt="#{msgs.cdfm_forum_locked}"  rendered="#{forum.locked == 'true' || topic.locked == 'true'}"/>
