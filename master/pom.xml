@@ -86,6 +86,7 @@
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.pluto.version>1.1.2</sakai.pluto.version>
     <sakai.jcr.version>1.0</sakai.jcr.version>
+    <sakai.generic-dao.version>0.9.1</sakai.generic-dao.version>
   </properties>
 <pluginRepositories>
   <pluginRepository>
