@@ -25,4 +25,14 @@
   		</property>
 	</bean>
 
+	<bean id="org.sakaiproject.memory.MemoryService.mref_map" 
+  			class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+  		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
+    	<property name="cacheName"><value>org.sakaiproject.memory.MemoryService.mref_map</value></property>
+    	<property name="eternal" ><value>true</value></property>
+    	<property name="maxElementsInMemory" ><value>1</value></property>
+    	<property name="overflowToDisk"><value>true</value></property>
+    	<property name="diskPersistent" ><value>false</value></property>
+  	</bean>
+
 </beans>
