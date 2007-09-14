@@ -64,9 +64,9 @@
 					<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
 					<label for="notify_dropbox">
 						#if($model.userIsMaintainer())
-							$tlang.getString("notify.instructor")
-						#else
 							$tlang.getString("notify.student")
+						#else
+							$tlang.getString("notify.instructor")
 						#end
 					</label>
 				</p>

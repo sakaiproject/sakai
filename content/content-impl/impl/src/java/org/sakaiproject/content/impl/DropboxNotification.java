@@ -27,8 +27,10 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
@@ -41,6 +43,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -164,44 +168,64 @@ public class DropboxNotification extends EmailNotification
 		List recipients = new ArrayList();
 		
 		String resourceRef = event.getResource();
+		Reference ref = EntityManager.newReference(resourceRef);
+		
+		ResourceProperties props = ref.getProperties();
+		String modifiedBy = props.getProperty(ResourceProperties.PROP_MODIFIED_BY);
+		
 		String parts[] = resourceRef.split("/");
 		if(parts.length >= 4)
 		{
 			String dropboxOwnerId = parts[4];
-			String modifiedById = event.getUserId();
-			if(modifiedById == null)
-			{
-				
-			}
-			if(modifiedById != null && modifiedById.equals(dropboxOwnerId))
+			if(modifiedBy != null && modifiedBy.equals(dropboxOwnerId))
 			{
 				// notify instructor(s)
+				StringBuilder buf = new StringBuilder();
+				buf.append("/content/group-user/"); 
+				buf.append(parts[3]); 
+				buf.append("/"); 
+				String siteDropbox = buf.toString();
+
+				recipients.addAll( SecurityService.unlockUsers(ContentHostingService.AUTH_DROPBOX_MAINTAIN, siteDropbox) ); 
 			}
 			else
 			{
 				// notify student
-				User dropboxOwner = null;
 				try
 				{
-					dropboxOwner = UserDirectoryService.getUser(dropboxOwnerId);
-					recipients.add(dropboxOwner);
+					User user = UserDirectoryService.getUser(dropboxOwnerId);
+					recipients.add(user);
 				}
 				catch(UserNotDefinedException e0)
 				{
 					try
 					{
-						dropboxOwner = UserDirectoryService.getUserByEid(dropboxOwnerId);
-						recipients.add(dropboxOwner);
+						User user = UserDirectoryService.getUserByEid(dropboxOwnerId);
+						recipients.add(user);
 					}
 					catch(UserNotDefinedException e1)
 					{
 						logger.warn("UserNotDefinedException trying to get user: " + dropboxOwnerId);
 					}
 				}
+				
 			}
 		}
 		
 		return recipients;
+	}
+
+	protected String getSiteDropboxCollectionId(String id) 
+	{
+		StringBuilder buf = new StringBuilder();
+		String parts[] = id.split("/");
+		if(parts.length >= 3)
+		{
+			buf.append("/group-user/"); 
+			buf.append(parts[2]); 
+			buf.append("/"); 
+		}
+		return buf.toString();
 	}
 
 	/* (non-Javadoc)
@@ -348,6 +372,18 @@ public class DropboxNotification extends EmailNotification
 			buf.append(blankLine);
 		}
 
+		// add a reference to the resource for non-HTML
+		if ( ! doHtml )
+		{
+			buf.append("\n" + rb.getString("resour") + " " + resourceName);
+			if (copyrightAlert)
+			{
+				buf.append(" (c)");
+			}
+			buf.append(" " + url);
+			buf.append("\n\n");  // End on a blank line
+		}
+		
 		// Add the tag
 		if (doHtml) 
 		{

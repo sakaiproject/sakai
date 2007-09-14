@@ -327,7 +327,6 @@ public class ListItem
 	protected boolean isHot = false;
 	protected boolean isSortable = false;
 	protected boolean isTooBig = false;
-	protected boolean userIsMaintainer = false;
 	protected String size = "";
 	protected String sizzle = "";
 	protected String createdBy;
@@ -442,26 +441,6 @@ public class ListItem
 		else if(this.containingCollectionId != null)
 		{
 			this.isDropbox = contentService.isInDropbox(this.containingCollectionId);
-		}
-		if(this.isDropbox)
-		{
-			String dropboxId = null;
-			if(id != null)
-			{
-				dropboxId = getSiteDropboxId(id);
-			}
-			else if(containingCollectionId != null)
-			{
-				dropboxId = getSiteDropboxId(containingCollectionId);
-			}
-			else if(parent != null)
-			{
-				dropboxId = getSiteDropboxId(parent.getId());
-			}
-			if(dropboxId != null)
-			{
-				userIsMaintainer = ContentHostingService.allowUpdateCollection(dropboxId);
-			}
 		}
 
 		ResourceProperties props = entity.getProperties();
@@ -996,26 +975,6 @@ public class ListItem
 			String createdBy = creator.getDisplayName();
 			setCreatedBy(createdBy);
 			setModifiedBy(createdBy);
-			if(this.isDropbox)
-			{
-				String dropboxId = null;
-				if(id != null)
-				{
-					dropboxId = getSiteDropboxId(id);
-				}
-				else if(containingCollectionId != null)
-				{
-					dropboxId = getSiteDropboxId(containingCollectionId);
-				}
-				else if(parent != null)
-				{
-					dropboxId = getSiteDropboxId(parent.getId());
-				}
-				if(dropboxId != null)
-				{
-					userIsMaintainer = ContentHostingService.allowUpdateCollection(dropboxId);
-				}
-			}
 		}
 		// setCreatedBy(props.getProperty(ResourceProperties.PROP_CREATOR));
 		this.setModifiedTime(now.getDisplay());
@@ -3500,14 +3459,53 @@ public class ListItem
 		this.isHot = isHot;
 	}
 
+	private String getIndividualDropboxId(String id) 
+	{
+		String rv = null;
+		if(id != null)
+		{
+			String parts[] = id.split("/");
+			if(parts.length >= 4)
+			{
+				rv = "/" + parts[1] + "/" + parts[2] + "/" + parts[3] + "/";
+			}
+		}
+		return rv;
+	}
+
+	/**
+	 * Determine whether the user is a Dropbox maintainer for the root-level dropbox (provided the current item is
+	 * an individual dropbox or an item inside an individual dropbox). 
+	 * @return true if the user is a site-level maintainer for the dropbox (provided the current item is
+	 * an individual dropbox or an item inside an individual dropbox), and false otherwise.
+	 */
 	public boolean userIsMaintainer()
 	{
+		boolean userIsMaintainer = false;
+		if(this.isDropbox)
+		{
+			String dropboxId = null;
+			if(id != null && !id.trim().equals(""))
+			{
+				dropboxId = getIndividualDropboxId(id);
+			}
+			else if(containingCollectionId != null && ! containingCollectionId.trim().equals(""))
+			{
+				dropboxId = getIndividualDropboxId(containingCollectionId);
+			}
+			else if(parent != null)
+			{
+				dropboxId = getIndividualDropboxId(parent.getId());
+			}
+			if(dropboxId != null)
+			{
+				User currentUser = UserDirectoryService.getCurrentUser();
+				String userEid = currentUser.getEid();
+				String userId = currentUser.getId();
+				userIsMaintainer = ! ((userEid == null || dropboxId.contains(userEid)) || (userId == null || dropboxId.contains(userId)));
+			}
+		}
 		return userIsMaintainer;
-	}
-	
-	public void setUserIsMaintainer(boolean userIsMaintainer)
-	{
-		this.userIsMaintainer = userIsMaintainer;
 	}
 	
 }
