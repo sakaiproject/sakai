@@ -108,13 +108,14 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 			validationFailure = true;
 		}
 
-		// Ensure that the user didn't choose to limit the size of the section without specifying a max size
-		if(Boolean.TRUE.toString().equals(section.getLimitSize()) && section.getMaxEnrollments() == null) {
-			String componentId = "editSectionForm:maxEnrollmentInput";
-			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-					"sections_specify_limit"), componentId);
-			validationFailure = true;
-		}
+        // Ensure that the user didn't choose to limit the size of the section without specifying a max size
+			if(Boolean.TRUE.toString().equals(section.getLimitSize()) && section.getMaxEnrollments() == null) {
+				String componentId = "editSectionForm:sectionTable:" + 0 + ":maxEnrollmentInput";
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
+						"sections_specify_limit"), componentId);
+				validationFailure = true;
+			}
+
 
 		// Ensure that the times entered in the meetings are valid, and that they end after they start
 		int meetingIndex = 0;
@@ -123,7 +124,7 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 			if( ! meeting.isStartTimeDefault() && super.isInvalidTime(meeting.getStartTimeString())) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... start time is invalid");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:sectionTable_0:meetingsTable_" + meetingIndex + ":startTime");
+						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:sectionTable:0:meetingsTable:" + 0 + ":startTime");
 				validationFailure = true;
 				invalidTimeEntered = true;
 			}
@@ -131,7 +132,7 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 			if( ! meeting.isEndTimeDefault() && super.isInvalidTime(meeting.getEndTimeString())) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is invalid");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:sectionTable_0:meetingsTable_" + meetingIndex + ":endTime");
+						"javax.faces.convert.DateTimeConverter.CONVERSION"), "editSectionForm:sectionTable:0:meetingsTable:" + 0 + ":endTime");
 				validationFailure = true;
 				invalidTimeEntered = true;
 			}
@@ -139,14 +140,14 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 			if(!invalidTimeEntered && super.isEndTimeWithoutStartTime(meeting)) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"section_update_failure_end_without_start"), "editSectionForm:sectionTable_0:meetingsTable_" + meetingIndex + ":startTime");
+						"section_update_failure_end_without_start"), "editSectionForm:sectionTable:0:meetingsTable:" + 0 + ":startTime");
 				validationFailure = true;
 			}
 			
 			if(!invalidTimeEntered && super.isEndTimeBeforeStartTime(meeting)) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
-						"section_update_failure_end_before_start"), "editSectionForm:sectionTable_0:meetingsTable_" + meetingIndex + ":endTime");
+						"section_update_failure_end_before_start"), "editSectionForm:sectionTable:0:meetingsTable:" + 0 + ":endTime");
 				validationFailure = true;
 			}
 		}
