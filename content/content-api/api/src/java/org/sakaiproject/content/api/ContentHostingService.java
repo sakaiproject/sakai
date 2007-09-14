@@ -1650,4 +1650,11 @@ public interface ContentHostingService extends EntityProducer
      */
     public boolean isContentHostingHandlersEnabled();
 
+    /**
+     * Access the name of the individual dropbox that contains a particular entity, or null if the entity is not inside an individual dropbox.
+     * @param entityId The id for an entity
+     * @return
+     */
+	public String getIndividualDropboxId(String entityId);
+
 }

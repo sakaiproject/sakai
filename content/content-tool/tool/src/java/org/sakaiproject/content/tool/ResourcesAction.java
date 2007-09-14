@@ -5499,8 +5499,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				// %%STATE_MODE_RESOURCES%%
 				if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 				{
-					// set noti to none if in dropbox mode
-					noti = NotificationService.NOTI_NONE;
+	   				boolean notification = params.getBoolean("notify_dropbox");
+	  				if(notification)
+	   				{
+	   					noti = NotificationService.NOTI_REQUIRED;
+	   				}
+	   				else
+	   				{
+	   					// set noti to none if in dropbox mode
+	   					noti = NotificationService.NOTI_NONE;
+	   				}
 				}
 				else
 				{
@@ -6533,8 +6541,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			// %%STATE_MODE_RESOURCES%%
 			if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 			{
-				// set noti to none if in dropbox mode
-				noti = NotificationService.NOTI_NONE;
+   				boolean notification = params.getBoolean("notify_dropbox");
+  				if(notification)
+   				{
+   					noti = NotificationService.NOTI_REQUIRED;
+   				}
+   				else
+   				{
+   					// set noti to none if in dropbox mode
+   					noti = NotificationService.NOTI_NONE;
+   				}
 			}
 			else
 			{

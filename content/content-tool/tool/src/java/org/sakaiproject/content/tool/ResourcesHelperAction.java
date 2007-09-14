@@ -629,6 +629,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		// notification
 		int noti = NotificationService.NOTI_NONE;
+
 		// read the notification options
 		String notification = params.getString("notify");
 		if ("r".equals(notification))
@@ -639,6 +640,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		{
 			noti = NotificationService.NOTI_OPTIONAL;
 		}
+		// boolean notification = params.getBoolean("notify_dropbox");
+
 		
 		pipe.setRevisedMimeType(pipe.getMimeType());
 		if(ResourceType.TYPE_TEXT.equals(resourceType) || ResourceType.MIME_TYPE_TEXT.equals(mimetype))
@@ -853,14 +856,22 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
             	pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, (String) pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING));
             }
             
-			ListItem newFile = new ListItem(filename);
+			ListItem newFile = new ListItem(pipe.getContentEntity());
 			// notification
 			int noti = NotificationService.NOTI_NONE;
 			// %%STATE_MODE_RESOURCES%%
 			if (newFile.isDropbox())
 			{
-				// set noti to none if in dropbox mode
-				noti = NotificationService.NOTI_NONE;
+   				boolean notification = params.getBoolean("notify_dropbox");
+   				if(notification)
+   				{
+   					noti = NotificationService.NOTI_REQUIRED;
+   				}
+   				else
+   				{
+   					// set noti to none if in dropbox mode
+   					noti = NotificationService.NOTI_NONE;
+   				}
 			}
 			else
 			{
@@ -992,8 +1003,16 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			// %%STATE_MODE_RESOURCES%%
 			if (newFile.isDropbox())
 			{
-				// set noti to none if in dropbox mode
-				noti = NotificationService.NOTI_NONE;
+   				boolean notification = params.getBoolean("notify_dropbox");
+  				if(notification)
+   				{
+   					noti = NotificationService.NOTI_REQUIRED;
+   				}
+   				else
+   				{
+   					// set noti to none if in dropbox mode
+   					noti = NotificationService.NOTI_NONE;
+   				}
 			}
 			else
 			{
@@ -1186,8 +1205,16 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
     			// %%STATE_MODE_RESOURCES%%
     			if (newFile.isDropbox())
     			{
-    				// set noti to none if in dropbox mode
-    				noti = NotificationService.NOTI_NONE;
+    				boolean notification = params.getBoolean("notify_dropbox");
+      				if(notification)
+       				{
+       					noti = NotificationService.NOTI_REQUIRED;
+       				}
+       				else
+       				{
+       					// set noti to none if in dropbox mode
+       					noti = NotificationService.NOTI_NONE;
+       				}
     			}
     			else
     			{

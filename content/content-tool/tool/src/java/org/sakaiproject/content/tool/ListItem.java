@@ -327,6 +327,7 @@ public class ListItem
 	protected boolean isHot = false;
 	protected boolean isSortable = false;
 	protected boolean isTooBig = false;
+	protected boolean userIsMaintainer = false;
 	protected String size = "";
 	protected String sizzle = "";
 	protected String createdBy;
@@ -442,6 +443,27 @@ public class ListItem
 		{
 			this.isDropbox = contentService.isInDropbox(this.containingCollectionId);
 		}
+		if(this.isDropbox)
+		{
+			String dropboxId = null;
+			if(id != null)
+			{
+				dropboxId = getSiteDropboxId(id);
+			}
+			else if(containingCollectionId != null)
+			{
+				dropboxId = getSiteDropboxId(containingCollectionId);
+			}
+			else if(parent != null)
+			{
+				dropboxId = getSiteDropboxId(parent.getId());
+			}
+			if(dropboxId != null)
+			{
+				userIsMaintainer = ContentHostingService.allowUpdateCollection(dropboxId);
+			}
+		}
+
 		ResourceProperties props = entity.getProperties();
 		this.accessUrl = entity.getUrl();
 		this.collection = entity.isCollection();
@@ -836,6 +858,20 @@ public class ListItem
 		this.isAvailable = entity.isAvailable();
     }
 
+	private String getSiteDropboxId(String id) 
+	{
+		String rv = null;
+		if(id != null)
+		{
+			String parts[] = id.split("/");
+			if(parts.length >= 3)
+			{
+				rv = "/" + parts[1] + "/" + parts[2] + "/";
+			}
+		}
+		return rv;
+	}
+
 	protected void setSizzle(String sizzle) 
 	{
 		this.sizzle = sizzle;
@@ -960,6 +996,26 @@ public class ListItem
 			String createdBy = creator.getDisplayName();
 			setCreatedBy(createdBy);
 			setModifiedBy(createdBy);
+			if(this.isDropbox)
+			{
+				String dropboxId = null;
+				if(id != null)
+				{
+					dropboxId = getSiteDropboxId(id);
+				}
+				else if(containingCollectionId != null)
+				{
+					dropboxId = getSiteDropboxId(containingCollectionId);
+				}
+				else if(parent != null)
+				{
+					dropboxId = getSiteDropboxId(parent.getId());
+				}
+				if(dropboxId != null)
+				{
+					userIsMaintainer = ContentHostingService.allowUpdateCollection(dropboxId);
+				}
+			}
 		}
 		// setCreatedBy(props.getProperty(ResourceProperties.PROP_CREATOR));
 		this.setModifiedTime(now.getDisplay());
@@ -3444,6 +3500,15 @@ public class ListItem
 		this.isHot = isHot;
 	}
 
-
+	public boolean userIsMaintainer()
+	{
+		return userIsMaintainer;
+	}
+	
+	public void setUserIsMaintainer(boolean userIsMaintainer)
+	{
+		this.userIsMaintainer = userIsMaintainer;
+	}
+	
 }
 

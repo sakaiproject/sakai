@@ -673,7 +673,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// %%% is this the best we can do? -ggolden
 
 			// set the action
-			edit.setAction(new DropboxNotification());
+			dbNoti.setAction(new DropboxNotification());
 			
 
 			StringBuilder buf = new StringBuilder();
@@ -1394,12 +1394,17 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return dropboxId;
 	}
 
-	public String getIndividualDropboxId(String id)
+    /**
+     * Access the name of the individual dropbox that contains a particular entity, or null if the entity is not inside an individual dropbox.
+     * @param entityId The id for an entity
+     * @return
+     */
+	public String getIndividualDropboxId(String entityId)
 	{
 		String dropboxId = null;
-		if(isInDropbox(id))
+		if(entityId != null && isInDropbox(entityId))
 		{
-			String[] parts = id.split(Entity.SEPARATOR);
+			String[] parts = entityId.split(Entity.SEPARATOR);
 			if(parts.length >= 4)
 			{
 				dropboxId = Entity.SEPARATOR + parts[1] + Entity.SEPARATOR + parts[2]  + Entity.SEPARATOR + parts[3] + Entity.SEPARATOR;

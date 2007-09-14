@@ -22,8 +22,20 @@
 				</tr>
 			</table>
 		</div>
-		#if(! $item.isDropbox() && ! $item.isUserSite())
-			#if ($hasNotificationDialog)
+		#if ($hasNotificationDialog)
+			#if($item.isDropbox())
+				<p class="act">
+					<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
+					<label for="notify_dropbox">
+						#if($item.userIsMaintainer())
+							$tlang.getString("notify.instructor")
+						#else
+							$tlang.getString("notify.student")
+						#end
+					</label>
+				</p>
+			#elseif($item.isUserSite())
+			#else
 				<p class="shorttext">
 					<label for="notify">
 						$tlang.getString("gen.email1")

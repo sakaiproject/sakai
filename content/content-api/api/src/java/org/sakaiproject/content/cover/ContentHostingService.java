@@ -1058,4 +1058,17 @@ public class ContentHostingService
 
 		return service.isContentHostingHandlersEnabled();
     }
+
+    /**
+     * Access the name of the individual dropbox that contains a particular entity, or null if the entity is not inside an individual dropbox.
+     * @param entityId The id for an entity
+     * @return
+     */
+	public static String getIndividualDropboxId(String entityId) 
+	{
+    	org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
+
+		return service.getIndividualDropboxId(entityId);
+	}
 }
