@@ -23,12 +23,13 @@ package org.sakaiproject.memory.impl;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Observable;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.event.CacheEventListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,16 +48,17 @@ import org.sakaiproject.memory.api.MultiRefCache;
  * The cache map itself becomes synchronized when it's manipulated (not when reads occur), so this added sync. for the refs fits the existing pattern.
  * </p>
  */
-public class MultiRefCacheImpl extends MemCache implements MultiRefCache
-{
+public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
+		CacheEventListener 
+	{
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(MultiRefCacheImpl.class);
 
 	/** Map of reference string -> Collection of cache keys. */
-	protected Map m_refs = new ConcurrentHashMap();
+//	protected final Map m_refs = new ConcurrentHashMap();
 
-	// /** Enable for runtime cache consistency checking (likely expensive). */
-	// protected final static boolean TEST = true;
+	/** Map of reference string -> Collection of cache keys. */
+	protected Ehcache mref_cache = null;
 
 	protected class MultiRefCacheEntry extends CacheEntry
 	{
@@ -74,7 +76,6 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache
 		 *        One entity reference that, if changed, will invalidate this entry.
 		 * @param azgRefs
 		 *        AuthzGroup refs that, if the changed, will invalidate this entry.
-		 * @deprecated
 		 */
 		public MultiRefCacheEntry(Object payload, int duration, String ref, Collection azgRefs)
 		{
@@ -97,18 +98,30 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache
 	 * @deprecated long sleep no longer used with ehcache
 	 */
 	public MultiRefCacheImpl(BasicMemoryService memoryService,
-			EventTrackingService eventTrackingService, long sleep, Ehcache cache)
+			EventTrackingService eventTrackingService, long sleep, Ehcache cache,
+			Ehcache mrefCache)
 	{
 		super(memoryService, eventTrackingService, sleep, "", cache);
+		cache.getCacheEventNotificationService().registerListener(this);
+		
+		if (mrefCache == null || !mrefCache.isEternal())
+			throw new IllegalStateException("mref_cache must be eternal!");
+		this.mref_cache = mrefCache;
 	}
 
 	/**
 	 * Construct the Cache - checks for expiration periodically.
 	 */
 	public MultiRefCacheImpl(BasicMemoryService memoryService,
-			EventTrackingService eventTrackingService, Ehcache cache)
+			EventTrackingService eventTrackingService, Ehcache cache,
+			Ehcache mrefCache)
 	{
 		super(memoryService, eventTrackingService, "", cache);
+		cache.getCacheEventNotificationService().registerListener(this);
+
+		if (mrefCache == null || !mrefCache.isEternal())
+			throw new IllegalStateException("mref_cache must be eternal!");
+		this.mref_cache = mrefCache;
 	}
 
 	/**
@@ -152,9 +165,6 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache
 				addRefCachedKey(azgRef, key);
 			}
 		}
-
-			// perform (likely expensive) cache consistency check
-			// if (TEST) checkState();
 	}
 
 	/**
@@ -183,16 +193,23 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache
 	 */
 	protected void addRefCachedKey(String ref, Object key)
 	{
-		Collection cachedKeys = (Collection) m_refs.get(ref);
-		if (cachedKeys == null)
-		{
+		Collection cachedKeys = null;
+		final Element element = mref_cache.get(ref);
+		if(element == null)
+		{	// nothing found in cache - create new Collection of refs
 			cachedKeys = new ArrayList();
-			m_refs.put(ref, cachedKeys);
-		}
-		if (!cachedKeys.contains(key))
-		{
 			cachedKeys.add(key);
+			mref_cache.put(new Element(ref, cachedKeys));
 		}
+		else
+		{
+			cachedKeys = (Collection) element.getObjectValue();
+			if (!cachedKeys.contains(key))
+			{
+				cachedKeys.add(key);
+				mref_cache.put(new Element(ref, cachedKeys));
+			}
+		}		
 	}
 
 	/**
@@ -201,43 +218,44 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache
 	public void clear()
 	{
 		super.clear();
-		m_refs.clear();
+		mref_cache.removeAll();
+		mref_cache.getStatistics().clearStatistics();
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public void remove(Object key)
+	private void cleanEntityReferences(Object key, Object value)
 	{
-		if (M_log.isDebugEnabled()) 
-		{
-			M_log.debug("remove(Object " + key + ")");
-		}
-		if (disabled()) return;
+		if (M_log.isDebugEnabled())
+			M_log.debug("maintainEntityReferences(Object " + key
+					+ ", Object " + value + ")");
+		
+		if (value == null) return;
 
-		MultiRefCacheEntry cachedEntry = (MultiRefCacheEntry) super.get(key);
-		super.remove(key);
-		if (cachedEntry == null) return;
-
+		final MultiRefCacheEntry cachedEntry = (MultiRefCacheEntry) value;
+		
 		// remove this key from any of the entity references in m_refs that are dependent on this entry
-			for (Iterator iRefs = cachedEntry.getRefs().iterator(); iRefs.hasNext();)
+		for (Iterator iRefs = cachedEntry.getRefs().iterator(); iRefs.hasNext();)
+		{
+			String ref = (String) iRefs.next();
+			final Element element = mref_cache.get(ref);
+			if(element != null)
 			{
-				String ref = (String) iRefs.next();
-				Collection keys = (Collection) m_refs.get(ref);
+				Collection keys = (Collection) element.getObjectValue();
 				if ((keys != null) && (keys.contains(key)))
 				{
 					keys.remove(key);
 
-					// remove the ref entry if it no longer has any cached keys in its colleciton
+					// remove the ref entry if it no longer has any cached keys in its collection
 					if (keys.isEmpty())
 					{
-						m_refs.remove(ref);
+						mref_cache.remove(ref);
 					}
-				}
+					else
+					{
+						mref_cache.put(new Element(ref, keys)); // refresh cache
+					}
+				}				
 			}
-
-			// perform (likely expensive) cache consistency check
-			// if (TEST) checkState();
+		}
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -295,15 +313,20 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache
 					+ " event: " + event.getEvent());
 
 		// do we have this in our ref list
-		if (m_refs.containsKey(ref))
+		if (mref_cache.isKeyInCache(ref))
 		{
 			// get the copy of the Collection of cache keys for this reference (the actual collection will be reduced as the removes occur)
-			Collection cachedKeys = new ArrayList((Collection) m_refs.get(ref));
-
-			// invalidate all these keys
-			for (Iterator iKeys = cachedKeys.iterator(); iKeys.hasNext();)
+			final Element element = mref_cache.get(ref);
+			if(element != null)
 			{
-				remove(iKeys.next());
+				Collection cachedKeys = new ArrayList((Collection) element
+						.getObjectValue());
+
+				// invalidate all these keys
+				for (Iterator iKeys = cachedKeys.iterator(); iKeys.hasNext();)
+				{
+					remove(iKeys.next()); // evict primary authz cache
+				}
 			}
 		}
 	}
@@ -335,6 +358,91 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache
 		MultiRefCacheEntry mrce = (MultiRefCacheEntry) super.get(key);
 		return (mrce != null ? mrce.getPayload(key) : null);
 	}
+
+	//////////////////////////////////////////////////////////////////////
+	//  CacheEventListener methods. Cleanup HashMap of m_refs on eviction.
+	//////////////////////////////////////////////////////////////////////
+
+	public void dispose() 
+	{
+		M_log.debug("dispose()");
+		// may not be necessary...
+		mref_cache.removeAll();
+		mref_cache.getStatistics().clearStatistics();
+	}
+
+	public void notifyElementEvicted(Ehcache cache, Element element) 
+	{
+		if (M_log.isDebugEnabled())
+			M_log.debug("notifyElementEvicted(Ehcache " + cache + ")");
+		
+		cleanEntityReferences(element.getObjectKey(), element
+				.getObjectValue());
+	}
+
+	public void notifyElementExpired(Ehcache cache, Element element) 
+	{
+		if (M_log.isDebugEnabled())
+			M_log.debug("notifyElementExpired(Ehcache " + cache + ")");
+		
+		cleanEntityReferences(element.getObjectKey(), element
+				.getObjectValue());
+	}
+
+	public void notifyElementPut(Ehcache cache, Element element)
+			throws CacheException 
+	{
+		if (M_log.isDebugEnabled())
+			M_log.debug("notifyElementPut(Ehcache " + cache + ")");
+		
+		// do nothing...
+		
+	}
+
+	public void notifyElementRemoved(Ehcache cache, Element element)
+			throws CacheException 
+	{
+		if (M_log.isDebugEnabled())
+			M_log.debug("notifyElementRemoved(Ehcache " + cache + ")");
+		
+		cleanEntityReferences(element.getObjectKey(), element
+				.getObjectValue());
+	}
+
+	public void notifyElementUpdated(Ehcache cache, Element element)
+			throws CacheException 
+	{
+		if (M_log.isDebugEnabled())
+			M_log.debug("notifyElementUpdated(Ehcache " + cache + ")");
+		
+		// do nothing...
+		
+	}
+
+	public void notifyRemoveAll(Ehcache cache) 
+	{
+		if (M_log.isDebugEnabled())
+			M_log.debug("notifyRemoveAll(Ehcache " + cache + ")");
+		
+		mref_cache.removeAll();
+		mref_cache.getStatistics().clearStatistics();
+	}
+
+	/**
+	 * @see CacheEventListener#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException 
+	{
+		M_log.debug("clone()");
+		
+		// Creates a clone of this listener. This method will only be called by ehcache before a cache is initialized.
+		// This may not be possible for listeners after they have been initialized. Implementations should throw CloneNotSupportedException if they do not support clone.
+		throw new CloneNotSupportedException(
+				"CacheEventListener implementations should throw CloneNotSupportedException if they do not support clone");
+	}
+	
+	
 
 //	/**
 //	 * Check that the cache and the m_refs are consistent.
