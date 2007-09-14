@@ -8258,19 +8258,39 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public List findResources(String type, String primaryMimeType, String subMimeType)
 	{
-		List globalList = new ArrayList();
+		return findResources(type, primaryMimeType, subMimeType, true);
+	}
+	
+	/**
+    * {@inheritDoc}
+    */
+   public List findResources(String type, String primaryMimeType, String subMimeType, boolean findAccessableOnly) {
+	   List globalList = new ArrayList();
+	   List<String> collectionList = new ArrayList<String>();
 
-		Map othersites = getCollectionMap();
-		Iterator siteIt = othersites.keySet().iterator();
-		while (siteIt.hasNext())
-		{
-			String collId = (String) siteIt.next();
-			String displayName = (String) othersites.get(collId);
-			List artifacts = getFlatResources(collId);
-			globalList.addAll(filterArtifacts(artifacts, type, primaryMimeType, subMimeType, true));
-		}
+	   if (findAccessableOnly) {
+         Map othersites = getCollectionMap();
+         Iterator siteIt = othersites.keySet().iterator();
+         while (siteIt.hasNext())
+         {
+            String collId = (String) siteIt.next();
+            //String displayName = (String) othersites.get(collId);
+            collectionList.add(collId);
+            
+         }
+	   }
+	   else {
+	      // This will find all, not just the sites we have access to
+	      collectionList.add("/");
+	   }
+      
+      for (Iterator<String> iter = collectionList.iterator(); iter.hasNext();) {
+         String collectionId = iter.next();
+         List artifacts = getFlatResources(collectionId);
+         globalList.addAll(filterArtifacts(artifacts, type, primaryMimeType, subMimeType, true));
+      }
 
-		return globalList;
+      return globalList;
 	}
 
 	/**
