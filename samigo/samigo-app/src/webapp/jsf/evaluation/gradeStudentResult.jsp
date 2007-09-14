@@ -62,6 +62,22 @@ document.links[newindex].onclick();
 window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height=600,scrollbars=yes, resizable=yes');
 }
 
+function clickEmailLink(field, fromName, fromEmailAddress, toName, toEmailAddress, assessmentName){
+var emaillinkid= field.id.replace("createEmail", "hiddenlink");
+var newindex = 0;
+for (i=0; i<document.links.length; i++) {
+  if(document.links[i].id == emaillinkid)
+  {
+    newindex = i;
+    break;
+  }
+}
+
+document.links[newindex].onclick();
+window.open("../evaluation/createNewEmail.faces?fromEmailLinkClick=true&fromName=" + fromName + "&fromEmailAddress=" + fromEmailAddress + "&toName=" + toName + "&toEmailAddress=" + toEmailAddress +  "&assessmentName=" + assessmentName,'createEmail','width=600,height=600,scrollbars=yes, resizable=yes');
+
+document.location='../evaluation/gradeStudentResult';
+}
 
 </script>
 
@@ -253,16 +269,14 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
   </h:dataTable>
 </div>
 
-<h:outputLink id="createEmail" onclick="clickEmailLink(this);" value="../evaluation/gradeStudentResult">
+<h:outputLink id="createEmail1" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", '#{totalScores.graderEmailInfo}', \"#{studentScores.firstName} #{studentScores.lastName}\", '#{studentScores.email}', '#{totalScores.assessmentName}');" value="#"> 
   <h:outputText value="  #{evaluationMessages.email} #{studentScores.firstName}" rendered="#{studentScores.email != null && studentScores.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 </h:outputLink>
-<h:commandLink id="hiddenlink" action="totalScores" value="">
-  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
-  <f:param name="toName" value="#{studentScores.studentName}" />
-  <f:param name="toEmailAddress" value="#{studentScores.email}" />
-  <f:param name="toFirstName" value="#{studentScores.firstName}" />
-</h:commandLink>
 
+<h:commandLink id="hiddenlink1" value="" action="studentScores">
+  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
+  <f:param name="toUserId" value="#{studentScores.studentId}" />
+</h:commandLink>
 
 <p class="act">
    <h:commandButton accesskey="#{evaluationMessages.a_save}" styleClass="active" value="#{evaluationMessages.save_cont}" action="totalScores" type="submit">

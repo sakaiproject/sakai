@@ -103,6 +103,7 @@ public class StudentScoreListener
       bean.setStudentId(studentId);
       AgentFacade agent = new AgentFacade(studentId);
       bean.setStudentName(agent.getFirstName() + " " + agent.getLastName());
+      bean.setLastName(agent.getLastName());
       bean.setFirstName(agent.getFirstName());
       bean.setAssessmentGradingId(cu.lookupParam("gradingData"));
       bean.setItemId(cu.lookupParam("itemId"));
