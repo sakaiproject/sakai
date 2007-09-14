@@ -3,38 +3,38 @@
 
 <beans>
    <!-- <bean id="adminToolOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arct</value></property>
+      <property name="docId"><value>arct_fr_CA</value></property>
       <property name="name"><value>Admin Tool Overview</value></property>
       <property name="location"><value>/sakai_admin_tool/arct.html</value></property>
       <property name="defaultForTool"><value>sakai.admin.tool</value></property>
    </bean> -->
    
    <!-- <bean id="addUser" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arfa</value></property>
+      <property name="docId"><value>arfa_fr_CA</value></property>
       <property name="name"><value>Add New User</value></property>
       <property name="location"><value>/sakai_admin_tool/arfa.html</value></property>
    </bean> -->
    
    <!-- <bean id="deleteUser" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aref</value></property>
+      <property name="docId"><value>aref_fr_CA</value></property>
       <property name="name"><value>Delete User</value></property>
       <property name="location"><value>/sakai_admin_tool/aref.html</value></property>
    </bean> -->
    
    <!-- <bean id="resetPassword" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arac</value></property>
+      <property name="docId"><value>arac_fr_CA</value></property>
       <property name="name"><value>Reset User's Password</value></property>
       <property name="location"><value>/sakai_admin_tool/arac.html</value></property>
    </bean> -->
    
    <!-- <bean id="changeName" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqzz</value></property>
+      <property name="docId"><value>aqzz_fr_CA</value></property>
       <property name="name"><value>Change User's Name</value></property>
       <property name="location"><value>/sakai_admin_tool/aqzz.html</value></property>
    </bean> -->
    
    <!-- <bean id="changeAccountType" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqzo</value></property>
+      <property name="docId"><value>aqzo_fr_CA</value></property>
       <property name="name"><value>Change User's Account Type</value></property>
       <property name="location"><value>/sakai_admin_tool/aqzo.html</value></property>
    </bean> -->

@@ -3,113 +3,113 @@
 
 <beans>
    <!-- <bean id="workspaceOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqzy</value></property>
+      <property name="docId"><value>aqzy_fr_CA</value></property>
       <property name="name"><value>Workspace Overview</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/aqzy.html</value></property>
       <property name="defaultForTool"><value>sakai.iframe.myworkspace</value></property>
    </bean> -->
    
    <!-- <bean id="changeNotificationPreferences" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqzv</value></property>
+      <property name="docId"><value>aqzv_fr_CA</value></property>
       <property name="name"><value>Change Notification Preferences</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/aqzv.html</value></property>
    </bean> -->
    
    <!-- <bean id="addTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arbj</value></property>
+      <property name="docId"><value>arbj_fr_CA</value></property>
       <property name="name"><value>Add/Edit/Delete Tools</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arbj.html</value></property>
    </bean> -->
    
    <!-- <bean id="searchUserProfile" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ardb</value></property>
+      <property name="docId"><value>ardb_fr_CA</value></property>
       <property name="name"><value>Search User's Profile</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/ardb.html</value></property>
    </bean> -->
    
    <!-- <bean id="setMOD" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arcw</value></property>
+      <property name="docId"><value>arcw_fr_CA</value></property>
       <property name="name"><value>Set Message of the Day Options</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arcw.html</value></property>
    </bean> -->
    
    <!-- <bean id="clickBackButton" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arbc</value></property>
+      <property name="docId"><value>arbc_fr_CA</value></property>
       <property name="name"><value>Clicking the Back Button</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arbc.html</value></property>
    </bean> -->
    
    <!-- <bean id="modifyProfile" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqze</value></property>
+      <property name="docId"><value>aqze_fr_CA</value></property>
       <property name="name"><value>Modify Profile</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/aqze.html</value></property>
       <property name="defaultForTool"><value>sakai.profile</value></property>
    </bean> -->
    
    <!-- <bean id="changeWorkspace" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arei</value></property>
+      <property name="docId"><value>arei_fr_CA</value></property>
       <property name="name"><value>Change My Workspace Information Appearance</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arei.html</value></property>
    </bean> -->
    
    <!-- <bean id="membershipOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arel</value></property>
+      <property name="docId"><value>arel_fr_CA</value></property>
       <property name="name"><value>Membership Overview</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arel.html</value></property>
       <property name="defaultForTool"><value>sakai.membership</value></property>
    </bean> -->
    
    <!-- <bean id="joinSites" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arcj</value></property>
+      <property name="docId"><value>arcj_fr_CA</value></property>
       <property name="name"><value>Join/Unjoin Sites</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arcj.html</value></property>
    </bean> -->
    
    <!-- <bean id="worksiteSetupOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arer</value></property>
+      <property name="docId"><value>arer_fr_CA</value></property>
       <property name="name"><value>Worksite Setup Overview</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arer.html</value></property>
       <property name="defaultForTool"><value>sakai.sitesetup</value></property>
    </bean> -->
    
    <!-- <bean id="worksiteSetupAddParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqyo</value></property>
+      <property name="docId"><value>aqyo_fr_CA</value></property>
       <property name="name"><value>Add/Edit/Delete Participants in Worksite Setup</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/aqyo.html</value></property>
    </bean> -->
    
    <!-- <bean id="worksiteSetupControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqzw</value></property>
+      <property name="docId"><value>aqzw_fr_CA</value></property>
       <property name="name"><value>Control Access in Worksite Setup</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/aqzw.html</value></property>
    </bean> -->
    
    <!-- <bean id="worksiteSetupTextDescription" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqzk</value></property>
+      <property name="docId"><value>aqzk_fr_CA</value></property>
       <property name="name"><value>Add Text Description in Worksite Setup</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/aqzk.html</value></property>
    </bean> -->
    
    <!-- <bean id="worksiteSetupPublish" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arad</value></property>
+      <property name="docId"><value>arad_fr_CA</value></property>
       <property name="name"><value>Publish/Unpublish Site in Worksite Setup</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arad.html</value></property>
    </bean> -->
    
    <!-- <bean id="worksiteSetupChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ardq</value></property>
+      <property name="docId"><value>ardq_fr_CA</value></property>
       <property name="name"><value>Change Roles in Worksite Setup</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/ardq.html</value></property>
    </bean> -->
    
    <!-- <bean id="worksiteSetupEditInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aret</value></property>
+      <property name="docId"><value>aret_fr_CA</value></property>
       <property name="name"><value>Edit Info in Worksite Setup</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/aret.html</value></property>
    </bean> -->
    
    <!-- <bean id="preferencesOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arce</value></property>
+      <property name="docId"><value>arce_fr_CA</value></property>
       <property name="name"><value>Preferences Overview</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arce.html</value></property>
       <property name="defaultForTool"><value>sakai.preferences</value></property>

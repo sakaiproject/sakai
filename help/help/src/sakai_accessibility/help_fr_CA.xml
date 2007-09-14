@@ -3,7 +3,7 @@
 
 <beans>
    <!-- <bean id="accessibility" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arkn</value></property>
+      <property name="docId"><value>arkn_fr_CA</value></property>
       <property name="name"><value>Accessibility Information</value></property>
       <property name="location"><value>/sakai_accessibility/arkn.html</value></property>
    </bean> -->

@@ -382,9 +382,16 @@ public List getActiveContexts(Map session)
   protected Set searchResources(Query query)
   {
     Set results = new HashSet();
+    
+    String locale = getSelectedLocale().toString();
+    if (!toc.containsKey(locale)) {
+    	locale = DEFAULT_LOCALE;
+    }
+    
+    String luceneFolder = LUCENE_INDEX_PATH + File.separator + locale;
     try
     {
-      Searcher searcher = new IndexSearcher(LUCENE_INDEX_PATH);
+      Searcher searcher = new IndexSearcher(luceneFolder);
       LOG.debug("Searching for: " + query.toString());
 
       Hits hits = searcher.search(query);
@@ -709,6 +716,48 @@ public List getActiveContexts(Map session)
   }
 
   /**
+   * Index Categories and Resources
+   * @param categories
+   */
+  private void indexRecursive(IndexWriter indexWriter, Set categories)
+  {
+    Iterator i = categories.iterator();
+    while (i.hasNext())
+    {
+      Category category = (Category) i.next();
+      Set resourcesList = category.getResources();
+
+      for (Iterator resourceIterator = resourcesList.iterator(); resourceIterator
+          .hasNext();)
+      {
+        ResourceBean resource = (ResourceBean) resourceIterator.next();
+	    try
+	    {
+	      Document doc = getDocument(resource);
+	      if (doc != null)
+	      {
+	    	indexWriter.addDocument(doc);
+	        LOG.info("added resource '" + resource.getName() + "', doc count="
+	              + indexWriter.docCount());
+	      }
+	      else
+	      {
+	        LOG.debug("failed to add resource '" + "' (" + resource.getName());
+	      }
+	    }
+	    catch (IOException e)
+	    {
+	      LOG.error("I/O error while adding resource '" + "' ("
+	          + resource.getName() + "): " + e.getMessage(), e);
+	    }
+      }
+
+      Set subCategories = category.getCategories();
+      indexRecursive(indexWriter, subCategories);
+    }
+  }
+
+  /**
    * Store the mapping of Categories and Resources
    * @param categories
    */
@@ -726,6 +775,7 @@ public List getActiveContexts(Map session)
           .hasNext();)
       {
         Resource resource = (Resource) resourceIterator.next();
+        resource.setDocId(resource.getDocId().toLowerCase());
         resource.setCategory(category);
       }
 
@@ -844,7 +894,10 @@ public List getActiveContexts(Map session)
           	new StringTokenizer(
           			getServerConfigurationService().getString("locales"), ",");
           while (st.hasMoreTokens()) {
-              locales.add(st.nextToken().trim());
+        	  String token = st.nextToken().trim();
+              if (token.length() > 0) {
+                  locales.add(token);
+              }
           }
 
           // Add default locale
@@ -936,55 +989,42 @@ public List getActiveContexts(Map session)
       registerStaticContent();
     }
 
-    // create index in lucene
-    IndexWriter writer = null;
-    Date start = new Date();
-    try
-    {
-      writer = new IndexWriter(LUCENE_INDEX_PATH, new StandardAnalyzer(), true);
-    }
-    catch (IOException e)
-    {
-      LOG.error("failed to create IndexWriter " + e.getMessage(), e);
-    }
-
-    for (Iterator i = getResources().iterator(); i.hasNext();)
-    {
-      ResourceBean resource = (ResourceBean) i.next();
-
-      try
-      {
-        Document doc = getDocument(resource);
-        if (doc != null)
-        {
-          writer.addDocument(doc);
-          LOG.info("added resource '" + resource.getName() + "', doc count="
-              + writer.docCount());
-        }
-        else
-        {
-          LOG.debug("failed to add resource '" + "' (" + resource.getName());
-        }
-      }
-      catch (IOException e)
-      {
-        LOG.error("I/O error while adding resource '" + "' ("
-            + resource.getName() + "): " + e.getMessage(), e);
-      }
-    }
-    try
-    {
-      writer.optimize();
-      writer.close();
-    }
-    catch (IOException e)
-    {
-      LOG.error("failed to close writer " + e.getMessage(), e);
-    }
-
-    Date end = new Date();
-    LOG.info("finished initializing lucene in "
-        + (end.getTime() - start.getTime()) + " total milliseconds");
+    // Create lucene indexes for each toc (which key is either a locale or 'default')
+	for (Iterator j = toc.keySet().iterator(); j.hasNext();)
+	{
+		String key = (String) j.next();
+		String luceneIndexPath = LUCENE_INDEX_PATH + File.separator + key;
+		TableOfContentsBean currentToc = toc.get(key);
+		
+	    // create index in lucene
+	    IndexWriter writer = null;
+	    Date start = new Date();
+	    try
+	    {
+	      writer = new IndexWriter(luceneIndexPath, new StandardAnalyzer(), true);
+	    }
+	    catch (IOException e)
+	    {
+	      LOG.error("failed to create IndexWriter " + e.getMessage(), e);
+	    }
+	
+	    // Index categories and resources
+	    indexRecursive(writer, currentToc.getCategories());
+	
+	    try
+	    {
+	      writer.optimize();
+	      writer.close();
+	    }
+	    catch (IOException e)
+	    {
+	      LOG.error("failed to close writer " + e.getMessage(), e);
+	    }
+	
+	    Date end = new Date();
+	    LOG.info("finished initializing lucene for '" + key + "' in "
+	        + (end.getTime() - start.getTime()) + " total milliseconds");
+	}
   }
 
   /**
@@ -1172,12 +1212,22 @@ public List getActiveContexts(Map session)
 	{
 		String locale = (String) j.next();
 
-		// Add localized tool helps
+		// Add localized generic help topics
 	    addToolHelp("/sakai_iframe_myworkspace", locale);
 	    addToolHelp("/sakai_menubar", locale);
 	    addToolHelp("/sakai_course_sites", locale);
 	    addToolHelp("/sakai_permissions", locale);
 	    addToolHelp("/sakai_accessibility", locale);
+	    
+	    TableOfContentsBean localizedToc = toc.get(locale);
+	    
+	    // Sort this localized toc categories with a TreeSet
+	    if (localizedToc != null) {
+		    Set sortedCategories = new TreeSet();		    
+		    Set categories = localizedToc.getCategories();
+		    sortedCategories.addAll(categories);
+		    localizedToc.setCategories(sortedCategories);
+	    }
 	}
 
   }
