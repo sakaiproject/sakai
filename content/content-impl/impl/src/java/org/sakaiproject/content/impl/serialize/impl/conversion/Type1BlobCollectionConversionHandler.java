@@ -96,15 +96,26 @@ public class Type1BlobCollectionConversionHandler implements SchemaConversionHan
 	public void validate(String id, Object source, Object result) throws Exception
 	{
 		String xml = (String) source;
-		String type1 = (String) result;
+		byte[] buffer = (byte[]) result;
 
 		SAXSerializableCollectionAccess sourceCollection = new SAXSerializableCollectionAccess();
 		SAXSerializableCollectionAccess resultCollection = new SAXSerializableCollectionAccess();
 		sourceCollection.parse(xml);
-		resultCollection.parse(type1);
+		
+		Type1BaseContentCollectionSerializer t1b = new Type1BaseContentCollectionSerializer();
+		t1b.setTimeService(new ConversionTimeService());
+		t1b.parse(resultCollection, buffer);
 		
 		sourceCollection.check(resultCollection);
 		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.impl.serialize.impl.conversion.SchemaConversionHandler#getValidateSource(java.lang.String, java.sql.ResultSet)
+	 */
+	public Object getValidateSource(String id, ResultSet rs) throws SQLException
+	{
+		return rs.getBytes(1);
 	}
 	
 	

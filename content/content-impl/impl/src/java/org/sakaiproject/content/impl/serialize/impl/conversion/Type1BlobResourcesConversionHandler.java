@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer;
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer;
 
 /**
@@ -113,16 +114,28 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 	public void validate(String id, Object source, Object result) throws Exception
 	{
 		String xml = (String) source;
-		String type1 = (String) result;
+		byte[] buffer = (byte[]) result;
 
 		SAXSerializableResourceAccess sourceResource = new SAXSerializableResourceAccess();
 		SAXSerializableResourceAccess resultResource = new SAXSerializableResourceAccess();
 		sourceResource.parse(xml);
-		resultResource.parse(type1);
+		
+		Type1BaseContentResourceSerializer t1b = new Type1BaseContentResourceSerializer();
+		t1b.setTimeService(new ConversionTimeService());
+		t1b.parse(resultResource, buffer);
 		
 		sourceResource.check(resultResource);
 		
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.impl.serialize.impl.conversion.SchemaConversionHandler#getValidateSource(java.lang.String, java.sql.ResultSet)
+	 */
+	public Object getValidateSource(String id, ResultSet rs) throws SQLException
+	{
+		return rs.getBytes(1);
+	}
+
 
 
 }

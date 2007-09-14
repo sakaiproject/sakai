@@ -94,6 +94,15 @@ public class SchemaConversionDriver
 	}
 
 	/**
+	 * SQL to select the final set of objects for validation processing
+	 * @return
+	 */
+	public String getSelectValidateRecord()
+	{
+		return p.getProperty(base+".select.validate.record");
+	}
+
+	/**
 	 * SQL to Update the target record after conversion, the prepared statement
 	 * is passed to convert source for polulating eg update content_collection
 	 * set xml = ? where collection_id = ?

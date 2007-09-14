@@ -37,7 +37,7 @@ public class AllTests
 				"Test for org.sakaiproject.content.impl.serialize.impl.test");
 		//$JUnit-BEGIN$
 		suite.addTestSuite(ProfileSerializerTest.class);
-		suite.addTestSuite(ByteStorageConversionTest.class);
+		suite.addTestSuite(ByteStorageConversionCheck.class);
 		suite.addTestSuite(Type1BaseContentResourceSerializerTest.class);
 		suite.addTestSuite(Type1BaseContentCollectionSerializerTest.class);
 		//$JUnit-END$

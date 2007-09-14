@@ -33,15 +33,15 @@ import junit.framework.TestCase;
  * @author ieb
  *
  */
-public class ByteStorageConversionTest extends TestCase
+public class ByteStorageConversionCheck extends TestCase
 {
 
-	private static final Log log = LogFactory.getLog(ByteStorageConversionTest.class);
+	private static final Log log = LogFactory.getLog(ByteStorageConversionCheck.class);
 
 	/**
 	 * @param name
 	 */
-	public ByteStorageConversionTest(String name)
+	public ByteStorageConversionCheck(String name)
 	{
 		super(name);
 	}

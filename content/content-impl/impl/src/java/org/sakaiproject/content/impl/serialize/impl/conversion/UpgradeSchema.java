@@ -24,6 +24,10 @@ package org.sakaiproject.content.impl.serialize.impl.conversion;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -79,9 +83,10 @@ public class UpgradeSchema
 			p.load(fin);
 			fin.close();
 			StringBuilder sb = new StringBuilder();
-			for (Iterator<Object> i = p.keySet().iterator(); i.hasNext();)
+			Object[] keys = p.keySet().toArray();
+			Arrays.sort(keys);
+			for (Object k : keys )
 			{
-				Object k = i.next();
 				sb.append("\n " + k + ":" + p.get(k));
 			}
 			log.info("Loaded Properties from " + config + " as " + sb.toString());
@@ -90,9 +95,10 @@ public class UpgradeSchema
 		{
 			p.load(this.getClass().getResourceAsStream("upgradeschema.config"));
 			StringBuilder sb = new StringBuilder();
-			for (Iterator<Object> i = p.keySet().iterator(); i.hasNext();)
+			Object[] keys = p.keySet().toArray();
+			Arrays.sort(keys);
+			for (Object k : keys )
 			{
-				Object k = i.next();
 				sb.append("\n " + k + ":" + p.get(k));
 			}
 			log.info("Loaded Default Properties " + config + " as " + sb.toString());
@@ -146,6 +152,7 @@ public class UpgradeSchema
 						.newInstance();
 				log.info("Migrating using Handler " + spec.getHandler());
 				int k = 0;
+				scc.init(tds, sch, spec);
 				while (scc.migrate(tds, sch, spec)) {
 					log.info("Completed Batch "+(k++));
 				}

@@ -41,6 +41,49 @@ public class SchemaConversionController
 {
 
 	private static final Log log = LogFactory.getLog(SchemaConversionController.class);
+	private long nrecords = 0;
+	
+	public void init(DataSource datasource, SchemaConversionHandler convert, SchemaConversionDriver driver) throws SchemaConversionException {
+		// we need some way of identifying those records that have not been
+		// convertd.
+		// 1. Create a register table to map progress.
+		Connection connection = null;
+		try
+		{
+			connection = datasource.getConnection();
+			createRegisterTable(connection, convert, driver);
+		}
+		catch (Exception e)
+		{
+			log.error("Failed to perform migration setup ",e);
+			try
+			{
+				connection.rollback();
+				log.error("Rollback Sucessfull ",e);
+			}
+			catch (Exception ex)
+			{
+				log.error("Rollback Failed ",e);
+			}
+			throw new SchemaConversionException("Schema Conversion has been aborted due to earlier errors, please investigate ");
+
+		}
+		finally
+		{
+
+			try
+			{
+				connection.close();
+
+			}
+			catch (Exception ex)
+			{
+
+			}
+
+		}
+
+	}
 
 	public boolean migrate(DataSource datasource, SchemaConversionHandler convert, SchemaConversionDriver driver) throws SchemaConversionException
 	{
@@ -50,6 +93,7 @@ public class SchemaConversionController
 		PreparedStatement markNextBatch = null;
 		PreparedStatement completeNextBatch = null;
 		PreparedStatement selectRecord = null;
+		PreparedStatement selectValidateRecord = null;
 		PreparedStatement updateRecord = null;
 		ResultSet rs = null;
 		try
@@ -60,13 +104,9 @@ public class SchemaConversionController
 			completeNextBatch = connection.prepareStatement(driver
 					.getCompleteNextBatch());
 			selectRecord = connection.prepareStatement(driver.getSelectRecord());
+			selectValidateRecord = connection.prepareStatement(driver.getSelectValidateRecord());
 			updateRecord = connection.prepareStatement(driver.getUpdateRecord());
 
-			// we need some way of identifying those records that have not been
-			// convertd.
-			// 1. Create a register table to map progress.
-
-			createRegisterTable(connection, convert, driver);
 
 			// 2. select x at a time
 			rs = selectNextBatch.executeQuery();
@@ -76,8 +116,7 @@ public class SchemaConversionController
 				l.add(rs.getString(1));
 			}
 			rs.close();
-			
-			log.info("Migrating "+l.size()+" records ");
+			log.info("Migrating "+l.size()+" records of "+nrecords);
 			
 			for (String id : l)
 			{
@@ -115,13 +154,13 @@ public class SchemaConversionController
 					{
 						log.warn("Did not update record " + id);
 					}
-					selectRecord.clearParameters();
-					selectRecord.setString(1, id);
-					rs = selectRecord.executeQuery();
+					selectValidateRecord.clearParameters();
+					selectValidateRecord.setString(1, id);
+					rs = selectValidateRecord.executeQuery();
 					Object result = null;
 					if (rs.next())
 					{
-						result = convert.getSource(id, rs);
+						result = convert.getValidateSource(id, rs);
 					}
 					rs.close();
 					
@@ -143,6 +182,7 @@ public class SchemaConversionController
 				alldone = true;
 			}
 			connection.commit();
+			nrecords -= l.size();
 
 		}
 		catch (Exception e)
@@ -197,6 +237,14 @@ public class SchemaConversionController
 			try
 			{
 				selectRecord.close();
+			}
+			catch (Exception ex)
+			{
+
+			}
+			try
+			{
+				selectValidateRecord.close();
 			}
 			catch (Exception ex)
 			{
@@ -264,7 +312,7 @@ public class SchemaConversionController
 		try
 		{
 			stmt = connection.createStatement();
-			long nrecords = 0;
+			nrecords = 0;
 			try
 			{
 				// select count(*) from content_migrate;
@@ -294,6 +342,27 @@ public class SchemaConversionController
 			{
 				String sql = driver.getPopulateMigrateTable();
 				stmt.executeUpdate(sql);
+			}
+			
+			try
+			{
+				// select count(*) from content_migrate;
+				String sql = driver.getCheckMigrateTable();
+				rs = stmt.executeQuery(sql);
+				if (rs.next())
+				{
+					nrecords = rs.getLong(1);
+				}
+			}
+			finally
+			{
+				try
+				{
+					rs.close();
+				}
+				catch (Exception ex)
+				{
+				}
 			}
 
 		}

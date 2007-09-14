@@ -71,4 +71,13 @@ public interface SchemaConversionHandler
 	 */
 	void validate(String id, Object source, Object result) throws Exception;
 
+	/**
+	 * Get the source object for the validation record
+	 * @param id
+	 * @param rs
+	 * @return
+	 * @throws SQLException 
+	 */
+	Object getValidateSource(String id, ResultSet rs) throws SQLException;
+
 }

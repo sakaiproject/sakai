@@ -117,5 +117,13 @@ public class FileSizeResourcesConversionHandler implements SchemaConversionHandl
 	{
 		// this conversion did not modify source data.
 	}
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.impl.serialize.impl.conversion.SchemaConversionHandler#getValidateSource(java.lang.String, java.sql.ResultSet)
+	 */
+	public Object getValidateSource(String id, ResultSet rs) throws SQLException
+	{
+		return rs.getString(1);
+	}
+
 
 }

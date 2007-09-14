@@ -341,6 +341,8 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 	{
 		this.retractDate = retractDate;
 	}
+	
+
 
 	/**
 	 * @param xml
@@ -680,5 +682,6 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 		saxSerializableProperties.check((SAXSerializablePropertiesAccess) sax2
 				.getSerializableProperties());
 	}
+
 
 }
