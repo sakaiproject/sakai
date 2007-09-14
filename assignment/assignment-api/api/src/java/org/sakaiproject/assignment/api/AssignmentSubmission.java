@@ -74,6 +74,13 @@ public interface AssignmentSubmission extends Entity
 	 * @return List of user ids
 	 */
 	public List getSubmitterIds();
+	
+	/**
+	 * Access the concat the submitter id together and form a String
+	 * 
+	 * @return List of user ids
+	 */
+	public String getSubmitterIdString();
 
 	/**
 	 * Get whether this is a final submission.

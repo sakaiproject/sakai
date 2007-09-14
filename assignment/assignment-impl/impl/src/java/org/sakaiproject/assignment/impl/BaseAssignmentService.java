@@ -2806,6 +2806,40 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	{
 		return getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, null);
 	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public Collection getGroupsAllowGradeAssignment(String context, String assignmentReference)
+	{
+		Collection rv = new Vector();
+		if (allowGradeSubmission(assignmentReference))
+		{
+			// only if the user is allowed to group at all
+			Collection allAllowedGroups = getGroupsAllowFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION, context, null);
+			try
+			{
+				Assignment a = getAssignment(assignmentReference);
+				if (a.getAccess() == Assignment.AssignmentAccess.SITE)
+				{
+					// for site-scope assignment, return all groups
+					rv = allAllowedGroups;
+				}
+				else
+				{
+					// for grouped assignment, return only those also allowed for grading
+					allAllowedGroups.retainAll(a.getGroups());
+					rv = allAllowedGroups;
+				}
+			}
+			catch (Exception e)
+			{
+				M_log.info(this + e.getMessage() + assignmentReference);
+			}
+		}
+			
+		return rv;
+	}
 
 	/** 
 	 * @inherit
@@ -3441,13 +3475,47 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		try
 		{
 			Assignment a = getAssignment(assignmentReferenceFromSubmissionsZipReference(ref));
-			Iterator submissions = getSubmissions(a).iterator();
+			
+			String groupReference = groupReferenceFromSubmissionsZipReference(ref);
+			List allSubmissions = getSubmissions(a);
+			List submissions = new Vector();
+			
+			// group or site
+			String authzGroupId = "";
+			if (groupReference == null)
+			{
+				// view all groups
+				submissions = allSubmissions;
+			}
+			else
+			{
+				// just one group
+				try
+				{
+					AuthzGroup group = AuthzGroupService.getAuthzGroup(groupReference);
+					Set grants = group.getUsers();
+					for (int i = 0; i<allSubmissions.size();i++)
+					{
+						// see if the submitters is in the group
+						AssignmentSubmission s = (AssignmentSubmission) allSubmissions.get(i);
+						if (grants.contains(s.getSubmitterIdString()))
+						{
+							submissions.add(s);
+						}
+					}
+				}
+				catch (Exception ee)
+				{
+					M_log.info(this + ee.getMessage() + groupReference);
+				}
+				
+			}
 
 			StringBuilder exceptionMessage = new StringBuilder();
 
 			if (allowGradeSubmission(a.getReference()))
 			{
-				zipSubmissions(a.getReference(), a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), submissions, outputStream, exceptionMessage);
+				zipSubmissions(a.getReference(), a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), submissions.iterator(), outputStream, exceptionMessage);
 
 				if (exceptionMessage.length() > 0)
 				{
@@ -3713,7 +3781,35 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	private String assignmentReferenceFromSubmissionsZipReference(String sReference)
 	{
 		// remove the String part relating to submissions zip reference
-		return sReference.substring(sReference.lastIndexOf(Entity.SEPARATOR + "assignment"));
+		if (sReference.indexOf(Entity.SEPARATOR +"site") == -1)
+		{
+			return sReference.substring(sReference.lastIndexOf(Entity.SEPARATOR + "assignment"));
+		}
+		else
+		{
+			return sReference.substring(sReference.lastIndexOf(Entity.SEPARATOR + "assignment"), sReference.indexOf(Entity.SEPARATOR +"site"));
+		}
+
+	} // assignmentReferenceFromSubmissionsZipReference
+	
+	/**
+	 * Decode the submissionsZipReference string to get the group reference String
+	 * 
+	 * @param sReference
+	 *        The submissionZipReference String
+	 * @return The group reference String
+	 */
+	private String groupReferenceFromSubmissionsZipReference(String sReference)
+	{
+		// remove the String part relating to submissions zip reference
+		if (sReference.indexOf(Entity.SEPARATOR +"site") != -1)
+		{
+			return sReference.substring(sReference.lastIndexOf(Entity.SEPARATOR + "site"));
+		}
+		else
+		{
+			return null;
+		}
 
 	} // assignmentReferenceFromSubmissionsZipReference
 
@@ -8224,6 +8320,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return m_submitters;
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
+		public String getSubmitterIdString ()
+		{
+			String rv = "";
+			if (m_submitters != null)
+			{
+				for (int j = 0; j < m_submitters.size(); j++)
+				{
+					rv = rv.concat((String) m_submitters.get(j));
+				}
+			}
+			return rv;
+		}
+		
 		/**
 		 * Set the time at which this response was submitted; null signifies the response is unsubmitted.
 		 * 

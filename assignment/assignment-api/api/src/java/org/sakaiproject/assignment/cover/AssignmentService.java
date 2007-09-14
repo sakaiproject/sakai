@@ -166,6 +166,15 @@ public class AssignmentService {
 
 		return service.getGroupsAllowAddAssignment(param0);
 	}
+	
+	public static java.util.Collection getGroupsAllowGradeAssignment(
+			java.lang.String param0, java.lang.String param1) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return new Vector();
+
+		return service.getGroupsAllowGradeAssignment(param0, param1);
+	}
 
 	public static boolean allowGetAssignment(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();

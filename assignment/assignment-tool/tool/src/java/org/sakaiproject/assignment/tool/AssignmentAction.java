@@ -89,6 +89,7 @@ import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -635,6 +636,9 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	// this is to track whether the site has multiple assignment, hence if true, show the reorder link
 	private static final String HAS_MULTIPLE_ASSIGNMENTS = "has_multiple_assignments";
+	
+	// view all or grouped submission list
+	private static final String VIEW_SUBMISSION_LIST_OPTION = "view_submission_list_option";
 	
 	/**
 	 * central place for dispatching the build routines based on the state name
@@ -1995,9 +1999,6 @@ public class AssignmentAction extends PagedResourceActionII
 			assignment = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
 			context.put("assignment", assignment);
 			state.setAttribute(EXPORT_ASSIGNMENT_ID, assignment.getId());
-			List userSubmissions = prepPage(state);
-			state.setAttribute(USER_SUBMISSIONS, userSubmissions);
-			context.put("userSubmissions", state.getAttribute(USER_SUBMISSIONS));
 			
 			// ever set the default grade for no-submissions
 			String defaultGrade = assignment.getProperties().getProperty(GRADE_NO_SUBMISSION_DEFAULT_GRADE);
@@ -2005,6 +2006,48 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				context.put("defaultGrade", defaultGrade);
 			}
+			
+			// groups
+			if (state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) == null)
+			{
+				state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, rb.getString("gen.viewallgroupssections"));
+			}
+			String view = (String)state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+			context.put("view", view);
+			// access point url for zip file download
+			String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+			String accessPointUrl = ServerConfigurationService.getAccessUrl().concat(AssignmentService.submissionsZipReference(
+					contextString, (String) state.getAttribute(EXPORT_ASSIGNMENT_REF)));
+			if (!view.equals(rb.getString("gen.viewallgroupssections")))
+			{
+				// append the group info to the end
+				accessPointUrl = accessPointUrl.concat(view);
+			}
+			context.put("accessPointUrl", accessPointUrl);
+				
+			if (AssignmentService.getAllowGroupAssignments())
+			{
+				Collection groupsAllowGradeAssignment = AssignmentService.getGroupsAllowGradeAssignment((String) state.getAttribute(STATE_CONTEXT_STRING), assignment.getReference());
+				
+				// group list which user can add message to
+				if (groupsAllowGradeAssignment.size() > 0)
+				{
+					String sort = (String) state.getAttribute(SORTED_BY);
+					String asc = (String) state.getAttribute(SORTED_ASC);
+					if (sort == null || (!sort.equals(SORTED_BY_GROUP_TITLE) && !sort.equals(SORTED_BY_GROUP_DESCRIPTION)))
+					{
+						sort = SORTED_BY_GROUP_TITLE;
+						asc = Boolean.TRUE.toString();
+						state.setAttribute(SORTED_BY, sort);
+						state.setAttribute(SORTED_ASC, asc);
+					}
+					context.put("groups", new SortedIterator(groupsAllowGradeAssignment.iterator(), new AssignmentComparator(state, sort, asc)));
+				}
+			}
+			
+			List userSubmissions = prepPage(state);
+			state.setAttribute(USER_SUBMISSIONS, userSubmissions);
+			context.put("userSubmissions", state.getAttribute(USER_SUBMISSIONS));
 		}
 		catch (IdUnusedException e)
 		{
@@ -2046,11 +2089,7 @@ public class AssignmentAction extends PagedResourceActionII
 		add2ndToolbarFields(data, context);
 
 		pagingInfoToContext(state, context);
-
-		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-		context.put("accessPointUrl", (ServerConfigurationService.getAccessUrl()).concat(AssignmentService.submissionsZipReference(
-				contextString, (String) state.getAttribute(EXPORT_ASSIGNMENT_REF))));
-
+		
 		String template = (String) getContext(data).get("template");
 		
 		return template + TEMPLATE_INSTRUCTOR_GRADE_ASSIGNMENT;
@@ -2639,6 +2678,19 @@ public class AssignmentAction extends PagedResourceActionII
 		} // try
 
 	} // doView_submission
+	
+	/**
+	 * Action is to view the content of one specific assignment submission
+	 */
+	public void doView_submission_list_option(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		ParameterParser params = data.getParameters();
+		String view = params.getString("view");
+		state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, view);
+
+	} // doView_submission_list_option
 
 	/**
 	 * Preview of the submission
@@ -8273,18 +8325,27 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_GRADE_ASSIGNMENT))
 		{
+			// range
+			String authzGroupId = "";
 			try
 			{
 				Assignment a = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
-				Iterator submissionsIterator = AssignmentService.getSubmissions(a).iterator();
-				List submissions = new Vector();
-				while (submissionsIterator.hasNext())
+				
+				// all submissions
+				List submissions = AssignmentService.getSubmissions(a);
+				
+				// now are we view all sections/groups or just specific one?
+				String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+				if (allOrOneGroup.equals(rb.getString("gen.viewallgroupssections")))
 				{
-					submissions.add(submissionsIterator.next());
+					// see all submissions
+					authzGroupId = SiteService.siteReference(contextString);
 				}
-
-				//	get all active site users
-				String authzGroupId = SiteService.siteReference(contextString);
+				else
+				{
+					// filter out only those submissions from the selected-group members
+					authzGroupId = allOrOneGroup;
+				}
 
 				// all users that can submit
 				List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));

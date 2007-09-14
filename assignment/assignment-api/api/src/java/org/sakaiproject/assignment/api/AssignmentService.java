@@ -188,6 +188,15 @@ public interface AssignmentService extends EntityProducer
 	 * @return The Collection (Group) of groups defined for the context of this site that the end user has add assignment permissions in, empty if none.
 	 */
 	Collection getGroupsAllowAddAssignment(String context);
+	
+	/**
+	 * Get the collection of Groups defined for the context of this site that the end user has grade assignment permissions in.
+	 * 
+	 * @param context -
+	 *        Describes the portlet context - generated with DefaultId.getChannel().
+	 * @return The Collection (Group) of groups defined for the context of this site that the end user has grade assignment permissions in, empty if none.
+	 */
+	Collection getGroupsAllowGradeAssignment(String context, String assignmentReference);
 
 	/**
 	 * Check permissions for updating an Assignment.
