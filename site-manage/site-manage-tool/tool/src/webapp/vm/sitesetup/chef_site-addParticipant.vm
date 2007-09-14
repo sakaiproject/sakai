@@ -8,26 +8,43 @@
 		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
 		<div class="clear"></div>
 	#end
-	<p class="instruction">
-		$tlang.getString("add.enter")
 	</p>
+	<p class="instruction">
+		<h4>$tlang.getString("add.official")</h4>
+	</p>
+	<div class="indnt1">
+		<p class="instruction">
+			$tlang.getString("add.official1")
+		</p>
+		<p class="instruction">
+			$tlang.getString("add.official.instruction")
+		</p>
+	</div>
+	<p/>
+	<p/>
 	<form action="#toolForm("SiteAction")" method="post">
-		<div class="longtext">
-			<label for="noEmailInIdAccount" class="block">
-				$!noEmailInIdAccountLabel
+		<p class="instruction">
+			<h4>$!officialAccountSectionTitle</h4>
+		</p>
+		<div class="indnt1">
+			<label for="officialAccount" class="block">
+				$!officialAccountLabel
 			</label>
-			<textarea id="noEmailInIdAccount" name="noEmailInIdAccount"  cols="35" rows="4" wrap="virtual">$!validator.escapeHtmlTextarea($!noEmailInIdAccountValue)</textarea>
+			<textarea id="officialAccount" name="officialAccount"  cols="35" rows="4" wrap="virtual">$!validator.escapeHtmlTextarea($!officialAccountValue)</textarea>
 			<br /><span class="instruction">
 				$tlang.getString("add.multiple")
 			</span>
 		</div>
-		<div class="longtext">
-			<label for="emailInIdAccount" class="block">
-				$!emailInIdAccountLabel
+		<p class="instruction">
+			<h4>$!nonOfficialAccountSectionTitle</h4>
+		</p>
+		<div class="indnt1">
+			<label for="nonOfficialAccount" class="block">
+				$!nonOfficialAccountLabel
 			</label>
-			<textarea  id="emailInIdAccount" name="emailInIdAccount"  cols="35" rows="4" wrap="virtual">$!validator.escapeHtmlTextarea($!emailInIdAccountValue)</textarea>
+			<textarea  id="nonOfficialAccount" name="nonOfficialAccount"  cols="35" rows="4" wrap="virtual">$!validator.escapeHtmlTextarea($!nonOfficialAccountValue)</textarea>
 			<br /><span class="instruction">
-				$tlang.getString("add.multiple2")
+				$tlang.getString("add.multiple")
 			</span>
 		</div>
 		

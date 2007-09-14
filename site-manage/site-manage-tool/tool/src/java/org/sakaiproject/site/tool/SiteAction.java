@@ -1333,22 +1333,26 @@ public class SiteAction extends PagedResourceActionII {
 
 			// Note that (for now) these strings are in both sakai.properties
 			// and sitesetupgeneric.properties
-			context.put("noEmailInIdAccountName", ServerConfigurationService
-					.getString("noEmailInIdAccountName"));
-			context.put("noEmailInIdAccountLabel", ServerConfigurationService
-					.getString("noEmailInIdAccountLabel"));
-			context.put("emailInIdAccountName", ServerConfigurationService
-					.getString("emailInIdAccountName"));
-			context.put("emailInIdAccountLabel", ServerConfigurationService
-					.getString("emailInIdAccountLabel"));
+			context.put("officialAccountSectionTitle", ServerConfigurationService
+					.getString("officialAccountSectionTitle"));
+			context.put("officialAccountName", ServerConfigurationService
+					.getString("officialAccountName"));
+			context.put("officialAccountLabel", ServerConfigurationService
+					.getString("officialAccountLabel"));
+			context.put("nonOfficialAccountSectionTitle", ServerConfigurationService
+					.getString("nonOfficialAccountSectionTitle"));
+			context.put("nonOfficialAccountName", ServerConfigurationService
+					.getString("nonOfficialAccountName"));
+			context.put("nonOfficialAccountLabel", ServerConfigurationService
+					.getString("nonOfficialAccountLabel"));
 
-			if (state.getAttribute("noEmailInIdAccountValue") != null) {
-				context.put("noEmailInIdAccountValue", (String) state
-						.getAttribute("noEmailInIdAccountValue"));
+			if (state.getAttribute("officialAccountValue") != null) {
+				context.put("officialAccountValue", (String) state
+						.getAttribute("officialAccountValue"));
 			}
-			if (state.getAttribute("emailInIdAccountValue") != null) {
-				context.put("emailInIdAccountValue", (String) state
-						.getAttribute("emailInIdAccountValue"));
+			if (state.getAttribute("nonOfficialAccountValue") != null) {
+				context.put("nonOfficialAccountValue", (String) state
+						.getAttribute("nonOfficialAccountValue"));
 			}
 
 			if (state.getAttribute("form_same_role") != null) {
@@ -2540,8 +2544,8 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("form_additional", siteInfo.additional);
 			context.put("form_title", siteInfo.title);
 			context.put("form_description", siteInfo.description);
-			context.put("noEmailInIdAccountName", ServerConfigurationService
-					.getString("noEmailInIdAccountName", ""));
+			context.put("officialAccountName", ServerConfigurationService
+					.getString("officialAccountName", ""));
 			context.put("value_uniqname", state
 					.getAttribute(STATE_SITE_QUEST_UNIQNAME));
 			int number = 1;
@@ -4453,7 +4457,7 @@ public class SiteAction extends PagedResourceActionII {
 						addAlert(state, rb.getString("java.author")
 								+ " "
 								+ ServerConfigurationService
-										.getString("noEmailInIdAccountName")
+										.getString("officialAccountName")
 								+ ". ");
 					} else {
 						try {
@@ -4464,7 +4468,7 @@ public class SiteAction extends PagedResourceActionII {
 									rb.getString("java.validAuthor1")
 											+ " "
 											+ ServerConfigurationService
-													.getString("noEmailInIdAccountName")
+													.getString("officialAccountName")
 											+ " "
 											+ rb.getString("java.validAuthor2"));
 						}
@@ -5121,8 +5125,8 @@ public class SiteAction extends PagedResourceActionII {
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
 		if (requestEmail != null) {
-			String noEmailInIdAccountName = ServerConfigurationService
-					.getString("noEmailInIdAccountName", "");
+			String officialAccountName = ServerConfigurationService
+					.getString("officialAccountName", "");
 
 			SiteInfo siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 
@@ -5287,7 +5291,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			
 			buf.append(rb.getString("java.name") + "\t" + sessionUserName
-					+ " (" + noEmailInIdAccountName + " " + cUser.getEid()
+					+ " (" + officialAccountName + " " + cUser.getEid()
 					+ ")\n");
 			buf.append(rb.getString("java.email") + "\t" + replyTo + "\n\n");
 			buf.append(rb.getString("java.sitetitle") + "\t" + title + "\n");
@@ -5354,232 +5358,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 	}
 
-	/*private void sendSiteRequest(SessionState state, String request,
-			List<SectionObject> cmRequestedSections) {
-		User cUser = UserDirectoryService.getCurrentUser();
-		boolean sendEmailToRequestee = false;
-		StringBuilder buf = new StringBuilder();
-
-		// get the request email from configuration
-		String requestEmail = getSetupRequestEmailAddress();
-		if (requestEmail != null) {
-			String noEmailInIdAccountName = ServerConfigurationService
-					.getString("noEmailInIdAccountName", "");
-
-			SiteInfo siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
-
-			Site site = getStateSite(state);
-			String id = site.getId();
-			String title = site.getTitle();
-
-			Time time = TimeService.newTime();
-			String local_time = time.toStringLocalTime();
-			String local_date = time.toStringLocalDate();
-
-			AcademicSession term = null;
-			boolean termExist = false;
-			if (state.getAttribute(STATE_TERM_SELECTED) != null) {
-				termExist = true;
-				term = (AcademicSession) state
-						.getAttribute(STATE_TERM_SELECTED);
-			}
-			String productionSiteName = ServerConfigurationService
-					.getServerName();
-
-			String from = NULL_STRING;
-			String to = NULL_STRING;
-			String headerTo = NULL_STRING;
-			String replyTo = NULL_STRING;
-			String message_subject = NULL_STRING;
-			String content = NULL_STRING;
-
-			String sessionUserName = cUser.getDisplayName();
-			String additional = NULL_STRING;
-
-			additional = (String) state.getAttribute(FORM_ADDITIONAL);
-
-			boolean isFutureTerm = false;
-			if (state.getAttribute(STATE_FUTURE_TERM_SELECTED) != null
-					&& ((Boolean) state
-							.getAttribute(STATE_FUTURE_TERM_SELECTED))
-							.booleanValue()) {
-				isFutureTerm = true;
-			}
-
-			// message subject
-			if (termExist) {
-				message_subject = rb.getString("java.sitereqfrom") + " "
-						+ sessionUserName + " " + rb.getString("java.for")
-						+ " " + term.getEid();
-			} else {
-				message_subject = rb.getString("java.official") + " "
-						+ sessionUserName;
-			}
-
-			// there is no offical instructor for future term sites
-			String requestUserId = (String) state
-					.getAttribute(STATE_SITE_QUEST_UNIQNAME);
-			// authorizerList is added by daisyf for v2.4
-			List<String> authorizerList = (List) state
-					.getAttribute(STATE_CM_AUTHORIZER_LIST);
-			if (authorizerList == null) {
-				authorizerList = new ArrayList();
-			}
-			if (requestUserId != null) {
-				authorizerList.add(requestUserId);
-			}
-			for (int j = 0; j < authorizerList.size(); j++) {
-				String requestId = (String) authorizerList.get(j);
-				if (!isFutureTerm) {
-					// To site quest account - the instructor of record's
-					if (requestId != null) {
-						try {
-							User instructor = UserDirectoryService
-									.getUserByEid(requestId); // v2.4 -daisyf
-							from = requestEmail;
-							to = instructor.getEmail();
-							headerTo = instructor.getEmail();
-							replyTo = requestEmail;
-							buf.append(rb.getString("java.hello") + " \n\n");
-							buf.append(rb.getString("java.receiv") + " "
-									+ sessionUserName + ", ");
-							buf.append(rb.getString("java.who") + "\n");
-							if (termExist) {
-								String dateString = term.getStartDate()
-										.toString();
-								String year = dateString.substring(dateString
-										.length() - 4);
-								buf.append(term.getTitle() + " " + year + "\n");
-
-							}
-
-							for (int i = 0; i < cmRequestedSections.size(); i++) {
-								SectionObject so = (SectionObject) cmRequestedSections
-										.get(i);
-
-								buf.append(so.getTitle() + "(" + so.getEid()
-										+ ")" + so.getCategory() + "\n");
-							}
-
-							buf.append("\n" + rb.getString("java.sitetitle")
-									+ "\t" + title + "\n");
-							buf.append(rb.getString("java.siteid") + "\t" + id);
-							buf.append("\n\n" + rb.getString("java.according")
-									+ " " + sessionUserName + " "
-									+ rb.getString("java.record"));
-							buf.append(" " + rb.getString("java.canyou") + " "
-									+ sessionUserName + " "
-									+ rb.getString("java.assoc") + "\n\n");
-							buf.append(rb.getString("java.respond") + " "
-									+ sessionUserName
-									+ rb.getString("java.appoint") + "\n\n");
-							buf.append(rb.getString("java.thanks") + "\n");
-							buf.append(productionSiteName + " "
-									+ rb.getString("java.support"));
-							content = buf.toString();
-
-							// send the email
-							EmailService.send(from, to, message_subject,
-									content, headerTo, replyTo, null);
-
-							// email has been sent successfully
-							sendEmailToRequestee = true;
-						} catch (UserNotDefinedException ee) {
-							M_log.warn(ee.getMessage());
-						} // try
-					}
-				}
-			}
-
-			// To Support
-			from = cUser.getEmail();
-			to = requestEmail;
-			headerTo = requestEmail;
-			replyTo = cUser.getEmail();
-			buf.setLength(0);
-			buf.append(rb.getString("java.to") + "\t\t" + productionSiteName
-					+ " " + rb.getString("java.supp") + "\n");
-			buf.append("\n" + rb.getString("java.from") + "\t"
-					+ sessionUserName + "\n");
-			if (request.equals("new")) {
-				buf.append(rb.getString("java.subj") + "\t"
-						+ rb.getString("java.sitereq") + "\n");
-			} else {
-				buf.append(rb.getString("java.subj") + "\t"
-						+ rb.getString("java.sitechreq") + "\n");
-			}
-			buf.append(rb.getString("java.date") + "\t" + local_date + " "
-					+ local_time + "\n\n");
-			if (request.equals("new")) {
-				buf.append(rb.getString("java.approval") + " "
-						+ productionSiteName + " "
-						+ rb.getString("java.coursesite") + " ");
-			} else {
-				buf.append(rb.getString("java.approval2") + " "
-						+ productionSiteName + " "
-						+ rb.getString("java.coursesite") + " ");
-			}
-			if (termExist) {
-				String dateString = term.getStartDate().toString();
-				String year = dateString.substring(dateString.length() - 4);
-				buf.append(term.getTitle() + " " + year);
-			}
-			if (cmRequestedSections != null && cmRequestedSections.size() > 1) {
-				buf.append(" " + rb.getString("java.forthese") + " "
-						+ cmRequestedSections.size() + " "
-						+ rb.getString("java.sections") + "\n\n");
-			} else {
-				buf.append(" " + rb.getString("java.forthis") + "\n\n");
-			}
-
-			for (int i = 0; i < cmRequestedSections.size(); i++) {
-				SectionObject so = (SectionObject) cmRequestedSections.get(i);
-
-				buf.append(so.getTitle() + "(" + so.getEid() + ")"
-						+ so.getCategory() + "\n");
-			}
-
-			buf.append(rb.getString("java.name") + "\t" + sessionUserName
-					+ " (" + noEmailInIdAccountName + " " + cUser.getEid()
-					+ ")\n");
-			buf.append(rb.getString("java.email") + "\t" + replyTo + "\n\n");
-			buf.append(rb.getString("java.sitetitle") + "\t" + title + "\n");
-			buf.append(rb.getString("java.siteid") + "\t" + id + "\n");
-			buf.append(rb.getString("java.siteinstr") + "\n" + additional
-					+ "\n\n");
-
-			if (!isFutureTerm) {
-				if (sendEmailToRequestee) {
-					buf.append(rb.getString("java.authoriz") + " "
-							+ requestUserId + " " + rb.getString("java.asreq"));
-				} else {
-					buf.append(rb.getString("java.thesiteemail") + " "
-							+ requestUserId + " " + rb.getString("java.asreq"));
-				}
-			}
-			content = buf.toString();
-			EmailService.send(from, to, message_subject, content, headerTo,
-					replyTo, null);
-
-			// To the Instructor
-			from = requestEmail;
-			to = cUser.getEmail();
-			headerTo = to;
-			replyTo = to;
-			buf.setLength(0);
-			buf.append(rb.getString("java.isbeing") + " ");
-			buf.append(rb.getString("java.meantime") + "\n\n");
-			buf.append(rb.getString("java.copy") + "\n\n");
-			buf.append(content);
-			buf.append("\n" + rb.getString("java.wish") + " " + requestEmail);
-			content = buf.toString();
-			EmailService.send(from, to, message_subject, content, headerTo,
-					replyTo, null);
-			state.setAttribute(REQUEST_SENT, new Boolean(true));
-		} // if
-
-	} // sendSiteRequest
-*/
 	/**
 	 * Notification sent when a course site is set up automatcally
 	 * 
@@ -9234,11 +9012,11 @@ public class SiteAction extends PagedResourceActionII {
 	}// commitSite
 
 	private boolean isValidDomain(String email) {
-		String invalidEmailInIdAccountString = ServerConfigurationService
-				.getString("invalidEmailInIdAccountString", null);
+		String invalidNonOfficialAccountString = ServerConfigurationService
+				.getString("invalidNonOfficialAccountString", null);
 
-		if (invalidEmailInIdAccountString != null) {
-			String[] invalidDomains = invalidEmailInIdAccountString.split(",");
+		if (invalidNonOfficialAccountString != null) {
+			String[] invalidDomains = invalidNonOfficialAccountString.split(",");
 
 			for (int i = 0; i < invalidDomains.length; i++) {
 				String domain = invalidDomains[i].trim();
@@ -9265,20 +9043,20 @@ public class SiteAction extends PagedResourceActionII {
 			addAlert(state, rb.getString("java.specif") + " " + siteId);
 		}
 
-		// accept noEmailInIdAccounts and/or emailInIdAccount account names
-		String noEmailInIdAccounts = "";
-		String emailInIdAccounts = "";
+		// accept officialAccounts and/or nonOfficialAccount account names
+		String officialAccounts = "";
+		String nonOfficialAccounts = "";
 
 		// check that there is something with which to work
-		noEmailInIdAccounts = StringUtil.trimToNull((params
-				.getString("noEmailInIdAccount")));
-		emailInIdAccounts = StringUtil.trimToNull(params
-				.getString("emailInIdAccount"));
-		state.setAttribute("noEmailInIdAccountValue", noEmailInIdAccounts);
-		state.setAttribute("emailInIdAccountValue", emailInIdAccounts);
+		officialAccounts = StringUtil.trimToNull((params
+				.getString("officialAccount")));
+		nonOfficialAccounts = StringUtil.trimToNull(params
+				.getString("nonOfficialAccount"));
+		state.setAttribute("officialAccountValue", officialAccounts);
+		state.setAttribute("nonOfficialAccountValue", nonOfficialAccounts);
 
-		// if there is no uniquname or emailInIdAccount entered
-		if (noEmailInIdAccounts == null && emailInIdAccounts == null) {
+		// if there is no uniquname or nonOfficialAccount entered
+		if (officialAccounts == null && nonOfficialAccounts == null) {
 			addAlert(state, rb.getString("java.guest"));
 			state.setAttribute(STATE_TEMPLATE_INDEX, "5");
 			return;
@@ -9286,95 +9064,115 @@ public class SiteAction extends PagedResourceActionII {
 
 		String at = "@";
 
-		if (noEmailInIdAccounts != null) {
-			// adding noEmailInIdAccounts
-			String[] noEmailInIdAccountArray = noEmailInIdAccounts
+		if (officialAccounts != null) {
+			// adding officialAccounts
+			String[] officialAccountArray = officialAccounts
 					.split("\r\n");
 
-			for (i = 0; i < noEmailInIdAccountArray.length; i++) {
-				String noEmailInIdAccount = StringUtil
-						.trimToNull(noEmailInIdAccountArray[i].replaceAll(
+			for (i = 0; i < officialAccountArray.length; i++) {
+				String officialAccount = StringUtil
+						.trimToNull(officialAccountArray[i].replaceAll(
 								"[\t\r\n]", ""));
 				// if there is some text, try to use it
-				if (noEmailInIdAccount != null) {
-					// automaticially add emailInIdAccount account
+				if (officialAccount != null) {
+					// automaticially add nonOfficialAccount account
 					Participant participant = new Participant();
 					try {
-						User u = UserDirectoryService
-								.getUserByEid(noEmailInIdAccount);
+							//Changed user lookup to satisfy BSP-1010 (jholtzman)
+						User u = null;
+						// First try looking for the user by their email address
+						Collection usersWithEmail = UserDirectoryService.findUsersByEmail(officialAccount);
+						if(usersWithEmail != null) {
+							if(usersWithEmail.size() == 0) {
+								// If the collection is empty, we didn't find any users with this email address
+								M_log.info("Unable to fund users with email " + officialAccount);
+							} else if (usersWithEmail.size() == 1) {
+								// We found one user with this email address.  Use it.
+								u = (User)usersWithEmail.iterator().next();
+							} else if (usersWithEmail.size() > 1) {
+								// If we have multiple users with this email address, pick one and log this error condition
+								// TODO Should we not pick a user?  Throw an exception?
+								M_log.warn("Found multiple user with email " + officialAccount);
+								u = (User)usersWithEmail.iterator().next();
+							}
+						}
+						// We didn't find anyone via email address, so try getting the user by EID
+						if(u == null) {
+							u = UserDirectoryService.getUserByEid(officialAccount);
+						}
+						
 						if (site != null && site.getUserRole(u.getId()) != null) {
 							// user already exists in the site, cannot be added
 							// again
-							existingUsers.add(noEmailInIdAccount);
+							existingUsers.add(officialAccount);
 						} else {
 							participant.name = u.getDisplayName();
-							participant.uniqname = noEmailInIdAccount;
+							participant.uniqname = u.getEid();
 							pList.add(participant);
 						}
 					} catch (UserNotDefinedException e) {
-						addAlert(state, noEmailInIdAccount + " "
-								+ rb.getString("java.username") + " ");
+						addAlert(state, officialAccount + " " + rb.getString("java.username") + " ");
 					}
 				}
 			}
-		} // noEmailInIdAccounts
+		} // officialAccounts
 
-		if (emailInIdAccounts != null) {
-			String[] emailInIdAccountArray = emailInIdAccounts.split("\r\n");
-			for (i = 0; i < emailInIdAccountArray.length; i++) {
-				String emailInIdAccount = emailInIdAccountArray[i];
+		if (nonOfficialAccounts != null) {
+			String[] nonOfficialAccountArray = nonOfficialAccounts.split("\r\n");
+			for (i = 0; i < nonOfficialAccountArray.length; i++) {
+				String nonOfficialAccount = nonOfficialAccountArray[i];
 
 				// if there is some text, try to use it
-				emailInIdAccount.replaceAll("[ \t\r\n]", "");
+				nonOfficialAccount.replaceAll("[ \t\r\n]", "");
 
 				// remove the trailing dots and empty space
-				while (emailInIdAccount.endsWith(".")
-						|| emailInIdAccount.endsWith(" ")) {
-					emailInIdAccount = emailInIdAccount.substring(0,
-							emailInIdAccount.length() - 1);
+				while (nonOfficialAccount.endsWith(".")
+						|| nonOfficialAccount.endsWith(" ")) {
+					nonOfficialAccount = nonOfficialAccount.substring(0,
+							nonOfficialAccount.length() - 1);
 				}
 
-				if (emailInIdAccount != null && emailInIdAccount.length() > 0) {
-					String[] parts = emailInIdAccount.split(at);
+				if (nonOfficialAccount != null && nonOfficialAccount.length() > 0) {
+					String[] parts = nonOfficialAccount.split(at);
 
-					if (emailInIdAccount.indexOf(at) == -1) {
+					if (nonOfficialAccount.indexOf(at) == -1) {
 						// must be a valid email address
-						addAlert(state, emailInIdAccount + " "
+						addAlert(state, nonOfficialAccount + " "
 								+ rb.getString("java.emailaddress"));
 					} else if ((parts.length != 2) || (parts[0].length() == 0)) {
 						// must have both id and address part
-						addAlert(state, emailInIdAccount + " "
+						addAlert(state, nonOfficialAccount + " "
 								+ rb.getString("java.notemailid"));
 					} else if (!Validator.checkEmailLocal(parts[0])) {
-						addAlert(state, emailInIdAccount + " "
+						addAlert(state, nonOfficialAccount + " "
 								+ rb.getString("java.emailaddress")
 								+ rb.getString("java.theemail"));
-					} else if (emailInIdAccount != null
-							&& !isValidDomain(emailInIdAccount)) {
-						// wrong string inside emailInIdAccount id
-						addAlert(state, emailInIdAccount + " "
+					} else if (nonOfficialAccount != null
+							&& !isValidDomain(nonOfficialAccount)) {
+						// wrong string inside nonOfficialAccount id
+						addAlert(state, nonOfficialAccount + " "
 								+ rb.getString("java.emailaddress") + " ");
 					} else {
 						Participant participant = new Participant();
 						try {
-							// if the emailInIdAccount user already exists
+							// if the nonOfficialAccount user already exists
 							User u = UserDirectoryService
-									.getUserByEid(emailInIdAccount);
+									.getUserByEid(nonOfficialAccount);
 							if (site != null
 									&& site.getUserRole(u.getId()) != null) {
 								// user already exists in the site, cannot be
 								// added again
-								existingUsers.add(emailInIdAccount);
+								existingUsers.add(nonOfficialAccount);
 							} else {
 								participant.name = u.getDisplayName();
-								participant.uniqname = emailInIdAccount;
+								participant.uniqname = nonOfficialAccount;
 								pList.add(participant);
 							}
 						} catch (UserNotDefinedException e) {
-							// if the emailInIdAccount user is not in the system
+							// if the nonOfficialAccount user is not in the system
 							// yet
-							participant.name = emailInIdAccount;
-							participant.uniqname = emailInIdAccount; // TODO:
+							participant.name = nonOfficialAccount;
+							participant.uniqname = nonOfficialAccount; // TODO:
 							// what
 							// would
 							// the
@@ -9389,7 +9187,7 @@ public class SiteAction extends PagedResourceActionII {
 					}
 				} // if
 			} // 	
-		} // emailInIdAccounts
+		} // nonOfficialAccounts
 
 		boolean same_role = true;
 		if (params.getString("same_role") == null) {
@@ -9485,8 +9283,8 @@ public class SiteAction extends PagedResourceActionII {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		String siteTitle = getStateSite(state).getTitle();
-		String emailInIdAccountName = ServerConfigurationService.getString(
-				"emailInIdAccountName", "");
+		String nonOfficialAccountLabel = ServerConfigurationService.getString(
+				"nonOfficialAccountLabel", "");
 
 		Hashtable selectedRoles = (Hashtable) state
 				.getAttribute(STATE_SELECTED_PARTICIPANT_ROLES);
@@ -9513,13 +9311,13 @@ public class SiteAction extends PagedResourceActionII {
 				role = (String) selectedRoles.get(eId);
 			}
 
-			boolean noEmailInIdAccount = eId.indexOf(EMAIL_CHAR) == -1;
-			if (noEmailInIdAccount) {
-				// if this is a noEmailInIdAccount
+			boolean officialAccount = eId.indexOf(EMAIL_CHAR) == -1;
+			if (officialAccount) {
+				// if this is a officialAccount
 				// update the hashtable
 				eIdRoles.put(eId, role);
 			} else {
-				// if this is an emailInIdAccount
+				// if this is an nonOfficialAccount
 				try {
 					UserDirectoryService.getUserByEid(eId);
 				} catch (UserNotDefinedException e) {
@@ -9556,13 +9354,13 @@ public class SiteAction extends PagedResourceActionII {
 									uEdit.getEmail(), pw, siteTitle);
 						}
 					} catch (UserIdInvalidException ee) {
-						addAlert(state, emailInIdAccountName + " id " + eId
+						addAlert(state, nonOfficialAccountLabel + " id " + eId
 								+ " " + rb.getString("java.isinval"));
 						M_log.warn(this
 								+ " UserDirectoryService addUser exception "
 								+ e.getMessage());
 					} catch (UserAlreadyDefinedException ee) {
-						addAlert(state, "The " + emailInIdAccountName + " "
+						addAlert(state, "The " + nonOfficialAccountLabel + " "
 								+ eId + " " + rb.getString("java.beenused"));
 						M_log.warn(this
 								+ " UserDirectoryService addUser exception "
@@ -9587,39 +9385,39 @@ public class SiteAction extends PagedResourceActionII {
 				false);
 
 		// update the not added user list
-		String notAddedNoEmailInIdAccounts = null;
-		String notAddedEmailInIdAccounts = null;
+		String notAddedOfficialAccounts = null;
+		String notAddedNonOfficialAccounts = null;
 		for (Iterator iEIds = eIdRoles.keySet().iterator(); iEIds.hasNext();) {
 			String iEId = (String) iEIds.next();
 			if (!addedParticipantEIds.contains(iEId)) {
 				if (iEId.indexOf(EMAIL_CHAR) == -1) {
 					// no email in eid
-					notAddedNoEmailInIdAccounts = notAddedNoEmailInIdAccounts
+					notAddedOfficialAccounts = notAddedOfficialAccounts
 							.concat(iEId + "\n");
 				} else {
 					// email in eid
-					notAddedEmailInIdAccounts = notAddedEmailInIdAccounts
+					notAddedNonOfficialAccounts = notAddedNonOfficialAccounts
 							.concat(iEId + "\n");
 				}
 			}
 		}
 
 		if (addedParticipantEIds.size() != 0
-				&& (notAddedNoEmailInIdAccounts != null || notAddedEmailInIdAccounts != null)) {
-			// at lease one noEmailInIdAccount account or an emailInIdAccount
+				&& (notAddedOfficialAccounts != null || notAddedNonOfficialAccounts != null)) {
+			// at lease one officialAccount account or an nonOfficialAccount
 			// account added, and there are also failures
 			addAlert(state, rb.getString("java.allusers"));
 		}
 
-		if (notAddedNoEmailInIdAccounts == null
-				&& notAddedEmailInIdAccounts == null) {
+		if (notAddedOfficialAccounts == null
+				&& notAddedNonOfficialAccounts == null) {
 			// all account has been added successfully
 			removeAddParticipantContext(state);
 		} else {
-			state.setAttribute("noEmailInIdAccountValue",
-					notAddedNoEmailInIdAccounts);
-			state.setAttribute("emailInIdAccountValue",
-					notAddedEmailInIdAccounts);
+			state.setAttribute("officialAccountValue",
+					notAddedOfficialAccounts);
+			state.setAttribute("nonOfficialAccountValue",
+					notAddedNonOfficialAccounts);
 		}
 		if (state.getAttribute(STATE_MESSAGE) != null) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "22");
@@ -9639,8 +9437,8 @@ public class SiteAction extends PagedResourceActionII {
 	private void removeAddParticipantContext(SessionState state) {
 		// remove related state variables
 		state.removeAttribute("form_selectedRole");
-		state.removeAttribute("noEmailInIdAccountValue");
-		state.removeAttribute("emailInIdAccountValue");
+		state.removeAttribute("officialAccountValue");
+		state.removeAttribute("nonOfficialAccountValue");
 		state.removeAttribute("form_same_role");
 		state.removeAttribute("form_selectedNotify");
 		state.removeAttribute(STATE_ADD_PARTICIPANTS);
@@ -9652,7 +9450,7 @@ public class SiteAction extends PagedResourceActionII {
 	/**
 	 * Send an email to newly added user informing password
 	 * 
-	 * @param newEmailInIdAccount
+	 * @param newnonOfficialAccount
 	 * @param emailId
 	 * @param userName
 	 * @param siteTitle
@@ -9707,7 +9505,7 @@ public class SiteAction extends PagedResourceActionII {
 	/**
 	 * send email notification to added participant
 	 */
-	private void notifyAddedParticipant(boolean newEmailInIdAccount,
+	private void notifyAddedParticipant(boolean newNonOfficialAccount,
 			String emailId, String userName, String siteTitle) {
 		String from = getSetupRequestEmailAddress();
 		if (from != null) {
@@ -9715,8 +9513,8 @@ public class SiteAction extends PagedResourceActionII {
 					"ui.service", "");
 			String productionSiteUrl = ServerConfigurationService
 					.getPortalUrl();
-			String emailInIdAccountUrl = ServerConfigurationService.getString(
-					"emailInIdAccount.url", null);
+			String nonOfficialAccountUrl = ServerConfigurationService.getString(
+					"nonOfficialAccount.url", null);
 			String to = emailId;
 			String headerTo = emailId;
 			String replyTo = emailId;
@@ -9726,7 +9524,7 @@ public class SiteAction extends PagedResourceActionII {
 			StringBuilder buf = new StringBuilder();
 			buf.setLength(0);
 
-			// email body differs between newly added emailInIdAccount account
+			// email bnonOfficialAccounteen newly added nonOfficialAccount account
 			// and other users
 			buf.append(userName + ":\n\n");
 			buf.append(rb.getString("java.following") + " "
@@ -9736,14 +9534,14 @@ public class SiteAction extends PagedResourceActionII {
 			buf.append(rb.getString("java.simpleby") + " ");
 			buf.append(UserDirectoryService.getCurrentUser().getDisplayName()
 					+ ". \n\n");
-			if (newEmailInIdAccount) {
+			if (newNonOfficialAccount) {
 				buf.append(ServerConfigurationService.getString(
-						"emailInIdAccountInstru", "")
+						"nonOfficialAccountInstru", "")
 						+ "\n");
 
-				if (emailInIdAccountUrl != null) {
+				if (nonOfficialAccountUrl != null) {
 					buf.append(rb.getString("java.togeta1") + "\n"
-							+ emailInIdAccountUrl + "\n");
+							+ nonOfficialAccountUrl + "\n");
 					buf.append(rb.getString("java.togeta2") + "\n\n");
 				}
 				buf.append(rb.getString("java.once") + " " + productionSiteName
@@ -9774,7 +9572,7 @@ public class SiteAction extends PagedResourceActionII {
 	 * of eids for successfully added users
 	 */
 	private List addUsersRealm(SessionState state, Hashtable eIdRoles,
-			boolean notify, boolean emailInIdAccount) {
+			boolean notify, boolean nonOfficialAccount) {
 		// return the list of user eids for successfully added user
 		List addedUserEIds = new Vector();
 
@@ -9809,7 +9607,7 @@ public class SiteAction extends PagedResourceActionII {
 									String emailId = user.getEmail();
 									String userName = user.getDisplayName();
 									// send notification email
-									notifyAddedParticipant(emailInIdAccount,
+									notifyAddedParticipant(nonOfficialAccount,
 											emailId, userName, sEdit.getTitle());
 								}
 							}
@@ -10556,16 +10354,10 @@ public class SiteAction extends PagedResourceActionII {
 										if (!target.equals(channelReference)) {
 											// the email alias is not used by
 											// current site
-											addAlert(
-													state,
-													rb
-															.getString("java.emailinuse")
-															+ " ");
+											addAlert(state, rb.getString("java.emailinuse") + " ");
 										}
 									} else {
-										addAlert(state, rb
-												.getString("java.emailinuse")
-												+ " ");
+										addAlert(state, rb.getString("java.emailinuse") + " ");
 									}
 								}
 							} catch (IdUnusedException ee) {
@@ -12368,7 +12160,7 @@ public class SiteAction extends PagedResourceActionII {
 						addAlert(state, rb.getString("java.author")
 								+ " "
 								+ ServerConfigurationService
-										.getString("noEmailInIdAccountName")
+										.getString("officialAccountName")
 								+ ". ");
 					} 
 					else 
@@ -12385,7 +12177,7 @@ public class SiteAction extends PagedResourceActionII {
 									rb.getString("java.validAuthor1")
 											+ " "
 											+ ServerConfigurationService
-													.getString("noEmailInIdAccountName")
+													.getString("officialAccountName")
 											+ " "
 											+ rb.getString("java.validAuthor2"));
 						}
