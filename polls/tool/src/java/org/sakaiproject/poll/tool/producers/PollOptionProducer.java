@@ -43,6 +43,7 @@ import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Option;
+import org.sakaiproject.poll.tool.params.OptionViewParamaters;
 import org.sakaiproject.poll.tool.params.VoteBean;
 //import org.sakaiproject.tool.poll.impl.PollListManagerDaoImpl;
 
@@ -139,43 +140,20 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		
 
 		Option option = null;
-		EntityCentredViewParameters ecvp = (EntityCentredViewParameters) viewparams;
-		if (ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW) ) {
-			UIOutput.make(tofill,"new-option-title",messageLocator.getMessage("new_option_title"));
+		OptionViewParamaters aivp = (OptionViewParamaters) viewparams;
+		boolean newOption = false;
+		if(aivp.id != null) {
+			m_log.debug("got a paramater with id: " + new Long(aivp.id));
+			// passed in an id so we should be modifying an item if we can find it
+			option = pollListManager.getOptionById(new Long(aivp.id));
 		} else {
-			UIOutput.make(tofill,"new-option-title",messageLocator.getMessage("edit_option_title"));
-		}
-	
-		
-		if (ecvp != null && ecvp.mode!=null && !ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW)){
-			//check the ecvp
-			 
-			 String strId = ecvp.getELPath().substring(ecvp.getELPath().indexOf(".") + 1);
-			 String type = strId.substring(0,strId.indexOf('_'));
-			 String id = strId.substring(strId.indexOf('_')+1);
-				m_log.debug("got id of " + strId);
-				if (type.equals("Poll")) {
-					if (id.equals("0"))
-						poll = voteBean.getPoll();
-					else
-						poll = pollListManager.getPollById(new Long(id));
-				} else {
-					if (!id.equals("0"))
-						option = pollListManager.getOptionById(new Long(id));
-						poll = pollListManager.getPollById(option.getPollId());
-				}
-				voteBean.setPoll(poll);
+			option = new Option();
+			option.setPollId(new Long(aivp.pollId));
+			newOption = true;
 		}
 		
+
 		
-		//if the option bean is null set it
-		if (optionBean == null) {
-			m_log.debug("setting the option bean");
-			optionBean = new Option();
-			option = optionBean;
-			
-			
-		}
 		
 		UIOutput.make(tofill,"poll_text",poll.getText());
 		UIOutput.make(tofill,"poll-question",messageLocator.getMessage("new_poll_question"));
@@ -206,10 +184,13 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		 UICommand save =  UICommand.make(form, "submit-new-option", messageLocator.getMessage("new_poll_submit"),
 		  "#{pollToolBean.proccessActionAddOption}");
 		 save.parameters.add(new UIELBinding("#{pollToolBean.submissionStatus}", "save"));
-		 if (ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW)) {
+		 if (newOption) {
 			 UICommand saveAdd = UICommand.make(form, "submit-option-add", messageLocator.getMessage("new_poll_saveoption"),
 			 "#{pollToolBean.proccessActionAddOption}");
 			 saveAdd.parameters.add(new UIELBinding("#{pollToolBean.submissionStatus}", "option"));
+		 } else {
+			 form.parameters.add(new UIELBinding("#{option.optionId}",
+			           option.getOptionId()));
 		 }
 		  UICommand cancel = UICommand.make(form, "cancel",messageLocator.getMessage("new_poll_cancel"),"#{pollToolBean.cancel}");
 		   cancel.parameters.add(new UIELBinding("#{option.status}", "cancel"));
@@ -227,7 +208,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		  }
 	  
 	  public ViewParameters getViewParameters() {
-		    return new EntityCentredViewParameters(VIEW_ID, new EntityID("Poll", "Poll_0"));
+		    return new OptionViewParamaters();
 		  	
 	  }
 }

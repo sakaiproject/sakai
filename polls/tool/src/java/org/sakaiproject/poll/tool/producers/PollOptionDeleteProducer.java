@@ -41,6 +41,7 @@ import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.model.VoteCollection;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Option;
+import org.sakaiproject.poll.tool.params.OptionViewParamaters;
 import org.sakaiproject.poll.tool.params.VoteBean;
 
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
@@ -97,26 +98,18 @@ public class PollOptionDeleteProducer implements ViewComponentProducer,Navigatio
 			ComponentChecker arg2) {
 		m_log.debug("rendering view");
 		Poll poll = null;
-		Option option = null;
+		
 		UIOutput.make(tofill,"confirm_delete",messageLocator.getMessage("delete_confirm"));
 		UIOutput.make(tofill,"error",messageLocator.getMessage("delete_option_message"));
-		EntityCentredViewParameters ecvp = (EntityCentredViewParameters) viewparams;
-		if (poll== null || ecvp != null){
-			//check the ecvp
-			 
-			 String strId = ecvp.getELPath().substring(ecvp.getELPath().indexOf(".") + 1);
-			 String type = strId.substring(0,strId.indexOf('_'));
-			 String id = strId.substring(strId.indexOf('_')+1);
-				m_log.debug("got id of " + strId);
-				if (type.equals("Poll")) {
-					poll = pollListManager.getPollById(new Long(id));
-				} else { 
-					m_log.debug("getting option: " + id);
-					option = pollListManager.getOptionById(new Long(id));
-					m_log.debug("got option: " + option.getOptionId());
-					poll = pollListManager.getPollById(option.getPollId());
-				}
-		}
+		
+		Option option = null;
+		OptionViewParamaters aivp = (OptionViewParamaters) viewparams;
+		if(aivp.id != null) {
+			m_log.debug("got a paramater with id: " + new Long(aivp.id));
+			// passed in an id so we should be modifying an item if we can find it
+			option = pollListManager.getOptionById(new Long(aivp.id));
+		} 
+
 		UIVerbatim.make(tofill,"poll_text",option.getOptionText());
 		UIForm form = UIForm.make(tofill,"opt-form");
 		UIInput.make(form,"opt-text","#{option.optionText}",option.getOptionText());
@@ -126,7 +119,7 @@ public class PollOptionDeleteProducer implements ViewComponentProducer,Navigatio
 		form.parameters.add(new UIELBinding("#{option.id}",
 		           option.getId()));
 		form.parameters.add(new UIELBinding("#{option.pollId}",
-		           poll.getPollId()));
+		           option.getPollId()));
 		 
 		  UICommand saveAdd = UICommand.make(form, "submit-option-add", messageLocator.getMessage("delete_option_confirm"),
 		  "#{pollToolBean.proccessActionDeleteOption}");
@@ -149,7 +142,7 @@ public class PollOptionDeleteProducer implements ViewComponentProducer,Navigatio
 		  }
 	 
 	  public ViewParameters getViewParameters() {
-		    return new EntityCentredViewParameters(VIEW_ID, new EntityID("Option", null));
+		  return new OptionViewParamaters();
 
 	  }
 	 

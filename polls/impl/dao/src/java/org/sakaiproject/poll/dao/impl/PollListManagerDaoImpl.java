@@ -211,7 +211,7 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 	
 	public Option getOptionById(Long optionId){
 		DetachedCriteria d = DetachedCriteria.forClass(Option.class)
-		.add( Restrictions.eq("id", optionId));
+		.add( Restrictions.eq("optionId", optionId));
 		Option option =  (Option)getHibernateTemplate().findByCriteria(d).get(0);
 		//if the id is null set it
 		if (option.getId() == null) {

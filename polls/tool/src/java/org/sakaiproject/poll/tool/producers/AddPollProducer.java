@@ -34,6 +34,7 @@ import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
+import org.sakaiproject.poll.tool.params.OptionViewParamaters;
 import org.sakaiproject.poll.tool.params.VoteBean;
 
 import uk.org.ponder.beanutil.entity.EntityID;
@@ -210,9 +211,11 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			//fill the options list
 			UIOutput.make(tofill,"options-title",messageLocator.getMessage("new_poll_option_title"));
 			UIInternalLink.make(tofill,"option-add",messageLocator.getMessage("new_poll_option_add"),
-					new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
-		                      new EntityID("Poll", "Poll_" + poll.getPollId().toString()),EntityCentredViewParameters.MODE_NEW));
-		
+					new OptionViewParamaters(PollOptionProducer.VIEW_ID, null, poll.getPollId().toString()));
+		/*
+		 * new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
+		                      new EntityID("Poll", "Poll_" + poll.getPollId().toString()),EntityCentredViewParameters.MODE_NEW)
+		 */
 			List votes = pollVoteManager.getAllVotesForPoll(poll);
 			if (votes != null && votes.size() > 0 ) {
 				m_log.debug("Poll has " + votes.size() + " votes");
@@ -221,7 +224,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 				
 			}
 			
-			//new SimpleViewParameters(PollOptionProducer.VIEW_ID));
+			
 			List options = poll.getPollOptions();
 			m_log.debug("got this many options: " + options.size());
 			for (int i = 0; i < options.size(); i++){
@@ -230,15 +233,15 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 				UIVerbatim.make(oRow,"options-name",o.getOptionText());
 				
 				
-				UIInternalLink editPoll = UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
-							new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
-									new EntityID("Option", "Option_" + o.getOptionId().toString()), EntityCentredViewParameters.MODE_EDIT));
-					editPoll.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("new_poll_option_edit") +":" + o.getOptionText()));
+				UIInternalLink editOption = UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
+							new OptionViewParamaters(PollOptionProducer.VIEW_ID, o.getOptionId().toString()));
+	
+					editOption.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("new_poll_option_edit") +":" + o.getOptionText()));
 					
-					UIInternalLink deletePoll = UIInternalLink.make(oRow,"option-delete",messageLocator.getMessage("new_poll_option_delete"),
-							new EntityCentredViewParameters(PollOptionDeleteProducer.VIEW_ID, 
-									new EntityID("Option", "Option_" + o.getOptionId().toString())));
-					deletePoll.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("new_poll_option_delete") +":" + o.getOptionText()));
+					UIInternalLink deleteOption = UIInternalLink.make(oRow,"option-delete",messageLocator.getMessage("new_poll_option_delete"),
+							new OptionViewParamaters(PollOptionDeleteProducer.VIEW_ID,o.getOptionId().toString()));
+
+					deleteOption.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("new_poll_option_delete") +":" + o.getOptionText()));
 				
 			}
 	    }
@@ -276,10 +279,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		  dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);
 		  dateevolver.evolveDateInput(voteOpen, poll.getVoteOpen());
 		  dateevolver.evolveDateInput(voteClose, poll.getVoteClose());
-		  
-		  
-		  
-		  
+		 
 		  String[] minVotes = new String[]{"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
 		  String[] maxVotes = new String[]{"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
 		  UISelect.make(newPoll,"min-votes",minVotes,"#{poll.minOptions}",Integer.toString(poll.getMinOptions()));
