@@ -212,20 +212,25 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			UIInternalLink.make(tofill,"option-add",messageLocator.getMessage("new_poll_option_add"),
 					new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
 		                      new EntityID("Poll", "Poll_" + poll.getPollId().toString()),EntityCentredViewParameters.MODE_NEW));
-					
+		
+			List votes = pollVoteManager.getAllVotesForPoll(poll);
+			if (votes != null && votes.size() > 0 ) {
+				m_log.debug("Poll has " + votes.size() + " votes");
+				UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", "0");
+				UIOutput.make(errorRow,"error", messageLocator.getMessage("warn_poll_has_votes"));
+				
+			}
+			
 			//new SimpleViewParameters(PollOptionProducer.VIEW_ID));
 			List options = poll.getPollOptions();
 			m_log.debug("got this many options: " + options.size());
-			for (int i = 0; i <options.size();i++){
+			for (int i = 0; i < options.size(); i++){
 				Option o = (Option)options.get(i);
 				UIBranchContainer oRow = UIBranchContainer.make(newPoll,"options-row:",o.getOptionId().toString());
 				UIVerbatim.make(oRow,"options-name",o.getOptionText());
-				//only if there are no votes on this poll
 				
-				List votes = pollVoteManager.getAllVotesForPoll(poll);
-				if (votes == null || votes.size() == 0 ) {
-					
-					UIInternalLink editPoll = UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
+				
+				UIInternalLink editPoll = UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
 							new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
 									new EntityID("Option", "Option_" + o.getOptionId().toString()), EntityCentredViewParameters.MODE_EDIT));
 					editPoll.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("new_poll_option_edit") +":" + o.getOptionText()));
@@ -234,7 +239,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 							new EntityCentredViewParameters(PollOptionDeleteProducer.VIEW_ID, 
 									new EntityID("Option", "Option_" + o.getOptionId().toString())));
 					deletePoll.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("new_poll_option_delete") +":" + o.getOptionText()));
-				}
+				
 			}
 	    }
 	    
