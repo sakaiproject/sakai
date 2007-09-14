@@ -281,4 +281,56 @@ public class ConfigurationService
 		}
 		return instance.isLibrarySearchEnabled();
 	}
+
+  /**
+   * Enable/disable default Citations support
+   */
+  public static void setCitationsEnabledByDefault(boolean state)
+	{
+		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+		if (instance == null)
+		{
+			return;
+		}
+		instance.setCitationsEnabledByDefault(state);
+	}
+
+  /**
+   * Is Citations support enabled by default?
+   */
+  public static boolean isCitationsEnabledByDefault()
+  {
+		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+		if (instance == null)
+		{
+			return false;
+		}
+		return instance.isCitationsEnabledByDefault();
+	}
+
+  /**
+   * Enable/disable site-by-site Citations support
+   */
+  public static void setAllowSiteBySiteOverride(boolean state)
+	{
+		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+		if (instance == null)
+		{
+			return;
+		}
+		instance.setAllowSiteBySiteOverride(state);
+	}
+
+  /**
+   * Is site-by-site Citations support enabled?
+   */
+  public static boolean isAllowSiteBySiteOverride()
+  {
+		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+		if (instance == null)
+		{
+			return false;
+		}
+		return instance.isAllowSiteBySiteOverride();
+	}
 }

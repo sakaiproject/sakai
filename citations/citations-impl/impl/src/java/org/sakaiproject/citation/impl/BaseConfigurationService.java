@@ -131,6 +131,9 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
   // site-specific config/authentication/authorization implementation -->
     protected String m_osidConfig;
+  /*
+   * End of components.xml properties
+   */
 
   // other config services -->
   protected SessionManager m_sessionManager;
@@ -138,9 +141,6 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
   private TreeSet<String> m_categories;
   private TreeSet<String> m_configs;
-  /*
-   * End of components.xml properties
-   */
 
   /*
    * Site specific OSID configuration instance
@@ -381,11 +381,19 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   }
 
   /**
-   * Is Citations Helper by default enabled?
+   * Is the Citations Helper [potentially] available for all sites?
    * @return true if so
    */
   public boolean isCitationsEnabledByDefault()
   {
+    String state = getConfigurationParameter("citations-enabled-by-default");
+
+    if (state != null)
+    {
+      m_log.debug("Citations enabled by default (1): " + state.equals("true"));
+      return state.equals("true");
+    }
+    m_log.debug("Citations enabled by default (2): " + m_citationsEnabledByDefault);
     return m_citationsEnabledByDefault;
   }
 
@@ -399,11 +407,19 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   }
 
   /**
-   * Is site by site Citations Helper enabled?
+   * Is the Citations Helper enabled site-by-site?
    * @return true if so
    */
   public boolean isAllowSiteBySiteOverride()
   {
+    String state = getConfigurationParameter("citations-enabled-site-by-site");
+
+    if (state != null)
+    {
+      m_log.debug("Citations enabled site-by-site (1): " + state.equals("true"));
+      return state.equals("true");
+    }
+    m_log.debug("Citations enabled site-by-site (2): " + m_allowSiteBySiteOverride);
     return m_allowSiteBySiteOverride;
   }
 
@@ -424,8 +440,13 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
   public boolean isGoogleScholarEnabled()
   {
-    String state = getGoogleSearchEnabled();
+    String state = getConfigurationParameter("google-scholar-enabled");
 
+    if (state == null)
+    {
+      state = getGoogleSearchEnabled();
+    }
+    m_log.debug("Google enabled: " + state.equals("true"));
     return state.equals("true");
   }
 
@@ -446,8 +467,13 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
   public boolean isLibrarySearchEnabled()
   {
-    String state = getLibrarySearchEnabled();
+    String state = getConfigurationParameter("library-search-enabled");
 
+    if (state == null)
+    {
+      state = getLibrarySearchEnabled();
+    }
+    m_log.debug("Library Search enabled: " + state.equals("true"));
     return state.equals("true");
   }
 
@@ -577,16 +603,26 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       }
       parameterMap.clear();
 
+      saveParameter(document, parameterMap, "citations-enabled-by-default");
+      saveParameter(document, parameterMap, "citations-enabled-site-by-site");
+
+      saveParameter(document, parameterMap, "google-scholar-enabled");
+      saveParameter(document, parameterMap, "library-search-enabled");
+
       saveParameter(document, parameterMap, "osid-impl");
+
       saveParameter(document, parameterMap, "metasearch-username");
       saveParameter(document, parameterMap, "metasearch-password");
       saveParameter(document, parameterMap, "metasearch-baseurl");
+
       saveParameter(document, parameterMap, "openurl-label");           // obsolete?
       saveParameter(document, parameterMap, "openurl-resolveraddress");
+
       saveParameter(document, parameterMap, "google-baseurl");
       saveParameter(document, parameterMap, "sakai-serverkey");
-      saveParameter(document, parameterMap, "config-id");
-      saveParameter(document, parameterMap, "database-xml");
+
+      saveParameter(document, parameterMap, "config-id");               // obsolete?
+      saveParameter(document, parameterMap, "database-xml");            // obsolete?
 
       m_configMaps.put(configurationXml, parameterMap);
     }
