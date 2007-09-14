@@ -49,6 +49,10 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 <h:outputText value="#{evaluationMessages.title_create_new_email}" />
 </h3>
 
+<h5>
+<h:outputText value="#{evaluationMessages.email_warning}" />
+</h5>
+
 <h:panelGrid columns="1" columnClasses="navView,navView" border="0">	
 	<h:panelGrid columns="2" columnClasses="navView" border="0">	
 	<h:outputText value="#{evaluationMessages.from}" />
