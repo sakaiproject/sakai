@@ -1116,7 +1116,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
           recipientList.add(receiver);                    
       }      
       else if (asEmail){
-        emailService.send(systemEmail, u.getEmail(), message.getTitle(), 
+    	  
+    	 PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
+                  userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
+                  isRecipientCurrentUser);
+    	 recipientList.add(receiver);
+    	  
+         emailService.send(systemEmail, u.getEmail(), message.getTitle(), 
             bodyString, u.getEmail(), null, additionalHeaders);
       }      
       else{        
