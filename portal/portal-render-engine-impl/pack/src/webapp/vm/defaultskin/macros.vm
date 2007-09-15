@@ -17,7 +17,7 @@
 
     <meta http-equiv="Content-Style-Type" content="text/css" />
 #if (! $currentPlacement && $isPDA )
-    <meta name="viewport" content="width=320, user-scalable=no">
+    <meta name="viewport" content="width=320, user-scalable=no" />
 #end
 #if ( ${bufferedResponse} && ${responseHead} ) 
 <!-- Head material from Tool (will include title and headscripts) -->
