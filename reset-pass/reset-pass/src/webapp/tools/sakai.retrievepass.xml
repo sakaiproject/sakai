@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool id="sakai.resetpass"
+		title="Reset Password"
+		description="For reseting guest passwords">
+
+	</tool>	
+</registration>
