@@ -73,6 +73,7 @@ public class ErrorReporter
 	{
 		censoredParameters.put("pw", "pw");
 		censoredParameters.put("eid", "eid");
+		censoredHeaders.put("cookie","cookie");
 	}
 
 	/** Following two methods borrowed from RWikiObjectImpl.java * */
@@ -555,10 +556,6 @@ public class ErrorReporter
 					request.getRemoteHost()).append("\n");
 			sb.append(rb.getString("bugreport.request.remoteport")).append(
 					request.getRemotePort()).append("\n");
-			sb.append(rb.getString("bugreport.request.remoteuser")).append(
-					request.getRemoteUser()).append("\n");
-			sb.append(rb.getString("bugreport.request.requestedsession")).append(
-					request.getRequestedSessionId()).append("\n");
 			sb.append(rb.getString("bugreport.request.requesturl")).append(
 					request.getRequestURL()).append("\n");
 			sb.append(rb.getString("bugreport.request.scheme")).append(
