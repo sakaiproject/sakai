@@ -481,7 +481,7 @@ public class PortalSiteHelper
 					{
 						String summarizableReference = es.getSummarizableReference(site
 								.getId(),toolIdentifier);
-						es.getSummary(summarizableReference, 5, 30);
+						newMap = es.getSummary(summarizableReference, 5, 30);
 					}
 				}
 				catch (Throwable t)
