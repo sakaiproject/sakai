@@ -18,11 +18,14 @@
 ##                    m.put("jsToolTitle", Web.escapeJavascript(placement.getTitle()));
 ##                    m.put("toolrefUrl", toolrefUrl);
 ##
+#set ( $isPDA = 1 ) 
 #start_response()
 <!-- pda.vm -->
 #if ( ${wurflSmallDisplay} ) 
 <!-- Mobile Device ${wurflDevice} -->
 #end
+## Always assume small display
+#set ( $wurflSmallDisplay = 1 )
 <div class="portlet">
   <div id="pda-portlet-menu">
   <a href="${portalTopUrl}" title="Back to Site List">Sites</a> 
@@ -137,7 +140,7 @@ ${responseBody}
     </ul>
   #end
 #end
-#if ($currentSite)
+#if ($currentSite )
   #if ( ! ${wurflSmallDisplay} ) 
     #if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 	<script type="text/javascript" language="JavaScript">

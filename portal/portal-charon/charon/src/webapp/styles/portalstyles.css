@@ -1,16 +1,17 @@
-
 #headerMax{
 	overflow:visible;
  }
 
 #pda-portlet-menu{
-	background-color:#29c;
-	color:#fff;
+	background-color:#698199;
+	color:#ffffff;
 	font-size:100%;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 14pt;
 	padding:3px;
 }
 #pda-portlet-menu a{
-	color:#fff;
+	color:#ffffff;
 	text-decoration:none;
 }	
 #pda-portlet-menu a:hover{
@@ -25,12 +26,15 @@
 	padding:1em;	
 	list-style:none;
 	line-height:1.5em;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 14pt;
 }
 
 #pda-portlet-site-menu a, #pda-portlet-page-menu a{
-	color:#29c;
+	color:#698199;
 	text-decoration:none;
 }	
+
 #pda-portlet-site-menu a:hover, #pda-portlet-page-menu a:hover{
 	text-decoration:underline;
 }
