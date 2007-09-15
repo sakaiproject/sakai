@@ -67,6 +67,9 @@ public class LoginTool extends HttpServlet
 	/** Session attribute set and shared with ContainerLoginTool: if set we have failed container and need to check internal. */
 	public static final String ATTR_CONTAINER_CHECKED = "sakai.login.container.checked";
 
+	/** Marker to indicate we are logging in the PDA Portal and should put out abbreviated HTML */
+	public static final String PDA_PORTAL_SUFFIX = "/pda/";
+
 	private static ResourceLoader rb = new ResourceLoader("auth");
 
 	/**
@@ -203,6 +206,7 @@ public class LoginTool extends HttpServlet
 				+ "    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />"
 				+ "    <title>UI.SERVICE</title>"
 				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>"
+				+ "    <meta name=\"viewport\" content=\"width=320, user-scalable=no\">"
 				+ "  </head>"
 				+ "  <body onload=\" setFocus(focus_path);parent.updCourier(doubleDeep, ignoreCourier);\">"
 				+ "<script type=\"text/javascript\" language=\"JavaScript\">" + "  focus_path = [\"eid\"];" + "</script>";
@@ -222,6 +226,7 @@ public class LoginTool extends HttpServlet
 				+ "										<input name=\"submit\" type=\"submit\" id=\"submit\" value=\"LoginSubmit\"/>" + "									</td>"
 				+ "								</tr>" + "							</table>" + "						</form>" + "					</td>" + "				</tr>" + "			</table>";
 
+
 		// get the Sakai session
 		Session session = SessionManager.getCurrentSession();
 
@@ -230,6 +235,11 @@ public class LoginTool extends HttpServlet
 
 		// fragment or not?
 		boolean fragment = Boolean.TRUE.toString().equals(req.getAttribute(Tool.FRAGMENT));
+
+		// PDA or not?
+		String portalUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
+		boolean isPDA = false;
+		if ( portalUrl != null ) isPDA = portalUrl.endsWith(PDA_PORTAL_SUFFIX);
 
 		String eidWording = rb.getString("userid");
 		String pwWording = rb.getString("log.pass");
@@ -281,6 +291,10 @@ public class LoginTool extends HttpServlet
 		// add the default skin
 		html = html.replaceAll("DEFAULT_SKIN", defaultSkin);
 		html = html.replaceAll("SKIN_ROOT", skinRoot);
+		if ( isPDA )
+		{
+			html = html.replaceAll("class=\"login\"", "align=\"center\"");
+		}
 
 		// write a message if present
 		String msg = (String) session.getAttribute(ATTR_MSG);
