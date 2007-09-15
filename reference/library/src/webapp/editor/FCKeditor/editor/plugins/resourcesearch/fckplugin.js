@@ -175,23 +175,23 @@ function flagActiveEditor(editorInstance)
  */
 function getBaseUrl()
 {
-	var placementId = document.pid;
-	var baseUrl = document.baseUrl;
+	var placementId = document.__pid;
+	var baseUrl = document.__baseUrl;
 
 	if((typeof baseUrl == "undefined") || (baseUrl.length == 0))
 	{
-		baseUrl = parent.document.baseUrl;
+		baseUrl = parent.document.__baseUrl;
 		if((typeof baseUrl == "undefined") || (baseUrl.length == 0))
 		{
-			baseUrl = top.document.baseUrl;
+			baseUrl = top.document.__baseUrl;
 			if((typeof baseUrl == "undefined") || (baseUrl.length == 0))
 			{
 				if ((typeof placementId == "undefined") || (placementId.length == 0))
 				{
-					placementId = parent.document.pid;
+					placementId = parent.document.__pid;
 					if ((typeof placementId == "undefined") || (placementId.length == 0))
 					{
-						placementId = top.document.pid;
+						placementId = top.document.__pid;
 					}
 				}
 				if ((typeof placementId == "undefined") || (placementId.length == 0))
