@@ -1,48 +1,42 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
 <head>
+	<title>Site Page Order</title>
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/PageList.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" rsf:id="resize"/>
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 </head>
 <body>
-<div id="add-item-shell">
-	<div rsf:id="mode-pass:">
-		<div rsf:id="tool-list:">
-			<div class="option_list">
-				<div id="option-label">
-					<a href="#" rsf:id="refresh-link" class="item_control" title="Refresh List" onclick="showAddPage(this.href); return false;">
-						<img src="../images/arrow_refresh.gif" />
-					</a>
-					<strong rsf:id="option-label">Available Pages</strong>
-				</div>
-				<ul class="sortable" id="sort-source">
-					<li class="sortable_item" rsf:id="tool-row:">
-						<div>
-							<a href="#" onclick="addTool($(this).parent().parent(), true); return false;" rsf:id="tool-add-url" class="tool_add_url">
-								<img src="../images/add.gif" />
-							</a>
-							<span rsf:id="tool-name"/>
-						</div>
-						<div id="tool-id" style="display: none;"><small rsf:id="tool-id"/></div>
-						<div rsf:id="tool-description"/>					
-					</li>
-				</ul>
-			</div>
-		</div>
-		<div class="hidden">
-			<div id="message"><strong rsf:id="message">Because</strong></div>
-		</div>
-		<script type="text/javascript">
-			makeDraggable('#sort-source li.sortable_item');
-		</script>
-	</div>
-	<div rsf:id="mode-failed:">
-		<div class="hidden" id="value">fail</div>
-		<div id="message"><strong rsf:id="message">Because</strong></div>
-	</div>
-	<div rsf:id="add-pass:" class="add_status">
-		<div class="hidden" id="value">pass</div>
-		<div id="message"><strong rsf:id="message">Because</strong></div>
-	</div>
-	<li class="sortable_item" rsf:id="page-row:"></li>
+<div class="portletBody">
+	<form rsf:id="tools-form">
+		<h3 rsf:id="prompt">
+			Revising site tools for Test
+		</h3>
+		<p rsf:id="instructions" class="instruction">
+			Check boxes to add tools from your site.
+		</p>
+		<span rsf:id="select-tools"></span>
+		<table class="listHier lines nolines" style="width:auto" summary="Site tools list. Column 1: checkbox to add or drop tool from site. Column 2: tool name. Column 3: tool description.">
+			<tr>
+				<th rsf:id="select-title" class="skip">Select</th>
+				<th rsf:id="tool-title" class="skip">Tool</th>
+				<th rsf:id="desc-title" class="skip">Tool description</th>
+			</tr>	
+			<tr rsf:id="tool-row:">
+				<td>
+				  <input rsf:id="tool-select" title="Select to add tool" type="checkbox" id="check-2" name="addTool" value=""/>
+				</td>
+				<td rsf:id="tool-name"/>
+				<td rsf:id="tool-description"/>					
+			</tr>
+		</table>
+		<p class="act">
+			<input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit"/>
+			<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+		</p>			
+	</form>
 </div>
 </body>
 </html>

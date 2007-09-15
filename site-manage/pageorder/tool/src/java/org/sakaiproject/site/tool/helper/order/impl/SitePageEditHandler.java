@@ -36,8 +36,11 @@ public class SitePageEditHandler {
     public SessionManager sessionManager = null;
     public ServerConfigurationService serverConfigurationService;
     private Map pages = null;
+    public String[] selectedTools = new String[] {};
     private Set unhideables = null;
     public String state = null;
+    public String title = "";
+    public String test = null;
     public boolean update = false;
     public boolean done = false;
     
@@ -124,7 +127,8 @@ public class SitePageEditHandler {
             }
         }
         update = siteService.allowUpdateSite(site.getId());
-
+        title = site.getTitle();
+        
         String conf = serverConfigurationService.getString(UNHIDEABLES_CFG);
         if (conf != null) {
             unhideables = new HashSet();
@@ -171,7 +175,8 @@ public class SitePageEditHandler {
         Vector multiPlacementToolIds = new Vector();
 
         String items[];
-        if (serverConfigurationService.getString(MULTI_TOOLS) != null)
+        if (serverConfigurationService.getString(MULTI_TOOLS) != null && 
+                !"".equals(serverConfigurationService.getString(MULTI_TOOLS)))
             items = serverConfigurationService.getString(MULTI_TOOLS).split(",");
         else
             items = defaultMultiTools;
@@ -179,6 +184,8 @@ public class SitePageEditHandler {
         for (int i = 0; i < items.length; i++) {
             multiPlacementToolIds.add(items[i]);
         }
+     
+        List currentTools = new Vector();
         
         SortedIterator i = new SortedIterator(toolRegistrations.iterator(), new ToolComparator());
         for (; i.hasNext();)
@@ -195,6 +202,33 @@ public class SitePageEditHandler {
         }
         
         return tools;
+    }
+    
+    /**
+     * Process tool adds
+     * @return
+     */
+    public String addTools () {    
+        for (int i = 0; i < selectedTools.length; i++) {
+            SitePage page = null;
+            try {
+                page = site.addPage();
+                Tool tool = toolManager.getTool(selectedTools[i]);
+                page.setTitle(tool.getTitle());
+                page.addTool(tool.getId());
+                siteService.save(site);
+            } 
+            catch (IdUnusedException e) {
+                e.printStackTrace();
+                return null;
+            } 
+            catch (PermissionException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+      
+        return "success";
     }
     
     /**
@@ -239,6 +273,14 @@ public class SitePageEditHandler {
         session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
 
         return "done";
+    }
+    
+    /**
+     * Cancel out of the current action and go back to main view
+     * 
+     */
+    public String back() {
+      return "back";
     }
     
     public String reset() {

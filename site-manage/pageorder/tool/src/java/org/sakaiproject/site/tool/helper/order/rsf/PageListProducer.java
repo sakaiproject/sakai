@@ -32,6 +32,7 @@ import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.DefaultView;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.RawViewParameters;
+import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
 /**
@@ -58,6 +59,12 @@ public class PageListProducer
 
         if (handler.update) {
             
+            PageAddViewParameters addParam = new PageAddViewParameters();
+            addParam.viewID = PageAddProducer.VIEW_ID;
+            UIInternalLink.make(tofill, "add-link", messageLocator.getMessage("show_add"), addParam).decorators =
+                new DecoratorList(new UITooltipDecorator(messageLocator
+                      .getMessage("page_show_add")));
+
             UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
             
             UIOutput.make(content, "message", messageLocator.getMessage("welcome"));
@@ -150,13 +157,6 @@ public class PageListProducer
                 state += page.getId() + " ";
             }
 
-            PageAddViewParameters addParam = new PageAddViewParameters();
-            addParam.mode = "list";
-            addParam.viewID = PageAddProducer.VIEW_ID;
-            UIInternalLink.make(content, "add-link", addParam).decorators =
-                new DecoratorList(new UITooltipDecorator(messageLocator
-                        .getMessage("page_show_add")));
-            UIMessage.make(content, "add-page", "show_add");
             UIMessage.make(pageForm, "del-message", "del_message");
             UIMessage.make(pageForm, "exit-message", "exit_message");
             UIMessage.make(pageForm, "reset-message", "confirm_reset_message");
@@ -190,7 +190,10 @@ public class PageListProducer
     public List reportNavigationCases() {
         Tool tool = handler.getCurrentTool();
         List togo = new ArrayList();
-        togo.add(new NavigationCase("done", new RawViewParameters(SakaiURLUtil.getHelperDoneURL(tool, sessionManager))));
+        togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
+        togo.add(new NavigationCase("done", 
+                 new RawViewParameters(SakaiURLUtil.getHelperDoneURL(tool, sessionManager))));
+        
 
         return togo;
     }

@@ -18,6 +18,9 @@
 
 <body>
  	<div id="page-order-body" class="portletBody">
+	 	<div class="navIntraTool">
+			<a href="#" rsf:id="add-link" class="item_control" title="Display Pages Currently Available To Add To This Site" onclick="">Add Page</a>
+		</div>
 		<a href="#" rsf:id="redirect">go back</a>
 		<div rsf:id="content:">
 			<form rsf:id="pages-form" class="order_action_form">
@@ -71,16 +74,6 @@
 								</li>
 							</ul>
 							<div id="new-page-buffer" style="display: none;">Nothing at first</div>
-						</div>
-					</td><td>
-						<div id="add-panel"></div>
-						<div id="add-control">
-							<a href="#" rsf:id="add-link" class="item_control" title="Display Pages Currently Available To Add To This Site" onclick="showAddPage(this.href, true); return false;">
-								<strong rsf:id="add-page">Add Page</strong><img src="../images/add.gif" />
-							</a>
-						</div>
-						<div rsf:id="error:">
-							<span rsf:id="message"/>
 						</div>
 					</td></tr>
 				</table>
