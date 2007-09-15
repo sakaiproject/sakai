@@ -11,7 +11,6 @@ import org.sakaiproject.site.tool.helper.order.impl.SitePageEditHandler;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 
-
 import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
 import uk.ac.cam.caret.sakai.rsf.util.SakaiURLUtil;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -97,10 +96,18 @@ public class PageListProducer
                 param.pageId = page.getId();
 
                 param.viewID = PageEditProducer.VIEW_ID;
-                UIInternalLink.make(pagerow, "edit-link", param)
-                  .decorate(new UITooltipDecorator(messageLocator
-                            .getMessage("page_edit"))); 
+                UIInternalLink.make(pagerow, "edit-link", param).decorate(
+                        new UITooltipDecorator(messageLocator.getMessage("page_edit")
+                                               + " " + page.getTitle()));
 
+                UIInternalLink.make(pagerow, "save-edit-link", param).decorate(
+                        new UITooltipDecorator(messageLocator.getMessage("save_page_edit")
+                                               + " " + page.getTitle()));
+
+                UIOutput.make(pagerow, "cancel-edit-link").decorate(
+                        new UITooltipDecorator(messageLocator.getMessage("cancel_page_edit")                                         
+                                               + " " + page.getTitle()));
+              
                 if (page.getTools().size() == 1) {
                     ToolConfiguration tool = (ToolConfiguration) page.getTools().get(0);
 
@@ -111,7 +118,8 @@ public class PageListProducer
 
                         param.viewID = PageDelProducer.VIEW_ID;
                         UIInternalLink.make(pagerow, "del-link", param).decorate(
-                            new UITooltipDecorator(UIMessage.make("page_remove")));
+                              new UITooltipDecorator(messageLocator.getMessage("page_remove") 
+                                                     + " " + page.getTitle()));
                     }
                   
                     //allow special configuration for the iframe tool. This needs to be generalized
@@ -128,32 +136,32 @@ public class PageListProducer
                     }
                 }
 
-                UIOutput.make(pagerow, "edit-link").decorate(
-                    new UITooltipDecorator(UIMessage.make("page_edit")));
                 if (handler.allowsHide(page)) {
                     param.viewID = PageEditProducer.VIEW_ID;
                     if (handler.isVisible(page)) {
                         param.visible = "false";
                         UIInternalLink.make(pagerow, "hide-link", param).decorate(
-                            new UITooltipDecorator(UIMessage.make("page_hide")));
+                                new UITooltipDecorator(messageLocator.getMessage("page_hide")
+                                                       + " " + page.getTitle()));
+                        
                         param.visible = "true";
-                        UIInternalLink.make(pagerow, "show-link-off", param).decorate
-                          (new UITooltipDecorator(messageLocator
-                                .getMessage("page_show")));
+                        UIInternalLink.make(pagerow, "show-link-off", param).decorate(
+                                new UITooltipDecorator(messageLocator.getMessage("page_show")
+                                                       + " " + page.getTitle()));
                     }
                     else {
                         param.visible = "true";
-                        UIInternalLink.make(pagerow, "show-link", param).
-                          decorate(new UITooltipDecorator(messageLocator
-                                .getMessage("page_show")));
+                        UIInternalLink.make(pagerow, "show-link", param).decorate(
+                                new UITooltipDecorator(messageLocator.getMessage("page_show")
+                                                       + " " + page.getTitle()));
                      
                         param.visible = "false";
-                        UIInternalLink.make(pagerow, "hide-link-off", param).
-                          decorate(new UITooltipDecorator(messageLocator
-                                .getMessage("page_hide")));
+                        UIInternalLink.make(pagerow, "hide-link-off", param).decorate(
+                                new UITooltipDecorator(messageLocator.getMessage("page_hide")
+                                                       + " " + page.getTitle()));
                     }
                 }
-
+                
                 state += page.getId() + " ";
             }
 
