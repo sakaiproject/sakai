@@ -749,10 +749,8 @@ below they are contextually defined depending on the column as an example,as you
 }
 
 .icon-sakai-help {
-	background-image : url(../../image/silk/help.png);
+/*	background-image : url(../../image/silk/help.png); */
 }
-
-
 
 .icon-sakai-syllabus {
 /*	background-image : url(../../image/silk/new.png); */
