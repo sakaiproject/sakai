@@ -425,7 +425,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 			// If you don't have site.upd - silently return not storing
 			// In an ideal world perhaps we should throw java.io.IOException
 			// As per PortletPreferences API on the store() method
-			if (!SecurityService.unlock("site.upd", siteReference))
+			if (!SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, siteReference))
 			{
 				// System.out.println("You do not have site.upd - silently
 				// returning and not storing");

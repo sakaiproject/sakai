@@ -52,43 +52,56 @@ public class SakaiServletUtil
 			return true;
 
 		String placementId = state.getId();
-		// System.out.println("state.getId()="+placementId);
 
 		// find the tool from some site
 		ToolConfiguration siteTool = SiteService.findTool(placementId);
-		// System.out.println("siteTool="+siteTool);
 		if (siteTool == null) return false;
 
 		String siteId = siteTool.getSiteId();
-		// System.out.println("siteId="+siteId);
 
 		String siteReference = SiteService.siteReference(siteId);
-		// System.out.println("Reference="+siteReference);
 
 		if (SecurityService.unlock(string, siteReference)) return true;
 
 		Session session = SessionManager.getCurrentSession();
-		// System.out.println("Session = " + session);
 
 		if (session == null) return false;
 
 		String userId = session.getUserId();
-		// System.out.println("userId = "+userId);
 
 		// Fall through to roles
 		try
 		{
 			Site site = SiteService.getSite(siteId);
-			// System.out.println("Site = "+site);
 			Role role = site.getUserRole(userId);
-			// System.out.println("Role = "+role);
 			if (role == null) return false;
-			// System.out.println("Role = "+role.getId());
-			return string.equalsIgnoreCase(role.getId());
+			if ( string.equalsIgnoreCase(role.getId()) ) return true;
 		}
 		catch (IdUnusedException e)
 		{
 			return false;
 		}
+
+		// One last mapping for IMS Enterprise Role compatibility
+
+		// "Admin" is handled above
+
+		// The ideal way to handle Student and Instructor is to 
+		// Make functions or roles in the site - this allows the 
+		// support of any IMS Enterprise role such as Observer
+		// or Mentor.  However this will be uncommon and project
+		// sites will never have these defined - so if we encounter
+		// The IMS Standard roles "Student" or "Instructor" and
+		// we have fallen down to here, we fall back to the venerable
+		// "site.upd" and "site.visit"
+
+		if (string.equalsIgnoreCase("student") && 
+		    SecurityService.unlock(SiteService.SITE_VISIT, siteReference) ) return true;
+
+		if (string.equalsIgnoreCase("instructor") && 
+		    SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, siteReference) ) return true;
+
+		// So sorry - no matter how hard we tried - you are not in this role
+		return false;
 	}
 }
