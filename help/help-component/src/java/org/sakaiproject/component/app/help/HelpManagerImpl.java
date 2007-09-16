@@ -34,6 +34,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -85,6 +86,7 @@ import org.sakaiproject.component.app.help.model.TableOfContentsBean;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.StringUtil;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -1190,10 +1192,13 @@ public List getActiveContexts(Map session)
     //  register static content
     Set toolSet = toolManager.findTools(null, null);
 
+    // find out what we want to ignore
+    List hideHelp = Arrays.asList(StringUtil.split(serverConfigurationService.getString("help.hide"), ","));
+            
     for (Iterator i = toolSet.iterator(); i.hasNext();)
     {
       Tool tool = (Tool) i.next();
-      if (tool != null && tool.getId() != null)
+      if (tool != null && tool.getId() != null && !hideHelp.contains(tool.getId()))
       {
     	// Loop throughout the locales list
     	for (Iterator j = locales.iterator(); j.hasNext();)
