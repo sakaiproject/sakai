@@ -337,9 +337,7 @@ public class LoginTool extends HttpServlet
 		Tool tool = (Tool) req.getAttribute(Tool.TOOL);
 
 		// here comes the data back from the form... these fields will be present, blank if not filled in
-		String eid = req.getParameter("eid").trim();
-
-		// Do NOT trim the password, since many authentication systems allow whitespace.
+		String eid = req.getParameter("eid");
 		String pw = req.getParameter("pw");
 
 		// one of these will be there, one null, depending on how the submit was done
@@ -361,15 +359,18 @@ public class LoginTool extends HttpServlet
 		// submit
 		else
 		{
-			Evidence e = new IdPwEvidence(eid, pw);
-
 			// authenticate
 			try
 			{
-				if ((eid.length() == 0) || (pw.length() == 0))
+				if ((eid == null) || (pw == null) || (eid.length() == 0) || (pw.length() == 0))
 				{
 					throw new AuthenticationException("missing required fields");
 				}
+
+				// Do NOT trim the password, since many authentication systems allow whitespace.
+				eid = eid.trim();
+
+				Evidence e = new IdPwEvidence(eid, pw);
 
 				Authentication a = AuthenticationManager.authenticate(e);
 
