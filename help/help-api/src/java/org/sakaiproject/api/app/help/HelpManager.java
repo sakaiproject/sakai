@@ -33,7 +33,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
  */
 public interface HelpManager
 {
-
+  public static final String TOOLCONFIG_HELP_COLLECTIONS = "help.collections";
+  
   /**
    * Synchronize initialization of the manager.
    */

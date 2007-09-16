@@ -1200,30 +1200,34 @@ public List getActiveContexts(Map session)
       Tool tool = (Tool) i.next();
       if (tool != null && tool.getId() != null && !hideHelp.contains(tool.getId()))
       {
-    	// Loop throughout the locales list
+    	String[] extraCollections = {};
+    	String toolHelpCollections = tool.getRegisteredConfig().getProperty(TOOLCONFIG_HELP_COLLECTIONS);
+    	
+    	if (toolHelpCollections != null)
+    		extraCollections = StringUtil.split(toolHelpCollections, ",");
+
+  		// Loop throughout the locales list
     	for (Iterator j = locales.iterator(); j.hasNext();)
     	{
     		String locale = (String) j.next();
 
     		// Add localized tool helps
     		addToolHelp("/" + tool.getId().toLowerCase().replaceAll("\\.", "_"), locale);
+    		
+            // Add any other optional collections
+    		for (int k = 0; k < extraCollections.length; k++)
+            {
+            	addToolHelp("/" + extraCollections[k], locale);
+            }	           
 		}
-
       }
     }
 
-	// Loop throughout the locales list and add non-standard ids (generic help topics rather than tool help)
+	// Sort the help topics for each locale
 	for (Iterator j = locales.iterator(); j.hasNext();)
 	{
 		String locale = (String) j.next();
 
-		// Add localized generic help topics
-	    addToolHelp("/sakai_iframe_myworkspace", locale);
-	    addToolHelp("/sakai_menubar", locale);
-	    addToolHelp("/sakai_course_sites", locale);
-	    addToolHelp("/sakai_permissions", locale);
-	    addToolHelp("/sakai_accessibility", locale);
-	    
 	    TableOfContentsBean localizedToc = toc.get(locale);
 	    
 	    // Sort this localized toc categories with a TreeSet
