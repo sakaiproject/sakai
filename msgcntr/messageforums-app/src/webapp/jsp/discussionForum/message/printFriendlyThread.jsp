@@ -24,7 +24,7 @@
 		
 			    <h:panelGroup>
 					<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
-			      <h:outputText value="#{msgs.cdfm_message_forums}" />
+			      <h:outputText value="#{msgs.cdfm_discussion_forums}" />
       			  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 				  <h:outputText value="#{ForumTool.selectedForum.forum.title}" />
 				  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
