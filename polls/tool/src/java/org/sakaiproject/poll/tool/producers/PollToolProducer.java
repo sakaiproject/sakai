@@ -64,6 +64,7 @@ import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UIAlternativeTextDecorator;
+import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.viewstate.EntityCentredViewParameters;
 import uk.org.ponder.beanutil.entity.EntityID;
 
@@ -224,7 +225,7 @@ public class PollToolProducer implements ViewComponentProducer,
               new EntityCentredViewParameters(PollVoteProducer.VIEW_ID, 
                       new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
     	  //we need to add a decorator for the alt text
-    	  voteLink.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("poll_vote_title") +":" + poll.getText()));
+    	  voteLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_vote_title") +":" + poll.getText()));
     	  
       } else {
     	  UIOutput.make(pollrow,"poll-text",poll.getText());

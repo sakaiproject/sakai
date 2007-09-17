@@ -62,8 +62,8 @@ import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
-import uk.org.ponder.rsf.components.decorators.UIAlternativeTextDecorator;
 import uk.org.ponder.rsf.components.decorators.UITextDimensionsDecorator;
+import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
@@ -74,6 +74,7 @@ import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.entity.api.Entity;
 
 public class AddPollProducer implements ViewComponentProducer,NavigationCaseReporter,ViewParamsReporter {
@@ -236,12 +237,12 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 				UIInternalLink editOption = UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
 							new OptionViewParameters(PollOptionProducer.VIEW_ID, o.getOptionId().toString()));
 	
-					editOption.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("new_poll_option_edit") +":" + o.getOptionText()));
+					editOption.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("new_poll_option_edit") +":" + FormattedText.convertFormattedTextToPlaintext(o.getOptionText())));
 					
 					UIInternalLink deleteOption = UIInternalLink.make(oRow,"option-delete",messageLocator.getMessage("new_poll_option_delete"),
 							new OptionViewParameters(PollOptionDeleteProducer.VIEW_ID,o.getOptionId().toString()));
 
-					deleteOption.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("new_poll_option_delete") +":" + o.getOptionText()));
+					deleteOption.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("new_poll_option_delete") +":" + FormattedText.convertFormattedTextToPlaintext(o.getOptionText())));
 				
 			}
 	    }
