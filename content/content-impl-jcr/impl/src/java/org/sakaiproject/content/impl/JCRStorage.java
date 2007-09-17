@@ -1320,5 +1320,11 @@ public class JCRStorage implements Storage
 		this.convertableNamespaces = convertableNamespaces;
 	}
 
+	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 }
