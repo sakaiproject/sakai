@@ -75,33 +75,37 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 			</h3>
 		</div>	
 		#if($listActions || $showHotDropboxWidget)
-			<div class="navIntraToolLink" >
-				#if($listActions)
-					<span>
-						#set ($itemsOnLine = 0)
-						#foreach($key in $listActions.keySet())
-							#set($action = $listActions.get("$key"))
-							#if($itemsOnLine > 0)|#end
-							<input id="${action.id}-button" type="button" value="$!action.label"
-								onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='$action.id';document.getElementById('showForm').submit();"
-								disabled="disabled" alt="$!action.id" />
-							
-							#set ($itemsOnLine = $itemsOnLine + 1)
-						#end
-					</span>
-				#end
+			<div class="navPanel">
+				<div class=" viewNav">
+					#if($listActions)
+						<span>
+							#set ($itemsOnLine = 0)
+							#foreach($key in $listActions.keySet())
+								#set($action = $listActions.get("$key"))
+								#if($itemsOnLine > 0)|#end
+								<input id="${action.id}-button" type="button" value="$!action.label"
+									onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='$action.id';document.getElementById('showForm').submit();"
+									disabled="disabled" alt="$!action.id" />
+								
+								#set ($itemsOnLine = $itemsOnLine + 1)
+							#end
+						</span>
+					#end
+				</div>
 				#if($showHotDropboxWidget)
-					<span width="100%" align="right">
-						Highlight individual dropboxes with recent changes:
+					<div class="listNav">
+						<span class="instruction">
+							Highlight individual dropboxes with recent changes:
+						</span>	
 						<select>
 							<option>1 day</option>
 							<option>2 days</option>
 							<option>3 days</option>
 							<option>1 week</option>
 						</select>
-					</span>
+					</div>
 				#end
-			</div>
+			</div>	
 		#end
 				
 		#set ($actionCount=2000)
@@ -234,13 +238,13 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 						#end
 					</td>
 					<td headers="title" style="text-indent:$width" class="specialLink">
-					#if($item.isHot()) #set($iconDecor="recentItem") #else  #set($iconDecor="nil") #end
+					#if($item.isHot()) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
 						<h$headerDepth> 
 							#if ($item.canRead())
 								#if($item.isCollection())
-									<span class="$iconDecor">
+									<span class="skip">$newNote</span><span class="$iconDecor">
 									#if($item.isEmpty() || $item.isTooBig() || $item.depth < 1)
-										<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
+										<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
 									#else
 										<a href="#"
 											#if($item.isExpanded())
@@ -248,11 +252,9 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 											#else
 												onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$item.Id';document.getElementById('showForm').submit();"
 											#end
-											title= "$item.expandLabel">
-										<img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel" hspace="0" />
-										</a>
+											title= "$item.expandLabel"><img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel"  /></a></span>
 									#end
-									</span>
+									
 								#else
 									#if ($item.hasCopyrightAlert())
 										## if there is a copyright alert, show the alert page first
@@ -474,13 +476,13 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 								#end
 							</td>
 							<td headers="title" style="text-indent:$width" class="specialLink">
-						#if($item.isHot()) #set($iconDecor="recentItem") #else  #set($iconDecor="nil") #end
+						#if($item.isHot()) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
 								<h$headerDepth> 
 									#if ($item.canRead())
 										#if($item.isCollection())
-										<span class="$iconDecor">	
+										<span class="skip">$newNote</span><span class="$iconDecor">	
 											#if($item.isEmpty() || $item.isTooBig())
-												<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
+												<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
 											#else
 												<a href="#"
 													#if($item.isExpanded())
@@ -488,11 +490,9 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 													#else
 														onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$item.Id';document.getElementById('showForm').submit();"
 													#end
-													title= "$item.expandLabel">
-												<img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel" hspace="0" />
-												</a>
+													title= "$item.expandLabel"><img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel" hspace="0" /></a></span>
 											#end
-											</span>
+											
 										#else
 											#if ($item.hasCopyrightAlert())
 												## if there is a copyright alert, show the alert page first
