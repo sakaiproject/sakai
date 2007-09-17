@@ -2158,7 +2158,7 @@ public class DbContentService extends BaseContentService
 			Object[] fields = new Object[3];
 			fields[0] = resourceType;
 			fields[1] = new Integer(page * pageSize);
-			fields[3] = new Integer(pageSize);
+			fields[2] = new Integer(pageSize);
 			
 			List result = m_sqlService.dbRead(sql, fields, new EntityReader());
 			
