@@ -43,7 +43,7 @@ import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.tool.params.OptionViewParamaters;
+import org.sakaiproject.poll.tool.params.OptionViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
 //import org.sakaiproject.tool.poll.impl.PollListManagerDaoImpl;
 
@@ -140,7 +140,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		
 
 		Option option = null;
-		OptionViewParamaters aivp = (OptionViewParamaters) viewparams;
+		OptionViewParameters aivp = (OptionViewParameters) viewparams;
 		boolean newOption = false;
 		if(aivp.id != null) {
 			m_log.debug("got a paramater with id: " + new Long(aivp.id));
@@ -208,7 +208,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		  }
 	  
 	  public ViewParameters getViewParameters() {
-		    return new OptionViewParamaters();
+		    return new OptionViewParameters();
 		  	
 	  }
 }

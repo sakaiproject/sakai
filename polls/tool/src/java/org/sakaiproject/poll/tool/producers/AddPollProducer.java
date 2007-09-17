@@ -34,7 +34,7 @@ import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
-import org.sakaiproject.poll.tool.params.OptionViewParamaters;
+import org.sakaiproject.poll.tool.params.OptionViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
 
 import uk.org.ponder.beanutil.entity.EntityID;
@@ -211,7 +211,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			//fill the options list
 			UIOutput.make(tofill,"options-title",messageLocator.getMessage("new_poll_option_title"));
 			UIInternalLink.make(tofill,"option-add",messageLocator.getMessage("new_poll_option_add"),
-					new OptionViewParamaters(PollOptionProducer.VIEW_ID, null, poll.getPollId().toString()));
+					new OptionViewParameters(PollOptionProducer.VIEW_ID, null, poll.getPollId().toString()));
 		/*
 		 * new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
 		                      new EntityID("Poll", "Poll_" + poll.getPollId().toString()),EntityCentredViewParameters.MODE_NEW)
@@ -234,12 +234,12 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 				
 				
 				UIInternalLink editOption = UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
-							new OptionViewParamaters(PollOptionProducer.VIEW_ID, o.getOptionId().toString()));
+							new OptionViewParameters(PollOptionProducer.VIEW_ID, o.getOptionId().toString()));
 	
 					editOption.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("new_poll_option_edit") +":" + o.getOptionText()));
 					
 					UIInternalLink deleteOption = UIInternalLink.make(oRow,"option-delete",messageLocator.getMessage("new_poll_option_delete"),
-							new OptionViewParamaters(PollOptionDeleteProducer.VIEW_ID,o.getOptionId().toString()));
+							new OptionViewParameters(PollOptionDeleteProducer.VIEW_ID,o.getOptionId().toString()));
 
 					deleteOption.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("new_poll_option_delete") +":" + o.getOptionText()));
 				

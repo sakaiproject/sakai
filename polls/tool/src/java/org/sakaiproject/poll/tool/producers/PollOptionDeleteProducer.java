@@ -41,7 +41,7 @@ import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.model.VoteCollection;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.tool.params.OptionViewParamaters;
+import org.sakaiproject.poll.tool.params.OptionViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
 
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
@@ -103,7 +103,7 @@ public class PollOptionDeleteProducer implements ViewComponentProducer,Navigatio
 		UIOutput.make(tofill,"error",messageLocator.getMessage("delete_option_message"));
 		
 		Option option = null;
-		OptionViewParamaters aivp = (OptionViewParamaters) viewparams;
+		OptionViewParameters aivp = (OptionViewParameters) viewparams;
 		if(aivp.id != null) {
 			m_log.debug("got a paramater with id: " + new Long(aivp.id));
 			// passed in an id so we should be modifying an item if we can find it
@@ -142,7 +142,7 @@ public class PollOptionDeleteProducer implements ViewComponentProducer,Navigatio
 		  }
 	 
 	  public ViewParameters getViewParameters() {
-		  return new OptionViewParamaters();
+		  return new OptionViewParameters();
 
 	  }
 	 

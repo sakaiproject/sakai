@@ -2,22 +2,22 @@ package org.sakaiproject.poll.tool.params;
 
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 
-public class OptionViewParamaters extends SimpleViewParameters {
+public class OptionViewParameters extends SimpleViewParameters {
 
 		public String id;
 		public String pollId;
 		
-		public OptionViewParamaters() {
+		public OptionViewParameters() {
 			
 		}
 		
 		
-		public OptionViewParamaters(String viewId, String id) {
+		public OptionViewParameters(String viewId, String id) {
 			this.id=id;
 			this.viewID = viewId;
 		}
 
-		public OptionViewParamaters(String viewId, String id, String pollId) {
+		public OptionViewParameters(String viewId, String id, String pollId) {
 			this.id=id;
 			this.viewID = viewId;
 			this.pollId = pollId;
