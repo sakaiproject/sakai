@@ -4516,11 +4516,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				context.put("other_sites", otherSites);
 				
-				if(showHotDropboxWidget)
-				{
-					context.put("showHotDropboxWidget", Boolean.TRUE.toString());
-				}
-
 				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
 				{
 					context.put("allMsgNumber", state.getAttribute(STATE_NUM_MESSAGES).toString());
@@ -4561,6 +4556,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 			}
 			
+			if(showHotDropboxWidget)
+			{
+				context.put("showHotDropboxWidget", Boolean.TRUE.toString());
+			}
+
 			context.put("listActions", listActions);
 			context.put("counter", new EntityCounter());
 
