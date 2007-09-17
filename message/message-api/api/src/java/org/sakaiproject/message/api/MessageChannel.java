@@ -31,6 +31,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.Filter;
+import org.sakaiproject.javax.PagingPosition;
 import org.w3c.dom.Element;
 
 /**
@@ -94,6 +95,31 @@ public interface MessageChannel extends Entity
 	 * @return true if the user is allowed to get messages from this channel, false if not.
 	 */
 	boolean allowGetMessages();
+
+	/**
+	 * Get the number of messages in this particular channel.
+	 *
+	 * @return The count.
+	 */
+
+	int getCount() throws PermissionException;
+
+	/**
+	 * Return a list of all or filtered messages in the channel limited to those inthe paging range. 
+	 * 
+	 * @param search
+	 *        A search string which is to look in the textual areas of the messages.
+	 * @param ascending
+	 *        Order of messages, ascending if true, descending if false
+         *        The order in which the messages will be found in the iteration is by date, oldest 
+         *        first if ascending is true, newest first if ascending is false.
+	 * @param pages
+	 *        An indication of the range of pages we are looking for
+	 * @return a list of channel Message objects or specializations of Message objects (may be empty).
+	 * @exception PermissionException
+	 *            if the user does not have read permission to the channel.
+	 */
+	List getPagedMessages(String search, boolean ascending, PagingPosition pages) throws PermissionException;
 
 	/**
 	 * Return a list of all or filtered messages in the channel. The order in which the messages will be found in the iteration is by date, oldest first if ascending is true, newest first if ascending is false.

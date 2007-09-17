@@ -69,6 +69,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
+import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
@@ -99,6 +100,7 @@ import org.sakaiproject.util.EntityCollections;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -2347,6 +2349,67 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		{
 			return getGroupsAllowFunction(SECURE_READ);
 		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public int getCount() throws PermissionException
+		{
+			List msgs = getMessages(null, true);
+			return msgs.size();
+		}
+
+		/**
+         	 * Return a list of all or filtered messages in the channel limited to those inthe paging range. 
+         	 * 
+         	 * @param filter
+         	 *        A filtering object to accept messages, or null if no filtering is desired.
+         	 * @param ascending
+         	 *        Order of messages, ascending if true, descending if false
+         	 *        The order in which the messages will be found in the iteration is by date, oldest 
+         	 *        first if ascending is true, newest first if ascending is false.
+         	 * @param pages
+         	 *        An indication of the range of pages we are looking for
+         	 * @return a list of channel Message objects or specializations of Message objects (may be empty).
+         	 * @exception PermissionException
+         	 *            if the user does not have read permission to the channel.
+		 *
+		 * Note: This is an inefficient memory-only implementation and should be overridden in the 
+		 * database implementations to use the database to do the data reductions.  This implementation
+		 * also only searches the body because it is handling messages.
+		 */
+		public List getPagedMessages(String search, boolean ascending, PagingPosition pages) throws PermissionException
+		{
+			// check security on the channel (throws if not permitted)
+			unlock(SECURE_READ, getReference());
+			// track event
+			// m_eventTrackingService.post(m_eventTrackingService.newEvent(eventId(SECURE_READ), getReference(), false));
+
+			List rv = findFilterMessages(null, ascending);
+           		if (search != null)
+                	{
+                        	Vector filtered = new Vector();
+                        	for (Iterator iMsgs = rv.iterator(); iMsgs.hasNext();)
+                        	{
+                                	Message msg = (Message) iMsgs.next();
+	
+					// When this is extended - it should probably search more fields
+                                	if (StringUtil.containsIgnoreCase(FormattedText.convertFormattedTextToPlaintext(msg.getBody()), search))
+                                	{
+                                        	filtered.add(msg);
+                                	}
+                        	}
+                        	rv = filtered;
+			}
+
+			// Trim down to the elements in the page rage
+			if ( pages != null ) 
+			{
+                		pages.validate(rv.size());
+                		rv = rv.subList(pages.getFirst() - 1, pages.getLast());
+			}
+			return rv;
+		} // getPagedMessages
 
 		/**
 		 * Return a list of all or filtered messages in the channel. The order in which the messages will be found in the iteration is by date, oldest first if ascending is true, newest first if ascending is false.
