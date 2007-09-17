@@ -43,6 +43,14 @@ public class ContentServiceSqlHSql extends ContentServiceSqlDefault
 	}
 
 	/**
+	 * returns the sql statement to add the RESOURCE_TYPE_ID column to the specified table.
+	 */
+	public String getAddResourceTypeColumnSql(String table)
+	{
+		return "alter table " + table + " add RESOURCE_TYPE_ID VARCHAR(255) default null"; 
+	}
+	
+	/**
 	 * returns the sql statement to add an index of the CONTENT column to the CONTENT_RESOURCE table.
 	 */
 	public String getAddContextIndexSql(String table)

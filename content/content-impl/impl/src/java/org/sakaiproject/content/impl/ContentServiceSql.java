@@ -142,6 +142,16 @@ public interface ContentServiceSql
 	String getAddContextIndexSql(String table);
 	
 	/**
+	 * returns the sql statement to add the RESOURCE_TYPE_ID column to the specified table.
+	 */
+	String getAddResourceTypeColumnSql(String table);
+
+	/**
+	 * returns the sql statement to add an index of the RESOURCE_TYPE_ID column to the specified table.
+	 */
+	String getAddResourceTypeIndexSql(String table);
+
+	/**
 	 * returns the sql statement which retrieves the total number of bytes within a site-level collection (context) in the CONTENT_RESOURCE table.
 	 */
 	String getQuotaQuerySql();
@@ -175,5 +185,11 @@ public interface ContentServiceSql
 	 * @return
 	 */
 	String getDropTemporaryUTF8TestTable(String tempTableName);
+
+	/**
+	 * returns the sql statement which retrieves the BINARY_ENTITY and XML values for all entries in the CONTENT_RESOURCE table, 
+	 * selecting by the RESOURCE_TYPE_ID with first and last record indexes, and returned in ascending order by RESOURCE_ID.
+	 */
+	String getSelectByResourceTypeQuerySql();
 
 }

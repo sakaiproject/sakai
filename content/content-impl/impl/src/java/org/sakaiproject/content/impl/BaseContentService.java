@@ -1076,21 +1076,23 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				// include the file path field if we are doing body in the file system
 				if (m_bodyPath != null)
 				{
-					Object[] rv = new Object[4];
+					Object[] rv = new Object[5];
 					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
 					rv[1] = ((BasicGroupAwareEdit) r).getContext();
 					rv[2] = new Integer(((ContentResource) r).getContentLength());
-					rv[3] = StringUtil.trimToZero(((BaseResourceEdit) r).m_filePath);
+					rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
+					rv[4] = StringUtil.trimToZero(((BaseResourceEdit) r).m_filePath);
 					return rv;
 				}
 	
 				// otherwise don't include the file path field
 				else
 				{
-					Object[] rv = new Object[3];
+					Object[] rv = new Object[4];
 					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
 					rv[1] = ((BasicGroupAwareEdit) r).getContext();
 					rv[2] = new Integer(((ContentResource) r).getContentLength());
+					rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
 					return rv;
 				}
 			}
@@ -11810,6 +11812,21 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public void commitDeleteResource(ContentResourceEdit edit, String uuid);
 
 		public ContentResourceEdit putDeleteResource(String resourceId, String uuid, String userId);
+		
+		/**
+		 * Retrieve a collection of ContentResource objects pf a particular resource-type.  The collection will 
+		 * contain no more than the number of items specified as the pageSize, where pageSize is a non-negative 
+		 * number less than or equal to 1028. The resources will be selected in ascending order by resource-id.
+		 * If the resources of the specified resource-type in the ContentHostingService in ascending order by 
+		 * resource-id are indexed from 0 to M and this method is called with parameters of N for pageSize and 
+		 * I for page, the resources returned will be those with indexes (I*N) through ((I+1)*N - 1).  For example,
+		 * if pageSize is 1028 and page is 0, the resources would be those with indexes of 0 to 1027.  
+		 * @param resourceType
+		 * @param pageSize
+		 * @param page
+		 * @return
+		 */
+		public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page);
 		
 	} // Storage
 

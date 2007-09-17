@@ -152,7 +152,7 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	 */
 	public String getUpdateContentResource3Sql()
 	{
-		return "update CONTENT_RESOURCE set FILE_PATH = ?, XML = ? where RESOURCE_ID = ?";
+		return "update CONTENT_RESOURCE set FILE_PATH = ?, XML = ?, CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ? where RESOURCE_ID = ?";
 	}
 
 	/**
@@ -212,6 +212,22 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	}
 	
 	/**
+	 * returns the sql statement to add the RESOURCE_TYPE_ID column to the specified table.
+	 */
+	public String getAddResourceTypeColumnSql(String table)
+	{
+		return "alter table " + table + " add RESOURCE_TYPE_ID VARCHAR(255) default null"; 
+	}
+	
+	/**
+	 * returns the sql statement to add an index of the RESOURCE_TYPE_ID column to the specified table.
+	 */
+	public String getAddResourceTypeIndexSql(String table)
+	{
+		return "create index " + table.trim() + "RESOURCE_TYPE_INDEX on " + table + " (RESOURCE_TYPE_ID)";
+	}
+
+	/**
 	 * returns the sql statement which retrieves the total number of bytes within a site-level collection (context) in the CONTENT_RESOURCE table.
 	 */
 	public String getQuotaQuerySql()
@@ -232,10 +248,10 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	 */
 	public String getContextFilesizeValuesSql(String table, boolean addingUuid)
 	{
-		String sql = "update " + table + " set CONTEXT = ?, FILE_SIZE = ? where RESOURCE_UUID = ?";
+		String sql = "update " + table + " set CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ? where RESOURCE_UUID = ?";
 		if(addingUuid)
 		{
-			sql = "update " + table + " set CONTEXT = ?, FILE_SIZE = ?, RESOURCE_UUID = ? where RESOURCE_ID = ?";
+			sql = "update " + table + " set CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ?, RESOURCE_UUID = ? where RESOURCE_ID = ?";
 		}
 		return sql;
 	}
@@ -271,4 +287,12 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 		return "drop table " + tempTableName;
 	}
 
+	/**
+	 * returns the sql statement which retrieves the BINARY_ENTITY and XML values for all entries in the CONTENT_RESOURCE table, 
+	 * selecting by the RESOURCE_TYPE_ID with first and last record indexes, and returned in ascending order by RESOURCE_ID.
+	 */
+	public String getSelectByResourceTypeQuerySql()
+	{
+		return "select BINARY_ENTITY, XML from CONTENT_RESOURCE where RESOURCE_TYPE_ID = ? ORDER BY RESOURCE_ID LIMIT ?, ? ";
+	}
 }

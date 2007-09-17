@@ -33,6 +33,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -117,7 +118,7 @@ public class DbContentService extends BaseContentService
 	/**
 	 * The extra field(s) to write to the database - resources - when we are doing bodys in files with the context-query conversion.
 	 */
-	public static final String[] RESOURCE_FIELDS_FILE_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "FILE_PATH"};
+	public static final String[] RESOURCE_FIELDS_FILE_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID", "FILE_PATH"};
 	
 	/**
 	 * The extra field(s) to write to the database - resources - when we are doing bodys the db without the context-query conversion.
@@ -127,7 +128,7 @@ public class DbContentService extends BaseContentService
 	/**
 	 * The extra field(s) to write to the database - resources - when we are doing bodys the db with the context-query conversion.
 	 */
-	protected static final String[] RESOURCE_FIELDS_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE"};
+	protected static final String[] RESOURCE_FIELDS_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID"};
 
 	/** Table name for resources delete. */
 	protected String m_resourceDeleteTableName = "CONTENT_RESOURCE_DELETE";
@@ -2147,6 +2148,77 @@ public class DbContentService extends BaseContentService
 			return (Collection<String>) list;
 		}
 
+		public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) 
+		{
+			Collection<ContentResource> collection = new ArrayList<ContentResource>();
+			
+			String sql = contentServiceSql.getSelectByResourceTypeQuerySql();
+			// "select BINARY_ENTITY, XML from CONTENT_RESOURCE where RESOURCE_TYPE_ID = ? ORDER BY RESOURCE_ID LIMIT ?, ? ";
+
+			Object[] fields = new Object[3];
+			fields[0] = resourceType;
+			fields[1] = new Integer(page * pageSize);
+			fields[3] = new Integer(pageSize);
+			
+			List result = m_sqlService.dbRead(sql, fields, new EntityReader());
+			
+			// construct resources and add them to collection
+			
+			return collection;
+		}
+
+		public class EntityReader implements SqlReader
+		{
+
+			public Object readSqlResultRecord(ResultSet result) 
+			{
+				Object clob = null;
+				try
+				{
+					clob = result.getObject(1);
+				}
+				catch(SQLException e)
+				{
+					
+				}
+				if(clob == null)
+				{
+					try
+					{
+						String xml = result.getString(2);
+						if (xml == null)
+						{
+							M_log.warn("EntityReader: null xml : " );
+							return null;
+						}
+
+						// read the xml
+						Document doc = Xml.readDocumentFromString(xml);
+						if (doc == null)
+						{
+							M_log.warn("EntityReader: null xml doc : " );
+							return null;
+						}
+
+						// verify the root element
+						Element root = doc.getDocumentElement();
+						if (!root.getTagName().equals("resource"))
+						{
+							M_log.warn("EntityReader: XML root element not resource: " + root.getTagName());
+							return null;
+						}
+						BaseResourceEdit edit = new BaseResourceEdit(root);
+
+					}
+					catch(SQLException e)
+					{
+						
+					}
+				}
+				return null;
+			}
+			
+		}
 	} // DbStorage
 
 	/**
@@ -2356,9 +2428,11 @@ public class DbContentService extends BaseContentService
 						fields = new Object[5];
 						fields[0] = edit.m_filePath;
 						fields[1] = xml;
-						fields[2] = id;
-						fields[3] = context;
-						fields[4] = new Integer(edit.m_contentLength);
+						fields[2] = context;
+						fields[3] = new Integer(edit.m_contentLength);
+						fields[4] = edit.getResourceType();
+						fields[5] = id;
+						
 						m_sqlService.dbWrite(connection, sql, fields);
 
 						// m_logger.info(" ** converted: " + id + " size: " +
@@ -2539,8 +2613,17 @@ public class DbContentService extends BaseContentService
 		boolean ok5 = m_sqlService.dbWrite(sql5);
 		String sql6 = contentServiceSql.getAddContextIndexSql(m_resourceDeleteTableName);
 		boolean ok6 = m_sqlService.dbWrite(sql6);
+		String sql7 = contentServiceSql.getAddResourceTypeColumnSql(m_resourceTableName);
+		boolean ok7 = m_sqlService.dbWrite(sql7);
+		String sql8 = contentServiceSql.getAddResourceTypeColumnSql(m_resourceDeleteTableName);
+		boolean ok8 = m_sqlService.dbWrite(sql8);
+		String sql9 = contentServiceSql.getAddResourceTypeIndexSql(m_resourceTableName);
+		boolean ok9 = m_sqlService.dbWrite(sql9);
+		String sql10 = contentServiceSql.getAddResourceTypeIndexSql(m_resourceDeleteTableName);
+		boolean ok10 = m_sqlService.dbWrite(sql10);
 		
-		addNewColumnsCompleted = (ok1 && ok2 && ok3 && ok4 && ok5 && ok6);
+		
+		addNewColumnsCompleted = (ok1 && ok2 && ok3 && ok4 && ok5 && ok6 && ok7);
 		
 		return addNewColumnsCompleted;
 	}
@@ -2559,7 +2642,9 @@ public class DbContentService extends BaseContentService
 	{
 		protected IdManager uuidManager = (IdManager) ComponentManager.get(IdManager.class);
 		protected Pattern filesizePattern1 = Pattern.compile(" content-length=\"(\\d+)\" ");
-		protected Pattern filesizePattern2 = Pattern.compile("e\\s*DAV:getcontentlength\\s+(\\d+)\\s*e");
+		protected Pattern filesizePattern2 = Pattern.compile("\\s*DAV:getcontentlength\\s+(\\d+)\\s*");
+		protected Pattern typeidPattern1 = Pattern.compile(" resource-type=\"(.*)\" ");
+		protected Pattern typeidPattern2 = Pattern.compile("\\s+%(.*)\\s+");
 		protected String table;
 		
 		public ContextAndFilesizeReader(String table)
@@ -2575,6 +2660,7 @@ public class DbContentService extends BaseContentService
 				String resourceId = result.getString(1);
 				String uuid = result.getString(2);
 				String xml = result.getString(3);
+				
 				if(uuid == null)
 				{
 					addingUuid = true;
@@ -2582,13 +2668,51 @@ public class DbContentService extends BaseContentService
 				}
 				String context = null;
 				int filesize = 0;
+				String resourceType = null;
+				
 				String sql = contentServiceSql.getContextFilesizeValuesSql(table, addingUuid);
 				
 				Matcher contextMatcher = contextPattern.matcher(resourceId);
-				Matcher filesizeMatcher = filesizePattern2.matcher(xml);
-				if(! filesizeMatcher.find())
+				if(xml == null)
 				{
-					filesizeMatcher = filesizePattern1.matcher(xml);
+					Matcher filesizeMatcher = filesizePattern2.matcher(xml);
+					if(filesizeMatcher.find())
+					{
+						try
+						{
+							filesize = Integer.parseInt(filesizeMatcher.group(1));
+						}
+						catch(Exception e)
+						{
+							// do nothing
+						}
+					}
+					Matcher typeidMatcher = typeidPattern2.matcher(xml);
+					if(typeidMatcher.find())
+					{
+						resourceType = typeidMatcher.group(1);
+					}
+					
+				}
+				else
+				{
+					Matcher filesizeMatcher = filesizePattern1.matcher(xml);
+					if(filesizeMatcher.find())
+					{
+						try
+						{
+							filesize = Integer.parseInt(filesizeMatcher.group(1));
+						}
+						catch(Exception e)
+						{
+							// do nothing
+						}
+					}
+					Matcher typeidMatcher = typeidPattern1.matcher(xml);
+					if(typeidMatcher.find())
+					{
+						resourceType = typeidMatcher.group(1);
+					}
 				}
 				
 				if(contextMatcher.find())
@@ -2600,37 +2724,30 @@ public class DbContentService extends BaseContentService
 						context = "~" + context;
 					}
 				}
-				if(filesizeMatcher.find())
-				{
-					try
-					{
-						filesize = Integer.parseInt(filesizeMatcher.group(1));
-					}
-					catch(Exception e)
-					{
-						// do nothing
-					}
-				}
 				
 				M_log.info("adding new field values: resourceId == \"" + resourceId + "\" uuid == \"" + uuid + "\" context == \"" + context + "\" filesize == \"" + filesize + "\" addingUuid == " + addingUuid);
 				
 				if(addingUuid)
 				{
+					// "update " + table + " set CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ?, RESOURCE_UUID = ? where RESOURCE_ID = ?"
 					// update the record
 					Object [] fields = new Object[4];
 					fields[0] = context;
 					fields[1] = new Integer(filesize);
-					fields[2] = uuid;
-					fields[3] = resourceId;
+					fields[2] = resourceType;
+					fields[3] = uuid;
+					fields[4] = resourceId;
 					m_sqlService.dbWrite(sql, fields);
 				}
 				else
 				{
+					// "update " + table + " set CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ? where RESOURCE_UUID = ?"
 					// update the record
 					Object [] fields = new Object[3];
 					fields[0] = context;
 					fields[1] = new Integer(filesize);
-					fields[2] = uuid;
+					fields[2] = resourceType;
+					fields[3] = uuid;
 					m_sqlService.dbWrite(sql, fields);
 				}
 			}
@@ -2840,4 +2957,10 @@ public class DbContentService extends BaseContentService
 		this.migrateData = migrateData;
 
 	}
+
+	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) 
+	{
+		return m_storage.getResourcesOfType(resourceType, pageSize, page);
+	}
+	
 }
