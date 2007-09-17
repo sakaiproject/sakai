@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Layout Demo</title>
+
+	<script type="text/javascript" src="../testBidi.js"></script>
+
+	<script type="text/javascript" src="../../../dojo/dojo.js" 
+		djConfig="parseOnLoad: true, isDebug: true"></script>
+	<script type="text/javascript">
+		dojo.require("dijit.layout.LayoutContainer");
+		dojo.require("dijit.layout.ContentPane");
+		dojo.require("dijit.layout.LinkPane");
+		dojo.require("dijit.layout.SplitContainer");
+		dojo.require("dijit.layout.TabContainer");
+		dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+	</script>
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../themes/tundra/tundra.css";
+		@import "../css/dijitTests.css";
+
+		html, body{	
+			width: 100%;	/* make the body expand to fill the visible window */
+			height: 100%;
+			padding: 0 0 0 0;
+			margin: 0 0 0 0;
+		}
+		.dijitSplitPane{
+			margin: 5px;
+		}
+		#rightPane {
+			margin: 0;
+		}
+	</style>
+	<script>
+		dojo.addOnLoad(function(){
+			// use "before advice" to print log message each time resize is called on a layout widget
+			var origResize = dijit.layout._LayoutWidget.prototype.resize;
+			dijit.layout._LayoutWidget.prototype.resize = function(mb){
+				console.log(this + ": resize(" + (mb ? "{w:"+ mb.w + ", h:" + mb.h + "}" : "null") +")" );
+				origResize.apply(this, arguments);
+			};
+			
+			dojo.connect(dijit.layout.ContentPane.prototype, "resize", function(mb){
+				console.log(this + ": resize({w:"+ mb.w + ", h:" + mb.h + "})");
+			});
+		});
+	</script>
+</head>
+<body class="tundra">
+	<div id="outer" dojoType="dijit.layout.LayoutContainer"
+		style="width: 100%; height: 100%;">
+		<div id="topBar" dojoType="dijit.layout.ContentPane" layoutAlign="top"
+			style="background-color: #274383; color: white;">
+			top bar
+		</div>
+		<div id="bottomBar" dojoType="dijit.layout.ContentPane" layoutAlign="bottom"
+			style="background-color: #274383; color: white;">
+			bottom bar
+		</div>
+		<div id="horizontalSplit" dojoType="dijit.layout.SplitContainer"
+			orientation="horizontal"
+			sizerWidth="5"
+			activeSizing="0"
+			layoutAlign="client"
+		>
+			<div id="leftPane" dojoType="dijit.layout.ContentPane"
+				 sizeMin="20" sizeShare="20">
+				Left side
+			</div>
+
+			<div id="rightPane"
+				dojoType="dijit.layout.SplitContainer"
+				orientation="vertical"
+				sizerWidth="5"
+				activeSizing="0"
+				sizeMin="50" sizeShare="80"
+			>
+				<div id="mainTabContainer" dojoType="dijit.layout.TabContainer" sizeMin="20" sizeShare="70">
+
+					<a id="tab1" dojoType="dijit.layout.LinkPane" href="tab1.html">Tab 1</a>
+
+					<a id="tab2" dojoType="dijit.layout.LinkPane" href="tab2.html">Tab 2</a>
+				</div>
+				<div id="bottomRight" dojoType="dijit.layout.ContentPane" sizeMin="20" sizeShare="30">
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+					Bottom right<br>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

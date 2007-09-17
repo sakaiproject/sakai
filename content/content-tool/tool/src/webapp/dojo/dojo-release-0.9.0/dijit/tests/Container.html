@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+	<title>Container</title>
+
+	<script type="text/javascript" src="../../dojo/dojo.js" djConfig="isDebug: true, parseOnLoad: true"></script>
+	<script type="text/javascript">
+		dojo.require("doh.runner");
+		dojo.require("dijit._Widget");
+		dojo.require("dijit._Container");
+
+		dojo.declare("dijit.TestContainer",
+			[dijit._Widget, dijit._Container], { }
+		);
+
+		dojo.require("dojo.parser");
+
+		dojo.addOnLoad(function(){
+			doh.register("t",
+				[
+					{
+						name: "getChildren",
+						runTest: function(t){
+							var c = dijit.byId("container");
+							var children = c.getChildren();
+							t.is(3, children.length);
+							t.is("zero", children[0].id);
+							t.is("one", children[1].id);
+							t.is("two", children[2].id);
+						}
+					}
+				]
+			);
+			doh.run();
+		});
+
+	</script>
+</head>
+<body class="tundra">
+
+	<div id="container" dojoType="dijit.TestContainer">
+		<div id="zero" dojoType="dijit._Widget"></div>
+		<div id="one" dojoType="dijit._Widget"></div>
+		<div id="two" dojoType="dijit._Widget"></div>
+	</div>
+
+</body>
+</html>

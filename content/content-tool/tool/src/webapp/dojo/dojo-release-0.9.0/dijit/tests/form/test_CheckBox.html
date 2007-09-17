@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>CheckBox Widget Demo</title>
+
+	<script type="text/javascript" src="../testBidi.js"></script>
+	<script type="text/javascript" src="../../../dojo/dojo.js"
+		djConfig="isDebug: true, parseOnLoad: true"></script>
+	<script type="text/javascript">
+		dojo.require("dijit.form.CheckBox");
+		dojo.require("dojo.parser");	// find widgets
+
+		function outputValues(form){
+			var str = "";
+			for(var i=0;i<form.elements.length;i++){
+				var e = form.elements[i];
+				if(e.type=="submit") break;
+				if(e.checked){
+					str += "submit: name="+e.name+" id="+e.id+" value="+e.value+ "<br>";
+				}
+			}
+			dojo.byId("result").innerHTML = str;
+			return false;
+		}
+
+		function reportChecked(checked) {
+			dojo.byId("oncheckedoutput").innerHTML = checked;
+		}
+
+		function reportValueChanged(value) {
+			dojo.byId("onvaluechangedoutput").innerHTML = value;
+		}
+
+		dojo.addOnLoad(function(){
+			var params = {id: "cb6", name: "cb6"};
+			var widget = new dijit.form.CheckBox(params, dojo.byId("checkboxContainer"));
+			widget.setChecked(true);
+		});
+	</script>
+	<style type="text/css">
+	/*	@import "../../../dojo/resources/dojo.css";  */
+		@import "../../themes/tundra/tundra.css";
+		@import "../../themes/tundra/tundra_rtl.css";
+		@import "../css/dijitTests.css";
+
+		label { margin-right: 0.80em; }
+	</style>
+</head>
+<body class="tundra">
+	<h1 class="testTitle">Dijit CheckBox Test</h1>
+	<p>
+	Here are some checkboxes.  Try clicking, and hovering, tabbing, and using the space bar to select:
+	</p>
+	<!--  <form onSubmit="return outputValues(this);"> -->
+	<form>
+		<input type="checkbox" name="cb0" id="cb0" />
+			<label for="cb0">cb0: Vanilla (non-dojo) checkbox (for comparison purposes)</label>
+		<br>
+		<input type="checkbox" name="cb1" id="cb1" value="foo" dojoType="dijit.form.CheckBox">
+			<label for="cb1">cb1: normal checkbox, with value=foo</label>
+		<br>
+		<input onChange="reportChecked" type="checkbox" name="cb2" id="cb2" dojoType="dijit.form.CheckBox" checked="checked"/>
+			<label for="cb2">cb2: normal checkbox, initially turned on.</label>
+			<span>"onChange" handler updates: [<span id="oncheckedoutput"></span>]</span>
+		<br>
+		<input type="checkbox" name="cb3" id="cb3" dojoType="dijit.form.CheckBox" disabled="disabled">
+			<label for="cb3">cb3: disabled checkbox</label>
+		<br>
+		<input type="checkbox" name="cb4" id="cb4" dojoType="dijit.form.CheckBox" disabled="disabled" checked="checked"/>
+			<label for="cb4">cb4: disabled checkbox, turned on</label>
+		<br>
+		<input type="checkbox" name="cb5" id="cb5" />
+			<label for="cb5">cb5: Vanilla (non-dojo) checkbox (for comparison purposes)</label>
+		<br>
+		<div id="checkboxContainer"></div>
+			<label for="cb6">cb6: instantiated from script</label>
+		<br>
+		<input onChange="reportValueChanged" type="checkbox" name="cb7" id="cb7" dojoType="dijit.form.CheckBox">
+			<label for="cb7">cb7: normal checkbox.</label>
+			<input type="button" onclick='dijit.byId("cb7").setDisabled(true);' value="disable" />
+			<input type="button" onclick='dijit.byId("cb7").setDisabled(false);' value="enable" />
+			<input type="button" onclick='dijit.byId("cb7").setValue("fish");' value='set value to "fish"' />
+			<span>"onChange" handler updates: [<span id="onvaluechangedoutput"></span>]</span>
+		<br>
+	<p>
+	Here are some radio buttons.  Try clicking, and hovering, tabbing, and arrowing
+	</p>
+		<p>
+			<span>Radio group #1:</span>
+			<input type="radio" name="g1" id="g1rb1" value="news" dojoType="dijit.form.RadioButton">
+			<label for="g1rb1">news</label>
+			<input type="radio" name="g1" id="g1rb2" value="talk" dojoType="dijit.form.RadioButton" checked="checked"/>
+			<label for="g1rb2">talk</label>
+			<input type="radio" name="g1" id="g1rb3" value="weather" dojoType="dijit.form.RadioButton" disabled="disabled"/>
+			<label for="g1rb3">weather</label>
+		</p>
+		<p>
+			<span>Radio group #2: (no default value, and has breaks)</span><br>
+			<input type="radio" name="g2" id="g2rb1" value="top40" dojoType="dijit.form.RadioButton"/>
+			<label for="g2rb1">top 40</label><br>
+			<input type="radio" name="g2" id="g2rb2" value="oldies" dojoType="dijit.form.RadioButton"/>
+			<label for="g2rb2">oldies</label><br>
+			<input type="radio" name="g2" id="g2rb3" value="country" dojoType="dijit.form.RadioButton"/>
+			<label for="g2rb3">country</label><br>
+			(Note if using keyboard: tab to navigate, and use arrow or space to select)
+		</p>
+		<p>
+			<span>Radio group #3 (native radio buttons):</span>
+			<input type="radio" name="g3" id="g3rb1" value="rock"/>
+			<label for="g3rb1">rock</label>
+			<input type="radio" name="g3" id="g3rb2" value="jazz" disabled="disabled"/>
+			<label for="g3rb2">jazz</label>
+			<input type="radio" name="g3" id="g3rb3" value="classical" checked="checked"/>
+			<label for="g3rb3">classical</label>
+		</p>
+		<input type="submit" />
+	</form>
+
+	<!-- <p>Submitted data:</p>
+	<div id="result"></div>
+	 -->
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>Dojo Form Widgets Test</title>
+
+		<script type="text/javascript" src="../../dojo/dojo.js"
+			djConfig="isDebug: true, parseOnLoad: true"></script>
+		<script type="text/javascript">
+			dojo.require("dijit.form.Form");
+			dojo.require("dijit.form.ValidationTextBox");
+			dojo.require("dijit.form.ComboBox");
+			dojo.require("dijit.form.FilteringSelect");
+			dojo.require("dijit.form.CheckBox");
+			dojo.require("dijit.form.DateTextBox");
+			dojo.require("dijit.form.CurrencyTextBox");
+			dojo.require("dijit.form.NumberSpinner");
+			dojo.require("dijit.form.Slider");
+			dojo.require("dijit.form.Textarea");
+			dojo.require("dijit.Editor");
+			dojo.require("dijit.form.Button");
+			dojo.require("dojo.data.ItemFileReadStore");
+			dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+
+			// make dojo.toJson() print dates correctly (this feels a bit dirty)
+			Date.prototype.json = function(){ return dojo.date.stamp.toISOString(this, {selector: 'date'});};
+		</script>
+		<style type="text/css">
+			@import "../../dojo/resources/dojo.css";
+			@import "../themes/tundra/tundra.css";
+			@import "../themes/tundra/tundra_rtl.css";
+			@import "../tests/css/dijitTests.css";
+
+			.formQuestion {
+				background-color:#d0e3f5;
+				padding:0.3em;
+				font-weight:900;
+				font-family:Verdana, Arial, sans-serif;
+				font-size:0.8em;
+				color:#5a5a5a;
+			}
+			.formAnswer {
+				background-color:#f5eede;
+				padding:0.3em;
+				margin-bottom:1em;
+				width: 100%;
+			}
+			.pageSubContentTitle {
+					color:#8e8e8e;
+					font-size:1em;
+					font-family:Verdana, Arial, sans-serif;
+					margin-bottom:0.75em;
+			}
+			.small {
+				width: 2.5em;
+			}
+			.medium {
+				width: 10em;
+			}
+			.long {
+				width: 20em;
+			}
+			.firstLabel {
+				display: inline-block;
+				display: -moz-inline-box;
+				width: 10em;
+				min-width: 10em;
+			}
+			.secondLabel {
+				width: auto;
+				margin-left: 5em;
+				margin-right: 1em;
+			}
+			fieldset label {
+				margin-right: 1em;
+			}
+			.noticeMessage {
+				display: block;
+				float: right;
+				font-weight: normal;
+				font-family:Arial, Verdana, sans-serif;
+				color:#663;
+				font-size:0.9em;
+			}
+		</style>
+	</head>
+	<body class="tundra">
+		<div dojoType="dojo.data.ItemFileReadStore" jsId="stateStore"
+			url="../tests/form/comboBoxData.json"></div>
+
+		<h2 class="pageSubContentTitle">Job Application Form</h2>
+		<p>This is just a little demo of dijit's form widgets</p>
+		<form dojoType="dijit.form.Form" id="myForm" action="showPost.php"
+			execute="alert('Execute form w/values:\n'+dojo.toJson(arguments[0],true));">
+			<div class="formQuestion">
+				<span class="noticeMessage">
+					As you type in the text below, notice how your input is auto
+					corrected and also the auto completion on the state field.
+				</span>
+				<span>Name And Address</span>
+			</div>
+			<div class="formAnswer">
+				<label class="firstLabel" for="name">Name *</label>
+				<input type="text" id="name" name="name" class="medium"
+					dojoType="dijit.form.ValidationTextBox"
+					required="true" 
+					ucfirst="true" invalidMessage=""/>
+				<br>
+
+				<label class="firstLabel" for="address">Address *</label>
+				<input type="text" id="address" name="address" class="long"
+					dojoType="dijit.form.ValidationTextBox"
+					required="true"
+					trim="true" 
+					ucfirst="true" />
+				<br>
+
+				<label class="firstLabel" for="city">City *</label>
+			 	<select dojoType="dijit.form.ComboBox"
+			 			value=""
+						autocomplete="true"
+						hasDownArrow="false"
+				>
+					<option></option>
+					<option>Chicago</option>
+					<option>Los Angeles</option>
+					<option>New York</option>
+					<option>San Francisco</option>
+					<option>Seattle</option>
+				</select>
+
+				<label class="secondLabel" for="state">State</label>
+				<input dojoType="dijit.form.FilteringSelect"
+					store="stateStore" class="short" id="state" name="state" />
+
+				<label class="secondLabel" for="zip">Zip *</label>
+				<input type="text" id="zip" name="zip" class="medium"
+					dojoType="dijit.form.ValidationTextBox"
+					trim="true" 
+					required="true"
+					regExp="[0-9][0-9][0-9][0-9][0-9]"
+					invalidMessage="5 digit zipcode (ex: 23245)"/>
+				<br>
+
+				<label class="firstLabel" for="dob">DOB *</label>
+				<input id="dob" name="dateOfBirth" dojoType="dijit.form.DateTextBox" required=true/>
+				
+			</div>
+
+			<div class="formQuestion">
+				<span class="noticeMessage">Custom checkboxes and radio buttons...</span>
+				<span>Desired position</span>
+			</div>
+			<div class="formAnswer">
+				<label class="firstLabel" for="position">Position</label>
+				<fieldset id="position" class="dijitInlineBox">
+					<input type="checkBox" name="position" id="it" value="it" dojoType="dijit.form.CheckBox" /> <label for="it">IT</label>
+					<input type="checkBox" name="position" id="marketing" value="marketing" dojoType="dijit.form.CheckBox" /> <label for="marketing">Marketing</label>
+					<input type="checkBox" name="position" id="business" value="business" dojoType="dijit.form.CheckBox" /> <label for="business" style="margin-right: 7em;">Business</label>
+				</fieldset>
+
+				<label class="secondLabel" for="hours">Hours</label>
+				<fieldset id="hours" class="dijitInlineBox">
+					<input type="radio" name="hours" id="full" value="full" dojoType="dijit.form.RadioButton" /> <label for="full">Full time</label>
+					<input type="radio" name="hours" id="part" value="part" dojoType="dijit.form.RadioButton" /> <label for="part">Part time</label>
+				</fieldset>
+			</div>
+
+			<div class="formQuestion">
+				<span class="noticeMessage">slider and spinner ...</span>
+				<span>Education and Experience</span>
+			</div>
+			<div class="formAnswer">
+				<table class="dijitReset">
+					<tr>
+						<td>
+							<label class="firstLabel" for="school">Education level</label>
+						</td>
+						<td style="padding-left: 2em;">
+							<span dojoType="dijit.form.HorizontalSlider" id="school" name="school"
+								minimum="1"
+								value="2"
+								maximum="4"
+								discreteValues="4"
+								showButtons="false"
+								style="width:200px; height: 40px;"
+							>
+									<span dojoType="dijit.form.HorizontalRule" container="bottomDecoration" count=4 style="height:5px;"></span>
+									<ol dojoType="dijit.form.HorizontalRuleLabels" container="bottomDecoration"style="height:1em;font-size:75%;color:gray;">
+										<li>high school</li>
+										<li>college</li>
+										<li>masters</li>
+										<li>PhD</li>
+									</ol>
+							</span>
+						</td>
+						<td>
+							<label class="secondLabel" for="experience">Work experience (years, 0-40)</label>
+						</td>
+						<td>
+							<input dojoType="dijit.form.NumberSpinner"
+								id="experience" name="experience"
+								value="1"
+								constraints="{min: 0, max:40, places:0}"
+								size=3>
+						</td>
+					</tr>
+				</table>
+			</div>
+
+			<div class="formQuestion">
+				<span class="noticeMessage">Rich text editor that expands as you type in text</span>
+				<label for="description">Self description</label>
+			</div>
+			<div class="formAnswer">
+				<textarea dojoType="dijit.Editor" minHeight="5em" id="description" name="description">
+				Write a brief summary of &lt;i&gt;your&lt;/i&gt; job skills... using &lt;b&gt;rich&lt;/b&gt; text.
+				</textarea>
+			</div>
+			
+			<div class="formQuestion">
+				<span class="noticeMessage">Text area that expands as you type in text</span>
+				<label for="references">References</label>
+			</div>
+			<div class="formAnswer">
+				<textarea dojoType="dijit.form.Textarea" id="references" name="references">
+					Write your references here (plain text)
+				</textarea>
+			</div>
+
+		  	<center>
+				<button dojoType="dijit.form.Button" iconClass="dijitEditorIcon dijitEditorIconSave" type=submit>
+					OK
+				</button>
+			</center>
+		</form>
+	</body>
+</html>
+

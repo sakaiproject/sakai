@@ -1,0 +1,200 @@
+@import url("../dijit.css");
+@import url(images/images.css);
+
+.noir .dijit {
+	font-family:Tahoma;
+	font-size:14px;
+}
+
+.noir .dijitUpArrowButton,
+.noir .dijitDownArrowButton {
+	background-repeat:no-repeat;
+}
+
+.noir .dijitA11yUpArrow,
+.noir .dijitA11yDownArrow {
+	display:none;	
+}
+
+
+.noir .dijitButtonNode {
+	border:0px !important;
+}
+
+.noir .dijitButton,
+.noir .dijitComboButton,
+.noir .dijitDropDownButton,
+.noir .dijitComboBox {
+	height:30px;
+	padding:0px;
+	border-width:0px;
+	background-color:transparent;
+	background-repeat:no-repeat;
+	margin:5px;
+}
+
+.noir .dijitButton .dijitRight {
+	height:30px;	
+	margin-left:15px; 
+	padding-right:15px;
+}
+.dj_ie .noir .dijitButton .dijitRight {
+	padding-right:11px;
+}
+
+.noir .dijitButton .dijitButtonNode,
+.noir .dijitComboButton .dijitButtonNode, 
+.noir .dijitDropDownButton .dijitButtonNode {
+	/* generic styles */
+	vertical-align:top;
+	height:30px;
+	font-family:inherit;
+	font-size:inherit;
+	background-color:transparent;
+	padding:0px !important;
+	line-height:25px;	/* Safari only */
+
+	/* enabled-specific styles */
+	color:#cccccc;
+}
+
+
+
+.noir .dijitButtonHover .dijitButtonNode,
+.noir .dijitComboButtonHover .dijitButtonNode, 
+.noir .dijitDropDownButtonHover .dijitButtonNode {
+	/* hover styles */
+	color:#fa4242;
+}
+
+.noir .dijitButtonActive .dijitButtonNode,
+.noir .dijitComboButtonActive .dijitButtonNode,
+.noir .dijitDropDownButtonActive .dijitButtonNode {
+	/* active (down) styles */
+	color:#31d397;
+}
+
+.noir .dijitButtonDisabled .dijitButtonNode,
+.noir .dijitComboButtonDisabled .dijitButtonNode,
+.noir .dijitDropDownButtonDisabled .dijitButtonNode {
+	/* disabled styles */
+	color:#3f3f3f;
+}
+
+
+/* drop-down-button specific */
+
+.noir .dijitDropDownButton .dijitRight {
+	height:30px;	
+	margin-left:15px; 
+	padding-right:31px;
+}
+
+.noir .dijitDropDownButton .dijitA11yDownArrow {
+	display:none;	
+}
+
+
+/* combo-specific */
+.noir .dijitComboButton TABLE {
+	margin-left:15px;
+}
+.noir .dijitComboButton .dijitRight,
+.noir .dijitComboButton .dijitDownArrowButton div {	
+	height:30px;	
+	width:35px;
+	
+	/* don't display arrow text; just use background image */
+	font-size: 0px;
+}
+
+
+
+
+/****
+		dijit.form.ComboBox 
+ ****/
+.noir .dijitComboBox TABLE {
+	margin-left:10px;
+}
+
+.noir .dijitComboBox .dijitStretch {	
+	height:30px;
+	#margin-top:0px;
+}
+
+.noir .dijitComboBox .dijitRight,
+.noir .dijitComboBox .dijitRightSpacer {	
+	height:30px;
+	width:32px;
+}
+
+.noir .dijitComboBox .dijitDownArrowButton {
+	padding:0px !important;
+	width:32px;
+}
+
+.noir .dijitComboBox .dijitButtonNode {
+	font-family:inherit;
+	font-size:inherit;
+	background-color:transparent;
+}
+
+
+.noir .dijitComboBoxInput,
+.noir .dijitSpinnerInput {
+	border:0px;
+	margin:0px;
+
+	/* IE7 HACK: get things to line up 
+	#top:-1px;					
+	#left:10px;
+	#padding-top:6px;
+	*/
+	/* SAFARI HACK: get things to line up (a little better) * /
+	top:4px;
+	margin-right:-10px;
+	*/
+}
+
+.noir .dijitComboBox INPUT,
+.noir .dijitSpinner INPUT {
+	color:white;
+	background:black;
+}
+
+.noir .dijitComboBoxDisabled INPUT,
+.noir .dijitSpinnerDisabled INPUT{
+	color:#3f3f3f;
+}
+
+
+
+
+/* dijit.form.NumberSpinner */
+.noir .dijitSpinner TABLE {
+	padding-left:10px;
+}
+
+.noir .dijitSpinner .dijitStretch {	
+	height:30px;
+	#margin-top:0px;
+}
+
+.noir .dijitSpinner .dijitUpArrowButton,
+.noir .dijitSpinner .dijitDownArrowButton{
+	height:15px;
+	width:34px;
+	padding:0px !important;
+}
+
+/* DnD avatar-specific settings */
+/* For now it uses a default set of rules. Some other DnD classes can be modified as well. */
+.noir .dojoDndAvatar			{font-size: 75%; color: black;}
+.noir .dojoDndAvatarHeader td	{padding-left: 20px; padding-right: 4px;}
+.noir .dojoDndAvatarHeader	{background: #ccc;}
+.noir .dojoDndAvatarItem		{background: #eee;}
+.noir.dojoDndMove .dojoDndAvatarHeader	{background-image: url(images/dndNoMove.png); background-repeat: no-repeat;}
+.noir.dojoDndCopy .dojoDndAvatarHeader	{background-image: url(images/dndNoCopy.png); background-repeat: no-repeat;}
+.noir.dojoDndMove .dojoDndAvatarCanDrop .dojoDndAvatarHeader	{background-image: url(images/dndMove.png); background-repeat: no-repeat;}
+.noir.dojoDndCopy .dojoDndAvatarCanDrop .dojoDndAvatarHeader	{background-image: url(images/dndCopy.png); background-repeat: no-repeat;}

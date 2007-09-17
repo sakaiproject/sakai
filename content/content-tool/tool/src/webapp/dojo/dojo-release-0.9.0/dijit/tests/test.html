@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>widget infrastructure test</title>
+
+	<script type="text/javascript" src="../../dojo/dojo.js"
+		djConfig="isDebug: true, debugAtAllCosts: true"></script>
+
+	<script type="text/javascript">
+		dojo.require("dijit.form.Button");
+	</script>
+
+	<style type="text/css">
+
+		@import "../../dojo/resources/dojo.css";
+		@import "../themes/tundra/tundra.css";
+		@import "css/dijitTests.css";
+
+		body { padding: 5em; }
+	</style>
+</head>
+
+<body class="tundra">
+
+	<button id="b1" style="background: yellow;">button #1</button>
+	<button id="b2" style="background: orange;">button #2</button>
+	<button id="b3" style="background: violet;">button #3</button>
+	<script>
+		for(var i=1; i<=3; i++){
+			var node = dojo.byId("b"+i);
+			var myButton = new dijit.form.Button(null, node);
+		}
+	</script>	
+
+</body>
+</html>

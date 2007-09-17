@@ -1,0 +1,47 @@
+/* main classes for dojox.widget.Toaster */
+
+.tundra .dijitToasterContent{
+	padding:1em;
+	padding-top:0.25em;
+	background:#73c74a;
+}
+
+.tundra .dijitToasterMessage{ 
+	color:#fff;
+}
+.tundra .dijitToasterWarning{ }
+.tundra .dijitToasterError,
+.tundra .dijitToasterFatal{
+	font-weight:bold;
+	color:#fff;
+}
+
+.tundra .dijitToasterWarning .dijitToasterContent{
+	padding:1em;
+	padding-top:0.25em;
+	background:#d4d943;
+} 
+
+.tundra .dijitToasterError .dijitToasterContent{
+	padding:1em;
+	padding-top:0.25em;
+	background:#c46600;
+}
+
+
+/* imported from dijit.css */
+ 
+.dijitToasterClip {
+	position: absolute;
+	overflow: hidden;
+}
+
+.dijitToasterContainer {
+	display: block;
+	position: absolute;
+	width: 17.5em;
+	z-index: 5000;
+	margin: 0px;
+	font:0.75em Tahoma, Helvetica, Verdana, Arial;
+}
+ 

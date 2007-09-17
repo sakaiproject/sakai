@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>Test Widget Templates in Multiple Themes</title>
+
+		<script type="text/javascript" src="../tests/testBidi.js"></script>
+		<script type="text/javascript" src="../../dojo/dojo.js"
+			djConfig="parseOnLoad: true, isDebug: true"></script>
+		<script type="text/javascript">
+			dojo.require("dijit.Menu");
+			dojo.require("dijit.form.Button");
+			dojo.require("dijit.form.ComboBox");
+			dojo.require("dijit.form.NumberSpinner");
+			dojo.require("dojo.parser");
+			logMessage = console.debug;
+		</script>
+		<style type="text/css">
+			@import "../../dojo/resources/dojo.css";
+			@import "noir/noir.css";
+			@import "tundra/tundra.css";
+
+			/* group multiple buttons in a row */
+			body {
+				margin:10px;
+			}
+			.box {
+				display: block;
+			}
+			.box .dijitButton {
+				margin-right: 10px;
+			}
+
+		</style>
+	</head>
+	<body>
+	<script language='javascript'>
+	/*
+		var match = (window.location.search+"&").match(/theme=(.*?)&/);
+		var theme = (match ? match[1] : "tundra");
+		document.getElementsByTagName("BODY")[0].className = theme;
+		document.write("<style>	@import '../../themes/"+theme+"/"+theme+".css'; <\/style>");
+	*/
+	</script>
+		<h2>Tundra</h2>
+		<div id='tundra' class="box tundra">
+			<button id='foo' dojoType="dijit.form.Button" onClick='logMessage("clicked simple")'>
+				Button
+			</button>
+			<button dojoType="dijit.form.Button" iconClass="noteIcon" onClick='logMessage("clicked simple")'>
+				Button w/image
+			</button>
+			<button dojoType="dijit.form.Button" onClick='logMessage("clicked simple")' disabled='true'>
+				Disabled Button
+			</button>
+		<br><br>
+			<button dojoType="dijit.form.DropDownButton">
+				<span>Drop Down Button</span>
+				<div dojoType="dijit.Menu" id="editMenu" style="display: none;">
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIconCut"
+						onClick="logMessage('not actually cutting anything, just a test!')">Cut</div>
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIconCopy"
+						onClick="logMessage('not actually copying anything, just a test!')">Copy</div>
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIconPaste"
+						onClick="logMessage('not actually pasting anything, just a test!')">Paste</div>
+				</div>
+			</button>
+			<button dojoType="dijit.form.DropDownButton" iconClass="noteIcon">
+				<span>Button w/image</span>
+				<div dojoType="dijit.Menu" id="editMenu2" style="display: none;">
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIconCut"
+						onClick="logMessage('not actually cutting anything, just a test!')">Cut</div>
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIconCopy"
+						onClick="logMessage('not actually copying anything, just a test!')">Copy</div>
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIconPaste"
+						onClick="logMessage('not actually pasting anything, just a test!')">Paste</div>
+				</div>
+			</button>
+			<button dojoType="dijit.form.DropDownButton" disabled='true'>
+				<span>Drop Down Disabled</span>
+				<div dojoType="dijit.Menu" id="editMenu3" style="display: none;">
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIconCut"
+						onClick="logMessage('not actually cutting anything, just a test!')">Cut</div>
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIconCopy"
+						onClick="logMessage('not actually copying anything, just a test!')">Copy</div>
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIconPaste"
+						onClick="logMessage('not actually pasting anything, just a test!')">Paste</div>
+				</div>
+			</button>
+		<br><br>
+			<button dojoType="dijit.form.ComboButton" onClick='logMessage("clicked combo save")'>
+				<span>Combo Button</span>
+				<div dojoType="dijit.Menu" id="saveMenu" style="display: none;">
+					<div dojoType="dijit.MenuItem" iconSrc="../../templates/buttons/save.gif"
+						onClick="logMessage('not actually saving anything, just a test!')">Save</div>
+					<div dojoType="dijit.MenuItem" iconSrc="../../templates/buttons/save.gif"
+						onClick="logMessage('not actually saving anything, just a test!')">Save As</div>
+				</div>
+			</button>
+			<button dojoType="dijit.form.ComboButton" iconClass="noteIcon" onClick='logMessage("clicked combo save")'>
+				<span>Combo w/image</span>
+				<div dojoType="dijit.Menu" id="saveMenu" style="display: none;">
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIconSave"
+						onClick="logMessage('not actually saving anything, just a test!')">Save</div>
+					<div dojoType="dijit.MenuItem"
+						onClick="logMessage('not actually saving anything, just a test!')">Save As</div>
+				</div>
+			</button>
+			<button dojoType="dijit.form.ComboButton" onClick='logMessage("clicked combo save")' disabled='true'>
+				<span>Combo Disabled</span>
+				<div dojoType="dijit.Menu" id="saveMenu" style="display: none;">
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIconSave"
+						onClick="logMessage('not actually saving anything, just a test!')">Save</div>
+					<div dojoType="dijit.MenuItem"
+						onClick="logMessage('not actually saving anything, just a test!')">Save As</div>
+				</div>
+			</button>
+		<br><br>
+			<input dojoType="dijit.form.ComboBox"
+					value="California"
+					class="medium"
+					url="../tests/form/comboBoxData.json"
+					searchAttr="name"
+					labelField="label"
+					labelType="html"
+					style="width: 300px;"
+					name="state2"
+					promptMessage="Please enter a state"
+					id="datatest"
+			>
+
+			<input dojoType="dijit.form.ComboBox"
+					value="California"
+					class="medium"
+					url="../tests/form/comboBoxData.json"
+					searchAttr="name"
+					labelField="label"
+					labelType="html"
+					style="width: 300px;"
+					name="state2"
+					promptMessage="Please enter a state"
+					id="datatest"
+					disabled="true"
+			>
+
+		<br><br>
+		<input dojoType="dijit.form.NumberSpinner" 
+			onChange="console.debug('onChange fired for widget id = ' + this.id + ' with value = ' + arguments[0]);"
+			value="900" 
+			constraints={max:1550,places:0}
+			maxlength="10" 
+			id="integerspinner1">
+
+
+		<input dojoType="dijit.form.NumberSpinner" 
+			onChange="console.debug('onChange fired for widget id = ' + this.id + ' with value = ' + arguments[0]);"
+			value="900" 
+			disabled='true'
+			constraints={max:1550,places:0}
+			maxlength="10" 
+			id="integerspinner1">
+
+		</div>
+		<br clear=both>
+
+		<h2>Noir</h2>
+		<div id='noir' class="box noir">
+		</div>
+		<br clear=both>
+
+		<h2>a11y mode</h2>
+		<div id='a11y' class="box dijit_a11y">
+		</div>
+		<br clear=both>
+<script language='javascript'>
+	var html = dojo.byId("tundra").innerHTML;
+	dojo.byId("noir").innerHTML = html;
+	dojo.byId("a11y").innerHTML = html;
+</script>
+
+	</body>
+</html>

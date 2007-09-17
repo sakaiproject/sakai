@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>dijit.layout.LayoutContainer Test</title>
+
+	<script type="text/javascript" src="../testBidi.js"></script>
+
+	<script type="text/javascript" src="../../../dojo/dojo.js" 
+		djConfig="isDebug: true, parseOnLoad: true"></script>
+	<script type="text/javascript">
+		dojo.require("dijit.layout.LayoutContainer");
+		dojo.require("dijit.layout.ContentPane");
+		dojo.require("dijit.form.FilteringSelect");
+		dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+	</script>
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../themes/tundra/tundra.css";
+		@import "../../themes/tundra/tundra_rtl.css";
+		@import "../css/dijitTests.css";
+	</style>
+</head>
+<body class="tundra">
+<h2>Dijit layout.LayoutContainer tests</h2>
+<p>Basic layout</p>
+
+<div dojoType="dijit.layout.LayoutContainer"
+	style="border: 2px solid black; width: 90%; height: 300px; padding: 10px;"
+>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="left" style="background-color: #acb386; width: 100px;">
+		left
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="right" style="background-color: #acb386;">
+		right
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="top" style="background-color: #b39b86; ">
+		top bar
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="bottom" style="background-color: #b39b86;">
+		bottom bar
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="client" style="background-color: #f5ffbf; padding: 10px;">
+		main panel with <a href="http://www.dojotoolkit.org/">a link</a>.<br />
+		(to check we're copying children around properly).<br />
+		<select dojoType="dijit.form.FilteringSelect">
+			<option value="1">foo</option>
+			<option value="2">bar</option>
+			<option value="3">baz</option>
+		</select>
+		Here's some text that comes AFTER the combo box.
+	</div>
+</div>
+
+<p>Advanced layout:</p>
+<div dojoType="dijit.layout.LayoutContainer"
+	style="border: 2px solid black; width: 90%; height: 300px; padding: 10px;"
+>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="left" style="background-color: #acb386; width: 100px; margin: 5px;">
+		left
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="top" style="background-color: #b39b86;  margin: 5px;">
+		top bar
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="bottom" style="background-color: #b39b86; margin: 5px;">
+		bottom bar
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="left" style="background-color: #eeeeee; width: 100px; margin: 5px;">
+		inner left
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="right" style="background-color: #eeeeee; width: 100px; margin: 5px;">
+		inner right
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="client" style="background-color: #f5ffbf; padding: 10px; margin: 5px;">
+		main panel with <a href="http://www.dojotoolkit.org/">a link</a>.<br />
+		(to check we're copying children around properly).<br />
+		<select dojoType="dijit.form.FilteringSelect">
+			<option value="1">foo</option>
+			<option value="2">bar</option>
+			<option value="3">baz</option>
+		</select>
+		Here's some text that comes AFTER the combo box.
+	</div>
+</div>
+
+<p>Goofy spiral layout:</p>
+<div dojoType="dijit.layout.LayoutContainer"
+	style="border: 2px solid black; width: 90%; height: 300px; padding: 10px;"
+>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="left" style="background-color: #663333; color: white; width: 100px;">
+		outer left
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="top" style="background-color: #333366; color: white; height: 50px;">
+		outer top
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="right" style="background-color: #663333; color: white; width: 100px;">
+		outer right
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="bottom" style="background-color: #333366; color: white; height: 50px;">
+		outer bottom
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="left" style="background-color: #99CC99; width: 100px;">
+		inner left
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="top" style="background-color: #999966; height: 50px;">
+		inner top
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="right" style="background-color: #99CC99; width: 100px;">
+		inner right
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="bottom" style="background-color: #999966; height: 50px;">
+		inner bottom
+	</div>
+	<div dojoType="dijit.layout.ContentPane" layoutAlign="client" style="padding: 10px;">
+		main panel with <a href="http://www.dojotoolkit.org/">a link</a>.<br />
+		(to check we're copying children around properly).<br />
+		<select dojoType="dijit.form.FilteringSelect">
+			<option value="1">foo</option>
+			<option value="2">bar</option>
+			<option value="3">baz</option>
+		</select>
+		Here's some text that comes AFTER the combo box.
+	</div>
+</div>
+
+</body>
+</html>

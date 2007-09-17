@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Dijit Grid</title>
+<script type="text/javascript">
+	var djConfig = {isDebug: true, debugAtAllCosts: true};
+</script>
+<style type="text/css">
+	@import "../../dojo/resources/dojo.css";
+	@import "../themes/tundra/tundra.css";
+	@import "css/dijitTests.css";
+</style>
+
+<script type="text/javascript" src="testBidi.js"></script>
+
+<script type="text/javascript" src="../../dojo/dojo.js"></script>
+<style type="text/css">
+	body{ padding:1em 3em; }
+
+	/* The following will end up being added by code. */
+	.dijitGridColumn1{ width:60px; }
+	.dijitGridColumn2{ width:100px; }
+	.dijitGridColumn3{ width:100px; }
+	.dijitGridColumn4{ width:280px; }
+	/* End code add */
+
+	div.clear { clear:both; }
+	div.dijitGrid {
+		width:600px;
+		border:1px solid #ccc;
+		margin:1em;
+	}
+	table td {
+		border:1px solid #ccc;
+		border-collapse:none;
+	}
+	div.digitGridRow {
+		border:1px solid #c00;
+		clear:both;
+	}
+	span.dijitGridCell{
+		padding:0.25em;
+		display:block;
+		float:left;
+	}
+	span.dijitGridSeparator{
+		display:block;
+		float:left;
+		width:1px;
+		border-left:1px solid #ccc;
+	}
+	div.dijitGridHead {
+		background-color:#efefef;
+		border-bottom:1px solid #ccc;
+		font-weight:bold;
+	}
+	div.dijitGridBody {
+		height:200px;
+		overflow:auto;
+	}
+	div.dijitGridBodyContent {
+		overflow:visible;
+	}
+
+	div.dijitGridFoot { }
+</style>
+</head>
+<body>
+	<h1>Dijit Grid: Table Test</h1>
+	<p>This is a pure HTML test, in order to develop the eventual markup structure for the Dijit Grid.  It is <strong>not</strong> a working Grid, nor will it be the eventual Grid test.</p>
+	<div class="dijitGrid">
+		<div class="dijitGridHead">
+			<div class="dijitGridRow">
+				<span class="dijitGridCell dijitGridColumn1">Name</span>
+				<span class="dijitGridSeparator"></span>
+				<span class="dijitGridCell dijitGridColumn2">Date Added</span>
+				<span class="dijitGridSeparator"></span>
+				<span class="dijitGridCell dijitGridColumn3">Date Modified</span>
+				<span class="dijitGridSeparator"></span>
+				<span class="dijitGridCell dijitGridColumn4">Label</span>
+				<div class="clear"></div>
+			</div>
+		</div>
+		<div class="dijitGridBody">
+			<div class="dijitGridBodyContent">
+				<table cellpadding="0" cellspacing="0" border="0" width="576" style="margin:0;border:0;">
+					<colgroup>
+						<col width="60"/>
+						<col width="100"/>
+						<col width="100"/>
+						<col width="280"/>
+					</colgroup>
+				<tr><td>Adam</td><td>3/1/2004</td><td>11/1/2003</td><td><p><strong>Lorem ipsum</strong> dolor sit amet...</p><div>consectetuer</div></td></tr>
+				<tr><td>Betty</td><td>6/15/2005</td><td>1/7/2006</td><td>Adipiscing elit, sed diam nonummy nibh euismod</td></tr>
+				<tr><td>Carla</td><td>4/23/2002</td><td>3/1/2004</td><td>tincidunt ut laoreet dolore magna aliquam erat volutpat.</td></tr>
+				<tr><td>David</td><td>11/1/2003</td><td>6/15/2005</td><td>Ut wisi enim ad minim veniam, quis</td></tr>
+				<tr><td>Esther</td><td>1/7/2006</td><td>4/23/2002</td><td>nostrud exerci tation ullamcorper</td></tr>
+				<tr><td>Fred</td><td>3/1/2004</td><td>11/1/2003</td><td>suscipit lobortis nisl ut aliquip ex ea commodo consequat.</td></tr>
+				<tr><td>Greg</td><td>6/15/2005</td><td>1/7/2006</td><td><p><strong>Lorem ipsum</strong> dolor sit amet...</p><div>consectetuer</div></td></tr>
+				<tr><td>Helga</td><td>4/23/2002</td><td>3/1/2004</td><td>adipiscing elit, sed diam nonummy nibh euismod</td></tr>
+				<tr><td>Ianna</td><td>11/1/2003</td><td>6/15/2005</td><td>tincidunt ut laoreet dolore magna aliquam erat volutpat.</td></tr>
+				<tr><td>Jane</td><td>1/7/2006</td><td>4/23/2002</td><td>Ut wisi enim ad minim veniam, quis</td></tr>
+			</table>
+			</div>
+		</div>
+		<div class="dijitGridFoot">
+		</div>
+	</div>
+	<h2>A regular table, for comparison purposes</h2>
+	<table cellpadding="0" cellspacing="0" border="0" width="600">
+	<thead>
+		<tr>
+			<th width="60" valign="top">Name</th>
+			<th width="100" align="center" valign="top">Date Added</th>
+			<th width="100" align="center" valign="top">Date Modified</th>
+			<th>Label</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr><td>Adam</td><td>3/1/2004</td><td>11/1/2003</td><td><p><strong>Lorem ipsum</strong> dolor sit amet...</p><div>consectetuer</div></td></tr>
+		<tr><td>Betty</td><td>6/15/2005</td><td>1/7/2006</td><td>Adipiscing elit, sed diam nonummy nibh euismod</td></tr>
+		<tr><td>Carla</td><td>4/23/2002</td><td>3/1/2004</td><td>tincidunt ut laoreet dolore magna aliquam erat volutpat.</td></tr>
+		<tr><td>David</td><td>11/1/2003</td><td>6/15/2005</td><td>Ut wisi enim ad minim veniam, quis</td></tr>
+		<tr><td>Esther</td><td>1/7/2006</td><td>4/23/2002</td><td>nostrud exerci tation ullamcorper</td></tr>
+		<tr><td>Fred</td><td>3/1/2004</td><td>11/1/2003</td><td>suscipit lobortis nisl ut aliquip ex ea commodo consequat.</td></tr>
+		<tr><td>Greg</td><td>6/15/2005</td><td>1/7/2006</td><td><p><strong>Lorem ipsum</strong> dolor sit amet...</p><div>consectetuer</div></td></tr>
+		<tr><td>Helga</td><td>4/23/2002</td><td>3/1/2004</td><td>adipiscing elit, sed diam nonummy nibh euismod</td></tr>
+		<tr><td>Ianna</td><td>11/1/2003</td><td>6/15/2005</td><td>tincidunt ut laoreet dolore magna aliquam erat volutpat.</td></tr>
+		<tr><td>Jane</td><td>1/7/2006</td><td>4/23/2002</td><td>Ut wisi enim ad minim veniam, quis</td></tr>
+	</tbody>
+	</table>
+</body>
+</html>

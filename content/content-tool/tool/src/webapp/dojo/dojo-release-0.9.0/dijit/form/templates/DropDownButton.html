@@ -1,0 +1,11 @@
+<div class="dijit dijitLeft dijitInline dijitDropDownButton" baseClass="dijitDropDownButton"
+	dojoAttachEvent="onmouseover:_onMouse,onmouseout:_onMouse,onmousedown:_onMouse,onclick:_onArrowClick,onkeypress:_onKey"
+	><div class='dijitRight'>
+	<button tabIndex="${tabIndex}" class="dijitStretch dijitButtonNode dijitButtonContents" type="${type}" id="${id}" name="${name}"
+		dojoAttachPoint="focusNode,titleNode" waiRole="button" waiState="haspopup-true,labelledby-${id}_label"
+		><div class="dijitInline ${iconClass}"></div
+		><span class="dijitButtonText" 	dojoAttachPoint="containerNode,popupStateNode"
+		id="${id}_label">${label}</span
+		><span class='dijitA11yDownArrow'>&#9660;</span>
+	</button>
+</div></div>

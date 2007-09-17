@@ -1,0 +1,189 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Dojo interactive benchmark tool</title>
+	<script type="text/javascript" src="../../dojo/dojo.js"></script>
+	<script type="text/javascript">
+		// FIXME:
+		// the url below points to dojo.inpdx.net/benchResults.php
+		// need to setup DB on dtk.org and change URL here to store
+		// results elsewhere ... work db structure in accompanying
+		// .php file 
+		// basic stats are located at http://dojo.inpdx.net/benchmarks.html
+		
+		dojo.require("dojo.fx"); 
+		// FIXME: this seems an excessive fix for IE6 issue ...
+		dojo.require("dijit.dijit"); 
+		// dojo.require("dijit.form.Button"); 
+		dojo.require("dijit.dijit-all"); 
+		dojo.require("dojo.parser");
+
+	
+		// setup global variables
+		var masterResults = { clientNavigator: navigator.userAgent, dataSet: [], errors: [] }
+		var isRunning = false; 
+		var theCount, theClass, runner = null;
+		var testCount = 0;
+		dojo.addOnLoad(function(){
+			theCount = dojo.byId('countNode');
+			theClass = dojo.byId('classNode');
+			runner = dojo.byId('runner'); 
+			masterResults.dojoVersion = dojo.version.toString(); 
+		});
+		
+
+		function _toggleRunMsg(){
+			var newMsg = (isRunning) ? " Run Test " : " Running ..."
+			dojo.fx.chain([
+				dojo.fadeOut({
+					node:runner,
+					duration:200,
+					onEnd: function(){
+						runner.innerHTML = newMsg;
+						isRunning=!isRunning;
+					}
+				}),
+				dojo.fadeIn({ node:runner, duration: 200 })
+			]).play();
+		}
+
+		function runTest(){
+			if(isRunning){ return; }
+			_toggleRunMsg();
+			setTimeout("_runRealTest()",1000);
+		}
+
+		function _runRealTest(){
+
+			var _error = false; 
+			var count = theCount.value;
+			var aclass = theClass.value.toString(); 
+			var theMethod = (dojo.byId('parse').checked) ? "parse" : "create"; 
+
+			var tmpNode = document.createElement('div');
+
+			switch(theMethod){
+				case "parse" : 
+					var tmpString = []; 
+					for(var i=0; i<count; i++){
+						tmpString.push('<div dojoType="', aclass, '"></div>');
+					}
+					tmpNode.innerHTML = tmpString.join(""); 
+					var tmpTimer = new Date().getTime();
+					dojo.parser.parse(tmpNode); 
+					var endTime = new Date().getTime() - tmpTimer; 
+					break;
+				case "create" : 
+					var construction = dojo.getObject(aclass); 
+					var tmpTimer = new Date().getTime();
+					for(var i=0; i<count; i++){
+						var tmp = new construction({}); 
+						tmpNode.appendChild(tmp.domNode); 
+					}	
+					var endTime = new Date().getTime() - tmpTimer;
+				break;
+			}
+
+			var average = (endTime / count);
+			var msg = "It took: "+endTime+"ms to "+theMethod+" "+count+" "+aclass+" widgets"+
+				"<br>(average: "+average+" ms/widget)<br><br>"; 
+
+			masterResults.dataSet.push({
+				testNum: ++testCount,
+				dijit: aclass,
+				testCount: count,
+				testAverage: average,	
+				testMethod: theMethod,
+				testTime: endTime
+			});
+
+			dojo.byId("results").innerHTML += msg;
+			setTimeout("_toggleRunMsg()",250); 
+			
+			// Nodes have to be in the document for IE7 to GC them.
+			// Do this after generating the widgets to dispel 
+			// notion that widget parents have to be in document 
+			// a-priori.
+			dojo.byId("limbo").appendChild(tmpNode);
+		}
+
+		function doDebug(){
+			var key = escape(dojo.toJson(masterResults));
+			dojo.byId('hiddenHolder').value = key;
+			return true;
+		}
+
+	</script>
+	<style>
+		@import "../../dijit/themes/tundra/tundra.css";
+		@import "../../dijit/themes/dijit.css";
+		@import "../../dojo/resources/dojo.css";
+		@import "../../dijit/tests/css/dijitTests.css";
+
+		#limbo {
+			display: none;
+		}
+		#theContainer {
+			float:left; 
+			display: block; padding:12px; padding-top:0; 
+			width:420px; margin-left:20px; 
+			background-color:#fff; -moz-border-radius:8pt 8pt;
+			border:2px solid #ededed; 
+		}	
+		#leftControl { float:left; width:300px; } 
+		#testControl, #submitControl { border:2px solid #ededed; padding:12px; -moz-border-radius:8pt 8pt;  background-color:#fff; }
+		#results {  overflow:auto; height:300px; border:1px solid #ccc; color:darkred; padding:8px;  }
+		#results li { list-style-type: none; } 
+		#results ul { margin:0; padding:0; } 
+		.runHolder, .submitButton { 
+			border:1px solid #ccc; padding:3px; -moz-border-radius:8pt 8pt; text-align:center; 
+			cursor:pointer; background-color:#ededed; display:block; width:125px; 
+		}
+
+	</style>
+</head>
+<body class="tundra">
+	<div id="limbo"></div>
+	<h1 class="testTitle">Dojo Benchmark Tool</h1>
+
+	<div id="leftControl">
+		<div id="testControl">
+
+		Class: <input type="text" name="dijit" id="classNode" value="dijit.form.Button"><br><br>
+		Count: <input type="text" name="count" id="countNode" value="100" size="4" ><br><br>
+		
+		Method: <label for="parse">
+				<input type="radio" name="theMethod" value="parse" id="parse" checked="on"> Parse 
+			</label>
+			<label for="create">
+				<input type="radio" name="theMethod" value="create" id="create"> Create
+			</label>
+
+		<br><br>
+		<span onclick="runTest()" class="runHolder"><span id="runner"> Run Test </span></span>
+
+		</div>
+		
+		<br>
+
+		<div id="submitControl">		
+		<p>
+		* The results of these tests are important to us.  Please feel free to submit your dataSet
+		to Dojotoolkit.org. Your privacy will be respected. 
+				
+		</p>
+			<div id="hiddenResults">
+				<form id="resultForm" action="http://dojo.inpdx.net/benchResults.php" 
+					method="POST" onsubmit="doDebug()">
+					<input type="hidden" id="hiddenHolder" value="" name="key">	
+					<input type="submit" value=" Submit Data " class="submitButton">
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div id="theContainer"><h3>Results:</h3><div id="results"></div></div>
+	
+</body>
+</html>

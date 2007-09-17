@@ -1,0 +1,57 @@
+
+.tundra .SlideShowHolder {
+	position:relative; 
+	padding:0px;
+	z-index:21;
+	border:1px solid #000; 
+}
+
+.tundra .SlideShowNavHolder {
+	z-index:19;	
+	height:10px; 
+	position:absolute;
+	top:0px;
+	left:0px; 
+	width:135px; 
+}
+
+.tundra .SlideShowNav {
+	z-index:20;
+	display:inline;
+	position:absolute; 
+	top:10px;
+	left:10px; 
+
+}
+
+.tundra .SlideShowImgHolder {
+	position:absolute; padding:0px; top:0; left:0; 
+}
+
+.tundra .SlideShowImg { 
+	position:absolute;
+	left:0px;
+	top:0px;
+}
+
+.tundra .SlideShowDialog {
+	position:absolute;
+	bottom:0;
+	right:0;
+	padding:5px; 
+	background:transparent; 
+	z-index:43; 
+	
+}
+/*
+.tundra .SlideShowPlayIcon { 
+	width:46px;
+	height:46px;
+	background:url('icons/navIconPlay.png'); 
+}
+.tundra .SlideShowDirIcon {
+	width:46px; 
+	height:46px;
+	background:url('icons/navIconDirUp.png'); 
+}
+*/

@@ -1,0 +1,78 @@
+.dojoxFloatingCloseIcon {
+	background:url('icons/tabClose.png') no-repeat center center; 
+	width:16px;
+	height:16px; 
+	overflow:hidden;
+	float:right; 
+}
+
+.dojoxFloatingPaneContent {
+	overflow:auto; 
+	background-color:#fff; height:100%; width:100%; 
+}
+
+.dojoxFloatingMiniMizeIcon {
+	background:url('icons/down.png') no-repeat center center; 
+	width:16px;
+	height:16px; 
+	overflow:hidden;
+	float:right; 
+}
+.dojoxFloatingResizeHandle {
+	background:url('icons/resize.png') no-repeat bottom right;
+	position:absolute; 
+	right:0; 
+	bottom:0; 	
+	/* background-color:#ededed; */
+	width:16px;
+	height:16px; 
+	cursor:nw-resize;
+}
+.dojoxFloatingDockDefault {
+	position:absolute;
+	bottom:0px;
+	left:0px;
+	overflow:hidden; 
+	margin:0;
+	margin-bottom:3px; 
+	padding:0px; 
+	width:100%;
+	z-index:900; /* allows up to 99 panes above it, still staying on top most of the time */ 
+
+	background:transparent;
+	/* background-color:#fff; 
+	border-top:1px solid #ccc; 
+	*/
+}
+
+.dojoxDockList { 
+	display:inline; 
+	list-style-type:none; 
+	margin:0; 
+	margin-bottom:3px; 
+	padding:3px; 
+} 
+
+.dojoxDockRestoreButton {
+	background:url('icons/up.png') no-repeat center center;
+	width:16px; height:16px;
+	overflow:hidden; 
+	float:right;
+	margin-top:2px; 
+	
+}
+
+.dojoxDockTitleNode {
+	overflow:hidden;
+}
+.dojoxDockNode {
+	cursor:pointer; 
+	border:1px solid #ccc;
+	background-color:#ededed;
+	padding:3px; 
+	height:20px; 
+	margin-left:5px; 
+	-moz-border-radius:8pt 8pt;
+	width:120px; 
+	float:left; 
+}

@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Dojo Toolkit - ProgressBar test</title>
+
+	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+	<style type="text/css">
+		@import "../../dojo/resources/dojo.css";
+		@import "../themes/tundra/tundra.css";
+		@import "../themes/tundra/tundra_rtl.css";
+		@import "css/dijitTests.css";
+
+		body {
+			margin: 1em;
+		}
+
+		.smallred .dijitProgressBarTile {
+			background:red;
+		}
+		.smallred .dijitProgressBarLabel {
+			display:none;
+		}
+	</style>
+
+	<script type="text/javascript" src="testBidi.js"></script>
+
+	<script type="text/javascript" src="../../dojo/dojo.js" 
+		djConfig="parseOnLoad: true, isDebug: true"></script>
+	<script type="text/javascript">
+		dojo.require("dijit.ProgressBar");
+		dojo.require("dojo.parser");	// scan page for widgets 
+		dojo.require("dojo.string");
+	</script>
+
+	<script type="text/javascript">
+
+		dojo.addOnLoad(go);
+
+		function go(){
+			//TODO: it's a little strange that id must be specified again?	
+			var theBar = new dijit.ProgressBar({id: "testBar", width: 400, annotate: true, maximum: 256, duration: 2000,
+				report:function(percent){
+					return dojo.string.substitute("${0} out of ${1} max chars", [this.progress, this.maximum]);
+				}
+			}, dojo.byId("testBar"));
+
+			dojo.byId("test").value="";
+			dojo.byId("progressValue").focus();
+			dojo.byId("progressValue").value = dijit.byId("setTestBar").progress;
+			dojo.byId("maximum").value = dijit.byId("setTestBar").maximum;
+			dojo.connect(dojo.byId("test"), "onkeyup", null, keyUpHandler);
+			dojo.connect(dojo.byId("set"), "onclick", null, setParameters);
+			dojo.connect(dojo.byId("startTimer"), "onclick", null,
+				function(){ remoteProgress(dijit.byId("timerBar")); } );
+
+			function indeterminateSetter(id, value){
+				return function(){
+					dijit.byId(id).update({'indeterminate': value});
+				}
+			}
+			dojo.connect(dojo.byId("setIndeterminate1True"), "onclick", null,
+				indeterminateSetter("indeterminateBar1", true));
+			dojo.connect(dojo.byId("setIndeterminate1False"), "onclick", null,
+				indeterminateSetter("indeterminateBar1", false));
+			dojo.connect(dojo.byId("setIndeterminate2True"), "onclick", null,
+				indeterminateSetter("indeterminateBar2", true));
+			dojo.connect(dojo.byId("setIndeterminate2False"), "onclick", null,
+				indeterminateSetter("indeterminateBar2", false));
+		}
+
+		// An example of polling on a separate (heartbeat) server thread.  This is useful when the progress 
+		// is entirely server bound and there is no existing interaction with the server to determine status.
+
+		// We don't have a server to run against, but a simple heartbeat implementation might look something 
+		// like this:
+
+		// function getProgressReport(){
+		//	var dataSource = "http://dojotoolkit.org";
+		//	return dojo.xhrGet({url: dataSource, handleAs: "json", content: {key: "progress"}});
+		// }
+
+		// Instead, we'll just tick off intervals of 10
+
+		var fakeProgress = 0;
+		function getProgressReport(){
+			var deferred = new dojo.Deferred();
+			fakeProgress = Math.min(fakeProgress + 10, 100);
+			deferred.callback(fakeProgress+"%");
+			return deferred;
+		}
+
+		function remoteProgress(bar){
+			var _timer = setInterval(function(){
+				var report = getProgressReport();
+				report.addCallback(function(response){
+					bar.update({progress: response});
+					if(response == "100%"){
+						clearInterval(_timer);
+						_timer = null;
+						return;
+					}
+				});
+			}, 3000); // on 3 second intervals
+		}
+
+		function setParameters(){
+			dijit.byId("setTestBar").update({maximum: dojo.byId("maximum").value, progress: dojo.byId("progressValue").value});
+		}
+
+		function keyUpHandler(){
+			dijit.byId("testBar").update({progress:dojo.byId("test").value.length});
+			dijit.byId("testBarInt").update({progress:dojo.byId("test").value.length});
+			dijit.byId("smallTestBar").update({progress:dojo.byId("test").value.length});
+		}
+
+		</script>
+
+</head>
+<body class="tundra">
+
+	<h1 class="testTitle">Dijit ProgressBar Tests</h1>
+
+	<h3>Test 1</h3>
+	Progress Value <input type="text" name="progressValue" id="progressValue" />
+	<br>
+	Max Progress Value <input type="text" name="maximum" id="maximum" />
+	<br>
+	<input type="button" name="set" id="set" value="set!" />
+	<br>
+	<div style="width:400px" annotate="true"
+		maximum="200" id="setTestBar" progress="20" dojoType="dijit.ProgressBar"></div>
+
+	<h3>Test 2</h3>
+	Write here: <input type="text" value="" name="test" maxlength="256" id="test" style="width:300"/>
+	<br />
+	<br />
+	<div id="testBar" style='width:300px'></div>		
+	<br />
+	Small, without text and background image:
+	<br />
+	<div style="width:400px; height:10px" class="smallred"
+		maximum="256" id="smallTestBar" dojoType="dijit.ProgressBar"></div>		
+	<br />
+	Show decimal place:
+	<div places="1" style="width:400px" annotate="true"
+		maximum="256" id="testBarInt" dojoType="dijit.ProgressBar"></div>
+
+	<h3>Test 3</h3>
+	No explicit maximum (both 50%)
+	<div style="width:400px" annotate="true"
+		id="implied1" progress="50" dojoType="dijit.ProgressBar"></div>		
+	<br />
+	<div style="width:400px" annotate="true"
+		id="implied2" progress="50%" dojoType="dijit.ProgressBar"></div>
+
+	<h3>Test 4</h3>
+	<input type="button" name="startTimer" id="startTimer" value="Start Timer" />
+	<div style="width:400px" id="timerBar" annotate="true"
+		maximum="100" progress="0" dojoType="dijit.ProgressBar"></div>
+
+	<h3>Test 5 - indeterminate progess</h3>
+	<input type="button" name="setIndeterminate1True" id="setIndeterminate1True" value="Make Indeterminate" />
+	<input type="button" name="setIndeterminate1False" id="setIndeterminate1False" value="Make Determinate" />
+	<div style="width:400px" indeterminate="true" id="indeterminateBar1"
+		dojoType="dijit.ProgressBar"></div>
+	<input type="button" name="setIndeterminate2True" id="setIndeterminate2True" value="Make Indeterminate" />
+	<input type="button" name="setIndeterminate2False" id="setIndeterminate2False" value="Make Determinate" />
+	<div style="width:400px" progress="50" id="indeterminateBar2"
+		dojoType="dijit.ProgressBar"></div>
+
+</body>
+</html>

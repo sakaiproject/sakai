@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>TabContainer Demo</title>
+
+	<script type="text/javascript" src="../testBidi.js"></script>
+
+	<script type="text/javascript" djConfig="isDebug: true,parseOnLoad:true"
+		src="../../../dojo/dojo.js"></script>
+	<script type="text/javascript">
+		dojo.require("dijit.layout.ContentPane");
+		dojo.require("dijit.layout.TabContainer");
+		dojo.require("dijit.Tooltip");
+		dojo.require("dijit.layout.LinkPane");
+		dojo.require("dijit.form.Button");
+		dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+
+
+
+		var tabCounter;
+
+		function testClose(pane, tab){
+			// remove html from title
+			var title = dojo.trim(tab.title.replace(/<\/?[a-z][a-z0-9]*[^>]*>/ig, ""));
+
+			return confirm("Please confirm that you want tab "+title+" closed");
+		}
+
+		function randomMessageId(){
+			return Math.floor(Math.random() * 3) + 3;
+		}
+
+		function createTab(){
+			if(!tabCounter){ tabCounter = 3; }
+
+			var title = '<img src="../images/plus.gif" style="background-color:#95B7D3;"/> Tab ' +(++tabCounter);
+			var refreshOnShow = !!(tabCounter % 2);
+
+			var newTab = new dijit.layout.ContentPane({
+				title: title + (refreshOnShow ? ' <i>refreshOnShow</i>': ''),
+				closable:true,
+				refreshOnShow: refreshOnShow,
+				href: 'getResponse.php?delay=1000&messId='+randomMessageId()
+					+"&message="+encodeURI("<h1>Programmatically created Tab "+tabCounter+"</h1>")
+			}, dojo.doc.createElement('div'));
+
+			dijit.byId('ttabs').addChild(newTab);
+
+			newTab.startup(); // find parent TabContainer and subscribe to selectChild event
+		}
+
+		startTime = new Date();
+		dojo.addOnLoad(function(){
+			var elapsed = new Date().getTime() - startTime;
+			var p = document.createElement("p");
+			p.appendChild(document.createTextNode("Widgets loaded in " + elapsed + "ms"));
+			document.body.appendChild(p);
+		});
+	</script>
+
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../themes/tundra/tundra.css";
+		@import "../css/dijitTests.css";
+
+		body {
+			font-family : sans-serif;
+			margin:20px;
+		}
+
+		/* add padding to each contentpane inside the tab container, and scrollbar if necessary */
+		.dojoTabPane {
+			padding : 10px 10px 10px 10px;
+			overflow: auto;
+		}
+	</style>
+</head>
+<body class="tundra">
+
+	<h1 class="testTitle">Dijit layout.TabContainer (delayed) remote tests</h1>
+
+	<p>These tabs are made up of external content. Loading is delayed to make it easier to see if refreshOnShow and preload = 'false' is working.<br/>
+	The tabs also tests to insert html in the Tab title
+	</p>
+
+	<div dojoType='dijit.form.Button' onClick='createTab()'>Create a Tab</div>
+	<div id="ttabs" dojoType="dijit.layout.TabContainer" tabPosition="top" style="width: 100%; height: 20em;">
+		<a id="ttab1" dojoType="dijit.layout.LinkPane"
+			href="getResponse.php?messId=3&delay=1000"
+			closable="true"
+		><img src='../images/copy.gif'/> Tab1</a>
+		<a id="ttab2" dojoType="dijit.layout.LinkPane" 
+			href="getResponse.php?messId=4&delay=1000"
+			refreshOnShow="true" title="Tab 2 "
+			selected='true'
+			closable='true'
+		><i>refreshOnShow</i>
+			<img src='../images/cut.gif'/>
+		</a>
+		<a dojoType="dijit.layout.LinkPane"
+			href="getResponse.php?messId=5&delay=1000"
+			onClose="testClose"
+			closable="true"
+		>
+			<b>Tab 3</b>
+			<img src='../images/paste.gif'/>
+		</a>
+	</div>
+
+	<h3>Rendering time</h3>
+
+</body>
+</html>

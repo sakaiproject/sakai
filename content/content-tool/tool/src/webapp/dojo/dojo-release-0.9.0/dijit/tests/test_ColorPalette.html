@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>ColorPalette Test</title>
+
+	<script type="text/javascript" src="testBidi.js"></script>
+
+	<script type="text/javascript" src="../../dojo/dojo.js" 
+		djConfig="isDebug: true, parseOnLoad: true, debugAtAllCosts: true"></script>
+	<script language="JavaScript" type="text/javascript">
+		dojo.require("dijit.ColorPalette");
+		dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+	</script>
+	<script>
+		var palette;
+		function init(){
+			palette = new dijit.ColorPalette({palette: "7x10", id: "progPalette"}, dojo.byId("programPalette"));
+		}
+
+		dojo.addOnLoad(init);
+
+		function setColor(color){
+
+			var theSpan = dojo.byId("outputSpan");
+			theSpan.style.color = color;
+			theSpan.innerHTML = color;
+		}
+	</script>
+
+	<style type="text/css">
+		@import "../../dojo/resources/dojo.css";
+		@import "../themes/tundra/tundra.css";
+		@import "css/dijitTests.css";
+	</style>
+</head>
+
+<body class="tundra">
+
+	<h1 class="testTitle"></h1>
+
+	<p>Default color palette (7x10):</p>
+	<div dojoType="dijit.ColorPalette" onChange="setColor(this.value);"></div>
+
+	Test color is: <span id="outputSpan"></span>.
+
+	<p>Small color palette (3x4):</p>
+	<div dojoType="dijit.ColorPalette" palette="3x4"></div>
+
+	<p>Default color palette (7x10) created via createWidget:</p>
+	<div id="programPalette"></div>
+
+</body>
+</html>

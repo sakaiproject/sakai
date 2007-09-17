@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+	<title>Menu System Test</title>
+
+	<style type="text/css">
+		@import "../../dojo/resources/dojo.css";
+		@import "../themes/tundra/tundra.css";
+		@import "../themes/tundra/tundra_rtl.css";
+		@import "css/dijitTests.css";
+	</style>
+
+	<script type="text/javascript" src="testBidi.js"></script>
+
+	<script type="text/javascript" src="../../dojo/dojo.js"
+		djConfig="parseOnLoad: true, isDebug: true"></script>
+
+	<script language="JavaScript" type="text/javascript">
+		dojo.require("dijit.Menu");
+		dojo.require("dijit.ColorPalette");
+		dojo.require("dijit._Calendar");
+		dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+	</script>
+</head>
+<body class="tundra">
+
+<div dojoType="dijit.Menu" id="submenu1" contextMenuForWindow="true" style="display: none;">
+	<div dojoType="dijit.MenuItem" onClick="alert('Hello world');">Enabled Item</div>
+	<div dojoType="dijit.MenuItem" disabled="true">Disabled Item</div>
+	<div dojoType="dijit.MenuSeparator"></div>
+	<div dojoType="dijit.MenuItem" iconClass="dijitEditorIcon dijitEditorIconCut"
+		onClick="alert('not actually cutting anything, just a test!')">Cut</div>
+	<div dojoType="dijit.MenuItem" iconClass="dijitEditorIcon dijitEditorIconCopy"
+		onClick="alert('not actually copying anything, just a test!')">Copy</div>
+	<div dojoType="dijit.MenuItem" iconClass="dijitEditorIcon dijitEditorIconPaste"
+		onClick="alert('not actually pasting anything, just a test!')">Paste</div>
+	<div dojoType="dijit.MenuSeparator"></div>
+	<div dojoType="dijit.PopupMenuItem">
+		<span>Enabled Submenu</span>
+		<div dojoType="dijit.Menu" id="submenu2">
+			<div dojoType="dijit.MenuItem" onClick="alert('Submenu 1!')">Submenu Item One</div>
+			<div dojoType="dijit.MenuItem" onClick="alert('Submenu 2!')">Submenu Item Two</div>
+			<div dojoType="dijit.PopupMenuItem">
+				<span>Deeper Submenu</span>
+				<div dojoType="dijit.Menu" id="submenu4"">
+					<div dojoType="dijit.MenuItem" onClick="alert('Sub-submenu 1!')">Sub-sub-menu Item One</div>
+					<div dojoType="dijit.MenuItem" onClick="alert('Sub-submenu 2!')">Sub-sub-menu Item Two</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div dojoType="dijit.PopupMenuItem" disabled="true">
+		<span>Disabled Submenu</span>
+		<div dojoType="dijit.Menu" id="submenu3" style="display: none;">
+			<div dojoType="dijit.MenuItem" onClick="alert('Submenu 1!')">Submenu Item One</div>
+			<div dojoType="dijit.MenuItem" onClick="alert('Submenu 2!')">Submenu Item Two</div>
+		</div>
+	</div>
+	<div dojoType="dijit.PopupMenuItem">
+		<span>Different popup</span>
+		<div dojoType="dijit.ColorPalette"></div>
+	</div>
+</div>
+
+
+<!--
+<div dojoType="dijit.MenuBar">
+	<div dojoType="dijit.MenuBarItem" submenuId="submenu1">File</div>
+	<div dojoType="dijit.MenuBarItem" submenuId="submenu">Edit</div>
+	<div dojoType="dijit.MenuBarItem" disabled="true">View</div>
+	<div dojoType="dijit.MenuBarItem" submenuId="submenu">Help</div>
+	<div dojoType="dijit.MenuBarItem" onClick="alert('you clicked a menu bar button');">Click Me</div>
+</div>
+-->
+<div style="padding: 1em">
+	<h1 class="testTitle">Dijit Menu System Test</h1>
+
+	<h3>Form</h3>
+
+	<form>
+		<input id=input1 value="top-left">
+		<p style="text-align:right"><input id=input2 value="top-right"></p>
+		<textarea id=textarea>hello there!</textarea><br>
+		<select>
+			<option>check if i</option>
+			<option>bleed through</option>
+			<option>on IE6</option>
+		</select>
+		<button id=button>push me</button>
+		<div style="height:500px"></div>
+		<p>(this space intentionally left blank to aid testing with controls
+		at the bottom of the browser window)</p>
+		<div style="height:500px"></div>
+		<input id=input3 value="bottom-left">
+		<p style="text-align:right"><input id=input4 value="bottom-right"></p>
+	</form>
+
+	<p>See also: <a href="form/test_Button.html">form/test_Button</a>
+	(PopupMenu is used with DropDownButton and ComboButton)</p>
+
+	<h3>Mouse opening tests</h3>
+
+	<ul>
+		<li>Right click on the client area of the page (ctrl-click for Macintosh). Menu should open.</li>
+		<li>Right click on each of the form controls above. Menu should open.</li>
+		<li>Right click near the righthand window border. Menu should open to the left of the pointer.</li>
+		<li>Right click near the bottom window border. Menu should open above the pointer.</li>
+	</ul>
+
+
+	<h3>Mouse hover tests</h3>
+
+	<ul>
+		<li>Hover over the first item with the pointer. Item should highlight and get focus.</li>
+		<li>Hover over the second (disabled) item. Item should highlight and get focus.</li>
+		<li>Seperator items should not highlight on hover - no items should highlight in this case.</li>
+	</ul>
+
+
+	<h3>Mouse click tests</h3>
+
+	<ul>
+		<li>Click on the first menu item. Alert should open with the message "Hello world". The menu should dissapear.</li>
+		<li>Click on the second menu item (disabled). Should not do anything - focus should remain on the disabled item.</li>
+		<li>Click anywhere outside the menu. Menu should close. Focus will be set by the browser based on where the user clicks.</li>
+	</ul>
+
+
+	<h3>Mouse submenu tests</h3>
+
+	<ul>
+		<li>Hover over the "Enabled Submenu" item. Item should highlight and then pop open a submenu after a short (500ms) delay.</li>
+		<li>Hover over any of the other menu items. Submenu should close immediately and deselect the submenu parent item. The newly hovered item should become selected.</li>
+		<li>Hover over the "Disabled Submenu" item. Item should highlight, but no submenu should appear.</li>
+		<li>Clicking on the "Enabled Submenu" item before the submenu has opened (you'll have to be quick!) should immediatley open the submenu.</li>
+		<li>Clicking on the "Enabled Submenu" item <i>after</i> the submenu has opened should have no effect - the item is still selected and the submenu still open.</li>
+		<li>Hover over submenu item 1. Should select it - the parent menu item should stay selected also.</li>
+		<li>Hover over submenu item 2. Should select it - the parent menu item should stay selected also.</li>
+	</ul>
+
+
+	<h3>Keyboard opening tests</h3>
+
+	<ul>
+		<li>On Windows: press shift-f10 with focus on any of the form controls. Should open the menu.</li>
+		<li>On Windows: press the context menu key (located on the right of the space bar on North American keyboards) with focus on any of the form controls. Should open the menu.</li>
+		<li>On Firefox on the Mac: press ctrl-space with focus on any of the form controls. Should open the menu.</li>
+	</ul>
+
+
+	<h3>Keyboard closing tests</h3>
+
+	<ul>
+		<li>Open the menu.</li>
+		<li>Press tab. Should close the menu and return focus to where it was before the menu was opened.</li>
+		<li>Open the menu.</li>
+		<li>Press escape. Should close the menu and return focus to where it was before the menu was opened.</li>
+	</ul>
+
+
+	<h3>Keyboard navigation tests</h3>
+
+	<ul>
+		<li>Open the menu.</li>
+		<li>Pressing up or down arrow should cycle focus through the items in that menu.</li>
+		<li>Pressing enter or space should invoke the menu item.</li>
+		<li>Disabled items receive focus but no action is taken upon pressing enter or space.</li>
+	</ul>
+
+
+	<h3>Keyboard submenu tests</h3>
+
+	<ul>
+		<li>Open the menu.</li>
+		<li>The first item should become selected.</li>
+		<li>Press the right arrow key. Nothing should happen.</li>
+		<li>Press the left arrow key. Nothing should happen.</li>
+		<li>Press the down arrow until "Enabled Submenu" is selected. The submenu should not appear.</li>
+		<li>Press enter. The submenu should appear with the first item selected.</li>
+		<li>Press escape. The submenu should vanish - "Enabled Submenu" should remain selected.</li>
+		<li>Press the right arrow key. The submenu should appear with the first item selected.</li>
+		<li>Press the right arrow key. Nothing should happen.</li>
+		<li>Press the left arrow key. The submenu should close - "Enabled Submenu" should remain selected.</li>
+		<li>Press the left arrow key. The menu should <i>not</i> close and "Enabled Submenu" should remain selected.</li>
+		<li>Press escape. The menu should close and focus should be returned to where it was before the menu was opened.</li>
+	</ul>
+
+</div>
+
+</body>
+</html>

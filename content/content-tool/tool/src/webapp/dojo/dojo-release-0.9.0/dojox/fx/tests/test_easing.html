@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>dojox.fx.easing functions:</title>
+		
+	<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug:true, parseOnLoad: true" ></script>
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../../dijit/themes/dijit.css";
+		@import "../../../dijit/themes/tundra/tundra.css";
+		@import "../../../dijit/tests/css/dijitTests.css";
+
+		.block {
+			width:200px;
+			height:100px;
+			background:#666;
+			border:1px solid #ccc;
+			display:block; 
+			color:#fff;
+			text-align:center; 
+		}
+	
+	</style>
+	<script type="text/javascript">
+		dojo.require("dojo.fx"); // chain and combine should be in core :) (when they work)
+		dojo.require("dojox.fx.easing"); 
+
+
+		var allAnim = null; 
+		dojo.addOnLoad(function(){
+
+		var easeInAnim = dojo.fx.chain([
+			dojo.fadeOut({
+				node: 'easeIn',
+				duration:2000,
+				easing: dojox.fx.easing.easeIn
+			}),
+			dojo.fadeIn({	
+				node: 'easeIn',
+				duration:2000,
+				easing: dojox.fx.easing.easeIn
+			})
+		]);
+
+
+		var easeOutAnim = dojo.fx.chain([
+			dojo.fadeOut({
+				node: 'easeOut',
+				duration:2000,
+				easing: dojox.fx.easing.easeOut
+			}),
+			dojo.fadeIn({	
+				node: 'easeOut',
+				duration:2000,
+				easing: dojox.fx.easing.easeOut
+			})
+		]);
+
+		var easeInOutAnim = dojo.fx.chain([
+			dojo.fadeOut({
+				node: 'easeInOut',
+				duration:2000,
+				easing: dojox.fx.easing.easeInOut
+			}),
+			dojo.fadeIn({	
+				node: 'easeInOut',
+				duration:2000,
+				easing: dojox.fx.easing.easeInOut
+			})
+		]);
+
+		dojo.connect(dojo.byId('easeIn'),"onclick",easeInAnim,"play");
+		dojo.connect(dojo.byId('easeOut'),"onclick",easeOutAnim,"play");
+		dojo.connect(dojo.byId('easeInOut'),"onclick",easeInOutAnim,"play");
+
+		// argh! FIXME: combine and chain are destructive to the animations. :(
+		// allAnim = dojo.fx.combine([easeInAnim,easeOutAnim,easeInOutAnim]);
+		allAnim = { play: function(){ 
+			console.log("can't do this via fx.combine - destructive"); 
+			easeInAnim.play();
+			easeOutAnim.play();
+			easeInOutAnim.play(); 
+			} 
+		}; 
+
+		}); // dojo.addOnLoad
+	</script>
+</head>
+<body class="tundra">
+
+	<h1 class="testTitle">dojox.fx.easing function tests:</h1>
+
+	(click block to play animation, or <a href="#" onclick="allAnim.play()">here to do all three</a>)
+
+	<div id="easeIn" class="block">dojox.fx.easing.easeIn</div>
+	<br><br>
+	<div id="easeOut" class="block">dojox.fx.easing.easeOut</div>
+	<br><br>
+	<div id="easeInOut" class="block">dojox.fx.easing.easeInOut</div>
+	
+	<p>
+	dojox.fx.easing is stand-alone, and does not require the dojox.fx base files. 
+	</p>	
+
+</body>
+</html>

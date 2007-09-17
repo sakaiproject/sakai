@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>Dojo Spinner Widget Test</title>
+
+		<script type="text/javascript" src="../testBidi.js"></script>
+
+		<script type="text/javascript" src="../../../dojo/dojo.js"
+			djConfig="isDebug: true, parseOnLoad: true, extraLocale: ['de-de', 'en-us']"></script>
+		<script type="text/javascript">
+			dojo.require("dijit.form.NumberSpinner");
+			dojo.require("dojo.parser"); // scan page for widgets
+		</script>
+		<style type="text/css">
+			@import "../../../dojo/resources/dojo.css";
+			@import "../../themes/tundra/tundra.css";
+			@import "../css/dijitTests.css";
+
+			#integerspinner2 .dojoSpinnerUpArrow {
+				border-bottom-color: blue;
+			}
+			#integerspinner2 .dojoSpinnerDownArrow {
+				border-top-color: red;
+			}
+			#integerspinner2 .dojoSpinnerButton {
+				background-color: yellow;
+			}
+			#integerspinner2 .dojoSpinnerButtonPushed {
+				background-color: gray;
+			}
+			#integerspinner2 .dojoSpinnerButtonPushed .dojoSpinnerDownArrow {
+				border-top-color: blue;
+			}
+			#integerspinner2 .dojoSpinnerButtonPushed .dojoSpinnerUpArrow {
+				border-bottom-color: red;
+			}
+			.dojoInputFieldValidationNormal#integerspinner2 {
+				color:blue;
+				background-color:pink;
+			}
+		</style>
+	</head>
+
+	<body class="tundra">
+		<h1 class="testTitle">Dijit Spinner Test</h1>
+		Try typing values, and use the up/down arrow keys and/or the arrow push
+		buttons to spin
+		<br>
+		<h1>number spinner</h1>
+		<br>
+		initial value=900, no delta specified, no min specified, max=1550, onChange debug message<br>
+		<label for="integerspinner1">Spinbox #1: </label><br>
+		<input dojoType="dijit.form.NumberSpinner"
+			onChange="console.debug('onChange fired for widget id = ' + this.id + ' with value = ' + arguments[0]);"
+			value="900"
+			constraints="{max:1550,places:0}"
+			maxlength="20"
+			id="integerspinner1">
+		<br>
+		<br>
+		initial value=1000, delta=10, min=9 max=1550<br>
+		<label for="integerspinner2">Spinbox with custom styling: </label><input dojoType="dijit.form.NumberSpinner"
+			style="font-size:20pt;border:1px solid blue;position:relative;left:30px;"
+			value="1000"
+			smallDelta="10"
+			constraints="{min:9,max:1550,places:0}"
+			maxlength="20"
+			id="integerspinner2">
+		<br>
+		<br>
+		<label for="integertextbox3">Spinner line break test: </label>initial value not specified, delta not specified, min not specified, max not specified, signed not specified, separator not specified<br>
+		[verify no line break just after this text]<input dojoType="dijit.form.NumberSpinner" id="integertextbox3">[verify no line break just before this text]
+		<br>
+		<br>
+		Move the cursor left and right within the input field to see the effect on the spinner.
+		<br>
+		initial value=+1.0, delta=0.1, min=-10.9, max=155, places=1<br>
+		<label for="realspinner1">Real Number Spinbox #1: </label><br>
+		<input dojoType="dijit.form.NumberSpinner"
+			value="1.0"
+			smallDelta="0.1"
+			constraints={min:-10.9,max:155,places:1,round:true}
+			maxlength="20"
+			id="realspinner1">
+		<br>
+	</body>
+</html>

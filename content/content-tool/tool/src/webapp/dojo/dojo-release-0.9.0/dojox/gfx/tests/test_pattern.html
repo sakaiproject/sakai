@@ -1,0 +1,39 @@
+﻿<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" >
+<head>
+<title>Testing pattern</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+	@import "../../../dojo/resources/dojo.css";
+	@import "../../../dijit/tests/css/dijitTests.css";
+</style>
+<script type="text/javascript" src="Silverlight.js"></script>
+<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug: true"></script>
+<!--<script type="text/javascript" src="../vml.js"></script>-->
+<!--<script type="text/javascript" src="../svg.js"></script>-->
+<!--<script type="text/javascript" src="../silverlight.js"></script>-->
+<script type="text/javascript">
+dojo.require("dojox.gfx");
+
+makeShapes = function(){
+    var pattern = {
+        type: "pattern",
+        x: 0, y: 0, width: 333, height: 80,
+        src: "http://dojotoolkit.org/files/downloadButton.gif"
+    };
+	var ellipse = {cx: 400, cy: 200, rx: 350, ry: 150};
+	var surface = dojox.gfx.createSurface("test", 800, 600);
+	surface.createEllipse(ellipse)
+        .setStroke({color: "blue", width: 1 })
+        .setFill(pattern);
+};
+
+dojo.addOnLoad(makeShapes);
+
+</script>
+</head>
+<body>
+	<h1>dojox.gfx Pattern test</h1>
+<div id="test"></div>
+<p>That's all Folks!</p>
+</body>
+</html>
