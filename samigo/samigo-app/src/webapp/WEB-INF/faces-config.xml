@@ -285,6 +285,10 @@
       <property-name>showFillInNumeric</property-name>
       <value>true</value>
     </managed-property>
+    <managed-property>
+      <property-name>selectFromQuestionBank</property-name>
+      <value>false</value>
+    </managed-property>
   </managed-bean>
   <managed-bean>
     <description>For authorization</description>

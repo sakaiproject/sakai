@@ -61,7 +61,7 @@ private static final String msgResource =
   private boolean showFillInTheBlank;
   private boolean showFillInNumeric;
   private boolean selectFromQuestionPool;
-  private boolean selectFromQuestionBank = true;
+  private boolean selectFromQuestionBank;
 
   /**
    * Should we show file upload question?
@@ -252,23 +252,6 @@ private static final String msgResource =
 
     list.add(new SelectItem("", getResourceDisplayName("select_qtype")));
 
-    // Check if the question bank tool is installed and not stealthed or hidden
-    // and only show the option if it's reasonable, such as when questionpools are
-    if (ToolManager.getTool("sakai.questionbank.client") != null
-			&& !ServerConfigurationService
-					.getString(
-							"stealthTools@org.sakaiproject.tool.api.ActiveToolManager")
-					.contains("sakai.questionbank.client")
-			&& !ServerConfigurationService
-					.getString(
-							"hiddenTools@org.sakaiproject.tool.api.ActiveToolManager")
-					.contains("sakai.questionbank.client")
-			&& selectFromQuestionBank) {
-
-			list.add(new SelectItem("100",
-					getResourceDisplayName("import_from_question_bank")));
-    }
-
     if (isShowAllMultipleChoice())
       list.add(new SelectItem("1",
         getResourceDisplayName("multiple_choice_type")));
@@ -299,6 +282,24 @@ if (showFillInNumeric)
 
     if (selectFromQuestionPool)
       list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
+
+    if (isSelectFromQuestionBank()) {
+    	// Check if the question bank tool is installed and not stealthed or hidden
+    	// and only show the option if it's reasonable, such as when questionpools are
+    	if (ToolManager.getTool("sakai.questionbank.client") != null
+			&& !ServerConfigurationService
+					.getString(
+							"stealthTools@org.sakaiproject.tool.api.ActiveToolManager")
+					.contains("sakai.questionbank.client")
+			&& !ServerConfigurationService
+					.getString(
+							"hiddenTools@org.sakaiproject.tool.api.ActiveToolManager")
+					.contains("sakai.questionbank.client")) {
+
+			list.add(new SelectItem("100",
+					getResourceDisplayName("import_from_question_bank")));
+    	}
+    }
 
     return list;
   }
