@@ -57,5 +57,10 @@ public class ContentServiceSqlOracle extends ContentServiceSqlDefault
 	{
 		return "create index " + table.trim() + "_CONTEXT_INDEX on " + table + " (CONTEXT)";
 	}
-	
+
+	public String getFilesizeColumnExistsSql() 
+	{
+		return "select column_name from user_tab_columns where table_name = 'CONTENT_RESOURCE' and column_name = 'FILE_SIZE'";
+	}
+
 }
