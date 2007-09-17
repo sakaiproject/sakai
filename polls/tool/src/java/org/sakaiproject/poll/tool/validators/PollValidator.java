@@ -27,11 +27,13 @@ public class PollValidator implements Validator {
 		
 		
 		//the close date needs to be after the open date
+		/* doesn't work with date widgets
 		if (poll.getVoteOpen().after(poll.getVoteClose())) {
 			log.debug("Poll closes before it opens");
 			errors.reject("close_before_open","close before opening");
 			
 		}
+		*/
 		
 		if (poll.getMinOptions() > poll.getMaxOptions()) {
 			log.debug("Min options greater than max options");

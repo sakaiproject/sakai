@@ -28,6 +28,10 @@ limitations under the License.
   <description>
     This project creates a WAR containing the Poll Tool for Sakai.
   </description>
+  <properties>
+    <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
+    <rsfutil.version>0.7.2RC3</rsfutil.version>
+  </properties>
   <packaging>war</packaging>
 <!--- 
   WARNING: This project is using Milestone builds of RSF
@@ -46,11 +50,7 @@ limitations under the License.
     </repository>
   </repositories>
   <dependencies>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${sakai.servletapi.version}</version>
-    </dependency>
+
 <!-- Sakai dependencies (all RSF apps must have this) -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -64,13 +64,12 @@ limitations under the License.
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
-<!--
+<!-- Webapp uses commons-logging internally -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-poll-logic-impl</artifactId>
-      <version>${sakai.version}</version>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
     </dependency>
--->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-poll-logic-api</artifactId>
@@ -112,98 +111,31 @@ limitations under the License.
       <artifactId>sakai-event-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-<!-- Apache commons dependencies -->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-    </dependency>
-<!-- Spring dependency -->
+
+<!-- Spring dependency is required for validation within the webapp-->
     <dependency>
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
+      <scope>provided</scope>
     </dependency>
 <!-- RSF dependencies -->
     <dependency>
-      <groupId>uk.org.ponder</groupId>
-      <artifactId>ponderutilcore</artifactId>
-      <version>1.2.2RC3</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>uk.org.ponder</groupId>
-      <artifactId>j-servletutil</artifactId>
-      <version>1.2.2RC3</version>
-      <type>jar</type>
-      <exclusions>
-      <exclusion>
-	      <groupId>org.springframework</groupId>
-	      <artifactId>spring-mock</artifactId>
-      </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>uk.org.ponder.rsfutil</groupId>
-      <artifactId>rsfutil</artifactId>
-      <version>0.7.2RC3</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
       <artifactId>sakairsf</artifactId>
-      <version>0.7.2RC3-sakai_2.2.x</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>uk.org.ponder.rsfutil</groupId>
-      <artifactId>RSFComponents-evolvers</artifactId>
-      <version>0.7.2RC3</version>
-      <type>jar</type>
+      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
       <artifactId>SakaiRSFComponents-evolvers</artifactId>
-      <version>0.7.2RC3-sakai_2.2.x</version>
+      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
       <artifactId>SakaiRSFComponents-templates</artifactId>
-      <version>0.7.2RC3-sakai_2.2.x</version>
+      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
       <type>war</type>
     </dependency>
-<!-- XML pull parser - required for RSF -->
-    <dependency>
-      <groupId>xpp3</groupId>
-      <artifactId>xpp3_min</artifactId>
-      <version>1.1.3.4.O</version>
-      <type>jar</type>
-    </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>unpack-dependencies</id>
-            <phase>package</phase>
-            <goals>
-              <goal>unpack-dependencies</goal>
-            </goals>
-            <configuration>
-              <includeTypes>war</includeTypes>
-              <outputDirectory>
-                ${project.build.directory}/webapp/
-              </outputDirectory>
-              <overWriteReleases>true</overWriteReleases>
-              <overWriteSnapshots>true</overWriteSnapshots>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 </project>
