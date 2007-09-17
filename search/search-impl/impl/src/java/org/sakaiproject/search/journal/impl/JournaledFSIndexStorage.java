@@ -449,6 +449,7 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 		} catch ( Exception ex ) {
 			
 		}
+		oldMultiReader = null;
 		return multiReader;
 
 	}

@@ -24,16 +24,19 @@ package org.sakaiproject.search.transaction.impl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.transaction.api.TransactionSequence;
+import org.springframework.jdbc.support.SQLErrorCodes;
 
 /**
- * @author ieb
- * Unit test @see org.sakaiproject.search.indexer.impl.test.SequenceGeneratorTest
+ * @author ieb Unit test
+ * @see org.sakaiproject.search.indexer.impl.test.SequenceGeneratorTest
  */
 public class TransactionSequenceImpl implements TransactionSequence
 {
@@ -44,20 +47,68 @@ public class TransactionSequenceImpl implements TransactionSequence
 	 * dependency
 	 */
 	private DataSource datasource;
-	
+
 	private long localId = System.currentTimeMillis();
-	
+
 	/**
 	 * dependency
 	 */
 	private String name = "indexupdate";
-	
+
 	/**
 	 * Loads the first transaction to initialize
-	 *
 	 */
-	public void init() {
-		log.debug("Transaction Sequece "+getName()+" Started at "+getNextId());
+	public void init()
+	{
+		Connection connection = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		try
+		{
+			connection = datasource.getConnection();
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery("select txid " 
+					+ " from search_transaction "
+					+ " where txname = '" + name + "'");
+			if (!rs.next())
+			{
+				stmt.executeUpdate("insert into "
+						+ "search_transaction ( txid, txname ) " 
+						+ "values (0,'" + name
+						+ "')");
+			}
+			connection.commit();
+		}
+		catch (SQLException ex)
+		{
+			log.error("Failed to check transaction table ", ex);
+		}
+		finally
+		{
+			try
+			{
+				rs.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				stmt.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				connection.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		}
+		log.debug("Transaction Sequece " + getName() + " Started at " + getNextId());
+
 	}
 
 	/*
@@ -70,45 +121,48 @@ public class TransactionSequenceImpl implements TransactionSequence
 		Connection connection = null;
 		PreparedStatement selectpst = null;
 		PreparedStatement updatepst = null;
-		PreparedStatement insertpst = null;
 		ResultSet rs = null;
 
 		try
 		{
 			connection = datasource.getConnection();
 			selectpst = connection
-					.prepareStatement("select txid from search_transaction where txname = '"+name +"'");
-			insertpst = connection
-					.prepareStatement("insert into search_transaction ( txid, txname ) values (0,'"+name+"')");
+					.prepareStatement("select txid from search_transaction where txname = '"
+							+ name + "'");
+
 			updatepst = connection
-					.prepareStatement("update search_transaction set txid = ? where txid = ? and txname = '"+name+"'");
+					.prepareStatement("update search_transaction set txid = txid + 1  where  txname = '"
+							+ name + "'");
+
 			boolean success = false;
 			long txid = 0;
 			long retries = 0;
 			while (!success)
 			{
-				rs = selectpst.executeQuery();
-				if (!rs.next())
-				{
-					log.debug("Adding Seed transaction");
-					insertpst.executeUpdate();
-					rs.close();
-					rs = selectpst.executeQuery();
-					if ( !rs.next() ) {
-						log.error("Failed to seed transaction counter ");
-					}
-				}
-				txid = rs.getLong(1);
-				rs.close();
-				txid++;
 				updatepst.clearParameters();
-				updatepst.setLong(1, txid);
-				updatepst.setLong(2, txid - 1);
 				success = (updatepst.executeUpdate() == 1);
-				if (retries > 100)
+				if (!success)
+				{
+					connection.rollback();
+					retries++;
+				}
+				else
+				{
+					// this works in a transaction since we read what we just updated.
+					// if the DB is non transactional this will not work
+					rs = selectpst.executeQuery();
+					if (rs.next())
+					{ 
+						txid = rs.getLong(1);
+					} else {
+						log.error("Transaction Record has been removed");
+					}
+					rs.close();
+				}
+				if (retries > 10)
 				{
 					throw new RuntimeException(
-							"Failed to get a transaction, retried 100 times ");
+							"Failed to get a transaction, retried 10 times ");
 				}
 			}
 			connection.commit();
@@ -152,13 +206,6 @@ public class TransactionSequenceImpl implements TransactionSequence
 			}
 			try
 			{
-				insertpst.close();
-			}
-			catch (Exception ex2)
-			{
-			}
-			try
-			{
 				connection.close();
 			}
 			catch (Exception ex2)
@@ -176,7 +223,8 @@ public class TransactionSequenceImpl implements TransactionSequence
 	}
 
 	/**
-	 * @param datasource the datasource to set
+	 * @param datasource
+	 *        the datasource to set
 	 */
 	public void setDatasource(DataSource datasource)
 	{
@@ -192,14 +240,17 @@ public class TransactionSequenceImpl implements TransactionSequence
 	}
 
 	/**
-	 * @param name the name to set
+	 * @param name
+	 *        the name to set
 	 */
 	public void setName(String name)
 	{
 		this.name = name;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.indexer.api.TransactionSequence#getLocalId()
 	 */
 	public long getLocalId()

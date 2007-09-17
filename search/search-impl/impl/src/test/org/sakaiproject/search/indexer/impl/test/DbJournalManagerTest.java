@@ -105,8 +105,13 @@ public class DbJournalManagerTest extends TestCase
 		log.info("================================== "+this.getClass().getName()+".testPrepareSave");
 		DbJournalManager dbJournalManager = new DbJournalManager();
 		dbJournalManager.setDatasource(tds.getDataSource());
+		JournalManagerState[] jms = new JournalManagerState[10];
 		for ( int i = 0; i < 10; i++ ) {
-			assertNotNull("Journal State was null ",dbJournalManager.prepareSave(i));
+			jms[i] = dbJournalManager.prepareSave(i);
+			assertNotNull("Journal State was null ",jms);
+		}
+		for ( int i = 0; i < 10; i++ ) {
+			dbJournalManager.rollbackSave(jms[i]);
 		}
 		log.info("==PASSED========================== "+this.getClass().getName()+".testPrepareSave");
 	}

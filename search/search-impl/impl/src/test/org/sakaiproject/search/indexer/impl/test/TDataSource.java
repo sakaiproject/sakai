@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.indexer.impl.test;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -40,6 +41,7 @@ import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.search.util.FileUtils;
 
 /**
  * @author ieb
@@ -54,20 +56,42 @@ public class TDataSource
 
 	protected int nopen = 0;
 
+	private DriverAdapterCPDS cpds;
+
 	public TDataSource(int poolSize, final boolean logging) throws Exception
 	{
-		DriverAdapterCPDS cpds = new DriverAdapterCPDS();
-		cpds.setDriver("org.hsqldb.jdbcDriver");
-		cpds.setUrl("jdbc:hsqldb:mem:aname");
+		cpds = new DriverAdapterCPDS();
+		/*
+		try
+		{
+			// can we test against mysql 
+			Class.forName("com.mysql.jdbc.Driver");
+			cpds.setDriver("com.mysql.jdbc.Driver");
+			cpds
+					.setUrl("jdbc:mysql://127.0.0.1:3306/sakai22?useUnicode=true&characterEncoding=UTF-8");
+			cpds.setUser("sakai22");
+			cpds.setPassword("sakai22");
+		}
+		catch (ClassNotFoundException cnfe)
+		{
+		}
+		*/
+		// we need to use derby db because HSQL only has read_uncommited transaction 
+		// isolation
+		
+		
+		log.info("Using Derby DB");
+		cpds.setDriver("org.apache.derby.jdbc.EmbeddedDriver");
+		cpds.setUrl("jdbc:derby:m2-target/testdb;create=true");
 		cpds.setUser("sa");
-		cpds.setPassword("");
-
+		cpds.setPassword("manager");
+		
+		
 		tds = new SharedPoolDataSource();
 		tds.setConnectionPoolDataSource(cpds);
 		tds.setMaxActive(poolSize);
 		tds.setMaxWait(5);
 		tds.setDefaultAutoCommit(false);
-		
 
 		wds = new DataSource()
 		{
@@ -75,11 +99,11 @@ public class TDataSource
 			public Connection getConnection() throws SQLException
 			{
 				final Connection c = tds.getConnection();
-				nopen ++;
-				if ( logging ) log.info("+++++++++++Opened "+nopen);
+				nopen++;
+				if (logging) log.info("+++++++++++Opened " + nopen);
 				Exception ex = new Exception();
 				StackTraceElement[] ste = ex.getStackTrace();
-				log.debug("Stack Trace "+ste[1].toString());
+				log.debug("Stack Trace " + ste[1].toString());
 				return new Connection()
 				{
 
@@ -92,7 +116,7 @@ public class TDataSource
 					{
 						c.close();
 						nopen--;
-						if ( logging ) log.info("--------------Closed "+nopen);
+						if (logging) log.info("--------------Closed " + nopen);
 
 					}
 
@@ -218,15 +242,16 @@ public class TDataSource
 							int resultSetType, int resultSetConcurrency)
 							throws SQLException
 					{
-						return c.prepareStatement(sql, resultSetType, resultSetConcurrency);
+						return c.prepareStatement(sql, resultSetType,
+								resultSetConcurrency);
 					}
 
 					public PreparedStatement prepareStatement(String sql,
 							int resultSetType, int resultSetConcurrency,
 							int resultSetHoldability) throws SQLException
 					{
-						return c.prepareStatement(sql, resultSetType, resultSetConcurrency,
-								resultSetHoldability);
+						return c.prepareStatement(sql, resultSetType,
+								resultSetConcurrency, resultSetHoldability);
 					}
 
 					public void releaseSavepoint(Savepoint savepoint) throws SQLException
@@ -332,10 +357,12 @@ public class TDataSource
 		}
 		catch (Exception ex)
 		{
+			log.warn("Drop Table Said :" + ex.getMessage());
 		}
 		try
 		{
-			s.execute("create table search_transaction ( txname varchar, txid bigint )");
+			s
+					.execute("create table search_transaction ( txname varchar(36), txid bigint )");
 		}
 		catch (Exception ex)
 		{
@@ -347,15 +374,21 @@ public class TDataSource
 		}
 		catch (Exception ex)
 		{
+			log.warn("Drop Table Said :" + ex.getMessage());
 		}
 		try
 		{
-			s.execute("CREATE TABLE searchbuilderitem ( id varchar(64) NOT NULL, "
-					+ " version datetime NOT NULL, " + " name varchar(255) NOT NULL, "
-					+ " context varchar(255) NOT NULL, "
-					+ " searchaction int default NULL, "
-					+ " searchstate int default NULL, " + " itemscope int default NULL, "
-					+ " PRIMARY KEY  (id), " + " UNIQUE (name) )");
+			s.execute("CREATE TABLE searchbuilderitem ( \n" +
+					" id varchar(64) NOT NULL, \n"
+					+ " version timestamp NOT NULL, \n" 
+					+ " name varchar(255) NOT NULL, \n"
+					+ " context varchar(255) NOT NULL, \n"
+					+ " searchaction int default NULL, \n"
+					+ " searchstate int default NULL, \n" 
+					+ " itemscope int default NULL, \n"
+					+ " PRIMARY KEY  (id), \n" 
+					+ " UNIQUE (name) \n" +
+							")");
 		}
 		catch (Exception ex)
 		{
@@ -367,6 +400,7 @@ public class TDataSource
 		}
 		catch (Exception ex)
 		{
+			log.warn("Drop Table Said :" + ex.getMessage());
 		}
 		try
 		{
@@ -385,6 +419,7 @@ public class TDataSource
 		}
 		catch (Exception ex)
 		{
+			log.warn("Drop Table Said :" + ex.getMessage());
 		}
 		try
 		{
@@ -416,6 +451,7 @@ public class TDataSource
 	public void close() throws Exception
 	{
 		tds.close();
+		
 	}
 
 	public int populateDocuments(long targetItems) throws SQLException

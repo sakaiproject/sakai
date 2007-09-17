@@ -59,11 +59,12 @@ public class SharedTestDataSource
 
 	public SharedTestDataSource(String dblocation, int pool, final boolean poolLogging, String driver, String url, String username, String password) throws Exception
 	{
+		log.info("Using Derby DB");
 		DriverAdapterCPDS cpds = new DriverAdapterCPDS();
-		cpds.setDriver("org.hsqldb.jdbcDriver");
-		cpds.setUrl("jdbc:hsqldb:mem:aname");
+		cpds.setDriver("org.apache.derby.jdbc.EmbeddedDriver");
+		cpds.setUrl("jdbc:derby:m2-target/testdb;create=true");
 		cpds.setUser("sa");
-		cpds.setPassword("");
+		cpds.setPassword("manager");
 
 		tds = new SharedPoolDataSource();
 		tds.setConnectionPoolDataSource(cpds);
@@ -331,7 +332,7 @@ public class SharedTestDataSource
 		Statement s = connection.createStatement();
 		try
 		{
-			s.execute("create table search_transaction ( txname varchar, txid bigint )");
+			s.execute("create table search_transaction ( txname varchar(64), txid bigint )");
 		}
 		catch (Exception ex)
 		{
@@ -340,7 +341,7 @@ public class SharedTestDataSource
 		try
 		{
 			s.execute("CREATE TABLE searchbuilderitem ( id varchar(64) NOT NULL, "
-					+ " version datetime NOT NULL, " + " name varchar(255) NOT NULL, "
+					+ " version timestamp NOT NULL, " + " name varchar(255) NOT NULL, "
 					+ " context varchar(255) NOT NULL, "
 					+ " searchaction int default NULL, "
 					+ " searchstate int default NULL, " + " itemscope int default NULL, "

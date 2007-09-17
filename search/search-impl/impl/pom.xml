@@ -238,10 +238,15 @@
       <version>3.0</version>
       <type>jar</type>
     </dependency>
+    <!--
+    HSQL DB does not have clean transaction isolation 
+    and hence cannot be used to correctly test the 
+    transaction sequence code, hence derby
+    -->
     <dependency>
-      <groupId>hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <version>1.8.0.5</version>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>10.2.1.6</version>
       <type>jar</type>
       <scope>test</scope>
     </dependency>
