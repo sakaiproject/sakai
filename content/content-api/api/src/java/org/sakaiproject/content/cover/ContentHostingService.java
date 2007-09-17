@@ -21,7 +21,10 @@
 
 package org.sakaiproject.content.cover;
 
+import java.util.Collection;
+
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.TypeException;
 
 /**
@@ -1071,4 +1074,26 @@ public class ContentHostingService
 
 		return service.getIndividualDropboxId(entityId);
 	}
+	
+	/**
+	 * Retrieve a collection of ContentResource objects pf a particular resource-type.  The collection will 
+	 * contain no more than the number of items specified as the pageSize, where pageSize is a non-negative 
+	 * number less than or equal to 1028. The resources will be selected in ascending order by resource-id.
+	 * If the resources of the specified resource-type in the ContentHostingService in ascending order by 
+	 * resource-id are indexed from 0 to M and this method is called with parameters of N for pageSize and 
+	 * I for page, the resources returned will be those with indexes (I*N) through ((I+1)*N - 1).  For example,
+	 * if pageSize is 1028 and page is 0, the resources would be those with indexes of 0 to 1027.  
+	 * @param resourceType
+	 * @param pageSize
+	 * @param page
+	 * @return
+	 */
+	public static Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page)
+	{
+    	org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
+		
+		return service.getResourcesOfType(resourceType, pageSize, page);
+	}
+
 }
