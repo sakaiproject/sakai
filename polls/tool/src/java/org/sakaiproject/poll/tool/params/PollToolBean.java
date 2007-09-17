@@ -146,6 +146,12 @@ public class PollToolBean {
 		        throw new  IllegalArgumentException("close_before_open");
 			}
 		  
+			if (poll.getMinOptions() > poll.getMaxOptions()) {
+				m_log.debug("Min options greater than max options");
+				messages.addMessage(new TargettedMessage("min_greater_than_max"," min greater than max"));
+				throw new  IllegalArgumentException("min_greater_than_max");
+			}
+			
 		  if (poll.getText().equals("") && poll.getText()!=null)
 			  poll.setText(poll.getText());
 		  
