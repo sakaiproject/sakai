@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/3.0.0 http://maven.apache.org/maven-v3_0_0.xsd">
+   <pomVersion>3</pomVersion>
+   <extend>../../master/project.xml</extend>
+   <name>sakai-entitybroker-api</name>
+   <groupId>sakaiproject</groupId>
+   <id>sakai-entitybroker-api</id>
+   <currentVersion>${sakai.version}</currentVersion>
+   <organization>
+      <name>Sakai Project</name>
+      <url>http://www.sakaiproject.org/</url>
+   </organization>
+   <inceptionYear>2006</inceptionYear>
+
+   <!-- must deploy the service API to shared -->
+   <properties>
+      <deploy.type>jar</deploy.type>
+      <deploy.target>shared</deploy.target>
+   </properties>
+
+   <dependencies>
+
+      <!-- Sakai plugin so we can run maven builds from this directory -->
+      <dependency>
+         <groupId>sakaiproject</groupId>
+         <artifactId>sakai</artifactId>
+         <version>${sakai.plugin.version}</version>
+         <type>plugin</type>
+      </dependency>
+
+      <dependency>
+         <groupId>servletapi</groupId>
+         <artifactId>servletapi</artifactId>
+         <version>2.3</version>
+         <type>jar</type>
+      </dependency>
+      
+      <dependency>
+         <artifactId>portlet-api</artifactId>
+         <groupId>portlet-api</groupId>
+         <version>1.0</version>
+         <type>jar</type>
+      </dependency>
+
+      <!-- generic DAO -->
+      <dependency>
+         <groupId>generic-dao</groupId>
+         <artifactId>generic-dao</artifactId>
+         <version>0.9</version>
+      </dependency>
+   </dependencies>
+
+   <build>
+      <sourceDirectory>src/java</sourceDirectory>
+      <resources>
+         <resource>
+            <directory>src/java</directory>
+            <includes>
+               <include>**/*.xml</include>
+            </includes>
+         </resource>
+      </resources>
+   </build>
+
+</project>
+

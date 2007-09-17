@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <name>Sakai Entity Broker</name>
+   <groupId>org.sakaiproject</groupId>
+   <artifactId>entitybroker</artifactId>
+   <packaging>pom</packaging>
+   <organization>
+      <name>CARET, University of Cambridge</name>
+      <url>http://www.caret.cam.ac.uk/</url>
+   </organization>
+   <inceptionYear>2007</inceptionYear>
+   <url>http://confluence.sakaiproject.org/confluence/x/F7M</url>
+   <description>
+      Sakai Entity Broker is an entity system for use in Sakai. Ideally we want flexible entities which make development of integrated Sakai tools easier and
+      more flexible. Our goals are to make the entity system easier on developers (easier to use and understand) and more powerful (easier to extend and
+      improve). The Entity Broker seamlessly integrates with the existing Entity system in Sakai (Entity Producers and Entities) and entities created using
+      entity providers are accessible in Sakai as if they were created using the legacy system.
+   </description>
+   <version>1.2.0</version>
+
+   <!-- Sakai master pom is parent -->
+   <parent>
+      <artifactId>master</artifactId>
+      <groupId>org.sakaiproject</groupId>
+      <version>M2</version>
+   </parent>
+
+   <!-- Define the modules that are part of this -->
+   <modules>
+      <module>api</module>
+      <module>impl</module>
+      <module>tool</module>
+      <module>pack</module>
+      <module>mocks</module>
+   </modules>
+
+   <!-- Project developers -->
+   <developers>
+      <developer>
+         <id>aaronz@vt.edu</id>
+         <name>Aaron Zeckoski</name>
+         <email>aaron@caret.cam.ac.uk</email>
+         <url>http://confluence.sakaiproject.org/confluence/display/~aaronz</url>
+         <organization>CARET</organization>
+         <organizationUrl>http://www.caret.cam.ac.uk/</organizationUrl>
+         <roles>
+            <role>Project Manager</role>
+            <role>Architect</role>
+            <role>Developer</role>
+         </roles>
+         <timezone>0</timezone>
+      </developer>
+      <developer>
+         <id>amb26</id>
+         <name>Antranig Basman</name>
+         <email>antranig@caret.cam.ac.uk</email>
+         <url>http://ponder.org.uk</url>
+         <organization>CARET</organization>
+         <organizationUrl>http://www.caret.cam.ac.uk/</organizationUrl>
+         <roles>
+            <role>Developer</role>
+         </roles>
+         <timezone>0</timezone>
+      </developer>
+   </developers>
+
+   <distributionManagement>
+      <repository>
+         <id>Sakai-Maven2</id>
+         <name>Sakaiproject Maven 2 repository</name>
+         <url>file://source.sakaiproject.org/maven2/</url>
+      </repository>
+      <site>
+         <id>local site</id>
+         <url>file:./site/</url>
+      </site>
+   </distributionManagement>
+
+   <issueManagement>
+      <system>JIRA</system>
+      <url>http://jira.sakaiproject.org/jira/</url>
+   </issueManagement>
+
+   <ciManagement>
+      <system>Continuum</system>
+      <url>http://saffron.caret.cam.ac.uk/continuum</url>
+      <notifiers>
+         <notifier>
+            <type>mail</type>
+            <sendOnError>true</sendOnError>
+            <sendOnFailure>true</sendOnFailure>
+            <sendOnSuccess>false</sendOnSuccess>
+            <sendOnWarning>false</sendOnWarning>
+            <configuration>
+               <address>aaron@caret.cam.ac.uk</address>
+            </configuration>
+         </notifier>
+         <notifier>
+            <type>mail</type>
+            <sendOnError>true</sendOnError>
+            <sendOnFailure>true</sendOnFailure>
+            <sendOnSuccess>false</sendOnSuccess>
+            <sendOnWarning>false</sendOnWarning>
+            <configuration>
+               <address>antranig@caret.cam.ac.uk</address>
+            </configuration>
+         </notifier>
+      </notifiers>
+   </ciManagement>
+
+   <!-- define the license -->
+   <licenses>
+      <license>
+         <name>Educational Community License, Version 1.0</name>
+         <url>http://www.opensource.org/licenses/ecl1.php</url>
+         <distribution>repo</distribution>
+      </license>
+   </licenses>
+
+   <!-- define source code repository location -->
+   <scm>
+      <connection>scm:svn:https://source.sakaiproject.org/contrib/caret/entitybroker/trunk/</connection>
+      <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/caret/entitybroker/trunk/</developerConnection>
+      <url>https://source.sakaiproject.org/viewsvn/caret/entitybroker/trunk/?root=contrib</url>
+   </scm>
+
+   <!-- define javadocs and jxr docs -->
+   <reporting>
+      <plugins>
+         <plugin>
+            <!-- javadocs -->
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+               <debug>true</debug>
+               <links>
+                  <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+               </links>
+               <breakiterator>true</breakiterator>
+               <verbose>true</verbose>
+            </configuration>
+         </plugin>
+         <plugin>
+            <!-- junit test reports -->
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+         </plugin>
+         <plugin>
+            <!-- unit test coverage reporting -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>cobertura-maven-plugin</artifactId>
+            <version>2.0</version>
+         </plugin>
+         <plugin>
+            <!-- Code analysis report -->
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-pmd-plugin</artifactId>
+            <configuration>
+               <targetjdk>1.5</targetjdk>
+               <rulesets>
+                  <ruleset>/rulesets/basic.xml</ruleset>
+                  <ruleset>/rulesets/codesize.xml</ruleset>
+                  <ruleset>/rulesets/design.xml</ruleset>
+                  <ruleset>/rulesets/finalizers.xml</ruleset>
+                  <ruleset>/rulesets/imports.xml</ruleset>
+                  <ruleset>/rulesets/logging-java.xml</ruleset>
+                  <ruleset>/rulesets/migrating.xml</ruleset>
+                  <ruleset>/rulesets/strings.xml</ruleset>
+                  <!-- <ruleset>/rulesets/typeresolution.xml</ruleset> Causes a screen buffer and thus a failure when building on servers -AZ -->
+                  <ruleset>/rulesets/unusedcode.xml</ruleset>
+               </rulesets>
+               <format>xml</format>
+               <linkXref>true</linkXref>
+               <sourceEncoding>utf-8</sourceEncoding>
+               <minimumTokens>100</minimumTokens>
+            </configuration>
+         </plugin>
+         <plugin>
+            <!-- Changelog report -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>changelog-maven-plugin</artifactId>
+            <configuration>
+               <type>range</type>
+               <range>90</range><!-- days -->
+            </configuration>
+         </plugin>
+         <plugin>
+            <!-- TODO tags report -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>taglist-maven-plugin</artifactId>
+            <configuration>
+               <tags>
+                  <tag>TODO</tag>
+                  <tag>FIXME</tag>
+                  <tag>@deprecated</tag>
+               </tags>
+            </configuration>
+         </plugin>
+         <plugin>
+            <!-- jdepend code analysis -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>jdepend-maven-plugin</artifactId>
+         </plugin>
+         <plugin>
+            <!-- jxr source code cross linking -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>jxr-maven-plugin</artifactId>
+            <configuration>
+               <linkJavadoc>true</linkJavadoc>
+               <javadocDir>apidocs</javadocDir>
+            </configuration>
+         </plugin>
+      </plugins>
+   </reporting>
+
+   <profiles>
+      <profile>
+         <id>release</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-javadoc-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                           <goal>jar</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
+
+   <!-- No build for a base project -->
+   <build></build>
+
+</project>
