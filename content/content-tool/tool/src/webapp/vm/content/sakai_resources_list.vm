@@ -18,6 +18,12 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 	 .attach{width:auto !important}
 </style>
 <![endif]-->
+<style type="text/css">
+    @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/themes/tundra/tundra.css";
+    @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.css"
+</style>
+<script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.js.uncompressed.js"></script>
+<script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/dijit.js.uncompressed.js"></script>
 
 #set($num = 0)
 <div class="portletBody specialLink">
