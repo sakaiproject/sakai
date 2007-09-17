@@ -22,11 +22,17 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
     @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/themes/tundra/tundra.css";
     @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.css"
 </style>
-<script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.js.uncompressed.js"></script>
-<script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/dijit.js.uncompressed.js"></script>
+<script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/dijit.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.xd.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript">
+	dojo.require("dojo.parser");
+	dojo.require("dijit.form.Button");
+	dojo.require("dijit.Menu");
+</script>
 
 #set($num = 0)
-<div class="portletBody specialLink">
+<div class="portletBody specialLink tundra">
 	#set($itemsOnLine = 0)
 	#if ($atHome && $atHome == $TRUE)
 			<div class="navIntraTool">
@@ -318,44 +324,37 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 							#end
 						#end
 					</td>
-						#set ($actionCount=($actionCount - 1))
-						#set ($actionCount2=($actionCount2 - 1))
-						<td headers="actions2"   class="attach">
+					#set ($actionCount=($actionCount - 1))
+					#set ($actionCount2=($actionCount2 - 1))
+					<td headers="actions2"   class="attach tundra">
 						#if($item.addActions && !$item.addActions.isEmpty())
-							<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu">
-								<li>
-									<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="Add" /> 
-									$tlang.getString("button.add")
-									<ul class="">
-										#foreach($action in $item.addActions)
-											<li>
-												<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
-											</li>
-										#end
-									</ul>
-							  	</li>
-							</ul>
+							<div dojotype="dijit.form.ComboButton" onclick="">
+    							<span>$tlang.getString("button.add")</span>
+					            <div dojotype="dijit.Menu" id="$validator.escapeJavascript("addMenu-${item.id}")" toggle="fade" style="display: none;">
+					            	#foreach($action in $item.addActions)
+						                <div dojotype="dijit.MenuItem" iconclass="dijitEditorIcon dijitEditorIconSave" 
+						                     onclick="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+						                    $labeler.getLabel($action)
+						                </div>
+					                #end
+					            </div>
+					        </div>
 						#end
 					</td>
-					<td headers="actions3"   class="attach">
+					<td headers="actions3"   class="attach tundra">
 						#if($item.otherActions && !$item.otherActions.isEmpty())
-							<ul style="z-index:$actionCount2;margin:0;display:block" class="makeMenu" >
-								<li>
-									<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"   alt="Actions" />
-									$tlang.getString("button.actions")
-									<ul class="">
-										#foreach($action in $item.otherActions)
-											<li>
-												<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
-													$labeler.getLabel($action)
-												</a>
-											</li>
-										#end
-									</ul>
-							  	</li>
-							</ul>
+							<div dojotype="dijit.form.ComboButton" onclick="">
+    							<span>$tlang.getString("button.actions")</span>
+					            <div dojotype="dijit.Menu" id="$validator.escapeJavascript("actionMenu-${item.id}")" toggle="fade" style="display: none;">
+					            	#foreach($action in $item.otherActions)
+						                <div dojotype="dijit.MenuItem" iconclass="dijitEditorIcon dijitEditorIconSave" 
+						                     onclick="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+						                    $labeler.getLabel($action)
+						                </div>
+					                #end
+					            </div>
+					        </div>
 						#end
-
 					</td>
 					#if($item.depth > 0)
 						<td headers="access" title="$item.effectiveGroupsLabel">
@@ -556,42 +555,36 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 									#end
 								#end
 							</td>
-								<td headers="actions2"   class="attach">
-								#set ($actionCount=($actionCount - 1))
-								#set ($actionCount2=($actionCount2 - 1))
+							#set ($actionCount=($actionCount - 1))
+							#set ($actionCount2=($actionCount2 - 1))
+							<td headers="actions2"   class="attach tundra">
 								#if($item.addActions && !$item.addActions.isEmpty())
-									<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu">
-										<li>
-											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="Add" /> 
-											$tlang.getString("button.add")
-											<ul class="">
-												#foreach($action in $item.addActions)
-													<li>
-														<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
-													</li>
-												#end
-											</ul>
-									  	</li>
-									</ul>
+									<div dojotype="dijit.form.ComboButton" onclick="">
+			    						<span>$tlang.getString("button.add")</span>
+							            <div dojotype="dijit.Menu" id="$validator.escapeJavascript("addMenu-$!{item.id}")" toggle="fade" style="display: none;">
+							            	#foreach($action in $item.addActions)
+								                <div dojotype="dijit.MenuItem" iconclass="dijitEditorIcon dijitEditorIconSave" 
+								                     onclick="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+								                    $labeler.getLabel($action)
+								                </div>
+							                #end
+							            </div>
+							        </div>
 								#end
-								</td>
-								<td headers="actions3"   class="attach">
+							</td>
+							<td headers="actions3"   class="attach">
 								#if($item.otherActions && !$item.otherActions.isEmpty())
-									<ul style="z-index:$actionCount2;margin:0;display:block" class="makeMenu" >
-										<li>
-											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"   alt="Actions" />
-											$tlang.getString("button.actions")
-											<ul class="">
-												#foreach($action in $item.otherActions)
-													<li>
-														<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
-															$labeler.getLabel($action)
-														</a>
-													</li>
-												#end
-											</ul>
-									  	</li>
-									</ul>
+									<div dojotype="dijit.form.ComboButton" onclick="">
+		    							<span>$tlang.getString("button.actions")</span>
+							            <div dojotype="dijit.Menu" id="$validator.escapeJavascript("actionMenu-$!{item.id}")" toggle="fade" style="display: none;">
+							            	#foreach($action in $item.otherActions)
+								                <div dojotype="dijit.MenuItem" iconclass="dijitEditorIcon dijitEditorIconSave" 
+								                     onclick="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+								                    $labeler.getLabel($action)
+								                </div>
+							                #end
+							            </div>
+							        </div>
 								#end
 							</td>
 							#if($item.depth > 0)
