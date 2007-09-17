@@ -74,20 +74,36 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 				#end
 			</h3>
 		</div>	
-		#if($listActions)
+		#if($listActions || $showHotDropboxWidget)
 			<div class="navIntraToolLink" >
-				#set ($itemsOnLine = 0)
-				#foreach($key in $listActions.keySet())
-					#set($action = $listActions.get("$key"))
-					#if($itemsOnLine > 0)|#end
-					<input id="${action.id}-button" type="button" value="$!action.label"
-						onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='$action.id';document.getElementById('showForm').submit();"
-						disabled="disabled" alt="$!action.id" />
-					
-					#set ($itemsOnLine = $itemsOnLine + 1)
+				#if($listActions)
+					<span>
+						#set ($itemsOnLine = 0)
+						#foreach($key in $listActions.keySet())
+							#set($action = $listActions.get("$key"))
+							#if($itemsOnLine > 0)|#end
+							<input id="${action.id}-button" type="button" value="$!action.label"
+								onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='$action.id';document.getElementById('showForm').submit();"
+								disabled="disabled" alt="$!action.id" />
+							
+							#set ($itemsOnLine = $itemsOnLine + 1)
+						#end
+					</span>
+				#end
+				#if($showHotDropboxWidget)
+					<span width="100%" align="right">
+						Highlight individual dropboxes with recent changes:
+						<select>
+							<option>1 day</option>
+							<option>2 days</option>
+							<option>3 days</option>
+							<option>1 week</option>
+						</select>
+					</span>
 				#end
 			</div>
 		#end
+				
 		#set ($actionCount=2000)
 		#set ($actionCount2=1000)
 		######################  Heirarchical list of resource folders/items  ##############

@@ -4342,6 +4342,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		boolean showCopyAction = false;
 
 		Set highlightedItems = new TreeSet();
+		
+		boolean showHotDropboxWidget = false;
 
 		try
 		{
@@ -4448,6 +4450,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				Site site = SiteService.getSite(ref.getContext());
 				String[] args = {site.getTitle()};
 				item.setName(trb.getFormattedMessage("title.dropbox", args));
+				
+				showHotDropboxWidget = true;
 			}
 			else if(contentService.COLLECTION_SITE.equals(containingCollectionId))
 			{
@@ -4492,8 +4496,30 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				for(ListItem siteCollection : siteCollections)
 				{
 					otherSites.addAll(siteCollection.convert2list());
+					
+					// looking for expanded site-level dropboxes
+					// first check whether it's a dropbox
+					if(siteCollection.isDropbox())
+					{
+						// check whether it's a site-level dropbox
+						if(contentService.COLLECTION_DROPBOX.equals(siteCollection.getEntity().getContainingCollection().getId()))
+						{
+							// check whether it's expanded
+							if(need_to_expand_all || expandedCollections.contains(siteCollection.getId()))
+							{
+								// in that case, show the "hot folder" widget
+								showHotDropboxWidget = true;
+							}
+	
+						}
+					}
 				}
 				context.put("other_sites", otherSites);
+				
+				if(showHotDropboxWidget)
+				{
+					context.put("showHotDropboxWidget", Boolean.TRUE.toString());
+				}
 
 				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
 				{

@@ -49,6 +49,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.MultiFileUploadPipe;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
@@ -509,7 +510,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	protected String buildUploadFilesContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-
+		
 		String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
 		if(max_file_size_mb == null)
 		{
