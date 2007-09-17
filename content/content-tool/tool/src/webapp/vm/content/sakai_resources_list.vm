@@ -103,11 +103,11 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 						<span class="instruction">
 							Highlight individual dropboxes with recent changes:
 						</span>	
-						<select>
-							<option>1 day</option>
-							<option>2 days</option>
-							<option>3 days</option>
-							<option>1 week</option>
+						<select name="dropboxHighlight" id="dropboxHighlight" onchange="javascript:document.getElementById('sakai_action').value='doSetHotDropbox';document.getElementById('showForm').submit();">
+							<option value="1"#if("$!dropboxHighlight" == "1") selected="selected"#end>1 day</option>
+							<option value="2"#if("$!dropboxHighlight" == "2") selected="selected"#end>2 days</option>
+							<option value="3"#if("$!dropboxHighlight" == "3") selected="selected"#end>3 days</option>
+							<option value="7"#if("$!dropboxHighlight" == "7") selected="selected"#end>1 week</option>
 						</select>
 					</div>
 				#end
@@ -244,7 +244,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 						#end
 					</td>
 					<td headers="title" style="text-indent:$width" class="specialLink">
-					#if($item.isHot()) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
+					#if($item.isHot("$!dropboxHighlight")) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
 						<h$headerDepth> 
 							#if ($item.canRead())
 								#if($item.isCollection())
@@ -482,7 +482,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 								#end
 							</td>
 							<td headers="title" style="text-indent:$width" class="specialLink">
-						#if($item.isHot()) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
+						#if($item.isHot("$!dropboxHighlight")) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
 								<h$headerDepth> 
 									#if ($item.canRead())
 										#if($item.isCollection())

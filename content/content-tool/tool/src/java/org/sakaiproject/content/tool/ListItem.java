@@ -107,13 +107,14 @@ public class ListItem
 
     protected static final Comparator PRIORITY_SORT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
 
-	/** A long representing the number of milliseconds in one week.  Used for date calculations */
-	protected static final long ONE_WEEK = 1000L * 60L * 60L * 24L * 7L;
-
 	public static final String DOT = "_";
 
+	/** A long representing the number of milliseconds in one week.  Used for date calculations */
 	public static final long ONE_DAY = 24L * 60L * 60L * 1000L;
 	
+	/** A long representing the number of milliseconds in one week.  Used for date calculations */
+	public static final long ONE_WEEK = 7L * ONE_DAY;
+
 	/**
 	 * @param entity
 	 * @param parent
@@ -397,8 +398,10 @@ public class ListItem
 
 	private int constructor;
 
+	protected long dropboxHighlight;
 
-	
+	protected Time lastChange = null;
+
 	/**
 	 * @param entity
 	 */
@@ -477,13 +480,13 @@ public class ListItem
 		{
 			try
 			{
-				Time lastChange = props.getTimeProperty(org.sakaiproject.content.api.ContentHostingService.PROP_DROPBOX_CHANGE_TIMESTAMP);
-				long oneDayAgo = TimeService.newTime().getTime() - ONE_DAY;
-				
-				if(lastChange != null && lastChange.getTime() > oneDayAgo)
-				{
-					setHot(true);
-				}
+				lastChange  = props.getTimeProperty(org.sakaiproject.content.api.ContentHostingService.PROP_DROPBOX_CHANGE_TIMESTAMP);
+//				long oneDayAgo = TimeService.newTime().getTime() - dropboxHighlight * ONE_DAY;
+//				
+//				if(lastChange != null && lastChange.getTime() > oneDayAgo)
+//				{
+//					setHot(true);
+//				}
 			}
 			catch(Exception e)
 			{
@@ -3448,8 +3451,24 @@ public class ListItem
 	/**
 	 * @return the isHot
 	 */
-	public boolean isHot() {
-		return isHot;
+	public boolean isHot(String dropboxHighlight) 
+	{
+		boolean hot = false;
+		try
+		{
+			if(dropboxHighlight != null && ! dropboxHighlight.trim().equals("") && this.lastChange != null)
+			{
+				long days = Long.parseLong(dropboxHighlight);
+				long minTime = TimeService.newTime().getTime() - days * ONE_DAY;
+				hot = this.lastChange.getTime() > minTime;
+			}
+		}
+		catch(Exception e)
+		{
+			hot = false;;
+		}
+		
+		return hot;
 	}
 
 	/**
@@ -3506,6 +3525,34 @@ public class ListItem
 			}
 		}
 		return userIsMaintainer;
+	}
+
+	/**
+	 * @return the dropboxHighlight
+	 */
+	public long getDropboxHighlight() {
+		return dropboxHighlight;
+	}
+
+	/**
+	 * @param dropboxHighlight the dropboxHighlight to set
+	 */
+	public void setDropboxHighlight(long dropboxHighlight) {
+		this.dropboxHighlight = dropboxHighlight;
+	}
+
+	/**
+	 * @return the lastChange
+	 */
+	public Time getLastChange() {
+		return lastChange;
+	}
+
+	/**
+	 * @param lastChange the lastChange to set
+	 */
+	public void setLastChange(Time lastChange) {
+		this.lastChange = lastChange;
 	}
 	
 }

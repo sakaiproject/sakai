@@ -632,6 +632,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	protected static final String STATE_DELETE_SET = PREFIX + "delete_set";
 	
+	protected static final String STATE_DROPBOX_HIGHLIGHT = PREFIX + "dropbox_highlight";
+
 	/** The name of the state attribute indicating whether the hierarchical list is expanded */
 	private static final String STATE_EXPAND_ALL_FLAG = PREFIX + "expand_all_flag";
 
@@ -822,7 +824,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	public static final String TYPE_URL = "Url";
 	
 	public static final String UTF_8_ENCODING = "UTF-8";
-
+	
 	// may need to distinguish permission on entity vs permission on its containing collection
 	static
 	{
@@ -4245,6 +4247,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			state.setAttribute(STATE_LIST_SELECTIONS, selectedItems);
 		}
 		context.put("selectedItems", selectedItems);
+		
+		Integer dropboxHighlightObj = (Integer) state.getAttribute(STATE_DROPBOX_HIGHLIGHT);
+		context.put("dropboxHighlight", dropboxHighlightObj);
 
 		// find the ContentHosting service
 		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
@@ -5935,6 +5940,21 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			logger.warn("doDispatchAction ", e);
 		}
 	}
+	
+	/**
+	 * Change the number of days for which individual dropboxes are highlighted in the instructor's list view.
+	 */
+	public void doSetHotDropbox(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		int dropboxHighlight = params.getInt("dropboxHighlight", 1);
+		
+		state.setAttribute(STATE_DROPBOX_HIGHLIGHT, new Integer(dropboxHighlight));
+	}
 
 	/**
 	* Add the collection id into the expanded collection list
@@ -7445,6 +7465,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		//expandedCollections.add (state.getAttribute (STATE_HOME_COLLECTION_ID));
 		state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
 		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
+		
+		state.setAttribute(STATE_DROPBOX_HIGHLIGHT, new Integer(1));
 		
 		if(state.getAttribute(STATE_USING_CREATIVE_COMMONS) == null)
 		{
