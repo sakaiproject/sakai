@@ -72,10 +72,15 @@ tr.selectedMove a:link,tr.selectedMove a:visited{
 
 /*used as background class for recent items in dropbox, anywhere*/
 .recentItem{
-	padding:1px;
-	background: url(images/new_item_back.gif) top right no-repeat
+	padding:2px;
+	background: url(images/new_item_back.gif) top right no-repeat;
+	_display:inline-block;
+	_margin-left:-1.5em;
+	white-space: nowrap;
 }	
-
+.recentItem a:link{
+	text-decoration: none !important;
+}
 
 /*links associated with an item in alist*/
 /*see links below announcement title in ann list*/
