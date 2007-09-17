@@ -196,17 +196,28 @@ public class PDAHandler extends PageHandler
 		if (toolId == null) return;
 
 		String tidAllow = ServerConfigurationService
-				.getString("portal.pda.experimental.iframesuppress");
+				.getString("portal.pda.iframesuppress");
 
-		if (tidAllow == null) return;
+		if (tidAllow.indexOf(":none:") >= 0) return;
 
 		ToolConfiguration siteTool = SiteService.findTool(toolId);
 		if (siteTool == null) return;
-		if (tidAllow.indexOf(":all:") < 0)
+
+		// If the property is set and :all: is not specified, then the 
+		// tools in the list are the ones that we accept
+		if (tidAllow.trim().length() > 0 && tidAllow.indexOf(":all:") < 0)
 		{
 			if (tidAllow.indexOf(siteTool.getToolId()) < 0) return;
 		}
 
+		// If the property is set and :all: is specified, then the 
+		// tools in the list are the ones that we render the old way
+		if (tidAllow.indexOf(":all:") >= 0)
+		{
+			if (tidAllow.indexOf(siteTool.getToolId()) >= 0) return;
+		}
+
+		// Produce the buffered response
 		ByteArrayServletResponse bufferedResponse = new ByteArrayServletResponse(res);
 
 		try
@@ -233,7 +244,7 @@ public class PDAHandler extends PageHandler
 
 		// Some tools (Blogger for example) have multiple 
 		// head-body pairs - browsers seem to not care much about
-		// this so we will do the same - so tht we can be
+		// this so we will do the same - so that we can be
 		// somewhat clean - we search for the "last" end
 		// body tag - for the normal case there will only be one
 		int bodyEnd = responseStrLower.lastIndexOf("</body");

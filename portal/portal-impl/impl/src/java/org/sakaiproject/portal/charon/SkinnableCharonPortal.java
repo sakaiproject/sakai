@@ -342,7 +342,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		if ( siteId == null || rcontext == null ) return;
 
 		// Check the setting as to whether we are to do this
-		String pref = ServerConfigurationService.getString("portal.experimental.includesubsites");
+		String pref = ServerConfigurationService.getString("portal.includesubsites");
 		if ( "never".equals(pref) ) return;
 
 		Site site = null;
