@@ -107,6 +107,7 @@
         <module>user/user-util/util</module>
         <module>util</module>
         <module>velocity</module>
+	<module>reset-pass</module>
       </modules>
     </profile>
     <profile>
@@ -183,6 +184,7 @@
         <module>sakai-mock</module>
         <module>warehouse</module>
         <module>reports</module>
+	<module>reset-pass</module>
       </modules>
     </profile>
   </profiles>
