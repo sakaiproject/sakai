@@ -52,11 +52,13 @@ import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.LockManager;
+import org.sakaiproject.content.impl.BaseContentService.BaseResourceEdit;
 import org.sakaiproject.content.impl.serialize.impl.ByteStorageConversion;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -2150,8 +2152,6 @@ public class DbContentService extends BaseContentService
 
 		public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) 
 		{
-			Collection<ContentResource> collection = new ArrayList<ContentResource>();
-			
 			String sql = contentServiceSql.getSelectByResourceTypeQuerySql();
 			// "select BINARY_ENTITY, XML from CONTENT_RESOURCE where RESOURCE_TYPE_ID = ? ORDER BY RESOURCE_ID LIMIT ?, ? ";
 
@@ -2164,7 +2164,7 @@ public class DbContentService extends BaseContentService
 			
 			// construct resources and add them to collection
 			
-			return collection;
+			return result;
 		}
 
 		public class EntityReader implements SqlReader
@@ -2172,16 +2172,26 @@ public class DbContentService extends BaseContentService
 
 			public Object readSqlResultRecord(ResultSet result) 
 			{
+				BaseResourceEdit edit = null;
 				Object clob = null;
 				try
 				{
 					clob = result.getObject(1);
+					if(clob != null && clob instanceof byte[])
+					{
+						edit = new BaseResourceEdit();
+						resourceSerializer.parse(edit, (byte[]) clob);
+					}
 				}
 				catch(SQLException e)
 				{
-					
+					// ignore?
 				}
-				if(clob == null)
+				catch(EntityParseException e)
+				{
+					M_log.warn("EntityParseException unable to parse entity");
+				}
+				if(edit == null)
 				{
 					try
 					{
@@ -2207,7 +2217,7 @@ public class DbContentService extends BaseContentService
 							M_log.warn("EntityReader: XML root element not resource: " + root.getTagName());
 							return null;
 						}
-						BaseResourceEdit edit = new BaseResourceEdit(root);
+						edit = new BaseResourceEdit(root);
 
 					}
 					catch(SQLException e)
@@ -2215,7 +2225,7 @@ public class DbContentService extends BaseContentService
 						
 					}
 				}
-				return null;
+				return edit;
 			}
 			
 		}
