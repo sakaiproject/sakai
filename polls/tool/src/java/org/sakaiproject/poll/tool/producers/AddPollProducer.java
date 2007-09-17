@@ -139,6 +139,8 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		this.pollVoteManager = pvm;
 	}
 		
+	
+	
 	  
 		/*
 		 * You can change the date input to accept time as well by uncommenting the lines like this:

@@ -18,6 +18,7 @@
   <property name="option" ref="option" />
   <property name="poll" ref="poll" />
   <property name="localeGetter" ref="requestLocaleProxy" />
+  <property name="messages" ref="targettedMessageList"/>
  </bean>	
 
 	

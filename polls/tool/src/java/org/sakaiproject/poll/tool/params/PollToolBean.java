@@ -49,7 +49,10 @@ import org.apache.commons.logging.LogFactory;
 
 
 import uk.org.ponder.localeutil.LocaleGetter;
+import uk.org.ponder.messageutil.TargettedMessage;
+import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.stringutil.StringUtil;
+import uk.org.ponder.util.UniversalRuntimeException;
 
 
 
@@ -122,7 +125,11 @@ public class PollToolBean {
   public void setLocaleGetter(LocaleGetter localegetter) {
     this.localegetter = localegetter;
   }
-  
+	private TargettedMessageList messages;
+	public void setMessages(TargettedMessageList messages) {
+		this.messages = messages;
+	}
+
  
   public String processActionAdd() {
 	  boolean isNew = true;
@@ -130,7 +137,15 @@ public class PollToolBean {
 		  m_log.debug("Actualy updating poll " + poll.getPollId());
 		  isNew = false;
 		  //check for possible unchanged values
-		  m_log.debug(" newPoll test is " + poll.getText()+ " while poll text is " + poll.getText());
+		  m_log.debug(" newPoll is " + poll.getText()+ " while poll text is " + poll.getText());
+		 
+			if (poll.getVoteOpen().after(poll.getVoteClose())) {
+				m_log.debug("Poll closes before it opens");
+				
+		        messages.addMessage(new TargettedMessage("close_before_open"));
+		        throw new  IllegalArgumentException("close_before_open");
+			}
+		  
 		  if (poll.getText().equals("") && poll.getText()!=null)
 			  poll.setText(poll.getText());
 		  
