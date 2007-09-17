@@ -155,6 +155,7 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 		// The section might have been deleted
 		if(section == null) {
 			// There's nothing we can do in the UI, really.
+		    JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_no_sections_not_available"));
 			return;
 		}
         refresh();
@@ -222,6 +223,7 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 		
 		if(section == null) {
 			// There's nothing we can do in the UI, really.
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_no_sections_not_available"));
 			return;
 		}
 		refresh();
