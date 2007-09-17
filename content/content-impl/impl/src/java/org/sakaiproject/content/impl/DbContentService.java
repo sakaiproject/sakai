@@ -2970,6 +2970,10 @@ public class DbContentService extends BaseContentService
 
 	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) 
 	{
+		if(pageSize > MAXIMUM_PAGE_SIZE)
+		{
+			pageSize = MAXIMUM_PAGE_SIZE;
+		}
 		return m_storage.getResourcesOfType(resourceType, pageSize, page);
 	}
 	

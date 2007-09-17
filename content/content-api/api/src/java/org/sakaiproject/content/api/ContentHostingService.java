@@ -157,6 +157,9 @@ public interface ContentHostingService extends EntityProducer
 	/** Number of times to attempt to find a unique resource id when copying or moving a resource */
 	public static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
 	
+	/** The maximum number of resources that can be returned by getResourcesOfType() */
+	public static final int MAXIMUM_PAGE_SIZE = 1028;
+
 	/** 
 	 * When assigning default priority (for "priority" sort) folders come before files, 
 	 * so files get "priority" much higher than folders.  Add the offset to folder priorities  
@@ -1669,6 +1672,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @param pageSize
 	 * @param page
 	 * @return
+	 * @see org.sakaiproject.content.api.MAX_PAGE_SIZE
 	 */
 	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page);
 
