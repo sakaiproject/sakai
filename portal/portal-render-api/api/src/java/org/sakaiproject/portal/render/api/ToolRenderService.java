@@ -6,6 +6,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.site.api.ToolConfiguration;
 
 /**
@@ -31,7 +32,7 @@ public interface ToolRenderService
 	 * @throws IOException
 	 *         if an error occurs during preprocessing.
 	 */
-	boolean preprocess(HttpServletRequest request, HttpServletResponse response,
+	boolean preprocess(Portal portal, HttpServletRequest request, HttpServletResponse response,
 			ServletContext context) throws IOException;
 
 	/**
@@ -43,7 +44,7 @@ public interface ToolRenderService
 	 * @throws IOException
 	 * @throws ToolRenderException
 	 */
-	RenderResult render(ToolConfiguration toolConfiguration, HttpServletRequest request,
+	RenderResult render(Portal portal, ToolConfiguration toolConfiguration, HttpServletRequest request,
 			HttpServletResponse response, ServletContext context) throws IOException,
 			ToolRenderException;
 
@@ -59,7 +60,7 @@ public interface ToolRenderService
 	 *        this is the servlet context handling the request (ie the portal)
 	 * @return
 	 */
-	boolean accept(ToolConfiguration configuration, HttpServletRequest request,
+	boolean accept(Portal portal, ToolConfiguration configuration, HttpServletRequest request,
 			HttpServletResponse response, ServletContext context);
 
 	/**
@@ -67,6 +68,6 @@ public interface ToolRenderService
 	 * 
 	 * @param configuration
 	 */
-	void reset(ToolConfiguration configuration);
+	void reset( ToolConfiguration configuration);
 
 }

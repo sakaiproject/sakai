@@ -613,7 +613,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 
 		Map<String, Object> toolMap = new HashMap<String, Object>();
-		RenderResult result = ToolRenderService.render(placement, req, res,
+		RenderResult result = ToolRenderService.render(this,placement, req, res,
 				getServletContext());
 
 		if (result.getJSR168HelpUrl() != null)
@@ -835,7 +835,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		try
 		{
 			basicAuth.doLogin(req);
-			if (!ToolRenderService.preprocess(req, res, getServletContext()))
+			if (!ToolRenderService.preprocess(this,req, res, getServletContext()))
 			{
 				return;
 			}
@@ -1143,7 +1143,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		try
 		{
 			basicAuth.doLogin(req);
-			if (!ToolRenderService.preprocess(req, res, getServletContext()))
+			if (!ToolRenderService.preprocess(this,req, res, getServletContext()))
 			{
 				// System.err.println("POST FAILED, REDIRECT ?");
 				return;

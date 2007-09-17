@@ -45,6 +45,7 @@ import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.descriptors.portlet.SupportsDD;
 import org.apache.pluto.spi.PortalCallbackService;
 import org.apache.pluto.spi.PortletURLProvider;
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.api.ToolRenderException;
@@ -100,7 +101,7 @@ public class PortletToolRenderService implements ToolRenderService
 		this.portletStateEncoder = portletStateEncoder;
 	}
 
-	public boolean preprocess(HttpServletRequest request, HttpServletResponse response,
+	public boolean preprocess(Portal portal, HttpServletRequest request, HttpServletResponse response,
 			ServletContext context) throws IOException
 	{
 
@@ -160,7 +161,7 @@ public class PortletToolRenderService implements ToolRenderService
 	}
 
 	// Note ToolConfiguration extends Placement
-	public RenderResult render(ToolConfiguration toolConfiguration,
+	public RenderResult render(Portal portal, ToolConfiguration toolConfiguration,
 			final HttpServletRequest request, final HttpServletResponse response,
 			ServletContext context) throws IOException
 	{
@@ -321,6 +322,14 @@ public class PortletToolRenderService implements ToolRenderService
 			return this.helpUrl;
 		}
 
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.portal.render.api.RenderResult#getHead()
+		 */
+		public String getHead()
+		{
+			return "";
+		}
+
 	};
 
 	// TODO: This must be test code and needs removing
@@ -392,7 +401,7 @@ public class PortletToolRenderService implements ToolRenderService
 		return crossContext.getResource("/WEB-INF/portlet.xml") != null;
 	}
 
-	public boolean accept(ToolConfiguration configuration, HttpServletRequest request,
+	public boolean accept(Portal portal, ToolConfiguration configuration, HttpServletRequest request,
 			HttpServletResponse response, ServletContext context)
 	{
 		try
@@ -428,7 +437,7 @@ public class PortletToolRenderService implements ToolRenderService
 		}
 	}
 
-	public void reset(ToolConfiguration configuration)
+	public void reset( ToolConfiguration configuration)
 	{
 		registry.reset(configuration);
 	}

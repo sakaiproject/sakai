@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.site.api.ToolConfiguration;
 
@@ -79,13 +80,13 @@ public class ToolRenderService
 	 * @throws IOException
 	 *         if an error occurs during preprocessing
 	 */
-	public static boolean preprocess(HttpServletRequest request,
+	public static boolean preprocess(Portal portal, HttpServletRequest request,
 			HttpServletResponse response, ServletContext context) throws IOException
 	{
 		org.sakaiproject.portal.render.api.ToolRenderService service = getInstance();
 		if (service == null) return true;
 
-		return service.preprocess(request, response, context);
+		return service.preprocess(portal, request, response, context);
 	}
 
 	/**
@@ -101,14 +102,14 @@ public class ToolRenderService
 	 * @throws IOException
 	 *         if an error occurs during processing.
 	 */
-	public static RenderResult render(ToolConfiguration configuration,
+	public static RenderResult render(Portal portal, ToolConfiguration configuration,
 			HttpServletRequest request, HttpServletResponse response,
 			ServletContext context) throws IOException
 	{
 		org.sakaiproject.portal.render.api.ToolRenderService service = getInstance();
 		if (service == null) return null;
 
-		return service.render(configuration, request, response, context);
+		return service.render(portal,configuration, request, response, context);
 	}
 
 }

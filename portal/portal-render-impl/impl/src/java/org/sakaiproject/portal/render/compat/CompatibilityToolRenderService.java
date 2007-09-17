@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.api.ToolRenderException;
 import org.sakaiproject.portal.render.api.ToolRenderService;
@@ -58,7 +59,7 @@ public class CompatibilityToolRenderService implements ToolRenderService
 	 * @return
 	 * @throws IOException
 	 */
-	public boolean preprocess(HttpServletRequest request, HttpServletResponse response,
+	public boolean preprocess(Portal portal, HttpServletRequest request, HttpServletResponse response,
 			ServletContext context) throws IOException
 	{
 
@@ -68,12 +69,12 @@ public class CompatibilityToolRenderService implements ToolRenderService
 			ToolRenderService trs = (ToolRenderService) i.next();
 			LOG.debug("Preprocessing with " + trs);
 			continueProcessing = continueProcessing
-					&& trs.preprocess(request, response, context);
+					&& trs.preprocess(portal, request, response, context);
 		}
 		return continueProcessing;
 	}
 
-	public RenderResult render(ToolConfiguration configuration,
+	public RenderResult render(Portal portal, ToolConfiguration configuration,
 			HttpServletRequest request, HttpServletResponse response,
 			ServletContext context) throws IOException
 	{
@@ -81,23 +82,23 @@ public class CompatibilityToolRenderService implements ToolRenderService
 		for (Iterator i = renderServices.iterator(); i.hasNext();)
 		{
 			ToolRenderService trs = (ToolRenderService) i.next();
-			if (trs.accept(configuration, request, response, context))
+			if (trs.accept(portal, configuration, request, response, context))
 			{
 				LOG.debug("Rendering with " + trs);
-				return trs.render(configuration, request, response, context);
+				return trs.render(portal, configuration, request, response, context);
 			}
 		}
 		throw new ToolRenderException("No available Tool Render Service for the tool "
 				+ configuration.getToolId());
 	}
 
-	public boolean accept(ToolConfiguration configuration, HttpServletRequest request,
+	public boolean accept(Portal portal, ToolConfiguration configuration, HttpServletRequest request,
 			HttpServletResponse response, ServletContext context)
 	{
 		for (Iterator i = renderServices.iterator(); i.hasNext();)
 		{
 			ToolRenderService trs = (ToolRenderService) i.next();
-			if (trs.accept(configuration, request, response, context))
+			if (trs.accept(portal,configuration, request, response, context))
 			{
 				return true;
 			}
@@ -122,7 +123,7 @@ public class CompatibilityToolRenderService implements ToolRenderService
 		this.renderServices = renderServices;
 	}
 
-	public void reset(ToolConfiguration configuration)
+	public void reset( ToolConfiguration configuration)
 	{
 		for (Iterator i = renderServices.iterator(); i.hasNext();)
 		{

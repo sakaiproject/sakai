@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.charon.handlers;
+package org.sakaiproject.portal.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;

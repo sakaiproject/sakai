@@ -41,6 +41,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.render.api.RenderResult;
@@ -80,7 +81,7 @@ import org.sakaiproject.util.Web;
  * @version $Rev$
  * 
  */
-public class CharonPortal extends HttpServlet
+public class CharonPortal extends HttpServlet 
 {
 
 	/** Our log (commons). */
@@ -2759,7 +2760,8 @@ public class CharonPortal extends HttpServlet
 		out.write("<div class=\"portletTitle\">\n");
 		out.write("\t<div class=\"title\">\n");
 
-		RenderResult result = ToolRenderService.render(placement, req, res,
+		// Charon is not use, if the target needs portal, then this will generate an NPE
+		RenderResult result = ToolRenderService.render(null,placement, req, res,
 				getServletContext());
 
 		// This is a new-style reset where the button is in the background

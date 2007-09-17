@@ -45,4 +45,9 @@ public interface RenderResult
 	 *         if the content can not be rendered
 	 */
 	String getJSR168EditUrl() throws ToolRenderException;
+
+	/**
+	 * @return
+	 */
+	String getHead();
 }

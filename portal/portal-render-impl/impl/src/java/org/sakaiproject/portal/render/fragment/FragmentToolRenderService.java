@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.render.api.RenderResult;
@@ -78,7 +79,7 @@ public class FragmentToolRenderService implements ToolRenderService
 	 * placement is handled by the FragmentToolRenderService, this should return
 	 * true, then the render will be invoked.
 	 */
-	public boolean accept(ToolConfiguration configuration, HttpServletRequest request,
+	public boolean accept(Portal portal, ToolConfiguration configuration, HttpServletRequest request,
 			HttpServletResponse response, ServletContext context)
 	{
 		return isFragmentTool(configuration);
@@ -97,7 +98,7 @@ public class FragmentToolRenderService implements ToolRenderService
 		return true;
 	}
 
-	public boolean preprocess(HttpServletRequest request, HttpServletResponse response,
+	public boolean preprocess(Portal portal, HttpServletRequest request, HttpServletResponse response,
 			ServletContext context) throws IOException
 	{
 		// for fragments there is no preprocessing, as this is all performed in
@@ -105,7 +106,7 @@ public class FragmentToolRenderService implements ToolRenderService
 		return true;
 	}
 
-	public RenderResult render(final ToolConfiguration toolConfiguration,
+	public RenderResult render(Portal portal, final ToolConfiguration toolConfiguration,
 			final HttpServletRequest request, final HttpServletResponse response,
 			ServletContext context) throws IOException, ToolRenderException
 	{
@@ -168,6 +169,11 @@ public class FragmentToolRenderService implements ToolRenderService
 				public String getJSR168HelpUrl()
 				{
 					return null;
+				}
+
+				public String getHead()
+				{
+					return "";
 				}
 			};
 			// do a named dispatch to the active tool with a fragment set
