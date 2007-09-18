@@ -159,7 +159,10 @@ public class DeliveryBean
   private int submissionsRemaining;
   private boolean forGrade;
   private String password;
-
+  private int numberRetake;
+  private int actualNumberRetake;
+  
+  
   // For paging
   private int partIndex;
   private int questionIndex;
@@ -2506,8 +2509,9 @@ public class DeliveryBean
       return "assessmentHasBeenSubmitted";
     }
 
-    GradingService gradingService = new GradingService();
-    int numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
+    //GradingService gradingService = new GradingService();
+    //int numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
+    log.debug("take from bean numberRetake = " + numberRetake);
     log.debug("check 3");
     // check 3: any submission attempt left?
     if (!getHasSubmissionLeft(totalSubmitted, numberRetake)){
@@ -2521,23 +2525,34 @@ public class DeliveryBean
 
     log.debug("check 5");
     // check 5: has dueDate arrived? if so, does it allow late submission?
-    // If it is a timed assessment and "No Late Submission", always go through. Because in this case the 
-    // assessment will be auto-submitted anyway - when time is up or
-    // when current date reaches due date (if the time limited is longer than due date,) for either case, we 
-    // want to redirect to the normal "submision successful page" after submitting.
+    // If it is a timed assessment and "No Late Submission" and not during a Retake, always go through. Because in this case the 
+    // assessment will be auto-submitted anyway - when time is up or when current date reaches due date (if the time limited is 
+    // longer than due date,) for either case, we want to redirect to the normal "submision successful page" after submitting.
     if (pastDueDate()){
-    	if (acceptLateSubmission) {
-    		if (totalSubmitted != 0) {
-    			int actualNumberRetake = gradingService.getActualNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
-    			log.debug("actualNumberRetake =" + actualNumberRetake);
-    			if (actualNumberRetake == numberRetake) {
-    				return "noLateSubmission";
-    			}
-    		}
+    	// If Accept Late and there is no submission yet, go through
+    	if (acceptLateSubmission && totalSubmitted == 0) {
+    		log.debug("Accept Late Submission && totalSubmitted == 0");
     	}
     	else {
-    		if (!this.isTimedAssessment()) {
-    			return "noLateSubmission";
+    		log.debug("take from bean: actualNumberRetake =" + actualNumberRetake);
+    		// Not during a Retake
+    		if (actualNumberRetake == numberRetake) {
+    	    	// If No Late, this is a timed assessment, and not during a Retake, go through (see above reason)
+    			if (!acceptLateSubmission && this.isTimedAssessment()) {
+    				log.debug("No Late Submission && timedAssessment");
+    			}
+    			else {
+    				log.debug("noLateSubmission");
+        			return "noLateSubmission";
+    			}
+    		}
+    		// During a Retake
+    		else if (actualNumberRetake == numberRetake - 1) {
+    			log.debug("actualNumberRetake == numberRetake - 1: through Retake");
+    		}
+    		// Should not come to here
+    		else {
+    			log.error("Should NOT come to here - wrong actualNumberRetake or numberRetake");
     		}
     	}
     }
@@ -2719,13 +2734,19 @@ public class DeliveryBean
 
 	  // This is for SAK-9505
 	  // Preview is fixed for SAK-11474
-	  // If not during preview, dueDate is not null, and Late Submission is not allowed,
+	  // If not during preview, dueDate is not null, Late Submission is not allowed, and not during a retake
 	  // we reset the time limit to the smaller one of
 	  // 1. assessment "time limit" and 2. the difference of due date and current. 
 	  public String updateTimeLimit(String timeLimit) {
   	    boolean acceptLateSubmission = AssessmentAccessControlIfc.
 	        ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
-  	    if (!("previewAssessment").equals(actionString) && (this.dueDate != null && !acceptLateSubmission)) {
+  	    GradingService gradingService = new GradingService();
+        numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
+        log.debug("numberRetake = " + numberRetake);
+        actualNumberRetake = gradingService.getActualNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
+		log.debug("actualNumberRetake =" + actualNumberRetake);
+  	    if (!("previewAssessment").equals(actionString) && 
+  	    	(this.dueDate != null && !acceptLateSubmission && actualNumberRetake >= numberRetake)) {
 			int timeBeforeDue  = Math.round((this.dueDate.getTime() - (new Date()).getTime())/1000); //in sec
 			if (timeBeforeDue < Integer.parseInt(timeLimit)) {
 				return String.valueOf(timeBeforeDue);

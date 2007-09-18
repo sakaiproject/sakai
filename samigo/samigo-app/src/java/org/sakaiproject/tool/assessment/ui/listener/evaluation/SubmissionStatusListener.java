@@ -251,7 +251,7 @@ public class SubmissionStatusListener
           students_not_submitted.add(userid);
         }
       }
-      prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles);
+      prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles, retakeAssessment, studentGradingSummaryDataMap);
       bs = new BeanSort(agents, bean.getSortType());
       if (
         (bean.getSortType()).equals("assessmentGradingId") )
@@ -294,7 +294,7 @@ public class SubmissionStatusListener
   //add those students that have not submitted scores, need to display them
   // in the UI 
   public void prepareNotSubmittedAgentResult(Iterator notsubmitted_iter,
-                                             ArrayList agents, Map userRoles){
+                                             ArrayList agents, Map userRoles, RetakeAssessmentBean retakeAssessment, HashMap studentGradingSummaryDataMap){
     while (notsubmitted_iter.hasNext()){
       String studentid = (String) notsubmitted_iter.next();
       AgentResults results = new AgentResults();
@@ -319,7 +319,8 @@ public class SubmissionStatusListener
       results.setIdString(agent.getIdString());
       results.setAgentEid(agent.getEidString());
       results.setRole((String)userRoles.get(studentid));
-      results.setRetakeAllowed(false);
+      results.setRetakeAllowed(getRetakeAllowed(agent.getIdString(), studentGradingSummaryDataMap, retakeAssessment));
+      retakeAssessment.setStudentGradingSummaryDataMap(studentGradingSummaryDataMap);
       agents.add(results);
     }
   }
@@ -350,14 +351,15 @@ public class SubmissionStatusListener
 		}
 			
 		boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(assessmentAccessControl.getLateHandling());
-		if (acceptLateSubmission && (startDate == null || startDate.before(currentDate))) {
+		if (startDate == null || startDate.before(currentDate)) {
 			if (dueDate != null && dueDate.before(currentDate)) {
-				// no submission at all, there will be one more last chance for student to submit
-				// therefore, don't show the retake
-				if (totalSubmitted == 0) { 
-					return false;
+				if (acceptLateSubmission) {
+					// no submission at all, there will be one more last chance for student to submit
+					// therefore, don't show the retake
+					if (totalSubmitted == 0) { 
+						return false;
+					}
 				}
-
 				// if there are submission(s) and already retake issued to the student, 
 				// if the student's acutalNumberRetake is the same as numberRetake issued by the instructor
 				// we can display the retake link to allow the instructor to give out another chance to the student
@@ -365,30 +367,7 @@ public class SubmissionStatusListener
 				if (actualNumberRetake == numberRetake) {
 					return true;
 				}
-				/* Following commented out section is doing the same thing as above
-				 * trying to see if there are submission(s), should display the retake or not
-				 * however, I think above way is better 
-				// if there are submission(s), we need to know if any of these is submitted before or after due date
-				int numOfLateSubmission = 0;
-				boolean submitBeforeDue = false;
-				for (int i = 0; i < totalSubmitted; i++) {
-					AssessmentGradingData assessmentGradingData = (AssessmentGradingData) allAssessmentGradingList.get(i);
-					if (assessmentGradingData.getSubmittedDate().after(dueDate)) {
-						numOfLateSubmission++;
-					}
-					else {
-						submitBeforeDue = true;
-					}
-				}
-                // if at least one is submitted before due date, that means there is no extra "last chance" submission given
-                // when the count of submissions after due date equals the number of retake, we display the retake link
-                // else, if there is no submitted before due date, that means student can have an extra "last chance" submission
-                // therefore, we display the retake link when the number of number of submissions after due date is number of retake plus one
-				if ((submitBeforeDue && numOfLateSubmission == numberRetake) || (!submitBeforeDue && numOfLateSubmission == numberRetake + 1)) {
-					return true;
-				}
-				*/
-			}			
+			}
 			else {
 				int maxSubmissionsAllowed = 9999;
 				if ((Boolean.FALSE).equals(assessmentAccessControl.getUnlimitedSubmissions())) {

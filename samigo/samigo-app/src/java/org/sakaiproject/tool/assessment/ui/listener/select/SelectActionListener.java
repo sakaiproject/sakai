@@ -476,13 +476,12 @@ public class SelectActionListener
 			if (dueDate != null && dueDate.before(currentDate)) {
 				if (acceptLateSubmission) {
 					if (totalSubmitted == 0) {
-						returnValue = true;
-					} else {
-						int actualNumberRetake = gradingService.getActualNumberRetake(f.getPublishedAssessmentId(), AgentFacade.getAgentString());
-						if (actualNumberRetake < numberRetake) {
-							returnValue = true;
-						}
+						return true;
 					}
+				}
+				int actualNumberRetake = gradingService.getActualNumberRetake(f.getPublishedAssessmentId(), AgentFacade.getAgentString());
+				if (actualNumberRetake < numberRetake) {
+					returnValue = true;
 				}
 			}
 			else {
