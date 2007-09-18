@@ -717,6 +717,10 @@ public class DbContentService extends BaseContentService
 
 		private ThreadLocal stackMarker = new ThreadLocal();
 
+		private String m_collectionStorageFields;
+
+		private String m_resourceStorageFields;
+
 		/**
 		 * Construct.
 		 * 
@@ -852,16 +856,19 @@ public class DbContentService extends BaseContentService
 				// build the collection store - a single level store
 				m_collectionStore = new BaseDbDualSingleStorage(m_collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
 						collectionUser, m_sqlService);
+				m_collectionStorageFields = BaseDbDualSingleStorage.STORAGE_FIELDS;
 				
 			} else if ( migrateData && binaryCollection) {
 				// build the collection store - a single level store
 				m_collectionStore = new BaseDbBinarySingleStorage(m_collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
 						collectionUser, m_sqlService);
+				m_collectionStorageFields = BaseDbBinarySingleStorage.STORAGE_FIELDS;
 				
 			} else {
 				// build the collection store - a single level store
 				m_collectionStore = new BaseDbSingleStorage(m_collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
 						collectionUser, m_sqlService);
+				m_collectionStorageFields = BaseDbSingleStorage.STORAGE_FIELDS;
 				
 			}
 
@@ -870,18 +877,21 @@ public class DbContentService extends BaseContentService
 				m_resourceStore = new BaseDbDualSingleStorage(m_resourceTableName, "RESOURCE_ID", 
 						(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
 						m_locksInDb, "resource", resourceUser, m_sqlService);
+				m_resourceStorageFields = BaseDbDualSingleStorage.STORAGE_FIELDS;
 				
 			} else if ( migrateData && binaryResource) {
 				// build the resources store - a single level store
 				m_resourceStore = new BaseDbBinarySingleStorage(m_resourceTableName, "RESOURCE_ID", 
 						(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
 						m_locksInDb, "resource", resourceUser, m_sqlService);
+				m_resourceStorageFields = BaseDbBinarySingleStorage.STORAGE_FIELDS;
 				
 			}else {
 				// build the resources store - a single level store
 				m_resourceStore = new BaseDbSingleStorage(m_resourceTableName, "RESOURCE_ID", 
 						(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
 						m_locksInDb, "resource", resourceUser, m_sqlService);
+				m_resourceStorageFields = BaseDbSingleStorage.STORAGE_FIELDS;
 				
 			}
 
@@ -2229,6 +2239,24 @@ public class DbContentService extends BaseContentService
 			}
 			
 		}
+
+		/**
+		 * @return the m_collectionStorageFields
+		 */
+		public String getCollectionStorageFields()
+		{
+			return m_collectionStorageFields;
+		}
+
+
+		/**
+		 * @return the m_resourceStorageFields
+		 */
+		public String getResourceStorageFields()
+		{
+			return m_resourceStorageFields;
+		}
+
 	} // DbStorage
 
 	/**
