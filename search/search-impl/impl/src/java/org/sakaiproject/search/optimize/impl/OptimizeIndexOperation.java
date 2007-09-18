@@ -41,8 +41,14 @@ public class OptimizeIndexOperation implements ManagementOperation
 
 	private static final Log log = LogFactory.getLog(OptimizeIndexOperation.class);
 
+	/**
+	 * The journaled object which is being optimized
+	 */
 	private JournaledObject journaledObject;
 
+	/**
+	 * The manager that performs the optimization
+	 */
 	private OptimizeIndexManager optimizeUpdateManager;
 
 	public void init()

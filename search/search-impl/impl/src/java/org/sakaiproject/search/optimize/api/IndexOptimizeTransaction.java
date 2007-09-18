@@ -25,36 +25,52 @@ import java.io.File;
 
 import org.apache.lucene.index.IndexWriter;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
+import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
+ * An Index Optimize transaction manages an optimisation operateration where
+ * multiple transient segments produced by journaled index operations are merged
+ * into a permanent segment
+ * 
  * @author ieb
- *
  */
 public interface IndexOptimizeTransaction extends IndexTransaction
 {
 
 	/**
+	 * Get the index writer associated with this transaction
+	 * 
 	 * @return
+	 * @throws IndexTransactionException
 	 */
-	IndexWriter getTemporaryIndexWriter();
+	IndexWriter getTemporaryIndexWriter() throws IndexTransactionException;
 
 	/**
+	 * Set the index writer of the permanent index associated with this
+	 * transaction
+	 * 
 	 * @param pw
 	 */
 	void setPermanentIndexWriter(IndexWriter pw);
 
 	/**
+	 * get the permanent index writer associated with this transaction, if it
+	 * has been set
+	 * 
 	 * @return
 	 */
 	IndexWriter getPermanentIndexWriter();
 
 	/**
-	 * @param optimzableSegments 
+	 * Set the list of segments being optimised
 	 * 
+	 * @param optimzableSegments
 	 */
 	void setOptimizableSegments(File[] optimzableSegments);
 
 	/**
+	 * Get the list of segments being optimised
+	 * 
 	 * @return
 	 */
 	File[] getOptimizableSegments();

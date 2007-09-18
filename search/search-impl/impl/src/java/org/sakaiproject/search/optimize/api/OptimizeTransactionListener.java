@@ -24,8 +24,10 @@ package org.sakaiproject.search.optimize.api;
 import org.sakaiproject.search.transaction.api.TransactionListener;
 
 /**
+ * A transaction listener that listens to the lifecycle changes of an optimize
+ * operation
+ * 
  * @author ieb
- *
  */
 public interface OptimizeTransactionListener extends TransactionListener
 {

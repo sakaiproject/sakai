@@ -23,14 +23,11 @@ package org.sakaiproject.search.optimize.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexWriter;
-import org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer;
-import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.optimize.api.IndexOptimizeTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
@@ -39,7 +36,7 @@ import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 import org.sakaiproject.search.util.FileUtils;
 
 /**
- * 
+ * A transaction holder for Index Optimizations
  * 
  * @author ieb 
  */
@@ -49,13 +46,25 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 
 	private static final Log log = LogFactory.getLog(IndexOptimizeTransactionImpl.class);
 
+	/**
+	 * The temporary idnex writer
+	 */
 	private IndexWriter indexWriter;
 
+	/**
+	 * A temporta index directory to build the merge item
+	 */
 	private File tempIndex;
 
-	private List<SearchBuilderItem> txList;
+	/**
+	 * The permanent index writer being used for the final merge on commit
+	 */
+	private IndexWriter permanentIndexWriter;
 
-	private SearchBuilderItemSerializer searchBuilderItemSerializer = new SearchBuilderItemSerializer();
+	/**
+	 * The list of segments associated with the transaction
+	 */
+	private File[] optimizableSegments;
 
 	/**
 	 * @param m
@@ -68,30 +77,28 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 		super(manager, m);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
 	 * 
-	 * @see org.sakaiproject.search.transaction.impl.IndexTransactionImpl#doBeforePrepare()
+	 * @see org.sakaiproject.search.transaction.impl.IndexTransactionImpl#doAfterRollback()
 	 */
 	@Override
-	protected void doBeforePrepare() throws IndexTransactionException
+	protected void doAfterRollback() throws IndexTransactionException
 	{
 		try
 		{
-			transactionId = manager.getSequence().getNextId();
 			indexWriter.close();
 			indexWriter = null;
-			searchBuilderItemSerializer.saveTransactionList(tempIndex, txList);
+			FileUtils.deleteAll(tempIndex);
 		}
 		catch (Exception ex)
 		{
-			throw new IndexTransactionException("Failed to prepare transaction", ex);
+			throw new IndexTransactionException("Failed to complete rollback ", ex);
 		}
-		super.doBeforePrepare();
+		super.doAfterRollback();
+		tempIndex = null;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
 	 * 
 	 * @see org.sakaiproject.search.transaction.impl.IndexTransactionImpl#doAfterCommit()
 	 */
@@ -100,6 +107,8 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 	{
 		try
 		{
+			indexWriter.close();
+			indexWriter = null;
 			FileUtils.deleteAll(tempIndex);
 		}
 		catch (Exception e)
@@ -107,9 +116,12 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 			throw new IndexTransactionException("Failed to commit ", e);
 		}
 		super.doAfterCommit();
+		tempIndex = null;
 	}
 
 	/**
+	 * get an index writer based on the transaction ID. This is temporary segment into which 
+	 * other transient segments will be merged.
 	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#getIndexWriter()
 	 */
 	public IndexWriter getIndexWriter() throws IndexTransactionException
@@ -140,114 +152,49 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 		return indexWriter;
 	}
 
-	/**
-	 * The name of the temp index shouldbe used to locate the index, and NOT the
-	 * transaction ID.
-	 * 
-	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#getTempIndex()
-	 */
-	public String getTempIndex()
-	{
-		return tempIndex.getAbsolutePath();
-	}
+
+
+
 
 	/**
-	 * The transaction ID will change as the status cahnges. While the
-	 * transaction is active it will have a local ID, when the transaction is
-	 * prepared the cluster wide transaction id will be created. Once prepare
-	 * has been performed, the transaction should be committed
-	 * 
-	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#getTransactionId()
-	 */
-	public long getTransactionId()
-	{
-
-		return transactionId;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.transaction.impl.IndexTransactionImpl#doBeforeRollback()
-	 */
-	@Override
-	protected void doBeforeRollback() throws IndexTransactionException
-	{
-		try
-		{
-			indexWriter.close();
-			indexWriter = null;
-			searchBuilderItemSerializer.saveTransactionList(tempIndex, txList);
-		}
-		catch (Exception ex)
-		{
-			throw new IndexTransactionException("Failed to start rollback ", ex);
-		}
-		super.doBeforeRollback();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.transaction.impl.IndexTransactionImpl#doAfterRollback()
-	 */
-	@Override
-	protected void doAfterRollback() throws IndexTransactionException
-	{
-		super.doAfterRollback();
-		try
-		{
-			FileUtils.deleteAll(tempIndex);
-		}
-		catch (Exception ex)
-		{
-			throw new IndexTransactionException("Failed to complete rollback ", ex);
-		}
-		tempIndex = null;
-	}
-
-	/* (non-Javadoc)
 	 * @see org.sakaiproject.search.optimize.api.IndexOptimizeTransaction#getOptimizableSegments()
 	 */
 	public File[] getOptimizableSegments()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return optimizableSegments;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.sakaiproject.search.optimize.api.IndexOptimizeTransaction#getPermanentIndexWriter()
 	 */
 	public IndexWriter getPermanentIndexWriter()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return permanentIndexWriter;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.sakaiproject.search.optimize.api.IndexOptimizeTransaction#getTemporaryIndexWriter()
 	 */
-	public IndexWriter getTemporaryIndexWriter()
+	public IndexWriter getTemporaryIndexWriter() throws IndexTransactionException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return getIndexWriter();
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.sakaiproject.search.optimize.api.IndexOptimizeTransaction#setOptimizableSegments(java.io.File[])
 	 */
 	public void setOptimizableSegments(File[] optimzableSegments)
 	{
-		// TODO Auto-generated method stub
+		this.optimizableSegments =  optimzableSegments;
 		
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.sakaiproject.search.optimize.api.IndexOptimizeTransaction#setPermanentIndexWriter(org.apache.lucene.index.IndexWriter)
 	 */
 	public void setPermanentIndexWriter(IndexWriter pw)
 	{
-		// TODO Auto-generated method stub
+		permanentIndexWriter = pw;
 		
 	}
 

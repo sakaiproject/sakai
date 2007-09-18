@@ -26,6 +26,7 @@ import java.util.List;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 /**
+ * A transaction with associated items
  * @author ieb
  *
  */

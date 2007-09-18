@@ -24,6 +24,7 @@ package org.sakaiproject.search.optimize.api;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
+ * The optimization may fail
  * @author ieb
  *
  */

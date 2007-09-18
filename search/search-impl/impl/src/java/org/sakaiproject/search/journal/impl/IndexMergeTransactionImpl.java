@@ -26,7 +26,6 @@ import java.util.Map;
 import org.sakaiproject.search.journal.api.IndexMergeTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 import org.sakaiproject.search.transaction.impl.IndexItemsTransactionImpl;
-import org.sakaiproject.search.transaction.impl.IndexTransactionImpl;
 import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 
 /**

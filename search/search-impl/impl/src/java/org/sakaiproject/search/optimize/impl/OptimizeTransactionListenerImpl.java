@@ -36,18 +36,28 @@ import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
+ * An OptimizationTransactionListener that optimizes the index. It first
+ * collects the segments that could be optimized. If ther are more than the
+ * mergeSize then it will perform the merge into a temporary segment and if that
+ * is successfull that index will be merged in the commit phase into the
+ * permanent index
+ * 
  * @author ieb
  */
 public class OptimizeTransactionListenerImpl implements OptimizeTransactionListener
 {
 
+	/**
+	 * The index to be optimised
+	 */
 	private OptimizableIndex optimizableIndex;
 
+	/**
+	 * The minimum number of segments to perform a merge on
+	 */
 	private long mergeSize;
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#close(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
 	public void close(IndexTransaction transaction) throws IndexTransactionException
@@ -55,8 +65,10 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 		// nothing special to do, the transaction will close itself
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * commit closes the temporary segment, and merges it into the permanent
+	 * segment. Both the temporary and permanent were opened in the prepare
+	 * phase
 	 * 
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#commit(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
@@ -77,10 +89,11 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 			pw.addIndexes(new Directory[] { d });
 			pw.optimize();
 			pw.close();
-			
-			File[] optimzableSegments = ((IndexOptimizeTransaction) transaction).getOptimizableSegments();
+
+			File[] optimzableSegments = ((IndexOptimizeTransaction) transaction)
+					.getOptimizableSegments();
 			optimizableIndex.removeOptimizableSegments(optimzableSegments);
-			
+
 		}
 		catch (IOException ioex)
 		{
@@ -90,8 +103,9 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Open the index, but throw a NoOptimizationReqiredException if there are
+	 * not enough segments to perfom a merge on
 	 * 
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#open(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
@@ -102,12 +116,14 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 		{
 			throw new NoOptimizationRequiredException();
 		}
-		((IndexOptimizeTransaction) transaction).setOptimizableSegments(optimzableSegments);
+		((IndexOptimizeTransaction) transaction)
+				.setOptimizableSegments(optimzableSegments);
 
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Perform the merge operation on the segments into a temporary segment,
+	 * open the permanent segment to ensure that a writer lock can be aquired
 	 * 
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#prepare(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
@@ -118,11 +134,12 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 			// open the permanent writer to ensure it can be opened
 			IndexWriter pw = optimizableIndex.getPermanentIndexWriter();
 			((IndexOptimizeTransaction) transaction).setPermanentIndexWriter(pw);
-			
+
 			// open the temp writer
 			IndexWriter iw = ((IndexOptimizeTransaction) transaction)
 					.getTemporaryIndexWriter();
-			File[] optimzableSegments = ((IndexOptimizeTransaction) transaction).getOptimizableSegments();
+			File[] optimzableSegments = ((IndexOptimizeTransaction) transaction)
+					.getOptimizableSegments();
 			FSDirectory[] directories = new FSDirectory[optimzableSegments.length];
 			int i = 0;
 			for (File f : optimzableSegments)
@@ -141,15 +158,50 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Roll back the optimize operation
 	 * 
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#rollback(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
 	public void rollback(IndexTransaction transaction) throws IndexTransactionException
 	{
-		// roll should be handled in the transaction, nothing special to do here.
+		// roll should be handled in the transaction, nothing special to do
+		// here.
 
+	}
+
+	/**
+	 * @return the mergeSize
+	 */
+	public long getMergeSize()
+	{
+		return mergeSize;
+	}
+
+	/**
+	 * @param mergeSize
+	 *        the mergeSize to set
+	 */
+	public void setMergeSize(long mergeSize)
+	{
+		this.mergeSize = mergeSize;
+	}
+
+	/**
+	 * @return the optimizableIndex
+	 */
+	public OptimizableIndex getOptimizableIndex()
+	{
+		return optimizableIndex;
+	}
+
+	/**
+	 * @param optimizableIndex
+	 *        the optimizableIndex to set
+	 */
+	public void setOptimizableIndex(OptimizableIndex optimizableIndex)
+	{
+		this.optimizableIndex = optimizableIndex;
 	}
 
 }

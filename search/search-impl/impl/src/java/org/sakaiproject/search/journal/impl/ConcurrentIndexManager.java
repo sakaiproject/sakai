@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.journal.impl;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
@@ -30,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
 import org.sakaiproject.search.journal.api.IndexListener;
+import org.sakaiproject.search.util.FileUtils;
 
 /**
  * The ConcurrentIndexManager, manages a single thread performs a number of
@@ -100,7 +102,7 @@ public class ConcurrentIndexManager implements IndexListener
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.search.journal.api.IndexListener#doIndexReaderClose(org.apache.lucene.index.IndexReader)
 	 */
-	public void doIndexReaderClose(final IndexReader oldMultiReader)
+	public void doIndexReaderClose(final IndexReader oldMultiReader, final File[] toRemove)
 	{
 		timer.schedule(new TimerTask() {
 
@@ -109,6 +111,9 @@ public class ConcurrentIndexManager implements IndexListener
 			{
 				try {
 					oldMultiReader.close();
+					for( File f : toRemove) {
+						FileUtils.deleteAll(f);
+					}
 					log.info("Closed Index");
 				} catch ( Exception ex ) {
 					log.warn("Close of old index failed "+ex.getMessage());
@@ -142,6 +147,7 @@ public class ConcurrentIndexManager implements IndexListener
 	{
 		this.closeDelay = closeDelay;
 	}
+
 	
 	
 

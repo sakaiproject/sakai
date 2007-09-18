@@ -26,14 +26,17 @@ import java.io.File;
 import org.apache.lucene.index.IndexWriter;
 
 /**
+ * An optimisable index has a number of segments that could be merged and a
+ * permanent index writer into which those segments are merged
+ * 
  * @author ieb
- *
  */
 public interface OptimizableIndex
 {
 
 	/**
 	 * Get a list of segments that can be optimized
+	 * 
 	 * @return
 	 */
 	File[] getOptimizableSegments();

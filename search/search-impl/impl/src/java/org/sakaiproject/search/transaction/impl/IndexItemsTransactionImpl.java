@@ -32,9 +32,9 @@ import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
- * Base for index transactions
+ * Base for index transactions with items
  * 
- * @author ieb Unit test
+ * @author ieb 
  * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
 public abstract class IndexItemsTransactionImpl extends IndexTransactionImpl implements IndexItemsTransaction

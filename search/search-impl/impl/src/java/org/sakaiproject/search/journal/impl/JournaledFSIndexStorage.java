@@ -101,6 +101,8 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 
 	private boolean modified = false;
 
+	private List<File> toRemove = new ArrayList<File>();
+
 	/**
 	 * @see org.sakaiproject.search.index.impl.FSIndexStorage#init()
 	 */
@@ -843,11 +845,13 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	 */
 	private void fireIndexReaderClose(IndexReader oldMultiReader)
 	{
+		File[] f = toRemove.toArray(new File[0]);
+		toRemove.clear();
 		for (Iterator<IndexListener> itl = getIndexListeners()
 				.iterator(); itl.hasNext();)
 		{
 			IndexListener tl = itl.next();
-			tl.doIndexReaderClose(oldMultiReader);
+			tl.doIndexReaderClose(oldMultiReader,f);
 		}
 	}
 
@@ -885,6 +889,39 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 		List<IndexListener> tl = new ArrayList<IndexListener>();
 		tl.addAll(this.indexListeners);
 		this.indexListeners = tl;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.journal.api.JournaledIndex#getPermanentIndexWriter()
+	 */
+	public IndexWriter getPermanentIndexWriter()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.journal.api.JournaledIndex#getSegments()
+	 */
+	public File[] getSegments()
+	{
+		return segments.toArray(new File[0]);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.journal.api.JournaledIndex#removeSegments(java.util.List)
+	 */
+	public void removeSegments(List<File> remove)
+	{
+		toRemove .addAll(remove);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.journal.api.JournaledIndex#setSegments(java.util.List)
+	 */
+	public void setSegments(List<File> keep)
+	{
+		segments = keep;		
 	}
 
 

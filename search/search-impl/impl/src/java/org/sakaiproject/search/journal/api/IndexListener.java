@@ -21,6 +21,8 @@
 
 package org.sakaiproject.search.journal.api;
 
+import java.io.File;
+
 import org.apache.lucene.index.IndexReader;
 
 /**
@@ -33,8 +35,9 @@ public interface IndexListener
 	/**
 	 * Called when the index reader is closed
 	 * @param oldMultiReader the index reader that has been detached and is ready to close
+	 * @param f array of files that need to be removed after close
 	 */
-	void doIndexReaderClose(IndexReader oldMultiReader);
+	void doIndexReaderClose(IndexReader oldMultiReader, File[] f);
 
 	/**
 	 * @param newMultiReader

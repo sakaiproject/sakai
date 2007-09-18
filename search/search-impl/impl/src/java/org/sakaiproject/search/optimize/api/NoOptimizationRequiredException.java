@@ -24,8 +24,10 @@ package org.sakaiproject.search.optimize.api;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
+ * No Optimization is required for the index at the moment, probably because
+ * there are not enough transient indexes to make a merge worthwhile
+ * 
  * @author ieb
- *
  */
 public class NoOptimizationRequiredException extends IndexTransactionException
 {
