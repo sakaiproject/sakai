@@ -219,14 +219,6 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       entityBroker.fireEvent(TestData.EVENT1_NAME, TestData.REF2);
       entityBroker.fireEvent(TestData.EVENT2_NAME, TestData.REF1);
 
-      // cannot throw event for unregistered types
-      try {
-         entityBroker.fireEvent(TestData.EVENT2_NAME, TestData.REF9);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
       // event with a null name should die
       try {
          entityBroker.fireEvent(null, TestData.REF1);
@@ -237,28 +229,6 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
 
       try {
          entityBroker.fireEvent("", TestData.REF1);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      // event with an invalid reference should die
-      try {
-         entityBroker.fireEvent(TestData.EVENT1_NAME, TestData.INVALID_REF);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      try {
-         entityBroker.fireEvent(TestData.EVENT1_NAME, null);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      try {
-         entityBroker.fireEvent(TestData.EVENT1_NAME, "");
          fail("Should have thrown exception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());
