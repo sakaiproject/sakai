@@ -208,36 +208,63 @@ function SRC_findResourceSearchInstance()
  }
 
 /*
- * Generate an anchor for the citation page.  This is of the general form:
+ * Generate an anchor for the citations page.  This is in the general form:
  *
- * Constant prefix:
- *		<A href="javascript:var a='URL?parameters'+escape('parameters-to-escape');
+ *    <html wrapper><anchor>[<br/>[authors][ ][sources]]</html wrapper>
  *
- * Open new page (inline or new window):
- *		... open URL described by variable A ...
+ * The "wrapper" encloses the anchor and citation details - this establishes a
+ * single HTML component that can be manipulated as one object in the editor.
  *
- * Constant suffix:
- *		">Anchor text with &quot; entities converted to \"</A>
- *
- * The text passed to the JavaScript escape() function allows us to "re-escape"
- * parameter values that were unescaped by the HTML editor (this is
- * occasionally necessary - see the IUCAT implementation)
+ * href           -- The OpenURL
+ * anchorText     -- The clickable text for this anchor
+ * creatorText    -- Authors [optional]
+ * sourceText     -- Source [optional]
  */
 function __SRC_makeCitationAnchor(href, anchorText, creatorText, sourceText)
 {
   var doubleQuoteRE 	= /&quot;/g
 
-	var newAnchor   		= "<span><a href=\""
-	 										+ href
-	 										+	"\">"
-										 	+ anchorText.replace(doubleQuoteRE, "\"")
-   										+ "</a><br/>"
-   										+ creatorText.replace(doubleQuoteRE, "\"")
-   										+ " "
-										 	+ sourceText.replace(doubleQuoteRE, "\"")
-   										+ "</span>";
+  var wrapperPrefix   = "<span>";
+  var wrapperSuffix   = "</span>";
 
-  return newAnchor;
+	var citationText;
+	var newAnchor;
+  /*
+   * Set up the anchor
+   */
+  newAnchor	= "<a href=\""
+	 					+ href
+	 					+	"\">"
+						+ anchorText.replace(doubleQuoteRE, "\"")
+   					+ "</a>";
+  /*
+   * Finish now if no citation details are available
+   */
+  if (SRC_isNull(creatorText) && SRC_isNull(sourceText))
+  {
+    return wrapperPrefix + newAnchor + wrapperSuffix;
+  }
+  /*
+   * Add the citation: <br/>[authors][source]
+   */
+  citationText = "<br/>";
+
+  if (!SRC_isNull(creatorText))
+  {
+    citationText += creatorText.replace(doubleQuoteRE, "\"");
+
+  	if (!SRC_isNull(sourceText))
+	  {
+      citationText += " ";
+    }
+	}
+
+	if (!SRC_isNull(sourceText))
+	{
+	  citationText += sourceText.replace(doubleQuoteRE, "\"");
+	}
+
+  return wrapperPrefix + newAnchor + citationText + wrapperSuffix;
 }
 
 /*
