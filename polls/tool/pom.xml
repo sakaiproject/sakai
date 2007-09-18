@@ -30,27 +30,11 @@ limitations under the License.
   </description>
   <properties>
     <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-    <rsfutil.version>0.7.2RC3</rsfutil.version>
+    <rsfutil.version>0.7.2</rsfutil.version>
   </properties>
   <packaging>war</packaging>
-<!--- 
-  WARNING: This project is using Milestone builds of RSF
-  Which are not suitable for production use.
-  This repository location must be removed before code freeze
--->
-  <repositories>
-    <repository>
-      <id>caret-dev</id>
-      <name>Caret Dev Repo</name>
-      <layout>default</layout>
-      <url>http://www2.caret.cam.ac.uk/maven2dev</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-  <dependencies>
 
+  <dependencies>
 <!-- Sakai dependencies (all RSF apps must have this) -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
