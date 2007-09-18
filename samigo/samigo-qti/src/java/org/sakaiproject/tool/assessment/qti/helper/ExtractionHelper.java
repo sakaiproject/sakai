@@ -1615,7 +1615,7 @@ public class ExtractionHelper
     {
       String text = (String) itemTextList.get(i);
       // we are assuming non-empty text/answer/non-empty text/answer etc.
-      if (text == null || text=="")
+      if (text == null)
       {
         continue;
       }
