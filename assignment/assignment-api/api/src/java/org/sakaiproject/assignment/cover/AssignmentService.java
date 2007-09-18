@@ -560,6 +560,15 @@ public class AssignmentService {
 
 		return service.getSubmission(param0, param1);
 	}
+	
+	public static org.sakaiproject.assignment.api.AssignmentSubmission getSubmission(
+			java.util.List param0, org.sakaiproject.user.api.User param1) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getSubmission(param0, param1);
+	}
 
 	public static java.util.Iterator getAssignments(
 			org.sakaiproject.assignment.api.AssignmentContent param0) {

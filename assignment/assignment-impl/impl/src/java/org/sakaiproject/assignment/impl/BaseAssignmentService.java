@@ -2567,6 +2567,38 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public AssignmentSubmission getSubmission(List submissions, User person) 
+	{
+		AssignmentSubmission retVal = null;
+		
+		for (int z = 0; z < submissions.size(); z++)
+		{
+			AssignmentSubmission sub = (AssignmentSubmission) submissions.get(z);
+			if (sub != null)
+			{
+				List submitters = sub.getSubmitterIds();
+				for (int a = 0; a < submitters.size(); a++)
+				{
+					String aUserId = (String) submitters.get(a);
+					if (M_log.isDebugEnabled())
+						M_log.debug(this + "comparing aUser id : " + aUserId + " and chosen user id : "
+								+ person.getId());
+					if (aUserId.equals(person.getId()))
+					{
+						if (M_log.isDebugEnabled())
+							M_log.debug(this + " found a match : return value is " + sub.getId());
+						retVal = sub;
+					}
+				}
+			}
+		}
+
+		return retVal;
+	}
+	
+	/**
 	 * Get the submissions for an assignment.
 	 * 
 	 * @param assignment -

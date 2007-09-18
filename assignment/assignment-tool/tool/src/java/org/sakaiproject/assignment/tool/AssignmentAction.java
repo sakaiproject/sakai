@@ -1180,8 +1180,9 @@ public class AssignmentAction extends PagedResourceActionII
 			Assignment a = (Assignment) assignments.get(i);
 			List submissions = AssignmentService.getSubmissions(a);
 			assignments_submissions.put(a.getReference(), submissions);
-			if (a.getContent() != null && a.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+			if (a.getContent() != null && a.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION && AssignmentService.allowAddAssignment(contextString))
 			{
+				// the following operation is accessible for those with add assignment right
 				List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(a.getReference());
 				
 				HashSet<String> submittersIdSet = getSubmittersIdSet(submissions);
@@ -1196,15 +1197,6 @@ public class AssignmentAction extends PagedResourceActionII
 						addSubmissionUserIdSet.removeAll(submittersIdSet);
 						HashSet<String> removeSubmissionUserIdSet = (HashSet<String>) submittersIdSet.clone();
 						removeSubmissionUserIdSet.removeAll(allowAddSubmissionUsersIdSet);
-						
-						// temporarily allow the user to read and write from assignments (asn.revise permission)
-				        SecurityService.pushAdvisor(new SecurityAdvisor()
-				            {
-				                public SecurityAdvice isAllowed(String userId, String function, String reference)
-				                {
-				                    return SecurityAdvice.ALLOWED;
-				                }
-				            });
 				        
 						try
 						{
@@ -1214,9 +1206,6 @@ public class AssignmentAction extends PagedResourceActionII
 						{
 							Log.warn("chef", this + ee.getMessage());
 						}
-						
-						// clear temporary permissions
-						SecurityService.clearAdvisors();
 					}
 					catch (Exception e)
 					{
@@ -4409,30 +4398,47 @@ public class AssignmentAction extends PagedResourceActionII
 					// only if user is posting the assignment
 					if (ac.getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 					{
-						// for non-electronic assignment
-						List submissions = AssignmentService.getSubmissions(a);
-						if (submissions != null && submissions.size() >0)
+						try
 						{
-							// assignment already exist and with submissions
-							for (Iterator iSubmissions = submissions.iterator(); iSubmissions.hasNext();)
+							// temporally make the assignment to be an draft and undraft it after the following operations are done
+							AssignmentEdit aEdit = AssignmentService.editAssignment(a.getReference());
+							aEdit.setDraft(true);
+							AssignmentService.commitEdit(aEdit);
+							
+							// for non-electronic assignment
+							List submissions = AssignmentService.getSubmissions(a);
+							if (submissions != null && submissions.size() >0)
 							{
-								AssignmentSubmission s = (AssignmentSubmission) iSubmissions.next();
-								// remove all submissions
-								try
+								// assignment already exist and with submissions
+								for (Iterator iSubmissions = submissions.iterator(); iSubmissions.hasNext();)
 								{
-									AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(s.getReference());
-									AssignmentService.removeSubmission(sEdit);
-								}
-								catch (Exception e)
-								{
-									Log.debug("chef", this + e.getMessage() + s.getReference());
+									AssignmentSubmission s = (AssignmentSubmission) iSubmissions.next();
+									// remove all submissions
+									try
+									{
+										AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(s.getReference());
+										AssignmentService.removeSubmission(sEdit);
+									}
+									catch (Exception ee)
+									{
+										Log.debug("chef", this + ee.getMessage() + s.getReference());
+									}
 								}
 							}
+							
+							// add submission for every one who can submit
+							HashSet<String> addSubmissionUserIdSet = (HashSet<String>) getAllowAddSubmissionUsersIdSet(AssignmentService.allowAddSubmissionUsers(a.getReference()));	
+							addRemoveSubmissionsForNonElectronicAssignment(state, submissions, addSubmissionUserIdSet, new HashSet(), a);
+							
+							// undraft it
+							aEdit = AssignmentService.editAssignment(a.getReference());
+							aEdit.setDraft(false);
+							AssignmentService.commitEdit(aEdit);
 						}
-						
-						// add submission for every one who can submit
-						HashSet<String> addSubmissionUserIdSet = (HashSet<String>) getAllowAddSubmissionUsersIdSet(AssignmentService.allowAddSubmissionUsers(a.getReference()));	
-						addRemoveSubmissionsForNonElectronicAssignment(state, submissions, addSubmissionUserIdSet, new HashSet(), a);
+						catch (Exception e)
+						{
+							Log.debug("chef", this + e.getMessage() + a.getReference());
+						}
 					}
 					else if (bool_change_from_non_electronic)
 					{
@@ -4522,20 +4528,6 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	private void addRemoveSubmissionsForNonElectronicAssignment(SessionState state, List submissions, HashSet<String> addSubmissionForUsers, HashSet<String> removeSubmissionForUsers, Assignment a) 
 	{
-		// get the string for all submitters
-		HashSet<String> submitterIdSet = new HashSet<String>();
-		for (Iterator iSubmissions=submissions.iterator(); iSubmissions.hasNext();)
-		{
-			List submitterIds = ((AssignmentSubmission) iSubmissions.next()).getSubmitterIds();
-			if (submitterIds != null && submitterIds.size() > 0)
-			{
-				for (int i = 0; i < submitterIds.size(); i++)
-				{
-					submitterIdSet.add((String) submitterIds.get(i));
-				}
-			}
-		}
-		
 		// create submission object for those user who doesn't have one yet
 		for (Iterator iUserIds = addSubmissionForUsers.iterator(); iUserIds.hasNext();)
 		{
