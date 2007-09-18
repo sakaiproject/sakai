@@ -79,12 +79,14 @@ public class SingleSearchSoakTest extends TestCase
 
 	
 	public void testSoakOneNode() throws Exception {
+		String driver = "org.apache.derby.jdbc.EmbeddedDriver";
+		String url = "jdbc:derby:" + testBase.getAbsolutePath() + ";create=true";
+		String user = "sa";
+		String password = "manager";
+
 		log.info("================================== "+this.getClass().getName()+".testSoakOneNode");
 		SearchIndexerNode node = new SearchIndexerNode(testBase.getAbsolutePath(),
-				"onethread",
-				"org.hsqldb.jdbcDriver",
-				"jdbc:hsqldb:mem:aname",
-				"sa","");
+				"onethread",driver, url, user,password);
 		node.init();
 		Thread.sleep(15 * 1000);
 		node.close();

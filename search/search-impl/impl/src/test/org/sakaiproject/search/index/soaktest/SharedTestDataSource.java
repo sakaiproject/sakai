@@ -56,13 +56,13 @@ public class SharedTestDataSource
 
 	private int docid = 0;
 
-
-	public SharedTestDataSource(String dblocation, int pool, final boolean poolLogging, String driver, String url, String username, String password) throws Exception
+	public SharedTestDataSource(String dblocation, int pool, final boolean poolLogging,
+			String driver, String dburl, String user, String password) throws Exception
 	{
 		log.info("Using Derby DB");
 		DriverAdapterCPDS cpds = new DriverAdapterCPDS();
 		cpds.setDriver("org.apache.derby.jdbc.EmbeddedDriver");
-		cpds.setUrl("jdbc:derby:m2-target/testdb;create=true");
+		cpds.setUrl("jdbc:derby:" + dblocation + ";create=true");
 		cpds.setUser("sa");
 		cpds.setPassword("manager");
 
@@ -79,7 +79,7 @@ public class SharedTestDataSource
 			{
 				final Connection c = tds.getConnection();
 				nopen++;
-				if ( poolLogging) log.info("++++++++++++Opened " + nopen);
+				if (poolLogging) log.info("++++++++++++Opened " + nopen);
 				Exception ex = new Exception();
 				StackTraceElement[] ste = ex.getStackTrace();
 				log.debug("Stack Trace " + ste[1].toString());
@@ -95,7 +95,7 @@ public class SharedTestDataSource
 					{
 						c.close();
 						nopen--;
-						if ( poolLogging) log.info("------------Closed " + nopen);
+						if (poolLogging) log.info("------------Closed " + nopen);
 
 					}
 
@@ -332,7 +332,8 @@ public class SharedTestDataSource
 		Statement s = connection.createStatement();
 		try
 		{
-			s.execute("create table search_transaction ( txname varchar(64), txid bigint )");
+			s
+					.execute("create table search_transaction ( txname varchar(64), txid bigint )");
 		}
 		catch (Exception ex)
 		{
@@ -394,7 +395,8 @@ public class SharedTestDataSource
 		tds.close();
 	}
 
-	public int populateDocuments(long targetItems, String instanceName) throws SQLException
+	public int populateDocuments(long targetItems, String instanceName)
+			throws SQLException
 	{
 		int nitems = 0;
 		Connection connection = null;
@@ -417,10 +419,12 @@ public class SharedTestDataSource
 					nitems++;
 				}
 				insertPST.clearParameters();
-				insertPST.setString(1, String.valueOf(instanceName+System.currentTimeMillis())
-						+ String.valueOf(i)+":"+String.valueOf(docid++));
+				insertPST.setString(1, String.valueOf(instanceName
+						+ System.currentTimeMillis())
+						+ String.valueOf(i) + ":" + String.valueOf(docid++));
 				insertPST.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-				insertPST.setString(3, "/"+instanceName+ "/" + name + "/at/a/location/" + docid++);
+				insertPST.setString(3, "/" + instanceName + "/" + name
+						+ "/at/a/location/" + docid++);
 				insertPST.setString(4, "/" + name + "/at/a");
 				insertPST.setInt(5, action);
 				insertPST.setInt(6, state);

@@ -80,10 +80,14 @@ public class SearchIndexerNode
 
 	private String password;
 
-	public SearchIndexerNode(String base, String instanceName, String driver, String url, String username, String password) 
+	public SearchIndexerNode(String base, String instanceName, String driver, String url, String userame, String password) 
 	{
 		this.base = base;
 		this.instanceName = instanceName;
+		this.driver = driver;
+		this.url = url;
+		this.userame = userame;
+		this.password = password;
 	}
 
 	public void init() throws Exception
@@ -93,7 +97,7 @@ public class SearchIndexerNode
 		String indexerwork = instanceBase + "/indexerwork";
 		String indexwork = instanceBase + "/index/work";
 		String index = instanceBase + "/index/main";
-		tds = new SharedTestDataSource(base,10,false,driver,url,userame,password);
+		tds = new SharedTestDataSource(base,10,false,driver, url, userame, password);
 
 		mu = new MergeUpdateOperation();
 		JournaledFSIndexStorage journaledFSIndexStorage = new JournaledFSIndexStorage();
@@ -232,7 +236,8 @@ public class SearchIndexerNode
 		taskList.add(docloader);
 		
 		cim.setTasks(taskList);
-		
+		 
+		journaledFSIndexStorage.addIndexListener(cim);
 		
 		cim.init();
 		

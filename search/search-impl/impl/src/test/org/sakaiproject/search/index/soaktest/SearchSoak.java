@@ -25,25 +25,32 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.util.FileUtils;
 
 /**
  * to run this test use mvn -Dtest=SearchSoak test
+ * 
  * @author ieb
- *
  */
 public class SearchSoak extends TestCase
 {
 
+	private static final Log log = LogFactory.getLog(SearchSoak.class);
+
 	private File testBase;
+
 	private File dbFile;
 
-	public SearchSoak(String name) {
+	public SearchSoak(String name)
+	{
 		super(name);
 	}
-	
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	@Override
@@ -53,8 +60,10 @@ public class SearchSoak extends TestCase
 		super.setUp();
 		init();
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	@Override
@@ -65,8 +74,7 @@ public class SearchSoak extends TestCase
 	}
 
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
 	 */
 	private void init() throws Exception
 	{
@@ -76,22 +84,37 @@ public class SearchSoak extends TestCase
 		FileUtils.deleteAll(testBase);
 	}
 
-	
-/*	public void testSoakOneNode() throws Exception {
-		SearchIndexerNode node = new SearchIndexerNode(testBase.getAbsolutePath(),"onethread");
-		node.init();
-		Thread.sleep(30 * 1000);
-	}
-	*/
-	public void testSoakTenCLuster() throws Exception {
-		for ( int i = 0; i < 4; i++ ) {
-			SearchIndexerNode node = new SearchIndexerNode(testBase.getAbsolutePath(),"node"+i,
-					"org.hsqldb.jdbcDriver",
-					"jdbc:hsqldb:file:"+dbFile.getAbsolutePath(),
-					"sa","");
+	/*
+	 * public void testSoakOneNode() throws Exception { SearchIndexerNode node =
+	 * new SearchIndexerNode(testBase.getAbsolutePath(),"onethread");
+	 * node.init(); Thread.sleep(30 * 1000); }
+	 */
+	public void testSoakTenCLuster() throws Exception
+	{
+		String driver = "org.apache.derby.jdbc.EmbeddedDriver";
+		String url = "jdbc:derby:" + testBase.getAbsolutePath() + ";create=true";
+		String user = "sa";
+		String password = "manager";
+		try
+		{
+			Class.forName("com.mysql.jdbc.Driver");
+			driver = "com.mysql.jdbc.Driver";
+			url = "dbc:mysql://127.0.0.1:3306/sakai22?useUnicode=true&characterEncoding=UTF-8";
+			user = "sakai22";
+			password = "sakai22";
+		}
+		catch (ClassNotFoundException cnfe)
+		{
+		}
+
+		log.info("Using " + driver);
+		for (int i = 0; i < 4; i++)
+		{
+			SearchIndexerNode node = new SearchIndexerNode(testBase.getAbsolutePath(),
+					"node" + i, driver, url, user, password);
 			node.init();
 		}
-		Thread.sleep(6000*1000);
+		Thread.sleep(600 * 1000);
 	}
 
 }

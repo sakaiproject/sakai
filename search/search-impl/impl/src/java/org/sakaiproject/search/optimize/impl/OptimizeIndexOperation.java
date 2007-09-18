@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.journal.impl;
+package org.sakaiproject.search.optimize.impl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,14 +36,14 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 /**
  * @author ieb TODO Unit test
  */
-public class MergeUpdateOperation implements ManagementOperation
+public class OptimizeIndexOperation implements ManagementOperation
 {
 
-	private static final Log log = LogFactory.getLog(MergeUpdateOperation.class);
+	private static final Log log = LogFactory.getLog(OptimizeIndexOperation.class);
 
 	private JournaledObject journaledObject;
 
-	private MergeUpdateManager mergeUpdateManager;
+	private OptimizeIndexManager optimizeUpdateManager;
 
 	public void init()
 	{
@@ -55,82 +55,77 @@ public class MergeUpdateOperation implements ManagementOperation
 	public void runOnce()
 	{
 
-		// find the current journal ID,
-		// get a list of later jourals
-		// unpack them locally
-		// merge with the curent index.
-		// 
-		log.info("Last Journaled version is "+journaledObject.getLastJournalEntry());
-		
+		/*
+		 * Run the optimizer transaction once
+		 */
+
 		if (journaledObject.aquireUpdateLock())
 		{
-			log.info("Now Locked Journaled version is "+journaledObject.getLastJournalEntry());
+			log.info("Now Locked Journaled version is "
+					+ journaledObject.getLastJournalEntry());
 			try
 			{
 				try
 				{
-					while (true)
+					IndexMergeTransaction optimizeUpdateTransaction = null;
+					try
 					{
-						log.info("Loop Journaled version is "+journaledObject.getLastJournalEntry());
-						IndexMergeTransaction mergeUpdateTransaction = null;
-						try
-						{
-							Map<String, Object> m = new HashMap<String, Object>();
-							mergeUpdateTransaction = (IndexMergeTransaction) mergeUpdateManager
-									.openTransaction(m);
-							mergeUpdateTransaction.prepare();
-							mergeUpdateTransaction.commit();
-							log.info("Merged Journal "
-									+ mergeUpdateTransaction.getJournalEntry()
-									+ " from the redolog");
-						}
-						catch (JournalErrorException jex)
-						{
-							if ( mergeUpdateTransaction != null ) {
-							log
-									.warn("Failed to compete merge of "
-											+ mergeUpdateTransaction.getJournalEntry()
-											+ " ", jex);
-							} else {
-								log
-								.warn("Failed to start merge operation ",jex);
-							
-							}
-							try
-							{
-								mergeUpdateTransaction.rollback();
-							}
-							catch (Exception ex)
-							{
-								log.warn("Failed to rollback transaction ", ex);
-							}
-							break;
-						}
-						catch (IndexTransactionException iupex)
+						Map<String, Object> m = new HashMap<String, Object>();
+						optimizeUpdateTransaction = (IndexMergeTransaction) optimizeUpdateManager
+								.openTransaction(m);
+						optimizeUpdateTransaction.prepare();
+						optimizeUpdateTransaction.commit();
+						log.info("Op Journal "
+								+ optimizeUpdateTransaction.getJournalEntry()
+								+ " from the redolog");
+					}
+					catch (JournalErrorException jex)
+					{
+						if (optimizeUpdateTransaction != null)
 						{
 							log.warn("Failed to compete merge of "
-									+ mergeUpdateTransaction.getJournalEntry() + "",
-									iupex);
-							try
-							{
-								mergeUpdateTransaction.rollback();
-							}
-							catch (Exception ex)
-							{
-								log.warn("Failed to rollback transaction ", ex);
-							}
+									+ optimizeUpdateTransaction.getJournalEntry() + " ",
+									jex);
 						}
-						finally
+						else
 						{
-							try
-							{
-								mergeUpdateTransaction.close();
-							}
-							catch (Exception ex)
-							{
-							}
+							log.warn("Failed to start merge operation ", jex);
 
 						}
+						try
+						{
+							optimizeUpdateTransaction.rollback();
+						}
+						catch (Exception ex)
+						{
+							log.warn("Failed to rollback transaction ", ex);
+						}
+					}
+					catch (IndexTransactionException iupex)
+					{
+						log
+								.warn("Failed to compete merge of "
+										+ optimizeUpdateTransaction.getJournalEntry()
+										+ "", iupex);
+						try
+						{
+							optimizeUpdateTransaction.rollback();
+						}
+						catch (Exception ex)
+						{
+							log.warn("Failed to rollback transaction ", ex);
+						}
+					}
+					finally
+					{
+						try
+						{
+							optimizeUpdateTransaction.close();
+						}
+						catch (Exception ex)
+						{
+						}
+
 					}
 				}
 				catch (JournalExhausetedException ex)
@@ -170,20 +165,19 @@ public class MergeUpdateOperation implements ManagementOperation
 	}
 
 	/**
-	 * @return the mergeUpdateManager
+	 * @return the optimizeUpdateManager
 	 */
-	public MergeUpdateManager getMergeUpdateManager()
+	public OptimizeIndexManager getOptimizeUpdateManager()
 	{
-		return mergeUpdateManager;
+		return optimizeUpdateManager;
 	}
 
 	/**
-	 * @param mergeUpdateManager
-	 *        the mergeUpdateManager to set
+	 * @param optimizeUpdateManager the optimizeUpdateManager to set
 	 */
-	public void setMergeUpdateManager(MergeUpdateManager mergeUpdateManager)
+	public void setOptimizeUpdateManager(OptimizeIndexManager optimizeUpdateManager)
 	{
-		this.mergeUpdateManager = mergeUpdateManager;
+		this.optimizeUpdateManager = optimizeUpdateManager;
 	}
 
 }

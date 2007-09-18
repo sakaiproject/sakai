@@ -22,13 +22,11 @@
 package org.sakaiproject.search.transaction.impl;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
-import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 import org.sakaiproject.search.transaction.api.TransactionListener;
@@ -51,8 +49,6 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 	protected int transactionState = IndexTransaction.STATUS_UNKNOWN;
 
 	private Map<String, Object> attributes;
-
-	private List<SearchBuilderItem> itemList;
 
 	/**
 	 * @param m
@@ -275,32 +271,6 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 		return transactionState;
 	}
 
-	/**
-	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#setItems(java.util.List)
-	 */
-	public void setItems(List<SearchBuilderItem> items) throws IndexTransactionException
-	{
-		if (transactionState != IndexTransaction.STATUS_ACTIVE)
-		{
-			throw new IndexTransactionException("Transaction is not active ");
-		}
-		if (itemList != null)
-		{
-			throw new IndexTransactionException(
-					"Once the items has been set, it cannot be reset while the transaction is in process");
-		}
-
-		
-		itemList = items;
-	}
-
-	/**
-	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#getItems()
-	 */
-	public List<SearchBuilderItem> getItems()
-	{
-		return itemList;
-	}
 
 	/**
 	 * @see org.sakaiproject.search.indexer.api.IndexUpdateTransaction#clear(java.lang.String)

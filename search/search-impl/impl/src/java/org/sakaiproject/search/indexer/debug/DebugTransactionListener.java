@@ -25,7 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.indexer.api.IndexJournalException;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;
-import org.sakaiproject.search.journal.impl.MergeTransactionListener;
+import org.sakaiproject.search.journal.api.MergeTransactionListener;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 

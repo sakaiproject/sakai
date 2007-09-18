@@ -35,12 +35,16 @@ import org.sakaiproject.search.journal.api.JournalManager;
 import org.sakaiproject.search.journal.api.JournalStorage;
 import org.sakaiproject.search.journal.api.JournaledIndex;
 import org.sakaiproject.search.journal.api.JournaledObject;
+import org.sakaiproject.search.journal.api.MergeTransactionListener;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
- * Listens for Transaction changes in the 2PC associated with an index update
+ * Listens for Transaction changes in the 2PC associated with an index update,
+ * This adds new segments into the current index reader, it does not merge the indexes
+ * this is performed by a seperate index merge operation, run periodically to take the
+ * new inbound segments into a permanent space
  * 
  * @author ieb TODO Unit test
  */

@@ -41,6 +41,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
+import org.sakaiproject.search.transaction.api.IndexItemsTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 import org.sakaiproject.site.api.Site;
@@ -52,9 +53,7 @@ import org.sakaiproject.site.cover.SiteService;
 /**
  * This class manages the Search Build Queue, it retrieves the
  * 
- * @author ieb
- * 
- * Unit test 
+ * @author ieb Unit test
  * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
 public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
@@ -81,7 +80,6 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 	 * dependency
 	 */
 	private DataSource datasource;
-
 
 	/**
 	 * Does nothing at the moment.
@@ -115,7 +113,8 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		try
 		{
 			connection = datasource.getConnection();
-			commitPendingAndUnLock(transaction.getItems(), connection);
+			commitPendingAndUnLock(((IndexItemsTransaction) transaction).getItems(),
+					connection);
 			connection.commit();
 		}
 		catch (Exception ex)
@@ -151,7 +150,8 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		try
 		{
 			connection = datasource.getConnection();
-			rollbackPendingAndUnLock(transaction.getItems(), connection);
+			rollbackPendingAndUnLock(((IndexItemsTransaction) transaction).getItems(),
+					connection);
 			connection.commit();
 		}
 		catch (Exception ex)
@@ -187,24 +187,25 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		try
 		{
 			connection = datasource.getConnection();
-			Integer bs = (Integer)transaction.get(BATCH_SIZE);
+			Integer bs = (Integer) transaction.get(BATCH_SIZE);
 			int batchSize = 100;
-			if ( bs != null ) {
+			if (bs != null)
+			{
 				batchSize = bs.intValue();
 			}
 			List<SearchBuilderItem> items = findPendingAndLock(batchSize, connection);
-			log.info("Adding "+items.size()+" items to indexing queue");
-			transaction.setItems(items);
+			log.info("Adding " + items.size() + " items to indexing queue");
+			((IndexItemsTransaction) transaction).setItems(items);
 			connection.commit();
 		}
 		catch (IndexTransactionException itex)
 		{
-			log.info("Rethrowing "+itex.getMessage());
+			log.info("Rethrowing " + itex.getMessage());
 			throw itex;
 		}
 		catch (Exception ex)
 		{
-			log.info("Failed to Open Transaction ",ex);
+			log.info("Failed to Open Transaction ", ex);
 			try
 			{
 				connection.rollback();
@@ -212,7 +213,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			catch (Exception ex2)
 			{
 			}
-			throw new IndexTransactionException("Failed to open transaction ",ex);
+			throw new IndexTransactionException("Failed to open transaction ", ex);
 		}
 		finally
 		{
@@ -227,8 +228,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 
 	}
 
-	/** 
-	 * 
+	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#close(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
 	public void close(IndexTransaction transaction) throws IndexTransactionException
@@ -383,11 +383,14 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 				{
 					deletePst.clearParameters();
 					deletePst.setString(1, sbi.getId());
-					if ( deletePst.executeUpdate() != 1 ) {
-						log.warn("Failed to delete " + sbi.getName() + "  ");						
-					} else {
-						log.debug("Delete " + sbi.getName() + "  ");						
-						
+					if (deletePst.executeUpdate() != 1)
+					{
+						log.warn("Failed to delete " + sbi.getName() + "  ");
+					}
+					else
+					{
+						log.debug("Delete " + sbi.getName() + "  ");
+
 					}
 				}
 				else
@@ -400,7 +403,9 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 					if (unLockPst.executeUpdate() != 1)
 					{
 						log.warn("Failed to mark " + sbi.getName() + " as completed ");
-					} else {
+					}
+					else
+					{
 						log.debug("Marked " + sbi.getName() + " as completed ");
 					}
 					connection.commit();
@@ -924,6 +929,5 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 	{
 		this.datasource = datasource;
 	}
-
 
 }

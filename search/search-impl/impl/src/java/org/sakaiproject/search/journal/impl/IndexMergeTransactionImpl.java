@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.sakaiproject.search.journal.api.IndexMergeTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
+import org.sakaiproject.search.transaction.impl.IndexItemsTransactionImpl;
 import org.sakaiproject.search.transaction.impl.IndexTransactionImpl;
 import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 
@@ -36,7 +37,7 @@ import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
  * TODO Unit test
  * 
  */
-public class IndexMergeTransactionImpl extends IndexTransactionImpl implements
+public class IndexMergeTransactionImpl extends IndexItemsTransactionImpl implements
 		IndexMergeTransaction
 {
 	private long journalEntry;

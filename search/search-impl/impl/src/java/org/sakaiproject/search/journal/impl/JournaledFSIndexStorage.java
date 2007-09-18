@@ -29,6 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -47,15 +48,24 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.index.impl.BaseIndexStorage;
+import org.sakaiproject.search.journal.api.IndexListener;
 import org.sakaiproject.search.journal.api.JournalManager;
 import org.sakaiproject.search.journal.api.JournaledIndex;
 import org.sakaiproject.search.util.FileUtils;
 
 /**
+ * <pre>
  * This is a Journaled version of the local FSIndexStorage. It will merge in new
  * versions from the jorunal. This is going to be performed in a non
- * transactional way for the moment.
+ * transactional way for the moment. 
  * 
+ * The index reader must maintain a single
+ * index reader for the JVM. When performing a read update, the single index
+ * reader must be used, but each time the index reader is provided we should
+ * check that the index reader has not been updated.
+ * 
+ * If the reader is being updated, then it is not safe to reload it.
+ * </pre>
  * @author ieb TODO Unit test
  */
 public class JournaledFSIndexStorage extends BaseIndexStorage implements JournaledIndex
@@ -87,23 +97,33 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 
 	private MultiReader multiReader;
 
+	private List<IndexListener> indexListeners = new ArrayList<IndexListener>();
+
+	private boolean modified = false;
+
 	/**
 	 * @see org.sakaiproject.search.index.impl.FSIndexStorage#init()
 	 */
 	public void init()
 	{
 		serverId = serverConfigurationService.getServerId();
-		// ensure that the index is closed to avoid stale locks 
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			/* (non-Javadoc)
+		// ensure that the index is closed to avoid stale locks
+		Runtime.getRuntime().addShutdownHook(new Thread()
+		{
+			/*
+			 * (non-Javadoc)
+			 * 
 			 * @see java.lang.Thread#run()
 			 */
 			@Override
 			public void run()
 			{
-				try {
+				try
+				{
 					multiReader.close();
-				} catch ( Exception ex ){
+				}
+				catch (Exception ex)
+				{
 				}
 			}
 		});
@@ -133,6 +153,7 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 				if (rs.next())
 				{
 					journalVersion = rs.getLong(1);
+					lastUpdate = System.currentTimeMillis();
 				}
 
 			}
@@ -206,7 +227,7 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	/**
 	 * @see org.sakaiproject.search.journal.api.JournaledObject#auquireReadLock()
 	 */
-	public boolean auquireReadLock()
+	public boolean aquireReadLock()
 	{
 		try
 		{
@@ -227,8 +248,6 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 		rwlock.readLock().unlock();
 	}
 
-	
-	
 	/**
 	 * @param nextJournalEntry
 	 */
@@ -256,6 +275,7 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	public void addSegment(File f)
 	{
 		segments.add(f);
+		modified  = true;
 	}
 
 	/**
@@ -293,7 +313,7 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	 */
 	public IndexReader getDeletionIndexReader() throws IOException
 	{
-		return getIndexReaderInternal();
+		return getIndexReader();
 	}
 
 	/*
@@ -362,10 +382,7 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	 */
 	public void closeIndexWriter(IndexWriter indexWrite) throws IOException
 	{
-		if (indexWrite != null)
-		{
-			indexWrite.close();
-		}
+		throw new UnsupportedOperationException("Only Readers are available from a JournaledFSIndexStorage class");
 	}
 
 	/*
@@ -375,7 +392,7 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	 */
 	public void doPostIndexUpdate() throws IOException
 	{
-		lastUpdate = System.currentTimeMillis();
+		throw new UnsupportedOperationException("Only Readers are available from a JournaledFSIndexStorage class");
 	}
 
 	/*
@@ -385,12 +402,26 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	 */
 	public void doPreIndexUpdate() throws IOException
 	{
-
+		throw new UnsupportedOperationException("Only Readers are available from a JournaledFSIndexStorage class");
 	}
-	public IndexReader getIndexReader() throws IOException {
-		if (multiReader == null ) {
-			// TODO: sort out any locking required here
-			getIndexReaderInternal();
+
+	public IndexReader getIndexReader() throws IOException
+	{
+		if (modified || multiReader == null || !multiReader.isCurrent())
+		{
+			/*
+			 * We must get a read lock to prevent a writer from 
+			 * opening when we are trying to open for read.
+			 * Writers will have already taken write locks
+			 * and so get the read lock by default. 
+			 */
+			if ( aquireReadLock() ) {
+				try {
+					getIndexReaderInternal();
+				} finally {
+					releaseReadLock();
+				}
+			}
 		}
 		return multiReader;
 	}
@@ -400,16 +431,22 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#getIndexReader()
 	 */
-	public IndexReader getIndexReaderInternal() throws IOException
+	private IndexReader getIndexReaderInternal() throws IOException
 	{
 		File f = new File(searchIndexDirectory);
+		Directory d = null;
 		if (!f.exists())
 		{
 			f.mkdirs();
 			log.debug("Indexing in " + f.getAbsolutePath());
+			d = FSDirectory.getDirectory(searchIndexDirectory, true);
+		}
+		else
+		{
+			d = FSDirectory.getDirectory(searchIndexDirectory, false);
 		}
 
-		if (IndexReader.isLocked(searchIndexDirectory))
+		if (IndexReader.isLocked(d))
 		{
 			// this could be dangerous, I am assuming that
 			// the locking mechanism implemented here is
@@ -417,17 +454,18 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 			// already prevents multiple modifiers.
 			// A more
 
-			IndexReader.unlock(FSDirectory.getDirectory(searchIndexDirectory, true));
+			IndexReader.unlock(d);
 			log.warn("Unlocked Lucene Directory for update, hope this is Ok");
 		}
-		Directory d = FSDirectory.getDirectory(f, true);
-		if ( !d.fileExists("segments") ) {
-			IndexWriter iw  = new IndexWriter(f,getAnalyzer(),true);
+		if (!d.fileExists("segments"))
+		{
+			IndexWriter iw = new IndexWriter(f, getAnalyzer(), true);
 			iw.setUseCompoundFile(true);
 			iw.setMaxBufferedDocs(50);
 			iw.setMaxMergeDocs(50);
 			Document doc = new Document();
-			doc.add(new Field("indexcreated",(new Date()).toString(),Field.Store.YES,Field.Index.UN_TOKENIZED, Field.TermVector.NO ));
+			doc.add(new Field("indexcreated", (new Date()).toString(), Field.Store.YES,
+					Field.Index.UN_TOKENIZED, Field.TermVector.NO));
 			iw.addDocument(doc);
 			iw.close();
 		}
@@ -437,22 +475,30 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 		int i = 1;
 		for (File s : segments)
 		{
+			FSDirectory fsd = FSDirectory.getDirectory(s, false);
+			if (IndexReader.isLocked(fsd))
+			{
+				log.warn("++++++++++++++++++Unlocking Index " + fsd.toString());
+				IndexReader.unlock(fsd);
+			}
 			indexReaders[i] = IndexReader.open(s);
 			i++;
 		}
-		MultiReader newMultiReader =  new MultiReader(indexReaders);
+		MultiReader newMultiReader = new MultiReader(indexReaders);
 		MultiReader oldMultiReader = multiReader;
 		multiReader = newMultiReader;
-		
-		try {
-			oldMultiReader.close();
-		} catch ( Exception ex ) {
-			
-		}
+		lastUpdate = System.currentTimeMillis();
+
+		// notify anything that wants to listen to the index open and close
+		// events
+		fireIndexReaderOpen(newMultiReader);
+		fireIndexReaderClose(oldMultiReader);
+
 		oldMultiReader = null;
 		return multiReader;
 
 	}
+
 
 	/*
 	 * *
@@ -461,38 +507,11 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 	 */
 	public IndexWriter getIndexWriter(boolean create) throws IOException
 	{
-		File f = new File(searchIndexDirectory);
-		if (!f.exists())
-		{
-			f.mkdirs();
-			log.debug("Indexing in " + f.getAbsolutePath());
-		}
+		throw new UnsupportedOperationException("A JournaledFSIndexStorage only supports readers");
 
-		if (IndexReader.isLocked(searchIndexDirectory))
-		{
-			// this could be dangerous, I am assuming that
-			// the locking mechanism implemented here is
-			// robust and
-			// already prevents multiple modifiers.
-			// A more
-
-			IndexReader.unlock(FSDirectory.getDirectory(searchIndexDirectory, true));
-			log.warn("Unlocked Lucene Directory for update, hope this is Ok");
-		}
-		Directory d = FSDirectory.getDirectory(f, true);
-		if ( !d.fileExists("segments") ) {
-			IndexWriter iw  = new IndexWriter(f,getAnalyzer(),true);
-			iw.setUseCompoundFile(true);
-			iw.setMaxBufferedDocs(50);
-			iw.setMaxMergeDocs(50);
-			Document doc = new Document();
-			doc.add(new Field("indexcreated",(new Date()).toString(),Field.Store.YES,Field.Index.UN_TOKENIZED, Field.TermVector.NO ));
-			iw.addDocument(doc);
-			iw.close();
-		}
-		return new IndexWriter(f, getAnalyzer(), create);
 	}
-
+	
+	
 	/*
 	 * *
 	 * 
@@ -818,5 +837,55 @@ public class JournaledFSIndexStorage extends BaseIndexStorage implements Journal
 			}
 		}
 	}
+
+	/**
+	 * @param oldMultiReader
+	 */
+	private void fireIndexReaderClose(IndexReader oldMultiReader)
+	{
+		for (Iterator<IndexListener> itl = getIndexListeners()
+				.iterator(); itl.hasNext();)
+		{
+			IndexListener tl = itl.next();
+			tl.doIndexReaderClose(oldMultiReader);
+		}
+	}
+
+	/**
+	 * @param newMultiReader
+	 */
+	private void fireIndexReaderOpen(IndexReader newMultiReader)
+	{
+		for (Iterator<IndexListener> itl = getIndexListeners()
+				.iterator(); itl.hasNext();)
+		{
+			IndexListener tl = itl.next();
+			tl.doIndexReaderOpen(newMultiReader);
+		}
+	}
+
+	
+	/**
+	 * @return
+	 */
+	private List<IndexListener> getIndexListeners()
+	{
+		return indexListeners;
+	}
+
+	public void addIndexListener(IndexListener indexListener)
+	{
+		List<IndexListener> tl = new ArrayList<IndexListener>();
+		tl.addAll(this.indexListeners );
+		tl.add(indexListener);
+		this.indexListeners = tl;
+	}
+	public void setIndexListener(List<IndexListener> indexListeners)
+	{
+		List<IndexListener> tl = new ArrayList<IndexListener>();
+		tl.addAll(this.indexListeners);
+		this.indexListeners = tl;
+	}
+
 
 }

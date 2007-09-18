@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.indexer.impl.test;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -41,7 +40,6 @@ import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.search.util.FileUtils;
 
 /**
  * @author ieb

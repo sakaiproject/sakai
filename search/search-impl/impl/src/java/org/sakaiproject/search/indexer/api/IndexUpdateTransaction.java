@@ -22,6 +22,7 @@
 package org.sakaiproject.search.indexer.api;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.lucene.index.IndexWriter;
 import org.sakaiproject.search.model.SearchBuilderItem;
@@ -59,6 +60,23 @@ public interface IndexUpdateTransaction extends IndexTransaction
 	 * @return
 	 */
 	String getTempIndex();
+
+	/**
+	 * The list of items
+	 * 
+	 * @return
+	 */
+	List<SearchBuilderItem> getItems();
+
+
+	/**
+	 * Sets the items for the tansaction if the transaction is not open
+	 * 
+	 * @param items
+	 * @throws IndexTransactionException
+	 *         if the items has already been set, or the transaction is not open
+	 */
+	void setItems(List<SearchBuilderItem> items) throws IndexTransactionException;
 
 	
 	

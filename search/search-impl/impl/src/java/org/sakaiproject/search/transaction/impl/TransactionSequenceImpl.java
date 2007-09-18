@@ -32,7 +32,6 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.transaction.api.TransactionSequence;
-import org.springframework.jdbc.support.SQLErrorCodes;
 
 /**
  * @author ieb Unit test

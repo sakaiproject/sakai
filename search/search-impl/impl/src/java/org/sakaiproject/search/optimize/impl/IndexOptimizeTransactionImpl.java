@@ -19,37 +19,35 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.impl;
+package org.sakaiproject.search.optimize.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexWriter;
-import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
-import org.sakaiproject.search.indexer.api.NoItemsToIndexException;
+import org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.search.optimize.api.IndexOptimizeTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
-import org.sakaiproject.search.transaction.impl.IndexItemsTransactionImpl;
+import org.sakaiproject.search.transaction.impl.IndexTransactionImpl;
 import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 import org.sakaiproject.search.util.FileUtils;
 
 /**
- * A trnasaction to manage the 2PC of a journaled indexing operation, this is created by a Transaction Manager
- * @author ieb
  * 
- * Unit test @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
+ * 
+ * @author ieb 
  */
-public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implements IndexUpdateTransaction
+public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implements
+		IndexOptimizeTransaction
 {
 
-	private static final Log log = LogFactory.getLog(IndexUpdateTransactionImpl.class);
+	private static final Log log = LogFactory.getLog(IndexOptimizeTransactionImpl.class);
 
 	private IndexWriter indexWriter;
 
@@ -64,26 +62,10 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 	 * @param impl
 	 * @throws IndexTransactionException
 	 */
-	public IndexUpdateTransactionImpl(TransactionManagerImpl manager,
+	public IndexOptimizeTransactionImpl(TransactionManagerImpl manager,
 			Map<String, Object> m) throws IndexTransactionException
 	{
 		super(manager, m);
-	}
-
-	/**
-	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#addItemIterator()
-	 */
-	public Iterator<SearchBuilderItem> addItemIterator() throws IndexTransactionException
-	{
-		if (transactionState != IndexTransaction.STATUS_ACTIVE)
-		{
-			throw new IndexTransactionException("Transaction is not active ");
-		}
-
-		if ( log.isDebugEnabled() ) {
-			log.debug("Tx list on "+this+" is now "+txList);
-		}
-		return txList.iterator();
 	}
 
 	/*
@@ -108,8 +90,9 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		super.doBeforePrepare();
 	}
 
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.transaction.impl.IndexTransactionImpl#doAfterCommit()
 	 */
 	@Override
@@ -126,7 +109,6 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		super.doAfterCommit();
 	}
 
-
 	/**
 	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#getIndexWriter()
 	 */
@@ -140,8 +122,10 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		{
 			try
 			{
-				tempIndex = ((TransactionIndexManagerImpl)manager).getTemporarySegment(transactionId);
-				indexWriter = new IndexWriter(tempIndex, ((TransactionIndexManagerImpl)manager).getAnalyzer(), true);
+				tempIndex = ((OptimizeIndexManager) manager)
+						.getTemporarySegment(transactionId);
+				indexWriter = new IndexWriter(tempIndex, ((OptimizeIndexManager) manager)
+						.getAnalyzer(), true);
 				indexWriter.setUseCompoundFile(true);
 				// indexWriter.setInfoStream(System.out);
 				indexWriter.setMaxMergeDocs(50);
@@ -181,9 +165,9 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		return transactionId;
 	}
 
-	
-	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.transaction.impl.IndexTransactionImpl#doBeforeRollback()
 	 */
 	@Override
@@ -191,18 +175,20 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 	{
 		try
 		{
-		indexWriter.close();
-		indexWriter = null;
-		searchBuilderItemSerializer.saveTransactionList(tempIndex, txList);
+			indexWriter.close();
+			indexWriter = null;
+			searchBuilderItemSerializer.saveTransactionList(tempIndex, txList);
 		}
 		catch (Exception ex)
 		{
-			throw new IndexTransactionException("Failed to start rollback ",ex);
+			throw new IndexTransactionException("Failed to start rollback ", ex);
 		}
 		super.doBeforeRollback();
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.transaction.impl.IndexTransactionImpl#doAfterRollback()
 	 */
 	@Override
@@ -215,47 +201,54 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		}
 		catch (Exception ex)
 		{
-			throw new IndexTransactionException("Failed to complete rollback ",ex);
+			throw new IndexTransactionException("Failed to complete rollback ", ex);
 		}
 		tempIndex = null;
 	}
 
-
-	/**
-	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#setItems(java.util.List)
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.optimize.api.IndexOptimizeTransaction#getOptimizableSegments()
 	 */
-	public void setItems(List<SearchBuilderItem> items) throws IndexTransactionException
+	public File[] getOptimizableSegments()
 	{
-		super.setItems(items);
-		
-		txList = new ArrayList<SearchBuilderItem>();
-		for (Iterator<SearchBuilderItem> itxList = items.iterator(); itxList.hasNext();)
-		{
-			SearchBuilderItem sbi = itxList.next();
-			if (sbi != null
-					&& SearchBuilderItem.STATE_LOCKED.equals(sbi.getSearchstate())
-					&& SearchBuilderItem.ACTION_ADD.equals(sbi.getSearchaction()))
-			{
-				String ref = sbi.getName();
-				if (ref != null)
-				{
-					txList.add(sbi);
-				}
-				else
-				{
-					log.warn("Null Reference presented to Index Queue, ignoring ");
-				}
-			}
-		}
-		if (txList.size() == 0)
-		{
-			log.warn("No Items found to index, only deletes");
-			txList = null;
-			items = null;
-			throw new NoItemsToIndexException("No Items available to index");
-		}
+		// TODO Auto-generated method stub
+		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.optimize.api.IndexOptimizeTransaction#getPermanentIndexWriter()
+	 */
+	public IndexWriter getPermanentIndexWriter()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.optimize.api.IndexOptimizeTransaction#getTemporaryIndexWriter()
+	 */
+	public IndexWriter getTemporaryIndexWriter()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.optimize.api.IndexOptimizeTransaction#setOptimizableSegments(java.io.File[])
+	 */
+	public void setOptimizableSegments(File[] optimzableSegments)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.optimize.api.IndexOptimizeTransaction#setPermanentIndexWriter(org.apache.lucene.index.IndexWriter)
+	 */
+	public void setPermanentIndexWriter(IndexWriter pw)
+	{
+		// TODO Auto-generated method stub
+		
+	}
 
 }

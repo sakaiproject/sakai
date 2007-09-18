@@ -19,15 +19,51 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.journal.impl;
+package org.sakaiproject.search.optimize.api;
 
-import org.sakaiproject.search.transaction.api.TransactionListener;
+import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
  * @author ieb
  *
  */
-public interface MergeTransactionListener extends TransactionListener
+public class OptimizedFailedIndexTransactionException extends IndexTransactionException
 {
+
+	/**
+	 * 
+	 */
+	public OptimizedFailedIndexTransactionException()
+	{
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param arg0
+	 */
+	public OptimizedFailedIndexTransactionException(String arg0)
+	{
+		super(arg0);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param arg0
+	 */
+	public OptimizedFailedIndexTransactionException(Throwable arg0)
+	{
+		super(arg0);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param arg0
+	 * @param arg1
+	 */
+	public OptimizedFailedIndexTransactionException(String arg0, Throwable arg1)
+	{
+		super(arg0, arg1);
+		// TODO Auto-generated constructor stub
+	}
 
 }

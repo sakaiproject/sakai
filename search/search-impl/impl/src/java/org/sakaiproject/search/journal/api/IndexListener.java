@@ -21,64 +21,25 @@
 
 package org.sakaiproject.search.journal.api;
 
+import org.apache.lucene.index.IndexReader;
+
 /**
- * A journal object is an object that is managed by a jornal redo log
  * @author ieb
  *
  */
-public interface JournaledObject
+public interface IndexListener
 {
 
 	/**
-	 * Get the current Journaled Version
-	 * @return
+	 * Called when the index reader is closed
+	 * @param oldMultiReader the index reader that has been detached and is ready to close
 	 */
-	long getJournalVersion();
-
-
+	void doIndexReaderClose(IndexReader oldMultiReader);
 
 	/**
-	 * get a lock on on the object for update
-	 * @return true is lock was granted, false if not
+	 * @param newMultiReader
 	 */
-	boolean aquireUpdateLock();
-
-
-	/**
-	 * release the update lock
-	 */
-	void releaseUpdateLock();
-	
-	/**
-	 * Aquires a lock to read the object
-	 * @return true if lock was granted, false if not
-	 */
-	boolean aquireReadLock();
-	
-	/**
-	 * releases a lock to read object
-	 *
-	 */
-	void releaseReadLock();
-
-	/**
-	 * get the last journal entry we tried to migrate to 
-	 * @return
-	 */
-	long getLastJournalEntry();
-
-	/**
-	 * Set the last journal entry we tried to migrate to 
-	 * @param nextJournalEntry
-	 */
-	void setLastJournalEntry(long nextJournalEntry);
-
-	/**
-	 * Set the current index entry for the journal
-	 * @param journalEntry
-	 */
-	void setJournalIndexEntry(long journalEntry);
-
+	void doIndexReaderOpen(IndexReader newMultiReader);
 
 
 }

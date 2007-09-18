@@ -24,6 +24,12 @@ package org.sakaiproject.search.journal.impl;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
+import java.util.TimerTask;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.index.IndexReader;
+import org.sakaiproject.search.journal.api.IndexListener;
 
 /**
  * The ConcurrentIndexManager, manages a single thread performs a number of
@@ -32,13 +38,17 @@ import java.util.Timer;
  * @author ieb
  * Unit test @see org.sakaiproject.search.indexer.impl.test.ConcurrentIndexManagerTest
  */
-public class ConcurrentIndexManager
+public class ConcurrentIndexManager implements IndexListener
 {
+	protected static final Log log = LogFactory.getLog(ConcurrentIndexManager.class);
+
 	private Timer timer = new Timer(true);;
 
 	private List<IndexManagementTimerTask> tasks;
 
 	private boolean closed = false;
+
+	private long closeDelay = 30000;
 
 	public void init()
 	{
@@ -86,5 +96,53 @@ public class ConcurrentIndexManager
 	{
 		this.tasks = tasks;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.journal.api.IndexListener#doIndexReaderClose(org.apache.lucene.index.IndexReader)
+	 */
+	public void doIndexReaderClose(final IndexReader oldMultiReader)
+	{
+		timer.schedule(new TimerTask() {
+
+			@Override
+			public void run()
+			{
+				try {
+					oldMultiReader.close();
+					log.info("Closed Index");
+				} catch ( Exception ex ) {
+					log.warn("Close of old index failed "+ex.getMessage());
+				}
+			}
+			
+		}, closeDelay);
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.journal.api.IndexListener#doIndexReaderOpen(org.apache.lucene.index.IndexReader)
+	 */
+	public void doIndexReaderOpen(IndexReader newMultiReader)
+	{
+		
+	}
+
+	/**
+	 * @return the closeDelay
+	 */
+	public long getCloseDelay()
+	{
+		return closeDelay;
+	}
+
+	/**
+	 * @param closeDelay the closeDelay to set
+	 */
+	public void setCloseDelay(long closeDelay)
+	{
+		this.closeDelay = closeDelay;
+	}
+	
+	
 
 }

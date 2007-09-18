@@ -24,6 +24,7 @@ package org.sakaiproject.search.journal.impl;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.search.journal.api.MergeTransactionListener;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 import org.sakaiproject.search.transaction.api.TransactionListener;

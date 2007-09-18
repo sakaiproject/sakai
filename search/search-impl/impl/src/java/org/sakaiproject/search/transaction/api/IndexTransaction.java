@@ -21,9 +21,6 @@
 
 package org.sakaiproject.search.transaction.api;
 
-import java.util.List;
-
-import org.sakaiproject.search.model.SearchBuilderItem;
 
 /**
  * This represents a transactional index operation
@@ -67,15 +64,6 @@ public interface IndexTransaction
 
 
 	/**
-	 * Sets the items for the tansaction if the transaction is not open
-	 * 
-	 * @param items
-	 * @throws IndexTransactionException
-	 *         if the items has already been set, or the transaction is not open
-	 */
-	void setItems(List<SearchBuilderItem> items) throws IndexTransactionException;
-
-	/**
 	 * @throws IndexTransactionException
 	 *         if the transaction is not open
 	 */
@@ -93,12 +81,6 @@ public interface IndexTransaction
 	 */
 	void close() throws IndexTransactionException;
 
-	/**
-	 * The list of items
-	 * 
-	 * @return
-	 */
-	List<SearchBuilderItem> getItems();
 	
 	/**
 	 * get the transaction status

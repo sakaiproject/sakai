@@ -19,66 +19,33 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.journal.api;
+package org.sakaiproject.search.optimize.api;
+
+import java.io.File;
+
+import org.apache.lucene.index.IndexWriter;
 
 /**
- * A journal object is an object that is managed by a jornal redo log
  * @author ieb
  *
  */
-public interface JournaledObject
+public interface OptimizableIndex
 {
 
 	/**
-	 * Get the current Journaled Version
+	 * Get a list of segments that can be optimized
 	 * @return
 	 */
-	long getJournalVersion();
-
-
+	File[] getOptimizableSegments();
 
 	/**
-	 * get a lock on on the object for update
-	 * @return true is lock was granted, false if not
-	 */
-	boolean aquireUpdateLock();
-
-
-	/**
-	 * release the update lock
-	 */
-	void releaseUpdateLock();
-	
-	/**
-	 * Aquires a lock to read the object
-	 * @return true if lock was granted, false if not
-	 */
-	boolean aquireReadLock();
-	
-	/**
-	 * releases a lock to read object
-	 *
-	 */
-	void releaseReadLock();
-
-	/**
-	 * get the last journal entry we tried to migrate to 
 	 * @return
 	 */
-	long getLastJournalEntry();
+	IndexWriter getPermanentIndexWriter();
 
 	/**
-	 * Set the last journal entry we tried to migrate to 
-	 * @param nextJournalEntry
+	 * @param optimzableSegments
 	 */
-	void setLastJournalEntry(long nextJournalEntry);
-
-	/**
-	 * Set the current index entry for the journal
-	 * @param journalEntry
-	 */
-	void setJournalIndexEntry(long journalEntry);
-
-
+	void removeOptimizableSegments(File[] optimzableSegments);
 
 }
