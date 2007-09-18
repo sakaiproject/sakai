@@ -19,6 +19,7 @@ db			https://source.sakaiproject.org/svn/db/trunk
 discussion		https://source.sakaiproject.org/svn/discussion/trunk
 email			https://source.sakaiproject.org/svn/email/trunk
 entity			https://source.sakaiproject.org/svn/entity/trunk
+entitybroker		https://source.sakaiproject.org/svn/entitybroker/trunk
 event			https://source.sakaiproject.org/svn/event/trunk
 gradebook		https://source.sakaiproject.org/svn/gradebook/trunk
 help			https://source.sakaiproject.org/svn/help/trunk
@@ -68,4 +69,5 @@ webservices		https://source.sakaiproject.org/svn/webservices/trunk
 mailtool		https://source.sakaiproject.org/svn/mailtool/trunk
 usermembership		https://source.sakaiproject.org/svn/usermembership/trunk
 polls			https://source.sakaiproject.org/svn/polls/trunk
+
 

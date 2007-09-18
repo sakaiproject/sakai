@@ -137,6 +137,7 @@
         <module>db</module>
         <module>email</module>
         <module>entity</module>
+        <module>entitybroker</module>
         <module>event</module>
         <module>gradebook</module>
         <module>help</module>
