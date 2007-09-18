@@ -34,6 +34,7 @@
       <module>tool</module>
       <module>pack</module>
       <module>mocks</module>
+      <module>shared-deployer</module>
    </modules>
 
    <!-- Project developers -->
