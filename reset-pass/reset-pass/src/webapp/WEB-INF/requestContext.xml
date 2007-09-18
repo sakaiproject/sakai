@@ -15,18 +15,20 @@
 			ref="org.sakaiproject.tool.api.SessionManager" />
 			<property name="emailService"
 			ref="org.sakaiproject.email.api.EmailService" />
+			<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService" />
  </bean>	
   
   <bean id="formProducer" class="org.sakaiproject.tool.resetpass.FormProducer">
 	  <property name="targettedMessageList" ref="targettedMessageList" /> 
 	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+	  
   </bean>	
   <bean id="confirmProducer" class="org.sakaiproject.tool.resetpass.ConfirmProducer">
 	  <property name="messageLocator" ref="messageLocator"/>
 	  <property name="userBean" ref="userBean" />
   </bean>	
   <bean id="userBean" class="org.sakaiproject.tool.resetpass.RetUser" > 
-  	<property name="serverConfigurationService"
-			ref="org.sakaiproject.component.api.ServerConfigurationService" />
+  	
   </bean>
 </beans>

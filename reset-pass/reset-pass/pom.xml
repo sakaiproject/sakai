@@ -15,100 +15,45 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2006</inceptionYear>
+    <properties>
+    <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
+    <rsfutil.version>0.7.2</rsfutil.version>
+  </properties>
   <packaging>war</packaging>
   <dependencies>
   
   <!-- RSF Dependencies -->
-     <dependency>
-      <groupId>uk.org.ponder</groupId>
-      <artifactId>ponderutilcore</artifactId>
-      <version>1.2.2RC1</version>
-      <type>jar</type>
-    </dependency>
+  <!-- Spring dependency is required for validation within the webapp-->
     <dependency>
-      <groupId>uk.org.ponder</groupId>
-      <artifactId>j-servletutil</artifactId>
-      <version>1.2.2RC1</version>
-      <type>jar</type>
-      <exclusions>
-      <exclusion>
-	      <groupId>org.springframework</groupId>
-	      <artifactId>spring-mock</artifactId>
-      </exclusion>
-      </exclusions>
+      <groupId>${sakai.spring.groupId}</groupId>
+      <artifactId>${sakai.spring.artifactId}</artifactId>
+      <version>${sakai.spring.version}</version>
+      <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>uk.org.ponder.rsfutil</groupId>
-      <artifactId>rsfutil</artifactId>
-      <version>0.7.2RC1</version>
-      <type>jar</type>
-    </dependency>
+<!-- RSF dependencies -->
     <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
       <artifactId>sakairsf</artifactId>
-      <version>0.7.2RC1-sakai_2.2.x</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>uk.org.ponder.rsfutil</groupId>
-      <artifactId>RSFComponents-evolvers</artifactId>
-      <version>0.7.2RC1</version>
-      <type>jar</type>
+      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
       <artifactId>SakaiRSFComponents-evolvers</artifactId>
-      <version>0.7.2RC1-sakai_2.2.x</version>
+      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
       <artifactId>SakaiRSFComponents-templates</artifactId>
-      <version>0.7.2RC1-sakai_2.2.x</version>
+      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
       <type>war</type>
     </dependency>
-<!-- XML pull parser - required for RSF -->
+  <!-- Sakai dependencies (all RSF apps must have this) -->
     <dependency>
-      <groupId>xpp3</groupId>
-      <artifactId>xpp3_min</artifactId>
-      <version>1.1.3.4.O</version>
-      <type>jar</type>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>${sakai.version}</version>
     </dependency>
-    
-    
-    <!-- /RSF depts -->
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${sakai.servletapi.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.9</version>
-      <type>jar</type>
-    </dependency>
-
-    <dependency> 
-      <groupId>concurrent</groupId>
-      <artifactId>concurrent</artifactId>
-      <version>1.3.4</version>
-      <type>jar</type>
-    </dependency>
-
-<!-- Spring and Hibernate dependencies. -->
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
-      <version>3.1.3</version>
-    </dependency>
-<!-- Spring dependency -->
-    <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.artifactId}</artifactId>
-      <version>${sakai.spring.version}</version>
-    </dependency>
-
 
 <!-- Various Sakai dependencies -->
     <dependency>
@@ -162,7 +107,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
-<!--properties:  war.bundle: true -->
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -191,44 +135,4 @@
       <version>1.0.4</version>
     </dependency>
   </dependencies>
-  <build>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/bundle</directory>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${basedir}/src/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
-    <sourceDirectory>src/java</sourceDirectory>
-        <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>unpack-dependencies</id>
-            <phase>package</phase>
-            <goals>
-              <goal>unpack-dependencies</goal>
-            </goals>
-            <configuration>
-              <includeTypes>war</includeTypes>
-              <outputDirectory>
-                ${project.build.directory}/webapp/
-              </outputDirectory>
-              <overWriteReleases>true</overWriteReleases>
-              <overWriteSnapshots>true</overWriteSnapshots>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-</project>
+ </project>
