@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <name>Sakai Entity Broker Shared Deployer</name>
+   <groupId>org.sakaiproject.entitybroker</groupId>
+   <artifactId>entitybroker-deployer</artifactId>
+   <organization>
+      <name>CARET, University of Cambridge</name>
+      <url>http://www.caret.cam.ac.uk/</url>
+   </organization>
+   <description>This is a special project which places the generic dao into shared</description>
+   <inceptionYear>2007</inceptionYear>
+   <packaging>pom</packaging>
+
+   <!-- the base is parent -->
+   <parent>
+      <artifactId>entitybroker</artifactId>
+      <groupId>org.sakaiproject</groupId>
+      <version>1.2.0</version>
+   </parent>
+
+   <properties>
+      <deploy.target>shared</deploy.target>
+   </properties>
+
+   <dependencies>
+
+      <dependency>
+         <groupId>org.sakaiproject</groupId>
+         <artifactId>generic-dao</artifactId>
+         <version>${sakai.generic-dao.version}</version>
+      </dependency>
+
+   </dependencies>
+
+   <build />
+
+</project>
