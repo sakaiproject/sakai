@@ -21,10 +21,12 @@
 	
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<div class="clear"></div>
-		<form name="previewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
+		<form name="previewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;"> 
 			<input type="hidden" name="assignmentId" value="$!value_assignment_id" />
 			<input type="hidden" name="assignmentContentId" value="$!value_assignmentcontent_id" />
 			<input type="hidden" name="$name_order" id="$name_order" value="$!value_position_order" />
+			<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
+			<input type="hidden" name="option" id="option" value="" />
 			#if (!$preview_assignment_assignment_hide_flag)
 					<p class="discTria">
 						<a href="#toolLink("$action" "doHide_preview_assignment_assignment")" title="$tlang.getString("prevassig.hidass")">
@@ -339,17 +341,18 @@
 				</p>				
 			#end
 			<div class="act">
-				<input type="submit" accesskey="s" class="active" name="eventSubmit_doPost_assignment" value="$tlang.getString("gen.pos")" />
-				<input type="submit" accesskey="d" name="eventSubmit_doSave_assignment" value="$tlang.getString("gen.savdra")" />
-				#if ($!value_assignment_id.length() > 0)
-					## back to edit assignment page
-					<input type="submit"accesskey="r"  name="eventSubmit_doDone_preview_edit_assignment" value="$tlang.getString("gen.revi")" />
-					<input type="submit" accesskey="x" name="eventSubmit_doDone_preview_edit_assignment" value="$tlang.getString("gen.don")" />
-				#else
-					## back to new assignment page
-					<input type="submit" accesskey="x" name="eventSubmit_doDone_preview_new_assignment" value="$tlang.getString("gen.revi")" />
-					<input type="submit" name="eventSubmit_doDone_preview_new_assignment" value="$tlang.getString("gen.don")" />
+				<input accesskey ="s" type="button" class="active" name="post" value="$tlang.getString('gen.pos')" 
+						onclick="javascript:document.previewAssignmentsForm.onsubmit();showNotif('submitnotif','post','previewAssignmentsForm');document.getElementById('option').value='post';document.previewAssignmentsForm.submit();return false;" />
+				#if ($isDraft)
+					<input accesskey ="d" type="button" class="active" name="save" value="$tlang.getString('gen.savdra')" 
+							onclick="javascript:document.previewAssignmentsForm.onsubmit();showNotif('submitnotif','save','previewAssignmentsForm');document.getElementById('option').value='save';document.previewAssignmentsForm.submit();return false;" />
 				#end
+				## back to edit assignment page
+				<input accesskey ="r" type="button" class="active" name="revise" value="$tlang.getString('gen.revi')" 
+					onclick="javascript:document.previewAssignmentsForm.onsubmit();showNotif('submitnotif','revise','previewAssignmentsForm');document.getElementById('option').value='revise';document.previewAssignmentsForm.submit();return false;" />
+				<input accesskey ="r" type="button" class="active" name="done" value="$tlang.getString('gen.don')" 
+					onclick="javascript:document.previewAssignmentsForm.onsubmit();showNotif('submitnotif','done','previewAssignmentsForm');document.getElementById('option').value='done';document.previewAssignmentsForm.submit();return false;" />
+				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			</div>
 		</form>
 	</div>

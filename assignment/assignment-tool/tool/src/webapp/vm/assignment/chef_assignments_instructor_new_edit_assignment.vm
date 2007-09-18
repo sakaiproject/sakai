@@ -580,17 +580,19 @@
 					<input type="button" name="attach" value="$tlang.getString('gen.adddroatt2')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;" />
 				</div>
 			#end	
-			<p class="act">
-				#if ($!assignment && !$assignment.draft)
-					<input accesskey ="s" type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
-					<input accesskey ="v" type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='preview';document.newAssignmentForm.submit();return false;" />
-				#else
-					<input accesskey ="s" type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
-					<input accesskey ="v" type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='preview';document.newAssignmentForm.submit();return false;" />
-					<input accesskey ="d" type="button" name="save" value="$tlang.getString("gen.savdra")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='save';document.newAssignmentForm.submit();return false;" />
+			<div class="act">
+				<input accesskey ="s" type="button" class="active" name="post" value="$tlang.getString("gen.pos")" 
+						onclick="javascript:document.newAssignmentForm.onsubmit();showNotif('submitnotif','post','newAssignmentForm');document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
+				<input accesskey ="v" type="button" name="preview" value="$tlang.getString("gen.pre")" 
+						onclick="javascript:document.newAssignmentForm.onsubmit();showNotif('submitnotif','preview','newAssignmentForm');document.getElementById('option').value='preview';document.newAssignmentForm.submit();return false;" />
+				#if (!($!assignment && !$assignment.draft))
+					<input accesskey ="d" type="button" name="save" value="$tlang.getString("gen.savdra")" 
+							onclick="javascript:document.newAssignmentForm.onsubmit();showNotif('submitnotif','save','newAssignmentForm');document.getElementById('option').value='save';document.newAssignmentForm.submit();return false;" />
 				#end
-				<input accesskey ="x" type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='canceledit';document.newAssignmentForm.submit();return false;" />
-			</p>
+				<input accesskey ="x" type="button" name="cancel" value="$tlang.getString("gen.can")" 
+							onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='canceledit';document.newAssignmentForm.submit();return false;" />
+				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+			</div>
 	</form>
 </div>
 <script language="JavaScript" type="text/JavaScript">

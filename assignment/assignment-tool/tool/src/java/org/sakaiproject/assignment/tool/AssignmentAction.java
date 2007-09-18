@@ -1698,7 +1698,27 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("preview_assignment_assignment_hide_flag", state.getAttribute(PREVIEW_ASSIGNMENT_ASSIGNMENT_HIDE_FLAG));
 		context.put("preview_assignment_student_view_hide_flag", state.getAttribute(PREVIEW_ASSIGNMENT_STUDENT_VIEW_HIDE_FLAG));
-		context.put("value_assignment_id", state.getAttribute(PREVIEW_ASSIGNMENT_ASSIGNMENT_ID));
+		String assignmentId = StringUtil.trimToNull((String) state.getAttribute(PREVIEW_ASSIGNMENT_ASSIGNMENT_ID));
+		if (assignmentId != null)
+		{
+			// editing existing assignment
+			context.put("value_assignment_id", assignmentId);
+			try
+			{
+				Assignment a = AssignmentService.getAssignment(assignmentId);
+				context.put("isDraft", Boolean.valueOf(a.getDraft()));
+			}
+			catch (Exception e)
+			{
+				Log.warn("chef", this + e.getMessage() + assignmentId);
+			}
+		}
+		else
+		{
+			// new assignment
+			context.put("isDraft", Boolean.TRUE);
+		}
+			
 		context.put("value_assignmentcontent_id", state.getAttribute(PREVIEW_ASSIGNMENT_ASSIGNMENTCONTENT_ID));
 
 		context.put("currentTime", TimeService.newTime());
@@ -2778,18 +2798,6 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT);
 
 	} // doDone_preview_new_assignment
-
-	/**
-	 * Action is to end the preview edit assignment process
-	 */
-	public void doDone_preview_edit_assignment(RunData data)
-	{
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		// back to the edit assignment page
-		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT);
-
-	} // doDone_preview_edit_assignment
 
 	/**
 	 * Action is to end the user view assignment process and redirect him to the assignment list view
@@ -6350,6 +6358,11 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				// show the assignment instruction
 				doShow_submission_assignment_instruction(data);
+			}
+			else if (option.equals("revise") || option.equals("done"))
+			{
+				// back from the preview mode
+				doDone_preview_new_assignment(data);
 			}
 
 
