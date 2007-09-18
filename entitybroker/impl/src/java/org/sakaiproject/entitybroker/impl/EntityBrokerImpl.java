@@ -119,9 +119,10 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       if (eventName == null || "".equals(eventName)) {
          throw new IllegalArgumentException("Cannot fire event if name is null or empty");
       }
-      if (!entityExists(reference)) {
-         throw new IllegalArgumentException("Cannot fire event for nonexistent entity " + reference);
-      }
+      // had to take out this check because it makes firing events for removing entities very annoying -AZ
+//    if (!entityExists(reference)) {
+//       throw new IllegalArgumentException("Cannot fire event for nonexistent entity " + reference);
+//    }
       Event event = eventTrackingService.newEvent(eventName, reference, true,
             NotificationService.PREF_IMMEDIATE);
       eventTrackingService.post(event);
