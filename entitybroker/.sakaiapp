@@ -1,0 +1,10 @@
+This project initially constructed by Sakai App Builder Plugin
+Used the following settings:
+Project Name: Entity Broker
+Project Key: entitybroker
+Project CamelCase Key: EntityBroker
+Project lowerCamelCase Key: entityBroker
+Project Type: RSF
+Project Impl: DIRS
+
+Sakai App Builder by Aaron Zeckoski (aaronz@vt.edu)

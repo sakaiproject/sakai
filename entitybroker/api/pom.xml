@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <name>Sakai Entity Broker API</name>
+   <groupId>org.sakaiproject.entitybroker</groupId>
+   <artifactId>entitybroker-api</artifactId>
+   <organization>
+      <name>CARET, University of Cambridge</name>
+      <url>http://www.caret.cam.ac.uk/</url>
+   </organization>
+   <inceptionYear>2007</inceptionYear>
+   <packaging>jar</packaging>
+
+   <!-- the base is parent -->
+   <parent>
+      <artifactId>entitybroker</artifactId>
+      <groupId>org.sakaiproject</groupId>
+      <version>1.2.0</version>
+   </parent>
+
+   <properties>
+      <deploy.target>shared</deploy.target>
+   </properties>
+
+   <dependencies>
+
+      <!-- external dependencies -->
+      <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>servlet-api</artifactId>
+         <version>2.4</version>
+         <scope>provided</scope>
+      </dependency>
+      
+      <dependency>
+         <artifactId>portlet-api</artifactId>
+         <groupId>portlet-api</groupId>
+         <version>1.0</version>
+         <scope>provided</scope>
+      </dependency>
+
+      <!-- generic DAO -->
+      <dependency>
+         <groupId>org.sakaiproject</groupId>
+         <artifactId>generic-dao</artifactId>
+         <version>0.9.1</version>
+      </dependency>
+
+   </dependencies>
+
+   <build>
+      <resources>
+         <resource>
+            <directory>${basedir}/src/java</directory>
+            <includes>
+               <include>**/*.xml</include>
+            </includes>
+            <filtering>false</filtering>
+         </resource>
+      </resources>
+
+      <!-- unit testing -->
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <!-- 
+               By default, the surefire plugin will automatically include all test classes with the following wildcard patterns:
+               "**/Test*.java" - includes all of its subdirectory and all java filenames that start with "Test".
+               "**/*Test.java" - includes all of its subdirectory and all java filenames that end with "Test".
+               "**/*TestCase.java" - includes all of its subdirectory and all java filenames that end with "TestCase".
+            -->
+         </plugin>
+         <!-- Convenience declaration of RSF plugin to enable composite builds of SakaiRSF 
+          - has no effect otherwise -->
+         <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-rsf-plugin</artifactId>
+           <version>1.0</version>
+         </plugin>
+      </plugins>
+   </build>
+
+</project>
+
