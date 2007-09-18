@@ -156,7 +156,7 @@ function doCitationAction( action ) {
     exportAllCitations( "$exportUrlAll", "$collectionId" );
   } else if( action == "removeSelected" ) {
     if( numCitationsSelected() > 0 ) {
-      removeSelectedCitations( "#toolLink("CitationHelperAction" "doRemoveSelectedCitations")&collectionId=$collectionId", "$FORM_NAME" );
+      removeSelectedCitations( #contentLink("Main")&sakai_action=doRemoveSelectedCitations&collectionId=$collectionId", "$FORM_NAME" );
     } else {
       alert( "$tlang.getString( "select.warn.list" )" );
     }
