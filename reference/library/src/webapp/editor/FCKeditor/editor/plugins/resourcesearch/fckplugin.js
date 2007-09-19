@@ -203,14 +203,9 @@ function getBaseUrl()
 		}
 	}
 	var i = baseUrl.indexOf("?");
-
 	if (i != -1)
-
 	{
-
 	  baseUrl = baseUrl.substring(0, i);
-
 	}
-
 	return baseUrl;
 }
