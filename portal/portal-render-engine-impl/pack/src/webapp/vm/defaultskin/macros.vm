@@ -301,13 +301,11 @@ ${tool.toolRenderResult.getTitle()}
 				<li class="selectedTab"><a href="#"><span>${site.siteTitle}</span></a></li>
 #end
 #else
-				<li><a href="${site.siteUrl}" title="${site.siteTitle} ${rloader.sit_mywor}"
 #if (${site.isMyWorkspace})
-					><span>${rloader.sit_mywor}</span></a>
+				<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}"><span>${rloader.sit_mywor}</span></a></li>
 #else
-					><span>${site.siteTitle}</span></a>
+				<li><a href="${site.siteUrl}" title="${site.siteTitle}"><span>${site.siteTitle}</span></a></li>
 #end
-				</li>
 #end
 #end
 #if ($tabsMoreSitesShow && $useDHTMLMore)
