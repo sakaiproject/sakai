@@ -49,6 +49,32 @@ public interface IndexTransaction
 
 	public static final int STATUS_UNKNOWN = 5;
 
+	public static final String[] TRANSACTION_STATUS = {
+		"Created",
+		"Marked for Rollback",
+		"Prepared",
+		"Committed",
+		"Rolled Back",
+		"Unknown",
+		"No Transaction",
+		"Preparing",
+		"Committing",
+		"Rolling Back"
+	};
+
+	public static final boolean[] TRANSACTION_ACTIVE = {
+		true,
+		false,
+		true,
+		false,
+		false,
+		false,
+		false,
+		true,
+		false,
+		false
+	};
+
 	/**
 	 * Prepare to commit this transaction, all the work is done, but all the
 	 * listeners need to be ready and able to performa commit without failure

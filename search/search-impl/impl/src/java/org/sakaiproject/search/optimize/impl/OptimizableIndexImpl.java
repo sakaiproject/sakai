@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.lucene.index.IndexWriter;
 import org.sakaiproject.search.journal.api.JournaledIndex;
 import org.sakaiproject.search.optimize.api.OptimizableIndex;
+import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
  * A class that manages an optimizable index
@@ -48,9 +49,10 @@ public class OptimizableIndexImpl implements OptimizableIndex
 	}
 
 	/**
+	 * @throws IndexTransactionException 
 	 * @see org.sakaiproject.search.optimize.api.OptimizableIndex#getPermanentIndexWriter()
 	 */
-	public IndexWriter getPermanentIndexWriter()
+	public IndexWriter getPermanentIndexWriter() throws IndexTransactionException
 	{		
 		return journaledIndex.getPermanentIndexWriter();
 	}

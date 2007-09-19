@@ -71,7 +71,6 @@ public class MergeUpdateOperation implements ManagementOperation
 				{
 					while (true)
 					{
-						log.info("Loop Journaled version is "+journaledObject.getLastJournalEntry());
 						IndexMergeTransaction mergeUpdateTransaction = null;
 						try
 						{

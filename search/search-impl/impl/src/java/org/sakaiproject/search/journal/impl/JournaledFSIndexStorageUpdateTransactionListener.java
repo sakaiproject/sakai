@@ -153,7 +153,7 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 		}
 		catch (IOException e)
 		{
-			throw new IndexTransactionException("Failed to close index with deletions");
+			throw new IndexTransactionException("Failed to close index with deletions ",e);
 		}
 		// how do we perform a roll back ?
 		// undo the delete operations and remove the index from the reader
@@ -195,7 +195,7 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 		}
 		catch (IOException e)
 		{
-			throw new IndexTransactionException("Failed to close index with deletions");
+			throw new IndexTransactionException("Failed to close index with deletions",e);
 		}
 		transaction.clear(JournaledFSIndexStorageUpdateTransactionListener.class
 				.getName()

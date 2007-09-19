@@ -19,38 +19,20 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.optimize.api;
-
-import java.io.File;
+package org.sakaiproject.search.journal.api;
 
 import org.apache.lucene.index.IndexWriter;
-import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
- * An optimisable index has a number of segments that could be merged and a
- * permanent index writer into which those segments are merged
- * 
  * @author ieb
+ *
  */
-public interface OptimizableIndex
+public interface IndexMonitorListener
 {
 
 	/**
-	 * Get a list of segments that can be optimized
-	 * 
-	 * @return
+	 * @param writer
 	 */
-	File[] getOptimizableSegments();
-
-	/**
-	 * @return
-	 * @throws IndexTransactionException 
-	 */
-	IndexWriter getPermanentIndexWriter() throws IndexTransactionException;
-
-	/**
-	 * @param optimzableSegments
-	 */
-	void removeOptimizableSegments(File[] optimzableSegments);
+	void doIndexMonitorClose(IndexWriter writer);
 
 }

@@ -67,7 +67,7 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 	 */
 	public void open() throws IndexTransactionException {
 		transactionState = IndexTransaction.STATUS_NO_TRANSACTION;
-		transactionId = manager.sequence.getLocalId();
+		transactionId = manager.getSequence().getLocalId();
 		transactionState = IndexTransaction.STATUS_ACTIVE;
 		doBeforeOpen();
 		fireOpen(this);
@@ -244,7 +244,7 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 		catch (Exception e)
 		{
 
-			log.warn("Failed to roll back transaction ");
+			log.warn("Failed to roll back transaction ",e);
 		}
 		log.info("Transaction Rollback Completed on " + this);
 	}

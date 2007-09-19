@@ -38,7 +38,7 @@ import org.sakaiproject.search.util.FileUtils;
 /**
  * A transaction holder for Index Optimizations
  * 
- * @author ieb 
+ * @author ieb
  */
 public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implements
 		IndexOptimizeTransaction
@@ -78,7 +78,6 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 	}
 
 	/**
-	 * 
 	 * @see org.sakaiproject.search.transaction.impl.IndexTransactionImpl#doAfterRollback()
 	 */
 	@Override
@@ -86,9 +85,15 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 	{
 		try
 		{
-			indexWriter.close();
+			if (indexWriter != null)
+			{
+				indexWriter.close();
+			}
 			indexWriter = null;
-			FileUtils.deleteAll(tempIndex);
+			if (tempIndex != null)
+			{
+				FileUtils.deleteAll(tempIndex);
+			}
 		}
 		catch (Exception ex)
 		{
@@ -96,10 +101,10 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 		}
 		super.doAfterRollback();
 		tempIndex = null;
+		indexWriter = null;
 	}
 
 	/**
-	 * 
 	 * @see org.sakaiproject.search.transaction.impl.IndexTransactionImpl#doAfterCommit()
 	 */
 	@Override
@@ -120,18 +125,27 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 	}
 
 	/**
-	 * get an index writer based on the transaction ID. This is temporary segment into which 
-	 * other transient segments will be merged.
+	 * get an index writer based on the transaction ID. This is temporary
+	 * segment into which other transient segments will be merged.
+	 * 
 	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#getIndexWriter()
 	 */
 	public IndexWriter getIndexWriter() throws IndexTransactionException
 	{
-		if (transactionState != IndexTransaction.STATUS_ACTIVE)
+		if (transactionState == IndexTransaction.STATUS_COMMITTED
+				|| transactionState == IndexTransaction.STATUS_ROLLEDBACK)
 		{
-			throw new IndexTransactionException("Transaction is not active ");
+			throw new IndexTransactionException("Transaction is not active: State is "
+					+ IndexTransaction.TRANSACTION_STATUS[transactionState]);
 		}
 		if (indexWriter == null)
 		{
+			if (!IndexTransaction.TRANSACTION_ACTIVE[transactionState])
+			{
+				throw new IndexTransactionException(
+						"Transaction is not active: State is "
+								+ IndexTransaction.TRANSACTION_STATUS[transactionState]);
+			}
 			try
 			{
 				tempIndex = ((OptimizeIndexManager) manager)
@@ -151,10 +165,6 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 		}
 		return indexWriter;
 	}
-
-
-
-
 
 	/**
 	 * @see org.sakaiproject.search.optimize.api.IndexOptimizeTransaction#getOptimizableSegments()
@@ -185,8 +195,8 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 	 */
 	public void setOptimizableSegments(File[] optimzableSegments)
 	{
-		this.optimizableSegments =  optimzableSegments;
-		
+		this.optimizableSegments = optimzableSegments;
+
 	}
 
 	/**
@@ -195,7 +205,7 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 	public void setPermanentIndexWriter(IndexWriter pw)
 	{
 		permanentIndexWriter = pw;
-		
+
 	}
 
 }

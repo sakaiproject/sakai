@@ -37,21 +37,17 @@ import org.sakaiproject.search.transaction.api.TransactionListener;
 import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 
 /**
- * @author ieb
- * Unit test 
+ * @author ieb Unit test
  * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
- * 
  */
-public class TransactionIndexManagerImpl extends  TransactionManagerImpl 
+public class TransactionIndexManagerImpl extends TransactionManagerImpl
 {
 	private static final Log log = LogFactory.getLog(TransactionIndexManagerImpl.class);
 
 	protected static final String TEMP_INDEX_NAME = "indextx-";
 
-
 	/**
-	 * dependency
-	 * The token analyzer
+	 * dependency The token analyzer
 	 */
 	private AnalyzerFactory analyzerFactory = null;
 
@@ -60,14 +56,12 @@ public class TransactionIndexManagerImpl extends  TransactionManagerImpl
 	 */
 	private String searchIndexWorkingDirectory;
 
-	
-
 	/**
 	 * Does nothing at the moment.
-	 *
 	 */
-	public void init() {
-		
+	public void init()
+	{
+
 	}
 
 	/*
@@ -75,10 +69,11 @@ public class TransactionIndexManagerImpl extends  TransactionManagerImpl
 	 * 
 	 * @see org.sakaiproject.search.component.service.index.transactional.api.TransactionIndexManager#openTransaction(java.util.List)
 	 */
-	public IndexUpdateTransaction openTransaction(Map<String, Object> m) throws IndexTransactionException
+	public IndexUpdateTransaction openTransaction(Map<String, Object> m)
+			throws IndexTransactionException
 	{
-		
-		IndexUpdateTransaction it =  new IndexUpdateTransactionImpl(this,m);
+
+		IndexUpdateTransaction it = new IndexUpdateTransactionImpl(this, m);
 		it.open();
 		return it;
 
@@ -106,7 +101,6 @@ public class TransactionIndexManagerImpl extends  TransactionManagerImpl
 	{
 		return analyzerFactory.newAnalyzer();
 	}
-
 
 	/**
 	 * @return the analyzerFactory
@@ -142,31 +136,44 @@ public class TransactionIndexManagerImpl extends  TransactionManagerImpl
 		this.searchIndexWorkingDirectory = searchIndexWorkingDirectory;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.transaction.impl.TransactionManagerImpl#addTransactionListener(org.sakaiproject.search.transaction.api.TransactionListener)
 	 */
 	@Override
 	public void addTransactionListener(TransactionListener transactionListener)
 	{
-		if ( transactionListener instanceof IndexUpdateTransactionListener ) {
+		if (transactionListener instanceof IndexUpdateTransactionListener)
+		{
 			super.addTransactionListener(transactionListener);
-		} else {
-			throw new RuntimeException("transactionListener must implement JournalTransactionListener "+transactionListener);
+		}
+		else
+		{
+			throw new RuntimeException(
+					"transactionListener must implement JournalTransactionListener "
+							+ transactionListener);
 		}
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.transaction.impl.TransactionManagerImpl#setTransactionListeners(java.util.List)
 	 */
 	@Override
 	public void setTransactionListeners(List<TransactionListener> transactionListeners)
 	{
-		for ( TransactionListener tl : transactionListeners ) {
-			if ( !(tl instanceof IndexUpdateTransactionListener ) ) {
-				throw new RuntimeException("transactionListener must implement JournalTransactionListener "+tl);				
+		for (TransactionListener tl : transactionListeners)
+		{
+			if (!(tl instanceof IndexUpdateTransactionListener))
+			{
+				throw new RuntimeException(
+						"transactionListener must implement JournalTransactionListener "
+								+ tl);
 			}
 		}
 		super.setTransactionListeners(transactionListeners);
 	}
-
 
 }

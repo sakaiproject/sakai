@@ -26,15 +26,16 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.search.journal.api.IndexMergeTransaction;
 import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.JournalExhausetedException;
 import org.sakaiproject.search.journal.api.JournaledObject;
 import org.sakaiproject.search.journal.api.ManagementOperation;
+import org.sakaiproject.search.optimize.api.NoOptimizationRequiredException;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
- * @author ieb TODO Unit test
+ * Performs an optimize operation using an OptimizIndexManager to manage the 2PC.
+ * @author ieb 
  */
 public class OptimizeIndexOperation implements ManagementOperation
 {
@@ -73,25 +74,21 @@ public class OptimizeIndexOperation implements ManagementOperation
 			{
 				try
 				{
-					IndexMergeTransaction optimizeUpdateTransaction = null;
+					IndexOptimizeTransactionImpl optimizeUpdateTransaction = null;
 					try
 					{
 						Map<String, Object> m = new HashMap<String, Object>();
-						optimizeUpdateTransaction = (IndexMergeTransaction) optimizeUpdateManager
+						optimizeUpdateTransaction = (IndexOptimizeTransactionImpl) optimizeUpdateManager
 								.openTransaction(m);
 						optimizeUpdateTransaction.prepare();
 						optimizeUpdateTransaction.commit();
-						log.info("Op Journal "
-								+ optimizeUpdateTransaction.getJournalEntry()
-								+ " from the redolog");
+						log.info("Optimize complete ");
 					}
 					catch (JournalErrorException jex)
 					{
 						if (optimizeUpdateTransaction != null)
 						{
-							log.warn("Failed to compete merge of "
-									+ optimizeUpdateTransaction.getJournalEntry() + " ",
-									jex);
+							log.warn("Failed to compete Optimize ", jex);
 						}
 						else
 						{
@@ -107,12 +104,15 @@ public class OptimizeIndexOperation implements ManagementOperation
 							log.warn("Failed to rollback transaction ", ex);
 						}
 					}
+					catch (NoOptimizationRequiredException nop)
+					{
+
+						log.info("No Merge Performed "+nop.getMessage());
+					}
 					catch (IndexTransactionException iupex)
 					{
-						log
-								.warn("Failed to compete merge of "
-										+ optimizeUpdateTransaction.getJournalEntry()
-										+ "", iupex);
+
+						log.warn("Failed to compete optimize ", iupex);
 						try
 						{
 							optimizeUpdateTransaction.rollback();
@@ -179,7 +179,8 @@ public class OptimizeIndexOperation implements ManagementOperation
 	}
 
 	/**
-	 * @param optimizeUpdateManager the optimizeUpdateManager to set
+	 * @param optimizeUpdateManager
+	 *        the optimizeUpdateManager to set
 	 */
 	public void setOptimizeUpdateManager(OptimizeIndexManager optimizeUpdateManager)
 	{

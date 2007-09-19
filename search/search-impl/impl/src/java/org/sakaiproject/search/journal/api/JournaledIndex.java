@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
  * A Journaled index is a in index that contains a number of journaled segments. These segments 
@@ -65,8 +66,9 @@ public interface JournaledIndex extends JournaledObject
 	/**
 	 * Get an index writer suitable for accessing the current permanent index
 	 * @return
+	 * @throws IndexTransactionException 
 	 */
-	IndexWriter getPermanentIndexWriter();
+	IndexWriter getPermanentIndexWriter() throws IndexTransactionException;
 
 	/**
 	 * Set the list of segments
