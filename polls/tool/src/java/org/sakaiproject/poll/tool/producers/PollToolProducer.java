@@ -35,8 +35,7 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.tool.params.VoteBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.authz.cover.FunctionManager;
-//import org.sakaiproject.time.impl.BasicTimeService;
+
 
 import org.sakaiproject.site.api.SiteService;
 
@@ -61,9 +60,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.rsf.components.UIInternalLink;
-import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
-import uk.org.ponder.rsf.components.decorators.UIAlternativeTextDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.viewstate.EntityCentredViewParameters;
 import uk.org.ponder.beanutil.entity.EntityID;
@@ -237,7 +234,7 @@ public class PollToolProducer implements ViewComponentProducer,
     	  UIInternalLink resultsLink =  UIInternalLink.make(pollrow, "poll-results", messageLocator.getMessage("action_view_results"),
 	              new EntityCentredViewParameters(ResultsProducer.VIEW_ID, 
 	                      new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
-    	  resultsLink.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("action_view_results")+ ":" + poll.getText()));
+    	  resultsLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("action_view_results")+ ":" + poll.getText()));
     	  
       }
       
@@ -255,7 +252,7 @@ public class PollToolProducer implements ViewComponentProducer,
     	  UIInternalLink editLink = UIInternalLink.make(pollrow,"poll-revise",messageLocator.getMessage("action_revise_poll"),  
     			  new EntityCentredViewParameters(AddPollProducer.VIEW_ID, 
                   new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
-    	  editLink.decorators = new DecoratorList(new UIAlternativeTextDecorator(messageLocator.getMessage("action_revise_poll")+ ":" + poll.getText()));
+    	  editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("action_revise_poll")+ ":" + poll.getText()));
     	  
       }
       if (pollCanDelete(poll)) {
