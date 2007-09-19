@@ -16,46 +16,40 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
-  <dependencies>
-    <dependency>
-	<groupId>net.sf.jsmath</groupId>
-	<artifactId>jsmath</artifactId>
-	<version>3.3g</version>
-        <type>war</type>
-    </dependency>
-    <dependency>
-	<groupId>net.sf.jsmath</groupId>
-	<artifactId>jsmath-fonts</artifactId>
-	<version>1.3</version>
-        <type>war</type>
-    </dependency>
-  </dependencies>
+  <profiles>    
+    <profile>
+    	<id>without-jsmath</id>    
+    	<activation>
+       		<activeByDefault>true</activeByDefault>
+    	</activation>    
+    </profile>
+    <profile>
+    	<id>with-jsmath</id>    
+    	<activation>
+       		<activeByDefault>false</activeByDefault>
+       		<property>
+       			<name>sakai.withjsmath</name>
+       			<value>true</value>
+       		</property>
+    	</activation>
+    
+		<dependencies>
+		    <dependency>
+				<groupId>net.sf.jsmath</groupId>
+				<artifactId>jsmath</artifactId>
+				<version>3.3g</version>
+			    <type>war</type>
+		    </dependency>
+		    <dependency>
+				<groupId>net.sf.jsmath</groupId>
+				<artifactId>jsmath-fonts</artifactId>
+				<version>1.3</version>
+			    <type>war</type>
+		    </dependency>
+		</dependencies>
+    </profile>
+  </profiles>    
   <build>
-    <plugins>
-<!--
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>prepare-package</phase>
-            <configuration>
-              <tasks>
-                <delete dir="${project.build.directory}/${project.build.finalName}/jsMath"/>
-                <unzip src="${project.build.directory}/${project.build.finalName}/WEB-INF/lib/jsmath-fonts-1.3.jar" dest="${project.build.directory}/${project.build.finalName}" />
-                <unzip src="${project.build.directory}/${project.build.finalName}/WEB-INF/lib/jsmath-3.3g.jar" dest="${project.build.directory}/${project.build.finalName}" />
-                <delete  file="${project.build.directory}/${project.build.finalName}/WEB-INF/lib/jsmath-3.3g.jar" />
-                <delete file="${project.build.directory}/${project.build.finalName}/WEB-INF/lib/jsmath-fonts-1.3.jar" />
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
--->
-    </plugins>
-
     <resources/>
 <!-- java source -->
   </build>
