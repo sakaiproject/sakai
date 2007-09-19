@@ -257,8 +257,10 @@ public class PollToolProducer implements ViewComponentProducer,
       }
       if (pollCanDelete(poll)) {
     	  deletable.add(poll.getPollId().toString());
-          UISelectChoice.make(pollrow, "poll-select", deleteselect.getFullID(), (deletable.size()-1));
-    	  m_log.debug("this poll can be deleted");
+    	  UISelectChoice delete =  UISelectChoice.make(pollrow, "poll-select", deleteselect.getFullID(), (deletable.size()-1));
+          delete.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("delete_poll_tooltip") + ":" + poll.getText()));
+          
+          m_log.debug("this poll can be deleted");
     	  renderDelete = true;
 
       }
