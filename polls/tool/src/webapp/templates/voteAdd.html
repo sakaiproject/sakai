@@ -17,14 +17,14 @@
 <table>
 
   <tr>
-    <td><span class="reqStarInline">*</span> <span rsf:id="new-poll-question-label">Question</span></td>
+    <td><span class="reqStarInline">*</span> <label rsf:id="new-poll-question-label">Question</label></td>
     <td><input name="Question" type="text" size="50" rsf:id="new-poll-text" /></td>
   </tr>
   <tr>
   <td>&nbsp;&nbsp;</td>
   </tr>
   <tr>
-    <td><span rsf:id="new-poll-descr-label">Additional Instructions</span> <span rsf:id="new-poll-descr-label2">(if applicable)</span></td>
+    <td><label rsf:id="new-poll-descr-label">Additional Instructions</label> <span rsf:id="new-poll-descr-label2">(if applicable)</span></td>
 </tr>
   <tr>
   <td>&nbsp;&nbsp;</td>
@@ -43,7 +43,7 @@
   <td>&nbsp;&nbsp;</td>
   </tr>
   <tr>
-    <td> <span class="reqStarInline">*</span> <span rsf:id="new-poll-open-label">Opening</span></td>
+    <td> <span class="reqStarInline">*</span> <label rsf:id="new-poll-open-label">Opening</label></td>
     <td>
 		<span  rsf:id="openDate:">
 							 <input type="text" id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY" size="12" maxlength="10"/>
@@ -52,7 +52,7 @@
 	</td>
   </tr>
   <tr>
-    <td> <span class="reqStarInline">*</span> <span rsf:id="new-poll-close-label">Closing Date</span></td>
+    <td> <span class="reqStarInline">*</span> <label rsf:id="new-poll-close-label">Closing Date</label></td>
     <td>
     		<span  rsf:id="closeDate:">
 							 <input type="text" id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY" size="12" maxlength="10"/>
@@ -69,14 +69,14 @@
 
 <table>
 <tr rsf:id="options-row:">
-<td rsf:id="options-name">Option Name</td><td>&nbsp;<a rsf:id="option-edit">edit</a>&nbsp;&nbsp;<a rsf:id="option-delete">delete</a></td>
+<td><label rsf:id="options-name">Option Name</label></td><td>&nbsp;<a rsf:id="option-edit">edit</a>&nbsp;&nbsp;<a rsf:id="option-delete">delete</a></td>
 </tr>
 </table>
 
 <p><strong rsf:id="new-poll-limits">Limits:</strong></p>
 <table>
 <tr><td>
-<span class="reqStarInline">*</span> <span rsf:id="new-poll-min-limits">What is the minimum number of Answer Options that can be selected?</span></td><td>
+<span class="reqStarInline">*</span> <label rsf:id="new-poll-min-limits">What is the minimum number of Answer Options that can be selected?</label></td><td>
 <select name="minOptions" rsf:id="min-votes">
 <option value="0">0</option>
 <option value="1">1</option>
@@ -97,7 +97,7 @@
 </select>
 </td></tr>
 <tr><td>
-<span class="reqStarInline">*</span> <span rsf:id="new-poll-max-limits">What is the maximum number of Answer Options that can be selected?</span></td><td>
+<span class="reqStarInline">*</span> <label rsf:id="new-poll-max-limits">What is the maximum number of Answer Options that can be selected?</label></td><td>
 <select name="maxOptions" rsf:id="max-votes">
 <option value="1">1</option>
 <option value="2">2</option>
@@ -125,7 +125,7 @@
 <span rsf:id="release-select" />
 <div rsf:id="releaserow:">
 <input type="radio" rsf:id="release"/>
-<span rsf:id="releaseLabel">Open</span>
+<label rsf:id="releaseLabel">Open</label>
 </div>
 
 <!--<input name="immediately" type="radio" value="" checked="checked" rsf:id="" /> Immediately--><br />

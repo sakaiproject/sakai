@@ -55,6 +55,7 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.components.UIELBinding;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UISelectLabel;
@@ -62,6 +63,7 @@ import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITextDimensionsDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
@@ -164,13 +166,12 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		if (tml.size() > 0) {
 		    	for (int i = 0; i < tml.size(); i ++ ) {
 		    		UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", new Integer(i).toString());
-		    		String output;
 		    		if (tml.messageAt(i).args != null ) {	    		
-		    			output = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode(),tml.messageAt(i).args[0]);
+		    			UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode(),(String[])tml.messageAt(i).args[0]);
 		    		} else {
-		    			output = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode());
+		    			UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode());
 		    		}
-		    		UIOutput.make(errorRow,"error", output);
+		    		
 		    	}
 			}
 		  
@@ -191,12 +192,12 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			           poll.getPollId()));
 	    	
 	    } else if (ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW)) {
-			UIOutput.make(tofill,"new_poll_title",messageLocator.getMessage("new_poll_title"));
+			UIMessage.make(tofill,"new_poll_title","new_poll_title");
 			//build an empty poll 
 			m_log.debug("this is a new poll");
 			poll = new Poll();
 	    } else { 
-			UIOutput.make(tofill,"new_poll_title",messageLocator.getMessage("new_poll_title_edit"));  
+	    	UIMessage.make(tofill,"new_poll_title","new_poll_title_edit");  
 			//	hack but this needs to work
 			String strId = ecvp.getELPath().substring(ecvp.getELPath().indexOf(".") + 1);
 			m_log.debug("got id of " + strId);
@@ -212,8 +213,8 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	    //only display for exisiting polls
 	    if (!isNew) {
 			//fill the options list
-			UIOutput.make(tofill,"options-title",messageLocator.getMessage("new_poll_option_title"));
-			UIInternalLink.make(tofill,"option-add",messageLocator.getMessage("new_poll_option_add"),
+	    	UIMessage.make(tofill,"options-title","new_poll_option_title");
+			UIInternalLink.make(tofill,"option-add",UIMessage.make("new_poll_option_add"),
 					new OptionViewParameters(PollOptionProducer.VIEW_ID, null, poll.getPollId().toString()));
 		/*
 		 * new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
@@ -223,7 +224,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			if (votes != null && votes.size() > 0 ) {
 				m_log.debug("Poll has " + votes.size() + " votes");
 				UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", "0");
-				UIOutput.make(errorRow,"error", messageLocator.getMessage("warn_poll_has_votes"));
+				UIMessage.make(errorRow,"error", "warn_poll_has_votes");
 				
 			}
 			
@@ -236,12 +237,12 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 				UIVerbatim.make(oRow,"options-name",o.getOptionText());
 				
 				
-				UIInternalLink editOption = UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
+				UIInternalLink editOption = UIInternalLink.make(oRow,"option-edit",UIMessage.make("new_poll_option_edit"),
 							new OptionViewParameters(PollOptionProducer.VIEW_ID, o.getOptionId().toString()));
 	
-					editOption.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("new_poll_option_edit") +":" + FormattedText.convertFormattedTextToPlaintext(o.getOptionText())));
+					editOption.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("new_poll_option_edit") +":" + FormattedText.convertFormattedTextToPlaintext(o.getOptionText())));
 					
-					UIInternalLink deleteOption = UIInternalLink.make(oRow,"option-delete",messageLocator.getMessage("new_poll_option_delete"),
+					UIInternalLink deleteOption = UIInternalLink.make(oRow,"option-delete",UIMessage.make("new_poll_option_delete"),
 							new OptionViewParameters(PollOptionDeleteProducer.VIEW_ID,o.getOptionId().toString()));
 
 					deleteOption.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("new_poll_option_delete") +":" + FormattedText.convertFormattedTextToPlaintext(o.getOptionText())));
@@ -249,44 +250,46 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			}
 	    }
 	    
-		  UIOutput.make(tofill, "new-poll-descr", messageLocator.getMessage("new_poll_title"));
-		  UIOutput.make(tofill, "new-poll-question-label", messageLocator.getMessage("new_poll_question_label"));
-		  UIOutput.make(tofill, "new-poll-descr-label", messageLocator.getMessage("new_poll_descr_label")); 
-		  UIOutput.make(tofill, "new-poll-descr-label2", messageLocator.getMessage("new_poll_descr_label2"));
-		  UIOutput.make(tofill, "new-poll-open-label", messageLocator.getMessage("new_poll_open_label"));
-		  UIOutput.make(tofill, "new-poll-close-label", messageLocator.getMessage("new_poll_close_label"));
-		  UIOutput.make(tofill, "new-poll-limits", messageLocator.getMessage("new_poll_limits"));
-		  UIOutput.make(tofill, "new-poll-min-limits", messageLocator.getMessage("new_poll_min_limits"));
-		  UIOutput.make(tofill, "new-poll-max-limits", messageLocator.getMessage("new_poll_max_limits"));
+	      UIMessage.make(tofill, "new-poll-descr", "new_poll_title");
+	      UIMessage pollText = UIMessage.make(tofill, "new-poll-question-label", "new_poll_question_label");
+	      UIMessage pollDescr = UIMessage.make(tofill, "new-poll-descr-label", "new_poll_descr_label"); 
+	      UIMessage.make(tofill, "new-poll-descr-label2", "new_poll_descr_label2");
+	     
+	      UIMessage pollOpen = UIMessage.make(tofill, "new-poll-open-label", "new_poll_open_label");
+	      UIMessage pollClose = UIMessage.make(tofill, "new-poll-close-label", "new_poll_close_label");
+	      
+	      UIMessage.make(tofill, "new-poll-limits", "new_poll_limits");
+	      UIMessage pollMin = UIMessage.make(tofill, "new-poll-min-limits", "new_poll_min_limits");
+	      UIMessage pollMax =  UIMessage.make(tofill, "new-poll-max-limits", "new_poll_max_limits");
 		  
 		  
 		  //the form fields
 		  
-		  UIInput.make(newPoll, "new-poll-text", "#{poll.text}",poll.getText());
-			/*
-		  UIInput itemText = UIInput.make(newPoll, "new-poll-text:", "#{poll.newPoll.text}", poll.getText()); //$NON-NLS-1$ //$NON-NLS-2$
-			itemText.decorators = new DecoratorList(new UITextDimensionsDecorator(40, 4));
-			richTextEvolver.evolveTextInput(itemText);
-		  */
-		  //UIInput.make(newPoll, "new-poll-descr", "#{poll.details}", poll.getDetails());
-			
+		  UIInput pollTextIn = UIInput.make(newPoll, "new-poll-text", "#{poll.text}",poll.getText());
+		  UILabelTargetDecorator.targetLabel(pollText, pollTextIn);
 		 
-		  m_log.debug("about to create rich text input");
 		  UIInput itemDescr = UIInput.make(newPoll, "newpolldescr:", "#{poll.details}", poll.getDetails()); //$NON-NLS-1$ //$NON-NLS-2$
 		  itemDescr.decorators = new DecoratorList(new UITextDimensionsDecorator(40, 4));
 		  richTextEvolver.evolveTextInput(itemDescr);
-		  
+		  UILabelTargetDecorator.targetLabel(pollDescr, itemDescr);
 		  
 		  UIInput voteOpen = UIInput.make(newPoll, "openDate:", "poll.voteOpen");
 		  UIInput voteClose = UIInput.make(newPoll, "closeDate:", "poll.voteClose");
 		  dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);
 		  dateevolver.evolveDateInput(voteOpen, poll.getVoteOpen());
 		  dateevolver.evolveDateInput(voteClose, poll.getVoteClose());
-		 
+		  UILabelTargetDecorator.targetLabel(pollOpen, voteOpen);
+		  UILabelTargetDecorator.targetLabel(pollClose, voteClose);
+		  
+		  
 		  String[] minVotes = new String[]{"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
 		  String[] maxVotes = new String[]{"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
-		  UISelect.make(newPoll,"min-votes",minVotes,"#{poll.minOptions}",Integer.toString(poll.getMinOptions()));
-		  UISelect.make(newPoll,"max-votes",maxVotes,"#{poll.maxOptions}",Integer.toString(poll.getMaxOptions()));
+		  UISelect min = UISelect.make(newPoll,"min-votes",minVotes,"#{poll.minOptions}",Integer.toString(poll.getMinOptions()));
+		  UISelect max = UISelect.make(newPoll,"max-votes",maxVotes,"#{poll.maxOptions}",Integer.toString(poll.getMaxOptions()));
+		  UILabelTargetDecorator.targetLabel(pollMin, min);
+		  UILabelTargetDecorator.targetLabel(pollMax, max);
+		  
+		  
 		  /*
 			 * 	open - can be viewd at any time
 			 * 	never - not diplayed
@@ -317,14 +320,14 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		    
 		    String selectID = radioselect.getFullID();
 		    //StringList optList = new StringList();
-		    UIOutput.make(newPoll,"add_results_label",messageLocator.getMessage("new_poll_results_label"));
+		    UIMessage.make(newPoll,"add_results_label","new_poll_results_label");
 		    for (int i = 0; i < values.length; ++i) {
 		    	
 		      UIBranchContainer radiobranch = UIBranchContainer.make(newPoll,
 		          "releaserow:", Integer.toString(i));
-		      UISelectChoice.make(radiobranch, "release", selectID, i);
-		      UISelectLabel.make(radiobranch, "releaseLabel", selectID, i);
-
+		      UISelectChoice choice = UISelectChoice.make(radiobranch, "release", selectID, i);
+		      UISelectLabel lb = UISelectLabel.make(radiobranch, "releaseLabel", selectID, i);
+		      UILabelTargetDecorator.targetLabel(lb, choice);
 		    }
 		    
 		    
@@ -336,14 +339,14 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		    newPoll.parameters.add(new UIELBinding("#{poll.siteId}",siteId));
 		  
 		    if (ecvp.mode!= null && ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW))	 {
-		    	UICommand.make(newPoll, "submit-new-poll", messageLocator.getMessage("new_poll_saveoption"),
+		    	UICommand.make(newPoll, "submit-new-poll", UIMessage.make("new_poll_saveoption"),
 		    	"#{pollToolBean.processActionAdd}");
 		    } else {
-		    	UICommand.make(newPoll, "submit-new-poll", messageLocator.getMessage("new_poll_submit"),
+		    	UICommand.make(newPoll, "submit-new-poll", UIMessage.make("new_poll_submit"),
 		    	"#{pollToolBean.processActionAdd}");		  
 		    }
 		  
-		    UICommand cancel = UICommand.make(newPoll, "cancel",messageLocator.getMessage("new_poll_cancel"),"#{pollToolBean.cancel}");
+		    UICommand cancel = UICommand.make(newPoll, "cancel",UIMessage.make("new_poll_cancel"),"#{pollToolBean.cancel}");
 		    cancel.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "cancel"));
 		    m_log.debug("Finished generating view");
 	  }
