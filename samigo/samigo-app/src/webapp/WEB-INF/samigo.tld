@@ -170,7 +170,12 @@
     <rtexprvalue>false</rtexprvalue>
   </attribute>
   <attribute>
-    <name>expireMessage</name>
+    <name>expireMessage1</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>expireMessage2</name>
     <required>true</required>
     <rtexprvalue>false</rtexprvalue>
   </attribute>

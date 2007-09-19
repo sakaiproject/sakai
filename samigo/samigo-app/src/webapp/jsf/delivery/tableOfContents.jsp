@@ -105,7 +105,8 @@ function clickSubmitForGrade(){
   <samigo:timerBar height="15" width="300"
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
-    expireMessage="#{deliveryMessages.session_expired}"
+	expireMessage1="#{deliveryMessages.time_expired1}"
+	expireMessage2="#{deliveryMessages.time_expired2}"
     expireScript="document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded; document.forms[0].elements['tableOfContentsForm:outoftime'].value='true'; clickSubmitForGrade();" />
 <f:verbatim>  </span></f:verbatim>
 

@@ -118,7 +118,7 @@ public class TimerBarRenderer extends Renderer
          writer.write("\n  var action = function()");
          writer.write("\n {");
          writer.write("\n   " + attrMap.get("expireScript") + ";");
-         writer.write("\n  alert(\""  + attrMap.get("expireMessage") + "\");");         writer.write("\n }");
+         writer.write("\n  alert(\""  + attrMap.get("expireMessage1") + "\\n\\n" + attrMap.get("expireMessage2") + "\");");          writer.write("\n }");
          writer.write("\n");
          writer.write("\n</script>");
          String contextPath = context.getExternalContext().getRequestContextPath();

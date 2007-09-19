@@ -45,7 +45,8 @@ public class TimerBarTag
 
   private String id = null;
   private String expireScript;
-  private String expireMessage;
+  private String expireMessage1;
+  private String expireMessage2;
 
   //private TagUtil util;
   private String elapsed;
@@ -94,7 +95,8 @@ public class TimerBarTag
     TagUtil.setInteger(component, "wait", wait);
     TagUtil.setInteger(component, "elapsed", elapsed);
     TagUtil.setString(component, "expireScript", expireScript);
-    TagUtil.setString(component, "expireMessage", expireMessage);
+    TagUtil.setString(component, "expireMessage1", expireMessage1);
+    TagUtil.setString(component, "expireMessage2", expireMessage2);
   }
   public String getWidth()
   {
@@ -128,13 +130,22 @@ public class TimerBarTag
   {
     this.expireScript = expireScript;
   }
-  public String getExpireMessage()
+  public String getExpireMessage1()
   {
-    return expireMessage;
+    return expireMessage1;
   }
-  public void setExpireMessage(String expireMessage)
+  public void setExpireMessage1(String expireMessage1)
   {
-    this.expireMessage = expireMessage;
+    this.expireMessage1 = expireMessage1;
+  }
+  
+  public String getExpireMessage2()
+  {
+    return expireMessage2;
+  }
+  public void setExpireMessage2(String expireMessage2)
+  {
+    this.expireMessage2 = expireMessage2;
   }
 
 }

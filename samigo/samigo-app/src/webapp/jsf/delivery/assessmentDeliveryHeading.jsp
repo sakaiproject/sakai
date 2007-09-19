@@ -115,7 +115,8 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
  
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
-    expireMessage="#{deliveryMessages.session_expired}"
+    expireMessage1="#{deliveryMessages.time_expired1}"
+	expireMessage2="#{deliveryMessages.time_expired2}"
     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; clickSubmitForGrade();" />
 </h:panelGroup>
 
@@ -123,7 +124,8 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <samigo:timerBar height="15" width="300"
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapseAfterFileUpload}"
-    expireMessage="#{deliveryMessages.session_expired}"
+    expireMessage1="#{deliveryMessages.time_expired1}"
+	expireMessage2="#{deliveryMessages.time_expired2}"
     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; clickSubmitForGrade();" />
 </h:panelGroup>
 
