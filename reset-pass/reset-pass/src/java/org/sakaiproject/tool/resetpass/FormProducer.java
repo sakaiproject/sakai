@@ -82,13 +82,9 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 		    }
 		}
 		
-		UIOutput.make(tofill,"title",messageLocator.getMessage("mainTitle"));
-		Collection vals = new ArrayList();
-		vals.add(serverConfigurationService.getString("ui.service", "Sakai Bassed Service"));
-		UIOutput.make(tofill,"main",messageLocator.getMessage("mainText",vals));
-		//UIOutput.make(tofill,"instructions",messageLocator.getMessage("instructions"));
+		
+		UIOutput.make(tofill,"main",messageLocator.getMessage("mainText",serverConfigurationService.getString("ui.service", "Sakai Bassed Service")));
 		UIForm form = UIForm.make(tofill,"form");
-		UIOutput.make(form,"label",messageLocator.getMessage("formLabel"));
 		UIInput.make(form,"input","#{userBean.email}");
 		UICommand.make(form,"submit",messageLocator.getMessage("postForm"),"#{formHandler.processAction}");
 		}
