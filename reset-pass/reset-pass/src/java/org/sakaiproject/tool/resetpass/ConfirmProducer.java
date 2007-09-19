@@ -1,7 +1,8 @@
 package org.sakaiproject.tool.resetpass;
 
-import uk.org.ponder.messageutil.MessageLocator;
+
 import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
@@ -17,11 +18,6 @@ public class ConfirmProducer implements ViewComponentProducer {
 		return VIEW_ID;
 	}
 
-	private MessageLocator messageLocator;
-	public void setMessageLocator(MessageLocator messageLocator) {
-		  
-	    this.messageLocator = messageLocator;
-	  }
 	
 	private RetUser userBean;
 	public void setUserBean(RetUser u){
@@ -32,7 +28,7 @@ public class ConfirmProducer implements ViewComponentProducer {
 			ComponentChecker arg2) {
 		
 		String[] parms = new String[] {userBean.getEmail()};
-		UIOutput.make(tofill,"message",messageLocator.getMessage("confirm",userBean.getEmail()));
+		UIMessage.make(tofill,"message","confirm",parms);
 	}
 
 }

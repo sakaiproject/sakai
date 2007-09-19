@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 
-import uk.org.ponder.messageutil.MessageLocator;
+
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -19,7 +19,7 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIForm;
-import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
@@ -41,11 +41,7 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 		return this.VIEW_ID;
 	}
 
-	private MessageLocator messageLocator;
-	public void setMessageLocator(MessageLocator messageLocator) {
-		  
-	    this.messageLocator = messageLocator;
-	  }
+
 	
 	private ServerConfigurationService serverConfigurationService;
 	public void setServerConfigurationService(ServerConfigurationService s) {
@@ -71,23 +67,25 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 
 		    	for (int i = 0; i < tml.size(); i ++ ) {
 		    		UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:");
-		    		String output;
 		    		if (tml.messageAt(i).args != null ) {	    		
-		    			output = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode(),tml.messageAt(i).args[0]);
+		    			UIMessage.make(errorRow, "error", tml.messageAt(i).acquireMessageCode(), (String[])tml.messageAt(i).args[0]);
 		    		} else {
-		    			output = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode());
+		    			UIMessage.make(errorRow, "error", tml.messageAt(i).acquireMessageCode());
 		    		}
-		    		UIOutput.make(errorRow,"error", output);
+		    		
 		    	}
 		    }
 		}
 		
 		
-		UIOutput.make(tofill,"main",messageLocator.getMessage("mainText",serverConfigurationService.getString("ui.service", "Sakai Bassed Service")));
+		
+		String[] args = new String[1];
+		args[0]=serverConfigurationService.getString("ui.service", "Sakai Bassed Service");
+		UIMessage.make(tofill,"main","mainText", args);
 		UIForm form = UIForm.make(tofill,"form");
 		UIInput.make(form,"input","#{userBean.email}");
-		UICommand.make(form,"submit",messageLocator.getMessage("postForm"),"#{formHandler.processAction}");
-		}
+		UICommand.make(form,"submit",UIMessage.make("postForm"),"#{formHandler.processAction}");
+	}
 
 	
 	  public List reportNavigationCases() {
