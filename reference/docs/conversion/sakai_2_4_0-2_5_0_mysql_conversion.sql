@@ -16,7 +16,7 @@ ALTER TABLE SAKAI_POSTEM_HEADINGS MODIFY heading VARCHAR(500);
 
 -- Add colums to search to improve performance SAK-9865
 alter table searchbuilderitem add itemscope integer;
-alter table searchbuilderitem add index isearchbuilderitem_sco(itemscope);
+create index isearchbuilderitem_sco on searchbuilderitem (itemscope);
 
 
 -- SAK-9808: Implement ability to delete threaded messages within Forums
@@ -114,7 +114,7 @@ CREATE UNIQUE INDEX CONTENT_DROPBOX_CHANGES_INDEX ON CONTENT_DROPBOX_CHANGES
 	DROPBOX_ID
 );
 
-CREATE INDEX CONTENT_DROPBOX_COLLECTIONS_INDEX ON CONTENT_DROPBOX_CHANGES
+CREATE INDEX CONTENT_DROPBOX_COLLECTIONS_I ON CONTENT_DROPBOX_CHANGES
 (
 	IN_COLLECTION
 );
