@@ -480,7 +480,8 @@
 							#if ($!service.allowGradeSubmission($assignment.getReference()))
 								#if ($!view.equals('lisofass1'))
 								<td headers="num_submissions" class="specialLink">
-							#set ($totalSubmission = $!assignments_submissions.get($assignment.getReference()))
+									## calculate the in/new column
+									#set ($totalSubmission = $!assignments_submissions.get($assignment.getReference()))
 									#set ($totalNumber = 0)
 									#set ($ungradedNumber = 0)
 									#foreach ($s in $totalSubmission)
@@ -523,6 +524,17 @@
 											#end
 										#end
 									#end
+								## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
+								#set ( $submissionType = $assignment.Content.TypeOfSubmission)
+								#if ($!submissionType == 4)
+									## non-electronic assignment
+									#set ($allowSubmitUsers = $!service.allowAddSubmissionUsers($!assignment.getReference()))
+									#set($totalNumber=$!allowSubmitUsers.size())
+									##if ungraded number is greater than total number, set it to be equal
+									#if ($ungradedNumber > $totalNumber)
+										#set($ungradedNumber=$totalNumber)
+									#end
+								#end
 									<a href="#" onclick="this.onclick='';this.style.color='#000';window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'" >
 									$totalNumber/$ungradedNumber</a>
 								</td>

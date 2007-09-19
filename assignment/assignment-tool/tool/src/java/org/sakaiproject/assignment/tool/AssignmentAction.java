@@ -1180,39 +1180,6 @@ public class AssignmentAction extends PagedResourceActionII
 			Assignment a = (Assignment) assignments.get(i);
 			List submissions = AssignmentService.getSubmissions(a);
 			assignments_submissions.put(a.getReference(), submissions);
-			if (a.getContent() != null && a.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION && AssignmentService.allowAddAssignment(contextString))
-			{
-				// the following operation is accessible for those with add assignment right
-				List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(a.getReference());
-				
-				HashSet<String> submittersIdSet = getSubmittersIdSet(submissions);
-				HashSet<String> allowAddSubmissionUsersIdSet = getAllowAddSubmissionUsersIdSet(allowAddSubmissionUsers);
-				
-				if (!submittersIdSet.equals(allowAddSubmissionUsersIdSet))
-				{
-					// get the difference between two sets
-					try
-					{
-						HashSet<String> addSubmissionUserIdSet = (HashSet<String>) allowAddSubmissionUsersIdSet.clone();
-						addSubmissionUserIdSet.removeAll(submittersIdSet);
-						HashSet<String> removeSubmissionUserIdSet = (HashSet<String>) submittersIdSet.clone();
-						removeSubmissionUserIdSet.removeAll(allowAddSubmissionUsersIdSet);
-				        
-						try
-						{
-							addRemoveSubmissionsForNonElectronicAssignment(state, submissions, addSubmissionUserIdSet, removeSubmissionUserIdSet, a); 
-						}
-						catch (Exception ee)
-						{
-							Log.warn("chef", this + ee.getMessage());
-						}
-					}
-					catch (Exception e)
-					{
-						Log.warn("chef", this + e.getMessage());
-					}
-				}
-			}
 		}
 
 		context.put("assignments", assignments.iterator());
@@ -2051,6 +2018,42 @@ public class AssignmentAction extends PagedResourceActionII
 						state.setAttribute(SORTED_ASC, asc);
 					}
 					context.put("groups", new SortedIterator(groupsAllowGradeAssignment.iterator(), new AssignmentComparator(state, sort, asc)));
+				}
+			}
+			
+			// for non-electronic assignment
+			if (assignment.getContent() != null && assignment.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+			{
+				List submissions = AssignmentService.getSubmissions(assignment);
+				// the following operation is accessible for those with add assignment right
+				List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(assignment.getReference());
+				
+				HashSet<String> submittersIdSet = getSubmittersIdSet(submissions);
+				HashSet<String> allowAddSubmissionUsersIdSet = getAllowAddSubmissionUsersIdSet(allowAddSubmissionUsers);
+				
+				if (!submittersIdSet.equals(allowAddSubmissionUsersIdSet))
+				{
+					// get the difference between two sets
+					try
+					{
+						HashSet<String> addSubmissionUserIdSet = (HashSet<String>) allowAddSubmissionUsersIdSet.clone();
+						addSubmissionUserIdSet.removeAll(submittersIdSet);
+						HashSet<String> removeSubmissionUserIdSet = (HashSet<String>) submittersIdSet.clone();
+						removeSubmissionUserIdSet.removeAll(allowAddSubmissionUsersIdSet);
+				        
+						try
+						{
+							addRemoveSubmissionsForNonElectronicAssignment(state, submissions, addSubmissionUserIdSet, removeSubmissionUserIdSet, assignment); 
+						}
+						catch (Exception ee)
+						{
+							Log.warn("chef", this + ee.getMessage());
+						}
+					}
+					catch (Exception e)
+					{
+						Log.warn("chef", this + e.getMessage());
+					}
 				}
 			}
 			
@@ -4560,7 +4563,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String userId = (String) iUserIds.next();
 			String submissionRef = null;
 			// TODO: we don't have an efficient way to retrieve specific user's submission now, so until then, we still need to iterate the whole submission list
-			for (Iterator iSubmissions=submissions.iterator(); iSubmissions.hasNext() && submissionRef != null;)
+			for (Iterator iSubmissions=submissions.iterator(); iSubmissions.hasNext() && submissionRef == null;)
 			{
 				AssignmentSubmission submission = (AssignmentSubmission) iSubmissions.next();
 				List submitterIds = submission.getSubmitterIds();
