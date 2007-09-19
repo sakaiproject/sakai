@@ -341,12 +341,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 			//ServerConfigurationService.getString("wysiwyg.editor");
 		
 		context.put("sakai_editor", editor);
-		//String twinpeaks = ServerConfigurationService.getString("wysiwyg.twinpeaks");
-		boolean enableResourceSearch = EditorConfiguration.enableResourceSearch();
-		if (enableResourceSearch)
-		{
-			context.put("twinpeaks", "true");
-		}
+		context.put("editorConfig", new EditorConfiguration());
 
 		UsageSession session = UsageSessionService.getSession();
 		if (session != null)

@@ -17,7 +17,7 @@
                 oFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=" + courseId;
 		oFCKeditor.Width  = "600" ;
 		oFCKeditor.Height = "400" ;
-#if($twinpeaks)
+#if($editorConfig && $editorConfig.enableResourceSearch())
                 oFCKeditor.Config['CustomConfigurationsPath'] = "#libraryLink("editor/FCKeditor/config_rs.js")";
 #else
                 oFCKeditor.Config['CustomConfigurationsPath'] = "#libraryLink("editor/FCKeditor/config.js")";
