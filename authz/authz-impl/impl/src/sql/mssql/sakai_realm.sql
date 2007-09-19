@@ -1,4 +1,3 @@
--- up to date with r514
 -----------------------------------------------------------------------------
 -- SAKAI_REALM
 -- Note: REALM_ID is the old "resource reference" string id for the realm
