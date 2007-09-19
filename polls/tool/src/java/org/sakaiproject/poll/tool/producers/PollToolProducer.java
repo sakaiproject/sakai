@@ -45,6 +45,7 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIVerbatim;
 
 import uk.org.ponder.rsf.components.UIOutput;
@@ -61,6 +62,7 @@ import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.viewstate.EntityCentredViewParameters;
 import uk.org.ponder.beanutil.entity.EntityID;
@@ -148,12 +150,12 @@ public class PollToolProducer implements ViewComponentProducer,
 	    	m_log.debug("User can add polls");
 	        //UIOutput.make(tofill, "poll-add", messageLocator
 	         //       .getMessage("action_add_poll"));
-	    	UIInternalLink.make(actions,NAVIGATE_ADD,messageLocator.getMessage("action_add_poll"),
+	    	UIInternalLink.make(actions,NAVIGATE_ADD,UIMessage.make("action_add_poll"),
 	    	        new EntityCentredViewParameters(AddPollProducer.VIEW_ID, new EntityID("Poll", "0"),
 	    	                EntityCentredViewParameters.MODE_NEW));
 	    } 
 	    if (this.isSiteOwner()) {
-	    	UIInternalLink.make(actions, NAVIGATE_PERMISSIONS, messageLocator.getMessage("action_set_permissions"),new SimpleViewParameters(PermissionsProducer.VIEW_ID));
+	    	UIInternalLink.make(actions, NAVIGATE_PERMISSIONS, UIMessage.make("action_set_permissions"),new SimpleViewParameters(PermissionsProducer.VIEW_ID));
 	    } 
     }
 
@@ -201,11 +203,11 @@ public class PollToolProducer implements ViewComponentProducer,
         null, "#{pollToolBean.deleteids}", new String[] {});
     
      //get the headers for the table
-    UIOutput.make(deleteForm, "poll-question-title", messageLocator.getMessage("poll_question_title"));
-    UIOutput.make(deleteForm, "poll-open-title", messageLocator.getMessage("poll_open_title"));
-    UIOutput.make(deleteForm, "poll-close-title", messageLocator.getMessage("poll_close_title"));
-    UIOutput.make(deleteForm, "poll-result-title", messageLocator.getMessage("poll_result_title"));
-    UIOutput.make(deleteForm, "poll-remove-title", messageLocator.getMessage("poll_remove_title"));
+    UIMessage.make(deleteForm, "poll-question-title","poll_question_title");
+    UIMessage.make(deleteForm, "poll-open-title", "poll_open_title");
+    UIMessage.make(deleteForm, "poll-close-title", "poll_close_title");
+    UIMessage.make(deleteForm, "poll-result-title", "poll_result_title");
+    UIMessage.make(deleteForm, "poll-remove-title", "poll_remove_title");
     
     StringList deletable = new StringList();
     m_log.debug("got a list of " + polls.size() + " polls");
@@ -258,8 +260,9 @@ public class PollToolProducer implements ViewComponentProducer,
       if (pollCanDelete(poll)) {
     	  deletable.add(poll.getPollId().toString());
     	  UISelectChoice delete =  UISelectChoice.make(pollrow, "poll-select", deleteselect.getFullID(), (deletable.size()-1));
-          delete.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("delete_poll_tooltip") + ":" + poll.getText()));
-          
+          delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_poll_tooltip", new String[] {poll.getText()})));
+          UIMessage message = UIMessage.make(pollrow,"delete-label","delete_poll_tooltip", new String[] {poll.getText()});
+          UILabelTargetDecorator.targetLabel(message,delete);
           m_log.debug("this poll can be deleted");
     	  renderDelete = true;
 
@@ -272,7 +275,7 @@ public class PollToolProducer implements ViewComponentProducer,
   	  deleteForm.parameters.add(new UIELBinding("#{pollToolBean.siteID}", siteId));
 
   	  if (renderDelete) 
-	    UICommand.make(deleteForm, "delete-polls",  messageLocator.getMessage("poll_list_update"),
+	    UICommand.make(deleteForm, "delete-polls",  UIMessage.make("poll_list_update"),
 	        "#{pollToolBean.processActionDelete}");
   }
 
