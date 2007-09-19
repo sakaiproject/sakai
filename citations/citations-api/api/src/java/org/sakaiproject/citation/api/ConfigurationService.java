@@ -172,9 +172,15 @@ public interface ConfigurationService
   public void setLibrarySearchEnabled(boolean state);
 
   /**
-   * Is library search enabled?
+   * Is library search enabled for any users?
    * @return true if so
    */
   public boolean isLibrarySearchEnabled();
+
+  /**
+   * Is library search enabled for the current user?
+   * @return true if so
+   */
+  public boolean librarySearchEnabled();
 
 }

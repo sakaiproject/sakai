@@ -462,7 +462,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   }
 
   /**
-   * Is library search enabled? (no support for site specific XML configuration)
+   * Is library search enabled for any users? (no support for site specific XML configuration)
    * @return true if so
    */
   public boolean isLibrarySearchEnabled()
@@ -1359,4 +1359,13 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   {
     return (string == null) || (string.trim().equals(""));
   }
+
+    /**
+     * Is library search enabled for the current user?
+     * @return true if so
+     */
+  	public boolean librarySearchEnabled() 
+	{
+		return isLibrarySearchEnabled() && isConfigurationXmlAvailable() && isDatabaseHierarchyXmlAvailable();
+	}
 }

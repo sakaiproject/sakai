@@ -785,9 +785,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			context.put( "googleArgs", googleArgs );
 		}
 
-		if( ConfigurationService.isLibrarySearchEnabled() &&
-				ConfigurationService.isConfigurationXmlAvailable() &&
-				ConfigurationService.isDatabaseHierarchyXmlAvailable() )
+		if( ConfigurationService.librarySearchEnabled() )
 		{
 			context.put( "searchLibrary", Boolean.TRUE );
 		}

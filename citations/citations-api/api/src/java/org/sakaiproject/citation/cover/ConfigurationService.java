@@ -333,4 +333,14 @@ public class ConfigurationService
 		}
 		return instance.isAllowSiteBySiteOverride();
 	}
+  
+  public static boolean librarySearchEnabled()
+  {
+		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+		if (instance == null)
+		{
+			return false;
+		}
+		return instance.librarySearchEnabled();	  
+  }
 }
