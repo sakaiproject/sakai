@@ -53,6 +53,7 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
@@ -336,10 +337,13 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		//		context.put(CONTEXT_SITE_COLLECTION_URL, collectionUrl);
 
 		// indicate which WYSIWYG editor to use in legacy tools
-		String editor = ServerConfigurationService.getString("wysiwyg.editor");
+		String editor = EditorConfiguration.getWysiwigEditor();
+			//ServerConfigurationService.getString("wysiwyg.editor");
+		
 		context.put("sakai_editor", editor);
-		String twinpeaks = ServerConfigurationService.getString("wysiwyg.twinpeaks");
-		if (Boolean.TRUE.toString().equalsIgnoreCase(twinpeaks))
+		//String twinpeaks = ServerConfigurationService.getString("wysiwyg.twinpeaks");
+		boolean enableResourceSearch = EditorConfiguration.enableResourceSearch();
+		if (enableResourceSearch)
 		{
 			context.put("twinpeaks", "true");
 		}
