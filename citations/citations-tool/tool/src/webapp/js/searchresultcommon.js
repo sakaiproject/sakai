@@ -57,7 +57,7 @@ function SRC_verifyWindowOpener()
   		(window.opener.closed) 	||
   		(typeof window.opener.document == "unknown"))
   {
-    setTimeout(function() { SRC_closeWindowOpener(); }, 4000);
+    SRC_closedWindowOpenerAlert();
     return;
 	}
 	SRC_timedWindowVerification();
@@ -66,9 +66,18 @@ function SRC_verifyWindowOpener()
 /*
  * We can't access our parent - close on request
  */
-function SRC_closeWindowOpener()
+function SRC_closedWindowOpenerAlert()
 {
-	if (confirm("This Resource Search window can no longer access the HTML editor\r\n\r\n"
+  var element = document.getElementById("editor-integration-disconnect");
+
+  if (element != null)
+  {
+    element.style.display = "inline";
+    SRC_disableAddButtons();
+    return
+  }
+
+	if (confirm("This Library Resource Search window can no longer access the HTML editor\r\n\r\n"
 			+       "                   Close the search window?"))
   {
     window.close();
@@ -76,9 +85,7 @@ function SRC_closeWindowOpener()
 }
 
 /*
- * Verify that:
- *  -- the editor is ready
- *  -- the cursor is positioned within an editor window
+ * Verify that the editor is ready
  */
 function SRC_verifyEditArea()
 {
@@ -92,6 +99,47 @@ function SRC_verifyEditArea()
   }
 
   return true;
+}
+
+/*
+ * Inactive page handling
+ *
+ * Save the form and button names - these will be disabled
+ */
+var __SRC_resultsForm = null;
+var __SRC_buttonLabel = null;
+
+function SRC_saveResultsFormInfo(name, label)
+{
+  __SRC_resultsForm = name;
+  __SRC_buttonLabel = label;
+}
+
+/*
+ * Disable any "add citation" buttons on the results page
+ */
+function SRC_disableAddButtons()
+{
+  var formElement, inputList;
+
+  if ((__SRC_resultsForm == null) || (__SRC_buttonLabel == null)) return;
+
+  formElement = document.getElementById(__SRC_resultsForm);
+  if (formElement == null)
+  {
+    return;
+  }
+
+  inputList = formElement.getElementsByTagName("input");
+  for (var i = 0; i < inputList.length; i++)
+  {
+    var input = inputList[i];
+
+    if ((input.type == "button") && (input.value == __SRC_buttonLabel))
+    {
+      input.disabled = true;
+    }
+  }
 }
 
 /*
@@ -116,49 +164,6 @@ function SRC_clearTimedWindowVerification()
 		clearTimeout(document.__verificationTimerId);
 		document.__verificationTimerId = null;
 	}
-}
-
-
-function SRC_timedStatus()
-{
-	SRC_clearTimedStatus();
-	document.__cursorTimerId = setTimeout(function()
-																				{
-																					SRC_statusDefaults();
-																				}, 10000);
-}
-
-function SRC_clearTimedStatus()
-{
-	if (document.__cursorTimerId)
-	{
-		clearTimeout(document.__cursorTimerId);
-		document.__cursorTimerId = null;
-	}
-}
-
-function SRC_statusSearching()
-{
-	window.defaultStatus = "Searching ...";
-	SRC_timedStatus();
-};
-
-function SRC_statusDefaults()
-{
-	SRC_clearTimedStatus();
-	window.defaultStatus = "";
-};
-
-/*
- * Do any required setup work for query form submission
- */
-function SRC_formSetup(form)
-{
-	/*
-	 * Set up the "searching" display and approve the submit
-	 */
-	SRC_statusSearching();
-	return true;
 }
 
 /*

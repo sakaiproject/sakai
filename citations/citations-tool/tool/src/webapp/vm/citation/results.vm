@@ -11,6 +11,9 @@
 
 <div class="portletBody">
   <div class="indnt1">
+    #if( $editorIntegration )
+      #parse( "vm/citation/_integration_disconnect_alert.vm" )
+    #end
     #if($alertMessages)
       #parse( "vm/citation/_alert.vm" )
     #end

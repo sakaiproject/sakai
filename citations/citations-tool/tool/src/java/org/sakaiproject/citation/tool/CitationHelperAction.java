@@ -1260,7 +1260,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
     switch (caller)
     {
       case EDITOR_INTEGRATION:
-    		context.put("sakai_onload", "SRC_timedWindowVerification(); highlightButtonSelections( '" + rb.getString("remove.results") + "' )");
+    		context.put("sakai_onload", "SRC_saveResultsFormInfo('"
+    		        +   ELEMENT_ID_RESULTS_FORM
+    		        + "','"
+    		        + rb.getString("add.results")
+    		        + "'); SRC_verifyWindowOpener();");
 
    			context.put("editorIntegration", Boolean.TRUE);
    			context.put("resourcesTool", Boolean.FALSE);
@@ -1387,7 +1391,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		switch (caller)
 		{
   	  case EDITOR_INTEGRATION:
-  		  context.put("sakai_onload", "SRC_timedWindowVerification(); showTopCategory();");
+  		  context.put("sakai_onload", "SRC_verifyWindowOpener(); showTopCategory();");
 
    			context.put("editorIntegration", Boolean.TRUE);
    			context.put("resourcesTool", Boolean.FALSE);

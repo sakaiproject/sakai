@@ -12,6 +12,10 @@
 <div class="portletBody">
   <div class="indnt1">
 
+  #if( $editorIntegration )
+    #parse( "vm/citation/_integration_disconnect_alert.vm" )
+  #end
+
   <h3 id="advancedSearchHeader" style="display: none;">$tlang.getString("title.adv.search")</h3>
   <h3 id="basicSearchHeader">$tlang.getString("title.basic.search")</h3>
 
