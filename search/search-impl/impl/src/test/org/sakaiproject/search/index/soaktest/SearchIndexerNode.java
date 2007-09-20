@@ -22,11 +22,18 @@
 package org.sakaiproject.search.index.soaktest;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.Hits;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerListener;
 import org.sakaiproject.search.indexer.impl.ConcurrentSearchIndexBuilderWorkerImpl;
@@ -86,6 +93,8 @@ public class SearchIndexerNode
 
 	private String password;
 
+	private JournaledFSIndexStorage journaledFSIndexStorage;
+
 	public SearchIndexerNode(String base, String instanceName, String driver, String url, String userame, String password) 
 	{
 		this.base = base;
@@ -108,7 +117,7 @@ public class SearchIndexerNode
 		tds = new SharedTestDataSource(base,10,false,driver, url, userame, password);
 
 		mu = new MergeUpdateOperation();
-		JournaledFSIndexStorage journaledFSIndexStorage = new JournaledFSIndexStorage();
+		 journaledFSIndexStorage = new JournaledFSIndexStorage();
 		StandardAnalyzerFactory analyzerFactory = new StandardAnalyzerFactory();
 		DbJournalManager journalManager = new DbJournalManager();
 		MockServerConfigurationService serverConfigurationService = new MockServerConfigurationService();
@@ -287,6 +296,19 @@ public class SearchIndexerNode
 		cim.close();
 		tds.close();
 		
+	}
+
+	/**
+	 * @throws IOException 
+	 * 
+	 */
+	public void testSearch() throws IOException
+	{
+		IndexSearcher is = journaledFSIndexStorage.getIndexSearcher();
+		TermQuery tq = new TermQuery(new Term(SearchService.FIELD_CONTENTS,"node"));
+		
+		Hits h = is.search(tq);
+		log.info("Got "+h.length()+" hits from "+is.getIndexReader().numDocs());
 	}
 
 }

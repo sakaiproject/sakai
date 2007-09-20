@@ -207,8 +207,9 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 			public String getContent(String reference)
 			{
 				StringBuilder sb = new StringBuilder();
+				sb.append("  Node is ").append(reference).append(" ");
 				for ( int i = 0;  i < 100; i++ ) {
-					sb.append(reference).append(" ").append(System.currentTimeMillis()).append(" ");
+					sb.append(reference.replace('/', ' ')).append(" ").append(System.currentTimeMillis()).append(" ");
 				}
 				return sb.toString();
 			}

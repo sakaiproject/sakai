@@ -108,13 +108,20 @@ public class SearchSoak extends TestCase
 		}
 
 		log.info("Using " + driver);
+		SearchIndexerNode[] node = new SearchIndexerNode[4];
 		for (int i = 0; i < 4; i++)
 		{
-			SearchIndexerNode node = new SearchIndexerNode(testBase.getAbsolutePath(),
+			node[i] = new SearchIndexerNode(testBase.getAbsolutePath(),
 					"node" + i, driver, url, user, password);
-			node.init();
+			node[i].init();
 		}
-		Thread.sleep(6000 * 1000);
+		for ( int k = 0; k < 3600; k++ ) {
+			for (int i = 0; i < 4; i++)
+			{
+				node[i].testSearch();
+			}
+			Thread.sleep(1000);
+		}
 	}
 
 }

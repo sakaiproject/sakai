@@ -493,7 +493,16 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 
 	public IndexReader getIndexReader() throws IOException
 	{
-		if (modified || multiReader == null || !multiReader.isCurrent() )
+		boolean current = false;
+		try {
+			// could be null
+			if ( multiReader != null ) {
+				current = multiReader.isCurrent();
+			}
+		} catch ( Exception ex ) {
+			log.warn("Failed to get current status assuming index reload is required ",ex);
+		}
+		if (modified || multiReader == null || !current )
 		{
 			/*
 			 * We must get a read lock to prevent a writer from opening when we
@@ -559,7 +568,7 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 			iw.close();
 		}
 
-		IndexReader[] indexReaders = new IndexReader[segments.size() + 1];
+		final IndexReader[] indexReaders = new IndexReader[segments.size() + 1];
 		indexReaders[0] = IndexReader.open(d);
 		int i = 1;
 		for (File s : segments)
@@ -592,6 +601,19 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 				}
 				log.info("Super Close ");
 				super.doClose();
+			}
+			
+			/**
+			 * The isCurrent method in 1.9.1 has a NPE bug, this fixes it
+			 * @see org.apache.lucene.index.IndexReader#isCurrent()
+			 */
+			@Override
+			public boolean isCurrent() throws IOException
+			{
+				for ( IndexReader ir : indexReaders ) {
+					if ( !ir.isCurrent() ) return false;
+				}
+				return true;
 			}
 		};
 		if ( multiReader != null ) {
