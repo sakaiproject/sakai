@@ -35,7 +35,9 @@ import org.sakaiproject.jsf.util.RendererUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Web;
 
 public class RichTextAreaRenderer extends Renderer
 {
@@ -385,8 +387,23 @@ public class RichTextAreaRenderer extends Renderer
 
                      writer.write("\n\n\toFCKeditor.Config['CurrentFolder'] = courseId;");
 
-        	     writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
-                }
+                     boolean resourceSearch = EditorConfiguration.enableResourceSearch();
+                     if(resourceSearch)
+                     {
+                     	// need to set document.__pid to placementId
+                     	String placementId = ToolManager.getCurrentPlacement().getId();
+                     	writer.write("\t\tdocument.__pid=\"" + placementId + "\";\n");
+                     	
+                     	// need to set document.__baseUrl to baseUrl
+                     	String baseUrl = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placementId);
+                     	writer.write("\t\tdocument.__baseUrl=\"" + baseUrl + "\";\n");
+                      	writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config_rs.js\";\n");
+                     }
+                     else
+                     {
+                    	 writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
+                     }
+                 }
 
         	writer.write("oFCKeditor.ReplaceTextarea() ;}\n");
         	writer.write("</script>\n");

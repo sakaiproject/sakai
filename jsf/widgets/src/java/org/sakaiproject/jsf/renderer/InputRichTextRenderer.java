@@ -30,6 +30,8 @@ import org.sakaiproject.jsf.model.InitObjectContainer;
 import org.sakaiproject.jsf.util.ConfigurationResource;
 import org.sakaiproject.jsf.util.RendererUtil;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.EditorConfiguration;
+import org.sakaiproject.util.Web;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
@@ -303,7 +305,22 @@ public class InputRichTextRenderer extends Renderer
 
          writer.write("\n\n\toFCKeditor.Config['CurrentFolder'] = collectionId;");
 
-         writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
+         boolean resourceSearch = EditorConfiguration.enableResourceSearch();
+         if(resourceSearch)
+         {
+         	// need to set document.__pid to placementId
+         	String placementId = ToolManager.getCurrentPlacement().getId();
+         	writer.write("\t\tdocument.__pid=\"" + placementId + "\";\n");
+         	
+         	// need to set document.__baseUrl to baseUrl
+         	String baseUrl = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placementId);
+         	writer.write("\t\tdocument.__baseUrl=\"" + baseUrl + "\";\n");
+          	writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config_rs.js\";\n");
+         }
+         else
+         {
+        	 writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
+         }
        }
 
        if (hasAttachments) {
