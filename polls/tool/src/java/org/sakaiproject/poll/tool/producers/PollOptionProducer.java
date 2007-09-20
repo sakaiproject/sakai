@@ -148,7 +148,11 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 			option = pollListManager.getOptionById(new Long(aivp.id));
 		} else {
 			option = new Option();
-			option.setPollId(new Long(aivp.pollId));
+			if (aivp.pollId != null)
+				option.setPollId(new Long(aivp.pollId));
+			else 
+				option.setPollId(voteBean.getPoll().getPollId());
+				
 			newOption = true;
 		}
 		

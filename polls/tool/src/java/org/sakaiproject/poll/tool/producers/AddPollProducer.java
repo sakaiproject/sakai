@@ -356,8 +356,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		    List togo = new ArrayList(); // Always navigate back to this view.
 		    togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
 		    togo.add(new NavigationCase("added", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
-		    togo.add(new NavigationCase("option", new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, new EntityID("Option", "new 1"),
-	                EntityCentredViewParameters.MODE_NEW)));
+		    togo.add(new NavigationCase("option", new OptionViewParameters(PollOptionProducer.VIEW_ID, null, null)));
 		    togo.add(new NavigationCase("cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		    return togo;
 		  }

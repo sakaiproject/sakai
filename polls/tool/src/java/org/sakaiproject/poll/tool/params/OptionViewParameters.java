@@ -11,6 +11,9 @@ public class OptionViewParameters extends SimpleViewParameters {
 			
 		}
 		
+		public OptionViewParameters(String viewId) {
+			
+		}
 		
 		public OptionViewParameters(String viewId, String id) {
 			this.id=id;
