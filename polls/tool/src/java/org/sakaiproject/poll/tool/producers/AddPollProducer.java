@@ -269,7 +269,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		  UILabelTargetDecorator.targetLabel(pollText, pollTextIn);
 		 
 		  UIInput itemDescr = UIInput.make(newPoll, "newpolldescr:", "#{poll.details}", poll.getDetails()); //$NON-NLS-1$ //$NON-NLS-2$
-		  itemDescr.decorators = new DecoratorList(new UITextDimensionsDecorator(40, 4));
+		  //itemDescr.decorators = new DecoratorList(new UITextDimensionsDecorator(4, 4));
 		  richTextEvolver.evolveTextInput(itemDescr);
 		  UILabelTargetDecorator.targetLabel(pollDescr, itemDescr);
 		  

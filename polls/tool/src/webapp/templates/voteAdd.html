@@ -1,15 +1,15 @@
 <!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:rsf="http://ponder.org.uk/rsf">
 <head>
-<title>Add a question</title>
-<link rsf:id="scr=portal-matter"  href="https://vula.uct.ac.za/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
+<title>Polls: Add/edit a poll</title>
+<link rsf:id="scr=portal-matter"  href="https:https://vula.uct.ac.za/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
 <link href="https://vula.uct.ac.za/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" rsf:id="scr=portal-matter" />
-<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 </head>
 
 <body rsf:id="scr=sakai-body">
 <div class="portletBody">
-<h3 rsf:id="new_poll_title">Add a question</h3>
+<h3 rsf:id="new_poll_title">Add/Edit a poll</h3>
 <div rsf:id="error-row:">
   <div class="alertMessage" rsf:id="error">We Have Errors!</div>
 </div>
@@ -21,33 +21,21 @@
     <td><input name="Question" type="text" size="50" rsf:id="new-poll-text" /></td>
   </tr>
   <tr>
-  <td>&nbsp;&nbsp;</td>
-  </tr>
-  <tr>
-    <td><label rsf:id="new-poll-descr-label">Additional Instructions</label> <span rsf:id="new-poll-descr-label2">(if applicable)</span></td>
+    <td colspan="2"><label rsf:id="new-poll-descr-label">Additional Instructions</label> <span rsf:id="new-poll-descr-label2">(if applicable)</span></td>
 </tr>
-  <tr>
-  <td>&nbsp;&nbsp;</td>
-  </tr>
 <tr>
     <td colspan="2">
     <div rsf:id="newpolldescr:">
-    <textarea name="Instructions" type="text" size="50"></textarea>
+    <textarea name="Instructions" cols="50" rows="3"></textarea>
     </div>
     </td>
-    </tr>
-      <tr>
-  <td>&nbsp;&nbsp;</td>
-  </tr>
-    <tr>
-  <td>&nbsp;&nbsp;</td>
-  </tr>
-  <tr>
+</tr>
+<tr>
     <td> <span class="reqStarInline">*</span> <label rsf:id="new-poll-open-label">Opening</label></td>
     <td>
 		<span  rsf:id="openDate:">
 							 <input type="text" id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY" size="12" maxlength="10"/>
-							  <img src="../images/calendar.gif" />
+							  <img src="../images/calendar.gif" alt="calendar"/>
 		</span>
 	</td>
   </tr>
@@ -56,7 +44,7 @@
     <td>
     		<span  rsf:id="closeDate:">
 							 <input type="text" id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY" size="12" maxlength="10"/>
-							  <img src="../images/calendar.gif" />
+							  <img src="../images/calendar.gif" alt="calendar"/>
 		</span>
     	</td>
   </tr>
@@ -64,7 +52,7 @@
 
 <p>
 <strong rsf:id="options-title">Answer Options:</strong><br />
-<a rsf:id="option-add">Add Option</a>
+<a rsf:id="option-add" href="pollOption.html">Add Option</a>
 </p>
 
 <table>

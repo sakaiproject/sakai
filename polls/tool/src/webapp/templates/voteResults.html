@@ -1,10 +1,10 @@
 <!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:rsf="http://ponder.org.uk/rsf">
 <head>
-<title>Vote Results</title>
+<title>Polls: Results</title>
 <link rsf:id="scr=portal-matter"  href="https://vula.uct.ac.za/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
 <link rsf:id="scr=portal-matter" href="https://vula.uct.ac.za/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all"/>
-<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 </head>
 
 <body rsf:id="scr=sakai-body">
@@ -12,8 +12,8 @@
 <h3>Results</h3>
 <p rsf:id="question">poll question</p>
 <p rsf:id="poll-size">Num votes</p>
-<table class="listHier" border="0" cellspacing="0">
-<thead>
+  <table class="listHier" border="0" cellspacing="0">
+    <thead>
   <tr>
     <th rsf:id="answers-title">Answers</th>
     <th>Votes</th>
@@ -23,12 +23,12 @@
 <tbody>
   <tr rsf:id="answer-row:">
     <td rsf:id="answer-option">Option 1</td>
-    <td rsf:id="answer-numVotes">10</td>
-    <td rsf:id="answer-percVotes">100%</td>
+    <td valign="middle" rsf:id="answer-numVotes">10</td>
+    <td valign="middle" rsf:id="answer-percVotes">100%</td>
   </tr>
   <tr>
     <td><strong>Total</strong></td>
-    <td ><strong rsf:id="votes-total">10</strong></td>
+    <td><strong rsf:id="votes-total">10</strong></td>
     <td><strong rsf:id="total-percent">100%</strong></td>
   </tr> 
 </tbody>

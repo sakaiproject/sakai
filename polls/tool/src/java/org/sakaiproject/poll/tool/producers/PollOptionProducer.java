@@ -180,7 +180,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 			option.setOptionText("");
 		
 		UIInput optText = UIInput.make(form,"optText:","#{option.optionText}",option.getOptionText());
-		optText.decorators = new DecoratorList(new UITextDimensionsDecorator(40, 4));
+		//optText.decorators = new DecoratorList(new UITextDimensionsDecorator(4, 4));
 		  richTextEvolver.evolveTextInput(optText);
 		
 		form.parameters.add(new UIELBinding("#{option.pollId}",
