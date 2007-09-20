@@ -88,7 +88,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 		</div>	
 		#if($listActions || $showHotDropboxWidget)
 			<div class="navPanel">
-				<div class=" viewNav">
+				<div class="navIntraToolLink viewNav">
 					#if($listActions)
 						<span>
 							#set ($itemsOnLine = 0)
