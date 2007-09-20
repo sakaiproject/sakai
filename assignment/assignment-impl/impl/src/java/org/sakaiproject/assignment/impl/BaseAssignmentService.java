@@ -3620,7 +3620,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								{
 									submittersString = submittersString.concat("; ");
 								}
-								String fullName = submitters[i].getLastName() + "," + submitters[i].getFirstName();
+								String fullName = submitters[i].getSortName();
 								submittersString = submittersString.concat(fullName);
 								// add the eid to the end of it to guarantee folder name uniqness
 								submittersString = submittersString + "(" + submitters[i].getEid() + ")";
@@ -3650,6 +3650,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 											out.closeEntry();
 										}
 										
+										// record submission timestamp
+										if (s.getSubmitted() && s.getTimeSubmitted() != null)
+										{
+											ZipEntry textEntry = new ZipEntry(submittersName + "timestamp.txt");
+											out.putNextEntry(textEntry);
+											byte[] b = (s.getTimeSubmitted().toString()).getBytes();
+											out.write(b);
+											textEntry.setSize(b.length);
+											out.closeEntry();
+										}
+										
 										// the comments.txt file to show instructor's comments
 										ZipEntry textEntry = new ZipEntry(submittersName + "comments" + ZIP_COMMENT_FILE_TYPE);
 										out.putNextEntry(textEntry);
@@ -3657,10 +3668,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										out.write(b);
 										textEntry.setSize(b.length);
 										out.closeEntry();
+										
+										// create an attachment folder for the feedback attachments
+										String feedbackSubAttachmentFolder = submittersName + rb.getString("download.feedback.attachment") + "/";
+										ZipEntry feedbackSubAttachmentFolderEntry = new ZipEntry(feedbackSubAttachmentFolder);
+										out.putNextEntry(feedbackSubAttachmentFolderEntry);
+										out.closeEntry();
 		
-										// create the attachment file(s)
+										// create a attachment folder for the submission attachments
+										String sSubAttachmentFolder = submittersName + rb.getString("download.submission.attachment") + "/";
+										ZipEntry sSubAttachmentFolderEntry = new ZipEntry(sSubAttachmentFolder);
+										out.putNextEntry(sSubAttachmentFolderEntry);
+										out.closeEntry();
+										// add all submission attachment into the submission attachment folder
 										List attachments = s.getSubmittedAttachments();
 										int attachedUrlCount = 0;
+										
 										for (int j = 0; j < attachments.size(); j++)
 										{
 											Reference r = (Reference) attachments.get(j);
@@ -3685,7 +3708,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 												byte data[] = new byte[1024 * 10];
 												BufferedInputStream bContent = new BufferedInputStream(content, data.length);
 												
-												ZipEntry attachmentEntry = new ZipEntry(submittersName + displayName);
+												ZipEntry attachmentEntry = new ZipEntry(sSubAttachmentFolder + displayName);
 												out.putNextEntry(attachmentEntry);
 												int bCount = -1;
 												while ((bCount = bContent.read(data, 0, data.length)) != -1) 
