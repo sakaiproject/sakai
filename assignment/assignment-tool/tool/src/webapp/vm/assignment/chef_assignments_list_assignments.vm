@@ -3,6 +3,20 @@
 <script type="text/javascript" language="JavaScript">
   focus_path = ["search"];
 </script>
+<script type='text/javascript'>
+var linkFlag = true;
+
+function allowClick(object)
+{
+		object.onclick='';
+	 object.style.color='#000';
+	 var rv = linkFlag;
+	 ## set the flag to be false
+	 linkFlag = false;
+	 ##return the current flag status
+	 return rv;
+}
+</script>
 <div class="portletBody">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
 	## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
@@ -339,7 +353,7 @@
 												#end
 											#end
 											#if (!$assignment.draft && $!service.allowGradeSubmission($assignment.getReference()))#if($prevAction) | #end
-											<a href="#" onclick="this.onclick='';this.style.color='#000';window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'" >#if ($withGrade)$!tlang.getString("grad1")#else$!tlang.getString("viewsubmissions")#end</a>#end										
+											<a href="#" onclick="if(allowClick(this)){window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")';}" >#if ($withGrade)$!tlang.getString("grad1")#else$!tlang.getString("viewsubmissions")#end</a>#end										
 										</div>
 									#else
 										#if ($!allowAddAssignment)
@@ -529,13 +543,17 @@
 								#if ($!submissionType == 4)
 									## non-electronic assignment
 									#set ($allowSubmitUsers = $!service.allowAddSubmissionUsers($!assignment.getReference()))
+									#if($totalNumber == 0)
+										## in case there is no submission object for any reason
+										#set($ungradedNumber = $allowSubmitUsers.size())
+									#end
 									#set($totalNumber=$!allowSubmitUsers.size())
 									##if ungraded number is greater than total number, set it to be equal
 									#if ($ungradedNumber > $totalNumber)
 										#set($ungradedNumber=$totalNumber)
 									#end
 								#end
-									<a href="#" onclick="this.onclick='';this.style.color='#000';window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'" >
+									<a href="#" onclick="if(allowClick(this)){window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")';}" >
 									$totalNumber/$ungradedNumber</a>
 								</td>
 								#end
