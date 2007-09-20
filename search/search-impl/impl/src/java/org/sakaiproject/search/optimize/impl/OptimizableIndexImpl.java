@@ -25,6 +25,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexWriter;
 import org.sakaiproject.search.journal.api.JournaledIndex;
 import org.sakaiproject.search.optimize.api.OptimizableIndex;
@@ -32,14 +34,16 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
  * A class that manages an optimizable index
+ * 
  * @author ieb
- *
  */
 public class OptimizableIndexImpl implements OptimizableIndex
 {
 
+	private static final Log log = LogFactory.getLog(OptimizableIndexImpl.class);
+
 	private JournaledIndex journaledIndex;
-	
+
 	/**
 	 * @see org.sakaiproject.search.optimize.api.OptimizableIndex#getOptimizableSegments()
 	 */
@@ -49,11 +53,11 @@ public class OptimizableIndexImpl implements OptimizableIndex
 	}
 
 	/**
-	 * @throws IndexTransactionException 
+	 * @throws IndexTransactionException
 	 * @see org.sakaiproject.search.optimize.api.OptimizableIndex#getPermanentIndexWriter()
 	 */
 	public IndexWriter getPermanentIndexWriter() throws IndexTransactionException
-	{		
+	{
 		return journaledIndex.getPermanentIndexWriter();
 	}
 
@@ -62,27 +66,30 @@ public class OptimizableIndexImpl implements OptimizableIndex
 	 */
 	public void removeOptimizableSegments(File[] optimzableSegments)
 	{
-		List<File> keep = new ArrayList<File>(); 
-		List<File> remove = new ArrayList<File>(); 
-		for ( File f : getOptimizableSegments() ) {
+		List<File> keep = new ArrayList<File>();
+		List<File> remove = new ArrayList<File>();
+		for (File f : getOptimizableSegments())
+		{
 			keep.add(f);
 		}
-		
-		for ( File f : getOptimizableSegments() ) {
+
+		for (File f : getOptimizableSegments())
+		{
 			String optSeg = f.getAbsolutePath();
-			for ( File r : optimzableSegments ) {
-				if ( optSeg.equals(r.getAbsolutePath()) ) {
+			for (File r : optimzableSegments)
+			{
+				if (optSeg.equals(r.getAbsolutePath()))
+				{
 					keep.remove(f);
 					remove.add(f);
 					break;
 				}
 			}
 		}
+		log.info("Keeping " + keep.size() + " removing " + remove.size() + " segments");
 		journaledIndex.setSegments(keep);
 		journaledIndex.removeSegments(remove);
-		
-		
-		
+
 	}
 
 	/**
@@ -94,7 +101,8 @@ public class OptimizableIndexImpl implements OptimizableIndex
 	}
 
 	/**
-	 * @param journaledIndex the journaledIndex to set
+	 * @param journaledIndex
+	 *        the journaledIndex to set
 	 */
 	public void setJournaledIndex(JournaledIndex journaledIndex)
 	{

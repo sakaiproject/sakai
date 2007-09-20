@@ -114,7 +114,7 @@ public class SearchSoak extends TestCase
 					"node" + i, driver, url, user, password);
 			node.init();
 		}
-		Thread.sleep(600 * 1000);
+		Thread.sleep(6000 * 1000);
 	}
 
 }

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.index.soaktest;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +51,11 @@ import org.sakaiproject.search.mock.MockSearchService;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
 import org.sakaiproject.search.mock.MockSessionManager;
 import org.sakaiproject.search.mock.MockUserDirectoryService;
+import org.sakaiproject.search.optimize.impl.OptimizableIndexImpl;
+import org.sakaiproject.search.optimize.impl.OptimizeIndexManager;
+import org.sakaiproject.search.optimize.impl.OptimizeIndexOperation;
+import org.sakaiproject.search.optimize.impl.OptimizeTransactionListenerImpl;
+import org.sakaiproject.search.transaction.impl.LocalTransactionSequenceImpl;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 
 /**
@@ -97,6 +103,8 @@ public class SearchIndexerNode
 		String indexerwork = instanceBase + "/indexerwork";
 		String indexwork = instanceBase + "/index/work";
 		String index = instanceBase + "/index/main";
+		String optimizeWork = instanceBase + "/index/optwork";
+
 		tds = new SharedTestDataSource(base,10,false,driver, url, userame, password);
 
 		mu = new MergeUpdateOperation();
@@ -180,10 +188,32 @@ public class SearchIndexerNode
 		journaledFSIndexStorage.init();
 
 		tiw.init();
+		
+		
+		OptimizableIndexImpl optimizableIndex = new OptimizableIndexImpl();
+		optimizableIndex.setJournaledIndex(journaledFSIndexStorage);
+
+		OptimizeTransactionListenerImpl otli = new OptimizeTransactionListenerImpl();
+		otli.setMergeSize(5);
+		otli.setOptimizableIndex(optimizableIndex);
+
+		OptimizeIndexManager oum = new OptimizeIndexManager();
+		oum.setAnalyzerFactory(analyzerFactory);
+		oum.setSearchIndexWorkingDirectory(optimizeWork);
+		oum.addTransactionListener(otli);
+		oum.setSequence(new LocalTransactionSequenceImpl());
+
+		OptimizeIndexOperation oo = new OptimizeIndexOperation();
+		oo.setJournaledObject(journaledFSIndexStorage);
+		oo.setOptimizeUpdateManager(oum);
+
+		oo.init();
+
 
 		 cim = new ConcurrentIndexManager();
 		IndexManagementTimerTask indexer = new IndexManagementTimerTask();
 		IndexManagementTimerTask merger = new IndexManagementTimerTask();
+		IndexManagementTimerTask optimizer = new IndexManagementTimerTask();
 
 		MockComponentManager componentManager = new MockComponentManager();
 		MockEventTrackingService eventTrackingService = new MockEventTrackingService();
@@ -205,6 +235,7 @@ public class SearchIndexerNode
 
 		indexer.setManagementOperation(csibw);
 		merger.setManagementOperation(mu);
+		optimizer.setManagementOperation(oo);
 
 		List<IndexManagementTimerTask> taskList = new ArrayList<IndexManagementTimerTask>();
 		taskList.add(indexer);
@@ -213,6 +244,9 @@ public class SearchIndexerNode
 		taskList.add(merger);
 		merger.setDelay(10);
 		merger.setPeriod(10000);
+		taskList.add(optimizer);
+		optimizer.setDelay(50);
+		optimizer.setPeriod(10000);
 		
 		IndexManagementTimerTask docloader = new IndexManagementTimerTask();
 		docloader.setDelay(5);

@@ -115,6 +115,8 @@ public class ConcurrentIndexManager implements IndexListener
 	{
 		if (inclose.get() == null)
 		{
+			final long closeId = System.currentTimeMillis();
+			log.info("Sceduling Close of index with id "+closeId+" and "+toRemove.length+" to remove" );
 			timer.schedule(new TimerTask()
 			{
 
@@ -124,10 +126,12 @@ public class ConcurrentIndexManager implements IndexListener
 					inclose.set("closing");
 					try
 					{
+						log.info("Closing "+closeId+"with "+toRemove.length+" files to delete");
 						oldMultiReader.close();
 						for (File f : toRemove)
 						{
 							FileUtils.deleteAll(f);
+							log.info("Deleted Old Segment "+f);
 						}
 						log.info("Closed Index");
 						

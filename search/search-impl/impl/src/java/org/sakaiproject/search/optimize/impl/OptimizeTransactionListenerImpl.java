@@ -24,6 +24,8 @@ package org.sakaiproject.search.optimize.impl;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -46,6 +48,8 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
  */
 public class OptimizeTransactionListenerImpl implements OptimizeTransactionListener
 {
+
+	private static final Log log = LogFactory.getLog(OptimizeTransactionListenerImpl.class);
 
 	/**
 	 * The index to be optimised
@@ -92,6 +96,7 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 
 			File[] optimzableSegments = ((IndexOptimizeTransaction) transaction)
 					.getOptimizableSegments();
+			log.info("Optimized Compressed "+optimzableSegments.length+" segments ");
 			optimizableIndex.removeOptimizableSegments(optimzableSegments);
 
 		}

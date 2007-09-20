@@ -88,7 +88,7 @@ public class SingleSearchSoakTest extends TestCase
 		SearchIndexerNode node = new SearchIndexerNode(testBase.getAbsolutePath(),
 				"onethread",driver, url, user,password);
 		node.init();
-		Thread.sleep(15 * 1000);
+		Thread.sleep(120 * 1000);
 		node.close();
 		log.info("=PASSED=========================== "+this.getClass().getName()+".testSoakOneNode");
 	}

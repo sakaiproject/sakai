@@ -587,6 +587,7 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 					fireIndexReaderClose(this);
 				} catch ( Exception ioex ) {
 					log.info("Posting Close ");
+					toRemove.clear();
 					return;
 				}
 				log.info("Super Close ");
@@ -950,8 +951,8 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 	 */
 	private void fireIndexReaderClose(IndexReader oldMultiReader) throws IOException
 	{
-		File[] f = toRemove.toArray(new File[0]);
-		toRemove.clear();
+		File[] f = toRemove.toArray(new File[toRemove.size()]);
+		log.info("Posting close event with "+f.length+" segments to delete "+toRemove.size());
 		for (Iterator<IndexListener> itl = getIndexListeners().iterator(); itl.hasNext();)
 		{
 			IndexListener tl = itl.next();
@@ -1088,6 +1089,7 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 	public void removeSegments(List<File> remove)
 	{
 		toRemove.addAll(remove);
+		log.info("ToRemove has "+toRemove.size()+" to remove");
 	}
 
 	/**

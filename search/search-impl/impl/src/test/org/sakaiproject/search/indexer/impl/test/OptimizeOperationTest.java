@@ -265,6 +265,8 @@ public class OptimizeOperationTest extends TestCase
 
 		tiw.init();
 
+		
+		
 		optimizableIndex = new OptimizableIndexImpl();
 		optimizableIndex.setJournaledIndex(journaledFSIndexStorage);
 
