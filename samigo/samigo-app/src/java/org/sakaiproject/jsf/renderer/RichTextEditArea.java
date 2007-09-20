@@ -35,8 +35,10 @@ import javax.faces.render.Renderer;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.cover.ToolManager; 
 import org.sakaiproject.content.cover.ContentHostingService; 
+import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Web;
 
 
 /**
@@ -466,13 +468,24 @@ public class RichTextEditArea extends Renderer
     {
 
         String connector = "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector";
-	String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext()); 
-
+        String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());        
 
         if ("archival".equals(ServerConfigurationService.getString("tags.focus")))
              writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/archival_config.js\";\n");
         else {
-	  writer.write("\n\t\tvar courseId = \"" + collectionId + "\";"); 
+            boolean resourceSearch = EditorConfiguration.enableResourceSearch();
+            if(resourceSearch)
+            {
+            	// need to set document.__pid to placementId
+            	String placementId = ToolManager.getCurrentPlacement().getId();
+            	writer.write("\t\tdocument.__pid=\"" + placementId + "\";\n");
+            	
+            	// need to set document.__baseUrl to baseUrl
+            	String baseUrl = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placementId);
+            	writer.write("\t\tdocument.__baseUrl=\"" + baseUrl + "\";\n");
+            }
+
+            writer.write("\n\t\tvar courseId = \"" + collectionId + "\";"); 
           writer.write("\n\toFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + " + 
                 "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Image&CurrentFolder=\" + courseId;");
           writer.write("\n\toFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + " + 
@@ -488,8 +501,14 @@ public class RichTextEditArea extends Renderer
 	
           writer.write("\n\n\toFCKeditor.Config['CurrentFolder'] = courseId;");
 
-          writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
-
+          if(resourceSearch)
+          {
+        	  writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config_rs.js\";\n");
+          }
+          else
+          {
+        	  writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
+          }
         }
 
     }
