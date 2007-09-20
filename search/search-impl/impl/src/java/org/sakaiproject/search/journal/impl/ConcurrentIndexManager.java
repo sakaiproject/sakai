@@ -141,6 +141,7 @@ public class ConcurrentIndexManager implements IndexListener
 						log.warn("Close of old index failed " + ex.getMessage());
 					} finally {
 						inclose.set(null);
+						cancel();
 					}
 				}
 
@@ -202,7 +203,9 @@ public class ConcurrentIndexManager implements IndexListener
 						log.warn("Close of old index failed " + ex.getMessage());
 					} finally {
 						insearcherclose.set(null);
+						cancel();
 					}
+					
 				}
 
 			}, closeDelay);

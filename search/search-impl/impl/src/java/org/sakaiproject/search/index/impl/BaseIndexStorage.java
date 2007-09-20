@@ -130,6 +130,9 @@ public abstract class BaseIndexStorage implements IndexStorage
 									catch (Exception ex)
 									{
 										log.error("Failed to close old searcher ", ex); //$NON-NLS-1$
+									} finally 
+									{
+										cancel();
 									}
 								}
 

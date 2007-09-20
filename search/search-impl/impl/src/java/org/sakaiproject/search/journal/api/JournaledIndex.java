@@ -82,5 +82,11 @@ public interface JournaledIndex extends JournaledObject
 	 */
 	void removeSegments(List<File> remove);
 
+	/**
+	 * @throws IOException 
+	 * 
+	 */
+	void saveSegmentList() throws IOException;
+
 
 }

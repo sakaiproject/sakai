@@ -184,6 +184,7 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 			throw new JournalErrorException("No target journal entry ");
 		}
 
+		
 		try
 		{
 
@@ -192,6 +193,7 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 				deleteIndexReader.close();
 			}
 			journaledIndex.setJournalIndexEntry(journalEntry);
+			journaledIndex.saveSegmentList();
 		}
 		catch (IOException e)
 		{

@@ -22,6 +22,7 @@
 package org.sakaiproject.search.optimize.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,9 +63,10 @@ public class OptimizableIndexImpl implements OptimizableIndex
 	}
 
 	/**
+	 * @throws IOException 
 	 * @see org.sakaiproject.search.optimize.api.OptimizableIndex#removeOptimizableSegments(java.io.File[])
 	 */
-	public void removeOptimizableSegments(File[] optimzableSegments)
+	public void removeOptimizableSegments(File[] optimzableSegments) throws IOException
 	{
 		List<File> keep = new ArrayList<File>();
 		List<File> remove = new ArrayList<File>();
@@ -89,6 +91,7 @@ public class OptimizableIndexImpl implements OptimizableIndex
 		log.info("Keeping " + keep.size() + " removing " + remove.size() + " segments");
 		journaledIndex.setSegments(keep);
 		journaledIndex.removeSegments(remove);
+		journaledIndex.saveSegmentList();
 
 	}
 

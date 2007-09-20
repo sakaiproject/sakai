@@ -21,7 +21,11 @@
 
 package org.sakaiproject.search.journal.impl;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -59,24 +63,31 @@ import org.sakaiproject.search.util.FileUtils;
 
 /**
  * <pre>
- *     This is a Journaled version of the local FSIndexStorage. It will merge in new
- *     versions from the jorunal. This is going to be performed in a non
- *     transactional way for the moment. 
- *     
- *     The index reader must maintain a single
- *     index reader for the JVM. When performing a read update, the single index
- *     reader must be used, but each time the index reader is provided we should
- *     check that the index reader has not been updated.
- *     
- *     If the reader is being updated, then it is not safe to reload it.
+ *      This is a Journaled version of the local FSIndexStorage. It will merge in new
+ *      versions from the jorunal. This is going to be performed in a non
+ *      transactional way for the moment. 
+ *      
+ *      The index reader must maintain a single
+ *      index reader for the JVM. When performing a read update, the single index
+ *      reader must be used, but each time the index reader is provided we should
+ *      check that the index reader has not been updated.
+ *      
+ *      If the reader is being updated, then it is not safe to reload it.
  * </pre>
  * 
  * @author ieb TODO Unit test
  */
-public class JournaledFSIndexStorage  implements JournaledIndex
+public class JournaledFSIndexStorage implements JournaledIndex
 {
 
 	private static final Log log = LogFactory.getLog(JournaledFSIndexStorage.class);
+
+	private static final String SEGMENT_LIST_NAME = "local-segments";
+
+	private static final byte[] SEGMENT_LIST_SIGNATURE = { 'S', 'E', 'G', 'L', 'I', 'S',
+			'T' };
+
+	private static final int VERSION_SIGNATURE = 1;
 
 	/**
 	 * Sakai config service
@@ -173,6 +184,22 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 	public void init()
 	{
 		serverId = serverConfigurationService.getServerId();
+		File f = new File(searchIndexDirectory, SEGMENT_LIST_NAME);
+		if (f.exists())
+		{
+			log.info("Segment List File Exists, using it");
+			try
+			{
+				loadSegmentList();
+			}
+			catch (IOException e)
+			{
+				log.error("Unable to load segment list", e);
+				System.exit(-10);
+			}
+		} else {
+			log.info("No Segment List File Exists");
+		}
 		// ensure that the index is closed to avoid stale locks
 		Runtime.getRuntime().addShutdownHook(new Thread()
 		{
@@ -358,36 +385,43 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 	public IndexSearcher getIndexSearcher() throws IOException
 	{
 
-		
 		IndexReader tmpIndexReader = multiReader;
 		IndexReader ir = getIndexReader();
-		if ( tmpIndexReader != ir || indexSearcher == null ) {
-			IndexSearcher newIndexSearcher  = new IndexSearcher(ir) {
-				/* (non-Javadoc)
+		if (tmpIndexReader != ir || indexSearcher == null)
+		{
+			IndexSearcher newIndexSearcher = new IndexSearcher(ir)
+			{
+				/*
+				 * (non-Javadoc)
+				 * 
 				 * @see org.apache.lucene.search.IndexSearcher#close()
 				 */
 				@Override
 				public void close() throws IOException
 				{
-					try {
-						// set the singleton on null 
+					try
+					{
+						// set the singleton on null
 						indexSearcher = null;
-						// this will throw an IO exception if not invoked by a timer task
+						// this will throw an IO exception if not invoked by a
+						// timer task
 						fireIndexSearcherClose(indexSearcher);
-					} catch ( Exception ioex ) {
+					}
+					catch (Exception ioex)
+					{
 						return;
 					}
 					super.close();
 				}
 			};
-			if ( indexSearcher != null ) {
+			if (indexSearcher != null)
+			{
 				indexSearcher.close(); // this will be postponed
 			}
 			indexSearcher = newIndexSearcher;
 		}
 		return indexSearcher;
 	}
-
 
 	/*
 	 * *
@@ -494,15 +528,20 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 	public IndexReader getIndexReader() throws IOException
 	{
 		boolean current = false;
-		try {
+		try
+		{
 			// could be null
-			if ( multiReader != null ) {
+			if (multiReader != null)
+			{
 				current = multiReader.isCurrent();
 			}
-		} catch ( Exception ex ) {
-			log.warn("Failed to get current status assuming index reload is required ",ex);
 		}
-		if (modified || multiReader == null || !current )
+		catch (Exception ex)
+		{
+			log.warn("Failed to get current status assuming index reload is required ",
+					ex);
+		}
+		if (modified || multiReader == null || !current)
 		{
 			/*
 			 * We must get a read lock to prevent a writer from opening when we
@@ -582,19 +621,26 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 			indexReaders[i] = IndexReader.open(s);
 			i++;
 		}
-		MultiReader newMultiReader = new MultiReader(indexReaders) {
-			/* (non-Javadoc)
+		MultiReader newMultiReader = new MultiReader(indexReaders)
+		{
+			/*
+			 * (non-Javadoc)
+			 * 
 			 * @see org.apache.lucene.index.MultiReader#doClose()
 			 */
 			@Override
 			protected synchronized void doClose() throws IOException
 			{
-				try {
-					// set the singleton on null 
+				try
+				{
+					// set the singleton on null
 					multiReader = null;
-					// this will throw an IO exception if not invoked by a timer task
+					// this will throw an IO exception if not invoked by a timer
+					// task
 					fireIndexReaderClose(this);
-				} catch ( Exception ioex ) {
+				}
+				catch (Exception ioex)
+				{
 					log.info("Posting Close ");
 					toRemove.clear();
 					return;
@@ -602,22 +648,26 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 				log.info("Super Close ");
 				super.doClose();
 			}
-			
+
 			/**
 			 * The isCurrent method in 1.9.1 has a NPE bug, this fixes it
+			 * 
 			 * @see org.apache.lucene.index.IndexReader#isCurrent()
 			 */
 			@Override
 			public boolean isCurrent() throws IOException
 			{
-				for ( IndexReader ir : indexReaders ) {
-					if ( !ir.isCurrent() ) return false;
+				for (IndexReader ir : indexReaders)
+				{
+					if (!ir.isCurrent()) return false;
 				}
 				return true;
 			}
 		};
-		if ( multiReader != null ) {
-			multiReader.close(); // this will postpone due to the override above
+		if (multiReader != null)
+		{
+			multiReader.close(); // this will postpone due to the override
+									// above
 		}
 		multiReader = newMultiReader;
 		lastUpdate = System.currentTimeMillis();
@@ -969,12 +1019,13 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 
 	/**
 	 * @param oldMultiReader
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private void fireIndexReaderClose(IndexReader oldMultiReader) throws IOException
 	{
 		File[] f = toRemove.toArray(new File[toRemove.size()]);
-		log.info("Posting close event with "+f.length+" segments to delete "+toRemove.size());
+		log.info("Posting close event with " + f.length + " segments to delete "
+				+ toRemove.size());
 		for (Iterator<IndexListener> itl = getIndexListeners().iterator(); itl.hasNext();)
 		{
 			IndexListener tl = itl.next();
@@ -993,9 +1044,10 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 			tl.doIndexReaderOpen(newMultiReader);
 		}
 	}
+
 	/**
 	 * @param indexSearcher2
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private void fireIndexSearcherClose(IndexSearcher indexSearcher) throws IOException
 	{
@@ -1004,7 +1056,7 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 			IndexListener tl = itl.next();
 			tl.doIndexSearcherClose(indexSearcher);
 		}
-		
+
 	}
 
 	/**
@@ -1091,7 +1143,7 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 			}
 			catch (IOException ioex)
 			{
-				throw new JournalErrorException("Failed to open permanent Index ",ioex);
+				throw new JournalErrorException("Failed to open permanent Index ", ioex);
 			}
 		}
 		return permanentIndexWriter;
@@ -1111,7 +1163,7 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 	public void removeSegments(List<File> remove)
 	{
 		toRemove.addAll(remove);
-		log.info("ToRemove has "+toRemove.size()+" to remove");
+		log.info("ToRemove has " + toRemove.size() + " to remove");
 	}
 
 	/**
@@ -1126,6 +1178,7 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 	{
 		return analyzerFactory.newAnalyzer();
 	}
+
 	/**
 	 * @return Returns the analzyserFactory.
 	 */
@@ -1142,4 +1195,62 @@ public class JournaledFSIndexStorage  implements JournaledIndex
 	{
 		this.analyzerFactory = analzyserFactory;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.journal.api.JournaledIndex#saveSegmentList()
+	 */
+	public void saveSegmentList() throws IOException
+	{
+		File f = new File(searchIndexDirectory, SEGMENT_LIST_NAME);
+		FileOutputStream fout = new FileOutputStream(f);
+		DataOutputStream dout = new DataOutputStream(fout);
+		dout.write(SEGMENT_LIST_SIGNATURE);
+		dout.writeInt(VERSION_SIGNATURE);
+		dout.writeInt(segments.size());
+		for (File segs : segments)
+		{
+			String s = segs.getAbsolutePath();
+			dout.writeUTF(s);
+		}
+		dout.close();
+		fout.close();
+	}
+
+	public void loadSegmentList() throws IOException
+	{
+		File f = new File(searchIndexDirectory, SEGMENT_LIST_NAME);
+		FileInputStream fout = new FileInputStream(f);
+		DataInputStream din = new DataInputStream(fout);
+		byte[] sig = new byte[SEGMENT_LIST_SIGNATURE.length];
+		din.read(sig);
+		for (int i = 0; i < sig.length; i++)
+		{
+			if (sig[i] != SEGMENT_LIST_SIGNATURE[i])
+			{
+				throw new IOException(
+						"Segment List file is corrupt, please remove segments and recover from journal");
+			}
+		}
+		int version = din.readInt();
+		if (version == 1)
+		{
+			segments = new ArrayList<File>();
+			int n = din.readInt();
+			for (int i = 0; i < n; i++)
+			{
+				segments.add(new File(din.readUTF()));
+			}
+		}
+		else
+		{
+			throw new IOException(
+					"Segment List version not recognised, please remove segments and recover from journal ");
+		}
+		din.close();
+		din.close();
+
+	}
+
 }

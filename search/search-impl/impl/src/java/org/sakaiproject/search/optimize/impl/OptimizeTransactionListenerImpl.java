@@ -98,6 +98,7 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 					.getOptimizableSegments();
 			log.info("Optimized Compressed "+optimzableSegments.length+" segments ");
 			optimizableIndex.removeOptimizableSegments(optimzableSegments);
+			
 
 		}
 		catch (IOException ioex)

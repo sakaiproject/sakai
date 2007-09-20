@@ -22,6 +22,7 @@
 package org.sakaiproject.search.optimize.api;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.lucene.index.IndexWriter;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
@@ -50,7 +51,8 @@ public interface OptimizableIndex
 
 	/**
 	 * @param optimzableSegments
+	 * @throws IOException 
 	 */
-	void removeOptimizableSegments(File[] optimzableSegments);
+	void removeOptimizableSegments(File[] optimzableSegments) throws IOException;
 
 }
