@@ -8209,7 +8209,7 @@ public class SiteAction extends PagedResourceActionII {
 				ToolConfiguration tool = page.addTool();
 				Tool reg = ToolManager.getTool("sakai.iframe.site");
 				tool.setTool("sakai.iframe.site", reg);
-				tool.setTitle(rb.getString("java.workinfo"));
+				tool.setTitle(reg.getTitle());
 				tool.setLayoutHints("0,0");
 			}
 
@@ -8830,9 +8830,9 @@ public class SiteAction extends PagedResourceActionII {
 
 					// Add worksite information tool
 					ToolConfiguration tool = page.addTool();
-					tool.setTool("sakai.iframe.site", ToolManager
-							.getTool("sakai.iframe.site"));
-					tool.setTitle(rb.getString("java.workinfo"));
+					Tool wsInfoTool = ToolManager.getTool("sakai.iframe.site");
+					tool.setTool("sakai.iframe.site", wsInfoTool);
+					tool.setTitle(wsInfoTool.getTitle());
 					tool.setLayoutHints("0,0");
 
 					if (hasAnnouncement) {
