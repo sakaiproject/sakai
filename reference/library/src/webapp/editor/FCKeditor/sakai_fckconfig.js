@@ -1,7 +1,7 @@
 
 document.write("<script type=\"text/javascript\" src=\"/library/editor/FCKeditor/fckeditor.js\"></script>\n");
 
-function chef_setupfcktextarea(textarea_id, widthPx, heightPx, collectionId, tagFocus) {
+function chef_setupfcktextarea(textarea_id, widthPx, heightPx, collectionId, tagFocus, resourceSearch) {
 	var oFCKeditor = new FCKeditor(textarea_id);
 	var connector = "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector";
 	oFCKeditor.BasePath = "/library/editor/FCKeditor/";
@@ -44,8 +44,15 @@ function chef_setupfcktextarea(textarea_id, widthPx, heightPx, collectionId, tag
                connector + "?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=" + courseId;
 
          oFCKeditor.Config['CurrentFolder'] = courseId;
-
-         oFCKeditor.Config['CustomConfigurationsPath'] = "/library/editor/FCKeditor/config.js";
+         
+		 if(resourceSearch == "true")
+		 {
+	         oFCKeditor.Config['CustomConfigurationsPath'] = "/library/editor/FCKeditor/config_rs.js";
+	     }
+	     else
+		 {
+	         oFCKeditor.Config['CustomConfigurationsPath'] = "/library/editor/FCKeditor/config.js";
+	     }
        }
 
        oFCKeditor.ReplaceTextarea() ;
