@@ -11030,7 +11030,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public String getContentType()
 		{
 			// Use the CHH delegate, if there is one.
-			if (chh_vce != null) return ((ContentResource)chh_vce).getContentType();
+			if (chh_vce != null && chh_vce instanceof ContentResource) return ((ContentResource)chh_vce).getContentType();
 
 			return ((m_contentType == null) ? "" : m_contentType);
 		} // getContentType
