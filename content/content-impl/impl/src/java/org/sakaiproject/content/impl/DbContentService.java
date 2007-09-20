@@ -2162,19 +2162,9 @@ public class DbContentService extends BaseContentService
 
 		public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) 
 		{
-			String sql = contentServiceSql.getSelectByResourceTypeQuerySql();
-			// "select BINARY_ENTITY, XML from CONTENT_RESOURCE where RESOURCE_TYPE_ID = ? ORDER BY RESOURCE_ID LIMIT ?, ? ";
-
-			Object[] fields = new Object[3];
-			fields[0] = resourceType;
-			fields[1] = new Integer(page * pageSize);
-			fields[2] = new Integer(pageSize);
+			List resources = this.m_resourceStore.getAllResourcesWhere("RESOURCE_TYPE_ID", resourceType, "RESOURCE_ID", page * pageSize, pageSize);
 			
-			List result = m_sqlService.dbRead(sql, fields, new EntityReader());
-			
-			// construct resources and add them to collection
-			
-			return result;
+			return resources;
 		}
 
 		public class EntityReader implements SqlReader
