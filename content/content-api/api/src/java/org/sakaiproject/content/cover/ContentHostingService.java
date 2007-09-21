@@ -25,6 +25,7 @@ import java.util.Collection;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 
 /**
@@ -1087,8 +1088,9 @@ public class ContentHostingService
 	 * @param pageSize
 	 * @param page
 	 * @return
+	 * @throws PermissionException 
 	 */
-	public static Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page)
+	public static Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) throws PermissionException
 	{
     	org.sakaiproject.content.api.ContentHostingService service = getInstance();
 		if (service == null) return null;

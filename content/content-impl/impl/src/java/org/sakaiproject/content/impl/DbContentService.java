@@ -2986,8 +2986,10 @@ public class DbContentService extends BaseContentService
 
 	}
 
-	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) 
+	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) throws PermissionException
 	{
+		unlock(AUTH_RESOURCE_READ, "/");
+		
 		if(pageSize > MAXIMUM_PAGE_SIZE)
 		{
 			pageSize = MAXIMUM_PAGE_SIZE;

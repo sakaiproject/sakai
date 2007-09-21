@@ -1672,8 +1672,9 @@ public interface ContentHostingService extends EntityProducer
 	 * @param pageSize
 	 * @param page
 	 * @return
+	 * @throws PermissionException if the user lacks read permission for all resources in the CHS.
 	 * @see org.sakaiproject.content.api.MAX_PAGE_SIZE
 	 */
-	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page);
+	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) throws PermissionException;
 
 }
