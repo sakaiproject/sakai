@@ -9589,7 +9589,7 @@ public class AssignmentAction extends PagedResourceActionII
 										// set grade
 										String grade = StringUtil.trimToNull(w.getGrade());
 										sEdit.setGrade(grade);
-										if (grade != null && grade.equals(rb.getString("gen.nograd")) && grade.equals("ungraded"))
+										if (grade != null && !grade.equals(rb.getString("gen.nograd")) && !grade.equals("ungraded"))
 											sEdit.setGraded(true);
 									}
 									
