@@ -213,8 +213,9 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	    //only display for exisiting polls
 	    if (!isNew) {
 			//fill the options list
-	    	UIMessage.make(tofill,"options-title","new_poll_option_title");
-			UIInternalLink.make(tofill,"option-add",UIMessage.make("new_poll_option_add"),
+	    	UIBranchContainer actionBlock = UIBranchContainer.make(newPoll, "option-headers:");
+	    	UIMessage.make(actionBlock,"options-title","new_poll_option_title");
+			UIInternalLink.make(actionBlock,"option-add",UIMessage.make("new_poll_option_add"),
 					new OptionViewParameters(PollOptionProducer.VIEW_ID, null, poll.getPollId().toString()));
 		/*
 		 * new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
@@ -233,7 +234,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			m_log.debug("got this many options: " + options.size());
 			for (int i = 0; i < options.size(); i++){
 				Option o = (Option)options.get(i);
-				UIBranchContainer oRow = UIBranchContainer.make(newPoll,"options-row:",o.getOptionId().toString());
+				UIBranchContainer oRow = UIBranchContainer.make(actionBlock,"options-row:",o.getOptionId().toString());
 				UIVerbatim.make(oRow,"options-name",o.getOptionText());
 				
 				
