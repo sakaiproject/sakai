@@ -2986,15 +2986,56 @@ public class DbContentService extends BaseContentService
 
 	}
 
-	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) throws PermissionException
+	/**
+	 * Retrieve a collection of ContentResource objects pf a particular resource-type.  The collection will 
+	 * contain no more than the number of items specified as the pageSize, where pageSize is a non-negative 
+	 * number less than or equal to 1028. The resources will be selected in ascending order by resource-id.
+	 * If the resources of the specified resource-type in the ContentHostingService in ascending order by 
+	 * resource-id are indexed from 0 to M and this method is called with parameters of N for pageSize and 
+	 * I for page, the resources returned will be those with indexes (I*N) through ((I+1)*N - 1).  For example,
+	 * if pageSize is 1028 and page is 0, the resources would be those with indexes of 0 to 1027.
+	 * This method finds the resources the current user has access to from a "page" of all resources
+	 * of the specified type. If that page contains no resources the current user has access to, the 
+	 * method returns an empty collection.  If the page does not exist (i.e. there are fewer than 
+	 * ((page+1)*page_size) resources of the specified type), the method returns null.    
+	 * @param resourceType
+	 * @param pageSize
+	 * @param page
+	 * @return
+	 * @see org.sakaiproject.content.api.MAX_PAGE_SIZE
+	 */
+	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) 
 	{
-		unlock(AUTH_RESOURCE_READ, "/");
+		Collection<ContentResource> results = null;
 		
 		if(pageSize > MAXIMUM_PAGE_SIZE)
 		{
 			pageSize = MAXIMUM_PAGE_SIZE;
 		}
-		return m_storage.getResourcesOfType(resourceType, pageSize, page);
+		Collection<ContentResource> resources = m_storage.getResourcesOfType(resourceType, pageSize, page);
+		
+		if(resources == null || resources.isEmpty())
+		{
+			// return null
+		}
+		else
+		{
+			results = new ArrayList<ContentResource>();
+			for(ContentResource resource : resources)
+			{
+				if(resource == null)
+				{
+					continue;
+				}
+				if(unlockCheck(AUTH_RESOURCE_READ, resource.getId()))
+				{
+					results.add(resource);
+					ThreadLocalManager.set("findResource@" + resource.getId(), resource);
+				}
+			}
+		}
+		
+		return results;
 	}
 	
 }
