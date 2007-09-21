@@ -3195,6 +3195,80 @@ public class FilePickerAction extends PagedResourceHelperAction
 	}
 	
 	/**
+	* Navigate in the resource hireachy
+	*/
+	public void doNavigate ( RunData data )
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+
+		if (state.getAttribute (STATE_EXPAND_ALL_FLAG)!=null && state.getAttribute (STATE_EXPAND_ALL_FLAG).equals (Boolean.TRUE.toString()))
+		{
+			state.setAttribute (STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
+		}
+
+		// save the current selections
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = data.getParameters ().getStrings ("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
+
+		String collectionId = data.getParameters().getString ("collectionId");
+		String navRoot = data.getParameters().getString("navRoot");
+		state.setAttribute(STATE_NAVIGATION_ROOT, navRoot);
+
+		// the exception message
+		ContentHostingService contentService = (ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		try
+		{
+			contentService.checkCollection(collectionId);
+			toolSession.setAttribute(STATE_DEFAULT_COLLECTION_ID, collectionId);
+		}
+		catch(PermissionException e)
+		{
+			addAlert(state, " " + rb.getString("notpermis3") + " " );
+		}
+		catch (IdUnusedException e)
+		{
+			addAlert(state, " " + rb.getString("notexist2") + " ");
+		}
+		catch (TypeException e)
+		{
+			addAlert(state," " + rb.getString("notexist2") + " ");
+		}
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			if(currentMap == null)
+			{
+				currentMap = new TreeSet();
+				state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
+			}
+			
+			Iterator it = currentMap.iterator();
+			while(it.hasNext())
+			{
+				String id = (String) it.next();
+				if(id.startsWith(collectionId))
+				{
+					it.remove();
+				}
+			}
+			
+			if(!currentMap.contains(collectionId))
+			{
+				currentMap.add (collectionId);
+			}
+			//state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
+		}
+
+	}	// doNavigate
+
+	/**
 	* Find the resource with this id in the list.
 	* @param messages The list of messages.
 	* @param id The message id.

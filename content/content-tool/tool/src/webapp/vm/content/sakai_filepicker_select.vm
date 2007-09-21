@@ -192,15 +192,19 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 								#if (!$expandedCollections.containsKey($item.Id))
 									<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
 										<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
+										$validator.escapeHtml(${item.name})
 									</a>
 								#else
 									<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
 										<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
+										$validator.escapeHtml(${item.name})
 									</a>
 								#end
+#*
 								<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=${validator.escapeUrl(${item.id})}&navRoot=$validator.escapeUrl($item.root)")" title="$tlang.getString('sh.go')">
 									$validator.escapeHtml(${item.name})
 								</a>
+*#
 							#else
 								<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
 								$validator.escapeHtml(${item.name})
@@ -295,18 +299,18 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 									<div class="instruction" style="margin-bottom:.3em;">Viewing $topMsgPos - $btmMsgPos of $allMsgNumber items</div>
 									#if ("$pagesize" != "0")
 										#if ($goPPButton == "true")
-											<input type="button" name="List_first" value="|&lt;" title="First" onclick="javascript: document.getElementById('sakai_action').value='doList_first';document.getElementById('showForm').submit();" />
+											<input type="button" name="List_first" value="|&lt;" title="First" onclick="javascript: document.getElementById('sakai_action').value='doList_first';document.getElementById('attachForm').submit();" />
 										#else
 											<input type="button" name="List_first" value="|&lt;" disabled="disabled" />
 										#end
 										#if ($goPPButton == "true")
-											<input type="button" name="List_prev" value="&lt;" title="Previous $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_prev';document.getElementById('showForm').submit();" />
+											<input type="button" name="List_prev" value="&lt;" title="Previous $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_prev';document.getElementById('attachForm').submit();" />
 										#else
 											<input type="button" name="List_prev" value="&lt;" disabled="disabled" />
 										#end
 									#end
 									<!-- $pagesize  "$pagesize" -->
-									<select name="selectPageSize" onchange="javascript:blur(); document.getElementById('sakai_action').value='doChange_pagesize';document.getElementById('showForm').submit();">
+									<select name="selectPageSize" onchange="javascript:blur(); document.getElementById('sakai_action').value='doChange_pagesize';document.getElementById('attachForm').submit();">
 										<option value="5"#if("$pagesize" == "5") selected="selected"#end>$tlang.getString("lis.show5")</option>
 										<option value="10"#if("$pagesize" == "10") selected="selected"#end>$tlang.getString("lis.show10")</option>
 										<option value="20"#if("$pagesize" == "20") selected="selected"#end>$tlang.getString("lis.show20")</option>
@@ -316,12 +320,12 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 									</select>
 									#if ("$pagesize" != "0")
 										#if ($goNPButton == "true")
-											<input type="button" name="List_next" value="&gt;" title="Next $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_next';document.getElementById('showForm').submit();" />
+											<input type="button" name="List_next" value="&gt;" title="Next $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_next';document.getElementById('attachForm').submit();" />
 										#else
 											<input type="button" name="List_next" value="&gt;" disabled="disabled" />
 										#end
 										#if ($goNPButton == "true")
-											<input type="button" name="List_last" value="&gt;|" title="Last" onclick="javascript: document.getElementById('sakai_action').value='doList_last';document.getElementById('showForm').submit();" />
+											<input type="button" name="List_last" value="&gt;|" title="Last" onclick="javascript: document.getElementById('sakai_action').value='doList_last';document.getElementById('attachForm').submit();" />
 										#else
 											<input type="button" name="List_last" value="&gt;|" disabled="disabled" />
 										#end
@@ -365,15 +369,19 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 										#if (!$expandedCollections.containsKey($item.Id))
 											<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
 												<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
+												$validator.escapeHtml(${item.name})
 											</a>
 										#else
 											<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
 												<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
+												$validator.escapeHtml(${item.name})
 											</a>
 										#end
+#*
 										<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=${validator.escapeUrl(${item.id})}&navRoot=$validator.escapeUrl($item.root)")" title="$tlang.getString('sh.go')">
 											$validator.escapeHtml(${item.name})
 										</a>
+*#
 									#else
 										<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
 										$validator.escapeHtml(${item.name})
