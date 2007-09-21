@@ -20,7 +20,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 <![endif]-->
 <style type="text/css">
     @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/themes/tundra/tundra.css";
-    @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.css"
+    @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.css";
 </style>
 <script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
 <script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/dijit.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
@@ -328,7 +328,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 					#set ($actionCount2=($actionCount2 - 1))
 					<td headers="actions2"   class="attach tundra">
 						#if($item.addActions && !$item.addActions.isEmpty())
-							<div dojotype="dijit.form.ComboButton" onclick="">
+							<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("addMenu-${item.id}")">
     							<span>$tlang.getString("button.add")</span>
 					            <div dojotype="dijit.Menu" id="$validator.escapeJavascript("addMenu-${item.id}")" toggle="fade" style="display: none;">
 					            	#foreach($action in $item.addActions)
@@ -343,7 +343,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 					</td>
 					<td headers="actions3"   class="attach tundra">
 						#if($item.otherActions && !$item.otherActions.isEmpty())
-							<div dojotype="dijit.form.ComboButton" onclick="">
+							<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("actionMenu-${item.id}")">
     							<span>$tlang.getString("button.actions")</span>
 					            <div dojotype="dijit.Menu" id="$validator.escapeJavascript("actionMenu-${item.id}")" toggle="fade" style="display: none;">
 					            	#foreach($action in $item.otherActions)
@@ -559,7 +559,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 							#set ($actionCount2=($actionCount2 - 1))
 							<td headers="actions2"   class="attach tundra">
 								#if($item.addActions && !$item.addActions.isEmpty())
-									<div dojotype="dijit.form.ComboButton" onclick="">
+									<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("addMenu-${item.id}")">
 			    						<span>$tlang.getString("button.add")</span>
 							            <div dojotype="dijit.Menu" id="$validator.escapeJavascript("addMenu-$!{item.id}")" toggle="fade" style="display: none;">
 							            	#foreach($action in $item.addActions)
@@ -574,7 +574,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 							</td>
 							<td headers="actions3"   class="attach">
 								#if($item.otherActions && !$item.otherActions.isEmpty())
-									<div dojotype="dijit.form.ComboButton" onclick="">
+									<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("actionMenu-${item.id}")">
 		    							<span>$tlang.getString("button.actions")</span>
 							            <div dojotype="dijit.Menu" id="$validator.escapeJavascript("actionMenu-$!{item.id}")" toggle="fade" style="display: none;">
 							            	#foreach($action in $item.otherActions)
