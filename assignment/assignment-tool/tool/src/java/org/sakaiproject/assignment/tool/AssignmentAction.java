@@ -9587,8 +9587,10 @@ public class AssignmentAction extends PagedResourceActionII
 									if (hasGradeFile)
 									{
 										// set grade
-										sEdit.setGrade(w.getGrade());
-										sEdit.setGraded(true);
+										String grade = StringUtil.trimToNull(w.getGrade());
+										sEdit.setGrade(grade);
+										if (grade != null && grade.equals(rb.getString("gen.nograd")) && grade.equals("ungraded"))
+											sEdit.setGraded(true);
 									}
 									
 									// release or not
@@ -9792,6 +9794,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT);
 		state.removeAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT);
 		state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT);
+		state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT);
 		state.removeAttribute(UPLOAD_ALL_HAS_GRADEFILE);
 		state.removeAttribute(UPLOAD_ALL_HAS_COMMENTS);
 		state.removeAttribute(UPLOAD_ALL_RELEASE_GRADES);
