@@ -55,7 +55,6 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 {
 	private static final Log log = LogFactory.getLog(ClusterFSIndexStorage.class);
 
-
 	/**
 	 * Maximum size of a segment on write
 	 */
@@ -73,7 +72,6 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 
 	// maximum size of a segment considered for merge operations
 	private long maxMegeSegmentSize = 1024L * 1024L * 1200L; // 1.2G
-
 
 	public void init()
 	{
@@ -144,10 +142,12 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 
 					if (log.isDebugEnabled()) log.debug("Invalid segment  ", ex);
 					log
-							.warn("Found corrupted segment ("
-									+ segment.getName()
-									+ ") in Local store, attempting to recover from DB.  Reason: "
-									+ ex.getClass().getName() + ":" + ex.getMessage(),ex);
+							.warn(
+									"Found corrupted segment ("
+											+ segment.getName()
+											+ ") in Local store, attempting to recover from DB.  Reason: "
+											+ ex.getClass().getName() + ":"
+											+ ex.getMessage(), ex);
 					clusterFS.recoverSegment(segment);
 					readers[j] = IndexReader.open(segment.getSegmentLocation());
 					log
@@ -169,31 +169,37 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 						}
 					}
 					log
-							.error("---Problem recovering corrupted segment from the DB,\n"
-									+ "--- it is probably that there has been a local hardware\n"
-									+ "--- failure on this node or that the backup in the DB is missing\n"
-									+ "--- or corrupt. To recover, remove the segment from the db, and rebuild the index \n"
-									+ "--- eg delete from search_segments where name_ = '"
-									+ segment.getName() + "'; \n",ex);
+							.error(
+									"---Problem recovering corrupted segment from the DB,\n"
+											+ "--- it is probably that there has been a local hardware\n"
+											+ "--- failure on this node or that the backup in the DB is missing\n"
+											+ "--- or corrupt. To recover, remove the segment from the db, and rebuild the index \n"
+											+ "--- eg delete from search_segments where name_ = '"
+											+ segment.getName() + "'; \n", ex);
 
 				}
 			}
 			j++;
 		}
-		List<IndexReader> l = new  ArrayList<IndexReader>();
-		for ( int i = 0; i < readers.length; i++ ) {
-			if ( readers[i] != null ) {
+		List<IndexReader> l = new ArrayList<IndexReader>();
+		for (int i = 0; i < readers.length; i++)
+		{
+			if (readers[i] != null)
+			{
 				l.add(readers[i]);
-			} 
+			}
 		}
-		if( l.size() !=  readers.length ) {
-			log.warn(" Opening index reader with a partial index set, this may result in a smallere search set than otherwise expected");
+		if (l.size() != readers.length)
+		{
+			log
+					.warn(" Opening index reader with a partial index set, this may result in a smallere search set than otherwise expected");
 		}
 		readers = l.toArray(new IndexReader[0]);
-		if ( readers.length > 0 ) {
+		if (readers.length > 0)
+		{
 			IndexReader indexReader = new MultiReader(readers);
 			return indexReader;
-		} 
+		}
 		throw new IOException("No Index available to open ");
 	}
 
@@ -318,7 +324,6 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 		return (segments.size() > 0);
 	}
 
-
 	public void doPreIndexUpdate() throws IOException
 	{
 		if (log.isDebugEnabled()) log.debug("Start Index Cycle");
@@ -345,7 +350,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 			// 
 
 			List<SegmentInfo> segments = clusterFS.updateSegments();
-			
+
 			if (log.isDebugEnabled())
 				log.debug("Merge Phase 1: Starting on " + segments.size() + " segments ");
 
@@ -363,7 +368,8 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 							|| (currentSegment.getTotalSize() > segmentThreshold)
 							|| currentSegment.isDeleted())
 					{
-						if ( diagnostics ) {
+						if (diagnostics)
+						{
 							log
 									.info("Current Segment not suitable, generating new segment "
 											+ (currentSegment.isDeleted() ? "deleted,"
@@ -378,18 +384,20 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 				}
 
 			}
-			if (currentSegment == null )
+			if (currentSegment == null)
 			{
 				if (tmpDirectory[0].fileExists("segments"))
 				{
 					currentSegment = clusterFS.saveTemporarySegment();
 					/*
-					 * We must add the new current segment to the list of segments so if it 
-					 * gets merged in the next step is is not left out
+					 * We must add the new current segment to the list of
+					 * segments so if it gets merged in the next step is is not
+					 * left out
 					 */
 					segments.add(currentSegment);
 					/*
-					 * We should touch the segment to notify that it has been updated
+					 * We should touch the segment to notify that it has been
+					 * updated
 					 */
 					currentSegment.touchSegment();
 				}
@@ -441,10 +449,10 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 					}
 				}
 			}
-			
-			
+
 			/*
-			 * segments in now a list of all segments including the current segment
+			 * segments in now a list of all segments including the current
+			 * segment
 			 */
 
 			// create a size sorted list
@@ -559,9 +567,9 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 						StringBuilder status = new StringBuilder();
 						status.append("Group ").append(i).append(" Merge ").append(
 								groupstomerge[i]).append("\n");
-						
+
 						// merge the old segments into a new segment.
-						
+
 						SegmentInfo mergeSegment = clusterFS.newSegment();
 
 						IndexWriter mergeIndexWriter = null;
@@ -579,17 +587,23 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 							long currentSize = 0L;
 							for (int j = 0; j < mergegroup.length; j++)
 							{
-								// find if this segment is in the current merge group
+								// find if this segment is in the current merge
+								// group
 								SegmentInfo si = segments.get(j);
-								if ( mergegroup[j] == groupstomerge[i])
+								if (mergegroup[j] == groupstomerge[i])
 								{
 									// if we merge this segment will the result
 									// probably remain small enough
-									if ( si.isDeleted() ) {
-										status.append("   Skipped, Segment is already deleted  ").append(" ").append(
-												si.getName()).append(" || ").append(
-												mergeSegment.getName()).append("\n");
-									} 
+									if (si.isDeleted())
+									{
+										status
+												.append(
+														"   Skipped, Segment is already deleted  ")
+												.append(" ").append(si.getName()).append(
+														" || ").append(
+														mergeSegment.getName()).append(
+														"\n");
+									}
 									else if ((currentSize + si.getSize()) < maxSegmentSize)
 									{
 										currentSize += si.getSize();
@@ -602,10 +616,15 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 													si.getName()).append(" >> ").append(
 													mergeSegment.getName()).append("\n");
 											indexes.add(d);
-										} else {
-											status.append("   Ignored segment as it does not exist ").append(
-													mergeSegment.getName()).append("\n");
-											
+										}
+										else
+										{
+											status
+													.append(
+															"   Ignored segment as it does not exist ")
+													.append(mergeSegment.getName())
+													.append("\n");
+
 										}
 									}
 									else
@@ -617,26 +636,29 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 										// Dont merge this segment this time
 										mergegroup[j] = -10;
 									}
-									
+
 								}
 							}
-							// merge in the list of segments that we have waiting to be merged
-							if ( diagnostics ) {
+							// merge in the list of segments that we have
+							// waiting to be merged
+							if (diagnostics)
+							{
 								log.info("Merging \n" + status);
 							}
 							mergeIndexWriter.addIndexes((Directory[]) indexes
 									.toArray(new Directory[indexes.size()]));
 							mergeIndexWriter.optimize();
-							if ( diagnostics ) {
-								log.info("Merged Segment contians "+mergeIndexWriter.docCount()+" documents ");
+							if (diagnostics)
+							{
+								log.info("Merged Segment contians "
+										+ mergeIndexWriter.docCount() + " documents ");
 							}
-							
+
 							mergeIndexWriter.close();
 							// mark the segment as create and ready of upload
 							mergeSegment.setCreated();
 							mergeSegment.touchSegment();
-							
-							
+
 							if (log.isDebugEnabled())
 								log.debug("Done " + groupstomerge[i]);
 							mergeIndexWriter = null;
@@ -701,7 +723,6 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 		if (log.isDebugEnabled())
 			log.debug("+++++++++++++++++++++++++++++++++++++End Index Cycle");
 	}
-
 
 	public void setRecoverCorruptedIndex(boolean recover)
 	{
@@ -810,11 +831,12 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 	}
 
 	/**
-	 * @param maxMegeSegmentSize the maxMegeSegmentSize to set
+	 * @param maxMegeSegmentSize
+	 *        the maxMegeSegmentSize to set
 	 */
 	public void setMaxMegeSegmentSize(long maxMegeSegmentSize)
 	{
-		log.info("Max Segment Merge Size set to "+maxMegeSegmentSize);
+		log.info("Max Segment Merge Size set to " + maxMegeSegmentSize);
 		this.maxMegeSegmentSize = maxMegeSegmentSize;
 	}
 
@@ -827,11 +849,12 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 	}
 
 	/**
-	 * @param maxSegmentSize the maxSegmentSize to set
+	 * @param maxSegmentSize
+	 *        the maxSegmentSize to set
 	 */
 	public void setMaxSegmentSize(long maxSegmentSize)
 	{
-		log.info("Max Segment Size set to "+maxSegmentSize);
+		log.info("Max Segment Size set to " + maxSegmentSize);
 		this.maxSegmentSize = maxSegmentSize;
 	}
 
@@ -844,15 +867,18 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 	}
 
 	/**
-	 * @param segmentThreshold the segmentThreshold to set
+	 * @param segmentThreshold
+	 *        the segmentThreshold to set
 	 */
 	public void setSegmentThreshold(long segmentThreshold)
 	{
-		log.info("New Segment Size threshold set to "+segmentThreshold);
+		log.info("New Segment Size threshold set to " + segmentThreshold);
 		this.segmentThreshold = segmentThreshold;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#centralIndexExists()
 	 */
 	public boolean centralIndexExists()

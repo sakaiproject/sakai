@@ -41,12 +41,14 @@ import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 import org.sakaiproject.search.util.FileUtils;
 
 /**
- * A trnasaction to manage the 2PC of a journaled indexing operation, this is created by a Transaction Manager
- * @author ieb
+ * A trnasaction to manage the 2PC of a journaled indexing operation, this is
+ * created by a Transaction Manager
  * 
- * Unit test @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
+ * @author ieb Unit test
+ * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
-public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implements IndexUpdateTransaction
+public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implements
+		IndexUpdateTransaction
 {
 
 	private static final Log log = LogFactory.getLog(IndexUpdateTransactionImpl.class);
@@ -80,8 +82,9 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 			throw new IndexTransactionException("Transaction is not active ");
 		}
 
-		if ( log.isDebugEnabled() ) {
-			log.debug("Tx list on "+this+" is now "+txList);
+		if (log.isDebugEnabled())
+		{
+			log.debug("Tx list on " + this + " is now " + txList);
 		}
 		return txList.iterator();
 	}
@@ -108,8 +111,9 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		super.doBeforePrepare();
 	}
 
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.transaction.impl.IndexTransactionImpl#doAfterCommit()
 	 */
 	@Override
@@ -126,7 +130,6 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		super.doAfterCommit();
 	}
 
-
 	/**
 	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#getIndexWriter()
 	 */
@@ -140,8 +143,10 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		{
 			try
 			{
-				tempIndex = ((TransactionIndexManagerImpl)manager).getTemporarySegment(transactionId);
-				indexWriter = new IndexWriter(tempIndex, ((TransactionIndexManagerImpl)manager).getAnalyzer(), true);
+				tempIndex = ((TransactionIndexManagerImpl) manager)
+						.getTemporarySegment(transactionId);
+				indexWriter = new IndexWriter(tempIndex,
+						((TransactionIndexManagerImpl) manager).getAnalyzer(), true);
 				indexWriter.setUseCompoundFile(true);
 				// indexWriter.setInfoStream(System.out);
 				indexWriter.setMaxMergeDocs(50);
@@ -181,9 +186,9 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		return transactionId;
 	}
 
-	
-	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.transaction.impl.IndexTransactionImpl#doBeforeRollback()
 	 */
 	@Override
@@ -191,18 +196,20 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 	{
 		try
 		{
-		indexWriter.close();
-		indexWriter = null;
-		searchBuilderItemSerializer.saveTransactionList(tempIndex, txList);
+			indexWriter.close();
+			indexWriter = null;
+			searchBuilderItemSerializer.saveTransactionList(tempIndex, txList);
 		}
 		catch (Exception ex)
 		{
-			throw new IndexTransactionException("Failed to start rollback ",ex);
+			throw new IndexTransactionException("Failed to start rollback ", ex);
 		}
 		super.doBeforeRollback();
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.transaction.impl.IndexTransactionImpl#doAfterRollback()
 	 */
 	@Override
@@ -215,11 +222,10 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		}
 		catch (Exception ex)
 		{
-			throw new IndexTransactionException("Failed to complete rollback ",ex);
+			throw new IndexTransactionException("Failed to complete rollback ", ex);
 		}
 		tempIndex = null;
 	}
-
 
 	/**
 	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#setItems(java.util.List)
@@ -227,7 +233,7 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 	public void setItems(List<SearchBuilderItem> items) throws IndexTransactionException
 	{
 		super.setItems(items);
-		
+
 		txList = new ArrayList<SearchBuilderItem>();
 		for (Iterator<SearchBuilderItem> itxList = items.iterator(); itxList.hasNext();)
 		{
@@ -255,7 +261,5 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 			throw new NoItemsToIndexException("No Items available to index");
 		}
 	}
-
-
 
 }

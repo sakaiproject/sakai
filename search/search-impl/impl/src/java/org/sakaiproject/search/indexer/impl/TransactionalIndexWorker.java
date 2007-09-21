@@ -58,8 +58,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 
 /**
- * @author ieb
- * Unit test 
+ * @author ieb Unit test
  * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
 public class TransactionalIndexWorker implements IndexWorker
@@ -112,7 +111,7 @@ public class TransactionalIndexWorker implements IndexWorker
 		IndexTransaction t = null;
 		try
 		{
-			Map<String,Object> m = new HashMap<String, Object>();
+			Map<String, Object> m = new HashMap<String, Object>();
 			m.put(SearchBuilderQueueManager.BATCH_SIZE, batchSize);
 			t = transactionIndexManager.openTransaction(m);
 			int n = processTransaction(t);
@@ -180,12 +179,12 @@ public class TransactionalIndexWorker implements IndexWorker
 		try
 		{
 			fireIndexStart();
-			
-			indexWrite = ((IndexUpdateTransaction)transaction).getIndexWriter();
+
+			indexWrite = ((IndexUpdateTransaction) transaction).getIndexWriter();
 			long last = System.currentTimeMillis();
 
-			for (Iterator<SearchBuilderItem> tditer = ((IndexUpdateTransaction)transaction).addItemIterator(); tditer
-					.hasNext();)
+			for (Iterator<SearchBuilderItem> tditer = ((IndexUpdateTransaction) transaction)
+					.addItemIterator(); tditer.hasNext();)
 			{
 
 				Reader contentReader = null;
@@ -193,8 +192,12 @@ public class TransactionalIndexWorker implements IndexWorker
 				try
 				{
 					SearchBuilderItem sbi = tditer.next();
-					if ( log.isDebugEnabled() ) {
-						log.debug("Item ["+sbi.getName()+"] state ["+SearchBuilderItem.states[sbi.getSearchstate()]+" action ["+SearchBuilderItem.actions[sbi.getSearchaction()]+"]");
+					if (log.isDebugEnabled())
+					{
+						log.debug("Item [" + sbi.getName() + "] state ["
+								+ SearchBuilderItem.states[sbi.getSearchstate()]
+								+ " action ["
+								+ SearchBuilderItem.actions[sbi.getSearchaction()] + "]");
 					}
 					ref = sbi.getName();
 					fireStartDocument(ref);

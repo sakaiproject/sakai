@@ -23,22 +23,25 @@ package org.sakaiproject.search.transaction.api;
 
 import java.util.Map;
 
-
 /**
- * Acts as a transaction factory for index operations and provides a location where listeners can register
+ * Acts as a transaction factory for index operations and provides a location
+ * where listeners can register
+ * 
  * @author ieb
- *
  */
-public interface TransactionIndexManager 
+public interface TransactionIndexManager
 {
 
 	/**
 	 * Creates a new trasaction for index update
-	 * @param m the properties of the transaction
+	 * 
+	 * @param m
+	 *        the properties of the transaction
 	 * @return
-	 * @throws IndexTransactionException 
+	 * @throws IndexTransactionException
 	 */
-	IndexTransaction openTransaction(Map<String, Object> m) throws IndexTransactionException;
+	IndexTransaction openTransaction(Map<String, Object> m)
+			throws IndexTransactionException;
 
 	/**
 	 * @param transactionListener

@@ -26,42 +26,47 @@ import java.io.IOException;
 
 /**
  * Represents Information about a search segment
+ * 
  * @author ieb
- *
  */
 public interface SegmentInfo
 {
 
 	/**
 	 * Is the segment part of the cluster or just a stray directory.
+	 * 
 	 * @return
 	 */
 	boolean isClusterSegment();
 
 	/**
 	 * Get the name of the segment
+	 * 
 	 * @return
 	 */
 	String getName();
 
 	/**
 	 * get the current version of the segment
+	 * 
 	 * @return
 	 */
 	long getVersion();
 
 	/**
 	 * If the segment in a created state (ie not new and not deleted)
+	 * 
 	 * @return
 	 */
 	boolean isCreated();
 
 	/**
-	 * The File that is the segment location on the local filesystem (may not exist)
+	 * The File that is the segment location on the local filesystem (may not
+	 * exist)
+	 * 
 	 * @return
 	 */
 	File getSegmentLocation();
-
 
 	/**
 	 * Mark the segment as deleted for later deletion
@@ -70,33 +75,36 @@ public interface SegmentInfo
 
 	/**
 	 * Is the segment in the DB
+	 * 
 	 * @return
 	 */
 	boolean isInDb();
 
 	/**
 	 * Set the version of the segment
+	 * 
 	 * @param newVersion
 	 */
 	void setVersion(long newVersion);
 
 	/**
 	 * Reset the internal checkum of the segment
-	 * @throws IOException 
 	 * 
+	 * @throws IOException
 	 */
-//	void setCheckSum() throws IOException;
-
+	// void setCheckSum() throws IOException;
 	/**
 	 * Was the segment deleted
+	 * 
 	 * @return
 	 */
 	boolean isDeleted();
 
 	/**
 	 * Set the timestamp on th segment
+	 * 
 	 * @param l
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	void setTimeStamp(long l) throws IOException;
 
@@ -107,12 +115,14 @@ public interface SegmentInfo
 
 	/**
 	 * Get the time the segment was last modified
+	 * 
 	 * @return
 	 */
 	long getLocalSegmentLastModified();
 
 	/**
 	 * Get the size of the segment on disk
+	 * 
 	 * @return
 	 */
 	long getLocalSegmentSize();
@@ -122,32 +132,34 @@ public interface SegmentInfo
 	 */
 	void setCreated();
 
-
 	/**
 	 * Check the validity of the segment
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	boolean checkSegmentValidity(boolean logging, String message) throws Exception;
 
 	/**
 	 * Check the validity of segment
+	 * 
 	 * @param force
 	 * @param validate
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	//boolean checkSegmentValidity(boolean force, boolean validate) throws Exception;
-
+	// boolean checkSegmentValidity(boolean force, boolean validate) throws
+	// Exception;
 	/**
 	 * Get the size of the segment
+	 * 
 	 * @return
 	 */
 	long getTotalSize();
 
 	/**
 	 * make the segment as updated
-	 * @throws IOException 
 	 * 
+	 * @throws IOException
 	 */
 	void touchSegment() throws IOException;
 
@@ -158,6 +170,7 @@ public interface SegmentInfo
 
 	/**
 	 * get the size of the segment.
+	 * 
 	 * @return
 	 */
 	long getSize();
@@ -174,6 +187,7 @@ public interface SegmentInfo
 
 	/**
 	 * Does this thread have a local lock on the segment
+	 * 
 	 * @return
 	 */
 	boolean isLocalLock();
@@ -189,11 +203,12 @@ public interface SegmentInfo
 	void debugSegment(String string);
 
 	/**
-	 * Compares this segment to the supplied segment, based on the in memory state of the live segment state
+	 * Compares this segment to the supplied segment, based on the in memory
+	 * state of the live segment state
+	 * 
 	 * @param string
 	 * @param recoverSegInfo
 	 */
 	void compareTo(String message, SegmentInfo recoverSegInfo);
-
 
 }

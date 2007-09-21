@@ -38,7 +38,6 @@ import org.sakaiproject.search.index.IndexStorage;
 
 /**
  * @author ieb
- *
  */
 public abstract class BaseIndexStorage implements IndexStorage
 {
@@ -49,7 +48,7 @@ public abstract class BaseIndexStorage implements IndexStorage
 	 * the currently running index searcher
 	 */
 	private IndexSearcher runningIndexSearcher;
-	
+
 	private Object reloadObjectSemaphore = new Object();
 
 	private Timer indexCloseTimer = new Timer(true);
@@ -57,7 +56,6 @@ public abstract class BaseIndexStorage implements IndexStorage
 	private long reloadStart;
 
 	private long reloadEnd;
-
 
 	protected boolean diagnostics;
 
@@ -68,7 +66,6 @@ public abstract class BaseIndexStorage implements IndexStorage
 	 */
 	private AnalyzerFactory analyzerFactory = null;
 
-	
 	public IndexSearcher getIndexSearcher(boolean reload) throws IOException
 	{
 
@@ -130,7 +127,8 @@ public abstract class BaseIndexStorage implements IndexStorage
 									catch (Exception ex)
 									{
 										log.error("Failed to close old searcher ", ex); //$NON-NLS-1$
-									} finally 
+									}
+									finally
 									{
 										cancel();
 										indexCloseTimer.purge();
@@ -167,12 +165,10 @@ public abstract class BaseIndexStorage implements IndexStorage
 		return runningIndexSearcher;
 	}
 
-
 	/**
 	 * @return
 	 */
 	protected abstract IndexSearcher getIndexSearcher() throws IOException;
-
 
 	/**
 	 * @param reloadStart2
@@ -181,13 +177,16 @@ public abstract class BaseIndexStorage implements IndexStorage
 	protected void fireIndexReload(long reloadStart, long reloadEnd)
 	{
 		for (Iterator<IndexReloadListener> itl = indexReloadListeners.iterator(); itl
-					.hasNext();)
+				.hasNext();)
 		{
 			IndexReloadListener tl = itl.next();
-			tl.reloaded(reloadStart,reloadEnd);
+			tl.reloaded(reloadStart, reloadEnd);
 		}
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#getLastLoad()
 	 */
 	public long getLastLoad()
@@ -195,18 +194,21 @@ public abstract class BaseIndexStorage implements IndexStorage
 		return reloadEnd;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#getLastLoadTime()
 	 */
 	public long getLastLoadTime()
 	{
-		return (reloadEnd-reloadStart);
+		return (reloadEnd - reloadStart);
 	}
-	
+
 	/**
-	 * @see org.sakaiproject.search.index.IndexStorage#addReloadListener(IndexReloadListener indexReloadListener)
+	 * @see org.sakaiproject.search.index.IndexStorage#addReloadListener(IndexReloadListener
+	 *      indexReloadListener)
 	 */
-	
+
 	public void addReloadListener(IndexReloadListener indexReloadListener)
 	{
 		List<IndexReloadListener> tl = new ArrayList<IndexReloadListener>();
@@ -216,12 +218,13 @@ public abstract class BaseIndexStorage implements IndexStorage
 	}
 
 	/**
-	 * @see org.sakaiproject.search.index.IndexStorage#removeReloadListener(IndexReloadListener indexReloadListener)
+	 * @see org.sakaiproject.search.index.IndexStorage#removeReloadListener(IndexReloadListener
+	 *      indexReloadListener)
 	 */
 	public void removeReloadListener(IndexReloadListener indexReloadListener)
 	{
 		List<IndexReloadListener> tl = new ArrayList<IndexReloadListener>();
-		tl.addAll(indexReloadListeners );
+		tl.addAll(indexReloadListeners);
 		tl.remove(indexReloadListener);
 		indexReloadListeners = tl;
 	}
@@ -280,11 +283,10 @@ public abstract class BaseIndexStorage implements IndexStorage
 	{
 		this.analyzerFactory = analzyserFactory;
 	}
-	
+
 	public Analyzer getAnalyzer()
 	{
 		return analyzerFactory.newAnalyzer();
 	}
-
 
 }

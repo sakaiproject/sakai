@@ -22,9 +22,10 @@
 package org.sakaiproject.search.journal.api;
 
 /**
- * Thrown where there are no more journal entries in the redo log, this is a normal event
+ * Thrown where there are no more journal entries in the redo log, this is a
+ * normal event
+ * 
  * @author ieb
- *
  */
 public class JournalExhausetedException extends RuntimeException
 {

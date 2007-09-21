@@ -30,14 +30,13 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
  * A transaction listener that connects to the journalManager
- * @author ieb
- *
- * Unit test @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
+ * 
+ * @author ieb Unit test
+ * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
 public class JournalManagerUpdateTransaction implements IndexUpdateTransactionListener
 {
-	
-	
+
 	private JournalManager journalManager;
 
 	/**
@@ -46,20 +45,21 @@ public class JournalManagerUpdateTransaction implements IndexUpdateTransactionLi
 	 */
 	public void prepare(IndexTransaction transaction) throws IndexJournalException
 	{
-		JournalManagerState jms = journalManager.prepareSave(transaction.getTransactionId());
-		transaction.put(JournalManagerUpdateTransaction.class.getName()+".state",jms); 
+		JournalManagerState jms = journalManager.prepareSave(transaction
+				.getTransactionId());
+		transaction.put(JournalManagerUpdateTransaction.class.getName() + ".state", jms);
 
 	}
 
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#commit(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
-	public void commit(IndexTransaction transaction)
-			throws IndexTransactionException
+	public void commit(IndexTransaction transaction) throws IndexTransactionException
 	{
-		JournalManagerState jms = (JournalManagerState) transaction.get(JournalManagerUpdateTransaction.class.getName()+".state"); 
+		JournalManagerState jms = (JournalManagerState) transaction
+				.get(JournalManagerUpdateTransaction.class.getName() + ".state");
 		journalManager.commitSave(jms);
-		transaction.clear(JournalManagerUpdateTransaction.class.getName()+".state"); 
+		transaction.clear(JournalManagerUpdateTransaction.class.getName() + ".state");
 
 	}
 
@@ -68,15 +68,15 @@ public class JournalManagerUpdateTransaction implements IndexUpdateTransactionLi
 	 */
 	public void open(IndexTransaction transaction)
 	{
+		journalManager.doOpenTransaction(transaction);
 	}
 
 	/**
-	 * 
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#close(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
 	public void close(IndexTransaction transaction) throws IndexTransactionException
 	{
-		transaction.clear(JournalManagerUpdateTransaction.class.getName()+".state"); 
+		transaction.clear(JournalManagerUpdateTransaction.class.getName() + ".state");
 	}
 
 	/**
@@ -84,9 +84,10 @@ public class JournalManagerUpdateTransaction implements IndexUpdateTransactionLi
 	 */
 	public void rollback(IndexTransaction transaction)
 	{
-		JournalManagerState jms = (JournalManagerState) transaction.get(JournalManagerUpdateTransaction.class.getName()+".state"); 
+		JournalManagerState jms = (JournalManagerState) transaction
+				.get(JournalManagerUpdateTransaction.class.getName() + ".state");
 		journalManager.rollbackSave(jms);
-		transaction.clear(JournalManagerUpdateTransaction.class.getName()+".state"); 
+		transaction.clear(JournalManagerUpdateTransaction.class.getName() + ".state");
 
 	}
 
@@ -99,7 +100,8 @@ public class JournalManagerUpdateTransaction implements IndexUpdateTransactionLi
 	}
 
 	/**
-	 * @param journalManager the journalManager to set
+	 * @param journalManager
+	 *        the journalManager to set
 	 */
 	public void setJournalManager(JournalManager journalManager)
 	{

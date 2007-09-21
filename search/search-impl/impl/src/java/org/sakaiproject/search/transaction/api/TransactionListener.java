@@ -23,24 +23,24 @@ package org.sakaiproject.search.transaction.api;
 
 import org.sakaiproject.search.indexer.api.IndexJournalException;
 
-
 /**
  * This listener is notified of changes in the transaction state.
+ * 
  * @author ieb
- *
  */
 public interface TransactionListener
 {
 	/**
 	 * Prepare to commit the transaction
+	 * 
 	 * @param transaction
-	 * @throws IndexJournalException 
+	 * @throws IndexJournalException
 	 */
 	void prepare(IndexTransaction transaction) throws IndexTransactionException;
 
 	/**
 	 * @param transaction
-	 * @throws IndexTransactionException 
+	 * @throws IndexTransactionException
 	 */
 	void commit(IndexTransaction transaction) throws IndexTransactionException;
 
@@ -53,10 +53,10 @@ public interface TransactionListener
 	 * @param transaction
 	 */
 	void open(IndexTransaction transaction) throws IndexTransactionException;
+
 	/**
 	 * @param transaction
 	 */
 	void close(IndexTransaction transaction) throws IndexTransactionException;
-
 
 }

@@ -21,27 +21,31 @@
 
 package org.sakaiproject.search.indexer.api;
 
-
 /**
  * An IndexWorkerDocumentListener is notified as Documents are indexed
+ * 
  * @author ieb
- *
  */
 public interface IndexWorkerDocumentListener
 {
 
 	/**
 	 * Fired when a document starts to be indexed
-	 * @param worker the worker performing the index operation
-	 * @param ref the document being indexed
 	 * 
+	 * @param worker
+	 *        the worker performing the index operation
+	 * @param ref
+	 *        the document being indexed
 	 */
 	void indexDocumentStart(IndexWorker worker, String ref);
 
 	/**
 	 * fired when a document has completed indexing
-	 * @param worker the worker performing the operation
-	 * @param ref a reference to the document
+	 * 
+	 * @param worker
+	 *        the worker performing the operation
+	 * @param ref
+	 *        a reference to the document
 	 */
 	void indexDocumentEnd(IndexWorker worker, String ref);
 

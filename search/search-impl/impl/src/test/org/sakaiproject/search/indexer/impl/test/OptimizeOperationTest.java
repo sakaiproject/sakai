@@ -225,6 +225,11 @@ public class OptimizeOperationTest extends TestCase
 				}
 			}
 
+			public void doIndexSearcherOpen(IndexSearcher indexSearcher)
+			{
+				
+			}
+
 		});
 
 		// index updater

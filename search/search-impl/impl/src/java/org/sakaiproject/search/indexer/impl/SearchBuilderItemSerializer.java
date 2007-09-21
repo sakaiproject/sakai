@@ -36,19 +36,18 @@ import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
 
 /**
  * A utility class to serialise update lists to and from disk
- * @author ieb
  * 
- * Unit test 
+ * @author ieb Unit test
  * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  * @see org.sakaiproject.search.indexer.impl.test.SearchBuilderItemSerializerTest
- * 
  */
 public class SearchBuilderItemSerializer
 {
-	
+
 	protected static final String TRANSACTION_LIST = "sakai_tx";
 
-	public void saveTransactionList(File indexDirectoy, List<SearchBuilderItem> txList) throws IOException
+	public void saveTransactionList(File indexDirectoy, List<SearchBuilderItem> txList)
+			throws IOException
 	{
 		File transactionList = new File(indexDirectoy, TRANSACTION_LIST);
 		DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(
@@ -62,7 +61,8 @@ public class SearchBuilderItemSerializer
 
 	}
 
-	public List<SearchBuilderItem> loadTransactionList(File indexDirectoy) throws IOException
+	public List<SearchBuilderItem> loadTransactionList(File indexDirectoy)
+			throws IOException
 	{
 		File transactionList = new File(indexDirectoy, TRANSACTION_LIST);
 		DataInputStream dataInputStream = new DataInputStream(new FileInputStream(

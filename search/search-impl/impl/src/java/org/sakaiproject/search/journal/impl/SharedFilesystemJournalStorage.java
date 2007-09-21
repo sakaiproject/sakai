@@ -35,8 +35,7 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 import org.sakaiproject.search.util.FileUtils;
 
 /**
- * @author ieb
- * TODO Unit test
+ * @author ieb TODO Unit test
  */
 public class SharedFilesystemJournalStorage implements JournalStorage
 {
@@ -92,11 +91,11 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 		tmpZip.getParentFile().mkdirs();
 		String basePath = indexLocation.getPath();
 		String replacePath = String.valueOf(transactionId);
-		
+
 		FileOutputStream zout = new FileOutputStream(tmpZip);
 		FileUtils.pack(indexLocation, basePath, replacePath, zout);
 		zout.close();
-		
+
 		File journalZip = getTransactionFile(transactionId);
 
 		return new JournalStorageStateImpl(tmpZip, journalZip);
@@ -172,6 +171,27 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	 */
 	public void close(IndexTransaction transaction) throws IndexTransactionException
 	{
+	}
+
+	/**
+	 * @param version
+	 * @param workingSpace
+	 * @return
+	 */
+	public File getLocalJournalLocation(long version, String workingSpace)
+	{
+		return new File(workingSpace, String.valueOf(version));
+	}
+
+	/**
+	 * @param version
+	 * @throws IOException
+	 */
+	public void removeJournal(long version) throws IOException
+	{
+		File f = getTransactionFile(version);
+		FileUtils.deleteAll(f);
+
 	}
 
 }

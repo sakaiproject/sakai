@@ -42,9 +42,9 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
  * Listens for Transaction changes in the 2PC associated with an index update,
- * This adds new segments into the current index reader, it does not merge the indexes
- * this is performed by a seperate index merge operation, run periodically to take the
- * new inbound segments into a permanent space
+ * This adds new segments into the current index reader, it does not merge the
+ * indexes this is performed by a seperate index merge operation, run
+ * periodically to take the new inbound segments into a permanent space
  * 
  * @author ieb TODO Unit test
  */
@@ -132,7 +132,6 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 	}
 
 	/**
-	 * 
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#rollback(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
 	public void rollback(IndexTransaction transaction) throws IndexTransactionException
@@ -144,7 +143,8 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 				.getName()
 				+ ".deleteIndexReader");
 
-		try ///TODO: make this work correctly, roll back the index
+		try
+		// /TODO: make this work correctly, roll back the index
 		{
 			if (deleteIndexReader != null)
 			{
@@ -153,7 +153,8 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 		}
 		catch (IOException e)
 		{
-			throw new IndexTransactionException("Failed to close index with deletions ",e);
+			throw new IndexTransactionException("Failed to close index with deletions ",
+					e);
 		}
 		// how do we perform a roll back ?
 		// undo the delete operations and remove the index from the reader
@@ -184,7 +185,6 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 			throw new JournalErrorException("No target journal entry ");
 		}
 
-		
 		try
 		{
 
@@ -197,7 +197,7 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 		}
 		catch (IOException e)
 		{
-			throw new IndexTransactionException("Failed to close index with deletions",e);
+			throw new IndexTransactionException("Failed to close index with deletions", e);
 		}
 		transaction.clear(JournaledFSIndexStorageUpdateTransactionListener.class
 				.getName()

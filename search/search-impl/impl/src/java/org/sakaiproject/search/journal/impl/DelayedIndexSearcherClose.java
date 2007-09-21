@@ -61,7 +61,7 @@ public class DelayedIndexSearcherClose extends DelayedClose
 		}
 		catch (Exception ex)
 		{
-			log.warn("Close of old index "+searcher+"failed " + ex.getMessage());
+			log.warn("Close of old index " + searcher + "failed " + ex.getMessage());
 		}
 		finally
 		{

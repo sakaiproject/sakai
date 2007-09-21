@@ -25,7 +25,6 @@ import org.apache.lucene.index.IndexWriter;
 
 /**
  * @author ieb
- *
  */
 public interface IndexMonitorListener
 {

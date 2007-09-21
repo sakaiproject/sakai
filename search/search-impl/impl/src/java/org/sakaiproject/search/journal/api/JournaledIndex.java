@@ -30,63 +30,68 @@ import org.apache.lucene.index.IndexWriter;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
- * A Journaled index is a in index that contains a number of journaled segments. These segments 
- * may be merged into a local version periodically
+ * A Journaled index is a in index that contains a number of journaled segments.
+ * These segments may be merged into a local version periodically
+ * 
  * @author ieb
- *
  */
 public interface JournaledIndex extends JournaledObject
 {
 
 	/**
 	 * The workign space associated with the index
+	 * 
 	 * @return
 	 */
 	String getWorkingSpace();
 
 	/**
 	 * Add a transient segment to the journal index
+	 * 
 	 * @param f
 	 */
 	void addSegment(File f);
 
 	/**
 	 * get an index reader suitable for processing deletes
+	 * 
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	IndexReader getDeletionIndexReader() throws IOException;
 
 	/**
 	 * get a copy of the segments currently active
+	 * 
 	 * @return
 	 */
 	File[] getSegments();
 
 	/**
 	 * Get an index writer suitable for accessing the current permanent index
+	 * 
 	 * @return
-	 * @throws IndexTransactionException 
+	 * @throws IndexTransactionException
 	 */
 	IndexWriter getPermanentIndexWriter() throws IndexTransactionException;
 
 	/**
 	 * Set the list of segments
+	 * 
 	 * @param keep
 	 */
 	void setSegments(List<File> keep);
 
 	/**
 	 * add a list of segments to be removed after the next close
+	 * 
 	 * @param remove
 	 */
 	void removeSegments(List<File> remove);
 
 	/**
-	 * @throws IOException 
-	 * 
+	 * @throws IOException
 	 */
 	void saveSegmentList() throws IOException;
-
 
 }

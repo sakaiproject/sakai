@@ -355,7 +355,7 @@ public class SharedTestDataSource
 		try
 		{
 			s.execute("CREATE TABLE search_journal ( " + " txid bigint NOT NULL, "
-					+ " txts bigint NOT NULL, " + " indexwriter varchar(255) NOT NULL, "
+					+ " txts bigint NOT NULL, " + " indexwriter varchar(255) NOT NULL, status varchar(32) NOT NULL,  "
 					+ " PRIMARY KEY  (txid) )");
 		}
 		catch (Exception ex)

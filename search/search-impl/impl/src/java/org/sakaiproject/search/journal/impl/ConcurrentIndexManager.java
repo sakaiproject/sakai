@@ -59,6 +59,10 @@ public class ConcurrentIndexManager implements IndexListener
 
 	private DelayQueue<Delayed> delayQueue = new DelayQueue<Delayed>();
 
+	private int nsopen = 0;
+
+	private int nropen = 0;
+
 	public void init()
 	{
 		for (Iterator<IndexManagementTimerTask> i = tasks.iterator(); i.hasNext();)
@@ -82,15 +86,18 @@ public class ConcurrentIndexManager implements IndexListener
 			{
 				try
 				{
+
 					inclose.set("xxx");
-					log.info("Start Purge ------------------------- "+delayQueue.size());
+					log
+							.info("Start Purge ------------------------- "
+									+ delayQueue.size());
 					DelayedClose dc = (DelayedClose) delayQueue.poll();
 					while (dc != null)
 					{
 						dc.close();
 						dc = (DelayedClose) delayQueue.poll();
 					}
-					log.info("Purge complete ----------------------"+delayQueue.size());
+					log.info("Purge complete ----------------------" + delayQueue.size());
 				}
 				finally
 				{
@@ -143,11 +150,14 @@ public class ConcurrentIndexManager implements IndexListener
 	{
 		if (inclose.get() == null)
 		{
-			delayQueue.add(new DelayedIndexReaderClose(closeDelay, oldMultiReader, toRemove));
+			nropen--;
+			delayQueue.add(new DelayedIndexReaderClose(closeDelay, oldMultiReader,
+					toRemove));
 			throw new IOException("Close Will take place in " + closeDelay + " ms");
 		}
 
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -157,13 +167,21 @@ public class ConcurrentIndexManager implements IndexListener
 	{
 		if (inclose.get() == null)
 		{
-
+			nsopen--;
 			delayQueue.add(new DelayedIndexSearcherClose(closeDelay, indexSearcher));
 			throw new IOException("Close Will take place in " + closeDelay + " ms");
 		}
 
 	}
 
+	/**
+	 * @see org.sakaiproject.search.journal.api.IndexListener#doIndexSearcherOpen(org.apache.lucene.search.IndexSearcher)
+	 */
+	public void doIndexSearcherOpen(IndexSearcher indexSearcher)
+	{
+		nsopen++;
+		log.info("Opened New Searcher " + nsopen + " " + indexSearcher);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -172,6 +190,8 @@ public class ConcurrentIndexManager implements IndexListener
 	 */
 	public void doIndexReaderOpen(IndexReader newMultiReader)
 	{
+		nropen++;
+		log.info("Opened New Reader " + nropen + " " + newMultiReader);
 
 	}
 
@@ -191,6 +211,5 @@ public class ConcurrentIndexManager implements IndexListener
 	{
 		this.closeDelay = closeDelay;
 	}
-
 
 }

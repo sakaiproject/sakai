@@ -49,8 +49,10 @@ public class SnowballAnalyzerFactory implements AnalyzerFactory
 		try
 		{
 			ArrayList<String> al = new ArrayList<String>();
-			BufferedReader br = new BufferedReader(new InputStreamReader(SnowballAnalyzerFactory.class
-					.getResourceAsStream("/org/sakaiproject/search/component/bundle/stopwords.txt")));
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(
+							SnowballAnalyzerFactory.class
+									.getResourceAsStream("/org/sakaiproject/search/component/bundle/stopwords.txt")));
 			for (String line = br.readLine(); line != null; line = br.readLine())
 			{
 				al.add(line.trim());
@@ -81,13 +83,15 @@ public class SnowballAnalyzerFactory implements AnalyzerFactory
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.apache.lucene.analysis.Analyzer#tokenStream(java.lang.String, java.io.Reader)
+		 * @see org.apache.lucene.analysis.Analyzer#tokenStream(java.lang.String,
+		 *      java.io.Reader)
 		 */
 		public TokenStream tokenStream(String fieldName, Reader reader)
 		{
 			if (SearchService.FIELD_CONTENTS.equals(fieldName))
 			{
-				return new PorterStemFilter(keywordAnalyzer.tokenStream(fieldName, reader));
+				return new PorterStemFilter(keywordAnalyzer
+						.tokenStream(fieldName, reader));
 			}
 			else
 			{

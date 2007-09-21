@@ -48,7 +48,7 @@ import org.sakaiproject.search.api.SearchService;
  * 
  * @author ieb
  */
-public class FSIndexStorage extends  BaseIndexStorage
+public class FSIndexStorage extends BaseIndexStorage
 {
 	private static Log log = LogFactory.getLog(FSIndexStorage.class);
 
@@ -57,7 +57,6 @@ public class FSIndexStorage extends  BaseIndexStorage
 	protected boolean recoverCorruptedIndex = false;
 
 	private long lastUpdate = System.currentTimeMillis();
-	
 
 	public void init()
 	{
@@ -110,7 +109,6 @@ public class FSIndexStorage extends  BaseIndexStorage
 	{
 		return searchIndexDirectory;
 	}
-
 
 	protected IndexSearcher getIndexSearcher() throws IOException
 	{
@@ -181,7 +179,6 @@ public class FSIndexStorage extends  BaseIndexStorage
 	{
 		return IndexReader.indexExists(searchIndexDirectory);
 	}
-
 
 	/**
 	 * @return Returns the recoverCorruptedIndex.
@@ -282,7 +279,6 @@ public class FSIndexStorage extends  BaseIndexStorage
 		}
 	}
 
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -292,7 +288,5 @@ public class FSIndexStorage extends  BaseIndexStorage
 	{
 		return indexExists();
 	}
-
-
 
 }

@@ -22,11 +22,12 @@
 package org.sakaiproject.search.journal.api;
 
 import org.sakaiproject.search.indexer.api.IndexJournalException;
+import org.sakaiproject.search.transaction.api.IndexTransaction;
 
 /**
  * The journal manage manages the state of the journal for the current node
+ * 
  * @author ieb
- *
  */
 public interface JournalManager
 {
@@ -34,21 +35,21 @@ public interface JournalManager
 	/**
 	 * @param version
 	 * @return
-	 * @throws JournalErrorException if there was an error getting the next version 
+	 * @throws JournalErrorException
+	 *         if there was an error getting the next version
 	 */
 	long getNextVersion(long version) throws JournalErrorException;
 
 	/**
 	 * @param transactionId
 	 * @return
-	 * @throws IndexJournalException 
+	 * @throws IndexJournalException
 	 */
 	JournalManagerState prepareSave(long transactionId) throws IndexJournalException;
 
 	/**
-	 * @param jms 
-	 * @throws IndexJournalException 
-	 * 
+	 * @param jms
+	 * @throws IndexJournalException
 	 */
 	void commitSave(JournalManagerState jms) throws IndexJournalException;
 
@@ -56,5 +57,13 @@ public interface JournalManager
 	 * @param jms
 	 */
 	void rollbackSave(JournalManagerState jms);
+
+	/**
+	 * Perfomes the open, giving the JournalManager implementation a chance to
+	 * veto the transaction.
+	 * 
+	 * @param transaction
+	 */
+	void doOpenTransaction(IndexTransaction transaction);
 
 }

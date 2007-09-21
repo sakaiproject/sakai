@@ -23,62 +23,62 @@ package org.sakaiproject.search.journal.api;
 
 /**
  * A journal object is an object that is managed by a jornal redo log
+ * 
  * @author ieb
- *
  */
 public interface JournaledObject
 {
 
 	/**
 	 * Get the current Journaled Version
+	 * 
 	 * @return
 	 */
 	long getJournalVersion();
 
-
-
 	/**
 	 * get a lock on on the object for update
+	 * 
 	 * @return true is lock was granted, false if not
 	 */
 	boolean aquireUpdateLock();
-
 
 	/**
 	 * release the update lock
 	 */
 	void releaseUpdateLock();
-	
+
 	/**
 	 * Aquires a lock to read the object
+	 * 
 	 * @return true if lock was granted, false if not
 	 */
 	boolean aquireReadLock();
-	
+
 	/**
 	 * releases a lock to read object
-	 *
 	 */
 	void releaseReadLock();
 
 	/**
-	 * get the last journal entry we tried to migrate to 
+	 * get the last journal entry we tried to migrate to
+	 * 
 	 * @return
 	 */
 	long getLastJournalEntry();
 
 	/**
-	 * Set the last journal entry we tried to migrate to 
+	 * Set the last journal entry we tried to migrate to
+	 * 
 	 * @param nextJournalEntry
 	 */
 	void setLastJournalEntry(long nextJournalEntry);
 
 	/**
 	 * Set the current index entry for the journal
+	 * 
 	 * @param journalEntry
 	 */
 	void setJournalIndexEntry(long journalEntry);
-
-
 
 }

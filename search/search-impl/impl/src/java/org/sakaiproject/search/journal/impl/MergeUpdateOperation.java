@@ -60,11 +60,12 @@ public class MergeUpdateOperation implements ManagementOperation
 		// unpack them locally
 		// merge with the curent index.
 		// 
-		log.info("Last Journaled version is "+journaledObject.getLastJournalEntry());
-		
+		log.info("Last Journaled version is " + journaledObject.getLastJournalEntry());
+
 		if (journaledObject.aquireUpdateLock())
 		{
-			log.info("Now Locked Journaled version is "+journaledObject.getLastJournalEntry());
+			log.info("Now Locked Journaled version is "
+					+ journaledObject.getLastJournalEntry());
 			try
 			{
 				try
@@ -85,15 +86,16 @@ public class MergeUpdateOperation implements ManagementOperation
 						}
 						catch (JournalErrorException jex)
 						{
-							if ( mergeUpdateTransaction != null ) {
-							log
-									.warn("Failed to compete merge of "
-											+ mergeUpdateTransaction.getJournalEntry()
-											+ " ", jex);
-							} else {
-								log
-								.warn("Failed to start merge operation ",jex);
-							
+							if (mergeUpdateTransaction != null)
+							{
+								log.warn("Failed to compete merge of "
+										+ mergeUpdateTransaction.getJournalEntry() + " ",
+										jex);
+							}
+							else
+							{
+								log.warn("Failed to start merge operation ", jex);
+
 							}
 							try
 							{

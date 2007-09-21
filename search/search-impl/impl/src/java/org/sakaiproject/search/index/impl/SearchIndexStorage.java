@@ -40,8 +40,8 @@ import org.sakaiproject.search.index.IndexStorage;
  * indexStorageName@org.sakaiproject.search.index.IndexStorage = filesystem
  * indexStorageName@org.sakaiproject.search.index.IndexStorage = cluster
  * indexStorageName@org.sakaiproject.search.index.IndexStorage = db
- * recoverCorruptedIndex@org.sakaiproject.search.index.IndexStorage = false
- * may cahnge, and it is worth looking in the components for the real values.
+ * recoverCorruptedIndex@org.sakaiproject.search.index.IndexStorage = false may
+ * cahnge, and it is worth looking in the components for the real values.
  * 
  * @author ieb
  */
@@ -66,8 +66,8 @@ public class SearchIndexStorage implements IndexStorage
 		log.info("init()");
 		try
 		{
-			runningIndexStorage = (IndexStorage) currentStores
-					.get(indexStorageName.trim());
+			runningIndexStorage = (IndexStorage) currentStores.get(indexStorageName
+					.trim());
 
 			if (runningIndexStorage == null)
 			{
@@ -90,7 +90,6 @@ public class SearchIndexStorage implements IndexStorage
 	{
 		return runningIndexStorage.getIndexWriter(create);
 	}
-
 
 	public void doPostIndexUpdate() throws IOException
 	{
@@ -198,13 +197,14 @@ public class SearchIndexStorage implements IndexStorage
 
 	public void closeIndexReader(IndexReader indexReader) throws IOException
 	{
-		runningIndexStorage.closeIndexReader(indexReader);		
+		runningIndexStorage.closeIndexReader(indexReader);
 	}
 
 	public void closeIndexWriter(IndexWriter indexWrite) throws IOException
 	{
 		runningIndexStorage.closeIndexWriter(indexWrite);
 	}
+
 	public boolean isMultipleIndexers()
 	{
 		return runningIndexStorage.isMultipleIndexers();
@@ -213,9 +213,12 @@ public class SearchIndexStorage implements IndexStorage
 	public void closeIndexSearcher(IndexSearcher indexSearcher)
 	{
 		runningIndexStorage.closeIndexSearcher(indexSearcher);
-		
+
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
 	 */
 	public void disableDiagnostics()
@@ -223,7 +226,9 @@ public class SearchIndexStorage implements IndexStorage
 		runningIndexStorage.disableDiagnostics();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
 	 */
 	public void enableDiagnostics()
@@ -231,7 +236,9 @@ public class SearchIndexStorage implements IndexStorage
 		runningIndexStorage.enableDiagnostics();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
 	 */
 	public boolean hasDiagnostics()
@@ -239,7 +246,9 @@ public class SearchIndexStorage implements IndexStorage
 		return runningIndexStorage.hasDiagnostics();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#centralIndexExists()
 	 */
 	public boolean centralIndexExists()
@@ -247,23 +256,29 @@ public class SearchIndexStorage implements IndexStorage
 		return runningIndexStorage.centralIndexExists();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#addReloadListener(org.sakaiproject.search.index.IndexReloadListener)
 	 */
 	public void addReloadListener(IndexReloadListener indexReloadListener)
 	{
-		 runningIndexStorage.addReloadListener(indexReloadListener);
+		runningIndexStorage.addReloadListener(indexReloadListener);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#forceNextReload()
 	 */
 	public void forceNextReload()
 	{
-		runningIndexStorage.forceNextReload();		
+		runningIndexStorage.forceNextReload();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#getIndexSearcher(boolean)
 	 */
 	public IndexSearcher getIndexSearcher(boolean reload) throws IOException
@@ -271,7 +286,9 @@ public class SearchIndexStorage implements IndexStorage
 		return runningIndexStorage.getIndexSearcher(reload);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#getLastLoad()
 	 */
 	public long getLastLoad()
@@ -279,21 +296,25 @@ public class SearchIndexStorage implements IndexStorage
 		return runningIndexStorage.getLastLoad();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#getLastLoadTime()
 	 */
 	public long getLastLoadTime()
-	{	
+	{
 		return runningIndexStorage.getLastLoadTime();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#removeReloadListener(org.sakaiproject.search.index.IndexReloadListener)
 	 */
 	public void removeReloadListener(IndexReloadListener indexReloadListener)
 	{
 		runningIndexStorage.removeReloadListener(indexReloadListener);
-		
+
 	}
 
 }

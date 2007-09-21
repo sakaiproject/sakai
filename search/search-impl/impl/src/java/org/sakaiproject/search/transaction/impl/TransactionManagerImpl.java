@@ -29,12 +29,11 @@ import org.sakaiproject.search.transaction.api.TransactionListener;
 import org.sakaiproject.search.transaction.api.TransactionSequence;
 
 /**
- * @author ieb
- * Unit test @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
+ * @author ieb Unit test
+ * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
 public abstract class TransactionManagerImpl implements TransactionIndexManager
 {
-
 
 	private List<TransactionListener> transactionListeners = new ArrayList<TransactionListener>();
 
@@ -42,7 +41,6 @@ public abstract class TransactionManagerImpl implements TransactionIndexManager
 	 * dependency
 	 */
 	protected TransactionSequence sequence;
-
 
 	/**
 	 * @return the transactionListeners
@@ -77,8 +75,6 @@ public abstract class TransactionManagerImpl implements TransactionIndexManager
 		transactionListeners = tl;
 	}
 
-
-
 	/**
 	 * @return the sequence
 	 */
@@ -95,6 +91,5 @@ public abstract class TransactionManagerImpl implements TransactionIndexManager
 	{
 		this.sequence = sequence;
 	}
-
 
 }

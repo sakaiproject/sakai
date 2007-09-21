@@ -32,9 +32,7 @@ import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
  * A merge transaction that control the merging of the journal redo log with the
  * local search index
  * 
- * @author ieb
- * TODO Unit test
- * 
+ * @author ieb TODO Unit test
  */
 public class IndexMergeTransactionImpl extends IndexItemsTransactionImpl implements
 		IndexMergeTransaction

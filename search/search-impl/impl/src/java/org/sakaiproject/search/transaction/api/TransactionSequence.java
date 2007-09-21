@@ -22,22 +22,25 @@
 package org.sakaiproject.search.transaction.api;
 
 /**
- * Generates a transaction sequence. The implementation of this interface must operate in thread safe fashon over the
- * entire cluster returning the next id in the sequence at all times.
+ * Generates a transaction sequence. The implementation of this interface must
+ * operate in thread safe fashon over the entire cluster returning the next id
+ * in the sequence at all times.
+ * 
  * @author ieb
- *
  */
 public interface TransactionSequence
 {
 
 	/**
 	 * This returns a safe clusterwide id
+	 * 
 	 * @return
 	 */
 	long getNextId();
 
 	/**
 	 * This retuns the next id for the local JVM
+	 * 
 	 * @return
 	 */
 	long getLocalId();

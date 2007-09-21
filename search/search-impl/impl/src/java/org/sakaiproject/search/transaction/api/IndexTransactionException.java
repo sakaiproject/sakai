@@ -23,8 +23,8 @@ package org.sakaiproject.search.transaction.api;
 
 /**
  * An exception to reprenset a problem with the Index transactions
+ * 
  * @author ieb
- *
  */
 public class IndexTransactionException extends Exception
 {

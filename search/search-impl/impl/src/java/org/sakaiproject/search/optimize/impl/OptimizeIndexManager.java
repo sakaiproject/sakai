@@ -66,7 +66,6 @@ public class OptimizeIndexManager extends TransactionManagerImpl
 	}
 
 	/**
-	 * 
 	 * @see org.sakaiproject.search.transaction.impl.TransactionManagerImpl#addTransactionListener(org.sakaiproject.search.transaction.api.TransactionListener)
 	 */
 	@Override
@@ -85,7 +84,6 @@ public class OptimizeIndexManager extends TransactionManagerImpl
 	}
 
 	/**
-	 * 
 	 * @see org.sakaiproject.search.transaction.impl.TransactionManagerImpl#setTransactionListeners(java.util.List)
 	 */
 	@Override
@@ -105,6 +103,7 @@ public class OptimizeIndexManager extends TransactionManagerImpl
 
 	/**
 	 * Get a temporary segment name based on the transactio id
+	 * 
 	 * @return
 	 * @throws IOException
 	 */
@@ -155,7 +154,6 @@ public class OptimizeIndexManager extends TransactionManagerImpl
 	{
 		this.searchIndexWorkingDirectory = searchIndexWorkingDirectory;
 	}
-	
 
 	/**
 	 * @return

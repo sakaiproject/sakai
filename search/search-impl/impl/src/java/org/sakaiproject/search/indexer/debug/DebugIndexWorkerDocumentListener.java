@@ -28,31 +28,33 @@ import org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener;
 
 /**
  * Debug listenwe to the Documents being indexed
- * @author ieb
- * Unit test 
+ * 
+ * @author ieb Unit test
  * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
- *
  */
 public class DebugIndexWorkerDocumentListener implements IndexWorkerDocumentListener
 {
 
-	private static final Log log = LogFactory.getLog(DebugIndexWorkerDocumentListener.class);
+	private static final Log log = LogFactory
+			.getLog(DebugIndexWorkerDocumentListener.class);
 
 	/**
-	 * @see org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener#indexDocumentEnd(org.sakaiproject.search.indexer.api.IndexWorker, java.lang.String)
+	 * @see org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener#indexDocumentEnd(org.sakaiproject.search.indexer.api.IndexWorker,
+	 *      java.lang.String)
 	 */
 	public void indexDocumentEnd(IndexWorker worker, String ref)
 	{
-		log.info("Worker ["+worker+"] Document End ["+ref+"]");
+		log.info("Worker [" + worker + "] Document End [" + ref + "]");
 
 	}
 
 	/**
-	 * @see org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener#indexDocumentStart(org.sakaiproject.search.indexer.api.IndexWorker, java.lang.String)
+	 * @see org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener#indexDocumentStart(org.sakaiproject.search.indexer.api.IndexWorker,
+	 *      java.lang.String)
 	 */
 	public void indexDocumentStart(IndexWorker worker, String ref)
 	{
-		log.info("Worker ["+worker+"] Document Start ["+ref+"]");
+		log.info("Worker [" + worker + "] Document Start [" + ref + "]");
 
 	}
 

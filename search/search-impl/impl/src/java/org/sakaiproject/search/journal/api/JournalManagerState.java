@@ -22,9 +22,10 @@
 package org.sakaiproject.search.journal.api;
 
 /**
- * This is a state object that represents the transactional state of the journal manager as it participates in the 2 phase commit.
+ * This is a state object that represents the transactional state of the journal
+ * manager as it participates in the 2 phase commit.
+ * 
  * @author ieb
- *
  */
 public interface JournalManagerState
 {

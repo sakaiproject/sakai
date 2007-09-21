@@ -24,8 +24,7 @@ public class ClusterSegmentsStorage
 
 	private static final String PACKFILE = "packet";
 
-	private static final Log log = LogFactory
-			.getLog(ClusterSegmentsStorage.class);
+	private static final Log log = LogFactory.getLog(ClusterSegmentsStorage.class);
 
 	private String searchIndexDirectory;
 
@@ -37,8 +36,10 @@ public class ClusterSegmentsStorage
 
 	private SearchService searchService;
 
-	
-	public ClusterSegmentsStorage(SearchService searchService, String searchIndexDirectory,  JDBCClusterIndexStore clusterIndexStore, boolean localStructuredStorage, boolean debug) {
+	public ClusterSegmentsStorage(SearchService searchService,
+			String searchIndexDirectory, JDBCClusterIndexStore clusterIndexStore,
+			boolean localStructuredStorage, boolean debug)
+	{
 		this.localStructuredStorage = localStructuredStorage;
 		this.clusterIndexStore = clusterIndexStore;
 		this.searchIndexDirectory = searchIndexDirectory;
@@ -53,10 +54,11 @@ public class ClusterSegmentsStorage
 	 * @param packetStream
 	 * @param version
 	 */
-	protected void unpackSegment(SegmentInfo addsi, InputStream packetStream,
-			long version) throws IOException
+	protected void unpackSegment(SegmentInfo addsi, InputStream packetStream, long version)
+			throws IOException
 	{
-		log.debug("================================Starting Unpack Segment==============================");
+		log
+				.debug("================================Starting Unpack Segment==============================");
 		ZipInputStream zin = new ZipInputStream(packetStream);
 		ZipEntry zipEntry = null;
 		FileOutputStream fout = null;
@@ -65,9 +67,10 @@ public class ClusterSegmentsStorage
 			File loc = addsi.getSegmentLocation();
 			boolean locationExists = false;
 			File unpackBase = new File(searchIndexDirectory);
-			if ( loc.exists() ) {
+			if (loc.exists())
+			{
 				locationExists = true;
-				unpackBase = new File(searchIndexDirectory,"unpack");
+				unpackBase = new File(searchIndexDirectory, "unpack");
 			}
 			byte[] buffer = new byte[4096];
 			while ((zipEntry = zin.getNextEntry()) != null)
@@ -77,11 +80,11 @@ public class ClusterSegmentsStorage
 				// the zip entry needs to be a full path from the
 				// searchIndexDirectory... hence this is correct
 
-				File f = new File(unpackBase,  zipEntry.getName());
-				if ( log.isDebugEnabled() ) 
+				File f = new File(unpackBase, zipEntry.getName());
+				if (log.isDebugEnabled())
 					log.debug("         Unpack " + f.getAbsolutePath());
 				f.getParentFile().mkdirs();
-				
+
 				fout = new FileOutputStream(f);
 				int len;
 				while ((len = zin.read(buffer)) > 0)
@@ -92,30 +95,35 @@ public class ClusterSegmentsStorage
 				fout.close();
 				f.setLastModified(ts);
 			}
-			
-			if ( locationExists ) {
+
+			if (locationExists)
+			{
 				Map<String, File> moved = new HashMap<String, File>();
-				moveAll(new File(unpackBase,loc.getName()),loc,moved);
+				moveAll(new File(unpackBase, loc.getName()), loc, moved);
 				deleteAll(unpackBase);
-				// unfortunately we have to remove the files befor the reload 
+				// unfortunately we have to remove the files befor the reload
 				// otherwise the checksums will fail.
-				deleteSome(loc,moved);
+				deleteSome(loc, moved);
 				// force a reload before we delete the files,
 				// since this is in the locked thread, this node will reload
 				searchService.reload();
-				
+
 			}
 
 			try
 			{
-				addsi.checkSegmentValidity(searchService.hasDiagnostics(),"Unpack Segment");
+				addsi.checkSegmentValidity(searchService.hasDiagnostics(),
+						"Unpack Segment");
 			}
 			catch (Exception ex)
 			{
-				try {
-					addsi.checkSegmentValidity(true,"Unpack Segment Failed");
-				} catch ( Exception e ) {
-					
+				try
+				{
+					addsi.checkSegmentValidity(true, "Unpack Segment Failed");
+				}
+				catch (Exception e)
+				{
+
 				}
 				throw new RuntimeException("Segment " + addsi.getName()
 						+ " is corrupted ");
@@ -135,7 +143,8 @@ public class ClusterSegmentsStorage
 			{
 			}
 		}
-		log.debug("================================Done Unpack Segment==============================");
+		log
+				.debug("================================Done Unpack Segment==============================");
 
 	}
 
@@ -145,22 +154,28 @@ public class ClusterSegmentsStorage
 	 */
 	private void deleteSome(File f, Map<String, File> moved)
 	{
-		if ( f.isDirectory() ) {
+		if (f.isDirectory())
+		{
 			File[] fs = f.listFiles();
-			for ( int i = 0; i < fs.length; i++ ) {
-				deleteSome(fs[i],moved);
+			for (int i = 0; i < fs.length; i++)
+			{
+				deleteSome(fs[i], moved);
 			}
-			if ( moved.get(f.getPath()) == null ) {
+			if (moved.get(f.getPath()) == null)
+			{
 				f.delete();
-				log.debug("          deleted "+f.getPath());
-			}
-		} else {
-			if ( moved.get(f.getPath()) == null ) {
-				f.delete();
-				log.debug("          deleted "+f.getPath());
+				log.debug("          deleted " + f.getPath());
 			}
 		}
-		
+		else
+		{
+			if (moved.get(f.getPath()) == null)
+			{
+				f.delete();
+				log.debug("          deleted " + f.getPath());
+			}
+		}
+
 	}
 
 	/**
@@ -168,25 +183,33 @@ public class ClusterSegmentsStorage
 	 */
 	private void moveAll(File src, File dest, Map<String, File> moved)
 	{
-		
-		if ( src.isDirectory() ) {
+
+		if (src.isDirectory())
+		{
 			File[] fs = src.listFiles();
-			for ( int i = 0; i < fs.length; i++ ) {
-				moveAll(fs[i],new File(dest,fs[i].getName()),moved);
+			for (int i = 0; i < fs.length; i++)
+			{
+				moveAll(fs[i], new File(dest, fs[i].getName()), moved);
 			}
-		} else {
-			if ( dest.exists() ) {
+		}
+		else
+		{
+			if (dest.exists())
+			{
 				dest.delete();
-			} else {
+			}
+			else
+			{
 				File p = dest.getParentFile();
-				if ( !p.exists() ) {
+				if (!p.exists())
+				{
 					p.mkdirs();
 				}
 			}
 			src.renameTo(dest);
-			log.debug("          renamed "+src.getPath()+" to "+dest.getPath());
+			log.debug("          renamed " + src.getPath() + " to " + dest.getPath());
 		}
-		moved.put(dest.getPath(),dest);
+		moved.put(dest.getPath(), dest);
 	}
 
 	/**
@@ -194,16 +217,20 @@ public class ClusterSegmentsStorage
 	 */
 	private void deleteAll(File f)
 	{
-		if ( f.isDirectory() ) {
+		if (f.isDirectory())
+		{
 			File[] fs = f.listFiles();
-			for ( int i = 0; i < fs.length; i++ ) {
+			for (int i = 0; i < fs.length; i++)
+			{
 				deleteAll(fs[i]);
 			}
 			f.delete();
-			log.debug("          deleted "+f.getPath());
-		} else {
+			log.debug("          deleted " + f.getPath());
+		}
+		else
+		{
 			f.delete();
-			log.debug("          deleted "+f.getPath());
+			log.debug("          deleted " + f.getPath());
 		}
 	}
 
@@ -216,7 +243,8 @@ public class ClusterSegmentsStorage
 	 */
 	protected void unpackPatch(InputStream packetStream) throws IOException
 	{
-		log.debug("================================Start Unpack Patch==============================");
+		log
+				.debug("================================Start Unpack Patch==============================");
 		ZipInputStream zin = new ZipInputStream(packetStream);
 		ZipEntry zipEntry = null;
 		FileOutputStream fout = null;
@@ -230,8 +258,8 @@ public class ClusterSegmentsStorage
 				// the zip index name is the full path from the
 				// searchIndexDirectory
 				File f = new File(searchIndexDirectory, zipEntry.getName());
-				if ( log.isDebugEnabled() ) 
-				           log.debug("                Unpack " + f.getAbsolutePath());
+				if (log.isDebugEnabled())
+					log.debug("                Unpack " + f.getAbsolutePath());
 				f.getParentFile().mkdirs();
 				fout = new FileOutputStream(f);
 
@@ -256,7 +284,8 @@ public class ClusterSegmentsStorage
 			{
 			}
 		}
-		log.debug("================================Done Unpack Patch==============================");
+		log
+				.debug("================================Done Unpack Patch==============================");
 
 	}
 
@@ -267,19 +296,18 @@ public class ClusterSegmentsStorage
 	 * @return
 	 * @throws IOException
 	 */
-	protected File packSegment(SegmentInfo addsi, long newVersion)
-			throws IOException
+	protected File packSegment(SegmentInfo addsi, long newVersion) throws IOException
 	{
 
-		log.debug("================================Start Pack Segment==============================");
+		log
+				.debug("================================Start Pack Segment==============================");
 		// just prior to packing a segment we can say its created
 		addsi.setCreated();
-		
+
 		File tmpFile = new File(searchIndexDirectory, PACKFILE
 				+ String.valueOf(System.currentTimeMillis()) + ".zip");
-		ZipOutputStream zout = new ZipOutputStream(
-				new FileOutputStream(tmpFile));
-		addsi.setTimeStamp( newVersion);
+		ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(tmpFile));
+		addsi.setTimeStamp(newVersion);
 
 		byte[] buffer = new byte[4096];
 		addFile(addsi.getSegmentLocation(), zout, buffer, 0);
@@ -288,15 +316,16 @@ public class ClusterSegmentsStorage
 
 		try
 		{
-			if ( log.isDebugEnabled() ) 
-			log.debug("    Packed Name[" + tmpFile.getName() + "]length[" + tmpFile.length()
-					+ "][" + addsi+ "]");
+			if (log.isDebugEnabled())
+				log.debug("    Packed Name[" + tmpFile.getName() + "]length["
+						+ tmpFile.length() + "][" + addsi + "]");
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-		log.debug("================================Done Pack Segment==============================");
+		log
+				.debug("================================Done Pack Segment==============================");
 		return tmpFile;
 	}
 
@@ -309,12 +338,12 @@ public class ClusterSegmentsStorage
 	 */
 	protected File packPatch() throws IOException
 	{
-		log.debug("================================Start Pack Patch==============================");
+		log
+				.debug("================================Start Pack Patch==============================");
 
 		File tmpFile = new File(searchIndexDirectory, PACKFILE
 				+ String.valueOf(System.currentTimeMillis()) + ".zip");
-		ZipOutputStream zout = new ZipOutputStream(
-				new FileOutputStream(tmpFile));
+		ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(tmpFile));
 		byte[] buffer = new byte[4096];
 
 		ZipEntry ze = new ZipEntry("lastpatchmarker");
@@ -322,8 +351,8 @@ public class ClusterSegmentsStorage
 		zout.putNextEntry(ze);
 		try
 		{
-			ByteArrayInputStream fin = new ByteArrayInputStream(
-					"--PATCH MARKER--".getBytes());
+			ByteArrayInputStream fin = new ByteArrayInputStream("--PATCH MARKER--"
+					.getBytes());
 			try
 			{
 				int len = 0;
@@ -347,13 +376,15 @@ public class ClusterSegmentsStorage
 		for (Iterator li = l.iterator(); li.hasNext();)
 		{
 			SegmentInfoImpl sgi = (SegmentInfoImpl) li.next();
-			if ( sgi.isCreated() ) { // Only add segment locations that are created
+			if (sgi.isCreated())
+			{ // Only add segment locations that are created
 				File f = sgi.getSegmentLocation();
 				addFile(f, zout, buffer, sgi.getVersion());
 			}
 		}
 		zout.close();
-		log.debug("================================Done Pack Patch==============================");
+		log
+				.debug("================================Done Pack Patch==============================");
 
 		return tmpFile;
 	}
@@ -366,8 +397,8 @@ public class ClusterSegmentsStorage
 	 * @param buffer
 	 * @throws IOException
 	 */
-	private void addFile(File f, ZipOutputStream zout, byte[] buffer,
-			long modtime) throws IOException
+	private void addFile(File f, ZipOutputStream zout, byte[] buffer, long modtime)
+			throws IOException
 	{
 		FileInputStream fin = null;
 		try
@@ -400,7 +431,8 @@ public class ClusterSegmentsStorage
 			}
 			else
 			{
-				if ( f.lastModified() > modtime ) {
+				if (f.lastModified() > modtime)
+				{
 					addSingleFile(f, zout, buffer);
 				}
 			}
@@ -450,7 +482,5 @@ public class ClusterSegmentsStorage
 		}
 
 	}
-
-
 
 }

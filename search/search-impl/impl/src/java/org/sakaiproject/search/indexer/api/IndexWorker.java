@@ -23,18 +23,20 @@ package org.sakaiproject.search.indexer.api;
 
 /**
  * An index worker performs index operations
+ * 
  * @author ieb
- *
  */
 public interface IndexWorker
 {
 
 	/**
-	 * Perform an index cycle. If the indexing strategy requires locking this should be performed
-	 * before invoking this method, as the implementation is not required to perform locking.
-	 * Ideally the implementation should not require locking to happen and operation in a transactionally
-	 * safe way.
-	 * @param batchSize the maximum number of items to take from the queue
+	 * Perform an index cycle. If the indexing strategy requires locking this
+	 * should be performed before invoking this method, as the implementation is
+	 * not required to perform locking. Ideally the implementation should not
+	 * require locking to happen and operation in a transactionally safe way.
+	 * 
+	 * @param batchSize
+	 *        the maximum number of items to take from the queue
 	 * @return the number of items processed
 	 */
 	int process(int batchSize);

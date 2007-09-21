@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.lucene.index.IndexWriter;
+import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
@@ -40,19 +41,32 @@ public interface OptimizableIndex
 	 * Get a list of segments that can be optimized
 	 * 
 	 * @return
+	 * @throws IndexTransactionException
 	 */
-	File[] getOptimizableSegments();
+	File[] getOptimizableSegments() throws IndexTransactionException;
 
 	/**
 	 * @return
-	 * @throws IndexTransactionException 
+	 * @throws IndexTransactionException
 	 */
 	IndexWriter getPermanentIndexWriter() throws IndexTransactionException;
 
 	/**
+	 * Remove the supplied list of segments from the optimizable set
+	 * 
 	 * @param optimzableSegments
-	 * @throws IOException 
+	 * @throws IOException
+	 * @throws IndexTransactionException
 	 */
-	void removeOptimizableSegments(File[] optimzableSegments) throws IOException;
+	void removeOptimizableSegments(File[] optimzableSegments) throws IOException,
+			IndexTransactionException;
+
+	/**
+	 * Get the number of indexes that could be optimized
+	 * 
+	 * @return
+	 * @throws JournalErrorException
+	 */
+	int getNumberOfOptimzableSegments() throws IndexTransactionException;
 
 }

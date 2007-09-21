@@ -48,8 +48,7 @@ public interface ClusterFilesystem
 	 * @param currentSegment
 	 * @return
 	 */
-//	long getTotalSize(File currentSegment);
-
+	// long getTotalSize(File currentSegment);
 	/**
 	 * saves the segments returning a list of segments that were sent to the
 	 * central store
@@ -88,8 +87,7 @@ public interface ClusterFilesystem
 	 * @param currentSegment
 	 * @throws IOException
 	 */
-//	void touchSegment(File currentSegment) throws IOException;
-
+	// void touchSegment(File currentSegment) throws IOException;
 	/**
 	 * get a clean temporary index space for building a detached segment
 	 * 
@@ -118,16 +116,14 @@ public interface ClusterFilesystem
 	 * @param segment
 	 * @return
 	 */
-//	String getSegmentName(String segment);
-
+	// String getSegmentName(String segment);
 	/**
 	 * Checks that a segment is valid
 	 * 
 	 * @param segmentName
 	 * @throws Exception
 	 */
-//	boolean checkSegmentValidity(String segmentName) throws Exception;
-
+	// boolean checkSegmentValidity(String segmentName) throws Exception;
 	/**
 	 * Remove a segment from the index.
 	 * 
@@ -142,7 +138,8 @@ public interface ClusterFilesystem
 	/**
 	 * if the thread already has a lock ignore get a lock on the index so that
 	 * it can be updated this should block untill a lock becomes free
-	 * @throws IOException 
+	 * 
+	 * @throws IOException
 	 */
 	void getLock() throws IOException;
 
@@ -160,16 +157,18 @@ public interface ClusterFilesystem
 	 */
 	boolean isMultipleIndexers();
 
-
 	/**
 	 * Save the temporary segment into a permanent segment
+	 * 
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	SegmentInfo saveTemporarySegment() throws IOException;
 
 	/**
-	 * A low cost reliable mechanism for determining if an index exists in the cluster
+	 * A low cost reliable mechanism for determining if an index exists in the
+	 * cluster
+	 * 
 	 * @return
 	 */
 	boolean centralIndexExists();

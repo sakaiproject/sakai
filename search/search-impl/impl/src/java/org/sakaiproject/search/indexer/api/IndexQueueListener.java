@@ -23,14 +23,15 @@ package org.sakaiproject.search.indexer.api;
 
 /**
  * Listens to the index queue
+ * 
  * @author ieb
- *
  */
 public interface IndexQueueListener
 {
 
 	/**
 	 * A resource has been added to the queue
+	 * 
 	 * @param name
 	 */
 	void added(String name);

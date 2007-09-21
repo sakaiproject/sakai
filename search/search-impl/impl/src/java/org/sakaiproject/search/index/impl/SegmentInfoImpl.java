@@ -204,9 +204,11 @@ public class SegmentInfoImpl implements SegmentInfo
 			}
 			try
 			{
-				// this might cause a performance problem with a structured index
-				// since this is called hierachically and so may generate a checksum
-				// of the entire tree. Perhapse we should look for the existance 
+				// this might cause a performance problem with a structured
+				// index
+				// since this is called hierachically and so may generate a
+				// checksum
+				// of the entire tree. Perhapse we should look for the existance
 				// of the lucene segments file before performing this operation
 				liveSegmentState = new SegmentState(this, null);
 			}

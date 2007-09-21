@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.transaction.api;
 
-
 /**
  * This represents a transactional index operation
  * 
@@ -49,31 +48,12 @@ public interface IndexTransaction
 
 	public static final int STATUS_UNKNOWN = 5;
 
-	public static final String[] TRANSACTION_STATUS = {
-		"Created",
-		"Marked for Rollback",
-		"Prepared",
-		"Committed",
-		"Rolled Back",
-		"Unknown",
-		"No Transaction",
-		"Preparing",
-		"Committing",
-		"Rolling Back"
-	};
+	public static final String[] TRANSACTION_STATUS = { "Created", "Marked for Rollback",
+			"Prepared", "Committed", "Rolled Back", "Unknown", "No Transaction",
+			"Preparing", "Committing", "Rolling Back" };
 
-	public static final boolean[] TRANSACTION_ACTIVE = {
-		true,
-		false,
-		true,
-		false,
-		false,
-		false,
-		false,
-		true,
-		false,
-		false
-	};
+	public static final boolean[] TRANSACTION_ACTIVE = { true, false, true, false, false,
+			false, false, true, false, false };
 
 	/**
 	 * Prepare to commit this transaction, all the work is done, but all the
@@ -88,13 +68,11 @@ public interface IndexTransaction
 	 */
 	void commit() throws IndexTransactionException;
 
-
 	/**
 	 * @throws IndexTransactionException
 	 *         if the transaction is not open
 	 */
 	void rollback() throws IndexTransactionException;
-
 
 	/**
 	 * @return
@@ -102,21 +80,21 @@ public interface IndexTransaction
 	long getTransactionId();
 
 	/**
-	 * @throws IndexTransactionException 
-	 * 
+	 * @throws IndexTransactionException
 	 */
 	void close() throws IndexTransactionException;
 
-	
 	/**
 	 * get the transaction status
+	 * 
 	 * @return
 	 */
 	int getStatus();
 
 	/**
-	 * get an Object from the transaction, that may have been placed in the transaction
-	 * by earlier phases.
+	 * get an Object from the transaction, that may have been placed in the
+	 * transaction by earlier phases.
+	 * 
 	 * @param key
 	 * @return
 	 */
@@ -124,12 +102,14 @@ public interface IndexTransaction
 
 	/**
 	 * Clear an object placed in the transaction
+	 * 
 	 * @param key
 	 */
 	void clear(String key);
 
 	/**
 	 * Put an object into the transaction for use in later phases
+	 * 
 	 * @param key
 	 * @param obj
 	 */
@@ -138,6 +118,6 @@ public interface IndexTransaction
 	/**
 	 * @throws IndexTransactionException
 	 */
-	void open() throws IndexTransactionException; 
+	void open() throws IndexTransactionException;
 
 }

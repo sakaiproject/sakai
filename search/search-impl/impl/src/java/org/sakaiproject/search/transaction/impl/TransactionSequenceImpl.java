@@ -66,14 +66,12 @@ public class TransactionSequenceImpl implements TransactionSequence
 		{
 			connection = datasource.getConnection();
 			stmt = connection.createStatement();
-			rs = stmt.executeQuery("select txid " 
-					+ " from search_transaction "
+			rs = stmt.executeQuery("select txid " + " from search_transaction "
 					+ " where txname = '" + name + "'");
 			if (!rs.next())
 			{
 				stmt.executeUpdate("insert into "
-						+ "search_transaction ( txid, txname ) " 
-						+ "values (0,'" + name
+						+ "search_transaction ( txid, txname ) " + "values (0,'" + name
 						+ "')");
 			}
 			connection.commit();
@@ -147,13 +145,16 @@ public class TransactionSequenceImpl implements TransactionSequence
 				}
 				else
 				{
-					// this works in a transaction since we read what we just updated.
+					// this works in a transaction since we read what we just
+					// updated.
 					// if the DB is non transactional this will not work
 					rs = selectpst.executeQuery();
 					if (rs.next())
-					{ 
+					{
 						txid = rs.getLong(1);
-					} else {
+					}
+					else
+					{
 						log.error("Transaction Record has been removed");
 					}
 					rs.close();

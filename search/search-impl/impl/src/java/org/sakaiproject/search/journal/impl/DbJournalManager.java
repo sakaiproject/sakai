@@ -35,6 +35,7 @@ import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.JournalExhausetedException;
 import org.sakaiproject.search.journal.api.JournalManager;
 import org.sakaiproject.search.journal.api.JournalManagerState;
+import org.sakaiproject.search.transaction.api.IndexTransaction;
 
 /**
  * A database backed Journal Manager
@@ -53,7 +54,25 @@ public class DbJournalManager implements JournalManager
 	public class JournalManagerStateImpl implements JournalManagerState
 	{
 
+		private long transactionId;
+
 		public Connection connection;
+
+		/**
+		 * @param transactionId
+		 */
+		public JournalManagerStateImpl(long transactionId)
+		{
+			this.transactionId = transactionId;
+		}
+
+		/**
+		 * @return the transactionId
+		 */
+		public long getTransactionId()
+		{
+			return transactionId;
+		}
 
 	}
 
@@ -91,7 +110,7 @@ public class DbJournalManager implements JournalManager
 		{
 			connection = datasource.getConnection();
 			listLaterVersions = connection
-					.prepareStatement("select txid from search_journal where txid > ? order by txid asc ");
+					.prepareStatement("select txid from search_journal where txid > ? and status = 'commited' order by txid asc ");
 			listLaterVersions.clearParameters();
 			listLaterVersions.setLong(1, version);
 			rs = listLaterVersions.executeQuery();
@@ -139,7 +158,7 @@ public class DbJournalManager implements JournalManager
 			throws IndexJournalException
 	{
 		PreparedStatement insertPst = null;
-		JournalManagerStateImpl jms = new JournalManagerStateImpl();
+		JournalManagerStateImpl jms = new JournalManagerStateImpl(transactionId);
 		try
 		{
 
@@ -147,11 +166,12 @@ public class DbJournalManager implements JournalManager
 			jms.connection = connection;
 
 			insertPst = connection
-					.prepareStatement("insert into search_journal (txid, txts, indexwriter) values ( ?,?,?)");
+					.prepareStatement("insert into search_journal (txid, txts, indexwriter, status) values ( ?,?,?,?)");
 			insertPst.clearParameters();
 			insertPst.setLong(1, transactionId);
 			insertPst.setLong(2, System.currentTimeMillis());
 			insertPst.setString(3, String.valueOf(Thread.currentThread().getName()));
+			insertPst.setString(4, "prepare");
 			if (insertPst.executeUpdate() != 1)
 			{
 				throw new IndexJournalException("Failed to update index journal");
@@ -185,8 +205,18 @@ public class DbJournalManager implements JournalManager
 	public void commitSave(JournalManagerState jms) throws IndexJournalException
 	{
 		Connection connection = ((JournalManagerStateImpl) jms).connection;
+		PreparedStatement success = null;
 		try
 		{
+			success = connection
+					.prepareStatement("update search_journal set status = 'commited' where txid = ? ");
+			success.clearParameters();
+			success.setLong(1, ((JournalManagerStateImpl) jms).getTransactionId());
+			if (success.executeUpdate() != 1)
+			{
+				throw new IndexJournalException("Failed to update index journal");
+			}
+
 			connection.commit();
 		}
 		catch (Exception ex)
@@ -240,6 +270,15 @@ public class DbJournalManager implements JournalManager
 			}
 
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.journal.api.JournalManager#doOpenTransaction(org.sakaiproject.search.transaction.api.IndexTransaction)
+	 */
+	public void doOpenTransaction(IndexTransaction transaction)
+	{
 	}
 
 }

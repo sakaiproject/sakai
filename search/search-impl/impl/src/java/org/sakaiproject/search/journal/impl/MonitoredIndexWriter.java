@@ -34,8 +34,8 @@ import org.sakaiproject.search.journal.api.IndexMonitorListener;
 
 /**
  * An index writer where you can monitor the close operations
+ * 
  * @author ieb
- *
  */
 public class MonitoredIndexWriter extends IndexWriter
 {
@@ -78,7 +78,9 @@ public class MonitoredIndexWriter extends IndexWriter
 		super(arg0, arg1, arg2);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.apache.lucene.index.IndexWriter#close()
 	 */
 	@Override
@@ -93,7 +95,8 @@ public class MonitoredIndexWriter extends IndexWriter
 	 */
 	private void fireIndexClosed()
 	{
-		for (Iterator<IndexMonitorListener> itl = indexMonitorListeners.iterator(); itl.hasNext();)
+		for (Iterator<IndexMonitorListener> itl = indexMonitorListeners.iterator(); itl
+				.hasNext();)
 		{
 			IndexMonitorListener tl = itl.next();
 			tl.doIndexMonitorClose(this);

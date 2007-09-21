@@ -25,7 +25,6 @@ import org.apache.lucene.analysis.Analyzer;
 
 /**
  * @author ieb
- *
  */
 public interface AnalyzerFactory
 {

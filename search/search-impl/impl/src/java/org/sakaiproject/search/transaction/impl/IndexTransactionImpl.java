@@ -56,16 +56,18 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 	 * @throws IndexTransactionException
 	 */
 	public IndexTransactionImpl(TransactionManagerImpl manager, Map<String, Object> m)
-			
+
 	{
 		this.manager = manager;
 		attributes = m;
 	}
+
 	/**
 	 * 
 	 *
 	 */
-	public void open() throws IndexTransactionException {
+	public void open() throws IndexTransactionException
+	{
 		transactionState = IndexTransaction.STATUS_NO_TRANSACTION;
 		transactionId = manager.getSequence().getLocalId();
 		transactionState = IndexTransaction.STATUS_ACTIVE;
@@ -244,7 +246,7 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 		catch (Exception e)
 		{
 
-			log.warn("Failed to roll back transaction ",e);
+			log.warn("Failed to roll back transaction ", e);
 		}
 		log.info("Transaction Rollback Completed on " + this);
 	}
@@ -270,7 +272,6 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 	{
 		return transactionState;
 	}
-
 
 	/**
 	 * @see org.sakaiproject.search.indexer.api.IndexUpdateTransaction#clear(java.lang.String)
@@ -300,8 +301,8 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 	private void firePrepare(IndexTransaction transaction)
 			throws IndexTransactionException
 	{
-		for (Iterator<TransactionListener> itl = manager.getTransactionListeners().iterator(); itl
-				.hasNext();)
+		for (Iterator<TransactionListener> itl = manager.getTransactionListeners()
+				.iterator(); itl.hasNext();)
 		{
 			TransactionListener tl = itl.next();
 			tl.prepare(transaction);
@@ -311,8 +312,8 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 	private void fireCommit(IndexTransaction transaction)
 			throws IndexTransactionException
 	{
-		for (Iterator<TransactionListener> itl = manager.getTransactionListeners().iterator(); itl
-				.hasNext();)
+		for (Iterator<TransactionListener> itl = manager.getTransactionListeners()
+				.iterator(); itl.hasNext();)
 		{
 			TransactionListener tl = itl.next();
 			tl.commit(transaction);
@@ -325,8 +326,8 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 	 */
 	private void fireClose(IndexTransaction transaction) throws IndexTransactionException
 	{
-		for (Iterator<TransactionListener> itl = manager.getTransactionListeners().iterator(); itl
-				.hasNext();)
+		for (Iterator<TransactionListener> itl = manager.getTransactionListeners()
+				.iterator(); itl.hasNext();)
 		{
 			TransactionListener tl = itl.next();
 			tl.close(transaction);
@@ -336,8 +337,8 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 	private void fireRollback(IndexTransaction transaction)
 			throws IndexTransactionException
 	{
-		for (Iterator<TransactionListener> itl = manager.getTransactionListeners().iterator(); itl
-				.hasNext();)
+		for (Iterator<TransactionListener> itl = manager.getTransactionListeners()
+				.iterator(); itl.hasNext();)
 		{
 			TransactionListener tl = itl.next();
 			tl.rollback(transaction);
@@ -347,8 +348,8 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 
 	private void fireOpen(IndexTransaction transaction) throws IndexTransactionException
 	{
-		for (Iterator<TransactionListener> itl = manager.getTransactionListeners().iterator(); itl
-				.hasNext();)
+		for (Iterator<TransactionListener> itl = manager.getTransactionListeners()
+				.iterator(); itl.hasNext();)
 		{
 			TransactionListener tl = itl.next();
 			tl.open(transaction);

@@ -22,15 +22,17 @@
 package org.sakaiproject.search.journal.api;
 
 /**
- * Management operations are scheduled to be run to maintain the state of the index.
+ * Management operations are scheduled to be run to maintain the state of the
+ * index.
+ * 
  * @author ieb
- *
  */
 public interface ManagementOperation
 {
 
 	/**
-	 * performs the operation once, may be called many times, the class may maintain state between calls.
+	 * performs the operation once, may be called many times, the class may
+	 * maintain state between calls.
 	 */
 	void runOnce();
 

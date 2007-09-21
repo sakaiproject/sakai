@@ -54,6 +54,14 @@ public class OptimizableIndexImpl implements OptimizableIndex
 	}
 
 	/**
+	 * @see org.sakaiproject.search.optimize.api.OptimizableIndex#getNumberOfOptimzableSegments()
+	 */
+	public int getNumberOfOptimzableSegments()
+	{
+		return journaledIndex.getSegments().length;
+	}
+
+	/**
 	 * @throws IndexTransactionException
 	 * @see org.sakaiproject.search.optimize.api.OptimizableIndex#getPermanentIndexWriter()
 	 */
@@ -63,7 +71,7 @@ public class OptimizableIndexImpl implements OptimizableIndex
 	}
 
 	/**
-	 * @throws IOException 
+	 * @throws IOException
 	 * @see org.sakaiproject.search.optimize.api.OptimizableIndex#removeOptimizableSegments(java.io.File[])
 	 */
 	public void removeOptimizableSegments(File[] optimzableSegments) throws IOException

@@ -403,7 +403,7 @@ public class TDataSource
 		try
 		{
 			s.execute("CREATE TABLE search_journal ( " + " txid bigint NOT NULL, "
-					+ " txts bigint NOT NULL, " + " indexwriter varchar(255) NOT NULL, "
+					+ " txts bigint NOT NULL, indexwriter varchar(255) NOT NULL, status varchar(36) NOT NULL, "
 					+ " PRIMARY KEY  (txid) )");
 		}
 		catch (Exception ex)

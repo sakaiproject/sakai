@@ -45,8 +45,7 @@ public class DelayedIndexReaderClose extends DelayedClose
 	 * @param toRemove
 	 * @param inclose
 	 */
-	public DelayedIndexReaderClose(long delay, IndexReader oldMultiReader,
-			File[] toRemove)
+	public DelayedIndexReaderClose(long delay, IndexReader oldMultiReader, File[] toRemove)
 	{
 		super(delay);
 		this.reader = oldMultiReader;

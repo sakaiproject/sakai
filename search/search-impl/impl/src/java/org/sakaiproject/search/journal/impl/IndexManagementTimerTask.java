@@ -31,7 +31,6 @@ import org.sakaiproject.search.journal.api.ManagementOperation;
  * A timer Task for a management operation in the search code
  * 
  * @author ieb
- * 
  */
 public class IndexManagementTimerTask extends TimerTask
 {
@@ -55,12 +54,16 @@ public class IndexManagementTimerTask extends TimerTask
 	{
 	}
 
-	public void init() {
-		
+	public void init()
+	{
+
 	}
-	public void destory() {
+
+	public void destory()
+	{
 		closed = true;
 	}
+
 	/**
 	 * @return
 	 */
@@ -120,12 +123,13 @@ public class IndexManagementTimerTask extends TimerTask
 	@Override
 	public void run()
 	{
-		if ( closed ) {
+		if (closed)
+		{
 			return;
 		}
 		try
 		{
-			
+
 			managementOperation.runOnce();
 		}
 		catch (Throwable t)
@@ -143,7 +147,8 @@ public class IndexManagementTimerTask extends TimerTask
 	}
 
 	/**
-	 * @param managementOperation the managementOperation to set
+	 * @param managementOperation
+	 *        the managementOperation to set
 	 */
 	public void setManagementOperation(ManagementOperation managementOperation)
 	{
@@ -159,7 +164,8 @@ public class IndexManagementTimerTask extends TimerTask
 	}
 
 	/**
-	 * @param closed the closed to set
+	 * @param closed
+	 *        the closed to set
 	 */
 	public void setClosed(boolean closed)
 	{

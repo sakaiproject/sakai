@@ -43,24 +43,24 @@ public abstract class DelayedClose implements Delayed
 	 */
 	public DelayedClose(long delay)
 	{
-		this.end = System.currentTimeMillis()+delay;
+		this.end = System.currentTimeMillis() + delay;
 	}
 
 	public long getDelay(TimeUnit unit)
 	{
 		long tnow = System.currentTimeMillis();
-		long t =  unit.convert(end-tnow,TimeUnit.MILLISECONDS);
+		long t = unit.convert(end - tnow, TimeUnit.MILLISECONDS);
 		return t;
 	}
 
 	public int compareTo(Delayed del)
 	{
-		
-		if (end < ((DelayedClose)del).end)
+
+		if (end < ((DelayedClose) del).end)
 		{
 			return -1;
 		}
-		else if (end > ((DelayedClose)del).end)
+		else if (end > ((DelayedClose) del).end)
 		{
 			return 1;
 		}

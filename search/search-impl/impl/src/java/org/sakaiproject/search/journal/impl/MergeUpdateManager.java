@@ -32,8 +32,8 @@ import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 
 /**
  * Manages the index update operations
- * @author ieb
- * TODO Unit test
+ * 
+ * @author ieb TODO Unit test
  */
 public class MergeUpdateManager extends TransactionManagerImpl
 {
@@ -44,32 +44,46 @@ public class MergeUpdateManager extends TransactionManagerImpl
 	public IndexTransaction openTransaction(Map<String, Object> m)
 			throws IndexTransactionException
 	{
-		IndexTransaction it =  new IndexMergeTransactionImpl(this, m);
+		IndexTransaction it = new IndexMergeTransactionImpl(this, m);
 		it.open();
 		return it;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.transaction.impl.TransactionManagerImpl#addTransactionListener(org.sakaiproject.search.transaction.api.TransactionListener)
 	 */
 	@Override
 	public void addTransactionListener(TransactionListener transactionListener)
 	{
-		if ( transactionListener instanceof MergeTransactionListener ) {
+		if (transactionListener instanceof MergeTransactionListener)
+		{
 			super.addTransactionListener(transactionListener);
-		} else {
-			throw new RuntimeException("transactionListener must implement MergeTransactionListener "+transactionListener);
+		}
+		else
+		{
+			throw new RuntimeException(
+					"transactionListener must implement MergeTransactionListener "
+							+ transactionListener);
 		}
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.transaction.impl.TransactionManagerImpl#setTransactionListeners(java.util.List)
 	 */
 	@Override
 	public void setTransactionListeners(List<TransactionListener> transactionListeners)
 	{
-		for ( TransactionListener tl : transactionListeners ) {
-			if ( !(tl instanceof MergeTransactionListener ) ) {
-				throw new RuntimeException("transactionListener must implement MergeTransactionListener "+tl);				
+		for (TransactionListener tl : transactionListeners)
+		{
+			if (!(tl instanceof MergeTransactionListener))
+			{
+				throw new RuntimeException(
+						"transactionListener must implement MergeTransactionListener "
+								+ tl);
 			}
 		}
 		super.setTransactionListeners(transactionListeners);

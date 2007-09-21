@@ -30,11 +30,11 @@ import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
- * @author ieb
- * Unit test 
+ * @author ieb Unit test
  * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
-public class DebugTransactionListener implements MergeTransactionListener, IndexUpdateTransactionListener
+public class DebugTransactionListener implements MergeTransactionListener,
+		IndexUpdateTransactionListener
 {
 
 	private static final Log log = LogFactory.getLog(DebugTransactionListener.class);
@@ -42,10 +42,9 @@ public class DebugTransactionListener implements MergeTransactionListener, Index
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#commit(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
-	public void commit(IndexTransaction transaction)
-			throws IndexTransactionException
+	public void commit(IndexTransaction transaction) throws IndexTransactionException
 	{
-		log.info("Commit on Transaction ["+transaction+"]");
+		log.info("Commit on Transaction [" + transaction + "]");
 	}
 
 	/**
@@ -53,7 +52,7 @@ public class DebugTransactionListener implements MergeTransactionListener, Index
 	 */
 	public void open(IndexTransaction transaction) throws IndexTransactionException
 	{
-		log.info("Open on Transaction ["+transaction+"]");
+		log.info("Open on Transaction [" + transaction + "]");
 
 	}
 
@@ -62,17 +61,16 @@ public class DebugTransactionListener implements MergeTransactionListener, Index
 	 */
 	public void prepare(IndexTransaction transaction) throws IndexJournalException
 	{
-		log.info("Prepare on Transaction ["+transaction+"]");
+		log.info("Prepare on Transaction [" + transaction + "]");
 
 	}
 
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#rollback(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
-	public void rollback(IndexTransaction transaction)
-			throws IndexTransactionException
+	public void rollback(IndexTransaction transaction) throws IndexTransactionException
 	{
-		log.info("Rollback on Transaction ["+transaction+"]");
+		log.info("Rollback on Transaction [" + transaction + "]");
 
 	}
 
@@ -81,7 +79,7 @@ public class DebugTransactionListener implements MergeTransactionListener, Index
 	 */
 	public void close(IndexTransaction transaction) throws IndexTransactionException
 	{
-		log.info("Close on Transaction ["+transaction+"]");
+		log.info("Close on Transaction [" + transaction + "]");
 	}
 
 }

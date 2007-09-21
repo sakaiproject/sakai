@@ -28,21 +28,27 @@ import org.sakaiproject.search.index.AnalyzerFactory;
 
 /**
  * A Factory to generate search analyzers based on a configurable type setting.
- * The type of analyzer produced is selected by setting the analyzerFactory name that will 
- * select one of the same name ijected into the currentAnalyzers Map.
+ * The type of analyzer produced is selected by setting the analyzerFactory name
+ * that will select one of the same name ijected into the currentAnalyzers Map.
+ * 
  * @author ieb
- *
  */
 public class SearchAnalyzerFactory implements AnalyzerFactory
 {
 	private AnalyzerFactory runningAnalyzerFactory = null;
+
 	private Map currentAnalyzers = null;
+
 	private AnalyzerFactory defaultAnalyzerFactory;
+
 	private String analyzerFactoryName;
 
-	public void init() {
-		runningAnalyzerFactory = (AnalyzerFactory)currentAnalyzers.get(analyzerFactoryName);
-		if ( runningAnalyzerFactory == null ) {
+	public void init()
+	{
+		runningAnalyzerFactory = (AnalyzerFactory) currentAnalyzers
+				.get(analyzerFactoryName);
+		if (runningAnalyzerFactory == null)
+		{
 			runningAnalyzerFactory = defaultAnalyzerFactory;
 		}
 	}
@@ -61,7 +67,8 @@ public class SearchAnalyzerFactory implements AnalyzerFactory
 	}
 
 	/**
-	 * @param analyzerFactoryName The analyzerFactoryName to set.
+	 * @param analyzerFactoryName
+	 *        The analyzerFactoryName to set.
 	 */
 	public void setAnalyzerFactoryName(String analyzerFactoryName)
 	{
@@ -77,7 +84,8 @@ public class SearchAnalyzerFactory implements AnalyzerFactory
 	}
 
 	/**
-	 * @param currentAnalyzers The currentAnalyzers to set.
+	 * @param currentAnalyzers
+	 *        The currentAnalyzers to set.
 	 */
 	public void setCurrentAnalyzers(Map currentAnalyzers)
 	{
@@ -93,7 +101,8 @@ public class SearchAnalyzerFactory implements AnalyzerFactory
 	}
 
 	/**
-	 * @param defaultAnalyzerFactory The defaultAnalyzerFactory to set.
+	 * @param defaultAnalyzerFactory
+	 *        The defaultAnalyzerFactory to set.
 	 */
 	public void setDefaultAnalyzerFactory(AnalyzerFactory defaultAnalyzerFactory)
 	{
@@ -109,7 +118,8 @@ public class SearchAnalyzerFactory implements AnalyzerFactory
 	}
 
 	/**
-	 * @param runningAnalyzerFactory The runningAnalyzerFactory to set.
+	 * @param runningAnalyzerFactory
+	 *        The runningAnalyzerFactory to set.
 	 */
 	public void setRunningAnalyzerFactory(AnalyzerFactory runningAnalyzerFactory)
 	{

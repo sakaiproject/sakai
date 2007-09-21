@@ -29,16 +29,18 @@ import org.apache.lucene.search.IndexSearcher;
 
 /**
  * @author ieb
- *
  */
 public interface IndexListener
 {
 
 	/**
 	 * Called when the index reader is closed
-	 * @param oldMultiReader the index reader that has been detached and is ready to close
-	 * @param f array of files that need to be removed after close
-	 * @throws IOException 
+	 * 
+	 * @param oldMultiReader
+	 *        the index reader that has been detached and is ready to close
+	 * @param f
+	 *        array of files that need to be removed after close
+	 * @throws IOException
 	 */
 	void doIndexReaderClose(IndexReader oldMultiReader, File[] f) throws IOException;
 
@@ -49,10 +51,17 @@ public interface IndexListener
 
 	/**
 	 * Close the index searcher, this may need to be delayed
+	 * 
 	 * @param indexSearcher
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	void doIndexSearcherClose(IndexSearcher indexSearcher) throws IOException;
 
+	/**
+	 * Fireed when an index searcher is opened
+	 * 
+	 * @param indexSearcher
+	 */
+	void doIndexSearcherOpen(IndexSearcher indexSearcher);
 
 }

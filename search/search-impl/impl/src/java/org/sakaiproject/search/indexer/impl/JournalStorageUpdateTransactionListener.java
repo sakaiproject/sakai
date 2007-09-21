@@ -31,11 +31,12 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
  * A transaction listener that connects to the journal storage
- * @author ieb
  * 
- * Unit test @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
+ * @author ieb Unit test
+ * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
-public class JournalStorageUpdateTransactionListener implements IndexUpdateTransactionListener
+public class JournalStorageUpdateTransactionListener implements
+		IndexUpdateTransactionListener
 {
 	private JournalStorage journalStorage;
 
@@ -47,9 +48,9 @@ public class JournalStorageUpdateTransactionListener implements IndexUpdateTrans
 	{
 		try
 		{
-			String location = ((IndexUpdateTransaction)transaction).getTempIndex();
+			String location = ((IndexUpdateTransaction) transaction).getTempIndex();
 			long transactionId = transaction.getTransactionId();
-			JournalStorageState jss = journalStorage.prepareSave(location,transactionId);
+			JournalStorageState jss = journalStorage.prepareSave(location, transactionId);
 			transaction.put(JournalStorageUpdateTransactionListener.class.getName(), jss);
 		}
 		catch (Exception ex)
@@ -61,15 +62,16 @@ public class JournalStorageUpdateTransactionListener implements IndexUpdateTrans
 		}
 
 	}
+
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#commit(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
-	public void commit(IndexTransaction transaction)
-			throws IndexTransactionException
+	public void commit(IndexTransaction transaction) throws IndexTransactionException
 	{
 		try
 		{
-			JournalStorageState jss = (JournalStorageState) transaction.get(JournalStorageUpdateTransactionListener.class.getName());
+			JournalStorageState jss = (JournalStorageState) transaction
+					.get(JournalStorageUpdateTransactionListener.class.getName());
 			journalStorage.commitSave(jss);
 			transaction.clear(JournalStorageUpdateTransactionListener.class.getName());
 		}
@@ -79,6 +81,7 @@ public class JournalStorageUpdateTransactionListener implements IndexUpdateTrans
 		}
 
 	}
+
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#open(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
@@ -93,7 +96,8 @@ public class JournalStorageUpdateTransactionListener implements IndexUpdateTrans
 	{
 		try
 		{
-			JournalStorageState jss = (JournalStorageState) transaction.get(JournalStorageUpdateTransactionListener.class.getName());
+			JournalStorageState jss = (JournalStorageState) transaction
+					.get(JournalStorageUpdateTransactionListener.class.getName());
 			journalStorage.rollbackSave(jss);
 			transaction.clear(JournalStorageUpdateTransactionListener.class.getName());
 		}
@@ -105,12 +109,16 @@ public class JournalStorageUpdateTransactionListener implements IndexUpdateTrans
 		{
 		}
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#close(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
 	public void close(IndexTransaction transaction) throws IndexTransactionException
 	{
 	}
+
 	/**
 	 * @return the journalStorage
 	 */
@@ -118,8 +126,10 @@ public class JournalStorageUpdateTransactionListener implements IndexUpdateTrans
 	{
 		return journalStorage;
 	}
+
 	/**
-	 * @param journalStorage the journalStorage to set
+	 * @param journalStorage
+	 *        the journalStorage to set
 	 */
 	public void setJournalStorage(JournalStorage journalStorage)
 	{

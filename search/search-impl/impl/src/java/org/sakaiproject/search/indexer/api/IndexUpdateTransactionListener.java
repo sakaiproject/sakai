@@ -25,7 +25,6 @@ import org.sakaiproject.search.transaction.api.TransactionListener;
 
 /**
  * @author ieb
- *
  */
 public interface IndexUpdateTransactionListener extends TransactionListener
 {

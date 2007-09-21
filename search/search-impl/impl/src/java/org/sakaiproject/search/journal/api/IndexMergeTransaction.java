@@ -24,9 +24,10 @@ package org.sakaiproject.search.journal.api;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 
 /**
- * This transaction represents a merge operation on the local index from the journal store
+ * This transaction represents a merge operation on the local index from the
+ * journal store
+ * 
  * @author ieb
- *
  */
 public interface IndexMergeTransaction extends IndexTransaction
 {

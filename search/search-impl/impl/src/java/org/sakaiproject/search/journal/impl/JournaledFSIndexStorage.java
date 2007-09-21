@@ -51,6 +51,7 @@ import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.journal.api.IndexListener;
@@ -63,16 +64,16 @@ import org.sakaiproject.search.util.FileUtils;
 
 /**
  * <pre>
- *      This is a Journaled version of the local FSIndexStorage. It will merge in new
- *      versions from the jorunal. This is going to be performed in a non
- *      transactional way for the moment. 
- *      
- *      The index reader must maintain a single
- *      index reader for the JVM. When performing a read update, the single index
- *      reader must be used, but each time the index reader is provided we should
- *      check that the index reader has not been updated.
- *      
- *      If the reader is being updated, then it is not safe to reload it.
+ *        This is a Journaled version of the local FSIndexStorage. It will merge in new
+ *        versions from the jorunal. This is going to be performed in a non
+ *        transactional way for the moment. 
+ *        
+ *        The index reader must maintain a single
+ *        index reader for the JVM. When performing a read update, the single index
+ *        reader must be used, but each time the index reader is provided we should
+ *        check that the index reader has not been updated.
+ *        
+ *        If the reader is being updated, then it is not safe to reload it.
  * </pre>
  * 
  * @author ieb TODO Unit test
@@ -178,6 +179,8 @@ public class JournaledFSIndexStorage implements JournaledIndex
 
 	private IndexSearcher indexSearcher = null;
 
+	private ClusterService clusterService;
+
 	/**
 	 * @see org.sakaiproject.search.index.impl.FSIndexStorage#init()
 	 */
@@ -197,7 +200,9 @@ public class JournaledFSIndexStorage implements JournaledIndex
 				log.error("Unable to load segment list", e);
 				System.exit(-10);
 			}
-		} else {
+		}
+		else
+		{
 			log.info("No Segment List File Exists");
 		}
 		// ensure that the index is closed to avoid stale locks
@@ -415,6 +420,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 				indexSearcher.close(); // this will be postponed
 			}
 			indexSearcher = newIndexSearcher;
+			fireIndexSearcherOpen(indexSearcher);
 		}
 		return indexSearcher;
 	}
@@ -661,7 +667,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 		if (multiReader != null)
 		{
 			multiReader.close(); // this will postpone due to the override
-									// above
+			// above
 		}
 		multiReader = newMultiReader;
 		lastUpdate = System.currentTimeMillis();
@@ -1052,6 +1058,20 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	}
 
 	/**
+	 * @param indexSearcher2
+	 * @throws IOException
+	 */
+	private void fireIndexSearcherOpen(IndexSearcher indexSearcher) throws IOException
+	{
+		for (Iterator<IndexListener> itl = getIndexListeners().iterator(); itl.hasNext();)
+		{
+			IndexListener tl = itl.next();
+			tl.doIndexSearcherOpen(indexSearcher);
+		}
+
+	}
+
+	/**
 	 * @return
 	 */
 	private List<IndexListener> getIndexListeners()
@@ -1243,6 +1263,23 @@ public class JournaledFSIndexStorage implements JournaledIndex
 		din.close();
 		din.close();
 
+	}
+
+	/**
+	 * @return the clusterService
+	 */
+	public ClusterService getClusterService()
+	{
+		return clusterService;
+	}
+
+	/**
+	 * @param clusterService
+	 *        the clusterService to set
+	 */
+	public void setClusterService(ClusterService clusterService)
+	{
+		this.clusterService = clusterService;
 	}
 
 }

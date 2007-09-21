@@ -40,9 +40,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
  * A management operation to perform indexing to the journal
- * @author ieb
  * 
- * No unit test TODO Unit Test
+ * @author ieb No unit test TODO Unit Test
  */
 public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperation,
 		IndexWorkerDocumentListener
@@ -87,7 +86,6 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	 * we need to watch local events to guage activity
 	 */
 	private EventTrackingService eventTrackingService;
-
 
 	/**
 	 * Setting A load factor 1 is full load, 100 is normal The load factor
@@ -142,9 +140,9 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 
 		enabled = "true".equals(serverConfigurationService.getString("search.enable",
 				"false"));
-		
-		log.info("Enable = "+serverConfigurationService.getString("search.enable",
-				"false"));
+
+		log.info("Enable = "
+				+ serverConfigurationService.getString("search.enable", "false"));
 
 		enabled = enabled
 				& "true".equals(serverConfigurationService.getString("search.indexbuild",
@@ -167,11 +165,13 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	 */
 	public void runOnce()
 	{
-		if (!enabled) {
+		if (!enabled)
+		{
 			log.info("Search not enabled ");
 			return;
 		}
-		if (componentManager.hasBeenClosed()) {
+		if (componentManager.hasBeenClosed())
+		{
 			log.info("Component Manager has been closed");
 			return;
 		}
@@ -186,7 +186,7 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 			}
 			catch (Exception ex)
 			{
-				log.error("Failed to login as admin ",ex);
+				log.error("Failed to login as admin ", ex);
 			}
 		}
 
@@ -292,7 +292,6 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 
 	}
 
-
 	/**
 	 * @return the soakTest
 	 */
@@ -346,7 +345,8 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	}
 
 	/**
-	 * @param componentManager the componentManager to set
+	 * @param componentManager
+	 *        the componentManager to set
 	 */
 	public void setComponentManager(ComponentManager componentManager)
 	{
@@ -362,7 +362,8 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	}
 
 	/**
-	 * @param eventTrackingService the eventTrackingService to set
+	 * @param eventTrackingService
+	 *        the eventTrackingService to set
 	 */
 	public void setEventTrackingService(EventTrackingService eventTrackingService)
 	{
@@ -378,7 +379,8 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	}
 
 	/**
-	 * @param indexWorker the indexWorker to set
+	 * @param indexWorker
+	 *        the indexWorker to set
 	 */
 	public void setIndexWorker(IndexWorker indexWorker)
 	{
@@ -394,7 +396,8 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	}
 
 	/**
-	 * @param loadFactor the loadFactor to set
+	 * @param loadFactor
+	 *        the loadFactor to set
 	 */
 	public void setLoadFactor(long loadFactor)
 	{
@@ -410,7 +413,8 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	}
 
 	/**
-	 * @param searchService the searchService to set
+	 * @param searchService
+	 *        the searchService to set
 	 */
 	public void setSearchService(SearchService searchService)
 	{
@@ -426,7 +430,8 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	}
 
 	/**
-	 * @param serverConfigurationService the serverConfigurationService to set
+	 * @param serverConfigurationService
+	 *        the serverConfigurationService to set
 	 */
 	public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService)
@@ -443,7 +448,8 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	}
 
 	/**
-	 * @param sessionManager the sessionManager to set
+	 * @param sessionManager
+	 *        the sessionManager to set
 	 */
 	public void setSessionManager(SessionManager sessionManager)
 	{
@@ -459,7 +465,8 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	}
 
 	/**
-	 * @param userDirectoryService the userDirectoryService to set
+	 * @param userDirectoryService
+	 *        the userDirectoryService to set
 	 */
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
 	{

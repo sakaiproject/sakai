@@ -23,11 +23,11 @@ package org.sakaiproject.search.indexer.api;
 
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
-
 /**
- * When there are no items to index, this Exception is thrown. The Indexer should not start a transaction
+ * When there are no items to index, this Exception is thrown. The Indexer
+ * should not start a transaction
+ * 
  * @author ieb
- *
  */
 public class NoItemsToIndexException extends IndexTransactionException
 {

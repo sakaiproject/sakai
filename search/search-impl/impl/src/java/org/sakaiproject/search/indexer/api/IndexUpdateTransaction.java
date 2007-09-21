@@ -29,7 +29,6 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
-
 /**
  * This represents a transactional index operation
  * 
@@ -37,7 +36,7 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
  */
 public interface IndexUpdateTransaction extends IndexTransaction
 {
-	
+
 	/**
 	 * Get the index writer associated with this transaction
 	 * 
@@ -68,7 +67,6 @@ public interface IndexUpdateTransaction extends IndexTransaction
 	 */
 	List<SearchBuilderItem> getItems();
 
-
 	/**
 	 * Sets the items for the tansaction if the transaction is not open
 	 * 
@@ -78,6 +76,4 @@ public interface IndexUpdateTransaction extends IndexTransaction
 	 */
 	void setItems(List<SearchBuilderItem> items) throws IndexTransactionException;
 
-	
-	
 }

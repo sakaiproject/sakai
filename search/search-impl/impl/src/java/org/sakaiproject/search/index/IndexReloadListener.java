@@ -23,7 +23,6 @@ package org.sakaiproject.search.index;
 
 /**
  * @author ieb
- *
  */
 public interface IndexReloadListener
 {

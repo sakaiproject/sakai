@@ -34,8 +34,10 @@ import org.sakaiproject.search.optimize.api.NoOptimizationRequiredException;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
- * Performs an optimize operation using an OptimizIndexManager to manage the 2PC.
- * @author ieb 
+ * Performs an optimize operation using an OptimizIndexManager to manage the
+ * 2PC.
+ * 
+ * @author ieb
  */
 public class OptimizeIndexOperation implements ManagementOperation
 {
@@ -107,7 +109,7 @@ public class OptimizeIndexOperation implements ManagementOperation
 					catch (NoOptimizationRequiredException nop)
 					{
 
-						log.info("No Merge Performed "+nop.getMessage());
+						log.info("No Merge Performed " + nop.getMessage());
 					}
 					catch (IndexTransactionException iupex)
 					{

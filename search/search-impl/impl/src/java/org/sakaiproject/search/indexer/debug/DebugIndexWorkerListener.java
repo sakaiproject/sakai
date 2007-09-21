@@ -28,10 +28,9 @@ import org.sakaiproject.search.indexer.api.IndexWorkerListener;
 
 /**
  * Debug listener to the index operations
- * @author ieb
- * Unit test 
+ * 
+ * @author ieb Unit test
  * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
- *
  */
 public class DebugIndexWorkerListener implements IndexWorkerListener
 {
@@ -43,16 +42,16 @@ public class DebugIndexWorkerListener implements IndexWorkerListener
 	 */
 	public void indexWorkerEnd(IndexWorker worker)
 	{
-		log.info("Worker ["+worker+"] Index End ");
+		log.info("Worker [" + worker + "] Index End ");
 
 	}
 
-	/** 
+	/**
 	 * @see org.sakaiproject.search.indexer.api.IndexWorkerListener#indexWorkerStart(org.sakaiproject.search.indexer.api.IndexWorker)
 	 */
 	public void indexWorkerStart(IndexWorker worker)
 	{
-		log.info("Worker ["+worker+"] Index Start ");
+		log.info("Worker [" + worker + "] Index Start ");
 	}
 
 }

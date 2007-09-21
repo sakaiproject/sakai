@@ -25,7 +25,6 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
  * @author ieb
- *
  */
 public class JournalErrorException extends IndexTransactionException
 {

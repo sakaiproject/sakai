@@ -25,8 +25,8 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
  * The optimization may fail
+ * 
  * @author ieb
- *
  */
 public class OptimizedFailedIndexTransactionException extends IndexTransactionException
 {

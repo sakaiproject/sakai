@@ -58,15 +58,18 @@ public class SegmentState
 
 	/**
 	 * @param timestampFile
-	 * @throws IOException 
+	 * @throws IOException
 	 * @throws IOException
 	 */
-	public SegmentState(SegmentInfo segInfo, File timestampFile ) throws IOException
+	public SegmentState(SegmentInfo segInfo, File timestampFile) throws IOException
 	{
 		name = segInfo.getName();
-		if ( timestampFile == null ) {
+		if (timestampFile == null)
+		{
 			analyze(segInfo);
-		} else {
+		}
+		else
+		{
 			load(timestampFile);
 		}
 	}
@@ -119,11 +122,10 @@ public class SegmentState
 		}
 		else
 		{
-			log.warn("Segment ("+name+"): Unrecognized version number " + version);
+			log.warn("Segment (" + name + "): Unrecognized version number " + version);
 		}
 		fr.close();
 	}
-
 
 	/**
 	 * @param segInfo
@@ -140,7 +142,7 @@ public class SegmentState
 		}
 		catch (NoSuchAlgorithmException e)
 		{
-			log.error("Segment ("+name+"): MD5 not available ", e);
+			log.error("Segment (" + name + "): MD5 not available ", e);
 		}
 		byte[] buffer = new byte[4096];
 		if (files != null)
@@ -181,13 +183,12 @@ public class SegmentState
 				}
 				catch (Exception ex)
 				{
-					log.error("Segment ("+name+"): Failed to generate checksum of "
+					log.error("Segment (" + name + "): Failed to generate checksum of "
 							+ files[i].getAbsolutePath(), ex);
 				}
 			}
 		}
-		
-		
+
 	}
 
 	public class FileRecord
@@ -208,10 +209,10 @@ public class SegmentState
 		public String diff(FileRecord sfr)
 		{
 			StringBuilder sb = new StringBuilder();
-			if ( sfr == null ) 
+			if (sfr == null)
 			{
 				return "new file";
-				
+
 			}
 			if (!path.equals(sfr.path))
 			{
@@ -257,13 +258,16 @@ public class SegmentState
 			}
 			return "identical";
 		}
-		/* (non-Javadoc)
+
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see java.lang.Object#toString()
 		 */
 		@Override
 		public String toString()
 		{
-			return path+";"+new Date(lastMod)+";"+length+";";
+			return path + ";" + new Date(lastMod) + ";" + length + ";";
 		}
 
 	}
@@ -297,9 +301,12 @@ public class SegmentState
 	{
 		if (storedSegmentState == null)
 		{
-			if ( logging ) {
+			if (logging)
+			{
 				log
-					.info("Segment ("+name+"): The segment has no stored state, it may be new or it could be dammaged ");
+						.info("Segment ("
+								+ name
+								+ "): The segment has no stored state, it may be new or it could be dammaged ");
 			}
 			return true;
 		}
@@ -313,8 +320,9 @@ public class SegmentState
 			FileRecord fr = i.next();
 			FileRecord sfr = storedSegmentState.getFileRecord(fr.path);
 			String differences = fr.diff(sfr);
-			
-			sb.append("   Checking [").append(fr).append("]==[").append(sfr).append("] ").append(differences).append("\n");
+
+			sb.append("   Checking [").append(fr).append("]==[").append(sfr).append("] ")
+					.append(differences).append("\n");
 		}
 		for (Iterator<FileRecord> i = storedSegmentState.iterator(); i.hasNext();)
 		{
@@ -325,8 +333,9 @@ public class SegmentState
 				sb.append("   Dropped ").append(fr).append("\n");
 			}
 		}
-		if ( logging ) {
-			log.info("Segment ("+name+"): Checked "+name+"\n"+sb.toString());
+		if (logging)
+		{
+			log.info("Segment (" + name + "): Checked " + name + "\n" + sb.toString());
 		}
 		return true;
 	}

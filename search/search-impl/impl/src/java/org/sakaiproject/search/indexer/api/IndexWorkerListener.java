@@ -21,24 +21,27 @@
 
 package org.sakaiproject.search.indexer.api;
 
-
 /**
  * An index Worker listener is notified when an index update cycle is performed
+ * 
  * @author ieb
- *
  */
 public interface IndexWorkerListener
 {
 
 	/**
 	 * fired when the index worker finishes a cycle
-	 * @param worker the worker performing the operation
+	 * 
+	 * @param worker
+	 *        the worker performing the operation
 	 */
 	void indexWorkerEnd(IndexWorker worker);
 
 	/**
 	 * fired when an index worker starts a cycle
-	 * @param worker the worker performing the operation
+	 * 
+	 * @param worker
+	 *        the worker performing the operation
 	 */
 	void indexWorkerStart(IndexWorker worker);
 

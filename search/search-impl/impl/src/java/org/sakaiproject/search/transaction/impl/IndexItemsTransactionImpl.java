@@ -34,10 +34,11 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 /**
  * Base for index transactions with items
  * 
- * @author ieb 
+ * @author ieb
  * @see org.sakaiproject.search.indexer.impl.test.TransactionalIndexWorkerTest
  */
-public abstract class IndexItemsTransactionImpl extends IndexTransactionImpl implements IndexItemsTransaction
+public abstract class IndexItemsTransactionImpl extends IndexTransactionImpl implements
+		IndexItemsTransaction
 {
 
 	private static final Log log = LogFactory.getLog(IndexItemsTransactionImpl.class);
@@ -49,7 +50,7 @@ public abstract class IndexItemsTransactionImpl extends IndexTransactionImpl imp
 	 * @param impl
 	 * @throws IndexTransactionException
 	 */
-	public IndexItemsTransactionImpl(TransactionManagerImpl manager, Map<String, Object> m)		
+	public IndexItemsTransactionImpl(TransactionManagerImpl manager, Map<String, Object> m)
 	{
 		super(manager, m);
 	}
@@ -66,7 +67,6 @@ public abstract class IndexItemsTransactionImpl extends IndexTransactionImpl imp
 					"Once the items has been set, it cannot be reset while the transaction is in process");
 		}
 
-		
 		itemList = items;
 	}
 
@@ -77,6 +77,5 @@ public abstract class IndexItemsTransactionImpl extends IndexTransactionImpl imp
 	{
 		return itemList;
 	}
-
 
 }

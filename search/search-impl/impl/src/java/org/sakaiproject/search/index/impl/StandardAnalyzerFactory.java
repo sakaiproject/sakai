@@ -33,11 +33,10 @@ import org.sakaiproject.search.index.AnalyzerFactory;
 
 /**
  * @author ieb
- *
  */
 public class StandardAnalyzerFactory implements AnalyzerFactory
 {
-	
+
 	private static final Log log = LogFactory.getLog(SnowballAnalyzerFactory.class);
 
 	private static String[] stopWords = null;
@@ -46,8 +45,10 @@ public class StandardAnalyzerFactory implements AnalyzerFactory
 		try
 		{
 			ArrayList<String> al = new ArrayList<String>();
-			BufferedReader br = new BufferedReader(new InputStreamReader(SnowballAnalyzerFactory.class
-					.getResourceAsStream("/org/sakaiproject/search/component/bundle/stopwords.txt")));
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(
+							SnowballAnalyzerFactory.class
+									.getResourceAsStream("/org/sakaiproject/search/component/bundle/stopwords.txt")));
 			for (String line = br.readLine(); line != null; line = br.readLine())
 			{
 				al.add(line.trim());
@@ -60,7 +61,6 @@ public class StandardAnalyzerFactory implements AnalyzerFactory
 			log.error("Failed to load Stop words into Analyzer", ex);
 		}
 	}
-
 
 	public Analyzer newAnalyzer()
 	{

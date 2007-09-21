@@ -34,7 +34,6 @@ public class LocalTransactionSequenceImpl implements TransactionSequence
 
 	private static final Log log = LogFactory.getLog(LocalTransactionSequenceImpl.class);
 
-
 	private long localId = System.currentTimeMillis();
 
 	/**
@@ -59,7 +58,6 @@ public class LocalTransactionSequenceImpl implements TransactionSequence
 	{
 		throw new UnsupportedOperationException("Sequence is Local only");
 	}
-
 
 	/**
 	 * @return the name

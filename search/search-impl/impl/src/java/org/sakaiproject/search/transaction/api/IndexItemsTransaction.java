@@ -27,8 +27,8 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 
 /**
  * A transaction with associated items
+ * 
  * @author ieb
- *
  */
 public interface IndexItemsTransaction extends IndexTransaction
 {
