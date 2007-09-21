@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.index.soaktest;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +30,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerListener;
 import org.sakaiproject.search.indexer.impl.ConcurrentSearchIndexBuilderWorkerImpl;
@@ -51,6 +51,7 @@ import org.sakaiproject.search.journal.impl.JournaledFSIndexStorageUpdateTransac
 import org.sakaiproject.search.journal.impl.MergeUpdateManager;
 import org.sakaiproject.search.journal.impl.MergeUpdateOperation;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
+import org.sakaiproject.search.mock.MockClusterService;
 import org.sakaiproject.search.mock.MockComponentManager;
 import org.sakaiproject.search.mock.MockEventTrackingService;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
@@ -62,6 +63,14 @@ import org.sakaiproject.search.optimize.impl.OptimizableIndexImpl;
 import org.sakaiproject.search.optimize.impl.OptimizeIndexManager;
 import org.sakaiproject.search.optimize.impl.OptimizeIndexOperation;
 import org.sakaiproject.search.optimize.impl.OptimizeTransactionListenerImpl;
+import org.sakaiproject.search.optimize.shared.impl.DbJournalOptimizationManager;
+import org.sakaiproject.search.optimize.shared.impl.JournalOptimizationManagerImpl;
+import org.sakaiproject.search.optimize.shared.impl.JournalOptimizationOperation;
+import org.sakaiproject.search.optimize.shared.impl.JournalOptimizationTransactionListener;
+import org.sakaiproject.search.optimize.shared.impl.OptimizeSharedTransactionListenerImpl;
+import org.sakaiproject.search.optimize.shared.impl.SharedFilesystemLoadTransactionListener;
+import org.sakaiproject.search.optimize.shared.impl.SharedFilesystemSaveTransactionListener;
+import org.sakaiproject.search.transaction.api.TransactionListener;
 import org.sakaiproject.search.transaction.impl.LocalTransactionSequenceImpl;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 
@@ -278,10 +287,81 @@ public class SearchIndexerNode
 		
 		taskList.add(docloader);
 		
-		cim.setTasks(taskList);
 		 
 		journaledFSIndexStorage.addIndexListener(cim);
 		
+		// Journal Optimization
+		
+		JournalOptimizationOperation journalOptimizationOperation = new JournalOptimizationOperation();
+		JournalOptimizationManagerImpl journalOptimizationManager = new JournalOptimizationManagerImpl();
+
+		JournalOptimizationTransactionListener journalOptimizationTransactionListener = new JournalOptimizationTransactionListener();
+		SharedFilesystemLoadTransactionListener sharedFilesystemLoadTransactionListener = new SharedFilesystemLoadTransactionListener();
+		SharedFilesystemSaveTransactionListener sharedFilesystemSaveTransactionListener = new SharedFilesystemSaveTransactionListener();
+		OptimizeSharedTransactionListenerImpl optimizeSharedTransactionListener = new OptimizeSharedTransactionListenerImpl();
+
+		DbJournalOptimizationManager optimizeJournalManager = new DbJournalOptimizationManager();
+		TransactionSequenceImpl optimizeSequence = new TransactionSequenceImpl();
+		sequence.getClass();
+		MockClusterService clusterService = new MockClusterService();
+		clusterService.addServerConfigurationService(serverConfigurationService);
+
+
+		long journalOptimizeLimit = 5;
+
+		optimizeSequence.setName("journaloptimize");
+		optimizeSequence.setDatasource(tds.getDataSource());
+
+		optimizeJournalManager.setClusterService(clusterService);
+		optimizeJournalManager.setDatasource(tds.getDataSource());
+		optimizeJournalManager.setJournalOptimizeLimit(journalOptimizeLimit);
+		optimizeJournalManager.setServerConfigurationService(serverConfigurationService);
+
+
+		sharedFilesystemLoadTransactionListener
+				.setSharedFilesystemJournalStorage(sharedFilesystemJournalStorage);
+		sharedFilesystemSaveTransactionListener
+				.setSharedFilesystemJournalStorage(sharedFilesystemJournalStorage);
+
+		journalOptimizationManager
+				.addTransactionListener(journalOptimizationTransactionListener);
+		journalOptimizationManager
+				.addTransactionListener(sharedFilesystemLoadTransactionListener);
+		journalOptimizationManager
+				.addTransactionListener(optimizeSharedTransactionListener);
+		journalOptimizationManager
+				.addTransactionListener(sharedFilesystemSaveTransactionListener);
+
+		journalOptimizationManager.setAnalyzerFactory(analyzerFactory);
+		journalOptimizationManager.setJournalManager(optimizeJournalManager);
+		journalOptimizationManager.setSequence(optimizeSequence);
+
+		List<TransactionListener> tl = new ArrayList<TransactionListener>();
+		tl.add(journalOptimizationTransactionListener);
+		tl.add(sharedFilesystemLoadTransactionListener);
+		tl.add(optimizeSharedTransactionListener);
+		tl.add(sharedFilesystemSaveTransactionListener);
+		journalOptimizationManager.setTransactionListeners(tl);
+
+		journalOptimizationOperation
+				.setJournalOptimizationManager(journalOptimizationManager);
+
+		optimizeJournalManager.init();
+		optimizeSequence.init();
+		clusterService.init();
+		journalOptimizationOperation.init();
+		
+		IndexManagementTimerTask journalOptimizer = new IndexManagementTimerTask();
+		journalOptimizer.setManagementOperation(journalOptimizationOperation);
+		journalOptimizer.setDelay(10);
+		journalOptimizer.setPeriod(1000);
+		taskList.add(journalOptimizer);
+
+		
+		
+		
+		
+		cim.setTasks(taskList);		
 		cim.init();
 		
 

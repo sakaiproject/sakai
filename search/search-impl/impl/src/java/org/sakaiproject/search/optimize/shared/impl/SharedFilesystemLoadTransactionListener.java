@@ -124,11 +124,17 @@ public class SharedFilesystemLoadTransactionListener implements
 		try
 		{
 			JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
-			for (File f : jtransaction.getMergeSegmentList())
+			if (jtransaction.getMergeSegmentList() != null)
 			{
-				FileUtils.deleteAll(f);
+				for (File f : jtransaction.getMergeSegmentList())
+				{
+					FileUtils.deleteAll(f);
+				}
 			}
-			FileUtils.deleteAll(jtransaction.getTargetSegment());
+			if (jtransaction.getTargetSegment() != null)
+			{
+				FileUtils.deleteAll(jtransaction.getTargetSegment());
+			}
 
 		}
 		catch (Exception ex)

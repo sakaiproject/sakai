@@ -93,6 +93,7 @@ public class SingleSearchSoakTest extends TestCase
 			Thread.sleep(1000);
 		}
 		node.close();
+		Thread.sleep(1000);
 		log.info("=PASSED=========================== "+this.getClass().getName()+".testSoakOneNode");
 	}
 

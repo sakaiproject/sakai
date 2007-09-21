@@ -120,15 +120,18 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	 */
 	public void rollbackSave(JournalStorageState jss)
 	{
-		File journalZip = ((JournalStorageStateImpl) jss).journalZip;
-		File tmpZip = ((JournalStorageStateImpl) jss).tmpZip;
-		if (tmpZip != null && tmpZip.exists())
+		if (jss != null)
 		{
-			tmpZip.delete();
-		}
-		if (journalZip != null && journalZip.exists())
-		{
-			journalZip.delete();
+			File journalZip = ((JournalStorageStateImpl) jss).journalZip;
+			File tmpZip = ((JournalStorageStateImpl) jss).tmpZip;
+			if (tmpZip != null && tmpZip.exists())
+			{
+				tmpZip.delete();
+			}
+			if (journalZip != null && journalZip.exists())
+			{
+				journalZip.delete();
+			}
 		}
 	}
 

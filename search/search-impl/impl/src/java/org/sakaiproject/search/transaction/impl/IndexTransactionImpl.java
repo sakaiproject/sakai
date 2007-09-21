@@ -147,6 +147,10 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 			doAfterPrepare();
 			transactionState = IndexUpdateTransaction.STATUS_PREPARED;
 		}
+		catch (IndexTransactionException itex)
+		{
+			throw itex;
+		}
 		catch (Exception e)
 		{
 			throw new IndexTransactionException("Failed to prepare ", e);

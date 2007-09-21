@@ -102,6 +102,13 @@ public class DbJournalOptimizationManager implements JournalManager
 		{
 			try
 			{
+				success.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
 				connection.close();
 			}
 			catch (Exception ex)
@@ -130,10 +137,12 @@ public class DbJournalOptimizationManager implements JournalManager
 		PreparedStatement listMergeSet = null;
 		OptimizeJournalManagerStateImpl jms = new OptimizeJournalManagerStateImpl();
 		ResultSet rs = null;
+		Connection connection = null;
+		boolean closeConnection = false;
 		try
 		{
 
-			Connection connection = datasource.getConnection();
+			connection = datasource.getConnection();
 			getJournalVersionPst = connection
 					.prepareStatement("select serverid, jid from search_node_status order by jid asc ");
 
@@ -162,7 +171,7 @@ public class DbJournalOptimizationManager implements JournalManager
 
 			if (jms.oldestVersion == 0)
 			{
-				throw new NothingToOptimizeException();
+				throw new NoOptimizationRequiredException("Oldest version is 0");
 			}
 			rs.close();
 
@@ -191,10 +200,12 @@ public class DbJournalOptimizationManager implements JournalManager
 		}
 		catch (IndexJournalException ijex)
 		{
+			closeConnection = true;
 			throw ijex;
 		}
 		catch (Exception ex)
 		{
+			closeConnection = true;
 			throw new IndexJournalException("Failed to transfer index ", ex);
 		}
 		finally
@@ -227,6 +238,9 @@ public class DbJournalOptimizationManager implements JournalManager
 			catch (Exception ex)
 			{
 			}
+			if ( closeConnection ) {
+				try { connection.close(); } catch ( Exception ex ) {} 
+			}
 		}
 		return jms;
 	}
@@ -236,37 +250,41 @@ public class DbJournalOptimizationManager implements JournalManager
 	 */
 	public void rollbackSave(JournalManagerState jms)
 	{
-		Connection connection = ((JournalManagerStateImpl) jms).connection;
-		try
+		if (jms != null)
 		{
-
-			connection.rollback();
-
-		}
-		catch (Exception ex)
-		{
-			log.error("Failed to Rollback");
-		}
-		finally
-		{
+			Connection connection = ((JournalManagerStateImpl) jms).connection;
 			try
 			{
-				connection.close();
+
+				connection.rollback();
+
 			}
 			catch (Exception ex)
 			{
+				log.error("Failed to Rollback");
 			}
+			finally
+			{
+				try
+				{
+					connection.close();
+				}
+				catch (Exception ex)
+				{
+				}
 
+			}
 		}
 
 	}
 
 	/**
-	 * @throws IndexJournalException 
-	 * @throws IndexTransactionException 
+	 * @throws IndexJournalException
+	 * @throws IndexTransactionException
 	 * @see org.sakaiproject.search.journal.api.JournalManager#doOpenTransaction(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
-	public void doOpenTransaction(IndexTransaction transaction) throws IndexJournalException 
+	public void doOpenTransaction(IndexTransaction transaction)
+			throws IndexJournalException
 	{
 		Statement countJournals = null;
 		Connection connection = null;
