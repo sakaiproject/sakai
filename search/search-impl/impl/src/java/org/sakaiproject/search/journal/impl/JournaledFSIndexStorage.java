@@ -401,11 +401,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 				{
 					try
 					{
-						// set the singleton on null
-						indexSearcher = null;
-						// this will throw an IO exception if not invoked by a
-						// timer task
-						fireIndexSearcherClose(indexSearcher);
+						fireIndexSearcherClose(this);
 					}
 					catch (Exception ioex)
 					{
@@ -641,11 +637,9 @@ public class JournaledFSIndexStorage implements JournaledIndex
 				}
 				catch (Exception ioex)
 				{
-					log.info("Posting Close ");
 					toRemove.clear();
 					return;
 				}
-				log.info("Super Close ");
 				super.doClose();
 			}
 
@@ -1024,8 +1018,6 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	private void fireIndexReaderClose(IndexReader oldMultiReader) throws IOException
 	{
 		File[] f = toRemove.toArray(new File[toRemove.size()]);
-		log.info("Posting close event with " + f.length + " segments to delete "
-				+ toRemove.size());
 		for (Iterator<IndexListener> itl = getIndexListeners().iterator(); itl.hasNext();)
 		{
 			IndexListener tl = itl.next();

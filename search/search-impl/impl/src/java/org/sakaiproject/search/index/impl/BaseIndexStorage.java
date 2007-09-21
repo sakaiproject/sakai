@@ -133,6 +133,7 @@ public abstract class BaseIndexStorage implements IndexStorage
 									} finally 
 									{
 										cancel();
+										indexCloseTimer.purge();
 									}
 								}
 

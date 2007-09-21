@@ -27,13 +27,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Delayed;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.sakaiproject.search.journal.api.IndexListener;
-import org.sakaiproject.search.util.FileUtils;
 
 /**
  * The ConcurrentIndexManager, manages a single thread performs a number of
@@ -52,10 +53,11 @@ public class ConcurrentIndexManager implements IndexListener
 
 	private boolean closed = false;
 
-	private long closeDelay = 30000;
+	private long closeDelay = 10000;
 
 	protected ThreadLocal<Object> inclose = new ThreadLocal<Object>();
-	protected ThreadLocal<Object> insearcherclose = new ThreadLocal<Object>();
+
+	private DelayQueue<Delayed> delayQueue = new DelayQueue<Delayed>();
 
 	public void init()
 	{
@@ -72,6 +74,31 @@ public class ConcurrentIndexManager implements IndexListener
 
 			}
 		}
+		timer.schedule(new TimerTask()
+		{
+
+			@Override
+			public void run()
+			{
+				try
+				{
+					inclose.set("xxx");
+					log.info("Start Purge ------------------------- "+delayQueue.size());
+					DelayedClose dc = (DelayedClose) delayQueue.poll();
+					while (dc != null)
+					{
+						dc.close();
+						dc = (DelayedClose) delayQueue.poll();
+					}
+					log.info("Purge complete ----------------------"+delayQueue.size());
+				}
+				finally
+				{
+					inclose.set(null);
+				}
+			}
+
+		}, 5000, 15000);
 	}
 
 	public void destroy()
@@ -111,45 +138,32 @@ public class ConcurrentIndexManager implements IndexListener
 	 * 
 	 * @see org.sakaiproject.search.journal.api.IndexListener#doIndexReaderClose(org.apache.lucene.index.IndexReader)
 	 */
-	public void doIndexReaderClose(final IndexReader oldMultiReader, final File[] toRemove) throws IOException
+	public void doIndexReaderClose(IndexReader oldMultiReader, File[] toRemove)
+			throws IOException
 	{
 		if (inclose.get() == null)
 		{
-			final long closeId = System.currentTimeMillis();
-			log.info("Sceduling Close of index with id "+closeId+" and "+toRemove.length+" to remove" );
-			timer.schedule(new TimerTask()
-			{
-
-				@Override
-				public void run()
-				{
-					inclose.set("closing");
-					try
-					{
-						log.info("Closing "+closeId+"with "+toRemove.length+" files to delete");
-						oldMultiReader.close();
-						for (File f : toRemove)
-						{
-							FileUtils.deleteAll(f);
-							log.info("Deleted Old Segment "+f);
-						}
-						log.info("Closed Index");
-						
-					}
-					catch (Exception ex)
-					{
-						log.warn("Close of old index failed " + ex.getMessage());
-					} finally {
-						inclose.set(null);
-						cancel();
-					}
-				}
-
-			}, closeDelay);
+			delayQueue.add(new DelayedIndexReaderClose(closeDelay, oldMultiReader, toRemove));
 			throw new IOException("Close Will take place in " + closeDelay + " ms");
-		} 
+		}
 
 	}
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.journal.api.IndexListener#doIndexSearcherClose(org.apache.lucene.search.IndexSearcher)
+	 */
+	public void doIndexSearcherClose(IndexSearcher indexSearcher) throws IOException
+	{
+		if (inclose.get() == null)
+		{
+
+			delayQueue.add(new DelayedIndexSearcherClose(closeDelay, indexSearcher));
+			throw new IOException("Close Will take place in " + closeDelay + " ms");
+		}
+
+	}
+
 
 	/*
 	 * (non-Javadoc)
@@ -178,40 +192,5 @@ public class ConcurrentIndexManager implements IndexListener
 		this.closeDelay = closeDelay;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.search.journal.api.IndexListener#doIndexSearcherClose(org.apache.lucene.search.IndexSearcher)
-	 */
-	public void doIndexSearcherClose(final IndexSearcher indexSearcher) throws IOException
-	{
-		if (insearcherclose.get() == null)
-		{
-			timer.schedule(new TimerTask()
-			{
-
-				@Override
-				public void run()
-				{
-					insearcherclose.set("closing");
-					try
-					{
-						indexSearcher.close();
-						log.info("Closed Index");
-						
-					}
-					catch (Exception ex)
-					{
-						log.warn("Close of old index failed " + ex.getMessage());
-					} finally {
-						insearcherclose.set(null);
-						cancel();
-					}
-					
-				}
-
-			}, closeDelay);
-			throw new IOException("Close Will take place in " + closeDelay + " ms");
-		} 
-		
-	}
 
 }
