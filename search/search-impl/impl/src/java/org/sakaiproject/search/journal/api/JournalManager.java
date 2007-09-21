@@ -23,6 +23,7 @@ package org.sakaiproject.search.journal.api;
 
 import org.sakaiproject.search.indexer.api.IndexJournalException;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
+import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
  * The journal manage manages the state of the journal for the current node
@@ -63,7 +64,8 @@ public interface JournalManager
 	 * veto the transaction.
 	 * 
 	 * @param transaction
+	 * @throws IndexJournalException 
 	 */
-	void doOpenTransaction(IndexTransaction transaction);
+	void doOpenTransaction(IndexTransaction transaction) throws IndexJournalException;
 
 }

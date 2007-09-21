@@ -72,6 +72,10 @@ public class JournalOptimizationOperation implements ManagementOperation
 			journalOptimizationTransaction.commit();
 			log.info("Optimize complete ");
 		}
+		catch (NoOptimizationRequiredException nop)
+		{
+			log.info("No Merge Performed " + nop.getMessage());
+		}
 		catch (JournalErrorException jex)
 		{
 			if (journalOptimizationTransaction != null)
@@ -91,11 +95,6 @@ public class JournalOptimizationOperation implements ManagementOperation
 			{
 				log.warn("Failed to rollback transaction ", ex);
 			}
-		}
-		catch (NoOptimizationRequiredException nop)
-		{
-
-			log.info("No Merge Performed " + nop.getMessage());
 		}
 		catch (IndexTransactionException iupex)
 		{
@@ -121,6 +120,23 @@ public class JournalOptimizationOperation implements ManagementOperation
 			}
 
 		}
+	}
+
+	/**
+	 * @return the journalOptimizationManager
+	 */
+	public JournalOptimizationManager getJournalOptimizationManager()
+	{
+		return journalOptimizationManager;
+	}
+
+	/**
+	 * @param journalOptimizationManager the journalOptimizationManager to set
+	 */
+	public void setJournalOptimizationManager(
+			JournalOptimizationManager journalOptimizationManager)
+	{
+		this.journalOptimizationManager = journalOptimizationManager;
 	}
 
 }

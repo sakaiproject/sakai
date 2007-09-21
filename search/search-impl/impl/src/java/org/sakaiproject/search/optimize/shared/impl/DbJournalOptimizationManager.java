@@ -33,6 +33,7 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.cluster.api.ClusterService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.indexer.api.IndexJournalException;
 import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.JournalManager;
@@ -40,14 +41,14 @@ import org.sakaiproject.search.journal.api.JournalManagerState;
 import org.sakaiproject.search.journal.impl.DbJournalManager.JournalManagerStateImpl;
 import org.sakaiproject.search.optimize.api.NoOptimizationRequiredException;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
+import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
- * 
  * @author ieb
  */
 public class DbJournalOptimizationManager implements JournalManager
 {
-	/***
+	/***************************************************************************
 	 * @author ieb
 	 */
 
@@ -61,9 +62,15 @@ public class DbJournalOptimizationManager implements JournalManager
 
 	private long journalOptimizeLimit;
 
+	private ServerConfigurationService serverConfigurationService;
+
+	public void init()
+	{
+		serverId = serverConfigurationService.getServerId();
+
+	}
+
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.journal.api.JournalManager#commitSave(org.sakaiproject.search.journal.api.JournalManagerState)
 	 */
 	public void commitSave(JournalManagerState jms) throws IndexJournalException
@@ -105,8 +112,6 @@ public class DbJournalOptimizationManager implements JournalManager
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.journal.api.JournalManager#getNextVersion(long)
 	 */
 	public long getNextVersion(long version) throws JournalErrorException
@@ -115,8 +120,6 @@ public class DbJournalOptimizationManager implements JournalManager
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.journal.api.JournalManager#prepareSave(long)
 	 */
 	public JournalManagerState prepareSave(long transactionId)
@@ -229,8 +232,6 @@ public class DbJournalOptimizationManager implements JournalManager
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.journal.api.JournalManager#rollbackSave(org.sakaiproject.search.journal.api.JournalManagerState)
 	 */
 	public void rollbackSave(JournalManagerState jms)
@@ -261,11 +262,11 @@ public class DbJournalOptimizationManager implements JournalManager
 	}
 
 	/**
-	 *
-	 * 
+	 * @throws IndexJournalException 
+	 * @throws IndexTransactionException 
 	 * @see org.sakaiproject.search.journal.api.JournalManager#doOpenTransaction(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
-	public void doOpenTransaction(IndexTransaction transaction)
+	public void doOpenTransaction(IndexTransaction transaction) throws IndexJournalException 
 	{
 		Statement countJournals = null;
 		Connection connection = null;
@@ -285,8 +286,12 @@ public class DbJournalOptimizationManager implements JournalManager
 			rs.close();
 			if (nVersions < journalOptimizeLimit)
 			{
-				throw new NoOptimizationRequiredException();
+				throw new NoOptimizationRequiredException("Insufficient items to optimze");
 			}
+		}
+		catch (NoOptimizationRequiredException nop)
+		{
+			throw nop;
 		}
 		catch (Exception ex)
 		{
@@ -317,6 +322,75 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 		}
 
+	}
+
+	/**
+	 * @return the clusterService
+	 */
+	public ClusterService getClusterService()
+	{
+		return clusterService;
+	}
+
+	/**
+	 * @param clusterService
+	 *        the clusterService to set
+	 */
+	public void setClusterService(ClusterService clusterService)
+	{
+		this.clusterService = clusterService;
+	}
+
+	/**
+	 * @return the datasource
+	 */
+	public DataSource getDatasource()
+	{
+		return datasource;
+	}
+
+	/**
+	 * @param datasource
+	 *        the datasource to set
+	 */
+	public void setDatasource(DataSource datasource)
+	{
+		this.datasource = datasource;
+	}
+
+	/**
+	 * @return the journalOptimizeLimit
+	 */
+	public long getJournalOptimizeLimit()
+	{
+		return journalOptimizeLimit;
+	}
+
+	/**
+	 * @param journalOptimizeLimit
+	 *        the journalOptimizeLimit to set
+	 */
+	public void setJournalOptimizeLimit(long journalOptimizeLimit)
+	{
+		this.journalOptimizeLimit = journalOptimizeLimit;
+	}
+
+	/**
+	 * @return the serverConfigurationService
+	 */
+	public ServerConfigurationService getServerConfigurationService()
+	{
+		return serverConfigurationService;
+	}
+
+	/**
+	 * @param serverConfigurationService
+	 *        the serverConfigurationService to set
+	 */
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService)
+	{
+		this.serverConfigurationService = serverConfigurationService;
 	}
 
 }

@@ -19,53 +19,38 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.optimize.api;
+package org.sakaiproject.search.mock;
 
-import org.sakaiproject.search.indexer.api.IndexJournalException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.sakaiproject.cluster.api.ClusterService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 /**
- * No Optimization is required for the index at the moment, probably because
- * there are not enough transient indexes to make a merge worthwhile
- * 
  * @author ieb
+ *
  */
-public class NoOptimizationRequiredException extends IndexJournalException
+public class MockClusterService implements ClusterService
 {
 
-	/**
-	 * 
-	 */
-	public NoOptimizationRequiredException()
-	{
-		// TODO Auto-generated constructor stub
+	List<String> servers = new ArrayList<String>();
+	List<ServerConfigurationService> configs = new ArrayList<ServerConfigurationService>();
+	public void init() {
+		for ( ServerConfigurationService sc : configs ) {
+			servers.add(sc.getServerId());
+		}
 	}
-
-	/**
-	 * @param arg0
-	 */
-	public NoOptimizationRequiredException(String arg0)
-	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
+	
+	public void addServerConfigurationService(ServerConfigurationService sc ) {
+		configs.add(sc);
 	}
-
-	/**
-	 * @param arg0
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.cluster.api.ClusterService#getServers()
 	 */
-	public NoOptimizationRequiredException(Throwable arg0)
+	public List getServers()
 	{
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public NoOptimizationRequiredException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
+		return servers;
 	}
 
 }
