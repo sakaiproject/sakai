@@ -231,7 +231,6 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			
 			
 			List options = poll.getPollOptions();
-			m_log.debug("got this many options: " + options.size());
 			for (int i = 0; i < options.size(); i++){
 				Option o = (Option)options.get(i);
 				UIBranchContainer oRow = UIBranchContainer.make(actionBlock,"options-row:",o.getOptionId().toString());
@@ -241,7 +240,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 				UIInternalLink editOption = UIInternalLink.make(oRow,"option-edit",UIMessage.make("new_poll_option_edit"),
 							new OptionViewParameters(PollOptionProducer.VIEW_ID, o.getOptionId().toString()));
 	
-					editOption.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("new_poll_option_edit") +":" + FormattedText.convertFormattedTextToPlaintext(o.getOptionText())));
+					editOption.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("new_poll_option_edit") +":" + FormattedText.convertFormattedTextToPlaintext(o.getOptionText())));
 					
 					UIInternalLink deleteOption = UIInternalLink.make(oRow,"option-delete",UIMessage.make("new_poll_option_delete"),
 							new OptionViewParameters(PollOptionDeleteProducer.VIEW_ID,o.getOptionId().toString()));
