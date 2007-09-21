@@ -9657,7 +9657,7 @@ public class AssignmentAction extends PagedResourceActionII
 				// get file extension for detecting content type
 				// ignore those hidden files
 				String extension = "";
-				if(fName.contains(".") && fName.indexOf(".") != 0)
+				if(!fName.contains(".") || (fName.contains(".") && fName.indexOf(".") != 0))
 				{
 					// add the file as attachment
 					ResourceProperties properties = ContentHostingService.newResourceProperties();
