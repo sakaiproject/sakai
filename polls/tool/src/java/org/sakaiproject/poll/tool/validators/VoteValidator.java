@@ -108,8 +108,9 @@ public class VoteValidator implements Validator {
 	}
 	
 	if (votes.getOptionsSelected() == null && votes.getOption() == null && poll.getMinOptions()>0) {
-		  String errStr = new Integer(poll.getMinOptions()).toString();
-		  errors.reject("error_novote", new Object[] {errStr}, "no vote");
+		logger.debug("there seems to be no vote on this poll");  
+		String errStr = new Integer(poll.getMinOptions()).toString();
+		errors.reject("error_novote", new Object[] {errStr}, "no vote");
 		  return;
 	} else if (votes.getOptionsSelected() == null && votes.getOption() == null && poll.getMinOptions()==0) {
 		//to do we need to map to somthing special

@@ -202,19 +202,15 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			 
 			 UISelect radio;
 			 if (isMultiple)
-			 	radio = UISelect.makeMultiple(voteForm,"optionform",values,"#{voteCollection.optionsSelected}",new String[] {});
+			 	radio = UISelect.makeMultiple(voteForm,"optionform",values,"#{voteCollection.optionsSelected}",new String[]{});
 			 else
 				 radio = UISelect.make(voteForm,"optionform",values,"#{voteCollection.option}",new String());
 			 
 			 radio.optionnames = UIOutputMany.make(labels);
 			 String selectID = radio.getFullID();
-			 
-
-			 
 			 for (int i = 0;i < pollOptions.size(); i++ ) {
 				 Option po = (Option)pollOptions.get(i);
 				 m_log.debug("got option " + po.getOptionText() + " with id of  " + po.getId());
-				 			 
 				 UIBranchContainer radioRow = UIBranchContainer.make(voteForm,
 						 isMultiple ? "option:select"
 					              : "option:radio"						 
