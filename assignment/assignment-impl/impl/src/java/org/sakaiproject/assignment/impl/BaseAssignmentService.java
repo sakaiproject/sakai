@@ -3660,6 +3660,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 											textEntry.setSize(b.length);
 											out.closeEntry();
 										}
+										// create a feedbackText file into zip
+										ZipEntry fTextEntry = new ZipEntry(submittersName + "feedbackText.html");
+										out.putNextEntry(fTextEntry);
+										byte[] fText = s.getFeedbackText().getBytes();
+										out.write(fText);
+										fTextEntry.setSize(fText.length);
+										out.closeEntry();
 										
 										// the comments.txt file to show instructor's comments
 										ZipEntry textEntry = new ZipEntry(submittersName + "comments" + ZIP_COMMENT_FILE_TYPE);
