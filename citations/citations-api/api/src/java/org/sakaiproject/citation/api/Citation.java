@@ -131,6 +131,12 @@ public interface Citation 	// extends Entity
 	 */
 	public String getOpenurlParameters();
 	
+	/**
+	 * Access the id for the custom-url (if any) that should be used in place of the open-url.
+	 * @return The id of the preferred-url, or null if no preferred-url is defined, in which case, the open-url should be used.
+	 */
+	public String getPreferredUrlId();
+	
 	public String getSaveUrl(String collectionId);
 
 	/**
@@ -148,6 +154,11 @@ public interface Citation 	// extends Entity
      * @return
      */
     public boolean hasCustomUrls();
+    
+    /**
+     * Does this citation have a custom-url that should be displayed instead of the open-url?
+     */
+    public boolean hasPreferredUrl();
 
 	/**
 	 * @return
@@ -223,6 +234,14 @@ public interface Citation 	// extends Entity
      * @param url
      */
     public void updateCustomUrl(String urlid, String label, String url);
+    
+    /**
+     * Designate that a previously defined custom-url should be used in place of the open-url as the primary 
+     * link in displaying the citation.
+     * @param urlid The id of the custom-url to use as the preferred-url, or null to remove any previous
+     * designations and restore the open-url as the primary url for the citation. 
+     */
+    public void setPreferredUrl(String urlid);
 
 } // interface Citation
 

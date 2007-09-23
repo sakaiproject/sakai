@@ -180,6 +180,7 @@ public abstract class BaseCitationService implements CitationService
 		protected Integer m_serialNumber = null;
 		protected boolean m_temporary = false;
 		protected boolean m_isAdded = false;
+		private String m_preferredUrl;
 		
 		/**
 		 * Constructs a temporary citation.
@@ -1977,6 +1978,28 @@ public abstract class BaseCitationService implements CitationService
 
 	        return url;
         }
+
+		public String getPreferredUrlId() 
+		{
+			return this.m_preferredUrl;
+		}
+
+		public boolean hasPreferredUrl() 
+		{
+			return this.m_preferredUrl != null;
+		}
+
+		public void setPreferredUrl(String urlid) 
+		{
+			if(urlid == null)
+			{
+				this.m_preferredUrl = null;
+			}
+			else if(this.m_urls.containsKey(urlid))
+			{
+				this.m_preferredUrl = urlid;
+			}
+		}
 
 	} // BaseCitationService.BasicCitation
 
