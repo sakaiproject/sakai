@@ -313,6 +313,15 @@ public class DbCitationService extends BaseCitationService
 					urlCount++;
 				}
 			}
+			
+			// preferred url
+			if(citation.hasPreferredUrl())
+			{
+				fields[1] = PROP_HAS_PREFERRED_URL;
+				fields[2] = citation.getPreferredUrlId();
+
+				ok = m_sqlService.dbWrite(statement, fields);
+			}
         }
 
 		/* (non-Javadoc)
@@ -799,6 +808,10 @@ public class DbCitationService extends BaseCitationService
 							}
 						}
 						edit.m_urls.put(id, new UrlWrapper(label, url));
+					}
+					else if(PROP_HAS_PREFERRED_URL.equals(name))
+					{
+						edit.m_preferredUrl = (String) triple.getValue();
 					}
 					else if(isMultivalued(schemaId, name))
 					{
@@ -1334,6 +1347,8 @@ public class DbCitationService extends BaseCitationService
 
 	protected static final String PROP_HAS_URL = "sakai:has_url";
 	
+	protected static final String PROP_HAS_PREFERRED_URL = "sakai:has_preferred_url";
+
 	protected static final String PROP_MEDIATYPE = "sakai:mediatype";
 
 	protected static final String PROP_URL_LABEL = "sakai:url_label";

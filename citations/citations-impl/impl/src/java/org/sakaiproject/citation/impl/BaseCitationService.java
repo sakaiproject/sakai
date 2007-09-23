@@ -180,7 +180,7 @@ public abstract class BaseCitationService implements CitationService
 		protected Integer m_serialNumber = null;
 		protected boolean m_temporary = false;
 		protected boolean m_isAdded = false;
-		private String m_preferredUrl;
+		protected String m_preferredUrl;
 		
 		/**
 		 * Constructs a temporary citation.
