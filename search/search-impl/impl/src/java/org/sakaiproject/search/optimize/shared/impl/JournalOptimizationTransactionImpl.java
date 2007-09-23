@@ -22,6 +22,7 @@
 package org.sakaiproject.search.optimize.shared.impl;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,13 +40,13 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 		JournalOptimizationTransaction
 {
 
-	private List<Long> mergeList;
+	private List<Long> mergeList = new ArrayList<Long>();
 
-	private List<File> mergeSegments;
+	private List<File> mergeSegments = new ArrayList<File>();
 
 	private long targetVersion;
 
-	private List<File> mergeSegmentList;
+	private List<File> mergeSegmentList = new ArrayList<File>();
 
 	private File targetSegment;
 

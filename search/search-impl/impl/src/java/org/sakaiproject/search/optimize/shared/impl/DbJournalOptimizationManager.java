@@ -135,6 +135,7 @@ public class DbJournalOptimizationManager implements JournalManager
 		PreparedStatement getJournalVersionPst = null;
 		PreparedStatement lockEarlierVersions = null;
 		PreparedStatement listMergeSet = null;
+		PreparedStatement listJournal = null;
 		OptimizeJournalManagerStateImpl jms = new OptimizeJournalManagerStateImpl();
 		ResultSet rs = null;
 		Connection connection = null;
@@ -155,9 +156,10 @@ public class DbJournalOptimizationManager implements JournalManager
 
 			getJournalVersionPst.clearParameters();
 			rs = getJournalVersionPst.executeQuery();
-			while (jms.oldestVersion != 0 && rs.next())
+			while (jms.oldestVersion == 0 && rs.next())
 			{
 				String server = rs.getString(1);
+				log.info("Got Server "+server+" with version "+rs.getLong(2));
 				for (String s : servers)
 				{
 					if (server.equals(s))
@@ -168,12 +170,14 @@ public class DbJournalOptimizationManager implements JournalManager
 				}
 
 			}
-
-			if (jms.oldestVersion == 0)
+			jms.oldestVersion--;
+			if (jms.oldestVersion <= 0)
 			{
 				throw new NoOptimizationRequiredException("Oldest version is 0");
 			}
 			rs.close();
+			
+			log.info("Optimizing shared Journal Storage to version "+jms.oldestVersion);
 
 			// this requires read committed transaction issolation and WILL NOT
 			// work on HSQL
@@ -182,8 +186,25 @@ public class DbJournalOptimizationManager implements JournalManager
 			lockEarlierVersions.clearParameters();
 			lockEarlierVersions.setString(1, jms.indexWriter);
 			lockEarlierVersions.setLong(2, System.currentTimeMillis());
-			lockEarlierVersions.setLong(3, jms.transactionId);
-			lockEarlierVersions.executeUpdate();
+			lockEarlierVersions.setLong(3, jms.oldestVersion);
+			int i = lockEarlierVersions.executeUpdate();
+
+			if ( i == 0 ) {
+				listJournal = connection.prepareStatement("select txid, indexwriter, status, txts  from search_journal");
+				listJournal.clearParameters();
+				rs = listJournal.executeQuery();
+				while ( rs.next() ) {
+					log.info("TX["+rs.getLong(1)+"];indexwriter["+rs.getString(2)+"];status["+rs.getString(3)+"];timestamp["+rs.getLong(4)+"]");
+				}
+				rs.close();
+			}
+
+			if ( i == 0 ) {
+				throw new NoOptimizationRequiredException("Nothing to optimize prior to version "+jms.oldestVersion);
+			}
+			
+			
+			log.info("Locked "+i+" versions ");
 
 			jms.mergeList = new ArrayList<Long>();
 
@@ -196,6 +217,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			{
 				jms.mergeList.add(rs.getLong(1));
 			}
+			log.info("Retrieved "+jms.mergeList.size()+" locked versions ");
 
 		}
 		catch (IndexJournalException ijex)
@@ -227,6 +249,13 @@ public class DbJournalOptimizationManager implements JournalManager
 			try
 			{
 				lockEarlierVersions.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				listJournal.close();
 			}
 			catch (Exception ex)
 			{

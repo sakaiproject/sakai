@@ -31,9 +31,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerListener;
 import org.sakaiproject.search.indexer.impl.ConcurrentSearchIndexBuilderWorkerImpl;
@@ -122,6 +120,7 @@ public class SearchIndexerNode
 		String indexwork = instanceBase + "/index/work";
 		String index = instanceBase + "/index/main";
 		String optimizeWork = instanceBase + "/index/optwork";
+		String journalOptimizeWork = instanceBase + "/index/joptwork";
 
 		tds = new SharedTestDataSource(base,10,false,driver, url, userame, password);
 
@@ -335,6 +334,7 @@ public class SearchIndexerNode
 		journalOptimizationManager.setAnalyzerFactory(analyzerFactory);
 		journalOptimizationManager.setJournalManager(optimizeJournalManager);
 		journalOptimizationManager.setSequence(optimizeSequence);
+		journalOptimizationManager.setWorkingSpace(journalOptimizeWork);
 
 		List<TransactionListener> tl = new ArrayList<TransactionListener>();
 		tl.add(journalOptimizationTransactionListener);

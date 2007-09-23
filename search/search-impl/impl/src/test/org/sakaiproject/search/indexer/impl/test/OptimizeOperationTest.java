@@ -311,7 +311,7 @@ public class OptimizeOperationTest extends TestCase
 	 */
 	public final void testRunOnce() throws Exception
 	{
-		int n = tds.populateDocuments(5000);
+		int n = tds.populateDocuments(1000);
 		int i = 0;
 		while ((n = tiw.process(10)) > 0)
 		{

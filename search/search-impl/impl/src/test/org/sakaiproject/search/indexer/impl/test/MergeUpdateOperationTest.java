@@ -204,7 +204,7 @@ public class MergeUpdateOperationTest extends TestCase
 	{
 		log.info("================================== "+this.getClass().getName()+".testRunOnce");
 
-		int n = tds.populateDocuments(5000);
+		int n = tds.populateDocuments(1000);
 		int i = 0;
 		while( (n = tiw.process(10)) > 0 ) {
 			log.info("Processing "+i+" gave "+n);

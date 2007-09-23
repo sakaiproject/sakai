@@ -22,6 +22,7 @@
 package org.sakaiproject.search.indexer.impl.test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,12 +30,28 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.search.index.AnalyzerFactory;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.search.IndexSearcher;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
+import org.sakaiproject.search.indexer.impl.JournalManagerUpdateTransaction;
+import org.sakaiproject.search.indexer.impl.JournalStorageUpdateTransactionListener;
+import org.sakaiproject.search.indexer.impl.SearchBuilderQueueManager;
+import org.sakaiproject.search.indexer.impl.TransactionIndexManagerImpl;
+import org.sakaiproject.search.indexer.impl.TransactionalIndexWorker;
+import org.sakaiproject.search.journal.api.IndexListener;
+import org.sakaiproject.search.journal.impl.DbJournalManager;
+import org.sakaiproject.search.journal.impl.JournaledFSIndexStorage;
+import org.sakaiproject.search.journal.impl.JournaledFSIndexStorageUpdateTransactionListener;
+import org.sakaiproject.search.journal.impl.MergeUpdateManager;
+import org.sakaiproject.search.journal.impl.MergeUpdateOperation;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockClusterService;
+import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
+import org.sakaiproject.search.optimize.impl.OptimizableIndexImpl;
+import org.sakaiproject.search.optimize.impl.OptimizeIndexManager;
+import org.sakaiproject.search.optimize.impl.OptimizeIndexOperation;
+import org.sakaiproject.search.optimize.impl.OptimizeTransactionListenerImpl;
 import org.sakaiproject.search.optimize.shared.impl.DbJournalOptimizationManager;
 import org.sakaiproject.search.optimize.shared.impl.JournalOptimizationManagerImpl;
 import org.sakaiproject.search.optimize.shared.impl.JournalOptimizationOperation;
@@ -43,6 +60,7 @@ import org.sakaiproject.search.optimize.shared.impl.OptimizeSharedTransactionLis
 import org.sakaiproject.search.optimize.shared.impl.SharedFilesystemLoadTransactionListener;
 import org.sakaiproject.search.optimize.shared.impl.SharedFilesystemSaveTransactionListener;
 import org.sakaiproject.search.transaction.api.TransactionListener;
+import org.sakaiproject.search.transaction.impl.LocalTransactionSequenceImpl;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 import org.sakaiproject.search.util.FileUtils;
 
@@ -69,6 +87,22 @@ public class JournalOptimzationOperationTest extends TestCase
 
 	private TDataSource tds;
 
+	private MergeUpdateOperation mu;
+
+	private JournaledFSIndexStorage journaledFSIndexStorage;
+
+	protected ThreadLocal<Object> inclose = new ThreadLocal<Object>();
+
+	protected ThreadLocal<Object> insearcherclose = new ThreadLocal<Object>();
+
+	private TransactionalIndexWorker tiw;
+
+	private OptimizableIndexImpl optimizableIndex;
+
+	private OptimizeIndexOperation oo;
+
+	private File journalOptimizeWork;
+
 	/**
 	 * @param name
 	 */
@@ -90,6 +124,7 @@ public class JournalOptimzationOperationTest extends TestCase
 		testBase = new File(testBase, "JournalOptimzationOperationTest");
 		work = new File(testBase, "work");
 		optimizeWork = new File(testBase, "optwork");
+		journalOptimizeWork = new File(testBase, "optwork");
 		shared = new File(testBase, "shared");
 		index = new File(testBase, "index");
 
@@ -97,6 +132,192 @@ public class JournalOptimzationOperationTest extends TestCase
 
 		tds = new TDataSource(5, false);
 
+		
+		mu = new MergeUpdateOperation();
+		journaledFSIndexStorage = new JournaledFSIndexStorage();
+		StandardAnalyzerFactory analyzerFactory = new StandardAnalyzerFactory();
+		DbJournalManager journalManager = new DbJournalManager();
+		MockServerConfigurationService serverConfigurationService = new MockServerConfigurationService();
+		MergeUpdateManager mergeUpdateManager = new MergeUpdateManager();
+		TransactionSequenceImpl sequence = new TransactionSequenceImpl();
+
+		SharedFilesystemJournalStorage sharedFilesystemJournalStorage = new SharedFilesystemJournalStorage();
+		JournaledFSIndexStorageUpdateTransactionListener journaledFSIndexStorageUpdateTransactionListener = new JournaledFSIndexStorageUpdateTransactionListener();
+
+		sequence.setDatasource(tds.getDataSource());
+		sequence.setName("TransactionalIndexWorkerTest");
+
+		journaledFSIndexStorageUpdateTransactionListener
+				.setJournaledIndex(journaledFSIndexStorage);
+		journaledFSIndexStorageUpdateTransactionListener
+				.setJournalManager(journalManager);
+		journaledFSIndexStorageUpdateTransactionListener
+				.setJournalStorage(sharedFilesystemJournalStorage);
+
+		sharedFilesystemJournalStorage.setJournalLocation(shared.getAbsolutePath());
+
+		sequence.setDatasource(tds.getDataSource());
+
+		mergeUpdateManager
+				.addTransactionListener(journaledFSIndexStorageUpdateTransactionListener);
+
+		mergeUpdateManager.setSequence(sequence);
+
+		journalManager.setDatasource(tds.getDataSource());
+
+		journaledFSIndexStorage.setAnalyzerFactory(analyzerFactory);
+		journaledFSIndexStorage.setDatasource(tds.getDataSource());
+		journaledFSIndexStorage.setJournalManager(journalManager);
+		journaledFSIndexStorage.setRecoverCorruptedIndex(false);
+		journaledFSIndexStorage.setSearchIndexDirectory(index.getAbsolutePath());
+		journaledFSIndexStorage.setServerConfigurationService(serverConfigurationService);
+		journaledFSIndexStorage.setWorkingSpace(work.getAbsolutePath());
+		mu.setJournaledObject(journaledFSIndexStorage);
+		mu.setMergeUpdateManager(mergeUpdateManager);
+
+		journaledFSIndexStorage.addIndexListener(new IndexListener()
+		{
+
+			public void doIndexReaderClose(IndexReader oldMultiReader, File[] f)
+					throws IOException
+			{
+				if (inclose.get() == null)
+				{
+					if (oldMultiReader != null)
+					{
+						try
+						{
+							inclose.set("inclose");
+							oldMultiReader.close();
+						}
+						catch (IOException e)
+						{
+							e.printStackTrace();
+						}
+						finally
+						{
+							inclose.set(null);
+						}
+					}
+					for (File fs : f)
+					{
+						try
+						{
+							FileUtils.deleteAll(fs);
+							log.info("Deleted " + fs.getPath());
+						}
+						catch (IOException e)
+						{
+							e.printStackTrace();
+						}
+					}
+					throw new IOException("Imediate close already performed ");
+				}
+
+			}
+
+			public void doIndexReaderOpen(IndexReader newMultiReader)
+			{
+
+			}
+
+			public void doIndexSearcherClose(IndexSearcher indexSearcher)
+					throws IOException
+			{
+				if (insearcherclose.get() == null)
+				{
+					if (indexSearcher != null)
+					{
+						try
+						{
+							insearcherclose.set("inclose");
+							indexSearcher.close();
+						}
+						catch (IOException e)
+						{
+							e.printStackTrace();
+						}
+						finally
+						{
+							insearcherclose.set(null);
+						}
+					}
+					throw new IOException("Imediate close already performed ");
+				}
+			}
+
+			public void doIndexSearcherOpen(IndexSearcher indexSearcher)
+			{
+				
+			}
+
+		});
+
+		// index updater
+
+		JournalManagerUpdateTransaction journalManagerUpdateTransaction = new JournalManagerUpdateTransaction();
+		MockSearchIndexBuilder mockSearchIndexBuilder = new MockSearchIndexBuilder();
+		TransactionIndexManagerImpl transactionIndexManager = new TransactionIndexManagerImpl();
+		SearchBuilderQueueManager searchBuilderQueueManager = new SearchBuilderQueueManager();
+
+		transactionIndexManager.setAnalyzerFactory(new StandardAnalyzerFactory());
+		transactionIndexManager.setSearchIndexWorkingDirectory(work.getAbsolutePath());
+		transactionIndexManager.setSequence(sequence);
+
+		journalManagerUpdateTransaction.setJournalManager(journalManager);
+
+		JournalStorageUpdateTransactionListener journalStorageUpdateTransactionListener = new JournalStorageUpdateTransactionListener();
+		journalStorageUpdateTransactionListener
+				.setJournalStorage(sharedFilesystemJournalStorage);
+
+		searchBuilderQueueManager.setDatasource(tds.getDataSource());
+		searchBuilderQueueManager.setSearchIndexBuilder(mockSearchIndexBuilder);
+
+		transactionIndexManager.addTransactionListener(searchBuilderQueueManager);
+		transactionIndexManager
+				.addTransactionListener(journalStorageUpdateTransactionListener);
+		transactionIndexManager.addTransactionListener(journalManagerUpdateTransaction);
+
+		tiw = new TransactionalIndexWorker();
+		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
+		tiw.setServerConfigurationService(serverConfigurationService);
+		tiw.setTransactionIndexManager(transactionIndexManager);
+
+		sequence.init();
+		searchBuilderQueueManager.init();
+		transactionIndexManager.init();
+		mu.init();
+		journaledFSIndexStorage.init();
+
+		tiw.init();
+
+		
+		
+		optimizableIndex = new OptimizableIndexImpl();
+		optimizableIndex.setJournaledIndex(journaledFSIndexStorage);
+
+		OptimizeTransactionListenerImpl otli = new OptimizeTransactionListenerImpl();
+		otli.setMergeSize(5);
+		otli.setOptimizableIndex(optimizableIndex);
+
+		OptimizeIndexManager oum = new OptimizeIndexManager();
+		oum.setAnalyzerFactory(analyzerFactory);
+		oum.setSearchIndexWorkingDirectory(optimizeWork.getAbsolutePath());
+		oum.addTransactionListener(otli);
+		oum.setSequence(new LocalTransactionSequenceImpl());
+
+		oo = new OptimizeIndexOperation();
+		oo.setJournaledObject(journaledFSIndexStorage);
+		oo.setOptimizeUpdateManager(oum);
+
+		oo.init();
+
+		
+		
+		
+		
+		
+		
 		journalOptimizationOperation = new JournalOptimizationOperation();
 		JournalOptimizationManagerImpl journalOptimizationManager = new JournalOptimizationManagerImpl();
 
@@ -105,12 +326,9 @@ public class JournalOptimzationOperationTest extends TestCase
 		SharedFilesystemSaveTransactionListener sharedFilesystemSaveTransactionListener = new SharedFilesystemSaveTransactionListener();
 		OptimizeSharedTransactionListenerImpl optimizeSharedTransactionListener = new OptimizeSharedTransactionListenerImpl();
 
-		SharedFilesystemJournalStorage sharedFilesystemJournalStorage = new SharedFilesystemJournalStorage();
-		DbJournalOptimizationManager journalManager = new DbJournalOptimizationManager();
-		TransactionSequenceImpl sequence = new TransactionSequenceImpl();
-		AnalyzerFactory analyzerFactory = new StandardAnalyzerFactory();
+		DbJournalOptimizationManager optJournalManager = new DbJournalOptimizationManager();
+		TransactionSequenceImpl optSequence = new TransactionSequenceImpl();
 
-		ServerConfigurationService serverConfigurationService = new MockServerConfigurationService();
 		MockClusterService clusterService = new MockClusterService();
 		clusterService.addServerConfigurationService(serverConfigurationService);
 
@@ -118,15 +336,14 @@ public class JournalOptimzationOperationTest extends TestCase
 
 		long journalOptimizeLimit = 5;
 
-		sequence.setName("journaloptimize");
-		sequence.setDatasource(tds.getDataSource());
+		optSequence.setName("journaloptimize");
+		optSequence.setDatasource(tds.getDataSource());
 
-		journalManager.setClusterService(clusterService);
-		journalManager.setDatasource(tds.getDataSource());
-		journalManager.setJournalOptimizeLimit(journalOptimizeLimit);
-		journalManager.setServerConfigurationService(serverConfigurationService);
+		optJournalManager.setClusterService(clusterService);
+		optJournalManager.setDatasource(tds.getDataSource());
+		optJournalManager.setJournalOptimizeLimit(journalOptimizeLimit);
+		optJournalManager.setServerConfigurationService(serverConfigurationService);
 
-		sharedFilesystemJournalStorage.setJournalLocation(journalLocation);
 
 		sharedFilesystemLoadTransactionListener
 				.setSharedFilesystemJournalStorage(sharedFilesystemJournalStorage);
@@ -143,8 +360,9 @@ public class JournalOptimzationOperationTest extends TestCase
 				.addTransactionListener(sharedFilesystemSaveTransactionListener);
 
 		journalOptimizationManager.setAnalyzerFactory(analyzerFactory);
-		journalOptimizationManager.setJournalManager(journalManager);
-		journalOptimizationManager.setSequence(sequence);
+		journalOptimizationManager.setJournalManager(optJournalManager);
+		journalOptimizationManager.setSequence(optSequence);
+		journalOptimizationManager.setWorkingSpace(journalOptimizeWork.getAbsolutePath());
 
 		List<TransactionListener> tl = new ArrayList<TransactionListener>();
 		tl.add(journalOptimizationTransactionListener);
@@ -156,8 +374,8 @@ public class JournalOptimzationOperationTest extends TestCase
 		journalOptimizationOperation
 				.setJournalOptimizationManager(journalOptimizationManager);
 
-		journalManager.init();
-		sequence.init();
+		optJournalManager.init();
+		optSequence.init();
 		clusterService.init();
 
 	}
@@ -190,15 +408,81 @@ public class JournalOptimzationOperationTest extends TestCase
 	/**
 	 * Test method for
 	 * {@link org.sakaiproject.search.optimize.shared.impl.JournalOptimizationOperation#runOnce()}.
+	 * @throws Exception 
 	 */
-	public final void testRunOnce()
+	public final void testRunOnce() throws Exception
 	{
+		
 		log.info("================================== " + this.getClass().getName()
+				+ ".testRunOnce");
+		log.info("=SETUP========================== " + this.getClass().getName()
+				+ ".testRunOnce");
+		loadIndex();
+		listSpaces();
+		log.info("=SETUP=COMPLETE===TESTING======= " + this.getClass().getName()
 				+ ".testRunOnce");
 		journalOptimizationOperation.init();
 		journalOptimizationOperation.runOnce();
+		listSpaces();
 		log.info("=PASSED=========================== " + this.getClass().getName()
 				+ ".testRunOnce");
 	}
 
+	public final void loadIndex() throws Exception
+	{
+		int n = tds.populateDocuments(1000);
+		int i = 0;
+		while ((n = tiw.process(10)) > 0)
+		{
+			assertEquals(
+					"Runaway Cyclic Indexing, should have completed processing by now ",
+					true, i < 500);
+			i++;
+		}
+		log.info("Indexing Complete at " + i + " with " + n);
+
+		// need to populate the index with some data first.
+		mu.runOnce();
+
+		File[] optSegments = optimizableIndex.getOptimizableSegments();
+		for (File f : optSegments)
+		{
+			log.info("Segment at " + f.getPath());
+		}
+		IndexSearcher s = journaledFSIndexStorage.getIndexSearcher();
+
+		log.info("Optimizing ");
+		// Now perform an optimize operation
+		oo.runOnce();
+		log.info("Done Optimizing ");
+
+		optSegments = optimizableIndex.getOptimizableSegments();
+		log.info("Number of Temp Segments is " + optSegments.length);
+		for (File f : optSegments)
+		{
+			log.info("Segment at " + f.getPath());
+		}
+
+		log.info("Current Index is " + s);
+		s = journaledFSIndexStorage.getIndexSearcher();
+		log.info("Reopening Index " + s);
+
+
+
+	}
+
+	public void listSpaces() throws IOException {
+		log.info("Index ");
+		FileUtils.listDirectory(index);
+		log.info("shared ");
+		FileUtils.listDirectory(shared);
+		log.info("work ");
+		FileUtils.listDirectory(work);
+		log.info("optimizeWork ");
+		FileUtils.listDirectory(optimizeWork);
+		log.info("optimizeWork ");
+		FileUtils.listDirectory(journalOptimizeWork);
+		
+	}
+	
 }
