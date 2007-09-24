@@ -15,7 +15,7 @@ doubleDeep = true;
 
 <ul class="presenceList">
 <c:forEach items="${ChatTool.usersInCurrentChannel}" var="user">
-	<li><c:out value="${user.displayName}" /></li>
+	<li><c:out value="${user}" /></li>
 </c:forEach>
 </ul>
 

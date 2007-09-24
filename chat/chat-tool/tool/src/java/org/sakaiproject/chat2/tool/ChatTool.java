@@ -47,6 +47,8 @@ import org.sakaiproject.chat2.model.ChatFunctions;
 import org.sakaiproject.chat2.model.PresenceObserver;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.CourierService;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
@@ -62,6 +64,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.DirectRefreshDelivery;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Web;
 
 /**
  * Chat works by the courier but not the same way as the old message delivery
@@ -239,13 +242,15 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    /**
     * this gets the users in the current channel.  It should be called often
     * to refresh the presence of the channel
-    * @return List of Sakai User(?)
+    * @return List of String display names
     */
-   public List getUsersInCurrentChannel()
+   public List<String> getUsersInCurrentChannel()
    {
+      List<String> userList = new ArrayList<String>();
       if(!refreshPresence()) {
-         return new ArrayList();
+         return userList;
       }
+      
       
       presenceChannelObserver.updatePresence();
       
@@ -253,9 +258,49 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       String location = presenceChannelObserver.getLocation();
 
       // get the current presence list (User objects) for this page
-      List users = presenceChannelObserver.getPresentUsers();
+      List<User> users = presenceChannelObserver.getPresentUsers();
       
-      return users;
+   // is the current user running under an assumed (SU) user id?
+      String asName = null;
+      String myUserId = null;
+      try
+      {
+         UsageSession usageSession = UsageSessionService.getSession();
+         if (usageSession != null)
+         {
+            // this is the absolutely real end-user id, even if running as another user
+            myUserId = usageSession.getUserId();
+
+            // this is the user id the current user is running as
+            String sessionUserId = SessionManager.getCurrentSessionUserId();
+
+            // if different
+            if (!myUserId.equals(sessionUserId))
+            {
+               asName = UserDirectoryService.getUser(sessionUserId).getDisplayName();
+            }
+         }
+      }
+      catch (Throwable any)
+      {
+      }
+      
+      for (Iterator<User> i = users.iterator(); i.hasNext();)
+      {
+         User u = (User) i.next();
+         String displayName = u.getDisplayName();
+
+         // adjust if this is the current user running as someone else
+         if ((asName != null) && (u.getId().equals(myUserId)))
+         {
+            displayName += " (" + asName + ")";
+         }
+
+         userList.add(Web.escapeHtml(displayName));
+      }
+      
+      
+      return userList;
    }
    
    protected boolean refreshPresence() {
