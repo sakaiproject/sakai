@@ -399,6 +399,25 @@ public class DbContentService extends BaseContentService
 			}
 		}
 		
+		//testResourceByTypePaging();
+	}
+
+	/**
+	 * Runs tests of the getResourcesOfType() method. Steps are:<br/>
+	 * 1) Add 26 site-level resource collections ("/group/site_A/" through "/group/site_Z/")
+	 * and 676 resources of type "org.sakaiproject.content.mock.resource-type".
+	 * 2) Invoke the getResourcesOfType() method with page-size 64 and compare
+	 * the resource-id's with the resource-id's that would be returned if the 
+	 * method works correctly.
+	 * 3) Remove the mock resources and collections created in step 1.
+	 * A list of the resource-id's is created in step 1 and used in steps 2 and 3.
+	 * Verbose logging in step 2 is intended to help with troubleshooting.  It would 
+	 * help to reduce the amount of logging and target it better.  Verbose logging also
+	 * occurs in step 3 because the no realms are created for the collections in step 1,
+	 * resulting in informational messages when an attempt is made to remove the realms.  
+	 */
+	protected void testResourceByTypePaging() 
+	{
 		// test 
 		List<String> collectionIdList = new ArrayList<String>();
 		List<String> resourceIdList = new ArrayList<String>();
