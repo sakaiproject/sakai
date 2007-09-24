@@ -114,11 +114,11 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 		if (target != null && target.startsWith(RESET_ASSESSMENT_BEAN)) {
 			AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
 					.lookupBeanFromExternalServlet("assessmentBean", req, res);
-			AssessmentService assessmentService = new AssessmentService();
-			AssessmentFacade assessment = assessmentService
-					.getAssessment(assessmentBean.getAssessmentId());
-			assessmentBean.setAssessment(assessment);
-
+			if (assessmentBean != null && assessmentBean.getAssessmentId() != null) {
+				AssessmentService assessmentService = new AssessmentService();
+				AssessmentFacade assessment = assessmentService.getAssessment(assessmentBean.getAssessmentId());
+				assessmentBean.setAssessment(assessment);
+			}
 			target = target.replaceFirst(RESET_ASSESSMENT_BEAN, "");
 		}
 
