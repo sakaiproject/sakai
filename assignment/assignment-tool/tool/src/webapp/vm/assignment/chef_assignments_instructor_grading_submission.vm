@@ -212,7 +212,7 @@
 					## for returned submission, show the instructor comment as well
 					#if ($!prevFeedbackText)
 						<h4>$tlang.getString("gradingsub.prefeetex")</h4>
-						<div class="textPanel">
+						<div class="textPanel indnt1">
 							$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
 						</div>
 					#end
@@ -272,7 +272,7 @@
 						## for returned (not resubmitted ) submission, show the instructor feedback
 						#if ($!prevFeedbackComment)
 							<h4>$tlang.getString("gradingsub.prefee")</h4>
-							<div class="textPanel">$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
+							<div class="textPanel indnt1">$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
 						#end
 						<h4>
 							#if ($withGrade)
@@ -322,7 +322,7 @@
 						## show previous grading/feedback attachments if any
 						#if ($!prevFeedbackAttachments && $prevFeedbackAttachments.size()>0)
 							<h4>
-								<h4>$tlang.getString("gradingsub.prefeedbackAttachments")</h4>
+								$tlang.getString("gradingsub.prefeedbackAttachments")
 							</h4>
 							#set ($size = 0)
 							#set ($props = false)
@@ -410,7 +410,8 @@
 								#end
 								#set ($previousGrades =  $submission.Properties.getProperty($submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
 								#if ($!previousGrades.length() != 0 )
-									<br />$tlang.getString("gradingsub.pregra") $previousGrades
+									<h4>$tlang.getString("gradingsub.pregra")</h4>
+									<div class="indnt1"> $previousGrades</div>
 								#end
 						</div>	
 						#end
