@@ -190,4 +190,11 @@ public interface MessageForumsForumManager {
 	 * @return
 	 */
 	public int getNumModTopicCurrentUserHasModPermFor(final List membershipItems);
+	
+	/**
+	 * Returns forum with topics, topic attachments, and topic messages
+	 * @param forumId
+	 * @return
+	 */
+	public BaseForum getForumByIdWithTopicsAttachmentsAndMessages(final Long forumId);
 }

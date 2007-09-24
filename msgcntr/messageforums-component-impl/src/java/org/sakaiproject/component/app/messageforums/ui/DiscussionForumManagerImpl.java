@@ -23,6 +23,7 @@ package org.sakaiproject.component.app.messageforums.ui;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -97,6 +98,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private PermissionLevelManager permissionLevelManager;
   private Map courseMemberMap = null;
   private boolean usingHelper = false; // just a flag until moved to database from helper
+  
+  public static final int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
 
   public void init()
   {
@@ -578,6 +581,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       LOG.debug("getForumByIdWithTopics(Long" + forumId + ")");
     }
     return (DiscussionForum) forumManager.getForumByIdWithTopics(forumId);
+  }
+  
+  public DiscussionForum getForumByIdWithTopicsAttachmentsAndMessages(Long forumId) {
+	  if (LOG.isDebugEnabled()) { LOG.debug("getForumByIdWithTopicsAttachmentsAndMessages(Long " + forumId + ")"); }
+	  return (DiscussionForum) forumManager.getForumByIdWithTopicsAttachmentsAndMessages(forumId);
   }
 
   public DiscussionTopic getTopicByUuid(String topicId)
@@ -2022,8 +2030,37 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
 	public Map getReadStatusForMessagesWithId(List msgIds, String userId)
 	{
-    LOG.debug("getDiscussionForumsWithTopics()");
-    return messageManager.getReadStatusForMessagesWithId(msgIds, userId);
+		LOG.debug("getDiscussionForumsWithTopics()");
+		if (userId == null) {
+			 throw new IllegalArgumentException("Null Argument for userId in getReadStatusForMessagesWithId");
+		}
+		
+		Map msgIdStatusMap = new HashMap();
+		if (msgIds == null || msgIds.size() == 0) {
+			LOG.debug("empty map returns b/c no msgIds passed to getReadStatusForMessagesWithId");
+			return msgIdStatusMap;
+		}
+		
+		if (msgIds.size() < MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+			return messageManager.getReadStatusForMessagesWithId(msgIds, userId);
+		} else {
+			// if there are more than MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST msgs, we need to do multiple queries
+			int begIndex = 0;
+			int endIndex = 0;
+			List tempMsgIdList = new ArrayList();
+			while (begIndex < msgIds.size()) {
+				endIndex = begIndex + MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST;
+				if (endIndex > msgIds.size()) {
+					endIndex = msgIds.size();
+				}
+				tempMsgIdList.addAll(msgIds.subList(begIndex, endIndex));
+				Map statusMap = messageManager.getReadStatusForMessagesWithId(tempMsgIdList, userId);
+				msgIdStatusMap.putAll(statusMap);
+				begIndex = endIndex;
+			}
+		}
+		
+		return msgIdStatusMap;
 	}
 
 	public List getDiscussionForumsWithTopicsMembershipNoAttachments(String contextId)

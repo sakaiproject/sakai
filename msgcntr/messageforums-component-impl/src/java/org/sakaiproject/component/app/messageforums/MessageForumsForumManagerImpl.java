@@ -126,6 +126,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_GET_ALL_MOD_TOPICS_IN_SITE = "findAllModeratedTopicsForSite";
     private static final String QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM = "findNumModeratedTopicsForSiteByUserByMembership";
     
+    private static final String QUERY_GET_FORUM_BY_ID_WITH_TOPICS_AND_ATT_AND_MSGS = "findForumByIdWithTopicsAndAttachmentsAndMessages";
+    
     //public static Comparator FORUM_CREATED_DATE_COMPARATOR;
     
     /** Sorts the forums by the sort index and if the same index then order by the creation date */
@@ -1342,5 +1344,28 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 	        };
 
 	        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();
+		}
+		
+		public BaseForum getForumByIdWithTopicsAttachmentsAndMessages(final Long forumId)
+		{
+			if (forumId == null) {
+				throw new IllegalArgumentException("Null Argument");
+			}      
+
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.getNamedQuery(QUERY_GET_FORUM_BY_ID_WITH_TOPICS_AND_ATT_AND_MSGS);
+					q.setParameter("id", forumId, Hibernate.LONG); 
+					return q.uniqueResult();
+		          }
+		      };
+		      
+		      BaseForum bForum = (BaseForum) getHibernateTemplate().execute(hcb);
+		      
+		      if (bForum != null){
+		        getHibernateTemplate().initialize(bForum.getAttachmentsSet());
+		      }
+		      
+		      return bForum;      
 		}
 }

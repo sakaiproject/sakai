@@ -423,4 +423,11 @@ public interface DiscussionForumManager
    * @return
    */
   public int getNumModTopicsWithModPermission(List membershipList);
+  
+  /**
+   * Returns forum with topics, topic attachments, and topic messages
+   * @param forumId
+   * @return
+   */
+  public DiscussionForum getForumByIdWithTopicsAttachmentsAndMessages(Long forumId);
 }

@@ -1078,6 +1078,11 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 					return q.list();
 				}
 			};
+			
+			for (Iterator msgIdIter = msgIds.iterator(); msgIdIter.hasNext();) {
+				Long msgId = (Long) msgIdIter.next();
+				statusMap.put(msgId, Boolean.FALSE);
+			}
 			List statusList = (List)getHibernateTemplate().execute(hcb);
 			if(statusList != null)
 			{
