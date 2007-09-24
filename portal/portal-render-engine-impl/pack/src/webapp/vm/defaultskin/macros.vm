@@ -246,7 +246,7 @@ ${tool.toolRenderResult.getTitle()}
 #if (${loginHasLogInOutUrl2})
 		<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" >
 #if (${loginHasImage2}) 
-			<img alt="${loginMessage2}" src="${loginImage2} alt="${loginMessage2}"/>
+			<img src="${loginImage2}" alt="${loginMessage2}"/>
 #else
 			${loginMessage2}
 #end
