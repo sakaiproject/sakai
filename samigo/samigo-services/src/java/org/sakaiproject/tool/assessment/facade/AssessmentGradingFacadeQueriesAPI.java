@@ -178,10 +178,14 @@ public interface AssessmentGradingFacadeQueriesAPI
   public List getAllAssessmentGradingByAgentId(Long publishedAssessmentId, String agentIdString);
   
   public int getActualNumberRetake(Long publishedAssessmentId, String agentIdString);
-	  
+  
+  public HashMap getActualNumberRetakeHash(String agentIdString);
+  
   public List getStudentGradingSummaryData(Long publishedAssessmentId, String agentIdString);
   
   public int getNumberRetake(Long publishedAssessmentId, String agentIdString);
+  
+  public HashMap getNumberRetakeHash(String agentIdString);
   
   public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData);
 

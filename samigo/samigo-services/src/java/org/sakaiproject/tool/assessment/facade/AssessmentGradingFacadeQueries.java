@@ -55,6 +55,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -1423,6 +1424,31 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    }
   }
   
+  public HashMap getActualNumberRetakeHash(final String agentIdString) {
+		HashMap actualNumberRetakeHash = new HashMap();
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"select a.publishedAssessmentId, count(*) from AssessmentGradingData a, StudentGradingSummaryData s " +
+	    				" where a.agentId=? and a.forGrade=? " +
+	    				" and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
+	    				" and a.submittedDate > s.createdDate" +
+	    				" group by a.publishedAssessmentId" +
+	    				" order by a.submittedDate desc");
+	    		q.setString(0, agentIdString);
+	    		q.setBoolean(1, true);
+	    		return q.list();
+	    	};
+	    };
+	    List countList = getHibernateTemplate().executeFind(hcb);
+		Iterator iter = countList.iterator();
+		while (iter.hasNext()) {
+			Object o[] = (Object[]) iter.next(); 
+			actualNumberRetakeHash.put(o[0], o[1]);
+		}
+		return actualNumberRetakeHash;
+  }
+  
   public List getStudentGradingSummaryData(final Long publishedAssessmentId, final String agentIdString) {
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -1462,6 +1488,26 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	return numberRetake.intValue();
 	    }
   }
+  
+  public HashMap getNumberRetakeHash(final String agentIdString) {
+	  HashMap h = new HashMap();
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"select s " +
+	    				"from StudentGradingSummaryData s " +
+	    				"where s.agentId=? ");
+	    		q.setString(0, agentIdString);
+	    		return q.list();
+	    	};
+	    };
+	    List numberRetakeList = getHibernateTemplate().executeFind(hcb);
+	    for (int i = 0; i < numberRetakeList.size(); i++) {
+	    	StudentGradingSummaryData s = (StudentGradingSummaryData) numberRetakeList.get(i);
+			h.put(s.getPublishedAssessmentId(), s);
+		}
+		return h;
+}
   
   public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData) {
 	    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();

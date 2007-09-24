@@ -38,6 +38,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -175,7 +176,7 @@ public class SelectActionListener
     //log.info("recentSubmittedList size="+recentSubmittedList.size());
     boolean hasHighest = false;
     boolean hasMultipleSubmission = false;
-
+    HashMap feedbackHash = publishedAssessmentService.getFeedbackHash();
     for (int k = 0; k < recentSubmittedList.size(); k++) {
         hasHighest = false;
         hasMultipleSubmission = false;
@@ -271,7 +272,7 @@ public class SelectActionListener
         	delivery.setHasRandomDrawPart(false);
         }
         // check if score is available
-        HashMap feedbackHash = publishedAssessmentService.getFeedbackHash();
+        //HashMap feedbackHash = publishedAssessmentService.getFeedbackHash();
         delivery.setShowScore(showScore(g, hasFeedback, feedbackHash));
 
         String hasStats = hasStats(g, feedbackHash);
@@ -435,18 +436,21 @@ public class SelectActionListener
   // SAK-1464: we also want to filter out assessment released To Anonymous Users
   private ArrayList getTakeableList(ArrayList assessmentList, HashMap h) {
     ArrayList takeableList = new ArrayList();
+    GradingService gradingService = new GradingService();
+    HashMap numberRetakeHash = gradingService.getNumberRetakeHash(AgentFacade.getAgentString());
+    HashMap actualNumberRetake = gradingService.getActualNumberRetakeHash(AgentFacade.getAgentString());
     for (int i = 0; i < assessmentList.size(); i++) {
       PublishedAssessmentFacade f = (PublishedAssessmentFacade)assessmentList.get(i);
       if (f.getReleaseTo()!=null && !("").equals(f.getReleaseTo())
           && f.getReleaseTo().indexOf("Anonymous Users") == -1 ) {
-        if (isAvailable(f, h))
+        if (isAvailable(f, h, numberRetakeHash, actualNumberRetake))
           takeableList.add(f);
       }
     }
     return takeableList;
   }
 
-  public boolean isAvailable(PublishedAssessmentFacade f, HashMap h) {
+  public boolean isAvailable(PublishedAssessmentFacade f, HashMap h, HashMap numberRetakeHash, HashMap actualNumberRetakeHash) {
     boolean returnValue = false;
     //1. prepare our significant parameters
     Date currentDate = new Date();
@@ -460,8 +464,11 @@ public class SelectActionListener
     if ( (Boolean.FALSE).equals(f.getUnlimitedSubmissions())){
       maxSubmissionsAllowed = f.getSubmissionsAllowed().intValue();
     }
-    GradingService gradingService = new GradingService();
-    int numberRetake = gradingService.getNumberRetake(f.getPublishedAssessmentId(), AgentFacade.getAgentString());
+
+    int numberRetake = 0;
+    if (numberRetakeHash.get(f.getPublishedAssessmentId()) != null) {
+    	numberRetake = (((StudentGradingSummaryData) numberRetakeHash.get(f.getPublishedAssessmentId())).getNumberRetake()).intValue();
+    }
     int totalSubmitted = 0;
     
     //boolean notSubmitted = false;
@@ -479,7 +486,10 @@ public class SelectActionListener
 						return true;
 					}
 				}
-				int actualNumberRetake = gradingService.getActualNumberRetake(f.getPublishedAssessmentId(), AgentFacade.getAgentString());
+				int actualNumberRetake = 0;
+				if (actualNumberRetakeHash.get(f.getPublishedAssessmentId()) != null) {
+					actualNumberRetake = ((Integer) actualNumberRetakeHash.get(f.getPublishedAssessmentId())).intValue();
+				}
 				if (actualNumberRetake < numberRetake) {
 					returnValue = true;
 				}

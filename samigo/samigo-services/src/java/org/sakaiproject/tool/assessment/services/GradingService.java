@@ -1539,6 +1539,17 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return actualNumberReatke;
   }
   
+  public HashMap getActualNumberRetakeHash(String agentIdString) {
+	  HashMap actualNumberReatkeHash = new HashMap();
+	    try {
+	    	actualNumberReatkeHash = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().getActualNumberRetakeHash(agentIdString);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return actualNumberReatkeHash;
+}
+  
   public List getStudentGradingSummaryData(Long publishedAssessmentId, String agentIdString) {
 	  List results = null;
 	    try {
@@ -1560,6 +1571,17 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	      e.printStackTrace();
 	    }
 	    return numberRetake;
+  }
+  
+  public HashMap getNumberRetakeHash(String agentIdString) {
+	  HashMap numberRetakeHash = new HashMap();
+	    try {
+	    	numberRetakeHash = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().getNumberRetakeHash(agentIdString);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return numberRetakeHash;
   }
   
   public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData) {
