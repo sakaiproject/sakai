@@ -68,6 +68,9 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseDbBinarySingleStorage;
 import org.sakaiproject.util.BaseDbDualSingleStorage;
 import org.sakaiproject.util.BaseDbSingleStorage;
@@ -378,7 +381,7 @@ public class DbContentService extends BaseContentService
 		{
 			M_log.warn("init(): ", t);
 		}
-		
+
 		filesizeColumnExists = filesizeColumnExists();
 		
 		if(!filesizeColumnExists)
@@ -394,6 +397,114 @@ public class DbContentService extends BaseContentService
 			{
 				populateNewColumns();
 			}
+		}
+		
+		// test 
+		List<String> collectionIdList = new ArrayList<String>();
+		List<String> resourceIdList = new ArrayList<String>();
+		String collectionId = "/group/";
+		String siteid = "site_";
+		String fileid = "image_";
+		String extension = "jpg";
+		String resourceType = "org.sakaiproject.content.mock.resource-type";
+		String contentType = "image/jpeg";
+		byte[] content = new byte[(Byte.MAX_VALUE - Byte.MIN_VALUE) * 4];
+		int index = 0;
+		for(int i = 0; i < 4 && index < content.length; i++)
+		{
+			for(byte b = Byte.MIN_VALUE; b <= Byte.MAX_VALUE && index < content.length; b++)
+			{
+				content[index] = b;
+				index++;
+			}
+		}
+		
+		try
+		{
+    		//enableSecurityAdvisor();
+    		Session s = SessionManager.getCurrentSession();
+    		s.setUserId(UserDirectoryService.ADMIN_ID);
+    		
+			for(char ch = 'A'; ch <= 'Z'; ch++)
+			{
+				try
+				{
+					String name = siteid + ch;
+					ContentCollectionEdit collection = this.addCollection(collectionId, name);
+					ResourcePropertiesEdit props = collection.getPropertiesEdit();
+					props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+					this.commitCollection(collection);
+					collectionIdList.add(collection.getId());
+					
+					for(char ch1 = 'a'; ch1 <= 'z'; ch1++)
+					{
+						try
+						{
+							String resourceName = fileid + ch1;
+							ContentResourceEdit resource = this.addResource(collection.getId(), resourceName, extension, MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+							ResourcePropertiesEdit properties = resource.getPropertiesEdit();
+							properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, resourceName);
+							resource.setContent(content);
+							resource.setContentType(contentType);
+							resource.setResourceType(resourceType);
+							this.commitResource(resource);
+							resourceIdList.add(resource.getId());
+						}
+						catch(Exception e)
+						{
+							M_log.warn("TEMPORARY LOG MESSAGE WITH STACK TRACE: Failed to create all resources; ch1 = " + ch1, e);
+						}
+					}
+				}
+				catch(Exception e)
+				{
+					M_log.warn("TEMPORARY LOG MESSAGE WITH STACK TRACE: Failed to create all collections; ch = " + ch, e);
+				}
+			}
+			
+			int successCount = 0;
+			int failCount = 0;
+			int pageSize = 64;
+			for(int p = 0; p * pageSize < resourceIdList.size(); p++)
+			{
+				Collection<ContentResource> page = this.getResourcesOfType(resourceType, pageSize, p);
+				int r = 0;
+				for(ContentResource cr : page)
+				{
+					if(p * pageSize + r >= resourceIdList.size())
+					{
+						failCount++;
+					}
+					else if(cr.getId().equals(resourceIdList.get(p * pageSize + r)))
+					{
+						successCount++;
+					}
+					else
+					{
+						failCount++;
+					}
+					r++;
+				}
+				M_log.info("TEMPORARY LOG MESSAGE: Testing getResourcesOfType() completed page " + p + " of " + (resourceIdList.size() / pageSize));
+			}
+			M_log.info("TEMPORARY LOG MESSAGE: Testing getResourcesOfType() SUCCEEDED: " + successCount + " FAILED: " + failCount);
+			
+			for(String resourceId : resourceIdList)
+			{
+				ContentResourceEdit edit = this.editResource(resourceId);
+				this.removeResource(edit);
+			}
+			
+			M_log.info("TEMPORARY LOG MESSAGE: Will delete 26 collections and 676 resources.  Some log messages will appear.  This block of code will be removed in trunk within a few days and the log messages will disappear.");
+			for(String collId : collectionIdList)
+			{
+				ContentCollectionEdit edit = this.editCollection(collId);
+				this.removeCollection(edit);
+			}
+		}
+		catch(Exception e)
+		{
+			M_log.debug("TEMPORARY LOG MESSAGE WITH STACK TRACE: TEST FAILED ", e);
 		}
 	}
 
