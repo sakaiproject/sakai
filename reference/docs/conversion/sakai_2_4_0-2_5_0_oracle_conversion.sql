@@ -105,6 +105,9 @@ create sequence GB_PERMISSION_S;
 --OSP SAK-10553
 alter table osp_wizard_page_def add SUPPRESS_ITEMS number(1, 0) default '0' not null; 
 
+--OSP SAK-10612
+alter table osp_scaffolding add reviewerGroupAccess number(10, 0) default '0' not null;
+
 -- Dropbox updates SAK-11342
 CREATE TABLE CONTENT_DROPBOX_CHANGES
 (

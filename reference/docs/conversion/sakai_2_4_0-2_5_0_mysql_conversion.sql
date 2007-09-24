@@ -101,6 +101,9 @@ CREATE TABLE GB_PERMISSION_T (
 --OSP SAK-10553
 ALTER TABLE osp_wizard_page_def ADD SUPPRESS_ITEMS bit(1) not null default false; 
 
+--OSP SAK-10612
+alter table osp_scaffolding add reviewerGroupAccess integer not null default '0';
+
 -- Dropbox updates SAK-11342
 CREATE TABLE CONTENT_DROPBOX_CHANGES
 (
