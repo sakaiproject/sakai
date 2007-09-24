@@ -78,12 +78,16 @@
 						#end
 				</h3>
 			#end
+			## TEXT_ONLY_ASSIGNMENT_SUBMISSION = 1;
+			## ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION = 2;
+			## TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION = 3;
+			## NON_ELECTRONIC_ASSIGNMENT_SUBMISSION = 4;
 			<p class="instruction">
-				#if (($submissionType==2) || ($submissionType==3))
-					Fill out form. Make sure you click <span class="highlight"><b>"Submit"</b></span>.
-				#else
-				 	$tlang.getString("stuviewsubm.asshasnot")
-					#end
+				#if (($submissionType==1) || ($submissionType==3))
+					 $tlang.getString("stuviewsubm.asshasnot")
+				#elseif ($submissionType==2)
+				 	$tlang.getString("stuviewsubm.assattonly")
+				#end
 			</p>	
 		#end
 	#end
