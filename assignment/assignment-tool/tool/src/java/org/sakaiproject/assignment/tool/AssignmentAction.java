@@ -170,7 +170,13 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** The calendar object */
 	private static final String CALENDAR = "calendar";
+	
+	/** The calendar tool */
+	private static final String CALENDAR_TOOL_EXIST = "calendar_tool_exisit";
 
+	/** The announcement tool */
+	private static final String ANNOUNCEMENT_TOOL_EXIST = "announcement_tool_exist";
+	
 	/** The announcement channel */
 	private static final String ANNOUNCEMENT_CHANNEL = "announcement_channel";
 
@@ -6611,69 +6617,98 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE, iService);
 		} // if
 
-		/** The calendar service in the State. */
-		CalendarService cService = (CalendarService) state.getAttribute(STATE_CALENDAR_SERVICE);
-		if (cService == null)
+		/** The calendar tool  */
+		if (state.getAttribute(CALENDAR_TOOL_EXIST) == null)
 		{
-			cService = org.sakaiproject.calendar.cover.CalendarService.getInstance();
-			state.setAttribute(STATE_CALENDAR_SERVICE, cService);
-
-			String calendarId = ServerConfigurationService.getString("calendar", null);
-			if (calendarId == null)
+			if (!siteHasTool(siteId, "sakai.schedule"))
 			{
-				calendarId = cService.calendarReference(siteId, SiteService.MAIN_CONTAINER);
-				try
+				state.setAttribute(CALENDAR_TOOL_EXIST, Boolean.FALSE);
+				state.removeAttribute(CALENDAR);
+			}
+			else
+			{
+				state.setAttribute(CALENDAR_TOOL_EXIST, Boolean.TRUE);
+				if (state.getAttribute(CALENDAR) == null )
 				{
-					state.setAttribute(CALENDAR, cService.getCalendar(calendarId));
-				}
-				catch (IdUnusedException e)
-				{
-					Log.info("chef", "No calendar found for site " + siteId);
-					state.removeAttribute(CALENDAR);
-				}
-				catch (PermissionException e)
-				{
-					Log.info("chef", "No permission to get the calender. ");
-					state.removeAttribute(CALENDAR);
-				}
-				catch (Exception ex)
-				{
-					Log.info("chef", "Assignment : Action : init state : calendar exception : " + ex);
-					state.removeAttribute(CALENDAR);
+					state.setAttribute(CALENDAR_TOOL_EXIST, Boolean.TRUE);
+
+					CalendarService cService = org.sakaiproject.calendar.cover.CalendarService.getInstance();
+					state.setAttribute(STATE_CALENDAR_SERVICE, cService);
+	
+					String calendarId = ServerConfigurationService.getString("calendar", null);
+					if (calendarId == null)
+					{
+						calendarId = cService.calendarReference(siteId, SiteService.MAIN_CONTAINER);
+						try
+						{
+							state.setAttribute(CALENDAR, cService.getCalendar(calendarId));
+						}
+						catch (IdUnusedException e)
+						{
+							Log.info("chef", "No calendar found for site " + siteId);
+							state.removeAttribute(CALENDAR);
+						}
+						catch (PermissionException e)
+						{
+							Log.info("chef", "No permission to get the calender. ");
+							state.removeAttribute(CALENDAR);
+						}
+						catch (Exception ex)
+						{
+							Log.info("chef", "Assignment : Action : init state : calendar exception : " + ex);
+							state.removeAttribute(CALENDAR);
+						}
+					}
 				}
 			}
-		} // if
+		}
+			
 
-		/** The announcement service in the State. */
-		AnnouncementService aService = (AnnouncementService) state.getAttribute(STATE_ANNOUNCEMENT_SERVICE);
-		if (aService == null)
+		/** The Announcement tool  */
+		if (state.getAttribute(ANNOUNCEMENT_TOOL_EXIST) == null)
 		{
-			aService = org.sakaiproject.announcement.cover.AnnouncementService.getInstance();
-			state.setAttribute(STATE_ANNOUNCEMENT_SERVICE, aService);
-
-			String channelId = ServerConfigurationService.getString("channel", null);
-			if (channelId == null)
+			if (!siteHasTool(siteId, "sakai.announcements"))
 			{
-				channelId = aService.channelReference(siteId, SiteService.MAIN_CONTAINER);
-				try
+				state.setAttribute(ANNOUNCEMENT_TOOL_EXIST, Boolean.FALSE);
+				state.removeAttribute(ANNOUNCEMENT_CHANNEL);
+			}
+			else
+			{
+				state.setAttribute(ANNOUNCEMENT_TOOL_EXIST, Boolean.TRUE);
+				if (state.getAttribute(ANNOUNCEMENT_CHANNEL) == null )
 				{
-					state.setAttribute(ANNOUNCEMENT_CHANNEL, aService.getAnnouncementChannel(channelId));
-				}
-				catch (IdUnusedException e)
-				{
-					Log.warn("chef", "No announcement channel found. ");
-					state.removeAttribute(ANNOUNCEMENT_CHANNEL);
-				}
-				catch (PermissionException e)
-				{
-					Log.warn("chef", "No permission to annoucement channel. ");
-				}
-				catch (Exception ex)
-				{
-					Log.warn("chef", "Assignment : Action : init state : calendar exception : " + ex);
+					/** The announcement service in the State. */
+					AnnouncementService aService = (AnnouncementService) state.getAttribute(STATE_ANNOUNCEMENT_SERVICE);
+					if (aService == null)
+					{
+						aService = org.sakaiproject.announcement.cover.AnnouncementService.getInstance();
+						state.setAttribute(STATE_ANNOUNCEMENT_SERVICE, aService);
+			
+						String channelId = ServerConfigurationService.getString("channel", null);
+						if (channelId == null)
+						{
+							channelId = aService.channelReference(siteId, SiteService.MAIN_CONTAINER);
+							try
+							{
+								state.setAttribute(ANNOUNCEMENT_CHANNEL, aService.getAnnouncementChannel(channelId));
+							}
+							catch (IdUnusedException e)
+							{
+								Log.warn("chef", "No announcement channel found. ");
+								state.removeAttribute(ANNOUNCEMENT_CHANNEL);
+							}
+							catch (PermissionException e)
+							{
+								Log.warn("chef", "No permission to annoucement channel. ");
+							}
+							catch (Exception ex)
+							{
+								Log.warn("chef", "Assignment : Action : init state : calendar exception : " + ex);
+							}
+						}
+					}
 				}
 			}
-
 		} // if
 
 		if (state.getAttribute(STATE_CONTEXT_STRING) == null)
@@ -6786,6 +6821,29 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO, new Integer(2012));
 		}
 	} // initState
+
+
+	/**
+	 * whether the site has the specified tool
+	 * @param siteId
+	 * @return
+	 */
+	private boolean siteHasTool(String siteId, String toolId) {
+		boolean rv = false;
+		try
+		{
+			Site s = SiteService.getSite(siteId);
+			if (s.getToolForCommonId(toolId) != null)
+			{
+				rv = true;
+			}
+		}
+		catch (Exception e)
+		{
+			Log.info("chef", this + e.getMessage() + siteId);
+		}
+		return rv;
+	}
 
 	/**
 	 * reset the attributes for view submission
