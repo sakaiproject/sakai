@@ -473,6 +473,7 @@ public class DbContentService extends BaseContentService
 				{
 					if(p * pageSize + r >= resourceIdList.size())
 					{
+						M_log.info("TEMPORARY LOG MESSAGE: test failed ====> p = " + p + " r = " + r + " index out of range: p * pageSize + r = " + (p * pageSize + r) + " resourceIdList.size() = " + resourceIdList.size());
 						failCount++;
 					}
 					else if(cr.getId().equals(resourceIdList.get(p * pageSize + r)))
@@ -481,6 +482,7 @@ public class DbContentService extends BaseContentService
 					}
 					else
 					{
+						M_log.info("TEMPORARY LOG MESSAGE: test failed ====> p = " + p + " r = " + r + " resource-id doesn't match: cr.getId() = " + cr.getId() + " resourceIdList.get(p * pageSize + r) = resourceIdList.get(" + (p * pageSize + r) + ") = " + resourceIdList.get(p * pageSize + r));
 						failCount++;
 					}
 					r++;
