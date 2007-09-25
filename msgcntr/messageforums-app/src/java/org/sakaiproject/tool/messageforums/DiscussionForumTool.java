@@ -482,7 +482,7 @@ public class DiscussionForumTool
       						for(int j=0; j<msgList.size(); j++)
       						{
       							Message tempMsg = (Message)msgList.get(j);
-      							if(tempMsg != null && !tempMsg.getDraft().booleanValue())
+      							if(tempMsg != null && !tempMsg.getDraft().booleanValue() && !tempMsg.getDeleted().booleanValue())
       							{
       								msgIds.add(tempMsg.getId());
       							}
@@ -1940,7 +1940,7 @@ public class DiscussionForumTool
 				  for(int j=0; j<msgList.size(); j++)
 				  {
 					  Message tempMsg = (Message)msgList.get(j);
-					  if(tempMsg != null && !tempMsg.getDraft().booleanValue())
+					  if(tempMsg != null && !tempMsg.getDraft().booleanValue() && !tempMsg.getDeleted())
 					  {
 						  msgIds.add(tempMsg.getId());
 					  }
@@ -2044,7 +2044,7 @@ public class DiscussionForumTool
           if (topicMsgs == null || topicMsgs.size() == 0) {
         	  decoTopic.setTotalNoMessages(0);
         	  decoTopic.setUnreadNoMessages(0);
-          } else if (uiPermissionsManager.isModeratePostings(topic, forum) || !topic.getModerated().booleanValue()) {
+          } else if (!topic.getModerated().booleanValue() || uiPermissionsManager.isModeratePostings(topic, forum)) {
         	  int totalMsgs = 0;
         	  int totalUnread = 0;
         	  for (Iterator msgIter = topicMsgs.iterator(); msgIter.hasNext();) {
@@ -2210,16 +2210,7 @@ public class DiscussionForumTool
     {
     	decoTopic.setReadFullDesciption(true);
     }
-    if (!decoTopic.isTopicModerated() || decoTopic.getIsModeratedAndHasPerm())
-    {
-    	decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-    	decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
-    }
-    else
-    {
-    	decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(topic));
-    	decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(topic));
-    }
+
     boolean hasNextTopic = forumManager.hasNextTopic(topic);
     boolean hasPreviousTopic = forumManager.hasPreviousTopic(topic);
     decoTopic.setHasNextTopic(hasNextTopic);
@@ -2227,32 +2218,55 @@ public class DiscussionForumTool
     if (hasNextTopic)
     {
       DiscussionTopic nextTopic= forumManager.getNextTopic(topic);
-        
-              decoTopic.setNextTopicId(nextTopic.getId());
-             
+      decoTopic.setNextTopicId(nextTopic.getId());
     }
     if (hasPreviousTopic)
     {    
-        decoTopic
-          .setPreviousTopicId(forumManager.getPreviousTopic(topic).getId());
-       
+        decoTopic.setPreviousTopicId(forumManager.getPreviousTopic(topic).getId());
     }
 
     List temp_messages = forumManager.getTopicByIdWithMessagesAndAttachments(topic.getId())
         .getMessages();
     if (temp_messages == null || temp_messages.size() < 1)
     {
+      decoTopic.setTotalNoMessages(0);
+      decoTopic.setUnreadNoMessages(0);
       return decoTopic;
     }
     
     List msgIdList = new ArrayList();
     for (Iterator msgIter = temp_messages.iterator(); msgIter.hasNext();) {
     	Message msg = (Message) msgIter.next();
-    	msgIdList.add(msg.getId());
+    	if(msg != null && !msg.getDraft().booleanValue() && !msg.getDeleted()) {
+    		msgIdList.add(msg.getId());
+    	}
     }
     
     // retrieve read status for all of the messages in this topic
     Map messageReadStatusMap = forumManager.getReadStatusForMessagesWithId(msgIdList, getUserId());
+    
+    // set # read/unread msgs on topic level
+    if (!topic.getModerated().booleanValue() || uiPermissionsManager.isModeratePostings(topic, selectedForum.getForum())) {
+    	int totalMsgs = 0;
+    	int totalUnread = 0;
+    	for (Iterator msgIter = msgIdList.iterator(); msgIter.hasNext();) {
+    		Long msgId = (Long) msgIter.next();
+    		Boolean readStatus = (Boolean)messageReadStatusMap.get(msgId);
+    		if (readStatus != null) {
+    			totalMsgs++;
+    			if (!readStatus.booleanValue()) {
+    				totalUnread++;
+    			}
+    		}
+    	}
+
+    	decoTopic.setTotalNoMessages(totalMsgs);
+    	decoTopic.setUnreadNoMessages(totalUnread);
+
+    } else {  // topic is moderated
+    	decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(topic));
+    	decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(topic));
+    }
 
     Iterator iter = temp_messages.iterator();
     
