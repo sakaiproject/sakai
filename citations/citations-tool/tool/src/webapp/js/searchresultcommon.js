@@ -301,6 +301,7 @@ function SRC_addCitation(href, anchorText, creatorText, sourceText)
 	  newAnchor = __SRC_makeCitationAnchor(href, anchorText, creatorText, sourceText);
 
     SRC_findResourceSearchInstance().InsertHtml(newAnchor);
+    window.focus();
   }
   catch (exception)
   {
