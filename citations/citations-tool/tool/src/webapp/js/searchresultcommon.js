@@ -23,8 +23,8 @@ function SRC_verifyWindowAccess()
 	   * Done if there isn't an HTML editor associated with this window (how?)
 	   */
 	 	if ((!window.opener.top.document) ||
-	 			(!window.opener.top.document.__htmlareas) ||
-	 			(window.opener.top.document.__htmlareas.length == 0))
+	 			(!window.opener.top.document.__editorareas) ||
+	 			(window.opener.top.document.__editorareas.length == 0))
 		{
 	    if (confirm("There is no HTML editor associated with this window\r\n\r\n"
 	        +       "          Close this search window?"))
@@ -185,7 +185,7 @@ function SRC_clearTimedWindowVerification()
  */
 function SRC_findBaseFCKEditorApi()
 {
- 	return window.opener.top.document.__htmlareas[0];
+ 	return window.opener.top.document.__editorareas[0];
 }
 
 /*
