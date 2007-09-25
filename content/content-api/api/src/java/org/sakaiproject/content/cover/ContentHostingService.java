@@ -820,14 +820,6 @@ public class ContentHostingService
 
 		return service.findResources(type, primaryMimeType, subMimeType);
 	}
-
-	public static java.util.List findResources(String type, String primaryMimeType, String subMimeType, boolean accessableOnly)
-	{
-	   org.sakaiproject.content.api.ContentHostingService service = getInstance();
-      if (service == null) return null;
-
-      return service.findResources(type, primaryMimeType, subMimeType, accessableOnly);
-	}
   
 	public static java.util.Map getCollectionMap()
 	{

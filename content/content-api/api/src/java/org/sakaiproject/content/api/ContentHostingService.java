@@ -1379,22 +1379,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @return List of ContentResource objects that match the search criteria
 	 */
 	public List findResources(String type, String primaryMimeType, String subMimeType);
-
-	  /**
-    * Find the resources this user has read access to from all worksites of the appropriate type.
-    * 
-    * @param type
-    *        this is the ResourceProperties.PROP_STRUCTOBJ_TYPE for stuctured objects or ResourceProperties.FILE_TYPE for file resources or null for all resources.
-    * @param primaryMimeType
-    *        The primary mime type (ie. the "text" of "text/xml") This may be null to include all resources
-    * @param subMimeType
-    *        The sub type (ie, the "xml" of "text/xml") This may be null to include all resources of the primary mime type if specified.
-    * @param accessableOnly
-    *        Flag indicating if only resources this user has read access to should be returned
-    * @return List of ContentResource objects that match the search criteria
-    */
-   public List findResources(String type, String primaryMimeType, String subMimeType, boolean accessableOnly);
-   
+  
 	/**
 	 * Return a map of Worksite collections roots that the user has access to.
 	 * 
