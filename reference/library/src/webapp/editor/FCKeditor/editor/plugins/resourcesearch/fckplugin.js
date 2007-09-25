@@ -50,7 +50,7 @@ ResourceSearchCommand.Execute = function()
 	attributes 	= "height=420, width=750, location=1, toolbar=1, status=1, menubar=1, scrollbars=1, resizable=1";
 
   	url         = getBaseUrl() + "/sakai.citation.editor.integration.helper?panel=Main&sakai_action=doIntegrationSearch&searchType=noSearch";
-  	
+
 	/*
 	 * New search window
 	 */
@@ -60,18 +60,18 @@ ResourceSearchCommand.Execute = function()
 	/*
 	 * Save editor API instance
 	 *
-	 * This is accessed as window.opener.top.document.__htmlareas[index] in the popup
+	 * This is accessed as window.opener.top.document.__editorareas[index] in the popup
 	 */
-	if (typeof top.document.__htmlareas == "undefined")
+	if (typeof top.document.__editorareas == "undefined")
 	{
-		top.document.__htmlareas = new Array();
+		top.document.__editorareas = new Array();
 	}
 
-	activeEditorInstance = top.document.__htmlareas.length;
+	activeEditorInstance = top.document.__editorareas.length;
 
 	for (var i = 0; i < activeEditorInstance; i++)
 	{
-	  var editorInstance  = top.document.__htmlareas[i];
+	  var editorInstance  = top.document.__editorareas[i];
 
     /*
      * If this page has been loaded before, we need to overwrite the previously
@@ -87,11 +87,11 @@ ResourceSearchCommand.Execute = function()
    * Save this editor API instance (and this plugin)
    */
   editorApi.__resourceSearch = this;
-	top.document.__htmlareas[activeEditorInstance] = editorApi;
+	top.document.__editorareas[activeEditorInstance] = editorApi;
 	/*
 	 * Mark this API/plugin combination as "active"
    */
-	flagActiveEditor(top.document.__htmlareas[activeEditorInstance]);
+	flagActiveEditor(top.document.__editorareas[activeEditorInstance]);
   /*
    * Attach a focus event handler to track the active editor instance
    */
@@ -139,17 +139,17 @@ ResourceSearchCommand.getWindowTitle = function()
  */
 ResourceSearchCommand.findEditorInstance = function()
 {
-  var editorCount = top.document.__htmlareas.length;
+  var editorCount = top.document.__editorareas.length;
 
 	for (var i = 0; i < editorCount; i++)
 	{
-	  if (top.document.__htmlareas[i].__active)
+	  if (top.document.__editorareas[i].__active)
 	  {
-	    return top.document.__htmlareas[i];
+	    return top.document.__editorareas[i];
 	  }
   }
   alert("WARNING: No active editor found, using base instance");
-  return top.document.__htmlareas[0];
+  return top.document.__editorareas[0];
 }
 
 /*
@@ -161,11 +161,11 @@ ResourceSearchCommand.findEditorInstance = function()
  */
 function flagActiveEditor(editorInstance)
 {
-  var editorCount = top.document.__htmlareas.length;
+  var editorCount = top.document.__editorareas.length;
 
 	for (var i = 0; i < editorCount; i++)
 	{
-	  top.document.__htmlareas[i].__active = false;
+	  top.document.__editorareas[i].__active = false;
   }
   editorInstance.__active = true;
 }
