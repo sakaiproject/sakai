@@ -11414,9 +11414,9 @@ public class SiteAction extends PagedResourceActionII {
 			boolean upcomingOnly) {
 		List terms;
 		if (upcomingOnly) {
-			terms = cms.getCurrentAcademicSessions();
+			terms = cms != null?cms.getCurrentAcademicSessions():null;
 		} else { // get all
-			terms = cms.getAcademicSessions();
+			terms = cms != null?cms.getAcademicSessions():null;
 		}
 		if (terms != null && terms.size() > 0) {
 			context.put("termList", terms);
