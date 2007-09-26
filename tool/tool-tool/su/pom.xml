@@ -80,11 +80,15 @@
       <artifactId>jsf-api</artifactId>
       <version>1.1.01</version>
     </dependency>
+
+   <!-- updated so that the jstl library is packed into the tool for now -->
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-      <version>1.0.2</version>
+       <groupId>javax.servlet</groupId>
+       <artifactId>jstl</artifactId>
+       <version>1.1.2</version>
+       <scope>compile</scope>
     </dependency>
+
     <dependency>
       <groupId>taglibs</groupId>
       <artifactId>standard</artifactId>
