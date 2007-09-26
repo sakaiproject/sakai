@@ -2047,12 +2047,13 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 			// if there are more than MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST msgs, we need to do multiple queries
 			int begIndex = 0;
 			int endIndex = 0;
-			List tempMsgIdList = new ArrayList();
+
 			while (begIndex < msgIds.size()) {
 				endIndex = begIndex + MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST;
 				if (endIndex > msgIds.size()) {
 					endIndex = msgIds.size();
 				}
+				List tempMsgIdList = new ArrayList();
 				tempMsgIdList.addAll(msgIds.subList(begIndex, endIndex));
 				Map statusMap = messageManager.getReadStatusForMessagesWithId(tempMsgIdList, userId);
 				msgIdStatusMap.putAll(statusMap);

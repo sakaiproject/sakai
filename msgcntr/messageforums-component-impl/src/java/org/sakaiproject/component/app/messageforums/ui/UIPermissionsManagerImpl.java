@@ -895,7 +895,13 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	  final String currRole = getCurrentUserRole(siteId);
 	  userMemberships.add(currRole);
 	  // now, add any groups the user is a member of
-	  Collection groups = (Collection) ThreadLocalManager.get("message_center_current_member_groups");
+	  Collection groups;
+	  if (ThreadLocalManager.get("message_center_current_member_groups") != null) {
+		  groups = (Collection) ThreadLocalManager.get("message_center_current_member_groups");
+	  } else {
+		  groups = SiteService.getSite(toolManager.getCurrentPlacement().getContext()).getGroupsWithMember(getCurrentUserId());
+	  }
+
 	  Iterator groupIter = groups.iterator();
 	  while (groupIter.hasNext())
 	  {
