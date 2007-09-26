@@ -24,11 +24,13 @@ package org.sakaiproject.tool.assessment.facade;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
@@ -205,5 +207,7 @@ public interface AssessmentFacadeQueriesAPI {
 	public void copyAllAssessments(String fromContext, String toContext);
 	
 	public List getAllActiveAssessmentsByAgent(String fromContext);
+
+	public Set copyItemAttachmentSet(ItemData newItem, Set itemAttachmentSet);
 
 }

@@ -2221,4 +2221,32 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
     }
     else return null;
   }
+  
+	public Set copyItemAttachmentSet(ItemData newItem, Set itemAttachmentSet) {
+		HashSet h = new HashSet();
+		Iterator o = itemAttachmentSet.iterator();
+		while (o.hasNext()) {
+			ItemAttachment itemAttachment = (ItemAttachment) o.next();
+			try {
+				// create a copy of the resource
+				AssessmentService service = new AssessmentService();
+				ContentResource cr_copy = service.createCopyOfContentResource(
+						itemAttachment.getResourceId(), itemAttachment
+								.getFilename());
+				// get relative path
+				String url = getRelativePath(cr_copy.getUrl(), ServerConfigurationService.getServerUrl());
+
+				ItemAttachment newItemAttachment = new ItemAttachment(null,
+						newItem, cr_copy.getId(), itemAttachment.getFilename(),
+						itemAttachment.getMimeType(), itemAttachment.getFileSize(),
+						itemAttachment.getDescription(), url, itemAttachment.getIsLink(), 
+						itemAttachment.getStatus(),	AgentFacade.getAgentString(), new Date(), 
+						AgentFacade.getAgentString(), new Date());
+				h.add(newItemAttachment);
+			} catch (Exception e) {
+				log.warn(e.getMessage());
+			}
+		}
+		return h;
+	}
 }

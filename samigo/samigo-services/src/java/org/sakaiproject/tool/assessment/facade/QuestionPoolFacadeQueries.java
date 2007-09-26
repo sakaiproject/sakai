@@ -39,6 +39,8 @@ import org.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
@@ -58,6 +60,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
 public class QuestionPoolFacadeQueries
     extends HibernateDaoSupport implements QuestionPoolFacadeQueriesAPI {
@@ -1301,19 +1304,11 @@ public class QuestionPoolFacadeQueries
 	    return toSet;
   }
   
-  private HashSet copyAttachment(ItemDataIfc toItemData, ItemDataIfc fromItemData) {
-	    HashSet toSet = new HashSet();
-	    Set fromSet = fromItemData.getItemAttachmentSet();
-	    Iterator iter = fromSet.iterator();
-	    while (iter.hasNext()) {
-	    	ItemAttachmentIfc fromItemAttachment = (ItemAttachmentIfc) iter.next();
-	    	toSet.add(new ItemAttachment(fromItemAttachment.getAttachmentId(), toItemData, fromItemAttachment.getResourceId(),
-	    			fromItemAttachment.getFilename(), fromItemAttachment.getMimeType(), fromItemAttachment.getFileSize(),
-	    			fromItemAttachment.getDescription(), fromItemAttachment.getLocation(), fromItemAttachment.getIsLink(),
-	    			fromItemAttachment.getStatus(), AgentFacade.getAgentString(), new Date(), AgentFacade.getAgentString(),
-	    			new Date()));
-	    }
-	    return toSet;
+  private Set copyAttachment(ItemDataIfc toItemData, ItemDataIfc fromItemData) {
+	  AssessmentService assessmentService = new AssessmentService();
+	  Set toSet = assessmentService.copyItemAttachmentSet((ItemData) toItemData, fromItemData.getItemAttachmentSet());
+	    
+	  return toSet;
   }
   
   public Integer getCountItemFacades(final Long questionPoolId) {	    

@@ -41,6 +41,7 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -637,6 +638,10 @@ public class AssessmentService {
 
 	  public String getAssessmentCreatedBy(String assessmentId){
 		    return PersistenceService.getInstance().getAssessmentFacadeQueries().getAssessmentCreatedBy(assessmentId);
+	  }
+	  
+	  public Set copyItemAttachmentSet(ItemData newItem, Set itemAttachmentSet){
+		    return PersistenceService.getInstance().getAssessmentFacadeQueries().copyItemAttachmentSet(newItem, itemAttachmentSet);
 	  }
 
 }
