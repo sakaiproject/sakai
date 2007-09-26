@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.optimize.shared.impl;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 
 import org.sakaiproject.search.journal.api.JournalManagerState;
@@ -32,13 +31,12 @@ import org.sakaiproject.search.journal.api.JournalManagerState;
 public class OptimizeJournalManagerStateImpl implements JournalManagerState
 {
 
-	public Connection connection;
 
 	public String indexWriter;
 
 	public long transactionId;
 
-	public long oldestVersion;
+	public long oldestSavePoint;
 
 	public ArrayList<Long> mergeList;
 

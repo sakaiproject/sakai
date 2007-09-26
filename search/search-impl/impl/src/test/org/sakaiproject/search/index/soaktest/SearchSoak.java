@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.search.mock.MockClusterService;
 import org.sakaiproject.search.util.FileUtils;
 
 /**
@@ -109,19 +110,45 @@ public class SearchSoak extends TestCase
 
 		log.info("Using " + driver);
 		SearchIndexerNode[] node = new SearchIndexerNode[4];
+		MockClusterService clusterService = new MockClusterService();
 		for (int i = 0; i < 4; i++)
 		{
-			node[i] = new SearchIndexerNode(testBase.getAbsolutePath(),
+			node[i] = new SearchIndexerNode(clusterService, testBase.getAbsolutePath(),
 					"node" + i, driver, url, user, password);
 			node[i].init();
 		}
-		for ( int k = 0; k < 3600; k++ ) {
+		clusterService.init();
+		
+		for ( int k = 0; k < 50; k++ ) {
 			for (int i = 0; i < 4; i++)
 			{
 				node[i].testSearch();
 			}
+			log.info("Done "+k);
 			Thread.sleep(1000);
 		}
+		
+		for (int i = 0; i < 4; i++)
+		{
+			node[i].close();
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			node[i].cleanup();
+		}
+		log.info(" waiting for 30 ");
+		Thread.sleep(30000);
+		Runtime.getRuntime().gc();
+		for ( int k = 0; k < 50; k++ ) {
+			for (int i = 0; i < 4; i++)
+			{
+				node[i].testSearch();
+			}
+			log.info("Done "+k);
+		}
+		log.info(" take snapshot ");
+		Thread.sleep(3600000);
+		
 	}
 
 }

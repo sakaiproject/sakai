@@ -102,7 +102,11 @@ public class SearchIndexerNode
 
 	private JournaledFSIndexStorage journaledFSIndexStorage;
 
-	public SearchIndexerNode(String base, String instanceName, String driver, String url, String userame, String password) 
+	private MockClusterService clusterService;
+
+	public SearchIndexerNode(MockClusterService clusterService, String base,
+			String instanceName, String driver, String url, String userame,
+			String password)
 	{
 		this.base = base;
 		this.instanceName = instanceName;
@@ -110,6 +114,7 @@ public class SearchIndexerNode
 		this.url = url;
 		this.userame = userame;
 		this.password = password;
+		this.clusterService = clusterService;
 	}
 
 	public void init() throws Exception
@@ -122,10 +127,10 @@ public class SearchIndexerNode
 		String optimizeWork = instanceBase + "/index/optwork";
 		String journalOptimizeWork = instanceBase + "/index/joptwork";
 
-		tds = new SharedTestDataSource(base,10,false,driver, url, userame, password);
+		tds = new SharedTestDataSource(base, 10, false, driver, url, userame, password);
 
 		mu = new MergeUpdateOperation();
-		 journaledFSIndexStorage = new JournaledFSIndexStorage();
+		journaledFSIndexStorage = new JournaledFSIndexStorage();
 		StandardAnalyzerFactory analyzerFactory = new StandardAnalyzerFactory();
 		DbJournalManager journalManager = new DbJournalManager();
 		MockServerConfigurationService serverConfigurationService = new MockServerConfigurationService();
@@ -186,16 +191,18 @@ public class SearchIndexerNode
 		searchBuilderQueueManager.setSearchIndexBuilder(mockSearchIndexBuilder);
 
 		transactionIndexManager
-		.addTransactionListener(journalStorageUpdateTransactionListener);
+				.addTransactionListener(journalStorageUpdateTransactionListener);
 		transactionIndexManager.addTransactionListener(searchBuilderQueueManager);
 		transactionIndexManager.addTransactionListener(journalManagerUpdateTransaction);
-//		transactionIndexManager.addTransactionListener(new DebugTransactionListener());
+		// transactionIndexManager.addTransactionListener(new
+		// DebugTransactionListener());
 
 		tiw = new TransactionalIndexWorker();
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(serverConfigurationService);
 		tiw.setTransactionIndexManager(transactionIndexManager);
-//		tiw.addIndexWorkerDocumentListener(new DebugIndexWorkerDocumentListener());
+		// tiw.addIndexWorkerDocumentListener(new
+		// DebugIndexWorkerDocumentListener());
 		tiw.addIndexWorkerListener(new DebugIndexWorkerListener());
 
 		sequence.init();
@@ -205,8 +212,7 @@ public class SearchIndexerNode
 		journaledFSIndexStorage.init();
 
 		tiw.init();
-		
-		
+
 		OptimizableIndexImpl optimizableIndex = new OptimizableIndexImpl();
 		optimizableIndex.setJournaledIndex(journaledFSIndexStorage);
 
@@ -226,8 +232,7 @@ public class SearchIndexerNode
 
 		oo.init();
 
-
-		 cim = new ConcurrentIndexManager();
+		cim = new ConcurrentIndexManager();
 		IndexManagementTimerTask indexer = new IndexManagementTimerTask();
 		IndexManagementTimerTask merger = new IndexManagementTimerTask();
 		IndexManagementTimerTask optimizer = new IndexManagementTimerTask();
@@ -264,33 +269,33 @@ public class SearchIndexerNode
 		taskList.add(optimizer);
 		optimizer.setDelay(50);
 		optimizer.setPeriod(10000);
-		
+
 		IndexManagementTimerTask docloader = new IndexManagementTimerTask();
 		docloader.setDelay(5);
 		docloader.setPeriod(500);
-		docloader.setManagementOperation(new ManagementOperation() {
+		docloader.setManagementOperation(new ManagementOperation()
+		{
 
 			public void runOnce()
 			{
 				try
 				{
-					tds.populateDocuments(500,instanceName);
+					tds.populateDocuments(500, instanceName);
 				}
 				catch (Exception e)
 				{
-					log.error("Failed to LoadDocuments ",e);
+					log.error("Failed to LoadDocuments ", e);
 				}
 			}
-			
+
 		});
-		
+
 		taskList.add(docloader);
-		
-		 
+
 		journaledFSIndexStorage.addIndexListener(cim);
-		
+
 		// Journal Optimization
-		
+
 		JournalOptimizationOperation journalOptimizationOperation = new JournalOptimizationOperation();
 		JournalOptimizationManagerImpl journalOptimizationManager = new JournalOptimizationManagerImpl();
 
@@ -302,9 +307,7 @@ public class SearchIndexerNode
 		DbJournalOptimizationManager optimizeJournalManager = new DbJournalOptimizationManager();
 		TransactionSequenceImpl optimizeSequence = new TransactionSequenceImpl();
 		sequence.getClass();
-		MockClusterService clusterService = new MockClusterService();
 		clusterService.addServerConfigurationService(serverConfigurationService);
-
 
 		long journalOptimizeLimit = 5;
 
@@ -315,7 +318,6 @@ public class SearchIndexerNode
 		optimizeJournalManager.setDatasource(tds.getDataSource());
 		optimizeJournalManager.setJournalOptimizeLimit(journalOptimizeLimit);
 		optimizeJournalManager.setServerConfigurationService(serverConfigurationService);
-
 
 		sharedFilesystemLoadTransactionListener
 				.setSharedFilesystemJournalStorage(sharedFilesystemJournalStorage);
@@ -348,47 +350,46 @@ public class SearchIndexerNode
 
 		optimizeJournalManager.init();
 		optimizeSequence.init();
-		clusterService.init();
 		journalOptimizationOperation.init();
-		
+
 		IndexManagementTimerTask journalOptimizer = new IndexManagementTimerTask();
 		journalOptimizer.setManagementOperation(journalOptimizationOperation);
 		journalOptimizer.setDelay(10);
 		journalOptimizer.setPeriod(1000);
 		taskList.add(journalOptimizer);
 
-		
-		
-		
-		
-		cim.setTasks(taskList);		
+		cim.setTasks(taskList);
 		cim.init();
-		
 
 	}
 
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
 	 */
 	public void close() throws Exception
 	{
 		cim.close();
+
+	}
+
+	public void cleanup() throws Exception
+	{
+		cim.cleanup();
 		tds.close();
-		
+
 	}
 
 	/**
-	 * @throws IOException 
-	 * 
+	 * @throws IOException
 	 */
 	public void testSearch() throws IOException
 	{
 		IndexSearcher is = journaledFSIndexStorage.getIndexSearcher();
-		TermQuery tq = new TermQuery(new Term(SearchService.FIELD_CONTENTS,"node"));
-		
+		TermQuery tq = new TermQuery(new Term(SearchService.FIELD_CONTENTS, "node"));
+
 		Hits h = is.search(tq);
-		log.info("Got "+h.length()+" hits from "+is.getIndexReader().numDocs());
+		log.info("Got " + h.length() + " hits from " + is.getIndexReader().numDocs()
+				+ " for node " + instanceName);
 	}
 
 }

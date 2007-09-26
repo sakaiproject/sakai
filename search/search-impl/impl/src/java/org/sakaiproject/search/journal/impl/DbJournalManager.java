@@ -56,6 +56,11 @@ public class DbJournalManager implements JournalManager
 
 		private long transactionId;
 
+		/*
+		 * Normally its not safe to hold onto a connection for any length of time, but here it is ok
+		 * since the transaction is connected to the transaction id. The danger of not detaching is connection
+		 * is that if there is a machine failure I dont journal to be update.
+		 */
 		public Connection connection;
 
 		/**
@@ -99,26 +104,26 @@ public class DbJournalManager implements JournalManager
 
 	/**
 	 * @throws JournalErrorException
-	 * @see org.sakaiproject.search.journal.api.JournalManager#getLaterVersions(long)
+	 * @see org.sakaiproject.search.journal.api.JournalManager#getLaterSavePoints(long)
 	 */
-	public long getNextVersion(long version) throws JournalErrorException
+	public long getNextSavePoint(long savePoint) throws JournalErrorException
 	{
 		Connection connection = null;
-		PreparedStatement listLaterVersions = null;
+		PreparedStatement listLaterSavePoints = null;
 		ResultSet rs = null;
 		try
 		{
 			connection = datasource.getConnection();
-			listLaterVersions = connection
+			listLaterSavePoints = connection
 					.prepareStatement("select txid from search_journal where txid > ? and status = 'commited' order by txid asc ");
-			listLaterVersions.clearParameters();
-			listLaterVersions.setLong(1, version);
-			rs = listLaterVersions.executeQuery();
+			listLaterSavePoints.clearParameters();
+			listLaterSavePoints.setLong(1, savePoint);
+			rs = listLaterSavePoints.executeQuery();
 			if (rs.next())
 			{
 				return rs.getLong(1);
 			}
-			throw new JournalExhausetedException("No More versions available");
+			throw new JournalExhausetedException("No More savePoints available");
 		}
 		catch (SQLException ex)
 		{
@@ -136,7 +141,7 @@ public class DbJournalManager implements JournalManager
 			}
 			try
 			{
-				listLaterVersions.close();
+				listLaterSavePoints.close();
 			}
 			catch (Exception ex)
 			{

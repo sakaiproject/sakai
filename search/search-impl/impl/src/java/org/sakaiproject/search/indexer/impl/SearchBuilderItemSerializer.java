@@ -65,24 +65,39 @@ public class SearchBuilderItemSerializer
 			throws IOException
 	{
 		File transactionList = new File(indexDirectoy, TRANSACTION_LIST);
-		DataInputStream dataInputStream = new DataInputStream(new FileInputStream(
-				transactionList));
 		List<SearchBuilderItem> itemList = new ArrayList<SearchBuilderItem>();
-		try
+		if (transactionList.exists())
 		{
-			while (true)
+			DataInputStream dataInputStream = new DataInputStream(new FileInputStream(
+					transactionList));
+			try
 			{
-				SearchBuilderItem sbi = new SearchBuilderItemImpl();
-				sbi.input(dataInputStream);
-				itemList.add(sbi);
+				while (true)
+				{
+					SearchBuilderItem sbi = new SearchBuilderItemImpl();
+					sbi.input(dataInputStream);
+					itemList.add(sbi);
+				}
 			}
-		}
-		catch (IOException ioex)
-		{
+			catch (IOException ioex)
+			{
 
+			}
+			dataInputStream.close();
 		}
-		dataInputStream.close();
 		return itemList;
+	}
+
+	/**
+	 * @param targetSegment
+	 */
+	public void removeTransactionList(File indexDirectory)
+	{
+		File transactionList = new File(indexDirectory, TRANSACTION_LIST);
+		if (transactionList.exists())
+		{
+			transactionList.delete();
+		}
 	}
 
 }

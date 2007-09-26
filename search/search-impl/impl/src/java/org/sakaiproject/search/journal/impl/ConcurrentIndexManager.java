@@ -111,6 +111,7 @@ public class ConcurrentIndexManager implements IndexListener
 	public void destroy()
 	{
 		close();
+		cleanup();
 	}
 
 	public void close()
@@ -120,7 +121,23 @@ public class ConcurrentIndexManager implements IndexListener
 		{
 			itt.setClosed(true);
 		}
+	}
+	public void cleanup() 
+	{
+		inclose.set("inclose");
+		while(delayQueue.size() > 0 ) {
+
+			DelayedClose dc = (DelayedClose) delayQueue.poll();
+			if ( dc != null ) {
+				dc.close();
+			}
+		}
+		inclose.set(null);
 		closed = true;
+		
+		
+		log.info("N Searchers is "+nsopen);
+		log.info("N Readers is "+nropen);
 	}
 
 	/**
@@ -151,7 +168,8 @@ public class ConcurrentIndexManager implements IndexListener
 		if (inclose.get() == null)
 		{
 			nropen--;
-			delayQueue.add(new DelayedIndexReaderClose(closeDelay, oldMultiReader,
+			log.debug("Closed Readerr " + nropen + " " + oldMultiReader);
+			delayQueue.offer(new DelayedIndexReaderClose(closeDelay, oldMultiReader,
 					toRemove));
 			throw new IOException("Close Will take place in " + closeDelay + " ms");
 		}
@@ -168,7 +186,8 @@ public class ConcurrentIndexManager implements IndexListener
 		if (inclose.get() == null)
 		{
 			nsopen--;
-			delayQueue.add(new DelayedIndexSearcherClose(closeDelay, indexSearcher));
+			log.debug("Closed Searcher " + nsopen + " " + indexSearcher);
+			delayQueue.offer(new DelayedIndexSearcherClose(closeDelay, indexSearcher));
 			throw new IOException("Close Will take place in " + closeDelay + " ms");
 		}
 
@@ -180,7 +199,7 @@ public class ConcurrentIndexManager implements IndexListener
 	public void doIndexSearcherOpen(IndexSearcher indexSearcher)
 	{
 		nsopen++;
-		log.info("Opened New Searcher " + nsopen + " " + indexSearcher);
+		log.debug(this+"Opened New Searcher " + nsopen + " " + indexSearcher);
 	}
 
 	/*
@@ -191,7 +210,7 @@ public class ConcurrentIndexManager implements IndexListener
 	public void doIndexReaderOpen(IndexReader newMultiReader)
 	{
 		nropen++;
-		log.info("Opened New Reader " + nropen + " " + newMultiReader);
+		log.debug("Opened New Reader " + nropen + " " + newMultiReader);
 
 	}
 

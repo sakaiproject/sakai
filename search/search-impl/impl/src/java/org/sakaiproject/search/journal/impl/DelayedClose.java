@@ -49,7 +49,8 @@ public abstract class DelayedClose implements Delayed
 	public long getDelay(TimeUnit unit)
 	{
 		long tnow = System.currentTimeMillis();
-		long t = unit.convert(end - tnow, TimeUnit.MILLISECONDS);
+		long milisdiff = end - tnow;
+		long t = unit.convert(milisdiff, TimeUnit.MILLISECONDS);
 		return t;
 	}
 

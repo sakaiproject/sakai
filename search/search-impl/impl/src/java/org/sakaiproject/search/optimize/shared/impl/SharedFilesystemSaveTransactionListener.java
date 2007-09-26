@@ -49,12 +49,12 @@ public class SharedFilesystemSaveTransactionListener implements
 		try
 		{
 			JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
-			String workingSpace = jtransaction.getWorkingSpace();
+			String indexSpace = jtransaction.getTargetSegment().getAbsolutePath();
 
-			long targetVersion = jtransaction.getTargetVersion();
+			long targetSavePoint = jtransaction.getTargetSavePoint();
 
 			JournalStorageState jss = sharedFilesystemJournalStorage.prepareSave(
-					workingSpace, targetVersion);
+					indexSpace, targetSavePoint);
 			transaction.put(SharedFilesystemSaveTransactionListener.class.getName()
 					+ ".state", jss);
 		}

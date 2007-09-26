@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.search.mock.MockClusterService;
 import org.sakaiproject.search.util.FileUtils;
 
 /**
@@ -85,10 +86,12 @@ public class SingleSearchSoakTest extends TestCase
 		String password = "manager";
 
 		log.info("================================== "+this.getClass().getName()+".testSoakOneNode");
-		SearchIndexerNode node = new SearchIndexerNode(testBase.getAbsolutePath(),
+		MockClusterService clusterService = new MockClusterService();
+		SearchIndexerNode node = new SearchIndexerNode(clusterService,testBase.getAbsolutePath(),
 				"onethread",driver, url, user,password);
 		node.init();
-		for ( int k = 0; k < 45; k++ ) {
+		clusterService.init();
+		for ( int k = 0; k < 10; k++ ) {
 			node.testSearch();
 			Thread.sleep(1000);
 		}

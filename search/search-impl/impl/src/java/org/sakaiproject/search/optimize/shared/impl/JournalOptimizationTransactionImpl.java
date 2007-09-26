@@ -44,7 +44,7 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 
 	private List<File> mergeSegments = new ArrayList<File>();
 
-	private long targetVersion;
+	private long targetSavePoint;
 
 	private List<File> mergeSegmentList = new ArrayList<File>();
 
@@ -93,9 +93,9 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	/***
 	 * @param long1
 	 */
-	public void setTargetVersion(long targetVersion)
+	public void setTargetSavePoint(long targetSavePoint)
 	{
-		this.targetVersion = targetVersion;
+		this.targetSavePoint = targetSavePoint;
 	}
 
 	/**
@@ -121,11 +121,11 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	/**
 	 *
 	 * 
-	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#getTargetVersion()
+	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#getTargetSavePoint()
 	 */
-	public long getTargetVersion()
+	public long getTargetSavePoint()
 	{
-		return targetVersion;
+		return targetSavePoint;
 	}
 
 	/**
@@ -171,11 +171,11 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	/**
 	 *
 	 * 
-	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#setTargetVersion(java.lang.Long)
+	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#setTargetSavePoint(java.lang.Long)
 	 */
-	public void setTargetVersion(Long targetVersion)
+	public void setTargetSavePoint(Long targetSavePoint)
 	{
-		this.targetVersion = targetVersion;
+		this.targetSavePoint = targetSavePoint;
 
 	}
 

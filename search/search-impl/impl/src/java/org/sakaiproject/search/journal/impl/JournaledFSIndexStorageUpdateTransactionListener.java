@@ -66,8 +66,8 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 	public void open(IndexTransaction transaction) throws IndexTransactionException
 	{
 		long lastJournalEntry = journaledIndex.getLastJournalEntry();
-		long thisJournalEntry = journaledIndex.getJournalVersion();
-		long nextJournalEntry = journalManager.getNextVersion(thisJournalEntry);
+		long thisJournalEntry = journaledIndex.getJournalSavePoint();
+		long nextJournalEntry = journalManager.getNextSavePoint(thisJournalEntry);
 		if (nextJournalEntry == lastJournalEntry)
 		{
 			throw new JournalErrorException("Journal is stalled at ID "
@@ -96,7 +96,7 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 			// into the current reader.
 
 			String workingSpace = journaledIndex.getWorkingSpace();
-			journalStorage.retrieveVersion(journalEntry, workingSpace);
+			journalStorage.retrieveSavePoint(journalEntry, workingSpace);
 			File f = new File(workingSpace, String.valueOf(journalEntry));
 			File segments = new File(f, "segments");
 			if (segments.exists())

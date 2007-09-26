@@ -70,7 +70,7 @@ public class OptimizeIndexOperation implements ManagementOperation
 
 		if (journaledObject.aquireUpdateLock())
 		{
-			log.info("Now Locked Journaled version is "
+			log.info("Now Locked Journaled savePoint is "
 					+ journaledObject.getLastJournalEntry());
 			try
 			{

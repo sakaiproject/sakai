@@ -71,12 +71,12 @@ public class DbJournalManagerTest extends TestCase
 	}
 
 	/**
-	 * Test method for {@link org.sakaiproject.search.journal.impl.DbJournalManager#getNextVersion(long)}.
+	 * Test method for {@link org.sakaiproject.search.journal.impl.DbJournalManager#getNextSavePoint(long)}.
 	 * @throws Exception 
 	 */
-	public final void testGetNextVersion() throws Exception
+	public final void testGetNextSavePoint() throws Exception
 	{
-		log.info("================================== "+this.getClass().getName()+".testGetNextVersion");
+		log.info("================================== "+this.getClass().getName()+".testGetNextSavePoint");
 
 		DbJournalManager dbJournalManager = new DbJournalManager();
 		dbJournalManager.setDatasource(tds.getDataSource());
@@ -85,15 +85,15 @@ public class DbJournalManagerTest extends TestCase
 			dbJournalManager.commitSave(jmstate);
 		}
 		for ( int i = 0; i < 9; i++ ) {
-			assertEquals("Incorrect Journal Number returned",i+1, dbJournalManager.getNextVersion(i));
+			assertEquals("Incorrect Journal Number returned",i+1, dbJournalManager.getNextSavePoint(i));
 		}
 		try {
-			dbJournalManager.getNextVersion(9);
+			dbJournalManager.getNextSavePoint(9);
 			fail("Should have exhausted the journal");
 		} catch ( JournalExhausetedException jex ) {
 			
 		}
-		log.info("==PASSED========================== "+this.getClass().getName()+".testGetNextVersion");
+		log.info("==PASSED========================== "+this.getClass().getName()+".testGetNextSavePoint");
 	}
 
 	/**
@@ -130,10 +130,10 @@ public class DbJournalManagerTest extends TestCase
 			dbJournalManager.commitSave(jmstate);
 		}
 		for ( int i = 0; i < 9; i++ ) {
-			assertEquals("Incorrect Journal Number returned",i+1, dbJournalManager.getNextVersion(i));
+			assertEquals("Incorrect Journal Number returned",i+1, dbJournalManager.getNextSavePoint(i));
 		}
 		try {
-			dbJournalManager.getNextVersion(9);
+			dbJournalManager.getNextSavePoint(9);
 			fail("Should have exhausted the journal");
 		} catch ( JournalExhausetedException jex ) {
 			
@@ -155,7 +155,7 @@ public class DbJournalManagerTest extends TestCase
 			dbJournalManager.rollbackSave(jmstate);
 		}
 		try {
-			long i = dbJournalManager.getNextVersion(20);
+			long i = dbJournalManager.getNextSavePoint(20);
 			fail("Should have exhausted the journal got "+i);
 		} catch ( JournalExhausetedException jex ) {
 			

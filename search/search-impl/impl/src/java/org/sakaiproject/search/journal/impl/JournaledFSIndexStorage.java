@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -64,8 +65,8 @@ import org.sakaiproject.search.util.FileUtils;
 
 /**
  * <pre>
- *        This is a Journaled version of the local FSIndexStorage. It will merge in new
- *        versions from the jorunal. This is going to be performed in a non
+ *        This is a Journaled savePoint of the local FSIndexStorage. It will merge in new
+ *        savePoints from the jorunal. This is going to be performed in a non
  *        transactional way for the moment. 
  *        
  *        The index reader must maintain a single
@@ -144,7 +145,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	/**
 	 * The number of the journal that was last applied to this index
 	 */
-	private long journalVersion = -1;
+	private long journalSavePoint = -1;
 
 	/**
 	 * The current reader used for deletes and searching, this is a singleton,
@@ -180,6 +181,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	private IndexSearcher indexSearcher = null;
 
 	private ClusterService clusterService;
+
 
 	/**
 	 * @see org.sakaiproject.search.index.impl.FSIndexStorage#init()
@@ -228,36 +230,36 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	}
 
 	/**
-	 * Since this is a singleton, we can cahce the version only updating on
+	 * Since this is a singleton, we can cahce the savePoint only updating on
 	 * change
 	 * 
-	 * @see org.sakaiproject.search.maintanence.impl.JournaledObject#getJounalVersion()
+	 * @see org.sakaiproject.search.maintanence.impl.JournaledObject#getJounalSavePoint()
 	 */
-	public long getJournalVersion()
+	public long getJournalSavePoint()
 	{
-		if (journalVersion == -1)
+		if (journalSavePoint == -1)
 		{
 			Connection connection = null;
-			PreparedStatement getJournalVersionPst = null;
+			PreparedStatement getJournalSavePointPst = null;
 			ResultSet rs = null;
 			try
 			{
 				connection = datasource.getConnection();
-				getJournalVersionPst = connection
+				getJournalSavePointPst = connection
 						.prepareStatement("select jid from search_node_status where serverid = ? ");
-				getJournalVersionPst.clearParameters();
-				getJournalVersionPst.setString(1, serverId);
-				rs = getJournalVersionPst.executeQuery();
+				getJournalSavePointPst.clearParameters();
+				getJournalSavePointPst.setString(1, serverId);
+				rs = getJournalSavePointPst.executeQuery();
 				if (rs.next())
 				{
-					journalVersion = rs.getLong(1);
+					journalSavePoint = rs.getLong(1);
 					lastUpdate = System.currentTimeMillis();
 				}
 
 			}
 			catch (Exception ex)
 			{
-				log.warn("Unable to get Search Jorunal Version ", ex);
+				log.warn("Unable to get Search Jorunal SavePoint ", ex);
 			}
 			finally
 			{
@@ -270,7 +272,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 				}
 				try
 				{
-					getJournalVersionPst.close();
+					getJournalSavePointPst.close();
 				}
 				catch (Exception ex)
 				{
@@ -285,7 +287,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 
 			}
 		}
-		return journalVersion;
+		return journalSavePoint;
 	}
 
 	/**
@@ -396,6 +398,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 		{
 			IndexSearcher newIndexSearcher = new IndexSearcher(ir)
 			{
+				
 				/*
 				 * (non-Javadoc)
 				 * 
@@ -545,6 +548,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 		}
 		if (modified || multiReader == null || !current)
 		{
+			modified = false;
 			/*
 			 * We must get a read lock to prevent a writer from opening when we
 			 * are trying to open for read. Writers will have already taken
@@ -636,7 +640,9 @@ public class JournaledFSIndexStorage implements JournaledIndex
 				try
 				{
 					// set the singleton on null
-					multiReader = null;
+					if ( multiReader == this ) {
+						multiReader = null;
+					}
 					// this will throw an IO exception if not invoked by a timer
 					// task
 					fireIndexReaderClose(this);
@@ -946,36 +952,36 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	 */
 	public void setJournalIndexEntry(long journalEntry)
 	{
-		if (journalVersion != journalEntry)
+		if (journalSavePoint != journalEntry)
 		{
 			Connection connection = null;
-			PreparedStatement updateJournalVersionPst = null;
-			PreparedStatement insertJournalVersionPst = null;
+			PreparedStatement updateJournalSavePointPst = null;
+			PreparedStatement insertJournalSavePointPst = null;
 			try
 			{
 				connection = datasource.getConnection();
-				updateJournalVersionPst = connection
+				updateJournalSavePointPst = connection
 						.prepareStatement("update search_node_status set jid = ?, jidts = ? where  serverid = ? ");
-				updateJournalVersionPst.clearParameters();
-				updateJournalVersionPst.setLong(1, journalEntry);
-				updateJournalVersionPst.setLong(2, System.currentTimeMillis());
-				updateJournalVersionPst.setString(3, serverId);
-				if (updateJournalVersionPst.executeUpdate() != 1)
+				updateJournalSavePointPst.clearParameters();
+				updateJournalSavePointPst.setLong(1, journalEntry);
+				updateJournalSavePointPst.setLong(2, System.currentTimeMillis());
+				updateJournalSavePointPst.setString(3, serverId);
+				if (updateJournalSavePointPst.executeUpdate() != 1)
 				{
-					insertJournalVersionPst = connection
+					insertJournalSavePointPst = connection
 							.prepareStatement("insert into  search_node_status (jid,jidts,serverid) values (?,?,?) ");
-					insertJournalVersionPst.clearParameters();
-					insertJournalVersionPst.setLong(1, journalEntry);
-					insertJournalVersionPst.setLong(2, System.currentTimeMillis());
-					insertJournalVersionPst.setString(3, serverId);
-					if (insertJournalVersionPst.executeUpdate() != 1)
+					insertJournalSavePointPst.clearParameters();
+					insertJournalSavePointPst.setLong(1, journalEntry);
+					insertJournalSavePointPst.setLong(2, System.currentTimeMillis());
+					insertJournalSavePointPst.setString(3, serverId);
+					if (insertJournalSavePointPst.executeUpdate() != 1)
 					{
 						throw new SQLException(
 								"Unable to update journal entry for some reason ");
 					}
 				}
 				connection.commit();
-				journalVersion = journalEntry;
+				journalSavePoint = journalEntry;
 
 			}
 			catch (Exception ex)
@@ -987,20 +993,20 @@ public class JournaledFSIndexStorage implements JournaledIndex
 				catch (Exception ex2)
 				{
 				}
-				log.warn("Unable to get Search Jorunal Version ", ex);
+				log.warn("Unable to get Search Jorunal SavePoint ", ex);
 			}
 			finally
 			{
 				try
 				{
-					updateJournalVersionPst.close();
+					updateJournalSavePointPst.close();
 				}
 				catch (Exception ex)
 				{
 				}
 				try
 				{
-					insertJournalVersionPst.close();
+					insertJournalSavePointPst.close();
 				}
 				catch (Exception ex)
 				{
@@ -1245,8 +1251,8 @@ public class JournaledFSIndexStorage implements JournaledIndex
 						"Segment List file is corrupt, please remove segments and recover from journal");
 			}
 		}
-		int version = din.readInt();
-		if (version == 1)
+		int savePoint = din.readInt();
+		if (savePoint == 1)
 		{
 			segments = new ArrayList<File>();
 			int n = din.readInt();
@@ -1258,7 +1264,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 		else
 		{
 			throw new IOException(
-					"Segment List version not recognised, please remove segments and recover from journal ");
+					"Segment List savePoint not recognised, please remove segments and recover from journal ");
 		}
 		din.close();
 		din.close();

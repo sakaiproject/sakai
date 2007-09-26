@@ -32,14 +32,14 @@ public interface JournalStorage
 {
 
 	/**
-	 * Get a version from the commited store into a permanent local space,
-	 * indexed on the transaction or version id
+	 * Get a savePoint from the commited store into a permanent local space,
+	 * indexed on the transaction or savePoint id
 	 * 
-	 * @param version
+	 * @param savePoint
 	 * @param workingSpace
 	 * @throws IOException
 	 */
-	void retrieveVersion(long version, String workingSpace) throws IOException;
+	void retrieveSavePoint(long savePoint, String workingSpace) throws IOException;
 
 	/**
 	 * prepare the current transaction for commit, 2PC

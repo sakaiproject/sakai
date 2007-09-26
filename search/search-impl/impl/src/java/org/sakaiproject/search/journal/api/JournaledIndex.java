@@ -31,7 +31,7 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 
 /**
  * A Journaled index is a in index that contains a number of journaled segments.
- * These segments may be merged into a local version periodically
+ * These segments may be merged into a local index periodically
  * 
  * @author ieb
  */

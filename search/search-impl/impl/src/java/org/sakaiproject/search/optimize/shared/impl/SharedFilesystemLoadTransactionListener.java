@@ -23,6 +23,8 @@ package org.sakaiproject.search.optimize.shared.impl;
 
 import java.io.File;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.indexer.api.IndexJournalException;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
@@ -41,6 +43,9 @@ public class SharedFilesystemLoadTransactionListener implements
 		IndexUpdateTransactionListener
 {
 
+	private static final Log log = LogFactory
+			.getLog(SharedFilesystemLoadTransactionListener.class);
+
 	private SharedFilesystemJournalStorage sharedFilesystemJournalStorage;
 
 	/**
@@ -54,16 +59,16 @@ public class SharedFilesystemLoadTransactionListener implements
 			JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
 			String workingSpace = jtransaction.getWorkingSpace();
 
-			for (long version : jtransaction.getMergeList())
+			for (long savePoint : jtransaction.getMergeList())
 			{
-				sharedFilesystemJournalStorage.retrieveVersion(version, workingSpace);
+				sharedFilesystemJournalStorage.retrieveSavePoint(savePoint, workingSpace);
 				jtransaction.addMergeSegment(sharedFilesystemJournalStorage
-						.getLocalJournalLocation(version, workingSpace));
+						.getLocalJournalLocation(savePoint, workingSpace));
 			}
-			sharedFilesystemJournalStorage.retrieveVersion(jtransaction
-					.getTargetVersion(), workingSpace);
+			sharedFilesystemJournalStorage.retrieveSavePoint(jtransaction
+					.getTargetSavePoint(), workingSpace);
 			jtransaction.setTargetSegment(sharedFilesystemJournalStorage
-					.getLocalJournalLocation(jtransaction.getTargetVersion(),
+					.getLocalJournalLocation(jtransaction.getTargetSavePoint(),
 							workingSpace));
 		}
 		catch (Exception ex)
@@ -82,14 +87,16 @@ public class SharedFilesystemLoadTransactionListener implements
 		try
 		{
 			JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
-			for (long version : jtransaction.getMergeList())
+			for (long savePoint : jtransaction.getMergeList())
 			{
-				sharedFilesystemJournalStorage.removeJournal(version);
+				sharedFilesystemJournalStorage.removeJournal(savePoint);
 			}
 			for (File f : jtransaction.getMergeSegmentList())
 			{
+				log.info("Deleting Segment " + f.getPath());
 				FileUtils.deleteAll(f);
 			}
+			log.info("Deleting Segment " + jtransaction.getTargetSegment().getPath());
 			FileUtils.deleteAll(jtransaction.getTargetSegment());
 
 		}

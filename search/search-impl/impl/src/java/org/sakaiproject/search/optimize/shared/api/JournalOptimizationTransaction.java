@@ -57,12 +57,12 @@ public interface JournalOptimizationTransaction extends IndexTransaction
 	/**
 	 * @return
 	 */
-	long getTargetVersion();
+	long getTargetSavePoint();
 
 	/**
 	 * @param long1
 	 */
-	void setTargetVersion(Long long1);
+	void setTargetSavePoint(Long long1);
 
 	/**
 	 * @param localJournalLocation

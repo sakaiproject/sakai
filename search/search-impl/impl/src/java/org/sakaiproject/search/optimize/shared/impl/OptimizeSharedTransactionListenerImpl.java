@@ -27,8 +27,14 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.MultiReader;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.store.FSDirectory;
+import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer;
+import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.optimize.api.OptimizeTransactionListener;
 import org.sakaiproject.search.optimize.api.OptimizedFailedIndexTransactionException;
 import org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction;
@@ -49,6 +55,8 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 
 	private static final Log log = LogFactory
 			.getLog(OptimizeSharedTransactionListenerImpl.class);
+
+	private SearchBuilderItemSerializer searchBuilderItemSerializer = new SearchBuilderItemSerializer();
 
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#close(org.sakaiproject.search.transaction.api.IndexTransaction)
@@ -88,22 +96,13 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 	 */
 	public void prepare(IndexTransaction transaction) throws IndexTransactionException
 	{
+		MultiReader mr = null;
+		IndexWriter indexWriter = null;
 		try
 		{
-
 			JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
-
-			FSDirectory directory = FSDirectory.getDirectory(jtransaction
-					.getTargetSegment(), false);
-
-			// open the permanent writer to ensure it can be opened
-			IndexWriter indexWriter = new IndexWriter(directory, jtransaction
-					.getAnalyzer(), false);
-			indexWriter.setUseCompoundFile(true);
-			// indexWriter.setInfoStream(System.out);
-			indexWriter.setMaxMergeDocs(50);
-			indexWriter.setMergeFactor(50);
-
+			File targetSegment = jtransaction.getTargetSegment();
+			FSDirectory directory = FSDirectory.getDirectory(targetSegment, false);
 			List<File> optimizableSegments = jtransaction.getMergeSegmentList();
 			FSDirectory[] directories = new FSDirectory[optimizableSegments.size()];
 			int i = 0;
@@ -111,6 +110,59 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 			{
 				directories[i++] = FSDirectory.getDirectory(f, false);
 			}
+			// process the reads of all the elments, and then merge.
+			IndexReader[] ir = new IndexReader[optimizableSegments.size() + 1];
+			i = 0;
+			for (File f : optimizableSegments)
+			{
+				ir[i] = IndexReader.open(directories[i]);
+				i++;
+
+			}
+			ir[optimizableSegments.size()] = IndexReader.open(directory);
+
+			mr = new MultiReader(ir);
+
+			{
+				List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
+						.loadTransactionList(targetSegment);
+
+				for (SearchBuilderItem sbi : deleteDocuments)
+				{
+					if (SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()))
+					{
+						mr.deleteDocuments(new Term(SearchService.FIELD_REFERENCE, sbi
+								.getName()));
+					}
+				}
+				searchBuilderItemSerializer.removeTransactionList(targetSegment);
+			}
+			
+			// perform the deletes
+			for (File f : optimizableSegments)
+			{
+				List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
+						.loadTransactionList(f);
+
+				for (SearchBuilderItem sbi : deleteDocuments)
+				{
+					if (SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()))
+					{
+						mr.deleteDocuments(new Term(SearchService.FIELD_REFERENCE, sbi
+								.getName()));
+					}
+				}
+				searchBuilderItemSerializer.removeTransactionList(f);
+			}
+			mr.close();
+
+			// open the permanent writer to ensure it can be opened
+			indexWriter = new IndexWriter(directory, jtransaction.getAnalyzer(), false);
+			indexWriter.setUseCompoundFile(true);
+			// indexWriter.setInfoStream(System.out);
+			indexWriter.setMaxMergeDocs(50);
+			indexWriter.setMergeFactor(50);
+
 			indexWriter.addIndexes(directories);
 			indexWriter.optimize();
 			indexWriter.close();
@@ -120,6 +172,23 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 		{
 			throw new OptimizedFailedIndexTransactionException(
 					"Failed to Optimize indexes ", e);
+		}
+		finally
+		{
+			try
+			{
+				mr.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				indexWriter.close();
+			}
+			catch (Exception ex)
+			{
+			}
 		}
 
 	}

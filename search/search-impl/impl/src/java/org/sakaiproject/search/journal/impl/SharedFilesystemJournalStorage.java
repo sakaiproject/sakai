@@ -155,16 +155,17 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	/**
 	 * @throws IOException
 	 * @throws IOException
-	 * @see org.sakaiproject.search.maintanence.api.JournalStorage#retrieveLaterVersions(long[],
+	 * @see org.sakaiproject.search.maintanence.api.JournalStorage#retrieveLaterSavePoints(long[],
 	 *      java.lang.String)
 	 */
-	public void retrieveVersion(long version, String workingSpace) throws IOException
+	public void retrieveSavePoint(long savePoint, String workingSpace) throws IOException
 	{
 		File ws = new File(workingSpace);
 		ws.mkdirs();
-		File f = getTransactionFile(version);
+		File f = getTransactionFile(savePoint);
 		FileInputStream source = new FileInputStream(f);
 		FileUtils.unpack(source, ws);
+		
 		source.close();
 
 	}
@@ -177,22 +178,22 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	}
 
 	/**
-	 * @param version
+	 * @param savePoint
 	 * @param workingSpace
 	 * @return
 	 */
-	public File getLocalJournalLocation(long version, String workingSpace)
+	public File getLocalJournalLocation(long savePoint, String workingSpace)
 	{
-		return new File(workingSpace, String.valueOf(version));
+		return new File(workingSpace, String.valueOf(savePoint));
 	}
 
 	/**
-	 * @param version
+	 * @param savePoint
 	 * @throws IOException
 	 */
-	public void removeJournal(long version) throws IOException
+	public void removeJournal(long savePoint) throws IOException
 	{
-		File f = getTransactionFile(version);
+		File f = getTransactionFile(savePoint);
 		FileUtils.deleteAll(f);
 
 	}

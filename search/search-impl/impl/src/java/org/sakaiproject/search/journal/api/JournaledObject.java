@@ -30,11 +30,11 @@ public interface JournaledObject
 {
 
 	/**
-	 * Get the current Journaled Version
+	 * Get the current Journaled SavePoint
 	 * 
 	 * @return
 	 */
-	long getJournalVersion();
+	long getJournalSavePoint();
 
 	/**
 	 * get a lock on on the object for update

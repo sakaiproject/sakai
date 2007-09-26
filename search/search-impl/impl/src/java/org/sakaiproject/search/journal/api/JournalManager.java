@@ -33,12 +33,12 @@ public interface JournalManager
 {
 
 	/**
-	 * @param version
+	 * @param savePoint
 	 * @return
 	 * @throws JournalErrorException
-	 *         if there was an error getting the next version
+	 *         if there was an error getting the next savePoint
 	 */
-	long getNextVersion(long version) throws JournalErrorException;
+	long getNextSavePoint(long savePoint) throws JournalErrorException;
 
 	/**
 	 * @param transactionId
