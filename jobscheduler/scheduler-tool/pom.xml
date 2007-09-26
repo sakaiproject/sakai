@@ -42,11 +42,15 @@
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+
+   <!-- updated so that the jstl library is packed into the tool for now -->
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-      <version>1.0.2</version>
+       <groupId>javax.servlet</groupId>
+       <artifactId>jstl</artifactId>
+       <version>1.1.2</version>
+       <scope>compile</scope>
     </dependency>
+
     <dependency>
       <groupId>jsf</groupId>
       <artifactId>jsf-impl</artifactId>
