@@ -139,25 +139,34 @@ public class PollToolBean {
 		  //check for possible unchanged values
 		  m_log.debug(" newPoll is " + poll.getText()+ " while poll text is " + poll.getText());
 		 
-			if (poll.getVoteOpen().after(poll.getVoteClose())) {
-				m_log.debug("Poll closes before it opens");
-				
-		        messages.addMessage(new TargettedMessage("close_before_open"));
-		        throw new  IllegalArgumentException("close_before_open");
-			}
-		  
-			if (poll.getMinOptions() > poll.getMaxOptions()) {
-				m_log.debug("Min options greater than max options");
-				messages.addMessage(new TargettedMessage("min_greater_than_max"," min greater than max"));
-				throw new  IllegalArgumentException("min_greater_than_max");
-			}
-			
+		
 		  if (poll.getText().equals("") && poll.getText()!=null)
 			  poll.setText(poll.getText());
 		  
 		  if (poll.getDetails().equals("") && poll.getDetails() != null)
 			  poll.setDetails(poll.getDetails());
 	  }
+	  
+    	if (poll.getVoteOpen().after(poll.getVoteClose())) {
+			m_log.debug("Poll closes before it opens");
+			
+	        messages.addMessage(new TargettedMessage("close_before_open"));
+	        throw new  IllegalArgumentException("close_before_open");
+		}
+	  
+		if (poll.getMinOptions() > poll.getMaxOptions()) {
+			m_log.debug("Min options greater than max options");
+			messages.addMessage(new TargettedMessage("min_greater_than_max"," min greater than max"));
+			throw new  IllegalArgumentException("min_greater_than_max");
+		}
+	  
+		if (poll.getText() == null || poll.getText().length() == 0 ) {
+			m_log.debug("Poll question is Empty!");
+			messages.addMessage(new TargettedMessage("error_no_text","no text"));
+			throw new  IllegalArgumentException("error_no_text");
+
+		}
+		
 	  
 	  poll.setDetails(FormattedText.processFormattedText(poll.getDetails(), new StringBuilder()));
 	  m_log.debug("about to save poll " + poll);
