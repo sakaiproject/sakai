@@ -3671,7 +3671,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (siteTypes.size() == 1) {
 				String siteType = (String) siteTypes.get(0);
 				if (!siteType.equals(ServerConfigurationService.getString(
-						"courseSiteType", ""))) {
+						"courseSiteType", "course"))) {
 					// if only one site type is allowed and the type isn't
 					// course type
 					// skip the select site type step
@@ -6235,8 +6235,14 @@ public class SiteAction extends PagedResourceActionII {
 			if ( t == null )
 				t = StringUtil.trimToNull(config.getInitParameter("siteTypes"));
 			if (t != null) {
-				state.setAttribute(STATE_SITE_TYPES, new ArrayList(Arrays
-						.asList(t.split(","))));
+				List types = new ArrayList(Arrays.asList(t.split(",")));
+				if (cms == null)
+				{
+					// if there is no CourseManagementService, disable the process of creating course site
+					String courseType = ServerConfigurationService.getString("courseSiteType", "course");
+					types.remove(courseType);
+				}
+				state.setAttribute(STATE_SITE_TYPES, types);
 			} else {
 				state.setAttribute(STATE_SITE_TYPES, new Vector());
 			}
@@ -8250,8 +8256,7 @@ public class SiteAction extends PagedResourceActionII {
 					}
 
 				} catch (Exception e) {
-					M_log.warn("SiteAction.getFeatures Exception "
-							+ e.getMessage());
+					M_log.warn("SiteAction getRevisedFeatures Exception: " + e.getMessage());
 				}
 			}
 		} // add Home
@@ -8832,7 +8837,7 @@ public class SiteAction extends PagedResourceActionII {
 					ToolConfiguration tool = page.addTool();
 					Tool wsInfoTool = ToolManager.getTool("sakai.iframe.site");
 					tool.setTool("sakai.iframe.site", wsInfoTool);
-					tool.setTitle(wsInfoTool.getTitle());
+					tool.setTitle(wsInfoTool != null?wsInfoTool.getTitle():"");
 					tool.setLayoutHints("0,0");
 
 					if (hasAnnouncement) {
@@ -8881,8 +8886,7 @@ public class SiteAction extends PagedResourceActionII {
 					}
 
 				} catch (Exception e) {
-					M_log.warn("SiteAction.getFeatures Exception "
-							+ e.getMessage());
+					M_log.warn("SiteAction addFeatures Exception:" + e.getMessage());
 				}
 
 				state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.TRUE);
