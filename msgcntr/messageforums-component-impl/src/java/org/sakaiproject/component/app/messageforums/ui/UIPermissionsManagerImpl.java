@@ -885,11 +885,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   
   public List getCurrentUserMemberships(String siteId)
   {
-	  if (ThreadLocalManager.get("message_center_permission_set") == null || !((Boolean)ThreadLocalManager.get("message_center_permission_set")).booleanValue())
-	  {
-	    initMembershipForSite();
-	  }
-	  
 	  List userMemberships = new ArrayList();
 	  // first, add the user's role
 	  final String currRole = getCurrentUserRole(siteId);
