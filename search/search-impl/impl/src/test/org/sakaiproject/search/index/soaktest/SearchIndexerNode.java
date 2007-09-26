@@ -310,6 +310,8 @@ public class SearchIndexerNode
 		clusterService.addServerConfigurationService(serverConfigurationService);
 
 		long journalOptimizeLimit = 5;
+		
+		optimizeSharedTransactionListener.setJournaledIndex(journaledFSIndexStorage);
 
 		optimizeSequence.setName("journaloptimize");
 		optimizeSequence.setDatasource(tds.getDataSource());
@@ -382,14 +384,26 @@ public class SearchIndexerNode
 	/**
 	 * @throws IOException
 	 */
-	public void testSearch() throws IOException
+	public void testSearch()
 	{
-		IndexSearcher is = journaledFSIndexStorage.getIndexSearcher();
-		TermQuery tq = new TermQuery(new Term(SearchService.FIELD_CONTENTS, "node"));
+		try
+		{
+			long start1 = System.currentTimeMillis();
+			IndexSearcher is = journaledFSIndexStorage.getIndexSearcher();
+			TermQuery tq = new TermQuery(new Term(SearchService.FIELD_CONTENTS, "node"));
 
-		Hits h = is.search(tq);
-		log.info("Got " + h.length() + " hits from " + is.getIndexReader().numDocs()
-				+ " for node " + instanceName);
+			long start = System.currentTimeMillis();
+			Hits h = is.search(tq);
+			long end = System.currentTimeMillis();
+			log.info("Got " + h.length() + " hits from " + is.getIndexReader().numDocs()
+					+ " for node " + instanceName + " in " + (end - start) + ":"
+					+ (start - start1) + " ms");
+		}
+		catch (Exception ex)
+		{
+			log.error("Search Failed with, perhapse due to a file being removed "
+					+ ex.getMessage());
+		}
 	}
 
 }

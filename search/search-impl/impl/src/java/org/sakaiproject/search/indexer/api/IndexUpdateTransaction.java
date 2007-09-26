@@ -53,7 +53,7 @@ public interface IndexUpdateTransaction extends IndexTransaction
 	 * @throws IndexTransactionException
 	 *         if the transaction is not open
 	 */
-	Iterator<SearchBuilderItem> addItemIterator() throws IndexTransactionException;
+	Iterator<SearchBuilderItem> lockedItemIterator() throws IndexTransactionException;
 
 	/**
 	 * @return

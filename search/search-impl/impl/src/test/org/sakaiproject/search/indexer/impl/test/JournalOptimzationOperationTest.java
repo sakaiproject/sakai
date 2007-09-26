@@ -335,6 +335,8 @@ public class JournalOptimzationOperationTest extends TestCase
 		String journalLocation = shared.getAbsolutePath();
 
 		long journalOptimizeLimit = 5;
+		
+		optimizeSharedTransactionListener.setJournaledIndex(journaledFSIndexStorage);
 
 		optSequence.setName("journaloptimize");
 		optSequence.setDatasource(tds.getDataSource());
@@ -430,7 +432,8 @@ public class JournalOptimzationOperationTest extends TestCase
 
 	public final void loadIndex() throws Exception
 	{
-		int n = tds.populateDocuments(1000);
+		tds.populateDocuments(1000,"loadindex");
+		int n = 0;
 		int i = 0;
 		while ((n = tiw.process(10)) > 0)
 		{

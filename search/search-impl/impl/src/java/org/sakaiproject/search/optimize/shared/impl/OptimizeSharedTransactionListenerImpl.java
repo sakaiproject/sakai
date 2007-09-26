@@ -34,6 +34,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer;
+import org.sakaiproject.search.journal.api.JournaledIndex;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.optimize.api.OptimizeTransactionListener;
 import org.sakaiproject.search.optimize.api.OptimizedFailedIndexTransactionException;
@@ -58,6 +59,8 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 
 	private SearchBuilderItemSerializer searchBuilderItemSerializer = new SearchBuilderItemSerializer();
 
+	private JournaledIndex journaledIndex;
+
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#close(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
@@ -75,7 +78,14 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 	 */
 	public void commit(IndexTransaction transaction) throws IndexTransactionException
 	{
-		// nothing special here, other listeners will take the merged result
+		try
+		{
+			journaledIndex.loadIndexReader();
+		}
+		catch (IOException e)
+		{
+			log.error("Failed to load index ",e);
+		}
 	}
 
 	/**
@@ -166,6 +176,8 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 			indexWriter.addIndexes(directories);
 			indexWriter.optimize();
 			indexWriter.close();
+			
+			
 
 		}
 		catch (IOException e)
@@ -203,6 +215,22 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 		// roll should be handled in the transaction, nothing special to do
 		// here.
 
+	}
+
+	/**
+	 * @return the journaledIndex
+	 */
+	public JournaledIndex getJournaledIndex()
+	{
+		return journaledIndex;
+	}
+
+	/**
+	 * @param journaledIndex the journaledIndex to set
+	 */
+	public void setJournaledIndex(JournaledIndex journaledIndex)
+	{
+		this.journaledIndex = journaledIndex;
 	}
 
 }

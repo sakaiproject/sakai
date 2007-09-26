@@ -65,16 +65,16 @@ import org.sakaiproject.search.util.FileUtils;
 
 /**
  * <pre>
- *        This is a Journaled savePoint of the local FSIndexStorage. It will merge in new
- *        savePoints from the jorunal. This is going to be performed in a non
- *        transactional way for the moment. 
- *        
- *        The index reader must maintain a single
- *        index reader for the JVM. When performing a read update, the single index
- *        reader must be used, but each time the index reader is provided we should
- *        check that the index reader has not been updated.
- *        
- *        If the reader is being updated, then it is not safe to reload it.
+ *          This is a Journaled savePoint of the local FSIndexStorage. It will merge in new
+ *          savePoints from the jorunal. This is going to be performed in a non
+ *          transactional way for the moment. 
+ *          
+ *          The index reader must maintain a single
+ *          index reader for the JVM. When performing a read update, the single index
+ *          reader must be used, but each time the index reader is provided we should
+ *          check that the index reader has not been updated.
+ *          
+ *          If the reader is being updated, then it is not safe to reload it.
  * </pre>
  * 
  * @author ieb TODO Unit test
@@ -181,7 +181,6 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	private IndexSearcher indexSearcher = null;
 
 	private ClusterService clusterService;
-
 
 	/**
 	 * @see org.sakaiproject.search.index.impl.FSIndexStorage#init()
@@ -392,13 +391,26 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	public IndexSearcher getIndexSearcher() throws IOException
 	{
 
+		if (indexSearcher == null)
+		{
+			loadIndexSearcherInternal();
+		}
+		return indexSearcher;
+	}
+
+	/**
+	 * @throws IOException
+	 */
+	private void loadIndexSearcherInternal() throws IOException
+	{
 		IndexReader tmpIndexReader = multiReader;
 		IndexReader ir = getIndexReader();
 		if (tmpIndexReader != ir || indexSearcher == null)
 		{
+			long start = System.currentTimeMillis();
 			IndexSearcher newIndexSearcher = new IndexSearcher(ir)
 			{
-				
+
 				/*
 				 * (non-Javadoc)
 				 * 
@@ -423,9 +435,10 @@ public class JournaledFSIndexStorage implements JournaledIndex
 				indexSearcher.close(); // this will be postponed
 			}
 			indexSearcher = newIndexSearcher;
+			long end = System.currentTimeMillis();
+			log.info("Opened index Searcher in " + (end - start) + " ms");
 			fireIndexSearcherOpen(indexSearcher);
 		}
-		return indexSearcher;
 	}
 
 	/*
@@ -533,6 +546,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	public IndexReader getIndexReader() throws IOException
 	{
 		boolean current = false;
+		long start = System.currentTimeMillis();
 		try
 		{
 			// could be null
@@ -546,6 +560,16 @@ public class JournaledFSIndexStorage implements JournaledIndex
 			log.warn("Failed to get current status assuming index reload is required ",
 					ex);
 		}
+		long start2 = System.currentTimeMillis();
+		long x1 = start2;
+		long f1 = start2;
+		long r1 = start2;
+		long r2 = start2;
+		long f2 = start2;
+		long f3 = start2;
+		long x2 = start2;
+
+		long tlock = 0;
 		if (modified || multiReader == null || !current)
 		{
 			modified = false;
@@ -554,17 +578,69 @@ public class JournaledFSIndexStorage implements JournaledIndex
 			 * are trying to open for read. Writers will have already taken
 			 * write locks and so get the read lock by default.
 			 */
-			if (aquireReadLock())
+
+			x1 = System.currentTimeMillis();
+			f1 = x1;
+			boolean locked = false;
+			if ( rwlock.isWriteLockedByCurrentThread() ) {
+				locked = true;
+			} else {
+				locked = aquireReadLock();
+			}
+			if (locked)
 			{
+				// should check again
+				current = false;
 				try
 				{
-					getIndexReaderInternal();
+					// could be null
+					if (multiReader != null)
+					{
+						current = multiReader.isCurrent();
+					}
 				}
-				finally
+				catch (Exception ex)
 				{
-					releaseReadLock();
+					log
+							.warn(
+									"Failed to get current status assuming index reload is required ",
+									ex);
+				}
+				if (modified || multiReader == null || !current)
+				{
+					f1 = System.currentTimeMillis();
+					try
+					{
+						r1 = System.currentTimeMillis();
+						getIndexReaderInternal();
+						r2 = System.currentTimeMillis();
+					}
+					finally
+					{
+						f2 = System.currentTimeMillis();
+						if ( !rwlock.isWriteLockedByCurrentThread() ) {
+							releaseReadLock();
+						}
+						f3 = System.currentTimeMillis();
+					}
 				}
 			}
+			else
+			{
+				f1 = System.currentTimeMillis();
+				log.warn("Failed to get read lock on index ");
+			}
+			x2 = System.currentTimeMillis();
+		}
+		long f = System.currentTimeMillis();
+		if ((f - start) > 1000)
+		{
+			log
+					.info("Long time opening " + (start2 - start) + ":" + (f - start2)
+							+ " ms");
+			log.info("Read Lock aquire " + (f1 - x1) + " ms");
+			log.info("Index Load aquire " + (r2 - r1) + " ms");
+			log.info("Read Lock Release " + (f3 - f3) + " ms");
 		}
 		return multiReader;
 	}
@@ -576,6 +652,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	 */
 	private IndexReader getIndexReaderInternal() throws IOException
 	{
+		long start = System.currentTimeMillis();
 		File f = new File(searchIndexDirectory);
 		Directory d = null;
 		if (!f.exists())
@@ -640,7 +717,8 @@ public class JournaledFSIndexStorage implements JournaledIndex
 				try
 				{
 					// set the singleton on null
-					if ( multiReader == this ) {
+					if (multiReader == this)
+					{
 						multiReader = null;
 					}
 					// this will throw an IO exception if not invoked by a timer
@@ -678,6 +756,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 		multiReader = newMultiReader;
 		lastUpdate = System.currentTimeMillis();
 
+		log.info("Reopened Index Reader in " + (lastUpdate - start) + " ms");
 		// notify anything that wants to listen to the index open and close
 		// events
 		fireIndexReaderOpen(newMultiReader);
@@ -1144,7 +1223,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 					permanentIndexWriter.addDocument(doc);
 					permanentIndexWriter.close();
 				}
-				permanentIndexWriter = new MonitoredIndexWriter(f, getAnalyzer(), true);
+				permanentIndexWriter = new MonitoredIndexWriter(f, getAnalyzer(), false);
 				((MonitoredIndexWriter) permanentIndexWriter)
 						.addMonitorIndexListener(new IndexMonitorListener()
 						{
@@ -1286,6 +1365,28 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	public void setClusterService(ClusterService clusterService)
 	{
 		this.clusterService = clusterService;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.journal.api.JournaledIndex#loadIndexReader()
+	 */
+	public void loadIndexReader() throws IOException
+	{
+		loadIndexSearcherInternal();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.journal.api.JournaledObject#debugLock()
+	 */
+	public void debugLock()
+	{
+		log.info(this+" Locks Waiting "+rwlock.getQueueLength());
+		log.info(this+" Read Locks Locks "+rwlock.getReadLockCount());
+		log.info(this+" Write Holds this thread "+rwlock.getWriteHoldCount());
+		log.info(this+" is Write Locked "+rwlock.isWriteLocked());
+		
 	}
 
 }

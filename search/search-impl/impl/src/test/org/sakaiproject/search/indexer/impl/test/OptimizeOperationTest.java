@@ -23,6 +23,7 @@ package org.sakaiproject.search.indexer.impl.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -45,6 +46,7 @@ import org.sakaiproject.search.journal.impl.MergeUpdateOperation;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
+import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.optimize.impl.OptimizableIndexImpl;
 import org.sakaiproject.search.optimize.impl.OptimizeIndexManager;
 import org.sakaiproject.search.optimize.impl.OptimizeIndexOperation;
@@ -109,6 +111,8 @@ public class OptimizeOperationTest extends TestCase
 		optimizeWork = new File(testBase, "optwork");
 		shared = new File(testBase, "shared");
 		index = new File(testBase, "index");
+		
+		FileUtils.deleteAll(testBase);
 
 		tds = new TDataSource(5, false);
 
@@ -227,7 +231,7 @@ public class OptimizeOperationTest extends TestCase
 
 			public void doIndexSearcherOpen(IndexSearcher indexSearcher)
 			{
-				
+
 			}
 
 		});
@@ -270,8 +274,6 @@ public class OptimizeOperationTest extends TestCase
 
 		tiw.init();
 
-		
-		
 		optimizableIndex = new OptimizableIndexImpl();
 		optimizableIndex.setJournaledIndex(journaledFSIndexStorage);
 
@@ -311,7 +313,9 @@ public class OptimizeOperationTest extends TestCase
 	 */
 	public final void testRunOnce() throws Exception
 	{
-		int n = tds.populateDocuments(1000);
+		List<SearchBuilderItem> items = tds.populateDocuments(1000,"optimizeop");
+
+		int n = 0;
 		int i = 0;
 		while ((n = tiw.process(10)) > 0)
 		{
@@ -321,9 +325,29 @@ public class OptimizeOperationTest extends TestCase
 			i++;
 		}
 		log.info("Indexing Complete at " + i + " with " + n);
+		mu.runOnce();
+
+		assertEquals(
+				"Index is not correct after a merge update operationadd items only ", 0,
+				tds.checkIndexContents(items, journaledFSIndexStorage.getIndexSearcher()));
+
+		items = tds.deleteSomeItems(items);
+		while ((n = tiw.process(10)) > 0)
+		{
+			assertEquals(
+					"Runaway Cyclic Indexing, should have completed processing by now ",
+					true, i < 500);
+			i++;
+		}
+		log.info("Indexing Complete at " + i + " with " + n);
+
+		mu.runOnce();
 
 		// need to populate the index with some data first.
-		mu.runOnce();
+		assertEquals(
+				"Index is not correct after a merge update operation with deleted items, delete processing is not working ",
+				0, tds.checkIndexContents(items, journaledFSIndexStorage
+						.getIndexSearcher()));
 
 		File[] optSegments = optimizableIndex.getOptimizableSegments();
 		for (File f : optSegments)
@@ -348,6 +372,86 @@ public class OptimizeOperationTest extends TestCase
 		s = journaledFSIndexStorage.getIndexSearcher();
 		log.info("Reopening Index " + s);
 
+		int errors = tds.checkIndexContents(items, s);
+		
+		assertEquals(
+				"Check on index contents failed, Merge Index Failure on Local Node, please check logs ",
+				0, errors);
+
+		
+		
+		// Generate a second set and do the process again
+		List<SearchBuilderItem> items2 = tds.populateDocuments(1000,"set2");
+
+		int n2 = 0;
+		int i2 = 0;
+		while ((n2 = tiw.process(10)) > 0)
+		{
+			assertEquals(
+					"Runaway Cyclic Indexing, should have completed processing by now ",
+					true, i2 < 500);
+			i2++;
+		}
+		log.info("Indexing Complete at " + i2 + " with " + n2);
+		mu.runOnce();
+
+		assertEquals(
+				"Index is not correct after a merge update operationadd items only ", 0,
+				tds.checkIndexContents(items, journaledFSIndexStorage.getIndexSearcher()));
+		assertEquals(
+				"Index is not correct after a merge update operationadd items only ", 0,
+				tds.checkIndexContents(items2, journaledFSIndexStorage.getIndexSearcher()));
+
+		items2 = tds.deleteSomeItems(items2);
+		while ((n2 = tiw.process(10)) > 0)
+		{
+			assertEquals(
+					"Runaway Cyclic Indexing, should have completed processing by now ",
+					true, i2 < 500);
+			i2++;
+		}
+		log.info("Indexing Complete at " + i2 + " with " + n2);
+
+		mu.runOnce();
+
+		// need to populate the index with some data first.
+		assertEquals(
+				"Index is not correct after a merge update operation with deleted items, delete processing is not working ",
+				0, tds.checkIndexContents(items, journaledFSIndexStorage
+						.getIndexSearcher()));
+		assertEquals(
+				"Index is not correct after a merge update operation with deleted items, delete processing is not working ",
+				0, tds.checkIndexContents(items2, journaledFSIndexStorage
+						.getIndexSearcher()));
+
+		File[] optSegments2 = optimizableIndex.getOptimizableSegments();
+		for (File f : optSegments2)
+		{
+			log.info("Segment at " + f.getPath());
+		}
+		IndexSearcher s2 = journaledFSIndexStorage.getIndexSearcher();
+
+		log.info("Optimizing ");
+		// Now perform an optimize operation
+		oo.runOnce();
+		log.info("Done Optimizing ");
+
+		optSegments2 = optimizableIndex.getOptimizableSegments();
+		log.info("Number of Temp Segments is " + optSegments2.length);
+		for (File f : optSegments2)
+		{
+			log.info("Segment at " + f.getPath());
+		}
+
+		log.info("Current Index is " + s2);
+		s2 = journaledFSIndexStorage.getIndexSearcher();
+		log.info("Reopening Index " + s2);
+
+		int errors2 = tds.checkIndexContents(items, s2);
+		errors2 += tds.checkIndexContents(items2, s2);
+		
+		
+
 		log.info("Index ");
 		FileUtils.listDirectory(index);
 		log.info("shared ");
@@ -358,7 +462,9 @@ public class OptimizeOperationTest extends TestCase
 		FileUtils.listDirectory(optimizeWork);
 
 		s.close();
-
+		assertEquals(
+				"Check on index contents failed, Merge Index Failure on Local Node, please check logs ",
+				0, errors2);
 	}
 
 }

@@ -94,4 +94,10 @@ public interface JournaledIndex extends JournaledObject
 	 */
 	void saveSegmentList() throws IOException;
 
+	/**
+	 * load the shared index reader
+	 * @throws IOException 
+	 */
+	void loadIndexReader() throws IOException;
+
 }

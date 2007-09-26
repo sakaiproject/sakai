@@ -158,6 +158,7 @@ public class MergeUpdateOperation implements ManagementOperation
 		else
 		{
 			log.warn("No Lock, index update abandoned");
+			journaledObject.debugLock();
 		}
 	}
 

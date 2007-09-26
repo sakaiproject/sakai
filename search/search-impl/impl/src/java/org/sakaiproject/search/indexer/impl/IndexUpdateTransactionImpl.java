@@ -30,6 +30,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Index;
+import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexWriter;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
 import org.sakaiproject.search.indexer.api.NoItemsToIndexException;
@@ -75,7 +79,7 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 	/**
 	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#addItemIterator()
 	 */
-	public Iterator<SearchBuilderItem> addItemIterator() throws IndexTransactionException
+	public Iterator<SearchBuilderItem> lockedItemIterator() throws IndexTransactionException
 	{
 		if (transactionState != IndexTransaction.STATUS_ACTIVE)
 		{
@@ -100,9 +104,17 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		try
 		{
 			transactionId = manager.getSequence().getNextId();
+			
+			Document savepointMarker = new Document();
+			savepointMarker.add(new Field("_txid",String.valueOf(transactionId),Store.YES,Index.UN_TOKENIZED));
+			savepointMarker.add(new Field("_txts",String.valueOf(System.currentTimeMillis()),Store.YES,Index.UN_TOKENIZED));
+			savepointMarker.add(new Field("_worker",String.valueOf(Thread.currentThread().getName()),Store.YES,Index.UN_TOKENIZED));
+			indexWriter.addDocument(savepointMarker);
+
 			indexWriter.close();
 			indexWriter = null;
-			searchBuilderItemSerializer.saveTransactionList(tempIndex, txList);
+			// save all items
+			searchBuilderItemSerializer.saveTransactionList(tempIndex, getItems());
 		}
 		catch (Exception ex)
 		{
@@ -198,7 +210,6 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		{
 			indexWriter.close();
 			indexWriter = null;
-			searchBuilderItemSerializer.saveTransactionList(tempIndex, txList);
 		}
 		catch (Exception ex)
 		{
@@ -239,8 +250,7 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		{
 			SearchBuilderItem sbi = itxList.next();
 			if (sbi != null
-					&& SearchBuilderItem.STATE_LOCKED.equals(sbi.getSearchstate())
-					&& SearchBuilderItem.ACTION_ADD.equals(sbi.getSearchaction()))
+					&& SearchBuilderItem.STATE_LOCKED.equals(sbi.getSearchstate()))
 			{
 				String ref = sbi.getName();
 				if (ref != null)
@@ -253,12 +263,13 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 				}
 			}
 		}
+		
 		if (txList.size() == 0)
 		{
-			log.warn("No Items found to index, only deletes");
+			log.warn("No Items found to index");
 			txList = null;
 			items = null;
-			throw new NoItemsToIndexException("No Items available to index");
+			throw new NoItemsToIndexException("No Items were found to add to the index");
 		}
 	}
 

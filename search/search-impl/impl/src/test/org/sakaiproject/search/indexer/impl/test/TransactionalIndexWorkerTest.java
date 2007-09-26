@@ -24,6 +24,7 @@ package org.sakaiproject.search.indexer.impl.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -46,6 +47,7 @@ import org.sakaiproject.search.journal.impl.DbJournalManager;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
+import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 import org.sakaiproject.search.util.FileUtils;
 
@@ -201,8 +203,19 @@ public class TransactionalIndexWorkerTest extends TestCase
 	{
 		log.info("================================== "+this.getClass().getName()+".testProcessSome");
 		doInit();
-		int n = tds.populateDocuments(100);
-		assertEquals("Should not have processed some documents ", n, tiw.process(100));
+		List<SearchBuilderItem> items = tds.populateDocuments(100,"testsome");
+		int n = 0;
+		
+		for ( SearchBuilderItem sbi : items) {
+			if (sbi.getSearchstate().equals(SearchBuilderItem.STATE_PENDING)
+					&& (sbi.getSearchaction().equals(SearchBuilderItem.ACTION_ADD) ||
+							sbi.getSearchaction().equals(SearchBuilderItem.ACTION_DELETE))	)
+			{
+				n++;
+			}
+		}
+		
+		assertEquals("Should have processed some documents ", n, tiw.process(100));
 		for (int i = 0; i < 100; i++)
 		{
 			File zipFile = new File(shared, String.valueOf(i) + ".zip");

@@ -22,11 +22,13 @@
 package org.sakaiproject.search.indexer.impl.test;
 
 import java.io.File;
+import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.search.IndexSearcher;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerDocumentListener;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerListener;
@@ -44,6 +46,7 @@ import org.sakaiproject.search.journal.impl.MergeUpdateOperation;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
+import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 import org.sakaiproject.search.util.FileUtils;
 
@@ -69,6 +72,8 @@ public class MergeUpdateOperationTest extends TestCase
 
 	private TransactionalIndexWorker tiw;
 
+	private JournaledFSIndexStorage journaledFSIndexStorage;
+
 	/**
 	 * @param name
 	 */
@@ -91,10 +96,10 @@ public class MergeUpdateOperationTest extends TestCase
 		shared = new File(testBase, "shared");
 		index = new File(testBase, "index");
 
-		tds = new TDataSource(5,false);
+		tds = new TDataSource(5, false);
 
 		mu = new MergeUpdateOperation();
-		JournaledFSIndexStorage journaledFSIndexStorage = new JournaledFSIndexStorage();
+		journaledFSIndexStorage = new JournaledFSIndexStorage();
 		StandardAnalyzerFactory analyzerFactory = new StandardAnalyzerFactory();
 		DbJournalManager journalManager = new DbJournalManager();
 		MockServerConfigurationService serverConfigurationService = new MockServerConfigurationService();
@@ -135,29 +140,29 @@ public class MergeUpdateOperationTest extends TestCase
 		mu.setJournaledObject(journaledFSIndexStorage);
 		mu.setMergeUpdateManager(mergeUpdateManager);
 
+		// index updater
 
-
-		//index updater
-		
 		JournalManagerUpdateTransaction journalManagerUpdateTransaction = new JournalManagerUpdateTransaction();
 		MockSearchIndexBuilder mockSearchIndexBuilder = new MockSearchIndexBuilder();
 		TransactionIndexManagerImpl transactionIndexManager = new TransactionIndexManagerImpl();
 		SearchBuilderQueueManager searchBuilderQueueManager = new SearchBuilderQueueManager();
-		
+
 		transactionIndexManager.setAnalyzerFactory(new StandardAnalyzerFactory());
 		transactionIndexManager.setSearchIndexWorkingDirectory(work.getAbsolutePath());
 		transactionIndexManager.setSequence(sequence);
 
 		journalManagerUpdateTransaction.setJournalManager(journalManager);
-		
+
 		JournalStorageUpdateTransactionListener journalStorageUpdateTransactionListener = new JournalStorageUpdateTransactionListener();
-		journalStorageUpdateTransactionListener.setJournalStorage(sharedFilesystemJournalStorage);
-		
+		journalStorageUpdateTransactionListener
+				.setJournalStorage(sharedFilesystemJournalStorage);
+
 		searchBuilderQueueManager.setDatasource(tds.getDataSource());
 		searchBuilderQueueManager.setSearchIndexBuilder(mockSearchIndexBuilder);
 
 		transactionIndexManager.addTransactionListener(searchBuilderQueueManager);
-		transactionIndexManager.addTransactionListener(journalStorageUpdateTransactionListener);
+		transactionIndexManager
+				.addTransactionListener(journalStorageUpdateTransactionListener);
 		transactionIndexManager.addTransactionListener(journalManagerUpdateTransaction);
 		transactionIndexManager.addTransactionListener(new DebugTransactionListener());
 
@@ -174,15 +179,10 @@ public class MergeUpdateOperationTest extends TestCase
 		mu.init();
 		journaledFSIndexStorage.init();
 
-		
 		tiw.init();
 
-
-		
-		
 	}
 
-	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -198,24 +198,38 @@ public class MergeUpdateOperationTest extends TestCase
 	/**
 	 * Test method for
 	 * {@link org.sakaiproject.search.journal.impl.MergeUpdateOperation#runOnce()}.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	public final void testRunOnce() throws Exception
 	{
-		log.info("================================== "+this.getClass().getName()+".testRunOnce");
+		log.info("================================== " + this.getClass().getName()
+				+ ".testRunOnce");
 
-		int n = tds.populateDocuments(1000);
+		List<SearchBuilderItem> items = tds.populateDocuments(1000,"mergeupdate");
 		int i = 0;
-		while( (n = tiw.process(10)) > 0 ) {
-			log.info("Processing "+i+" gave "+n);
-			assertEquals("Runaway Cyclic Indexing, should have completed processing by now ",true, i < 500);
+		int n = 0;
+		while ((n = tiw.process(10)) > 0)
+		{
+			log.info("Processing " + i + " gave " + n);
+			assertEquals(
+					"Runaway Cyclic Indexing, should have completed processing by now ",
+					true, i < 500);
 			i++;
 		}
-		log.info("Indexing Complete at "+i+" with "+n);
+		log.info("Indexing Complete at " + i + " with " + n);
 
 		// need to populate the index with some data first.
 		mu.runOnce();
-		log.info("==PASSED========================== "+this.getClass().getName()+".testRunOnce");
+
+		
+		
+		IndexSearcher indexSearcher = journaledFSIndexStorage.getIndexSearcher();
+
+		assertEquals("There were errors validating the index, check log ", 0,tds.checkIndexContents(items,indexSearcher));
+
+		log.info("==PASSED========================== " + this.getClass().getName()
+				+ ".testRunOnce");
 
 	}
 

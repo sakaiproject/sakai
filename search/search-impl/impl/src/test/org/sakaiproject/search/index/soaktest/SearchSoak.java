@@ -119,13 +119,16 @@ public class SearchSoak extends TestCase
 		}
 		clusterService.init();
 		
-		for ( int k = 0; k < 50; k++ ) {
+
+		long endTime  = System.currentTimeMillis()+3600000;
+		long timeLeft = endTime - System.currentTimeMillis();
+		while( timeLeft > 0 ) {
 			for (int i = 0; i < 4; i++)
 			{
 				node[i].testSearch();
 			}
-			log.info("Done "+k);
 			Thread.sleep(1000);
+			 timeLeft = endTime - System.currentTimeMillis();
 		}
 		
 		for (int i = 0; i < 4; i++)
@@ -146,7 +149,7 @@ public class SearchSoak extends TestCase
 			}
 			log.info("Done "+k);
 		}
-		log.info(" take snapshot ");
+		log.info(" take snapshot will terminate in 1h, ctrl+C to exit ");
 		Thread.sleep(3600000);
 		
 	}

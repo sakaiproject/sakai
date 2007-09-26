@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.sakaiproject.search.api.SearchService;
@@ -51,6 +53,9 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 public class JournaledFSIndexStorageUpdateTransactionListener implements
 		MergeTransactionListener
 {
+
+	private static final Log log = LogFactory
+			.getLog(JournaledFSIndexStorageUpdateTransactionListener.class);
 
 	private JournaledIndex journaledIndex;
 
@@ -117,10 +122,21 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 					{
 						if (SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()))
 						{
-							deleteIndexReader.deleteDocuments(new Term(
+							log.debug("Deleting savePoint " + sbi.getName() + " for "
+									+ journalEntry);
+							int ndel = deleteIndexReader.deleteDocuments(new Term(
 									SearchService.FIELD_REFERENCE, sbi.getName()));
+							if (ndel == 0)
+							{
+								log.debug("Tried to delete " + sbi.getName()
+										+ " but it was not found in the local index ");
+							}
 						}
 					}
+				}
+				else
+				{
+					log.info("No Documents to delete for savePoint " + journalEntry);
 				}
 			}
 		}
@@ -194,6 +210,8 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 			}
 			journaledIndex.setJournalIndexEntry(journalEntry);
 			journaledIndex.saveSegmentList();
+			
+			journaledIndex.loadIndexReader();
 		}
 		catch (IOException e)
 		{

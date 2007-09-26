@@ -184,7 +184,7 @@ public class TransactionalIndexWorker implements IndexWorker
 			long last = System.currentTimeMillis();
 
 			for (Iterator<SearchBuilderItem> tditer = ((IndexUpdateTransaction) transaction)
-					.addItemIterator(); tditer.hasNext();)
+					.lockedItemIterator(); tditer.hasNext();)
 			{
 
 				Reader contentReader = null;
@@ -199,212 +199,218 @@ public class TransactionalIndexWorker implements IndexWorker
 								+ " action ["
 								+ SearchBuilderItem.actions[sbi.getSearchaction()] + "]");
 					}
-					ref = sbi.getName();
-					fireStartDocument(ref);
-
-					try
+					if (SearchBuilderItem.ACTION_ADD.equals(sbi.getSearchaction()))
 					{
-						// Entity entity = ref.getEntity();
-						EntityContentProducer sep = searchIndexBuilder
-								.newEntityContentProducer(ref);
-						boolean indexDoc = true;
-						if (searchIndexBuilder.isOnlyIndexSearchToolSites())
+						ref = sbi.getName();
+						fireStartDocument(ref);
+
+						try
 						{
-							try
+							// Entity entity = ref.getEntity();
+							EntityContentProducer sep = searchIndexBuilder
+									.newEntityContentProducer(ref);
+							boolean indexDoc = true;
+							if (searchIndexBuilder.isOnlyIndexSearchToolSites())
 							{
-								String siteId = sep.getSiteId(sbi.getName());
-								Site s = SiteService.getSite(siteId);
-								ToolConfiguration t = s
-										.getToolForCommonId("sakai.search"); //$NON-NLS-1$
-								if (t == null)
+								try
+								{
+									String siteId = sep.getSiteId(sbi.getName());
+									Site s = SiteService.getSite(siteId);
+									ToolConfiguration t = s
+											.getToolForCommonId("sakai.search"); //$NON-NLS-1$
+									if (t == null)
+									{
+										indexDoc = false;
+										log.debug("Not indexing " //$NON-NLS-1$
+												+ sbi.getName()
+												+ " as it has no search tool"); //$NON-NLS-1$
+									}
+								}
+								catch (Exception ex)
 								{
 									indexDoc = false;
-									log
-											.debug("Not indexing " //$NON-NLS-1$
-													+ sbi.getName()
-													+ " as it has no search tool"); //$NON-NLS-1$
+									log.debug("Not indexing  " + sbi.getName() //$NON-NLS-1$
+											+ " as it has no site", ex); //$NON-NLS-1$
+
 								}
 							}
-							catch (Exception ex)
+							if (indexDoc && sep != null && sep.isForIndex(ref)
+									&& sep.getSiteId(ref) != null)
 							{
-								indexDoc = false;
-								log.debug("Not indexing  " + sbi.getName() //$NON-NLS-1$
-										+ " as it has no site", ex); //$NON-NLS-1$
 
-							}
-						}
-						if (indexDoc && sep != null && sep.isForIndex(ref)
-								&& sep.getSiteId(ref) != null)
-						{
+								Document doc = new Document();
+								Reference r;
+								String container = sep.getContainer(ref);
+								if (container == null) container = ""; //$NON-NLS-1$
+								doc.add(new Field(SearchService.DATE_STAMP, String
+										.valueOf(System.currentTimeMillis()),
+										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+								doc.add(new Field(SearchService.FIELD_CONTAINER,
+										filterNull(container), Field.Store.COMPRESS,
+										Field.Index.UN_TOKENIZED));
+								doc.add(new Field(SearchService.FIELD_ID, filterNull(sep
+										.getId(ref)), Field.Store.COMPRESS,
+										Field.Index.NO));
+								doc.add(new Field(SearchService.FIELD_TYPE,
+										filterNull(sep.getType(ref)),
+										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+								doc.add(new Field(SearchService.FIELD_SUBTYPE,
+										filterNull(sep.getSubType(ref)),
+										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+								doc.add(new Field(SearchService.FIELD_REFERENCE,
+										filterNull(ref), Field.Store.COMPRESS,
+										Field.Index.UN_TOKENIZED));
 
-							Document doc = new Document();
-							Reference r;
-							String container = sep.getContainer(ref);
-							if (container == null) container = ""; //$NON-NLS-1$
-							doc.add(new Field(SearchService.DATE_STAMP, String
-									.valueOf(System.currentTimeMillis()),
-									Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
-							doc.add(new Field(SearchService.FIELD_CONTAINER,
-									filterNull(container), Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-							doc.add(new Field(SearchService.FIELD_ID, filterNull(sep
-									.getId(ref)), Field.Store.COMPRESS, Field.Index.NO));
-							doc.add(new Field(SearchService.FIELD_TYPE, filterNull(sep
-									.getType(ref)), Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-							doc.add(new Field(SearchService.FIELD_SUBTYPE, filterNull(sep
-									.getSubType(ref)), Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-							doc.add(new Field(SearchService.FIELD_REFERENCE,
-									filterNull(ref), Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-
-							doc.add(new Field(SearchService.FIELD_CONTEXT, filterNull(sep
-									.getSiteId(ref)), Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-							if (sep.isContentFromReader(ref))
-							{
-								contentReader = sep.getContentReader(ref);
-								if (log.isDebugEnabled())
+								doc.add(new Field(SearchService.FIELD_CONTEXT,
+										filterNull(sep.getSiteId(ref)),
+										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+								if (sep.isContentFromReader(ref))
 								{
-									log.debug("Adding Content for " + ref + " using "
-											+ contentReader);
+									contentReader = sep.getContentReader(ref);
+									if (log.isDebugEnabled())
+									{
+										log.debug("Adding Content for " + ref + " using "
+												+ contentReader);
+									}
+									doc.add(new Field(SearchService.FIELD_CONTENTS,
+											contentReader, Field.TermVector.YES));
 								}
-								doc.add(new Field(SearchService.FIELD_CONTENTS,
-										contentReader, Field.TermVector.YES));
-							}
-							else
-							{
-								String content = sep.getContent(ref);
-								if (log.isDebugEnabled())
+								else
 								{
-									log.debug("Adding Content for " + ref + " as ["
-											+ content + "]");
+									String content = sep.getContent(ref);
+									if (log.isDebugEnabled())
+									{
+										log.debug("Adding Content for " + ref + " as ["
+												+ content + "]");
+									}
+									doc.add(new Field(SearchService.FIELD_CONTENTS,
+											filterNull(content), Field.Store.NO,
+											Field.Index.TOKENIZED, Field.TermVector.YES));
 								}
-								doc.add(new Field(SearchService.FIELD_CONTENTS,
-										filterNull(content), Field.Store.NO,
-										Field.Index.TOKENIZED, Field.TermVector.YES));
-							}
 
-							doc.add(new Field(SearchService.FIELD_TITLE, filterNull(sep
-									.getTitle(ref)), Field.Store.COMPRESS,
-									Field.Index.TOKENIZED, Field.TermVector.YES));
-							doc.add(new Field(SearchService.FIELD_TOOL, filterNull(sep
-									.getTool()), Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
-							doc.add(new Field(SearchService.FIELD_URL,
-									filterUrl(filterNull(sep.getUrl(ref))),
-									Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
-							doc.add(new Field(SearchService.FIELD_SITEID, filterNull(sep
-									.getSiteId(ref)), Field.Store.COMPRESS,
-									Field.Index.UN_TOKENIZED));
+								doc.add(new Field(SearchService.FIELD_TITLE,
+										filterNull(sep.getTitle(ref)),
+										Field.Store.COMPRESS, Field.Index.TOKENIZED,
+										Field.TermVector.YES));
+								doc.add(new Field(SearchService.FIELD_TOOL,
+										filterNull(sep.getTool()), Field.Store.COMPRESS,
+										Field.Index.UN_TOKENIZED));
+								doc.add(new Field(SearchService.FIELD_URL,
+										filterUrl(filterNull(sep.getUrl(ref))),
+										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+								doc.add(new Field(SearchService.FIELD_SITEID,
+										filterNull(sep.getSiteId(ref)),
+										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
 
-							// add the custom properties
+								// add the custom properties
 
-							Map m = sep.getCustomProperties(ref);
-							if (m != null)
-							{
-								for (Iterator cprops = m.keySet().iterator(); cprops
-										.hasNext();)
+								Map m = sep.getCustomProperties(ref);
+								if (m != null)
 								{
-									String key = (String) cprops.next();
-									Object value = m.get(key);
-									String[] values = null;
-									if (value instanceof String)
+									for (Iterator cprops = m.keySet().iterator(); cprops
+											.hasNext();)
 									{
-										values = new String[1];
-										values[0] = (String) value;
-									}
-									if (value instanceof String[])
-									{
-										values = (String[]) value;
-									}
-									if (values == null)
-									{
-										log
-												.info("Null Custom Properties value has been suppled by " //$NON-NLS-1$
-														+ sep + " in index " //$NON-NLS-1$
-														+ key);
-									}
-									else
-									{
-										for (int i = 0; i < values.length; i++)
+										String key = (String) cprops.next();
+										Object value = m.get(key);
+										String[] values = null;
+										if (value instanceof String)
 										{
-											if (key.startsWith("T"))
+											values = new String[1];
+											values[0] = (String) value;
+										}
+										if (value instanceof String[])
+										{
+											values = (String[]) value;
+										}
+										if (values == null)
+										{
+											log
+													.info("Null Custom Properties value has been suppled by " //$NON-NLS-1$
+															+ sep + " in index " //$NON-NLS-1$
+															+ key);
+										}
+										else
+										{
+											for (int i = 0; i < values.length; i++)
 											{
-												key = key.substring(1);
-												doc.add(new Field(key,
-														filterNull(values[i]),
-														Field.Store.COMPRESS,
-														Field.Index.TOKENIZED,
-														Field.TermVector.YES));
-											}
-											else
-											{
-												doc.add(new Field(key,
-														filterNull(values[i]),
-														Field.Store.COMPRESS,
-														Field.Index.UN_TOKENIZED));
+												if (key.startsWith("T"))
+												{
+													key = key.substring(1);
+													doc.add(new Field(key,
+															filterNull(values[i]),
+															Field.Store.COMPRESS,
+															Field.Index.TOKENIZED,
+															Field.TermVector.YES));
+												}
+												else
+												{
+													doc.add(new Field(key,
+															filterNull(values[i]),
+															Field.Store.COMPRESS,
+															Field.Index.UN_TOKENIZED));
+												}
 											}
 										}
 									}
 								}
+
+								log.debug("Indexing Document " + doc); //$NON-NLS-1$
+
+								indexWrite.addDocument(doc);
+
+								log.debug("Done Indexing Document " + doc); //$NON-NLS-1$
+
+								processRDF(ref, sep);
+
+								sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+								nprocessed++;
+
 							}
-
-							log.debug("Indexing Document " + doc); //$NON-NLS-1$
-
-							indexWrite.addDocument(doc);
-
-							log.debug("Done Indexing Document " + doc); //$NON-NLS-1$
-
-							processRDF(ref, sep);
-
-							sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
-							nprocessed++;
-
-						}
-						else
-						{
-							if (log.isDebugEnabled())
+							else
 							{
-								if (!indexDoc)
+								if (log.isDebugEnabled())
 								{
-									log
-											.debug("Ignored Document: Filtered out by site " + ref); //$NON-NLS-1$
-								}
-								else if (sep == null)
-								{
-									log
-											.debug("Ignored Document: No EntityContentProducer " + ref); //$NON-NLS-1$
+									if (!indexDoc)
+									{
+										log
+												.debug("Ignored Document: Filtered out by site " + ref); //$NON-NLS-1$
+									}
+									else if (sep == null)
+									{
+										log
+												.debug("Ignored Document: No EntityContentProducer " + ref); //$NON-NLS-1$
 
-								}
-								else if (!sep.isForIndex(ref))
-								{
-									log
-											.debug("Ignored Document: Marked as Ignore " + ref); //$NON-NLS-1$
+									}
+									else if (!sep.isForIndex(ref))
+									{
+										log
+												.debug("Ignored Document: Marked as Ignore " + ref); //$NON-NLS-1$
 
-								}
-								else if (sep.getSiteId(ref) == null)
-								{
-									log.debug("Ignored Document: No Site ID " + ref); //$NON-NLS-1$
+									}
+									else if (sep.getSiteId(ref) == null)
+									{
+										log.debug("Ignored Document: No Site ID " + ref); //$NON-NLS-1$
 
-								}
-								else
-								{
-									log.debug("Ignored Document: Reason Unknown " + ref); //$NON-NLS-1$
+									}
+									else
+									{
+										log
+												.debug("Ignored Document: Reason Unknown " + ref); //$NON-NLS-1$
 
+									}
 								}
+								sbi.setSearchstate(SearchBuilderItem.STATE_FAILED);
 							}
+						}
+						catch (Exception e1)
+						{
+							log.warn(" Failed to index document for " + ref + " cause: " //$NON-NLS-1$
+									+ e1.getMessage(), e1);
 							sbi.setSearchstate(SearchBuilderItem.STATE_FAILED);
 						}
+					} else if ( SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()) ) {
+						nprocessed++;
 					}
-					catch (Exception e1)
-					{
-						log.warn(" Failed to index document for " + ref + " cause: " //$NON-NLS-1$
-								+ e1.getMessage(), e1);
-						sbi.setSearchstate(SearchBuilderItem.STATE_FAILED);
-					}
-
 				}
 				finally
 				{

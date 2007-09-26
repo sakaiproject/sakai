@@ -194,7 +194,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 				batchSize = bs.intValue();
 			}
 			List<SearchBuilderItem> items = findPendingAndLock(batchSize, connection);
-			log.info("Adding " + items.size() + " items to indexing queue");
+			log.info("Adding " + items.size() + " items to indexing queue: batch size was "+batchSize);
 			((IndexItemsTransaction) transaction).setItems(items);
 			connection.commit();
 		}

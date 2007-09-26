@@ -81,4 +81,9 @@ public interface JournaledObject
 	 */
 	void setJournalIndexEntry(long journalEntry);
 
+	/**
+	 * 
+	 */
+	void debugLock();
+
 }
