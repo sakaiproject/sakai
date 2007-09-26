@@ -730,15 +730,20 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		List<ResourceToolActionPipe> pipes = pipe.getPipes();
 		
-		for(int i = 0, c = 0; i <= lastIndex && c < count; i++)
+		int actualCount = 0;
+		for(int i = 0; i <= lastIndex && actualCount < count; i++)
 		{
 			String exists = params.getString("exists" + ListItem.DOT + i);
 			if(exists == null || exists.equals(""))
 			{
 				continue;
 			}
-			ResourceToolActionPipe fp = pipes.get(c);
+			ResourceToolActionPipe fp = pipes.get(actualCount);
 			String folderName = params.getString("content" + ListItem.DOT + i);
+			if(folderName == null || folderName.trim().equals(""))
+			{
+				continue;
+			}
 			
 			fp.setFileName(folderName);
 			
@@ -773,14 +778,21 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 			fp.setRevisedListItem(newFolder);
 			
-			c++;
+			actualCount++;
 		}
 
-		pipe.setActionCanceled(false);
-		pipe.setErrorEncountered(false);
-		pipe.setActionCompleted(true);
-		
-		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+		if(actualCount > 0)
+		{
+			pipe.setActionCanceled(false);
+			pipe.setErrorEncountered(false);
+			pipe.setActionCompleted(true);
+			
+			toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+		}
+		else
+		{
+			addAlert(state, rb.getString("alert.nofldr"));
+		}
 
 	}
 
