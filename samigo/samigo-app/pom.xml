@@ -554,6 +554,25 @@
           </webResources>
         </configuration>
       </plugin>
+      <plugin>
+	      <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>process-resources</phase>
+            <configuration>
+              <tasks>
+                <echo message="project.build.directory=${project.build.directory}"/>
+                <echo message="basedir=${basedir}"/>             
+                <echo message="basedir=${project.version}"/>             
+                <copy file="${basedir}/../samigo-audio/m2-target/sakai-samigo-audio-${project.version}.jar" tofile="${project.build.directory}/samigo-${project.version}/applets/sakai-samigo-audio-dev.jar"/>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>      
     </plugins>
     <resources>
       <resource>

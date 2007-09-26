@@ -20,6 +20,27 @@
     <deploy.target/>
   </properties>
   <build>
+    <!--
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+           <execution>
+              <goals>
+                 <goal>sign</goal>
+              </goals>
+           </execution>
+        </executions>
+        <configuration>
+           <keystore>/home/ktsao/sakai2.5/applet-keystore/audio_applet_keystore</keystore>
+           <alias>audioApplet</alias>
+           <storepass>password</storepass>
+           <verify>true</verify>
+        </configuration>
+      </plugin>
+    </plugins>
+    -->
     <resources>
       <resource>
         <directory>${basedir}/src/java</directory>
