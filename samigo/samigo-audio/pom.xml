@@ -33,9 +33,9 @@
            </execution>
         </executions>
         <configuration>
-           <keystore>/home/ktsao/sakai2.5/applet-keystore/audio_applet_keystore</keystore>
-           <alias>audioApplet</alias>
-           <storepass>password</storepass>
+           <keystore>/somepath/your.keystore</keystore>
+           <alias>youralias</alias>
+           <storepass>yourpassword</storepass>
            <verify>true</verify>
         </configuration>
       </plugin>
