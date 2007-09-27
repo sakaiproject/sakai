@@ -795,7 +795,10 @@ below they are contextually defined depending on the column as an example,as you
 /*	background-image : url(../../image/silk/new.png); */
 }
 .icon-sakai-poll {
-/*	background-image : url(../../image/silk/new.png); */
+	background-image : url(../../image/silk/chart_bar.png);
+}
+.icon-sakai-resetpass {
+	background-image : url(../../image/silk/key.png);
 }
 .icon-osp-presLayout {
 	background-image : url(../../image/silk/layout_content.png); 
