@@ -1301,6 +1301,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	public void saveSegmentList() throws IOException
 	{
 		File f = new File(searchIndexDirectory, SEGMENT_LIST_NAME);
+		log.info("Saving to "+f.getAbsolutePath());
 		FileOutputStream fout = new FileOutputStream(f);
 		DataOutputStream dout = new DataOutputStream(fout);
 		dout.write(SEGMENT_LIST_SIGNATURE);
@@ -1318,6 +1319,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	public void loadSegmentList() throws IOException
 	{
 		File f = new File(searchIndexDirectory, SEGMENT_LIST_NAME);
+		log.info("Loading from "+f.getAbsolutePath());
 		FileInputStream fout = new FileInputStream(f);
 		DataInputStream din = new DataInputStream(fout);
 		byte[] sig = new byte[SEGMENT_LIST_SIGNATURE.length];
