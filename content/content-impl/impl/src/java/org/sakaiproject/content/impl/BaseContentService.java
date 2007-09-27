@@ -412,7 +412,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 				list.add(name.trim());
 			}
-			this.m_bodyVolumes = (String[]) list.toArray();
+			
+			this.m_bodyVolumes = new String[list.size()];
+			for(int i = 0; i < list.size(); i++)
+			{
+				this.m_bodyVolumes[i] = list.get(i);
+			}
 		}
 		catch (Throwable t)
 		{
@@ -5310,6 +5315,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		ThreadLocalManager.set("getResources@" + containerId, null);
 
 		// track it
+		// edit.getReference() returns the 
 		EventTrackingService.post(EventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(), edit.getReference(), true,
 				priority));
 
