@@ -402,7 +402,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		try
 		{
 			String[] bodyVolumes = StringUtil.split(value, ",");
-			List<String> list = new Vector<String>();
+			List<String> list = new ArrayList<String>();
 			for(int i = 0; i < bodyVolumes.length; i++)
 			{
 				String name = bodyVolumes[i];
