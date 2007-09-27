@@ -75,8 +75,9 @@
 			<caption class="skip" style="display: none;">$tlang.getString("sort.caption")</caption>
 			<tbody>
 			<tr>
-				<th colspan="3" id="position">
-				    $tlang.getString("gen.position")
+				<th id="moveUp">
+				</th>
+				<th id="moveDown">
 				</th>
 				<th id="title">
 					$tlang.getString("gen.asstit")
@@ -87,26 +88,22 @@
 				<th id="due">
 					$tlang.getString("gen.due1")
 				</th>
+				<th id="position">
+				    $tlang.getString("gen.position")
+				</th>
 			</tr>
 			#set($count = 1)
 			#foreach($assignment in $assignments)
 			<tr class="sortable">
 			    ## The 1% width attributes fixes a minor bug of having extra space after the drop down.
-				<td headers="dropdown" width="1%">
-				  <select name="position_$validator.escapeUrl("$assignment.id")" onChange="moveRow(this,this.value);">
-					#foreach($i in [1..$assignmentsize])
-					<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
-					#end
-				  </select>
-				</td>
-				<td headers="moveUp" width="1%">
+				<td headers="moveUp" class="moveUp">
 					<a#if($count <= 1) style="display:none;"#end href="#" onclick="moveRow(this,'up')" title="$tlang.getString("sort.moveup")">
-						<img src="#imageLink("silk/bullet_arrow_up_24x24.png")" alt="$tlang.getString("sort.moveup")" border="0">
+						<img src="#imageLink("sakai/arrowUp.gif")" alt="$tlang.getString("sort.moveup")" border="0">
 					</a>
 				</td>
-				<td headers="moveDown" width="1%">
+				<td headers="moveDown" class="moveDown">
 					<a#if($count >= $assignmentsize) style="display:none;"#end href="#" onclick="moveRow(this,'down')" title="$tlang.getString("sort.movedn")">
-						<img src="#imageLink("silk/bullet_arrow_down_24x24.png")" alt="$tlang.getString("sort.movedn")" border="0">
+						<img src="#imageLink("sakai/arrowDown.gif")" alt="$tlang.getString("sort.movedn")" border="0">
 					</a>
 				</td>
 				<td headers="title">
@@ -117,6 +114,13 @@
 				</td>
 				<td headers="duetime">
 					$!assignment.dueTime.toStringLocalFull()
+				</td>
+				<td headers="position">
+				  <select name="position_$validator.escapeUrl("$assignment.id")" onChange="moveRow(this,this.value);">
+					#foreach($i in [1..$assignmentsize])
+					<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
+					#end
+				  </select>
 				</td>
 			</tr>
 			#set($count = $count + 1)
