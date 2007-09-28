@@ -3387,7 +3387,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				int assignmentType = a.getContent().getTypeOfGrade();
 				
 				// for column header, check allow grade permission based on each assignment
-				if(!a.getDraft())
+				if(!a.getDraft() && allowGradeSubmission(a.getReference()))
 				{
 					// put in assignment title as the column header
 					rowNum = headerRowNumber;

@@ -336,7 +336,7 @@ function allowClick(object)
 										<div class="itemAction">
 											#set($prevAction=false)
 											#if ($!allowUpdateAssignment)#set($prevAction=true)<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("revise")</a>#end
-											#if ($allowAddAssignment)#if($prevAction) | #else#set($prevAction=true)#end<a href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")</a>#end
+											#if ($allowAddAssignment&&$!allowUpdateAssignment)#if($prevAction) | #else#set($prevAction=true)#end<a href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")</a>#end
 											#if ($taggable)
 												#foreach ($provider in $providers)
 													#set ($helperInfo = false)
@@ -448,6 +448,7 @@ function allowClick(object)
 										#end
 									#end
 							</td>
+							<td  style="padding-bottom:0">
 							#if ($!groups)
 								## only show it when there is at least one group
 								## assignment range
@@ -470,10 +471,9 @@ function allowClick(object)
 										#end
 									#end
 								#end
-								<td  style="padding-bottom:0">
 									$!for
-								</td>
-							#end
+								#end
+							</td>
 							<td headers="status">
 								#if ($allowAddAssignment && $!view.equals('lisofass1'))
 								   $!assignment.getStatus()
@@ -491,9 +491,10 @@ function allowClick(object)
 							<td headers="dueDate">
 								$!assignment.dueTime.toStringLocalFull()
 							</td>
-							#if ($!service.allowGradeSubmission($assignment.getReference()))
+							#if ($!allowGradeSubmission)
 								#if ($!view.equals('lisofass1'))
 								<td headers="num_submissions" class="specialLink">
+								#if ($!service.allowGradeSubmission($assignment.getReference()))
 									## calculate the in/new column
 									#set ($totalSubmission = $!assignments_submissions.get($assignment.getReference()))
 									#set ($totalNumber = 0)
@@ -555,11 +556,12 @@ function allowClick(object)
 								#end
 									<a href="#" onclick="if(allowClick(this)){window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")';}" >
 									$totalNumber/$ungradedNumber</a>
+								#end
 								</td>
 								#end
 							#end
 							#if ($withGrade && $!allowGradeSubmission)
-								<td headers="maxgrade">
+							<td headers="maxgrade">
 									#set ($gradeScale = $assignment.getContent().getTypeOfGrade())
 									#if ($gradeScale == -1)
 										## Grade type not set 
@@ -580,12 +582,14 @@ function allowClick(object)
 										## Grade type that only requires a check
 										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="Checkmark" />
 									#end
-								</td>
+							</td>
 							#end
 							#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 								<td headers="remove" class="screenOnly">
-									<input type="checkbox" name="selectedAssignments" value="$assignmentReference" id="check_$assignmentCount" />
-									<label for="check_$assignmentCount" class="skip">$tlang.getString("gen.remove")</label> 
+									#if ($!allowUpdateAssignment)
+										<input type="checkbox" name="selectedAssignments" value="$assignmentReference" id="check_$assignmentCount" />
+										<label for="check_$assignmentCount" class="skip">$tlang.getString("gen.remove")</label>
+									#end 
 								</td>
 							#end
 						</tr>

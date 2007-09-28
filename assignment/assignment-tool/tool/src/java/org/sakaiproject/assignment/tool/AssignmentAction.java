@@ -2259,7 +2259,17 @@ public class AssignmentAction extends PagedResourceActionII
 					
 					// sort the assignments into the default order before adding
 					Iterator assignmentSorter = AssignmentService.getAssignmentsForContext(contextString, userId);
-					Iterator assignmentSortFinal = new SortedIterator(assignmentSorter, new AssignmentComparator(state, SORTED_BY_DEFAULT, Boolean.TRUE.toString()));
+					// filter to obtain only grade-able assignments
+					List rv = new Vector();
+					while (assignmentSorter.hasNext())
+					{
+						Assignment a = (Assignment) assignmentSorter.next();
+						if (AssignmentService.allowGradeSubmission(a.getReference()))
+						{
+							rv.add(a);
+						}
+					}
+					Iterator assignmentSortFinal = new SortedIterator(rv.iterator(), new AssignmentComparator(state, SORTED_BY_DEFAULT, Boolean.TRUE.toString()));
 
 					showStudentAssignments.put(user, assignmentSortFinal);
 				}
@@ -6934,7 +6944,7 @@ public class AssignmentAction extends PagedResourceActionII
 			state.removeAttribute(ALERT_GLOBAL_NAVIGATION);
 		}
 
-		state.setAttribute(NEW_ASSIGNMENT_RANGE, "site");
+		state.removeAttribute(NEW_ASSIGNMENT_RANGE);
 		state.removeAttribute(NEW_ASSIGNMENT_GROUPS);
 
 		// remove the edit assignment id if any
@@ -8376,7 +8386,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				Assignment a = (Assignment) assignments.get(j);
 				String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
-				if ((deleted == null || deleted.equals("")) && (!a.getDraft()))
+				if ((deleted == null || deleted.equals("")) && (!a.getDraft()) && AssignmentService.allowGradeSubmission(a.getReference()))
 				{
 					try
 					{
