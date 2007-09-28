@@ -2501,11 +2501,14 @@ public class AssignmentAction extends PagedResourceActionII
 							while (submissions.hasNext())
 							{
 								AssignmentSubmission aSubmission = (AssignmentSubmission) submissions.next();
-								User[] submitters = aSubmission.getSubmitters();
-								String submitterId = submitters[0].getId();
-								String gradeString = StringUtil.trimToNull(aSubmission.getGrade());
-								Double grade = (gradeString != null && aSubmission.getGradeReleased()) ? Double.valueOf(displayGrade(state,gradeString)) : null;
-								m.put(submitterId, grade);
+								if (aSubmission.getGradeReleased())
+								{
+									User[] submitters = aSubmission.getSubmitters();
+									String submitterId = submitters[0].getId();
+									String gradeString = StringUtil.trimToNull(aSubmission.getGrade());
+									Double grade = gradeString != null ? Double.valueOf(displayGrade(state,gradeString)) : null;
+									m.put(submitterId, grade);
+								}
 							}
 
 							// need to update only when there is at least one submission
