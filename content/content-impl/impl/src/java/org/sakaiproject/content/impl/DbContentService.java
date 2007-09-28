@@ -1573,6 +1573,7 @@ public class DbContentService extends BaseContentService
 			boolean goin = in();
 			try
 			{
+				String message = "failed to write file ";
 				if (resolver != null && goin)
 				{
 					resolver.commitResource(edit);
@@ -1580,6 +1581,7 @@ public class DbContentService extends BaseContentService
 				else
 				{
 					BaseResourceEdit redit = (BaseResourceEdit) edit;
+					boolean ok = true;
 					if (redit.m_body == null)
 					{
 						if (redit.m_contentStream == null)
@@ -1590,26 +1592,25 @@ public class DbContentService extends BaseContentService
 						}
 						else
 						{
+							message += "from stream ";
 							// if we have been configured to use an external file system
 							if (m_bodyPath != null)
 							{
-								boolean ok = putResourceBodyFilesystem(edit, redit.m_contentStream);
-								if (!ok)
-								{
-									cancelResource(edit);
-									throw new ServerOverloadException("failed to write file");
-								}
+								message += "to file";
+								ok = putResourceBodyFilesystem(edit, redit.m_contentStream);
 							}
 
 							// otherwise use the database
 							else
 							{
-								putResourceBodyDb(edit, redit.m_contentStream);
+								message += "to database";
+								ok = putResourceBodyDb(edit, redit.m_contentStream);
 							}
 						}
 					}
 					else
 					{
+						message += "from byte-array ";
 						byte[] body = ((BaseResourceEdit) edit).m_body;
 						((BaseResourceEdit) edit).m_body = null;
 
@@ -1620,20 +1621,25 @@ public class DbContentService extends BaseContentService
 							// system
 							if (m_bodyPath != null)
 							{
-								boolean ok = putResourceBodyFilesystem(edit, body);
-								if (!ok)
-								{
-									cancelResource(edit);
-									throw new ServerOverloadException("failed to write file");
-								}
+								message += "to file";
+								ok = putResourceBodyFilesystem(edit, body);
 							}
 
 							// otherwise use the database
 							else
 							{
-								putResourceBodyDb(edit, body);
+								message += "to database";
+								ok = putResourceBodyDb(edit, body);
 							}
 						}
+					}
+					if (!ok)
+					{
+						cancelResource(edit);
+						ServerOverloadException e = new ServerOverloadException(message);
+						// may be overkill, but let's make sure stack trace gets to log
+						M_log.warn(message, e);
+						throw e;
 					}
 					if(isInsideIndividualDropbox(edit.getId()))
 					{
@@ -1953,11 +1959,12 @@ public class DbContentService extends BaseContentService
 		 *        The resource whose body is being written.
 		 * @param body
 		 *        The body bytes to write. If there is no body or the body is zero bytes, no entry is inserted into the table.
+		 * @return true if the resource body is written successfully, false otherwise.
 		 */
-		protected void putResourceBodyDb(ContentResourceEdit resource, byte[] body)
+		protected boolean putResourceBodyDb(ContentResourceEdit resource, byte[] body)
 		{
 
-			if ((body == null) || (body.length == 0)) return;
+			if ((body == null) || (body.length == 0)) return true;
 
 			// delete the old
 			String statement = contentServiceSql.getDeleteContentSql(m_resourceBodyTableName);
@@ -1970,7 +1977,7 @@ public class DbContentService extends BaseContentService
 			// add the new
 			statement = contentServiceSql.getInsertContentSql(m_resourceBodyTableName);
 
-			m_sqlService.dbWriteBinary(statement, fields, body, 0, body.length);
+			return m_sqlService.dbWriteBinary(statement, fields, body, 0, body.length);
 
 			/*
 			 * %%% BLOB code // read the record's blob and update statement = "select body from " + m_resourceTableName + " where ( resource_id = '" +
@@ -1981,16 +1988,17 @@ public class DbContentService extends BaseContentService
 		/**
 		 * @param edit
 		 * @param stream
+		 * @return true if the resource body is written successfully, false otherwise.
 		 */
-		protected void putResourceBodyDb(ContentResourceEdit edit, InputStream stream)
+		protected boolean putResourceBodyDb(ContentResourceEdit edit, InputStream stream)
 		{
 			// Do not create the files for resources with zero length bodies
-			if ((stream == null)) return;
+			if ((stream == null)) return true;
 
 			ByteArrayOutputStream bstream = new ByteArrayOutputStream();
 
 			int byteCount = 0;
-
+			
 			// chunk
 			byte[] chunk = new byte[STREAM_BUFFER_SIZE];
 			int lenRead;
@@ -2031,16 +2039,19 @@ public class DbContentService extends BaseContentService
 				}
 			}
 
+			boolean ok = true;
 			if (bstream != null && bstream.size() > 0)
 			{
-				putResourceBodyDb(edit, bstream.toByteArray());
+				ok = putResourceBodyDb(edit, bstream.toByteArray());
 			}
+			
+			return ok;
 		}
 
 		/**
 		 * @param edit
 		 * @param stream
-		 * @return
+		 * @return true if the resource body is written successfully, false otherwise.
 		 */
 		private boolean putResourceBodyFilesystem(ContentResourceEdit resource, InputStream stream)
 		{
@@ -2138,6 +2149,7 @@ public class DbContentService extends BaseContentService
 		 *        The resource whose body is being written.
 		 * @param body
 		 *        The body bytes to write. If there is no body or the body is zero bytes, no entry is inserted into the filesystem.
+		 * @return true if the resource body is written successfully, false otherwise.
 		 */
 		protected boolean putResourceBodyFilesystem(ContentResourceEdit resource, byte[] body)
 		{

@@ -1254,17 +1254,17 @@ public class FilePickerAction extends PagedResourceHelperAction
 		//ResourceType type = registry.getType(typeId); 
 		
 		String max_file_size_mb = (String) toolSession.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-		int max_bytes = 1024 * 1024;
+		long max_bytes = 1024L * 1024L;
 		try
 		{
-			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+			max_bytes = Long.parseLong(max_file_size_mb) * 1024L * 1024L;
 		}
 		catch(Exception e)
 		{
 			// if unable to parse an integer from the value
 			// in the properties file, use 1 MB as a default
 			max_file_size_mb = "1";
-			max_bytes = 1024 * 1024;
+			max_bytes = 1024L * 1024L;
 		}
 
 		FileItem fileitem = null;

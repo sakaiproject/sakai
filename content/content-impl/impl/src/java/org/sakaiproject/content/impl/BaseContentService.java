@@ -2929,7 +2929,38 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// TODO: Need to deal with failure here
 		}
 		
-		commitResource(edit, priority);
+		try
+		{
+			commitResource(edit, priority);
+		}
+		catch(OverQuotaException e)
+		{
+			M_log.warn("OverQuotaException " + e);
+			try
+			{
+				removeResource(edit.getId());
+			}
+			catch(Exception e1)
+			{
+				// ignore -- no need to remove the resource if it doesn't exist
+				M_log.warn("Unable to remove partially completed resource: " + edit.getId(), e1); 
+			}
+			throw e;
+		}
+		catch(ServerOverloadException e)
+		{
+			M_log.warn("ServerOverloadException " + e);
+			try
+			{
+				removeResource(edit.getId());
+			}
+			catch(Exception e1)
+			{
+				// ignore -- no need to remove the resource if it doesn't exist
+				M_log.warn("Unable to remove partially completed resource: " + edit.getId(), e1); 
+			}
+			throw e;
+		}
 
 		return edit;
 
@@ -3053,8 +3084,39 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			edit.setAvailability(hidden, releaseDate, retractDate);
 			
-			// commit the change
-			commitResource(edit, priority);
+			try
+			{
+				// commit the change
+				commitResource(edit, priority);
+			}
+			catch(OverQuotaException e)
+			{
+				M_log.warn("OverQuotaException " + e);
+				try
+				{
+					removeResource(edit.getId());
+				}
+				catch(Exception e1)
+				{
+					// ignore -- no need to remove the resource if it doesn't exist
+					M_log.warn("Unable to remove partially completed resource: " + edit.getId(), e1); 
+				}
+				throw e;
+			}
+			catch(ServerOverloadException e)
+			{
+				M_log.warn("ServerOverloadException " + e);
+				try
+				{
+					removeResource(edit.getId());
+				}
+				catch(Exception e1)
+				{
+					// ignore -- no need to remove the resource if it doesn't exist
+					M_log.warn("Unable to remove partially completed resource: " + edit.getId(), e1); 
+				}
+				throw e;
+			}
 		}
 		catch (IdUsedException e)
 		{
@@ -3449,8 +3511,39 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				// TODO: Need to deal with failure here
 			}
 			
-			// commit the change
-			commitResource(edit, priority);
+			try
+			{
+				// commit the change
+				commitResource(edit, priority);
+			}
+			catch(OverQuotaException e)
+			{
+				M_log.warn("OverQuotaException " + e);
+				try
+				{
+					removeResource(edit.getId());
+				}
+				catch(Exception e1)
+				{
+					// ignore -- no need to remove the resource if it doesn't exist
+					M_log.warn("Unable to remove partially completed resource: " + edit.getId(), e1); 
+				}
+				throw e;
+			}
+			catch(ServerOverloadException e)
+			{
+				M_log.warn("ServerOverloadException " + e);
+				try
+				{
+					removeResource(edit.getId());
+				}
+				catch(Exception e1)
+				{
+					// ignore -- no need to remove the resource if it doesn't exist
+					M_log.warn("Unable to remove partially completed resource: " + edit.getId(), e1); 
+				}
+				throw e;
+			}
 		}
 		catch (IdUsedException e)
 		{
