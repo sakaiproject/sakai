@@ -2670,7 +2670,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 	    		{	
     				Double doublePercentage = lgpm.getValue(agr.getLetterEarned());
     				if (doublePercentage != null) {
-	    				agr.setPointsEarned(calculateEquivalentPointValueForPercent(newTotal, agr.getPercentEarned()));
+	    				agr.setPointsEarned(calculateEquivalentPointValueForPercent(newTotal, doublePercentage));
     				} else {
     					log.error("No equivalent % mapping for letter grade: " + agr.getLetterEarned() + " in method convertGradePointsForTotalUpdatedPoints");
     				}
