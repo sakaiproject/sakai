@@ -1260,11 +1260,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
     switch (caller)
     {
       case EDITOR_INTEGRATION:
-    		context.put("sakai_onload", "SRC_saveResultsFormInfo('"
+    		context.put("sakai_onload", "SRC_initializePageInfo('"
     		        +   ELEMENT_ID_RESULTS_FORM
-    		        + "','"
-    		        + rb.getString("add.results")
-    		        + "'); SRC_verifyWindowOpener();");
+    		        +   "','"
+    		        +   rb.getString("add.results")
+    		        +   "'); SRC_verifyWindowOpener();");
 
    			context.put("editorIntegration", Boolean.TRUE);
    			context.put("resourcesTool", Boolean.FALSE);

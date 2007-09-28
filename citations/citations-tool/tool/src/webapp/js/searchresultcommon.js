@@ -90,7 +90,7 @@ function SRC_closedWindowOpenerAlert()
 function SRC_verifyEditArea()
 {
 	var FCK_EDITMODE_WYSIWYG	= 0;
-	var editor 								= SRC_findResourceSearchInstance();
+	var editor 								= SRC_findEditorInstance();
 
 	if (!(editor.EditMode == FCK_EDITMODE_WYSIWYG))
 	{
@@ -108,11 +108,13 @@ function SRC_verifyEditArea()
  */
 var __SRC_resultsForm = null;
 var __SRC_buttonLabel = null;
+var __SRC_accessCount = 0;
 
-function SRC_saveResultsFormInfo(name, label)
+function SRC_initializePageInfo(name, label)
 {
   __SRC_resultsForm = name;
   __SRC_buttonLabel = label;
+  __SRC_accessCount = 0;
 }
 
 /*
@@ -201,7 +203,7 @@ function SRC_findBaseResourceSearchCommand()
 /*
  * Find the FCK editor API instance for the current edit frame
  */
-function SRC_findResourceSearchInstance()
+function SRC_findEditorInstance()
 {
 	var resourceSearchBase;
 	/*
@@ -211,6 +213,14 @@ function SRC_findResourceSearchInstance()
 
   return resourceSearchBase.findEditorInstance();
  }
+
+/*
+ * Find the Resource Search editor plugin for the current editor frame
+ */
+function SRC_findResourceSearchInstance()
+{
+  return SRC_findEditorInstance().__resourceSearch;
+}
 
 /*
  * Generate an anchor for the citations page.  This is in the general form:
@@ -293,14 +303,19 @@ function SRC_addCitation(href, anchorText, creatorText, sourceText)
    */
   try
   {
+    var editorApi = SRC_findEditorInstance();
 	  var newAnchor;
 
 		/*
 		 * Format the anchor and insert it into the edit area
 		 */
-	  newAnchor = __SRC_makeCitationAnchor(href, anchorText, creatorText, sourceText);
+    newAnchor = __SRC_makeCitationAnchor(href, anchorText, creatorText, sourceText);
+    editorApi.InsertHtml(newAnchor);
 
-    SRC_findResourceSearchInstance().InsertHtml(newAnchor);
+    if (__SRC_accessCount++ == 0)
+    {
+      editorApi.EditorWindow.focus();
+    }
     window.focus();
   }
   catch (exception)
