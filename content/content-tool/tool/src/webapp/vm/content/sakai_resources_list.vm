@@ -143,7 +143,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 				</th>
 				<th id="checkboxes"  style="border:none">
 						<input type="checkbox" name="selectall" id="selectall" disabled="disabled" title="$clang.getString("list.select")"
-							onclick="javascript:toggleSelectAll(this, 'selectedMembers')" value="" />
+							onclick="javascript:toggleSelectAll(this, 'selectedMembers')" value="" /><label for="selectall" class="skip">$clang.getString("list.select")</label>
 				</th>
 				<th id="title"  style="border:none">
 					<a href="#"
