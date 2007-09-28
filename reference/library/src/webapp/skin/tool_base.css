@@ -97,7 +97,7 @@ code {
 /*for web content - 2 states of the body > div that used instead of div.portletBody in web content), with toolbar, without*/
 /*see  a course site web contentn tool  - as instructor and as student - ends with a IE hack needed to make the make the bottom scrolbar (when present) behave.*/
 .wcwmenu{
-	padding: 0;
+	padding: 0.2em 0em 0em 0em;
 	margin: 3px 0 -1em  0;
 }
 
@@ -645,6 +645,11 @@ textarea{
 /*certain longtext/label pairs need to display label and control on separate lines - their label is classed "block"*/
 label.block{
 	display: block;
+}
+/*all RT Editors should be composed of an iframe inside of a longtext div*/
+/*bellow padding is to avoid FF ghost borders*/
+.longtext iframe{
+		padding: 0.2em 0em 0em 0em;
 }
 
 /*input type="file" are classed "upload" YMMV*/
