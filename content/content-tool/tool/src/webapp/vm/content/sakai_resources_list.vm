@@ -19,8 +19,8 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 </style>
 <![endif]-->
 <style type="text/css">
-    @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/themes/tundra/tundra.css";
-    @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.css";
+    @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/themes/sakadojo/sakadojo.css";
+##    @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.css";
 </style>
 <script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
 <script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/dijit.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
@@ -32,7 +32,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 </script>
 
 #set($num = 0)
-<div class="portletBody specialLink tundra">
+<div class="portletBody specialLink sakadojo">
 	#set($itemsOnLine = 0)
 	#if ($atHome && $atHome == $TRUE)
 			<div class="navIntraTool">
@@ -326,7 +326,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 					</td>
 					#set ($actionCount=($actionCount - 1))
 					#set ($actionCount2=($actionCount2 - 1))
-					<td headers="actions2"   class="attach tundra">
+					<td headers="actions2"   class="attach sakadojo">
 						#if($item.addActions && !$item.addActions.isEmpty())
 							<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("addMenu-${item.id}")">
     							<span>$tlang.getString("button.add")</span>
@@ -341,7 +341,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 					        </div>
 						#end
 					</td>
-					<td headers="actions3"   class="attach tundra">
+					<td headers="actions3"   class="attach sakadojo">
 						#if($item.otherActions && !$item.otherActions.isEmpty())
 							<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("actionMenu-${item.id}")">
     							<span>$tlang.getString("button.actions")</span>
@@ -557,7 +557,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 							</td>
 							#set ($actionCount=($actionCount - 1))
 							#set ($actionCount2=($actionCount2 - 1))
-							<td headers="actions2"   class="attach tundra">
+							<td headers="actions2"   class="attach sakadojo">
 								#if($item.addActions && !$item.addActions.isEmpty())
 									<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("addMenu-${item.id}")">
 			    						<span>$tlang.getString("button.add")</span>
