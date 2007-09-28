@@ -80,7 +80,7 @@ public class HistogramListener
 
     if (!histogramScores(publishedId, bean, totalBean))
     {
-      throw new RuntimeException("failed to call questionScores.");
+      throw new RuntimeException("failed to call histogramScores.");
     }
   }
 
