@@ -2042,10 +2042,6 @@ public abstract class BaseCitationService implements CitationService
 				Object obj0 = m_citations.get(arg0);
 				Object obj1 = m_citations.get(arg1);
 
-				// Stopgap fix
-				if ((obj0 == null && obj1 != null) ||
-				    (obj0 != null && obj1 == null))
-					return 0;
 
 				if (!(obj0 instanceof Citation) || !(obj1 instanceof Citation))
 				{
@@ -2924,6 +2920,8 @@ public abstract class BaseCitationService implements CitationService
 				try
 				{
 					newCitation.copy(oldCitation);
+					newCitation.m_id = oldCitation.m_id;
+					newCitation.m_temporary = false;
 					this.saveCitation(newCitation);
 					this.add(newCitation);
 				}
