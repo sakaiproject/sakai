@@ -357,13 +357,14 @@
 }
 
 .sakadojo .dijitMenuItem {
-	background-color: red;
+	background-color: #f7f7f7;	
 	font: menu;
 	margin: 0;
 }
 /*dijit override*/
 .dijitMenuItemLabel{
 	padding:.5em;
+	border:1px solid #999;	
 }
 .sakadojo .dijitMenuItem TD {
 	padding:2px;

@@ -22,6 +22,11 @@
 	padding-left: 3px;
 	padding-right: 0px;
 }
+/*dijit override*/
+.dijitMenuItemLabel{
+	padding:.5em;
+	border:1px solid #999;	
+}
 
 .dijitRtl .dijitMenuItem .dijitMenuExpandEnabled {
 	background:url('images/arrowLeft.png') no-repeat bottom center;
