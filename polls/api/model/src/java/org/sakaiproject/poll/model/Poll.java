@@ -21,6 +21,7 @@
 
 package org.sakaiproject.poll.model;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Stack;
@@ -65,7 +66,10 @@ public class Poll implements Entity  {
 		this.maxOptions = 1;
 		this.limitVoting = true;
 		this.voteOpen = new Date();
-		this.voteClose = new Date(voteOpen.getTime() + (long)(7*24*60*60*100));
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DAY_OF_MONTH, 7);
+		this.voteClose = cal.getTime();
 		this.displayResult = "open";
 	}
 	
