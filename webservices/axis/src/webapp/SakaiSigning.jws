@@ -252,14 +252,6 @@ public class SakaiSigning {
 	return "success";
     }
 
-    public String decryptSession(String esession) throws AxisFault 
-    {
-        if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
-            	return "not enabled";
-            	
-    	return decrypt(esession.trim());
-    }
-
     private static String decrypt (String enc) {
 	if (privateKey == null)
 	   privateKey = readSecretKey("privkey", "Blowfish");
