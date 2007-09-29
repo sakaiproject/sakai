@@ -40,6 +40,16 @@ public class JournalStorageUpdateTransactionListener implements
 {
 	private JournalStorage journalStorage;
 
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
+
 	/**
 	 * @throws IndexJournalException
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#prepare(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)

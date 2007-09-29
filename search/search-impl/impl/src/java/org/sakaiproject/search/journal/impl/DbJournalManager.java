@@ -30,6 +30,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.indexer.api.IndexJournalException;
 import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.JournalExhausetedException;
@@ -57,9 +58,10 @@ public class DbJournalManager implements JournalManager
 		private long transactionId;
 
 		/*
-		 * Normally its not safe to hold onto a connection for any length of time, but here it is ok
-		 * since the transaction is connected to the transaction id. The danger of not detaching is connection
-		 * is that if there is a machine failure I dont journal to be update.
+		 * Normally its not safe to hold onto a connection for any length of
+		 * time, but here it is ok since the transaction is connected to the
+		 * transaction id. The danger of not detaching is connection is that if
+		 * there is a machine failure I dont journal to be update.
 		 */
 		public Connection connection;
 
@@ -84,6 +86,20 @@ public class DbJournalManager implements JournalManager
 	private static final Log log = LogFactory.getLog(DbJournalManager.class);
 
 	private DataSource datasource;
+
+	private String serverId;
+
+	private ServerConfigurationService serverConfigurationService;
+
+	public void init()
+	{
+		serverId = serverConfigurationService.getServerId();
+	}
+
+	public void destory()
+	{
+
+	}
 
 	/**
 	 * @return the datasource
@@ -114,7 +130,7 @@ public class DbJournalManager implements JournalManager
 		try
 		{
 			connection = datasource.getConnection();
-			listLaterSavePoints = connection
+			listLaterSavePoints = connection	
 					.prepareStatement("select txid from search_journal where txid > ? and status = 'commited' order by txid asc ");
 			listLaterSavePoints.clearParameters();
 			listLaterSavePoints.setLong(1, savePoint);
@@ -175,7 +191,7 @@ public class DbJournalManager implements JournalManager
 			insertPst.clearParameters();
 			insertPst.setLong(1, transactionId);
 			insertPst.setLong(2, System.currentTimeMillis());
-			insertPst.setString(3, String.valueOf(Thread.currentThread().getName()));
+			insertPst.setString(3, serverId);
 			insertPst.setString(4, "prepare");
 			if (insertPst.executeUpdate() != 1)
 			{
@@ -284,6 +300,23 @@ public class DbJournalManager implements JournalManager
 	 */
 	public void doOpenTransaction(IndexTransaction transaction)
 	{
+	}
+
+	/**
+	 * @return the serverConfigurationService
+	 */
+	public ServerConfigurationService getServerConfigurationService()
+	{
+		return serverConfigurationService;
+	}
+
+	/**
+	 * @param serverConfigurationService the serverConfigurationService to set
+	 */
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService)
+	{
+		this.serverConfigurationService = serverConfigurationService;
 	}
 
 }

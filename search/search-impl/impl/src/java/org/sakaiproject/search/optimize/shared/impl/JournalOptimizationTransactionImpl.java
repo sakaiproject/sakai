@@ -50,7 +50,7 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 
 	private File targetSegment;
 
-	/***
+	/***************************************************************************
 	 * @param manager
 	 * @param m
 	 */
@@ -60,7 +60,7 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 		super(manager, m);
 	}
 
-	/***
+	/***************************************************************************
 	 * @param mergeList
 	 */
 	public void setMergeList(List<Long> mergeList)
@@ -70,8 +70,6 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#getMergeList()
 	 */
 	public List<Long> getMergeList()
@@ -80,8 +78,6 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#addMergeSegment(java.io.File)
 	 */
 	public void addMergeSegment(File localJournalLocation)
@@ -90,7 +86,7 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 
 	}
 
-	/***
+	/***************************************************************************
 	 * @param long1
 	 */
 	public void setTargetSavePoint(long targetSavePoint)
@@ -99,8 +95,6 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#getMergeSegmentList()
 	 */
 	public List<File> getMergeSegmentList()
@@ -109,8 +103,6 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#getTargetSegment()
 	 */
 	public File getTargetSegment()
@@ -119,8 +111,6 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#getTargetSavePoint()
 	 */
 	public long getTargetSavePoint()
@@ -129,8 +119,6 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#setTargetSegment(java.io.File)
 	 */
 	public void setTargetSegment(File targetSegment)
@@ -139,8 +127,6 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#getAnalyzer()
 	 */
 	public Analyzer getAnalyzer()
@@ -149,8 +135,6 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#getJournalManager()
 	 */
 	public JournalManager getJournalManager()
@@ -159,8 +143,6 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#getWorkingSpace()
 	 */
 	public String getWorkingSpace()
@@ -169,8 +151,6 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#setTargetSavePoint(java.lang.Long)
 	 */
 	public void setTargetSavePoint(Long targetSavePoint)

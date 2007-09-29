@@ -51,6 +51,12 @@ public class JournalOptimizationOperation implements ManagementOperation
 
 	public void init()
 	{
+
+	}
+
+	public void destory()
+	{
+
 	}
 
 	/**
@@ -131,7 +137,8 @@ public class JournalOptimizationOperation implements ManagementOperation
 	}
 
 	/**
-	 * @param journalOptimizationManager the journalOptimizationManager to set
+	 * @param journalOptimizationManager
+	 *        the journalOptimizationManager to set
 	 */
 	public void setJournalOptimizationManager(
 			JournalOptimizationManager journalOptimizationManager)

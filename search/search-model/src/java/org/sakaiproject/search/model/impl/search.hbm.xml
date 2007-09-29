@@ -97,6 +97,9 @@
               not-null="true" />
  
       </class>
+      
+ 
+      
       <class name="org.sakaiproject.search.model.impl.SearchClusterImpl"
           table="search_segments" >
           <!-- this is the segment name -->
@@ -122,6 +125,8 @@
  
       </class>
           
+      
+      
       
   </hibernate-mapping>
   

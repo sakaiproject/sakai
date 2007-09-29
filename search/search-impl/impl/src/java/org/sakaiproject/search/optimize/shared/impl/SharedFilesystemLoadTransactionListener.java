@@ -48,6 +48,16 @@ public class SharedFilesystemLoadTransactionListener implements
 
 	private SharedFilesystemJournalStorage sharedFilesystemJournalStorage;
 
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
+
 	/**
 	 * @throws IndexJournalException
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#prepare(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)

@@ -39,6 +39,16 @@ public class JournalManagerUpdateTransaction implements IndexUpdateTransactionLi
 
 	private JournalManager journalManager;
 
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
+
 	/**
 	 * @throws IndexJournalException
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#prepare(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
@@ -64,7 +74,7 @@ public class JournalManagerUpdateTransaction implements IndexUpdateTransactionLi
 	}
 
 	/**
-	 * @throws IndexJournalException 
+	 * @throws IndexJournalException
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#open(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
 	public void open(IndexTransaction transaction) throws IndexJournalException

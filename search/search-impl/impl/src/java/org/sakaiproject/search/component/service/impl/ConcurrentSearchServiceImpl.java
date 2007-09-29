@@ -60,13 +60,16 @@ public class ConcurrentSearchServiceImpl extends BaseSearchServiceImpl
 			{
 				if (autoDdl)
 				{
+					log.info("SQL++++++++++++++++++++++++++++++++++++++++++++++++");
 					SqlService.getInstance().ddl(this.getClass().getClassLoader(),
-							"sakai_concurrent_search");
+							"sakai_search_parallel");
+					log.info("SQLEND++++++++++++++++++++++++++++++++++++++++++++++++");
 				}
 			}
 			catch (Exception ex)
 			{
 				log.error("Perform additional SQL setup", ex);
+				
 			}
 
 			initComplete = true;

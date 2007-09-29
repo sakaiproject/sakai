@@ -46,6 +46,16 @@ public class SearchBuilderItemSerializer
 
 	protected static final String TRANSACTION_LIST = "sakai_tx";
 
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
+
 	public void saveTransactionList(File indexDirectoy, List<SearchBuilderItem> txList)
 			throws IOException
 	{

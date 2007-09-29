@@ -42,6 +42,16 @@ public abstract class TransactionManagerImpl implements TransactionIndexManager
 	 */
 	protected TransactionSequence sequence;
 
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
+
 	/**
 	 * @return the transactionListeners
 	 */

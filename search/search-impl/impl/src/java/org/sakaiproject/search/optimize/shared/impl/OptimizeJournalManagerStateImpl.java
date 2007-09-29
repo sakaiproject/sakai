@@ -31,7 +31,6 @@ import org.sakaiproject.search.journal.api.JournalManagerState;
 public class OptimizeJournalManagerStateImpl implements JournalManagerState
 {
 
-
 	public String indexWriter;
 
 	public long transactionId;

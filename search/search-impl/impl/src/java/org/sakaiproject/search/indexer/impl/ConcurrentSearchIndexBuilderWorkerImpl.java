@@ -33,6 +33,7 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.indexer.api.IndexWorker;
 import org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener;
 import org.sakaiproject.search.journal.api.ManagementOperation;
+import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -95,11 +96,6 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	private long loadFactor = 1000L;
 
 	/**
-	 * Setting if true, the indexer will perform a soak test operation
-	 */
-	private boolean soakTest = false;
-
-	/**
 	 * Has been started once at least
 	 */
 	private boolean started = false;
@@ -122,6 +118,13 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	private ThreadLocal<String> nowIndexing = new ThreadLocal<String>();
 
 	private Session session;
+
+	private JournalSettings journalSettings;
+
+	public void destory()
+	{
+
+	}
 
 	public void init()
 	{
@@ -191,7 +194,7 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 		}
 
 		nowIndexing.set("-");
-		if (soakTest && (searchService.getPendingDocs() == 0))
+		if (journalSettings.getSoakTest() && (searchService.getPendingDocs() == 0))
 		{
 			log.error("SOAK TEST---SOAK TEST---SOAK TEST. Index Rebuild Started");
 			searchService.rebuildInstance();
@@ -290,31 +293,6 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 			}
 		}
 
-	}
-
-	/**
-	 * @return the soakTest
-	 */
-	public boolean getSoakTest()
-	{
-		return soakTest;
-	}
-
-	/**
-	 * Puts the index builder into a Soak test, when there are no pending items,
-	 * it starts building again.
-	 * 
-	 * @param soakTest
-	 *        the soakTest to set
-	 */
-	public void setSoakTest(boolean soakTest)
-	{
-
-		this.soakTest = soakTest;
-		if (soakTest)
-		{
-			log.warn("SOAK TEST ACTIVE ======================DONT USE FOR PRODUCTION ");
-		}
 	}
 
 	/**
@@ -471,6 +449,23 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
 	{
 		this.userDirectoryService = userDirectoryService;
+	}
+
+	/**
+	 * @return the journalSettings
+	 */
+	public JournalSettings getJournalSettings()
+	{
+		return journalSettings;
+	}
+
+	/**
+	 * @param journalSettings
+	 *        the journalSettings to set
+	 */
+	public void setJournalSettings(JournalSettings journalSettings)
+	{
+		this.journalSettings = journalSettings;
 	}
 
 }

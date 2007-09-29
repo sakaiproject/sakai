@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.journal.api.JournalExhausetedException;
 import org.sakaiproject.search.journal.api.JournalManagerState;
 import org.sakaiproject.search.journal.impl.DbJournalManager;
+import org.sakaiproject.search.mock.MockServerConfigurationService;
 
 /**
  * @author ieb
@@ -79,7 +80,9 @@ public class DbJournalManagerTest extends TestCase
 		log.info("================================== "+this.getClass().getName()+".testGetNextSavePoint");
 
 		DbJournalManager dbJournalManager = new DbJournalManager();
+		dbJournalManager.setServerConfigurationService(new MockServerConfigurationService());
 		dbJournalManager.setDatasource(tds.getDataSource());
+		dbJournalManager.init();
 		for ( int i = 0; i < 10; i++ ) {
 			JournalManagerState jmstate = dbJournalManager.prepareSave(i);
 			dbJournalManager.commitSave(jmstate);
@@ -104,7 +107,9 @@ public class DbJournalManagerTest extends TestCase
 	{
 		log.info("================================== "+this.getClass().getName()+".testPrepareSave");
 		DbJournalManager dbJournalManager = new DbJournalManager();
+		dbJournalManager.setServerConfigurationService(new MockServerConfigurationService());
 		dbJournalManager.setDatasource(tds.getDataSource());
+		dbJournalManager.init();
 		JournalManagerState[] jms = new JournalManagerState[10];
 		for ( int i = 0; i < 10; i++ ) {
 			jms[i] = dbJournalManager.prepareSave(i);
@@ -124,7 +129,9 @@ public class DbJournalManagerTest extends TestCase
 	{
 		log.info("================================== "+this.getClass().getName()+".testCommitSave");
 		DbJournalManager dbJournalManager = new DbJournalManager();
+		dbJournalManager.setServerConfigurationService(new MockServerConfigurationService());
 		dbJournalManager.setDatasource(tds.getDataSource());
+		dbJournalManager.init();
 		for ( int i = 0; i < 10; i++ ) {
 			JournalManagerState jmstate = dbJournalManager.prepareSave(i);
 			dbJournalManager.commitSave(jmstate);
@@ -149,7 +156,9 @@ public class DbJournalManagerTest extends TestCase
 	{
 		log.info("================================== "+this.getClass().getName()+".testRollbackSave");
 		DbJournalManager dbJournalManager = new DbJournalManager();
+		dbJournalManager.setServerConfigurationService(new MockServerConfigurationService());
 		dbJournalManager.setDatasource(tds.getDataSource());
+		dbJournalManager.init();
 		for ( int i = 0; i < 100; i++ ) {
 			JournalManagerState jmstate = dbJournalManager.prepareSave(i);
 			dbJournalManager.rollbackSave(jmstate);

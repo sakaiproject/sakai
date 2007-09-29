@@ -96,10 +96,12 @@ public class TransactionalIndexWorker implements IndexWorker
 	 */
 	private List<IndexWorkerDocumentListener> indexWorkerDocumentListeners = new ArrayList<IndexWorkerDocumentListener>();
 
-	/**
-	 * Does nothing at the moment.
-	 */
 	public void init()
+	{
+
+	}
+
+	public void destory()
 	{
 
 	}
@@ -408,7 +410,10 @@ public class TransactionalIndexWorker implements IndexWorker
 									+ e1.getMessage(), e1);
 							sbi.setSearchstate(SearchBuilderItem.STATE_FAILED);
 						}
-					} else if ( SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()) ) {
+					}
+					else if (SearchBuilderItem.ACTION_DELETE
+							.equals(sbi.getSearchaction()))
+					{
 						nprocessed++;
 					}
 				}

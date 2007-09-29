@@ -79,7 +79,8 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 	/**
 	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#addItemIterator()
 	 */
-	public Iterator<SearchBuilderItem> lockedItemIterator() throws IndexTransactionException
+	public Iterator<SearchBuilderItem> lockedItemIterator()
+			throws IndexTransactionException
 	{
 		if (transactionState != IndexTransaction.STATUS_ACTIVE)
 		{
@@ -104,11 +105,14 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		try
 		{
 			transactionId = manager.getSequence().getNextId();
-			
+
 			Document savepointMarker = new Document();
-			savepointMarker.add(new Field("_txid",String.valueOf(transactionId),Store.YES,Index.UN_TOKENIZED));
-			savepointMarker.add(new Field("_txts",String.valueOf(System.currentTimeMillis()),Store.YES,Index.UN_TOKENIZED));
-			savepointMarker.add(new Field("_worker",String.valueOf(Thread.currentThread().getName()),Store.YES,Index.UN_TOKENIZED));
+			savepointMarker.add(new Field("_txid", String.valueOf(transactionId),
+					Store.YES, Index.UN_TOKENIZED));
+			savepointMarker.add(new Field("_txts", String.valueOf(System
+					.currentTimeMillis()), Store.YES, Index.UN_TOKENIZED));
+			savepointMarker.add(new Field("_worker", String.valueOf(Thread
+					.currentThread().getName()), Store.YES, Index.UN_TOKENIZED));
 			indexWriter.addDocument(savepointMarker);
 
 			indexWriter.close();
@@ -208,7 +212,9 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 	{
 		try
 		{
-			indexWriter.close();
+			if ( indexWriter != null ) {
+				indexWriter.close();
+			}
 			indexWriter = null;
 		}
 		catch (Exception ex)
@@ -263,7 +269,7 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 				}
 			}
 		}
-		
+
 		if (txList.size() == 0)
 		{
 			log.warn("No Items found to index");

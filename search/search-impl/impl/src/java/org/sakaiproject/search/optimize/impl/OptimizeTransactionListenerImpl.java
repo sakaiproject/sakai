@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.optimize.api.IndexOptimizeTransaction;
 import org.sakaiproject.search.optimize.api.NoOptimizationRequiredException;
 import org.sakaiproject.search.optimize.api.OptimizableIndex;
@@ -60,7 +61,17 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 	/**
 	 * The minimum number of segments to perform a merge on
 	 */
-	private long mergeSize;
+	private JournalSettings journalSettings;
+
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
 
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#close(org.sakaiproject.search.transaction.api.IndexTransaction)
@@ -118,7 +129,7 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 	public void open(IndexTransaction transaction) throws IndexTransactionException
 	{
 		File[] optimzableSegments = optimizableIndex.getOptimizableSegments();
-		if (optimzableSegments.length < mergeSize)
+		if (optimzableSegments.length < journalSettings.getOptimizMergeSize())
 		{
 			throw new NoOptimizationRequiredException();
 		}
@@ -177,23 +188,6 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 	}
 
 	/**
-	 * @return the mergeSize
-	 */
-	public long getMergeSize()
-	{
-		return mergeSize;
-	}
-
-	/**
-	 * @param mergeSize
-	 *        the mergeSize to set
-	 */
-	public void setMergeSize(long mergeSize)
-	{
-		this.mergeSize = mergeSize;
-	}
-
-	/**
 	 * @return the optimizableIndex
 	 */
 	public OptimizableIndex getOptimizableIndex()
@@ -208,6 +202,23 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 	public void setOptimizableIndex(OptimizableIndex optimizableIndex)
 	{
 		this.optimizableIndex = optimizableIndex;
+	}
+
+	/**
+	 * @return the journalSettings
+	 */
+	public JournalSettings getJournalSettings()
+	{
+		return journalSettings;
+	}
+
+	/**
+	 * @param journalSettings
+	 *        the journalSettings to set
+	 */
+	public void setJournalSettings(JournalSettings journalSettings)
+	{
+		this.journalSettings = journalSettings;
 	}
 
 }

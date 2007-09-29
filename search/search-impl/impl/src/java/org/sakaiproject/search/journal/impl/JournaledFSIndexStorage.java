@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -57,6 +56,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.journal.api.IndexListener;
 import org.sakaiproject.search.journal.api.IndexMonitorListener;
+import org.sakaiproject.search.journal.api.IndexStorageProvider;
 import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.JournalManager;
 import org.sakaiproject.search.journal.api.JournaledIndex;
@@ -65,21 +65,21 @@ import org.sakaiproject.search.util.FileUtils;
 
 /**
  * <pre>
- *          This is a Journaled savePoint of the local FSIndexStorage. It will merge in new
- *          savePoints from the jorunal. This is going to be performed in a non
- *          transactional way for the moment. 
- *          
- *          The index reader must maintain a single
- *          index reader for the JVM. When performing a read update, the single index
- *          reader must be used, but each time the index reader is provided we should
- *          check that the index reader has not been updated.
- *          
- *          If the reader is being updated, then it is not safe to reload it.
+ *             This is a Journaled savePoint of the local FSIndexStorage. It will merge in new
+ *             savePoints from the jorunal. This is going to be performed in a non
+ *             transactional way for the moment. 
+ *             
+ *             The index reader must maintain a single
+ *             index reader for the JVM. When performing a read update, the single index
+ *             reader must be used, but each time the index reader is provided we should
+ *             check that the index reader has not been updated.
+ *             
+ *             If the reader is being updated, then it is not safe to reload it.
  * </pre>
  * 
- * @author ieb TODO Unit test
+ * @author ieb
  */
-public class JournaledFSIndexStorage implements JournaledIndex
+public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProvider
 {
 
 	private static final Log log = LogFactory.getLog(JournaledFSIndexStorage.class);
@@ -121,16 +121,6 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	 * The journal manager that manages the journal that feeds this index
 	 */
 	private JournalManager journalManager;
-
-	/**
-	 * A working space for the index where segments from the journal are placed
-	 */
-	private String workingSpace;
-
-	/**
-	 * The permanent segments directory
-	 */
-	private String searchIndexDirectory;
 
 	/**
 	 * A list of temporary segments
@@ -182,13 +172,24 @@ public class JournaledFSIndexStorage implements JournaledIndex
 
 	private ClusterService clusterService;
 
+	private long lastLoad;
+
+	private long lastLoadTime;
+
+	private JournalSettings journalSettings;
+
+	public void destory()
+	{
+
+	}
+
 	/**
 	 * @see org.sakaiproject.search.index.impl.FSIndexStorage#init()
 	 */
 	public void init()
 	{
 		serverId = serverConfigurationService.getServerId();
-		File f = new File(searchIndexDirectory, SEGMENT_LIST_NAME);
+		File f = new File(journalSettings.getSearchIndexDirectory(), SEGMENT_LIST_NAME);
 		if (f.exists())
 		{
 			log.info("Segment List File Exists, using it");
@@ -382,7 +383,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	 */
 	public String getWorkingSpace()
 	{
-		return workingSpace;
+		return journalSettings.getLocalIndexWorkingSpace();
 	}
 
 	/**
@@ -436,6 +437,8 @@ public class JournaledFSIndexStorage implements JournaledIndex
 			}
 			indexSearcher = newIndexSearcher;
 			long end = System.currentTimeMillis();
+			lastLoad = end;
+			lastLoadTime = end - start;
 			log.info("Opened index Searcher in " + (end - start) + " ms");
 			fireIndexSearcherOpen(indexSearcher);
 		}
@@ -582,9 +585,12 @@ public class JournaledFSIndexStorage implements JournaledIndex
 			x1 = System.currentTimeMillis();
 			f1 = x1;
 			boolean locked = false;
-			if ( rwlock.isWriteLockedByCurrentThread() ) {
+			if (rwlock.isWriteLockedByCurrentThread())
+			{
 				locked = true;
-			} else {
+			}
+			else
+			{
 				locked = aquireReadLock();
 			}
 			if (locked)
@@ -618,7 +624,8 @@ public class JournaledFSIndexStorage implements JournaledIndex
 					finally
 					{
 						f2 = System.currentTimeMillis();
-						if ( !rwlock.isWriteLockedByCurrentThread() ) {
+						if (!rwlock.isWriteLockedByCurrentThread())
+						{
 							releaseReadLock();
 						}
 						f3 = System.currentTimeMillis();
@@ -653,17 +660,18 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	private IndexReader getIndexReaderInternal() throws IOException
 	{
 		long start = System.currentTimeMillis();
-		File f = new File(searchIndexDirectory);
+		File f = new File(journalSettings.getSearchIndexDirectory());
 		Directory d = null;
 		if (!f.exists())
 		{
 			f.mkdirs();
 			log.debug("Indexing in " + f.getAbsolutePath());
-			d = FSDirectory.getDirectory(searchIndexDirectory, true);
+			d = FSDirectory.getDirectory(journalSettings.getSearchIndexDirectory(), true);
 		}
 		else
 		{
-			d = FSDirectory.getDirectory(searchIndexDirectory, false);
+			d = FSDirectory
+					.getDirectory(journalSettings.getSearchIndexDirectory(), false);
 		}
 
 		if (IndexReader.isLocked(d))
@@ -798,7 +806,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 		try
 		{
 			SizeAction sa = new SizeAction();
-			File searchDir = new File(searchIndexDirectory);
+			File searchDir = new File(journalSettings.getSearchIndexDirectory());
 			FileUtils.recurse(searchDir, sa);
 			seginfo.add(new Object[] { "mainsegment", sa.sizeToString(sa.getSize()),
 					sa.dateToString(sa.getLastUpdated()) });
@@ -828,7 +836,7 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	 */
 	public boolean indexExists()
 	{
-		File f = new File(searchIndexDirectory);
+		File f = new File(journalSettings.getSearchIndexDirectory());
 		return f.exists();
 	}
 
@@ -981,23 +989,6 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	}
 
 	/**
-	 * @return the searchIndexDirectory
-	 */
-	public String getSearchIndexDirectory()
-	{
-		return searchIndexDirectory;
-	}
-
-	/**
-	 * @param searchIndexDirectory
-	 *        the searchIndexDirectory to set
-	 */
-	public void setSearchIndexDirectory(String searchIndexDirectory)
-	{
-		this.searchIndexDirectory = searchIndexDirectory;
-	}
-
-	/**
 	 * @return the serverConfigurationService
 	 */
 	public ServerConfigurationService getServerConfigurationService()
@@ -1013,15 +1004,6 @@ public class JournaledFSIndexStorage implements JournaledIndex
 			ServerConfigurationService serverConfigurationService)
 	{
 		this.serverConfigurationService = serverConfigurationService;
-	}
-
-	/**
-	 * @param workingSpace
-	 *        the workingSpace to set
-	 */
-	public void setWorkingSpace(String workingSpace)
-	{
-		this.workingSpace = workingSpace;
 	}
 
 	/*
@@ -1197,17 +1179,19 @@ public class JournaledFSIndexStorage implements JournaledIndex
 		{
 			try
 			{
-				File f = new File(searchIndexDirectory);
+				File f = new File(journalSettings.getSearchIndexDirectory());
 				Directory d = null;
 				if (!f.exists())
 				{
 					f.mkdirs();
 					log.debug("Indexing in " + f.getAbsolutePath());
-					d = FSDirectory.getDirectory(searchIndexDirectory, true);
+					d = FSDirectory.getDirectory(journalSettings
+							.getSearchIndexDirectory(), true);
 				}
 				else
 				{
-					d = FSDirectory.getDirectory(searchIndexDirectory, false);
+					d = FSDirectory.getDirectory(journalSettings
+							.getSearchIndexDirectory(), false);
 				}
 
 				if (!d.fileExists("segments"))
@@ -1300,8 +1284,8 @@ public class JournaledFSIndexStorage implements JournaledIndex
 	 */
 	public void saveSegmentList() throws IOException
 	{
-		File f = new File(searchIndexDirectory, SEGMENT_LIST_NAME);
-		log.info("Saving to "+f.getAbsolutePath());
+		File f = new File(journalSettings.getSearchIndexDirectory(), SEGMENT_LIST_NAME);
+		log.info("Saving to " + f.getAbsolutePath());
 		FileOutputStream fout = new FileOutputStream(f);
 		DataOutputStream dout = new DataOutputStream(fout);
 		dout.write(SEGMENT_LIST_SIGNATURE);
@@ -1318,8 +1302,8 @@ public class JournaledFSIndexStorage implements JournaledIndex
 
 	public void loadSegmentList() throws IOException
 	{
-		File f = new File(searchIndexDirectory, SEGMENT_LIST_NAME);
-		log.info("Loading from "+f.getAbsolutePath());
+		File f = new File(journalSettings.getSearchIndexDirectory(), SEGMENT_LIST_NAME);
+		log.info("Loading from " + f.getAbsolutePath());
 		FileInputStream fout = new FileInputStream(f);
 		DataInputStream din = new DataInputStream(fout);
 		byte[] sig = new byte[SEGMENT_LIST_SIGNATURE.length];
@@ -1379,16 +1363,55 @@ public class JournaledFSIndexStorage implements JournaledIndex
 		loadIndexSearcherInternal();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.journal.api.JournaledObject#debugLock()
 	 */
 	public void debugLock()
 	{
-		log.info(this+" Locks Waiting "+rwlock.getQueueLength());
-		log.info(this+" Read Locks Locks "+rwlock.getReadLockCount());
-		log.info(this+" Write Holds this thread "+rwlock.getWriteHoldCount());
-		log.info(this+" is Write Locked "+rwlock.isWriteLocked());
-		
+		log.info(this + " Locks Waiting " + rwlock.getQueueLength());
+		log.info(this + " Read Locks Locks " + rwlock.getReadLockCount());
+		log.info(this + " Write Holds this thread " + rwlock.getWriteHoldCount());
+		log.info(this + " is Write Locked " + rwlock.isWriteLocked());
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.journal.api.IndexStorageProvider#getLastLoad()
+	 */
+	public long getLastLoad()
+	{
+		return lastLoad;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.journal.api.IndexStorageProvider#getLastLoadTime()
+	 */
+	public long getLastLoadTime()
+	{
+		return lastLoadTime;
+	}
+
+	/**
+	 * @return the journalSettings
+	 */
+	public JournalSettings getJournalSettings()
+	{
+		return journalSettings;
+	}
+
+	/**
+	 * @param journalSettings
+	 *        the journalSettings to set
+	 */
+	public void setJournalSettings(JournalSettings journalSettings)
+	{
+		this.journalSettings = journalSettings;
 	}
 
 }

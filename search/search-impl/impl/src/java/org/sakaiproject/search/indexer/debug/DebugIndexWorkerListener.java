@@ -37,6 +37,16 @@ public class DebugIndexWorkerListener implements IndexWorkerListener
 
 	private static final Log log = LogFactory.getLog(DebugIndexWorkerListener.class);
 
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
+
 	/**
 	 * @see org.sakaiproject.search.indexer.api.IndexWorkerListener#indexWorkerEnd(org.sakaiproject.search.indexer.api.IndexWorker)
 	 */

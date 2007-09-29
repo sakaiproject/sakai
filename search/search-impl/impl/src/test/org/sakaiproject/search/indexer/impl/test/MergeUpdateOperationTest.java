@@ -39,6 +39,7 @@ import org.sakaiproject.search.indexer.impl.SearchBuilderQueueManager;
 import org.sakaiproject.search.indexer.impl.TransactionIndexManagerImpl;
 import org.sakaiproject.search.indexer.impl.TransactionalIndexWorker;
 import org.sakaiproject.search.journal.impl.DbJournalManager;
+import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorage;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorageUpdateTransactionListener;
 import org.sakaiproject.search.journal.impl.MergeUpdateManager;
@@ -92,9 +93,17 @@ public class MergeUpdateOperationTest extends TestCase
 		super.setUp();
 		testBase = new File("m2-target");
 		testBase = new File(testBase, "MergeUpdateOperationTest");
-		work = new File(testBase, "work");
-		shared = new File(testBase, "shared");
-		index = new File(testBase, "index");
+
+		String localIndexBase = new File(testBase,"local").getAbsolutePath();
+		String sharedJournalBase = new File(testBase,"shared").getAbsolutePath();
+
+		
+		JournalSettings journalSettings = new JournalSettings();
+		journalSettings.setLocalIndexBase(localIndexBase);
+		journalSettings.setSharedJournalBase(sharedJournalBase);
+		journalSettings.setMinimumOptimizeSavePoints(5);
+		journalSettings.setOptimizMergeSize(5);
+		journalSettings.setSoakTest(true);
 
 		tds = new TDataSource(5, false);
 
@@ -119,7 +128,7 @@ public class MergeUpdateOperationTest extends TestCase
 		journaledFSIndexStorageUpdateTransactionListener
 				.setJournalStorage(sharedFilesystemJournalStorage);
 
-		sharedFilesystemJournalStorage.setJournalLocation(shared.getAbsolutePath());
+		sharedFilesystemJournalStorage.setJournalSettings(journalSettings);
 
 		sequence.setDatasource(tds.getDataSource());
 
@@ -129,14 +138,14 @@ public class MergeUpdateOperationTest extends TestCase
 		mergeUpdateManager.setSequence(sequence);
 
 		journalManager.setDatasource(tds.getDataSource());
+		journalManager.setServerConfigurationService(serverConfigurationService);
 
 		journaledFSIndexStorage.setAnalyzerFactory(analyzerFactory);
 		journaledFSIndexStorage.setDatasource(tds.getDataSource());
 		journaledFSIndexStorage.setJournalManager(journalManager);
 		journaledFSIndexStorage.setRecoverCorruptedIndex(false);
-		journaledFSIndexStorage.setSearchIndexDirectory(index.getAbsolutePath());
+		journaledFSIndexStorage.setJournalSettings(journalSettings);
 		journaledFSIndexStorage.setServerConfigurationService(serverConfigurationService);
-		journaledFSIndexStorage.setWorkingSpace(work.getAbsolutePath());
 		mu.setJournaledObject(journaledFSIndexStorage);
 		mu.setMergeUpdateManager(mergeUpdateManager);
 
@@ -148,7 +157,7 @@ public class MergeUpdateOperationTest extends TestCase
 		SearchBuilderQueueManager searchBuilderQueueManager = new SearchBuilderQueueManager();
 
 		transactionIndexManager.setAnalyzerFactory(new StandardAnalyzerFactory());
-		transactionIndexManager.setSearchIndexWorkingDirectory(work.getAbsolutePath());
+		transactionIndexManager.setJournalSettings(journalSettings);
 		transactionIndexManager.setSequence(sequence);
 
 		journalManagerUpdateTransaction.setJournalManager(journalManager);
@@ -174,6 +183,7 @@ public class MergeUpdateOperationTest extends TestCase
 		tiw.addIndexWorkerListener(new DebugIndexWorkerListener());
 
 		sequence.init();
+		journalManager.init();
 		searchBuilderQueueManager.init();
 		transactionIndexManager.init();
 		mu.init();

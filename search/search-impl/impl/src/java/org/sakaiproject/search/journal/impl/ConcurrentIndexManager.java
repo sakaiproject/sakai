@@ -63,6 +63,11 @@ public class ConcurrentIndexManager implements IndexListener
 
 	private int nropen = 0;
 
+	public void destory()
+	{
+
+	}
+
 	public void init()
 	{
 		for (Iterator<IndexManagementTimerTask> i = tasks.iterator(); i.hasNext();)
@@ -122,22 +127,24 @@ public class ConcurrentIndexManager implements IndexListener
 			itt.setClosed(true);
 		}
 	}
-	public void cleanup() 
+
+	public void cleanup()
 	{
 		inclose.set("inclose");
-		while(delayQueue.size() > 0 ) {
+		while (delayQueue.size() > 0)
+		{
 
 			DelayedClose dc = (DelayedClose) delayQueue.poll();
-			if ( dc != null ) {
+			if (dc != null)
+			{
 				dc.close();
 			}
 		}
 		inclose.set(null);
 		closed = true;
-		
-		
-		log.info("N Searchers is "+nsopen);
-		log.info("N Readers is "+nropen);
+
+		log.info("N Searchers is " + nsopen);
+		log.info("N Readers is " + nropen);
 	}
 
 	/**
@@ -199,7 +206,7 @@ public class ConcurrentIndexManager implements IndexListener
 	public void doIndexSearcherOpen(IndexSearcher indexSearcher)
 	{
 		nsopen++;
-		log.debug(this+"Opened New Searcher " + nsopen + " " + indexSearcher);
+		log.debug(this + "Opened New Searcher " + nsopen + " " + indexSearcher);
 	}
 
 	/*

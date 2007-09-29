@@ -39,6 +39,16 @@ public class DebugTransactionListener implements MergeTransactionListener,
 
 	private static final Log log = LogFactory.getLog(DebugTransactionListener.class);
 
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
+
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#commit(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */

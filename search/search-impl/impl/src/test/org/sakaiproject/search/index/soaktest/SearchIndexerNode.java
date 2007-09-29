@@ -44,6 +44,7 @@ import org.sakaiproject.search.journal.api.ManagementOperation;
 import org.sakaiproject.search.journal.impl.ConcurrentIndexManager;
 import org.sakaiproject.search.journal.impl.DbJournalManager;
 import org.sakaiproject.search.journal.impl.IndexManagementTimerTask;
+import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorage;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorageUpdateTransactionListener;
 import org.sakaiproject.search.journal.impl.MergeUpdateManager;
@@ -121,11 +122,15 @@ public class SearchIndexerNode
 	{
 		String shared = base + "/shared";
 		String instanceBase = base + "/" + instanceName;
-		String indexerwork = instanceBase + "/indexerwork";
-		String indexwork = instanceBase + "/index/work";
-		String index = instanceBase + "/index/main";
-		String optimizeWork = instanceBase + "/index/optwork";
-		String journalOptimizeWork = instanceBase + "/index/joptwork";
+		String localIndexBase = instanceBase + "/index/local";
+		String sharedJournalBase = instanceBase + "/index/shared";
+		
+		JournalSettings journalSettings = new JournalSettings();
+		journalSettings.setLocalIndexBase(localIndexBase);
+		journalSettings.setSharedJournalBase(sharedJournalBase);
+		journalSettings.setMinimumOptimizeSavePoints(5);
+		journalSettings.setOptimizMergeSize(5);
+		journalSettings.setSoakTest(true);
 
 		tds = new SharedTestDataSource(base, 10, false, driver, url, userame, password);
 
@@ -151,7 +156,7 @@ public class SearchIndexerNode
 		journaledFSIndexStorageUpdateTransactionListener
 				.setJournalStorage(sharedFilesystemJournalStorage);
 
-		sharedFilesystemJournalStorage.setJournalLocation(shared);
+		sharedFilesystemJournalStorage.setJournalSettings(journalSettings);
 
 		sequence.setDatasource(tds.getDataSource());
 
@@ -161,14 +166,14 @@ public class SearchIndexerNode
 		mergeUpdateManager.setSequence(sequence);
 
 		journalManager.setDatasource(tds.getDataSource());
+		journalManager.setServerConfigurationService(serverConfigurationService);
 
 		journaledFSIndexStorage.setAnalyzerFactory(analyzerFactory);
 		journaledFSIndexStorage.setDatasource(tds.getDataSource());
 		journaledFSIndexStorage.setJournalManager(journalManager);
 		journaledFSIndexStorage.setRecoverCorruptedIndex(false);
-		journaledFSIndexStorage.setSearchIndexDirectory(index);
+		journaledFSIndexStorage.setJournalSettings(journalSettings);
 		journaledFSIndexStorage.setServerConfigurationService(serverConfigurationService);
-		journaledFSIndexStorage.setWorkingSpace(indexwork);
 		mu.setJournaledObject(journaledFSIndexStorage);
 		mu.setMergeUpdateManager(mergeUpdateManager);
 
@@ -178,7 +183,7 @@ public class SearchIndexerNode
 		SearchBuilderQueueManager searchBuilderQueueManager = new SearchBuilderQueueManager();
 
 		transactionIndexManager.setAnalyzerFactory(new StandardAnalyzerFactory());
-		transactionIndexManager.setSearchIndexWorkingDirectory(indexerwork);
+		transactionIndexManager.setJournalSettings(journalSettings);
 		transactionIndexManager.setSequence(sequence);
 
 		journalManagerUpdateTransaction.setJournalManager(journalManager);
@@ -208,6 +213,7 @@ public class SearchIndexerNode
 		sequence.init();
 		searchBuilderQueueManager.init();
 		transactionIndexManager.init();
+		journalManager.init();
 		mu.init();
 		journaledFSIndexStorage.init();
 
@@ -217,12 +223,12 @@ public class SearchIndexerNode
 		optimizableIndex.setJournaledIndex(journaledFSIndexStorage);
 
 		OptimizeTransactionListenerImpl otli = new OptimizeTransactionListenerImpl();
-		otli.setMergeSize(5);
+		otli.setJournalSettings(journalSettings);
 		otli.setOptimizableIndex(optimizableIndex);
 
 		OptimizeIndexManager oum = new OptimizeIndexManager();
 		oum.setAnalyzerFactory(analyzerFactory);
-		oum.setSearchIndexWorkingDirectory(optimizeWork);
+		oum.setJournalSettings(journalSettings);
 		oum.addTransactionListener(otli);
 		oum.setSequence(new LocalTransactionSequenceImpl());
 
@@ -251,7 +257,7 @@ public class SearchIndexerNode
 		csibw.setIndexWorker(tiw);
 		csibw.setSearchService(searchService);
 		csibw.setSessionManager(sessionManager);
-		csibw.setSoakTest(true);
+		csibw.setJournalSettings(journalSettings);
 		csibw.setUserDirectoryService(userDirectoryService);
 		csibw.init();
 
@@ -318,7 +324,7 @@ public class SearchIndexerNode
 
 		optimizeJournalManager.setClusterService(clusterService);
 		optimizeJournalManager.setDatasource(tds.getDataSource());
-		optimizeJournalManager.setJournalOptimizeLimit(journalOptimizeLimit);
+		optimizeJournalManager.setJournalSettings(journalSettings);
 		optimizeJournalManager.setServerConfigurationService(serverConfigurationService);
 
 		sharedFilesystemLoadTransactionListener
@@ -338,7 +344,7 @@ public class SearchIndexerNode
 		journalOptimizationManager.setAnalyzerFactory(analyzerFactory);
 		journalOptimizationManager.setJournalManager(optimizeJournalManager);
 		journalOptimizationManager.setSequence(optimizeSequence);
-		journalOptimizationManager.setWorkingSpace(journalOptimizeWork);
+		journalOptimizationManager.setJournalSettings(journalSettings);
 
 		List<TransactionListener> tl = new ArrayList<TransactionListener>();
 		tl.add(journalOptimizationTransactionListener);

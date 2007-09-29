@@ -26,11 +26,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
+import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorage;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
 import org.sakaiproject.search.util.FileUtils;
-
-import junit.framework.TestCase;
 
 /**
  * @author ieb
@@ -40,6 +41,9 @@ public class LoadSaveSegmentListTest extends TestCase
 
 	private File testBase;
 	private JournaledFSIndexStorage journaledFSIndexStorage;
+	private File localIndexBase;
+	private File sharedJournalBase;
+	private JournalSettings journalSettings;
 
 	/**
 	 * @param name
@@ -62,7 +66,22 @@ public class LoadSaveSegmentListTest extends TestCase
 		testBase = new File(testBase, "LoadSaveSegmentListTest");
 		FileUtils.deleteAll(testBase);
 		
-		journaledFSIndexStorage.setSearchIndexDirectory(testBase.getAbsolutePath());
+		
+		localIndexBase = new File(testBase,"local");
+		sharedJournalBase = new File(testBase,"shared");
+		
+		
+
+		
+		journalSettings = new JournalSettings();
+		journalSettings.setLocalIndexBase(localIndexBase.getAbsolutePath());
+		journalSettings.setSharedJournalBase(sharedJournalBase.getAbsolutePath());
+		journalSettings.setMinimumOptimizeSavePoints(5);
+		journalSettings.setOptimizMergeSize(5);
+		journalSettings.setSoakTest(true);
+
+		
+		journaledFSIndexStorage.setJournalSettings(journalSettings);
 		journaledFSIndexStorage.setServerConfigurationService(new MockServerConfigurationService());
 		
 
@@ -86,7 +105,7 @@ public class LoadSaveSegmentListTest extends TestCase
 	public final void testInitLoad() throws IOException
 	{
 		FileUtils.deleteAll(testBase);
-		testBase.mkdirs();
+		new File(journalSettings.getSearchIndexDirectory()).mkdirs();
 
 		List<File> tl = new ArrayList<File>();
 		for ( int i = 0; i < 100; i++ ) {
@@ -113,7 +132,7 @@ public class LoadSaveSegmentListTest extends TestCase
 	public final void testInitNoLoad() throws IOException
 	{
 		FileUtils.deleteAll(testBase);
-		testBase.mkdirs();
+		new File(journalSettings.getSearchIndexDirectory()).mkdirs();
 		
 		journaledFSIndexStorage.init();
 		File[] f = journaledFSIndexStorage.getSegments();
@@ -129,7 +148,7 @@ public class LoadSaveSegmentListTest extends TestCase
 	public final void testSaveSegmentList() throws IOException
 	{
 		FileUtils.deleteAll(testBase);
-		testBase.mkdirs();
+		new File(journalSettings.getSearchIndexDirectory()).mkdirs();
 		
 		journaledFSIndexStorage.setSegments(new ArrayList<File>());
 		journaledFSIndexStorage.saveSegmentList();
@@ -149,7 +168,7 @@ public class LoadSaveSegmentListTest extends TestCase
 	public final void testLoadSegmentList() throws IOException
 	{
 		FileUtils.deleteAll(testBase);
-		testBase.mkdirs();
+		new File(journalSettings.getSearchIndexDirectory()).mkdirs();
 		
 		journaledFSIndexStorage.setSegments(new ArrayList<File>());
 		journaledFSIndexStorage.saveSegmentList();

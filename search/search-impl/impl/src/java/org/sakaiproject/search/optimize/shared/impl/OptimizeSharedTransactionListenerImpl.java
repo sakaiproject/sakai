@@ -61,6 +61,16 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 
 	private JournaledIndex journaledIndex;
 
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
+
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#close(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
@@ -84,7 +94,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 		}
 		catch (IOException e)
 		{
-			log.error("Failed to load index ",e);
+			log.error("Failed to load index ", e);
 		}
 	}
 
@@ -147,7 +157,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 				}
 				searchBuilderItemSerializer.removeTransactionList(targetSegment);
 			}
-			
+
 			// perform the deletes
 			for (File f : optimizableSegments)
 			{
@@ -176,8 +186,6 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 			indexWriter.addIndexes(directories);
 			indexWriter.optimize();
 			indexWriter.close();
-			
-			
 
 		}
 		catch (IOException e)
@@ -226,7 +234,8 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 	}
 
 	/**
-	 * @param journaledIndex the journaledIndex to set
+	 * @param journaledIndex
+	 *        the journaledIndex to set
 	 */
 	public void setJournaledIndex(JournaledIndex journaledIndex)
 	{

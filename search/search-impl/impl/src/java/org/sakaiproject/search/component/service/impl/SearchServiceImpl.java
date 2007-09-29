@@ -236,6 +236,8 @@ public class SearchServiceImpl extends BaseSearchServiceImpl
 		this.searchIndexBuilderWorker = searchIndexBuilderWorker;
 	}
 
+
+
 	
 	
 

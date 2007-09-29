@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.lucene.analysis.Analyzer;
 import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.journal.api.JournalManager;
+import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.optimize.shared.api.JournalOptimizationManager;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
@@ -42,11 +43,19 @@ public class JournalOptimizationManagerImpl extends TransactionManagerImpl imple
 
 	private AnalyzerFactory analyzerFactory;
 
-	private String workingSpace;
+	private JournalSettings journalSettings;
+
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.transaction.api.TransactionIndexManager#openTransaction(java.util.Map)
 	 */
 	public IndexTransaction openTransaction(Map<String, Object> m)
@@ -59,8 +68,6 @@ public class JournalOptimizationManagerImpl extends TransactionManagerImpl imple
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationManager#getAnalyzer()
 	 */
 	public Analyzer getAnalyzer()
@@ -69,8 +76,6 @@ public class JournalOptimizationManagerImpl extends TransactionManagerImpl imple
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationManager#getJournalManager()
 	 */
 	public JournalManager getJournalManager()
@@ -79,13 +84,11 @@ public class JournalOptimizationManagerImpl extends TransactionManagerImpl imple
 	}
 
 	/**
-	 *
-	 * 
 	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationManager#getWorkingSpace()
 	 */
 	public String getWorkingSpace()
 	{
-		return workingSpace;
+		return journalSettings.getSharedOptimizeWorkingSpace();
 	}
 
 	/**
@@ -115,12 +118,20 @@ public class JournalOptimizationManagerImpl extends TransactionManagerImpl imple
 	}
 
 	/**
-	 * @param workingSpace
-	 *        the workingSpace to set
+	 * @return the journalSettings
 	 */
-	public void setWorkingSpace(String workingSpace)
+	public JournalSettings getJournalSettings()
 	{
-		this.workingSpace = workingSpace;
+		return journalSettings;
+	}
+
+	/**
+	 * @param journalSettings
+	 *        the journalSettings to set
+	 */
+	public void setJournalSettings(JournalSettings journalSettings)
+	{
+		this.journalSettings = journalSettings;
 	}
 
 }

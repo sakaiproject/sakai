@@ -47,6 +47,12 @@ public class MergeUpdateOperation implements ManagementOperation
 
 	public void init()
 	{
+
+	}
+
+	public void destory()
+	{
+
 	}
 
 	/**

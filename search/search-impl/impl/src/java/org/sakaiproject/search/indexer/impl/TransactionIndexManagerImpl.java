@@ -32,6 +32,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;
+import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 import org.sakaiproject.search.transaction.api.TransactionListener;
 import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
@@ -54,12 +55,14 @@ public class TransactionIndexManagerImpl extends TransactionManagerImpl
 	/**
 	 * dependency
 	 */
-	private String searchIndexWorkingDirectory;
+	private JournalSettings journalSettings;
 
-	/**
-	 * Does nothing at the moment.
-	 */
 	public void init()
+	{
+
+	}
+
+	public void destory()
 	{
 
 	}
@@ -88,7 +91,7 @@ public class TransactionIndexManagerImpl extends TransactionManagerImpl
 		// this index will not have a timestamp, and hence will not be part sync
 		// with the db
 		File f = null;
-		f = new File(searchIndexWorkingDirectory, TEMP_INDEX_NAME + txid);
+		f = new File(journalSettings.getIndexerWorkingDirectory(), TEMP_INDEX_NAME + txid);
 		if (f.exists())
 		{
 			throw new IOException("Failed to create index transaction working space ");
@@ -117,23 +120,6 @@ public class TransactionIndexManagerImpl extends TransactionManagerImpl
 	public void setAnalyzerFactory(AnalyzerFactory analyzerFactory)
 	{
 		this.analyzerFactory = analyzerFactory;
-	}
-
-	/**
-	 * @return the searchIndexWorkingDirectory
-	 */
-	public String getSearchIndexWorkingDirectory()
-	{
-		return searchIndexWorkingDirectory;
-	}
-
-	/**
-	 * @param searchIndexWorkingDirectory
-	 *        the searchIndexWorkingDirectory to set
-	 */
-	public void setSearchIndexWorkingDirectory(String searchIndexWorkingDirectory)
-	{
-		this.searchIndexWorkingDirectory = searchIndexWorkingDirectory;
 	}
 
 	/*
@@ -174,6 +160,23 @@ public class TransactionIndexManagerImpl extends TransactionManagerImpl
 			}
 		}
 		super.setTransactionListeners(transactionListeners);
+	}
+
+	/**
+	 * @return the journalSettings
+	 */
+	public JournalSettings getJournalSettings()
+	{
+		return journalSettings;
+	}
+
+	/**
+	 * @param journalSettings
+	 *        the journalSettings to set
+	 */
+	public void setJournalSettings(JournalSettings journalSettings)
+	{
+		this.journalSettings = journalSettings;
 	}
 
 }

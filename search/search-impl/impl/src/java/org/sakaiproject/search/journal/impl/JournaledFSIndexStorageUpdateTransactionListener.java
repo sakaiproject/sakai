@@ -65,6 +65,16 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 
 	private JournalStorage journalStorage;
 
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
+
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#open(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
@@ -210,7 +220,7 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 			}
 			journaledIndex.setJournalIndexEntry(journalEntry);
 			journaledIndex.saveSegmentList();
-			
+
 			journaledIndex.loadIndexReader();
 		}
 		catch (IOException e)

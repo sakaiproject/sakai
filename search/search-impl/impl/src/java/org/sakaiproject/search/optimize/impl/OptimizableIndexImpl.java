@@ -45,6 +45,16 @@ public class OptimizableIndexImpl implements OptimizableIndex
 
 	private JournaledIndex journaledIndex;
 
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
+
 	/**
 	 * @see org.sakaiproject.search.optimize.api.OptimizableIndex#getOptimizableSegments()
 	 */

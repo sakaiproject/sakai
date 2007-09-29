@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.sakaiproject.search.index.AnalyzerFactory;
+import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.optimize.api.OptimizeTransactionListener;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
@@ -52,7 +53,17 @@ public class OptimizeIndexManager extends TransactionManagerImpl
 	/**
 	 * dependency
 	 */
-	private String searchIndexWorkingDirectory;
+	private JournalSettings journalSettings;
+
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
 
 	/**
 	 * @see org.sakaiproject.search.transaction.api.TransactionIndexManager#openTransaction(java.util.Map)
@@ -112,7 +123,8 @@ public class OptimizeIndexManager extends TransactionManagerImpl
 		// this index will not have a timestamp, and hence will not be part sync
 		// with the db
 		File f = null;
-		f = new File(searchIndexWorkingDirectory, TEMP_INDEX_NAME + txid);
+		f = new File(journalSettings.getOptimizerWorkingDirectory(), TEMP_INDEX_NAME
+				+ txid);
 		if (f.exists())
 		{
 			throw new IOException("Failed to create index transaction working space ");
@@ -139,28 +151,28 @@ public class OptimizeIndexManager extends TransactionManagerImpl
 	}
 
 	/**
-	 * @return the searchIndexWorkingDirectory
-	 */
-	public String getSearchIndexWorkingDirectory()
-	{
-		return searchIndexWorkingDirectory;
-	}
-
-	/**
-	 * @param searchIndexWorkingDirectory
-	 *        the searchIndexWorkingDirectory to set
-	 */
-	public void setSearchIndexWorkingDirectory(String searchIndexWorkingDirectory)
-	{
-		this.searchIndexWorkingDirectory = searchIndexWorkingDirectory;
-	}
-
-	/**
 	 * @return
 	 */
 	public Analyzer getAnalyzer()
 	{
 		return analyzerFactory.newAnalyzer();
+	}
+
+	/**
+	 * @return the journalSettings
+	 */
+	public JournalSettings getJournalSettings()
+	{
+		return journalSettings;
+	}
+
+	/**
+	 * @param journalSettings
+	 *        the journalSettings to set
+	 */
+	public void setJournalSettings(JournalSettings journalSettings)
+	{
+		this.journalSettings = journalSettings;
 	}
 
 }

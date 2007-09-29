@@ -40,6 +40,16 @@ import org.sakaiproject.search.util.FileUtils;
 public class SharedFilesystemJournalStorage implements JournalStorage
 {
 
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
+
 	/**
 	 * @author ieb
 	 */
@@ -65,7 +75,7 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	private static final Log log = LogFactory
 			.getLog(SharedFilesystemJournalStorage.class);
 
-	private String journalLocation;
+	private JournalSettings journalSettings;
 
 	/**
 	 * @param transactionId
@@ -73,7 +83,7 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	 */
 	private File getTransactionFile(long transactionId)
 	{
-		return new File(journalLocation, transactionId + ".zip");
+		return new File(journalSettings.getJournalLocation(), transactionId + ".zip");
 	}
 
 	/*
@@ -86,8 +96,8 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 			throws IOException
 	{
 		File indexLocation = new File(location);
-		File tmpZip = new File(journalLocation, transactionId + ".zip."
-				+ System.currentTimeMillis());
+		File tmpZip = new File(journalSettings.getJournalLocation(), transactionId
+				+ ".zip." + System.currentTimeMillis());
 		tmpZip.getParentFile().mkdirs();
 		String basePath = indexLocation.getPath();
 		String replacePath = String.valueOf(transactionId);
@@ -136,23 +146,6 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	}
 
 	/**
-	 * @return the journalLocation
-	 */
-	public String getJournalLocation()
-	{
-		return journalLocation;
-	}
-
-	/**
-	 * @param journalLocation
-	 *        the journalLocation to set
-	 */
-	public void setJournalLocation(String journalLocation)
-	{
-		this.journalLocation = journalLocation;
-	}
-
-	/**
 	 * @throws IOException
 	 * @throws IOException
 	 * @see org.sakaiproject.search.maintanence.api.JournalStorage#retrieveLaterSavePoints(long[],
@@ -165,7 +158,7 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 		File f = getTransactionFile(savePoint);
 		FileInputStream source = new FileInputStream(f);
 		FileUtils.unpack(source, ws);
-		
+
 		source.close();
 
 	}
@@ -196,6 +189,23 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 		File f = getTransactionFile(savePoint);
 		FileUtils.deleteAll(f);
 
+	}
+
+	/**
+	 * @return the journalSettings
+	 */
+	public JournalSettings getJournalSettings()
+	{
+		return journalSettings;
+	}
+
+	/**
+	 * @param journalSettings
+	 *        the journalSettings to set
+	 */
+	public void setJournalSettings(JournalSettings journalSettings)
+	{
+		this.journalSettings = journalSettings;
 	}
 
 }

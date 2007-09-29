@@ -49,6 +49,16 @@ public class MergeUpdateManager extends TransactionManagerImpl
 		return it;
 	}
 
+	public void init()
+	{
+
+	}
+
+	public void destory()
+	{
+
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

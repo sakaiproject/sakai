@@ -49,6 +49,11 @@ public class LocalTransactionSequenceImpl implements TransactionSequence
 
 	}
 
+	public void destory()
+	{
+
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -63,7 +63,7 @@ public interface JournalManager
 	 * veto the transaction.
 	 * 
 	 * @param transaction
-	 * @throws IndexJournalException 
+	 * @throws IndexJournalException
 	 */
 	void doOpenTransaction(IndexTransaction transaction) throws IndexJournalException;
 

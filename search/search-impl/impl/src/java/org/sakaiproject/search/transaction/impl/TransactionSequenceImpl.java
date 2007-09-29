@@ -54,11 +54,25 @@ public class TransactionSequenceImpl implements TransactionSequence
 	 */
 	private String name = "indexupdate";
 
+	private boolean checked  = false;
+
+	public void destroy()
+	{
+
+	}
+
 	/**
 	 * Loads the first transaction to initialize
 	 */
 	public void init()
 	{
+		
+	}
+	private void check() {
+		if ( checked ) {
+			return;
+		}
+		checked = true;
 		Connection connection = null;
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -66,6 +80,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 		{
 			connection = datasource.getConnection();
 			stmt = connection.createStatement();
+		
 			rs = stmt.executeQuery("select txid " + " from search_transaction "
 					+ " where txname = '" + name + "'");
 			if (!rs.next())
@@ -115,6 +130,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 	 */
 	public long getNextId()
 	{
+		check();
 		Connection connection = null;
 		PreparedStatement selectpst = null;
 		PreparedStatement updatepst = null;

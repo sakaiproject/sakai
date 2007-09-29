@@ -19,34 +19,49 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.indexer.impl.test;
+package org.sakaiproject.search.journal.api;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.search.IndexSearcher;
 
 /**
  * @author ieb
- *
  */
-public class JournalTests
+public interface IndexStorageProvider
 {
 
-	public static Test suite()
-	{
-		TestSuite suite = new TestSuite(
-				"Test for org.sakaiproject.search.indexer.impl.test");
-		//$JUnit-BEGIN$
-		suite.addTestSuite(SequenceGeneratorTest.class);
-		suite.addTestSuite(SearchBuilderItemSerializerTest.class);
-		suite.addTestSuite(TransactionalIndexWorkerTest.class);
-		suite.addTestSuite(ConcurrentIndexManagerTest.class);
-		suite.addTestSuite(DbJournalManagerTest.class);
-		suite.addTestSuite(MergeUpdateOperationTest.class);
-		suite.addTestSuite(LoadSaveSegmentListTest.class);
-		suite.addTestSuite(JournalOptimzationOperationTest.class);
-		suite.addTestSuite(OptimizeOperationTest.class);
-		//$JUnit-END$
-		return suite;
-	}
+	/**
+	 * @return
+	 * @throws IOException
+	 */
+	IndexSearcher getIndexSearcher() throws IOException;
+
+	/**
+	 * @return
+	 */
+	long getLastLoad();
+
+	/**
+	 * @return
+	 */
+	long getLastLoadTime();
+
+	/**
+	 * @return
+	 */
+	long getLastUpdate();
+
+	/**
+	 * @return
+	 */
+	List getSegmentInfoList();
+
+	/**
+	 * @return
+	 */
+	Analyzer getAnalyzer();
 
 }

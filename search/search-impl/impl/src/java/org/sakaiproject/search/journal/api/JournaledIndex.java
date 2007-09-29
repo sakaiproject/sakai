@@ -96,7 +96,8 @@ public interface JournaledIndex extends JournaledObject
 
 	/**
 	 * load the shared index reader
-	 * @throws IOException 
+	 * 
+	 * @throws IOException
 	 */
 	void loadIndexReader() throws IOException;
 

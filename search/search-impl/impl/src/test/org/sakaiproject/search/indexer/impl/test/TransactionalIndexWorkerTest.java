@@ -22,7 +22,6 @@
 package org.sakaiproject.search.indexer.impl.test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -44,6 +43,7 @@ import org.sakaiproject.search.indexer.impl.SearchBuilderQueueManager;
 import org.sakaiproject.search.indexer.impl.TransactionIndexManagerImpl;
 import org.sakaiproject.search.indexer.impl.TransactionalIndexWorker;
 import org.sakaiproject.search.journal.impl.DbJournalManager;
+import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
@@ -73,12 +73,6 @@ public class TransactionalIndexWorkerTest extends TestCase
 
 	private TransactionalIndexWorker tiw;
 
-	private File work;
-
-	private File shared;
-
-	private File work2;
-
 	private JournalManagerUpdateTransaction journalManagerUpdateTransaction;
 
 	private SharedFilesystemJournalStorage sharedFilesystemJournalStorage;
@@ -102,9 +96,19 @@ public class TransactionalIndexWorkerTest extends TestCase
 		tds = new TDataSource(5,false);
 		testBase = new File("m2-target");
 		testBase = new File(testBase, "TransactionalIndexWorkerTest");
-		work = new File(testBase, "work");
-		shared = new File(testBase, "shared");
-		work2 = new File(testBase, "work2");
+		
+		String localIndexBase = new File(testBase,"local").getAbsolutePath();
+		String sharedJournalBase = new File(testBase,"shared").getAbsolutePath();
+
+		
+		JournalSettings journalSettings = new JournalSettings();
+		journalSettings.setLocalIndexBase(localIndexBase);
+		journalSettings.setSharedJournalBase(sharedJournalBase);
+		journalSettings.setMinimumOptimizeSavePoints(5);
+		journalSettings.setOptimizMergeSize(5);
+		journalSettings.setSoakTest(true);
+
+
 
 		mockSearchIndexBuilder = new MockSearchIndexBuilder();
 		mockServerConfigurationService = new MockServerConfigurationService();
@@ -113,16 +117,18 @@ public class TransactionalIndexWorkerTest extends TestCase
 		sequence.setName("TransactionalIndexWorkerTest");
 
 		SharedFilesystemJournalStorage sharedFileSystem = new SharedFilesystemJournalStorage();
-		sharedFileSystem.setJournalLocation(shared.getAbsolutePath());
+		sharedFileSystem.setJournalSettings(journalSettings);
 		
+		MockServerConfigurationService serverConfigurationService = new MockServerConfigurationService();
 		DbJournalManager journalManager = new DbJournalManager();
 		journalManager.setDatasource(tds.getDataSource());
+		journalManager.setServerConfigurationService(serverConfigurationService);
 		
 		
 
 		transactionIndexManager = new TransactionIndexManagerImpl();
 		transactionIndexManager.setAnalyzerFactory(new StandardAnalyzerFactory());
-		transactionIndexManager.setSearchIndexWorkingDirectory(work.getAbsolutePath());
+		transactionIndexManager.setJournalSettings(journalSettings);
 		transactionIndexManager.setSequence(sequence);
 
 		journalManagerUpdateTransaction = new JournalManagerUpdateTransaction();
@@ -143,6 +149,7 @@ public class TransactionalIndexWorkerTest extends TestCase
 		sequence.init();
 		searchBuilderQueueManager.init();
 		transactionIndexManager.init();
+		journalManager.init();
 
 	}
 
@@ -216,16 +223,6 @@ public class TransactionalIndexWorkerTest extends TestCase
 		}
 		
 		assertEquals("Should have processed some documents ", n, tiw.process(100));
-		for (int i = 0; i < 100; i++)
-		{
-			File zipFile = new File(shared, String.valueOf(i) + ".zip");
-			if (zipFile.exists())
-			{
-				FileInputStream fin = new FileInputStream(zipFile);
-				FileUtils.unpack(fin, work2);
-			}
-		}
-		FileUtils.listDirectory(work2);
 		log.info("==PASSED========================== "+this.getClass().getName()+".testProcessSome");
 	}
 
