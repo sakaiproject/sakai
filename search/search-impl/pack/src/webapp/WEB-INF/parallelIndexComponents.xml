@@ -31,7 +31,7 @@
 		>
 		<property name="localIndexBase" ><value>${sakai.home}indexwork</value></property>
 		<property name="sharedJournalBase" ><value>${sakai.home}searchjournal</value></property>
-		<property name="minimumOptimizeSavePoints" ><value>30</value></property>
+		<property name="minimumOptimizeSavePoints" ><value>10</value></property>
 		<property name="optimizMergeSize" ><value>5</value></property>
 		<property name="soakTest" ><value>true</value></property>		
 	</bean>
@@ -520,7 +520,6 @@
    	 	id="org.sakaiproject.search.api.SearchService.parallel.index.optimizeSharedTransactionListener"
     	init-method="init" 
     	destroy-method="destroy" >
-			<property name="journaledIndex" ><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.journaledFSIndexStorage" /></property>
     </bean>
 
 	<bean 

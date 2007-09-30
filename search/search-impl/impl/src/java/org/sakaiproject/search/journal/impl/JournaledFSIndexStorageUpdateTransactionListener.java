@@ -116,7 +116,7 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 			File segments = new File(f, "segments");
 			if (segments.exists())
 			{
-				journaledIndex.addSegment(f);
+				// apply the deletes to everything that went before
 				List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
 						.loadTransactionList(f);
 				if (deleteDocuments.size() > 0)
@@ -130,7 +130,8 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 
 					for (SearchBuilderItem sbi : deleteDocuments)
 					{
-						if (SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()))
+						if (SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()) ||
+								SearchBuilderItem.ACTION_ADD.equals(sbi.getSearchaction()))
 						{
 							log.debug("Deleting savePoint " + sbi.getName() + " for "
 									+ journalEntry);
@@ -138,8 +139,10 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 									SearchService.FIELD_REFERENCE, sbi.getName()));
 							if (ndel == 0)
 							{
-								log.debug("Tried to delete " + sbi.getName()
+								log.warn("Tried to delete " + sbi.getName()
 										+ " but it was not found in the local index ");
+							} else {
+								log.info("Deleted "+ndel+" in merge");
 							}
 						}
 					}
@@ -148,6 +151,9 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 				{
 					log.info("No Documents to delete for savePoint " + journalEntry);
 				}
+				
+				// add the index in
+				journaledIndex.addSegment(f);
 			}
 		}
 		catch (IOException ioex)

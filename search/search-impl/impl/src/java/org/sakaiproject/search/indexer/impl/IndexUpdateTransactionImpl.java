@@ -34,6 +34,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
 import org.sakaiproject.search.indexer.api.NoItemsToIndexException;
@@ -58,6 +59,8 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 	private static final Log log = LogFactory.getLog(IndexUpdateTransactionImpl.class);
 
 	private IndexWriter indexWriter;
+
+	private IndexReader indexReader;
 
 	private File tempIndex;
 
@@ -113,6 +116,7 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 					.currentTimeMillis()), Store.YES, Index.UN_TOKENIZED));
 			savepointMarker.add(new Field("_worker", String.valueOf(Thread
 					.currentThread().getName()), Store.YES, Index.UN_TOKENIZED));
+			getInternalIndexWriter();
 			indexWriter.addDocument(savepointMarker);
 
 			indexWriter.close();
@@ -155,14 +159,35 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		{
 			throw new IndexTransactionException("Transaction is not active ");
 		}
+		return getInternalIndexWriter();
+	} 
+	private IndexWriter getInternalIndexWriter() throws IndexTransactionException
+	{
+
 		if (indexWriter == null)
 		{
 			try
 			{
-				tempIndex = ((TransactionIndexManagerImpl) manager)
-						.getTemporarySegment(transactionId);
-				indexWriter = new IndexWriter(tempIndex,
-						((TransactionIndexManagerImpl) manager).getAnalyzer(), true);
+				if (tempIndex == null)
+				{
+					tempIndex = ((TransactionIndexManagerImpl) manager)
+							.getTemporarySegment(transactionId);
+				}
+				if (indexReader != null)
+				{
+					indexReader.close();
+					indexReader = null;
+				}
+				if (new File(tempIndex,"segments").exists())
+				{
+					indexWriter = new IndexWriter(tempIndex,
+							((TransactionIndexManagerImpl) manager).getAnalyzer(), false);
+				}
+				else
+				{
+					indexWriter = new IndexWriter(tempIndex,
+							((TransactionIndexManagerImpl) manager).getAnalyzer(), true);
+				}
 				indexWriter.setUseCompoundFile(true);
 				// indexWriter.setInfoStream(System.out);
 				indexWriter.setMaxMergeDocs(50);
@@ -212,7 +237,8 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 	{
 		try
 		{
-			if ( indexWriter != null ) {
+			if (indexWriter != null)
+			{
 				indexWriter.close();
 			}
 			indexWriter = null;
@@ -277,6 +303,47 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 			items = null;
 			throw new NoItemsToIndexException("No Items were found to add to the index");
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.indexer.api.IndexUpdateTransaction#getIndexReader()
+	 */
+	public IndexReader getIndexReader() throws IndexTransactionException
+	{
+		if (transactionState != IndexTransaction.STATUS_ACTIVE)
+		{
+			throw new IndexTransactionException("Transaction is not active ");
+		}
+
+		if (indexReader == null)
+		{
+			try
+			{
+				if (tempIndex == null)
+				{
+					tempIndex = ((TransactionIndexManagerImpl) manager)
+							.getTemporarySegment(transactionId);
+				}
+				if (!new File(tempIndex,"segments").exists())
+				{
+					getIndexWriter();					
+				}
+				if (indexWriter != null)
+				{
+					indexWriter.close();
+					indexWriter = null;
+				}
+				indexReader = IndexReader.open(tempIndex);
+			}
+			catch (IOException ex)
+			{
+				throw new IndexTransactionException(
+						"Cant Create Transaction Index working space ", ex);
+			}
+		}
+		return indexReader;	
 	}
 
 }

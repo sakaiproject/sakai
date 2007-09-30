@@ -287,6 +287,8 @@ public class SearchIndexerNode
 				try
 				{
 					tds.populateDocuments(500, instanceName);
+					tds.resetAfter(3000);
+					
 				}
 				catch (Exception e)
 				{
@@ -317,8 +319,6 @@ public class SearchIndexerNode
 
 		long journalOptimizeLimit = 5;
 		
-		optimizeSharedTransactionListener.setJournaledIndex(journaledFSIndexStorage);
-
 		optimizeSequence.setName("journaloptimize");
 		optimizeSequence.setDatasource(tds.getDataSource());
 

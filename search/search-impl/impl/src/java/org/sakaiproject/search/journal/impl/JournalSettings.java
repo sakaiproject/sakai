@@ -50,6 +50,8 @@ public class JournalSettings
 
 	private String journalLocation;
 
+	private String sharedOptimizeCreateIndexWorkingSpace;
+
 	public void init()
 	{
 
@@ -82,7 +84,7 @@ public class JournalSettings
 		optimizerWorkingDirectory = new File(localIndexBase, "index-optimize")
 				.getAbsolutePath();
 		searchIndexDirectory = new File(localIndexBase, "index").getAbsolutePath();
-		sharedJournalBase = new File(localIndexBase, "journal-optimize")
+		sharedOptimizeWorkingSpace = new File(localIndexBase, "journal-optimize-import")
 				.getAbsolutePath();
 	}
 
@@ -202,5 +204,6 @@ public class JournalSettings
 	{
 		this.soakTest = soakTest;
 	}
+
 
 }

@@ -42,4 +42,3 @@ insert into search_transaction ( txid, txname ) values (0,'optimizeSequence');
 insert into search_transaction ( txid, txname ) values (0,'mergeSequence');
 insert into search_transaction ( txid, txname ) values (0,'sharedOptimizeSequence');
 insert into search_transaction ( txid, txname ) values (0,'indexerTransaction');
-insert into search_transaction ( txid, txname ) values (0,'optimizeSequence');

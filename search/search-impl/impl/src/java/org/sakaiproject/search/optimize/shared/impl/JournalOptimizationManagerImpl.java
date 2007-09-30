@@ -134,4 +134,5 @@ public class JournalOptimizationManagerImpl extends TransactionManagerImpl imple
 		this.journalSettings = journalSettings;
 	}
 
+
 }

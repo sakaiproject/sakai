@@ -35,7 +35,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
@@ -177,14 +179,32 @@ public class TransactionalIndexWorker implements IndexWorker
 			throws IndexTransactionException
 	{
 		IndexWriter indexWrite = null;
+		IndexReader indexReader = null;
 		int nprocessed = 0;
 		try
 		{
 			fireIndexStart();
 
-			indexWrite = ((IndexUpdateTransaction) transaction).getIndexWriter();
 			long last = System.currentTimeMillis();
+			for (Iterator<SearchBuilderItem> tditer = ((IndexUpdateTransaction) transaction)
+					.lockedItemIterator(); tditer.hasNext();)
+			{
+				SearchBuilderItem sbi = tditer.next();
+				if (log.isDebugEnabled())
+				{
+					log.debug("Item [" + sbi.getName() + "] state ["
+							+ SearchBuilderItem.states[sbi.getSearchstate()]
+							+ " action ["
+							+ SearchBuilderItem.actions[sbi.getSearchaction()] + "]");
+				}
+				if (SearchBuilderItem.ACTION_ADD.equals(sbi.getSearchaction()))
+				{
+					indexReader = ((IndexUpdateTransaction) transaction).getIndexReader();
+					int ndel = indexReader.deleteDocuments(new Term(
+							SearchService.FIELD_REFERENCE, sbi.getName()));
+				}
 
+			}
 			for (Iterator<SearchBuilderItem> tditer = ((IndexUpdateTransaction) transaction)
 					.lockedItemIterator(); tditer.hasNext();)
 			{
@@ -358,6 +378,8 @@ public class TransactionalIndexWorker implements IndexWorker
 
 								log.debug("Indexing Document " + doc); //$NON-NLS-1$
 
+								indexWrite = ((IndexUpdateTransaction) transaction)
+										.getIndexWriter();
 								indexWrite.addDocument(doc);
 
 								log.debug("Done Indexing Document " + doc); //$NON-NLS-1$
@@ -414,6 +436,12 @@ public class TransactionalIndexWorker implements IndexWorker
 					else if (SearchBuilderItem.ACTION_DELETE
 							.equals(sbi.getSearchaction()))
 					{
+
+						indexReader = ((IndexUpdateTransaction) transaction)
+								.getIndexReader();
+						int ndel = indexReader.deleteDocuments(new Term(
+								SearchService.FIELD_REFERENCE, sbi.getName()));
+
 						nprocessed++;
 					}
 				}
@@ -442,31 +470,6 @@ public class TransactionalIndexWorker implements IndexWorker
 		finally
 		{
 			fireIndexEnd();
-
-			if (indexWrite != null)
-			{
-				try
-				{
-					if (log.isDebugEnabled())
-					{
-						log.debug("Closing Index Writer With " + indexWrite.docCount()
-								+ " documents");
-						Directory d = indexWrite.getDirectory();
-						String[] s = d.list();
-						log.debug("Directory Contains ");
-						for (int i = 0; i < s.length; i++)
-						{
-							File f = new File(s[i]);
-							log.debug("\t" + String.valueOf(f.length()) + "\t"
-									+ new Date(f.lastModified()) + "\t" + s[i]);
-						}
-					}
-				}
-				catch (IOException ioex)
-				{
-					log.debug("Failed to list index ", ioex);
-				}
-			}
 		}
 		return nprocessed;
 

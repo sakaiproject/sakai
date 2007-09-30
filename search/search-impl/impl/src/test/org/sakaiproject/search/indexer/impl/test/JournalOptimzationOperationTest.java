@@ -336,8 +336,6 @@ public class JournalOptimzationOperationTest extends TestCase
 
 		long journalOptimizeLimit = 5;
 		
-		optimizeSharedTransactionListener.setJournaledIndex(journaledFSIndexStorage);
-
 		optSequence.setName("journaloptimize");
 		optSequence.setDatasource(tds.getDataSource());
 

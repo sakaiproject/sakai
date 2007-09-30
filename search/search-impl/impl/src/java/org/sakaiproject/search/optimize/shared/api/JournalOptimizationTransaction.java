@@ -89,4 +89,15 @@ public interface JournalOptimizationTransaction extends IndexTransaction
 	 */
 	JournalManager getJournalManager();
 
+
+	/**
+	 * @param workingSegment
+	 */
+	void setWorkingSegment(File workingSegment);
+
+	/**
+	 * @return
+	 */
+	File getWorkingSegment();
+
 }

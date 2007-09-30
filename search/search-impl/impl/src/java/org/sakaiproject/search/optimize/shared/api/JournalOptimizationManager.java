@@ -46,4 +46,5 @@ public interface JournalOptimizationManager extends TransactionIndexManager
 	 */
 	String getWorkingSpace();
 
+
 }

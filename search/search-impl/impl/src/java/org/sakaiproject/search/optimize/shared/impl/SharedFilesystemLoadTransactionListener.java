@@ -77,6 +77,7 @@ public class SharedFilesystemLoadTransactionListener implements
 			}
 			sharedFilesystemJournalStorage.retrieveSavePoint(jtransaction
 					.getTargetSavePoint(), workingSpace);
+			
 			jtransaction.setTargetSegment(sharedFilesystemJournalStorage
 					.getLocalJournalLocation(jtransaction.getTargetSavePoint(),
 							workingSpace));

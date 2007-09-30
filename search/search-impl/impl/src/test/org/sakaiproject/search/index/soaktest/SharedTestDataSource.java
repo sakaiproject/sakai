@@ -56,6 +56,8 @@ public class SharedTestDataSource
 
 	private int docid = 0;
 
+	private int ldoc = 0;
+
 	public SharedTestDataSource(String dblocation, int pool, final boolean poolLogging,
 			String driver, String dburl, String user, String password) throws Exception
 	{
@@ -401,6 +403,7 @@ public class SharedTestDataSource
 		int nitems = 0;
 		Connection connection = null;
 		PreparedStatement insertPST = null;
+		PreparedStatement deletePST = null;
 		try
 		{
 			connection = getDataSource().getConnection();
@@ -408,6 +411,8 @@ public class SharedTestDataSource
 					.prepareStatement("insert into searchbuilderitem "
 							+ "(id,version,name,context,searchaction,searchstate,itemscope) values "
 							+ "(?,?,?,?,?,?,?)");
+			deletePST = connection
+			.prepareStatement("delete from searchbuilderitem where name = ? ");
 			for (int i = 0; i < targetItems; i++)
 			{
 				int state = i % SearchBuilderItem.states.length;
@@ -418,13 +423,18 @@ public class SharedTestDataSource
 				{
 					nitems++;
 				}
+				String reference = "/" + instanceName + "/" + name
+				+ "/at/a/location/" + (ldoc++);
+				deletePST.clearParameters();
+				deletePST.setString(1,reference);
+				deletePST.executeUpdate();
+				
 				insertPST.clearParameters();
 				insertPST.setString(1, String.valueOf(instanceName
 						+ System.currentTimeMillis())
 						+ String.valueOf(i) + ":" + String.valueOf(docid++));
 				insertPST.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-				insertPST.setString(3, "/" + instanceName + "/" + name
-						+ "/at/a/location/" + docid++);
+				insertPST.setString(3, reference);
 				insertPST.setString(4, "/" + name + "/at/a");
 				insertPST.setInt(5, action);
 				insertPST.setInt(6, state);
@@ -452,6 +462,17 @@ public class SharedTestDataSource
 		}
 		return nitems;
 
+	}
+
+	/**
+	 * @param i
+	 */
+	public void resetAfter(int i)
+	{
+		if ( ldoc > i ) {
+			ldoc = 0;
+		}
+		
 	}
 
 }

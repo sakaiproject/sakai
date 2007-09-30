@@ -46,9 +46,9 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 
 	private long targetSavePoint;
 
-	private List<File> mergeSegmentList = new ArrayList<File>();
-
 	private File targetSegment;
+
+	private File workingSegment;
 
 	/***************************************************************************
 	 * @param manager
@@ -99,7 +99,7 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	 */
 	public List<File> getMergeSegmentList()
 	{
-		return mergeSegmentList;
+		return mergeSegments;
 	}
 
 	/**
@@ -158,5 +158,22 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 		this.targetSavePoint = targetSavePoint;
 
 	}
+
+	/** 
+	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#setWorkingSegment(java.io.File)
+	 */
+	public void setWorkingSegment(File workingSegment)
+	{
+		this.workingSegment = workingSegment;
+	}
+
+	/**
+	 * @return the workingSegment
+	 */
+	public File getWorkingSegment()
+	{
+		return workingSegment;
+	}
+
 
 }

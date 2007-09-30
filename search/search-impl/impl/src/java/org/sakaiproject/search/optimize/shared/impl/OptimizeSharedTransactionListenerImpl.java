@@ -25,12 +25,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import javax.swing.JTree;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer;
@@ -41,6 +44,7 @@ import org.sakaiproject.search.optimize.api.OptimizedFailedIndexTransactionExcep
 import org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
+import org.sakaiproject.search.util.FileUtils;
 
 /**
  * An OptimizationTransactionListener that optimizes the index. It first
@@ -58,8 +62,6 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 			.getLog(OptimizeSharedTransactionListenerImpl.class);
 
 	private SearchBuilderItemSerializer searchBuilderItemSerializer = new SearchBuilderItemSerializer();
-
-	private JournaledIndex journaledIndex;
 
 	public void init()
 	{
@@ -90,11 +92,16 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 	{
 		try
 		{
-			journaledIndex.loadIndexReader();
+			JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
+			File workingSegment = jtransaction.getWorkingSegment();
+			if (workingSegment != null)
+			{
+				FileUtils.deleteAll(workingSegment);
+			}
 		}
-		catch (IOException e)
+		catch (Exception ex)
 		{
-			log.error("Failed to load index ", e);
+			log.warn("Failed to rollback ", ex);
 		}
 	}
 
@@ -116,74 +123,98 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 	 */
 	public void prepare(IndexTransaction transaction) throws IndexTransactionException
 	{
-		MultiReader mr = null;
+		IndexReader reader = null;
+		IndexReader[] sourceReader = new IndexReader[1];
 		IndexWriter indexWriter = null;
 		try
 		{
 			JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
+
 			File targetSegment = jtransaction.getTargetSegment();
-			FSDirectory directory = FSDirectory.getDirectory(targetSegment, false);
+			String indexWorkingSpace = jtransaction.getWorkingSpace();
+			long targetSavePoint = jtransaction.getTargetSavePoint();
 			List<File> optimizableSegments = jtransaction.getMergeSegmentList();
-			FSDirectory[] directories = new FSDirectory[optimizableSegments.size()];
-			int i = 0;
+
+			File workingSegment = new File(indexWorkingSpace, targetSavePoint + "."
+					+ System.currentTimeMillis());
+			jtransaction.setWorkingSegment(workingSegment);
+			Directory workingDirectory = FSDirectory.getDirectory(workingSegment, true);
+			/*
+			 * For merge to work correctly we must create a target segment, and
+			 * then merge into that target, perforing deletes first and then
+			 * merging. The target is a clean new segment
+			 */
+			indexWriter = new IndexWriter(workingDirectory, jtransaction.getAnalyzer(),
+					true);
+			indexWriter.setUseCompoundFile(true);
+			// indexWriter.setInfoStream(System.out);
+			indexWriter.setMaxMergeDocs(50);
+			indexWriter.setMergeFactor(50);
+			indexWriter.close();
+
 			for (File f : optimizableSegments)
 			{
-				directories[i++] = FSDirectory.getDirectory(f, false);
-			}
-			// process the reads of all the elments, and then merge.
-			IndexReader[] ir = new IndexReader[optimizableSegments.size() + 1];
-			i = 0;
-			for (File f : optimizableSegments)
-			{
-				ir[i] = IndexReader.open(directories[i]);
-				i++;
-
-			}
-			ir[optimizableSegments.size()] = IndexReader.open(directory);
-
-			mr = new MultiReader(ir);
-
-			{
-				List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
-						.loadTransactionList(targetSegment);
-
-				for (SearchBuilderItem sbi : deleteDocuments)
-				{
-					if (SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()))
-					{
-						mr.deleteDocuments(new Term(SearchService.FIELD_REFERENCE, sbi
-								.getName()));
-					}
-				}
-				searchBuilderItemSerializer.removeTransactionList(targetSegment);
-			}
-
-			// perform the deletes
-			for (File f : optimizableSegments)
-			{
+				
+				// apply the deletes to everything that went before.
+				long start = System.currentTimeMillis();
+				reader = IndexReader.open(workingDirectory);
 				List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
 						.loadTransactionList(f);
 
 				for (SearchBuilderItem sbi : deleteDocuments)
 				{
-					if (SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()))
+					if (SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()) ||
+							SearchBuilderItem.ACTION_ADD.equals(sbi.getSearchaction()))
 					{
-						mr.deleteDocuments(new Term(SearchService.FIELD_REFERENCE, sbi
+						reader.deleteDocuments(new Term(SearchService.FIELD_REFERENCE, sbi
 								.getName()));
 					}
 				}
-				searchBuilderItemSerializer.removeTransactionList(f);
-			}
-			mr.close();
+				reader.close();
 
-			// open the permanent writer to ensure it can be opened
-			indexWriter = new IndexWriter(directory, jtransaction.getAnalyzer(), false);
+				
+				indexWriter = new IndexWriter(workingDirectory, jtransaction.getAnalyzer(),
+						false);
+				indexWriter.setUseCompoundFile(true);
+				// indexWriter.setInfoStream(System.out);
+				indexWriter.setMaxMergeDocs(50);
+				indexWriter.setMergeFactor(50);
+				
+				Directory d = FSDirectory.getDirectory(f, false);
+				indexWriter.addIndexes(new Directory[] { d });
+				
+				indexWriter.optimize();
+				indexWriter.close();
+				searchBuilderItemSerializer.removeTransactionList(f);
+				long end = System.currentTimeMillis();
+				log.info("Merged SavePoint in "+(end-start)+" ms "+f.getPath());
+			}
+			
+			// apply the deletes to everything that went before
+			reader = IndexReader.open(workingDirectory);
+			List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
+					.loadTransactionList(targetSegment);
+
+			for (SearchBuilderItem sbi : deleteDocuments)
+			{
+				if (SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()) ||
+						SearchBuilderItem.ACTION_ADD.equals(sbi.getSearchaction()))
+				{
+					reader.deleteDocuments(new Term(SearchService.FIELD_REFERENCE, sbi
+							.getName()));
+				}
+			}
+			reader.close();
+			
+			
+			indexWriter = new IndexWriter(workingDirectory, jtransaction.getAnalyzer(),
+					false);
 			indexWriter.setUseCompoundFile(true);
 			// indexWriter.setInfoStream(System.out);
 			indexWriter.setMaxMergeDocs(50);
 			indexWriter.setMergeFactor(50);
-
-			indexWriter.addIndexes(directories);
+			Directory d = FSDirectory.getDirectory(targetSegment, false);
+			indexWriter.addIndexes(new Directory[] { d });
 			indexWriter.optimize();
 			indexWriter.close();
 
@@ -197,7 +228,21 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 		{
 			try
 			{
-				mr.close();
+				reader.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				sourceReader[0].close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				sourceReader[1].close();
 			}
 			catch (Exception ex)
 			{
@@ -220,26 +265,20 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 	 */
 	public void rollback(IndexTransaction transaction) throws IndexTransactionException
 	{
-		// roll should be handled in the transaction, nothing special to do
-		// here.
+		try
+		{
+			JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
+			File workingSegment = jtransaction.getWorkingSegment();
+			if (workingSegment != null)
+			{
+				FileUtils.deleteAll(workingSegment);
+			}
+		}
+		catch (Exception ex)
+		{
+			log.warn("Failed to rollback ", ex);
+		}
 
-	}
-
-	/**
-	 * @return the journaledIndex
-	 */
-	public JournaledIndex getJournaledIndex()
-	{
-		return journaledIndex;
-	}
-
-	/**
-	 * @param journaledIndex
-	 *        the journaledIndex to set
-	 */
-	public void setJournaledIndex(JournaledIndex journaledIndex)
-	{
-		this.journaledIndex = journaledIndex;
 	}
 
 }
