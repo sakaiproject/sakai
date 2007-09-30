@@ -52,7 +52,7 @@ public class BeanCollectorAutoRegistrar implements ApplicationListener, Applicat
       }
    }
 
-   
+
    public void afterPropertiesSet() throws Exception {
       log.debug("setAC: " + applicationContext.getDisplayName());
       ConfigurableApplicationContext cac = (ConfigurableApplicationContext) applicationContext;
@@ -63,6 +63,9 @@ public class BeanCollectorAutoRegistrar implements ApplicationListener, Applicat
             if (bean instanceof BeanCollector<?>) {
                BeanCollector<Object> bc = (BeanCollector<Object>) bean;
                Class<?> c = bc.getCollectedType();
+               if (c == null) {
+                  throw new IllegalArgumentException("collected type cannot be null");
+               }
 
                List<Object> l = getAutoRegisteredBeansOfType(c);
                logCollectedBeanInsertion(beanName, c.getName(), l);
@@ -70,6 +73,9 @@ public class BeanCollectorAutoRegistrar implements ApplicationListener, Applicat
             } else if (bean instanceof BeanMapCollector) {
                BeanMapCollector bc = (BeanMapCollector) bean;
                Class<?>[] cArray = bc.getCollectedTypes();
+               if (cArray == null) {
+                  throw new IllegalArgumentException("collected types cannot be null");
+               }
 
                Map<Class<?>, List<?>> collectedBeans = new HashMap<Class<?>, List<?>>();
                for (int i = 0; i < cArray.length; i++) {
@@ -114,10 +120,15 @@ public class BeanCollectorAutoRegistrar implements ApplicationListener, Applicat
     */
    private void logCollectedBeanInsertion(String beanName, String beanType, List<Object> l) {
       StringBuilder registeredBeans = new StringBuilder();
-      for (Object object : l) {
-         registeredBeans.append(" : " + object.getClass().getName());
+      registeredBeans.append("[");
+      for (int i = 0; i < l.size(); i++) {
+         if (i > 0) {
+            registeredBeans.append(",");
+         }
+         registeredBeans.append(l.get(i).getClass().getName());
       }
-      log.info("Set collected beans of type ("+beanType+") on bean ("+beanName+") to " + registeredBeans.toString());
+      registeredBeans.append("]");
+      log.info("Set collected beans of type ("+beanType+") on bean ("+beanName+") to ("+l.size()+") " + registeredBeans.toString());
    }
 
 }
