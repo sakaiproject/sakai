@@ -4,6 +4,7 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
+import org.sakaiproject.entitybroker.collector.AutoRegister;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 
 /**
@@ -14,7 +15,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * @author Aaron Zeckoski (aaronz@vt.edu)
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
-public interface AutoRegisterEntityProvider extends EntityProvider {
+public interface AutoRegisterEntityProvider extends EntityProvider, AutoRegister {
 
    // no methods (this space intentionally left blank -AZ)
 

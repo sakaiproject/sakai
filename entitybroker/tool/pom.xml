@@ -5,7 +5,7 @@
    <modelVersion>4.0.0</modelVersion>
    <name>Sakai Entity Broker Tool (Direct Servlet)</name>
    <groupId>org.sakaiproject.entitybroker</groupId>
-   <artifactId>entitybroker-tool</artifactId>
+   <artifactId>direct</artifactId>
    <organization>
       <name>CARET, University of Cambridge</name>
       <url>http://www.caret.cam.ac.uk/</url>

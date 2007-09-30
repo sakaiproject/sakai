@@ -25,7 +25,6 @@ public class EntityProviderAutoRegistrar implements ApplicationContextAware {
    private static Log log = LogFactory.getLog(EntityProviderAutoRegistrar.class);
 
    EntityProviderManager entityProviderManager;
-
    public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
       this.entityProviderManager = entityProviderManager;
    }
@@ -36,16 +35,14 @@ public class EntityProviderAutoRegistrar implements ApplicationContextAware {
 
    public void setApplicationContext(ApplicationContext context) throws BeansException {
       log.debug("setAC: " + context.getDisplayName());
-      String[] autobeans = context.getBeanNamesForType(AutoRegisterEntityProvider.class, false,
-            false);
+      String[] autobeans = context.getBeanNamesForType(AutoRegisterEntityProvider.class, false, false);
       StringBuilder registeredPrefixes = new StringBuilder();
       for (String autobean : autobeans) {
          AutoRegisterEntityProvider register = (AutoRegisterEntityProvider) context
                .getBean(autobean);
          if (register.getEntityPrefix() == null || register.getEntityPrefix().equals("")) {
             // should this die here or is this error log enough? -AZ
-            log
-                  .error("Could not autoregister EntityProvider because the enity prefix is null or empty string for class: "
+            log.error("Could not autoregister EntityProvider because the enity prefix is null or empty string for class: "
                         + register.getClass().getName());
          } else {
             registeredPrefixes.append(" : " + register.getEntityPrefix());

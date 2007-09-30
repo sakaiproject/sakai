@@ -55,7 +55,8 @@
    </bean>
 
    <bean id="org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderAutoRegistrar"
-      class="org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderAutoRegistrar">
+      class="org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderAutoRegistrar"
+      init-method="init">
       <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
    </bean>
 
@@ -66,5 +67,9 @@
       <property name="entityHandler" ref="org.sakaiproject.entitybroker.impl.EntityHandler" />
    </bean>
 
+   <bean id="org.sakaiproject.entitybroker.impl.collector.BeanCollectorAutoRegistrar"
+      class="org.sakaiproject.entitybroker.impl.collector.BeanCollectorAutoRegistrar"
+      init-method="init">
+   </bean>
 
 </beans>
