@@ -64,7 +64,7 @@ public class ContentReviewItem {
 	 * Default constructor
 	 */
 	public ContentReviewItem() {
-		contentId = "no content id";
+		contentId = null;
 	}
 
 	/**
