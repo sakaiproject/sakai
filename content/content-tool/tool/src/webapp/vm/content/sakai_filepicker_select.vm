@@ -11,8 +11,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 </style>
 <![endif]><![endif]-->
 <style type="text/css">
-    @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/themes/tundra/tundra.css";
-    @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.css";
+    @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/themes/sakadojo/sakadojo.css";
 </style>
 <script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
 <script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/dijit.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
@@ -262,7 +261,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 						#end
 						</h$headerDepth>
 					</td>
-					<td headers="actions"   class="attach tundra">
+					<td headers="actions"   class="attach sakadojo">
 						#set ($actionCount=($actionCount - 1))
 						#if($can_attach_more)
 							#if($item.isCollection())
@@ -439,7 +438,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 								#end
 								</h$headerDepth>
 							</td>
-							<td headers="actions"   class="attach tundra">
+							<td headers="actions"   class="attach sakadojo">
 								#set ($actionCount=($actionCount - 1))
 								#if($can_attach_more)
 									#if($item.isCollection())
