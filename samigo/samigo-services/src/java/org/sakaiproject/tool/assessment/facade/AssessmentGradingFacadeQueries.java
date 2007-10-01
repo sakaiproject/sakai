@@ -1405,8 +1405,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				"select count(*) from AssessmentGradingData a, StudentGradingSummaryData s " +
 	    				" where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? " +
 	    				" and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
-	    				" and a.submittedDate > s.createdDate" +
-	    				" order by a.submittedDate desc");
+	    				" and a.submittedDate > s.createdDate");
 	    		q.setLong(0, publishedAssessmentId.longValue());
 	    		q.setString(1, agentIdString);
 	    		q.setBoolean(2, true);
@@ -1433,8 +1432,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				" where a.agentId=? and a.forGrade=? " +
 	    				" and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
 	    				" and a.submittedDate > s.createdDate" +
-	    				" group by a.publishedAssessmentId" +
-	    				" order by a.submittedDate desc");
+	    				" group by a.publishedAssessmentId");
 	    		q.setString(0, agentIdString);
 	    		q.setBoolean(1, true);
 	    		return q.list();
