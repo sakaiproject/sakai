@@ -5,6 +5,8 @@
 package org.sakaiproject.entitybroker.impl.collector;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.collector.AutoRegister;
 import org.sakaiproject.entitybroker.collector.BeanCollector;
+import org.sakaiproject.entitybroker.collector.OrderedBean;
 import org.sakaiproject.entitybroker.collector.BeanMapCollector;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -110,6 +113,7 @@ public class BeanCollectorAutoRegistrar implements ApplicationListener, Applicat
             l.add(bean);
          }
       }
+      Collections.sort(l, new OrderComparator());
       return l;
    }
 
@@ -129,6 +133,26 @@ public class BeanCollectorAutoRegistrar implements ApplicationListener, Applicat
       }
       registeredBeans.append("]");
       log.info("Set collected beans of type ("+beanType+") on bean ("+beanName+") to ("+l.size()+") " + registeredBeans.toString());
+   }
+
+   /**
+    * Comparator to order the collected beans based on order or use default order otherwise
+    * 
+    * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
+    */
+   private class OrderComparator implements Comparator<Object> {
+      public int compare(Object arg0, Object arg1) {
+         if (arg0 instanceof OrderedBean &&
+               arg1 instanceof OrderedBean) {
+            return ((OrderedBean)arg0).getOrder() - ((OrderedBean)arg1).getOrder();
+         } else if (arg0 instanceof OrderedBean) {
+            return -1;
+         } else if (arg1 instanceof OrderedBean) {
+            return 1;
+         } else {
+            return 0;
+         }
+      }      
    }
 
 }
