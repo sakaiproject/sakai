@@ -241,9 +241,9 @@ function ampmChange(FieldName)
 			<label for="activitytitle">$tlang.getString("new.title")</label>
 			#if ($savedData.getTitle().length() !=0)
 				#set($str = $savedData.getTitle().trim())
-				<input type="text" name="activitytitle" id="activitytitle" size="30" maxlength="50" value = "$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); return false;" />
+				<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value = "$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); return false;" />
 			#else
-				<input type="text" name="activitytitle" id="activitytitle" size="30" maxlength="50" onfocus="minuteChange('startMinute'); return false;" />
+				<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" onfocus="minuteChange('startMinute'); return false;" />
 			#end
 		</p>
 		<p class="shorttext">
