@@ -108,6 +108,15 @@ alter table osp_wizard_page_def add SUPPRESS_ITEMS number(1, 0) default '0' not 
 --OSP SAK-10612
 alter table osp_scaffolding add reviewerGroupAccess number(10, 0) default '0' not null;
 
+--OSP SAK-10832
+create table osp_wiz_page_def_attachments
+(
+	wiz_page_def_id		varchar2(36)	not null,
+	artifact_id			varchar2(255)	null,
+	seq_num				number(10,0)	not null,
+	PRIMARY KEY(wiz_page_def_id,seq_num)
+);
+
 -- Dropbox updates SAK-11342
 CREATE TABLE CONTENT_DROPBOX_CHANGES
 (
