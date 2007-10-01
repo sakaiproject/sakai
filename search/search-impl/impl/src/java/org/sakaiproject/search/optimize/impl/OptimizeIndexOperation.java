@@ -75,7 +75,7 @@ public class OptimizeIndexOperation implements ManagementOperation
 
 		if (journaledObject.aquireUpdateLock())
 		{
-			log.info("Now Locked Journaled savePoint is "
+			log.debug("Now Locked Journaled savePoint is "
 					+ journaledObject.getLastJournalEntry());
 			try
 			{
@@ -89,7 +89,7 @@ public class OptimizeIndexOperation implements ManagementOperation
 								.openTransaction(m);
 						optimizeUpdateTransaction.prepare();
 						optimizeUpdateTransaction.commit();
-						log.info("Optimize complete ");
+						log.debug("Optimize complete ");
 					}
 					catch (JournalErrorException jex)
 					{
@@ -114,7 +114,7 @@ public class OptimizeIndexOperation implements ManagementOperation
 					catch (NoOptimizationRequiredException nop)
 					{
 
-						log.info("No Merge Performed " + nop.getMessage());
+						log.debug("No Merge Performed " + nop.getMessage());
 					}
 					catch (IndexTransactionException iupex)
 					{
