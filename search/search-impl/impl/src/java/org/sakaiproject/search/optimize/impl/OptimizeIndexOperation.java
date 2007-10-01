@@ -54,7 +54,7 @@ public class OptimizeIndexOperation implements ManagementOperation
 	 */
 	private OptimizeIndexManager optimizeUpdateManager;
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

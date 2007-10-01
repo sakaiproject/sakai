@@ -68,7 +68,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

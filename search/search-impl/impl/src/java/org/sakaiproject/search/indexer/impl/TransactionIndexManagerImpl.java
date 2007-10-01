@@ -62,7 +62,7 @@ public class TransactionIndexManagerImpl extends TransactionManagerImpl
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

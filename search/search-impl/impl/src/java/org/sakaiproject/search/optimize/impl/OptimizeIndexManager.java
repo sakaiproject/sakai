@@ -60,7 +60,7 @@ public class OptimizeIndexManager extends TransactionManagerImpl
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

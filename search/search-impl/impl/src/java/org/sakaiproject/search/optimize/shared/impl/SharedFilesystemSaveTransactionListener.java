@@ -45,7 +45,7 @@ public class SharedFilesystemSaveTransactionListener implements
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

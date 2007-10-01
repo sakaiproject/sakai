@@ -178,7 +178,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 
 	private JournalSettings journalSettings;
 
-	public void destory()
+	public void destroy()
 	{
 
 	}
@@ -724,6 +724,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 			{
 				try
 				{
+					log.debug("Closing Index ================================================"+this);
 					// set the singleton on null
 					if (multiReader == this)
 					{
@@ -735,6 +736,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				}
 				catch (Exception ioex)
 				{
+					log.debug("Closing index exception ",ioex);
 					toRemove.clear();
 					return;
 				}
@@ -1157,7 +1159,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	public void setIndexListener(List<IndexListener> indexListeners)
 	{
 		List<IndexListener> tl = new ArrayList<IndexListener>();
-		tl.addAll(this.indexListeners);
+		tl.addAll(indexListeners);
 		this.indexListeners = tl;
 	}
 
@@ -1244,7 +1246,6 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	public void removeSegments(List<File> remove)
 	{
 		toRemove.addAll(remove);
-		log.info("ToRemove has " + toRemove.size() + " to remove");
 	}
 
 	/**
@@ -1285,7 +1286,6 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	public void saveSegmentList() throws IOException
 	{
 		File f = new File(journalSettings.getSearchIndexDirectory(), SEGMENT_LIST_NAME);
-		log.info("Saving to " + f.getAbsolutePath());
 		FileOutputStream fout = new FileOutputStream(f);
 		DataOutputStream dout = new DataOutputStream(fout);
 		dout.write(SEGMENT_LIST_SIGNATURE);
@@ -1303,7 +1303,6 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	public void loadSegmentList() throws IOException
 	{
 		File f = new File(journalSettings.getSearchIndexDirectory(), SEGMENT_LIST_NAME);
-		log.info("Loading from " + f.getAbsolutePath());
 		FileInputStream fout = new FileInputStream(f);
 		DataInputStream din = new DataInputStream(fout);
 		byte[] sig = new byte[SEGMENT_LIST_SIGNATURE.length];

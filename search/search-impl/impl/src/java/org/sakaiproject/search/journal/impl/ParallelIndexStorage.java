@@ -49,7 +49,7 @@ public class ParallelIndexStorage implements IndexStorage
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

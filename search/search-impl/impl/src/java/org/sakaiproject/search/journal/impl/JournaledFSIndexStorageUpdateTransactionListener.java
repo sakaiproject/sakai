@@ -70,7 +70,7 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}
@@ -139,17 +139,17 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 									SearchService.FIELD_REFERENCE, sbi.getName()));
 							if (ndel == 0)
 							{
-								log.warn("Tried to delete " + sbi.getName()
+								log.debug("Tried to delete " + sbi.getName()
 										+ " but it was not found in the local index ");
 							} else {
-								log.info("Deleted "+ndel+" in merge");
+								log.debug("Deleted "+ndel+" in merge");
 							}
 						}
 					}
 				}
 				else
 				{
-					log.info("No Documents to delete for savePoint " + journalEntry);
+					log.debug("No Documents to delete for savePoint " + journalEntry);
 				}
 				
 				// add the index in

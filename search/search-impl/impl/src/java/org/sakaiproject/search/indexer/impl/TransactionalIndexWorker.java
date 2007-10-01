@@ -103,24 +103,38 @@ public class TransactionalIndexWorker implements IndexWorker
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}
 
 	public int process(int batchSize)
 	{
+		
 		// get a list to perform this transaction
 		List<SearchBuilderItem> runtimeToDo = null;
 		IndexTransaction t = null;
 		try
 		{
+			long start = System.currentTimeMillis();
 			Map<String, Object> m = new HashMap<String, Object>();
 			m.put(SearchBuilderQueueManager.BATCH_SIZE, batchSize);
+			
 			t = transactionIndexManager.openTransaction(m);
 			int n = processTransaction(t);
 			t.prepare();
+			long transactionID = t.getTransactionId();
 			t.commit();
+			
+			long end = System.currentTimeMillis();
+			long time = end-start;
+			if ( time == 0 ) {
+				log.info("Indexed "+n+" documents in "+time+" ms into save point "+transactionID);				
+			} else {
+				double dps = n*1000;
+				dps = dps /(1.0*time);
+				log.info("Indexed "+n+" documents in "+time+" ms "+dps+" documents/second into save point "+transactionID);
+			}
 			return n;
 		}
 		catch (NoItemsToIndexException nodx)

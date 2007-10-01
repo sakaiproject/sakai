@@ -59,7 +59,7 @@ public class IndexManagementTimerTask extends TimerTask
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 		closed = true;
 	}

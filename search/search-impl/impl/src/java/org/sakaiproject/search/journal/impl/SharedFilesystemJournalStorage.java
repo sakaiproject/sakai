@@ -45,7 +45,7 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

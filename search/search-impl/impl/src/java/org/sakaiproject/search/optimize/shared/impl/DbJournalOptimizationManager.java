@@ -65,7 +65,7 @@ public class DbJournalOptimizationManager implements JournalManager
 
 	private ServerConfigurationService serverConfigurationService;
 
-	public void destory()
+	public void destroy()
 	{
 
 	}
@@ -181,7 +181,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			while (jms.oldestSavePoint == 0 && rs.next())
 			{
 				String server = rs.getString(1);
-				log.info("Got Server " + server + " with savePoint " + rs.getLong(2));
+				log.debug("Got Server " + server + " with savePoint " + rs.getLong(2));
 				for (String s : servers)
 				{
 					int dash = s.lastIndexOf('-');
@@ -191,10 +191,10 @@ public class DbJournalOptimizationManager implements JournalManager
 					if (server.equals(s))
 					{
 						jms.oldestSavePoint = rs.getLong(2);
-						log.info("	Match against "+s);
+						log.debug("	Match against "+s);
 						break;
 					} else {
-						log.info("No Match against "+s);
+						log.debug("No Match against "+s);
 					}
 				}
 

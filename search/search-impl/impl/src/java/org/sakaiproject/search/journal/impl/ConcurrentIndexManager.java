@@ -63,10 +63,6 @@ public class ConcurrentIndexManager implements IndexListener
 
 	private int nropen = 0;
 
-	public void destory()
-	{
-
-	}
 
 	public void init()
 	{
@@ -94,7 +90,7 @@ public class ConcurrentIndexManager implements IndexListener
 
 					inclose.set("xxx");
 					log
-							.info("Start Purge ------------------------- "
+							.debug("Start Purge ------------------------- "
 									+ delayQueue.size());
 					DelayedClose dc = (DelayedClose) delayQueue.poll();
 					while (dc != null)
@@ -102,7 +98,7 @@ public class ConcurrentIndexManager implements IndexListener
 						dc.close();
 						dc = (DelayedClose) delayQueue.poll();
 					}
-					log.info("Purge complete ----------------------" + delayQueue.size());
+					log.debug("Purge complete ----------------------" + delayQueue.size());
 				}
 				finally
 				{
@@ -143,8 +139,8 @@ public class ConcurrentIndexManager implements IndexListener
 		inclose.set(null);
 		closed = true;
 
-		log.info("N Searchers is " + nsopen);
-		log.info("N Readers is " + nropen);
+		log.debug("N Searchers is " + nsopen);
+		log.debug("N Readers is " + nropen);
 	}
 
 	/**
@@ -179,6 +175,8 @@ public class ConcurrentIndexManager implements IndexListener
 			delayQueue.offer(new DelayedIndexReaderClose(closeDelay, oldMultiReader,
 					toRemove));
 			throw new IOException("Close Will take place in " + closeDelay + " ms");
+		} else {
+			log.debug("Close in Thread ");
 		}
 
 	}

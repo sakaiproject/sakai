@@ -53,7 +53,7 @@ public class SharedFilesystemLoadTransactionListener implements
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}
@@ -104,10 +104,10 @@ public class SharedFilesystemLoadTransactionListener implements
 			}
 			for (File f : jtransaction.getMergeSegmentList())
 			{
-				log.info("Deleting Segment " + f.getPath());
+				log.debug("Deleting Segment " + f.getPath());
 				FileUtils.deleteAll(f);
 			}
-			log.info("Deleting Segment " + jtransaction.getTargetSegment().getPath());
+			log.debug("Deleting Segment " + jtransaction.getTargetSegment().getPath());
 			FileUtils.deleteAll(jtransaction.getTargetSegment());
 
 		}

@@ -54,7 +54,7 @@ public class MergeUpdateManager extends TransactionManagerImpl
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

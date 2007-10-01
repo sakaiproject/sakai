@@ -42,7 +42,7 @@ public class DebugIndexWorkerListener implements IndexWorkerListener
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

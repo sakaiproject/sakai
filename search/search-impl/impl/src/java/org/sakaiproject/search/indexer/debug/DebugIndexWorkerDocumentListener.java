@@ -43,7 +43,7 @@ public class DebugIndexWorkerDocumentListener implements IndexWorkerDocumentList
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

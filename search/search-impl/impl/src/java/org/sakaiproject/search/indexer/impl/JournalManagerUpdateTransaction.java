@@ -44,7 +44,7 @@ public class JournalManagerUpdateTransaction implements IndexUpdateTransactionLi
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

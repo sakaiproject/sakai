@@ -121,7 +121,7 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 
 	private JournalSettings journalSettings;
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

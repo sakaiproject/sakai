@@ -122,7 +122,7 @@ public class MonitoredIndexWriter extends IndexWriter
 	public void setMonitorIndexListener(List<IndexMonitorListener> indexListeners)
 	{
 		List<IndexMonitorListener> tl = new ArrayList<IndexMonitorListener>();
-		tl.addAll(this.indexMonitorListeners);
+		tl.addAll(indexListeners);
 		this.indexMonitorListeners = tl;
 	}
 

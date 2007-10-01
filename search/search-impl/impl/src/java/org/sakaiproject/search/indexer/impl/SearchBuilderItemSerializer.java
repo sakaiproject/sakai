@@ -51,7 +51,7 @@ public class SearchBuilderItemSerializer
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

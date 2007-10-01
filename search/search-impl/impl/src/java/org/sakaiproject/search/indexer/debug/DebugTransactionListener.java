@@ -44,7 +44,7 @@ public class DebugTransactionListener implements MergeTransactionListener,
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

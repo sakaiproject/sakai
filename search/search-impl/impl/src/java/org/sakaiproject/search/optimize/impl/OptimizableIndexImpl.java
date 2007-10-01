@@ -50,7 +50,7 @@ public class OptimizableIndexImpl implements OptimizableIndex
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

@@ -45,7 +45,7 @@ public class JournalStorageUpdateTransactionListener implements
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

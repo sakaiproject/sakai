@@ -50,7 +50,7 @@ public class MergeUpdateOperation implements ManagementOperation
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

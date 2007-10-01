@@ -54,7 +54,7 @@ public class JournalOptimizationOperation implements ManagementOperation
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}
@@ -76,11 +76,10 @@ public class JournalOptimizationOperation implements ManagementOperation
 					.openTransaction(m);
 			journalOptimizationTransaction.prepare();
 			journalOptimizationTransaction.commit();
-			log.info("Optimize complete ");
 		}
 		catch (NoOptimizationRequiredException nop)
 		{
-			log.info("No Merge Performed " + nop.getMessage());
+			log.debug("No Merge Performed " + nop.getMessage());
 		}
 		catch (JournalErrorException jex)
 		{

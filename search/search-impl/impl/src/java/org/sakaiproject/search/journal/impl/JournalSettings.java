@@ -57,7 +57,7 @@ public class JournalSettings
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

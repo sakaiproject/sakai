@@ -49,7 +49,7 @@ public class LocalTransactionSequenceImpl implements TransactionSequence
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

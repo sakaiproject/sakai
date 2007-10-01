@@ -44,6 +44,7 @@ public abstract class DelayedClose implements Delayed
 	public DelayedClose(long delay)
 	{
 		this.end = System.currentTimeMillis() + delay;
+		log.debug("Delayed close will trigger at "+end);
 	}
 
 	public long getDelay(TimeUnit unit)

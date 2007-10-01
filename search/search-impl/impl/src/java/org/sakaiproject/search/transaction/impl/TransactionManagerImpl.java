@@ -47,7 +47,7 @@ public abstract class TransactionManagerImpl implements TransactionIndexManager
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

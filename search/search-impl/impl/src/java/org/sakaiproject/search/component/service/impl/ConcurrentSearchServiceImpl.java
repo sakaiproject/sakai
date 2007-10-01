@@ -60,10 +60,8 @@ public class ConcurrentSearchServiceImpl extends BaseSearchServiceImpl
 			{
 				if (autoDdl)
 				{
-					log.info("SQL++++++++++++++++++++++++++++++++++++++++++++++++");
 					SqlService.getInstance().ddl(this.getClass().getClassLoader(),
 							"sakai_search_parallel");
-					log.info("SQLEND++++++++++++++++++++++++++++++++++++++++++++++++");
 				}
 			}
 			catch (Exception ex)

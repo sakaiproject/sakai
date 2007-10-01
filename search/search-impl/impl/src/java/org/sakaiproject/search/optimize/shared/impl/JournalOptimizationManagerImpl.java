@@ -50,7 +50,7 @@ public class JournalOptimizationManagerImpl extends TransactionManagerImpl imple
 
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}

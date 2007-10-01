@@ -96,7 +96,7 @@ public class DbJournalManager implements JournalManager
 		serverId = serverConfigurationService.getServerId();
 	}
 
-	public void destory()
+	public void destroy()
 	{
 
 	}
