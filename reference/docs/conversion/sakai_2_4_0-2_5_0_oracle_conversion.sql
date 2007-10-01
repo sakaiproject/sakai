@@ -38,6 +38,8 @@ where EXISTS
    and cc.placementDefaultChannel = 1
    and cc.CONTEXT = st.SITE_ID and ROWNUM = 1);
 
+update CHAT2_CHANNEL set placementDefaultChannel=0 where placementDefaultChannel is null;
+
 --OSP SAK-10396: Add a default layout to be specified for a portfolio
 alter table osp_presentation add layout_id varchar2(36) NULL;
 

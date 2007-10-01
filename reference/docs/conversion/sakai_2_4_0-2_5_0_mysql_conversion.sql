@@ -36,6 +36,7 @@ where st.REGISTRATION = 'sakai.chat'
    and cc.placementDefaultChannel = true
    and cc.CONTEXT = st.SITE_ID;
 
+update CHAT2_CHANNEL set placementDefaultChannel=false where placementDefaultChannel is null;
 
 --OSP SAK-10396: Add a default layout to be specified for a portfolio
 alter table osp_presentation add column layout_id varchar(36) NULL;
