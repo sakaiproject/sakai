@@ -4141,7 +4141,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
          String eventOwner = this.getCreator();
                    
          // for backward compatibility, treat unowned event as if it owned by this user
-         return (eventOwner == null || eventOwner.equals("") || currentUser.equals(eventOwner) );
+         return (eventOwner == null || eventOwner.equals("") || (currentUser != null && currentUser.equals(eventOwner)) );
       }
 
 		/**
