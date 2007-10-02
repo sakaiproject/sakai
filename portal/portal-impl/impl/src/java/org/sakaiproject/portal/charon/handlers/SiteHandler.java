@@ -508,6 +508,7 @@ public class SiteHandler extends WorksiteHandler
 			if (useDHTMLMore)
 			{
 				List<Site> allSites = new ArrayList<Site>();
+				allSites.addAll(mySites);
 				allSites.addAll(moreSites);
 				// get Sections
 				Map<String, List> termsToSites = new HashMap<String, List>();
