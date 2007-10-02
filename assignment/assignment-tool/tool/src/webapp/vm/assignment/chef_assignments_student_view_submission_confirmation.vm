@@ -1,10 +1,19 @@
 ## showing the submission confirmation page
 <div class="portletBody">
 	<h3>
-		$tlang.getString('confirm.submission.title')
+		#if ($!submitted)
+			$tlang.getString('confirm.submission.title')
+		#else
+			$tlang.getString('confirm.savesubmission.title')
+		#end
 	</h3>
-	<p class="success">$tlang.getString('confirm.submission.success')
-	#if ($!email_confirmation) 
+	<p class="success">
+	#if ($!submitted)
+		$tlang.getString('confirm.submission.success')
+	#else
+		$tlang.getString('confirm.savesubmission.success')
+	#end
+	#if ($!email_confirmation && $!submitted) 
 	$tlang.getString('confirm.submission.email')
 	#end
 </p>
@@ -40,23 +49,35 @@
 			##submission id
 			<tr>
 				<th>
-					$tlang.getString('confirm.submission.label.submission.id')
+					#if ($!submitted)
+						$tlang.getString('confirm.submission.label.submission.id')
+					#else
+					 $tlang.getString('confirm.savesubmission.label.submission.id')
+					#end
 				</th>
 				<td  class="highlight">
 					$!submission_id
 				</td>
 			</tr>
-			##submit time
-			<tr>
-				<th>
-					$tlang.getString('confirm.submission.label.submittedon')
-				</th>
-				<td>
-					$!submit_time
-				</td>
-			</tr>
+			#if ($!submitted)
+			 ##submit time
+				<tr>
+					<th>
+						$tlang.getString('confirm.submission.label.submittedon')
+					</th>
+					<td>
+						$!submit_time
+					</td>
+				</tr>
+			#end
 		</table>
-		<h4>$tlang.getString('confirm.submission.inclue')</h4>			
+		<h4>
+			#if ($!submitted)
+				$tlang.getString('confirm.submission.include')
+			#else
+			 $tlang.getString('confirm.savesubmission.include') 
+			#end
+		</h4>			
 		## submission text
 		#if ($!submit_text)
 			<div class="textPanel indnt2">
@@ -65,10 +86,20 @@
 			</div>
 		#else
 			<p class="indnt2">
-				$tlang.getString('confirm.submission.notext')
+				#if ($!submitted)
+					$tlang.getString('confirm.submission.notext')
+				#else
+					$tlang.getString('confirm.savesubmission.notext')	
+				#end
 			</p>	
 		#end
-		<h4>$tlang.getString('confirm.submission.attachments')</h4>
+		<h4>
+			#if ($!submitted)
+				$tlang.getString('confirm.submission.attachments')
+			#else
+				$tlang.getString('confirm.savesubmission.attachments')
+			#end		
+		</h4>
 		#set ($size = 0)
 		#set ($props = false)
 		#foreach ($attachment in $!submit_attachments) 

@@ -974,6 +974,7 @@ public class AssignmentAction extends PagedResourceActionII
 			AssignmentSubmission s = AssignmentService.getSubmission(currentAssignment.getReference(), user);
 			if (s != null)
 			{
+				context.put("submitted", Boolean.valueOf(s.getSubmitted()));
 				context.put("submission_id", s.getId());
 				if (s.getTimeSubmitted() != null)
 				{
@@ -3303,8 +3304,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
-			state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-			state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
+			state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_SUBMISSION_CONFIRMATION);
 		}
 
 	} // doSave_submission
