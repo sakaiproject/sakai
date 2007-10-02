@@ -108,13 +108,11 @@ function SRC_verifyEditArea()
  */
 var __SRC_resultsForm = null;
 var __SRC_buttonLabel = null;
-var __SRC_accessCount = 0;
 
 function SRC_initializePageInfo(name, label)
 {
   __SRC_resultsForm = name;
   __SRC_buttonLabel = label;
-  __SRC_accessCount = 0;
 }
 
 /*
@@ -307,15 +305,17 @@ function SRC_addCitation(href, anchorText, creatorText, sourceText)
 	  var newAnchor;
 
 		/*
-		 * Format the anchor and insert it into the edit area
+		 * Format the anchor and insert it into the edit area.
+		 *
+		 * We use GetHTML() to serialize the InsertHTML() activities (which take place
+		 * asynchronously in the edit window) and the window.focus() call (which should
+		 * happen only after insertHTML() is completely finished).
 		 */
     newAnchor = __SRC_makeCitationAnchor(href, anchorText, creatorText, sourceText);
-    editorApi.InsertHtml(newAnchor);
 
-    if (__SRC_accessCount++ == 0)
-    {
-      editorApi.EditorWindow.focus();
-    }
+    editorApi.InsertHtml(newAnchor);
+    editorApi.GetHTML();
+
     window.focus();
   }
   catch (exception)
