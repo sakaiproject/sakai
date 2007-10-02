@@ -1126,3 +1126,18 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 DELETE From SAKAI_REALM_RL_FN WHERE REALM_KEY = (select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.portfolio') AND ROLE_KEY = (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'CIG Participant') and FUNCTION_KEY = (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.run');
 DELETE From SAKAI_REALM_RL_FN WHERE REALM_KEY = (select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.portfolio') AND ROLE_KEY = (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'CIG Participant') and FUNCTION_KEY = (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.view');
 
+
+--Reports conversion SAK-10545
+RENAME TABLE osp_report_xsl TO report_xsl_file;
+ALTER TABLE report_xsl_file 
+	DROP PRIMARY KEY;
+ALTER TABLE report_xsl_file 
+	CHANGE reportXslFileId xslFileHash VARCHAR(255) NOT NULL;
+ALTER TABLE report_xsl_file 
+	ADD (PRIMARY KEY (reportDefId, xslFileHash));
+
+RENAME TABLE osp_report_def_xml TO reports_def_xml;
+RENAME TABLE osp_reports_params TO reports_param;
+RENAME TABLE osp_reports TO reports_report;
+RENAME TABLE osp_reports_results TO reports_result;
+
