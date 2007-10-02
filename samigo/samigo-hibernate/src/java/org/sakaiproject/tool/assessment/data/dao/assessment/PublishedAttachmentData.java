@@ -235,7 +235,7 @@ private Long attachmentId;
   }
   
   public boolean getIsInlineImage() {
-	  if (this.mimeType.equalsIgnoreCase("image/jpeg") || this.mimeType.equalsIgnoreCase("image/pjpeg") || this.mimeType.equalsIgnoreCase("image/gif")) {
+	  if (this.mimeType.equalsIgnoreCase("image/jpeg") || this.mimeType.equalsIgnoreCase("image/pjpeg") || this.mimeType.equalsIgnoreCase("image/gif") || this.mimeType.equalsIgnoreCase("image/png")) {
 		  return true;
 	  }
 	  else {
