@@ -28,7 +28,7 @@ function LimitText(fieldObj,maxChars)
 			<label for="title">
 				$tlang.getString("sitediinf.sittit")
 			</label>
-			#if ($!titleEditableSiteType.contains($!type))
+			#if (!$!isCourseSite)
 				<input type="text" name="title" id="title" size="20" maxlength="20" value="$validator.escapeHtml($!title)" />
 			#else
 				$validator.escapeHtml($!title)
