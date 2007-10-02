@@ -2404,10 +2404,12 @@ public class AssignmentAction extends PagedResourceActionII
 		// b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
 		// exception are indication that the assessment is already in the Gradebook or there is nothing
 		// to remove.
-			String assignmentToolTitle = getToolTitle();
+		String assignmentToolTitle = getToolTitle();
 
-			GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+		GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+		String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+		if (g.isGradebookDefined(gradebookUid))
+		{
 			boolean isExternalAssignmentDefined=g.isExternalAssignmentDefined(gradebookUid, assignmentRef);
 			boolean isExternalAssociateAssignmentDefined = g.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
 			boolean isAssignmentDefined = g.isAssignmentDefined(gradebookUid, associateGradebookAssignment);
@@ -2621,6 +2623,7 @@ public class AssignmentAction extends PagedResourceActionII
 					Log.warn("chef", rb.getString("cannot_find_assignment") + assignmentRef + ": " + e.getMessage());
 				}
 			} // updateRemoveSubmission != null
+		}
 	} // integrateGradebook
 
 	/**
