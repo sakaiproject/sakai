@@ -2404,10 +2404,6 @@ public class AssignmentAction extends PagedResourceActionII
 		// b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
 		// exception are indication that the assessment is already in the Gradebook or there is nothing
 		// to remove.
-		boolean gradebookExists = isGradebookDefined();
-
-		if (gradebookExists)
-		{
 			String assignmentToolTitle = getToolTitle();
 
 			GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
@@ -2455,7 +2451,8 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				else if (addUpdateRemoveAssignment.equals("update"))
 				{
-					if (associateGradebookAssignment != null && isExternalAssociateAssignmentDefined)
+					// no need for updating external assignment
+					/*if (associateGradebookAssignment != null && isExternalAssociateAssignmentDefined)
 					{
 						try
 						{
@@ -2468,24 +2465,13 @@ public class AssignmentAction extends PagedResourceActionII
 				        {
 				        		Log.warn("chef", rb.getString("cannot_find_assignment") + assignmentRef + ": " + e.getMessage());
 				        }
-					}
+					}*/
 					
 				}	// addUpdateRemove != null
 				else if (addUpdateRemoveAssignment.equals("remove"))
 				{
 					// remove assignment and all submission grades
-					if (isExternalAssignmentDefined)
-					{
-						try
-						{
-							g.removeExternalAssessment(gradebookUid, assignmentRef);
-						}
-						catch (Exception e)
-						{
-							Log.warn("chef", "Exception when removing assignment " + assignmentRef + " and its submissions:"
-									+ e.getMessage());
-						}
-					}
+					removeNonAssociatedExternalGradebookEntry((String) state.getAttribute(STATE_CONTEXT_STRING), assignmentRef, associateGradebookAssignment, g, gradebookUid);
 				}
 			}
 
@@ -2635,7 +2621,6 @@ public class AssignmentAction extends PagedResourceActionII
 					Log.warn("chef", rb.getString("cannot_find_assignment") + assignmentRef + ": " + e.getMessage());
 				}
 			} // updateRemoveSubmission != null
-		} // if gradebook exists
 	} // integrateGradebook
 
 	/**
@@ -4616,101 +4601,109 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 	
 	private void initIntegrateWithGradebook(SessionState state, String siteId, String aOldTitle, String oAssociateGradebookAssignment, AssignmentEdit a, String title, Time dueTime, int gradeType, String gradePoints, String addtoGradebook, String associateGradebookAssignment, String range) {
-		String aReference = a.getReference();
-		String addUpdateRemoveAssignment = "remove";
-		if (!addtoGradebook.equals(AssignmentService.GRADEBOOK_INTEGRATION_NO))
-		{
-			// if integrate with Gradebook
-			if (!AssignmentService.getAllowGroupAssignmentsInGradebook() && (range.equals("groups")))
-			{
-				// if grouped assignment is not allowed to add into Gradebook
-				addAlert(state, rb.getString("java.alert.noGroupedAssignmentIntoGB"));
-				String ref = "";
-				try
-				{
-					ref = a.getReference();
-					AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
-					aEdit.getPropertiesEdit().removeProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
-					aEdit.getPropertiesEdit().removeProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-					AssignmentService.commitEdit(aEdit);
-				}
-				catch (Exception ignore)
-				{
-					// ignore the exception
-					Log.warn("chef", rb.getString("cannotfin2") + ref);
-				}
-				integrateGradebook(state, aReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null);
-			}
-			else
-			{
-				if (addtoGradebook.equals(AssignmentService.GRADEBOOK_INTEGRATION_ADD))
-				{
-					addUpdateRemoveAssignment = AssignmentService.GRADEBOOK_INTEGRATION_ADD;
-				}
-				else if (addtoGradebook.equals(AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE))
-				{
-					addUpdateRemoveAssignment = "update";
-				}
 
-				if (!addUpdateRemoveAssignment.equals("remove") && gradeType == 3)
+		String context = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		boolean gradebookExists = isGradebookDefined();
+
+		// only if the gradebook is defined
+		if (gradebookExists)
+		{
+			GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+			
+			String aReference = a.getReference();
+			String addUpdateRemoveAssignment = "remove";
+			if (!addtoGradebook.equals(AssignmentService.GRADEBOOK_INTEGRATION_NO))
+			{
+				// if integrate with Gradebook
+				if (!AssignmentService.getAllowGroupAssignmentsInGradebook() && (range.equals("groups")))
 				{
+					// if grouped assignment is not allowed to add into Gradebook
+					addAlert(state, rb.getString("java.alert.noGroupedAssignmentIntoGB"));
+					String ref = "";
 					try
 					{
-						integrateGradebook(state, aReference, associateGradebookAssignment, addUpdateRemoveAssignment, aOldTitle, title, Integer.parseInt (gradePoints), dueTime, null, null);
-
-						// add all existing grades, if any, into Gradebook
-						integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, null, "update");
-
-						// if the assignment has been assoicated with a different entry in gradebook before, remove those grades from the entry in Gradebook
-						if (StringUtil.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment))
-						{
-							integrateGradebook(state, aReference, oAssociateGradebookAssignment, null, null, null, -1, null, null, "remove");
-							
-							// if the old assoicated assignment entry in GB is an external one, but doesn't have anything assoicated with it in Assignment tool, remove it
-							boolean gradebookExists = isGradebookDefined();
-							if (gradebookExists)
-							{
-								GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-								String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
-								boolean isExternalAssignmentDefined=g.isExternalAssignmentDefined(gradebookUid, oAssociateGradebookAssignment);
-								if (isExternalAssignmentDefined)
-								{
-									// iterate through all assignments currently in the site, see if any is associated with this GB entry
-									Iterator i = AssignmentService.getAssignmentsForContext(siteId);
-									boolean found = false;
-									while (!found && i.hasNext())
-									{
-										Assignment aI = (Assignment) i.next();
-										String gbEntry = aI.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-										if (gbEntry != null && gbEntry.equals(oAssociateGradebookAssignment))
-										{
-											found = true;
-										}
-									}
-									// so if none of the assignment in this site is associated with the entry, remove the entry
-									if (!found)
-									{
-										g.removeExternalAssessment(gradebookUid, oAssociateGradebookAssignment);
-									}
-								}
-							}
-						}
+						ref = a.getReference();
+						AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
+						aEdit.getPropertiesEdit().removeProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+						aEdit.getPropertiesEdit().removeProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+						AssignmentService.commitEdit(aEdit);
 					}
-					catch (NumberFormatException nE)
+					catch (Exception ignore)
 					{
-						alertInvalidPoint(state, gradePoints);
+						// ignore the exception
+						Log.warn("chef", rb.getString("cannotfin2") + ref);
 					}
+					integrateGradebook(state, aReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null);
 				}
 				else
 				{
-					integrateGradebook(state, aReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null);
+					if (addtoGradebook.equals(AssignmentService.GRADEBOOK_INTEGRATION_ADD))
+					{
+						addUpdateRemoveAssignment = AssignmentService.GRADEBOOK_INTEGRATION_ADD;
+					}
+					else if (addtoGradebook.equals(AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE))
+					{
+						addUpdateRemoveAssignment = "update";
+					}
+	
+					if (!addUpdateRemoveAssignment.equals("remove") && gradeType == 3)
+					{
+						try
+						{
+							integrateGradebook(state, aReference, associateGradebookAssignment, addUpdateRemoveAssignment, aOldTitle, title, Integer.parseInt (gradePoints), dueTime, null, null);
+	
+							// add all existing grades, if any, into Gradebook
+							integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, null, "update");
+	
+							// if the assignment has been assoicated with a different entry in gradebook before, remove those grades from the entry in Gradebook
+							if (StringUtil.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment))
+							{
+								// if the old assoicated assignment entry in GB is an external one, but doesn't have anything assoicated with it in Assignment tool, remove it
+								removeNonAssociatedExternalGradebookEntry(context, a.getReference(), oAssociateGradebookAssignment,g, gradebookUid);
+							}
+						}
+						catch (NumberFormatException nE)
+						{
+							alertInvalidPoint(state, gradePoints);
+						}
+					}
+					else
+					{
+						integrateGradebook(state, aReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null);
+					}
 				}
 			}
+			else
+			{
+				// need to remove the associated gradebook entry if 1) it is external and 2) no other assignment are associated with it
+				removeNonAssociatedExternalGradebookEntry(context, a.getReference(), oAssociateGradebookAssignment,g, gradebookUid);
+					
+			}
 		}
-		else
+	}
+
+	private void removeNonAssociatedExternalGradebookEntry(String context, String assignmentReference, String associateGradebookAssignment, GradebookService g, String gradebookUid) {
+		boolean isExternalAssignmentDefined=g.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
+		if (isExternalAssignmentDefined)
 		{
-			// no need to do anything here, if the assignment is chosen to not hook up with GB. 
-			// user can go to GB and delete the entry there manually
+			// iterate through all assignments currently in the site, see if any is associated with this GB entry
+			Iterator i = AssignmentService.getAssignmentsForContext(context);
+			boolean found = false;
+			while (!found && i.hasNext())
+			{
+				Assignment aI = (Assignment) i.next();
+				String gbEntry = aI.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+				if (aI.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED) == null && gbEntry != null && gbEntry.equals(associateGradebookAssignment) && !aI.getReference().equals(assignmentReference))
+				{
+					found = true;
+				}
+			}
+			// so if none of the assignment in this site is associated with the entry, remove the entry
+			if (!found)
+			{
+				g.removeExternalAssessment(gradebookUid, associateGradebookAssignment);
+			}
 		}
 	}
 
