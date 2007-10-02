@@ -751,7 +751,13 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			}
 		}
 		
-		if (isUserAbleToGradeAll()) {
+		// don't include the course grade column if the user doesn't have grade all perm
+		// or if the view is filtered by category
+		if (!isUserAbleToGradeAll() || selCategoryView != null) {
+			includeCourseGrade = false;
+		}
+		
+		if (includeCourseGrade) {
 			CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
 			List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids, gradableObjects, filteredGradesMap);
 	        getGradebookManager().addToGradeRecordMap(filteredGradesMap, courseGradeRecords);
