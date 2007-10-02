@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -2113,7 +2111,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public List getAllEntities(String id)
 	{
-		List rv = new Vector();
+		List rv = new ArrayList();
 
 		// get the collection members
 		try
@@ -2190,7 +2188,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public List getAllResources(String id)
 	{
-		List rv = new Vector();
+		List rv = new ArrayList();
 
 		// get the collection members
 		try
@@ -2659,7 +2657,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 		else
 		{
-			Collection newgroups = new Vector();
+			Collection newgroups = new ArrayList();
 			Iterator groupIt = subgroups.iterator();
 			while(groupIt.hasNext())
 			{
@@ -2913,7 +2911,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
 			ServerOverloadException
 	{
-		id = (String) ((Hashtable) fixTypeAndId(id, type)).get("id");
+		id = (String) fixTypeAndId(id, type).get("id");
 		ContentResourceEdit edit = addResource(id);
 		edit.setContentType(type);
 		edit.setContent(content);
@@ -2997,7 +2995,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
 			ServerOverloadException
 	{
-		Collection no_groups = new Vector();
+		Collection no_groups = new ArrayList();
 		return addResource(id, type, content, properties, no_groups, priority);
 	}
 	
@@ -3059,7 +3057,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		String id = collectionId + name;
-		id = (String) ((Hashtable) fixTypeAndId(id, type)).get("id");
+		id = (String) fixTypeAndId(id, type).get("id");
 		if (id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
 		{
 			throw new IdLengthException(id);
@@ -3364,7 +3362,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, 
 			InconsistentException, OverQuotaException, ServerOverloadException
 	{
-		Collection no_groups = new Vector();
+		Collection no_groups = new ArrayList();
 		return addResource(name, collectionId, limit, type, content, properties, no_groups, false, null, null, priority);
 	}
 	/**
@@ -3487,7 +3485,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		String id = collectionId + name;
-		id = (String) ((Hashtable) fixTypeAndId(id, type)).get("id");
+		id = (String) fixTypeAndId(id, type).get("id");
 		if (id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
 		{
 			throw new IdLengthException(id);
@@ -3701,7 +3699,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		commitCollection(edit);
 
 		// and add the resource
-		return addResource(id, type, content, properties, new Vector(), NotificationService.NOTI_NONE);
+		return addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
 
 	} // addAttachmentResource
 
@@ -3808,7 +3806,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		commitCollection(edit);
 
 		// and add the resource
-		return addResource(id, type, content, properties, new Vector(), NotificationService.NOTI_NONE);
+		return addResource(id, type, content, properties, new ArrayList(), NotificationService.NOTI_NONE);
 
 	} // addAttachmentResource
 
@@ -4310,7 +4308,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public ContentResource addDeleteResource(String id, String type, byte[] content, ResourceProperties properties, String uuid,
 			String userId, int priority) throws PermissionException
 	{
-		id = (String) ((Hashtable) fixTypeAndId(id, type)).get("id");
+		id = (String) fixTypeAndId(id, type).get("id");
 		// resource must also NOT end with a separator characters (fix it)
 		if (id.endsWith(Entity.SEPARATOR))
 		{
@@ -6415,12 +6413,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		Collection rv = (Collection) ThreadLocalManager.get(threadLocalKey);
 		if (rv != null)
 		{
-			return new Vector(rv);
+			return new ArrayList(rv);
 		}
 		
 		// use the resources realm, all container (folder) realms
 
-		rv = new Vector();
+		rv = new ArrayList();
 		rv.addAll(getEntityHierarchyAuthzGroups(ref));
 				
 		try
@@ -6520,7 +6518,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		// cache in the thread
-		ThreadLocalManager.set(threadLocalKey, new Vector(rv));
+		ThreadLocalManager.set(threadLocalKey, new ArrayList(rv));
 
 		if (M_log.isDebugEnabled())
 		{
@@ -7818,10 +7816,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *        The content type.
 	 * @return the best guess content type based on this resource's id and resource id with extension based on this resource's MIME type.
 	 */
-	protected Hashtable fixTypeAndId(String id, String type)
+	protected Map fixTypeAndId(String id, String type)
 	{
-		// the Hashtable holds the id and mime type
-		Hashtable extType = new Hashtable();
+		// the HashMap holds the id and mime type
+		HashMap extType = new HashMap();
 		extType.put("id", id);
 		if (type == null) type = "";
 		extType.put("type", type);
@@ -8398,7 +8396,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public void eliminateDuplicates(Collection resourceIds)
 	{
-		Collection dups = new Vector();
+		Collection dups = new ArrayList();
 
 		// eliminate exact duplicates
 		Set others = new TreeSet(resourceIds);
@@ -8865,7 +8863,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public Collection getGroupsWithReadAccess(String collectionId)
 	{
-		Collection rv = new Vector();
+		Collection rv = new ArrayList();
 		
 		String refString = getReference(collectionId);
 		Reference ref = m_entityManager.newReference(refString);
@@ -8889,7 +8887,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public Collection getGroupsWithAddPermission(String collectionId)
 	{
-		Collection rv = new Vector();
+		Collection rv = new ArrayList();
 		
 		String refString = getReference(collectionId);
 		Reference ref = m_entityManager.newReference(refString);
@@ -8913,7 +8911,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public Collection getGroupsWithRemovePermission(String collectionId)
 	{
-		Collection rv = new Vector();
+		Collection rv = new ArrayList();
       String owner = "";
 		String currentUser = SessionManager.getCurrentSessionUserId();
 		
@@ -8955,9 +8953,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected Collection getGroupsAllowFunction(String function, String refString)
 	{
-		Collection rv = new Vector();
+		Collection rv = new ArrayList();
 		
-		Collection groups = new Vector();
+		Collection groups = new ArrayList();
 		Collection groupRefs = new TreeSet();
 		if(this.m_allowGroupResources)
 		{
@@ -9021,7 +9019,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 						{
 							continue;
 						}
-						Collection azGroups = new Vector(hierarchy);
+						Collection azGroups = new ArrayList(hierarchy);
 						azGroups.add(group.getReference());
 						
 						// check whether this user can take this action (function) on this resource
@@ -9105,7 +9103,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		protected boolean m_hidden = false;
 
 		/** The Collection of group-ids for groups with access to this entity. */
-		protected Collection m_groups = new Vector();
+		protected Collection m_groups = new ArrayList();
 
 		/** The "priority" of this entity in its containing collection, if a custom sort order is defined for that collection */
 		protected int m_customOrderRank = 0;
@@ -9118,7 +9116,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public Collection getGroups()
 		{
-			return new Vector(m_groups);
+			return new ArrayList(m_groups);
 		}
 		
 		/**
@@ -9218,7 +9216,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				} 
 			}
 			
-			Collection newGroups = new Vector();
+			Collection newGroups = new ArrayList();
 			Iterator groupIt = groups.iterator();
 			while(groupIt.hasNext())
 			{
@@ -9255,9 +9253,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			if(m_groups == null)
 			{
-				m_groups = new Vector();
+				m_groups = new ArrayList();
 			}
-			Collection groups = new Vector();
+			Collection groups = new ArrayList();
 			Iterator it = m_groups.iterator();
 			while(it.hasNext())
 			{
@@ -9286,7 +9284,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public Collection getInheritedGroups() 
 		{
-			Collection groups = new Vector();
+			Collection groups = new ArrayList();
 			ContentEntity next = ((ContentEntity) this).getContainingCollection();
 			while(next != null && AccessMode.INHERITED.equals(next.getAccess()))
 			{
@@ -9329,7 +9327,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public Collection getInheritedGroupObjects() 
 		{
-			Collection groups = new Vector();
+			Collection groups = new ArrayList();
 			Collection groupRefs = getInheritedGroups();
 			Iterator it = groupRefs.iterator();
 			while(it.hasNext())
@@ -9926,7 +9924,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			Collection<String> memberCollectionIds = m_storage.getMemberCollectionIds(this.m_id);
 
 			// form the list of just ids
-			List<String> mbrs = new Vector<String>();
+			List<String> mbrs = new ArrayList<String>();
 			if(memberResourceIds != null)
 			{
 				mbrs.addAll(memberResourceIds);
@@ -10006,7 +10004,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			List mbrs = (List) ThreadLocalManager.get("members@" + this.m_id);
 			if(mbrs == null)
 			{
-				mbrs = new Vector();
+				mbrs = new ArrayList();
 
 				// if not caching
 				if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
@@ -10081,7 +10079,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		protected List copyEntityList(List entities)
         {
-			List list = new Vector();
+			List list = new ArrayList();
 			
 			for(ContentEntity entity : (List<ContentEntity>)entities)
 			{
@@ -11208,7 +11206,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public void setContentType(String type)
 		{
-			type = (String) ((Hashtable) fixTypeAndId(getId(), type)).get("type");
+			type = (String) fixTypeAndId(getId(), type).get("type");
 			m_contentType = type;
 
 		} // setContentType

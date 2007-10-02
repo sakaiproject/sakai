@@ -22,12 +22,12 @@
 package org.sakaiproject.content.types;
 
 import java.util.EnumMap;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -60,7 +60,7 @@ public class HtmlDocumentType extends BaseResourceType
 	
 	protected EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap = new EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>>(ResourceToolAction.ActionType.class);
 
-	protected Map<String, ResourceToolAction> actions = new Hashtable<String, ResourceToolAction>();	
+	protected Map<String, ResourceToolAction> actions = new HashMap<String, ResourceToolAction>();	
 	protected UserDirectoryService userDirectoryService;
 	
 	protected String typeId = ResourceType.TYPE_HTML;
@@ -110,7 +110,7 @@ public class HtmlDocumentType extends BaseResourceType
 
 		public List getRequiredPropertyKeys() 
 		{
-			List<String> rv = new Vector<String>();
+			List<String> rv = new ArrayList<String>();
 			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
 			return rv;
 		}
@@ -413,7 +413,7 @@ public class HtmlDocumentType extends BaseResourceType
 
 		public List getRequiredPropertyKeys() 
 		{
-			List<String> rv = new Vector<String>();
+			List<String> rv = new ArrayList<String>();
 			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
 			return rv;
 		}
@@ -679,7 +679,7 @@ public class HtmlDocumentType extends BaseResourceType
 
 		public List getRequiredPropertyKeys() 
 		{
-			List<String> rv = new Vector<String>();
+			List<String> rv = new ArrayList<String>();
 			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
 			return rv;
 		}
@@ -766,7 +766,7 @@ public class HtmlDocumentType extends BaseResourceType
 		// initialize actionMap with an empty List for each ActionType
 		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
 		{
-			actionMap.put(type, new Vector<ResourceToolAction>());
+			actionMap.put(type, new ArrayList<ResourceToolAction>());
 		}
 		
 		// for each action in actions, add a link in actionMap
@@ -778,7 +778,7 @@ public class HtmlDocumentType extends BaseResourceType
 			List<ResourceToolAction> list = actionMap.get(action.getActionType());
 			if(list == null)
 			{
-				list = new Vector<ResourceToolAction>();
+				list = new ArrayList<ResourceToolAction>();
 				actionMap.put(action.getActionType(), list);
 			}
 			list.add(action);
@@ -822,10 +822,10 @@ public class HtmlDocumentType extends BaseResourceType
 		List<ResourceToolAction> list = actionMap.get(type);
 		if(list == null)
 		{
-			list = new Vector<ResourceToolAction>();
+			list = new ArrayList<ResourceToolAction>();
 			actionMap.put(type, list);
 		}
-		return new Vector<ResourceToolAction>(list);
+		return new ArrayList<ResourceToolAction>(list);
 	}
 
 	/* (non-Javadoc)
@@ -833,7 +833,7 @@ public class HtmlDocumentType extends BaseResourceType
 	 */
 	public List<ResourceToolAction> getActions(List<ActionType> types)
 	{
-		List<ResourceToolAction> list = new Vector<ResourceToolAction>();
+		List<ResourceToolAction> list = new ArrayList<ResourceToolAction>();
 		if(types != null)
 		{
 			Iterator<ActionType> it = types.iterator();
@@ -843,7 +843,7 @@ public class HtmlDocumentType extends BaseResourceType
 				List<ResourceToolAction> sublist = actionMap.get(type);
 				if(sublist == null)
 				{
-					sublist = new Vector<ResourceToolAction>();
+					sublist = new ArrayList<ResourceToolAction>();
 					actionMap.put(type, sublist);
 				}
 				list.addAll(sublist);

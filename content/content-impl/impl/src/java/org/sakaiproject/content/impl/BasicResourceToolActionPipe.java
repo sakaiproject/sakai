@@ -24,7 +24,7 @@ package org.sakaiproject.content.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,8 +42,8 @@ public class BasicResourceToolActionPipe
 	protected InputStream contentInputStream;
 	protected String contentType;
 	protected String initializationId;
-	protected Map propertyValues = new Hashtable();
-	protected Map revisedPropertyValues = new Hashtable();
+	protected Map propertyValues = new HashMap();
+	protected Map revisedPropertyValues = new HashMap();
 	protected byte[] revisedContent;
 	protected InputStream revisedContentStream;
 	protected String revisedContentType;

@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,7 +40,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -368,7 +366,7 @@ public class ResourcesAction
 	 *
 	 */
 	public static class MetadataGroup
-		extends Vector
+		extends ArrayList
 	{
 		/**
 		 *
@@ -450,23 +448,23 @@ public class ResourcesAction
 
 	public static final String PREFIX = "resources.";
 	
-	public static final List<ActionType> ACTIONS_ON_FOLDERS = new Vector<ActionType>();
-	public static final List<ActionType> ACTIONS_ON_MULTIPLE_ITEMS = new Vector<ActionType>();
-	public static final List<ActionType> ACTIONS_ON_RESOURCES = new Vector<ActionType>();
+	public static final List<ActionType> ACTIONS_ON_FOLDERS = new ArrayList<ActionType>();
+	public static final List<ActionType> ACTIONS_ON_MULTIPLE_ITEMS = new ArrayList<ActionType>();
+	public static final List<ActionType> ACTIONS_ON_RESOURCES = new ArrayList<ActionType>();
 	
-	public static final List<ActionType> CONTENT_DELETE_ACTIONS = new Vector<ActionType>();
-	public static final List<ActionType> CONTENT_MODIFY_ACTIONS = new Vector<ActionType>();
-	public static final List<ActionType> CONTENT_NEW_ACTIONS = new Vector<ActionType>();
-	public static final List<ActionType> CONTENT_NEW_FOR_PARENT_ACTIONS = new Vector<ActionType>();
-	public static final List<ActionType> CONTENT_READ_ACTIONS = new Vector<ActionType>();
-	public static final List<ActionType> CONTENT_PROPERTIES_ACTIONS = new Vector<ActionType>();
+	public static final List<ActionType> CONTENT_DELETE_ACTIONS = new ArrayList<ActionType>();
+	public static final List<ActionType> CONTENT_MODIFY_ACTIONS = new ArrayList<ActionType>();
+	public static final List<ActionType> CONTENT_NEW_ACTIONS = new ArrayList<ActionType>();
+	public static final List<ActionType> CONTENT_NEW_FOR_PARENT_ACTIONS = new ArrayList<ActionType>();
+	public static final List<ActionType> CONTENT_READ_ACTIONS = new ArrayList<ActionType>();
+	public static final List<ActionType> CONTENT_PROPERTIES_ACTIONS = new ArrayList<ActionType>();
 	
-	public static final List<ActionType> CREATION_ACTIONS = new Vector<ActionType>();
+	public static final List<ActionType> CREATION_ACTIONS = new ArrayList<ActionType>();
 
-	public static final List<ActionType> PASTE_COPIED_ACTIONS = new Vector<ActionType>();
-	public static final List<ActionType> PASTE_MOVED_ACTIONS = new Vector<ActionType>();
+	public static final List<ActionType> PASTE_COPIED_ACTIONS = new ArrayList<ActionType>();
+	public static final List<ActionType> PASTE_MOVED_ACTIONS = new ArrayList<ActionType>();
 	
-	public static final List<ActionType> SITE_UPDATE_ACTIONS = new Vector<ActionType>();
+	public static final List<ActionType> SITE_UPDATE_ACTIONS = new ArrayList<ActionType>();
 
 	/** copyright path -- MUST have same value as AccessServlet.COPYRIGHT_PATH */
 	public static final String COPYRIGHT_PATH = Entity.SEPARATOR + "copyright";
@@ -1096,31 +1094,31 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			
 			String ccOwnershipLabel = "Who created this resource?";
-			List ccOwnershipList = new Vector();
+			List ccOwnershipList = new ArrayList();
 			ccOwnershipList.add("-- Select --");
 			ccOwnershipList.add("I created this resource");
 			ccOwnershipList.add("Someone else created this resource");
 			
 			String ccMyGrantLabel = "Terms of use";
-			List ccMyGrantOptions = new Vector();
+			List ccMyGrantOptions = new ArrayList();
 			ccMyGrantOptions.add("-- Select --");
 			ccMyGrantOptions.add("Use my copyright");
 			ccMyGrantOptions.add("Use Creative Commons License");
 			ccMyGrantOptions.add("Use Public Domain Dedication");
 			
 			String ccCommercialLabel = "Allow commercial use?";
-			List ccCommercialList = new Vector();
+			List ccCommercialList = new ArrayList();
 			ccCommercialList.add("Yes");
 			ccCommercialList.add("No");
 			
 			String ccModificationLabel = "Allow Modifications?";
-			List ccModificationList = new Vector();
+			List ccModificationList = new ArrayList();
 			ccModificationList.add("Yes");
 			ccModificationList.add("Yes, share alike");
 			ccModificationList.add("No");
 			
 			String ccOtherGrantLabel = "Terms of use";
-			List ccOtherGrantList = new Vector();
+			List ccOtherGrantList = new ArrayList();
 			ccOtherGrantList.add("Subject to fair-use exception");
 			ccOtherGrantList.add("Public domain (created before copyright law applied)");
 			ccOtherGrantList.add("Public domain (copyright has expired)");
@@ -1130,7 +1128,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			String ccRightsOwner = "Copyright owner";
 			
 			String ccAcknowledgeLabel = "Require users to acknowledge author's rights before access?";
-			List ccAcknowledgeList = new Vector();
+			List ccAcknowledgeList = new ArrayList();
 			ccAcknowledgeList.add("Yes");
 			ccAcknowledgeList.add("No");
 			
@@ -1198,7 +1196,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public static List<ContentCollection> createFolders(SessionState state, ResourceToolActionPipe pipe)
 	{
-		List<ContentCollection> new_collections = new Vector<ContentCollection>();
+		List<ContentCollection> new_collections = new ArrayList<ContentCollection>();
 		String collectionId = pipe.getContentEntity().getId();
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) pipe;
 		Iterator<ResourceToolActionPipe> pipeIt = mfp.getPipes().iterator();
@@ -1290,7 +1288,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		ToolSession toolSession = null;
 		boolean item_added = false;
 		String collectionId = null;
-		List<ContentResource> new_resources = new Vector<ContentResource>();
+		List<ContentResource> new_resources = new ArrayList<ContentResource>();
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) pipe;
 		Iterator<ResourceToolActionPipe> pipeIt = mfp.getPipes().iterator();
 		while(pipeIt.hasNext())
@@ -1857,7 +1855,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
     protected static List<ResourceToolAction> getActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry)
     {
 	    Reference ref = EntityManager.newReference(selectedItem.getReference());
-	    List<ResourceToolAction> actions = new Vector<ResourceToolAction>();
+	    List<ResourceToolAction> actions = new ArrayList<ResourceToolAction>();
 	    
 	    ResourceType typeDef = getResourceType(selectedItem, registry);
 	    
@@ -1959,7 +1957,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
     public static List<ResourceToolAction> getPasteActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry, List<String> items_to_be_moved, List<String> items_to_be_copied)
     {
-	    List<ResourceToolAction> actions = new Vector<ResourceToolAction>();
+	    List<ResourceToolAction> actions = new ArrayList<ResourceToolAction>();
 	    
 	    // if nothing to paste, just return an empty list
     	if((items_to_be_moved == null || items_to_be_moved.isEmpty()) && (items_to_be_copied == null || items_to_be_copied.isEmpty()))
@@ -2073,7 +2071,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
     {
 	    Reference ref = EntityManager.newReference(selectedItem.getReference());
 	    
-	    List<ResourceToolAction> actions = new Vector<ResourceToolAction>();
+	    List<ResourceToolAction> actions = new ArrayList<ResourceToolAction>();
 	    
 	    ResourceType typeDef = getResourceType(selectedItem, registry);
 	    
@@ -2142,7 +2140,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		LinkedList collectionPath = new LinkedList();
 
 		String previousCollectionId = "";
-		Vector pathitems = new Vector();
+		List pathitems = new ArrayList();
 		while ((currentCollectionId != null) && (!currentCollectionId.equals(navRoot)) && (!currentCollectionId.equals(previousCollectionId)) 
 				&& !(contentService.ROOT_COLLECTIONS.contains(currentCollectionId)) && (!contentService.isRootCollection(previousCollectionId)))
 		{
@@ -2357,7 +2355,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			Collection site_groups = site.getGroups();
 			item.setAllSiteGroups(site_groups);
 			
-			List access_groups = new Vector(((GroupAwareEntity) entity).getGroups());
+			List access_groups = new ArrayList(((GroupAwareEntity) entity).getGroups());
 			item.setEntityGroupRefs(access_groups);
 //			if(access_groups != null)
 //			{
@@ -2371,7 +2369,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 //				}
 //			}
 
-			List inherited_access_groups = new Vector(((GroupAwareEntity) entity).getInheritedGroups());
+			List inherited_access_groups = new ArrayList(((GroupAwareEntity) entity).getInheritedGroups());
 			item.setInheritedGroupRefs(inherited_access_groups);
 //			if(inherited_access_groups != null)
 //			{
@@ -2607,7 +2605,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				item.setCopyrightAlert(false);
 			}
 			
-//			Map metadata = new Hashtable();
+//			Map metadata = new HashMap();
 //			List groups = (List) state.getAttribute(ListItem.STATE_METADATA_GROUPS);
 //			if(groups != null && ! groups.isEmpty())
 //			{
@@ -2645,7 +2643,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 //			}
 //			else
 //			{
-//				item.setMetadata(new Hashtable());
+//				item.setMetadata(new HashMap());
 //			}
 			// for collections only
 			if(item.isFolder())
@@ -2754,7 +2752,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
 		if(expandedFolderSortMap == null)
 		{
-			expandedFolderSortMap = new Hashtable();
+			expandedFolderSortMap = new HashMap();
 			state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
 		}
 		
@@ -2935,13 +2933,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			Collection access_groups = collection.getGroupObjects();
 			if(access_groups == null)
 			{
-				access_groups = new Vector();
+				access_groups = new ArrayList();
 			}
 			folder.setGroups(access_groups);
 			Collection inherited_access_groups = collection.getInheritedGroupObjects();
 			if(inherited_access_groups == null)
 			{
-				inherited_access_groups = new Vector();
+				inherited_access_groups = new ArrayList();
 			}
 			folder.setInheritedGroups(inherited_access_groups);
 			
@@ -3126,7 +3124,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						Collection groups = ((GroupAwareEntity) resource).getGroupObjects();
 						if(groups == null)
 						{
-							groups = new Vector();
+							groups = new ArrayList();
 						}
 						Collection inheritedGroups = folder.getGroups();
 						if(inheritedGroups == null || inheritedGroups.isEmpty())
@@ -3266,7 +3264,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected static Collection<ContentPermissions> getPermissions(String id, Collection<ContentPermissions> inheritedPermissions)
 	{
-		Collection<ContentPermissions> permissions = new Vector<ContentPermissions>();
+		Collection<ContentPermissions> permissions = new ArrayList<ContentPermissions>();
 		if(ContentHostingService.isCollection(id))
 		{
 			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.CREATE)) || ContentHostingService.allowAddCollection(id) && !ContentHostingService.isRootCollection(id))
@@ -3341,7 +3339,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	private static void initCopyContext (SessionState state)
 	{
-		state.setAttribute (STATE_COPIED_IDS, new Vector ());
+		state.setAttribute (STATE_COPIED_IDS, new ArrayList ());
 
 		state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
 
@@ -3352,7 +3350,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	private static void initMoveContext (SessionState state)
 	{
-		state.setAttribute (STATE_MOVED_IDS, new Vector ());
+		state.setAttribute (STATE_MOVED_IDS, new ArrayList ());
 
 		state.setAttribute (STATE_MOVE_FLAG, Boolean.FALSE.toString());
 
@@ -3395,11 +3393,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	protected static List newEditItems(String collectionId, String itemtype, String encoding, String defaultCopyrightStatus, boolean preventPublicDisplay, Time defaultRetractDate, int number)
 	{
-		List new_items = new Vector();
+		List new_items = new ArrayList();
 		
 		ContentCollection collection = null;
 		AccessMode inheritedAccess = AccessMode.INHERITED;
-//		Collection inheritedGroups = new Vector();
+//		Collection inheritedGroups = new ArrayList();
 		try
 		{
 			collection = ContentHostingService.getCollection(collectionId);
@@ -3461,7 +3459,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		else
 		{
-			site_groups = new Vector();
+			site_groups = new ArrayList();
 		}
 				
 		Collection inherited_access_groups = collection.getGroups();
@@ -3471,7 +3469,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		if(inherited_access_groups == null)
 		{
-			inherited_access_groups = new Vector();
+			inherited_access_groups = new ArrayList();
 		}
 
 		Collection allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(collectionId); // null;
@@ -3485,7 +3483,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 //		}
 		if(allowedAddGroups == null)
 		{
-			allowedAddGroups = new Vector();
+			allowedAddGroups = new ArrayList();
 		}
 
 		for(int i = 0; i < CREATE_MAX_ITEMS; i++)
@@ -3518,7 +3516,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 			item.setCopyrightStatus(defaultCopyrightStatus);
 			new_items.add(item);
-			// item.setPossibleGroups(new Vector(possibleGroups));
+			// item.setPossibleGroups(new ArrayList(possibleGroups));
 //			if(inheritedGroups != null)
 //			{
 //				item.setInheritedGroups(inheritedGroups);
@@ -3610,7 +3608,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		if(operations_stack.size() < MAXIMUM_SUSPENDED_OPERATIONS_STACK_DEPTH)
 		{
-			current_stack_frame = (Map) operations_stack.push(new Hashtable());
+			current_stack_frame = (Map) operations_stack.push(new HashMap());
 		}
 		Object helper_mode = state.getAttribute(STATE_RESOURCES_HELPER_MODE);
 		if(helper_mode != null)
@@ -3951,12 +3949,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		String folderId = null;
 		
 		// need a list of folders (ListItem objects) for one root in context as $folders
-		List<List<ListItem>> folders = new Vector<List<ListItem>>();
+		List<List<ListItem>> folders = new ArrayList<List<ListItem>>();
 		ContentCollection collection = null;
 		ContentEntity selectedItem = null;
 		
 		// need a list of roots (ListItem objects) in context as $roots
-		List<ListItem> roots = new Vector<ListItem>();
+		List<ListItem> roots = new ArrayList<ListItem>();
 		Map othersites = ContentHostingService.getCollectionMap();
 		Iterator it = othersites.keySet().iterator();
 		while(it.hasNext())
@@ -4010,7 +4008,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			String collectionId = folderId;
 			folderId = null;
 
-			List<ListItem> folder = new Vector<ListItem>();
+			List<ListItem> folder = new ArrayList<ListItem>();
 			try 
 			{
 				if(collection == null)
@@ -4554,7 +4552,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				//all_roots.addAll(other_sites);
 
 				List<ListItem> siteCollections = prepPage(state);
-				List<ListItem> otherSites = new Vector<ListItem>();
+				List<ListItem> otherSites = new ArrayList<ListItem>();
 				for(ListItem siteCollection : siteCollections)
 				{
 					otherSites.addAll(siteCollection.convert2list());
@@ -4693,7 +4691,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// String template = (String) getContext(data).get("template");
 		
 		context.put("labeler", new ResourceTypeLabeler());
-				
+		
 		return TEMPLATE_NEW_LIST;
 
 	}	// buildListContext
@@ -4858,7 +4856,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		Map<String,Boolean> statusMap = registry.getMapOfResourceTypesForContext(siteId);
 		context.put("statusMap", statusMap);
 		
-		List types = new Vector(registry.getTypes());
+		List types = new ArrayList(registry.getTypes());
 		Collections.sort(types, new Comparator(){
 
 			public int compare(Object arg0, Object arg1) {
@@ -4890,15 +4888,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		String need_to_expand_all = (String) state.getAttribute(STATE_NEED_TO_EXPAND_ALL);
 
 		// create temporary expanded folder lists for this invocation of getListView
-		Map tempExpandedFolderSortMap = new Hashtable();
+		Map tempExpandedFolderSortMap = new HashMap();
 		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, tempExpandedFolderSortMap);
 		SortedSet tempExpandedCollections = new TreeSet();
 		tempExpandedCollections.add(folderId);
 		state.setAttribute(STATE_EXPANDED_COLLECTIONS, tempExpandedCollections);
 
 		Set highlightedItems = new TreeSet();
-		List all_roots = new Vector();
-		List this_site = new Vector();
+		List all_roots = new ArrayList();
+		List this_site = new ArrayList();
 
 		List members = getListView(folderId, highlightedItems, (ResourcesBrowseItem) null, true, state);
 
@@ -5156,9 +5154,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected void deleteItem(SessionState state, String itemId)
 	{
-		List deleteItems = new Vector();
-		List notDeleteItems = new Vector();
-		List nonEmptyFolders = new Vector();
+		List deleteItems = new ArrayList();
+		List notDeleteItems = new ArrayList();
+		List nonEmptyFolders = new ArrayList();
 		
 		boolean isFolder = itemId.endsWith(Entity.SEPARATOR);
 		
@@ -5257,9 +5255,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected void deleteItems(SessionState state, Set deleteIdSet)
 	{
-		List deleteItems = new Vector();
-		List notDeleteItems = new Vector();
-		List nonEmptyFolders = new Vector();
+		List deleteItems = new ArrayList();
+		List notDeleteItems = new ArrayList();
+		List nonEmptyFolders = new ArrayList();
 		
 		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
 		
@@ -5380,7 +5378,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		Map folderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
 		if(folderSortMap == null)
 		{
-			folderSortMap = new Hashtable();
+			folderSortMap = new HashMap();
 			state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, folderSortMap);
 		}
 
@@ -5740,7 +5738,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			initMoveContext(state);
 		}
 
-		Vector copyItemsVector = new Vector ();
+		List copyItemsVector = new ArrayList ();
 
 		String[] copyItems = data.getParameters ().getStrings ("selectedMembers");
 		if (copyItems == null)
@@ -5923,7 +5921,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			switch(sAction.getActionType())
 			{
 				case COPY:
-					List<String> items_to_be_copied = new Vector<String>();
+					List<String> items_to_be_copied = new ArrayList<String>();
 					if(selectedItemId != null)
 					{
 						items_to_be_copied.add(selectedItemId);
@@ -5956,7 +5954,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					sAction.finalizeAction(reference);
 					break;
 				case MOVE:
-					List<String> items_to_be_moved = new Vector<String>();
+					List<String> items_to_be_moved = new ArrayList<String>();
 					if(selectedItemId != null)
 					{
 						items_to_be_moved.add(selectedItemId);
@@ -6154,10 +6152,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		List items = (List) state.getAttribute(STATE_DELETE_SET);
 
-		// Vector deleteIds = (Vector) state.getAttribute (STATE_DELETE_IDS);
+		// List deleteIds = (List) state.getAttribute (STATE_DELETE_IDS);
 
 		// delete the lowest item in the hireachy first
-		Hashtable deleteItems = new Hashtable();
+		Map deleteItems = new HashMap();
 		// String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
 		int maxDepth = 0;
 		int depth = 0;
@@ -6175,7 +6173,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			List v = (List) deleteItems.get(new Integer(depth));
 			if(v == null)
 			{
-				v = new Vector();
+				v = new ArrayList();
 			}
 			v.add(item);
 			deleteItems.put(new Integer(depth), v);
@@ -6187,7 +6185,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			List v = (List) deleteItems.get(new Integer(j));
 			if (v==null)
 			{
-				v = new Vector();
+				v = new ArrayList();
 			}
 			Iterator itemIt = v.iterator();
 			while(itemIt.hasNext())
@@ -6353,7 +6351,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// get the state object
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
-		List moveItemsVector = new Vector();
+		List moveItemsVector = new ArrayList();
 
 		// cancel copy if there is one in progress
 		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
@@ -6435,7 +6433,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		else if(ResourceToolAction.COPY.equals(actionId))
 		{
-			List selectedSet  = new Vector();
+			List selectedSet  = new ArrayList();
 			String[] selectedItems = params.getStrings ("selectedMembers");
 			if(selectedItems != null)
 			{
@@ -6447,7 +6445,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		else if(ResourceToolAction.MOVE.equals(actionId))
 		{
-			List selectedSet  = new Vector();
+			List selectedSet  = new ArrayList();
 			String[] selectedItems = params.getStrings ("selectedMembers");
 			if(selectedItems != null)
 			{
@@ -6532,7 +6530,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			Map sortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
 			if(sortMap == null)
 			{
-				sortMap = new Hashtable();
+				sortMap = new HashMap();
 				state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, sortMap);
 			}
 			
@@ -6555,7 +6553,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				// add this folder id into the set to be event-observed
 				addObservingPattern(collectionId, state);
 			}
-			//state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
+			//state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new HashMap());
 		}
 
 	}	// doNavigate
@@ -6789,7 +6787,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					ContentCollectionEdit collection = ContentHostingService.editCollection(folderId);
 					List memberIds = collection.getMembers();
-					Map priorities = new Hashtable();
+					Map priorities = new HashMap();
 					Iterator it = memberIds.iterator();
 					while(it.hasNext())
 					{
@@ -6813,7 +6811,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
 					if(expandedFolderSortMap == null)
 					{
-						expandedFolderSortMap = new Hashtable();
+						expandedFolderSortMap = new HashMap();
 						state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
 					}
 					expandedFolderSortMap.put(folderId, comparator);
@@ -7065,7 +7063,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
 
 		state.setAttribute(STATE_EXPANDED_COLLECTIONS, new TreeSet());
-		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
+		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new HashMap());
 		
 		// TODO: Should iterate over all collectionId's in expandedCollection 
 		//       and call collapseAction.initializeAction() and 
@@ -7093,7 +7091,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 		}
 
-		List<ResourceType> typeDefs = new Vector<ResourceType>(registry.getTypes());
+		List<ResourceType> typeDefs = new ArrayList<ResourceType>(registry.getTypes());
 
 		String siteId = params.getString("siteId");
 		if(siteId == null || siteId.trim().equals(""))
@@ -7460,7 +7458,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
 
-		state.setAttribute (STATE_COLLECTION_PATH, new Vector ());
+		state.setAttribute (STATE_COLLECTION_PATH, new ArrayList ());
 
 		// %%STATE_MODE_RESOURCES%%
 		// In helper mode, calling tool should set attribute STATE_MODE_RESOURCES
@@ -7551,7 +7549,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		SortedSet expandedCollections = new TreeSet();
 		//expandedCollections.add (state.getAttribute (STATE_HOME_COLLECTION_ID));
 		state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
-		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
+		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new HashMap());
 		
 		state.setAttribute(STATE_DROPBOX_HIGHLIGHT, new Integer(1));
 		
@@ -7833,7 +7831,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	*/
 	protected List<ListItem> prepPage(SessionState state)
 	{
-		List<ListItem> rv = new Vector<ListItem>();
+		List<ListItem> rv = new ArrayList<ListItem>();
 
 		// access the page size
 		int pageSize = ((Integer) state.getAttribute(STATE_PAGESIZE)).intValue();
@@ -8083,7 +8081,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 		}
 		
-		List<ListItem> other_sites = new Vector<ListItem>();
+		List<ListItem> other_sites = new ArrayList<ListItem>();
 
 		String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
 		SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
@@ -8213,7 +8211,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
     {
 		boolean item_added = false;
 		String collectionId = null;
-		List<ContentResource> new_resources = new Vector<ContentResource>();
+		List<ContentResource> new_resources = new ArrayList<ContentResource>();
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) pipe;
 		Iterator<ResourceToolActionPipe> pipeIt = mfp.getPipes().iterator();
 		while(pipeIt.hasNext())

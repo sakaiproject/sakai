@@ -22,7 +22,7 @@
 package org.sakaiproject.content.impl;
 
 import java.util.List;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.MultiFileUploadPipe;
@@ -38,7 +38,7 @@ public class BasicMultiFileUploadPipe extends BasicResourceToolActionPipe
 	implements MultiFileUploadPipe
 {
 	/*  */
-	protected List<ResourceToolActionPipe> pipes = new Vector<ResourceToolActionPipe>();
+	protected List<ResourceToolActionPipe> pipes = new ArrayList<ResourceToolActionPipe>();
 	
 	/*  */
 	protected ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
@@ -69,7 +69,7 @@ public class BasicMultiFileUploadPipe extends BasicResourceToolActionPipe
 	 */
 	public List<ResourceToolActionPipe> getPipes()
 	{
-		return new Vector(pipes);
+		return new ArrayList(pipes);
 	}
 
 	/* (non-Javadoc)

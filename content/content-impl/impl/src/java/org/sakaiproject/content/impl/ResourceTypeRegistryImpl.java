@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -104,7 +103,7 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 	 */
 	public Collection getTypes() 
 	{
-		List types = new Vector();
+		List types = new ArrayList();
 		if(typeIndex != null)
 		{
 			types.addAll(typeIndex.values());
@@ -117,7 +116,7 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 	 */
 	public Collection getTypes(Filter filter) 
 	{
-		List types = new Vector();
+		List types = new ArrayList();
 		if(typeIndex != null)
 		{
 			Iterator it = typeIndex.values().iterator();
@@ -248,7 +247,7 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 	 */
 	public Collection<ResourceType> getTypes(String context) 
 	{
-		List<ResourceType> typeDefs = new Vector<ResourceType>();
+		List<ResourceType> typeDefs = new ArrayList<ResourceType>();
 		
 		Map<String, Boolean> statusMap = getMapOfResourceTypesForContext(context);
 		

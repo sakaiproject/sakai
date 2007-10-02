@@ -32,7 +32,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -944,7 +943,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			parent.setPubviewPossible(! preventPublicDisplay);
 		}
 		
-		List<String> alerts = new Vector<String>();
+		List<String> alerts = new ArrayList<String>();
 		
 		List<ResourceToolActionPipe> pipes = mfp.getPipes();
 		
@@ -1086,7 +1085,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		int lastIndex = params.getInt("lastIndex");
 		
-		List<String> allAlerts = new Vector<String>();
+		List<String> allAlerts = new ArrayList<String>();
 		
 		ContentEntity entity = mfp.getContentEntity();
 		ListItem parent = null;

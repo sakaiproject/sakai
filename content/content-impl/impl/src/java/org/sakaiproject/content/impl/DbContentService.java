@@ -35,7 +35,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -2407,7 +2407,7 @@ public class DbContentService extends BaseContentService
 
 	public Map<String, Long> getMostRecentUpdate(String id) 
 	{
-		Map<String, Long> map = new Hashtable();
+		Map<String, Long> map = new HashMap();
 		
 		String sql = contentServiceSql.getSiteDropboxChangeSql();
 		

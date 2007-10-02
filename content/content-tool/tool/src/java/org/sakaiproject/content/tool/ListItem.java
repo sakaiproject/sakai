@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,7 +36,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
-import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -78,6 +76,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -286,7 +285,7 @@ public class ListItem
         {
         	if(otherActions == null)
         	{
-        		otherActions = new Vector<ResourceToolAction>(pasteActions);
+        		otherActions = new ArrayList<ResourceToolAction>(pasteActions);
         	}
         	else
         	{
@@ -352,11 +351,11 @@ public class ListItem
 	protected ContentEntity entity;
 	protected AccessMode accessMode;
 	protected AccessMode inheritedAccessMode;
-	protected Collection<Group> groups = new Vector<Group>();
-	protected Collection<Group> inheritedGroups = new Vector<Group>();
-	protected Collection<Group> possibleGroups = new Vector<Group>();
-	protected Collection<Group> allowedRemoveGroups = new Vector<Group>();
-	protected Collection<Group> allowedAddGroups = new Vector<Group>();
+	protected Collection<Group> groups = new ArrayList<Group>();
+	protected Collection<Group> inheritedGroups = new ArrayList<Group>();
+	protected Collection<Group> possibleGroups = new ArrayList<Group>();
+	protected Collection<Group> allowedRemoveGroups = new ArrayList<Group>();
+	protected Collection<Group> allowedAddGroups = new ArrayList<Group>();
 	protected Map<String,Group> siteGroupsMap = new HashMap<String, Group>();
 
 	protected boolean isPubviewPossible;
@@ -453,25 +452,21 @@ public class ListItem
 		this.name = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		if(name == null || name.trim().equals(""))
 		{
+			
 			String siteCollectionId = contentService.getSiteCollection(ref.getContext());
 			if(siteCollectionId != null && siteCollectionId.equals(id))
 			{
-				Site site;
-                try
-                {
-	                site = SiteService.getSite(ref.getContext());
+				String context = ref.getContext();
+				Site site = getSiteObject(context);
+				if(site != null)
+				{
 	                String siteTitle = site.getTitle();
 	                if(siteTitle == null || siteTitle.trim().equals(""))
 	                {
 	                	siteTitle = site.getId();
 	                }
 					name = trb.getFormattedMessage("title.resources", new String[]{siteTitle});
-                }
-                catch (IdUnusedException e)
-                {
-	                // TODO Auto-generated catch block
-	                logger.warn("IdUnusedException ", e);
-                }
+				}
 			}
 		}
 		this.description = props.getProperty(ResourceProperties.PROP_DESCRIPTION);
@@ -709,16 +704,10 @@ public class ListItem
 		this.setCreatedTime(props.getPropertyFormatted(ResourceProperties.PROP_CREATION_DATE));
 		
 		Site site = null;
-		Collection<Group> site_groups = new Vector<Group>();
+		Collection<Group> site_groups = new ArrayList<Group>();
 		
-		try 
-		{
-			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-		} 
-		catch (IdUnusedException e) 
-		{
-			logger.warn("resourcesAction.newEditItems() IdUnusedException ", e);
-		}
+		String context = ToolManager.getCurrentPlacement().getContext();
+		site = getSiteObject(context);
 		if(site != null)
 		{
 			for(Group gr : (Collection<Group>) site.getGroups())
@@ -839,6 +828,23 @@ public class ListItem
 		}
 		this.isAvailable = entity.isAvailable();
     }
+
+	private Site getSiteObject(String context) {
+		Site site = (Site) ThreadLocalManager.get("context@" + context);
+		if(site == null)
+		{
+		    try
+		    {
+		        site = SiteService.getSite(context);
+		        ThreadLocalManager.set("context@" + context, site);
+		    }
+		    catch (IdUnusedException e)
+		    {
+		        logger.warn("IdUnusedException context == " + context);
+		    }
+		}
+		return site;
+	}
 
 	private String getSiteDropboxId(String id) 
 	{
@@ -1002,8 +1008,8 @@ public class ListItem
 
 		}
         
-		this.allowedRemoveGroups = new Vector(parent.allowedRemoveGroups);		
-		this.allowedAddGroups = new Vector(parent.allowedAddGroups);
+		this.allowedRemoveGroups = new ArrayList(parent.allowedRemoveGroups);		
+		this.allowedAddGroups = new ArrayList(parent.allowedAddGroups);
 		
 		this.isPubviewPossible = parent.isPubviewPossible;
         this.isPubviewInherited = parent.isPubviewInherited || parent.isPubview;
@@ -1103,7 +1109,7 @@ public class ListItem
     {
         if(this.members == null)
         {
-        	this.members = new Vector<ListItem>();
+        	this.members = new ArrayList<ListItem>();
         }
         this.members.add(member);
     }
@@ -1445,7 +1451,7 @@ public class ListItem
      */
     public List<ListItem> convert2list()
     {
-    	List<ListItem> list = new Vector<ListItem>();
+    	List<ListItem> list = new ArrayList<ListItem>();
     	Stack<ListItem> processStack = new Stack<ListItem>();
     	
     	processStack.push(this);
@@ -1706,7 +1712,7 @@ public class ListItem
      */
     public Collection<Group> getEffectiveGroups()
     {
-    	Collection<Group> groups = new Vector<Group>();
+    	Collection<Group> groups = new ArrayList<Group>();
     	
     	
     	
@@ -1867,7 +1873,7 @@ public class ListItem
      */
     public Collection<Group> getGroups()
     {
-    	return new Vector<Group>(groups);
+    	return new ArrayList<Group>(groups);
     }
 	
 	/**
@@ -1915,7 +1921,7 @@ public class ListItem
      */
     public Collection<Group> getInheritedGroups()
     {
-    	return new Vector<Group>(inheritedGroups);
+    	return new ArrayList<Group>(inheritedGroups);
     }
 
 	public List<ListItem> getMembers() 
@@ -2002,7 +2008,7 @@ public class ListItem
      */
     public Collection<Group> getPossibleGroups()
     {
-    	return new Vector<Group>(possibleGroups);
+    	return new ArrayList<Group>(possibleGroups);
     }
 
 	/**
@@ -2465,7 +2471,7 @@ public class ListItem
 	{
 		if(this.members == null)
 		{
-			this.members = new Vector<ListItem>();
+			this.members = new ArrayList<ListItem>();
 		}
 		this.members.clear();
 		this.members.addAll(members);
@@ -3029,7 +3035,7 @@ public class ListItem
 
 	public List<String> checkRequiredProperties()
     {
-		List<String> alerts = new Vector<String>();
+		List<String> alerts = new ArrayList<String>();
 		String name = getName();
 		if(name == null || name.trim().equals(""))
 		{
@@ -3109,7 +3115,7 @@ public class ListItem
 		{
 			if(this.metadataGroups == null)
 			{
-				metadataGroups =  new Vector<MetadataGroup>();
+				metadataGroups =  new ArrayList<MetadataGroup>();
 			}
 			boolean optionalPropertiesDefined = false;
 			String opt_prop_name = rb.getString("opt_props");
@@ -3158,7 +3164,7 @@ public class ListItem
 				metadataGroups.add(dc);
 			}
 
-			//Map metadata = new Hashtable();
+			//Map metadata = new HashMap();
 			if(this.metadataGroups != null && ! this.metadataGroups.isEmpty())
 			{
 				for(MetadataGroup metadata_group : this.metadataGroups)
