@@ -424,7 +424,7 @@ function disableAllFeedbackCheck(feedbackType)
 		  <h:outputText value=" "/>
 		  <h:outputText value=" "/>
 		  <h:outputText value=" "/>
-          <samigo:datePicker value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" >
+          <samigo:datePicker value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate" >
             <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
           </samigo:datePicker>
         </h:panelGrid>
