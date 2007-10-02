@@ -382,20 +382,22 @@ public class DbContentService extends BaseContentService
 			M_log.warn("init(): ", t);
 		}
 
-		filesizeColumnExists = filesizeColumnExists();
-		
-		if(!filesizeColumnExists)
-		{
-			addNewColumns();
+		if ( m_sqlService != null ) {
 			filesizeColumnExists = filesizeColumnExists();
-		}
-		if(! readyToUseFilesizeColumn())
-		{
-			// if the convert flag is set to add CONTEXT and FILE_SIZE columns
-			// start doing the conversion
-			if(convertToContextQueryForCollectionSize)
+			
+			if(!filesizeColumnExists)
 			{
-				populateNewColumns();
+				addNewColumns();
+				filesizeColumnExists = filesizeColumnExists();
+			}
+			if(! readyToUseFilesizeColumn())
+			{
+				// if the convert flag is set to add CONTEXT and FILE_SIZE columns
+				// start doing the conversion
+				if(convertToContextQueryForCollectionSize)
+				{
+					populateNewColumns();
+				}
 			}
 		}
 		

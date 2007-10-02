@@ -178,21 +178,11 @@ public class JCRStorage implements Storage
 		// level store
 		m_resourceDeleteStore = new BaseJCRStorage(jcrService, collectionUser,
 				JCRConstants.NT_FILE);
-		m_collectionStore.open();
-		m_resourceStore.open();
-		m_resourceDeleteStore.open();
 
 	}
 
 	public void destroy()
 	{
-		m_resourceDeleteStore.close();
-		m_resourceStore.close();
-		m_collectionStore.close();
-
-		m_collectionStore = null;
-		m_resourceStore = null;
-		m_resourceDeleteStore = null;
 
 	}
 

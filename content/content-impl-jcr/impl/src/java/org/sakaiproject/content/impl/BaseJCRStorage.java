@@ -166,23 +166,26 @@ public class BaseJCRStorage
 				log.info("--------------------------- Start Repository Populate");
 				currentSession = jcrService.setSession(null);
 				log.info("Got Current Session as   " + currentSession);
-				
-				
+
 				reset = true;
+
 				Session s = jcrService.login();
 				log.info("Prepopulating Nodes in repo");
 				Node n = createNode("/", JCRConstants.NT_FOLDER);
 				n.save();
 				for (Iterator<String> i = m_user.startupNodes(); i.hasNext();)
 				{
-					
+
 					String[] ndef = i.next().split(";");
 					log.info("       Creating " + ndef[0] + " as a " + ndef[1]);
 					n = createNode(ndef[0], ndef[1]);
-					if ( JCRConstants.NT_FOLDER.equals(ndef[1]) ) {
+					if (JCRConstants.NT_FOLDER.equals(ndef[1]))
+					{
 						n.setProperty(SakaiConstants.CHEF_IS_COLLECTION, "true");
-					} else {
-						n.setProperty(SakaiConstants.CHEF_IS_COLLECTION, "false");				
+					}
+					else
+					{
+						n.setProperty(SakaiConstants.CHEF_IS_COLLECTION, "false");
 					}
 					n.setProperty(SakaiConstants.SAKAI_CONTENT_PRIORITY, "2");
 					n.setProperty(SakaiConstants.CHEF_CREATOR, "admin");
@@ -190,14 +193,16 @@ public class BaseJCRStorage
 					n.setProperty(SakaiConstants.CHEF_MODIFIEDBY, "admin");
 					n.setProperty(SakaiConstants.SAKAI_HIDDEN, "false");
 					n.setProperty(DAVConstants.DAV_DISPLAYNAME, ndef[2]);
-					//n.setProperty(DAVConstants.DAV_GETLASTMODIFIED, davDate);
-					//n.setProperty(DAVConstants.DAV_CREATIONDATE, davDate);
+					// n.setProperty(DAVConstants.DAV_GETLASTMODIFIED, davDate);
+					// n.setProperty(DAVConstants.DAV_CREATIONDATE, davDate);
 					n.save();
 				}
 				log.info("Session is " + s);
-			// TODO: clean up	s.exportDocumentView("/sakai", System.out, true, false);
+				// TODO: clean up s.exportDocumentView("/sakai", System.out,
+				// true,
+				// false);
 				s.save();
-				s.logout();				
+				s.logout();
 				log.info("Creating Root Node: SUCCESS");
 
 			}
@@ -223,8 +228,11 @@ public class BaseJCRStorage
 						jcrService.setSession(currentSession);
 						currentSession = jcrService.getSession();
 						log.info("Session is " + currentSession);
-// TODO: clean up				//		currentSession.exportDocumentView("/sakai", System.out, true,
-				//				false);
+						// TODO: clean up //
+						// currentSession.exportDocumentView("/sakai",
+						// System.out,
+						// true,
+						// false);
 						for (Iterator<String> i = m_user.startupNodes(); i.hasNext();)
 						{
 							String[] ndef = i.next().split(";");
@@ -331,7 +339,7 @@ public class BaseJCRStorage
 
 			if (i != null && i.isNode())
 			{
-				//log.info("Found node " + id + " as " + i);
+				// log.info("Found node " + id + " as " + i);
 				return (Node) i;
 			}
 			else
@@ -425,8 +433,10 @@ public class BaseJCRStorage
 		{
 			Node n = getNodeById(value);
 			addMembers(n, l, false);
-		} else {
-			log.error("Unknown Type "+field);
+		}
+		else
+		{
+			log.error("Unknown Type " + field);
 		}
 		return l;
 	}
@@ -439,8 +449,10 @@ public class BaseJCRStorage
 			Node n = getNodeById(value);
 			addMembers(n, l, true);
 
-		} else {
-			log.error("Unknown Type "+field);
+		}
+		else
+		{
+			log.error("Unknown Type " + field);
 		}
 		return l;
 	}
@@ -596,15 +608,13 @@ public class BaseJCRStorage
 	 */
 	public Edit putDeleteResource(String id, String uuid, String userId, Object[] others)
 	{
-		throw new UnsupportedOperationException(
-				"No Possible since the deleted UUID cannot be shared ");
+		return null;
 	}
 
 	/** update XML attribute on properties and remove locks */
 	public void commitDeleteResource(Edit edit, String uuid)
 	{
-		throw new UnsupportedOperationException(
-				"No Possible since the deleted UUID cannot be shared ");
+		log.warn("commitDeleteResource is not currently Implemented: No Possible since the deleted UUID cannot be shared ");
 	}
 
 	/**
@@ -661,7 +671,8 @@ public class BaseJCRStorage
 			try
 			{
 				n.save();
-				if ( n.isLocked() ) {
+				if (n.isLocked())
+				{
 					n.unlock();
 				}
 			}
@@ -691,7 +702,8 @@ public class BaseJCRStorage
 		}
 		try
 		{
-			if ( n.isLocked() ) {
+			if (n.isLocked())
+			{
 				n.unlock();
 			}
 		}
@@ -748,10 +760,11 @@ public class BaseJCRStorage
 			Session s = jcrService.getSession();
 			Node n = getNodeFromSession(s, absPath);
 			// the node might already exist
-			if ( n != null ) {
+			if (n != null)
+			{
 				return n;
 			}
-			
+
 			String vpath = getParentPath(absPath);
 			while (n == null && !"/".equals(vpath))
 			{
@@ -829,7 +842,8 @@ public class BaseJCRStorage
 
 					}
 				}
-				if ( currentNode.isCheckedOut() ) {
+				if (currentNode.isCheckedOut())
+				{
 					currentNode.save();
 				}
 			}
@@ -846,7 +860,7 @@ public class BaseJCRStorage
 				throw new Error("Failed to create node " + absPath + " got "
 						+ node.getPath());
 			}
-			
+
 		}
 		catch (RepositoryException rex)
 		{
@@ -912,17 +926,24 @@ public class BaseJCRStorage
 	private void populateFile(Node node) throws RepositoryException
 	{
 		// JCR Types
-		node.addMixin(JCRConstants.MIX_REFERENCEABLE);
-		node.addMixin(JCRConstants.MIX_LOCKABLE);
-		node.addMixin(JCRConstants.MIX_SAKAIPROPERTIES);
+		if (jcrService.needsMixin(node, JCRConstants.MIX_REFERENCEABLE))
+		{
+			node.addMixin(JCRConstants.MIX_REFERENCEABLE);
+		}
+		if (jcrService.needsMixin(node, JCRConstants.MIX_LOCKABLE))
+		{
+			node.addMixin(JCRConstants.MIX_LOCKABLE);
+		}
+		if (jcrService.needsMixin(node, JCRConstants.MIX_SAKAIPROPERTIES))
+		{
+			node.addMixin(JCRConstants.MIX_SAKAIPROPERTIES);
+		}
 		Node resource = node.addNode(JCRConstants.JCR_CONTENT, JCRConstants.NT_RESOURCE);
 		resource.setProperty(JCRConstants.JCR_LASTMODIFIED, new GregorianCalendar());
 		resource.setProperty(JCRConstants.JCR_MIMETYPE, "application/octet-stream");
 		resource.setProperty(JCRConstants.JCR_DATA, "");
 		resource.setProperty(JCRConstants.JCR_ENCODING, "UTF-8");
-		
-		
-		
+
 	}
 
 	private void populateFolder(Node node) throws RepositoryException
@@ -930,9 +951,19 @@ public class BaseJCRStorage
 		// JCR Types
 		// TODO: perhpase
 		M_log.debug("Doing populate Folder");
-		node.addMixin(JCRConstants.MIX_LOCKABLE);
-		node.addMixin(JCRConstants.MIX_REFERENCEABLE);
-		node.addMixin(JCRConstants.MIX_SAKAIPROPERTIES);
+		if (jcrService.needsMixin(node, JCRConstants.MIX_LOCKABLE))
+		{
+			node.addMixin(JCRConstants.MIX_LOCKABLE);
+		}
+		if (jcrService.needsMixin(node, JCRConstants.MIX_REFERENCEABLE))
+		{
+			node.addMixin(JCRConstants.MIX_REFERENCEABLE);
+		}
+		if (jcrService.needsMixin(node, JCRConstants.MIX_SAKAIPROPERTIES))
+		{
+			node.addMixin(JCRConstants.MIX_SAKAIPROPERTIES);
+		}
+		
 		node.setProperty(JCRConstants.JCR_LASTMODIFIED, new GregorianCalendar());
 
 	}

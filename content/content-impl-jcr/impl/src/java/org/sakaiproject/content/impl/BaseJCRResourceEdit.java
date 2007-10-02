@@ -32,10 +32,8 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.impl.BaseContentService;
 import org.sakaiproject.content.impl.BaseContentService.BaseResourceEdit;
 import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.jcr.api.JCRConstants;
 import org.sakaiproject.jcr.api.JCRConstants;
 import org.w3c.dom.Element;
 

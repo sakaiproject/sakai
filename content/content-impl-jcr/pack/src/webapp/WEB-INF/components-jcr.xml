@@ -7,7 +7,7 @@
 
 
 
-  <bean id="org.sakaiproject.content.api.ContentHostingService.jcr"
+  <bean id="org.sakaiproject.content.api.ContentHostingService"
 			class="org.sakaiproject.content.impl.JCRContentService"
 			init-method="init"
 			destroy-method="destroy"
@@ -23,6 +23,8 @@
 		<property name="lockManager"><ref bean="org.sakaiproject.content.api.LockManager"/></property>
 		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
 		<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
  
 <!--        <property name="contentHostingHandlerResolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property> -->
  
@@ -49,7 +51,7 @@
 			destroy-method="destroy"
 			singleton="true">
 		<property name="jcrService"><ref bean="org.sakaiproject.jcr.api.JCRService" /></property>
-		<property name="jcrContentService"><ref bean="org.sakaiproject.content.api.ContentHostingService.jcr" /></property>
+		<property name="jcrContentService"><ref bean="org.sakaiproject.content.api.ContentHostingService" /></property>
 		<property name="resourceUser"><ref bean="org.sakaiproject.content.api.ContentHostingService.storageUser" /></property>
 		<property name="collectionUser"><ref bean="org.sakaiproject.content.api.ContentHostingService.storageUser" /></property>
 <!--		<property name="resolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver" /></property> -->
@@ -94,7 +96,7 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
-        <property name="baseContentService"><ref bean="org.sakaiproject.content.api.ContentHostingService.jcr"/></property>
+        <property name="baseContentService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
         <property name="createNodes" >
         	<list>
         		<value>/group;nt:folder;group</value>

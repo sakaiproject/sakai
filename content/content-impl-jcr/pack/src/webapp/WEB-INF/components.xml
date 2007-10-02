@@ -18,8 +18,8 @@
     <bean id="org.sakaiproject.content.impl.ContentServiceSqlMsSql"     class="org.sakaiproject.content.impl.ContentServiceSqlMsSql"   singleton="true"/>
     <bean id="org.sakaiproject.content.impl.ContentServiceSqlMySql"     class="org.sakaiproject.content.impl.ContentServiceSqlMySql"   singleton="true"/>
     <bean id="org.sakaiproject.content.impl.ContentServiceSqlOracle"    class="org.sakaiproject.content.impl.ContentServiceSqlOracle"  singleton="true"/>
-
-	<bean id="org.sakaiproject.content.api.ContentHostingService"
+<!--
+	<bean id="org.sakaiproject.content.api.ContentHostingService.dbservice"
 			class="org.sakaiproject.content.impl.DbContentService"
             init-method="init" destroy-method="destroy" singleton="true">
 
@@ -57,7 +57,7 @@
            </map>
         </property>
   	</bean>
-
+-->
 
 	<bean id="org.sakaiproject.content.api.ContentHostingHandlerResolver"
 			class="org.sakaiproject.content.impl.ContentHostingHandlerResolverImpl"

@@ -262,7 +262,6 @@ public class JCRStorageUser implements LiteStorageUser
 				throws RepositoryException
 		{
 
-
 			if (edit instanceof BaseResourceEdit)
 			{
 
@@ -323,12 +322,14 @@ public class JCRStorageUser implements LiteStorageUser
 						"false");
 				bre.setResourceType(ResourceType.TYPE_UPLOAD);
 			}
-			
-			
-			log.info("Checking for BaseGroupAwareEdit ");
+
+			log.debug("Checking for BaseGroupAwareEdit ");
 			if (edit instanceof BasicGroupAwareEdit)
 			{
-				log.info("IS Checking for BaseGroupAwareEdit ");
+				if (log.isDebugEnabled())
+				{
+					log.debug("IS Checking for BaseGroupAwareEdit ");
+				}
 				BasicGroupAwareEdit bedit = (BasicGroupAwareEdit) edit;
 				SimpleDateFormat sdf = new SimpleDateFormat(
 						SakaiConstants.SAKAI_DATE_FORMAT);
@@ -339,7 +340,11 @@ public class JCRStorageUser implements LiteStorageUser
 				{
 					Property pcd = n.getProperty(JCRConstants.JCR_CREATED);
 					String creationDate = sdf.format(pcd.getDate().getTime());
-					log.info("Setting Creation date on "+bedit.m_id+" to "+creationDate);
+					if (log.isDebugEnabled())
+					{
+						log.debug("Setting Creation date on " + bedit.m_id + " to "
+								+ creationDate);
+					}
 					bedit.m_properties.addProperty(ResourceProperties.PROP_CREATION_DATE,
 							creationDate);
 					bedit.m_properties.addProperty(ResourceProperties.PROP_MODIFIED_DATE,
@@ -354,13 +359,17 @@ public class JCRStorageUser implements LiteStorageUser
 				{
 					Property pmd = n.getProperty(JCRConstants.JCR_LASTMODIFIED);
 					String modifiedDate = sdf.format(pmd.getDate().getTime());
-					log.info("Setting Modification date on "+bedit.m_id+" to "+modifiedDate);
+					if (log.isDebugEnabled())
+					{
+						log.debug("Setting Modification date on " + bedit.m_id + " to "
+								+ modifiedDate);
+					}
 					bedit.m_properties.addProperty(ResourceProperties.PROP_MODIFIED_DATE,
 							modifiedDate);
 				}
 				catch (Exception ex)
 				{
-					log.warn("Failed to set Modified date " + ex.getMessage());
+					log.warn("Failed to set Modified date ",ex);
 				}
 			}
 
@@ -751,7 +760,7 @@ public class JCRStorageUser implements LiteStorageUser
 
 	private List<CustomConverter> collectionConverterList = new ArrayList<CustomConverter>();
 
-	private Map<String,String> namespaces;
+	private Map<String, String> namespaces;
 
 	public JCRStorageUser()
 	{
@@ -804,24 +813,19 @@ public class JCRStorageUser implements LiteStorageUser
 		resourceConverterList.add(hiddenConverter);
 		resourceConverterList.add(displayNameConverter);
 
-
 		// ignore these properties, they are protected
-		jcrTypes.put(JCRConstants.JCR_MIXINTYPES,IGNORE_PROPERTY);
-		jcrTypes.put(JCRConstants.JCR_LOCKISDEEP,IGNORE_PROPERTY);
-		jcrTypes.put(JCRConstants.JCR_PRIMARYTYPE,IGNORE_PROPERTY);
-		jcrTypes.put(JCRConstants.JCR_UUID,IGNORE_PROPERTY);
-		jcrTypes.put(JCRConstants.JCR_UUID,IGNORE_PROPERTY);
-		jcrTypes.put(JCRConstants.JCR_PREDECESSORS,IGNORE_PROPERTY);
-		
-		
+		jcrTypes.put(JCRConstants.JCR_MIXINTYPES, IGNORE_PROPERTY);
+		jcrTypes.put(JCRConstants.JCR_LOCKISDEEP, IGNORE_PROPERTY);
+		jcrTypes.put(JCRConstants.JCR_PRIMARYTYPE, IGNORE_PROPERTY);
+		jcrTypes.put(JCRConstants.JCR_UUID, IGNORE_PROPERTY);
+		jcrTypes.put(JCRConstants.JCR_UUID, IGNORE_PROPERTY);
+		jcrTypes.put(JCRConstants.JCR_PREDECESSORS, IGNORE_PROPERTY);
+
 		// these properties are dates
 		jcrTypes.put(SakaiConstants.SAKAI_RELEASE_DATE, PropertyType.TYPENAME_DATE);
 		jcrTypes.put(SakaiConstants.SAKAI_RETRACT_DATE, PropertyType.TYPENAME_DATE);
-		
-		
-		
-	}
 
+	}
 
 	public void destroy()
 	{
@@ -906,8 +910,10 @@ public class JCRStorageUser implements LiteStorageUser
 		// copy
 		if (e instanceof Edit)
 		{
-			log.info(" Instance of Edit "+e);
-
+			if (log.isDebugEnabled())
+			{
+				log.debug(" Instance of Edit " + e);
+			}
 			Edit edit = (Edit) e;
 			Map<String, GenericConverter> cmap = resourceConverterMap;
 			List<CustomConverter> clist = resourceConverterList;
@@ -920,7 +926,10 @@ public class JCRStorageUser implements LiteStorageUser
 			ResourceProperties rp = e.getProperties();
 			for (CustomConverter c : clist)
 			{
-				log.info("Converter Calling "+c);
+				if (log.isDebugEnabled())
+				{
+					log.debug("Converter Calling " + c);
+				}
 				c.convert(n, edit, rp);
 			}
 			for (PropertyIterator pi = n.getProperties(); pi.hasNext();)
@@ -931,17 +940,28 @@ public class JCRStorageUser implements LiteStorageUser
 				GenericConverter converter = cmap.get(ename);
 				if (converter != null)
 				{
-					log.info("Converter Calling "+converter+" for "+jname);
+					if (log.isDebugEnabled())
+					{
+						log.debug("Converter Calling " + converter + " for " + jname);
+					}
 					converter.copy(p, jname, rp, ename);
 				}
 				else
 				{
-					log.info("Converter Calling Default "+jname);
+					if (log.isDebugEnabled())
+					{
+						log.debug("Converter Calling Default " + jname);
+					}
 					defaultConverter.copy(p, jname, rp, ename);
 				}
 			}
-		} else {
-			log.info("Not an Instance of Edit "+e);
+		}
+		else
+		{
+			if (log.isDebugEnabled())
+			{
+				log.debug("Not an Instance of Edit " + e);
+			}
 		}
 	}
 
@@ -1156,7 +1176,10 @@ public class JCRStorageUser implements LiteStorageUser
 		{
 			if (isProtected(n, jname))
 			{
-				log.info(jname + " is protected ignoring ");
+				if (log.isDebugEnabled())
+				{
+					log.debug(jname + " is protected ignoring ");
+				}
 				return;
 			}
 			String stype = jcrTypes.get(jname);
@@ -1393,11 +1416,13 @@ public class JCRStorageUser implements LiteStorageUser
 		String entityName = jcrToEntity.get(name);
 		if (entityName == null)
 		{
-			String[] parts = name.split(":",2);
-			if  ( parts.length == 2 ) {
+			String[] parts = name.split(":", 2);
+			if (parts.length == 2)
+			{
 				String uri = namespaces.get(parts[0]);
-				if ( uri != null ) {
-					return uri+parts[1];
+				if (uri != null)
+				{
+					return uri + parts[1];
 				}
 			}
 			return name;
@@ -1408,20 +1433,22 @@ public class JCRStorageUser implements LiteStorageUser
 	/**
 	 * @param name
 	 * @return
-	 * @throws RepositoryException 
+	 * @throws RepositoryException
 	 */
-	private String convertEntityName2JCRName(String name) 
+	private String convertEntityName2JCRName(String name)
 	{
 		String jcrName = entityToJcr.get(name);
 		if (jcrName == null)
 		{
-			for( String prefix : namespaces.keySet() ) {
+			for (String prefix : namespaces.keySet())
+			{
 				String uri = namespaces.get(prefix);
-				if ( name.startsWith(uri) ) {
-					return prefix+":"+ name.substring(uri.length());
+				if (name.startsWith(uri))
+				{
+					return prefix + ":" + name.substring(uri.length());
 				}
 			}
-			
+
 			return name;
 		}
 		return jcrName;
@@ -1490,7 +1517,10 @@ public class JCRStorageUser implements LiteStorageUser
 		{
 			baseRef = baseRef.substring(0, baseRef.length() - 1);
 		}
-		log.info("Base Reference is " + baseRef);
+		if (log.isDebugEnabled())
+		{
+			log.debug("Base Reference is " + baseRef);
+		}
 		String id = ref;
 		if (ref.startsWith(baseRef))
 		{
@@ -1524,14 +1554,20 @@ public class JCRStorageUser implements LiteStorageUser
 				if (JCRConstants.NT_FILE.equals(nt.getName()))
 				{
 					Entity e = newResource(null, convertStorage2Id(n.getPath()), null);
-					log.info("Loading File from "+n);
+					if (log.isDebugEnabled())
+					{
+						log.debug("Loading File from " + n);
+					}
 					copy(n, e);
 					return e;
 				}
 				else if (JCRConstants.NT_FOLDER.equals(nt.getName()))
 				{
 					Entity e = newContainerById(convertStorage2Id(n.getPath()));
-					log.info("Loading Colletion from "+n);
+					if (log.isDebugEnabled())
+					{
+						log.debug("Loading Colletion from " + n);
+					}
 					copy(n, e);
 					return e;
 				}
@@ -1565,7 +1601,10 @@ public class JCRStorageUser implements LiteStorageUser
 			try
 			{
 				NodeType nt = n.getPrimaryNodeType();
-				log.info("Building resource from " + nt.getName());
+				if (log.isDebugEnabled())
+				{
+					log.debug("Building resource from " + nt.getName());
+				}
 				if (JCRConstants.NT_FILE.equals(nt.getName()))
 				{
 					Edit e = newResourceEdit(null, convertStorage2Id(n.getPath()), null);
@@ -1910,7 +1949,8 @@ public class JCRStorageUser implements LiteStorageUser
 	}
 
 	/**
-	 * @param namespaces the namespaces to set
+	 * @param namespaces
+	 *        the namespaces to set
 	 */
 	public void setNamespaces(Map<String, String> namespaces)
 	{
