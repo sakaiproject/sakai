@@ -239,8 +239,8 @@ function __SRC_makeCitationAnchor(href, anchorText, creatorText, sourceText)
 {
   var doubleQuoteRE 	= /&quot;/g
 
-  var wrapperPrefix   = "<span>";
-  var wrapperSuffix   = "</span>";
+  var wrapperPrefix   = "<span><br/>";
+  var wrapperSuffix   = "<br/></span>";
 
 	var citationText;
 	var newAnchor;
