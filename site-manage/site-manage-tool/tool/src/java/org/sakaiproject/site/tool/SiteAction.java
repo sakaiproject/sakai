@@ -7873,6 +7873,7 @@ public class SiteAction extends PagedResourceActionII {
 	private void addParticipantsFromMemberships(Map participantsMap, AuthzGroup realm, String providerCourseEid, Set memberships) {
 		if (memberships != null)
 		{
+			String sectionTitle = cms.getSection(providerCourseEid).getTitle();
 			for (Iterator mIterator = memberships.iterator();mIterator.hasNext();)
 			{
 				Membership m = (Membership) mIterator.next();
@@ -7888,7 +7889,7 @@ public class SiteAction extends PagedResourceActionII {
 						if (participantsMap.containsKey(userId))
 						{
 							participant = (Participant) participantsMap.get(userId);
-							participant.section = participant.section.concat(", <br />" + cms.getSection(providerCourseEid).getTitle());
+							participant.section = participant.section.concat(", <br />" + sectionTitle);
 						}
 						else
 						{
@@ -7899,7 +7900,7 @@ public class SiteAction extends PagedResourceActionII {
 							participant.regId = "";
 							participant.removeable = false;
 							participant.role = member.getRole()!=null?member.getRole().getId():"";
-							participant.section = cms.getSection(providerCourseEid).getTitle();
+							participant.section = sectionTitle;
 							participant.uniqname = userId;
 						}
 						
