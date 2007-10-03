@@ -157,6 +157,8 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	
 	private boolean diagnostics;
 
+	private boolean enabled;
+
 
 	
 	public abstract String getStatus();
@@ -1051,4 +1053,20 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		this.serverConfigurationService = serverConfigurationService;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.SearchService#isEnabled()
+	 */
+	public boolean isEnabled()
+	{
+		enabled = "true".equals(serverConfigurationService.getString("search.enable",
+		"false"));
+
+		log.info("Enable = "
+				+ serverConfigurationService.getString("search.enable", "false"));
+
+		enabled = enabled
+			& "true".equals(serverConfigurationService.getString("search.indexbuild",
+				"true"));
+		return enabled;
+	}
 }

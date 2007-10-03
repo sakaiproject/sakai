@@ -34,6 +34,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.journal.api.IndexListener;
 
 /**
@@ -63,9 +65,18 @@ public class ConcurrentIndexManager implements IndexListener
 
 	private int nropen = 0;
 
+	private SearchService searchService;
+
+
 
 	public void init()
 	{
+		
+
+		if ( !searchService.isEnabled() ) {
+			return;
+		}
+		
 		for (Iterator<IndexManagementTimerTask> i = tasks.iterator(); i.hasNext();)
 		{
 			IndexManagementTimerTask task = i.next();
@@ -234,6 +245,23 @@ public class ConcurrentIndexManager implements IndexListener
 	public void setCloseDelay(long closeDelay)
 	{
 		this.closeDelay = closeDelay;
+	}
+
+
+	/**
+	 * @return the searchService
+	 */
+	public SearchService getSearchService()
+	{
+		return searchService;
+	}
+
+	/**
+	 * @param searchService the searchService to set
+	 */
+	public void setSearchService(SearchService searchService)
+	{
+		this.searchService = searchService;
 	}
 
 }

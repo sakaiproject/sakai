@@ -268,5 +268,10 @@ public interface SearchService extends Diagnosable
 	 */
 	String searchXML(Map parameterMap);
 
+	/**
+	 * @return
+	 */
+	boolean isEnabled();
+
 
 }

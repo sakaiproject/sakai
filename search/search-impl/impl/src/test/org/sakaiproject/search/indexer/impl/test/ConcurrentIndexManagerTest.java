@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.journal.api.ManagementOperation;
 import org.sakaiproject.search.journal.impl.ConcurrentIndexManager;
 import org.sakaiproject.search.journal.impl.IndexManagementTimerTask;
+import org.sakaiproject.search.mock.MockSearchService;
 
 import junit.framework.TestCase;
 
@@ -104,6 +105,7 @@ public class ConcurrentIndexManagerTest extends TestCase
 			limtt.add(imtt);
 		}
 		cim.setTasks(limtt);
+		cim.setSearchService(new MockSearchService());
 		cim.init();
 		Thread.sleep(30 * 100);
 		assertEquals("Not all tasks ran ", 20, nrun);

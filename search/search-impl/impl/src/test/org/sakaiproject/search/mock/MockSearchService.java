@@ -368,4 +368,12 @@ public class MockSearchService implements SearchService
 		this.datasource = datasource;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.SearchService#isEnabled()
+	 */
+	public boolean isEnabled()
+	{
+		return true;
+	}
+
 }

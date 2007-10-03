@@ -252,7 +252,6 @@ public class SearchIndexerNode
 
 		ConcurrentSearchIndexBuilderWorkerImpl csibw = new ConcurrentSearchIndexBuilderWorkerImpl();
 		csibw.setComponentManager(componentManager);
-		csibw.setServerConfigurationService(serverConfigurationService);
 		csibw.setEventTrackingService(eventTrackingService);
 		csibw.setIndexWorker(tiw);
 		csibw.setSearchService(searchService);
@@ -366,6 +365,7 @@ public class SearchIndexerNode
 		journalOptimizer.setPeriod(1000);
 		taskList.add(journalOptimizer);
 
+		cim.setSearchService(searchService);
 		cim.setTasks(taskList);
 		cim.init();
 

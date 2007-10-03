@@ -189,6 +189,7 @@
     	id="org.sakaiproject.search.api.SearchService.parallel.index.concurrentIndexManager"
 	   	init-method="init" 
     	destroy-method="destroy" >
+    	<property name="searchService"><ref bean="org.sakaiproject.saerch.api.SearchService" /></property>
 		<property name="tasks" >
 			<list>
 			<ref bean="org.sakaiproject.search.api.SearchService.parallel.index.indexer" />
@@ -287,7 +288,6 @@
 	   	init-method="init" 
     	destroy-method="destroy" >
 			<property name="componentManager"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.componentManager" /></property>
-			<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
 			<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService" /></property>
 			<property name="indexWorker"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.transactionalIndexWorker" /></property>
 			<property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService" /></property>

@@ -27,7 +27,7 @@ import java.util.Observer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.indexer.api.IndexWorker;
@@ -73,10 +73,6 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	 */
 	private IndexWorker indexWorker;
 
-	/**
-	 * dependency
-	 */
-	private ServerConfigurationService serverConfigurationService;
 
 	/**
 	 * dependency
@@ -121,6 +117,8 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 
 	private JournalSettings journalSettings;
 
+	private SqlService sqlService;
+
 	public void destroy()
 	{
 
@@ -138,18 +136,15 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 			log.warn("Component manager Shutdown in progress, will not startup");
 			return;
 		}
+		
+		enabled = searchService.isEnabled(); 
+
 		started = true;
 		runThreads = true;
 
-		enabled = "true".equals(serverConfigurationService.getString("search.enable",
-				"false"));
-
-		log.info("Enable = "
-				+ serverConfigurationService.getString("search.enable", "false"));
-
-		enabled = enabled
-				& "true".equals(serverConfigurationService.getString("search.indexbuild",
-						"true"));
+		if ( !enabled ) {
+			return;
+		}
 
 		eventTrackingService.addLocalObserver(new Observer()
 		{
@@ -170,7 +165,6 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	{
 		if (!enabled)
 		{
-			log.info("Search not enabled ");
 			return;
 		}
 		if (componentManager.hasBeenClosed())
@@ -400,24 +394,6 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	}
 
 	/**
-	 * @return the serverConfigurationService
-	 */
-	public ServerConfigurationService getServerConfigurationService()
-	{
-		return serverConfigurationService;
-	}
-
-	/**
-	 * @param serverConfigurationService
-	 *        the serverConfigurationService to set
-	 */
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService)
-	{
-		this.serverConfigurationService = serverConfigurationService;
-	}
-
-	/**
 	 * @return the sessionManager
 	 */
 	public SessionManager getSessionManager()
@@ -466,6 +442,22 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	public void setJournalSettings(JournalSettings journalSettings)
 	{
 		this.journalSettings = journalSettings;
+	}
+
+	/**
+	 * @return the sqlService
+	 */
+	public SqlService getSqlService()
+	{
+		return sqlService;
+	}
+
+	/**
+	 * @param sqlService the sqlService to set
+	 */
+	public void setSqlService(SqlService sqlService)
+	{
+		this.sqlService = sqlService;
 	}
 
 }

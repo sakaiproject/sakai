@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.component.service.impl;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,6 +53,7 @@ public class ConcurrentSearchServiceImpl extends BaseSearchServiceImpl
 	{
 
 		super.init();
+		
 
 		try
 		{
@@ -67,6 +69,7 @@ public class ConcurrentSearchServiceImpl extends BaseSearchServiceImpl
 			catch (Exception ex)
 			{
 				log.error("Perform additional SQL setup", ex);
+				
 				
 			}
 
@@ -196,6 +199,19 @@ public class ConcurrentSearchServiceImpl extends BaseSearchServiceImpl
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.component.service.impl.BaseSearchServiceImpl#isEnabled()
+	 */
+	@Override
+	public boolean isEnabled()
+	{
+		String resource = SqlService.getVendor() + "/sakai_search_parallel.sql";
+		// find the resource from the loader
+		if ( this.getClass().getClassLoader().getResourceAsStream(resource) == null ) {
+			return false;
+		}
+		return super.isEnabled();
+	}
 
 
 }
