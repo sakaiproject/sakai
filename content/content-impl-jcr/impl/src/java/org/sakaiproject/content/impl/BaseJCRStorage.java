@@ -614,7 +614,8 @@ public class BaseJCRStorage
 	/** update XML attribute on properties and remove locks */
 	public void commitDeleteResource(Edit edit, String uuid)
 	{
-		log.warn("commitDeleteResource is not currently Implemented: No Possible since the deleted UUID cannot be shared ");
+		log
+				.warn("commitDeleteResource is not currently Implemented: No Possible since the deleted UUID cannot be shared ");
 	}
 
 	/**
@@ -691,25 +692,28 @@ public class BaseJCRStorage
 	 */
 	public void cancelResource(Edit edit)
 	{
-		Node n = getNodeById(edit.getId());
-		try
+		if (jcrService.hasActiveSession())
 		{
-			n.refresh(false);
-		}
-		catch (RepositoryException e)
-		{
-			M_log.warn("Failed to cancel Edit ", e);
-		}
-		try
-		{
-			if (n.isLocked())
+			Node n = getNodeById(edit.getId());
+			try
 			{
-				n.unlock();
+				n.refresh(false);
 			}
-		}
-		catch (RepositoryException e)
-		{
-			M_log.warn("Failed to un Lock ", e);
+			catch (RepositoryException e)
+			{
+				M_log.warn("Failed to cancel Edit ", e);
+			}
+			try
+			{
+				if (n.isLocked())
+				{
+					n.unlock();
+				}
+			}
+			catch (RepositoryException e)
+			{
+				M_log.warn("Failed to un Lock ", e);
+			}
 		}
 	}
 
@@ -963,7 +967,7 @@ public class BaseJCRStorage
 		{
 			node.addMixin(JCRConstants.MIX_SAKAIPROPERTIES);
 		}
-		
+
 		node.setProperty(JCRConstants.JCR_LASTMODIFIED, new GregorianCalendar());
 
 	}

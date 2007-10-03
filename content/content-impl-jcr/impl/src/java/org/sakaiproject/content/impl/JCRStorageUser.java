@@ -357,19 +357,42 @@ public class JCRStorageUser implements LiteStorageUser
 
 				try
 				{
-					Property pmd = n.getProperty(JCRConstants.JCR_LASTMODIFIED);
-					String modifiedDate = sdf.format(pmd.getDate().getTime());
-					if (log.isDebugEnabled())
+					if (n.hasNode(JCRConstants.JCR_CONTENT))
 					{
-						log.debug("Setting Modification date on " + bedit.m_id + " to "
-								+ modifiedDate);
+						Node content = n.getNode(JCRConstants.JCR_CONTENT);
+						Property pmd = content.getProperty(JCRConstants.JCR_LASTMODIFIED);
+						String modifiedDate = sdf.format(pmd.getDate().getTime());
+						if (log.isDebugEnabled())
+						{
+							log.debug("Setting Modification date on " + bedit.m_id
+									+ " to " + modifiedDate);
+						}
+						bedit.m_properties.addProperty(
+								ResourceProperties.PROP_MODIFIED_DATE, modifiedDate);
 					}
-					bedit.m_properties.addProperty(ResourceProperties.PROP_MODIFIED_DATE,
-							modifiedDate);
+
 				}
 				catch (Exception ex)
 				{
-					log.warn("Failed to set Modified date ",ex);
+					try
+					{
+						log.warn("Failed to set Modified date ", ex);
+						log.info("Primary Node Type is " + n.getPrimaryNodeType());
+						for (NodeType nt : n.getMixinNodeTypes())
+						{
+							log.info(" Mixing  " + nt);
+						}
+						for (PropertyIterator pi = n.getProperties(); pi.hasNext();)
+						{
+							Property p = pi.nextProperty();
+							log.info(" Property [" + p.getName() + "][" + p.getString()
+									+ "]");
+						}
+					}
+					catch (Exception ex2)
+					{
+						log.info("Failed to debug ", ex2);
+					}
 				}
 			}
 

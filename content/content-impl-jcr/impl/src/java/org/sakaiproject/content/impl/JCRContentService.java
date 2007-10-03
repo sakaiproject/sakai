@@ -93,8 +93,10 @@ public class JCRContentService extends DbContentService
 		{
 			try
 			{
-				sessionManager.setCurrentSession(null);
-				session.invalidate();
+// There are plenty of other things in the startup thread that need setting
+// so we will keep the session arround
+//				sessionManager.setCurrentSession(null);
+//				session.invalidate();
 			}
 			catch (Exception ex)
 			{
