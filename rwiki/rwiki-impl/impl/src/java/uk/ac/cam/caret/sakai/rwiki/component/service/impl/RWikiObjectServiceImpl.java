@@ -1273,10 +1273,11 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	public boolean parseEntityReference(String reference, Reference ref)
 	{
+		if (!reference.startsWith(REFERENCE_ROOT)) return false;
 		EntityHandler eh = findEntityReferenceMatch(reference);
-		if (eh == null) return false;
-		eh.setReference(APPLICATION_ID, ref, reference);
-
+		if (eh != null) {
+			eh.setReference(APPLICATION_ID, ref, reference);
+		}
 		return true;
 	}
 
@@ -1351,7 +1352,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					EntityCopyrightException
 
 			{
-				checkReference(ref);
+				try
+				{
+					checkReference(ref);
+				}
+				catch (Throwable t)
+				{
+					throw new EntityNotDefinedException(ref.getId());
+				}
 				try
 				{
 
@@ -1474,8 +1482,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	{
 		if (!APPLICATION_ID.equals(ref.getType()))
 			throw new RuntimeException(
-					"Request Routed to incorrect EntityProducer by the kernel expected " //$NON-NLS-1$
-							+ APPLICATION_ID + " got " + ref.getType()); //$NON-NLS-1$
+					"Wiki page does not exist, sorry "); //$NON-NLS-1$
 
 	}
 
