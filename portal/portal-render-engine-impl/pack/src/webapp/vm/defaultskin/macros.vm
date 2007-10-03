@@ -309,7 +309,7 @@ ${tool.toolRenderResult.getTitle()}
 #end
 #end
 #if ($tabsMoreSitesShow && $useDHTMLMore)
-				<li><a href="#" onclick="$('div#selectNav').slideToggle()" title="${rloader.sit_more}">${rloader.sit_more}</a></li>
+				<li class="more-tab"><a href="#" onclick="return dhtml_more_tabs();" title="${rloader.sit_more}"><span class="outer"><span class="inner">${rloader.sit_more_tab}</span></span></a></li>
 #end
 				<li style="display:none;border-width:0" class="fixTabsIE">
 					<a href="javascript:void(0);">#x20;</a>
@@ -350,7 +350,7 @@ ${tool.toolRenderResult.getTitle()}
 			#foreach( $termKey in $tabsMoreSortedTermList)
 			<div class="termContainer">
                         #if ( !$termKey || $termKey == "" )
-				<h4>No Term</h4>
+				<h4>${rloader.sit_notermkey}</h4>
 			#else
 				<h4>$termKey</h4>
 			#end
@@ -369,7 +369,7 @@ ${tool.toolRenderResult.getTitle()}
 			</ul>
 			</div> <!-- /termContainer -->
 #end
-	
+			<div id="more_tabs_instr">${rloader.sit_moretab_inst}</div>
 		</div> <!-- /  -->
 	
 	</div> <!-- /selectNav -->
