@@ -360,7 +360,7 @@ public class QuestionScoreListener implements ActionListener,
 									.getSequence().intValue() || (pubItemText
 									.getSequence().intValue() == tmpPublishedText
 									.getSequence().intValue() && pubAnswer
-									.getSequence().intValue() < tmpPublishedText
+									.getSequence().intValue() < tmpAnswer
 									.getSequence().intValue()))) {
 						newList.add(idata);
 						added = true;
