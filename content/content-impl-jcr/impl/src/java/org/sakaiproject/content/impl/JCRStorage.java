@@ -305,23 +305,18 @@ public class JCRStorage implements Storage
 		{
 			if (resolver != null && goin)
 			{
-				log.info("Resolving Collection [" + id + "]:" + position());
 				cc = resolver.getCollection(id);
-				log.info("Resolving Collection [" + id + "]:" + position() + " as " + cc);
 				return (ContentCollection) collectionCache.put(id, cc);
 			}
 			else
 			{
-				log.info("Getting Collection [" + id + "]:" + position());
 				cc = (ContentCollection) m_collectionStore
 						.getResource(id);
-				log.info("Getting Collection [" + id + "]:" + position() + " as " + cc);
 				return (ContentCollection) collectionCache.put(id, cc);
 			}
 		}
 		finally
 		{
-			log.info("Done getCollection(" + id + "):" + position());
 			out();
 		}
 
@@ -579,14 +574,11 @@ public class JCRStorage implements Storage
 		{
 			if (resolver != null && goin)
 			{
-				log.info("Resolving Resource [" + id + "]:" + position());
 				cr = (ContentResource) resolver.getResource(id);
-				log.info("Resolving Resource [" + id + "]:" + position() + " as " + cr);
 				return (ContentResource) resourceCache.put(id, cr);
 			}
 			else
 			{
-				log.info("Getting Resource [" + id + "]:" + position());
 				Entity ce =  m_resourceStore.getResource(id);
 				if ( ce != null ) {
 					if ( ! (ce instanceof ContentResource) ) {
@@ -594,16 +586,13 @@ public class JCRStorage implements Storage
 					} else {
 						cr = (ContentResource) ce;
 					}
-					log.info("Got Resource [" + id + "]:" + position() + " as " + ce.getId());
 				} else {
-					log.info("Getting Resource [" + id + "]:" + position() + " was null " );					
 				}
 				return (ContentResource) resourceCache.put(id, cr);
 			}
 		}
 		finally
 		{
-			log.info("Done getResource(" + id + "):" + position());
 			out();
 		}
 	}

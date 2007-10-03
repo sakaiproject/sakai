@@ -137,7 +137,6 @@ public class BaseJCRStorage
 	public BaseJCRStorage(JCRService jcrService, LiteStorageUser storageUser,
 			String nodeType)
 	{
-		log.info("Setting jcrService to " + jcrService);
 		this.jcrService = jcrService;
 		this.m_user = storageUser;
 		this.nodeType = nodeType;
@@ -224,15 +223,8 @@ public class BaseJCRStorage
 				{
 					try
 					{
-						log.info("Setting Session to  " + currentSession);
 						jcrService.setSession(currentSession);
 						currentSession = jcrService.getSession();
-						log.info("Session is " + currentSession);
-						// TODO: clean up //
-						// currentSession.exportDocumentView("/sakai",
-						// System.out,
-						// true,
-						// false);
 						for (Iterator<String> i = m_user.startupNodes(); i.hasNext();)
 						{
 							String[] ndef = i.next().split(";");
@@ -288,7 +280,6 @@ public class BaseJCRStorage
 		{
 
 			Entity e = m_user.newResource(n);
-			M_log.info("New Resource is " + e);
 			return e;
 		}
 		catch (Exception e)
@@ -339,7 +330,6 @@ public class BaseJCRStorage
 
 			if (i != null && i.isNode())
 			{
-				// log.info("Found node " + id + " as " + i);
 				return (Node) i;
 			}
 			else
@@ -356,7 +346,6 @@ public class BaseJCRStorage
 			M_log.warn("Node Not Found " + id + " cause:" + re.getMessage());
 
 		}
-		log.info("Returning Null, node " + id + " not found");
 		return null;
 	}
 
@@ -379,7 +368,6 @@ public class BaseJCRStorage
 		Node n = getNodeById("/");
 		if (n == null)
 		{
-			log.info("No Node found hence empty");
 			return true;
 		}
 		try
@@ -759,7 +747,6 @@ public class BaseJCRStorage
 		Node node = null;
 		try
 		{
-			M_log.info("Creating Node " + id + " of type " + type);
 			String absPath = m_user.convertId2Storage(id);
 			Session s = jcrService.getSession();
 			Node n = getNodeFromSession(s, absPath);
@@ -779,14 +766,14 @@ public class BaseJCRStorage
 				}
 				else
 				{
-					log.info("Got Path " + vpath + " as " + n);
+					log.debug("Got Path " + vpath + " as " + n);
 				}
 			}
 			if (n == null)
 			{
 				n = s.getRootNode();
 			}
-			log.info("VPath is " + vpath);
+			log.debug("VPath is " + vpath);
 			String relPath = absPath.substring(vpath.length());
 			// Node rootNode = s.getRootNode();
 			if (relPath.startsWith("/"))
@@ -795,11 +782,11 @@ public class BaseJCRStorage
 			}
 
 			String[] pathElements = relPath.split("/");
-			log.info("RelPath is " + relPath + " split into " + pathElements.length
+			log.debug("RelPath is " + relPath + " split into " + pathElements.length
 					+ " elements ");
 			for (String pathel : pathElements)
 			{
-				log.info("       Path Element is [" + pathel + "]");
+				log.debug("       Path Element is [" + pathel + "]");
 			}
 
 			Node currentNode = n;
@@ -807,7 +794,7 @@ public class BaseJCRStorage
 			{
 				try
 				{
-					log.info("Getting " + pathElements[i] + " under " + currentNode);
+					log.debug("Getting " + pathElements[i] + " under " + currentNode);
 					currentNode = currentNode.getNode(pathElements[i]);
 					if (!currentNode.isNodeType(JCRConstants.NT_FOLDER)
 							&& !currentNode.isNodeType(JCRConstants.NT_BASE))

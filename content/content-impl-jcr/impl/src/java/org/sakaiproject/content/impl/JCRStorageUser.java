@@ -22,8 +22,6 @@
 package org.sakaiproject.content.impl;
 
 import java.io.ByteArrayInputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,7 +30,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jcr.Node;
@@ -53,9 +50,8 @@ import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.impl.BaseContentService.BaseCollectionEdit;
 import org.sakaiproject.content.impl.BaseContentService.BaseResourceEdit;
 import org.sakaiproject.content.impl.BaseContentService.BasicGroupAwareEdit;
-import org.sakaiproject.content.impl.BaseJCRCollectionEdit;
-import org.sakaiproject.content.impl.BaseJCRResourceEdit;
 import org.sakaiproject.content.impl.jcr.SakaiConstants;
+import org.sakaiproject.content.impl.util.GMTDateformatter;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -331,15 +327,11 @@ public class JCRStorageUser implements LiteStorageUser
 					log.debug("IS Checking for BaseGroupAwareEdit ");
 				}
 				BasicGroupAwareEdit bedit = (BasicGroupAwareEdit) edit;
-				SimpleDateFormat sdf = new SimpleDateFormat(
-						SakaiConstants.SAKAI_DATE_FORMAT);
-				TimeZone zGMT = TimeZone.getTimeZone("GMT");
-				sdf.setTimeZone(zGMT);
 
 				try
 				{
 					Property pcd = n.getProperty(JCRConstants.JCR_CREATED);
-					String creationDate = sdf.format(pcd.getDate().getTime());
+					String creationDate = GMTDateformatter.format(pcd.getDate().getTime());
 					if (log.isDebugEnabled())
 					{
 						log.debug("Setting Creation date on " + bedit.m_id + " to "
@@ -361,7 +353,7 @@ public class JCRStorageUser implements LiteStorageUser
 					{
 						Node content = n.getNode(JCRConstants.JCR_CONTENT);
 						Property pmd = content.getProperty(JCRConstants.JCR_LASTMODIFIED);
-						String modifiedDate = sdf.format(pmd.getDate().getTime());
+						String modifiedDate = GMTDateformatter.format(pmd.getDate().getTime());
 						if (log.isDebugEnabled())
 						{
 							log.debug("Setting Modification date on " + bedit.m_id
@@ -1086,18 +1078,7 @@ public class JCRStorageUser implements LiteStorageUser
 						}
 						else
 						{
-							GregorianCalendar gc = new GregorianCalendar();
-							SimpleDateFormat sdf = new SimpleDateFormat(
-									SakaiConstants.SAKAI_DATE_FORMAT);
-							try
-							{
-								gc.setTime(sdf.parse(String.valueOf(ov)));
-							}
-							catch (ParseException e)
-							{
-								log.error("Failed to parse Date Value ", e);
-							}
-
+							GregorianCalendar gc = GMTDateformatter.parseGregorian(String.valueOf(ov));
 							sv[i] = vf.createValue(gc);
 						}
 					}
@@ -1258,20 +1239,7 @@ public class JCRStorageUser implements LiteStorageUser
 						}
 						else
 						{
-							GregorianCalendar gc = new GregorianCalendar();
-							SimpleDateFormat sdf = new SimpleDateFormat(
-									SakaiConstants.SAKAI_DATE_FORMAT);
-							TimeZone tzGMT = TimeZone.getTimeZone("GMT");
-							sdf.setTimeZone(tzGMT);
-							try
-							{
-								gc.setTime(sdf.parse(String.valueOf(ov)));
-							}
-							catch (ParseException e)
-							{
-								log.error("Failed to parse Date Value ", e);
-							}
-
+							GregorianCalendar gc = GMTDateformatter.parseGregorian(String.valueOf(ov));
 							n.setProperty(jname, gc);
 						}
 					}
