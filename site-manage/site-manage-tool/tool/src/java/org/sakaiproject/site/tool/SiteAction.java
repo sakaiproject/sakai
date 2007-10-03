@@ -1680,8 +1680,11 @@ public class SiteAction extends PagedResourceActionII {
 								&& !isGradToolSite) {
 							// hide site duplicate and import
 							// for GRADTOOLS type of sites
-							b.add(new MenuEntry(rb.getString("java.duplicate"),
-									"doMenu_siteInfo_duplicate"));
+							if (SiteService.allowAddSite(null))
+							{
+								b.add(new MenuEntry(rb.getString("java.duplicate"),
+										"doMenu_siteInfo_duplicate"));
+							}
 
 							List updatableSites = SiteService
 									.getSites(
