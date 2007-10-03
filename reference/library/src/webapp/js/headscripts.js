@@ -598,3 +598,15 @@ function privacy_hide_popup(){
    if(document.getElementById("privacy_overlay")){document.body.removeChild(document.getElementById("privacy_overlay"));}
    if(document.getElementById("privacy_tool_popup")){document.getElementById("privacy_tool_popup").style.display="none";}
 }
+
+function browserSafeDocHeight() {
+	docHeight = Math.max(document.body.scrollHeight,document.body.offsetHeight) ;
+	if (window.innerHeight) {  // all except Explorer
+		winHeight = window.innerHeight;
+	} else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
+		winHeight = document.documentElement.clientHeight;
+	} else if (document.body) { // other Explorers
+		winHeight =  document.body.clientHeight;
+	}
+	return Math.max(winHeight,docHeight); 
+}

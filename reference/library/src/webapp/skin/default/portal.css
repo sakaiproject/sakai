@@ -20,7 +20,7 @@ body{
 /*wrapper masthead  and site navigation 
  two possible states - logged in headerMax, not logged in - headerMin*/
 #headerMax,#headerMin{
-	width: 98%;
+	width: 100%;
 	margin: 1em auto 0 auto;
 	height:100%;
 	overflow:hidden;
@@ -56,7 +56,7 @@ can set display:none if needed because the list-style is taking care of it*/
 #container{
 	width: 98%;
 	clear:both;
-	margin: 1em auto;
+	margin: 0 auto;
 	padding-top: 10px;
 }
 
@@ -162,6 +162,7 @@ site types are a local setting - adjust */
 that can be used or hidden,can also use a background:url(images/<image name>.<ext>) in this block,or both superimposing them*/
 #mastLogo{
 	float: left;
+	margin-left: 0.2em;
 	width: auto;
 }
 
@@ -258,14 +259,16 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 /*PART 4 - SITE NAVIGATION - children of #siteNavBlock*/
 /*outer wrapper for the site navigation blocks - it is a class,not an id because it can be overloaded with other values having to do with site type
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
-.siteNavWrap{
+
+.siteNavWrap {
+	position: relative;
 	width: 100%;
-	background: #09c url(images/sitenavback.jpg) top left repeat-x;
-	padding: 0;
-	margin: 0;
+	background: #88D0E8 url(images/blue-border.gif) repeat-x center bottom;
 	float: left;
-	border-top: 1px solid #09c;
-	clear:both;
+	clear: both;
+	font-size: 100%;
+	line-height: normal;
+	z-index: 2000;
 }
 
 /*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
@@ -275,22 +278,27 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /*wrapper for the site link list   - the #siteLinkList child)*/
 #linkNav{
-	float:left
+	position: relative;
+	display: block;
+	float:left;
 }
+
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 #selectNav{
-	padding: .4em .4em .2em .2em;
+	padding: 0;
 	text-align: right;
 	vertical-align: middle;
-	float:right
+	margin: 0.2em 0 0 0.6em;
+	float: left;
 }
 
 /*the <select> contextually defined*/
 #selectNav select{
 	display:inline;
-	font-size: .8em;
-	margin: 0 3px;
+	font-size: .9em;
+	margin: 7px 0 0 ;
 	padding: 0;
+	border: 2px solid #0077B5;
 }
 
 #selectNav select option{
@@ -299,53 +307,192 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /*a ul - the li below are outer wrappers for the links to sites */
 #siteLinkList{
-/*	white-space: nowrap;*/
-	line-height:2em;
-	list-style: none none none;
-	font-size: 1em;
+	white-space: nowrap;
+	list-style-image:none;
+	list-style-position:outside;
+	list-style-type:none;
 	margin: 0;	
-	padding: 4px 0;
-	width: auto;
+	padding: 6px 0 0 6px;
+	float: left;
 }
 
 /*list elements - children are <span> and <a>*/
-#siteLinkList li{
-	display: inline;
-	line-height: 2em;
+#siteLinkList li {
+	position: relative;
+	background:transparent url(images/tab-left.gif) no-repeat scroll left top;
+	display:block;
+	float:left;
+	margin:0 2px 0 0;
+	padding:0 0 0 11px;
+	border-bottom: 2px solid #013F68;
 }
 
 /*span shim for fine grained manipulation of link display (decorative)*/
 #siteLinkList li span{
 }
 
-/*the current sites' link*/
-#siteLinkList .selectedTab a,
-	#siteLinkList .selectedTab a:link,
-	#siteLinkList .selectedTab a:visited,
-	#siteLinkList .selectedTab a:hover{
-	color: #000;
-	cursor: text;
-	text-decoration: none;
-}
-
 /*links to other sites*/
-#siteLinkList a,#siteLinkList a:link,#siteLinkList a:visited{
-	color: #fff;
-	padding: 2px 6px 2px 4px;
-	text-decoration: underline;
-	border-right: 1px solid #fff;
+#siteLinkList li a, #siteLinkList li a:link, #siteLinkList li a:visited {
+	background: transparent url(images/tab-right.gif) no-repeat right top;
+	color: #FFFFFF;
+	display: block;
+	float: left;
+	margin: 0pt;
+	padding: 8px 13px 3px 2px;
+	text-decoration: none;
 }
 
-/*hover state for links to other sites*/
-#siteLinkList a:hover{
-	color: #fff;
+#siteLinkList a:hover {
+	text-decoration: underline;
+}
+
+/*the current sites' link - consists of the li and a*/
+#siteLinkList li.selectedTab {
+	background:transparent url(images/tab-left-selected.gif) no-repeat scroll left top;
+	border-width: 0;
+}
+
+#siteLinkList li.selectedTab a,
+	#siteLinkList li.selectedTab a:link,
+	#siteLinkList li.selectedTab a:visited,
+	#siteLinkList li.selectedTab a:hover {
+	background:transparent url(images/tab-right-selected.gif) no-repeat scroll right top;
+	color:#000000;
+	font-weight: bolder;
 	text-decoration: none;
+	padding: 8px 11px 5px 0;
+}
+
+#siteLinkList li.tab-dim {
+	background: transparent url(images/tab-left-selected.gif) no-repeat scroll left top;
+}
+
+#siteLinkList li.tab-dim a,
+	#siteLinkList li.tab-dim a:link,
+	#siteLinkList li.tab-dim a:visited,
+	#siteLinkList li.tab-dim a:hover {
+	color: #666;
+	background:transparent url(images/tab-right-selected.gif) no-repeat scroll right top;
+	padding-bottom: 3px;
+}
+
+#siteLinkList li.more-active {
+	background: transparent url(images/tab-left-selected.gif) no-repeat scroll left top;	
+	border-width: 0;
+}
+
+#siteLinkList li.more-active a,
+	#siteLinkList li.more-active a:link,
+	#siteLinkList li.more-active a:visited {
+	background:transparent url(images/tab-right-selected.gif) no-repeat scroll right top;
+	color:#000000;
+	font-weight: bolder;
+	text-decoration: none;
+	padding-bottom: 5px;
+}
+
+#siteLinkList li.more-tab a:hover {
+	text-decoration: none;
+}
+
+#siteLinkList li.more-tab span.outer {
+	background-image:  url(images/tab-arrow-down.gif);
+	background-repeat: no-repeat;
+	background-position: 100% 36%;
+	padding-right: 20px;
+	text-decoration: none;
+}
+
+#siteLinkList li.more-active span.outer {
+	background-image: url(images/tab-arrow-down-active.gif);
+}
+
+#siteLinkList li.more-tab a:hover span.outer {
+	text-decoration: none;
+}
+
+#siteLinkList li.more-tab a:hover span.inner {
+	text-decoration: underline;
 }
 
 .fixTabsIE{
 	visibility: hidden;
 	display: none;
 	border-width: 0;
+}
+
+/*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
+.dhtml_more_tabs {
+	position: absolute;
+	top: 2.5em;
+	right: 2px;
+	line-height: 1.5em;
+	background-color: #FFFFFF; 
+	border: 2px solid #013F68;
+	border-top-width: 0;
+	width: 75%;
+	z-index: 9999;
+}
+
+.dhtml_more_tabs div.termContainer {
+	float: left;
+	padding: 0.8em;
+	text-align: left;
+	width: 28%;
+}
+	
+.dhtml_more_tabs h4 {
+	font-size: 1.06em;
+	margin: 0;
+	padding: 0;
+	font-weight: normal;
+}
+
+.dhtml_more_tabs  ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;	
+}
+
+.dhtml_more_tabs  li {
+	margin-bottom: 0.4em; 
+	line-height: 1.1em;
+}
+
+.dhtml_more_tabs div:first-child {
+	border-left: none;
+}
+
+.dhtml_more_tabs a:link, .dhtml_more_tabs a:visited, .dhtml_more_tabs active{
+	color: #35b;
+	text-decoration: underline !important;
+}
+
+.dhtml_more_tabs a:hover {
+	color: #53b;
+	text-decoration: underline !important;
+}
+
+#more_tabs_instr  {
+	color: #333;
+	font-size: 1em;
+	margin: 0.4em 0.8em 0.8em;
+	padding-top: 0.4em;
+	clear: both;
+	border-top: 1px solid #CCC;
+	text-align: left;
+	line-height: 1.1em;
+}
+
+#portalMask {
+	background-color: #EEEEEE; 
+	position: absolute;
+	z-index: 9000;
+	top:0;
+	left:0;
+	filter:alpha(opacity=50);
+	opacity: 0.50;
+	-moz-opacity: 0.50;
 }
 
 /*block in case need to display any decorative element above or below the .tabHolder block*/
@@ -402,7 +549,6 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 /*comment this line for a return to sanity
 display:none*/
 }
-
 
 
 #toolMenu li a:link,#toolMenu li a{
