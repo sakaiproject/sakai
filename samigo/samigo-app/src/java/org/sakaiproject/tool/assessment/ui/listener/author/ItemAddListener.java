@@ -195,7 +195,7 @@ public class ItemAddListener
     if (!saveItem(itemauthorbean)){
 	throw new RuntimeException("failed to saveItem.");
     }
-    EventTrackingService.post(EventTrackingService.newEvent("sam.addItem", "itemId=" + itemauthorbean.getItemId(), true));
+    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "itemId=" + itemauthorbean.getItemId(), true));
     item.setOutcome("editAssessment");
     item.setPoolOutcome("editPool");
     itemauthorbean.setItemTypeString("");

@@ -60,6 +60,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.entity.impl.ReferenceComponent;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
@@ -971,7 +972,8 @@ public class ItemAuthorBean
 			  delegate.saveItem(itemf);
 		  }
 	  }
-
+	  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "removed itemId=" + deleteId, true));
+	  
 	  AssessmentService assessdelegate = new AssessmentService();
       // reorder item numbers
 

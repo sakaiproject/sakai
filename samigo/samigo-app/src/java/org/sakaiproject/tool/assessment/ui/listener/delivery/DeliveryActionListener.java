@@ -125,7 +125,9 @@ public class DeliveryActionListener
       setShowStudentScore(delivery, publishedAssessment);
       setShowStudentQuestionScore(delivery, publishedAssessment);
       setDeliverySettings(delivery, publishedAssessment);
-
+      
+      int action = delivery.getActionMode();
+      
       // 2. there 3 types of navigation: by question (question will be displayed one at a time), 
       // by part (questions in a part will be displayed together) or by assessment (i.e. 
       // all questions will be displayed on one page). When navigating from TOC, a part number
@@ -138,7 +140,9 @@ public class DeliveryActionListener
     	  log.debug("From Begin Assessment button clicks");
     	  delivery.setPartIndex(0);
     	  delivery.setQuestionIndex(0);
-    	  EventTrackingService.post(EventTrackingService.newEvent("sam.takeAssessment", "publishedAssessmentId=" + delivery.getAssessmentId(), true));
+    	  if (action == 1 || action == 5) {
+    		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take", "publishedAssessmentId=" + delivery.getAssessmentId(), true));
+    	  }
       }
       else {
     	  // If comes from TOC, set the indexes from request parameters
@@ -151,8 +155,7 @@ public class DeliveryActionListener
       //    When taking or reviewing an assessment, BeginDeliveryActionListener is called
       //    by an event in the jsf page to retrieve the publishedAssessment. When grading
       //    assessment, StudentScoreListener is called to retrieve the published Assessment.
-      int action = delivery.getActionMode();
-
+      
       // itemGradingHash will end up with 
       // (Long publishedItemId, ArrayList itemGradingDatas) and
       // (String "sequence"+itemId, Integer sequence) and

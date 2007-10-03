@@ -157,7 +157,7 @@ public class PublishAssessmentListener
     PublishedAssessmentFacade pub = null;
     try {
        pub = publishedAssessmentService.publishAssessment(assessment);
-       EventTrackingService.post(EventTrackingService.newEvent("sam.publish", "assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
+       EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.publish", "assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
     } catch (AssignmentHasIllegalPointsException gbe) {
        // Right now gradebook can only accept assessements with totalPoints > 0 
        // this  might change later

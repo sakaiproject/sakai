@@ -272,7 +272,7 @@ public class SavePartListener
     assessmentBean.setAssessment(assessment);
     assessmentService.updateAssessmentLastModifiedInfo(assessment);
     
-    EventTrackingService.post(EventTrackingService.newEvent("sam.editPart", "sectionId=" + section.getSectionId(), true));
+    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "sectionId=" + section.getSectionId(), true));
   }
 
   public SectionFacade addPart(String assessmentId){

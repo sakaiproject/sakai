@@ -121,7 +121,7 @@ AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil
     try{
       assessment = createAssessment(
          assessmentTitle.trim(), description, typeId, templateId);
-      EventTrackingService.post(EventTrackingService.newEvent("sam.createAssessment", "assessmentId=" + assessment.getAssessmentId(), true));
+      EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.create", "assessmentId=" + assessment.getAssessmentId(), true));
     }
     catch(Exception e){
       // can't create assesment because gradebookService is not ready

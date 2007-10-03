@@ -36,7 +36,7 @@ public class AssessmentListener implements ActionListener {
 		}
 		
 		samLiteBean.createAssessment(assessment);
-		EventTrackingService.post(EventTrackingService.newEvent("sam.createAssessment", "assessmentId=" + assessment.getAssessmentId(), true));
+		EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.create", "assessmentId=" + assessment.getAssessmentId(), true));
 	}
 	
 	public AssessmentFacade createImportedAssessment(Document document, int qti, String templateId) {

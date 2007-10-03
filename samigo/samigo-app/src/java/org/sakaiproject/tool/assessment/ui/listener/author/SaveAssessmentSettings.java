@@ -247,7 +247,7 @@ public class SaveAssessmentSettings
 
     // added by daisyf, 10/10/06
     updateAttachment(assessment.getAssessmentAttachmentList(), assessmentSettings.getAttachmentList(),(AssessmentIfc)assessment.getData());
-    EventTrackingService.post(EventTrackingService.newEvent("sam.editSetting", "assessmentId=" + assessmentSettings.getAssessmentId(), true));
+    EventTrackingService.post(EventTrackingService.newEvent("sam.setting.edit", "assessmentId=" + assessmentSettings.getAssessmentId(), true));
     
     assessment = assessmentService.getAssessment(assessmentId.toString());
     return assessment;
