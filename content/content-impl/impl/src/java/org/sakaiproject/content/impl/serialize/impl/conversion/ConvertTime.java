@@ -24,10 +24,10 @@ package org.sakaiproject.content.impl.serialize.impl.conversion;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.sakaiproject.content.impl.util.GMTDateformatter;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 
@@ -53,13 +53,7 @@ public class ConvertTime implements Time
 	 */
 	public ConvertTime(String str) 
 	{
-		// use formatter A: yyyyMMddHHmmssSSS
-		DateFormat fmt = (DateFormat)(new SimpleDateFormat("yyyyMMddHHmmssSSS"));
-		TimeZone tz = TimeZone.getTimeZone("GMT");
-
-		fmt.setTimeZone(tz);
-		ParsePosition pos = new ParsePosition(0);
-		Date date = fmt.parse(str,pos);
+		Date date = GMTDateformatter.parse(str);
 		m_millisecondsSince = date.getTime();
 	}
 	/**
@@ -248,10 +242,6 @@ public class ConvertTime implements Time
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 
-
-    	public static SimpleDateFormat RFC822DATEFORMAT
-        	// = new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z", Locale.US);
-        	= new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z");
 
 	/**
 	 * {@inheritDoc}
