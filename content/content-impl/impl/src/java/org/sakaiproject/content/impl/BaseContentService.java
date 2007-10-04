@@ -2423,8 +2423,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
          return true;
 
 		// check security to delete own collection
-		else if ( unlockCheck(AUTH_RESOURCE_REMOVE_OWN, id) 
-                && currentUser.equals(owner) )
+		else if ( currentUser.equals(owner) && unlockCheck(AUTH_RESOURCE_REMOVE_OWN, id) )
          return true;
             
       // otherwise not authorized

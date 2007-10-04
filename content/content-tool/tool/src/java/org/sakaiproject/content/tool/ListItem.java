@@ -132,11 +132,10 @@ public class ListItem
 		ListItem item = null;
 		boolean isCollection = entity.isCollection();
 		
-		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
 		
 		boolean isAvailabilityEnabled = contentService.isAvailabilityEnabled();
 		
-        Reference ref = EntityManager.newReference(entity.getReference());
         if(entity == null)
         {
         	item = new ListItem("");
@@ -144,7 +143,9 @@ public class ListItem
         else
         {
         	item = new ListItem(entity);
+            //item.m_reference = EntityManager.newReference(entity.getReference());
         }
+        
         item.setPubviewPossible(! preventPublicDisplay);
         item.setDepth(depth);
         /*
@@ -193,11 +194,11 @@ public class ListItem
 						ServiceLevelAction expandAction = ((ExpandableResourceType) typeDef).getExpandAction();
 						if(expandAction != null && expandAction.available(entity))
 						{
-							expandAction.initializeAction(ref);
+							expandAction.initializeAction(item.m_reference);
 							
 				       		expandedFolders.add(entity.getId());
 				       		
-				       		expandAction.finalizeAction(ref);
+				       		expandAction.finalizeAction(item.m_reference);
 						}
 					}
 				}
@@ -349,13 +350,14 @@ public class ListItem
 	 * permissions in the hierarchy.   
 	 */
 	protected ContentEntity entity;
+	protected Reference m_reference;
 	protected AccessMode accessMode;
 	protected AccessMode inheritedAccessMode;
 	protected Collection<Group> groups = new ArrayList<Group>();
 	protected Collection<Group> inheritedGroups = new ArrayList<Group>();
 	protected Collection<Group> possibleGroups = new ArrayList<Group>();
-	protected Collection<Group> allowedRemoveGroups = new ArrayList<Group>();
-	protected Collection<Group> allowedAddGroups = new ArrayList<Group>();
+	protected Collection<Group> allowedRemoveGroups = null;
+	protected Collection<Group> allowedAddGroups = null;
 	protected Map<String,Group> siteGroupsMap = new HashMap<String, Group>();
 
 	protected boolean isPubviewPossible;
@@ -401,6 +403,8 @@ public class ListItem
 
 	protected Time lastChange = null;
 
+	private org.sakaiproject.content.api.ContentHostingService contentService;
+
 	/**
 	 * @param entity
 	 */
@@ -426,8 +430,14 @@ public class ListItem
 		boolean isUserSite = isInWorkspace(parent, refstr);
 		setUserSite(isUserSite);
 		
-		Reference ref = EntityManager.newReference(refstr);
-		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+		if(m_reference == null)
+		{
+			m_reference = EntityManager.newReference(refstr);
+		}
+		if(contentService == null)
+		{
+			contentService = (org.sakaiproject.content.api.ContentHostingService) ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
+		}
 		if(entity.getContainingCollection() == null)
 		{
 			this.containingCollectionId = null;
@@ -453,10 +463,10 @@ public class ListItem
 		if(name == null || name.trim().equals(""))
 		{
 			
-			String siteCollectionId = contentService.getSiteCollection(ref.getContext());
+			String siteCollectionId = contentService.getSiteCollection(m_reference.getContext());
 			if(siteCollectionId != null && siteCollectionId.equals(id))
 			{
-				String context = ref.getContext();
+				String context = m_reference.getContext();
 				Site site = getSiteObject(context);
 				if(site != null)
 				{
@@ -552,7 +562,7 @@ public class ListItem
 			// setup for quota - ADMIN only, site-root collection only
 			if (SecurityService.isSuperUser())
 			{
-				String siteCollectionId = contentService.getSiteCollection(ref.getContext());
+				String siteCollectionId = contentService.getSiteCollection(m_reference.getContext());
 				if(siteCollectionId.equals(entity.getId()))
 				{
 					setCanSetQuota(true);
@@ -749,54 +759,6 @@ public class ListItem
 		{
 			setPossibleGroups(site_groups);
 		}
-        
-		Collection<Group> groupsWithRemovePermission = null;
-		if(AccessMode.GROUPED == this.accessMode)
-		{
-			groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(id);
-			Collection<Group> more = contentService.getGroupsWithRemovePermission(ref.getContainer());
-			if(more != null && ! more.isEmpty())
-			{
-				groupsWithRemovePermission.addAll(more);
-			}
-		}
-		else if(AccessMode.GROUPED == this.inheritedAccessMode)
-		{
-			groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(ref.getContainer());
-		}
-		else if(ref.getContext() != null && contentService.getSiteCollection(ref.getContext()) != null)
-		{
-			groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(contentService.getSiteCollection(ref.getContext()));
-		}
-		this.allowedRemoveGroups.clear();
-		if(groupsWithRemovePermission != null)
-		{
-			this.allowedRemoveGroups.addAll(groupsWithRemovePermission);
-		}
-		
-		Collection<Group> groupsWithAddPermission = null;
-		if(AccessMode.GROUPED == this.accessMode)
-		{
-			groupsWithAddPermission = contentService.getGroupsWithAddPermission(id);
-			Collection<Group> more = contentService.getGroupsWithAddPermission(ref.getContainer());
-			if(more != null && ! more.isEmpty())
-			{
-				groupsWithAddPermission.addAll(more);
-			}
-		}
-		else if(AccessMode.GROUPED == this.inheritedAccessMode)
-		{
-			groupsWithAddPermission = contentService.getGroupsWithAddPermission(ref.getContainer());
-		}
-		else if(contentService.getSiteCollection(ref.getContext()) != null)
-		{
-			groupsWithAddPermission = contentService.getGroupsWithAddPermission(contentService.getSiteCollection(ref.getContext()));
-		}
-		this.allowedAddGroups.clear();
-		if(groupsWithAddPermission != null)
-		{
-			this.allowedAddGroups.addAll(groupsWithAddPermission);
-		}
 
         this.isPubviewInherited = contentService.isInheritingPubView(id);
 		if (!this.isPubviewInherited) 
@@ -829,7 +791,49 @@ public class ListItem
 		this.isAvailable = entity.isAvailable();
     }
 
-	private Site getSiteObject(String context) {
+	private void initAllowedAddGroups() 
+	{
+		if(this.allowedAddGroups == null)
+		{
+			this.allowedAddGroups = new ArrayList<Group>(); 
+		}
+		if(contentService == null)
+		{
+			contentService = (org.sakaiproject.content.api.ContentHostingService) ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
+		}
+		if(m_reference == null)
+		{
+			String refStr = contentService.getReference(this.id);
+			m_reference = EntityManager.newReference(refStr);
+		}
+		Collection<Group> groupsWithAddPermission = null;
+		if(AccessMode.GROUPED == this.accessMode)
+		{
+			groupsWithAddPermission = contentService.getGroupsWithAddPermission(id);
+			Collection<Group> more = contentService.getGroupsWithAddPermission(m_reference.getContainer());
+			if(more != null && ! more.isEmpty())
+			{
+				groupsWithAddPermission.addAll(more);
+			}
+		}
+		else if(AccessMode.GROUPED == this.inheritedAccessMode)
+		{
+			groupsWithAddPermission = contentService.getGroupsWithAddPermission(m_reference.getContainer());
+		}
+		else if(contentService.getSiteCollection(m_reference.getContext()) != null)
+		{
+			groupsWithAddPermission = contentService.getGroupsWithAddPermission(contentService.getSiteCollection(m_reference.getContext()));
+		}
+		this.allowedAddGroups.clear();
+		if(groupsWithAddPermission != null)
+		{
+			this.allowedAddGroups.addAll(groupsWithAddPermission);
+		}
+	}
+
+	private Site getSiteObject(String context) 
+	{
+		// should /content be caching an object belonging to SiteService?
 		Site site = (Site) ThreadLocalManager.get("context@" + context);
 		if(site == null)
 		{
@@ -889,7 +893,10 @@ public class ListItem
 	public ListItem(ResourceToolActionPipe pipe, ListItem parent, Time defaultRetractTime)
 	{
 		this.constructor = 3;
-		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+		if(contentService == null)
+		{
+			contentService = (org.sakaiproject.content.api.ContentHostingService) ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
+		}
 		this.entity = null;
 		//this.initMetadataGroups(null);
 		this.containingCollectionId = parent.getId();
@@ -1005,13 +1012,9 @@ public class ListItem
 		{
 			this.inheritedGroups.addAll(parent.getInheritedGroups());
 			this.setPossibleGroups(parent.getPossibleGroups());
-
 		}
-        
-		this.allowedRemoveGroups = new ArrayList(parent.allowedRemoveGroups);		
-		this.allowedAddGroups = new ArrayList(parent.allowedAddGroups);
-		
-		this.isPubviewPossible = parent.isPubviewPossible;
+
+ 		this.isPubviewPossible = parent.isPubviewPossible;
         this.isPubviewInherited = parent.isPubviewInherited || parent.isPubview;
         if(this.isPubviewInherited)
         {
@@ -1060,7 +1063,10 @@ public class ListItem
 	{
 		this.constructor = 1;
 		this.id = entityId;
-		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+		if(contentService == null)
+		{
+			contentService = (org.sakaiproject.content.api.ContentHostingService) ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
+		}
 		
 		ContentEntity entity = null;
 		try
@@ -1168,6 +1174,12 @@ public class ListItem
     {
     	boolean allowed = false;
     	
+    	// instead of getting all groups with remove access, could we query for THIS group?
+    	// or is this more efficient because we get them all at once?
+    	if(this.allowedRemoveGroups == null)
+    	{
+    		initAllowedRemoveGroups();
+    	}
     	for(Group gr : this.allowedRemoveGroups)
     	{
     		if(gr == null)
@@ -1183,6 +1195,57 @@ public class ListItem
     	
     	return allowed;
     }
+
+	protected void initAllowedRemoveGroups() 
+	{
+		if(this.allowedRemoveGroups == null)
+		{
+			this.allowedRemoveGroups = new ArrayList<Group>(); 
+		}
+		if(contentService == null)
+		{
+			contentService = (org.sakaiproject.content.api.ContentHostingService) ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
+		}
+		if(m_reference == null)
+		{
+			String refStr = contentService.getReference(this.id);
+			m_reference = EntityManager.newReference(refStr);
+		}
+		Collection<Group> groupsWithRemovePermission = null;
+		if(AccessMode.GROUPED == this.accessMode)
+		{
+			groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(id);
+			String container = m_reference.getContainer();
+			if(container != null)
+			{
+				Collection<Group> more = contentService.getGroupsWithRemovePermission(container);
+				if(more != null && ! more.isEmpty())
+				{
+					groupsWithRemovePermission.addAll(more);
+				}
+			}
+		}
+		else if(AccessMode.GROUPED == this.inheritedAccessMode)
+		{
+			if(this.parent != null && this.parent.allowedRemoveGroups != null)
+			{
+				groupsWithRemovePermission = new ArrayList(this.parent.allowedRemoveGroups);
+			}
+			else if(m_reference.getContainer() != null)
+			{
+				groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(m_reference.getContainer());
+			}
+		}
+		else if(m_reference.getContext() != null && contentService.getSiteCollection(m_reference.getContext()) != null)
+		{
+			groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(contentService.getSiteCollection(m_reference.getContext()));
+		}
+		this.allowedRemoveGroups.clear();
+		if(groupsWithRemovePermission != null)
+		{
+			this.allowedRemoveGroups.addAll(groupsWithRemovePermission);
+		}
+	}
 
 	public boolean canRead()
 	{
@@ -1604,12 +1667,6 @@ public class ListItem
     	return addActions;
     }
 	
-	protected Collection<Group> getAllowedRemoveGroupRefs() 
-	{
-		// TODO Auto-generated method stub
-		return new TreeSet<Group>(this.allowedAddGroups);
-	}
-	
 	/**
      * @return the createdBy
      */
@@ -1628,7 +1685,10 @@ public class ListItem
 	public List<ListItem> getCollectionPath()
 	{
 		LinkedList<ListItem> path = new LinkedList<ListItem>();
-		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+		if(contentService == null)
+		{
+			contentService = (org.sakaiproject.content.api.ContentHostingService) ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
+		}
 		
 		ContentCollection containingCollection = null;
 		ContentEntity entity = this.getEntity();
@@ -2114,7 +2174,21 @@ public class ListItem
      */
     public boolean isGroupPossible()
     {
-    	return this.allowedAddGroups != null && ! this.allowedAddGroups.isEmpty();
+    	boolean rv = false;
+    	if(this.accessMode == AccessMode.INHERITED && parent != null)
+    	{
+    		rv = parent.isGroupPossible();
+    	}
+    	else
+    	{
+	    	// can this be done more efficiently without getting all groups with add allowed?
+	    	if(this.allowedAddGroups == null)
+	    	{
+	    		initAllowedAddGroups();
+	    	}
+	    	rv = this.allowedAddGroups != null && ! this.allowedAddGroups.isEmpty();
+    	}
+    	return rv;
     }
 
 	/**
@@ -2995,11 +3069,14 @@ public class ListItem
 	{
 		boolean site = false;
 		
-		Reference ref = EntityManager.newReference(refStr);
-		String context = ref.getContext();
+		if( m_reference == null )
+		{
+			m_reference = EntityManager.newReference(refStr);
+		}
+		String context = m_reference.getContext();
 		// what happens if context is null??
 		String siteCollection = ContentHostingService.getSiteCollection(context);
-		if(ref.getId().equals(siteCollection))
+		if(m_reference.getId().equals(siteCollection))
 		{
 			site = true;
 		}

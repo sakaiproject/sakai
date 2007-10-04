@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.content.api.ContentHostingHandler;
 import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -41,6 +44,8 @@ public class ResourcesMetadata
 {
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("content");
+	
+	static final Log logger = LogFactory.getLog(ResourcesMetadata.class);
     
 	public static final String WIDGET_STRING = "string";
 	public static final String WIDGET_TEXTAREA = "textarea";
@@ -1083,13 +1088,16 @@ public class ResourcesMetadata
 	public Object getValue(int index)
 	{
 		Object rv = null;
-		try
+		if(m_currentValues != null && ! m_currentValues.isEmpty())
 		{
-			rv = m_currentValues.get(index);
-		}
-		catch(ArrayIndexOutOfBoundsException e)
-		{
-			// return null
+			try
+			{
+				rv = m_currentValues.get(index);
+			}
+			catch(ArrayIndexOutOfBoundsException e)
+			{
+				// return null
+			}
 		}
 		return rv;
 	}
@@ -1125,13 +1133,21 @@ public class ResourcesMetadata
 	 */
 	public void setValue(int index, Object value)
 	{
+		if(m_currentValues == null)
+		{
+			m_currentValues = new ArrayList();
+		}
 		try
 		{
 			m_currentValues.set(index, value);
 		}
-		catch(ArrayIndexOutOfBoundsException e)
+		catch(IndexOutOfBoundsException e)
 		{
 			m_currentValues.add(value);
+		}
+		catch(Exception e)
+		{
+			logger.warn("ResourcesMetadata[" + this.m_id + "].setValue(" + index + "," + value + ") " + e);
 		}
 	}
 	
