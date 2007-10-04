@@ -7815,14 +7815,15 @@ public class SiteAction extends PagedResourceActionII {
 			for (Iterator i=providerCourseList.iterator(); i.hasNext();)
 			{
 				String providerCourseEid = (String) i.next();
+				Section section = cms.getSection(providerCourseEid);
 				if (cms.isSectionDefined(providerCourseEid))
 				{
 					// in case of Section eid
-					EnrollmentSet enrollmentSet = cms.getSection(providerCourseEid).getEnrollmentSet();
-					addParticipantsFromEnrollmentSet(participantsMap, realm, providerCourseEid, enrollmentSet);
+					EnrollmentSet enrollmentSet = section.getEnrollmentSet();
+					addParticipantsFromEnrollmentSet(participantsMap, realm, providerCourseEid, enrollmentSet, section.getTitle());
 					// add memberships
 					Set memberships = cms.getSectionMemberships(providerCourseEid);
-					addParticipantsFromMemberships(participantsMap, realm, providerCourseEid, memberships);
+					addParticipantsFromMemberships(participantsMap, realm, providerCourseEid, memberships, section.getTitle());
 				}
 			}
 			
@@ -7870,10 +7871,9 @@ public class SiteAction extends PagedResourceActionII {
 	 * @param providerCourseEid
 	 * @param memberships
 	 */
-	private void addParticipantsFromMemberships(Map participantsMap, AuthzGroup realm, String providerCourseEid, Set memberships) {
+	private void addParticipantsFromMemberships(Map participantsMap, AuthzGroup realm, String providerCourseEid, Set memberships, String sectionTitle) {
 		if (memberships != null)
 		{
-			String sectionTitle = cms.getSection(providerCourseEid).getTitle();
 			for (Iterator mIterator = memberships.iterator();mIterator.hasNext();)
 			{
 				Membership m = (Membership) mIterator.next();
@@ -7922,10 +7922,9 @@ public class SiteAction extends PagedResourceActionII {
 	 * @param providerCourseEid
 	 * @param enrollmentSet
 	 */
-	private void addParticipantsFromEnrollmentSet(Map participantsMap, AuthzGroup realm, String providerCourseEid, EnrollmentSet enrollmentSet) {
+	private void addParticipantsFromEnrollmentSet(Map participantsMap, AuthzGroup realm, String providerCourseEid, EnrollmentSet enrollmentSet, String sectionTitle) {
 		if (enrollmentSet != null)
 		{
-			String sectionTitle = cms.getSection(providerCourseEid).getTitle();
 			Set enrollments = cms.getEnrollments(enrollmentSet.getEid());
 			for (Iterator eIterator = enrollments.iterator();eIterator.hasNext();)
 			{
