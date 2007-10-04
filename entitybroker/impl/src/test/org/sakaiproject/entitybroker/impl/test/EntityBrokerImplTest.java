@@ -274,6 +274,13 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
          assertNotNull(e.getMessage());
       }
 
+      try {
+         er = entityBroker.parseReference("/totallyfake/notreal");
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+
    }
 
    /**
