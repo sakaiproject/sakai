@@ -34,7 +34,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.journal.api.IndexListener;
 

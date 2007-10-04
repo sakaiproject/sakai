@@ -46,8 +46,7 @@
 	<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService" /></property>
 	<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
 	<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
-    <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
-    
+        
 	<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
     <property name="indexStorage"><ref bean="org.sakaiproject.search.index.IndexStorage" /></property>
     
@@ -189,7 +188,7 @@
     	id="org.sakaiproject.search.api.SearchService.parallel.index.concurrentIndexManager"
 	   	init-method="init" 
     	destroy-method="destroy" >
-    	<property name="searchService"><ref bean="org.sakaiproject.saerch.api.SearchService" /></property>
+    	<property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService" /></property>
 		<property name="tasks" >
 			<list>
 			<ref bean="org.sakaiproject.search.api.SearchService.parallel.index.indexer" />

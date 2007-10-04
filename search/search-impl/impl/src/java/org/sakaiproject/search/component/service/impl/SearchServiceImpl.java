@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.search.IndexSearcher;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.search.api.SearchIndexBuilderWorker;
 import org.sakaiproject.search.api.SearchStatus;
@@ -163,7 +164,7 @@ public class SearchServiceImpl extends BaseSearchServiceImpl
 									searchIndexBuilderWorker.getLastElapsed(),
 									searchIndexBuilderWorker.getCurrentDocument(),
 									searchIndexBuilderWorker.getCurrentElapsed(),
-									serverConfigurationService.getServerIdInstance() });
+									ServerConfigurationService.getServerIdInstance() });
 				}
 				else
 				{

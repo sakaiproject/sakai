@@ -53,7 +53,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
-import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
@@ -104,7 +104,6 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	 */
 	private SessionManager sessionManager;
 
-	protected ServerConfigurationService serverConfigurationService;
 
 	/**
 	 * Optional dependencies
@@ -1036,36 +1035,20 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		return indexStorage.getSegmentInfoList();
 	}
 
-	/**
-	 * @return the serverConfigurationService
-	 */
-	public ServerConfigurationService getServerConfigurationService()
-	{
-		return serverConfigurationService;
-	}
-
-	/**
-	 * @param serverConfigurationService the serverConfigurationService to set
-	 */
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService)
-	{
-		this.serverConfigurationService = serverConfigurationService;
-	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.search.api.SearchService#isEnabled()
 	 */
 	public boolean isEnabled()
 	{
-		enabled = "true".equals(serverConfigurationService.getString("search.enable",
+		enabled = "true".equals(ServerConfigurationService.getString("search.enable",
 		"false"));
 
 		log.info("Enable = "
-				+ serverConfigurationService.getString("search.enable", "false"));
+				+ ServerConfigurationService.getString("search.enable", "false"));
 
 		enabled = enabled
-			& "true".equals(serverConfigurationService.getString("search.indexbuild",
+			& "true".equals(ServerConfigurationService.getString("search.indexbuild",
 				"true"));
 		return enabled;
 	}
