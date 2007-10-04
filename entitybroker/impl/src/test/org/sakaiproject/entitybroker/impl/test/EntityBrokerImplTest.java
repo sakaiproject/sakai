@@ -260,13 +260,14 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       assertEquals(TestData.PREFIX3, er.prefix);
       assertFalse(er instanceof IdEntityReference);
 
-      // we allow parsing of unregistered entity references
+      // parsing of unregistered entity references returns null
       er = entityBroker.parseReference(TestData.REF9);
-      assertNotNull(er);
-      assertEquals(TestData.PREFIX9, er.prefix);
-      assertTrue(er instanceof IdEntityReference);
-      assertEquals(TestData.IDS9[0], ((IdEntityReference) er).id);
+      assertNull(er);
 
+      // parsing with nonexistent prefix returns null
+      er = entityBroker.parseReference("/totallyfake/notreal");
+      assertNull(er);
+      
       try {
          er = entityBroker.parseReference(TestData.INVALID_REF);
          fail("Should have thrown exception");
@@ -274,12 +275,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
          assertNotNull(e.getMessage());
       }
 
-      try {
-         er = entityBroker.parseReference("/totallyfake/notreal");
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
+    
 
    }
 

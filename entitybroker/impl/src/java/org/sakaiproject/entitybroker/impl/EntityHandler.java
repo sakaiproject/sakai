@@ -1,5 +1,5 @@
 /**
- * EntityBrokerManagerImpl.java - created by antranig on 17 May 2007
+ * EntityHandler.java - created by antranig on 17 May 2007
  **/
 
 package org.sakaiproject.entitybroker.impl;
@@ -10,6 +10,7 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
+import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 
 /**
  * Common implementation of the handler for the EntityBroker system. This should be used in
@@ -21,10 +22,16 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParsea
  */
 public class EntityHandler {
 
-   private EntityProviderManager entityProviderManager;
+   // placeholder value indicating that this reference is parsed externally
+   private static ReferenceParseable externalRP = new BlankReferenceParseable();
+
+   // placeholder value indicating that this reference is parsed internally
+   private static ReferenceParseable internalRP = new BlankReferenceParseable();
+
+   private EntityProviderManagerImpl entityProviderManager;
 
    public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
-      this.entityProviderManager = entityProviderManager;
+      this.entityProviderManager = (EntityProviderManagerImpl) entityProviderManager;
    }
 
    private ServerConfigurationService serverConfigurationService;
@@ -48,7 +55,7 @@ public class EntityHandler {
    public String getEntityURL(String reference) {
       // try to get the prefix to ensure this is at least a valid formatted reference, should this
       // make sure the entity exists?
-      IdEntityReference.getPrefix(reference);
+      EntityReference.getPrefix(reference);
       String togo = serverConfigurationService.getServerUrl() + "/direct" + reference;
       return togo;
    }
@@ -57,35 +64,59 @@ public class EntityHandler {
     * Returns the provider, if any, responsible for handling a reference
     */
    public EntityProvider getProvider(String reference) {
-      String prefix = IdEntityReference.getPrefix(reference);
+      String prefix = EntityReference.getPrefix(reference);
       EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
       return provider;
+   }
+
+   private EntityReference parseDefaultReference(String prefix, String reference) {
+      EntityReference ref = null;
+      try {
+         ref = new IdEntityReference(reference);
+      }
+      catch (IllegalArgumentException e) {
+         // fall back to the simplest reference type
+         ref = new EntityReference(prefix);
+      }
+      return ref;
    }
 
    /**
     * Parses an entity reference into the appropriate reference form
     */
    public EntityReference parseReference(String reference) {
-      EntityProvider provider = getProvider(reference);
-      if (!(provider instanceof ReferenceParseable)) {
-         EntityReference ref = null;
-         try {
-            ref = new IdEntityReference(reference);
-         } catch (IllegalArgumentException e) {
-            // fall back to the simplest reference type
-            ref = new EntityReference(provider.getEntityPrefix());
+      String prefix = EntityReference.getPrefix(reference);
+      ReferenceParseable provider = (ReferenceParseable) entityProviderManager
+            .getProviderByPrefixAndCapability(prefix, ReferenceParseable.class);
+      if (provider == externalRP) {
+         return null;
+      }
+      else if (provider == internalRP) {
+         return parseDefaultReference(prefix, reference);
+      }
+      else if (provider == null) {
+         EntityProvider base = entityProviderManager.getProviderByPrefix(prefix);
+         if (base == null) {
+            entityProviderManager.registerPrefixCapability(prefix, ReferenceParseable.class, externalRP);
+            return null;
          }
-         return ref;
-      } else {
-         Object exemplar = ((ReferenceParseable) provider).getParsedExemplar();
+         else {
+            entityProviderManager.registerPrefixCapability(prefix, ReferenceParseable.class, internalRP);
+            return parseDefaultReference(prefix, reference);
+         }
+      }
+      else {
+         Object exemplar = provider.getParsedExemplar();
          if (exemplar.getClass() == EntityReference.class) {
             return new EntityReference(provider.getEntityPrefix());
-         } else {
+         }
+         else {
             // cannot test this in a meaningful way so the tests are designed to not get here -AZ
             throw new UnsupportedOperationException(
                   "Support for custom EntityReference classes is not yet supported");
          }
       }
+
    }
 
 }

@@ -1,16 +1,5 @@
 /******************************************************************************
  * EntityBrokerManagerImpl.java - created by aaronz on 11 May 2007
- * 
- * Copyright (c) 2007 Centre for Academic Research in Educational Technologies
- * Licensed under the Educational Community License version 1.0
- * 
- * A copy of the Educational Community License has been included in this 
- * distribution and is available at: http://www.opensource.org/licenses/ecl1.php
- * 
- * Contributors:
- * Antranig Basman (antranig@caret.cam.ac.uk)
- * Aaron Zeckoski (aaronz@vt.edu)
- * 
  *****************************************************************************/
 
 package org.sakaiproject.entitybroker.impl.entityprovider;
@@ -24,10 +13,11 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.entitybroker.IdEntityReference;
+import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.impl.util.ReflectUtil;
 
 /**
@@ -42,6 +32,8 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
    private ConcurrentMap<String, EntityProvider> prefixMap = new ConcurrentHashMap<String, EntityProvider>();
 
+   private ConcurrentMap<String, ReferenceParseable> parseMap = new ConcurrentHashMap<String, ReferenceParseable>();
+   
    public void init() {
       log.info("init");
    }
@@ -61,7 +53,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     * @see org.sakaiproject.entitybroker.EntityProviderManager#getProviderByReference(java.lang.String)
     */
    public EntityProvider getProviderByReference(String reference) {
-      String prefix = IdEntityReference.getPrefix(reference);
+      String prefix = EntityReference.getPrefix(reference);
       return getProviderByPrefix(prefix);
    }
 
@@ -88,6 +80,9 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
          Class<? extends EntityProvider> capability) {
       if (capability == null) {
          throw new NullPointerException("capability cannot be null");
+      }
+      if (ReferenceParseable.class.isAssignableFrom(capability)) {
+        return parseMap.get(prefix);
       }
       String bikey = getBiKey(prefix, capability);
       return prefixMap.get(bikey);
@@ -204,10 +199,15 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     * @param provider
     * @return true if the provider is newly registered, false if it was already registered
     */
-   protected boolean registerPrefixCapability(String prefix,
+   public boolean registerPrefixCapability(String prefix,
          Class<? extends EntityProvider> capability, EntityProvider entityProvider) {
-      String key = getBiKey(prefix, capability);
-      return prefixMap.put(key, entityProvider) == null;
+      if (ReferenceParseable.class.isAssignableFrom(capability)) {
+        return parseMap.put(prefix, (ReferenceParseable) entityProvider) == null;
+      }
+      else {
+        String key = getBiKey(prefix, capability);
+        return prefixMap.put(key, entityProvider) == null;
+      }
    }
 
 }

@@ -122,9 +122,13 @@ public class EntityBrokerEntityProducer implements EntityProducer {
       EntityReference entityref = null;
       try {
          entityref = entityHandler.parseReference(reference);
+         if (entityref == null) {
+            return false;
+         }
       } catch (Exception e) {
          return false;
       }
+   
       // We will not attempt to check that the entity actually exists here,
       // only that the reference has a recognised prefix.
       EntityProvider entityProvider = entityProviderManager.getProviderByPrefix(entityref.prefix);

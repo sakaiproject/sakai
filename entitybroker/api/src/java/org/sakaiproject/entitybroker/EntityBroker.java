@@ -74,7 +74,8 @@ public interface EntityBroker extends PropertiesProvider {
     *           a globally unique reference to an entity, consists of the entity prefix and optional
     *           segments
     * @return an entity reference object which will contain the entity prefix and any optional
-    *         segments
+    *         segments, or <code>null</code> if the reference was not recognised as a valid entity
+    *         handled by the broker
     */
    public EntityReference parseReference(String reference);
 
