@@ -36,7 +36,7 @@ public class JournalTests
 		TestSuite suite = new TestSuite(
 				"Test for org.sakaiproject.search.indexer.impl.test");
 		//$JUnit-BEGIN$
-		suite.addTestSuite(SequenceGeneratorTest.class);
+		suite.addTestSuite(SequenceGeneratorDisabled.class);
 		suite.addTestSuite(SearchBuilderItemSerializerTest.class);
 		suite.addTestSuite(TransactionalIndexWorkerTest.class);
 		suite.addTestSuite(ConcurrentIndexManagerTest.class);

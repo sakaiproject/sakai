@@ -32,10 +32,10 @@ import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 /**
  * @author ieb
  */
-public class SequenceGeneratorTest extends TestCase
+public class SequenceGeneratorDisabled extends TestCase
 {
 
-	protected static final Log log = LogFactory.getLog(SequenceGeneratorTest.class);
+	protected static final Log log = LogFactory.getLog(SequenceGeneratorDisabled.class);
 
 	private TransactionSequenceImpl sequenceGenerator;
 
@@ -49,7 +49,7 @@ public class SequenceGeneratorTest extends TestCase
 	/**
 	 * @param name
 	 */
-	public SequenceGeneratorTest(String name)
+	public SequenceGeneratorDisabled(String name)
 	{
 		super(name);
 	}
@@ -88,6 +88,7 @@ public class SequenceGeneratorTest extends TestCase
 	 */
 	public final void testGetNextId()
 	{
+		
 		log.info("================================== "+this.getClass().getName()+".testGetNextId");
 		nt = 0;
 		fail = 0;

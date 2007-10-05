@@ -35,7 +35,7 @@ import org.sakaiproject.search.transaction.api.TransactionSequence;
 
 /**
  * @author ieb Unit test
- * @see org.sakaiproject.search.indexer.impl.test.SequenceGeneratorTest
+ * @see org.sakaiproject.search.indexer.impl.test.SequenceGeneratorDisabled
  */
 public class TransactionSequenceImpl implements TransactionSequence
 {
