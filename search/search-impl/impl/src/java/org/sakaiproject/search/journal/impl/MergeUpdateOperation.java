@@ -66,11 +66,11 @@ public class MergeUpdateOperation implements ManagementOperation
 		// unpack them locally
 		// merge with the curent index.
 		// 
-		log.info("Last Journaled savePoint is " + journaledObject.getLastJournalEntry());
+		log.debug("Last Journaled savePoint is " + journaledObject.getLastJournalEntry());
 
 		if (journaledObject.aquireUpdateLock())
 		{
-			log.info("Now Locked Journaled savePoint is "
+			log.debug("Now Locked Journaled savePoint is "
 					+ journaledObject.getLastJournalEntry());
 			try
 			{
