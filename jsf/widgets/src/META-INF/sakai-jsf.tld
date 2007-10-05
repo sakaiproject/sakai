@@ -382,6 +382,18 @@
       </description>
     </attribute>
 
+   <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    
+
     <attribute>
       <name>id</name>
       <required>false</required>
@@ -868,6 +880,17 @@
       <rtexprvalue>false</rtexprvalue>
       <description>
         Component reference expression for this component.
+      </description>
+    </attribute>
+    
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
       </description>
     </attribute>
     
