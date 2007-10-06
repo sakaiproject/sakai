@@ -349,12 +349,12 @@ ${tool.toolRenderResult.getTitle()}
 
 			#foreach( $termKey in $tabsMoreSortedTermList)
 			<div class="termContainer">
-                        #if ( !$termKey || $termKey == "" )
+   #if ( !$termKey || $termKey == "" )
 				<h4>${rloader.sit_notermkey}</h4>
 			#else
 				<h4>$termKey</h4>
 			#end
-			<ul id="siteLinkList2">
+			<ul>
 #foreach( $site in $tabsMoreTerms.get($termKey))
 #if (${site.isMyWorkspace})
 				<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}">
