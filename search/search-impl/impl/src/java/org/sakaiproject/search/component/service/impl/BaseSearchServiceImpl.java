@@ -766,6 +766,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		}
 		catch (Exception ex)
 		{
+			log.error("Search Service XML response failed ",ex);
 			StringBuilder sb = new StringBuilder();
 			sb.append("<?xml version=\"1.0\"?>"); //$NON-NLS-1$
 			sb.append("<fault>"); //$NON-NLS-1$
