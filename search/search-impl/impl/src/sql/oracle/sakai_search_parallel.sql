@@ -8,7 +8,7 @@ create index isearchwriterlock_lk on  searchwriterlock (lockkey);
 
 create table search_transaction ( 
 	txname varchar2(64) not null, 
-	txid bigint,  
+	txid number(19,0),  
 	primary key (txname));
 	
 -- this is performed by hbm at the moment
@@ -23,14 +23,20 @@ create table search_transaction (
 --	 unique (name) );
 
 create table search_journal ( 
-	txid bigint  not null, 
-	txts bigint not null, 
+	txid number(19,0)  not null, 
+	txts number(19,0) not null, 
 	indexwriter varchar2(255)  not null, 
 	status varchar2(32) not null,  
 	primary key  (txid) );
 
 create table search_node_status ( 
-	 jid bigint  not null, 
-	 jidts bigint  not null, 
+	 jid number(19,0)  not null, 
+	 jidts number(19,0)  not null, 
 	 serverid varchar2(255)  not null, 
 	 primary key (serverid) );
+
+	 	 
+insert into search_transaction ( txid, txname ) values (0,'optimizeSequence');
+insert into search_transaction ( txid, txname ) values (0,'mergeSequence');
+insert into search_transaction ( txid, txname ) values (0,'sharedOptimizeSequence');
+insert into search_transaction ( txid, txname ) values (0,'indexerTransaction');
