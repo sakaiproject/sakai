@@ -710,55 +710,63 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 					EntityContentProducer ecp = (EntityContentProducer) i.next();
 
 					Iterator contentIterator = null;
-					contentIterator = ecp.getSiteContentIterator(siteContext);
-					log.debug("Using ECP " + ecp); //$NON-NLS-1$
-
-					int added = 0;
-					for (; contentIterator.hasNext();)
+					try
 					{
-						String resourceName = (String) contentIterator.next();
-						log.debug("Checking " + resourceName); //$NON-NLS-1$
-						if (resourceName == null || resourceName.length() > 255)
-						{
-							log
-									.warn("Entity Reference Longer than 255 characters, ignored: Reference=" //$NON-NLS-1$
-											+ resourceName);
-							continue;
-						}
-						SearchBuilderItem sbi = new SearchBuilderItemImpl();
-						sbi.setName(resourceName);
-						sbi.setSearchaction(SearchBuilderItem.ACTION_ADD);
-						sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
-						sbi.setId(UUID.randomUUID().toString());
-						sbi.setVersion(new Date(System.currentTimeMillis()));
-						sbi.setItemscope(SearchBuilderItem.ITEM);
-						String context = null;
-						try
-						{
-							context = ecp.getSiteId(resourceName);
-						}
-						catch (Exception ex)
-						{
-							log.debug("No context for resource " + resourceName //$NON-NLS-1$
-									+ " defaulting to none"); //$NON-NLS-1$
-						}
-						if (context == null || context.length() == 0)
-						{
-							context = "none"; //$NON-NLS-1$
-						}
-						sbi.setContext(context);
-						try
-						{
-							updateOrSave(connection, sbi);
-						}
-						catch (SQLException sqlex)
-						{
-							log.error("Failed to update " + sqlex.getMessage()); //$NON-NLS-1$
-						}
-						connection.commit();
+						contentIterator = ecp.getSiteContentIterator(siteContext);
+						log.debug("Using ECP " + ecp); //$NON-NLS-1$
 
+						int added = 0;
+						for (; contentIterator.hasNext();)
+						{
+							String resourceName = (String) contentIterator.next();
+							log.debug("Checking " + resourceName); //$NON-NLS-1$
+							if (resourceName == null || resourceName.length() > 255)
+							{
+								log
+										.warn("Entity Reference Longer than 255 characters, ignored: Reference=" //$NON-NLS-1$
+												+ resourceName);
+								continue;
+							}
+							SearchBuilderItem sbi = new SearchBuilderItemImpl();
+							sbi.setName(resourceName);
+							sbi.setSearchaction(SearchBuilderItem.ACTION_ADD);
+							sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
+							sbi.setId(UUID.randomUUID().toString());
+							sbi.setVersion(new Date(System.currentTimeMillis()));
+							sbi.setItemscope(SearchBuilderItem.ITEM);
+							String context = null;
+							try
+							{
+								context = ecp.getSiteId(resourceName);
+							}
+							catch (Exception ex)
+							{
+								log.debug("No context for resource " + resourceName //$NON-NLS-1$
+										+ " defaulting to none"); //$NON-NLS-1$
+							}
+							if (context == null || context.length() == 0)
+							{
+								context = "none"; //$NON-NLS-1$
+							}
+							sbi.setContext(context);
+							try
+							{
+								updateOrSave(connection, sbi);
+							}
+							catch (SQLException sqlex)
+							{
+								log.error("Failed to update " + sqlex.getMessage()); //$NON-NLS-1$
+							}
+							connection.commit();
+
+						}
+						log.debug(" Added " + added); //$NON-NLS-1$
 					}
-					log.debug(" Added " + added); //$NON-NLS-1$
+					catch (Exception ex)
+					{
+						log.warn("Failed to index site " + siteContext
+								+ " site has not been indexed");
+					}
 				}
 			}
 			log
