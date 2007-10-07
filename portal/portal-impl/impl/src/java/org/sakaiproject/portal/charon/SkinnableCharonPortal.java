@@ -176,6 +176,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private boolean forceContainer = false;
 
+	private String handlerPrefix;
+
 	public String getPortalContext()
 	{
 		return portalContext;
@@ -856,28 +858,32 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			// recognize what to do from the path
 			String option = req.getPathInfo();
+			
+			
+
 
 			// if missing, set it to home or gateway
 			if ((option == null) || ("/".equals(option)))
 			{
+				
 
 				if (session.getUserId() == null)
 				{
 					String siteId = null;
-                                	if (siteHelper.doGatewaySiteList())
-                                	{
-                                        	List<Site> mySites = siteHelper.getAllSites(req, session, true);
-                                        	if ( mySites.size() > 0 ) siteId = mySites.get(0).getId();
-                                	}
-                                	if ( siteId == null )
-                                	{
-                                        	siteId = ServerConfigurationService.getGatewaySiteId();
-                                	}
-					option = "/site/" + siteId;
+					if (siteHelper.doGatewaySiteList())
+					{
+						List<Site> mySites = siteHelper.getAllSites(req, session, true);
+						if (mySites.size() > 0) siteId = mySites.get(0).getId();
+					}
+					if (siteId == null)
+					{
+						siteId = ServerConfigurationService.getGatewaySiteId();
+					}
+					option = "/"+handlerPrefix+"/" + siteId;
 				}
 				else
 				{
-					option = "/site/" + SiteService.getUserSiteId(session.getUserId());
+					option = "/"+handlerPrefix+"/" + SiteService.getUserSiteId(session.getUserId());
 				}
 			}
 
@@ -1788,6 +1794,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		M_log.info("init()");
 		
 		forceContainer = ServerConfigurationService.getBoolean("login.use.xlogin.to.relogin", true);
+		
+		handlerPrefix = ServerConfigurationService.getString("portal.handler.default", "site");
 
 		basicAuth = new BasicAuth();
 		basicAuth.init();
