@@ -1408,6 +1408,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		if (rcontext.uses(INCLUDE_BOTTOM))
 		{
+			rcontext.put("pagepopup", false);
+
 			String copyright = ServerConfigurationService
 					.getString("bottom.copyrighttext");
 			String service = ServerConfigurationService.getString("ui.service", "Sakai");

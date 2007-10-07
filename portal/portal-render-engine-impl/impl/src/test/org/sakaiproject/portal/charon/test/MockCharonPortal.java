@@ -207,6 +207,7 @@ public class MockCharonPortal extends HttpServlet
 	protected void includeBottom(PortalRenderContext rcontext)
 	{
 
+		rcontext.put("pagepopup", true);
 		{
 			List l = new ArrayList();
 			l.add("bottomnav1");

@@ -672,6 +672,7 @@ ${tool.toolRenderResult.getTitle()}
 
 
 #macro( includeBottom )
+#if (!$pagepopup)
 <div id="footer">
 	<div class="footerExtNav" align="center">
 		|
@@ -690,4 +691,5 @@ ${tool.toolRenderResult.getTitle()}
 	${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}
 	</div>
 </div>
+#end
 #end
