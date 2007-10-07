@@ -1785,7 +1785,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		M_log.info("init()");
 		
-		forceContainer = ServerConfigurationService.getBoolean("login.forceContainer", true);
+		forceContainer = ServerConfigurationService.getBoolean("login.use.xlogin.to.relogin", true);
 
 		basicAuth = new BasicAuth();
 		basicAuth.init();
