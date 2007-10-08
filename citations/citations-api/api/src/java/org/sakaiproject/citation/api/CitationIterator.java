@@ -30,11 +30,6 @@ import java.util.Iterator;
 public interface CitationIterator extends Iterator
 {
 	/**
-	 * @return
-	 */
-	public int getPage();
-	
-	/**
      * @return
      */
     public int getPageSize();
@@ -65,14 +60,14 @@ public interface CitationIterator extends Iterator
 	public void setOrder(Comparator comparator);
 	
 	/**
-	 * @param page
-	 */
-	public void setPage(int page);
-
-	/**
 	 * @param size
 	 */
 	public void setPageSize(int size);
-
+	
+	public void setStart(int i);
+	
+	public int getStart();
+	
+	public int getEnd();
 
 }
