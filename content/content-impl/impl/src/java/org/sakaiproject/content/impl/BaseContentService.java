@@ -390,27 +390,39 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	}
 
 	/**
-	 * Configuration: set the external file system volume folders (folder just within the bodyPath) as a comma separated list of folder names. If set, files will be distributed over these folders.
+	 * Configuration: set the external file system volume folders (folder just within the bodyPath) as a comma separated list of folder names. 
+	 * If set, files will be distributed over these folders.  A single semicolon (';') can be added to the end of the list of values to indicate 
+	 * that leading and trailing whitespace should be preserved from each volume name.  Without the semicolon, leading and trailing whitespace 
+	 * will be trimmed from each name in the list.
 	 * 
 	 * @param value
 	 *        The comma separated list of folder names within body path to distribute files among.
 	 */
 	public void setBodyVolumes(String value)
 	{
+		boolean trimWhitespace = true;
 		try
 		{
-			String[] bodyVolumes = StringUtil.split(value, ",");
 			List<String> list = new ArrayList<String>();
-			for(int i = 0; i < bodyVolumes.length; i++)
+			if(value != null && value.trim().endsWith(";"))
 			{
-				String name = bodyVolumes[i];
-				if(name == null || name.trim().equals(""))
-				{
-					continue;
-				}
-				list.add(name.trim());
+				trimWhitespace = false;
+				value = value.substring(0, value.lastIndexOf(";"));
 			}
 			
+			if(value != null && ! value.trim().equals(""))
+			{
+				String[] bodyVolumes = StringUtil.split(value, ",");
+				for(int i = 0; i < bodyVolumes.length; i++)
+				{
+					String name = bodyVolumes[i];
+					if(name == null || name.trim().equals(""))
+					{
+						continue;
+					}
+					list.add(trimWhitespace ? name.trim() : name);
+				}
+			}
 			this.m_bodyVolumes = new String[list.size()];
 			for(int i = 0; i < list.size(); i++)
 			{
