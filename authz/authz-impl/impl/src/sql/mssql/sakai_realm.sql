@@ -1413,8 +1413,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.r
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.revise'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.receive.notifications'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.createAssessment'
@@ -2251,8 +2249,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.r
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.revise'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.receive.notifications'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.createAssessment'
@@ -2658,8 +2654,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.r
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.revise'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.receive.notifications'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.createAssessment'
@@ -2888,8 +2882,6 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.revise'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.receive.notifications'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
