@@ -8740,7 +8740,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					if (getReturned())
 					{
-						if (lastModTime != null && returnTime != null && lastModTime.after(returnTime) && !allowGrade)
+						if (lastModTime != null && returnTime != null && lastModTime.after(TimeService.newTime(returnTime.getTime() + 1000 * 60)) && !allowGrade)
 						{
 							// working on a returned submission now
 							retVal = rb.getString("gen.dra2") + " " + rb.getString("gen.inpro");
