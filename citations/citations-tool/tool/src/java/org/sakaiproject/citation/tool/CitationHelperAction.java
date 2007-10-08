@@ -1014,7 +1014,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if(oldIterator != null)
 		{
 			newIterator.setPageSize(listPageSize.intValue());
-			newIterator.setPage(oldIterator.getPage());
+			newIterator.setStart(oldIterator.getStart());
+//			newIterator.setPage(oldIterator.getPage());
 		}
 		context.put("citations", newIterator);
 		context.put("collectionId", collection.getId());
@@ -1022,14 +1023,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			context.put("show_citations", Boolean.TRUE);
 
-			int page = newIterator.getPage();
-			int pageSize = newIterator.getPageSize();
+//			int page = newIterator.getPage();
+//			int pageSize = newIterator.getPageSize();
 			int totalSize = collection.size();
 
-			int start = page * pageSize + 1;
-			int end = Math.min((page + 1) * pageSize, totalSize);
+			int start = newIterator.getStart();
+			int end = newIterator.getEnd();
+//			int start = page * pageSize + 1;
+//			int end = Math.min((page + 1) * pageSize, totalSize);
 
-			Integer[] position = { new Integer(start) , new Integer(end), new Integer(totalSize)};
+			Integer[] position = { new Integer(start+1) , new Integer(end), new Integer(totalSize)};
 			String showing = (String) rb.getFormattedMessage("showing.results", position);
 			context.put("showing", showing);
 		}
@@ -2871,11 +2874,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		int pageSize = listIterator.getPageSize();
 		int totalSize = collection.size();
 		int lastPage = 0;
-		if(totalSize > 0)
-		{
-			lastPage = (totalSize - 1) / pageSize;
-		}
-		listIterator.setPage(lastPage);
+		
+		listIterator.setStart(totalSize - pageSize);
 
  	}	// doSearch
 
@@ -2897,7 +2897,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_LIST_ITERATOR, listIterator);
 		}
 
-		listIterator.setPage(0);
+		listIterator.setStart(0);
 
  	}	// doSearch
 
@@ -3118,6 +3118,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if(pageSize > 0)
 		{
 			state.setAttribute(STATE_LIST_PAGE_SIZE, new Integer(pageSize));
+			CitationIterator tempIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
+			tempIterator.setPageSize(pageSize);
+			state.removeAttribute(STATE_LIST_ITERATOR);
+			state.setAttribute(STATE_LIST_ITERATOR, tempIterator);
 		}
 
  	}	// doSearch
@@ -3529,6 +3533,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		        logger.debug("doSortCollection() tempcit 1 = " + tempCit.getDisplayName());
 			} // end while
+
+			// set the list iterator to the start of the list after a change in sort
+			CitationIterator listIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
+			if(listIterator != null)
+			{
+				listIterator.setStart(0);
+			}
+
 		} // end else
 
 		setMode(state, Mode.LIST);
