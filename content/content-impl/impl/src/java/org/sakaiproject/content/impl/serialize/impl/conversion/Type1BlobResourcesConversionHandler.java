@@ -41,7 +41,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 	private static final Log log = LogFactory
 			.getLog(Type1BlobResourcesConversionHandler.class);
 
-	private Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
+	private Pattern contextPattern = Pattern.compile("\\A/(group/|user/|~)(.+?)/");
 
 
 	/*
@@ -91,13 +91,19 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 			String context = null;
 			if (contextMatcher.find())
 			{
-				context = contextMatcher.group(1);
+				String root = contextMatcher.group(1);
+				context = contextMatcher.group(2);
+				if(! root.equals("group/"))
+				{
+					context = "~" + context;
+				}
 			}
 
 			updateRecord.setString(1, context);
 			updateRecord.setLong(2, sax.getSerializableContentLength());
 			updateRecord.setBytes(3, result);
-			updateRecord.setString(4, id);
+			updateRecord.setString(4, sax.getSerializableResourceType());
+			updateRecord.setString(5, id);
 			return true;
 		}
 		catch (Exception e)
