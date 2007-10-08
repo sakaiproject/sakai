@@ -321,19 +321,23 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'assessment.takeAssessme
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'assessment.template.create')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'assessment.template.delete.own')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'assessment.template.edit.own')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.delete')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.delete.any')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.delete.own')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.new')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.read')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.revise')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.revise.any')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.revise.own')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.all.groups')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'chat.delete.any')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'chat.delete.own')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'chat.new')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'chat.read')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.delete')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.delete.any')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.delete.own')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.new')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.read')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.revise')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.revise.any')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.revise.own')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.all.groups')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'disc.delete.any')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'disc.delete.own')
@@ -353,6 +357,7 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'mail.new')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'mail.read')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.create')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.edit')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.export')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.delete')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.publish')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.suggest.global.publish')
@@ -520,13 +525,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
@@ -536,13 +545,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
@@ -823,13 +836,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asses
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.edit.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.all.groups'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
@@ -841,13 +858,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
@@ -1070,13 +1091,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asses
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.edit.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.all.groups'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
@@ -1088,13 +1113,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.all.groups'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
@@ -1447,13 +1476,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asses
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.edit.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
@@ -1463,13 +1496,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
@@ -1857,19 +1894,27 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.r
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.instructor'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
@@ -1995,21 +2040,29 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.r
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.instructor'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
@@ -2173,21 +2226,29 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.r
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.revise'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.ta'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
@@ -2283,13 +2344,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asses
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.edit.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
@@ -2299,13 +2364,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
@@ -2688,13 +2757,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asses
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.edit.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
@@ -2704,13 +2777,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
@@ -2917,13 +2994,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asses
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.edit.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
@@ -2933,13 +3014,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
@@ -3096,13 +3181,17 @@ INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '/content/attachment/', '', NULL,
 select @r_temp = REALM_KEY from SAKAI_REALM where REALM_ID = '/content/attachment/'
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_anon, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '/announcement/channel/!site/motd', '', NULL, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 select @r_temp = REALM_KEY from SAKAI_REALM where REALM_ID = '/announcement/channel/!site/motd'
@@ -3207,13 +3296,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.r
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
@@ -3223,13 +3316,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
@@ -3338,7 +3435,9 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.r
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'jforum.manage'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
@@ -3354,9 +3453,13 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'melet
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.createAssessment'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
@@ -3444,13 +3547,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
@@ -3472,11 +3579,15 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'melet
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.takeAssessment'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
@@ -3834,19 +3945,23 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'assessment.takeAssessme
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'assessment.template.create')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'assessment.template.delete.own')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'assessment.template.edit.own')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.delete')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.delete.any')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.delete.own')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.new')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.read')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.revise')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.revise.any')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.revise.own')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'calendar.all.groups')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'chat.delete.any')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'chat.delete.own')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'chat.new')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'chat.read')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.delete')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.delete.any')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.delete.own')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.new')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.read')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.revise')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.revise.any')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.revise.own')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'content.all.groups')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'disc.delete.any')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'disc.delete.own')
@@ -3866,6 +3981,7 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'mail.new')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'mail.read')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.create')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.edit')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.export')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.delete')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.publish')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.suggest.global.publish')
@@ -3976,13 +4092,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
@@ -3992,13 +4112,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
@@ -4256,13 +4380,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asses
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.edit.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.all.groups'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
@@ -4274,13 +4402,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
@@ -4406,13 +4538,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asses
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.edit.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.all.groups'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
@@ -4424,13 +4560,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.all.groups'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
@@ -4624,19 +4764,27 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.r
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.instructor'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
@@ -4677,21 +4825,29 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.r
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.instructor'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
@@ -4742,21 +4898,29 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.r
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.revise'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.ta'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
@@ -4772,13 +4936,17 @@ INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '/content/attachment/', '', NULL,
 select @r_temp = REALM_KEY from SAKAI_REALM where REALM_ID = '/content/attachment/'
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_anon, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '/announcement/channel/!site/motd', '', NULL, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 select @r_temp = REALM_KEY from SAKAI_REALM where REALM_ID = '/announcement/channel/!site/motd'
@@ -4883,13 +5051,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.r
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
@@ -4899,13 +5071,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_maintain, @f1)
@@ -5014,7 +5190,9 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.r
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'jforum.manage'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
@@ -5030,9 +5208,13 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'melet
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.createAssessment'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
@@ -5120,13 +5302,17 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
@@ -5148,11 +5334,15 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'melet
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.takeAssessment'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
