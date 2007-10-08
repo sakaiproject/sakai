@@ -2149,28 +2149,24 @@ public abstract class BaseCitationService implements CitationService
 		public class BasicIterator implements CitationIterator
 		{
 			protected List listOfKeys;
+			
+			// This is the firstItem on a given rendered page
+			protected int firstItem;
 
+			// This is the item where next() returns and increments.  At
+			// the start of rendering a given page nextItem = firstItem and
+			// increments until lastItem
 			protected int nextItem;
 
+			// This is the lastitem on a given rendered page
 			protected int lastItem;
-
-			protected int startPage = 0;
 
 			public BasicIterator()
 			{
 				checkForUpdates();
 				this.listOfKeys = new Vector(m_order);
+				this.firstItem = 0;
 				setIndexes();
-			}
-
-			/*
-			 * (non-Javadoc)
-			 *
-			 * @see org.sakaiproject.citation.api.CitationIterator#getPage()
-			 */
-			public int getPage()
-			{
-				return this.startPage;
 			}
 
 			/*
@@ -2211,7 +2207,16 @@ public abstract class BaseCitationService implements CitationService
 			 */
 			public boolean hasNextPage()
 			{
-				return m_pageSize * (startPage + 1) < this.listOfKeys.size();
+				boolean hasNextPage = false;
+				
+				if (m_ascending)
+					hasNextPage = this.firstItem + m_pageSize < this.listOfKeys.size();
+				else
+					hasNextPage = this.firstItem - m_pageSize >= 0;
+					
+				return hasNextPage;
+
+//				return m_pageSize * (startPage + 1) < this.listOfKeys.size();
 			}
 
 			/*
@@ -2221,7 +2226,16 @@ public abstract class BaseCitationService implements CitationService
 			 */
 			public boolean hasPreviousPage()
 			{
-				return this.startPage > 0;
+				boolean hasPreviousPage = false;
+				
+				if (m_ascending)
+					hasPreviousPage = this.firstItem - m_pageSize >= 0;
+				else
+					hasPreviousPage = this.firstItem + m_pageSize < this.listOfKeys.size();
+					
+				return hasPreviousPage;
+
+//				return this.startPage > 0;
 			}
 
 			/*
@@ -2258,7 +2272,15 @@ public abstract class BaseCitationService implements CitationService
 			 */
 			public void nextPage()
 			{
-				this.startPage++;
+				if (m_ascending)
+				{
+					this.firstItem = this.firstItem + m_pageSize;
+				}
+				else
+				{
+					this.firstItem = this.firstItem - m_pageSize;
+				}
+				
 				setIndexes();
 			}
 
@@ -2269,7 +2291,15 @@ public abstract class BaseCitationService implements CitationService
 			 */
 			public void previousPage()
 			{
-				this.startPage--;
+				if (m_ascending)
+				{
+					this.firstItem = this.firstItem - m_pageSize;
+				}
+				else
+				{
+					this.firstItem = this.firstItem + m_pageSize;
+				}
+
 				setIndexes();
 			}
 
@@ -2286,18 +2316,17 @@ public abstract class BaseCitationService implements CitationService
 
 			protected void setIndexes()
 			{
+				this.nextItem = this.firstItem;
+				
 				if (m_ascending)
 				{
-					this.nextItem = Math.min(this.listOfKeys.size(), this.startPage * m_pageSize);
 					this.lastItem = Math.min(this.listOfKeys.size(), this.nextItem + m_pageSize);
 				}
 				else
 				{
-					this.nextItem = Math.max(0, this.listOfKeys.size() - this.startPage
-					        * m_pageSize);
 					this.lastItem = Math.max(0, this.nextItem - m_pageSize);
 				}
-			}
+			} // end setIndexes()
 
 			/*
 			 * (non-Javadoc)
@@ -2315,18 +2344,8 @@ public abstract class BaseCitationService implements CitationService
 				{
 					Collections.sort(this.listOfKeys, m_comparator);
 				}
-				this.startPage = 0;
-				setIndexes();
-			}
-
-			/*
-			 * (non-Javadoc)
-			 *
-			 * @see org.sakaiproject.citation.api.CitationIterator#setPage(int)
-			 */
-			public void setPage(int page)
-			{
-				this.startPage = page;
+				
+				this.firstItem = 0;
 				setIndexes();
 			}
 
@@ -2337,12 +2356,40 @@ public abstract class BaseCitationService implements CitationService
 			 */
 			public void setPageSize(int size)
 			{
-				m_pageSize = size;
-				this.startPage = 0;
-				setIndexes();
-			}
+				if (size > 0)
+				{
+					this.lastItem = this.firstItem + size;
+					
+					if (this.lastItem >= this.listOfKeys.size())
+						this.lastItem = this.listOfKeys.size() - 1;
 
-		}
+					m_pageSize = size;
+					setIndexes();
+				} // end if size > 0
+				
+			} // end setPageSize()
+			
+			public int getStart()
+			{
+				return this.firstItem;
+			}
+			
+			public int getEnd()
+			{
+				return this.lastItem;
+			}
+			
+			public void setStart(int i)
+			{
+				if (i >= 0 && i < this.listOfKeys.size())
+				{
+					this.firstItem = i;
+					setIndexes();
+				}
+			} // end setStart()
+
+
+		} // end class BasicIterator
 
 		public class TitleComparator extends MultipleKeyComparator
 		{
