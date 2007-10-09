@@ -40,5 +40,6 @@ To add the  JCR CHS as well as the DB CHS to sakai
     <module>content-tool</module>
     <module>content-tool/tool</module>
     <module>content-util/util</module>
+    <module>contentmultiplex-impl/impl</module>
   </modules>
 </project>
