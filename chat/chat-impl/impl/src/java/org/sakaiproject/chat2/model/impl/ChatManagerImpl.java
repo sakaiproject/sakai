@@ -349,10 +349,18 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 		  String migratedId= (String) values[5];
 		  
 		  logger.debug("migrate message: "+messageId+", "+channelId);
+
 		  
 	      ChatMessage message = getMigratedMessage(messageId);
 	      
-	      if(message == null && body != null && !body.equals("")) {
+		  
+		  if (owner == null) {
+			  logger.warn("can't migrate message, owner is null. messageId: ["+messageId
+					  +"] channelId: ["+channelId+"]");
+			  return;
+		  }
+	      
+	      if(message == null && owner != null && body != null && !body.equals("")) {
 	    	  
 	    	  ChatChannel channel = getChatChannel(channelId);
 	    	  

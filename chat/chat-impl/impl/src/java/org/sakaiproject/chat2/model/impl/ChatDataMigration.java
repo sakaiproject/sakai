@@ -151,12 +151,20 @@ public class ChatDataMigration {
       
       String sql = getMessageFromBundle("select.oldchannels");
       
+      int oldChannelsFound = 0;
+      int newChannelsWritten = 0;
+      
       try {
             stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
             
             try {
                while (rs.next()) {
+            	   	oldChannelsFound++;
+            	   	
+            	   	if ((oldChannelsFound % 5000) == 0) {
+            	   			logger.info("Processed channels: "+oldChannelsFound);
+            	   	}
                   /* 
                    * CHANNEL_ID
                    * XML
@@ -175,6 +183,11 @@ public class ChatDataMigration {
                      Clob xmlClob = (Clob) xml;
                      doc = Xml.readDocumentFromStream(xmlClob.getAsciiStream());
                   }
+                  
+                  if (doc == null) {
+                	  logger.error("error converting chat channel. skipping CHANNEL_ID: ["+oldId+"] XML: ["+xml+"]");
+                	  continue;
+                  }
 
                   // verify the root element
                   Element root = doc.getDocumentElement();
@@ -183,7 +196,8 @@ public class ChatDataMigration {
                   String newChannelId = escapeSpecialCharsForId(oldId);
                   
                   //TODO Chat lookup the config params?
-                  
+
+                  newChannelsWritten++;
                   String runSql = getMessageFromBundle("insert.channel");
                   Object[] fields = new Object[] {newChannelId, context, null, title, "", "SelectMessagesByTime", 3, 0, 1, oldId, oldId};
                   
@@ -215,9 +229,12 @@ public class ChatDataMigration {
             try {
                 stmt.close();
             } catch (Exception e) {
+            	logger.error("Unexpected error in chat channel conversion:"+e);
             }
         }
         logger.debug("Migration task fininshed: runChannelMigration()");
+        logger.info("chat channel conversion done.  Old channels found: "
+        			+oldChannelsFound+" New channels written: "+newChannelsWritten);
    }
    
    protected void runMessageMigration(Connection con) {
@@ -226,12 +243,20 @@ public class ChatDataMigration {
       
       String sql = getMessageFromBundle("select.oldmessages");
       
+      int oldMessagesFound = 0;
+      int newMessagesWritten = 0;
+      
       try {
             stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
             
             try {
                while (rs.next()) {
+            	   oldMessagesFound++;
+            	   
+              	   	if ((oldMessagesFound % 5000) == 0) {
+        	   			logger.info("Processed messages: "+oldMessagesFound);
+        	   	}
                   /*
                    * MESSAGE_ID
                    * CHANNEL_ID                            
@@ -257,12 +282,21 @@ public class ChatDataMigration {
                      doc = Xml.readDocumentFromStream(xmlClob.getAsciiStream());
                   }
 
+                  if (doc == null) {
+                	  logger.error("error converting chat message. "
+                			  +"skipping CHANNEL_ID: ["+oldChannelId+"] MESSAGE_ID: ["+oldMessageId+"]"
+                			  + " xml: "+xml);
+                	  continue;
+                  }
+                  
                   // verify the root element
                   Element root = doc.getDocumentElement();
                   String body = Xml.decodeAttribute(root, "body");
                   
                   String newMessageId = oldMessageId;
                   String runSql = getMessageFromBundle("insert.message");
+                  
+                  newMessagesWritten++;
                   
                   Object[] fields = new Object[] {
                         escapeSpecialCharsForId(newMessageId), escapeSpecialCharsForId(oldChannelId), owner, messageDate, body, oldMessageId};
@@ -287,10 +321,12 @@ public class ChatDataMigration {
             try {
                 stmt.close();
             } catch (Exception e) {
+              	logger.error("Unexpected error in chat message conversion:"+e);
             }
         }
         logger.debug("Migration task fininshed: runMessageMigration()");
-      
+        logger.info("chat message conversion done.  Old messages found: "
+    			+oldMessagesFound+" New messages written: "+newMessagesWritten);
    }
 
    /**
