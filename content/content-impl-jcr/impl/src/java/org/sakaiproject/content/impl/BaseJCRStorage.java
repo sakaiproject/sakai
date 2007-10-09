@@ -720,7 +720,7 @@ public class BaseJCRStorage
 		}
 		catch (RepositoryException e)
 		{
-			M_log.warn("Failed to cancel Edit ", e);
+			M_log.debug("Failed to cancel Edit ", e);
 		}
 		try
 		{
@@ -728,7 +728,7 @@ public class BaseJCRStorage
 		}
 		catch (RepositoryException e)
 		{
-			M_log.warn("Failed to un Lock ", e);
+			M_log.debug("Failed to un Lock. on Some JCR Impls this is Ok ", e);
 		}
 	}
 
@@ -1038,7 +1038,15 @@ public class BaseJCRStorage
 			NodeType nt = n.getPrimaryNodeType();
 			if (JCRConstants.NT_FOLDER.equals(nt.getName()))
 			{
+				
 				int c = (int) n.getNodes().getSize();
+				if ( c == -1 ) {
+					c = 0;
+					for ( NodeIterator ni = n.getNodes(); ni.hasNext(); ) {
+						ni.next();
+						c++;
+					}
+				}
 				log.info(" Collection " + collectionId + " has " + c + " members ");
 				return c;
 			}

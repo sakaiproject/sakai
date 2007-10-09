@@ -54,6 +54,8 @@ import org.sakaiproject.content.impl.jcr.SakaiConstants;
 import org.sakaiproject.content.impl.util.GMTDateformatter;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.jcr.api.DAVConstants;
 import org.sakaiproject.jcr.api.JCRConstants;
@@ -306,7 +308,7 @@ public class JCRStorageUser implements LiteStorageUser
 			{
 				BaseJCRCollectionEdit bce = (BaseJCRCollectionEdit) edit;
 				bce.setNode(n);
-				bce.m_properties.addProperty(ResourceProperties.PROP_IS_COLLECTION,
+				rp.addProperty(ResourceProperties.PROP_IS_COLLECTION,
 						"true");
 				bce.setResourceType(ResourceType.TYPE_FOLDER);
 			}
@@ -314,7 +316,7 @@ public class JCRStorageUser implements LiteStorageUser
 			{
 				BaseJCRResourceEdit bre = (BaseJCRResourceEdit) edit;
 				bre.setNode(n);
-				bre.m_properties.addProperty(ResourceProperties.PROP_IS_COLLECTION,
+				rp.addProperty(ResourceProperties.PROP_IS_COLLECTION,
 						"false");
 				bre.setResourceType(ResourceType.TYPE_UPLOAD);
 			}
@@ -337,9 +339,9 @@ public class JCRStorageUser implements LiteStorageUser
 						log.debug("Setting Creation date on " + bedit.m_id + " to "
 								+ creationDate);
 					}
-					bedit.m_properties.addProperty(ResourceProperties.PROP_CREATION_DATE,
+					rp.addProperty(ResourceProperties.PROP_CREATION_DATE,
 							creationDate);
-					bedit.m_properties.addProperty(ResourceProperties.PROP_MODIFIED_DATE,
+					rp.addProperty(ResourceProperties.PROP_MODIFIED_DATE,
 							creationDate);
 				}
 				catch (Exception ex)
@@ -359,7 +361,7 @@ public class JCRStorageUser implements LiteStorageUser
 							log.debug("Setting Modification date on " + bedit.m_id
 									+ " to " + modifiedDate);
 						}
-						bedit.m_properties.addProperty(
+						rp.addProperty(
 								ResourceProperties.PROP_MODIFIED_DATE, modifiedDate);
 					}
 
@@ -406,6 +408,7 @@ public class JCRStorageUser implements LiteStorageUser
 					Node content = n.getNode(JCRConstants.JCR_CONTENT);
 					Property p = content.getProperty(JCRConstants.JCR_DATA);
 					bedit.m_contentLength = (int) p.getLength();
+					rp.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, String.valueOf(bedit.m_contentLength));
 				}
 				else if (n.hasProperty(DAVConstants.DAV_GETCONTENTLENGTH))
 				{
@@ -418,6 +421,7 @@ public class JCRStorageUser implements LiteStorageUser
 					{
 						bedit.m_contentLength = 0;
 					}
+					rp.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, String.valueOf(bedit.m_contentLength));
 				}
 
 				if (n
@@ -820,6 +824,7 @@ public class JCRStorageUser implements LiteStorageUser
 		resourceConverterMap.put(ResourceProperties.PROP_DISPLAY_NAME, nullConverter);
 		resourceConverterMap.put(ResourceProperties.PROP_CREATION_DATE, nullConverter);
 		resourceConverterMap.put(ResourceProperties.PROP_MODIFIED_DATE, nullConverter);
+		resourceConverterMap.put(ResourceProperties.PROP_CONTENT_LENGTH, nullConverter);
 
 		resourceConverterList.add(contentConverter);
 		resourceConverterList.add(glconverter);
