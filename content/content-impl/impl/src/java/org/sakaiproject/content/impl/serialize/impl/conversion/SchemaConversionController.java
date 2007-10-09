@@ -51,6 +51,7 @@ public class SchemaConversionController
 		try
 		{
 			connection = datasource.getConnection();
+			addColumns(connection, convert, driver);
 			createRegisterTable(connection, convert, driver);
 		}
 		catch (Exception e)
@@ -295,6 +296,49 @@ public class SchemaConversionController
 			}
 			catch (Exception ex)
 			{
+			}
+		}
+	}
+	
+	private void addColumns(Connection connection, SchemaConversionHandler convert, SchemaConversionDriver driver) throws SQLException
+	{
+		String[] names = driver.getNewColumnNames();
+		String[] types = driver.getNewColumnTypes();
+		String[] qualifiers = driver.getNewColumnQualifiers();
+		
+		if(names != null)
+		{
+			for(int i = 0; i < names.length; i++)
+			{
+				Statement stmt = null;
+				ResultSet rs = null;
+				try
+				{
+					stmt = connection.createStatement();
+					String sql = driver.getTestNewColumn(names[i]);
+					rs = stmt.executeQuery(sql);
+					if(rs == null || ! rs.first())
+					{
+						stmt = connection.createStatement();
+						sql = driver.getAddNewColumn(names[i], types[i], qualifiers[i]);
+						stmt.execute(sql);
+						log.info("added column: " + sql);
+					}
+					else
+					{
+						log.info("column exists: " + sql);
+					}
+				}
+				finally
+				{
+					try
+					{
+						stmt.close();
+					}
+					catch (Exception ex)
+					{
+					}
+				}
 			}
 		}
 	}

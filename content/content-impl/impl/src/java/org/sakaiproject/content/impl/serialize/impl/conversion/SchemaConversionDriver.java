@@ -155,6 +155,76 @@ public class SchemaConversionDriver
 	public String getPopulateMigrateTable() {
 		return p.getProperty(base+".populate.migrate.table");
 	}
+	
+	/**
+	 * An array of strings identifying the names of columns that need to be added before the conversion can proceed.
+	 * Null if no new columns need to be added.
+	 * @return
+	 */
+	public String[] getNewColumnNames() {
+		String nameStr = p.getProperty(base + ".new.columns.names");
+		System.out.println(base + ".new.columns.names == " + nameStr);
+		String[] names = null;
+		if(nameStr != null && ! nameStr.trim().equals(""))
+		{
+			names = nameStr.split(",");
+		}
+		System.out.println(base + ".new.columns.names == " + names);
+		return names;
+	}
+	
+	/**
+	 * An array of strings identifying the datatypes of columns that need to be added before the conversion can proceed.
+	 * Each element in the array returned by getNewColumnNames() has a corresponding datatype in this array at the
+	 * same index as in the array returned by getNewColumnNames(). The return value may be null if no new columns need 
+	 * to be added, in which case getNewColumnNames() returns null.
+	 * 
+	 * @return
+	 */
+	public String[] getNewColumnTypes() {
+		String typeStr = p.getProperty(base + ".new.columns.types");
+		System.out.println(base + ".new.columns.types == " + typeStr);
+		String[] types = null;
+		if(typeStr != null && ! typeStr.trim().equals(""))
+		{
+			types = typeStr.split(",");
+		}
+		System.out.println(base + ".new.columns.types == " + types);
+		return types;
+	}
+	
+	/**
+	 * An array of strings identifying the qualifiers for columns that need to be added before the conversion can proceed.
+	 * For example, a qualifier might be the SQL to specify a default value or some other declaration made at the time a 
+	 * column is created. Each element in the array returned by getNewColumnNames() has a corresponding entry in this array 
+	 * at the same index as in the array returned by getNewColumnNames(). The qualifier for any or all columns may be a 
+	 * string containing single space character if the column has no qualifier. The return value may be null if no new columns 
+	 * need to be added, in which case getNewColumnNames() returns null.
+	 * 
+	 * @return
+	 */
+	public String[] getNewColumnQualifiers() {
+		String qualifierStr = p.getProperty(base + ".new.columns.qualifiers");
+		System.out.println(base + ".new.columns.qualifiers == " + qualifierStr);
+		String[] qualifiers = null;
+		if(qualifierStr != null && ! qualifierStr.trim().equals(""))
+		{
+			qualifiers = qualifierStr.split(",");
+		}
+		System.out.println(base + ".new.columns.qualifiers == " + qualifiers);
+		return qualifiers;
+	}
+	
+	public String getTestNewColumn(String name) {
+		String sql = p.getProperty(base + ".new.columns.test");
+		sql = sql.replaceAll("<name>", name);
+		return sql;
+	}
+	public String getAddNewColumn(String name, String type, String qualifier) {
+		String sql = p.getProperty(base + ".new.columns.add");
+		sql = sql.replaceAll("<name>", name).replaceAll("<type>", type).replaceAll("<qualifier>", qualifier);
+		return sql;
+	}
 
 
 }

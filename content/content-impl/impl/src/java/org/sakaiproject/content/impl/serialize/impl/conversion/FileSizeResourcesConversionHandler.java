@@ -96,7 +96,8 @@ public class FileSizeResourcesConversionHandler implements SchemaConversionHandl
 
 			updateRecord.setString(1, context);
 			updateRecord.setLong(2, sax.getSerializableContentLength());
-			updateRecord.setString(3, id);
+			updateRecord.setString(3, sax.getSerializableResourceType());
+			updateRecord.setString(4, id);
 			return true;
 		}
 		catch (Exception e)
