@@ -307,9 +307,6 @@ ${tool.toolRenderResult.getTitle()}
 #if ($tabsMoreSitesShow && $useDHTMLMore)
 				<li class="more-tab"><a href="#" onclick="return dhtml_more_tabs();" title="${rloader.sit_more}"><span class="outer"><span class="inner">${rloader.sit_more_tab}</span></span></a></li>
 #end
-				<li style="display:none;border-width:0" class="fixTabsIE">
-					<a href="javascript:void(0);">#x20;</a>
-				</li>
 			</ul>
 		</div> <!-- /linkNav -->
 
