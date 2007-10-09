@@ -28,9 +28,12 @@ ul#q1 {
    float: left;
    margin: 0;
    padding: 0;
+position: relative;
+z-index: 5;
 }
 
    ul#q1 li {
+   background-color: #ddd;
       border: 1px solid #a3a3a3;
       bottom: 0;
       display: block;
@@ -41,6 +44,7 @@ ul#q1 {
       padding: 5px 5px 0 5px;
       text-align: center;
       white-space: nowrap;
+   z-index: 5;
    }
 
 div#q2 {
@@ -49,7 +53,6 @@ div#q2 {
    left: 0;
    overflow: hidden;
    position: relative;
-   width: 100%;
 }
 
    div#q2 div {
@@ -63,13 +66,15 @@ div#q2 {
          margin: 0;
          padding: 0;
          position: relative;
+         *xposition: absolute;
          width: 1000000px;
+      	z-index: 0;
       }
          div#q2 div ul li {
             border: 1px solid #a3a3a3;
             float: left;
             height: 40px;
-            *height: 45px;
+            *height: 43px;
             list-style: none;
             padding: 5px 5px 0 5px;
             text-align: center;
@@ -79,7 +84,7 @@ div#q2 {
 div#q4 {
    display:block;
    *display: inline;
-   left: 0;
+   left: 0px;
    overflow: hidden;
    position: relative;
 }

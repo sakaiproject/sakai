@@ -5,7 +5,8 @@ adjustScrolls = function(){
 }
 
 function gethandles(){
-   ie = ($("ul#q1 li").css("height") == "45px") ? true : false;
+   ie = $.browser.msie;
+   if ( $.browser.msie && $.browser.version < 7){ $("div#q2 div ul").css("position", "absolute"); $("div#q4").css("left", "-3px"); }
    $("div#q3 div").width($("ul#q1").width());
    $("ul#q1 li").each(function(i){
       this_width = $(this).width() + parseInt($(this).css("padding-right")) *2;
