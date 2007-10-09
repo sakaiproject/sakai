@@ -4880,8 +4880,16 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				m_storage.commitResource(edit);
 				// close the edit object
 				((BaseResourceEdit) edit).closeEdit();
+				
+				// track it (no notification)
+				EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_ADD, edit.getReference(null), true,
+						NotificationService.NOTI_NONE));
 
 				m_storage.removeResource(thisResource);
+
+				// track it (no notification)
+				EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, thisResource.getReference(null), true,
+						NotificationService.NOTI_NONE));
 
 				if (M_log.isDebugEnabled()) M_log.debug("moveResource successful");
 				still_trying = false;
