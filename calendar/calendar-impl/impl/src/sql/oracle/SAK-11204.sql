@@ -1,5 +1,4 @@
 -- Force this to happen and report problems bu having a non failing SQL statement first
-SELECT 1 FROM DUAL;
 
 
 ALTER TABLE CALENDAR_EVENT ADD (RANGE_START INTEGER);

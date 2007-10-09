@@ -1,5 +1,4 @@
 -- Force this to happen and report problems bu having a non failing SQL statement first
-SELECT 1;
 
 ALTER TABLE CALENDAR_EVENT ADD COLUMN RANGE_START INTEGER, ADD COLUMN RANGE_END INTEGER ;
 
