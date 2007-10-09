@@ -106,6 +106,17 @@ import javax.xml.parsers.SAXParser;
  */
 public class BaseSearchManager implements SearchManager, Observer
 {
+  /**
+   * Maximum number of consecutive duplicate result records we'll accept
+   * before disabling the duplicate record check for the current search.
+   *
+   * The idea is to avoid displaying occasional duplicates, but don't
+   * discard forever in the pathological case where we're only getting
+   * duplicate results.
+   */
+  protected static int  MAX_DUPLICATES = 10;
+
+
 	public class BasicObjectIterator
 	implements ObjectIterator
 	{
@@ -144,6 +155,7 @@ public class BaseSearchManager implements SearchManager, Observer
 		protected List m_assets;
 		protected List m_pageOrder;
 		protected Set m_duplicateCheck;
+		protected boolean m_duplicateCheckEnabled;
 		protected boolean m_firstPage;
 		protected String m_searchId;
 		protected String m_searchType;
@@ -188,6 +200,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	        m_pageOrder = new Vector();
 	        this.m_index = new Hashtable();
 	        m_duplicateCheck = new TreeSet();
+	        m_duplicateCheckEnabled = true;
 	        m_savedResults = CitationService.getTemporaryCollection();
 	        m_newSearch = true;
 	        m_firstPage = true;
@@ -207,6 +220,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	        m_pageOrder = new Vector();
 	        this.m_index = new Hashtable();
 	        m_duplicateCheck = new TreeSet();
+	        m_duplicateCheckEnabled = true;
 	        m_savedResults = CitationService.getTemporaryCollection();
 	        m_newSearch = true;
 	        m_firstPage = true;
@@ -699,6 +713,24 @@ public class BaseSearchManager implements SearchManager, Observer
 	        }
 	        return m_duplicateCheck;
         }
+
+    /**
+     * Are we checking for duplicate search results?
+     * @return true if so
+     */
+    public boolean isDuplicateCheckEnabled()
+    {
+      return m_duplicateCheckEnabled;
+    }
+
+    /**
+     * Enable/disable duplicate checking
+     * @param state true to enable the duplicate check
+     */
+    public void setDuplicateCheckEnabled(boolean state)
+    {
+      m_duplicateCheckEnabled = state;
+    }
 
 		/* (non-Javadoc)
          * @see org.sakaiproject.citation.api.ActiveSearch#prepareForNextPage()
@@ -1768,11 +1800,12 @@ public class BaseSearchManager implements SearchManager, Observer
 		}
 
 		Set duplicateCheck = ((BasicSearch) search).getDuplicateCheck();
+    int duplicateCount = 0;
 		boolean done = false;
 		try
 		{
 			// poll until you get pageSize results to return
-			while( assetIterator.hasNextAsset() && !done)
+			while( !done && assetIterator.hasNextAsset() )
 			{
 				try
 				{
@@ -1782,15 +1815,23 @@ public class BaseSearchManager implements SearchManager, Observer
 
 					String openUrlParams = citation.getOpenurlParameters();
 
-					if(duplicateCheck.contains(openUrlParams))
+					if (((BasicSearch) search).isDuplicateCheckEnabled() &&
+					      duplicateCheck.contains(openUrlParams))
 					{
+ 					  m_log.debug("Duplicate #" + (duplicateCount + 1) + " found");
+					  if (duplicateCount++ >= MAX_DUPLICATES)
+					  {
+					    ((BasicSearch) search).setDuplicateCheckEnabled(false);
+					  }
 						continue;
 					}
 					else
 					{
 						((BasicSearch) search).m_pageOrder.add(citation.getId());
 						citations.add(citation);
+
 						duplicateCheck.add(openUrlParams);
+						duplicateCount = 0;
 					}
 
 					// check if we've got enough to return
@@ -2002,7 +2043,8 @@ public class BaseSearchManager implements SearchManager, Observer
 	    		((BasicSearch) search).setSearchResults(citations);
 	    	}
 
-	    	Set duplicateCheck = ((BasicSearch) search).getDuplicateCheck();
+	    	Set duplicateCheck  = ((BasicSearch) search).getDuplicateCheck();
+   	    int duplicateCount  = 0;
 	    	int assetsRetrieved = 0;
 	    	boolean done = false;
 	    	try
@@ -2017,15 +2059,24 @@ public class BaseSearchManager implements SearchManager, Observer
 	    				Citation citation = CitationService.getTemporaryCitation(asset);
 
 	    				String openUrlParams = citation.getOpenurlParameters();
-	    				if(duplicateCheck.contains(openUrlParams))
-	    				{
-	    					continue;
+
+    					if (((BasicSearch) search).isDuplicateCheckEnabled() &&
+    					      duplicateCheck.contains(openUrlParams))
+    					{
+    					  m_log.debug("Duplicate #" + (duplicateCount + 1) + " found");
+    					  if (duplicateCount++ >= MAX_DUPLICATES)
+    					  {
+    					    ((BasicSearch) search).setDuplicateCheckEnabled(false);
+    					  }
+    						continue;
 	    				}
 	    				else
 	    				{
 	    					((BasicSearch) search).m_pageOrder.add(citation.getId());
 	    					citations.add(citation);
+
 	    					duplicateCheck.add(openUrlParams);
+    						duplicateCount = 0;
 	    				}
 
 	    				// check if we've got enough to return
@@ -2474,11 +2525,10 @@ public class BaseSearchManager implements SearchManager, Observer
                                    throws IOException, ServerOverloadException
   {
     InputStream   input     = resource.streamContent();
-    StringBuilder  content   = new StringBuilder();
+    StringBuilder content   = new StringBuilder();
     byte[]        bytesIn   = new byte[1024 * 8];
     int           count;
-m_log.debug("******Content resource: " + resource);
-m_log.debug("******input: " + input);
+
     while ((count = input.read(bytesIn)) != -1)
     {
       content.append(new String(bytesIn, 0, count, "UTF-8"));
