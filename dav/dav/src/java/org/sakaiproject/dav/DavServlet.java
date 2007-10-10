@@ -392,7 +392,7 @@ public class DavServlet extends HttpServlet
 	/**
 	 * Simple date format for the creation date ISO representation (partial).
 	 */
-	protected static final SimpleDateFormat creationDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+	protected static final SimpleDateFormat creationDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 
 	static
 	{
@@ -402,7 +402,7 @@ public class DavServlet extends HttpServlet
 	/**
 	 * Simple date format for the HTTP Date
 	 */
-	protected static final SimpleDateFormat HttpDateFormat = new SimpleDateFormat("EEE, d MMM yyyy hh:mm:ss z");
+	protected static final SimpleDateFormat HttpDateFormat = new SimpleDateFormat("EEE, d MMM yyyy hh:mm:ss z", Locale.US);
 
 	static
 	{
