@@ -545,6 +545,9 @@ function importCitations(formname)
   	$( '#risTextUpload' ).hide();
   	$( '#import1' ).attr("disabled","disabled");
   	$( '#import2' ).attr("disabled","disabled");
+  	$( '#AddCitations1' ).attr("disabled","disabled");
+  	$( '#AddCitations2' ).attr("disabled","disabled");
+   	
   	$( '#importingMessage' ).show();
   	document.getElementById('sakai_action').value='doImport';
   	submitform( formname);
