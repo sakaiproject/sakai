@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -202,13 +202,15 @@ public class BasicCourierService implements CourierService
 			deliveries = new Vector();
 		}
 
-		// "act" all the deliveries
-		for (Iterator it = deliveries.iterator(); it.hasNext();)
-		{
-			Delivery delivery = (Delivery) it.next();
-			delivery.act();
-		}
-
+		synchronized (deliveries)
+      {
+   		// "act" all the deliveries
+   		for (Iterator it = deliveries.iterator(); it.hasNext();)
+   		{
+   			Delivery delivery = (Delivery) it.next();
+   			delivery.act();
+   		}
+      }
 		return deliveries;
 	}
 
