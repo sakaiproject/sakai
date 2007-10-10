@@ -257,13 +257,13 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
           var nextPage = notSet;
           
           
-          if (document.getElementById("firstPage1").hasAttribute("disabled"))
+          if (document.getElementById("firstPage1").getAttribute("disabled") != null);
             firstPage = document.getElementById("firstPage1").getAttribute("disabled");
-          
-          if (document.getElementById("prevPage1").hasAttribute("disabled"))
+            
+          if (document.getElementById("prevPage1").getAttribute("disabled") != null);
             prevPage = document.getElementById("prevPage1").getAttribute("disabled");
 
-          if (document.getElementById("nextPage1").hasAttribute("disabled"))
+          if (document.getElementById("nextPage1").getAttribute("disabled") != null);
             nextPage = document.getElementById("nextPage1").getAttribute("disabled");
 
           // disable inputs
@@ -291,19 +291,19 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
           // enable inputs
           $( "input" ).attr( "disabled", "" );
         
-          if (firstPage != notSet)
+          if (firstPage != null && firstPage != notSet && firstPage)
           {
             document.getElementById("firstPage1").setAttribute("disabled", firstPage);
             document.getElementById("firstPage2").setAttribute("disabled", firstPage);
           }
           
-          if (prevPage != notSet)
+          if (prevPage != null && prevPage != notSet && prevPage)
           {
             document.getElementById("prevPage1").setAttribute("disabled", prevPage);
             document.getElementById("prevPage2").setAttribute("disabled", prevPage);
           }
 
-          if (nextPage != notSet)
+          if (nextPage != null && nextPage != notSet && nextPage)
           {
             document.getElementById("nextPage1").setAttribute("disabled", nextPage);
             document.getElementById("nextPage2").setAttribute("disabled", nextPage);
@@ -323,13 +323,13 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
           var prevPage = notSet;
           var nextPage = notSet;
           
-          if (document.getElementById("firstPage1").hasAttribute("disabled"))
+          if (document.getElementById("firstPage1").getAttribute("disabled") != null);
             firstPage = document.getElementById("firstPage1").getAttribute("disabled");
-          
-          if (document.getElementById("prevPage1").hasAttribute("disabled"))
+
+          if (document.getElementById("prevPage1").getAttribute("disabled") != null);
             prevPage = document.getElementById("prevPage1").getAttribute("disabled");
 
-          if (document.getElementById("nextPage1").hasAttribute("disabled"))
+          if (document.getElementById("nextPage1").getAttribute("disabled") != null);
             nextPage = document.getElementById("nextPage1").getAttribute("disabled");
 
           // disable inputs
@@ -353,19 +353,19 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
           // enable inputs
           $( "input" ).attr( "disabled", "" );
 
-          if (firstPage != notSet)
+          if (firstPage != null && firstPage != notSet && firstPage)
           {
             document.getElementById("firstPage1").setAttribute("disabled", firstPage);
             document.getElementById("firstPage2").setAttribute("disabled", firstPage);
           }
           
-          if (prevPage != notSet)
+          if (prevPage != null && prevPage != notSet && prevPage)
           {
             document.getElementById("prevPage1").setAttribute("disabled", prevPage);
             document.getElementById("prevPage2").setAttribute("disabled", prevPage);
           }
 
-          if (nextPage != notSet)
+          if (nextPage != null && nextPage != notSet && nextPage)
           {
             document.getElementById("nextPage1").setAttribute("disabled", nextPage);
             document.getElementById("nextPage2").setAttribute("disabled", nextPage);
