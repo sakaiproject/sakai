@@ -4,6 +4,8 @@
 <script type="text/javascript" language="JavaScript">
 	<!--
 	var DOT = "$DOT";
+	var defaultMimeCategory = "$!model.mimeCategory";
+	var defaultMimeSubtype = "$!model.mimeSubtype";
 	function submitform(id)
 	{
 		var theForm = document.getElementById(id);
@@ -1057,14 +1059,9 @@
 		select_category.setAttribute('id', 'mime_category' + DOT + index);
 		for(var i = 0; i < mimeCategories.length; i++)
 		{
-			var option_category = document.createElement('option');
-			option_category.text = mimeCategories[i];
-			option_category.value = mimeCategories[i];
-			if(category == mimeCategories[i])
-			{
-				option_category.setAttribute('selected',true);				
-			}
-			select_category.appendChild(option_category);
+			var selected = (category == mimeCategories[i]);
+			var defSelected = (defaultMimeCategory == mimeCategories[i]);
+			select_category.options[i] = new Option(mimeCategories[i], mimeCategories[i], defSelected, selected);
 		}
 
 		var slash = document.createTextNode(" / ");
@@ -1075,14 +1072,9 @@
 		
 		for(var i = 0; i < mimeSubtypes[category].length; i++)
 		{
-			var option_subtype = document.createElement('option');
-			option_subtype.text = mimeSubtypes[category][i];
-			option_subtype.value = mimeSubtypes[category][i];
-			if(subtype == mimeSubtypes[category][i])
-			{
-				option_subtype.setAttribute('selected',true);		
-			}
-			select_subtype.appendChild(option_subtype);
+			var selected = (subtype == mimeSubtypes[category][i]);
+			var defSelected = (defaultMimeSubtype == mimeSubtypes[category][i]);
+			select_subtype.options[i] = new Option(mimeSubtypes[category][i], mimeSubtypes[category][i], defSelected, selected);
 		}
 		
 		var children = mime_widget_div.childNodes;
@@ -1118,14 +1110,8 @@
 
 		for(var i = 0; i < mimeSubtypes[category].length; i++)
 		{
-			var option_subtype = document.createElement('option');
-			option_subtype.text = mimeSubtypes[category][i];
-			option_subtype.value = mimeSubtypes[category][i];
-			if(i == 0)
-			{
-				option_subtype.setAttribute('selected',true);			
-			}
-			select_subtype.appendChild(option_subtype);
+			var selected = (defaultMimeSubtype == mimeSubtypes[category][i]);
+			select_subtype.options[i] = new Option(mimeSubtypes[category][i], mimeSubtypes[category][i], selected, selected);
 		}
 		
 		if(category == "text")
