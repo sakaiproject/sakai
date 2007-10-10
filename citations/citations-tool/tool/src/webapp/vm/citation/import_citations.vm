@@ -28,37 +28,49 @@ doubleDeep = true;
 <script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
 </script>
 
-$tlang.getString("import.title")
-<p />
-$tlang.getString("import.directions")
-<p />
-<form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post" 
-	  enctype="multipart/form-data" >
-    <input name="sakai_action" id="sakai_action" value="" type="hidden" />
-	<input type="button" value='$tlang.getString("label.import")' id="import1"
-	       onclick="importCitations('$FORM_NAME');"/>
-	<input type="button" value='$tlang.getString("label.cancel")' id="cancel1" type="button" 
-	       onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>
-	<p />
-	<span id="risFileUpload">
-		$tlang.getString("import.file"): 
-		<input name="risupload" id="risupload" type="file" /> 
-	</span>
-	<span id="importingMessage" style="display: none;">
-	  <img src="/library/image/sakai/spinner.gif" alt="importing"> 
-      $tlang.getString("label.importing")
-	</span>
+<!-- template: sakai_citation-import_citations.vm -->
 
-	<p />
-	<span id="risTextUpload">
-		$tlang.getString("import.ristext"):
-	  <p />
-	  <textarea cols="80" rows="4" name="ristext" id="ristext"></textarea>
-	</span>
+<div class="portletBody">
+  <div class="indnt1">
+
+    <h3 id="basicSearchHeader">$tlang.getString("import.title")</h3>
     <p />
-	<input type="button" value='$tlang.getString("label.import")' id="import2"
-	       onclick="importCitations('$FORM_NAME');"/>
-	<input type="button" value='$tlang.getString("label.cancel")' id="cancel2" type="button"
-	       onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>
-	
-</form>
+    <form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post" 
+	      enctype="multipart/form-data" >
+      <p class="instruction">$tlang.getString("import.directions")</p>
+      <input name="sakai_action" id="sakai_action" value="" type="hidden" />
+      <input name="searchType" id="searchType" value="$basicSearchType" type="hidden" />
+
+	  <input type="button" value='$tlang.getString("label.import")' id="import1"
+	         onclick="importCitations('$FORM_NAME');"/>
+	  <input type="button" name="AddCitations" id="AddCitations1"
+             value="$tlang.getString("label.back.search")"
+             onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"/>
+	  <input type="button" value='$tlang.getString("label.cancel")' id="cancel1" type="button" 
+	         onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>
+	  <p />
+	  <span id="risFileUpload">
+		  $tlang.getString("import.file"): 
+		  <input name="risupload" id="risupload" type="file" /> 
+	  </span>
+	  <span id="importingMessage" style="display: none;">
+	    <img src="/library/image/sakai/spinner.gif" alt="importing"> 
+        $tlang.getString("label.importing")
+	  </span>
+	  <p />
+	  <span id="risTextUpload">
+		  $tlang.getString("import.ristext"):
+	    <p />
+	    <textarea cols="80" rows="4" name="ristext" id="ristext"></textarea>
+	  </span>
+      <p />
+	  <input type="button" value='$tlang.getString("label.import")' id="import2"
+	         onclick="importCitations('$FORM_NAME');"/>
+	  <input type="button" name="AddCitations" id="AddCitations2"
+             value="$tlang.getString("label.back.search")"
+             onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"/>
+	  <input type="button" value='$tlang.getString("label.cancel")' id="cancel2" type="button"
+	         onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>	
+    </form>
+  </div>
+</div>
