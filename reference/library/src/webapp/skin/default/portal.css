@@ -319,52 +319,49 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*list elements - children are <span> and <a>*/
 #siteLinkList li {
 	position: relative;
-	background:transparent url(images/tab-left.gif) no-repeat scroll left top;
 	display:block;
 	float:left;
-	margin:0 2px 0 0;
-	padding:0 0 0 11px;
-	border-bottom: 2px solid #013F68;
-}
-
-/*span shim for fine grained manipulation of link display (decorative)*/
-#siteLinkList li span{
 }
 
 /*links to other sites*/
 #siteLinkList li a, #siteLinkList li a:link, #siteLinkList li a:visited {
-	background: transparent url(images/tab-right.gif) no-repeat right top;
-	color: #FFFFFF;
+	color: #FFF;
+	text-decoration: none;
 	display: block;
 	float: left;
-	margin: 0pt;
-	padding: 8px 13px 3px 2px;
-	text-decoration: none;
+	background: transparent url(images/tab-left.gif) no-repeat scroll left top;
+	margin: 0 2px 0 0;
+	padding: 0 0 0 11px;
+	border-bottom: 2px solid #013F68;
 }
 
-#siteLinkList a:hover {
+#siteLinkList li a:hover {
 	text-decoration: underline;
 }
 
-/*the current sites' link - consists of the li and a*/
-#siteLinkList li.selectedTab {
-	background:transparent url(images/tab-left-selected.gif) no-repeat scroll left top;
-	border-width: 0;
+#siteLinkList li span {
+	display: block;
+	background: transparent url(images/tab-right.gif) no-repeat right top;
+	padding: 8px 13px 3px 2px;
+	margin: 0pt;
 }
+
+/*the current sites' link - consists of the li and a*/
 
 #siteLinkList li.selectedTab a,
 	#siteLinkList li.selectedTab a:link,
 	#siteLinkList li.selectedTab a:visited,
 	#siteLinkList li.selectedTab a:hover {
-	background:transparent url(images/tab-right-selected.gif) no-repeat scroll right top;
-	color:#000000;
+	color: #000;
 	font-weight: bolder;
 	text-decoration: none;
-	padding: 8px 11px 5px 0;
+	background: transparent url(images/tab-left-selected.gif) no-repeat scroll left top;
+	border-width: 0;
 }
 
-#siteLinkList li.tab-dim {
-	background: transparent url(images/tab-left-selected.gif) no-repeat scroll left top;
+#siteLinkList li.selectedTab a span{
+	background:transparent url(images/tab-right-selected.gif) no-repeat scroll right top;
+	padding: 8px 11px 5px 0;
 }
 
 #siteLinkList li.tab-dim a,
@@ -372,47 +369,44 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	#siteLinkList li.tab-dim a:visited,
 	#siteLinkList li.tab-dim a:hover {
 	color: #666;
+	background: transparent url(images/tab-left-selected.gif) no-repeat scroll left top;
+}
+
+#siteLinkList li.tab-dim a span {
 	background:transparent url(images/tab-right-selected.gif) no-repeat scroll right top;
 	padding-bottom: 3px;
 }
 
-#siteLinkList li.more-active {
-	background: transparent url(images/tab-left-selected.gif) no-repeat scroll left top;	
-	border-width: 0;
+/* more tab */
+#siteLinkList li.more-tab a span.inner {
+	background-image:  url(images/tab-arrow-down.gif);
+	background-repeat: no-repeat;
+	background-position: 100% 36%;
+	padding: 0 20px 0 0;
+	margin: 0;
 }
 
 #siteLinkList li.more-active a,
 	#siteLinkList li.more-active a:link,
 	#siteLinkList li.more-active a:visited {
-	background:transparent url(images/tab-right-selected.gif) no-repeat scroll right top;
 	color:#000000;
 	font-weight: bolder;
 	text-decoration: none;
+	background: transparent url(images/tab-left-selected.gif) no-repeat scroll left top;	
+	border-width: 0;
+}
+
+#siteLinkList li.more-active a:hover {
+	text-decoration: underline;
+}
+
+#siteLinkList li.more-active a span {
+	background:transparent url(images/tab-right-selected.gif) no-repeat scroll right top;
 	padding-bottom: 5px;
 }
 
-#siteLinkList li.more-tab a:hover {
-	text-decoration: none;
-}
-
-#siteLinkList li.more-tab span.outer {
-	background-image:  url(images/tab-arrow-down.gif);
-	background-repeat: no-repeat;
-	background-position: 100% 36%;
-	padding-right: 20px;
-	text-decoration: none;
-}
-
-#siteLinkList li.more-active span.outer {
+#siteLinkList li.more-active a span.inner {
 	background-image: url(images/tab-arrow-down-active.gif);
-}
-
-#siteLinkList li.more-tab a:hover span.outer {
-	text-decoration: none;
-}
-
-#siteLinkList li.more-tab a:hover span.inner {
-	text-decoration: underline;
 }
 
 .fixTabsIE{
@@ -425,13 +419,17 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 .dhtml_more_tabs {
 	position: absolute;
 	top: 2.5em;
-	right: 2px;
+	right: 4px;
 	line-height: 1.5em;
 	background-color: #FFFFFF; 
 	border: 2px solid #013F68;
 	border-top-width: 0;
 	width: 75%;
 	z-index: 9999;
+}
+
+html>body .dhtml_more_tabs {
+	right: 2px;
 }
 
 .dhtml_more_tabs div.termContainer {
