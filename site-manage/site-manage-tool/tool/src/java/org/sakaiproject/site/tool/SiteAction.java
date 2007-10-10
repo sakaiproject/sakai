@@ -581,6 +581,10 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String PROTOCOL_STRING = "://";
 
 	private static final String TOOL_ID_SUMMARY_CALENDAR = "sakai.summary.calendar";
+	
+	// the string for course site type
+	private static final String STATE_COURSE_SITE_TYPE = "state_course_site_type";
+	
 	/**
 	 * Populate the state object, if needed.
 	 */
@@ -655,6 +659,12 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_DISABLE_JOINABLE_SITE_TYPE,
 						new Vector());
 			}
+		}
+		
+		// course site type
+		if (state.getAttribute(STATE_COURSE_SITE_TYPE) == null)
+		{
+			state.setAttribute(STATE_COURSE_SITE_TYPE, ServerConfigurationService.getString("courseSiteType", "course"));
 		}
 
 		if (state.getAttribute(STATE_TOP_PAGE_MESSAGE) == null) {
@@ -879,6 +889,9 @@ public class SiteAction extends PagedResourceActionII {
 		
 		context.put("cms", cms);
 
+		// course site type
+		context.put("courseSiteType", state.getAttribute(STATE_COURSE_SITE_TYPE));
+		
 		Site site = getStateSite(state);
 
 		switch (index) {
@@ -1095,7 +1108,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			context.put("type", siteType);
 
-			if (siteType.equalsIgnoreCase("course")) {
+			if (siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("isProjectSite", Boolean.FALSE);
 
@@ -1181,7 +1194,7 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-			if (siteType != null && siteType.equalsIgnoreCase("course")) {
+			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("isProjectSite", Boolean.FALSE);
 			} else {
@@ -1464,7 +1477,7 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-			if (siteType.equalsIgnoreCase("course")) {
+			if (siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("isProjectSite", Boolean.FALSE);
 				if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null) {
@@ -1672,7 +1685,7 @@ public class SiteAction extends PagedResourceActionII {
 									rb.getString("java.siteaccess"),
 									"doMenu_edit_site_access"));
 						}
-						if (siteType != null && siteType.equals("course")) {
+						if (siteType != null && siteType.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 							b.add(new MenuEntry(rb.getString("java.editc"),
 									"doMenu_siteInfo_editClass"));
 						}
@@ -1799,7 +1812,7 @@ public class SiteAction extends PagedResourceActionII {
 				if (contactEmail != null) {
 					context.put("contactEmail", contactEmail);
 				}
-				if (siteType != null && siteType.equalsIgnoreCase("course")) {
+				if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 					context.put("isCourseSite", Boolean.TRUE);
 					
 					coursesIntoContext(state, context, site);
@@ -1850,7 +1863,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("type", site.getType());
 
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-			if (siteType != null && siteType.equalsIgnoreCase("course")) {
+			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("skins", state.getAttribute(STATE_ICONS));
 				if (state.getAttribute(FORM_SITEINFO_SKIN) != null) {
@@ -1909,7 +1922,7 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			siteProperties = site.getProperties();
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-			if (siteType != null && siteType.equalsIgnoreCase("course")) {
+			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("siteTerm", state.getAttribute(FORM_SITEINFO_TERM));
 			} else {
@@ -2122,7 +2135,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 
 				siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-				if (siteType != null && siteType.equalsIgnoreCase("course")) {
+				if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 					context.put("isCourseSite", Boolean.TRUE);
 					context.put("isProjectSite", Boolean.FALSE);
 				} else {
@@ -2383,7 +2396,7 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			context.put("siteTitle", site.getTitle());
 			String sType = site.getType();
-			if (sType != null && sType.equals("course")) {
+			if (sType != null && sType.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("currentTermId", site.getProperties().getProperty(
 						PROP_SITE_TERM));
@@ -3659,7 +3672,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (siteTypes.size() == 1) {
 				String siteType = (String) siteTypes.get(0);
 				if (!siteType.equals(ServerConfigurationService.getString(
-						"courseSiteType", "course"))) {
+						"courseSiteType", (String) state.getAttribute(STATE_COURSE_SITE_TYPE)))) {
 					// if only one site type is allowed and the type isn't
 					// course type
 					// skip the select site type step
@@ -3949,7 +3962,7 @@ public class SiteAction extends PagedResourceActionII {
 		} else {
 			setNewSiteType(state, type);
 
-			if (type.equalsIgnoreCase("course")) {
+			if (type.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				User user = UserDirectoryService.getCurrentUser();
 				String currentUserId = user.getEid();
 
@@ -3993,7 +4006,7 @@ public class SiteAction extends PagedResourceActionII {
 						}		
 					}
 
-				} else { // type!="course"
+				} else { // not course type
 					state.setAttribute(STATE_TEMPLATE_INDEX, "37");
 					totalSteps = 5;
 				}
@@ -4871,7 +4884,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			// for course sites
 			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-			if (siteType != null && siteType.equalsIgnoreCase("course")) {
+			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				String siteId = site.getId();
 
 				ResourcePropertiesEdit rp = site.getPropertiesEdit();
@@ -6121,7 +6134,7 @@ public class SiteAction extends PagedResourceActionII {
 		ResourcePropertiesEdit siteProperties = Site.getPropertiesEdit();
 		String site_type = (String) state.getAttribute(STATE_SITE_TYPE);
 
-		if (site_type != null && !site_type.equals("course")) {
+		if (site_type != null && !site_type.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 			Site.setTitle((String) state.getAttribute(FORM_SITEINFO_TITLE));
 		}
 
@@ -6131,7 +6144,7 @@ public class SiteAction extends PagedResourceActionII {
 				.getAttribute(FORM_SITEINFO_SHORT_DESCRIPTION));
 
 		if (site_type != null) {
-			if (site_type.equals("course")) {
+			if (site_type.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				// set icon url for course
 				String skin = (String) state.getAttribute(FORM_SITEINFO_SKIN);
 				setAppearance(state, Site, skin);
@@ -6225,7 +6238,7 @@ public class SiteAction extends PagedResourceActionII {
 				if (cms == null)
 				{
 					// if there is no CourseManagementService, disable the process of creating course site
-					String courseType = ServerConfigurationService.getString("courseSiteType", "course");
+					String courseType = ServerConfigurationService.getString("courseSiteType", (String) state.getAttribute(STATE_COURSE_SITE_TYPE));
 					types.remove(courseType);
 				}
 				state.setAttribute(STATE_SITE_TYPES, types);
@@ -6776,7 +6789,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (forward) {
 				Site Site = getStateSite(state);
 
-				if (Site.getType() != null && !Site.getType().equals("course")) {
+				if (Site.getType() != null && !Site.getType().equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 					// site titel is editable and could not be null
 					String title = StringUtil.trimToNull(params
 							.getString("title"));
@@ -7129,7 +7142,7 @@ public class SiteAction extends PagedResourceActionII {
 										+ nSiteId + "when duplicating site");
 							}
 
-							if (site.getType().equals("course")) {
+							if (site.getType().equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 								// for course site, need to
 								// read in the input for
 								// term information
@@ -8647,7 +8660,7 @@ public class SiteAction extends PagedResourceActionII {
 			int totalSteps = 4;
 			if (state.getAttribute(STATE_SITE_TYPE) != null
 					&& ((String) state.getAttribute(STATE_SITE_TYPE))
-							.equalsIgnoreCase("course")) {
+							.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				totalSteps = 5;
 				if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null
 						&& state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {

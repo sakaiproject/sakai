@@ -196,7 +196,7 @@ function redirectBasedOnSelection(){
 			</td>
 			<td>
 				<input type="text" name="userId" value="$userId"/>
-				<input type="hidden" name="itemType" value="course" />
+				<input type="hidden" name="itemType" value="$!courseSiteType" />
 				<input type="hidden" name="selectTerm" value="$term.eid" />
 				<input type="submit" accesskey="s" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
 				onclick="javascript:submitChangeUser()" 

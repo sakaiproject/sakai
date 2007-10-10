@@ -1,10 +1,10 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-type.vm,v 1.3 2005/06/04 02:41:16 ggolden.umich.edu Exp $ -->
 <script type="text/javascript" language="JavaScript">
- 	function selectCourseType()
+ 	function selectCourseType(course)
  	{
  		for (var i=0; i<document.typeform.itemType.length; i++)
  		{
- 			if (document.typeform.itemType[i].value=="course")
+ 			if (document.typeform.itemType[i].value==course)
  			{
  				document.typeform.itemType[i].checked=true;
  			}
@@ -37,14 +37,14 @@
 							#end
 						</label>	
 				</p>		
-						#if ($type == "course")
+						#if ($type == $courseSiteType)
 							<div class="indnt3">
 								<p class="shorttext required">
 									<span class ="reqStar"> *</span>
 									<label for="selectTerm">
 										$tlang.getString("sitetype.acater")
 									</label>	
-									<select name="selectTerm" id="selectTerm" onchange="javascript:selectCourseType();">
+									<select name="selectTerm" id="selectTerm" onclick="selectCourseType('$courseSiteType')">
 										#foreach($term in $termList)
 											<option value ="$term.eid"
 												#if ($!selectedTerm)
