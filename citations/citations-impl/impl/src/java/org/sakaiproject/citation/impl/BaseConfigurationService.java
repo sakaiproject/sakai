@@ -797,9 +797,13 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     		s.setUserId(UserDirectoryService.ADMIN_ID);
 
 			Site adminSite = siteService.addSite(this.m_adminSiteName, "project");
+			adminSite.setTitle("Citations Admin");
+			adminSite.setPublished(true);
+			adminSite.setJoinable(false);
 
 			// add Resources tool
 			SitePage page = adminSite.addPage();
+			page.setTitle("Resources");
 			page.addTool("sakai.resources");
 
 			siteService.save(adminSite);
