@@ -534,11 +534,11 @@ function sortAllCitations( formname, sortby )
  * Import citations
  */
  
-function importCitations(formname)
+function importCitations(formname, alertString)
 {
   if (document.getElementById('risupload').value.length == 0 && 
       document.getElementById('ristext').value.length == 0)
-      alert('$tlang.getString("import.alert")');
+      alert(alertString);
   else
   {
   	$( '#risFileUpload' ).hide();
