@@ -42,7 +42,7 @@ doubleDeep = true;
       <input name="searchType" id="searchType" value="$basicSearchType" type="hidden" />
 
 	  <input type="button" value='$tlang.getString("label.import")' id="import1"
-	         onclick="importCitations('$FORM_NAME');"/>
+	         onclick="importCitations('$FORM_NAME', '$tlang.getString("import.alert")');"/>
 	  <input type="button" name="AddCitations" id="AddCitations1"
              value="$tlang.getString("label.back.search")"
              onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"/>
@@ -65,7 +65,7 @@ doubleDeep = true;
 	  </span>
       <p />
 	  <input type="button" value='$tlang.getString("label.import")' id="import2"
-	         onclick="importCitations('$FORM_NAME');"/>
+	         onclick="importCitations('$FORM_NAME', '$tlang.getString("import.alert")');"/>
 	  <input type="button" name="AddCitations" id="AddCitations2"
              value="$tlang.getString("label.back.search")"
              onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"/>
