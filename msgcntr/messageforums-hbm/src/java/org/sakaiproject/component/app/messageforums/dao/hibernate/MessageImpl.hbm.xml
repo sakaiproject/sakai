@@ -211,22 +211,23 @@
   <query name="findDiscussionForumMessageCountsForAllSites">
     <![CDATA[select a.contextId, membershipItem.name, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		 org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
-    		 join messages.topic as topic
-    		 join topic.membershipItemSet as membershipItem
-             join topic.openForum as f
-             join f.area as a
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+    		   join messages.topic as topic
+    		   join topic.membershipItemSet as membershipItem
+               join topic.openForum as f
+               join f.area as a
              where a.contextId in ( :siteList ) and
-             membershipItem.name in ( :roleList )and
-             f.draft = false and
-             topic.draft = false and
-             messages.draft = false and
-             messages.deleted = false and
-             (((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
-                     membershipItem.permissionLevel = pl.id)  and
-               (pl.read = true and (pl.moderatePostings = false or 
-                              		messages.approved = true or
-               						messages.createdBy = :userId)))
+               membershipItem.name in ( :roleList )and
+               f.draft = false and
+               topic.draft = false and
+               messages.draft = false and
+               messages.deleted = false and
+             ((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
+               membershipItem.permissionLevel = pl.id)  and
+              (pl.read = true and 
+              (pl.moderatePostings = true or 
+               messages.approved = true or
+               messages.createdBy = :userId))
              group by a.contextId, membershipItem.name
     ]]>
  
@@ -239,24 +240,26 @@
 <query name="findDiscussionForumReadMessageCountsForAllSites">
     <![CDATA[select a.contextId, membershipItem.name, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		 org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl,
-    		 org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
-    		 join messages.topic as topic
-    		 join topic.membershipItemSet as membershipItem
-             join topic.openForum as f
-             join f.area as a
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
+    		   join messages.topic as topic
+    		   join topic.membershipItemSet as membershipItem
+               join topic.openForum as f
+               join f.area as a
              where a.contextId in ( :siteList ) and
-             membershipItem.name in ( :roleList ) and
-             us.userId = :userId and
-             messages.id = us.messageId and
-             messages.deleted = false and
-             f.draft = false and
-             topic.draft = false and
-             (((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
-                     membershipItem.permissionLevel = pl.id)  and
-               (pl.read = true and (pl.moderatePostings = false or 
-                              		messages.approved = true or
-               						messages.createdBy = :userId)))
+               membershipItem.name in ( :roleList ) and
+               us.userId = :userId and
+               us.read = true and
+               messages.id = us.messageId and
+               messages.deleted = false and
+               f.draft = false and
+               topic.draft = false and
+             ((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
+               membershipItem.permissionLevel = pl.id)  and
+              (pl.read = true and 
+              (pl.moderatePostings = true or 
+               messages.approved = true or
+               messages.createdBy = :userId))
              group by a.contextId, membershipItem.name
     ]]>
     
@@ -267,23 +270,24 @@
 <query name="findDiscussionForumMessageCountsForGroupedSitesByTopic">
     <![CDATA[select a.contextId, topic.id, membershipItem.name, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		 org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
-	 		 join messages.topic as topic
-     		 join topic.membershipItemSet as membershipItem
-             join topic.openForum as f
-             join f.area as a
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+	 		   join messages.topic as topic
+     		   join topic.membershipItemSet as membershipItem
+               join topic.openForum as f
+               join f.area as a
              where a.contextId in ( :siteList ) and 
-             membershipItem.name in ( :roleList ) and
-             messages.draft = false and
-             messages.deleted = false and
-             f.draft = false and
-             topic.draft = false and
-             (((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
-                     membershipItem.permissionLevel = pl.id)  and
-               (pl.read = true and (pl.moderatePostings = false or 
-                              		messages.approved = true or
-               						messages.createdBy = :userId)))
-             group by a.contextId, topic, membershipItem.name
+               membershipItem.name in ( :roleList ) and
+               messages.draft = false and
+               messages.deleted = false and
+               f.draft = false and
+               topic.draft = false and
+             ((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
+               membershipItem.permissionLevel = pl.id)  and
+              (pl.read = true and
+              (pl.moderatePostings = true or 
+               messages.approved = true or
+               messages.createdBy = :userId))
+             group by a.contextId, topic.id, membershipItem.name
     ]]>
     
  </query>
@@ -293,25 +297,27 @@
 <query name="findDiscussionForumReadMessageCountsForGroupedSitesByTopic">
     <![CDATA[select a.contextId, topic.id, membershipItem.name, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		 org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us,
-    		 org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
-	 		 join messages.topic as topic
-     		 join topic.membershipItemSet as membershipItem
-             join topic.openForum as f
-             join f.area as a
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+	 		   join messages.topic as topic
+     		   join topic.membershipItemSet as membershipItem
+               join topic.openForum as f
+               join f.area as a
              where a.contextId in ( :siteList ) and 
-             membershipItem.name in ( :roleList ) and
-             us.userId = :userId and
-             messages.id = us.messageId and
-             messages.deleted = false and
-             f.draft = false and
-             topic.draft = false and
-             (((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
-                     membershipItem.permissionLevel = pl.id)  and
-               (pl.read = true and (pl.moderatePostings = false or 
-                              		messages.approved = true or
-               						messages.createdBy = :userId)))
-             group by a.contextId, topic, membershipItem.name
+               membershipItem.name in ( :roleList ) and
+               us.userId = :userId and
+               us.read = true and
+               messages.id = us.messageId and
+               messages.deleted = false and
+               f.draft = false and
+               topic.draft = false and
+             ((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
+               membershipItem.permissionLevel = pl.id)  and
+              (pl.read = true and
+              (pl.moderatePostings = true or 
+               messages.approved = true or
+               messages.createdBy = :userId))
+             group by a.contextId, topic.id, membershipItem.name
     ]]>
     
  </query>
