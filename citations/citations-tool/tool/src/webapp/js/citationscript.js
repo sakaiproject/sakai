@@ -243,14 +243,33 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
     $( "#" + citationButton.id ).hide();
     $( "#" + spinnerId ).show();
     
-    // disable inputs
-    $( "input" ).attr( "disabled", "disabled" );
 
     if( addLabel == citationButton.value )
     {
       // do AJAX load
       $( "#messageDiv" ).load( baseUrl + "&sakai_action=doMessageFrame&collectionId=" + collectionId + "&citationId=" + citationButton.id + "&operation=add",
         function() {
+        
+          var notSet = "NOTSET";
+          
+          var firstPage = notSet;
+          var prevPage = notSet;
+          var nextPage = notSet;
+          
+          
+          if (document.getElementById("firstPage1").hasAttribute("disabled"))
+            firstPage = document.getElementById("firstPage1").getAttribute("disabled");
+          
+          if (document.getElementById("prevPage1").hasAttribute("disabled"))
+            prevPage = document.getElementById("prevPage1").getAttribute("disabled");
+
+          if (document.getElementById("nextPage1").hasAttribute("disabled"))
+            nextPage = document.getElementById("nextPage1").getAttribute("disabled");
+
+          // disable inputs
+          $( "input" ).attr( "disabled", "disabled" );
+          
+          
           // update the button's id using the value from the AJAX response
           document.getElementById( citationButton.id ).id = document.getElementById( "addedCitationId" ).value;
           
@@ -268,9 +287,28 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
           
           // change highlighting
           highlightButtonSelections( removeLabel );
-          
+
           // enable inputs
           $( "input" ).attr( "disabled", "" );
+        
+          if (firstPage != notSet)
+          {
+            document.getElementById("firstPage1").setAttribute("disabled", firstPage);
+            document.getElementById("firstPage2").setAttribute("disabled", firstPage);
+          }
+          
+          if (prevPage != notSet)
+          {
+            document.getElementById("prevPage1").setAttribute("disabled", prevPage);
+            document.getElementById("prevPage2").setAttribute("disabled", prevPage);
+          }
+
+          if (nextPage != notSet)
+          {
+            document.getElementById("nextPage1").setAttribute("disabled", nextPage);
+            document.getElementById("nextPage2").setAttribute("disabled", nextPage);
+          }
+
         } );
     }
     else
@@ -278,6 +316,25 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
       // do AJAX load
       $( "#messageDiv" ).load( baseUrl + "&sakai_action=doMessageFrame&collectionId=" + collectionId + "&citationId=" + citationButton.id + "&operation=remove",
         function() {
+        
+          var notSet = "NOTSET";
+          
+          var firstPage = notSet;
+          var prevPage = notSet;
+          var nextPage = notSet;
+          
+          if (document.getElementById("firstPage1").hasAttribute("disabled"))
+            firstPage = document.getElementById("firstPage1").getAttribute("disabled");
+          
+          if (document.getElementById("prevPage1").hasAttribute("disabled"))
+            prevPage = document.getElementById("prevPage1").getAttribute("disabled");
+
+          if (document.getElementById("nextPage1").hasAttribute("disabled"))
+            nextPage = document.getElementById("nextPage1").getAttribute("disabled");
+
+          // disable inputs
+          $( "input" ).attr( "disabled", "disabled" );
+
           // update the citation list count using the value from the AJAX response
           if( document.getElementById( "citationCountDisplay" ) && document.getElementById( "citationCount" ) ) {
             $( "#citationCountDisplay" ).html( document.getElementById( "citationCount" ).value );
@@ -295,6 +352,25 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
           
           // enable inputs
           $( "input" ).attr( "disabled", "" );
+
+          if (firstPage != notSet)
+          {
+            document.getElementById("firstPage1").setAttribute("disabled", firstPage);
+            document.getElementById("firstPage2").setAttribute("disabled", firstPage);
+          }
+          
+          if (prevPage != notSet)
+          {
+            document.getElementById("prevPage1").setAttribute("disabled", prevPage);
+            document.getElementById("prevPage2").setAttribute("disabled", prevPage);
+          }
+
+          if (nextPage != notSet)
+          {
+            document.getElementById("nextPage1").setAttribute("disabled", nextPage);
+            document.getElementById("nextPage2").setAttribute("disabled", nextPage);
+          }
+          
         } );
     }
   }
