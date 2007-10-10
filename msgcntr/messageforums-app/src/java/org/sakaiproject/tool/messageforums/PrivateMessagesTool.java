@@ -1215,37 +1215,68 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }
 
   /**
-   * called from Single delete Page
+   * navigate to "reply" a private message
    * @return - pvtMsgReply
    */ 
   public String processPvtMsgReply() {
     LOG.debug("processPvtMsgReply()");
-//    //set default userName
-//    List defName = new ArrayList();
-//    defName.add(getUserName());
-//    List d = new ArrayList();
-//    for (Iterator iter = defName.iterator(); iter.hasNext();)
-//    {
-//      String element = (String) iter.next();
-//      d.add(new SelectItem(element));      
-//    }
-//    this.setSelectedComposeToList(d);
-    //set Dafult Subject
-    if(getDetailMsg() != null)
-    {
-    	if(getDetailMsg().getMsg().getTitle() != null && !getDetailMsg().getMsg().getTitle().startsWith(getResourceBundleString(REPLY_SUBJECT_PREFIX)))
-    		replyToSubject = getResourceBundleString(REPLY_SUBJECT_PREFIX) + ' ' + getDetailMsg().getMsg().getTitle();
-    	else
-    		replyToSubject = getDetailMsg().getMsg().getTitle();
+
+    if (getDetailMsg() == null)
+    	return null;
+    
+    PrivateMessage pm = getDetailMsg().getMsg();
+    
+    String title = pm.getTitle();
+	if(title != null && !title.startsWith(getResourceBundleString(REPLY_SUBJECT_PREFIX)))
+		replyToSubject = getResourceBundleString(REPLY_SUBJECT_PREFIX) + ' ' + title;
+	else
+		replyToSubject = title;
+
+	// format the created date according to the setting in the bundle
+    SimpleDateFormat formatter_date = new SimpleDateFormat(getResourceBundleString("date_format_date"));
+	formatter_date.setTimeZone(TimeService.getLocalTimeZone());
+	String formattedCreateDate = formatter_date.format(pm.getCreated());
+	
+	SimpleDateFormat formatter_date_time = new SimpleDateFormat(getResourceBundleString("date_format_time"));
+	formatter_date_time.setTimeZone(TimeService.getLocalTimeZone());
+	String formattedCreateTime = formatter_date_time.format(pm.getCreated());
+
+	StringBuilder replyText = new StringBuilder();
+    
+    // populate replyToBody with the reply text
+	replyText.append("<br /><br />");
+	replyText.append("<span style=\"font-weight:bold;font-style:italic;\">");
+	replyText.append(getResourceBundleString("pvt_msg_on"));
+	replyText.append(" " + formattedCreateDate + " ");
+	replyText.append(getResourceBundleString("pvt_msg_at"));
+	replyText.append(" " +formattedCreateTime);
+	replyText.append(getResourceBundleString("pvt_msg_comma"));
+    replyText.append(" " + pm.getAuthor() + " ");
+    replyText.append(getResourceBundleString("pvt_msg_wrote")); 
+	replyText.append("</span>");
+    	
+    String origBody = pm.getBody();
+    if (origBody != null && origBody.trim().length() > 0) {
+    	replyText.append("<br />" + pm.getBody() + "<br />");
     }
     
+    List attachList = getDetailMsg().getAttachList();
+    if (attachList != null && attachList.size() > 0) {
+    	for (Iterator attachIter = attachList.iterator(); attachIter.hasNext();) {
+    		DecoratedAttachment decoAttach = (DecoratedAttachment) attachIter.next();
+    		if (decoAttach != null) {
+    			replyText.append("<span style=\"font-style:italic;\">");
+    			replyText.append(getResourceBundleString("pvt_msg_["));
+    			replyText.append(decoAttach.getAttachment().getAttachmentName() );
+    			replyText.append(getResourceBundleString("pvt_msg_]") + "  ");
+    			replyText.append("</span>");
+    		}
+    	}
+    }
+    
+    this.setReplyToBody(replyText.toString());
     //from message detail screen
     this.setDetailMsg(getDetailMsg()) ;
-//    
-//    //from compose screen
-//    this.setComposeSendAs(getComposeSendAs()) ;
-//    this.setTotalComposeToList(getTotalComposeToList()) ;
-//    this.setSelectedComposeToList(getSelectedComposeToList()) ;
     
     return MESSAGE_REPLY_PG;
   }
