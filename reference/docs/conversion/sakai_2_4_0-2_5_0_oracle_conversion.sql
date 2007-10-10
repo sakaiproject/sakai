@@ -1157,3 +1157,37 @@ RENAME osp_reports_params TO reports_param;
 RENAME osp_reports TO reports_report;
 RENAME osp_reports_results TO reports_result;
 
+-- SAK-9865 search Missing columns
+
+alter table searchbuilderitem add itemscope number(4,0);
+alter table searchbuilderitem add index isearchbuilderitem_sco(itemscope);
+
+
+-- SAK-11245 -- new search indexer
+
+create table search_transaction ( 
+	txname varchar2(64) not null, 
+	txid number(19,0),  
+	primary key (txname));
+	
+create table search_journal ( 
+	txid number(19,0)  not null, 
+	txts number(19,0) not null, 
+	indexwriter varchar2(255)  not null, 
+	status varchar2(32) not null,  
+	primary key  (txid) );
+
+create table search_node_status ( 
+	 jid number(19,0)  not null, 
+	 jidts number(19,0)  not null, 
+	 serverid varchar2(255)  not null, 
+	 primary key (serverid) );
+
+	 	 
+insert into search_transaction ( txid, txname ) values (0,'optimizeSequence');
+insert into search_transaction ( txid, txname ) values (0,'mergeSequence');
+insert into search_transaction ( txid, txname ) values (0,'sharedOptimizeSequence');
+insert into search_transaction ( txid, txname ) values (0,'indexerTransaction');
+
+
+
