@@ -2201,6 +2201,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         	logger.debug("doCreateCitation: unable to parse int for urlCount");
         }
 
+        // clear preferredUrl - if there is one, we will find it after looping
+        // through all customUrls below
+        citation.setPreferredUrl( null );
+        String id = null;
+        
         for(int i = 0; i < urlCount; i++)
         {
         	String label = params.getString("label_" + i);
@@ -2208,6 +2213,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         	String url = params.getString("url_" + i);
 
         	String urlid = params.getString("urlid_" + i);
+        	
+        	String preferred = params.getString( "pref_" + i );
 
          	if(url == null)
         	{
@@ -2233,11 +2240,24 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         	}
         	else if(urlid == null || urlid.trim().equals(""))
         	{
-        		citation.addCustomUrl(label, url);
+        		id = citation.addCustomUrl(label, url);
+        		
+        		if( preferred != null && !preferred.trim().equals( "" ) )
+        		{
+        			// this customUrl is the new preferredUrl
+        			citation.setPreferredUrl( id );
+        		}
         	}
         	else
         	{
+        		// update an existing customUrl
         		citation.updateCustomUrl(urlid, label, url);
+        		
+            	if( preferred != null && !preferred.trim().equals( "" ) )
+        		{
+            		// this customUrl is the new preferredUrl
+        			citation.setPreferredUrl( urlid );
+        		}
         	}
         }
 	}

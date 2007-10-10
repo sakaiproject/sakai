@@ -39,7 +39,7 @@
     <property name="osidImpl"><value></value></property>
 
 	<!-- openURL parameters -->
-    <property name="openUrlLabel"><value>Get It!</value></property>  <!-- currently unused -->
+    <property name="openUrlLabel"><value>Get It!</value></property>
     <property name="openUrlResolverAddress"><value>http://worldcatlibraries.org/registry/gateway</value></property>
 
 	<!-- google scholar parameters -->

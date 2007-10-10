@@ -4,7 +4,12 @@
 		  value="$!{citation.id}" onclick="highlightCheckedSelections();" /> 
 	</td>
 	<td colspan="2" headers="details">
-		<a href="$citation.openurl" target="_blank">$xilator.escapeHtml( $citation.getCitationProperty( $titleProperty ) )</a>
+		#if( $citation.hasPreferredUrl() )
+			#set( $urlHref = $citation.getCustomUrl( "$citation.getPreferredUrlId()" ).toString() )
+		#else
+			#set( $urlHref = $citation.openurl )
+		#end
+		<a href="$urlHref" target="_blank">$xilator.escapeHtml( $citation.getCitationProperty( $titleProperty ) )</a>
 		<br />
 		$!{xilator.escapeHtml( $!{citation.creator} )}
 		$!{xilator.escapeHtml( $!{citation.source} )}
@@ -16,6 +21,8 @@
 					    $tlang.getString( "nullUrlLabel.view" )#else$xilator.escapeHtml( $citation.getCustomUrlLabel("$urlid") )#end</a> |
 			  	#end
 		  	#end
+		  	<a href="$citation.openurl" target="_blank">${openUrlLabel}</a>
+ 				|
 			<a href="#toolLink("CitationHelperAction" "doView")&citationId=${citation.id}&collectionId=$collectionId">$tlang.getString( "action.view" )</a>
  				|
 			<a href="#toolLink("CitationHelperAction" "doEdit")&citationId=$citation.id&collectionId=$collectionId">$tlang.getString("action.edit")</a>

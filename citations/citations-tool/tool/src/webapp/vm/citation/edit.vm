@@ -91,43 +91,23 @@
 					#set($count = 0)
 					#if($citation.hasCustomUrls())
 						#foreach($urlId in $citation.customUrlIds)
-							<tr>
-								<td>
-									<label for="url_${count}">
-										$tlang.getString("url.link")
-									</label>
-								</td>
-								<td>
-									<input name="url_$count" id="url_$count" value="$!{citation.getCustomUrl("$urlId")}" type="text" size="50" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label for="label_${count}">
-										$tlang.getString("label.link")
-									</label>
-								</td>
-								<td>
-									<input name="label_$count" id="label_$count" value="$!{xilator.escapeHtml( $citation.getCustomUrlLabel("$urlId") )}" type="text" size="20" />
-								</td>
-							</tr>
-							<tr>
-								<td colspan="2">
-									<input type="hidden" name="urlid_$count" id="urlid_$count" value="$!urlId" />
-									<hr />
-								</td>
-							</tr>
-							#set($count = $count + 1)
-						#end
-					#else
 						<tr>
 							<td>
 								<label for="url_${count}">
 									$tlang.getString("url.link")
 								</label>
+								<input name="url_$count" id="url_$count" value="$!{citation.getCustomUrl("$urlId")}" type="text" size="50" />
 							</td>
+						</tr>
+						<tr>
 							<td>
-								<input name="url_$count" id="url_$count" value="" type="text" size="50" />
+								<label for="pref_${count}">
+									$tlang.getString("preferred.link")
+								</label>
+								<input class="prefLink" name="pref_$count" id="pref_$count"
+									type="checkbox" value="preferred"
+									#if( $citation.hasPreferredUrl() && ( $citation.getPreferredUrlId() == $urlId ) ) checked="checked" #end
+									onclick="trackPreferredUrl('pref_$count');" />
 							</td>
 						</tr>
 						<tr>
@@ -135,21 +115,45 @@
 								<label for="label_${count}">
 									$tlang.getString("label.link")
 								</label>
+								<input name="label_$count" id="label_$count" value="$!{xilator.escapeHtml( $citation.getCustomUrlLabel("$urlId") )}" type="text" size="20" />
+								<input type="hidden" name="urlid_$count" id="urlid_$count" value="$!urlId" />
+								<hr />
 							</td>
+						</tr>
+						#set($count = $count + 1)
+						#end
+					#else
+						<tr>
 							<td>
-								<input name="label_$count" id="label_$count" type="text" size="20" />
+								<label for="url_${count}">
+									$tlang.getString("url.link")
+								</label>
+								<input name="url_$count" id="url_$count" value="" type="text" size="50" />
 							</td>
 						</tr>
 						<tr>
-							<td colspan="2">
+							<td>
+								<label class="block" for="pref_${count}">
+									$tlang.getString("preferred.link")
+								</label>
+								<input class="prefLink" name="pref_${count}" id="pref_${count}"
+									type="checkbox" value="preferred" onclick="trackPreferredUrl('pref_${count}');" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="label_${count}">
+									$tlang.getString("label.link")
+								</label>
+								<input name="label_$count" id="label_$count" type="text" size="20" />
 								<input type="hidden" name="urlid_$count" id="urlid_$count" value="" />
 								<hr />
 							</td>
 						</tr>
 						#set($count = $count + 1)
 					#end
-					<tr>
-						<td colspan="2">
+					<tr id="bottomRow">
+						<td>
 							<a href="#" onclick="javascript:addUrl();">$tlang.getString( "addanother.create" )</a>
 						</td>
 					</tr>
@@ -349,67 +353,54 @@
 		
 		return false;
 	}
+	
 	function addUrl()
 	{
-		var div = document.getElementById("url_div");
-		var counter = document.getElementById("url_count");
-		var count = 1 + parseInt(counter.value);
+		// get the current count of urls
+		var count = document.getElementById("url_count");
+		var i = parseInt( count.value );
 		
-		var html = "<label>\n$tlang.getString("title.link")\n</label>\n<table class=\"addUrl\">\n";
-		for(var i = 0; i < count; i++)
-		{
-			var label = document.getElementById("label_" + i);
-			var url = document.getElementById("url_" + i);
-			var urlid = document.getElementById("urlid_" + i);
-			
-			if(label && label.value)
-			{
-				var str = jsEscapeHtml( label.value );
-				currentValues["label_" + i] = str;
-			}
-			else
-			{
-				currentValues["label_" + i] = "";
-			}
-			
-			if(url && url.value)
-			{
-				currentValues["url_" + i] = url.value;
-			}
-			else
-			{
-				currentValues["url_" + i] = "";
-			}
-			
-			if(urlid && urlid.value)
-			{
-				currentValues["urlid_" + i] = urlid.value;
-			}
-			else
-			{
-				currentValues["urlid_" + i] = "";
-			}
-			
-			html += "<tr>\n<td>\n<label for=\"url_" + i + "\">\n$tlang.getString("url.link")\n</label>\n</td>\n"
-						+ "<td>\n<input name=\"url_" + i + "\" id=\"url_" + i + "\" value=\"" + currentValues["url_" + i] + "\" type=\"text\" size=\"50\" />\n</td>\n</tr>\n"
-						+ "<tr>\n<td>\n<label for=\"label_" + i + "\">\n$tlang.getString("label.link")\n</label>\n</td>\n"
-						+ "<td>\n<input name=\"label_" + i + "\" id=\"label_" + i + "\" value=\"" + currentValues["label_" + i] + "\" type=\"text\" size=\"20\" />\n</td>\n</tr>\n"
-						+ "<tr>\n<td colspan=\"2\">\n<hr />\n" 
-						+ "<input name=\"urlid_" + i + "\" id=\"urlid_" + i + "\" value=\"" + currentValues["urlid_" + i] + "\" type=\"hidden\" />\n"
-						+ "</td>\n</tr>\n";
-		}
-		html += '<tr>\n<td colspan=\"2\">\n<a href="#" onclick="javascript:addUrl();">$tlang.getString( "addanother.create" )</a>\n</td>\n</tr>\n</table>\n';
+		// generate empty url datafields for one new url
+		var html = "<tr>\n<td>\n<label class=\"block\" for=\"url_" + i + "\">\n$tlang.getString("url.link")\n</label>\n"
+						+ "<input name=\"url_" + i + "\" id=\"url_" + i + "\" type=\"text\" size=\"50\" />\n</td>\n</tr>\n"
+						+ "<tr>\n<td>\n<label class=\"block\" for=\"pref_" + i + "\">\n$tlang.getString("preferred.link")\n</label>\n"
+						+ "<input class=\"prefLink\" name=\"pref_" + i + "\" id=\"pref_" + i + "\" type=\"checkbox\" value=\"preferred\" onclick=\"javascript:trackPreferredUrl('pref_" + i + "');\" />\n</td>\n</tr>\n"
+						+ "<tr>\n<td>\n<label class=\"block\" for=\"label_" + i + "\">\n$tlang.getString("label.link")\n</label>\n"
+						+ "<input name=\"label_" + i + "\" id=\"label_" + i + "\" type=\"text\" size=\"20\" />\n<hr />\n</td>\n</tr>\n";
 		
-		div.innerHTML = html;
-		counter.value = count;
-
+		// jQuery: insert new blank url datafields before the #bottomRow
+		$("#bottomRow").before( html );
+		
 		// focus the newly added item
-		var focusNum = String( count-1 );
-		document.getElementById( "url_" + focusNum ).focus();
-				
-		resizeFrame();
+		document.getElementById( "url_" + i ).focus();
 		
-		return false;
+		// increment the count
+		count.value = String( i + 1 );
+
+		// resize the frame because we've added a new set of datafields
+		resizeFrame();
+	}
+	
+	/*
+	 * This function is called onclick of a preferred title URL checkbox.
+	 * It makes sure that either only one or zero links are selected as preferred.
+	 *
+	 * Params:
+	 *   checkboxId  id of checkbox HTML element that has been changed
+	 */
+	function trackPreferredUrl( checkboxId )
+	{
+		// has this been clicked?
+		if( $( "#" + checkboxId ).attr( "checked" ) != null )
+		{
+			// clear all checkboxes
+			$( ".prefLink" ).attr( "checked", "" );
+			
+			// re-check this one
+			$( "#" + checkboxId ).attr( "checked", "checked" );
+		}
+		
+		// if the checkbox has been unchecked, we do nothing
 	}
 	
 	function jsEscapeHtml( rawString )

@@ -274,7 +274,8 @@ public class CitationListAccessServlet implements HttpAccess
     		}
     		if( citations.size() > 0 )
     		{
-    			out.println("\t<p class=\"instruction\">" + rb.getString("cite.subtitle") + "</p>");
+    			Object[] args = { ConfigurationService.getSiteConfigOpenUrlLabel() };
+    			out.println("\t<p class=\"instruction\">" + rb.getFormattedMessage("cite.subtitle", args) + "</p>");
     		}
     		out.println("\t<table class=\"listHier lines nolines\" summary=\"citations table\" cellpadding=\"0\" cellspacing=\"0\">");
     		out.println("\t<tbody>");
@@ -307,8 +308,11 @@ public class CitationListAccessServlet implements HttpAccess
     			out.println("\t\t\t\tborder=\"0\" height=\"13\" width=\"13\" />" );
     			out.println("\t\t\t</td>");
     			
+    			// preferred URL?
+    			String href = citation.hasPreferredUrl() ? citation.getCustomUrl(citation.getPreferredUrlId()) : citation.getOpenurl();
+    			
     			out.println("\t\t<td headers=\"details\">");
-    			out.println("\t\t\t<a href=\"" + citation.getOpenurl() + "\" target=\"_blank\">" + Validator.escapeHtml( (String)citation.getCitationProperty( Schema.TITLE ) ) + "</a><br />");
+    			out.println("\t\t\t<a href=\"" + href + "\" target=\"_blank\">" + Validator.escapeHtml( (String)citation.getCitationProperty( Schema.TITLE ) ) + "</a><br />");
     			out.println("\t\t\t\t" + Validator.escapeHtml( citation.getCreator() ) );
     			out.println("\t\t\t\t" + Validator.escapeHtml( citation.getSource() ) );
     			out.println("\t\t\t<div class=\"itemAction\">");
@@ -319,11 +323,12 @@ public class CitationListAccessServlet implements HttpAccess
     				{
     					String urlLabel = ( citation.getCustomUrlLabel( urlId ) == null ||
     							citation.getCustomUrlLabel( urlId ).trim().equals("") ) ? rb.getString( "nullUrlLabel.view" ) : Validator.escapeHtml( citation.getCustomUrlLabel( urlId ) );
-    					
+
     					out.println("\t\t\t\t<a href=\"" + citation.getCustomUrl( urlId ).toString() + "\" target=\"_blank\">" + urlLabel + "</a>");
-    				  	out.println("\t\t\t\t |");
+    	    			out.println("\t\t\t\t |");
     				}
     			}
+    			out.println("\t\t\t\t<a href=\"" + citation.getOpenurl() + "\" target=\"_blank\">" + ConfigurationService.getSiteConfigOpenUrlLabel() + "</a>");
     			/* not using view citation link - using toggle triangle
     			out.println("\t\t\t\t<a id=\"link_" + escapedId + "\" href=\"#\" onclick=\"viewFullCitation('" + escapedId + "'); return false;\">"
     					+ rb.getString( "action.view" ) + "</a>" );

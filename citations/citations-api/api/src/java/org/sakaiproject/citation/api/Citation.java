@@ -43,7 +43,7 @@ public interface Citation 	// extends Entity
      * @param url
      * @return A unique identifier for the URL and its label.
      */
-    public void addCustomUrl(String label, String url);
+    public String addCustomUrl(String label, String url);
     
     /**
      * @param name

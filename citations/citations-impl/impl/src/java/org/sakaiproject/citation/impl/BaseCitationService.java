@@ -505,11 +505,12 @@ public abstract class BaseCitationService implements CitationService
 		 * @see org.sakaiproject.citation.api.Citation#addUrl(java.lang.String,
 		 *      java.net.URL)
 		 */
-		public void addCustomUrl(String label, String url)
+		public String addCustomUrl(String label, String url)
 		{
 			UrlWrapper wrapper = new UrlWrapper(label, url);
 			String id = IdManager.createUuid();
 			m_urls.put(id, wrapper);
+			return id;
 		}
 
 		/*
@@ -552,6 +553,7 @@ public abstract class BaseCitationService implements CitationService
 			m_fullTextUrl = other.m_fullTextUrl;
 			m_imageUrl = other.m_imageUrl;
 			m_searchSourceUrl = other.m_searchSourceUrl;
+			m_preferredUrl = other.m_preferredUrl;
 
 			if (m_citationProperties == null)
 			{
@@ -608,10 +610,17 @@ public abstract class BaseCitationService implements CitationService
 				{
 					String id = (String) urlIt.next();
 					UrlWrapper wrapper = (UrlWrapper) other.m_urls.get(id);
-					addCustomUrl(wrapper.getLabel(), wrapper.getUrl());
+					
+					// Do not want to addCustomUrl because that assigns a new, unique id to the customUrl.
+					// This causes problems when we try to reference the preferredUrl by its id - it was
+					// created and set in the 'other' citation 
+					//addCustomUrl(wrapper.getLabel(), wrapper.getUrl());
+					
+					// instead, we store the customUrl along with it's originial id -- since this citation
+					// is a copy of 'other', there should be no harm in doing this
+					m_urls.put(id, wrapper);
 				}
 			}
-
 		}
 
 		/*
