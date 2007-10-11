@@ -22,16 +22,10 @@ import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerIm
  */
 public class EntityHandler {
 
-   // placeholder value indicating that this reference is parsed externally
-   private static ReferenceParseable externalRP = new BlankReferenceParseable();
-
-   // placeholder value indicating that this reference is parsed internally
-   private static ReferenceParseable internalRP = new BlankReferenceParseable();
-
-   private EntityProviderManagerImpl entityProviderManager;
+   private EntityProviderManager entityProviderManager;
 
    public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
-      this.entityProviderManager = (EntityProviderManagerImpl) entityProviderManager;
+      this.entityProviderManager = entityProviderManager;
    }
 
    private ServerConfigurationService serverConfigurationService;
@@ -88,22 +82,11 @@ public class EntityHandler {
       String prefix = EntityReference.getPrefix(reference);
       ReferenceParseable provider = (ReferenceParseable) entityProviderManager
             .getProviderByPrefixAndCapability(prefix, ReferenceParseable.class);
-      if (provider == externalRP) {
+      if (provider == null) {
          return null;
       }
-      else if (provider == internalRP) {
+      else if (provider instanceof BlankReferenceParseable) {
          return parseDefaultReference(prefix, reference);
-      }
-      else if (provider == null) {
-         EntityProvider base = entityProviderManager.getProviderByPrefix(prefix);
-         if (base == null) {
-            entityProviderManager.registerPrefixCapability(prefix, ReferenceParseable.class, externalRP);
-            return null;
-         }
-         else {
-            entityProviderManager.registerPrefixCapability(prefix, ReferenceParseable.class, internalRP);
-            return parseDefaultReference(prefix, reference);
-         }
       }
       else {
          Object exemplar = provider.getParsedExemplar();

@@ -29,6 +29,7 @@
       </dependency>
 
       <!-- internal dependencies -->
+      
       <dependency>
          <groupId>sakaiproject</groupId>
          <artifactId>sakai-entitybroker-api</artifactId>
@@ -125,7 +126,7 @@
          <artifactId>antlr</artifactId>
          <version>2.7.6</version>
       </dependency>
-
+  
       <!-- Apache commons dependencies -->
       <dependency>
          <groupId>commons-logging</groupId>

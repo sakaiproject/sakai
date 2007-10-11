@@ -20,7 +20,6 @@
    </parent>
 
    <dependencies>
-
       <!-- internal dependencies -->
       <dependency>
          <groupId>org.sakaiproject.entitybroker</groupId>
