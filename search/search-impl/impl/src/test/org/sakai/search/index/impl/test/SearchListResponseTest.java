@@ -6,14 +6,14 @@ package org.sakai.search.index.impl.test;
 import java.io.IOException;
 import java.util.Iterator;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.component.service.impl.SearchListResponseImpl;
 import org.sakaiproject.search.filter.SearchItemFilter;
 import org.sakaiproject.search.filter.impl.NullSearchFilter;
-
-import junit.framework.TestCase;
 
 /**
  * @author ieb

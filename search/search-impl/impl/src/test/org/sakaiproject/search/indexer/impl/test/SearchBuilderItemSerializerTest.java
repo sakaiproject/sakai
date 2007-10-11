@@ -28,14 +28,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
 import org.sakaiproject.search.util.FileUtils;
-
-import junit.framework.TestCase;
 
 /**
  * @author ieb

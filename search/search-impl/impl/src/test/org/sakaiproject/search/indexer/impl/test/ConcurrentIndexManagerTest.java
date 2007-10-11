@@ -24,14 +24,14 @@ package org.sakaiproject.search.indexer.impl.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.journal.api.ManagementOperation;
 import org.sakaiproject.search.journal.impl.ConcurrentIndexManager;
 import org.sakaiproject.search.journal.impl.IndexManagementTimerTask;
 import org.sakaiproject.search.mock.MockSearchService;
-
-import junit.framework.TestCase;
 
 /**
  * @author ieb

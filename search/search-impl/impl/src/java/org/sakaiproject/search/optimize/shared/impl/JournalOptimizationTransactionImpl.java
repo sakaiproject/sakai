@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.sakaiproject.search.journal.api.JournalManager;
+import org.sakaiproject.search.journal.api.JournalManagerState;
 import org.sakaiproject.search.optimize.shared.api.JournalOptimizationManager;
 import org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction;
 import org.sakaiproject.search.transaction.impl.IndexTransactionImpl;
@@ -49,6 +50,8 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	private File targetSegment;
 
 	private File workingSegment;
+
+	private JournalManagerState journalMangerState;
 
 	/***************************************************************************
 	 * @param manager
@@ -173,6 +176,33 @@ public class JournalOptimizationTransactionImpl extends IndexTransactionImpl imp
 	public File getWorkingSegment()
 	{
 		return workingSegment;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#clearState()
+	 */
+	public void clearState()
+	{
+
+		journalMangerState = null;
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#getState()
+	 */
+	public JournalManagerState getState()
+	{
+		return journalMangerState;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction#setState(org.sakaiproject.search.journal.api.JournalManagerState)
+	 */
+	public void setState(JournalManagerState jms)
+	{
+		this.journalMangerState = jms;
+		
 	}
 
 

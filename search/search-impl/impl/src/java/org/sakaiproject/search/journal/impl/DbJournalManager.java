@@ -130,14 +130,23 @@ public class DbJournalManager implements JournalManager
 		try
 		{
 			connection = datasource.getConnection();
-			listLaterSavePoints = connection	
+			listLaterSavePoints = connection
 					.prepareStatement("select txid from search_journal where txid > ? and status = 'commited' order by txid asc ");
 			listLaterSavePoints.clearParameters();
 			listLaterSavePoints.setLong(1, savePoint);
-			rs = listLaterSavePoints.executeQuery();
-			if (rs.next())
+			try
 			{
-				return rs.getLong(1);
+				rs = listLaterSavePoints.executeQuery();
+				if (rs.next())
+				{
+					return rs.getLong(1);
+				}
+			}
+			catch (Exception ex)
+			{
+				log
+						.warn("Shared Index Optimization in progress, pausing updates to this index :"
+								+ ex);
 			}
 			throw new JournalExhausetedException("No More savePoints available");
 		}
@@ -311,7 +320,8 @@ public class DbJournalManager implements JournalManager
 	}
 
 	/**
-	 * @param serverConfigurationService the serverConfigurationService to set
+	 * @param serverConfigurationService
+	 *        the serverConfigurationService to set
 	 */
 	public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService)

@@ -32,6 +32,7 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
@@ -46,6 +47,44 @@ import org.sakaiproject.search.model.SearchBuilderItem;
  */
 public class SharedTestDataSource
 {
+	/**
+	 * @author ieb
+	 *
+	 */
+	public class ConnectionMeta 
+	{
+
+		private StackTraceElement location;
+		private long created;
+		private Connection connection;
+
+		/**
+		 * @param string
+		 */
+		public ConnectionMeta(Connection c, StackTraceElement location)
+		{
+			created = System.currentTimeMillis();
+			this.location = location;
+			this.connection = c;
+		}
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString()
+		{
+			return "["+connection+"] Created By "+location.toString()+" age "+(System.currentTimeMillis()-created);
+		}
+		/**
+		 * @return
+		 */
+		public boolean isOld()
+		{
+			return (System.currentTimeMillis()-created) > 10000;
+		}
+
+	}
+
 	private static final Log log = LogFactory.getLog(SharedTestDataSource.class);
 
 	private SharedPoolDataSource tds;
@@ -57,6 +96,9 @@ public class SharedTestDataSource
 	private int docid = 0;
 
 	private int ldoc = 0;
+	
+	private Map<Connection, ConnectionMeta> connections = new ConcurrentHashMap<Connection, ConnectionMeta>();
+
 
 	public SharedTestDataSource(String dblocation, int pool, final boolean poolLogging,
 			String driver, String dburl, String user, String password) throws Exception
@@ -77,14 +119,25 @@ public class SharedTestDataSource
 		wds = new DataSource()
 		{
 
+
 			public Connection getConnection() throws SQLException
 			{
 				final Connection c = tds.getConnection();
 				nopen++;
-				if (poolLogging) log.info("++++++++++++Opened " + nopen);
 				Exception ex = new Exception();
 				StackTraceElement[] ste = ex.getStackTrace();
 				log.debug("Stack Trace " + ste[1].toString());
+				if (poolLogging) log.info("++++++++++++Opened " + nopen + " from " + ste[1].toString());
+				connections.put(c,new ConnectionMeta(c,ste[1]));
+				StringBuilder sb = new StringBuilder();
+				for( ConnectionMeta cm : connections.values() ) {
+					if ( cm.isOld() ) {
+						sb.append("\n    ").append(cm);
+					}
+				}
+				if ( sb.length() > 0 ) {
+					log.warn("Older Connections found, possible connection leak "+sb.toString()+"\n");
+				}
 				return new Connection()
 				{
 
@@ -95,10 +148,14 @@ public class SharedTestDataSource
 
 					public void close() throws SQLException
 					{
-						c.close();
+						connections.remove(c);
+					    c.close();
 						nopen--;
-						if (poolLogging) log.info("------------Closed " + nopen);
-
+						Exception ex = new Exception();
+						StackTraceElement[] ste = ex.getStackTrace();
+						log.debug("Stack Trace " + ste[1].toString());
+						if (poolLogging) log.info("------------Closed " + nopen + " from " + ste[1].toString());
+	
 					}
 
 					public void commit() throws SQLException

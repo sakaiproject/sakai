@@ -123,13 +123,13 @@ public class SearchIndexerNode
 		String shared = base + "/shared";
 		String instanceBase = base + "/" + instanceName;
 		String localIndexBase = instanceBase + "/index/local";
-		String sharedJournalBase = instanceBase + "/index/shared";
+		String sharedJournalBase = shared ;
 		
 		JournalSettings journalSettings = new JournalSettings();
 		journalSettings.setLocalIndexBase(localIndexBase);
 		journalSettings.setSharedJournalBase(sharedJournalBase);
-		journalSettings.setMinimumOptimizeSavePoints(5);
-		journalSettings.setOptimizMergeSize(5);
+		journalSettings.setMinimumOptimizeSavePoints(20);
+		journalSettings.setOptimizMergeSize(1000);
 		journalSettings.setSoakTest(true);
 
 		tds = new SharedTestDataSource(base, 10, false, driver, url, userame, password);
@@ -316,7 +316,7 @@ public class SearchIndexerNode
 		sequence.getClass();
 		clusterService.addServerConfigurationService(serverConfigurationService);
 
-		long journalOptimizeLimit = 5;
+		long journalOptimizeLimit = 100;
 		
 		optimizeSequence.setName("journaloptimize");
 		optimizeSequence.setDatasource(tds.getDataSource());

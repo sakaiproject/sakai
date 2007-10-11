@@ -25,19 +25,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.JTree;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.indexer.impl.SearchBuilderItemSerializer;
-import org.sakaiproject.search.journal.api.JournaledIndex;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.optimize.api.OptimizeTransactionListener;
 import org.sakaiproject.search.optimize.api.OptimizedFailedIndexTransactionException;
@@ -124,7 +120,6 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 	public void prepare(IndexTransaction transaction) throws IndexTransactionException
 	{
 		IndexReader reader = null;
-		IndexReader[] sourceReader = new IndexReader[1];
 		IndexWriter indexWriter = null;
 		try
 		{
@@ -170,6 +165,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 								.getName()));
 					}
 				}
+				 
 				reader.close();
 
 				
@@ -214,9 +210,11 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 			indexWriter.setMaxMergeDocs(50);
 			indexWriter.setMergeFactor(50);
 			Directory d = FSDirectory.getDirectory(targetSegment, false);
-			indexWriter.addIndexes(new Directory[] { d });
+			reader = IndexReader.open(d);
+			indexWriter.addIndexes(new IndexReader[] { reader });
 			indexWriter.optimize();
 			indexWriter.close();
+			reader.close();
 
 		}
 		catch (IOException e)
@@ -229,20 +227,6 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 			try
 			{
 				reader.close();
-			}
-			catch (Exception ex)
-			{
-			}
-			try
-			{
-				sourceReader[0].close();
-			}
-			catch (Exception ex)
-			{
-			}
-			try
-			{
-				sourceReader[1].close();
 			}
 			catch (Exception ex)
 			{

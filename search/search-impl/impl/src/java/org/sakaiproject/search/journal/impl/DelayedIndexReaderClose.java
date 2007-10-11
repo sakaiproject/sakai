@@ -64,7 +64,10 @@ public class DelayedIndexReaderClose extends DelayedClose
 		{
 			try
 			{
+				
 				reader.close();
+				log.debug(this+" Index Reader Closed ");
+
 			}
 			catch (Exception ex)
 			{

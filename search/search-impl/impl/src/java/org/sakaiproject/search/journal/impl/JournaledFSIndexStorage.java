@@ -405,7 +405,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	private void loadIndexSearcherInternal() throws IOException
 	{
 		IndexReader tmpIndexReader = multiReader;
-		IndexReader ir = getIndexReader();
+		final IndexReader ir = getIndexReader();
 		if (tmpIndexReader != ir || indexSearcher == null)
 		{
 			long start = System.currentTimeMillis();
@@ -429,6 +429,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 						return;
 					}
 					super.close();
+					ir.close();
 				}
 			};
 			if (indexSearcher != null)
@@ -741,6 +742,11 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 					return;
 				}
 				super.doClose();
+				for (IndexReader ir : indexReaders)
+				{
+					ir.close();
+					log.info("Closed "+ir.directory().toString());
+				}
 			}
 
 			/**

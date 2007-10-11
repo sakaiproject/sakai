@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.sakaiproject.search.journal.api.JournalManager;
+import org.sakaiproject.search.journal.api.JournalManagerState;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 
 /**
@@ -99,5 +100,20 @@ public interface JournalOptimizationTransaction extends IndexTransaction
 	 * @return
 	 */
 	File getWorkingSegment();
+
+	/**
+	 * @return
+	 */
+	JournalManagerState getState();
+
+	/**
+	 * 
+	 */
+	void clearState();
+
+	/**
+	 * @param jms
+	 */
+	void setState(JournalManagerState jms);
 
 }

@@ -57,6 +57,7 @@ public class DelayedIndexSearcherClose extends DelayedClose
 		try
 		{
 			searcher.close();
+			log.debug(this+"Index Searcher Closed ");
 
 		}
 		catch (Exception ex)

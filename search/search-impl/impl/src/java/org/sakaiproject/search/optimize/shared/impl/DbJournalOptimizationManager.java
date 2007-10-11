@@ -39,7 +39,6 @@ import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.JournalManager;
 import org.sakaiproject.search.journal.api.JournalManagerState;
 import org.sakaiproject.search.journal.impl.JournalSettings;
-import org.sakaiproject.search.journal.impl.DbJournalManager.JournalManagerStateImpl;
 import org.sakaiproject.search.optimize.api.NoOptimizationRequiredException;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
@@ -82,14 +81,12 @@ public class DbJournalOptimizationManager implements JournalManager
 	public void commitSave(JournalManagerState jms) throws IndexJournalException
 	{
 		OptimizeJournalManagerStateImpl ojms = (OptimizeJournalManagerStateImpl) jms;
-		Connection connection = null;
 		PreparedStatement success = null;
 		PreparedStatement updateTarget = null;
 		try
 		{
 			// set the target to committed and then delete the rest
-			connection = datasource.getConnection();
-			updateTarget = connection
+			updateTarget = ojms.connection
 					.prepareStatement("update search_journal set status = 'commited', txts = ? where txid = ?  ");
 			updateTarget.clearParameters();
 			updateTarget.setLong(1, System.currentTimeMillis());
@@ -97,18 +94,18 @@ public class DbJournalOptimizationManager implements JournalManager
 			int i = updateTarget.executeUpdate();
 
 			// clear out all others
-			success = connection
+			success = ojms.connection
 					.prepareStatement("delete from search_journal where indexwriter = ? and status = 'merging-prepare'  ");
 			success.clearParameters();
 			success.setString(1, ojms.indexWriter);
 			success.executeUpdate();
-			connection.commit();
+			ojms.connection.commit();
 		}
 		catch (Exception ex)
 		{
 			try
 			{
-				connection.rollback();
+				ojms.connection.rollback();
 			}
 			catch (Exception ex2)
 			{
@@ -133,7 +130,8 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			try
 			{
-				connection.close();
+				ojms.connection.close();
+				ojms.connection = null;
 			}
 			catch (Exception ex)
 			{
@@ -162,12 +160,11 @@ public class DbJournalOptimizationManager implements JournalManager
 		PreparedStatement listJournal = null;
 		OptimizeJournalManagerStateImpl jms = new OptimizeJournalManagerStateImpl();
 		ResultSet rs = null;
-		Connection connection = null;
 		try
 		{
 
-			connection = datasource.getConnection();
-			getJournalSavePointPst = connection
+			jms.connection = datasource.getConnection();
+			getJournalSavePointPst = jms.connection
 					.prepareStatement("select serverid, jid from search_node_status order by jid asc ");
 
 			jms.indexWriter = serverId + ":" + transactionId;
@@ -185,16 +182,19 @@ public class DbJournalOptimizationManager implements JournalManager
 				for (String s : servers)
 				{
 					int dash = s.lastIndexOf('-');
-					if ( dash > 0  ) {
-						s = s.substring(0,dash);
-					} 
+					if (dash > 0)
+					{
+						s = s.substring(0, dash);
+					}
 					if (server.equals(s))
 					{
 						jms.oldestSavePoint = rs.getLong(2);
-						log.debug("	Match against "+s);
+						log.debug("	Match against " + s);
 						break;
-					} else {
-						log.debug("No Match against "+s);
+					}
+					else
+					{
+						log.debug("No Match against " + s);
 					}
 				}
 
@@ -202,7 +202,23 @@ public class DbJournalOptimizationManager implements JournalManager
 			jms.oldestSavePoint--;
 			if (jms.oldestSavePoint <= 0)
 			{
-				connection.rollback();
+				try
+				{
+					jms.connection.rollback();
+				}
+				catch (Exception ex)
+				{
+
+				}
+				try
+				{
+					jms.connection.close();
+				}
+				catch (Exception ex)
+				{
+
+				}
+				jms.connection = null;
 				throw new NoOptimizationRequiredException("Oldest savePoint is 0");
 			}
 			rs.close();
@@ -212,7 +228,7 @@ public class DbJournalOptimizationManager implements JournalManager
 
 			// this requires read committed transaction issolation and WILL NOT
 			// work on HSQL
-			lockEarlierSavePoints = connection
+			lockEarlierSavePoints = jms.connection
 					.prepareStatement("update search_journal set indexwriter = ?, status = 'merging-prepare', txts = ? where txid <= ? and  status = 'commited' ");
 			lockEarlierSavePoints.clearParameters();
 			lockEarlierSavePoints.setString(1, jms.indexWriter);
@@ -220,7 +236,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			lockEarlierSavePoints.setLong(3, jms.oldestSavePoint);
 			int i = lockEarlierSavePoints.executeUpdate();
 
-			listJournal = connection
+			listJournal = jms.connection
 					.prepareStatement("select txid, indexwriter, status, txts  from search_journal");
 			listJournal.clearParameters();
 			rs = listJournal.executeQuery();
@@ -234,7 +250,23 @@ public class DbJournalOptimizationManager implements JournalManager
 
 			if (i < journalSettings.getMinimumOptimizeSavePoints())
 			{
-				connection.rollback();
+				try
+				{
+					jms.connection.rollback();
+				}
+				catch (Exception ex)
+				{
+
+				}
+				try
+				{
+					jms.connection.close();
+				}
+				catch (Exception ex)
+				{
+
+				}
+				jms.connection = null;
 				throw new NoOptimizationRequiredException(
 						"Insuficient Journal Entries prior to savepoint "
 								+ jms.oldestSavePoint + " to optimize, found " + i);
@@ -244,7 +276,7 @@ public class DbJournalOptimizationManager implements JournalManager
 
 			jms.mergeList = new ArrayList<Long>();
 
-			listMergeSet = connection
+			listMergeSet = jms.connection
 					.prepareStatement("select txid from search_journal where indexwriter = ?  order by txid asc ");
 			listMergeSet.clearParameters();
 			listMergeSet.setString(1, jms.indexWriter);
@@ -254,14 +286,12 @@ public class DbJournalOptimizationManager implements JournalManager
 				jms.mergeList.add(rs.getLong(1));
 			}
 			log.info("Retrieved " + jms.mergeList.size() + " locked savePoints ");
-
-			connection.commit();
 		}
 		catch (IndexJournalException ijex)
 		{
 			try
 			{
-				connection.rollback();
+				jms.connection.rollback();
 			}
 			catch (Exception ex2)
 			{
@@ -272,11 +302,19 @@ public class DbJournalOptimizationManager implements JournalManager
 		{
 			try
 			{
-				connection.rollback();
+				jms.connection.rollback();
 			}
 			catch (Exception ex2)
 			{
 			}
+			try
+			{
+				jms.connection.close();
+			}
+			catch (Exception ex2)
+			{
+			}
+			jms.connection = null;
 			throw new IndexJournalException("Failed to lock savePoints to this node ", ex);
 		}
 		finally
@@ -316,13 +354,6 @@ public class DbJournalOptimizationManager implements JournalManager
 			catch (Exception ex)
 			{
 			}
-			try
-			{
-				connection.close();
-			}
-			catch (Exception ex)
-			{
-			}
 		}
 		return jms;
 	}
@@ -334,27 +365,37 @@ public class DbJournalOptimizationManager implements JournalManager
 	{
 		if (jms != null)
 		{
-			Connection connection = ((JournalManagerStateImpl) jms).connection;
+			OptimizeJournalManagerStateImpl ojms = (OptimizeJournalManagerStateImpl) jms;
+
 			try
 			{
 
-				connection.rollback();
+				if (ojms.connection != null)
+				{
+					try
+					{
+						ojms.connection.rollback();
+					}
+					catch (Exception ex)
+					{
+						log.error("Failed to Rollback");
+					}
+					try
+					{
+						ojms.connection.close();
+					}
+					catch (Exception ex)
+					{
+						log.error("Failed to Close");
+					}
+					ojms.connection = null;
+
+				}
 
 			}
 			catch (Exception ex)
 			{
 				log.error("Failed to Rollback");
-			}
-			finally
-			{
-				try
-				{
-					connection.close();
-				}
-				catch (Exception ex)
-				{
-				}
-
 			}
 		}
 
@@ -376,14 +417,22 @@ public class DbJournalOptimizationManager implements JournalManager
 
 			connection = datasource.getConnection();
 			countJournals = connection.createStatement();
-			rs = countJournals
-					.executeQuery("select count(*) from  search_journal where  status = 'commited' ");
 			long nSavePoints = 0;
-			if (rs.next())
+			try
 			{
-				nSavePoints = rs.getLong(1);
+				rs = countJournals
+						.executeQuery("select count(*) from  search_journal where  status = 'commited' ");
+				if (rs.next())
+				{
+					nSavePoints = rs.getLong(1);
+				}
+				rs.close();
 			}
-			rs.close();
+			catch (Exception ex)
+			{
+				log
+						.info("Optimzation of central journal is in progress on annother node, no optimization possible on this node ");
+			}
 			if (nSavePoints < journalSettings.getMinimumOptimizeSavePoints())
 			{
 				throw new NoOptimizationRequiredException("Insufficient items to optimze");

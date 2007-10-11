@@ -21,10 +21,11 @@
 
 package org.sakaiproject.search.optimize.shared.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.indexer.api.IndexJournalException;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;
 import org.sakaiproject.search.journal.api.JournalManager;
-import org.sakaiproject.search.journal.api.JournalManagerState;
 import org.sakaiproject.search.optimize.shared.api.JournalOptimizationTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
@@ -37,6 +38,8 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 public class JournalOptimizationTransactionListener implements
 		IndexUpdateTransactionListener
 {
+
+	private static final Log log = LogFactory.getLog(JournalOptimizationTransactionListener.class);
 
 	public void init()
 	{
@@ -58,8 +61,9 @@ public class JournalOptimizationTransactionListener implements
 		JournalManager journalManager = jtransaction.getJournalManager();
 		OptimizeJournalManagerStateImpl jms = (OptimizeJournalManagerStateImpl) journalManager
 				.prepareSave(transaction.getTransactionId());
-		transaction.put(
-				JournalOptimizationTransactionListener.class.getName() + ".state", jms);
+		
+		
+		jtransaction.setState(jms);
 
 		// set the last item to the target and the rest to the merge list
 		jtransaction.setTargetSavePoint(jms.mergeList.get(jms.mergeList.size() - 1));
@@ -76,11 +80,8 @@ public class JournalOptimizationTransactionListener implements
 		JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
 		JournalManager journalManager = jtransaction.getJournalManager();
 
-		JournalManagerState jms = (JournalManagerState) transaction
-				.get(JournalOptimizationTransactionListener.class.getName() + ".state");
-		journalManager.commitSave(jms);
-		transaction.clear(JournalOptimizationTransactionListener.class.getName()
-				+ ".state");
+		journalManager.commitSave(jtransaction.getState());
+		jtransaction.clearState();
 
 	}
 
@@ -92,6 +93,7 @@ public class JournalOptimizationTransactionListener implements
 	{
 		JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
 		JournalManager journalManager = jtransaction.getJournalManager();
+		
 
 		journalManager.doOpenTransaction(transaction);
 	}
@@ -101,23 +103,28 @@ public class JournalOptimizationTransactionListener implements
 	 */
 	public void close(IndexTransaction transaction) throws IndexTransactionException
 	{
-		transaction.clear(JournalOptimizationTransactionListener.class.getName()
-				+ ".state");
+		
+		JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
+		jtransaction.clearState();
 	}
 
 	/**
+	 * @throws IndexTransactionException
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#rollback(org.sakaiproject.search.indexer.api.IndexUpdateTransaction)
 	 */
-	public void rollback(IndexTransaction transaction)
+	public void rollback(IndexTransaction transaction) throws IndexTransactionException
 	{
-		JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
-		JournalManager journalManager = jtransaction.getJournalManager();
-		JournalManagerState jms = (JournalManagerState) transaction
-				.get(JournalOptimizationTransactionListener.class.getName() + ".state");
-		journalManager.rollbackSave(jms);
-
-		transaction.clear(JournalOptimizationTransactionListener.class.getName()
-				+ ".state");
+		try
+		{
+			JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
+			JournalManager journalManager = jtransaction.getJournalManager();
+			journalManager.rollbackSave(jtransaction.getState());
+			jtransaction.clearState();
+		}
+		catch (Exception ex)
+		{
+			throw new IndexJournalException("Failed to rollback Journaled Segments ", ex);
+		}
 
 	}
 
