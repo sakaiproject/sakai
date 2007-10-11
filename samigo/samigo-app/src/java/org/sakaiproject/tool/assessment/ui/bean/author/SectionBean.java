@@ -41,7 +41,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.entity.impl.ReferenceComponent;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
@@ -773,7 +774,7 @@ private List attachmentList;
       if (cr!=null){
         if (this.resourceHash == null) this.resourceHash = new HashMap();
         this.resourceHash.put(attach.getResourceId(),cr);
-        ReferenceComponent ref = new ReferenceComponent(cr.getReference());
+        Reference ref = EntityManager.newReference(cr.getReference());
         if (ref !=null ) list.add(ref);
       }
     }

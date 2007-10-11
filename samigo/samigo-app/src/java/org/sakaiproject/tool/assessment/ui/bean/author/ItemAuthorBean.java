@@ -70,6 +70,7 @@ import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 
 import org.sakaiproject.util.ResourceLoader;
 
@@ -1123,7 +1124,7 @@ public class ItemAuthorBean
     	  log.warn("ContentHostingService.getResource() throws TypeException="+e.getMessage());
       }
       if (cr!=null){
-        ReferenceComponent ref = new ReferenceComponent(cr.getReference());
+    	Reference ref = EntityManager.newReference(cr.getReference());
         log.debug("*** ref="+ref);
         if (ref !=null ) list.add(ref);
       }
