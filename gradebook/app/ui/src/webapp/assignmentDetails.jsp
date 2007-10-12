@@ -2,9 +2,11 @@
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
 <script src="js/dynamicSizeCheck.js" type="text/javascript"></script>
 
+
 <f:view>
   <div class="portletBody">
 	<h:form id="gbForm">
+	
 
 		<sakai:flowState bean="#{assignmentDetailsBean}" />
 
@@ -301,6 +303,25 @@
 
 		</div> <!-- END OF INDNT1 -->
 
+
+<script src="/library/js/jquery.js" type="text/javascript"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	org_vals = new Array($("table#gbForm\\:gradingTable :text").length);
+	$("table#gbForm\\:gradingTable :text").each(function(i){
+		org_vals[i] = this.value;
+	});
+	$(".shorttext .listNav input,select").click(check_change);
+});
+check_change = function(){
+	changed = false;
+	$("table#gbForm\\:gradingTable :text").each(function(i){
+		if(org_vals[i] != this.value){changed=true;}
+	});
+	if(changed){return confirm("<h:outputText value="#{msgs.assignment_details_page_confirm_unsaved}"/>");}
+	return true;
+}
+</script>
 		
 	</h:form>
   </div>
