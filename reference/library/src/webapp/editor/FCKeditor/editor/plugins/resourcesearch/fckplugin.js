@@ -20,12 +20,8 @@ var RSC_searchButton = new FCKToolbarButton('ResourceSearch',
  * Add an icon for the button, and register the new command
  */
 RSC_searchButton.IconPath = FCKConfig.PluginsPath + 'resourcesearch/book.gif';
-FCKToolbarItems.RegisterItem('ResourceSearch', RSC_searchButton);
 
-/*
- * Date
- */
-var RSC_milliseconds = null;
+FCKToolbarItems.RegisterItem('ResourceSearch', RSC_searchButton);
 
 /*
  * Button press activities:
@@ -34,55 +30,46 @@ var RSC_milliseconds = null;
  *  o Save the editor and plugin instance
  *  o Set up event handlers to track the current editor window
  *
- * Note:  The base URL (see "url =" below) corresponds to the name specified
- *        in the project build procedure
+ * Note:  The "helper" name (see "url =" below) corresponds to the name
+ *        specified in the project build procedure
  */
 ResourceSearchCommand.Execute = function()
 {
-	var	activeEditorInstance;
-	var editorApi;
-	var popupWindow;
-	var attributes;
-	var url;
-
-	editorApi	= window.FCK;
-
-	attributes 	= "height=420, width=750, location=1, toolbar=1, status=1, menubar=1, scrollbars=1, resizable=1";
-
-  	url         = getBaseUrl() + "/sakai.citation.editor.integration.helper?panel=Main&sakai_action=doIntegrationSearch&searchType=noSearch";
-
+	var editorApi = window.FCK;
 	/*
-	 * New search window
-	 */
-	popupWindow = window.open(url,
-	                          ResourceSearchCommand.getWindowTitle(),
-														attributes);
-	/*
-	 * Save editor API instance
+	 * Global structures.  From the popup window, these are accessed as:
 	 *
-	 * This is accessed as window.opener.top.document.__editorareas[index] in the popup
+	 *   window.opener.top.document.__editorcommmon.property
+	 *   window.opener.top.document.__editorareas[index]
 	 */
 	if (typeof top.document.__editorareas == "undefined")
 	{
-		top.document.__editorareas = new Array();
+		top.document.__editorareas  = new Array();
+		top.document.__editorcommon = new Object();
 	}
-
-	activeEditorInstance = top.document.__editorareas.length;
-
-	for (var i = 0; i < activeEditorInstance; i++)
+  /*
+   * Do we need to create the popup window?
+   */
+	if ((typeof top.document.__editorcommon.popupwindow == "undefined") ||
+    	(top.document.__editorcommon.popupwindow.closed))
 	{
-	  var editorInstance  = top.document.__editorareas[i];
+  	var attributes 	= "height=420,width=750,location=1,toolbar=1,status=1,menubar=1,"
+  	                + "scrollbars=1,resizable=1";
 
-    /*
-     * If this page has been loaded before, we need to overwrite the previously
-     * saved (and now stale) editor instance
-     */
-	  if (editorInstance.Name == editorApi.Name)
-	  {
-	    activeEditorInstance = i;
-	    break;
-	  }
+    var name        = "__Resource_Search_Window__";
+
+    var url         = getBaseUrl()
+                    + "/sakai.citation.editor.integration.helper?"
+                    + "panel=Main&sakai_action=doIntegrationSearch&searchType=noSearch";
+  	/*
+  	 * New search window
+  	 */
+  	top.document.__editorcommon.popupwindow = window.open(url, name, attributes);
   }
+	/*
+	 * Save editor API instance
+	 */
+	activeEditorInstance = findEditorIndexByName(editorApi.Name);
   /*
    * Save this editor API instance (and this plugin)
    */
@@ -99,7 +86,7 @@ ResourceSearchCommand.Execute = function()
   /*
 	 * Finally, give the popup window focus
    */
-	popupWindow.focus();
+	top.document.__editorcommon.popupwindow.focus();
 }
 
 /*
@@ -108,30 +95,6 @@ ResourceSearchCommand.Execute = function()
 ResourceSearchCommand.GetState = function()
 {
 	return FCK_TRISTATE_OFF;
-}
-
-/*
- * Return the current time as milliseconds
- */
-ResourceSearchCommand.getDateAsMilliseconds = function()
-{
-  if (RSC_milliseconds == null)
-  {
-    RSC_milliseconds = Date.parse(new Date());
-  }
-	return RSC_milliseconds;
-}
-
-/*
- * Fetch the window title for the ResourceSearch search window
- */
-ResourceSearchCommand.getWindowTitle = function()
-{
-  var title = "__ResourceSearchCommandWindow__"
-            + ResourceSearchCommand.getDateAsMilliseconds()
-            + "__";
-
-  return title;
 }
 
 /*
@@ -155,6 +118,29 @@ ResourceSearchCommand.findEditorInstance = function()
 /*
  * Helpers
  */
+
+/*
+ * Return the active FCKeditor instance
+ */
+function findEditorIndexByName(editorName)
+{
+	var activeEditorInstance = top.document.__editorareas.length;
+
+	for (var i = 0; i < activeEditorInstance; i++)
+	{
+	  var editorInstance  = top.document.__editorareas[i];
+    /*
+     * If this page has been loaded before, we need to overwrite the previously
+     * saved (and now stale) editor instance
+     */
+	  if (editorInstance.Name == editorName)
+	  {
+	    activeEditorInstance = i;
+	    break;
+	  }
+  }
+  return activeEditorInstance;
+}
 
 /*
  * Note the active FCKeditor instance
