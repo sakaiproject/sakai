@@ -1172,3 +1172,15 @@ insert into search_transaction ( txid, txname ) values (0,'mergeSequence');
 insert into search_transaction ( txid, txname ) values (0,'sharedOptimizeSequence');
 insert into search_transaction ( txid, txname ) values (0,'indexerTransaction');
 
+-- SAK-11204
+
+
+ALTER TABLE CALENDAR_EVENT ADD COLUMN RANGE_START INTEGER;
+ALTER TABLE CALENDAR_EVENT ADD COLUMN RANGE_END INTEGER ;
+
+CREATE INDEX CALENDAR_EVENT_RSTART ON CALENDAR_EVENT(RANGE_START);
+CREATE INDEX CALENDAR_EVENT_REND ON CALENDAR_EVENT(RANGE_END);
+
+
+
+
