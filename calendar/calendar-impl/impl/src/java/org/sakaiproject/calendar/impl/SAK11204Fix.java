@@ -67,38 +67,55 @@ public class SAK11204Fix
 	/**
 	 * 
 	 */
-	public void apply()
+	public void apply(boolean autoDDL)
 	{
 		int upgrade = checkSAK11204ForUpgrade();
 
-		if (upgrade != OK)
+		if (upgrade == UPGRADE_SCHEMA)
 		{
-			log.info("SAK-11204: Updating Schema ");
-			sqlService.ddl(this.getClass().getClassLoader(), "SAK-11204");
-			if (checkSAK11204ForUpgrade() == UPGRADE_SCHEMA )
+			if (autoDDL)
+			{
+				log.info("SAK-11204: Updating Schema ");
+				sqlService.ddl(this.getClass().getClassLoader(), "SAK-11204");
+				if (checkSAK11204ForUpgrade() == UPGRADE_SCHEMA)
+				{
+					log
+							.fatal("SAK-11204: =============================================================================");
+					log
+							.fatal("SAK-11204: Database Upgrade for SAK-11204 Failed, you must investigate and fix before");
+					log
+							.fatal("SAK-11204: continuuing. I attempted to upgrade the schema but this appears to hav failed. You must");
+					log
+							.fatal("SAK-11204: ensure that the columns RANGE_START(BIGINT) and RANGE_END(BIGINT) are present in CALENDAR_EVENT");
+					log.fatal("SAK-11204: and there are indexes on both of the columns.");
+					log.fatal("SAK-11204: Thank you ");
+					log
+							.fatal("SAK-11204: =============================================================================");
+					System.exit(-10);
+				}
+			}
+			else
 			{
 				log
 						.fatal("SAK-11204: =============================================================================");
 				log
-						.fatal("SAK-11204: Database Patch for SAK-11204 Failed, you must investigate and fix before");
+						.fatal("SAK-11204: Database Upgrade for SAK-11204 Failed, you must investigate and fix before");
 				log
-						.fatal("SAK-11204: continuuing. I attempted to upgrade the schema but this appears to hav failed. You must");
+						.fatal("SAK-11204: continuuing. AutoDDL was OFF, so I could not change the database schema. You must");
 				log
 						.fatal("SAK-11204: ensure that the columns RANGE_START(BIGINT) and RANGE_END(BIGINT) are present in CALENDAR_EVENT");
 				log.fatal("SAK-11204: and there are indexes on both of the columns.");
-				log
-						.fatal("SAK-11204: Then you MUST set  sak11204.forceupgrade=true in sakai properties to perform the datamigration for ");
-				log.fatal("SAK-11204: one time only.");
 				log.fatal("SAK-11204: Thank you ");
 				log
 						.fatal("SAK-11204: =============================================================================");
 				System.exit(-10);
+
 			}
 			log.info("SAK-11204: Schema Update Sucessfull ");
 		}
 		boolean forceUpgrade = serverConfigurationService.getBoolean(
 				"sak11204.forceupgrade", false);
-		if (upgrade  != OK || forceUpgrade)
+		if (upgrade == MIGRATE || forceUpgrade)
 		{
 			// get a list of channels
 			// for each channel get a list of events
@@ -110,7 +127,8 @@ public class SAK11204Fix
 			for (Iterator<Calendar> icalendars = calendars.iterator(); icalendars
 					.hasNext();)
 			{
-				log.info("SAK-11204: Converting Calendar "+i+" of " + calendars.size());
+				log.info("SAK-11204: Converting Calendar " + i + " of "
+						+ calendars.size());
 				i++;
 				Calendar calendar = icalendars.next();
 				List<BaseCalendarEventEdit> levents = storage.getEvents(calendar);
@@ -149,7 +167,7 @@ public class SAK11204Fix
 	{
 
 		{
-			String test = "select RANGE_START from CALENDAR_EVENT where (RANGE_START is null) or (RANGE_START is null)  ";
+			String test = "select count(*) from CALENDAR_EVENT where (RANGE_START is null) or (RANGE_START is null)  ";
 			Connection connection = null;
 			Statement s = null;
 			ResultSet rs = null;
@@ -161,7 +179,16 @@ public class SAK11204Fix
 				rs = s.executeQuery(test);
 				if (rs.next())
 				{
-					log.info("SAK-11204: Migration check, there are null range fields ");
+					long ntodo = rs.getLong(1);
+					if ( ntodo == 0 ) {
+						log.debug("SAK-11204: Database has been migrated  ");
+						return OK;
+					} else {
+						log.info("SAK-11204: Migration check, there are null range fields ");
+						return MIGRATE;
+					}
+				} else {
+					log.warn("Could not count null range fields, assuming migrate ");
 					return MIGRATE;
 				}
 			}
@@ -200,8 +227,6 @@ public class SAK11204Fix
 				}
 			}
 		}
-		log.debug("SAK-11204: Database has been migrated  ");
-		return OK;
 	}
 
 }

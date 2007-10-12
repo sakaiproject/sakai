@@ -134,7 +134,7 @@ public class DbCalendarService
 			super.init();
 			
 			SAK11204Fix sf =  new SAK11204Fix(this);
-			sf.apply();
+			sf.apply(m_autoDdl);
 
 			M_log.info("init(): tables: " + m_cTableName + " " + m_rTableName + " locks-in-db: " + m_locksInDb);
 		}

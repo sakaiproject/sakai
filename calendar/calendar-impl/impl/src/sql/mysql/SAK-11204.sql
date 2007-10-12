@@ -1,4 +1,6 @@
 -- Force this to happen and report problems bu having a non failing SQL statement first
+-- as of 2.5 this mod is in the autoDDL script, but has been left there to allow DBA's to selectively
+-- do the update
 
 ALTER TABLE CALENDAR_EVENT ADD COLUMN RANGE_START INTEGER, ADD COLUMN RANGE_END INTEGER ;
 
