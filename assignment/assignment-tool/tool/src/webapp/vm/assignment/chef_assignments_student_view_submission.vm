@@ -413,7 +413,7 @@
 						#end
 					</p>
 				#end
-				#if ($returned && $!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted))
+				#if ($returned && $!timeReturned && ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted) || !$!timeSubmitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						<h5>$tlang.getString("gen.addinst")</h5>
 						<div>$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
