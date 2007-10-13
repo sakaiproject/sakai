@@ -145,6 +145,12 @@
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
     </dependency>
+    <!-- required for the schema conversion utility -->
+    <dependency>      
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+      <version>1.2.1</version>
+    </dependency>
   </dependencies>
   <build>
     <resources>
@@ -158,6 +164,12 @@
         <directory>${basedir}/src/bundle</directory>
         <includes>
           <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.config</include>
         </includes>
       </resource>
       <resource>
