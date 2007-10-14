@@ -346,18 +346,18 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 				}
 				else if ("submission".equals(qName))
 				{
-					id = attributes.getValue("id");
-					assignment = StringUtil.trimToNull(attributes.getValue("assignment"));
-					context = StringUtil.trimToNull(attributes.getValue("context"));
-					datereturned = StringUtil.trimToNull(attributes.getValue("datereturned"));
-					datesubmitted = StringUtil.trimToNull(attributes.getValue("datesubmitted"));
-					feedbackcomment = StringUtil.trimToNull(attributes.getValue("feedbackcomment"));
-					feedbackcomment_html = StringUtil.trimToNull(attributes.getValue("feedbackcomment-html"));
-					feedbacktext = StringUtil.trimToNull(attributes.getValue("feedbacktext"));
-					feedbacktext_html = StringUtil.trimToNull(attributes.getValue("feedbacktext-html"));
-					graded = StringUtil.trimToNull(attributes.getValue("graded"));
-					gradereleased = StringUtil.trimToNull(attributes.getValue("gradereleased"));
-					lastmod = StringUtil.trimToNull(attributes.getValue("lastmod"));
+					setId( attributes.getValue("id") );
+					setAssignment(StringUtil.trimToNull(attributes.getValue("assignment")));
+					setContext(StringUtil.trimToNull(attributes.getValue("context")));
+					setDatereturned(StringUtil.trimToNull(attributes.getValue("datereturned")));
+					setDatesubmitted(StringUtil.trimToNull(attributes.getValue("datesubmitted")));
+					setFeedbackcomment(StringUtil.trimToNull(attributes.getValue("feedbackcomment")));
+					setFeedbackcomment_html(StringUtil.trimToNull(attributes.getValue("feedbackcomment-html")));
+					setFeedbacktext(StringUtil.trimToNull(attributes.getValue("feedbacktext")));
+					setFeedbacktext_html(StringUtil.trimToNull(attributes.getValue("feedbacktext-html")));
+					setGraded(StringUtil.trimToNull(attributes.getValue("graded")));
+					setGradereleased(StringUtil.trimToNull(attributes.getValue("gradereleased")));
+					setLastmod(StringUtil.trimToNull(attributes.getValue("lastmod")));
 					String numberoffeedbackattachments = StringUtil.trimToNull(attributes.getValue("numberoffeedbackattachments"));
 					int feedbackAttachmentCount = 0;
 					try
@@ -394,18 +394,17 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 							submittedattachments.add(submittedattachment);
 						}
 					}
-					
-					pledgeflag = StringUtil.trimToNull(attributes.getValue("pledgeflag"));
-					returned = StringUtil.trimToNull(attributes.getValue("returned"));
-					reviewReport = StringUtil.trimToNull(attributes.getValue("reviewReport"));
-					reviewScore = StringUtil.trimToNull(attributes.getValue("reviewScore"));
-					reviewStatus = StringUtil.trimToNull(attributes.getValue("reviewStatus"));
-					scaled_grade = StringUtil.trimToNull(attributes.getValue("scaled_grade"));
-					submitted = StringUtil.trimToNull(attributes.getValue("submitted"));
+					setPledgeflag(StringUtil.trimToNull(attributes.getValue("pledgeflag")));
+					setReturned(StringUtil.trimToNull(attributes.getValue("returned")));
+					setReviewReport(StringUtil.trimToNull(attributes.getValue("reviewReport")));
+					setReviewScore(StringUtil.trimToNull(attributes.getValue("reviewScore")));
+					setReviewStatus(StringUtil.trimToNull(attributes.getValue("reviewStatus")));
+					setScaled_grade(StringUtil.trimToNull(attributes.getValue("scaled_grade")));
+					setSubmitted(StringUtil.trimToNull(attributes.getValue("submitted")));
 					
 					// submittedtext and submittedtext_html are base-64
-					submittedtext = StringUtil.trimToNull(attributes.getValue("submittedtext"));
-					submittedtext_html = StringUtil.trimToNull(attributes.getValue("submittedtext-html"));
+					setSubmittedtext(StringUtil.trimToNull(attributes.getValue("submittedtext")));
+					setSubmittedtext_html(StringUtil.trimToNull(attributes.getValue("submittedtext-html")));
 					
 					String numberofsubmitters = StringUtil.trimToNull(attributes.getValue("numberofsubmitters"));
 					int submitterCount = 0;
@@ -445,7 +444,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getId() 
 	{
-		System.out.println(this.id + " ==> getId == " + id);
 		return id;
 	}
 
@@ -455,7 +453,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setId(String id) 
 	{
-		System.out.println(this.id + " <-- setId == " + id);
 		this.id = id;
 	}
 
@@ -465,7 +462,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getGrade() 
 	{
-		System.out.println(this.id + " ==> getGrade == " + this.grade);
 		return grade;
 	}
 
@@ -475,7 +471,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setGrade(String grade) 
 	{
-		System.out.println(this.id + " <-- setGrade == " + grade);
 		this.grade = grade;
 	}
 
@@ -485,7 +480,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getAssignment() 
 	{
-		System.out.println(this.id + " ==> getAssignment == " + this.assignment);
 		return assignment;
 	}
 
@@ -495,7 +489,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setAssignment(String assignment) 
 	{
-		System.out.println(this.id + " <-- setAssignment == " + assignment);
 		this.assignment = assignment;
 	}
 
@@ -505,7 +498,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getContext() 
 	{
-		System.out.println(this.id + " ==> getContext == " + this.context);
 		return context;
 	}
 
@@ -515,7 +507,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setContext(String context) 
 	{
-		System.out.println(this.id + " <-- setContext == " + context);
 		this.context = context;
 	}
 
@@ -525,7 +516,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getDatereturned() 
 	{
-		System.out.println(this.id + " ==> getDatereturned == " + this.datereturned);
 		return datereturned;
 	}
 
@@ -535,7 +525,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setDatereturned(String datereturned) 
 	{
-		System.out.println(this.id + " <-- setDatereturned == " + datereturned);
 		this.datereturned = datereturned;
 	}
 
@@ -545,7 +534,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getFeedbackcomment() 
 	{
-		System.out.println(this.id + " ==> getFeedbackcomment == " + feedbackcomment);
 		return feedbackcomment;
 	}
 
@@ -555,7 +543,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setFeedbackcomment(String feedbackcomment) 
 	{
-		System.out.println(this.id + " <-- setFeedbackcomment == " + feedbackcomment);
 		this.feedbackcomment = feedbackcomment;
 	}
 
@@ -565,7 +552,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getFeedbackcomment_html() 
 	{
-		System.out.println(this.id + " ==> getFeedbackcomment_html == " + feedbackcomment_html);
 		return feedbackcomment_html;
 	}
 
@@ -575,7 +561,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setFeedbackcomment_html(String feedbackcomment_html) 
 	{
-		System.out.println(this.id + " <-- setFeedbackcomment_html == " + feedbackcomment_html);
 		this.feedbackcomment_html = feedbackcomment_html;
 	}
 
@@ -585,7 +570,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getFeedbacktext() 
 	{
-		System.out.println(this.id + " ==> getFeedbacktext == " + feedbacktext);
 		return feedbacktext;
 	}
 
@@ -595,7 +579,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setFeedbacktext(String feedbacktext) 
 	{
-		System.out.println(this.id + " <-- setFeedbacktext == " + feedbacktext);
 		this.feedbacktext = feedbacktext;
 	}
 
@@ -605,7 +588,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getFeedbacktext_html() 
 	{
-		System.out.println(this.id + " ==> getFeedbacktext_html == " + feedbacktext_html);
 		return feedbacktext_html;
 	}
 
@@ -615,7 +597,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setFeedbacktext_html(String feedbacktext_html) 
 	{
-		System.out.println(this.id + " <-- setFeedbacktext_html == " + feedbacktext_html);
 		this.feedbacktext_html = feedbacktext_html;
 	}
 
@@ -625,7 +606,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getGraded() 
 	{
-		System.out.println(this.id + " ==> getGraded == " + graded);
 		return graded;
 	}
 
@@ -635,7 +615,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setGraded(String graded) 
 	{
-		System.out.println(this.id + " <-- setGraded == " + graded);
 		this.graded = graded;
 	}
 
@@ -645,7 +624,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getGradereleased() 
 	{
-		System.out.println(this.id + " ==> getGradereleased == " + gradereleased);
 		return gradereleased;
 	}
 
@@ -655,7 +633,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setGradereleased(String gradereleased) 
 	{
-		System.out.println(this.id + " <-- setGradereleased == " + gradereleased);
 		this.gradereleased = gradereleased;
 	}
 
@@ -665,7 +642,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getLastmod() 
 	{
-		System.out.println(this.id + " ==> getLastmod == " + lastmod);
 		return lastmod;
 	}
 
@@ -675,7 +651,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setLastmod(String lastmod) 
 	{
-		System.out.println(this.id + " <-- setLastmod == " + lastmod);
 		this.lastmod = lastmod;
 	}
 
@@ -685,7 +660,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getPledgeflag() 
 	{
-		System.out.println(this.id + " ==> getPledgeflag == " + pledgeflag);
 		return pledgeflag;
 	}
 
@@ -695,7 +669,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setPledgeflag(String pledgeflag) 
 	{
-		System.out.println(this.id + " <-- setPledgeflag == " + pledgeflag);
 		this.pledgeflag = pledgeflag;
 	}
 
@@ -705,7 +678,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getReturned() 
 	{
-		System.out.println(this.id + " ==> getReturned == " + returned);
 		return returned;
 	}
 
@@ -715,7 +687,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setReturned(String returned) 
 	{
-		System.out.println(this.id + " <-- setReturned == " + returned);
 		this.returned = returned;
 	}
 
@@ -725,7 +696,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getReviewReport() 
 	{
-		System.out.println(this.id + " ==> getReviewReport == " + reviewReport);
 		return reviewReport;
 	}
 
@@ -735,7 +705,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setReviewReport(String reviewReport) 
 	{
-		System.out.println(this.id + " <-- setReviewReport == " + reviewReport);
 		this.reviewReport = reviewReport;
 	}
 
@@ -745,7 +714,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getReviewScore() 
 	{
-		System.out.println(this.id + " ==> getReviewScore == " + reviewScore);
 		return reviewScore;
 	}
 
@@ -755,7 +723,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setReviewScore(String reviewScore) 
 	{
-		System.out.println(this.id + " <-- setReviewScore == " + reviewScore);
 		this.reviewScore = reviewScore;
 	}
 
@@ -765,7 +732,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getReviewStatus() 
 	{
-		System.out.println(this.id + " ==> getReviewStatus == " + reviewStatus);
 		return reviewStatus;
 	}
 
@@ -775,7 +741,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setReviewStatus(String reviewStatus) 
 	{
-		System.out.println(this.id + " <-- setReviewStatus == " + reviewStatus);
 		this.reviewStatus = reviewStatus;
 	}
 
@@ -785,7 +750,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getScaled_grade() 
 	{
-		System.out.println(this.id + " ==> getScaled_grade == " + scaled_grade);
 		return scaled_grade;
 	}
 
@@ -795,7 +759,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setScaled_grade(String scaled_grade) 
 	{
-		System.out.println(this.id + " <-- setScaled_grade == " + scaled_grade);
 		this.scaled_grade = scaled_grade;
 	}
 
@@ -805,7 +768,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getSubmitted() 
 	{
-		System.out.println(this.id + " ==> getSubmitted == " + submitted);
 		return submitted;
 	}
 
@@ -815,7 +777,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setSubmitted(String submitted) 
 	{
-		System.out.println(this.id + " <-- setSubmitted == " + submitted);
 		this.submitted = submitted;
 	}
 
@@ -825,7 +786,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public List<String> getSubmittedattachments() 
 	{
-		System.out.println(this.id + " ==> getSubmittedattachments == " + submittedattachments);
 		return submittedattachments;
 	}
 
@@ -835,7 +795,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setSubmittedattachments(List<String> submittedattachments) 
 	{
-		System.out.println(this.id + " <-- setSubmittedattachments == " + submittedattachments);
 		this.submittedattachments = submittedattachments;
 	}
 
@@ -845,7 +804,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public List<String> getFeedbackattachments() 
 	{
-		System.out.println(this.id + " ==> getFeedbackattachments == " + feedbackattachments);
 		return feedbackattachments;
 	}
 
@@ -855,7 +813,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setFeedbackattachments(List<String> feedbackattachments) 
 	{
-		System.out.println(this.id + " <-- setFeedbackattachments == " + feedbackattachments);
 		this.feedbackattachments = feedbackattachments;
 	}
 
@@ -865,7 +822,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getDatesubmitted() 
 	{
-		System.out.println(this.id + " ==> getDatesubmitted == " + datesubmitted);
 		return datesubmitted;
 	}
 
@@ -875,7 +831,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setDatesubmitted(String datesubmitted) 
 	{
-		System.out.println(this.id + " <-- setDatesubmitted == " + datesubmitted);
 		this.datesubmitted = datesubmitted;
 	}
 
@@ -885,7 +840,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getSubmittedtext() 
 	{
-		System.out.println(this.id + " ==> getSubmittedtext == " + submittedtext);
 		return submittedtext;
 	}
 
@@ -895,7 +849,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setSubmittedtext(String submittedtext) 
 	{
-		System.out.println(this.id + " <-- setSubmittedtext == " + submittedtext);
 		this.submittedtext = submittedtext;
 	}
 
@@ -905,7 +858,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public String getSubmittedtext_html() 
 	{
-		System.out.println(this.id + " ==> getSubmittedtext_html == " + submittedtext_html);
 		return submittedtext_html;
 	}
 
@@ -915,7 +867,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setSubmittedtext_html(String submittedtext_html) 
 	{
-		System.out.println(this.id + " <-- setSubmittedtext_html == " + submittedtext_html);
 		this.submittedtext_html = submittedtext_html;
 	}
 
@@ -925,7 +876,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public List<String> getSubmitters() 
 	{
-		System.out.println(this.id + " ==> getSubmitters == " + submitters);
 		return submitters;
 	}
 
@@ -935,7 +885,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	 */
 	public void setSubmitters(List<String> submitters) 
 	{
-		System.out.println(this.id + " <-- setSubmitters == " + submitters);
 		this.submitters = submitters;
 	}
 

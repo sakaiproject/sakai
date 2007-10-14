@@ -108,7 +108,7 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 		List feedbackattachments = student.getFeedbackattachments();
 		if(feedbackattachments == null || feedbackattachments.isEmpty())
 		{
-			student.setFeedbackattachments(feedbackattachments);
+			student.setFeedbackattachments(instructor.getFeedbackattachments());
 		}
 		if(student.getFeedbackcomment() == null)
 		{
