@@ -1,8 +1,3 @@
-create index isearchbuilderitem_name on  searchbuilderitem (name);
-create index isearchbuilderitem_ctx on  searchbuilderitem (context);
-create index isearchbuilderitem_act on  searchbuilderitem (searchaction);
-create index isearchbuilderitem_sta on  searchbuilderitem (searchstate);
-create index isearchwriterlock_lk on  searchwriterlock (lockkey);
 
 
 
@@ -35,6 +30,10 @@ create table search_node_status (
 	 serverid varchar2(255)  not null, 
 	 primary key (serverid) );
 
+create index isearchbuilderitem_ctx on  searchbuilderitem (context);
+create index isearchbuilderitem_act on  searchbuilderitem (searchaction);
+create index isearchbuilderitem_sta on  searchbuilderitem (searchstate);
+create index isearchwriterlock_lk on  searchwriterlock (lockkey);
 	 	 
 insert into search_transaction ( txid, txname ) values (0,'optimizeSequence');
 insert into search_transaction ( txid, txname ) values (0,'mergeSequence');
