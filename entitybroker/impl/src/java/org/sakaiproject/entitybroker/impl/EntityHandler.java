@@ -10,7 +10,6 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
-import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 
 /**
  * Common implementation of the handler for the EntityBroker system. This should be used in
