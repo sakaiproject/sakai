@@ -1068,6 +1068,11 @@ public class DiscussionForumTool
    */
   public DiscussionTopicBean getSelectedTopic()
   {
+  	if(selectedTopic == null)
+  	{
+			LOG.debug("no topic is selected in getSelectedTopic.");
+  		return null;
+  	}
   	if (!selectedTopic.isSorted()) 
   	{
   		rearrageTopicMsgsThreaded();
@@ -1126,6 +1131,11 @@ public class DiscussionForumTool
     setPermissionMode(PERMISSION_MODE_TOPIC);
     setEditMode(true);
         
+    if(selectedTopic == null)
+    {
+			LOG.debug("no topic is selected in processActionReviseTopicSettings.");
+    	return gotoMain();
+    }
     DiscussionTopic topic = selectedTopic.getTopic();
 
     if (topic == null)
@@ -1355,6 +1365,7 @@ public class DiscussionForumTool
     if (selectedTopic == null)
     {
       LOG.debug("There is no topic selected for deletion");
+      return gotoMain();
     }
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
     {
@@ -1464,6 +1475,11 @@ public class DiscussionForumTool
     }
     if (redirectTo.equals("processActionDisplayTopic"))
     {
+    	if(selectedTopic == null)
+    	{
+ 				LOG.debug("no topic is selected in processActionToggleDisplayExtendedDescription.");
+    		return gotoMain();
+    	}
       if (selectedTopic.isReadFullDesciption())
       {
         selectedTopic.setReadFullDesciption(false);
@@ -1476,6 +1492,11 @@ public class DiscussionForumTool
     }
     if (redirectTo.equals("processActionDisplayMessage"))
     {
+    	if(selectedTopic == null)
+    	{
+ 				LOG.debug("no topic is selected in processActionToggleDisplayExtendedDescription.");
+    		return gotoMain();
+    	}
       if (selectedTopic.isReadFullDesciption())
       {
         selectedTopic.setReadFullDesciption(false);
@@ -1488,6 +1509,11 @@ public class DiscussionForumTool
     }
     if (redirectTo.equals("processActionGradeMessage"))
     {
+    	if(selectedTopic == null)
+    	{
+ 				LOG.debug("no topic is selected in processActionToggleDisplayExtendedDescription.");
+    		return gotoMain();
+    	}
       if (selectedTopic.isReadFullDesciption())
       {
         selectedTopic.setReadFullDesciption(false);
@@ -1608,6 +1634,11 @@ public class DiscussionForumTool
   
   public String processActionGetDisplayThread()
   {
+  		if(selectedTopic == null)
+  		{
+  			LOG.debug("no topic is selected in processActionGetDisplayThread.");
+  			return gotoMain();
+  		}
 	  	selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
 	  	
 	  	setTopicBeanAssign();
@@ -1692,6 +1723,11 @@ public class DiscussionForumTool
 	    setSelectedForumForCurrentTopic(topic);
 	    selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
 	        uiPermissionsManager, forumManager);
+	    if(topic == null || selectedTopic == null)
+	    {
+	    	LOG.debug("topic or selectedTopic is null in processActionDisplayThread.");
+	    	return gotoMain();
+	    }
 	    if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
 	    {
 	    	selectedTopic.setReadFullDesciption(true);
@@ -1759,6 +1795,11 @@ public class DiscussionForumTool
     setSelectedForumForCurrentTopic(topic);
     selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
         uiPermissionsManager, forumManager);
+    if(topic == null || selectedTopic == null)
+    {
+    	LOG.debug("topic or selectedTopic is null in processActionDisplayMessage.");
+    	return gotoMain();
+    }
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
     {
     	selectedTopic.setReadFullDesciption(true);
@@ -1794,6 +1835,12 @@ public class DiscussionForumTool
 	    }
 	    selectedThreadHead = new DiscussionMessageBean(mes, messageManager);
 	    
+	    if(selectedTopic == null)
+	    {
+	    	LOG.debug("selectedTopic is null in getThreadFromMessage.");
+	    	return;
+	    }
+	    
 	    List tempMsgs = selectedTopic.getMessages();
 	    Boolean foundHead = false;
 	    Boolean foundAfterHead = false;
@@ -1825,6 +1872,12 @@ public class DiscussionForumTool
   
   public String processDisplayPreviousMsg()
   {
+    if(selectedTopic == null)
+    {
+    	LOG.debug("selectedTopic is null in processDisplayPreviousMsg.");
+    	return null;
+    }
+  	
   	List tempMsgs = selectedTopic.getMessages();
   	int currentMsgPosition = -1;
     if(tempMsgs != null)
@@ -1860,6 +1913,12 @@ public class DiscussionForumTool
 
   public String processDfDisplayNextMsg()
   {
+    if(selectedTopic == null)
+    {
+    	LOG.debug("selectedTopic is null in processDfDisplayNextMsg.");
+    	return null;
+    }
+  	
   	List tempMsgs = selectedTopic.getMessages();
   	int currentMsgPosition = -1;
     if(tempMsgs != null)
@@ -2317,7 +2376,7 @@ public class DiscussionForumTool
 	    {
 	      topicId = getExternalParameterByKey(externalTopicId);
 
-	      if (topicId != null)
+	      if (topicId != null && topicId.trim().length() > 0)
 	      {
 	        DiscussionTopic topic = null;
 	        try
@@ -2608,6 +2667,11 @@ public class DiscussionForumTool
   {
     Message dMsg = constructMessage();
 
+    if(selectedTopic == null)
+    {
+    	LOG.debug("selectedTopic is null in processDfMsgPost()");
+    	return gotoMain();
+    }
     forumManager.saveMessage(dMsg);
     DiscussionTopic dSelectedTopic = (DiscussionTopic) forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId());
     setSelectedForumForCurrentTopic(dSelectedTopic);
@@ -2637,6 +2701,12 @@ public class DiscussionForumTool
   {
     Message dMsg = constructMessage();
     dMsg.setDraft(Boolean.TRUE);
+
+    if(selectedTopic == null)
+    {
+    	LOG.debug("selectedTopic is null in processDfMsgSaveDraft()");
+    	return gotoMain();
+    }
 
     forumManager.saveMessage(dMsg);
     setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
@@ -2676,7 +2746,13 @@ public class DiscussionForumTool
 
       // if the topic is moderated, we want to leave approval null.
 	  // if the topic is not moderated, all msgs are approved
-      // if the author has moderator perm, the msg is automatically approved
+      // if the author has moderator perm, the msg is automatically approved\
+      
+    if(selectedTopic == null)
+    {
+    	LOG.debug("selectedTopic is null in constructMessage()");
+    	return null;
+    }
 	  if (!selectedTopic.isTopicModerated() || selectedTopic.getIsModeratedAndHasPerm())
 	  {
 		  aMsg.setApproved(Boolean.TRUE);
@@ -2700,6 +2776,11 @@ public class DiscussionForumTool
    */
   public boolean isDisplayTopicDeleteOption()
   {
+    if(selectedTopic == null)
+    {
+    	LOG.debug("selectedTopic is null in isDisplayTopicDeleteOption()");
+    	return false;
+    }
 	  Topic topic = selectedTopic.getTopic();
 	  if (topic == null || topic.getId() == null)
 		  return false;
@@ -2729,8 +2810,9 @@ public class DiscussionForumTool
     String redirectTo = getExternalParameterByKey(REDIRECT_PROCESS_ACTION);
     String expand = getExternalParameterByKey("composeExpand");
 
-    if (redirectTo == null)
+    if (redirectTo == null || selectedTopic == null)
     {
+    	LOG.debug("redirectTo or selectedTopic is null in isDisplayForumDeleteOption");
       return gotoMain();
     }
     if (redirectTo.equals("dfCompose"))
@@ -2892,6 +2974,11 @@ public class DiscussionForumTool
 
   public String processDfMsgReplyThread()
   {
+  	if(selectedTopic == null)
+  	{
+  		LOG.debug("selectedTopic is null in processDfMsgReplyThread");
+  		return gotoMain();
+  	}
 	  //we have to get the depth 0 message that this is in response to
 	  DiscussionMessageBean cur = selectedMessage;
 	  int depth = 0;
@@ -2958,6 +3045,12 @@ public class DiscussionForumTool
   
   public String processDfMsgGrd()
   {
+  	if(selectedTopic == null)
+  	{
+  		LOG.debug("selectedTopic is null in processDfMsgGrd");
+  		return gotoMain();
+  	}
+  		
 	  selectedAssign = DEFAULT_GB_ITEM; 
 	  resetGradeInfo();
 
@@ -3126,7 +3219,13 @@ public class DiscussionForumTool
 
   public String processDfReplyMsgPost()
   {
-	DiscussionTopic topicWithMsgs = (DiscussionTopic) forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId());
+  	if(selectedTopic == null)
+  	{
+  		LOG.debug("selectedTopic is null in processDfReplyMsgPost");
+  		return gotoMain();
+  	}
+  	
+  	DiscussionTopic topicWithMsgs = (DiscussionTopic) forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId());
     List tempList = topicWithMsgs.getMessages();
     if(tempList != null)
     {
@@ -3188,6 +3287,12 @@ public class DiscussionForumTool
 
   public String processDfReplyMsgSaveDraft()
   {
+  	if(selectedTopic == null)
+  	{
+  		LOG.debug("selectedTopic is null in processDfReplyMsgSaveDraft");
+  		return gotoMain();
+  	}
+  	
     List tempList = forumManager.getMessagesByTopicId(selectedTopic.getTopic().getId());
     if(tempList != null)
     {
@@ -3285,6 +3390,12 @@ public class DiscussionForumTool
   
   public String processDfMsgRevisedPost()
   {
+  	if(selectedTopic == null)
+  	{
+  		LOG.debug("selectedTopic is null in processDfMsgRevisedPost");
+  		return gotoMain();
+  	}
+  	
     Message dMsg = selectedMessage.getMessage();
 
     for (int i = 0; i < prepareRemoveAttach.size(); i++)
@@ -3404,6 +3515,12 @@ public class DiscussionForumTool
 
   public String processDfMsgSaveRevisedDraft()
   {
+  	if(selectedTopic == null)
+  	{
+  		LOG.debug("selectedTopic is null in processDfMsgSaveRevisedDraft");
+  		return gotoMain();
+  	}
+  		
     Message dMsg = selectedMessage.getMessage();
 
     for (int i = 0; i < prepareRemoveAttach.size(); i++)
@@ -3538,6 +3655,12 @@ public class DiscussionForumTool
 
   public String processDfReplyTopicPost()
   {
+  	if(selectedTopic == null)
+  	{ 
+  		LOG.debug("selectedTopic is null in processDfReplyTopicPost");
+  		return gotoMain();
+  	}
+  	
     Message dMsg = constructMessage();
 
     forumManager.saveMessage(dMsg);
@@ -3561,6 +3684,12 @@ public class DiscussionForumTool
 
   public String processDfReplyTopicSaveDraft()
   {
+  	if(selectedTopic == null)
+  	{ 
+  		LOG.debug("selectedTopic is null in processDfReplyTopicSaveDraft");
+  		return gotoMain();
+  	}
+  	
     Message dMsg = constructMessage();
     dMsg.setDraft(Boolean.TRUE);
 
@@ -3622,6 +3751,12 @@ public class DiscussionForumTool
    */
   public String processDfMsgDeleteConfirmYes()
   {
+  	if(selectedTopic == null)
+  	{ 
+  		LOG.debug("selectedTopic is null in processDfMsgDeleteConfirmYes");
+  		return gotoMain();
+  	}
+  	
 	  DiscussionTopic topic = selectedTopic.getTopic();
 	  DiscussionForum forum = selectedForum.getForum();
 	  if(!uiPermissionsManager.isDeleteAny(topic, forum) && !(selectedMessage.getIsOwn() && uiPermissionsManager.isDeleteOwn(topic, forum)))
@@ -3932,6 +4067,12 @@ public class DiscussionForumTool
    */
   public String processAddCommentToDeniedMsg()
   {
+  	if(selectedTopic == null)
+  	{ 
+  		LOG.debug("selectedTopic is null in processAddCommentToDeniedMsg");
+  		return gotoMain();
+  	}
+  	
 	  if (!selectedTopic.getIsModeratedAndHasPerm())
 	  {
 		  setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_ADD_COMMENT));
@@ -3984,6 +4125,12 @@ public class DiscussionForumTool
    */
   public boolean isAllowedToApproveMsg()
   {
+  	if(selectedTopic == null)
+  	{ 
+  		LOG.debug("selectedTopic is null in isAllowedToApproveMsg");
+  		return false;
+  	}
+  	
 	  return selectedTopic.getIsModeratedAndHasPerm() && !selectedMessage.isMsgApproved();
   }
   
@@ -3997,6 +4144,12 @@ public class DiscussionForumTool
    */
   public boolean isAllowedToDenyMsg()
   {
+  	if(selectedTopic == null)
+  	{ 
+  		LOG.debug("selectedTopic is null in isAllowedToDenyMsg");
+  		return false;
+  	}
+  	
 	  return selectedTopic.getIsModeratedAndHasPerm() && !selectedMessage.isMsgDenied() && !selectedMessage.getHasChild();
   }
 
@@ -4007,6 +4160,12 @@ public class DiscussionForumTool
   
   public void setNewTopicBeanAssign()
   {
+  	if(selectedTopic == null)
+  	{ 
+  		LOG.debug("selectedTopic is null in setNewTopicBeanAssign");
+  		return;
+  	}
+  	
     if(selectedForum !=null && selectedForum.getGradeAssign() != null && selectedForum.getForum() != null)
     {
       selectedTopic.setGradeAssign(selectedForum.getGradeAssign());
@@ -4040,17 +4199,23 @@ public class DiscussionForumTool
   
   public void setTopicBeanAssign()
   {
-	if(assignments != null)
-	{
-	  for(int i=0; i<assignments.size(); i++)
-	  {
-		if(((SelectItem)assignments.get(i)).getLabel().equals(selectedTopic.getTopic().getDefaultAssignName()))
-		{
-          selectedTopic.setGradeAssign((String)((SelectItem)assignments.get(i)).getValue());
-          break;
-        }
-      }
-	}
+  	if(selectedTopic == null)
+  	{ 
+  		LOG.debug("selectedTopic is null in setTopicBeanAssign");
+  		return;
+  	}
+  	
+  	if(assignments != null)
+  	{
+  		for(int i=0; i<assignments.size(); i++)
+  		{
+  			if(((SelectItem)assignments.get(i)).getLabel().equals(selectedTopic.getTopic().getDefaultAssignName()))
+  			{
+  				selectedTopic.setGradeAssign((String)((SelectItem)assignments.get(i)).getValue());
+  				break;
+  			}
+  		}
+  	}
   }
   
   public void setSelectedAssignForMessage(String assignName)
@@ -4124,6 +4289,12 @@ public class DiscussionForumTool
 
   public void saveTopicSelectedAssignment(DiscussionTopic topic)
   {
+  	if(selectedTopic == null)
+  	{ 
+  		LOG.debug("selectedTopic is null in saveTopicSelectedAssignment");
+  		return;
+  	}
+  	
     if(selectedTopic.getGradeAssign() != null && !selectedTopic.getGradeAssign().equals(DEFAULT_GB_ITEM))
     {
       topic.setDefaultAssignName( ((SelectItem)assignments.get( new Integer(selectedTopic.getGradeAssign()).intValue())).getLabel());
@@ -4510,6 +4681,12 @@ public class DiscussionForumTool
   
   public String processDfGradeSubmit() 
   { 
+  	if(selectedTopic == null)
+  	{ 
+  		LOG.debug("selectedTopic is null in processDfGradeSubmit");
+  		return gotoMain();
+  	}
+  	
 	  gbItemScore = gradePoint;
 	  gbItemComment = gradeComment;
 	  if(selectedAssign == null || selectedAssign.trim().length()==0 || selectedAssign.equalsIgnoreCase(DEFAULT_GB_ITEM)) 
@@ -4572,6 +4749,12 @@ public class DiscussionForumTool
  
   public String processCheckAll()
   {
+  	if(selectedTopic == null)
+  	{ 
+  		LOG.debug("selectedTopic is null in processCheckAll");
+  		return null;
+  	}
+  	
   	for(int i=0; i<selectedTopic.getMessages().size(); i++)
   	{
   		((DiscussionMessageBean)selectedTopic.getMessages().get(i)).setSelected(true);
@@ -4717,6 +4900,11 @@ public class DiscussionForumTool
     }
     if (changeView.equals(ALL_MESSAGES))
     {
+    	if(selectedTopic == null)
+    	{ 
+    		LOG.debug("selectedTopic is null in processValueChangeForMessageView");
+    		return;
+    	}
       //threaded = false;
       setSelectedMessageView(ALL_MESSAGES);
       
@@ -4798,7 +4986,13 @@ public class DiscussionForumTool
   }
   
   public void processValueChangedForMessageOrganize(ValueChangeEvent vce){
-	  if (LOG.isDebugEnabled())
+  	if(selectedTopic == null)
+  	{ 
+  		LOG.debug("selectedTopic is null in processValueChangedForMessageOrganize");
+  		return;
+  	}
+
+  	if (LOG.isDebugEnabled())
 	      LOG.debug("processValueChangeForMessageView(ValueChangeEvent " + vce
 	          + ")");
 	  isDisplaySearchedMessages=false;
@@ -5715,6 +5909,12 @@ public class DiscussionForumTool
 		//	messages = selectedTopic.getUnreadMessages();	
 		//else
 		
+  	if(selectedTopic == null)
+  	{ 
+  		LOG.debug("selectedTopic is null in getMessages");
+  		return messages;
+  	}
+  	
 		messages = selectedTopic.getMessages();
 		
 		if (messages != null && !messages.isEmpty())
@@ -5894,6 +6094,11 @@ public class DiscussionForumTool
 	  * @param message
 	  */
 	 private void refreshSelectedMessageSettings(Message message) {
+		 if(selectedTopic == null)
+		 { 
+			 LOG.debug("selectedTopic is null in refreshSelectedMessageSettings");
+			 return;
+		 }
 		 boolean isOwn = message.getCreatedBy().equals(getUserId());
 		 selectedMessage.setRevise(selectedTopic.getIsReviseAny() 
 					|| (selectedTopic.getIsReviseOwn() && isOwn));  
