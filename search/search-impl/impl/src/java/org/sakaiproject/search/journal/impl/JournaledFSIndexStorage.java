@@ -65,16 +65,16 @@ import org.sakaiproject.search.util.FileUtils;
 
 /**
  * <pre>
- *              This is a Journaled savePoint of the local FSIndexStorage. It will merge in new
- *              savePoints from the jorunal. This is going to be performed in a non
- *              transactional way for the moment. 
- *              
- *              The index reader must maintain a single
- *              index reader for the JVM. When performing a read update, the single index
- *              reader must be used, but each time the index reader is provided we should
- *              check that the index reader has not been updated.
- *              
- *              If the reader is being updated, then it is not safe to reload it.
+ *                This is a Journaled savePoint of the local FSIndexStorage. It will merge in new
+ *                savePoints from the jorunal. This is going to be performed in a non
+ *                transactional way for the moment. 
+ *                
+ *                The index reader must maintain a single
+ *                index reader for the JVM. When performing a read update, the single index
+ *                reader must be used, but each time the index reader is provided we should
+ *                check that the index reader has not been updated.
+ *                
+ *                If the reader is being updated, then it is not safe to reload it.
  * </pre>
  * 
  * @author ieb
@@ -428,7 +428,14 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 					{
 						return;
 					}
-					super.close();
+					try
+					{
+						super.close();
+					}
+					catch (IOException ioex)
+					{
+
+					}
 					try
 					{
 						ir.close();
@@ -750,7 +757,14 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 					toRemove.clear();
 					return;
 				}
-				super.doClose();
+				try
+				{
+					super.doClose();
+				}
+				catch (IOException ex)
+				{
+
+				}
 				for (IndexReader ir : indexReaders)
 				{
 					try
