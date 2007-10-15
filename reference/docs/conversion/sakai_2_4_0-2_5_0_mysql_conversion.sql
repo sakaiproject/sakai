@@ -1198,3 +1198,153 @@ create index CONTENT_RESOURCE_RTI on CONTENT_RESOURCE (RESOURCE_TYPE_ID);
 alter table CONTENT_RESOURCE_DELETE add RESOURCE_TYPE_ID VARCHAR(255) default null;
 create index CONTENT_RESOURCE_DELETE_RTI on CONTENT_RESOURCE (RESOURCE_TYPE_ID);
 
+-- SAK-11935 -- New Roster permissions (and new meanings for old permissions)
+
+-- Remove all roster permissions from all sites and groups, since the meanings of these permissions have changed
+delete from SAKAI_REALM_RL_FN where function_key in (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME like 'roster.%');
+
+-- Remove the roster permissions themselves
+delete from SAKAI_REALM_FUNCTION where function_name like 'roster.%';
+
+-- Add the new roster permissions
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'roster.viewallmembers');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'roster.viewhidden');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'roster.viewgroup');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'roster.viewenrollmentstatus');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'roster.viewprofile');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'roster.viewofficialphoto');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'roster.export');
+
+----------------------------------------------------------------------------------------------------------------------------------------
+-- backfill roster permissions into existing sites and groups
+----------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
+CREATE TABLE PERMISSIONS_TEMP (ROLE_KEY INTEGER, FUNCTION_KEY INTEGER);
+
+-- Backfill sites
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','roster.viewallmembers');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','roster.viewhidden');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','roster.viewgroup');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','roster.viewenrollmentstatus');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','roster.viewprofile');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','roster.viewofficialphoto');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','roster.export');
+
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','roster.viewprofile');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','roster.viewofficialphoto');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','roster.export');
+
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','roster.viewallmembers');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','roster.viewgroup');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','roster.viewprofile');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','roster.export');
+
+INSERT INTO PERMISSIONS_SRC_TEMP values ('access','roster.viewallmembers');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('access','roster.viewprofile');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('access','roster.export');
+
+-- Lookup the role and function keys
+insert into PERMISSIONS_TEMP (ROLE_KEY, FUNCTION_KEY)
+select SRR.ROLE_KEY, SRF.FUNCTION_KEY
+from PERMISSIONS_SRC_TEMP TMPSRC
+join SAKAI_REALM_ROLE SRR on (TMPSRC.ROLE_NAME = SRR.ROLE_NAME)
+join SAKAI_REALM_FUNCTION SRF on (TMPSRC.FUNCTION_NAME = SRF.FUNCTION_NAME);
+
+-- Insert the new functions into the roles of any existing realm that has the role (don't convert the "!site.helper" or any group realms)
+insert into SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
+select
+    SRRFD.REALM_KEY, SRRFD.ROLE_KEY, TMP.FUNCTION_KEY
+from
+    (select distinct SRRF.REALM_KEY, SRRF.ROLE_KEY from SAKAI_REALM_RL_FN SRRF) SRRFD
+    join PERMISSIONS_TEMP TMP on (SRRFD.ROLE_KEY = TMP.ROLE_KEY)
+    join SAKAI_REALM SR on (SRRFD.REALM_KEY = SR.REALM_KEY)
+    where SR.REALM_ID not like '!%'
+    and SR.REALM_ID like '/site/%'
+    and SR.REALM_ID not like '/site/~%'
+    and SR.REALM_ID not like '/site/!%'
+    and SR.REALM_ID not like '/site/%/group/%'
+    and not exists (
+        select 1
+            from SAKAI_REALM_RL_FN SRRFI
+            where SRRFI.REALM_KEY=SRRFD.REALM_KEY and SRRFI.ROLE_KEY=SRRFD.ROLE_KEY and  SRRFI.FUNCTION_KEY=TMP.FUNCTION_KEY
+    );
+
+-- clean up the temp tables to use again for group permissions
+delete from PERMISSIONS_TEMP;
+delete from PERMISSIONS_SRC_TEMP;
+
+-- Backfill groups with roster permissions
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','roster.viewallmembers');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','roster.viewhidden');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','roster.viewgroup');
+
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Student','roster.viewallmembers');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Student','roster.viewgroup');
+
+INSERT INTO PERMISSIONS_SRC_TEMP values ('access','roster.viewgroup');
+
+-- lookup the role and function numbers
+insert into PERMISSIONS_TEMP (ROLE_KEY, FUNCTION_KEY)
+select SRR.ROLE_KEY, SRF.FUNCTION_KEY
+from PERMISSIONS_SRC_TEMP TMPSRC
+join SAKAI_REALM_ROLE SRR on (TMPSRC.ROLE_NAME = SRR.ROLE_NAME)
+join SAKAI_REALM_FUNCTION SRF on (TMPSRC.FUNCTION_NAME = SRF.FUNCTION_NAME);
+
+-- insert the new functions into the roles of any existing realm that has the role (don't convert the "!site.helper")
+insert into SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
+select
+    SRRFD.REALM_KEY, SRRFD.ROLE_KEY, TMP.FUNCTION_KEY
+from
+    (select distinct SRRF.REALM_KEY, SRRF.ROLE_KEY from SAKAI_REALM_RL_FN SRRF) SRRFD
+    join PERMISSIONS_TEMP TMP on (SRRFD.ROLE_KEY = TMP.ROLE_KEY)
+    join SAKAI_REALM SR on (SRRFD.REALM_KEY = SR.REALM_KEY)
+    where SR.REALM_ID not like '!%'
+    and SR.REALM_ID not like '/site/~%'
+    and SR.REALM_ID not like '/site/!%'
+    and SR.REALM_ID like '/site/%/group/%'
+    and not exists (
+        select 1
+            from SAKAI_REALM_RL_FN SRRFI
+            where SRRFI.REALM_KEY=SRRFD.REALM_KEY and SRRFI.ROLE_KEY=SRRFD.ROLE_KEY and  SRRFI.FUNCTION_KEY=TMP.FUNCTION_KEY
+    );
+
+-- remove the temp tables
+drop table PERMISSIONS_TEMP;
+drop table PERMISSIONS_SRC_TEMP;
+
+-- Update !site.template
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'access'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewallmembers'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'access'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewprofile'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'access'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.export'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewgroup'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewallmembers'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewprofile'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.export'));
+
+-- Update !site.template.course
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewallmembers'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewenrollmentstatus'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewhidden'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewgroup'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewofficialphoto'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewprofile'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.export'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewprofile'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewofficialphoto'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.export'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewprofile'));
+
+-- Update !group.template
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'access'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewgroup'));
+
+-- Update !group.template.course
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewallmembers'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewhidden'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewgroup'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewallmembers'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewgroup'));
+
