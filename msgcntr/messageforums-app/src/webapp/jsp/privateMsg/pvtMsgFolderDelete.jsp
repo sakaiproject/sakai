@@ -10,6 +10,8 @@
 	<sakai:view title="#{msgs.pvt_delcon}">
 <!--jsp/privateMsg/pvtMsgFolderDelete.jsp-->
 		<h:form id="pvtMsgFolderDelete">
+		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 			<sakai:tool_bar_message value="#{msgs.pvt_delcon}" /> 
 			<h:messages styleClass="alertMessage" id="errorMessages" /> 
  

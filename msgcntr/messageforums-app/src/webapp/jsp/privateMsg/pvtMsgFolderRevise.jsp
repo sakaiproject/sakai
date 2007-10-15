@@ -10,6 +10,8 @@
 	<sakai:view title="#{msgs.pvt_msgs_label} #{msgs.pvt_foldersettings}">
 <!--jsp/privateMsg/pvtMsgFolderRevise.jsp-->
 	  <h:form id="pvtMsgFolderRevise">
+	         		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 		
     <sakai:tool_bar_message value="#{msgs.pvt_rename_folder_label}" />
     <h:messages styleClass="alertMessage" id="errorMessages" /> 

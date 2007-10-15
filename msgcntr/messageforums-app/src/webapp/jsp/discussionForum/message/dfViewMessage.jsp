@@ -9,6 +9,8 @@
 <f:view>
 <sakai:view>
 	<h:form id="msgForum">
+	       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 <!--jsp/discussionForum/message/dfViewMessage.jsp-->
 		
 		  <h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel">

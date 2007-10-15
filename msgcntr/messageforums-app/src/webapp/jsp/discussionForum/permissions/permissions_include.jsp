@@ -6,7 +6,8 @@
     DiscussionForumTool dft = (DiscussionForumTool) binding.getValue(context);
     out.print(dft.generatePermissionScript());
 %>
-
+       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 <sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_header.js"/>
 <sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 <!--jsp/discussionForum/permissions/permissions_include.jsp-->

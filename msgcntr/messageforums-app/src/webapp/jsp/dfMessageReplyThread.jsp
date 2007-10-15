@@ -10,6 +10,8 @@
   <sakai:view title="#{msgs.cdfm_reply_tool_bar_message}">
 <!--jsp/dfMessageReply.jsp-->    
       <h:form id="dfCompose">
+             		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
         <h:outputText styleClass="alertMessage" value="#{msgs.cdfm_reply_deleted}" rendered="#{ForumTool.errorSynch}" />
 	
 

@@ -9,6 +9,8 @@
 </jsp:useBean>
 
 <f:view>
+       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
    <f:verbatim>
       <script language="javascript">
       

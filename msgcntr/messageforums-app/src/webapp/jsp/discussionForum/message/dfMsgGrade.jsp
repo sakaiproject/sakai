@@ -8,6 +8,8 @@
 
 <f:view>
 <sakai:view>
+       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
   <h:form id="msgForum">
 <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 

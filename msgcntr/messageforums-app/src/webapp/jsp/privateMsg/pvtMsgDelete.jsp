@@ -10,6 +10,8 @@
 	<sakai:view title="#{msgs.pvt_delcon}">
 <!--Y:\msgcntr\messageforums-app\src\webapp\jsp\privateMsg\pvtMsgDelete.jsp-->
     <h:form id="pvtMsgDelete">
+           		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
     <div class="breadCrumb specialLink">
     	<h3>
 	 	    <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> /

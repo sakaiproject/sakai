@@ -13,6 +13,8 @@
 
 
     <h:form id="revise">
+           		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
       <sakai:tool_bar_message value="#{msgs.cdfm_discussion_forum_settings}" />
 		<div class="instruction">
 		  <h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}"/>

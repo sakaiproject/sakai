@@ -17,8 +17,9 @@
 </script>
 	<h:form id="msgForum">
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
+       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
-		<sakai:script contextBase="/library" path="/js/jquery.js" />
 		
 		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
 				<sakai:tool_bar_item action="#{ForumTool.processDfMsgReplyThread}" value="#{msgs.cdfm_reply_thread}" 

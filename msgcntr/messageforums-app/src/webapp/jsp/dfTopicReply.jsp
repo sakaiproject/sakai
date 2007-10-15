@@ -9,6 +9,8 @@
 
   <sakai:view title="#{msgs.cdfm_reply_to_topic}">
      <h:form id="dfCompose">
+            		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 <!--jsp/dfTopicReply.jsp-->
                 
 			<h3><h:outputText value="#{msgs.cdfm_reply_to_topic}" /></h3>

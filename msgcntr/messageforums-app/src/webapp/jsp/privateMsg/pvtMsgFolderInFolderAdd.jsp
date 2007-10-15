@@ -9,6 +9,8 @@
   <sakai:view title="#{msgs.pvt_msgs_label} #{msgs.pvt_create_folder}">
 <!--jsp/privateMsg/pvtMsgFolderInFolderAdd.jsp-->
 		<h:form id="pvtMsgFolderAdd">
+		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 		
 			  <sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_create_folder}" />
 			 

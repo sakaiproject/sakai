@@ -12,6 +12,8 @@
 <hr />
 
 <h:form id="timerBarForm">
+       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
   <sakai:timerBar height="15" width="300" wait="60" elapsed="30"
      expireMessage="this is the expire message"
      expireScript="var universe=42; alert('this is the expire script');"

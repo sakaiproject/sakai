@@ -8,6 +8,8 @@
 <f:view>
 
   <sakai:view title="#{msgs.cdfm_container_title}">
+         		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
     <h:form id="addGroupsUsers"> 
 <!--jsp/discussionForum/permissions/addGroupsUsers.jsp-->                
       <sakai:tool_bar_message value="#{msgs.cdfm_button_bar_add_groups_users}" />

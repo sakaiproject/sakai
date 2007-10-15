@@ -11,7 +11,8 @@
 <f:view>
   <sakai:view title="#{msgs.pvt_forward}">
     <h:form id="pvtMsgForward">
-    
+           		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
     <h:panelGroup>
           	<f:verbatim><div class="breadCrumb"><h3></f:verbatim>
 				  <h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >

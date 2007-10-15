@@ -11,6 +11,8 @@
    <sakai:view>
 
       <h:form id="revise">
+             		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 <!--jsp/discussionForum/topic/dfTopicSettings.jsp-->
         <sakai:tool_bar_message value="#{msgs.cdfm_discussion_topic_settings}" />
 

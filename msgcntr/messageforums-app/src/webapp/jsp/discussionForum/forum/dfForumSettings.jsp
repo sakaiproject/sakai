@@ -12,6 +12,8 @@
    <sakai:view>
 
       <h:form id="revise">
+             		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 <!--jsp/discussionForum/forum/dfForumSettings.jsp-->
         <sakai:tool_bar_message value="#{msgs.cdfm_discussion_forum_settings}" />
          <h:outputText styleClass="alertMessage" value="#{msgs.cdfm_delete_forum}" rendered="#{ForumTool.selectedForum.markForDeletion}"/>	

@@ -8,7 +8,8 @@
 <f:view>
   <sakai:view>
   	<h:form id="dfStatisticsForm">
-  		
+  		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
   		<h:panelGrid columns="1" summary="layout" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>
           	 <f:verbatim><div class="breadCrumb"><h3></f:verbatim>

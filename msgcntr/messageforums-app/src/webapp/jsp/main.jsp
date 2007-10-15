@@ -22,6 +22,8 @@
   <sakai:view title="#{msgs.cdfm_message_forums}">
 <!--jsp/main.jsp-->
        <h:form id="msgForum">
+       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 				<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 				<%--gsilver:if layout="table" is needed,  need rendered attr here so that no empty tables  are put in the response - leaving undefined here so that it reverts to layout="list" --%> 
 				<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" />  		

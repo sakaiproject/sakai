@@ -21,6 +21,8 @@
 	<sakai:view title="#{msgs.cdfm_message_pvtarea}">
 		<!--jsp/privateMsg/pvtMsgHpView.jsp-->
 		<h:form id="msgForum">
+		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 
 		<h:panelGroup rendered="#{PrivateMessagesTool.messages}">
 			<sakai:tool_bar>

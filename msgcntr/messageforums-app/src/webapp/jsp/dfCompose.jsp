@@ -10,6 +10,8 @@
   <sakai:view title="#{msgs.cdfm_container_title}">
   <!--jsp/dfCompose.jsp-->
     <h:form id="dfCompose">
+           		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
       <h3><h:outputText value="#{msgs.cdfm_tool_bar_message}" /></h3>
       <h4><h:outputText value="#{ForumTool.selectedForum.forum.title} - #{ForumTool.selectedTopic.topic.title}" /></h4> 
 	  <div class="textPanel">

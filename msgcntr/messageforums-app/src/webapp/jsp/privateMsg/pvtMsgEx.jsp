@@ -11,6 +11,8 @@
 	<sakai:view title="#{msgs.pvt_rcvd_msgs}">
 <!--jsp/privateMsg/pvtMsgEx.jsp-->
 		<h:form id="prefs_form_search">
+		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 			<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>		
 			
 			<%@include file="topNav.jsp" %>

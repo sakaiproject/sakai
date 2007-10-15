@@ -1,4 +1,6 @@
 <%--********************* Message Header*********************--%>
+<script type="text/javascript" src="/library/js/jquery.js"></script>
+<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 <sakai:script contextBase="/sakai-messageforums-tool" path="/js/bulkops.js"/>		
 <sakai:script contextBase="/sakai-jsf-resource" path="/inputDate/inputDate.js"/>		
 <sakai:script contextBase="/sakai-jsf-resource" path="/inputDate/calendar1.js"/>		

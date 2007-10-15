@@ -15,7 +15,8 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 
 <f:view>
   <sakai:view title="#{msgs.cdfm_discussion_forums}">
-		<sakai:script contextBase="/library" path="/js/jquery.js" />
+  		<script type="text/javascript" src="/library/js/jquery.js"></script>
+  		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 	<h:form id="msgForum">
 

@@ -8,6 +8,8 @@
 	<sakai:view title="#{msgs.pvt_move} #{msgs.pvt_rcvd_msgs}">
 <!--jsp/privateMsg/pvtMsgMove.jsp-->	
 		<h:form id="pvtMsgMove">
+		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 		<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
 			<h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
 				<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/>

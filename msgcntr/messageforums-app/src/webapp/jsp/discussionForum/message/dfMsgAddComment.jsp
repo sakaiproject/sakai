@@ -10,6 +10,8 @@
 <f:view>
 
 	<sakai:view title="#{msgs.cdfm_add_comment}">
+	       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 		<h:form id="dfMsgAddComment">
 
 			<h3><h:outputText value="#{msgs.cdfm_add_comment}" /></h3>
