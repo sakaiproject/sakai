@@ -452,41 +452,8 @@ function setMainFrameHeightNoScroll(id, shouldScroll) {
 		}
 
 		var objToResize = (frame.style) ? frame.style : frame;
-//		alert("After objToResize");
 
-		var height; 
-		
-		var scrollH = document.body.scrollHeight;
-		var offsetH = document.body.offsetHeight;
-		var docElOffsetH = document.documentElement.offsetHeight;
-		var clientH = document.body.clientHeight;
-		var innerDocScrollH = null;
-
-		if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
-		{
-			// very special way to get the height from IE on Windows!
-			// note that the above special way of testing for undefined variables is necessary for older browsers
-			// (IE 5.5 Mac) to not choke on the undefined variables.
- 			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
-			innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
-		}
-
-//		alert("After innerDocScrollH");
-	
-		if (document.all && innerDocScrollH != null)
-		{
-			// IE on Windows only
-			height = innerDocScrollH;
-		}
-		else
-		{
-			// every other browser!
-			if (docElOffsetH > offsetH) {
-			  height = docElOffsetH;
-			} else {
-			  height = offsetH;
-			}
-		}
+                var height = getFrameHeight(frame);
 
 		// here we fudge to get a little bigger
 		//gsilver: changing this from 50 to 10, and adding extra bottom padding to the portletBody		
@@ -497,9 +464,6 @@ function setMainFrameHeightNoScroll(id, shouldScroll) {
 		objToResize.height=newHeight + "px";
 		
 		
-		var s = " scrollH: " + scrollH + " offsetH: " + offsetH + " clientH: " + clientH + " innerDocScrollH: " + innerDocScrollH + " Read height: " + height + " Set height to: " + newHeight;
-//		window.status = s;
-//		alert(s);
 		//window.location.hash = window.location.hash;
 		if (shouldScroll) {
 		  var anchor = document.location.hash;
@@ -513,7 +477,17 @@ function setMainFrameHeightNoScroll(id, shouldScroll) {
 	}
 
 }
+/* get height of an iframe document */
+function getFrameHeight (frame)
+{
+   var document = frame.contentWindow.document;
+   var doc_height = document.height ? document.height : 0; // Safari uses document.height
 
+if (document.documentElement && document.documentElement.scrollHeight) /* Strict mode */
+      return Math.max (document.documentElement.scrollHeight, doc_height);
+   else /* quirks mode */
+      return Math.max (document.body.scrollHeight, doc_height);
+}
 // This invaluable function taken from QuirksMode @ http://www.quirksmode.org/index.html?/js/findpos.html
 // Portable to virtually every browser, with a few caveates.
 function findPosY(obj) {
