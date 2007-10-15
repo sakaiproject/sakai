@@ -1,6 +1,4 @@
 /*
- * ResourceSearchCommand
- *
  * Add library search functionality to the FCK editor
  */
 var ResourceSearchCommand = function() { }
@@ -9,7 +7,7 @@ ResourceSearchCommand.prototype.Execute = function() { }
 
 /*
  * Search command registration
-*/
+ */
 FCKCommands.RegisterCommand('ResourceSearch', ResourceSearchCommand);
 /*
  * Set up our Search button (name and hover text)
@@ -26,11 +24,12 @@ FCKToolbarItems.RegisterItem('ResourceSearch', RSC_searchButton);
 /*
  * Button press activities:
  *
+ * 	o Establish "globals"
  * 	o Launch the search window
  *  o Save the editor and plugin instance
  *  o Set up event handlers to track the current editor window
  *
- * Note:  The "helper" name (see "url =" below) corresponds to the name
+ * Note:  The helper name (see "url =" below) corresponds to the name
  *        specified in the project build procedure
  */
 ResourceSearchCommand.Execute = function()
@@ -47,27 +46,8 @@ ResourceSearchCommand.Execute = function()
 		top.document.__editorareas  = new Array();
 		top.document.__editorcommon = new Object();
 	}
-  /*
-   * Do we need to create the popup window?
-   */
-	if ((typeof top.document.__editorcommon.popupwindow == "undefined") ||
-    	(top.document.__editorcommon.popupwindow.closed))
-	{
-  	var attributes 	= "height=420,width=750,location=1,toolbar=1,status=1,menubar=1,"
-  	                + "scrollbars=1,resizable=1";
-
-    var name        = "__Resource_Search_Window__";
-
-    var url         = getBaseUrl()
-                    + "/sakai.citation.editor.integration.helper?"
-                    + "panel=Main&sakai_action=doIntegrationSearch&searchType=noSearch";
-  	/*
-  	 * New search window
-  	 */
-  	top.document.__editorcommon.popupwindow = window.open(url, name, attributes);
-  }
 	/*
-	 * Save editor API instance
+	 * Find an index for this new editor API instance
 	 */
 	activeEditorInstance = findEditorIndexByName(editorApi.Name);
   /*
@@ -83,6 +63,24 @@ ResourceSearchCommand.Execute = function()
    * Attach a focus event handler to track the active editor instance
    */
   editorApi.Events.AttachEvent('OnFocus', flagActiveEditor);
+  /*
+   * Create the popup window?
+   */
+	if ((typeof top.document.__editorcommon.popupwindow  == "undefined") ||
+    	(typeof top.document.__editorcommon.milliseconds == "undefined") ||
+    	(top.document.__editorcommon.popupwindow.closed))
+	{
+  	var attributes 	= "height=420,width=750,location=1,toolbar=1,status=1,menubar=1,"
+  	                + "scrollbars=1,resizable=1";
+
+    var name        = getWindowTitle();
+
+    var url         = getBaseUrl()
+                    + "/sakai.citation.editor.integration.helper?"
+                    + "panel=Main&sakai_action=doIntegrationSearch&searchType=noSearch";
+
+  	top.document.__editorcommon.popupwindow = window.open(url, name, attributes);
+  }
   /*
 	 * Finally, give the popup window focus
    */
@@ -130,11 +128,18 @@ function findEditorIndexByName(editorName)
 	{
 	  var editorInstance  = top.document.__editorareas[i];
     /*
-     * If this page has been loaded before, we need to overwrite the previously
-     * saved (and now stale) editor instance
+     * If this page (textarea) has been loaded before:
+     *
+     * o If the active search window is disabled (no longer associated with
+     *   an edit session), reset the window title (to generate a new popup)
+     * o Overwrite the previously saved (and now stale) editor instance
      */
 	  if (editorInstance.Name == editorName)
 	  {
+      if (isSearchWindowDisconnected())
+      {
+  	    delete top.document.__editorcommon.milliseconds;
+  	  }
 	    activeEditorInstance = i;
 	    break;
 	  }
@@ -155,6 +160,40 @@ function flagActiveEditor(editorInstance)
   }
   editorInstance.__active = true;
 }
+
+/*
+ * Return the current time as milliseconds
+ */
+function getDateAsMilliseconds()
+{
+  if (typeof top.document.__editorcommon.milliseconds == "undefined")
+  {
+    top.document.__editorcommon.milliseconds = Date.parse(new Date());
+  }
+	return top.document.__editorcommon.milliseconds;
+}
+
+/*
+ * Fetch the window title for the ResourceSearch search window
+ */
+function getWindowTitle()
+{
+  var title = "__ResourceSearchWindow_"
+            + getDateAsMilliseconds()
+            + "__";
+
+  return title;
+}
+
+/*
+ * Is the active search widow disconnected (not associated with an editor instance)?
+ */
+function isSearchWindowDisconnected()
+{
+  return (!top.document.__editorcommon.popupwindow.closed) &&
+         (typeof top.document.__editorcommon.popupwindow.top.document.__disabled != "undefined");
+}
+
 
 /*
  * Lookup the current Tool id
