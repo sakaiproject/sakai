@@ -25,7 +25,12 @@
     #end
 
     #if( ! $noResults )
-      <p class="instruction">$tlang.getFormattedMessage("instr.results.main", $instrMainArgs)</p>
+      #if( $resourcesTool )
+        <p class="instruction">$tlang.getFormattedMessage("instr.results.main", $instrMainArgs)</p>
+      #end
+      #if( $editorIntegration )
+        <p class="instruction">$tlang.getFormattedMessage("instr.results.integration", $instrMainArgs)</p>
+      #end
     #end
     <p class="instruction">$tlang.getFormattedMessage("instr.results.sub", $instrSubArgs)</p>
 
