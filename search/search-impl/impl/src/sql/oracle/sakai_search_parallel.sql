@@ -33,7 +33,7 @@ create table search_node_status (
 create index isearchbuilderitem_ctx on  searchbuilderitem (context);
 create index isearchbuilderitem_act on  searchbuilderitem (searchaction);
 create index isearchbuilderitem_sta on  searchbuilderitem (searchstate);
-create index isearchwriterlock_lk on  searchwriterlock (lockkey);
+-- HBM now does this correctly on oracle create index isearchwriterlock_lk on  searchwriterlock (lockkey);
 	 	 
 insert into search_transaction ( txid, txname ) values (0,'optimizeSequence');
 insert into search_transaction ( txid, txname ) values (0,'mergeSequence');
