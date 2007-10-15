@@ -43,8 +43,6 @@ ${tool.toolRenderResult.getTitle()}
 #end
 #end
 #end
-
- ieb need to put the too heads in here 
 #else 
     <title>${pageTitle}</title>
      <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
