@@ -253,6 +253,8 @@ function setMainFrameHeightNow(id)
 		parent.window.scrollTo(0,0);
 
 		var objToResize = (frame.style) ? frame.style : frame;
+  
+               if ( false ) {
 
 		var height; 		
 		var offsetH = document.body.offsetHeight;
@@ -277,6 +279,9 @@ function setMainFrameHeightNow(id)
 			// every other browser!
 			height = offsetH;
 		}
+		} 
+
+                var height = getFrameHeight(frame);
 
 		// here we fudge to get a little bigger
 		var newHeight = height + 40;
@@ -298,6 +303,19 @@ function setMainFrameHeightNow(id)
 		}
 	}
 }
+
+/* get height of an iframe document */
+function getFrameHeight (frame)
+{
+   var document = frame.contentWindow.document;
+   var doc_height = document.height ? document.height : 0; // Safari uses document.height
+
+if (document.documentElement && document.documentElement.scrollHeight) /* Strict mode */
+      return Math.max (document.documentElement.scrollHeight, doc_height);
+   else /* quirks mode */
+      return Math.max (document.body.scrollHeight, doc_height);
+}
+
 
 // find the object position in its window
 // inspired by http://www.quirksmode.org/js/findpos.html
