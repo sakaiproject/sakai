@@ -55,7 +55,7 @@ public class ContentServiceSqlOracle extends ContentServiceSqlDefault
 	 */
 	public String getAddContextIndexSql(String table)
 	{
-		return "create index " + table.trim() + "_CONTEXT_INDEX on " + table + " (CONTEXT)";
+		return "create index " + table.trim() + "_CI on " + table + " (CONTEXT)";
 	}
 
 	public String getFilesizeColumnExistsSql() 

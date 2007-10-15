@@ -354,7 +354,26 @@ public class DbContentService extends BaseContentService
 
 				// do the 2.1.0 conversions
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_2_1_0");
+				
+				filesizeColumnExists = filesizeColumnExists();
+				
+				if(!filesizeColumnExists)
+				{
+					addNewColumns();
+					filesizeColumnExists = filesizeColumnExists();
+				}
+				if(! readyToUseFilesizeColumn())
+				{
+					// if the convert flag is set to add CONTEXT and FILE_SIZE columns
+					// start doing the conversion
+					if(convertToContextQueryForCollectionSize)
+					{
+						populateNewColumns();
+					}
+				}
 			}
+
+			filesizeColumnExists = filesizeColumnExists();
 
 			// If CHH resolvers are turned off in sakai.properties, unset the resolver property.
 			// This MUST happen before super.init() calls newStorage()
@@ -380,25 +399,6 @@ public class DbContentService extends BaseContentService
 		catch (Throwable t)
 		{
 			M_log.warn("init(): ", t);
-		}
-
-		if ( m_sqlService != null ) {
-			filesizeColumnExists = filesizeColumnExists();
-			
-			if(!filesizeColumnExists)
-			{
-				addNewColumns();
-				filesizeColumnExists = filesizeColumnExists();
-			}
-			if(! readyToUseFilesizeColumn())
-			{
-				// if the convert flag is set to add CONTEXT and FILE_SIZE columns
-				// start doing the conversion
-				if(convertToContextQueryForCollectionSize)
-				{
-					populateNewColumns();
-				}
-			}
 		}
 		
 		//testResourceByTypePaging();
