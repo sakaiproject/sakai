@@ -234,7 +234,7 @@ function doAjax(messageId, topicId, self){
 
 //fix for double click stack traces in IE - SAK-10625
 //add Jquery if necessary
-if(typeof($) == "undefined"){
+/*if(typeof($) == "undefined"){
    js = document.createElement('script');
    js.setAttribute('language', 'javascript');
    js.setAttribute('type', 'text/javascript');
@@ -246,4 +246,4 @@ js = document.createElement('script');
 js.setAttribute('language', 'javascript');
 js.setAttribute('type', 'text/javascript');
 js.setAttribute('src','/sakai-messageforums-tool/js/sak-10625.js');
-document.getElementsByTagName('head').item(0).appendChild(js);
+document.getElementsByTagName('head').item(0).appendChild(js);*/
