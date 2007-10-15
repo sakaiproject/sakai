@@ -64,12 +64,15 @@ function SRC_verifyWindowOpener()
 }
 
 /*
- * We can't access our parent - close on request
+ * We can't access our parent - flag window "disconnected", disable buttons
  */
 function SRC_closedWindowOpenerAlert()
 {
-  var element = document.getElementById("editor-integration-disconnect");
+  var element;
 
+  top.document.__disabled = "true";
+
+  element = document.getElementById("editor-integration-disconnect");
   if (element != null)
   {
     element.style.display = "inline";
