@@ -362,7 +362,7 @@ public class DbContentService extends BaseContentService
 					addNewColumns();
 					filesizeColumnExists = filesizeColumnExists();
 				}
-				if(! readyToUseFilesizeColumn())
+				if(filesizeColumnExists && ! readyToUseFilesizeColumn())
 				{
 					// if the convert flag is set to add CONTEXT and FILE_SIZE columns
 					// start doing the conversion

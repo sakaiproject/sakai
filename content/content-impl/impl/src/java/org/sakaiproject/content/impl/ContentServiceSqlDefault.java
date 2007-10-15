@@ -224,7 +224,7 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	 */
 	public String getAddResourceTypeIndexSql(String table)
 	{
-		return "create index " + table.trim() + "RESOURCE_TYPE_INDEX on " + table + " (RESOURCE_TYPE_ID)";
+		return "create index " + table.trim() + "_RTI on " + table + " (RESOURCE_TYPE_ID)";
 	}
 
 	/**
