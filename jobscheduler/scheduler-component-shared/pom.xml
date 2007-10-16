@@ -56,11 +56,6 @@
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
     </dependency>
-    <dependency>
-      <groupId>commons-dbcp</groupId>
-      <artifactId>commons-dbcp</artifactId>
-      <version>1.2.2</version>
-    </dependency>
   </dependencies>
   <build>
     <resources>
