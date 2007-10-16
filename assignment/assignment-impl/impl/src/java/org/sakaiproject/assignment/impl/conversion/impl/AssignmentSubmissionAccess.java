@@ -178,7 +178,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 				submission.setAttribute(attributeString, itemString);
 			}
 		}
-
 		// SAVE THE SUBMITTED ATTACHMENTS
 		numItemsString = "" + this.submittedattachments.size();
 		submission.setAttribute("numberofsubmittedattachments", numItemsString);
