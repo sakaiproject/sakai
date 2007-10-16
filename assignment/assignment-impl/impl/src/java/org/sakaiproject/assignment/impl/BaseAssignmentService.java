@@ -3321,13 +3321,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			row = sheet.createRow(rowNum++);
 			row.createCell((short) 0).setCellValue("");
 	
-			// the bold font
-			HSSFFont font = wb.createFont();
-			font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-	
-			// the cell style with bold font
 			HSSFCellStyle style = wb.createCellStyle();
-			style.setFont(font);
 	
 			// this is the header row number
 			short headerRowNumber = rowNum;
