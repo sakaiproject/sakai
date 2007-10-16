@@ -33,6 +33,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.assignment.impl.conversion.api.SchemaConversionHandler;
 
+
+import org.sakaiproject.util.StringUtil;
+
 public class CombineDuplicateSubmissionsConversionHandler implements SchemaConversionHandler 
 {
 	private static final Log log = LogFactory.getLog(CombineDuplicateSubmissionsConversionHandler.class);
@@ -79,92 +82,122 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 
 	protected AssignmentSubmissionAccess combineItems(AssignmentSubmissionAccess item1, AssignmentSubmissionAccess item2) 
 	{
-		AssignmentSubmissionAccess instructor;
-		AssignmentSubmissionAccess student;
-		
+		AssignmentSubmissionAccess keepItem=item1;
+		AssignmentSubmissionAccess removeItem=item2;
+
+		// for normal assignment
 		//it is student-generated	(submitted==TRUE && dateSubmittted==SOME_TIMESTAMP) or submitted=false),
 		//or it is instructor generated	(submitted==TRUE && dateSubmitted==null)
-		if("true".equals(item1.getSubmitted()) && item1.getDatesubmitted() == null)
+		if("true".equals(item1.getSubmitted()) && item1.getDatesubmitted() != null
+			&& !("true".equals(item2.getSubmitted()) && item2.getDatesubmitted() != null))
 		{
-			instructor = item1;
-			student = item2;
+			// item1 is student submission
+			keepItem = item1;
+			removeItem = item2;
+		}
+		else if("true".equals(item2.getSubmitted()) && item2.getDatesubmitted() != null
+				&& !("true".equals(item1.getSubmitted()) && item1.getDatesubmitted() != null))
+		{
+			// item2 is student submission
+			keepItem = item2;
+			removeItem = item1;
 		}
 		else
 		{
-			instructor = item2;
-			student = item1;
+			// if there is no student submission, just duplicate instructor record
+			if (StringUtil.trimToNull(item1.getFeedbacktext()) != null || StringUtil.trimToNull(item1.getFeedbackcomment()) != null || StringUtil.trimToNull(item1.getGrade()) != null)
+			{
+				// item 1 has some grading data
+				keepItem = item1;
+				removeItem = item2;
+			}
+			else if (StringUtil.trimToNull(item2.getFeedbacktext()) != null || StringUtil.trimToNull(item2.getFeedbackcomment()) != null || StringUtil.trimToNull(item2.getGrade()) != null)
+			{
+				// item 2 has some grading data
+				keepItem = item2;
+				removeItem = item1;
+			}
+			else
+			{
+				// if none of them contains useful information, randomly pick one to keep
+				//keepItem = item1;
+				//removeItem = item2;
+			}
 		}
 
 		// need to verify whether student or instructor data 
 		// takes precedence if both exist
-		if(student.getDatereturned() == null)
+		if(keepItem.getDatereturned() == null)
 		{
-			student.setDatereturned(instructor.getDatereturned());
+			keepItem.setDatereturned(removeItem.getDatereturned());
 		}
-		if(student.getDatesubmitted() == null)
+		if(keepItem.getDatesubmitted() == null)
 		{
-			student.setDatesubmitted(instructor.getDatesubmitted());
+			keepItem.setDatesubmitted(removeItem.getDatesubmitted());
 		}
-		List feedbackattachments = student.getFeedbackattachments();
+		
+		List feedbackattachments = keepItem.getFeedbackattachments();
 		if(feedbackattachments == null || feedbackattachments.isEmpty())
 		{
-			student.setFeedbackattachments(instructor.getFeedbackattachments());
+			keepItem.setFeedbackattachments(removeItem.getFeedbackattachments());
 		}
-		if(student.getFeedbackcomment() == null)
+		if(keepItem.getFeedbackcomment() == null)
 		{
-			student.setFeedbackcomment(instructor.getFeedbackcomment());
+			keepItem.setFeedbackcomment(removeItem.getFeedbackcomment());
 		}
-		if(student.getFeedbackcomment_html() == null)
+		if(keepItem.getFeedbackcomment_html() == null)
 		{
-			student.setFeedbackcomment_html(instructor.getFeedbackcomment_html());
+			keepItem.setFeedbackcomment_html(removeItem.getFeedbackcomment_html());
 		}
-		if(student.getFeedbacktext() == null)
+		if(keepItem.getFeedbacktext() == null)
 		{
-			student.setFeedbacktext(student.getFeedbacktext());
+			keepItem.setFeedbacktext(keepItem.getFeedbacktext());
 		}
-		if(student.getFeedbacktext_html() == null)
+		if(keepItem.getFeedbacktext_html() == null)
 		{
-			student.setFeedbacktext_html(instructor.getFeedbacktext_html());
+			keepItem.setFeedbacktext_html(removeItem.getFeedbacktext_html());
 		}
-		if(student.getGrade() == null)
+		if(keepItem.getGrade() == null)
 		{
-			student.setGrade(instructor.getGrade());
+			keepItem.setGrade(removeItem.getGrade());
 		}
-		if(student.getGraded() == null)
+		if(keepItem.getGraded() == null)
 		{
-			student.setGraded(instructor.getGraded());
+			keepItem.setGraded(removeItem.getGraded());
 		}
-		if(student.getGradereleased() == null)
+		if(keepItem.getGradereleased() == null)
 		{
-			student.setGradereleased(instructor.getGradereleased());
+			keepItem.setGradereleased(removeItem.getGradereleased());
 		}
-		if(student.getReturned() == null)
+		if(keepItem.getReturned() == null)
 		{
-			student.setReturned(instructor.getReturned());
+			keepItem.setReturned(removeItem.getReturned());
 		}
-		if(student.getReviewReport() == null)
+		if(keepItem.getReviewReport() == null)
 		{
-			student.setReviewReport(instructor.getReviewReport());
+			keepItem.setReviewReport(removeItem.getReviewReport());
 		}
-		if(student.getReviewScore() == null)
+		if(keepItem.getReviewScore() == null)
 		{
-			student.setReviewScore(instructor.getReviewScore());
+			keepItem.setReviewScore(removeItem.getReviewScore());
 		}
-		if(student.getReviewStatus() == null)
+		if(keepItem.getReviewStatus() == null)
 		{
-			student.setReviewStatus(instructor.getReviewStatus());
+			keepItem.setReviewStatus(removeItem.getReviewStatus());
 		}
-		if(student.getScaled_grade() == null)
+		if(keepItem.getScaled_grade() == null)
 		{
-			student.setScaled_grade(instructor.getScaled_grade());
+			keepItem.setScaled_grade(removeItem.getScaled_grade());
 		}
 		// what to do with properties????
-//		if(student.getSerializableProperties() == null)
+		/// for now, we dump all the properties of the removeItem
+//		if(keepItem.getSerializableProperties() == null)
 //		{
-//			student.setSerializableProperties(instructor.getSerializableProperties());
+//			keepItem.setSerializableProperties(removeItem.getSerializableProperties());
 //		}
 		
-		return student;
+
+		return keepItem;
 	}
 
 	public Object getSource(String id, ResultSet rs) throws SQLException 
