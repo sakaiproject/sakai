@@ -645,10 +645,16 @@ public class ItemAddListener
 
           if (!update) {
             if ( (itemauthor.getInsertPosition() == null) ||
-                ("".equals(itemauthor.getInsertPosition()))) {
+                ("".equals(itemauthor.getInsertPosition()))
+                || !section.getSequence().equals(itemauthor.getInsertToSection())) {
               // if adding to the end
               if (section.getItemSet() != null) {
-              item.setSequence(new Integer(section.getItemSet().size() + 1));
+            	  item.setSequence(new Integer(section.getItemSet().size() + 1));
+              
+            	  if (itemauthor.getInsertToSection() != null) {
+            		  // reset insertToSection to null;
+            		  itemauthor.setInsertToSection(null);
+            	  }
               }
               else {
 	 	// this is a new part, not saved yet 

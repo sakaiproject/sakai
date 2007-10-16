@@ -255,8 +255,8 @@ log.debug("after getting item.getItemType() ");
           //item.setSelectedSection(sectionid);
         }
 
-	// reset insertToSection to null;
-        itemauthorbean.setInsertToSection(null);
+	    // reset insertToSection to null;
+        //itemauthorbean.setInsertToSection(null);
 
 
         if (item.getItemType().equals("10")) {
