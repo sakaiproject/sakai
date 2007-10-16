@@ -26,7 +26,7 @@
   <form name="$FORM_NAME" id="$FORM_NAME" method="post"
     action="#toolForm("CitationHelperAction")">
     <input name="sakai_action" id="sakai_action" value="doBeginSearch" type="hidden" />
-    <input name="searchType" id="searchType" value="$basicSearchType" type="hidden" />
+    <input name="searchType" id="searchType" value="$searchType" type="hidden" />
     <input name="cancelOp" id="cancelOp" value="$FORM_NAME" type="hidden" />
 
     <p class="instruction">$tlang.getString("instr.search.main")</p>
