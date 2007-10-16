@@ -1812,7 +1812,10 @@ public class DeliveryBean
     int underscore_index = fullname.lastIndexOf("_"); 
     int dot_index = fullname.lastIndexOf("."); 
     String filename = fullname.substring(0,underscore_index);
-    filename = filename + fullname.substring(dot_index);
+
+    if (fullname.indexOf(dot_index) >= 0) {
+    	filename = filename + fullname.substring(dot_index);
+    }
     log.debug("**** filename="+filename);
     
     if (SAVETODB)

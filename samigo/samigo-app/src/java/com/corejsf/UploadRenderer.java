@@ -109,8 +109,14 @@ public class UploadRenderer extends Renderer {
         String fullname = item.getName();
         fullname = fullname.replace('\\','/'); // replace c:\fullname to c:/fullname
         fullname = fullname.substring(fullname.lastIndexOf("/")+1);
-	int dot_index = fullname.lastIndexOf("."); 
-        String filename = fullname.substring(0, dot_index) + "_" + (new Date()).getTime() + fullname.substring(dot_index);
+	    int dot_index = fullname.lastIndexOf(".");
+	    String filename = "";
+	    if (fullname.indexOf(dot_index) < 0) {
+	    	filename = fullname + "_" + (new Date()).getTime();
+	    }
+	    else {
+	    	filename = fullname.substring(0, dot_index) + "_" + (new Date()).getTime() + fullname.substring(dot_index);
+	    }
         File file = new File(dir.getPath()+"/"+filename);
         log.debug("**1. filename="+file.getPath());
         try {
