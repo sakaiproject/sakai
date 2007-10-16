@@ -533,7 +533,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String STATE_SEARCH_INFO = CitationHelper.CITATION_PREFIX + "search_info";
 	protected static final String STATE_BASIC_SEARCH = CitationHelper.CITATION_PREFIX + "basic_search";
 	protected static final String STATE_SEARCH_RESULTS = CitationHelper.CITATION_PREFIX + "search_results";
-
 	protected static final String TEMPLATE_CREATE = "citation/create";
 	protected static final String TEMPLATE_EDIT = "citation/edit";
 	protected static final String TEMPLATE_ERROR = "citation/error";
@@ -1450,6 +1449,19 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		Object[] instrArgs = { rb.getString( "submit.search" ) };
 		context.put( "instrArgs", instrArgs );
 
+		String searchType = null;
+		
+		if (searchInfo != null)
+		{
+			searchType = searchInfo.getSearchType();
+		}
+			
+		if (searchType == null)
+			searchType = ActiveSearch.BASIC_SEARCH_TYPE;
+
+		context.put("searchType", searchType);
+			
+		
 	    return TEMPLATE_SEARCH;
 
 	}	// buildSearchPanelContext
@@ -2556,6 +2568,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	{
 		// get state and params
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters();
 
 		// cancel the running search
 		ActiveSearch search = ( ActiveSearch )state.getAttribute( STATE_SEARCH_INFO );
