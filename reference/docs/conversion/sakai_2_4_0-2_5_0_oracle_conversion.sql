@@ -1379,3 +1379,10 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewallmembers'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewgroup'));
 
+-- SAK-11821 - eliminate duplicates in ASSIGNMENT_SUBMISSION
+alter table ASSIGNMENT_SUBMISSION add SUBMITTER_ID VARCHAR2 (99) default null;
+alter table ASSIGNMENT_SUBMISSION add SUBMIT_TIME VARCHAR2 (99) default null;
+alter table ASSIGNMENT_SUBMISSION add SUBMITTED VARCHAR2 (6) default null;
+alter table ASSIGNMENT_SUBMISSION add GRADED VARCHAR2 (6) default null;
+alter table ASSIGNMENT_SUBMISSION add KEEP VARCHAR2 (1) default 'X'; 
+
