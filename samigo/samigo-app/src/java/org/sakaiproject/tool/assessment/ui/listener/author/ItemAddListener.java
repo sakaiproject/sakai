@@ -650,11 +650,6 @@ public class ItemAddListener
               // if adding to the end
               if (section.getItemSet() != null) {
             	  item.setSequence(new Integer(section.getItemSet().size() + 1));
-              
-            	  if (itemauthor.getInsertToSection() != null) {
-            		  // reset insertToSection to null;
-            		  itemauthor.setInsertToSection(null);
-            	  }
               }
               else {
 	 	// this is a new part, not saved yet 
@@ -671,7 +666,11 @@ public class ItemAddListener
               itemauthor.setInsertPosition("");
             }
           }
-
+          if (itemauthor.getInsertToSection() != null) {
+    		  // reset insertToSection to null;
+    		  itemauthor.setInsertToSection(null);
+    	  }
+          
           delegate.saveItem(item);
 
           // added by daisyf, 10/10/06
