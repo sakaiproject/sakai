@@ -195,7 +195,7 @@ public class BaseSearchManager implements SearchManager, Observer
          */
         public BasicSearch()
         {
-	        this.m_searchId = newSearchId();
+	        this.m_searchId = newSearchId(); 
 	        this.m_searchType = null;
 	        this.m_assets = new Vector();
 	        m_pageOrder = new Vector();
