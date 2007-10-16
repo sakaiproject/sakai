@@ -165,7 +165,10 @@ public class RWikiServlet extends HttpServlet
 		addWikiStylesheet(request);
 
 		request.setAttribute("footerScript", footerScript);
-		request.setAttribute("headerScriptSource", headerScriptSource);
+		if ( headerScriptSource != null && headerScriptSource.length() > 0 ) 
+		{
+			request.setAttribute("headerScriptSource", headerScriptSource);
+		}
 
 		RequestHelper helper = (RequestHelper) wac.getBean(RequestHelper.class
 				.getName());
