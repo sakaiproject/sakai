@@ -25,7 +25,7 @@ package org.sakaiproject.api.app.scheduler;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import javax.sql.DataSource;
 import org.quartz.Scheduler;
 import org.quartz.TriggerListener;
 
@@ -58,12 +58,12 @@ public interface SchedulerManager
   /**
    * @return Returns the dataSource.
    */
-  public BasicDataSource getDataSource();
+  public DataSource getDataSource();
 
   /**
    * @param dataSource The dataSource to set.
    */
-  public void setDataSource(BasicDataSource dataSource);
+  public void setDataSource(DataSource dataSource);
 
   /**
    * @return Returns the qrtzQualifiedJobs.

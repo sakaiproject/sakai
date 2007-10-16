@@ -26,7 +26,7 @@ package org.sakaiproject.component.app.scheduler;
 import java.io.InputStream;
 import java.util.*;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.JobDetail;
@@ -42,7 +42,7 @@ import org.sakaiproject.db.api.SqlService;
 public class SchedulerManagerImpl implements SchedulerManager
 {
 
-  private BasicDataSource dataSource;
+  private DataSource dataSource;
   private String serverId;
   private Set qrtzJobs;
   private Map qrtzQualifiedJobs = new TreeMap(); // map for SelectItems
@@ -241,7 +241,7 @@ public void init()
   /**
    * @return Returns the dataSource.
    */
-  public BasicDataSource getDataSource()
+  public DataSource getDataSource()
   {
     return dataSource;
   }
@@ -249,7 +249,7 @@ public void init()
   /**
    * @param dataSource The dataSource to set.
    */
-  public void setDataSource(BasicDataSource dataSource)
+  public void setDataSource(DataSource dataSource)
   {
     this.dataSource = dataSource;
   }
