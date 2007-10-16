@@ -47,6 +47,8 @@ import org.sakaiproject.importer.impl.importables.WebLink;
 import org.sakaiproject.importer.impl.importables.HtmlDocument;
 import org.sakaiproject.importer.impl.importables.TextDocument;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -73,8 +75,18 @@ public class ResourcesHandler implements HandlesImportable {
 
 	public void handle(Importable thing, String siteId) {
 		if(canHandleType(thing.getTypeName())){
-			String currentUser = SessionManager.getCurrentSessionUserId();
-			SessionManager.getCurrentSession().setUserId("admin");
+			final String currentUser = SessionManager.getCurrentSessionUserId();
+			SecurityService.pushAdvisor(new SecurityAdvisor() {
+				public SecurityAdvice isAllowed(String userId, String function,
+						String reference) {
+					if ((userId != null) && (userId.equals(currentUser)) && 
+							(("content.new".equals(function))
+							|| ("content.read".equals(function)))){
+						return SecurityAdvice.ALLOWED;
+					}
+					return SecurityAdvice.PASS;
+				}
+			});
 			String id = null;
 			String contentType = null;
 			byte[] contents = null;
@@ -176,7 +188,7 @@ public class ResourcesHandler implements HandlesImportable {
 	    		addContentCollection(path,resourceProps);
 
 			}
-			SessionManager.getCurrentSession().setUserId(currentUser);
+			SecurityService.popAdvisor();
 		}
 
 	}
