@@ -1368,3 +1368,6 @@ alter table ASSIGNMENT_SUBMISSION add SUBMIT_TIME VARCHAR(99) default null;
 alter table ASSIGNMENT_SUBMISSION add SUBMITTED VARCHAR(6) default null;
 alter table ASSIGNMENT_SUBMISSION add GRADED VARCHAR(6) default null;
 alter table ASSIGNMENT_SUBMISSION add KEEP VARCHAR(1) default null;
+
+-- SAK-11876, SAK-10490
+alter table sakai_person_t add locked bit(1);

@@ -1386,3 +1386,5 @@ alter table ASSIGNMENT_SUBMISSION add SUBMITTED VARCHAR2 (6) default null;
 alter table ASSIGNMENT_SUBMISSION add GRADED VARCHAR2 (6) default null;
 alter table ASSIGNMENT_SUBMISSION add KEEP VARCHAR2 (1) default 'X'; 
 
+-- SAK-11876, SAK-10490
+alter table sakai_person_t add locked number(1.0);
