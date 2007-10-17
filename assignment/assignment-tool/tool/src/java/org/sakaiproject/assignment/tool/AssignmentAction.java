@@ -3266,7 +3266,7 @@ public class AssignmentAction extends PagedResourceActionII
 					try
 					{
 						AssignmentSubmissionEdit edit = AssignmentService.addSubmission((String) state
-								.getAttribute(STATE_CONTEXT_STRING), assignmentId);
+								.getAttribute(STATE_CONTEXT_STRING), assignmentId, SessionManager.getCurrentSessionUserId());
 						edit.setSubmittedText(text);
 						edit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
 						edit.setSubmitted(false);
@@ -3573,7 +3573,7 @@ public class AssignmentAction extends PagedResourceActionII
 						// new submission, post it
 						try
 						{
-							AssignmentSubmissionEdit edit = AssignmentService.addSubmission(contextString, assignmentId);
+							AssignmentSubmissionEdit edit = AssignmentService.addSubmission(contextString, assignmentId, SessionManager.getCurrentSessionUserId());
 							edit.setSubmittedText(text);
 							edit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
 							edit.setTimeSubmitted(TimeService.newTime());
@@ -4557,7 +4557,7 @@ public class AssignmentAction extends PagedResourceActionII
 				if (u != null)
 				{
 					// construct fake submissions for grading purpose
-					AssignmentSubmissionEdit submission = AssignmentService.addSubmission(a.getContext(), a.getId());
+					AssignmentSubmissionEdit submission = AssignmentService.addSubmission(a.getContext(), a.getId(), userId);
 					submission.removeSubmitter(UserDirectoryService.getCurrentUser());
 					submission.addSubmitter(u);
 					submission.setTimeSubmitted(TimeService.newTime());
@@ -8462,7 +8462,7 @@ public class AssignmentAction extends PagedResourceActionII
 								{
 									// construct fake submissions for grading purpose
 									
-									AssignmentSubmissionEdit s = AssignmentService.addSubmission(contextString, a.getId());
+									AssignmentSubmissionEdit s = AssignmentService.addSubmission(contextString, a.getId(), userId);
 									s.removeSubmitter(UserDirectoryService.getCurrentUser());
 									s.addSubmitter(u);
 									s.setSubmitted(true);
@@ -9244,7 +9244,7 @@ public class AssignmentAction extends PagedResourceActionII
 					// check whether there is a submission associated
 					if (submission == null)
 					{
-						AssignmentSubmissionEdit s = AssignmentService.addSubmission((String) state.getAttribute(STATE_CONTEXT_STRING), assignmentId);
+						AssignmentSubmissionEdit s = AssignmentService.addSubmission((String) state.getAttribute(STATE_CONTEXT_STRING), assignmentId, u.getId());
 						s.removeSubmitter(UserDirectoryService.getCurrentUser());
 						s.addSubmitter(u);
 						// submitted by without submit time

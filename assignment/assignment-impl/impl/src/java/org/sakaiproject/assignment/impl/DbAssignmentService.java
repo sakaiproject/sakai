@@ -64,7 +64,7 @@ public class DbAssignmentService extends BaseAssignmentService
 	protected boolean m_locksInDb = true;
 
 	/** Extra fields to store in the db with the XML. */
-	protected static final String[] FIELDS = { "CONTEXT" };
+	protected static final String[] FIELDS = { "CONTEXT", "SUBMITTER_ID", "SUBMIT_TIME", "SUBMITTED", "GRADED"};
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -400,12 +400,17 @@ public class DbAssignmentService extends BaseAssignmentService
 			return super.getAllResourcesWhere(FIELDS[0], context);
 		}
 
-		public AssignmentSubmissionEdit put(String id, String context, String assignmentId)
+		public AssignmentSubmissionEdit put(String id, String context, String assignmentId, String submitterId, String submitTime, String submitted, String graded)
 		{
 			// pack the context in an array
 			Object[] others = new Object[2];
 			others[0] = context;
 			others[1] = assignmentId;
+			others[2] = submitterId;
+			others[3] = submitTime;
+			others[4] = submitted;
+			others[5] = graded;
+			
 			return (AssignmentSubmissionEdit) super.putResource(id, others);
 		}
 
