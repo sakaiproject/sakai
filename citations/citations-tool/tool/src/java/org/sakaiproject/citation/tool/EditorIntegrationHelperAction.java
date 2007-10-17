@@ -62,17 +62,20 @@ import org.sakaiproject.citation.api.SearchDatabaseHierarchy;
 import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.citation.cover.CitationService;
 import org.sakaiproject.citation.cover.ConfigurationService;
 import org.sakaiproject.citation.cover.SearchManager;
 import org.sakaiproject.citation.util.api.SearchException;
 import org.sakaiproject.citation.util.api.SearchQuery;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -165,4 +168,137 @@ public class EditorIntegrationHelperAction extends CitationHelperAction
 		}
 		return rv;
 	}
+
+	/**
+	 * Add some standard references to the vm context.  Details:
+	 *<p>
+	 * The tool name (<code>toolName</code> is used to establish the HTML page
+	 * title (see <code>#macro (chef_start)</code> in VM_chef_library.vm).
+	 *<p>
+	 * We set the tool name to reflect the editor integration search window.
+	 *
+	 * @see org.sakaiproject.vm.VmServlet#setVmStdRef(HttpServletRequest request, HttpServletResponse response)
+	 *
+	 * @param request The render request.
+	 * @param response The render response.
+	 */
+	protected void setVmStdRef(HttpServletRequest request, HttpServletResponse response)
+	{
+    /*
+     * Establish all of the common definitions
+     */
+		super.setVmStdRef(request, response);
+    /*
+     * Set the tool name to reflect our window
+     */
+    request.setAttribute("toolTitle", getPageTitle());
+  }
+
+	/*
+	 * Helpers
+	 */
+
+  /*
+   * Title segment delimiter
+   */
+  protected static String DELIMITER = " : ";
+  /*
+   * Default helper name
+   */
+  protected static String DEFAULT_HELPER_NAME = "Search Library Resources";
+
+	/**
+	 * Construct the page title.  This looks like:
+	 *<p>
+	 *<code>  Sakai-Instance : Site-Name : Tool-Name : Helper-Name  </code>
+	 */
+  private String getPageTitle()
+  {
+    StringBuilder   pageTitle   = new StringBuilder();
+ 		boolean         addedHelper = false;
+
+	  Placement       placement;
+	  Site            site;
+ 		String          sakaiInstance, siteId;
+
+ 		/*
+ 		 * Get the local brand (eg Oncourse, CTools, etc)
+ 		 */
+ 		sakaiInstance = ServerConfigurationService.getString("ui.service");
+ 		if (!isNull(sakaiInstance))
+ 		{
+ 		  pageTitle.append(sakaiInstance);
+    }
+    /*
+     * Site name
+     */
+    placement = ToolManager.getCurrentPlacement();
+    site = null;
+    try
+    {
+	    site = SiteService.getSite(placement.getContext());
+    }
+    catch (Exception ignore) { }
+
+    if (site != null)
+    {
+      String siteTitle = site.getTitle();
+
+      if (!isNull(siteTitle))
+      {
+  	    if (pageTitle.length() > 0) pageTitle.append(DELIMITER);
+	      pageTitle.append(siteTitle);
+	    }
+    }
+    /*
+     * Tool name
+     */
+    try
+    {
+      String toolTitle = placement.getTitle();
+
+      if (!isNull(toolTitle))
+      {
+  	    if (pageTitle.length() > 0) pageTitle.append(DELIMITER);
+	      pageTitle.append(toolTitle);
+	    }
+    }
+    catch (Exception ignore) { }
+    /*
+     * Helper
+     */
+    try
+    {
+		  String helperTitle = ToolManager.getCurrentTool().getTitle();
+
+      if (!isNull(helperTitle))
+      {
+  	    if (pageTitle.length() > 0) pageTitle.append(DELIMITER);
+	      pageTitle.append(helperTitle);
+
+        addedHelper = true;
+	    }
+		}
+    catch (Exception ignore) { }
+    /*
+     * Make sure we have something to display
+     */
+    if (!addedHelper)
+    {
+ 	    if (pageTitle.length() > 0) pageTitle.append(DELIMITER);
+      pageTitle.append(DEFAULT_HELPER_NAME);
+    }
+
+    return pageTitle.toString();
+  }
+
+  /**
+   * Null/empty String?
+   * @param string String to verify
+   * @return true if so
+   */
+  private boolean isNull(String string)
+  {
+    return (string == null) || (string.trim().length() == 0);
+  }
 }
