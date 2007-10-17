@@ -653,7 +653,7 @@ public class XServer extends DefaultHandler {
 				} else if( frsb.getStatus().equals( "ERROR" ) ) {
 					status = "error";
 					statusMessage = "An X-Server error has occurred (" +
-					frsb.getFindErrorText() + "). Please try again.";
+					frsb.getFindErrorText() + "). Please verify your search criteria is correct and try again.";
 				}
 			} else {
 				setNumber = ( singleSearchSource ) ? frsb.getSetNumber() : null;
@@ -723,9 +723,9 @@ public class XServer extends DefaultHandler {
 					error = true;
 					databaseMap.put( "status", "error" );
 					databaseMap.put( "statusMessage", "An X-Server error has occurred (" +
-							frsb.getFindErrorText() + "). Please try again." );
+							frsb.getFindErrorText() + "). Please verify your search criteria is correct and try again." );
 					statusMessage = "An X-Server error has occurred (" +
-					frsb.getFindErrorText() + "). Please try again.";
+					frsb.getFindErrorText() + "). Please verify your search criteria is correct and try again.";
 					numRecordsFound += Integer.parseInt( frsb.getNumDocs() );
 				}
 
@@ -978,12 +978,14 @@ public class XServer extends DefaultHandler {
 	throws XServerException {
 		ByteArrayOutputStream xml = null;
 
+		URL url = null;
+		HttpURLConnection urlConn = null;
 		try {
 			// define URL
-			URL url = new URL( urlQuery );
+			url = new URL( urlQuery );
 
 			// open a connection to X-server
-			HttpURLConnection urlConn = ( HttpURLConnection )url.openConnection();
+			urlConn = ( HttpURLConnection )url.openConnection();
 
 			XMLCleanup xmlCleanup = new XMLCleanup();
 			xml = xmlCleanup.cleanup( urlConn.getInputStream() );
@@ -991,26 +993,33 @@ public class XServer extends DefaultHandler {
 			// disconnect
 			urlConn.disconnect();
 		} catch( MalformedURLException mue ) {
-			LOG.warn( "doURLConnection() - malformed URL: " +
-					mue.getMessage() );
+			LOG.warn( "doURLConnection() malformed URL" );
+			wrapXServerException( null, "Error in connecting to X-Server. Please contact Citations Helper Administrator." );
 		} catch( IOException ioe ) {
-			LOG.warn( "doURLConnection() - IO exception: " +
-					ioe.getMessage() );
+			LOG.warn( "doURLConnection() IOException, connection failed" );
+			wrapXServerException( null, "Error in connecting to X-Server. Please contact Citations Helper Administrator." );
 		} catch( XServerException xse ) {
-			// update searchStatusProperties
-			MetasearchSession metasearchSession = msm.getMetasearchSession( guid );
-			java.util.Properties searchStatusProperties = metasearchSession.
-			getSearchStatusProperties();
-			searchStatusProperties.put( "status", "error" );
-			searchStatusProperties.put( "statusMessage", xse.getErrorText() );
-			metasearchSession.setSearchStatusProperties(searchStatusProperties);
-			msm.putMetasearchSession( guid, metasearchSession );
-
-			// re-throw the exception now that status has been updated
-			throw xse;
+			LOG.warn( "doURLConnection() - XServerException: " +
+					xse.getErrorCode() + " - " + xse.getErrorText() );
+			wrapXServerException( xse.getErrorCode(), xse.getErrorText() + "Please contact Citations Helper Administrator." );
 		}
 
 		return xml;
+	}
+	
+	private void wrapXServerException( String errorCode, String errorMsg ) throws XServerException
+	{
+		// update searchStatusProperties
+		MetasearchSession metasearchSession = msm.getMetasearchSession( guid );
+		java.util.Properties searchStatusProperties = metasearchSession.
+		getSearchStatusProperties();
+		searchStatusProperties.put( "status", "error" );
+		searchStatusProperties.put( "statusMessage", errorMsg );
+		metasearchSession.setSearchStatusProperties(searchStatusProperties);
+		msm.putMetasearchSession( guid, metasearchSession );
+
+		// throw the XServerException now that status has been updated
+		throw new XServerException( errorCode, errorMsg );
 	}
 
 	/**

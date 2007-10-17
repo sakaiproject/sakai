@@ -2699,9 +2699,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					return;
 				}
 			}
-      /*
-       * Specify which databases should be searched
-       */
+			
+			/*
+			 * Specify which databases should be searched
+			 */
 			search.setDatabaseIds(databaseIds);
 			state.setAttribute( STATE_CURRENT_DATABASES, databaseIds );
 		}
@@ -2769,9 +2770,24 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	        	}
 	        }
 	    }
-	    catch(Exception e)
+	    catch(SearchException se)
 	    {
-	    	logger.warn("doBeginSearch() caught Exception", e);
+	    	// either page indices are off or there has been a metasearch error
+	    	
+	    	// do some logging & find the proper alert message
+	    	StringBuilder alertMsg = new StringBuilder( se.getMessage() );
+	    	logger.warn("doBeginSearch() SearchException: " + alertMsg );
+	    	
+	    	if( alertMsg.equals( org.sakaibrary.osid.repository.xserver.
+					MetasearchException.METASEARCH_ERROR ) && search != null &&
+					search.getStatusMessage() != null )
+	    	{
+	    		logger.warn( " |-- nested metasearch error: " + search.getStatusMessage() );
+	    		alertMsg.append( " (" + search.getStatusMessage() + ")" );
+	    	}
+	    	
+	    	// add an alert and set the next mode
+	    	addAlert( state, alertMsg.toString() );
 	    	state.setAttribute( STATE_NO_RESULTS, Boolean.TRUE );
 			setMode(state, Mode.RESULTS);
 			return;

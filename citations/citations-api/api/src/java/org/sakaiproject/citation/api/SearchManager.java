@@ -42,9 +42,10 @@ public interface SearchManager
 
 	public static final String ASSET_NOT_FETCHED = "An Asset is available, but has not yet been fetched.";
 
-	public static final String METASEARCH_ERROR = "Metasearch error has occured.";
+	public static final String METASEARCH_ERROR = "Metasearch error has occured. Please contact your site's support team.";
 
-	public static final String SESSION_TIMED_OUT = "Metasearch session has timed out.";
+	public static final String SESSION_TIMED_OUT = "Metasearch session has " +
+			"timed out. Please restart your search session.";
 
 	/**
 	 * @param search

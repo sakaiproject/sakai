@@ -470,8 +470,15 @@ public class Repository implements org.osid.repository.Repository
 		try {
 			xserver = new XServer( guid );
 		} catch( XServerException xse ) {
-			LOG.warn( "X-Server error " + xse.getErrorCode() + " - " +
-					xse.getErrorText() );
+			if( xse.getErrorCode() != null && !xse.getErrorCode().trim().equals("") )
+			{
+				LOG.warn( "X-Server error " + xse.getErrorCode() + " - " +
+						xse.getErrorText() );
+			}
+			else
+			{
+				LOG.warn( "X-Server error - " + xse.getErrorText() );
+			}
 			throw new org.osid.repository.RepositoryException(
 					org.sakaibrary.osid.repository.xserver.
 					MetasearchException.METASEARCH_ERROR );
@@ -481,8 +488,15 @@ public class Repository implements org.osid.repository.Repository
 			// initiate the asynchronous search
 			xserver.initAsynchSearch( criteria, databaseIds );
 		} catch( XServerException xse ) {
-			LOG.warn( "X-Server error " + xse.getErrorCode() + " - " +
-					xse.getErrorText() );
+			if( xse.getErrorCode() != null && !xse.getErrorCode().trim().equals("") )
+			{
+				LOG.warn( "X-Server error " + xse.getErrorCode() + " - " +
+						xse.getErrorText() );
+			}
+			else
+			{
+				LOG.warn( "X-Server error - " + xse.getErrorText() );
+			}
 			throw new org.osid.repository.RepositoryException(
 					org.sakaibrary.osid.repository.xserver.
 					MetasearchException.METASEARCH_ERROR );
@@ -578,6 +592,9 @@ public class Repository implements org.osid.repository.Repository
 				}
 			}
 		} catch( org.osid.shared.SharedException se ) {
+			throw new org.osid.repository.RepositoryException(
+					org.osid.OsidException.OPERATION_FAILED );
+		} catch( Exception e ) {
 			throw new org.osid.repository.RepositoryException(
 					org.osid.OsidException.OPERATION_FAILED );
 		}
