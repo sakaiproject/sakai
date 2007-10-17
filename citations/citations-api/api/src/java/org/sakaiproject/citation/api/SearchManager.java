@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.osid.repository.RepositoryIterator;
 import org.sakaiproject.citation.api.ActiveSearch;
+import org.sakaiproject.citation.util.api.SearchCancelException;
 import org.sakaiproject.citation.util.api.SearchException;
 
 /**
@@ -67,9 +68,10 @@ public interface SearchManager
 	 * @param search
 	 * @return
 	 * @throws SearchException
+	 * @throws SearchCancelException in the event of a user-submitted cancel
 	 */
 	public ActiveSearch doSearch(ActiveSearch search)
-	        throws SearchException;
+	        throws SearchException, SearchCancelException;
 
 	/**
 	 * @return The SearchDatabaseHierarchy for this search.

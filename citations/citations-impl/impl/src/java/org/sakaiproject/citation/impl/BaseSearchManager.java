@@ -62,6 +62,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.citation.util.api.CQLSearchQuery;
 import org.sakaiproject.citation.util.api.OsidConfigurationException;
+import org.sakaiproject.citation.util.api.SearchCancelException;
 import org.sakaiproject.citation.util.api.SearchQuery;
 import org.sakaiproject.citation.api.ActiveSearch;
 import org.sakaiproject.citation.api.Citation;
@@ -290,7 +291,7 @@ public class BaseSearchManager implements SearchManager, Observer
     	 * @return
     	 * @throws SearchException
     	 */
-    	public List viewPage(int page) throws SearchException
+    	public List viewPage(int page) throws SearchException, SearchCancelException
     	{
     		List citations = new Vector();
 
@@ -771,7 +772,7 @@ public class BaseSearchManager implements SearchManager, Observer
 		/* (non-Javadoc)
          * @see org.sakaiproject.citation.api.ActiveSearch#viewPage()
          */
-        public List viewPage() throws SearchException
+        public List viewPage() throws SearchException, SearchCancelException
         {
         	return viewPage(0);
         }
@@ -1954,7 +1955,7 @@ public class BaseSearchManager implements SearchManager, Observer
      * @see org.sakaiproject.citation.impl.SearchManager#doSearch(org.sakaiproject.citation.api.ActiveSearch)
      */
 	public ActiveSearch doSearch(ActiveSearch search)
-		throws SearchException
+		throws SearchException, SearchCancelException
 	{
 		// search parameters
 		Integer    pageSize       = search.getPageSize();
@@ -2105,7 +2106,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	    					catch( InterruptedException ie )
 	    					{
 	    						// search canceled
-	    						throw new SearchException( "search canceled" );
+	    						throw new SearchCancelException();
 	    					}
 	    				}
 	    			}

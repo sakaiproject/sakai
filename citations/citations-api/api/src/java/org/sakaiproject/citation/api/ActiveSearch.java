@@ -24,6 +24,7 @@ package org.sakaiproject.citation.api;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.citation.util.api.SearchCancelException;
 import org.sakaiproject.citation.util.api.SearchException;
 import org.sakaiproject.citation.util.api.SearchQuery;
 
@@ -294,8 +295,9 @@ public interface ActiveSearch
 	 * on a predefined "page size". In zero-based page numbering, this method returns page zero.
 	 * @throws SearchException in case of an error in fetching the necessary records from the
 	 * metasearch engine.
+	 * @throws SearchCancelException TODO
 	 */
-	public List viewPage() throws SearchException;
+	public List viewPage() throws SearchException, SearchCancelException;
 
 	/**
 	 * This method gives access to a list of citations representing a page of output based on a
@@ -306,8 +308,9 @@ public interface ActiveSearch
 	 * @throws SearchException if the requested page is beyond the next page (i.e. it can't be
 	 * supplied without doing more than one additional search of size <i>pageSize</i>) or if the
 	 * metasearch engine encounters a problem in fetching the necessary records.
+	 * @throws SearchCancelException TODO
 	 */
-	public List viewPage(int page) throws SearchException;
+	public List viewPage(int page) throws SearchException, SearchCancelException;
 
 	/**
 	 * Set the list of databases to be searched

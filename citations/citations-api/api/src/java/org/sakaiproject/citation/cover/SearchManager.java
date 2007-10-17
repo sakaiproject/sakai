@@ -1,5 +1,6 @@
 package org.sakaiproject.citation.cover;
 
+import org.sakaiproject.citation.util.api.SearchCancelException;
 import org.sakaiproject.component.cover.ComponentManager;
 
 public class SearchManager
@@ -49,7 +50,7 @@ public class SearchManager
 		return instance.doPrevPage(search);
 	}
 
-	public static org.sakaiproject.citation.api.ActiveSearch doSearch(org.sakaiproject.citation.api.ActiveSearch search) throws org.sakaiproject.citation.util.api.SearchException
+	public static org.sakaiproject.citation.api.ActiveSearch doSearch(org.sakaiproject.citation.api.ActiveSearch search) throws org.sakaiproject.citation.util.api.SearchException, SearchCancelException
 	{
 		org.sakaiproject.citation.api.SearchManager instance = getInstance();
 		if(instance == null)

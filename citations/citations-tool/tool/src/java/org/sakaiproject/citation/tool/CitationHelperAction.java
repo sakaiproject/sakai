@@ -63,6 +63,7 @@ import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.citation.cover.CitationService;
 import org.sakaiproject.citation.cover.ConfigurationService;
 import org.sakaiproject.citation.cover.SearchManager;
+import org.sakaiproject.citation.util.api.SearchCancelException;
 import org.sakaiproject.citation.util.api.SearchException;
 import org.sakaiproject.citation.util.api.SearchQuery;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -510,6 +511,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String STATE_RESOURCES_ADD = CitationHelper.CITATION_PREFIX + "resources_add";
 	protected static final String STATE_CURRENT_DATABASES = CitationHelper.CITATION_PREFIX + "current_databases";
 	protected static final String STATE_BACK_BUTTON_STACK = CitationHelper.CITATION_PREFIX + "back-button_stack";
+	protected static final String STATE_CANCEL_PAGE = CitationHelper.CITATION_PREFIX + "cancel_page";
 	protected static final String STATE_COLLECTION_ID = CitationHelper.CITATION_PREFIX + "collection_id";
 	protected static final String STATE_COLLECTION = CitationHelper.CITATION_PREFIX + "collection";
 	protected static final String STATE_CITATION_ID = CitationHelper.CITATION_PREFIX + "citation_id";
@@ -2595,31 +2597,28 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			}
 		}
 
-		// default return to search page
-		setMode(state, Mode.SEARCH);
-
 	}  // doCancelSearch
 
-  /**
-   * Resources Tool/Citation Helper search
-   * @param data Runtime data
-   */
- 	public void doSearch ( RunData data)
- 	{
- 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+	/**
+	 * Resources Tool/Citation Helper search
+	 * @param data Runtime data
+	 */
+	public void doSearch ( RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
-    logger.debug("doSearch()");
+		logger.debug("doSearch()");
 
-    doSearchCommon(state, Mode.ADD_CITATIONS);
- 	}
+		doSearchCommon(state, Mode.ADD_CITATIONS);
+	}
 
-  /**
-   * Common "doSearch()" support
-   * @param state Session state
-   * @param errorMode Next mode to set if we have database hiersrchy problems
-   */
-  protected void doSearchCommon(SessionState state, Mode errorMode)
-  {
+	/**
+	 * Common "doSearch()" support
+	 * @param state Session state
+	 * @param errorMode Next mode to set if we have database hierarchy problems
+	 */
+	protected void doSearchCommon(SessionState state, Mode errorMode)
+	{
 		// remove attributes from an old search session, if any
 		state.removeAttribute( STATE_SEARCH_RESULTS );
 		state.removeAttribute( STATE_CURRENT_RESULTS );
@@ -2629,30 +2628,30 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		state.setAttribute( STATE_BASIC_SEARCH, new Object() );
 
 		try
-    {
-      SearchDatabaseHierarchy hierarchy = SearchManager.getSearchHierarchy();
-	    if (hierarchy == null)
-	    {
-		    addAlert(state, rb.getString("search.problem"));
-		    setMode(state, errorMode);
+		{
+			SearchDatabaseHierarchy hierarchy = SearchManager.getSearchHierarchy();
+			if (hierarchy == null)
+			{
+				addAlert(state, rb.getString("search.problem"));
+				setMode(state, errorMode);
 				return;
-	    }
+			}
 
-	    state.setAttribute(STATE_SEARCH_HIERARCHY, hierarchy);
+			state.setAttribute(STATE_SEARCH_HIERARCHY, hierarchy);
 			setMode(state, Mode.SEARCH);
-	  }
-	  catch (SearchException exception)
-    {
-      String error = exception.getMessage();
+		}
+		catch (SearchException exception)
+		{
+			String error = exception.getMessage();
 
-      if ((error == null) || (error.length() == 0))
-      {
-        error = rb.getString("search.problem");
-      }
-      addAlert(state, error);
+			if ((error == null) || (error.length() == 0))
+			{
+				error = rb.getString("search.problem");
+			}
+			addAlert(state, error);
 			setMode(state, Mode.ERROR);
-    }
-  }
+		}
+	}
 
 	/**
 	 *
@@ -2727,7 +2726,21 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			doBasicSearch( params, state, search );
 		}
-
+		
+		// check for a cancel
+    	String cancel = params.getString( "cancelOp" );
+    	if( cancel != null && !cancel.trim().equals("") )
+    	{
+    		if( cancel.equalsIgnoreCase( ELEMENT_ID_RESULTS_FORM ) )
+    		{
+    			state.setAttribute( STATE_CANCEL_PAGE, Mode.RESULTS );
+    		}
+    		else
+    		{
+    			state.setAttribute( STATE_CANCEL_PAGE, Mode.SEARCH );
+    		}
+    	}
+    	
 		/*
 		 * BEGIN SEARCH
 		 */
@@ -2752,23 +2765,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	        	state.setAttribute(STATE_CURRENT_RESULTS, latestResults);
 		        setMode(state, Mode.RESULTS);
 	        }
-	        else
-	        {
-	        	// the search has been canceled - determine which page should
-	        	// be reloaded
-	    		String cancel = params.getString( "cancelOp" );
-	        	if( cancel != null && !cancel.trim().equals("") )
-	        	{
-	        		if( cancel.equalsIgnoreCase( ELEMENT_ID_RESULTS_FORM ) )
-	        		{
-	        			setMode( state, Mode.RESULTS );
-	        		}
-	        		else
-	        		{
-	        			setMode( state, Mode.SEARCH );
-	        		}
-	        	}
-	        }
 	    }
 	    catch(SearchException se)
 	    {
@@ -2778,9 +2774,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	    	StringBuilder alertMsg = new StringBuilder( se.getMessage() );
 	    	logger.warn("doBeginSearch() SearchException: " + alertMsg );
 	    	
-	    	if( alertMsg.equals( org.sakaibrary.osid.repository.xserver.
-					MetasearchException.METASEARCH_ERROR ) && search != null &&
-					search.getStatusMessage() != null )
+	    	if( search.getStatusMessage() != null && !search.getStatusMessage().trim().equals("") )
 	    	{
 	    		logger.warn( " |-- nested metasearch error: " + search.getStatusMessage() );
 	    		alertMsg.append( " (" + search.getStatusMessage() + ")" );
@@ -2791,6 +2785,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	    	state.setAttribute( STATE_NO_RESULTS, Boolean.TRUE );
 			setMode(state, Mode.RESULTS);
 			return;
+	    }
+	    catch( SearchCancelException sce )
+	    {
+	    	logger.debug( "doBeginSearch() SearchCancelException: user cancelled search" );
+	    	setMode( state, (Mode)state.getAttribute(STATE_CANCEL_PAGE) );
 	    }
 
 	    ActiveSearch newSearch = SearchManager.newSearch();
