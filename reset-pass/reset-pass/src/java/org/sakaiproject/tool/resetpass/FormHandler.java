@@ -1,27 +1,26 @@
 package org.sakaiproject.tool.resetpass;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
-import java.lang.StringBuffer;
-import java.lang.reflect.Array;
 
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserEdit;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
 public class FormHandler {
 	
+	private static java.lang.String SECURE_UPDATE_USER_ANY = org.sakaiproject.user.api.UserDirectoryService.SECURE_UPDATE_USER_ANY;
+
 	private MessageLocator messageLocator;
 	public void setMessageLocator(MessageLocator messageLocator) {
 		  
@@ -39,12 +38,6 @@ public class FormHandler {
 	public void setServerConfigurationService(ServerConfigurationService s) {
 		this.serverConfigurationService = s;
 	}
-	
-	private SessionManager sessionManager;
-	public void setSessionManager(SessionManager s) {
-		this.sessionManager = s;
-	}
-	
 	
 	private EmailService emailService;
 	public void setEmailService(EmailService e) {
@@ -66,8 +59,7 @@ public class FormHandler {
 	
 	public String processAction() {
 		m_log.info("getting password for " + userBean.getEmail());
-		
-		
+			
 			String from = serverConfigurationService.getString("setup.request", null);
 			if (from == null)
 			{
@@ -77,17 +69,23 @@ public class FormHandler {
 			
 			//now we need to reset the password
 			try {
-			Session session = sessionManager.getCurrentSession();
-			String currentUser = session.getUserId();
-			m_log.debug("current user is " + currentUser);
-			session.setUserId("admin");
-			session.setUserEid("admin");
+
+			// Need: SECURE_UPDATE_USER_ANY
+			SecurityService.pushAdvisor(new SecurityAdvisor() {
+			    public SecurityAdvice isAllowed(String userId, String function, String reference) {
+			            if (SECURE_UPDATE_USER_ANY.equals(function)) {
+			                return SecurityAdvice.ALLOWED;
+			             }
+			            return SecurityAdvice.PASS;
+			         }
+			    });
+			            
 			UserEdit userE = userDirectoryService.editUser(userBean.getUser().getId().trim());
 			String pass = getRandPass();
 			userE.setPassword(pass);
 			userDirectoryService.commitEdit(userE);
-			session.setUserId(null);
-			session.setUserEid(null);
+
+			SecurityService.popAdvisor();
 			
 			String productionSiteName = serverConfigurationService.getString("ui.service", "");
 			
@@ -102,8 +100,6 @@ public class FormHandler {
 			};
 			
 			buff.append(messageLocator.getMessage("mailBody1",params)+ "\n\n");
-			//for now lets hard code this till the fixed version is released
-			//buff.append("Your "+ productionSiteName + " password has been reset to: "+ pass + " For further assistance, contact " + serverConfigurationService.getString("support.email") + ").\n\n");
 			
 			m_log.debug(messageLocator.getMessage("mailBody1",params));
 			buff.append(messageLocator.getMessage("mailBodySalut")+"\n");
@@ -123,9 +119,7 @@ public class FormHandler {
 			}
 			catch (Exception e) {
 				e.printStackTrace();
-				Session session = sessionManager.getCurrentSession();
-				session.setUserId(null);
-				session.setUserEid(null);
+				SecurityService.clearAdvisors();
 				return null;
 			}
 		
