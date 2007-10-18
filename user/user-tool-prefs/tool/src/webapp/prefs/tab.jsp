@@ -28,7 +28,7 @@
 			
 
 			
-				<p class="instruction"><h:outputText value="#{msgs.tab_inst_1}"/><br /><br /><h:outputText value="#{msgs.tab_inst_2}"/></p>
+				<p class="instruction"><h:outputText value="#{msgs.tab_inst_1}"/><br/><br/><h:outputText value="#{msgs.tab_inst_2}"/><br/><br/><h:outputText value="#{msgs.tab_inst_3}"/></p>
 				
 	<%-- (gsilver) 2 issues 
 	1.  if there are no sites to populate both selects a message should put in the response to the effect that there are no memberships, hence cannot move things onto tabs group or off it. The table and all its children should then be excluded  from the response.
@@ -51,7 +51,10 @@
 				 	</td>
 				 	
 				 	<td>
-				 	  <b><h:outputText value="#{msgs.tab_vis_inst}"/></b>
+					  <b><h:outputText value="#{msgs.tab_vis_inst}"/></b>
+					  &nbsp;&nbsp;&nbsp;
+					  <b><h:outputText value="#{msgs.tab_count}"/></b>
+					  <h:inputText size="2" value="#{UserPrefsTool.tabCount}" />
     			      <br/>
 				 	  <h:selectManyListbox value="#{UserPrefsTool.selectedOrderItems}" size="10">
 				        <f:selectItems value="#{UserPrefsTool.prefOrderItems}" />

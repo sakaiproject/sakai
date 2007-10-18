@@ -212,6 +212,9 @@ public class UserPrefsTool
 	private List prefTimeZones = new ArrayList();
 
 	private List prefLocales = new ArrayList();
+	
+	private String DEFAULT_TAB_COUNT = "4";
+	private String prefTabCount = null;
 
 	private String[] selectedExcludeItems;
 
@@ -344,6 +347,39 @@ public class UserPrefsTool
 		}
 
 		this.prefOrderItems = prefOrderItems;
+	}
+	
+	/**
+	 ** @return number of worksite tabs to display in standard site navigation bar
+	 **/
+	public String getTabCount()
+	{
+		if ( prefTabCount != null )
+			return prefTabCount;
+		
+		Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
+		ResourceProperties props = prefs.getProperties(CHARON_PREFS);
+		prefTabCount = props.getProperty("tabs");
+		
+		if ( prefTabCount == null )
+			prefTabCount = DEFAULT_TAB_COUNT;; 
+			
+		return prefTabCount;
+	}
+	
+	/**
+	 ** @param count 
+	 **			number of worksite tabs to display in standard site navigation bar
+	 **/
+	public void setTabCount( String count )
+	{
+		if ( count == null || count.trim().equals("") )
+			prefTabCount = DEFAULT_TAB_COUNT; 
+		else
+			prefTabCount = count.trim();
+			
+		if ( Integer.parseInt(prefTabCount) < Integer.parseInt(DEFAULT_TAB_COUNT) )
+			prefTabCount = count;
 	}
 
 	/**
@@ -926,8 +962,7 @@ public class UserPrefsTool
 		// add property name and value for saving
 		m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", eparts, true));
 		m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", oparts, true));
-		// TODO tab size is set to 4 by default. i can't set null , not "" as in portal code "" will be number to display on tab
-		// m_stuff.add(new KeyNameValue(CHARON_PREFS, "tabs", "4", false));
+		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tabs", prefTabCount, false));
 
 		// save
 		saveEdit();
@@ -953,6 +988,8 @@ public class UserPrefsTool
 	{
 		LOG.debug("processActionCancel()");
 
+		prefTabCount = null; // reset to retrieve original prefs
+		
 		// remove session variables
 		cancelEdit();
 		// To stay on the same page - load the page data
