@@ -495,67 +495,21 @@ function allowClick(object)
 								#if ($!view.equals('lisofass1'))
 								<td headers="num_submissions" class="specialLink">
 								#if ($!service.allowGradeSubmission($assignment.getReference()))
-									## calculate the in/new column
-									#set ($totalSubmission = $!assignments_submissions.get($assignment.getReference()))
-									#set ($totalNumber = 0)
-									#set ($ungradedNumber = 0)
-									#foreach ($s in $totalSubmission)
-										#set($grade=$s.Grade)
-										#set($returnedTime=false)
-										#set ($returnedTime = $s.getTimeReturned())
-										## if the submitter is a current active user in the site
-										#set($submitterIdList=false)
-										#set($submitterIdList = $s.getSubmitterIds())
-										#set($existUser=false)
-										#foreach($submitterId in $submitterIdList)
-											#if ($!activeUserIds.contains($submitterId))
-												#set($existUser=true)
-											#end
-										#end
-										#if ($existUser)
-											#if ($s.Submitted)
-												#set($submitTime=false)
-												#set ($submitTime = $s.getTimeSubmitted())
-												#if($!submitTime)
-													#set ($totalNumber = $totalNumber + 1)
-													#if ($s.Returned)
-														#if ($!submitTime && $!returnedTime)
-															#if ($returnedTime.before($!submitTime))
-																#if ($s.getGraded() && $s.TimeLastModified.after($submitTime))
-																	## instructor has graded the resubmission
-																#else
-																	## has been resubmitted, and ungraded
-																	###set ($ungradedNumber = $ungradedNumber + 1)
-																#end
-															#else
-																## returned have not resubmitted
-															#end
-														#end
-													#end
-													#if (!$s.Graded)
-														#set ($ungradedNumber = $ungradedNumber + 1)
-													#end
-												#end
-											#end
+									## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
+									#set($ungradedNumber = $!service.getUngradedSubmissionsCount($assignment.getId()))
+									#set($totalNumber = $!service.getSubmittedSubmissionsCount($assignment.getId()))
+									#set ( $submissionType = $assignment.Content.TypeOfSubmission)
+									#if ($!submissionType == 4)
+										## non-electronic assignment
+										#set ($allowSubmitUsers = $!service.allowAddSubmissionUsers($!assignment.getReference()))
+										#if($totalNumber == 0)
+											## in case there is no submission object for any reason
+											#set($ungradedNumber = $allowSubmitUsers.size())
+											#set($totalNumber = $ungradedNumber)
 										#end
 									#end
-								## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
-								#set ( $submissionType = $assignment.Content.TypeOfSubmission)
-								#if ($!submissionType == 4)
-									## non-electronic assignment
-									#set ($allowSubmitUsers = $!service.allowAddSubmissionUsers($!assignment.getReference()))
-									#if($totalNumber == 0)
-										## in case there is no submission object for any reason
-										#set($ungradedNumber = $allowSubmitUsers.size())
-									#end
-									#set($totalNumber=$!allowSubmitUsers.size())
-									##if ungraded number is greater than total number, set it to be equal
-									#if ($ungradedNumber > $totalNumber)
-										#set($ungradedNumber=$totalNumber)
-									#end
-								#end
 									<a href="#" onclick="if(allowClick(this)){window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")';}" >
-									$totalNumber/$ungradedNumber</a>
+									$!totalNumber/$!ungradedNumber</a>
 								#end
 								</td>
 								#end

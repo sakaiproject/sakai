@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.util.Set;
 import java.util.Vector;
 
+import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
@@ -613,6 +614,24 @@ public class AssignmentService {
 			return null;
 
 		return service.getSubmissions(param0);
+	}
+	
+	public static int getSubmittedSubmissionsCount(
+			java.lang.String param0) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return 0;
+
+		return service.getSubmittedSubmissionsCount(param0);
+	}
+	
+	public static int getUngradedSubmissionsCount(
+			java.lang.String param0) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return 0;
+
+		return service.getUngradedSubmissionsCount(param0);
 	}
 
 	public static byte[] getGradesSpreadsheet(java.lang.String param0)

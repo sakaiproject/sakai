@@ -173,10 +173,6 @@ public class AssignmentActivityProducerImpl implements
 						activity);
 				returned.add(item);
 			}
-		} catch (IdUnusedException iue) {
-			logger.error(iue.getMessage(), iue);
-		} catch (PermissionException pe) {
-			logger.error(pe.getMessage(), pe);
 		} catch (UserNotDefinedException unde) {
 			logger.error(unde.getMessage(), unde);
 		}

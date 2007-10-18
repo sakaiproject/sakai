@@ -36,6 +36,7 @@ import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.util.BaseDbSingleStorage;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
@@ -64,7 +65,10 @@ public class DbAssignmentService extends BaseAssignmentService
 	protected boolean m_locksInDb = true;
 
 	/** Extra fields to store in the db with the XML. */
-	protected static final String[] FIELDS = { "CONTEXT", "SUBMITTER_ID", "SUBMIT_TIME", "SUBMITTED", "GRADED"};
+	protected static final String[] FIELDS = { "CONTEXT"};
+	
+	/** Extra fields to store in the db with the XML in ASSIGNMENT_SUBMISSION table */
+	protected static final String[] SUBMISSION_FIELDS = { "CONTEXT", "SUBMITTER_ID", "SUBMIT_TIME", "SUBMITTED", "GRADED"};
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -373,6 +377,8 @@ public class DbAssignmentService extends BaseAssignmentService
 	 */
 	protected class DbCachedAssignmentSubmissionStorage extends BaseDbSingleStorage implements AssignmentSubmissionStorage
 	{
+		/*FIELDS: "CONTEXT", "SUBMITTER_ID", "SUBMIT_TIME", "SUBMITTED", "GRADED"*/
+		
 		/**
 		 * Construct.
 		 * 
@@ -381,7 +387,7 @@ public class DbAssignmentService extends BaseAssignmentService
 		 */
 		public DbCachedAssignmentSubmissionStorage(AssignmentSubmissionStorageUser submission)
 		{
-			super(m_submissionsTableName, "SUBMISSION_ID", FIELDS, m_locksInDb, "submission", submission, m_sqlService);
+			super(m_submissionsTableName, "SUBMISSION_ID", SUBMISSION_FIELDS, m_locksInDb, "submission", submission, m_sqlService);
 
 		} // DbCachedAssignmentSubmissionStorage
 
@@ -394,22 +400,65 @@ public class DbAssignmentService extends BaseAssignmentService
 		{
 			return (AssignmentSubmission) super.getResource(id);
 		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		public AssignmentSubmission get (String assignmentId, String userId)
+		{
+			Entity entry = null;
+
+			// get the user from the db 
+			// need to construct the query here instead of relying on the SingleStorage client
+			String sql = "select XML from " + m_submissionsTableName + " where (" + SUBMISSION_FIELDS[0] + " = ? AND "+  SUBMISSION_FIELDS[1] + " = ?)";
+
+			Object fields[] = new Object[2];
+			fields[0] = caseId(assignmentId);
+			fields[1] = caseId(userId);
+			List xml = m_sql.dbRead(sql, fields, null);
+			if (!xml.isEmpty())
+			{
+				// create the Resource from the db xml
+				entry = readResource((String) xml.get(0));
+				return (AssignmentSubmission) entry;
+			}
+			else
+			{
+				return null;
+			}
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		public int getSubmittedSubmissionsCount(String assignmentId)
+		{
+			return super.countSelectedResourcesWhere("where context='" + assignmentId + "' AND " + SUBMISSION_FIELDS[2] + " !='' AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "'" );
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		public int getUngradedSubmissionsCount(String assignmentId)
+		{
+			return super.countSelectedResourcesWhere("where context='" + assignmentId + "' AND " + SUBMISSION_FIELDS[2] + " !='' AND " + SUBMISSION_FIELDS[4] + "='" + Boolean.FALSE.toString() + "'" );
+		}
+		
 
 		public List getAll(String context)
 		{
-			return super.getAllResourcesWhere(FIELDS[0], context);
+			return super.getAllResourcesWhere(SUBMISSION_FIELDS[0], context);
 		}
 
-		public AssignmentSubmissionEdit put(String id, String context, String assignmentId, String submitterId, String submitTime, String submitted, String graded)
+		public AssignmentSubmissionEdit put(String id, String assignmentId, String submitterId, String submitTime, String submitted, String graded)
 		{
 			// pack the context in an array
-			Object[] others = new Object[2];
-			others[0] = context;
-			others[1] = assignmentId;
-			others[2] = submitterId;
-			others[3] = submitTime;
-			others[4] = submitted;
-			others[5] = graded;
+			Object[] others = new Object[5];
+			others[0] = assignmentId;
+			others[1] = submitterId;
+			others[2] = submitTime;
+			others[3] = submitted;
+			others[4] = graded;
 			
 			return (AssignmentSubmissionEdit) super.putResource(id, others);
 		}

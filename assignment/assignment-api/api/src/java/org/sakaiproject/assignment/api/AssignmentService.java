@@ -663,7 +663,7 @@ public interface AssignmentService extends EntityProducer
 	 * @throws PermissionException
 	 *         if the current user is not allowed to read this.
 	 */
-	public AssignmentSubmission getSubmission(String assignmentId, User person) throws IdUnusedException, PermissionException;
+	public AssignmentSubmission getSubmission(String assignmentId, User person);
 	
 	/**
 	 * Access a User's AssignmentSubmission inside a list of AssignmentSubmission object.
@@ -684,6 +684,24 @@ public interface AssignmentService extends EntityProducer
 	 * @return List over all the submissions for an Assignment.
 	 */
 	public List getSubmissions(Assignment assignment);
+	
+	/**
+	 * Get the number of submissions which has been submitted.
+	 * 
+	 * @param assignmentId -
+	 *        the id of Assignment who's submissions you would like.
+	 * @return List over all the submissions for an Assignment.
+	 */
+	public int getSubmittedSubmissionsCount(String assignmentId);
+	
+	/**
+	 * Get the number of submissions which has not been submitted and graded.
+	 * 
+	 * @param assignmentId -
+	 *        the id of Assignment who's submissions you would like.
+	 * @return List over all the submissions for an Assignment.
+	 */
+	public int getUngradedSubmissionsCount(String assignmentId);
 
 	/**
 	 * Access the grades spreadsheet for the reference, either for an assignment or all assignments in a context.

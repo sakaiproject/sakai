@@ -1182,18 +1182,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 		Hashtable assignments_submissions = new Hashtable();
 		List assignments = prepPage(state);
-		
-		// make sure for all non-electronic submission type of assignment, the submission number matches the number of site members
-		for (int i = 0; i < assignments.size(); i++)
-		{
-			Assignment a = (Assignment) assignments.get(i);
-			List submissions = AssignmentService.getSubmissions(a);
-			assignments_submissions.put(a.getReference(), submissions);
-		}
 
 		context.put("assignments", assignments.iterator());
-		context.put("assignments_submissions", assignments_submissions);
-
+	
 		// allow get assignment
 		context.put("allowGetAssignment", Boolean.valueOf(AssignmentService.allowGetAssignment(contextString)));
 		
