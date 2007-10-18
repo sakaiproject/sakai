@@ -166,61 +166,7 @@
 						</h:column>
 						</h:dataTable>   
 					 
- <%--********************* Reply *********************--%>	     	
-   
-		<br />
-
-		<h4 class="textPanelHeader">
-	  	<h:outputText value="#{msgs.pvt_replyto}"/>  
-	  </h4> 
-	  
-	  <h:panelGrid columns="2" styleClass="itemSummary">	    
-	    <h:outputText value="#{msgs.pvt_subject}" />
-	    <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" />
-	    
-	    <h:outputText value="#{msgs.pvt_to}" />
-	    <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.recipientsAsText}" />
-	    
-	    <h:outputText value="#{msgs.pvt_authby}" style="white-space: nowrap;"/>
-	    <h:panelGroup>
-	      <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.author}" />
-	      <h:outputText value=" #{msgs.pvt_openb}" />
-	      <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}" >
-          <f:convertDateTime pattern="#{msgs.date_format}" />  
-        </h:outputText>
-        <h:outputText value=" #{msgs.pvt_closeb}" />
-	    </h:panelGroup>
-	    
-	    <h:outputText value="#{msgs.pvt_label}" />
-	    <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.label}" />
-	    
-	    <h:outputText value="#{msgs.pvt_att}" rendered="#{!empty PrivateMessagesTool.detailMsg.attachList}"/>
-	    <h:panelGroup rendered="#{!empty PrivateMessagesTool.detailMsg.attachList}">
-	      <h:dataTable value="#{PrivateMessagesTool.detailMsg.attachList}" var="eachAttach"  styleClass="attachListJSF"  rendered="#{!empty PrivateMessagesTool.detailMsg.attachList}">
-		  		<h:column rendered="#{!empty PrivateMessagesTool.detailMsg.attachList}">
-					  <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
-					  <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="" />
-					  <h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="" />
-					  <h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
-					  <h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
-					  <h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
-					  
-<%--					  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
-					  	<h:outputText value="#{eachAttach.attachmentName}"/>
-						</h:outputLink>--%>
-					  <h:outputLink value="#{eachAttach.url}" target="_blank">
-					  	<h:outputText value="#{eachAttach.attachment.attachmentName}"/>
-						</h:outputLink>
-						
-					</h:column>
-				</h:dataTable>   
-	    </h:panelGroup> 
-	    
-	    <h:outputText value="#{msgs.pvt_message}" />
-	    <mf:htmlShowArea value="#{PrivateMessagesTool.detailMsg.msg.body}" hideBorder="true" />
-	       
-	  </h:panelGrid>
-		
+ 
       <sakai:button_bar>
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplySend}" value="#{msgs.pvt_send}" accesskey="s" styleClass="active" />
         <%--<sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplySaveDraft}" value="Save Draft" />--%>
