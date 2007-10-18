@@ -623,6 +623,10 @@ public class RealmsAction extends PagedResourceActionII
 			{
 				// TODO: AuthzPermissionException
 			}
+			catch (Exception e)
+			{
+				Log.warn("chef", this + "doSave_edit(): realmId = " + realm.getId());
+			}
 		}
 
 		// cleanup
