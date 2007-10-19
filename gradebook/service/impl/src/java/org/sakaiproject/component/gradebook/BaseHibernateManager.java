@@ -221,12 +221,12 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		session.evict(assignment);
 
 		Assignment asnFromDb = (Assignment)session.load(Assignment.class, assignment.getId());
-		int numNameConflicts = ((Integer)session.createQuery(
-				"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false and go.id != ?").
+		List conflictList = ((List)session.createQuery(
+				"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false and go.id != ?").
 				setString(0, assignment.getName()).
 				setEntity(1, assignment.getGradebook()).
-				setLong(2, assignment.getId().longValue()).
-				uniqueResult()).intValue();
+				setLong(2, assignment.getId().longValue()).list());
+		int numNameConflicts = conflictList.size();
 		if(numNameConflicts > 0) {
 			throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
 		}
@@ -247,11 +247,11 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-                int numNameConflicts = ((Integer)session.createQuery(
-                        "select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+                List conflictList = ((List)session.createQuery(
+                        "select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
                         setString(0, name).
-                        setEntity(1, gb).
-                        uniqueResult()).intValue();
+                        setEntity(1, gb).list());
+            		int numNameConflicts = conflictList.size();
                 if(numNameConflicts > 0) {
                     throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
                 }
@@ -327,10 +327,11 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                 Integer total;
                 if (studentUids.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
                     Query q = session.createQuery(
-                            "select count(cgr) from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId and cgr.studentId in (:studentUids)");
+                            "select cgr from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId and cgr.studentId in (:studentUids)");
                     q.setLong("gradebookId", gradebookId.longValue());
                     q.setParameterList("studentUids", studentUids);
-                    total = (Integer)q.list().get(0);
+                    List totalList = (List)q.list();
+                    total = new Integer(totalList.size());
                     if (log.isInfoEnabled()) log.info("total number of explicitly entered course grade records = " + total);
                 } else {
                     total = new Integer(0);
@@ -386,11 +387,11 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-    			int numNameConflicts = ((Integer)session.createQuery(
-    					"select count(ca) from Category as ca where ca.name = ? and ca.gradebook = ? and ca.removed=false ").
+    			List conflictList = ((List)session.createQuery(
+    					"select ca from Category as ca where ca.name = ? and ca.gradebook = ? and ca.removed=false ").
     					setString(0, name).
-    					setEntity(1, gb).
-    					uniqueResult()).intValue();
+    					setEntity(1, gb).list());
+    			int numNameConflicts = conflictList.size();
     			if(numNameConflicts > 0) {
     				throw new ConflictingCategoryNameException("You can not save multiple catetories in a gradebook with the same name");
     			}
@@ -457,11 +458,11 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
     			Category cat = (Category)session.load(Category.class, categoryId);
-    			int numNameConflicts = ((Integer)session.createQuery(
-    					"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+    			List conflictList = ((List)session.createQuery(
+    					"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
     					setString(0, name).
-    					setEntity(1, gb).
-    					uniqueResult()).intValue();
+    					setEntity(1, gb).list());
+    			int numNameConflicts = conflictList.size();
     			if(numNameConflicts > 0) {
     				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
     			}
@@ -520,12 +521,12 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     		public Object doInHibernate(Session session) throws HibernateException {
     			session.evict(category);
     			Category persistentCat = (Category)session.load(Category.class, category.getId());
-    			int numNameConflicts = ((Integer)session.createQuery(
-    			"select count(ca) from Category as ca where ca.name = ? and ca.gradebook = ? and ca.id != ? and ca.removed=false").
+    			List conflictList = ((List)session.createQuery(
+    			"select ca from Category as ca where ca.name = ? and ca.gradebook = ? and ca.id != ? and ca.removed=false").
     			setString(0, category.getName()).
     			setEntity(1, category.getGradebook()).
-    			setLong(2, category.getId().longValue()).
-    			uniqueResult()).intValue();
+    			setLong(2, category.getId().longValue()).list());
+    			int numNameConflicts = conflictList.size();
     			if(numNameConflicts > 0) {
     				throw new ConflictingCategoryNameException("You can not save multiple category in a gradebook with the same name");
     			}
@@ -848,11 +849,11 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-    			int numNameConflicts = ((Integer)session.createQuery(
-    			"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+    			List conflictList = ((List)session.createQuery(
+    			"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
     			setString(0, name).
-    			setEntity(1, gb).
-    			uniqueResult()).intValue();
+    			setEntity(1, gb).list());
+    			int numNameConflicts = conflictList.size();
     			if(numNameConflicts > 0) {
     				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
     			}
@@ -891,11 +892,11 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
     			Category cat = (Category)session.load(Category.class, categoryId);
-    			int numNameConflicts = ((Integer)session.createQuery(
-    			"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+    			List conflictList = ((List)session.createQuery(
+    			"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
     			setString(0, name).
-    			setEntity(1, gb).
-    			uniqueResult()).intValue();
+    			setEntity(1, gb).list());
+    			int numNameConflicts = conflictList.size();
     			if(numNameConflicts > 0) {
     				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
     			}

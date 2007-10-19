@@ -959,10 +959,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     public boolean isEnteredAssignmentScores(final Long assignmentId) {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                Integer total = (Integer)session.createQuery(
-                        "select count(agr) from AssignmentGradeRecord as agr where agr.gradableObject.id=? and agr.pointsEarned is not null").
-                        setLong(0, assignmentId.longValue()).
-                        uniqueResult();
+                List totalList = (List)session.createQuery(
+                        "select agr from AssignmentGradeRecord as agr where agr.gradableObject.id=? and agr.pointsEarned is not null").
+                        setLong(0, assignmentId.longValue()).list();
+                Integer total = new Integer(totalList.size());
                 if (log.isInfoEnabled()) log.info("assignment " + assignmentId + " has " + total + " entered scores");
                 return total;
             }
@@ -1878,12 +1878,12 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                     session.evict(spreadsheet);
 
                     Spreadsheet sptFromDb = (Spreadsheet)session.load(Spreadsheet.class, spreadsheet.getId());
-                    int numNameConflicts = ((Integer)session.createQuery(
-                            "select count(spt) from Spreadsheet as spt where spt.name = ? and spt.gradebook = ? and spt.id != ?").
+                    List conflictList = ((List)session.createQuery(
+                            "select spt from Spreadsheet as spt where spt.name = ? and spt.gradebook = ? and spt.id != ?").
                             setString(0, spreadsheet.getName()).
                             setEntity(1, spreadsheet.getGradebook()).
-                            setLong(2, spreadsheet.getId().longValue()).
-                            uniqueResult()).intValue();
+                            setLong(2, spreadsheet.getId().longValue()).list());
+                		int numNameConflicts = conflictList.size();
                     if(numNameConflicts > 0) {
                         throw new ConflictingAssignmentNameException("You can not save multiple spreadsheets in a gradebook with the same name");
                     }
@@ -1908,11 +1908,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-                int numNameConflicts = ((Integer)session.createQuery(
-                        "select count(spt) from Spreadsheet as spt where spt.name = ? and spt.gradebook = ? ").
+                List conflictList = ((List)session.createQuery(
+                        "select spt from Spreadsheet as spt where spt.name = ? and spt.gradebook = ? ").
                         setString(0, name).
-                        setEntity(1, gb).
-                        uniqueResult()).intValue();
+                        setEntity(1, gb).list());
+            		int numNameConflicts = conflictList.size();
                 if(numNameConflicts > 0) {
                     throw new ConflictingSpreadsheetNameException("You can not save multiple spreadsheets in a gradebook with the same name");
                 }
@@ -2686,11 +2686,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-    			int numNameConflicts = ((Integer)session.createQuery(
-    					"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+    			List conflictList = ((List)session.createQuery(
+    					"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
     					setString(0, name).
-    					setEntity(1, gb).
-    					uniqueResult()).intValue();
+    					setEntity(1, gb).list());
+    			int numNameConflicts = conflictList.size();
     			if(numNameConflicts > 0) {
     				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
     			}
@@ -2737,11 +2737,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
     			Category cat = (Category)session.load(Category.class, categoryId);
-    			int numNameConflicts = ((Integer)session.createQuery(
-    			"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+    			List conflictList = ((List)session.createQuery(
+    			"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
     			setString(0, name).
-    			setEntity(1, gb).
-    			uniqueResult()).intValue();
+    			setEntity(1, gb).list());
+    			int numNameConflicts = conflictList.size();
     			if(numNameConflicts > 0) {
     				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
     			}
