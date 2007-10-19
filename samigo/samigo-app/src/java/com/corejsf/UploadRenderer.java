@@ -111,7 +111,7 @@ public class UploadRenderer extends Renderer {
         fullname = fullname.substring(fullname.lastIndexOf("/")+1);
 	    int dot_index = fullname.lastIndexOf(".");
 	    String filename = "";
-	    if (fullname.indexOf(dot_index) < 0) {
+	    if (dot_index < 0) {
 	    	filename = fullname + "_" + (new Date()).getTime();
 	    }
 	    else {

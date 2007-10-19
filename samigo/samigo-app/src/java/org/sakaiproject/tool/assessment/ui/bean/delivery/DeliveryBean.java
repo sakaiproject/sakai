@@ -1813,7 +1813,7 @@ public class DeliveryBean
     int dot_index = fullname.lastIndexOf("."); 
     String filename = fullname.substring(0,underscore_index);
 
-    if (fullname.indexOf(dot_index) >= 0) {
+    if (dot_index >= 0) {
     	filename = filename + fullname.substring(dot_index);
     }
     log.debug("**** filename="+filename);
