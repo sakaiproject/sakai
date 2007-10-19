@@ -21,6 +21,11 @@
 
 package org.sakaiproject.portal.charon.test;
 
+import java.io.File;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import junit.framework.TestCase;
 
 /**
@@ -33,18 +38,30 @@ import junit.framework.TestCase;
 public class PortalRenderTest extends TestCase
 {
 
+	private static final Log log = LogFactory.getLog(PortalRenderTest.class);
+
 	public static void main(String[] args)
 	{
 	}
 
+	private File baseDirectory;
+	private MockCharonPortal mock;
+
 	public PortalRenderTest(String arg0) throws Exception
 	{
 		super(arg0);
+		baseDirectory = new File("m2-target","PortalRenderTest");
+		if ( baseDirectory.exists() ) {
+		PortalTestFileUtils.deleteAll(baseDirectory);
+		}
+		baseDirectory.mkdirs();
 	}
 
 	@Override
 	protected void setUp() throws Exception
 	{
+		mock = new MockCharonPortal(baseDirectory);
+		mock.setResourceLoader(new MockResourceLoader());
 		super.setUp();
 	}
 
@@ -53,24 +70,164 @@ public class PortalRenderTest extends TestCase
 	{
 		super.tearDown();
 	}
-
-	public void testAllTemplates() throws Exception
+	public void testErrorNoSession() throws Exception
 	{
 		try
 		{
-			MockCharonPortal mock = new MockCharonPortal();
-			mock.doError();
-			mock.doGallery();
-			mock.doNavLogin();
-			mock.doNavLoginGallery();
-			mock.doPage();
-			mock.doSite();
-			mock.doWorksite();
+			log.info("========= Testing testErrorNoSession");
+			mock.setOutputFile("errorNoSession");
+			mock.doError(false,false);
+			log.info("========= PASSED Testing testErrorNoSession");
 		}
 		catch (Exception ex)
 		{
 			ex.printStackTrace();
+			log.info("========= FAILED Testing testErrorNoSession");
+			fail(ex.getMessage());
 		}
 	}
+	public void testErrorWithSession() throws Exception
+	{
+		try
+		{
+			log.info("========= Testing testErrorWithSession");
+			mock.setOutputFile("errorWithSession");
+			mock.doError(true,false);
+			log.info("========= PASSED Testing testErrorWithSession");
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			log.info("========= FAILED Testing testErrorWithSession");
+			fail(ex.getMessage());
+
+		}
+	}
+	public void testErrorWithToolSession() throws Exception
+	{
+		try
+		{
+			log.info("========= Testing testErrorWithToolSession");
+			mock.setOutputFile("errorWithToolSession");
+			mock.doError(false,true);
+			log.info("========= PASSED Testing testErrorWithToolSession");
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			log.info("========= FAILED Testing testErrorWithToolSession");
+			fail(ex.getMessage());
+
+		}
+	}
+	public void testErrorWithAll() throws Exception
+	{
+		try
+		{
+			log.info("========= Testing testErrorWithAll");
+			mock.setOutputFile("errorWithAll");
+			mock.doError(true,true);
+			log.info("========= PASSED Testing testErrorWithAll");
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			log.info("========= FAILED Testing testErrorWithAll");
+			fail(ex.getMessage());
+
+		}
+	}
+	public void testGallery() throws Exception
+	{
+		try
+		{
+			log.info("========= Testing testGallery");
+			mock.doGallery();
+			log.info("========= PASSED Testing testGallery");
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			log.info("========= FAILED Testing testGallery");
+			fail(ex.getMessage());
+		}
+	}
+	public void testNavLogin() throws Exception
+	{
+		try
+		{
+			log.info("========= Testing testNavLogin");
+			mock.doNavLogin();
+			log.info("========= PASSED Testing testNavLogin");
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			log.info("========= FAILED Testing testNavLogin");
+			fail(ex.getMessage());
+		}
+	}
+	public void testNavLoginGallery() throws Exception
+	{
+		try
+		{
+			log.info("========= Testing testNavLoginGallery");
+			mock.doNavLoginGallery();
+			log.info("========= PASSED Testing testNavLoginGallery");
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			log.info("========= FAILED Testing testNavLoginGallery");
+			fail(ex.getMessage());
+		}
+	}
+	public void testPage() throws Exception
+	{
+		try
+		{
+			log.info("========= Testing testPage");
+			mock.doPage();
+			log.info("========= PASSED Testing testPage");
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			log.info("========= FAILED Testing testPage");
+			fail(ex.getMessage());
+		}
+	}
+	public void testSite() throws Exception
+	{
+		try
+		{
+			log.info("========= Testing testSite");
+			mock.doSite();
+			log.info("========= PASSED Testing testSite");
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			log.info("========= FAILED Testing testSite");
+			fail(ex.getMessage());
+		}
+	}
+	public void testWorksite() throws Exception
+	{
+		try
+		{
+			log.info("========= Testing testWorksite");
+			mock.doWorksite();
+			log.info("========= PASSED Testing testWorksite");
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			log.info("========= FAILED Testing testWorksite");
+			fail(ex.getMessage());
+		}
+	}
+
+	
 
 }

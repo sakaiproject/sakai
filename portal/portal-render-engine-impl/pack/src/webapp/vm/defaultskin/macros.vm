@@ -678,5 +678,7 @@ ${tool.toolRenderResult.getTitle()}
 	${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}
 	</div>
 </div>
+#else
+<!-- dont compact -->
 #end
 #end

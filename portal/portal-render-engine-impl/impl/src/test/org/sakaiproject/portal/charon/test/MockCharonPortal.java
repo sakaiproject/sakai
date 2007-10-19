@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,6 @@ import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.charon.velocity.VelocityPortalRenderEngine;
 import org.sakaiproject.util.ResourceLoader;
@@ -51,44 +51,47 @@ import org.w3c.tidy.Tidy;
 public class MockCharonPortal extends HttpServlet
 {
 
-	private static Object rloader = isLiveSakai() ? new ResourceLoader("sitenav")
-			: new MockResourceLoader();
 
 	/** Our log (commons). */
 	private static Log log = LogFactory.getLog(MockCharonPortal.class);
 
 	private VelocityPortalRenderEngine rengine;
 
-	public MockCharonPortal() throws Exception
+	private File outputDir;
+
+	private String outputFile;
+
+	private Object resourceLoader;
+
+	public MockCharonPortal(File outputDir) throws Exception
 	{
+		this.outputDir = outputDir;
 		String renderEngineClass = VelocityPortalRenderEngine.class.getName();
 
 		Class c = Class.forName(renderEngineClass);
 		rengine = (VelocityPortalRenderEngine) c.newInstance();
 		rengine.setPortalConfig("/testportalvelocity.config");
+		rengine.setDebug(true);
 		rengine.init();
 
 	}
 
-	private static boolean isLiveSakai()
-	{
-		try
-		{
-			return ComponentManager
-					.contains("org.sakaiproject.log.api.LogConfigurationManager");
-		}
-		catch (Throwable t)
-		{
-			// if runing outside Sakai, a class not found will be thrown, the above will never work.
-			return false;
-		}
-	}
 
-	public void doError() throws IOException
+	public void doError(boolean withSession, boolean withToolSession) throws IOException
 	{
 
 		// start the response
 		PortalRenderContext rcontext = startPageContext();
+		
+		
+		if ( withSession ) {
+			rcontext.put("s", new MockSession());
+		}
+		if ( withToolSession ) {
+			rcontext.put("ts", new MockToolSession());
+		}
+		
+		rcontext.put("req", new MockHttpServletRequest());
 
 		showSession(rcontext);
 
@@ -169,7 +172,7 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("pageSiteType", "class=\"siteType\" ");
 		rcontext.put("toolParamResetState", "PARM_STATE_RESET");
-		rcontext.put("rloader", rloader);
+		rcontext.put("rloader", resourceLoader);
 
 		rcontext.put("sitReset", "sitReset");
 
@@ -207,7 +210,7 @@ public class MockCharonPortal extends HttpServlet
 	protected void includeBottom(PortalRenderContext rcontext)
 	{
 
-		rcontext.put("pagepopup", true);
+		rcontext.put("pagepopup", false);
 		{
 			List l = new ArrayList();
 			l.add("bottomnav1");
@@ -317,6 +320,7 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("pageNavPublished", Boolean.valueOf(true));
 		rcontext.put("pageNavType", "type");
 		rcontext.put("pageNavIconUrl", "iconUrl");
+		rcontext.put("helpMenuClass", "HelpMenuClass");
 		// rcontext.put("pageNavSitToolsHead", "sit_toolshead");
 
 		List l = new ArrayList();
@@ -336,6 +340,11 @@ public class MockCharonPortal extends HttpServlet
 		m.put("jsPageTitle", "pageTitleJS");
 		m.put("htmlPageTitle", "pageTitleHTML");
 		m.put("pagerefUrl", "pagerefUrl");
+		m.put("menuClass", "MenuClass");
+		m.put("pageRefUrl", "pageRefURL");
+		m.put("pageSiteRefURL", "siteRefURL");
+		m.put("pageTitle","pageTitle");
+
 		l.add(m);
 		rcontext.put("pageNavTools", l);
 
@@ -346,7 +355,7 @@ public class MockCharonPortal extends HttpServlet
 		// rcontext.put("pageNavSitPresenceTitle", "sit_presencetitle");
 		// rcontext.put("pageNavSitPresenceFrameTitle",
 		// "sit_presenceiframetit");
-		rcontext.put("pageNavToolsCount", Integer.toString(l.size()));
+		rcontext.put("pageNavToolsCount", l.size());
 		rcontext.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(true));
 		rcontext.put("pageNavPresenceUrl", "presenceUrl");
 		// rcontext.put("pageNavSitContentshead", "sit_contentshead");
@@ -421,6 +430,7 @@ public class MockCharonPortal extends HttpServlet
 		toolMap.put("toolShowHelpButton", Boolean.valueOf(true));
 		toolMap.put("toolHelpActionUrl", "helpActionUrl");
 		toolMap.put("toolResetActionUrl", "toolResetActionUrl");
+		
 		return toolMap;
 	}
 
@@ -453,31 +463,19 @@ public class MockCharonPortal extends HttpServlet
 			throws IOException
 	{
 		// get the writer
-		File parent = new File("m2-target");
-		if ( !parent.exists() ) {
-			parent = new File("target");
-			if ( !parent.exists() ) {
-			 parent = null;
-			} 
-		} 
-		if ( parent == null ) {
-			parent = new File("test-render");
-		} else {
-			parent = new File(parent,"test-render");
+		if ( outputFile == null ) {
+			outputFile = template;
 		}
-		if ( !parent.exists() ) {
-			parent.mkdirs();
-		}
-		File htmlOut = new File(parent,template+".html");
-		File tidyOut = new File(parent,template+".html.tidy.txt");
+		File htmlOut = new File(outputDir,outputFile+".html");
+		File tidyOut = new File(outputDir,outputFile+".html.tidy.txt");
+		File errorFile = new File(outputDir,outputFile+".html.tidy.err");
 		
 		FileWriter f = new FileWriter(htmlOut);
 
-		log.info("Context Dump is " + rcontext.dump());
 
 		try
 		{
-			log.info("Rendering " + rcontext + " to " + template);
+			log.info("Rendering " + rcontext + " to " + htmlOut);
 			rengine.render(template, rcontext, f);
 		}
 		catch (Exception e)
@@ -487,11 +485,61 @@ public class MockCharonPortal extends HttpServlet
 		f.close();
 
 		Tidy t = new Tidy();
+
 		FileOutputStream fo = new FileOutputStream(tidyOut);
 		t.setIndentContent(true);
 		t.setXHTML(true);
+		PrintWriter errorOut = new PrintWriter(new FileWriter(errorFile));
+		t.setErrout(errorOut);
+		t.setOnlyErrors(false);
+		t.setQuiet(false);
+		t.setShowWarnings(true);
 		t.parse(new FileInputStream(htmlOut), fo);
+		int e = t.getParseErrors();
+		int w = t.getParseWarnings();
+		errorOut.close();
+		if ( e != 0 || w != 0 ) {
+			log.info("Context Dump is " + rcontext.dump());
+			throw new RuntimeException("Error in HTML see "+errorFile);
+		}
+		log.info("All OK");
+		
+		
 
+	}
+
+	/**
+	 * @return the outputFile
+	 */
+	public String getOutputFile()
+	{
+		return outputFile;
+	}
+
+	/**
+	 * @param outputFile the outputFile to set
+	 */
+	public void setOutputFile(String outputFile)
+	{
+		this.outputFile = outputFile;
+	}
+
+
+	/**
+	 * @return the resourceLoader
+	 */
+	public Object getResourceLoader()
+	{
+		return resourceLoader;
+	}
+
+
+	/**
+	 * @param resourceLoader the resourceLoader to set
+	 */
+	public void setResourceLoader(Object resourceLoader)
+	{
+		this.resourceLoader = resourceLoader;
 	}
 
 }
