@@ -586,7 +586,8 @@ public class AssessmentService {
 		try {
 			// create a copy of the resource
 			ContentResource cr = ContentHostingService.getResource(resourceId);
-			cr_copy = ContentHostingService.addAttachmentResource(filename, 
+			String escapedName = escapeResourceName(filename);
+			cr_copy = ContentHostingService.addAttachmentResource(escapedName, 
 					ToolManager.getCurrentPlacement().getContext(), 
 					ToolManager.getTool("sakai.samigo").getTitle(), cr
 					.getContentType(), cr.getContent(), cr.getProperties());
@@ -610,6 +611,122 @@ public class AssessmentService {
 		return cr_copy;
 	}
 
+	/** These characters are not allowed in a resource id */
+	public static final String INVALID_CHARS_IN_RESOURCE_ID = "^/\\{}[]()%*?#&=\n\r\t\b\f";
+
+	protected static final String MAP_TO_A = "‰ŠˆŒ€?‡‡";
+
+	protected static final String MAP_TO_B = "§§";
+
+	protected static final String MAP_TO_C = "‚?¢¢";
+
+	protected static final String MAP_TO_E = "Ž?‘?ƒ¾®®";
+
+	protected static final String MAP_TO_I = "•”“’’";
+
+	protected static final String MAP_TO_L = "££";
+
+	protected static final String MAP_TO_N = "–„„";
+
+	protected static final String MAP_TO_O = "™š˜…——";
+
+	protected static final String MAP_TO_U = "Ÿž?†œœ";
+
+	protected static final String MAP_TO_Y = "Ø´??";
+
+	protected static final String MAP_TO_X = "???¤©»¨±?«µ¦À?";
+
+	/**
+	 * These characters are allowed; but if escapeResourceName() is called, they are escaped (actually, removed) Certain characters cause problems with filenames in certain OSes - so get rid of these characters in filenames
+	 */
+	protected static final String ESCAPE_CHARS_IN_RESOURCE_ID = ";'\"";
+	
+	/**
+	 * Return a string based on id that is valid according to Resource name validity rules.
+	 * 
+	 * @param id
+	 *        The string to escape.
+	 * @return id fully escaped using Resource name validity rules.
+	 */
+	public static String escapeResourceName(String id)
+	{
+		if (id == null) return "";
+		id = id.trim();
+		try
+		{
+			StringBuilder buf = new StringBuilder();
+			for (int i = 0; i < id.length(); i++)
+			{
+				char c = id.charAt(i);
+				if (MAP_TO_A.indexOf(c) >= 0)
+				{
+					buf.append('a');
+				}
+				else if (MAP_TO_E.indexOf(c) >= 0)
+				{
+					buf.append('e');
+				}
+				else if (MAP_TO_I.indexOf(c) >= 0)
+				{
+					buf.append('i');
+				}
+				else if (MAP_TO_O.indexOf(c) >= 0)
+				{
+					buf.append('o');
+				}
+				else if (MAP_TO_U.indexOf(c) >= 0)
+				{
+					buf.append('u');
+				}
+				else if (MAP_TO_Y.indexOf(c) >= 0)
+				{
+					buf.append('y');
+				}
+				else if (MAP_TO_N.indexOf(c) >= 0)
+				{
+					buf.append('n');
+				}
+				else if (MAP_TO_B.indexOf(c) >= 0)
+				{
+					buf.append('b');
+				}
+				else if (MAP_TO_C.indexOf(c) >= 0)
+				{
+					buf.append('c');
+				}
+				else if (MAP_TO_L.indexOf(c) >= 0)
+				{
+					buf.append('l');
+				}
+				else if (MAP_TO_X.indexOf(c) >= 0)
+				{
+					buf.append('x');
+				}
+				else if (c < '\040')	// Remove any ascii control characters
+				{
+					buf.append('_');
+				}
+				else if (INVALID_CHARS_IN_RESOURCE_ID.indexOf(c) >= 0 || ESCAPE_CHARS_IN_RESOURCE_ID.indexOf(c) >= 0)
+				{
+					buf.append('_');
+				}
+				else
+				{
+					buf.append(c);
+				}
+			}
+
+			String rv = buf.toString();
+			return rv;
+		}
+		catch (Exception e)
+		{
+			log.warn("escapeResourceName: ", e);
+			return id;
+		}
+
+	} // escapeResourceName
+	
 	public void copyAllAssessments(String fromContext, String toContext) {
 		try {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
@@ -631,7 +748,7 @@ public class AssessmentService {
 		}
 
 	}
-
+	
 	  public String getAssessmentSiteId(String assessmentId){
 		    return PersistenceService.getInstance().getAssessmentFacadeQueries().getAssessmentSiteId(assessmentId);
 	  }

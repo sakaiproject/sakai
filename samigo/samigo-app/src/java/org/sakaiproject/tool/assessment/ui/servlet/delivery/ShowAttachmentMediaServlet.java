@@ -43,12 +43,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
-import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>
@@ -90,11 +85,34 @@ public class ShowAttachmentMediaServlet extends HttpServlet
   public void doPost(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException
   {
-	String resourceId = req.getParameter("resourceId");
-	String mimeType = req.getParameter("mimeType");
-	String filename = req.getParameter("filename");
+	String actionMode = req.getParameter("actionMode");
+	String resourceId = "";
+	String mimeType = "";
+	String filename = "";
+	if ("delivery".equals(actionMode)) {
+		String attachmentId = req.getParameter("attachmentId");
+		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		PublishedAttachmentData publishedAttachmentData = publishedAssessmentService.getPublishedAttachmentData(Long.valueOf(attachmentId));
+		if (publishedAttachmentData == null) {
+			log.error("publishedAttachmentData is null");
+			return;
+		}
+		resourceId = publishedAttachmentData.getResourceId();
+		mimeType = publishedAttachmentData.getMimeType();
+		filename = publishedAttachmentData.getFilename();
+	}
+	else if ("preview".equals(actionMode)) {
+		resourceId = req.getParameter("resourceId");
+		mimeType = req.getParameter("mimeType");
+		filename = req.getParameter("filename");
+	}
+	else {
+		log.error("wrong actionMode");
+		return;
+	}
 
     res.setHeader("Content-Disposition", "inline;filename=\"" + filename +"\";");
+    log.debug("resourceId = " + resourceId);
     log.debug("mimeType = " + mimeType);
     log.debug("filename = " + filename);
     
