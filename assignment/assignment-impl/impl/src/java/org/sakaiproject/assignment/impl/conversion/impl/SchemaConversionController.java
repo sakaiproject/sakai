@@ -327,9 +327,8 @@ public class SchemaConversionController
 				{
 					stmt = connection.createStatement();
 					String sql = driver.getTestNewColumn(names[i]);
-					log.info("sql=" + sql);
 					rs = stmt.executeQuery(sql);
-					if(rs == null || ! rs.first())
+					if(!rs.next())
 					{
 						stmt = connection.createStatement();
 						sql = driver.getAddNewColumn(names[i], types[i], qualifiers[i]);
