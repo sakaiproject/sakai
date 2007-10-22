@@ -6,7 +6,6 @@
 #set( $recentlyVisitedBean = ${requestScope.RecentlyVisitedBean} )
 #set( $currentRWikiObject = ${requestScope.CurrentRWikiObject} )
 #set( $rlb = ${requestScope.ResourceLoaderBean} )
-
 #set(${recentlyVisitedBean.ViewPage}=${viewBean})  
 #set( $title = "${rlb.jsp_view}: ${util.escapeHtml($renderBean.localisedPageName)}" )
 #header(${title} ${viewBean} "" )  

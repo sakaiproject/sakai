@@ -29,11 +29,11 @@ var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toStrin
 <OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" 
  codebase="https://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0" 
  WIDTH="1" HEIGHT="1" id="localstore" ALIGN="" >
- <PARAM NAME="movie" VALUE="/sakai-rwiki-tool/scripts/localstore.swf"> 
- <PARAM NAME="quality" VALUE="high"> 
- <PARAM NAME="play" VALUE="false"> 
- <PARAM NAME="loop" VALUE="false"> 
- <PARAM NAME="bgcolor" VALUE="#FFFFFF"> 
+ <PARAM NAME="movie" VALUE="/sakai-rwiki-tool/scripts/localstore.swf" /> 
+ <PARAM NAME="quality" VALUE="high" /> 
+ <PARAM NAME="play" VALUE="false" /> 
+ <PARAM NAME="loop" VALUE="false" /> 
+ <PARAM NAME="bgcolor" VALUE="#FFFFFF" /> 
  <EMBED src="/sakai-rwiki-tool/scripts/localstore.swf" 
  quality="high" bgcolor="#FFFFFF"  
  WIDTH="1" 
@@ -56,6 +56,7 @@ var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toStrin
 </SCRIPT> 
 	
 <script type="text/javascript" >
+<!--
 function localstore_DoFSCommand(command,args) {
  try {
 	log("Callback for "+command);
@@ -81,6 +82,7 @@ function localstore_DoFSCommand(command,args) {
 		log("DoFSCommand Failed "+e);
 	}
 }
+// -->
 </script>
 
 
