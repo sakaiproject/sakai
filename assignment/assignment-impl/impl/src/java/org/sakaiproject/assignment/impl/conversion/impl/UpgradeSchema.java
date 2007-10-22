@@ -59,6 +59,7 @@ public class UpgradeSchema
 		{
 			configFile = argv[0];
 		}
+		System.out.println("configFile=" + configFile);
 		try
 		{
 			cc.convert(configFile);
