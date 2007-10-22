@@ -36,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * <pre>
@@ -145,7 +146,15 @@ public class TrustedLoginFilter implements Filter
 			if (!user.equals(currentSession.getUserEid()))
 			{
 				requestSession = sessionManager.startSession();
-				requestSession.setUserEid(user);
+				org.sakaiproject.user.api.User usr;
+				try {
+					usr = org.sakaiproject.user.cover.UserDirectoryService.getUserByEid(user);
+					requestSession.setUserEid(usr.getEid());
+					requestSession.setUserId(usr.getId());
+					requestSession.setActive();
+				} catch (UserNotDefinedException e) {
+					e.printStackTrace();
+				}
 				sessionManager.setCurrentSession(requestSession);
 			}
 		}
