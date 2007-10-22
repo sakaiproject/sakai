@@ -274,7 +274,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			}
 		}
 		
-		List allAssignments = getGradebookManager().getAssignments(getGradebookId());
+		//List allAssignments = getGradebookManager().getAssignments(getGradebookId());
+		List allAssignments = getGradebookManager().getAssignmentsAndCourseGradeWithStats(getGradebookId(),
+				Assignment.DEFAULT_SORT, true);
 		if (isRefreshRoster()) {
 			enrollmentMap = getOrderedEnrollmentMapForAllItems(); // Map of EnrollmentRecord --> Map of Item --> function (grade/view)
 			setRefreshRoster(false);
@@ -304,20 +306,25 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         	}
         }
         
-        Map viewableAssignmentMap = new HashMap();
+        List viewableAssignmentList = new ArrayList();
+        //Map viewableAssignmentMap = new HashMap();
         if (!allAssignments.isEmpty()) {
         	for (Iterator assignIter = allAssignments.iterator(); assignIter.hasNext();) {
-        		Assignment assignment = (Assignment) assignIter.next();
-        		if (assignment != null) {
-        			Long assignId = assignment.getId();
-        			if (viewableAssignmentIds.contains(assignId)) {
-        				viewableAssignmentMap.put(assignId, assignment);
-        			}
+        		Object obj = assignIter.next();
+        		if (obj instanceof Assignment){
+	        		Assignment assignment = (Assignment) obj;
+	        		if (assignment != null) {
+	        			Long assignId = assignment.getId();
+	        			if (viewableAssignmentIds.contains(assignId)) {
+	        				viewableAssignmentList.add(assignment);
+	        				//viewableAssignmentMap.put(assignId, assignment);
+	        			}
+	        		}
         		}
         	}
         }
         
-        List assignments = new ArrayList(viewableAssignmentMap.values());
+        List assignments = viewableAssignmentList;
 		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecordsConverted(getGradebookId(), new ArrayList(studentIdEnrRecMap.keySet()));
         
 		if (!getCategoriesEnabled()) {
