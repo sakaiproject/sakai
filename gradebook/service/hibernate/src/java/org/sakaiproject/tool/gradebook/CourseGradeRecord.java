@@ -54,7 +54,11 @@ public class CourseGradeRecord extends AbstractGradeRecord {
                 if(cgr2 == null) {
                     return 1;
                 }
-                return cgr1.getPointsEarned().compareTo(cgr2.getPointsEarned());
+                //SAK-12017 - Commented out as getPointsEarned is no longer an accurate comparator
+                // due to nulls no longer being calculated in to the Course Grade
+                //return cgr1.getPointsEarned().compareTo(cgr2.getPointsEarned());
+                //   Better to use getGradeAsPercentage
+                return cgr1.getGradeAsPercentage().compareTo(cgr2.getGradeAsPercentage());
             }
         };
     }
