@@ -45,7 +45,7 @@
 
 		<p class="shorttext" id="customNumber" #if ($height == "$tlang.getString('gen.heisomelse')") style="display:block" #else style="display:none" #end>
 			<label for="customNumberField">
-				$tlang.getString('gen.custheight')
+				$tlang.getString('gen.custheight') <span class="skip">$tlang.getString('gen.pixelshid')</span>
 			</label>
 			<input id="customNumberField" maxlength="4" size="4" type="text" name="customNumberField" #if ($height == "$tlang.getString('gen.heisomelse')") value="$!validator.escapeHtml($custom_height)" #end/>
 			$tlang.getString('gen.pixels')
