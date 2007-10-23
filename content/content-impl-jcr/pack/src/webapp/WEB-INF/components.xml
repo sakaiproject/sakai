@@ -10,6 +10,14 @@
    <import resource="components-jcr.xml" />
 
 
+	<bean id="org.sakaiproject.content.api.ContentHostingService"
+			class="org.sakaiproject.content.multiplexContentHostingMultiplexService"
+            init-method="init" destroy-method="destroy" singleton="true">
+             <property name="defaultContentHostingService">              
+             	<ref bean="org.sakaiproject.content.api.ContentHostingService.dbservice" />
+             </property>
+    </property>
+
     <!-- database beans -->
     
     <bean id="org.sakaiproject.content.impl.ContentServiceSqlDb2"       class="org.sakaiproject.content.impl.ContentServiceSqlDb2"     singleton="true"/>
@@ -18,7 +26,7 @@
     <bean id="org.sakaiproject.content.impl.ContentServiceSqlMsSql"     class="org.sakaiproject.content.impl.ContentServiceSqlMsSql"   singleton="true"/>
     <bean id="org.sakaiproject.content.impl.ContentServiceSqlMySql"     class="org.sakaiproject.content.impl.ContentServiceSqlMySql"   singleton="true"/>
     <bean id="org.sakaiproject.content.impl.ContentServiceSqlOracle"    class="org.sakaiproject.content.impl.ContentServiceSqlOracle"  singleton="true"/>
-<!--
+    
 	<bean id="org.sakaiproject.content.api.ContentHostingService.dbservice"
 			class="org.sakaiproject.content.impl.DbContentService"
             init-method="init" destroy-method="destroy" singleton="true">
@@ -57,7 +65,6 @@
            </map>
         </property>
   	</bean>
--->
 
 	<bean id="org.sakaiproject.content.api.ContentHostingHandlerResolver"
 			class="org.sakaiproject.content.impl.ContentHostingHandlerResolverImpl"

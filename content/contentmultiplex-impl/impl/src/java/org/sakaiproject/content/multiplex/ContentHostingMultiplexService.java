@@ -78,8 +78,6 @@ public class ContentHostingMultiplexService implements ContentHostingService
 
 	private ContentHostingService defaultContentHostingService = null;
 	
-	private Map<String,ContentHostingService> services = null;
-
 	public ContentHostingService getService()
 	{
 		Stack<ContentHostingService> s = selectedService.get();

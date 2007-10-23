@@ -7,7 +7,7 @@
 
 
 
-  <bean id="org.sakaiproject.content.api.ContentHostingService"
+  <bean id="org.sakaiproject.content.api.ContentHostingService.jcrservice"
 			class="org.sakaiproject.content.impl.JCRContentService"
 			init-method="init"
 			destroy-method="destroy"
@@ -51,7 +51,7 @@
 			destroy-method="destroy"
 			singleton="true">
 		<property name="jcrService"><ref bean="org.sakaiproject.jcr.api.JCRService" /></property>
-		<property name="jcrContentService"><ref bean="org.sakaiproject.content.api.ContentHostingService" /></property>
+		<property name="jcrContentService"><ref bean="org.sakaiproject.content.api.ContentHostingService.jcrservice" /></property>
 		<property name="resourceUser"><ref bean="org.sakaiproject.content.api.ContentHostingService.storageUser" /></property>
 		<property name="collectionUser"><ref bean="org.sakaiproject.content.api.ContentHostingService.storageUser" /></property>
 <!--		<property name="resolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver" /></property> -->
@@ -96,7 +96,7 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
-        <property name="baseContentService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+        <property name="baseContentService"><ref bean="org.sakaiproject.content.api.ContentHostingService.jcrservice"/></property>
         <property name="createNodes" >
         	<list>
         		<value>/group;nt:folder;group</value>
