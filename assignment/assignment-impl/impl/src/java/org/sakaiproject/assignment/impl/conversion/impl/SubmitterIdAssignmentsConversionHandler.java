@@ -25,11 +25,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.assignment.impl.conversion.api.SchemaConversionHandler;
+import org.sakaiproject.util.conversion.SchemaConversionHandler;
 
 /**
  * Performs just the file size conversion for quota calculations
