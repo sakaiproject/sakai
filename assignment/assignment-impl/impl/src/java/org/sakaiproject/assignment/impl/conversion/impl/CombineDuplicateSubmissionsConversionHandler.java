@@ -67,17 +67,21 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 			saxlist.set(i - 1, combineItems(saxlist.get(i), saxlist.get(i - 1)));
 		}
 		
-		AssignmentSubmissionAccess result = saxlist.get(0);
-		
-		String xml0 = result.toXml();
-		String id0 = result.getId();
-		
-		log.info("updating \"" + id0 + " (revising XML as follows:\n" + xml0);
-		
-		updateRecord.setString(1, xml0);
-		updateRecord.setString(2, id0);
-		
-		return true;
+		if (saxlist.size() > 0) {
+			AssignmentSubmissionAccess result = saxlist.get(0);
+			
+			String xml0 = result.toXml();
+			String id0 = result.getId();
+			
+			log.info("updating \"" + id0 + " (revising XML as follows:\n" + xml0);
+			
+			updateRecord.setString(1, xml0);
+			updateRecord.setString(2, id0);
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	protected AssignmentSubmissionAccess combineItems(AssignmentSubmissionAccess item1, AssignmentSubmissionAccess item2) 
@@ -203,13 +207,9 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 	public Object getSource(String id, ResultSet rs) throws SQLException 
 	{
 		List<String> xml = new ArrayList<String>();
-		if(rs.first())
+		while (rs.next())
 		{
-			do
-			{
-				xml.add(rs.getString(1));
-			}
-			while(rs.next());
+			xml.add(rs.getString(1));
 		}
 		
 		return xml;
