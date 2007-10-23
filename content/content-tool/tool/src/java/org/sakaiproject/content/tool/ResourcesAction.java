@@ -60,6 +60,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ExpandableResourceType;
@@ -4998,6 +4999,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		item.metadataGroupsIntoContext(context);
 		context.put("item", item);
+		
+		String chhbeanname = item.entity.getProperties().getProperty(
+				ContentHostingHandlerResolver.CHH_BEAN_NAME);
+		if (chhbeanname == null || chhbeanname.equals("")) chhbeanname = "";
+		context.put("CHHmountpoint", chhbeanname);
+		
+
 		
 		if(ContentHostingService.isAvailabilityEnabled())
 		{
