@@ -88,7 +88,7 @@ public class UpdatePreferencesCommand implements HttpCommand
 		ViewBean vb = rssb.getViewBean();
 		EditBean eb = rssb.getEditBean();
 
-		String user = rssb.getCurrentUser();
+		String userId = rssb.getCurrentUserId();
 		String localSpace = vb.getLocalSpace();
 
 		String notificationLevel = request
@@ -106,12 +106,12 @@ public class UpdatePreferencesCommand implements HttpCommand
 		{
 			if (PreferencesBean.NO_PREFERENCE.equals(notificationLevel))
 			{
-				preferenceService.deletePreference(user, localSpace,
+				preferenceService.deletePreference(userId, localSpace,
 						PreferenceService.MAIL_NOTIFCIATION);
 			}
 			else
 			{
-				preferenceService.updatePreference(user, localSpace,
+				preferenceService.updatePreference(userId, localSpace,
 						PreferenceService.MAIL_NOTIFCIATION, notificationLevel);
 			}
 
