@@ -11,6 +11,8 @@ CLASSPATH="$CLASSPATH:$MAVEN_TOMCAT_HOME/shared/lib/commons-pool-1.3.jar"
 CLASSPATH="$CLASSPATH:$MAVEN_TOMCAT_HOME/shared/lib/sakai-util-api-2-4-x.jar"
 CLASSPATH="$CLASSPATH:$MAVEN_TOMCAT_HOME/shared/lib/sakai-entity-api-2-4-x.jar"
 CLASSPATH="$CLASSPATH:$MAVEN_TOMCAT_HOME/shared/lib/sakai-assignment-api-2-4-x.jar"
+CLASSPATH="$CLASSPATH:$MAVEN_TOMCAT_HOME/shared/lib/sakai-db-storage-2-4-x.jar"
+CLASSPATH="$CLASSPATH:$MAVEN_TOMCAT_HOME/shared/lib/sakai-db-conversion-2-4-x.jar"
 # this jar isn't part of the 2-4-x build but is part of 2-5
 CLASSPATH="$CLASSPATH:$HOME/dev/commons-dbcp-1.2.2.jar"
 
@@ -22,4 +24,4 @@ CLASSPATH="$CLASSPATH:$CATALINA_HOME/common/lib/ojdbc-14.jar"
 
 java $JAVA_OPTS  \
       -classpath "$CLASSPATH" \
-	org.sakaiproject.assignment.impl.conversion.impl.UpgradeSchema "$@" 
+	org.sakaiproject.util.conversion.UpgradeSchema "$@" 
