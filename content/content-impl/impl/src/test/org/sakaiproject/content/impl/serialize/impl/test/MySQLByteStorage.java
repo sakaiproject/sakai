@@ -38,7 +38,7 @@ import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.content.impl.serialize.impl.ByteStorageConversion;
+import org.sakaiproject.util.ByteStorageConversion;
 
 /**
  * @author ieb

@@ -25,7 +25,7 @@ import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.content.impl.serialize.impl.ByteStorageConversion;
+import org.sakaiproject.util.ByteStorageConversion;
 
 import junit.framework.TestCase;
 

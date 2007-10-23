@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer;
+import org.sakaiproject.util.conversion.SchemaConversionHandler;
 
 /**
  * Performs just the file size conversion for quota calculations

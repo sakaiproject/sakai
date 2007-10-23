@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer;
+import org.sakaiproject.util.conversion.SchemaConversionHandler;
 
 /**
  * @author ieb
@@ -91,7 +92,7 @@ public class Type1BlobCollectionConversionHandler implements SchemaConversionHan
 	}
 
 	/** 
-	 * @see org.sakaiproject.content.impl.serialize.impl.conversion.SchemaConversionHandler#validate(java.lang.String, java.lang.Object, java.lang.Object)
+	 * @see org.sakaiproject.util.conversion.SchemaConversionHandler#validate(java.lang.String, java.lang.Object, java.lang.Object)
 	 */
 	public void validate(String id, Object source, Object result) throws Exception
 	{

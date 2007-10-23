@@ -21,9 +21,7 @@
 
 package org.sakaiproject.content.impl.serialize.impl.conversion;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.util.Date;
 import java.util.TimeZone;
 

@@ -38,6 +38,7 @@ import org.sakaiproject.entity.api.serialize.EntitySerializer;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.util.ByteStorageConversion;
 import org.sakaiproject.util.serialize.Type1BaseResourcePropertiesSerializer;
 
 /**
