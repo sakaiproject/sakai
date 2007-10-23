@@ -5708,38 +5708,93 @@ public class AssignmentAction extends PagedResourceActionII
 					removeCalendarEvent(state, aEdit, pEdit, title);
 				} // if-else
 
-				if (!AssignmentService.getSubmissions(aEdit).iterator().hasNext())
+				if (aEdit.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 				{
-					// there is no submission to this assignment yet, delete the assignment record completely
-					try
+					// if this is non-electronic submission, remove all the submissions
+					List submissions = AssignmentService.getSubmissions(aEdit);
+					if (submissions != null)
 					{
-						TaggingManager taggingManager = (TaggingManager) ComponentManager
-								.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
-
-						AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
-								.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
-
-						if (taggingManager.isTaggable()) {
-							for (TaggingProvider provider : taggingManager
-									.getProviders()) {
-								provider.removeTags(assignmentActivityProducer
-										.getActivity(aEdit));
+						for (Iterator sIterator=submissions.iterator(); sIterator.hasNext();)
+						{
+							AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
+							try
+							{
+								AssignmentService.removeSubmission(AssignmentService.editSubmission((s.getReference())));
+							}
+							catch (Exception eee)
+							{
+								addAlert(state, rb.getString("youarenot11_s") + " " + s.getReference() + ". ");
 							}
 						}
-						
+					}
+					
+					try
+					{
+						// remove the assignment content
+						AssignmentService.removeAssignmentContent(AssignmentService.editAssignmentContent(aEdit.getContent().getReference()));
+					}
+					catch (Exception eee)
+					{
+						addAlert(state, rb.getString("youarenot11_c") + " " + aEdit.getContentReference() + ". ");
+					}
+					
+					try
+					{
+						// remove the assignment afterwards
 						AssignmentService.removeAssignment(aEdit);
 					}
-					catch (PermissionException e)
+					catch (Exception ee)
 					{
 						addAlert(state, rb.getString("youarenot11") + " " + aEdit.getTitle() + ". ");
 					}
+
 				}
 				else
 				{
-					// remove the assignment by marking the remove status property true
-					pEdit.addProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED, Boolean.TRUE.toString());
-
-					AssignmentService.commitEdit(aEdit);
+					// for assignment with other type of submission
+					if (!AssignmentService.getSubmissions(aEdit).iterator().hasNext())
+					{
+						// there is no submission to this assignment yet, delete the assignment and assignment content record completely
+						try
+						{
+							// remove the assignment content
+							AssignmentService.removeAssignmentContent(AssignmentService.editAssignmentContent(aEdit.getContent().getReference()));
+						}
+						catch (Exception ee)
+						{
+							addAlert(state, rb.getString("youarenot11_c") + " " + aEdit.getContentReference() + ". ");
+						}
+						
+						try
+						{
+							TaggingManager taggingManager = (TaggingManager) ComponentManager
+									.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+	
+							AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
+									.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
+	
+							if (taggingManager.isTaggable()) {
+								for (TaggingProvider provider : taggingManager
+										.getProviders()) {
+									provider.removeTags(assignmentActivityProducer
+											.getActivity(aEdit));
+								}
+							}
+							
+							AssignmentService.removeAssignment(aEdit);
+						}
+						catch (PermissionException ee)
+						{
+							addAlert(state, rb.getString("youarenot11") + " " + aEdit.getTitle() + ". ");
+						}
+					}
+					else
+					{
+						// remove the assignment by marking the remove status property true
+						pEdit.addProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED, Boolean.TRUE.toString());
+	
+						AssignmentService.commitEdit(aEdit);
+					}
 				}
 
 				// remove from Gradebook

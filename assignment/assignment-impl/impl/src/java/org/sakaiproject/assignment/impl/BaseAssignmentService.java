@@ -1710,48 +1710,43 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	{
 		if (content != null)
 		{
-			if (content.inUse())
-				throw new AssignmentContentNotEmptyException();
-			else
+			if (!content.isActiveEdit())
 			{
-				if (!content.isActiveEdit())
-				{
-					try
-					{
-						throw new Exception();
-					}
-					catch (Exception e)
-					{
-						M_log.warn("removeAssignmentContent(): closed AssignmentContentEdit", e);
-					}
-					return;
-				}
-
-				// CHECK SECURITY
-				unlock(SECURE_REMOVE_ASSIGNMENT_CONTENT, content.getReference());
-
-				// complete the edit
-				m_contentStorage.remove(content);
-
-				// track event
-				EventTrackingService.post(EventTrackingService.newEvent(EVENT_REMOVE_ASSIGNMENT_CONTENT, content.getReference(),
-						true));
-
-				// close the edit object
-				((BaseAssignmentContentEdit) content).closeEdit();
-
-				// remove any realm defined for this resource
 				try
 				{
-					AuthzGroupService.removeAuthzGroup(AuthzGroupService.getAuthzGroup(content.getReference()));
+					throw new Exception();
 				}
-				catch (AuthzPermissionException e)
+				catch (Exception e)
 				{
-					M_log.warn("removeAssignmentContent: removing realm for : " + content.getReference() + " : " + e);
+					M_log.warn("removeAssignmentContent(): closed AssignmentContentEdit", e);
 				}
-				catch (GroupNotDefinedException ignore)
-				{
-				}
+				return;
+			}
+
+			// CHECK SECURITY
+			unlock(SECURE_REMOVE_ASSIGNMENT_CONTENT, content.getReference());
+
+			// complete the edit
+			m_contentStorage.remove(content);
+
+			// track event
+			EventTrackingService.post(EventTrackingService.newEvent(EVENT_REMOVE_ASSIGNMENT_CONTENT, content.getReference(),
+					true));
+
+			// close the edit object
+			((BaseAssignmentContentEdit) content).closeEdit();
+
+			// remove any realm defined for this resource
+			try
+			{
+				AuthzGroupService.removeAuthzGroup(AuthzGroupService.getAuthzGroup(content.getReference()));
+			}
+			catch (AuthzPermissionException e)
+			{
+				M_log.warn("removeAssignmentContent: removing realm for : " + content.getReference() + " : " + e);
+			}
+			catch (GroupNotDefinedException ignore)
+			{
 			}
 		}
 	}
