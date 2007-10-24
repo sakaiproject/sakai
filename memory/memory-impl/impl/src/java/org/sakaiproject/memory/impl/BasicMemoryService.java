@@ -28,7 +28,12 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.UUID;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Status;
+import net.sf.ehcache.event.CacheManagerEventListener;
+import net.sf.ehcache.hibernate.EhCache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,9 +56,6 @@ import org.sakaiproject.memory.api.MultiRefCache;
  */
 public abstract class BasicMemoryService implements MemoryService, Observer
 {
-	/** name of mref cache bean */
-	private static final String ORG_SAKAIPROJECT_MEMORY_MEMORY_SERVICE_MREF_MAP = 
-		"org.sakaiproject.memory.MemoryService.mref_map";
 
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BasicMemoryService.class);
@@ -62,7 +64,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	protected static final String EVENT_RESET = "memory.reset";
 
 	/** The underlying cache manager; injected */
-	net.sf.ehcache.CacheManager cacheManager;
+	protected CacheManager cacheManager;
 
 	/** If true, output verbose caching info. */
 	protected boolean m_cacheLogging = false;
@@ -122,6 +124,44 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 			if (cacheManager == null)
 				throw new IllegalStateException(
 						"CacheManager was not injected properly!");
+			
+			cacheManager.getCacheManagerEventListenerRegistry().registerListener(new CacheManagerEventListener() {
+
+				private Status status = Status.STATUS_UNINITIALISED;
+				public void dispose() throws CacheException
+				{
+					status = Status.STATUS_SHUTDOWN;
+				}
+
+				public Status getStatus()
+				{
+					return status;
+				}
+
+				public void init() throws CacheException
+				{
+					status = Status.STATUS_ALIVE;
+				}
+
+				public void notifyCacheAdded(String name)
+				{
+					Ehcache cache = cacheManager.getEhcache(name);
+					M_log.info("Added Cache name ["+name+"] as Cache [" + cache.getName() +"] " +
+							"Max Elements in Memory ["+cache.getMaxElementsInMemory()+"] "+
+							"Max Elements on Disk ["+cache.getMaxElementsOnDisk()+"] "+
+							"Time to Idle (seconds) ["+cache.getTimeToIdleSeconds()+"] "+
+							"Time to Live (seconds) ["+cache.getTimeToLiveSeconds()+"] "+
+							"Memory Store Eviction Policy ["+cache.getMemoryStoreEvictionPolicy()+"] ");
+
+				}
+
+				public void notifyCacheRemoved(String name)
+				{
+					M_log.info("Cache Removed "+name);	
+					
+				}
+				
+			});
 		}
 		catch (Throwable t)
 		{
@@ -292,7 +332,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	public Cache newCache(CacheRefresher refresher, String pattern)
 	{
 		return new MemCache(this, eventTrackingService(), refresher, pattern,
-				instantiateCache("MemCache", true));
+				instantiateCache("MemCache"));
 	}
 
 	/**
@@ -302,7 +342,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	public Cache newHardCache(CacheRefresher refresher, String pattern)
 	{
 		return new HardCache(this, eventTrackingService(), refresher, pattern,
-				instantiateCache("HardCache", true));
+				instantiateCache("HardCache"));
 	}
 
 	/**
@@ -312,7 +352,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	public Cache newHardCache(long sleep, String pattern)
 	{
 		return new HardCache(this, eventTrackingService(), sleep, pattern,
-				instantiateCache("HardCache", true));
+				instantiateCache("HardCache"));
 	}
 
 	/**
@@ -322,7 +362,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	public Cache newCache(CacheRefresher refresher, long sleep)
 	{
 		return new MemCache(this, eventTrackingService(), refresher, sleep,
-				instantiateCache("MemCache", true));
+				instantiateCache("MemCache"));
 	}
 
 	/**
@@ -332,7 +372,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	public Cache newHardCache(CacheRefresher refresher, long sleep)
 	{
 		return new MemCache(this, eventTrackingService(), refresher, sleep,
-				instantiateCache("HardCache", true));
+				instantiateCache("HardCache"));
 	}
 
 	/**
@@ -342,7 +382,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	public Cache newCache()
 	{
 		return new MemCache(this, eventTrackingService(),
-				instantiateCache("MemCache", true));
+				instantiateCache("MemCache"));
 	}
 
 	/**
@@ -352,7 +392,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	public Cache newHardCache()
 	{
 		return new HardCache(this, eventTrackingService(),
-				instantiateCache("HardCache", true));
+				instantiateCache("HardCache"));
 	}
 
 	/**
@@ -364,9 +404,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		return new MultiRefCacheImpl(
 				this,
 				eventTrackingService(),
-				instantiateCache("MultiRefCache", true),
-				instantiateCache(
-						ORG_SAKAIPROJECT_MEMORY_MEMORY_SERVICE_MREF_MAP, false));
+				instantiateCache("MultiRefCache"));
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -404,7 +442,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	 *            defined in bean factory.
 	 * @return
 	 */
-	private Ehcache instantiateCache(String cacheName, boolean legacyMode)
+	private Ehcache instantiateCache(String cacheName)
 	{
 		if (M_log.isDebugEnabled())
 			M_log.debug("createNewCache(String " + cacheName + ")");
@@ -412,17 +450,25 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		String name = cacheName;
 		if (name == null || "".equals(name))
 		{
-			if (legacyMode)
-			{
-				// make up a name
-				name = "DefaultCache" + UUID.randomUUID().toString();			
-			}
-			else
-			{
-				throw new IllegalArgumentException(
-						"String cacheName must not be null or empty!");
-			}
+			name = "DefaultCache" + UUID.randomUUID().toString();			
 		}
+		cacheName = MemoryService.class.getName()+"."+cacheName;
+		
+		
+		// Cache creation should all go to the cache manager and be
+		// configured via the cache manager setup.
+		
+		if ( cacheManager.cacheExists(name) ) {
+			return cacheManager.getEhcache(name);
+		} 
+		cacheManager.addCache(name);
+		return cacheManager.getEhcache(name);
+		
+		
+		
+		
+		/*
+		
 
 		if(legacyMode)
 		{
@@ -445,6 +491,8 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 			cache = null;
 			M_log.error("Error occurred when trying to load cache from bean factory!", e);
 		}
+		
+		
 		if(cache != null) // found the cache
 		{
 			M_log.info("Loaded Named Cache " + cache);
@@ -467,6 +515,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 
 			return cache;			
 		}
+		*/
 	}
 
 	public void setCacheManager(net.sf.ehcache.CacheManager cacheManager) {
@@ -476,31 +525,29 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	public Cache newCache(String cacheName, CacheRefresher refresher,
 			String pattern) {
 		return new MemCache(this, eventTrackingService(), refresher, pattern,
-				instantiateCache(cacheName, true));
+				instantiateCache(cacheName));
 	}
 
 	public Cache newCache(String cacheName, String pattern) {
 		return new MemCache(this, eventTrackingService(), pattern,
-				instantiateCache(cacheName, true));
+				instantiateCache(cacheName));
 	}
 
 	public Cache newCache(String cacheName, CacheRefresher refresher) {
 		return new MemCache(this, eventTrackingService(), refresher,
-				instantiateCache(cacheName, true));
+				instantiateCache(cacheName));
 	}
 
 	public Cache newCache(String cacheName) {
 		return new MemCache(this, eventTrackingService(),
-				instantiateCache(cacheName, true));
+				instantiateCache(cacheName));
 	}
 
 	public MultiRefCache newMultiRefCache(String cacheName) {
 		return new MultiRefCacheImpl(
 				this,
 				eventTrackingService(),
-				instantiateCache(cacheName, true),
-				instantiateCache(
-						ORG_SAKAIPROJECT_MEMORY_MEMORY_SERVICE_MREF_MAP, false));
+				instantiateCache(cacheName));
 	}
 
 }

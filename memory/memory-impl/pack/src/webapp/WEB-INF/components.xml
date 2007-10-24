@@ -19,20 +19,24 @@
 	</bean>
 
 
-	<bean id="org.sakaiproject.memory.api.MemoryService.cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+	<bean id="org.sakaiproject.memory.api.MemoryService.cacheManager" 
+	    class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
   		<property name="configLocation">
     	<value>classpath:org/sakaiproject/memory/api/ehcache.xml</value>
   		</property>
 	</bean>
 
-	<bean id="org.sakaiproject.memory.MemoryService.mref_map" 
-  			class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+	<!-- 
+	a JMX Agent to make the Cache visable in JConsole 
+	-->
+	<bean id="org.sakaiproject.memory.api.MemoryService.jmxAgent" 
+	    class="org.sakaiproject.memory.impl.MemoryServiceJMXAgent"
+	    init-method="init" >
   		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
-    	<property name="cacheName"><value>org.sakaiproject.memory.MemoryService.mref_map</value></property>
-    	<property name="eternal" ><value>true</value></property>
-    	<property name="maxElementsInMemory" ><value>1</value></property>
-    	<property name="overflowToDisk"><value>true</value></property>
-    	<property name="diskPersistent" ><value>false</value></property>
-  	</bean>
+		<property name="registerCacheManager"><value>true</value></property>
+		<property name="registerCaches"><value>true</value></property>
+		<property name="registerCacheConfigurations"><value>true</value></property>
+		<property name="registerCacheStatistics"><value>true</value></property>
+	</bean>
 
 </beans>

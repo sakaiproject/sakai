@@ -21,10 +21,12 @@
 
 package org.sakaiproject.memory.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Observable;
-import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -55,10 +57,8 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 	private static Log M_log = LogFactory.getLog(MultiRefCacheImpl.class);
 
 	/** Map of reference string -> Collection of cache keys. */
-//	protected final Map m_refs = new ConcurrentHashMap();
+	protected final Map<String, Collection> m_refs = new ConcurrentHashMap<String, Collection>();
 
-	/** Map of reference string -> Collection of cache keys. */
-	protected Ehcache mref_cache = null;
 
 	protected class MultiRefCacheEntry extends CacheEntry
 	{
@@ -98,30 +98,22 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 	 * @deprecated long sleep no longer used with ehcache
 	 */
 	public MultiRefCacheImpl(BasicMemoryService memoryService,
-			EventTrackingService eventTrackingService, long sleep, Ehcache cache,
-			Ehcache mrefCache)
+			EventTrackingService eventTrackingService, long sleep, Ehcache cache)
 	{
 		super(memoryService, eventTrackingService, sleep, "", cache);
 		cache.getCacheEventNotificationService().registerListener(this);
 		
-		if (mrefCache == null || !mrefCache.isEternal())
-			throw new IllegalStateException("mref_cache must be eternal!");
-		this.mref_cache = mrefCache;
 	}
 
 	/**
 	 * Construct the Cache - checks for expiration periodically.
 	 */
 	public MultiRefCacheImpl(BasicMemoryService memoryService,
-			EventTrackingService eventTrackingService, Ehcache cache,
-			Ehcache mrefCache)
+			EventTrackingService eventTrackingService, Ehcache cache)
 	{
 		super(memoryService, eventTrackingService, "", cache);
 		cache.getCacheEventNotificationService().registerListener(this);
 
-		if (mrefCache == null || !mrefCache.isEternal())
-			throw new IllegalStateException("mref_cache must be eternal!");
-		this.mref_cache = mrefCache;
 	}
 
 	/**
@@ -193,23 +185,12 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 	 */
 	protected void addRefCachedKey(String ref, Object key)
 	{
-		Collection cachedKeys = null;
-		final Element element = mref_cache.get(ref);
-		if(element == null)
-		{	// nothing found in cache - create new Collection of refs
+		Collection cachedKeys = m_refs.get(ref);
+		if ( cachedKeys == null ) {
 			cachedKeys = new ArrayList();
-			cachedKeys.add(key);
-			mref_cache.put(new Element(ref, cachedKeys));
+			m_refs.put(ref, cachedKeys);
 		}
-		else
-		{
-			cachedKeys = (Collection) element.getObjectValue();
-			if (!cachedKeys.contains(key))
-			{
-				cachedKeys.add(key);
-				mref_cache.put(new Element(ref, cachedKeys));
-			}
-		}		
+		cachedKeys.add(key);
 	}
 
 	/**
@@ -218,8 +199,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 	public void clear()
 	{
 		super.clear();
-		mref_cache.removeAll();
-		mref_cache.getStatistics().clearStatistics();
+		m_refs.clear();
 	}
 
 	private void cleanEntityReferences(Object key, Object value)
@@ -236,25 +216,18 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 		for (Iterator iRefs = cachedEntry.getRefs().iterator(); iRefs.hasNext();)
 		{
 			String ref = (String) iRefs.next();
-			final Element element = mref_cache.get(ref);
-			if(element != null)
+			Collection keys = m_refs.get(ref);
+			if ((keys != null) && (keys.contains(key)))
 			{
-				Collection keys = (Collection) element.getObjectValue();
-				if ((keys != null) && (keys.contains(key)))
-				{
-					keys.remove(key);
+				keys.remove(key);
 
-					// remove the ref entry if it no longer has any cached keys in its collection
-					if (keys.isEmpty())
-					{
-						mref_cache.remove(ref);
-					}
-					else
-					{
-						mref_cache.put(new Element(ref, keys)); // refresh cache
-					}
-				}				
-			}
+				// remove the ref entry if it no longer has any cached keys in
+				// its collection
+				if (keys.isEmpty())
+				{
+					m_refs.remove(ref);
+				}
+			}				
 		}
 	}
 
@@ -313,20 +286,13 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 					+ " event: " + event.getEvent());
 
 		// do we have this in our ref list
-		if (mref_cache.isKeyInCache(ref))
+		if (m_refs.containsKey(ref))
 		{
 			// get the copy of the Collection of cache keys for this reference (the actual collection will be reduced as the removes occur)
-			final Element element = mref_cache.get(ref);
-			if(element != null)
+			Collection cachedKeys = m_refs.get(ref);
+			for (Iterator iKeys = cachedKeys.iterator(); iKeys.hasNext();)
 			{
-				Collection cachedKeys = new ArrayList((Collection) element
-						.getObjectValue());
-
-				// invalidate all these keys
-				for (Iterator iKeys = cachedKeys.iterator(); iKeys.hasNext();)
-				{
 					remove(iKeys.next()); // evict primary authz cache
-				}
 			}
 		}
 	}
@@ -367,8 +333,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 	{
 		M_log.debug("dispose()");
 		// may not be necessary...
-		mref_cache.removeAll();
-		mref_cache.getStatistics().clearStatistics();
+		m_refs.clear();
 	}
 
 	public void notifyElementEvicted(Ehcache cache, Element element) 
@@ -424,8 +389,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 		if (M_log.isDebugEnabled())
 			M_log.debug("notifyRemoveAll(Ehcache " + cache + ")");
 		
-		mref_cache.removeAll();
-		mref_cache.getStatistics().clearStatistics();
+		m_refs.clear();
 	}
 
 	/**
