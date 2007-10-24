@@ -295,6 +295,15 @@ public class UserDirectoryServiceGetTest extends SakaiTestBase {
 		}
 	}
 	
+	public void testNoDuplicateUserEid() throws Exception {
+		String eid = "localuser";
+		try {
+			userDirectoryService.addUser(null, eid, "J. " + eid, "de " + eid, eid + "@somewhere.edu", eid + "pwd", "Guest", null);
+			Assert.fail();
+		} catch (Exception e) {
+		}
+	}
+	
 	public static class TestProvider implements UserDirectoryProvider {
 		public boolean authenticateUser(String eid, UserEdit userEdit, String password) {
 			if (eid.equals("providedfromauthn")) {
