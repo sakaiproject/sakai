@@ -50,7 +50,7 @@
 				#foreach($group in $!groups)
 					<tr>
 						<td headers="name">
-							<h4>$group.Title</h4>
+							<h4>$validator.escapeHtml($group.Title)</h4>
 						</td>
 						<td headers="revise">
 							<span class="itemAction">
