@@ -1160,8 +1160,7 @@ RENAME osp_reports_results TO reports_result;
 -- SAK-9865 search Missing columns
 
 alter table searchbuilderitem add itemscope number(4,0);
-alter table searchbuilderitem add index isearchbuilderitem_sco(itemscope);
-
+create index isearchbuilderitem_sco on searchbuilderitem (itemscope);
 
 -- SAK-11245 -- new search indexer
 
