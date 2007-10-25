@@ -9419,7 +9419,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT, Boolean.valueOf(hasFeedbackAttachment));
 		state.setAttribute(UPLOAD_ALL_RELEASE_GRADES, Boolean.valueOf(releaseGrades));
 		
-		if (!hasSubmissionText && !hasSubmissionAttachment && !hasGradeFile && !hasComment && !hasFeedbackAttachment)
+		if (!hasSubmissionText && !hasSubmissionAttachment && !hasFeedbackText && !hasGradeFile && !hasComment && !hasFeedbackAttachment)
 		{
 			// has to choose one upload feature
 			addAlert(state, rb.getString("uploadall.alert.choose.element"));
