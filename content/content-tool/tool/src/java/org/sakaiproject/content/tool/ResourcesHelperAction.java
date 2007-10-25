@@ -24,6 +24,7 @@ package org.sakaiproject.content.tool;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -685,7 +686,15 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 		}
 		
-		pipe.setRevisedContent(content.getBytes());
+		try 
+		{
+			pipe.setRevisedContent(content.getBytes(ResourcesAction.UTF_8_ENCODING));
+		} 
+		catch (UnsupportedEncodingException e) 
+		{
+			logger.warn("Unsupported Content Encoding");
+			addAlert(state, rb.getString("alert.utf8encoding"));
+		}
 		pipe.setActionCanceled(false);
 		pipe.setErrorEncountered(false);
 		pipe.setActionCompleted(true);
@@ -1156,31 +1165,18 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			else if (fileitem.getFileName().length() > 0)
 			{
 				String filename = Validator.getFileName(fileitem.getFileName());
-				InputStream stream;
-					 stream = fileitem.getInputStream();
-					 if(stream == null)
-					 {
-						byte[] bytes = fileitem.get();
-						pipe.setRevisedContent(bytes);
-					 }
-					 else
-					 {
-						  pipe.setRevisedContentStream(stream);
-					 }
-					 String contentType = fileitem.getContentType();
-					 //pipe.setRevisedContent(bytes);
-					 pipe.setRevisedMimeType(contentType);
-					 
-//						if(ResourceType.MIME_TYPE_HTML.equals(contentType) || ResourceType.MIME_TYPE_TEXT.equals(contentType))
-//						{
-//							pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
-//						}
-//						else if(pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING) != null)
-//						{
-//							pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, (String) pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING));
-//						}
-					 
-					 pipe.setFileName(filename);
+				pipe.setRevisedContent( fileitem.get() );
+				String contentType = fileitem.getContentType();
+				pipe.setRevisedMimeType(contentType);
+				
+				// If no encoding specified, default to UTF-8 encoding
+				if ( (ResourceType.MIME_TYPE_HTML.equals(contentType) || ResourceType.MIME_TYPE_TEXT.equals(contentType)) &&
+						pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING) == null)
+				{
+						pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
+				}
+				
+				pipe.setFileName(filename);
 					 
 				ListItem newFile = (ListItem) pipe.getRevisedListItem();
 				if(newFile == null)
