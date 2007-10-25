@@ -68,6 +68,7 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
                         // and what methods to use to validate the input..
                         if (page.getTools().size() == 1 && !"nil".equals(newConfig)) {
                             ToolConfiguration tool = (ToolConfiguration) page.getTools().get(0);
+                            tool.setTitle(newTitle);
                             if ("sakai.iframe".equals(tool.getToolId())) {
                                 tool.getPlacementConfig().setProperty("source", newConfig);
 
