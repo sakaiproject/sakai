@@ -689,15 +689,18 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		try 
 		{
 			pipe.setRevisedContent(content.getBytes(ResourcesAction.UTF_8_ENCODING));
+			pipe.setActionCanceled(false);
+			pipe.setErrorEncountered(false);
+			pipe.setActionCompleted(true);
 		} 
 		catch (UnsupportedEncodingException e) 
 		{
-			logger.warn("Unsupported Content Encoding");
+			logger.warn( this + ": " + e.toString() );
 			addAlert(state, rb.getString("alert.utf8encoding"));
+			pipe.setActionCanceled(false);
+			pipe.setErrorEncountered(true);
+			pipe.setActionCompleted(false);
 		}
-		pipe.setActionCanceled(false);
-		pipe.setErrorEncountered(false);
-		pipe.setActionCompleted(true);
 		
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 
