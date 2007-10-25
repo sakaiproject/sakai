@@ -9429,21 +9429,12 @@ public class AssignmentAction extends PagedResourceActionII
 			// constructor the hashtable for all submission objects
 			Hashtable submissionTable = new Hashtable();
 			Assignment assignment = null;
+			List submissions = null;
 			try
 			{
 				assignment = AssignmentService.getAssignment(aReference);
 				associateGradebookAssignment = StringUtil.trimToNull(assignment.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-
-				Iterator sIterator = AssignmentService.getSubmissions(assignment).iterator();
-				while (sIterator.hasNext())
-				{
-					AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
-					User[] users = s.getSubmitters();
-					if (users.length > 0 && users[0] != null)
-					{
-						submissionTable.put(users[0].getSortName(), new UploadGradeWrapper("", "", "", new Vector(), new Vector(), "", ""));
-					}
-				}
+				submissions =  AssignmentService.getSubmissions(assignment);
 			}
 			catch (Exception e)
 			{
@@ -9497,7 +9488,7 @@ public class AssignmentAction extends PagedResourceActionII
 						while ((entry=zin.getNextEntry()) != null)
 						{
 							String entryName = entry.getName();
-							if (!entry.isDirectory() && entryName.indexOf("/._") == -1)
+							if (!entry.isDirectory() && entryName.indexOf("/.") == -1)
 							{
 								if (entryName.endsWith("grades.csv"))
 								{
@@ -9568,6 +9559,11 @@ public class AssignmentAction extends PagedResourceActionII
 										if (userName.indexOf("(") != -1)
 										{
 											userName = userName.substring(0, userName.indexOf("("));
+										}
+										userName=StringUtil.trimToNull(userName);
+										if (!submissionTable.containsKey(userName))
+										{
+											submissionTable.put(userName, new UploadGradeWrapper("", "", "", new Vector(), new Vector(), "", ""));
 										}
 									}
 									if (hasComment && entryName.indexOf("comments") != -1)
@@ -9642,9 +9638,9 @@ public class AssignmentAction extends PagedResourceActionII
 			if (state.getAttribute(STATE_MESSAGE) == null)
 			{
 				// update related submissions
-				if (assignment != null)
+				if (assignment != null && submissions != null)
 				{
-					Iterator sIterator = AssignmentService.getSubmissions(assignment).iterator();
+					Iterator sIterator = submissions.iterator();
 					while (sIterator.hasNext())
 					{
 						AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
