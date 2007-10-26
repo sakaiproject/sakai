@@ -48,6 +48,7 @@ public class SitePageEditHandler {
     public String nil = null;
     
     private final String TOOL_CFG_FUNCTIONS = "functions.require";
+    private final String TOOL_CFG_MULTI = "allowMultiple";
     private final String SITE_UPD = "site.upd";
     private final String HELPER_ID = "sakai.tool.helper.id";
     private final String UNHIDEABLES_CFG = "poh.unhideables";
@@ -191,8 +192,11 @@ public class SitePageEditHandler {
         for (; i.hasNext();)
         {
             Tool tr = (Tool) i.next();
+            Properties config = tr.getRegisteredConfig();
+            String allowMultiple = config.getProperty(TOOL_CFG_MULTI);
+
             if (tr != null) {
-                if (multiPlacementToolIds.contains(tr.getId())) {
+                if (multiPlacementToolIds.contains(tr.getId()) || "true".equals(allowMultiple)) {
                     tools.add(tr);
                 }
                 else if (site.getToolForCommonId(tr.getId()) == null) {
