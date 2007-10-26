@@ -7931,25 +7931,25 @@ public class AssignmentAction extends PagedResourceActionII
 
 					for (int j = 0; j < u1.length; j++)
 					{
-						if (u1[j] != null && u1[j].getLastName() != null)
+						if (u1[j] != null && u1[j].getSortName() != null)
 						{
 							if (j > 0)
 							{
 								submitters1 = submitters1.concat("; ");
 							}
-							submitters1 = submitters1.concat("" + u1[j].getLastName());
+							submitters1 = submitters1.concat("" + u1[j].getSortName());
 						}
 					}
 
 					for (int j = 0; j < u2.length; j++)
 					{
-						if (u2[j] != null && u2[j].getLastName() != null)
+						if (u2[j] != null && u2[j].getSortName() != null)
 						{
 							if (j > 0)
 							{
 								submitters2 = submitters2.concat("; ");
 							}
-							submitters2 = submitters2.concat(u2[j].getLastName());
+							submitters2 = submitters2.concat(u2[j].getSortName());
 						}
 					}
 					result = compareString(submitters1, submitters2);
