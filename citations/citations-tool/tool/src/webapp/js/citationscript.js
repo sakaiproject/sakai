@@ -196,13 +196,20 @@ function selectNone( formId ) {
  * to the page.  This method has not been tested with IE 5.5.
  */
 function resizeFrame() {
-  var frame = parent.document.getElementById( window.name );
+
+// check needed as getElementById in IE doesn't like an empty parameter so the var
+// frame line returns an error. Firefox appears to be okay with it
+  if (window.name != "")
+  {
+  	var frame = parent.document.getElementById( window.name );
       
-  if( frame ) {
-    var clientH = document.body.clientHeight + 10;
-    $( frame ).height( clientH );
+  	if( frame ) 
+  	{
+    	var clientH = document.body.clientHeight + 10;
+    	$( frame ).height( clientH );
+  	}
   }
-}
+} // end function
 
 /*
  * Submits the form with the given id
