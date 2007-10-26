@@ -188,6 +188,10 @@ public class SelectActionListener
         delivery.setAssessmentId(g.getPublishedAssessmentId().toString());
         
         Integer submissionAllowed = getSubmissionAllowed(g.getPublishedAssessmentId(), publishedAssessmentHash);
+        if (submissionAllowed.intValue() == -1) {
+        	log.debug("submissionAllowed == -1");
+        	continue;
+        }
         if (submissionAllowed.intValue() == 0) { // unlimited submissions
           delivery.setMultipleSubmissions(true);
       	  hasMultipleSubmission=true;
@@ -576,9 +580,11 @@ public class SelectActionListener
 	    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.
 	        get(publishedAssessmentId);
 	    if (p!=null)
-	      return p.getSubmissionsAllowed();
-	    else
-	      return null;
+	    	return p.getSubmissionsAllowed();
+	    else {
+	    	log.debug("The published assessment is not valid");
+	    	return new Integer(-1);
+	    }
   }
   
   private Date getFeedbackDate(Long publishedAssessmentId, HashMap publishedAssessmentHash){
