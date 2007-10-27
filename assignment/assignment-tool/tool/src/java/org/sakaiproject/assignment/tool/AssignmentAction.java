@@ -146,9 +146,6 @@ public class AssignmentAction extends PagedResourceActionII
 	/** Is the review service available? */
 	private static final String ALLOW_REVIEW_SERVICE = "allow_review_service";
 	
-	/** Is review service enabled? */ 
-	private static final String ENABLE_REVIEW_SERVICE = "enable_review_service";
-	
 	private static final String NEW_ASSIGNMENT_USE_REVIEW_SERVICE = "new_assignment_use_review_service";
 	
 	private static final String NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW = "new_assignment_allow_student_view";
@@ -372,6 +369,11 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	/** ******************* instructor's export assignment ***************************** */
 	private static final String EXPORT_ASSIGNMENT_REF = "export_assignment_ref";
+
+	/**
+	 * Is review service enabled? 
+	 */
+	private static final String ENABLE_REVIEW_SERVICE = "enable_review_service";
 
 	private static final String EXPORT_ASSIGNMENT_ID = "export_assignment_id";
 
@@ -1332,27 +1334,15 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_title", NEW_ASSIGNMENT_TITLE);
 		context.put("name_order", NEW_ASSIGNMENT_ORDER);
 
-		context.put("name_OpenMonth", NEW_ASSIGNMENT_OPENMONTH);
-		context.put("name_OpenDay", NEW_ASSIGNMENT_OPENDAY);
-		context.put("name_OpenYear", NEW_ASSIGNMENT_OPENYEAR);
-		context.put("name_OpenHour", NEW_ASSIGNMENT_OPENHOUR);
-		context.put("name_OpenMin", NEW_ASSIGNMENT_OPENMIN);
-		context.put("name_OpenAMPM", NEW_ASSIGNMENT_OPENAMPM);
-
-		context.put("name_DueMonth", NEW_ASSIGNMENT_DUEMONTH);
-		context.put("name_DueDay", NEW_ASSIGNMENT_DUEDAY);
-		context.put("name_DueYear", NEW_ASSIGNMENT_DUEYEAR);
-		context.put("name_DueHour", NEW_ASSIGNMENT_DUEHOUR);
-		context.put("name_DueMin", NEW_ASSIGNMENT_DUEMIN);
-		context.put("name_DueAMPM", NEW_ASSIGNMENT_DUEAMPM);
+		// set open time context variables
+		putTimePropertiesInContext(context, state, "Open", NEW_ASSIGNMENT_OPENMONTH, NEW_ASSIGNMENT_OPENDAY, NEW_ASSIGNMENT_OPENYEAR, NEW_ASSIGNMENT_OPENHOUR, NEW_ASSIGNMENT_OPENMIN, NEW_ASSIGNMENT_OPENAMPM);
+		
+		// set due time context variables
+		putTimePropertiesInContext(context, state, "Due", NEW_ASSIGNMENT_DUEMONTH, NEW_ASSIGNMENT_DUEDAY, NEW_ASSIGNMENT_DUEYEAR, NEW_ASSIGNMENT_DUEHOUR, NEW_ASSIGNMENT_DUEMIN, NEW_ASSIGNMENT_DUEAMPM);
 
 		context.put("name_EnableCloseDate", NEW_ASSIGNMENT_ENABLECLOSEDATE);
-		context.put("name_CloseMonth", NEW_ASSIGNMENT_CLOSEMONTH);
-		context.put("name_CloseDay", NEW_ASSIGNMENT_CLOSEDAY);
-		context.put("name_CloseYear", NEW_ASSIGNMENT_CLOSEYEAR);
-		context.put("name_CloseHour", NEW_ASSIGNMENT_CLOSEHOUR);
-		context.put("name_CloseMin", NEW_ASSIGNMENT_CLOSEMIN);
-		context.put("name_CloseAMPM", NEW_ASSIGNMENT_CLOSEAMPM);
+		// set close time context variables
+		putTimePropertiesInContext(context, state, "Close", NEW_ASSIGNMENT_CLOSEMONTH, NEW_ASSIGNMENT_CLOSEDAY, NEW_ASSIGNMENT_CLOSEYEAR, NEW_ASSIGNMENT_CLOSEHOUR, NEW_ASSIGNMENT_CLOSEMIN, NEW_ASSIGNMENT_CLOSEAMPM);
 
 		context.put("name_Section", NEW_ASSIGNMENT_SECTION);
 		context.put("name_SubmissionType", NEW_ASSIGNMENT_SUBMISSION_TYPE);
@@ -1375,27 +1365,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_year_to", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO));
 		context.put("value_title", state.getAttribute(NEW_ASSIGNMENT_TITLE));
 		context.put("value_position_order", state.getAttribute(NEW_ASSIGNMENT_ORDER));
-		context.put("value_OpenMonth", state.getAttribute(NEW_ASSIGNMENT_OPENMONTH));
-		context.put("value_OpenDay", state.getAttribute(NEW_ASSIGNMENT_OPENDAY));
-		context.put("value_OpenYear", state.getAttribute(NEW_ASSIGNMENT_OPENYEAR));
-		context.put("value_OpenHour", state.getAttribute(NEW_ASSIGNMENT_OPENHOUR));
-		context.put("value_OpenMin", state.getAttribute(NEW_ASSIGNMENT_OPENMIN));
-		context.put("value_OpenAMPM", state.getAttribute(NEW_ASSIGNMENT_OPENAMPM));
-
-		context.put("value_DueMonth", state.getAttribute(NEW_ASSIGNMENT_DUEMONTH));
-		context.put("value_DueDay", state.getAttribute(NEW_ASSIGNMENT_DUEDAY));
-		context.put("value_DueYear", state.getAttribute(NEW_ASSIGNMENT_DUEYEAR));
-		context.put("value_DueHour", state.getAttribute(NEW_ASSIGNMENT_DUEHOUR));
-		context.put("value_DueMin", state.getAttribute(NEW_ASSIGNMENT_DUEMIN));
-		context.put("value_DueAMPM", state.getAttribute(NEW_ASSIGNMENT_DUEAMPM));
 
 		context.put("value_EnableCloseDate", state.getAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE));
-		context.put("value_CloseMonth", state.getAttribute(NEW_ASSIGNMENT_CLOSEMONTH));
-		context.put("value_CloseDay", state.getAttribute(NEW_ASSIGNMENT_CLOSEDAY));
-		context.put("value_CloseYear", state.getAttribute(NEW_ASSIGNMENT_CLOSEYEAR));
-		context.put("value_CloseHour", state.getAttribute(NEW_ASSIGNMENT_CLOSEHOUR));
-		context.put("value_CloseMin", state.getAttribute(NEW_ASSIGNMENT_CLOSEMIN));
-		context.put("value_CloseAMPM", state.getAttribute(NEW_ASSIGNMENT_CLOSEAMPM));
 
 		context.put("value_Sections", state.getAttribute(NEW_ASSIGNMENT_SECTION));
 		context.put("value_SubmissionType", state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE));
@@ -1772,45 +1743,28 @@ public class AssignmentAction extends PagedResourceActionII
 					context.put("prevFeedbackAttachments", getPrevFeedbackAttachments(p));
 				}
 				
-				// get the submission level of close date setting
-				context.put("name_CloseMonth", ALLOW_RESUBMIT_CLOSEMONTH);
-				context.put("name_CloseDay", ALLOW_RESUBMIT_CLOSEDAY);
-				context.put("name_CloseYear", ALLOW_RESUBMIT_CLOSEYEAR);
-				context.put("name_CloseHour", ALLOW_RESUBMIT_CLOSEHOUR);
-				context.put("name_CloseMin", ALLOW_RESUBMIT_CLOSEMIN);
-				context.put("name_CloseAMPM", ALLOW_RESUBMIT_CLOSEAMPM);
-				String closeTimeString =(String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
-				Time time = null;
-				if (closeTimeString != null)
+				if (state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 				{
-					// if there is a local setting
-					time = TimeService.newTime(Long.parseLong(closeTimeString));
+					context.put("value_allowResubmitNumber", Integer.valueOf((String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER)));
+					String allowResubmitTimeString =p.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+					Time allowResubmitTime = null;
+					if (allowResubmitTimeString != null)
+					{
+						// if there is a local setting
+						allowResubmitTime = TimeService.newTime(Long.parseLong(allowResubmitTimeString));
+					}
+					else if (a != null)
+					{
+						// if there is no local setting, default to assignment close time
+						allowResubmitTime = a.getCloseTime();
+					}
+					
+					// set up related state variables
+					putTimePropertiesInState(state, allowResubmitTime, ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN, ALLOW_RESUBMIT_CLOSEAMPM);
+					
+					// put allow resubmit time information into context
+					putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN, ALLOW_RESUBMIT_CLOSEAMPM);
 				}
-				else if (a != null)
-				{
-					// if there is no local setting, default to assignment close time
-					time = a.getCloseTime();
-				}
-				TimeBreakdown closeTime = time.breakdownLocal();
-				context.put("value_CloseMonth", new Integer(closeTime.getMonth()));
-				context.put("value_CloseDay", new Integer(closeTime.getDay()));
-				context.put("value_CloseYear", new Integer(closeTime.getYear()));
-				int closeHour = closeTime.getHour();
-				if (closeHour >= 12)
-				{
-					context.put("value_CloseAMPM", "PM");
-				}
-				else
-				{
-					context.put("value_CloseAMPM", "AM");
-				}
-				if (closeHour == 0)
-				{
-					// for midnight point, we mark it as 12AM
-					closeHour = 12;
-				}
-				context.put("value_CloseHour", new Integer((closeHour > 12) ? closeHour - 12 : closeHour));
-				context.put("value_CloseMin", new Integer(closeTime.getMin()));
 			}
 		}
 		catch (IdUnusedException e)
@@ -1844,10 +1798,6 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_feedback_comment", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT));
 		context.put("value_feedback_text", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT));
 		context.put("value_feedback_attachment", state.getAttribute(ATTACHMENTS));
-		if (state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
-		{
-			context.put("value_allowResubmitNumber", Integer.valueOf((String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER)));
-		}
 
 		// format to show one decimal place in grade
 		context.put("value_grade", (gradeType == 3) ? displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE))
@@ -1863,6 +1813,73 @@ public class AssignmentAction extends PagedResourceActionII
 		return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;
 
 	} // build_instructor_grade_submission_context
+
+	/**
+	 * Parse time value and put corresponding values into state
+	 * @param context
+	 * @param state
+	 * @param a
+	 * @param timeValue
+	 * @param timeName
+	 * @param month
+	 * @param day
+	 * @param year
+	 * @param hour
+	 * @param min
+	 * @param ampm
+	 */
+	private void putTimePropertiesInState(SessionState state, Time timeValue,
+											String month, String day, String year, String hour, String min, String ampm) {
+		TimeBreakdown bTime = timeValue.breakdownLocal();
+		state.setAttribute(month, new Integer(bTime.getMonth()));
+		state.setAttribute(day, new Integer(bTime.getDay()));
+		state.setAttribute(year, new Integer(bTime.getYear()));
+		int bHour = bTime.getHour();
+		if (bHour >= 12)
+		{
+			state.setAttribute(ampm, "PM");
+		}
+		else
+		{		
+			state.setAttribute(ampm, "AM");
+		}
+		if (bHour == 0)
+		{
+			// for midnight point, we mark it as 12AM
+			bHour = 12;
+		}		
+		state.setAttribute(hour, new Integer((bHour > 12) ? bHour - 12 : bHour));
+		state.setAttribute(min, new Integer(bTime.getMin()));
+	}
+
+	/**
+	 * put related time information into context variable
+	 * @param context
+	 * @param state
+	 * @param timeName
+	 * @param month
+	 * @param day
+	 * @param year
+	 * @param hour
+	 * @param min
+	 * @param ampm
+	 */
+	private void putTimePropertiesInContext(Context context, SessionState state, String timeName,
+													String month, String day, String year, String hour, String min, String ampm) {
+		// get the submission level of close date setting
+		context.put("name_" + timeName + "Month", month);
+		context.put("name_" + timeName + "Day", day);
+		context.put("name_" + timeName + "Year", year);
+		context.put("name_" + timeName + "Hour", hour);
+		context.put("name_" + timeName + "Min", min);
+		context.put("name_" + timeName + "AMPM", ampm);
+		context.put("value_" + timeName + "Month", (Integer) state.getAttribute(month));
+		context.put("value_" + timeName + "Day", (Integer) state.getAttribute(day));
+		context.put("value_" + timeName + "Year", (Integer) state.getAttribute(year));
+		context.put("value_" + timeName + "AMPM", (String) state.getAttribute(ampm));
+		context.put("value_" + timeName + "Hour", (Integer) state.getAttribute(hour));
+		context.put("value_" + timeName + "Min", (Integer) state.getAttribute(min));
+	}
 
 	private List getPrevFeedbackAttachments(ResourceProperties p) {
 		String attachmentsString = p.getProperty(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS);

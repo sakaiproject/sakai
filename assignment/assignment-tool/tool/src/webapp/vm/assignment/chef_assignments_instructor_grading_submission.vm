@@ -446,8 +446,8 @@ function handleEnterKeyPress(ev)
 						</select>
 					</p>
 					<p class="checkbox">
-						<input type="checkbox" id="tempAllowResToggle" #if($!value_allowResubmitNumber==0) #else checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').selectedIndex='2';document.getElementById('closeTime').style.display = 'block';
-						}else{document.getElementById('allowResubmitNumber').selectedIndex='1';document.getElementById('closeTime').style.display = 'none'}" /> <label for="tempAllowResToggle">$tlang.getString("allowResubmit")</label>
+						<input type="checkbox" id="tempAllowResToggle" #if($!value_allowResubmitNumber==0) #else checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').selectedIndex='2';document.getElementById('allowResubmitTime').style.display = 'block';
+						}else{document.getElementById('allowResubmitNumber').selectedIndex='1';document.getElementById('allowResubmitTime').style.display = 'none'}" /> <label for="tempAllowResToggle">$tlang.getString("allowResubmit")</label>
 					</p>
 					#if($!value_allowResubmitNumber==0)
 						#set($closeTimeStyle="display:none")
@@ -455,29 +455,29 @@ function handleEnterKeyPress(ev)
 						#set($closeTimeStyle="display:block")
 					#end
 					## only show date selection when allowed to resubmit
-					<p class="shorttext" id="closeTime" style=$!closeTimeStyle>
-						<label for="new_assignment_closemonth">
+					<p class="shorttext" id="allowResubmitTime" style=$!closeTimeStyle>
+						<label for="$name_ResubmitMonth">
 							$tlang.getString("gen.acesubunt")
 						</label>
-						#chef_dateselectionwidget($name_CloseYear $name_CloseMonth $name_CloseDay $!value_year_from $!value_year_to $value_CloseYear $value_CloseMonth $value_CloseDay)
+						#chef_dateselectionwidget($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay)
 						$tlang.getString("gen.at") 
-						<select name="$name_CloseHour" id="$name_CloseHour">
+						<select name="$name_ResubmitHour" id="$name_ResubmitHour">
 							#foreach ($i in [1..12])
-								#if ($i == $value_CloseHour)
+								#if ($i == $value_ResubmitHour)
 									<option value="$i" selected="selected">$i</option>
 								#else
 									<option value="$i">$i</option>
 								#end
 							#end
 						</select>
-						<select name="$name_CloseMin" id="$name_CloseMin">
+						<select name="$name_ResubmitMin" id="$name_ResubmitMin">
 							#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
-								<option value="$i" #if($i == $value_CloseMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
+								<option value="$i" #if($i == $value_ResubmitMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 							#end
 						</select>
-						<select name="$name_CloseAMPM" id="$name_CloseAMPM">
+						<select name="$name_ResubmitAMPM" id="$name_ResubmitAMPM">
 							#foreach ($i in ["AM", "PM"])
-								#if ($i == $value_CloseAMPM)
+								#if ($i == $value_ResubmitAMPM)
 									<option value="$i" selected="selected">$i</option>
 								#else
 									<option value="$i">$i</option>
