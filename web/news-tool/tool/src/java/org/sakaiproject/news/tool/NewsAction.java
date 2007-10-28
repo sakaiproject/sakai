@@ -311,16 +311,17 @@ public class NewsAction extends VelocityPortletPaneledAction
 		String newPageTitle = data.getParameters().getString(FORM_PAGE_TITLE);
 		String currentPageTitle = (String) state.getAttribute(STATE_PAGE_TITLE);
 		
-		if (StringUtil.trimToNull(newPageTitle) == null)
+		SitePage p = SiteService.findPage(getCurrentSitePageId());
+		// if the news tool is the only tool on the page, then we can edit the page title
+		if (p.getTools() != null && p.getTools().size() == 1)
 		{
-			//TODO: add more verbose message; requires language pack addition
-			addAlert(state, rb.getString("cus.pagnam"));
-			return;			
-		}
-		else if (!newPageTitle.equals(currentPageTitle))	
-		{
-			SitePage p = SiteService.findPage(getCurrentSitePageId());
-			if (p.getTools() != null && p.getTools().size() == 1)
+			if (StringUtil.trimToNull(newPageTitle) == null)
+			{
+				//TODO: add more verbose message; requires language pack addition
+				addAlert(state, rb.getString("cus.pagnam"));
+				return;
+			}
+			else if (!newPageTitle.equals(currentPageTitle))
 			{
 				// if this is the only tool on that page, update the page's title also
 				try
