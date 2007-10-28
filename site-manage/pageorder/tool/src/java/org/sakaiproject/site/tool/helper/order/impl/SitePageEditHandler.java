@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
@@ -52,6 +53,13 @@ public class SitePageEditHandler {
     private final String SITE_UPD = "site.upd";
     private final String HELPER_ID = "sakai.tool.helper.id";
     private final String UNHIDEABLES_CFG = "poh.unhideables";
+    private final String PAGE_ADD = "pageorder.add";
+    private final String PAGE_DELETE = "pageorder.delete";
+    private final String PAGE_RENAME = "pageorder.rename";
+    private final String PAGE_SHOW = "pageorder.show";
+    private final String PAGE_HIDE = "pageorder.hide";
+    private final String SITE_REORDER = "pageorder.reorder";
+    private final String SITE_RESET = "pageorder.reset";
 
     //System config for which tools can be added to a site more then once
     private final String MULTI_TOOLS = "sakai.site.multiPlacementTools";
@@ -219,8 +227,13 @@ public class SitePageEditHandler {
                 page = site.addPage();
                 Tool tool = toolManager.getTool(selectedTools[i]);
                 page.setTitle(tool.getTitle());
-                page.addTool(tool.getId());
+                ToolConfiguration placement = page.addTool(tool.getId());
                 siteService.save(site);
+                EventTrackingService.post(
+                    EventTrackingService.newEvent(PAGE_ADD, "/site/" + site.getId() +
+                        "/page/" + page.getId() +
+                        "/tool/" + selectedTools[i] +
+                        "/placement/" + placement.getId(), false));
             } 
             catch (IdUnusedException e) {
                 e.printStackTrace();
@@ -251,6 +264,9 @@ public class SitePageEditHandler {
             site.setCustomPageOrdered(true);
             try {
                 siteService.save(site);
+                EventTrackingService.post(
+                    EventTrackingService.newEvent(SITE_REORDER, "/site/" + site.getId(), false));
+
             } 
             catch (IdUnusedException e) {
                 // TODO Auto-generated catch block
@@ -291,6 +307,9 @@ public class SitePageEditHandler {
         site.setCustomPageOrdered(false);
         try {
             siteService.save(site);
+            EventTrackingService.post(
+                EventTrackingService.newEvent(SITE_RESET, "/site/" + site.getId(), false));
+
         } 
         catch (IdUnusedException e) {
             // TODO Auto-generated catch block
@@ -413,6 +432,9 @@ public class SitePageEditHandler {
      * @throws IdUnusedException, PermissionException
      */
     public boolean hidePage(String pageId) throws IdUnusedException, PermissionException {
+        EventTrackingService.post(
+            EventTrackingService.newEvent(PAGE_HIDE, "/site/" + site.getId() +
+                                         "/page/" + pageId, false));
         return  pageVisibilityHelper(pageId, false);
     }
     
@@ -424,7 +446,11 @@ public class SitePageEditHandler {
      * @return true for sucess, false for failuer
      * @throws IdUnusedException, PermissionException
      */
-    public boolean showPage(String pageId) throws IdUnusedException, PermissionException {        
+    public boolean showPage(String pageId) throws IdUnusedException, PermissionException {
+        EventTrackingService.post(
+            EventTrackingService.newEvent(PAGE_SHOW, "/site/" + site.getId() +
+                                         "/page/" + pageId, false));
+      
         return pageVisibilityHelper(pageId, true);
     }
     
@@ -494,8 +520,13 @@ public class SitePageEditHandler {
         try {
             page = site.addPage();
             page.setTitle(title);
-            page.addTool(toolId);        
+            ToolConfiguration placement = page.addTool(toolId);        
             siteService.save(site);
+            EventTrackingService.post(
+                EventTrackingService.newEvent(PAGE_ADD, "/site/" + site.getId() +
+                    "/page/" + page.getId() +
+                    "/tool/" + toolId +
+                    "/placement/" + placement.getId(), false));
         } 
         catch (IdUnusedException e) {
             e.printStackTrace();
@@ -509,6 +540,89 @@ public class SitePageEditHandler {
         
         return page;
     }
+    
+    /**
+     * Removes a page from the site
+     * 
+     * @param pageId
+     * @return title of page removed
+     * @throws IdUnusedException
+     * @throws PermissionException
+     */
+    public String removePage(String pageId)
+                            throws IdUnusedException, PermissionException {
+        SitePage page = site.getPage(pageId);
+        site.removePage(page);
+        saveSite(site);
+
+        EventTrackingService.post(
+            EventTrackingService.newEvent(PAGE_DELETE, "/site/" + site.getId() +
+                                          "/page/" + page.getId(), false));
+        
+        return page.getTitle();
+    }
+    
+    /**
+     * Sets the title of a page, and if there is only one tool on a page the title of that tool.
+     * Also optionally will alter the configuration of a tool
+     * 
+     * @param pageId
+     * @param newTitle
+     * @param newConfig
+     * @return the old title of the page
+     * @throws IdUnusedException
+     * @throws PermissionException
+     */
+    public String setTitle(String pageId, String newTitle)
+                          throws IdUnusedException, PermissionException {
+        SitePage page = site.getPage(pageId);
+        String oldTitle = page.getTitle();
+        page.setTitle(newTitle);
+
+        // TODO: Find a way to call each tool to ask what fields they need configured
+        // and what methods to use to validate the input..
+        if (page.getTools().size() == 1) {
+            ToolConfiguration tool = (ToolConfiguration) page.getTools().get(0);
+            tool.setTitle(newTitle);
+        }
+
+        saveSite(site);
+        
+        EventTrackingService.post(
+            EventTrackingService.newEvent(PAGE_RENAME, "/site/" + site.getId() +
+                                        "/page/" + page.getId() +
+                                        "/old_title/" + oldTitle +
+                                        "/new_title/" + page.getTitle(), false));
+        
+        
+        return oldTitle;
+    }
+
+    /**
+     * Sets the title of a page, and if there is only one tool on a page the title of that tool.
+     * Also optionally will alter the configuration of a tool
+     * 
+     * @param pageId
+     * @param config
+     * @param value
+     * @return the old title of the page
+     * @throws IdUnusedException
+     * @throws PermissionException
+     */
+    public void setConfig(String pageId, String config, String value)
+                          throws IdUnusedException, PermissionException {
+        SitePage page = site.getPage(pageId);
+
+        // TODO: Find a way to call each tool to ask what fields they need configured
+        // and what methods to use to validate the input..
+        if (page.getTools().size() == 1 && !"nil".equals(value)) {
+            ToolConfiguration tool = (ToolConfiguration) page.getTools().get(0);
+            tool.getPlacementConfig().setProperty(config, value);
+        }
+
+        saveSite(site);
+    }
+    
     
     /**
      * ** Copied from SiteAction.java.. should be in a common place such as util?
@@ -538,6 +652,6 @@ public class SitePageEditHandler {
             
         }    // compare
         
-    } //ToolComparator
-    
+    } //ToolComparator    
 }
+

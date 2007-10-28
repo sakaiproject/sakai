@@ -59,23 +59,8 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
             if (!"nil".equals(newTitle)) {
                 if (newTitle != null && !"".equals(newTitle)) {
                     try {
-                        Site site = handler.site;
-                        SitePage page = site.getPage(pageId);
-                        String oldTitle = page.getTitle();
-                        page.setTitle(newTitle);
-
-                        // TODO: Find a way to call each tool to ask what fields they need configured
-                        // and what methods to use to validate the input..
-                        if (page.getTools().size() == 1 && !"nil".equals(newConfig)) {
-                            ToolConfiguration tool = (ToolConfiguration) page.getTools().get(0);
-                            tool.setTitle(newTitle);
-                            if ("sakai.iframe".equals(tool.getToolId())) {
-                                tool.getPlacementConfig().setProperty("source", newConfig);
-
-                            }
-                        }
-
-                        handler.saveSite(site);
+                        String oldTitle = handler.setTitle(pageId, newTitle);
+                      
                         mode = UIBranchContainer.make(arg0, "mode-pass:");
                         UIOutput.make(mode, "page-title", newTitle);
                         UIOutput.make(mode, "message", oldTitle + " " + messageLocator
@@ -97,6 +82,23 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
                     mode = UIBranchContainer.make(arg0, "mode-failed:");
                     UIOutput.make(mode, "message", messageLocator
                         .getMessage("error_title_null"));
+                }
+            }
+            
+            if (newConfig != null && !"nil".equals(newConfig)) {
+                try {
+                    // TODO: Add ability to configure any arbitrary setting
+                    handler.setConfig(pageId, "source", newConfig);
+                }
+                catch (IdUnusedException e) {
+                    mode = UIBranchContainer.make(arg0, "mode-failed:");
+                    UIOutput.make(mode, "message", e.getLocalizedMessage());
+                    e.printStackTrace();
+                } 
+                catch (PermissionException e) {
+                    mode = UIBranchContainer.make(arg0, "mode-failed:");
+                    UIOutput.make(mode, "message", e.getLocalizedMessage());
+                    e.printStackTrace();
                 }
             }
 

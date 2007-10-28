@@ -56,11 +56,8 @@ public class PageDelProducer implements ViewComponentProducer, ViewParamsReporte
         }
         else {
             try {
-                Site site = handler.site;
-                SitePage page = site.getPage(pageId);
-                String title = page.getTitle();
-                site.removePage(page);
-                handler.saveSite(site);
+                String title = handler.removePage( pageId );
+
                 mode = UIBranchContainer.make(arg0, "mode-pass:");
                 UIOutput.make(mode, "pageId", pageId);
                 UIOutput.make(mode, "message", title + " " + messageLocator
