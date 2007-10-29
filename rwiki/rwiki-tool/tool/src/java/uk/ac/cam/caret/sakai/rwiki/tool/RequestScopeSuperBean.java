@@ -835,7 +835,7 @@ public class RequestScopeSuperBean
 		PreferencesBean pb = (PreferencesBean) map.get(key);
 		if (pb == null)
 		{
-			pb = PreferencesBeanHelper.createPreferencesBean(getCurrentUser(),
+			pb = PreferencesBeanHelper.createPreferencesBean(getCurrentUserId(),
 					getCurrentPageSpace(), preferenceService);
 			map.put(key, pb);
 		}
