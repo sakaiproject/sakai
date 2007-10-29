@@ -9473,7 +9473,7 @@ public class AssignmentAction extends PagedResourceActionII
 						User[] users = s.getSubmitters();
 						if (users.length > 0 && users[0] != null)
 						{
-							submissionTable.put(users[0].getSortName(), new UploadGradeWrapper("", "", "", new Vector(), new Vector(), "", ""));
+							submissionTable.put(users[0].getSortName(), new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), s.getSubmittedAttachments(), s.getFeedbackAttachments(), (s.getSubmitted() && s.getTimeSubmitted() != null)?s.getTimeSubmitted().toString():"", s.getFeedbackText()));
 						}
 					}
 				}
