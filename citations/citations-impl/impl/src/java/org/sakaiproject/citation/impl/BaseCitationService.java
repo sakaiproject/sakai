@@ -2367,6 +2367,13 @@ public abstract class BaseCitationService implements CitationService
 			{
 				if (size > 0)
 				{
+					// So that resizing the page at the start of a list (say 11-20)
+					// with a new size of 20... gives us 1-20 not 11-30
+					if (this.lastItem <= size)
+					{
+						this.firstItem = 0;
+					}
+					
 					this.lastItem = this.firstItem + size;
 					
 					if (this.lastItem >= this.listOfKeys.size())
