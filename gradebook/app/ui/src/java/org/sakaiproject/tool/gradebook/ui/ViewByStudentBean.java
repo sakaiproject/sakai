@@ -585,10 +585,15 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			}
     		}
 
+    		List nonCalItems = new ArrayList();
     		for(Iterator iter = gradebookItems.iterator(); iter.hasNext();) {
     			Object gradebookItem = iter.next();
     			if (gradebookItem instanceof AssignmentGradeRow) {
     				AssignmentGradeRow gr = (AssignmentGradeRow)gradebookItem;
+    				if(gr.getAssociatedAssignment().getUngraded())
+    				{
+    					nonCalItems.add(gradebookItem);
+    				}
     				if(gr.getAssociatedAssignment().isExternallyMaintained()) {
     					rowStyles.append("external");
     					anyExternallyMaintained = true;
@@ -600,6 +605,11 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			if(iter.hasNext()) {
     				rowStyles.append(",");
     			}
+    		}
+    		
+    		for(Iterator iter = nonCalItems.iterator(); iter.hasNext();)
+    		{
+    			gradebookItems.remove(iter.next());
     		}
     	}
     }

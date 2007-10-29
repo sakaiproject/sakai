@@ -435,7 +435,7 @@ public class Assignment extends GradableObject {
 		}
 
 
-		public boolean isUngraded()
+		public boolean getUngraded()
 		{
 			return ungraded;
 		}

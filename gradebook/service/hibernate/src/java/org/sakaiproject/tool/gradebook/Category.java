@@ -203,7 +203,7 @@ public class Category implements Serializable
     	Double score = assign.getAverageTotal();
 //    	if(assign.isReleased())
 //    	{
-    	if(assign.isCounted() && !assign.isUngraded() && assign.getPointsPossible().doubleValue() > 0.0)
+    	if(assign.isCounted() && !assign.getUngraded() && assign.getPointsPossible().doubleValue() > 0.0)
     	{
     		if (score == null) 
     		{
@@ -260,7 +260,7 @@ public class Category implements Serializable
     	{
     		Assignment assignment = gradeRecord.getAssignment();
 
-    		if (assignment.isCounted() && !assignment.isUngraded() && assignment.getPointsPossible().doubleValue() > 0.0) 
+    		if (assignment.isCounted() && !assignment.getUngraded() && assignment.getPointsPossible().doubleValue() > 0.0) 
     		{
     			Category assignCategory = assignment.getCategory();
     			if (assignCategory != null && assignCategory.getId().equals(id))

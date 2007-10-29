@@ -23,6 +23,7 @@
 					<f:selectItem itemValue="points" itemLabel="#{msgs.entry_opt_points}" />
 	        <f:selectItem itemValue="percent" itemLabel="#{msgs.entry_opt_percent}" /> 
 	        <f:selectItem itemValue="letterGrade" itemLabel="#{msgs.entry_opt_letters}" />
+ 	        <f:selectItem itemValue="nonGraded" itemLabel="#{msgs.entry_opt_non_calculated}" />
 				</h:selectOneRadio>
 			</div>
 			

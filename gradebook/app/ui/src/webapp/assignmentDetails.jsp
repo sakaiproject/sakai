@@ -208,38 +208,50 @@
 			<h:column>
 				<f:facet name="header">
 		      <t:commandSortHeader columnName="studentScore" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
-					  <h:outputText value="#{msgs.assignment_details_points}" rendered="#{assignmentDetailsBean.gradeEntryByPoints}"/>
-					  <h:outputText value="#{msgs.assignment_details_percent}" rendered="#{assignmentDetailsBean.gradeEntryByPercent}"/>
-					  <h:outputText value="#{msgs.assignment_details_letters}" rendered="#{assignmentDetailsBean.gradeEntryByLetter}" />
+					  <h:outputText value="#{msgs.assignment_details_points}" rendered="#{assignmentDetailsBean.gradeEntryByPoints && !assignmentDetailsBean.assignment.ungraded}"/>
+					  <h:outputText value="#{msgs.assignment_details_percent}" rendered="#{assignmentDetailsBean.gradeEntryByPercent && !assignmentDetailsBean.assignment.ungraded}"/>
+					  <h:outputText value="#{msgs.assignment_details_letters}" rendered="#{assignmentDetailsBean.gradeEntryByLetter && !assignmentDetailsBean.assignment.ungraded}"/>}" />
+					  <h:outputText value="#{msgs.assignment_details_points}" rendered="#{assignmentDetailsBean.assignment.ungraded}" />
 		      </t:commandSortHeader>
 				</f:facet>
 
 				<t:div>
 					<h:panelGroup rendered="#{!assignmentDetailsBean.assignment.externallyMaintained && scoreRow.userCanGrade}">
 						<h:inputText id="Score" value="#{scoreRow.score}" size="6" 
-							 rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"
+							 rendered="#{(assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent) && !assignmentDetailsBean.assignment.ungraded}"
 							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 							<f:validateDoubleRange minimum="0"/>
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 						</h:inputText>
 						<h:inputText id="LetterScore" value="#{scoreRow.letterScore}" size="6" 
-							 rendered="#{assignmentDetailsBean.gradeEntryByLetter}"
+							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && !assignmentDetailsBean.assignment.ungraded}"
 							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.LETTER_GRADE_CONVERTER" />
 						</h:inputText>
 						
+						<h:inputText id="NonCalculatedScore" value="#{scoreRow.nonCaculateGrade}" size="6" 
+							 rendered="#{assignmentDetailsBean.assignment.ungraded}"
+							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+						</h:inputText>
 					</h:panelGroup>
+					
 					<h:panelGroup rendered="#{assignmentDetailsBean.assignment.externallyMaintained || !scoreRow.userCanGrade}">
-						<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}">
+						<h:outputText value="#{scoreRow.score}" rendered="#{(assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent) && !assignmentDetailsBean.assignment.ungraded}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 						</h:outputText>
 						<h:outputText value="#{scoreRow.letterScore}" 
-							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && scoreRow.letterScore != null}">
+							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && scoreRow.letterScore != null && !assignmentDetailsBean.assignment.ungraded}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.LETTER_GRADE_CONVERTER" />
 						</h:outputText>
 						<h:outputText value="#{msgs.score_null_placeholder}" 
-							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && scoreRow.letterScore == null}" />
+							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && scoreRow.letterScore == null && !assignmentDetailsBean.assignment.ungraded}" />
+							 
+ 						<h:outputText value="#{scoreRow.nonCaculateGrade}" 
+							 rendered="#{scoreRow.nonCaculateGrade != null && assignmentDetailsBean.assignment.ungraded}">
+						</h:outputText>
+						<h:outputText value="#{msgs.score_null_placeholder}" 
+							 rendered="#{scoreRow.nonCaculateGrade == null && !assignmentDetailsBean.assignment.ungraded}" />
 					</h:panelGroup>
 				</t:div>
 			</h:column>

@@ -634,9 +634,10 @@ public interface GradebookManager {
      * @param dueDate The due date for the assignment (optional)
      * @param isNotCounted True if the assignment should not count towards the final course grade (optional)
      * @param isReleased  True if the assignment should be release/ or visble to students
+     * @param points The number of points possible for this assignment (must not be null)
      * @return The ID of the new assignment
      */
-    public Long createUngradedAssignment(Long gradebookId, String name, Date dueDate, Boolean isNotCounted, Boolean isReleased)
+    public Long createUngradedAssignment(Long gradebookId, String name, Date dueDate, Boolean isNotCounted, Boolean isReleased, Double points)
     	throws ConflictingAssignmentNameException, StaleObjectModificationException;
 
     /**
@@ -649,10 +650,11 @@ public interface GradebookManager {
      * @param dueDate The due date for the assignment (optional)
      * @param isNotCounted True if the assignment should not count towards the final course grade (optional)
      * @param isReleased  True if the assignment should be release/ or visble to students
+     * @param points The number of points possible for this assignment (must not be null)
      * @return The ID of the new assignment
      * @throws ConflictingAssignmentNameException StaleObjectModificationException IllegalArgumentException
      */
-    public Long createUngradedAssignmentForCategory(Long gradebookId, Long categoryId, String name, Date dueDate, Boolean isNotCounted, Boolean isReleased)
+    public Long createUngradedAssignmentForCategory(Long gradebookId, Long categoryId, String name, Date dueDate, Boolean isNotCounted, Boolean isReleased, Double points)
     	throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException;
     
     /**

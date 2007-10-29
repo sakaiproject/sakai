@@ -94,10 +94,16 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		try {
 			Category selectedCategory = retrieveSelectedCategory();
 			if (selectedCategory != null) {
-				getGradebookManager().createAssignmentForCategory(getGradebookId(), selectedCategory.getId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
+				if(!assignment.getUngraded())
+					getGradebookManager().createAssignmentForCategory(getGradebookId(), selectedCategory.getId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
+				else
+					getGradebookManager().createUngradedAssignmentForCategory(getGradebookId(), selectedCategory.getId(), assignment.getName(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()), assignment.getPointsPossible());
 			}
 			else {
-				getGradebookManager().createAssignment(getGradebookId(),  assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
+				if(!assignment.getUngraded())
+					getGradebookManager().createAssignment(getGradebookId(),  assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
+				else
+					getGradebookManager().createUngradedAssignment(getGradebookId(), assignment.getName(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()), new Boolean(assignment.isReleased()), assignment.getPointsPossible());
 			}
             getGradebookBean().getEventTrackingService().postEvent("gradebook.newItem","/gradebook/"+getGradebookId()+"/"+assignment.getName());
             FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", new String[] {assignment.getName()}));

@@ -860,14 +860,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   		for(Iterator iter = assigns.iterator(); iter.hasNext();)
   		{
   			Assignment assignment = (Assignment)iter.next();
-  			if(assignment.isCounted() && !assignment.isUngraded())
+  			if(assignment.isCounted() && !assignment.getUngraded())
   				filteredAssigns.add(assignment);
   		}
   		List filteredRecords = new ArrayList();
   		for(Iterator iter = records.iterator(); iter.hasNext();)
   		{
   			AssignmentGradeRecord agr = (AssignmentGradeRecord)iter.next();
-  			if(!agr.isCourseGradeRecord() && agr.getAssignment().isCounted() && !agr.getAssignment().isUngraded())
+  			if(!agr.isCourseGradeRecord() && agr.getAssignment().isCounted() && !agr.getAssignment().getUngraded())
   			{
   				if(agr.getPointsEarned() == null)
   					return true;
@@ -888,7 +888,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     	for (Iterator iter = assigns.iterator(); iter.hasNext(); )
     	{
     		Assignment assign = (Assignment) iter.next();
-    		if(assign != null && assign.isCounted() && !assign.isUngraded())
+    		if(assign != null && assign.isCounted() && !assign.getUngraded())
     		{
     			if(assign.getCategory() != null && !assign.getCategory().isRemoved())
     			{

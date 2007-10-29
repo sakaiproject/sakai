@@ -64,6 +64,14 @@
 	
 </h:panelGrid>
 
+<h:panelGrid columns="2" columnClasses="prefixedCheckbox" rendered="#{bean.localGradebook.grade_type != 4}" >
+  <h:selectBooleanCheckbox id="non_calculated" value="#{bean.assignment.ungraded}" />
+	<h:outputLabel for="non_calculated" value="#{msgs.add_assignment_non_calculated1}" />
+	
+	<h:outputText value=""/>
+	<h:outputText value="#{msgs.add_assignment_non_calculated2}"/>
+</h:panelGrid>
+
 <%/*
 	This would be positioned directly under the Point Value entry if
 	only JSF supported "colspan"....

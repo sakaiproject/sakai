@@ -146,7 +146,22 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 			}
 		}
 
-        public EnrollmentRecord getEnrollment() {
+		public String getNonCaculateGrade() {
+			return gradeRecord.getNonCaculateGrade();
+		}
+		
+		public void setNonCaculateGrade(String nonCaculateGrade) {
+			if (nonCaculateGrade != null)
+				nonCaculateGrade = nonCaculateGrade.trim();
+			String original = gradeRecord.getNonCaculateGrade();
+			if ((original != null && !original.equals(nonCaculateGrade)) ||
+					(original == null && nonCaculateGrade != null)) {
+				gradeRecord.setNonCaculateGrade(nonCaculateGrade);
+				updatedGradeRecords.add(gradeRecord);
+			}
+		}
+
+		public EnrollmentRecord getEnrollment() {
             return enrollment;
         }
 
