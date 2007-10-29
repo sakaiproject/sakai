@@ -386,35 +386,38 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	
     	assignments = new ArrayList(asnMap.keySet());
 
-    	for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
-    		AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
+    	if(gradeRecords != null)
+    	{
+    		for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
+    			AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
 
-    		// Update the AssignmentGradeRow in the map
-    		AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
-    		if (asnGradeRow != null) {
-    			Assignment asnGrAssignment = asnGr.getAssignment();
-    			
-    			// if weighted gb and no category for assignment,
-    			// it is not counted toward course grade
-    			boolean counted = asnGrAssignment.isCounted();
-    			if (counted && getWeightingEnabled()) {
-    				Category assignCategory = asnGrAssignment.getCategory();
-    				if (assignCategory == null)
-    					counted = false;
+    			// Update the AssignmentGradeRow in the map
+    			AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
+    			if (asnGradeRow != null) {
+    				Assignment asnGrAssignment = asnGr.getAssignment();
+
+    				// if weighted gb and no category for assignment,
+    				// it is not counted toward course grade
+    				boolean counted = asnGrAssignment.isCounted();
+    				if (counted && getWeightingEnabled()) {
+    					Category assignCategory = asnGrAssignment.getCategory();
+    					if (assignCategory == null)
+    						counted = false;
+    				}
+
+    				asnGradeRow.setGradeRecord(asnGr);
+
+    				if (asnGr != null) {
+    					if (getGradeEntryByPercent())
+    						asnGradeRow.setScore(truncateScore(asnGr.getPercentEarned()));
+    					else if(getGradeEntryByPoints())
+    						asnGradeRow.setScore(truncateScore(asnGr.getPointsEarned())); 
+    					else if (getGradeEntryByLetter())
+    						asnGradeRow.setLetterScore(asnGr.getLetterEarned());
+    				}
     			}
-    			
-    			asnGradeRow.setGradeRecord(asnGr);
-    			
-    			if (asnGr != null) {
-    				if (getGradeEntryByPercent())
-    					asnGradeRow.setScore(truncateScore(asnGr.getPercentEarned()));
-    				else if(getGradeEntryByPoints())
-    					asnGradeRow.setScore(truncateScore(asnGr.getPointsEarned())); 
-    				else if (getGradeEntryByLetter())
-    					asnGradeRow.setLetterScore(asnGr.getLetterEarned());
-    			}
+
     		}
-    		
     	}
 
     	Map goEventListMap = getGradebookManager().getGradingEventsForStudent(studentUid, assignments);

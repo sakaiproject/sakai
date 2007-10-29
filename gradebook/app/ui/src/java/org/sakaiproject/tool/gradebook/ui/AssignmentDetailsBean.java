@@ -331,12 +331,15 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 getGradebookManager().convertGradingEventsConverted(assignment, allEvents, studentUids, getGradebook().getGrade_type());
                 
                 Map gradeRecordMap = new HashMap();
+                if(gradeRecords != null)
+                {
                 for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
 					AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)iter.next();
 					if (studentUids.contains(gradeRecord.getStudentId())) {
 						gradeRecordMap.put(gradeRecord.getStudentId(), gradeRecord);
 					}
 				}
+                }
 
                 // If the table is not being sorted by enrollment information, then
                 // we had to gather grade records for all students to set up the
@@ -363,6 +366,8 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 					AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)gradeRecordMap.get(studentUid);
 		            if(gradeRecord == null) {
 		                gradeRecord = new AssignmentGradeRecord(assignment, studentUid, null);
+		                if(gradeRecords  == null)
+		                	gradeRecords = new ArrayList();
 		                gradeRecords.add(gradeRecord);
 		            }
 

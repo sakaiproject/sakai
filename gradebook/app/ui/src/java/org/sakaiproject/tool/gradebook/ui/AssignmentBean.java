@@ -94,13 +94,13 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		try {
 			Category selectedCategory = retrieveSelectedCategory();
 			if (selectedCategory != null) {
-				if(!assignment.getUngraded())
+				if(!assignment.getUngraded() && getLocalGradebook().getGrade_type() != GradebookService.GRADE_TYPE_NO_CALCULATED)
 					getGradebookManager().createAssignmentForCategory(getGradebookId(), selectedCategory.getId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
 				else
 					getGradebookManager().createUngradedAssignmentForCategory(getGradebookId(), selectedCategory.getId(), assignment.getName(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()), assignment.getPointsPossible());
 			}
 			else {
-				if(!assignment.getUngraded())
+				if(!assignment.getUngraded() && getLocalGradebook().getGrade_type() != GradebookService.GRADE_TYPE_NO_CALCULATED)
 					getGradebookManager().createAssignment(getGradebookId(),  assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
 				else
 					getGradebookManager().createUngradedAssignment(getGradebookId(), assignment.getName(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()), new Boolean(assignment.isReleased()), assignment.getPointsPossible());
