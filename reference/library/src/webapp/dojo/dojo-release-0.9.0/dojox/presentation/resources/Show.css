@@ -1,0 +1,110 @@
+@media screen {
+	html, body {
+			margin: 0px;
+			padding: 0px;
+		}
+		
+		h1.showTitle {
+			margin:0; 
+			margin-left:0; 
+			padding:0; 
+			font-size: 60px;
+			background:transparent; 
+			border-bottom:1px solid #000; 
+		}
+
+		p, li {
+			font-size: 17pt;
+		}
+
+		.dojoShowNav {
+			border-top:1px solid #ccc; 
+			background: #ededed;
+			overflow: hidden;
+			position: absolute;
+			bottom: 0px;
+			left: 0px;
+			width: 100%;
+			text-align: center;
+			z-index:420; 
+			padding:0; 
+			margin-bttom:5px; height:34px; 
+		}
+
+		.dojoShowNav img { cursor:pointer; } 
+		
+		.dojoShowSlide {
+			/* width:100%; height:100%; */
+		}
+
+		.dojoShowNav option { font:6pt; color:#333; }
+		.dojoShowNav select {
+			margin: 0px;
+			color: #999; 
+			margin-top: 5px; 
+			padding: 2px; 
+			border: 1px solid #ccc; 
+			-moz-border-radius:6pt 6pt; 
+		}
+
+		.dojoShowHider {
+			height: 5px;
+			overflow: hidden;
+			width: 100%;
+			z-index:421; 
+		}
+		.dojoShowPrint {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+			width:100%;
+		}
+
+		.dojoShowBody {
+			background:#fff url('../../../dijit/themes/tundra/images/testBodyBg.gif') repeat-x top left; 
+			padding:10px; 
+		}
+
+		.dojoShow {
+			width:100%; height:100%; 
+			overflow:hidden;
+		}
+}
+
+@media print {
+	.dojoShow {
+		display: none !important;
+	}
+	.dojoShowPrint {
+		display: block !important;
+	}
+	.dojoShowPrintSlide {
+		border: 1px solid #aaa;
+		padding: 10px;
+		margin-bottom: 15px;
+	}
+	.dojoShowPrintSlide, ul {
+	page-break-inside: avoid;
+	}
+	h1 {
+		margin-top: 0;
+		page-break-after: avoid;
+	}
+}
+
+.dojoShowSlideTitle {
+	height: 100px;
+	width:100%;
+	display:block;
+	background-color: #ededed; 
+	border-bottom:1px solid #666; 
+}
+.dojoShowSlideTitle h1 {
+	margin-top: 0;
+	/* line-height: 100px;
+	margin-left: 30px; */
+}
+.dojoShowSlideBody {
+	margin: 15px;
+	background:#fff url('../../../dijit/themes/tundra/images/testBodyBg.gif') repeat-x top left; 
+}

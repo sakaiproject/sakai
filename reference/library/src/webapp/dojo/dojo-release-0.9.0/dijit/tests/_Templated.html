@@ -1,0 +1,149 @@
+<html>
+	<head>
+		<title>_Templated tests</title>
+		<script type="text/javascript" src="../../dojo/dojo.js" 
+			djConfig="parseOnLoad: true, isDebug: true"></script>
+		<script type="text/javascript">
+			dojo.require("doh.runner");
+
+			dojo.require("dijit._Widget");
+			dojo.require("dijit._Templated");
+
+			function getOuterHTML(/*DomNode*/ node){
+				var wrapper = dojo.doc.createElement("div");
+				wrapper.appendChild(node);
+				return wrapper.innerHTML.toLowerCase();		// IE prints <BUTTON> rather than <button>; normalize it.
+			}
+
+			dojo.addOnLoad(function(){
+				// Template with no variables (should be cached as a DOM tree)
+				dojo.declare("SimpleTemplate", [dijit._Widget, dijit._Templated], {
+					id: "bar",
+					templateString: "<button><span>hello &gt; world</span></button>"
+				});
+				
+				// Template with variables
+				dojo.declare("VariableTemplate", [dijit._Widget, dijit._Templated], {
+					id: "foo",
+					num: 5,
+					text: "hello ><\"' world",
+					
+					templateString: "<button><span num=\"${num}\">${text}</span></button>"
+				});
+				
+				// Template that starts with special node (has to be constructed inside a <tbody>)
+				dojo.declare("TableRowTemplate", [dijit._Widget, dijit._Templated], {
+					id: "foo",
+					text: "bar",
+					templateString: "<tr><td>${text}</td></tr>"
+				});
+				
+				// Illegal subsitition variable name
+				dojo.declare("IllegalSubstitution", [dijit._Widget, dijit._Templated], {
+					templateString: "<tr><td>${fake}</td></tr>"
+				});
+
+				// dojoAttachPoint
+				dojo.declare("AttachPoint", [dijit._Widget, dijit._Templated], {
+					templateString: "<div style='border: 1px solid red'>" +
+										"<button dojoAttachPoint='buttonNode,focusNode'>hi</button>" +
+										'<span><input dojoAttachPoint="inputNode" value="input"></span>' +
+										"<span dojoAttachPoint='containerNode'></span>" +
+									"</div>"
+				});
+
+				// dojoAttachEvent
+				dojo.declare("AttachEvent", [dijit._Widget, dijit._Templated], {
+					click: function(){ this.clickCalled=true; },
+					onfocus: function(){ this.focusCalled=true; },
+					focus2: function(){ this.focus2Called=true; },
+					templateString: "<table style='border: 1px solid blue'><tr>" +
+										"<td><button dojoAttachPoint='left' dojoAttachEvent='onclick: click, onfocus'>left</button></td>" +
+										"<td><button dojoAttachPoint='right' dojoAttachEvent='onclick: click, onfocus: focus2'>right</button></td>" +
+									"</tr></table>"
+				});
+
+				// TODO:
+				// TemplatePath
+
+				var testW;
+				doh.register("dijit.tests._Templated.html",
+					[
+						function simple(t){
+							var widget=new SimpleTemplate();
+							var wrapper=dojo.byId("simpleWrapper");
+							wrapper.appendChild(widget.domNode);
+							t.is('<button widgetid=\"bar\"><span>hello &gt; world</span></button>', wrapper.innerHTML.toLowerCase());			
+						},
+						function variables(t){
+							var widget=new VariableTemplate();
+							var wrapper=dojo.byId("variables1Wrapper");
+							wrapper.appendChild(widget.domNode);
+							t.is('<button widgetid=\"foo\"><span num="5">hello &gt;&lt;"\' world</span></button>', wrapper.innerHTML.toLowerCase());
+						},
+						
+						function variables2(t){	
+							var widget = new VariableTemplate({id: "myid", num: -5, text: ""});
+							var wrapper=dojo.byId("variables2Wrapper");
+							wrapper.appendChild(widget.domNode);
+							t.is('<button widgetid=\"myid\"><span num="-5"></span></button>', wrapper.innerHTML.toLowerCase());
+						},
+						function table(t){
+							var widget=new TableRowTemplate({text: "hello"});
+							var wrapper = dojo.byId("trWrapper");
+							wrapper.appendChild(widget.domNode);
+							var actual = wrapper.innerHTML.toLowerCase().replace(/\r/g, "").replace(/\n/g, "");
+							t.is('<tr widgetid="foo"><td>hello</td></tr>', actual);
+						},
+						function illegal(t){
+							var hadException=false;
+							try{
+								var widget=new IllegalSubstitution();
+							}catch(e){
+								console.log(e);
+								hadException=true;
+							}
+							t.t(hadException);
+						},
+						function attachPoint(t){
+							var widget=new AttachPoint();
+							var wrapper = dojo.byId("attachPointWrapper");
+							wrapper.appendChild(widget.domNode);
+							t.is(widget.containerNode.tagName.toLowerCase(), "span");
+							t.is(widget.buttonNode.tagName.toLowerCase(), "button");
+							t.is(widget.focusNode.tagName.toLowerCase(), "button");
+							t.is(widget.inputNode.tagName.toLowerCase(), "input");
+						},
+						function attachEvent(t){
+							var deferred = new doh.Deferred();
+							var widget=new AttachEvent();
+							var wrapper = dojo.byId("attachEventWrapper");
+							wrapper.appendChild(widget.domNode);
+							widget.left.focus();
+							widget.right.focus();
+							setTimeout(function(){
+								t.t(widget.focusCalled);
+								t.t(widget.focus2Called);
+								deferred.callback(true);
+							}, 0);
+							return deferred;
+						}
+					]
+				);
+				doh.run();
+			});
+		</script>
+	<style type="text/css">
+		@import "../themes/tundra/tundra.css";
+	</style>
+	</head>
+	<body>
+		<h1>_Templated test</h1>
+		<div id="simpleWrapper"></div>
+		<div id="variables1Wrapper"></div>
+		<div id="variables2Wrapper"></div>
+		<table><tbody id="trWrapper"></tbody></table>
+		<div id="attachPointWrapper"></div>
+		<div id="attachEventWrapper"></div>
+	</body>
+</html>

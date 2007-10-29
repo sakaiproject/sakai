@@ -1,0 +1,265 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>Dojo Button Widget Test</title>
+
+		<script type="text/javascript" src="../testBidi.js"></script>
+
+		<script type="text/javascript" src="../../../dojo/dojo.js"
+			djConfig="isDebug: true, parseOnLoad: true"></script>
+		<script type="text/javascript">
+			dojo.require("dijit.ColorPalette");
+			dojo.require("dijit.Menu");
+			dojo.require("dijit.Tooltip");
+			dojo.require("dijit.form.Button");
+			dojo.require("dojo.parser");
+			logMessage = console.debug;
+
+			// being fancy theme-swithcing code
+			var match = (window.location.search+"&").match(/theme=(.*?)&/);
+			var theme = (match ? match[1] : "tundra");
+			var t="../../themes/" + theme +"/"+ theme;
+			document.write('<link rel="stylesheet" type="text/css" href="'+t+'.css"/>');
+			document.write('<link rel="stylesheet" type="text/css" href="'+t+'_rtl.css"/>');
+			// end fancy themeswitching code
+		</script>
+		<style type="text/css">
+			@import "../../../dojo/resources/dojo.css";
+			@import "../css/dijitTests.css";
+
+			/* group multiple buttons in a row */
+			.box {
+				display: block;
+				text-align: center;
+			}
+			.box .dojoButton {
+				margin-right: 10px;
+			}
+			.dojoButtonContents {
+				font-size: 1.6em;
+			}
+
+			/* todo: find good color for disabled menuitems, and teset */
+			.dojoMenuItem2Disabled .dojoMenuItem2Label span,
+			.dojoMenuItem2Disabled .dojoMenuItem2Accel span {
+				color: ThreeDShadow;
+			}
+
+			.dojoMenuItem2Disabled .dojoMenuItem2Label span span,
+			.dojoMenuItem2Disabled .dojoMenuItem2Accel span span {
+				color: ThreeDHighlight;
+			}
+		</style>
+	</head>
+	<body>
+	<script language='javascript'>
+		document.getElementsByTagName("BODY")[0].className = theme;
+	</script>
+		<h1 class="testTitle">Dijit Button Test</h1>
+		<h2>Simple, drop down &amp; combo buttons</h2>
+		<p>
+		Buttons can do an action, display a menu, or both:
+		</p>
+		<div class="box">
+			<button id="1465" dojoType="dijit.form.Button" onClick='logMessage("clicked simple")' iconClass="plusIcon">
+				Create
+			</button>
+			<span dojoType="dijit.Tooltip" connectId="1465">tooltip on button</span>
+			<div dojoType="dijit.form.DropDownButton" iconClass="noteIcon">
+				<span>Edit<b>!</b></span>
+				<div dojoType="dijit.Menu">
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIcon dijitEditorIconCut"
+						onClick="logMessage('not actually cutting anything, just a test!')">Cut</div>
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIcon dijitEditorIconCopy"
+						onClick="logMessage('not actually copying anything, just a test!')">Copy</div>
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIcon dijitEditorIconPaste"
+						onClick="logMessage('not actually pasting anything, just a test!')">Paste</div>
+				</div>
+			</div>
+			<div dojoType="dijit.form.DropDownButton" iconClass="noteIcon">
+				<span>Color</span>
+				<div dojoType="dijit.ColorPalette" id="colorPalette" style="display: none" palette="3x4"
+					onChange="console.log(this.value);"></div>
+			</div>
+			<div dojoType="dijit.form.ComboButton" optionsTitle='save options' onClick='logMessage("clicked combo save")'
+					iconClass="plusBlockIcon">
+				<span>Save</span>
+				<div dojoType="dijit.Menu" id="saveMenu" style="display: none;">
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIcon dijitEditorIconSave"
+						onClick="logMessage('not actually saving anything, just a test!')">Save</div>
+					<div dojoType="dijit.MenuItem"
+						onClick="logMessage('not actually saving anything, just a test!')">Save As</div>
+				</div>
+			</div>
+			<button dojoType="dijit.form.Button" onClick='logMessage("clicked simple")' disabled='true' iconClass="plusIcon">
+				Disabled
+			</button>
+		</div>
+		<br clear=both>
+		<h2>Buttons with no text label</h2>
+			<p>Buttons have showLabel=false so text is not displayed.  Should have title attribute displayed on mouse over</p>
+		<div class="box">
+			<button id="1466" dojoType="dijit.form.Button" onClick='logMessage("clicked simple button with no text label")' 
+			iconClass="plusIcon" showLabel="false">
+			<span><b>Rich</b><i> Text</i> Test!</span>
+			</button>
+					<div dojoType="dijit.form.DropDownButton" iconClass="noteIcon" showLabel="false">
+				<span>Color</span>
+				<div dojoType="dijit.ColorPalette" id="colorPalette2" style="display: none" palette="3x4"
+					onChange="console.log(this.value);">
+				</div>
+		</div>
+		<div dojoType="dijit.form.ComboButton" optionsTitle='save options' onClick='logMessage("clicked combo save")'
+					iconClass="plusBlockIcon" showLabel="false">
+				<span>Save</span>
+				<div dojoType="dijit.Menu" id="saveMenu2" style="display: none;">
+					<div dojoType="dijit.MenuItem"  iconClass="dijitEditorIcon dijitEditorIconSave"
+						onClick="logMessage('not actually saving anything, just a test!')">Save</div>
+					<div dojoType="dijit.MenuItem"
+						onClick="logMessage('not actually saving anything, just a test!')">Save As</div>
+				</div>
+			</div>	
+		</div>
+		<br clear=both>	
+		<h2>Toggle buttons</h2>
+		<p>The button CSS as well as the icon CSS can change on toggle </p>
+		<div class="box">
+			<button dojoType="dijit.form.ToggleButton" onChange="console.log('toggled button checked='+arguments[0]);" iconClass="dijitCheckBoxIcon">
+				Toggle me
+			</button>
+			<button dojoType="dijit.form.ToggleButton" onChange="console.log('toggled button checked='+arguments[0]);" iconClass="dijitRadioIcon">
+				Toggle me
+			</button>
+		</div>
+		<br clear=both>
+
+		<h2>Sizing</h2>
+		<p>Short button, tall buttons, big buttons, small buttons...
+		These buttons size to their content (just like &lt;button&gt;).</p>
+		<div class="box">
+			<button dojoType="dijit.form.Button" onclick='logMessage("big");' iconClass="flatScreenIcon">
+				<span style="font-size:xx-large">big</span>
+			</button>
+			<button id="smallButton1" dojoType="dijit.form.Button" onclick='logMessage("small");'>
+				<img src="../images/arrowSmall.gif" width="15" height="5">
+				<span style="font-size:x-small">small</span>
+			</button>
+			<button dojoType="dijit.form.Button" onclick='logMessage("long");'>
+				<img src="../images/tube.gif" width="150" height="16">
+				long
+			</button>
+			<button dojoType="dijit.form.Button" onclick='logMessage("tall");' width2height="0.1">
+				<img src="../images/tubeTall.gif" height="75" width="35"><br>
+				<span style="font-size:medium">tall</span>
+			</button>
+			<div style="clear: both;"></div>
+		</div>
+		<br clear=both>
+
+		<h2>Customized buttons</h2>
+		<p>Dojo users can mix in their styles.
+		Here's an example:</p>
+		<style>
+			.dc {
+				font-size: x-large !important;
+				padding-top: 10px !important;
+				padding-bottom: 10px !important;
+			}
+
+			.Acme *,
+			.Acme {
+					background: rgb(96,96,96) !important;
+					color: white !important;
+				padding: 10px !important;
+			}
+
+			.Acme:hover *,
+			.Acme:hover {
+					background-color: rgb(89,94,111) !important;
+					color: cyan !important;
+			}
+
+			.Acme:active *,
+			.Acme:active {
+					background-color: white !important;
+					color: black !important;
+			}
+		</style>
+		<div class="box">
+			<button dojoType="dijit.form.Button" class="Acme" onclick='logMessage("short");'>
+				<div class="dc">short</div>
+			</button>
+			<button dojoType="dijit.form.Button" class="Acme" onclick='logMessage("longer");'>
+				<div class="dc">bit longer</div>
+			</button>
+			<button dojoType="dijit.form.Button" class="Acme" onclick='logMessage("longer yet");'>
+				<div class="dc">ridiculously long</div>
+			</button>
+			<div style="clear: both;"></div>
+		</div>
+
+		<h2>Toggling the display test</h2>
+		<p>
+		(Ticket <a href="http://trac.dojotoolkit.org/ticket/403">#403</a>)
+		</p>
+		<div class="box">
+			<button dojoType="dijit.form.Button" onclick='dojo.byId("hiddenNode").style.display="inline";'>
+				Show Hidden Buttons
+			</button>
+		</div>
+		<div class="box" style="display:none;" id="hiddenNode">
+			<button dojoType="dijit.form.Button" onclick='logMessage("clicked simple")' iconClass="plusIcon">
+				Create
+			</button>
+			<button dojoType="dijit.form.Button" onclick='logMessage("clicked simple")' iconClass="plusIcon">
+				Create
+			</button>
+		</div>
+		<div style="clear: both;"></div>
+
+		<h2>Programatically changing buttons</h2>
+		<p>clicking the buttons below will change the buttons above</p>
+		<script type="text/javascript">
+			// FIXME: doesn't the manager have a function for filtering by type?
+			function forEachButton(func){
+				dijit.registry.filter(function(widget){ return widget instanceof dijit.form.Button; }).forEach(func);
+			}
+
+			var disabled=false;
+			function toggleDisabled(){	
+				disabled=!disabled;
+				forEachButton(function(widget){ widget.setDisabled(disabled); });
+				dojo.byId("toggle").innerHTML= disabled ? "Enable all" : "Disable all";
+			}
+			var labels=["<img src='../images/note.gif' width='20' height='20'>All", "<i>work</i>", "and no", "<h1>play</h1>",
+						 "<span style='color: red'>makes</span>", "Jack", "<h3>a</h3>", "dull",
+						 "<img src='../images/plus.gif' width='16' height='16'>boy"];
+			var idx=0;
+			function changeLabels(){
+				forEachButton(function(widget){
+					widget.setLabel( labels[idx++ % labels.length]);
+				});
+			}
+		</script>
+		<div>
+			<button id="toggle" onclick='toggleDisabled()'>Disable all</button>
+			<button onclick='changeLabels()'>Change labels</button>
+			<button onclick='location.reload()'>Revert</button>
+		</div>
+
+		<h3>Button instantiated via javacript:</h3>
+		<div id="buttonContainer"></div>
+		<script type="text/javascript">
+		// See if we can make a widget in script and attach it to the DOM ourselves.
+		dojo.addOnLoad(function(){
+			var params = {
+				label: "hello!",
+				name: "programmatic"
+			};
+			var widget = new dijit.form.Button(params, document.getElementById("buttonContainer"));
+		});
+	</script>
+
+</body>
+</html>

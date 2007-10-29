@@ -1,0 +1,3 @@
+({
+	buttonCancel: "Abbrechen"
+})

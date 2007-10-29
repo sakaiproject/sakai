@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+	<title>Dojo Toolbar Widget Test</title>
+
+	<script type="text/javascript" src="testBidi.js"></script>
+
+	<script type="text/javascript" src="../../dojo/dojo.js" 
+		djConfig="parseOnLoad: true, isDebug: true"></script>
+	<script type="text/javascript">
+		dojo.require("dijit.form.Button");
+		dojo.require("dijit.ColorPalette");
+		dojo.require("dijit.Dialog");
+		dojo.require("dijit.Toolbar");
+		dojo.require("dijit.form.Button");
+		dojo.require("dijit.form.TextBox");
+		dojo.require("dojo.parser");	// find widgets
+	</script>
+
+	<!-- programatic creation -->
+	<script>
+		function init(){
+			dojo.forEach(["toolbar2", "toolbar3", "toolbar4"], function(toolbarId){
+				var toolbar = new dijit.Toolbar({}, dojo.byId(toolbarId));
+				dojo.forEach(["Cut", "Copy", "Paste"], function(label){
+					var button = new dijit.form.Button({id: toolbarId+"."+label, label: label, iconClass: "dijitEditorIcon dijitEditorIcon"+label, showLabel: (toolbarId == "toolbar2" ? false : true)});
+					toolbar.addChild(button);
+				});
+			});
+		}
+
+		dojo.addOnLoad(init);
+	</script>
+
+	<style type="text/css">
+		@import "../../dojo/resources/dojo.css";
+		@import "../themes/tundra/tundra.css";
+		@import "../themes/tundra/tundra_rtl.css";
+		@import "css/dijitTests.css";
+		
+		.dijitToolbar .dijitButton, .dijitToolbar .dijitDropDownButton { margin: 0px; }
+		.dijitToolbar .dijitToggleButtonSelected BUTTON, .dijitToolbar .dijitToggleButtonSelectedHover BUTTON { border-width: 3px; }
+	</style>
+
+	<!--    To turn off display of text use showLabel=false attribute on button
+			to turn off display or icon, add your own classes and/or CSS rules -->
+	<style>
+			
+		.tundra .toolbarWithNoImages .dijitButtonContents .dijitInline,
+		.tundra .toolbarWithNoImages .dijitButtonContents .dijitInline {
+			display: none;
+		}
+	</style>
+
+</head>
+<body class="tundra">
+	<h1 class="testTitle">Toolbar test</h1>
+
+    <h2>Toolbar from markup</h2>
+
+    <div id="toolbar1" dojoType="dijit.Toolbar"
+            ><div dojoType="dijit.form.Button" id="toolbar1.cut" iconClass="dijitEditorIcon dijitEditorIconCut" showLabel="false">Cut</div
+            ><div dojoType="dijit.form.Button" id="toolbar1.copy" iconClass="dijitEditorIcon dijitEditorIconCopy" showLabel="false">Copy</div
+            ><div dojoType="dijit.form.Button" id="toolbar1.paste" iconClass="dijitEditorIcon dijitEditorIconPaste" showLabel="false">Paste</div
+
+            ><span dojoType="dijit.ToolbarSeparator"></span
+
+            ><div dojoType="dijit.form.ToggleButton" id="toolbar1.bold" iconClass="dijitEditorIcon dijitEditorIconBold" showLabel="false">Bold</div
+            ><div dojoType="dijit.form.ToggleButton" id="toolbar1.italic" iconClass="dijitEditorIcon dijitEditorIconItalic" showLabel="false">Italic</div
+            ><div dojoType="dijit.form.ToggleButton" id="toolbar1.underline" iconClass="dijitEditorIcon dijitEditorIconUnderline" showLabel="false">Underline</div
+            ><div dojoType="dijit.form.ToggleButton" id="toolbar1.strikethrough" iconClass="dijitEditorIcon dijitEditorIconStrikethrough" showLabel="false">Strikethrough</div
+
+><!--
+            <span dojoType="dijit.ToolbarSeparator">&nbsp;</span>
+
+            <span dojo:type="ToolbarButtonGroup" name="justify" defaultButton="justifyleft" preventDeselect="true" showLabel="false">
+                <div dojoType="dijit.form.ToggleButton" iconClass="dijitEditorIcon dijitEditorIconJustifyLeft" name="justify" showLabel="false">Left</div>
+                <div dojoType="dijit.form.ToggleButton" iconClass="dijitEditorIcon dijitEditorIconJustifyRight" name="justify" showLabel="false">Right</div>
+                <div dojoType="dijit.form.ToggleButton" iconClass="dijitEditorIcon dijitEditorIconJustifyCenter" name="justify" showLabel="false">Center</div>
+             </span>
+
+            --><span dojoType="dijit.ToolbarSeparator">&nbsp;</span
+
+            ><div dojoType="dijit.form.Button" id="toolbar1.insertorderedlist" iconClass="dijitEditorIcon dijitEditorIconInsertOrderedList" showLabel="false">Ordered list</div
+            ><div dojoType="dijit.form.Button" id="toolbar1.insertunorderedlist" iconClass="dijitEditorIcon dijitEditorIconInsertUnorderedList" showLabel="false">Unordered list</div
+            ><div dojoType="dijit.form.Button" id="toolbar1.indent" iconClass="dijitEditorIcon dijitEditorIconIndent" showLabel="false">Indent</div
+            ><div dojoType="dijit.form.Button" id="toolbar1.outdent" iconClass="dijitEditorIcon dijitEditorIconOutdent" showLabel="false">Outdent</div
+
+            ><span dojoType="dijit.ToolbarSeparator"></span
+			><div dojoType="dijit.form.DropDownButton" id="toolbar1.dialog">
+				<span>Login</span>
+				<div dojoType="dijit.TooltipDialog" id="tooltipDlg" title="Enter Login information"
+					execute="alert('submitted w/args:\n' + dojo.toJson(arguments[0], true));">
+					<table>
+						<tr>
+							<td><label for="user">User:</label></td>
+							<td><input dojoType=dijit.form.TextBox type="text" name="user" ></td>
+						</tr>
+						<tr>
+							<td><label for="pwd">Password:</label></td>
+							<td><input dojoType=dijit.form.TextBox type="password" name="pwd"></td>
+						</tr>
+						<tr>
+							<td colspan="2" align="center">
+								<button dojoType=dijit.form.Button type="submit" name="submit">Login</button></td>
+						</tr>
+					</table>
+				</div
+			></div
+			><div dojoType="dijit.form.DropDownButton" id="toolbar1.backcolor" iconClass="dijitEditorIcon dijitEditorIconBackColor" showLabel="false">
+				<span>Background</span>
+				<div dojoType="dijit.ColorPalette" id="toolbar1.colorPalette" style="display: none" palette="3x4" onChange="console.log(this.value);"></div>
+			</div
+            ><div dojoType="dijit.form.DropDownButton" id="toolbar1.forecolor" iconClass="dijitEditorIcon dijitEditorIconForeColor" showLabel="false">
+				<span>Foreground</span>
+				<div dojoType="dijit.ColorPalette" id="toolbar1.colorPalette2" style="display: none" palette="3x4" onChange="console.log(this.value);"></div>
+			</div
+    ></div>
+
+    <h2>Toolbar from script</h2>
+	<div id="toolbar2"></div>
+
+    <h2>Toolbar with text and icons</h2>
+	<div id="toolbar3"></div>
+
+    <h2>Toolbar with text only</h2>
+	<div id="toolbar4" class="toolbarWithNoImages"></div>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Dijit manager unit test</title>
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../themes/tundra/tundra.css";
+		@import "../css/dijitTests.css";
+	</style>
+	<script type="text/javascript" src="../testBidi.js"></script>
+	<script type="text/javascript" src="../../../dojo/dojo.js"
+		djConfig="isDebug: true, parseOnLoad: true"></script>
+	<script type="text/javascript">
+		dojo.require("doh.runner");
+		dojo.require("dijit.dijit");
+
+		dojo.declare("foo", dijit._Widget, {
+			name: "",
+			attr1: 0,
+			attr2: 0
+		});
+		
+		dojo.declare("bar", dijit._Widget, {
+			name: "",
+			attr1: 0,
+			attr2: 0
+		});
+
+		dojo.addOnLoad(function(){
+			doh.register("dijit._base.manager",
+				[
+					function forEachTest(t){
+						var names=[];
+						dijit.registry.forEach(function(widget){ names.push(widget.name); });
+						t.is(names.join(" "), "bob is your uncle");
+					},
+					function filterTest(t){
+						var names=[];
+						dijit.registry.
+							filter(function(widget){ return widget.attr1==10; }).
+							forEach(function(widget){ names.push(widget.name); });
+						t.is(names.join(" "), "bob uncle");
+					},
+					function byId(t){
+						t.is(dijit.byId("three").name, "your");
+					},
+					function byClass(t){
+						var names=[];
+						dijit.registry.
+							byClass("bar").
+							forEach(function(widget){ names.push(widget.name); });
+						t.is(names.join(" "), "your uncle");
+					},
+					function deleteTest(t){
+						var names=[];
+						dijit.byId("two").destroy();
+						dijit.byId("four").destroy();
+						var names=[];
+						dijit.registry.forEach(function(widget){ names.push(widget.name); });
+						t.is(names.join(" "), "bob your");
+					}
+				]
+			);
+			doh.run();
+		});
+
+	</script>
+</head>
+<body class="tundra">
+	<h1>Dijit Manager Unit Test</h1>
+	<div dojoType="foo" id="one" name="bob" attr1="10" attr2="10"></div>
+	<div dojoType="foo" id="two" name="is" attr1="5" attr2="10"></div>
+	<div dojoType="bar" id="three" name="your" attr1="5" attr2="5"></div>
+	<div dojoType="bar" id="four" name="uncle" attr1="10" attr2="5"></div>
+</body>
+</html>

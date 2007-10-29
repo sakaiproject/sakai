@@ -1,0 +1,14 @@
+<div class="dijitTitlePane">
+	<div dojoAttachEvent="onclick:toggle,onkeypress: _onTitleKey" tabindex="0"
+			waiRole="button" class="dijitTitlePaneTitle" dojoAttachPoint="focusNode">
+		<span dojoAttachPoint="arrowNode" class="dijitInline dijitArrowNode"><span dojoAttachPoint="arrowNodeInner" class="dijit_a11y dijitArrowNodeInner"></span></span>
+		<span dojoAttachPoint="titleNode" class="dijitInlineBox dijitTitleNode"></span>
+	</div>
+	<div class="dijitTitlePaneContentOuter" dojoAttachPoint="hideNode">
+		<div class="dijitReset" dojoAttachPoint="wipeNode">
+			<div class="dijitTitlePaneContentInner" dojoAttachPoint="containerNode" waiRole="region" tabindex="-1">
+				<!-- nested divs because wipeIn()/wipeOut() doesn't work right on node w/padding etc.  Put padding on inner div. -->
+			</div>
+		</div>
+	</div>
+</div>

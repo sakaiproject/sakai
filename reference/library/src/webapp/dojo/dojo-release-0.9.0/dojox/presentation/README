@@ -1,0 +1,69 @@
+-------------------------------------------------------------------------------
+dojox.presentation
+-------------------------------------------------------------------------------
+Version 0.1
+Release date: 06/25/2007
+-------------------------------------------------------------------------------
+Project state:
+prototype / experimental
+-------------------------------------------------------------------------------
+Credits
+	pete higgins (phiggins@gmail.com)
+-------------------------------------------------------------------------------
+
+Project description
+
+This is the presentation base class. It provides a mechanism for various
+display-oriented tasks. It includes a powerpoint-esque engine [prototype]
+and an image SlideShow [experimental].
+
+-------------------------------------------------------------------------------
+
+Dependencies:
+
+dojox.presentation requires both Dojo Base, Dojo FX Core, and Dijit system(s).
+
+
+-------------------------------------------------------------------------------
+
+Documentation
+
+See the Dojo API tool (http://dojotoolkit.org/api)
+
+-------------------------------------------------------------------------------
+
+Installation instructions
+
+This package is self-contained, but needs Dijit sytem. 
+
+Grab the following from the Dojo SVN Repository:
+
+svn co http://svn.dojotoolkit.org/var/src/dojo/dojox/trunk/presentation*
+svn co http://svn.dojotoolkit.org/var/src/dojo/dijit/*
+
+into your:
+/dojo root folder [checkout/release root]
+
+and require in dependancies via dojo.require('dojox.presentation');
+
+if you are using SlideShow, you must:
+
+dojo.require("dojox.presentation.SlideShow");
+
+see /dojox/presentation/tests/test_presentation.html for example usage, but 
+basically the structure is this:
+
+presentation />
+	Slide />
+	Slide />
+		Text Outside of Part is Static
+		Part />
+		Part />
+		Action forPart/>
+		Action forPart/>
+	Slide href="remote.html" />
+	Slide />
+		Part />
+		Action forPart/>
+/presentation>
+

@@ -1,0 +1,49 @@
+<!--
+  This file is a simple loader for the FlickrStore
+-->
+<html>
+<head>
+	<title>Demo of FlickrStore with Tree</title>
+	<style type="text/css">
+
+		@import "../../../dijit/themes/tundra/tundra.css";
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../../dijit/tests/css/dijitTests.css";
+	</style>
+
+	<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug: true, parseOnLoad: true"></script>
+	<script type="text/javascript">
+		dojo.require("dojo.parser");
+		dojo.require("dojox.data.FlickrStore");
+		dojo.require("dijit.Tree");
+	</script>
+</head>
+
+<body class="tundra">
+	<h1>
+		DEMO:  FlickrStore used with the Tree widget.
+	</h1>
+	<hr>
+	<h3>
+		Description:
+	</h3>
+	<p>
+		This simple demo shows how the dijit.Tree widget can work with a Datastore like FlickrStore.
+	</p>
+
+	<blockquote>
+
+	<!--
+		The store instance used by this demo.
+	-->
+	<div dojoType="dojox.data.FlickrStore" jsId="flickrStore"></div>
+
+	<!-- 
+		Display the toplevel tree with items that have tag of '3dny'
+	-->
+	<b>Top 20 Photos that contain the tag '3dny':</b>
+	<div dojoType="dijit.Tree" id=tree store="flickrStore" query="{tags:'3dny', tagmode:'all'}"></div>
+	</blockquote>
+
+</body>
+</html>

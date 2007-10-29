@@ -1,0 +1,153 @@
+﻿<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<title>dojox.gfx: 100 draggable circles</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+	@import "../../../dojo/resources/dojo.css";
+	@import "../../../dijit/tests/css/dijitTests.css";
+</style>
+<script type="text/javascript" src="../../../dojo/dojo.js"></script>
+<script type="text/javascript">
+
+dojo.require("dojox.gfx");
+
+var container = null;
+var container_position = null;
+var surface = null;
+var surface_size = null;
+
+function getRand(from, to)
+{
+	return Math.random() * (to - from) + from;
+}
+
+var skew_stat_factor = 15;
+
+function getRandSkewed(from, to)
+{
+	// let skew stats to smaller values
+	var seed = 0;
+	for(var i = 0; i < skew_stat_factor; ++i){
+		seed += Math.random();
+	}
+	seed = 2 * Math.abs(seed / skew_stat_factor - 0.5);
+	return seed * (to - from) + from;
+}
+
+function randColor(alpha)
+{
+	var red   = Math.floor(getRand(0, 255));
+	var green = Math.floor(getRand(0, 255));
+	var blue  = Math.floor(getRand(0, 255));
+	var opacity = 1;
+	if (alpha) {
+		opacity = getRand(0.1, 1);
+	}
+	return [red, green, blue, opacity];
+}
+
+var gShapes = {}
+var gShapeCounter = 0;
+
+function makeCircleGrid(itemCount)
+{
+	var minR = 10, maxR = surface_size.width / 3;
+	for (var j = 0; j < itemCount; ++j) {
+		var r = getRandSkewed(minR, maxR);
+		var cx = getRand(r, surface_size.width  - r);
+		var cy = getRand(r, surface_size.height - r);
+		var id = "shape_" + (gShapeCounter++);
+		var aShape = surface.createCircle({cx: cx, cy: cy, r: r})
+			.setFill(randColor(true))
+			.setStroke({color: randColor(1), width: getRand(3)})
+			;
+		aShape.getEventSource().setAttribute('shapeid', id);
+		dojox.gfx._addClass(aShape.getEventSource(), "movable");
+		gShapes[id] = aShape;
+	}
+}
+
+var current_shape = null;
+var current_shape_window = null;
+var last_position = null;
+
+function getShape(event)
+{
+	var id = event.target.getAttribute('shapeid');
+	var s  = id ? gShapes[id] : null;
+	return s;
+}
+
+function handleMouseDown(event)
+{
+	var shape = getShape(event);
+	if (shape) {
+		current_shape = shape;
+		last_position = {
+			x: event.clientX - container_position.x,
+			y: event.clientY - container_position.y
+		};
+		var params = shape.getShape();
+		var center = dojox.gfx.matrix.multiplyPoint(shape.getTransform(), params.cx, params.cy);
+		var dx = last_position.x - center.x;
+		var dy = last_position.y - center.y;
+		var r  = params.r;
+		current_shape_window = {
+			x1: r + dx,
+			y1: r + dy,
+			x2: surface_size.width  - r + dx,
+			y2: surface_size.height - r + dy
+		};
+	}
+	dojo.stopEvent(event);
+}
+
+function handleMouseMove(event)
+{
+	if(!current_shape) return;
+	var x = Math.min(Math.max(event.clientX - container_position.x, current_shape_window.x1), current_shape_window.x2);
+	var y = Math.min(Math.max(event.clientY - container_position.y, current_shape_window.y1), current_shape_window.y2);
+	current_shape.applyTransform({dx: x - last_position.x, dy: y - last_position.y});
+	last_position = {x: x, y: y};
+	dojo.stopEvent(event);
+}
+
+function handleMouseUp(event)
+{
+	current_shape = null;
+	dojo.stopEvent(event);
+}
+
+function initGfx() {
+	container = dojo.byId("gfx_holder");
+	container_position = dojo.coords(container, true);
+	surface = dojox.gfx.createSurface(container, 500, 500);
+	surface_size = surface.getDimensions();
+	surface_size.width  = parseInt(surface_size.width);
+	surface_size.height = parseInt(surface_size.height);
+
+	makeCircleGrid(100);
+
+	dojo.connect(container, 'onmousedown', handleMouseDown);
+	dojo.connect(container, 'onmousemove', handleMouseMove);
+	dojo.connect(container, 'onmouseup',   handleMouseUp);
+	
+	// cancel text selection and text dragging
+	dojo.connect(container, "ondragstart",   dojo, "stopEvent");
+	dojo.connect(container, "onselectstart", dojo, "stopEvent");
+}
+
+dojo.addOnLoad(initGfx);
+
+</script>
+
+<style type="text/css">
+.movable { cursor: pointer; }
+</style>
+
+</head>
+<body>
+	<h1>dojox.gfx: 100 draggable circles</h1>
+	<div id="gfx_holder" style="width: 500px; height: 500px;"></div>
+</body>
+</html>

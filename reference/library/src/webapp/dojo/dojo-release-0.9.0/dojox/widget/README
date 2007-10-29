@@ -1,0 +1,44 @@
+-------------------------------------------------------------------------------
+dojox.widget Collection
+-------------------------------------------------------------------------------
+Version 0.2
+Release date: 7/27/2007
+-------------------------------------------------------------------------------
+Project state:
+expermental | beta
+-------------------------------------------------------------------------------
+Credits
+	Peter Higgins (phiggins@dojotoolkit.org)
+	Karl Tiedt (ktiedt@gmail.com)
+-------------------------------------------------------------------------------
+Project description
+
+	This is a collection of standalone widgets for use in
+	your website.  Each individual widget is independant
+	of the others.
+-------------------------------------------------------------------------------
+Dependencies:
+
+	Each widget has it's own requirements and dependencies.
+	Most inherit from dijit base-classes such as dijit._Widget,
+	dijit._Templated, etc ... So we will assume the availablility
+	of dojo (core), and dijit packages.
+-------------------------------------------------------------------------------
+Documentation
+
+	Please refer to the API-tool, or in-line documentation. 
+-------------------------------------------------------------------------------
+Installation instructions
+
+	These are standalone Widgets, so putting the [widget].js file 
+	in your dojox/widget folder, and copying any files in the
+	/dojox/widget/[widget]/ folder as supplements/templates/etc
+	should be all you need to do.
+
+	eg: FisheyeList:
+	/dojox/widget/FisheyeList.js
+	/dojox/widget/FisheyeList/blank.gif
+	/dojox/widget/FisheyeList/FisheyeList.css
+
+	should be all you need to use the Fisheye widget.	
+	

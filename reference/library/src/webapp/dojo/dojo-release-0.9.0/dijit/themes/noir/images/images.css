@@ -1,0 +1,103 @@
+
+/* 	dijit.form.Button */	
+.noir .dijitButton									{	background-image:url('buttonEnabled-left.png');		}
+.noir .dijitButton .dijitRight						{	background-image:url('buttonEnabled-right.png');	}
+.noir .dijitButton .dijitStretch					{	background-image:url('buttonEnabled-stretch.png');	}
+		
+.noir .dijitButtonHover 							{	background-image:url('buttonHover-left.png');		}
+.noir .dijitButtonHover .dijitRight					{	background-image:url('buttonHover-right.png');		}
+.noir .dijitButtonHover .dijitStretch				{	background-image:url('buttonHover-stretch.png');	}
+		
+.noir .dijitButtonActive							{	background-image:url('buttonActive-left.png');		}
+.noir .dijitButtonActive .dijitRight				{	background-image:url('buttonActive-right.png');		}
+.noir .dijitButtonActive .dijitStretch				{	background-image:url('buttonActive-stretch.png');	}
+		
+.noir .dijitButtonDisabled							{	background-image:url('buttonDisabled-left.png');	}
+.noir .dijitButtonDisabled .dijitRight				{	background-image:url('buttonDisabled-right.png');	}
+.noir .dijitButtonDisabled .dijitStretch			{	background-image:url('buttonDisabled-stretch.png');	}
+	
+
+
+/* 	dijit.form.ComboButton */
+.noir .dijitComboButton								{	background-image:url('comboButtonEnabled-left.png');	}
+.noir .dijitComboButton .dijitRight					{	background-image:url('comboButtonEnabled-right.png');	}
+.noir .dijitComboButton .dijitStretch				{	background-image:url('comboButtonEnabled-stretch.png');	}
+		
+.noir .dijitComboButtonHover 						{	background-image:url('comboButtonBtnHover-left.png');		}
+.noir .dijitComboButtonHover .dijitRight			{	background-image:url('comboButtonBtnHover-right.png');		}
+.noir .dijitComboButtonHover .dijitStretch			{	background-image:url('comboButtonBtnHover-stretch.png');	}
+		
+.noir .dijitComboButtonActive						{	background-image:url('comboButtonBtnActive-left.png');		}
+.noir .dijitComboButtonActive .dijitRight			{	background-image:url('comboButtonBtnActive-right.png');		}
+.noir .dijitComboButtonActive .dijitStretch			{	background-image:url('comboButtonBtnActive-stretch.png');	}
+
+
+.noir .dijitComboButtonDownArrowHover 				{	background-image:url('comboButtonArrowHover-left.png');		}
+.noir .dijitComboButtonDownArrowHover .dijitRight	{	background-image:url('comboButtonArrowHover-right.png');		}
+.noir .dijitComboButtonDownArrowHover .dijitStretch	{	background-image:url('comboButtonArrowHover-stretch.png');	}
+
+.noir .dijitComboButtonDownArrowActive				{	background-image:url('comboButtonArrowActive-left.png');		}
+.noir .dijitComboButtonDownArrowActive .dijitRight	{	background-image:url('comboButtonArrowActive-right.png');		}
+.noir .dijitComboButtonDownArrowActive .dijitStretch{	background-image:url('comboButtonArrowActive-stretch.png');	}
+
+.noir .dijitComboButtonDisabled						{	background-image:url('comboButtonDisabled-left.png') !important;	}
+.noir .dijitComboButtonDisabled .dijitRight			{	background-image:url('comboButtonDisabled-right.png') !important;	}
+.noir .dijitComboButtonDisabled .dijitStretch		{	background-image:url('comboButtonDisabled-stretch.png') !important;	}
+
+
+/* 	dijit.form.DropDownButton */
+.noir .dijitDropDownButton							{	background-image:url('ddButtonEnabled-left.png');		}
+.noir .dijitDropDownButton .dijitRight				{	background-image:url('ddButtonEnabled-right.png');	}
+.noir .dijitDropDownButton .dijitStretch			{	background-image:url('ddButtonEnabled-stretch.png');	}
+
+.noir .dijitDropDownButtonHover 					{	background-image:url('ddButtonHover-left.png');		}
+.noir .dijitDropDownButtonHover .dijitRight			{	background-image:url('ddButtonHover-right.png');		}
+.noir .dijitDropDownButtonHover .dijitStretch		{	background-image:url('ddButtonHover-stretch.png');	}
+
+.noir .dijitDropDownButtonActive					{	background-image:url('ddButtonActive-left.png');		}
+.noir .dijitDropDownButtonActive .dijitRight		{	background-image:url('ddButtonActive-right.png');		}
+.noir .dijitDropDownButtonActive .dijitStretch		{	background-image:url('ddButtonActive-stretch.png');	}
+
+.noir .dijitDropDownButtonDisabled					{	background-image:url('ddButtonDisabled-left.png');	}
+.noir .dijitDropDownButtonDisabled .dijitRight		{	background-image:url('ddButtonDisabled-right.png');	}
+.noir .dijitDropDownButtonDisabled .dijitStretch	{	background-image:url('ddButtonDisabled-stretch.png');	}
+
+
+
+/* dijit.form.ComboBox */
+
+.noir .dijitComboBox							{	background-image:url('selectEnabled-left.png');		}
+.noir .dijitComboBox .dijitRight				{	background-image:url('selectEnabled-right.png');	}
+.noir .dijitComboBox .dijitStretch				{	background-image:url('selectEnabled-stretch.png');	}
+		
+.noir .dijitComboBoxHover						{	background-image:url('selectHover-left.png');		}
+.noir .dijitComboBoxHover .dijitRight			{	background-image:url('selectHover-right.png');		}
+.noir .dijitComboBoxHover .dijitStretch		{	background-image:url('selectHover-stretch.png');	}
+	
+.noir .dijitComboBoxActive						{	background-image:url('selectActive-left.png');		}
+.noir .dijitComboBoxActive .dijitRight			{	background-image:url('selectActive-right.png');	}
+.noir .dijitComboBoxActive .dijitStretch		{	background-image:url('selectActive-stretch.png');	}
+
+.noir .dijitComboBoxDisabled					{	background-image:url('selectDisabled-left.png');	}
+.noir .dijitComboBoxDisabled .dijitRight		{	background-image:url('selectDisabled-right.png');	}
+.noir .dijitComboBoxDisabled .dijitStretch		{	background-image:url('selectDisabled-stretch.png');	}
+
+
+
+/* dijit.form.Spinner */
+
+.noir .dijitSpinner .dijitLeft							{	background-image:url('spinnerEnabled-left.png') }
+.noir .dijitSpinner .dijitUpArrowButton					{	background-image:url('spinnerEnabled-top.png');	}
+.noir .dijitSpinner .dijitDownArrowButton				{	background-image:url('spinnerEnabled-bottom.png');	}
+.noir .dijitSpinner .dijitStretch						{	background-image:url('spinnerEnabled-stretch.png');	}
+
+.noir .dijitSpinnerUpArrowHover .dijitUpArrowButton		{	background-image:url('spinnerHover-top.png');	}
+.noir .dijitSpinnerDownArrowHover .dijitDownArrowButton	{	background-image:url('spinnerHover-bottom.png');	}
+
+.noir .dijitSpinnerUpArrowActive .dijitUpArrowButton	{	background-image:url('spinnerActive-top.png');	}
+.noir .dijitSpinnerDownArrowActive .dijitDownArrowButton{	background-image:url('spinnerActive-bottom.png');	}
+
+.noir .dijitSpinnerDisabled .dijitLeft					{	background-image:url('spinnerDisabled-left.png');	}
+.noir .dijitSpinnerDisabled .dijitUpArrowButton			{	background-image:url('spinnerDisabled-top.png');	}
+.noir .dijitSpinnerDisabled .dijitDownArrowButton		{	background-image:url('spinnerDisabled-bottom.png');	}
+.noir .dijitSpinnerDisabled .dijitStretch				{	background-image:url('spinnerDisabled-stretch.png');	}

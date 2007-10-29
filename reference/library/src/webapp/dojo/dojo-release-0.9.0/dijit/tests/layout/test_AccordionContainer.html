@@ -1,0 +1,200 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Accordion Widget Demo</title>
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../themes/tundra/tundra.css";
+		@import "../../themes/tundra/tundra_rtl.css";
+		@import "../css/dijitTests.css";
+	</style>
+
+	<script type="text/javascript" src="../testBidi.js"></script>
+
+	<script type="text/javascript" src="../../../dojo/dojo.js" 
+		djConfig="isDebug: true, parseOnLoad: true"></script>
+
+		<!-- uncomment for profiling
+		<script type="text/javascript"
+			src="../../../dojo/_base/html.js"></script>
+		<script type="text/javascript"
+			src="../../base/Layout.js"></script>
+		-->
+
+	<script type="text/javascript">
+		dojo.require("dijit.layout.AccordionContainer");
+		dojo.require("dijit.layout.ContentPane");
+//		dojo.require("dijit.layout.SplitContainer");
+		dojo.require("dijit.form.ComboBox");
+	 	dojo.require("dijit.form.Button");
+		dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+
+		var accordion, pane4;
+
+		function init(){
+			accordion = new dijit.layout.AccordionContainer({}, dojo.byId("accordionShell"));
+			dojo.forEach([ "pane 1", "pane 2", "pane 3" ], function(title, i){
+				// add a node that will be promoted to the content widget
+				var refNode = document.createElement("span");
+				refNode.innerHTML = "this is " + title;
+				document.body.appendChild(refNode);
+				var content = new dijit.layout.AccordionPane({title: title, selected: i==1}, refNode);
+				console.debug("adding content pane " + content.id);
+				accordion.addChild(content);
+			});
+			accordion.startup();
+			var refNode = document.createElement("span");
+			var title = "pane 4";
+			refNode.innerHTML = "this is " + title;
+			accordion.addChild(pane4=new dijit.layout.AccordionPane({title: title}, refNode));
+		}
+
+		dojo.addOnLoad(init);
+
+		function destroyChildren(){
+			accordion.destroyDescendants();
+		}
+		function selectPane4(){
+			accordion.selectChild(pane4);
+		}
+	</script>
+
+</head>
+<body style="padding: 50px;" class="tundra">
+
+	<h1 class="testTitle">AccordionContainer Tests</h1>
+
+	<h2>Accordion from markup:</h2>
+	<p>HTML before</p>
+	<p>HTML before</p>
+	<p>HTML before</p>
+
+	<div dojoType="dijit.layout.AccordionContainer" duration="200"
+		style="float: left; margin-right: 30px;  width: 400px; height: 300px; overflow: hidden">
+		<div dojoType="dijit.layout.AccordionPane" title="a">
+			Hello World
+		</div>
+		<div dojoType="dijit.layout.AccordionPane" title="b">
+			<p>
+				Nunc consequat nisi vitae quam. Suspendisse sed nunc. Proin
+				suscipit porta magna. Duis accumsan nunc in velit. Nam et nibh.
+				Nulla facilisi. Cras venenatis urna et magna. Aenean magna mauris,
+				bibendum sit amet, semper quis, aliquet nec, sapien.  Aliquam
+				aliquam odio quis erat. Etiam est nisi, condimentum non, lacinia
+				ac, vehicula laoreet, elit. Sed interdum augue sit amet quam
+				dapibus semper. Nulla facilisi. Pellentesque lobortis erat nec
+				quam.
+			</p>
+			<p>
+				Sed arcu magna, molestie at, fringilla in, sodales eu, elit.
+				Curabitur mattis lorem et est. Quisque et tortor. Integer bibendum
+				vulputate odio. Nam nec ipsum. Vestibulum mollis eros feugiat
+				augue. Integer fermentum odio lobortis odio. Nullam mollis nisl non
+				metus. Maecenas nec nunc eget pede ultrices blandit. Ut non purus
+				ut elit convallis eleifend. Fusce tincidunt, justo quis tempus
+				euismod, magna nulla viverra libero, sit amet lacinia odio diam id
+				risus. Ut varius viverra turpis. Morbi urna elit, imperdiet eu,
+				porta ac, pharetra sed, nisi. Etiam ante libero, ultrices ac,
+				faucibus ac, cursus sodales, nisl. Praesent nisl sem, fermentum eu,
+				consequat quis, varius interdum, nulla. Donec neque tortor,
+				sollicitudin sed, consequat nec, facilisis sit amet, orci. Aenean
+				ut eros sit amet ante pharetra interdum.
+			</p>
+		</div>
+		<div dojoType="dijit.layout.AccordionPane" title="c">
+			<p>The quick brown fox jumps over the lazy dog.  The quick brown fox jumps over the lazy dog.  The quick brown fox jumps over the lazy dog.</p>
+		</div>
+	</div>
+
+	<p style="clear: both;">HTML after</p>
+	<p>HTML after</p>
+	<p>HTML after</p>
+	<p></p>
+	<p>Accordion with widgets</p>
+	<div dojoType="dijit.layout.AccordionContainer" duration="200"
+		style="float: left; margin-right: 30px; width: 400px; height: 300px; overflow: hidden">
+		<div dojoType="dijit.layout.AccordionPane" selected="true"
+			title="Pane 1" >
+				<select>
+					<option>red</option>
+					<option>blue</option>
+					<option>green</option>
+				</select>
+				<p>
+				Nunc consequat nisi vitae quam. Suspendisse sed nunc. Proin
+				suscipit porta magna. Duis accumsan nunc in velit. Nam et nibh.
+				Nulla facilisi. Cras venenatis urna et magna. Aenean magna mauris,
+				bibendum sit amet, semper quis, aliquet nec, sapien.  Aliquam
+				aliquam odio quis erat. Etiam est nisi, condimentum non, lacinia
+				ac, vehicula laoreet, elit. Sed interdum augue sit amet quam
+				dapibus semper. Nulla facilisi. Pellentesque lobortis erat nec
+				quam.
+				</p>
+				<p>
+				Sed arcu magna, molestie at, fringilla in, sodales eu, elit.
+				Curabitur mattis lorem et est. Quisque et tortor. Integer bibendum
+				vulputate odio. Nam nec ipsum. Vestibulum mollis eros feugiat
+				augue. Integer fermentum odio lobortis odio. Nullam mollis nisl non
+				metus. Maecenas nec nunc eget pede ultrices blandit. Ut non purus
+				ut elit convallis eleifend. Fusce tincidunt, justo quis tempus
+				euismod, magna nulla viverra libero, sit amet lacinia odio diam id
+				risus. Ut varius viverra turpis. Morbi urna elit, imperdiet eu,
+				porta ac, pharetra sed, nisi. Etiam ante libero, ultrices ac,
+				faucibus ac, cursus sodales, nisl. Praesent nisl sem, fermentum eu,
+				consequat quis, varius interdum, nulla. Donec neque tortor,
+				sollicitudin sed, consequat nec, facilisis sit amet, orci. Aenean
+				ut eros sit amet ante pharetra interdum.
+				</p>
+		</div>
+		
+		<!-- test lazy loading -->
+		<div dojoType="dijit.layout.AccordionPane" title="Pane 2 (lazy load)" href="tab1.html"></div>
+
+<!-- Support for nested complex widgets de-supported, for now
+		<div dojoType="dijit.layout.AccordionLayoutPane" title="Pane 3 (split pane)">
+			<div dojoType="dijit.layout.SplitContainer">
+				<p dojoType="dijit.layout.ContentPane">
+				Sed arcu magna, molestie at, fringilla in, sodales eu, elit.
+				Curabitur mattis lorem et est. Quisque et tortor. Integer bibendum
+				vulputate odio. Nam nec ipsum. Vestibulum mollis eros feugiat
+				augue. Integer fermentum odio lobortis odio. Nullam mollis nisl non
+				metus. Maecenas nec nunc eget pede ultrices blandit. Ut non purus
+				ut elit convallis eleifend. Fusce tincidunt, justo quis tempus
+				euismod, magna nulla viverra libero, sit amet lacinia odio diam id
+				risus. Ut varius viverra turpis. Morbi urna elit, imperdiet eu,
+				porta ac, pharetra sed, nisi. Etiam ante libero, ultrices ac,
+				faucibus ac, cursus sodales, nisl. Praesent nisl sem, fermentum eu,
+				consequat quis, varius interdum, nulla. Donec neque tortor,
+				sollicitudin sed, consequat nec, facilisis sit amet, orci. Aenean
+				ut eros sit amet ante pharetra interdum.
+				</p>
+				<p dojoType="dijit.layout.ContentPane">
+				Sed arcu magna, molestie at, fringilla in, sodales eu, elit.
+				Curabitur mattis lorem et est. Quisque et tortor. Integer bibendum
+				vulputate odio. Nam nec ipsum. Vestibulum mollis eros feugiat
+				augue. Integer fermentum odio lobortis odio. Nullam mollis nisl non
+				metus. Maecenas nec nunc eget pede ultrices blandit. Ut non purus
+				ut elit convallis eleifend. Fusce tincidunt, justo quis tempus
+				euismod, magna nulla viverra libero, sit amet lacinia odio diam id
+				risus. Ut varius viverra turpis. Morbi urna elit, imperdiet eu,
+				porta ac, pharetra sed, nisi. Etiam ante libero, ultrices ac,
+				faucibus ac, cursus sodales, nisl. Praesent nisl sem, fermentum eu,
+				consequat quis, varius interdum, nulla. Donec neque tortor,
+				sollicitudin sed, consequat nec, facilisis sit amet, orci. Aenean
+				ut eros sit amet ante pharetra interdum.
+				</p>
+			</div>
+		</div>
+-->
+	</div>
+
+	<h2>Programatically created:</h2>
+	<button onclick="destroyChildren();">destroy children</button>
+	<button onclick="selectPane4();">select pane 4</button>
+	<br>
+
+	<div id="accordionShell" style="width: 400px; height: 400px;"></div>
+
+</body>
+</html>

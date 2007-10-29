@@ -1,0 +1,511 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>Test TextBox Validation Widgets</title>
+
+		<script type="text/javascript" src="../testBidi.js"></script>
+
+		<script type="text/javascript" src="../../../dojo/dojo.js"
+			djConfig="isDebug: true, parseOnLoad: true, extraLocale: ['de-de', 'en-us']"></script>
+		<script type="text/javascript">
+			dojo.require("dijit.form.TextBox");
+			dojo.require("dijit.form.ValidationTextBox");
+			dojo.require("dijit.form.NumberTextBox");
+			dojo.require("dijit.form.CurrencyTextBox");
+			dojo.require("dijit.form.DateTextBox");
+			dojo.require("dijit.form.TimeTextBox");
+			dojo.require("dojo.currency");
+			dojo.require("dojo.date.locale");
+			dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+		</script>
+		<style type="text/css">
+			@import "../../../dojo/resources/dojo.css";
+			@import "../../themes/tundra/tundra.css";
+			@import "../../themes/tundra/tundra_rtl.css";
+			@import "../css/dijitTests.css";
+
+			.testExample {
+				background-color:#fbfbfb;
+				padding:1em;
+				margin-bottom:1em;
+				border:1px solid #bfbfbf;
+			}
+
+
+			.small {
+				width: 2.5em;
+			}
+			.medium {
+				width: 10em;
+			}
+			.long {
+				width: 20em;
+			}
+
+
+			.noticeMessage {
+				color:#093669;
+				font-size:0.95em;
+				margin-left:0.5em;
+			}
+
+			.dojoTitlePaneLabel label {
+				font-weight:bold;
+			}
+
+		</style>
+	</head>
+
+	<body class="tundra">
+		<h1 class="testTitle">Dijit Validation Widgets</h1>
+		<!--	to test form submission, you'll need to create an action handler similar to
+			http://www.utexas.edu/teamweb/cgi-bin/generic.cgi -->
+		<form id="form1" action="" name="example" method="post">
+
+			<div class="dojoTitlePaneLabel">
+				<label for="q01">First Name:  </label>
+				<span class="noticeMessage"> TextBox class, <b>tabIndex=2</b>, Attributes: {trim: true, propercase: true, class: 'medium'}, First letter of each word is upper case.</span>
+			</div>
+			<div class="testExample">
+				<input id="q01" type="text" name="firstname" value="testing testing" class="medium" tabIndex=2
+					dojoType="dijit.form.TextBox"
+					trim="true"
+					propercase="true" />
+			</div>
+
+			<div class="dojoTitlePaneLabel">
+				<label for="q02">Last Name:  </label>
+				<span class="noticeMessage"> TextBox class, Attributes: {trim: true, uppercase: true, class: 'medium'}, all letters converted to upper case. </span>
+			</div>
+			<div class="testExample">
+				<input id="q02" type="text" name="lastname" value="testing testing" class="medium"
+					dojoType="dijit.form.TextBox"
+					trim="true"
+					uppercase="true" />
+			</div>
+
+			<div class="dojoTitlePaneLabel">
+				<label for="q03">Age:  </label>
+				<span class="noticeMessage"> TextBox class, <b>tabIndex=1</b>, Attributes: {trim: true}, no initial value specified.</span>
+			</div>
+			<div class="testExample">
+				<input id="q03" type="text" name="age" tabIndex=1
+					dojoType="dijit.form.NumberTextBox"
+					promptMessage="(optional) Enter an age between 0 and 120"
+					size=4
+					maxlength=3
+					constraints="{places:0,min:0,max:120}"
+					onChange="console.debug('onChange fired for widget id = ' + this.id + ' with value = ' + arguments[0]);"
+					/>
+			</div>
+
+			<div class="dojoTitlePaneLabel">
+				<label for="q04">Occupation:  </label>
+				<span class="noticeMessage">ValidationTextBox class,
+					Attributes: {lowercase: true, required: true}. Displays a prompt message if field is missing. </span>
+			</div>
+			<div class="testExample">
+				<input id="q04" type="text" name="occupation" class="medium"
+					dojoType="dijit.form.ValidationTextBox"
+					lowercase="true"
+					required="true"
+					promptMessage="Enter an occupation" />
+			</div>
+
+			<div class="dojoTitlePaneLabel">
+				<label for="q05">Elevation:  </label>
+				<span class="noticeMessage">IntegerTextBox class,
+					Attributes: {required: true, min:-20000, max:+20000 }, Enter feet above sea level with a sign.</span>
+			</div>
+			<div class="testExample">
+				<input id="q05" class="medium"/>
+			</div>
+<script>
+	// See if we can make a widget in script and attach it to the DOM ourselves.
+	dojo.addOnLoad(function(){
+		var props = {
+			name: "elevation",
+			value: 3000,
+			constraints: {min:-20000,max:20000,places:0},
+			promptMessage: "Enter a value between -20000 and +20000",
+			required: "true" ,
+			invalidMessage: "Invalid elevation."
+		};
+		var w = new dijit.form.NumberTextBox(props, "q05");
+	});
+</script>
+<!--
+			<div class="dojoTitlePaneLabel">
+				<label for="attach-here">Population:  </label>
+				<span class="noticeMessage">IntegerTextBox class,
+					Attributes: {trim: true, required: true, signed: false, separator: ","}. <br><b> This widget was added in script, not markup. </b> </span>
+			</div>
+			<div class="testExample" >
+				<input id="attach-here" type="text" name="population" class="medium" value="1500000"/>
+			</div>
+
+<script>
+	// See if we can make a widget in script and attach it to the DOM ourselves.
+	dojo.addOnLoad(function(){
+		var props = {
+			name: "population",
+			value: "1,500,000",
+			trim: "true",
+			required: "true",
+			regExpGen: dojo.regexp.integer,
+			constraints: {signed:false, separator: ","},
+			invalidMessage: "Invalid population.  Be sure to use commas."
+		};
+		var w = new dijit.form.ValidationTextBox(props, "attach-here");
+		});
+	</script>
+
+	<div class="dojoTitlePaneLabel">
+		<label for="q06">Real Number:  </label>
+		<span class="noticeMessage">RealNumberTextBox class,
+			Attributes: {trim: true, required: true}. Enter any sort of real number.</span>
+	</div>
+	<div class="testExample">
+		<input id="q06" type="text" name="real1" class="medium" value="+0.1234"
+			dojoType="dijit.form.ValidationTextBox"
+			regExpGen="dojo.regexp.realNumber"
+			trim="true"
+			required="true"
+			invalidMessage="This is not a valid real number." />
+	</div>
+	<div class="dojoTitlePaneLabel">
+		<label for="q07">Exponential Notation:  </label>
+		<span class="noticeMessage">RealNumberTextBox class,
+			Attributes: {exponent: true}. Enter a real number in exponential notation.</span>
+	</div>
+	<div class="testExample">
+		<input id="q07" type="text" name="real2" class="medium" value="+0.12"
+			dojoType="dijit.form.ValidationTextBox"
+			regExpGen="dojo.regexp.realNumber"
+			trim="true"
+			required="true"
+			constraints={exponent:true}
+			invalidMessage="Number must be in exponential notation. Example +5E-28" />
+	</div>
+	-->
+
+	<div class="dojoTitlePaneLabel">
+		<label for="q08">Annual Income:  </label>
+		<span class="noticeMessage">CurrencyTextBox class,
+			Attributes: {fractional: true}.  Enter whole and cents.  Currency symbol is optional.</span>
+	</div>
+
+	<div class="testExample">
+		<input id="q08" type="text" name="income1" class="medium" value="54775.53"
+			dojoType="dijit.form.CurrencyTextBox"
+			required="true"
+			constraints="{fractional:true}"
+			currency="USD"
+			invalidMessage="Invalid amount.  Include dollar sign, commas, and cents.  Cents are mandatory." />USD
+	</div>
+
+	<div class="testExample">
+		euro currency (local format) fractional part is optional:
+		<input id="q08eur" type="text" name="income2"
+			class="medium" value="54775.53"
+			dojoType="dijit.form.CurrencyTextBox"
+			required="true"
+			currency="EUR"
+			invalidMessage="Invalid amount.  Include dollar sign, commas, and cents." />EUR
+	</div>
+
+	<!--
+		It is unusual to override the lang properties on individual
+		widgets.  Usually it should be the user's default or set on
+		a page basis by the server.  This is for testing purposes
+	-->
+	<div class="testExample">
+		euro currency (fixed lang: de-de) programmatically created, fractional part is optional: <input id="q08eurde" class="medium"/>EUR
+	</div>
+
+	<script>
+		// See if we can make a widget in script and attach it
+		// to the DOM ourselves.
+		dojo.addOnLoad(function(){
+			var example = dojo.currency.format(54775.53, {locale: 'de-de', currency: "EUR"});
+			var props = {
+				name: "income3",
+				value: 54775.53,
+				lang: 'de-de',
+				required: "true",
+				currency: "EUR",
+				invalidMessage: "Invalid amount.  Example: " + example
+			};
+			var w = new dijit.form.CurrencyTextBox(props, "q08eurde");
+		});
+	</script>
+
+	<!--
+	<div class="dojoTitlePaneLabel">
+		<label for="q08a">Annual Income:  </label>
+		<span class="noticeMessage">Old regexp currency textbox,
+					Attributes: {fractional: true}. Enter dollars and cents.</span>
+	</div>
+	<div class="testExample">
+		<input id="q08a" type="text" name="income3" class="medium" value="$54,775.53"
+			dojoType="dijit.form.ValidationTextBox"
+			regExpGen="dojo.regexp.currency"
+			trim="true"
+			required="true"
+			constraints={fractional:true}
+			invalidMessage="Invalid amount.  Include dollar sign, commas, and cents. Example: $12,000.00" />
+	</div>
+
+	<div class="dojoTitlePaneLabel">
+		<label for="q09">IPv4 Address:  </label>
+		<span class="noticeMessage">IpAddressTextBox class,
+			Attributes: {allowIPv6: false, allowHybrid: false}. Also Dotted Hex works, 0x18.0x11.0x9b.0x28</span>
+	</div>
+	<div class="testExample">
+		<input id="q09" type="text" name="ipv4" class="medium" value="24.17.155.40"
+			dojoType="dijit.form.ValidationTextBox"
+			regExpGen="dojo.regexp.ipAddress"
+			trim="true"
+			required="true"
+			constraints={allowIPv6:false,allowHybrid:false}
+			invalidMessage="Invalid IPv4 address.">
+	</div>
+
+	<div class="dojoTitlePaneLabel">
+		<label for="q10"> IPv6 Address:  </label>
+		<span class="noticeMessage">IpAddressTextBox class,
+			Attributes: {allowDottedDecimal: false, allowDottedHex: false}.
+					Also hybrid works, x:x:x:x:x:x:d.d.d.d</span>
+	</div>
+	<div class="testExample">
+		<input id="q10" type="text" name="ipv6" class="long" value="0000:0000:0000:0000:0000:0000:0000:0000"
+			dojoType="dijit.form.ValidationTextBox"
+			regExpGen="dojo.regexp.ipAddress"
+			trim="true"
+			uppercase = "true"
+			required="true"
+			constraints={allowDottedDecimal:false, allowDottedHex:false, allowDottedOctal:false}
+			invalidMessage="Invalid IPv6 address, please enter eight groups of four hexadecimal digits. x:x:x:x:x:x:x:x">
+	</div>
+
+	<div class="dojoTitlePaneLabel">
+		<label for="q11"> URL:  </label>
+		<span class="noticeMessage">UrlTextBox class,
+			Attributes: {required: true, trim: true, scheme: true}. </span>
+	</div>
+
+	<div class="testExample">
+		<input id="q11" type="text" name="url" class="long" value="http://www.xyz.com/a/b/c?x=2#p3"
+			dojoType="dijit.form.ValidationTextBox"
+			regExpGen="dojo.regexp.url"
+			trim="true"
+			required="true"
+			constraints={scheme:true}
+			invalidMessage="Invalid URL.  Be sure to include the scheme, http://..." />
+	</div>
+
+	<div class="dojoTitlePaneLabel">
+		<label for="q12"> Email Address  </label>
+		<span class="noticeMessage">EmailTextBox class,
+			Attributes: {required: true, trim: true}. </span>
+	</div>
+
+	<div class="testExample">
+		<input id="q12" type="text" name="email" class="long" value="fred&barney@stonehenge.com"
+			dojoType="dijit.form.ValidationTextBox"
+			regExpGen="dojo.regexp.emailAddress"
+			trim="true"
+			required="true"
+			invalidMessage="Invalid Email Address." />
+	</div>
+
+	<div class="dojoTitlePaneLabel">
+		<label for="q13"> Email Address List </label>
+		<span class="noticeMessage">EmailListTextBox class,
+			Attributes: {required: true, trim: true}. </span>
+	</div>
+
+	<div class="testExample">
+		<input id="q13" type="text" name="email" class="long" value="a@xyz.com; b@xyz.com; c@xyz.com; "
+			dojoType="dijit.form.ValidationTextBox"
+			regExpGen="dojo.regexp.emailAddressList"
+			trim="true"
+			required="true"
+			invalidMessage="Invalid Email Address List." />
+	</div>
+	-->
+	<div class="dojoTitlePaneLabel">
+		<label for="q14"> Date (local format) </label>
+		<span class="noticeMessage">DateTextBox class, no attributes</span>
+	</div>
+	<div class="testExample">
+		<input id="q14" name="noDOMvalue" type="text" dojoType="dijit.form.DateTextBox"> 
+	</div>
+	<div class="dojoTitlePaneLabel">
+		<label for="q14a"> Date (local format) </label>
+		<span class="noticeMessage">DateTextBox class,
+			Attributes: required="true", constraints={min:'2004-01-01',max:'2006-12-31'}. Works for leap years</span>
+	</div>
+	<div class="testExample">
+		<input id="q14a" type="text" name="date1" class="medium" value="2005-12-30"
+			dojoType="dijit.form.DateTextBox"
+			constraints="{min:'2004-01-01',max:'2006-12-31'}"
+			required="true"
+			promptMessage="mm/dd/yyyy"
+			invalidMessage="Invalid date. Use mm/dd/yyyy format." />
+		<input type="button" value="Destroy" onClick="dijit.byId('q14a').destroy(); return false;">
+	</div>
+	<div class="dojoTitlePaneLabel">
+		<label for="q14b"> Date (American format) </label>
+		<span class="noticeMessage">DateTextBox class,
+			Attributes: lang="en-us", required="true", constraints={min:'2004-01-01',max:'2006-12-31'}. Works for leap years</span>
+	</div>
+	<div class="testExample">
+		<input id="q14b" type="text" name="date1" class="medium" value="2005-12-30"
+			dojoType="dijit.form.DateTextBox"
+			constraints="{min:'2004-01-01',max:'2006-12-31'}"
+			lang="en-us"
+			required="true"
+			promptMessage="mm/dd/yyyy"
+			invalidMessage="Invalid date. Use mm/dd/yyyy format." />
+	</div>
+	<div class="dojoTitlePaneLabel">
+		<label for="q15"> Date (German format) </label>
+		<span class="noticeMessage">DateTextBox class,
+			Attributes: lang="de-de", constraints={min:2004-01-01, max:2006-12-31}. Works for leap years</span>
+	</div>
+	<div class="testExample">
+		<input id="q15" class="medium"/>
+	</div>
+
+	<script>
+	// See if we can make a widget in script and attach it to the DOM ourselves.
+	dojo.addOnLoad(function(){
+		var props = {
+			name: "date2",
+			value: new Date(2006,10,29),
+			constraints: {min:new Date(2004,0,1),max:new Date(2006,11,31)},
+			lang: "de-de",
+			promptMessage: "dd.mm.yy",
+			rangeMessage: "Enter a date in 2006.",
+			invalidMessage: "Invalid date. Use dd.mm.yy format."
+		};
+		var w = new dijit.form.DateTextBox(props, "q15");
+	});
+	</script>
+
+	<div class="dojoTitlePaneLabel">
+		<label for="q16">Time using local conventions with seconds</label>
+		<span class="noticeMessage">TimeTextBox class,
+			Attributes: {formatLength:'medium'}</span>
+	</div>
+	<div class="testExample">
+		<input id="q16" type="text" name="time1" class="medium" value="T17:45:00"
+			dojoType="dijit.form.TimeTextBox"
+			constraints="{formatLength:'medium'}"
+			required="true"
+			invalidMessage="Invalid time." />
+	</div>
+
+	<div class="dojoTitlePaneLabel">
+		<label for="q16a">Time using local conventions without seconds</label>
+		<span class="noticeMessage">TimeTextBox class,
+			Attributes: {formatLength:'short'}</span>
+	</div>
+	<div class="testExample">
+		<input id="q16a" type="text" name="time1a" class="medium" value="T17:45:00"
+			dojoType="dijit.form.TimeTextBox"
+			constraints="{formatLength:'short'}"
+			required="true"
+			invalidMessage="Invalid time." />
+	</div>
+
+	<div class="dojoTitlePaneLabel">
+		<label for="q16b"> 12 Hour Time </label>
+		<span class="noticeMessage">TimeTextBox class,
+			Attributes: {timePattern:'h:mm:ss a'}</span>
+	</div>
+	<div class="testExample">
+		<input id="q16b" type="text" name="time1b" class="medium" value="T17:45:00"
+			dojoType="dijit.form.TimeTextBox"
+			constraints="{timePattern:'h:mm:ss a'}"
+			required="true"
+			invalidMessage="Invalid time." />
+	</div>
+
+	<div class="dojoTitlePaneLabel">
+		<label for="q17"> 24 Hour Time</label>
+		<span class="noticeMessage">TimeTextBox class,
+			Attributes: {timePattern:'HH:mm:ss'}</span>
+	</div>
+	<div class="testExample">
+		<input id="q17" type="text" name="time2" class="medium" value="T17:45:00"
+			dojoType="dijit.form.TimeTextBox"
+			constraints="{timePattern:'HH:mm:ss'}"
+			required="true"
+			invalidMessage="Invalid time. Use HH:mm:ss where HH is 00 - 23 hours.">
+			</div>
+
+	<div class="dojoTitlePaneLabel">
+		<label for="q22">Regular Expression </label>
+		<span class="noticeMessage">RegexpTextBox class,
+			Attributes: {required: true} </span>
+	</div>
+	<div class="testExample">
+		<input id="q22" type="text" name="phone" class="medium" value="someTestString"
+			dojoType="dijit.form.ValidationTextBox"
+			regExp="[\w]+"
+			required="true"
+			invalidMessage="Invalid Non-Space Text.">
+	</div>
+
+	<div class="dojoTitlePaneLabel">
+		<label for="q23"> Password </label>
+		<span class="noticeMessage">(just a test that type attribute is obeyed) </span>
+	</div>
+	<div class="testExample">
+		<input id="q23" type="password" name="password" class="medium"
+			dojoType="dijit.form.TextBox">
+	</div>
+
+	<div class="dojoTitlePaneLabel">
+		<label for="ticket1651">Trac ticket 1651:  </label>
+		<span class="noticeMessage">value: null should show up as empty</span>
+	</div>
+	<div class="testExample">
+                                <input id="ticket1651" class="medium" value="not null"/>
+                        </div>
+
+<script>
+        // See if we can make a widget in script and attach it to the DOM ourselves.
+        dojo.addOnLoad(function(){
+                var props = {
+                        name: "ticket1651",
+                        id: "mname",
+                        value: null
+                };
+                var w = new dijit.form.TextBox(props, "ticket1651");
+        });
+</script>
+<script>
+	function displayData() {
+		var f = document.getElementById("form1");
+		var s = "";
+		for (var i = 0; i < f.elements.length; i++) {
+			var elem = f.elements[i];
+			if (elem.name == "button")  { continue; }
+			s += elem.name + ": " + elem.value + "\n";
+		}
+		alert(s);
+	}
+</script>
+
+			<div>
+			<button name="button" onclick="displayData(); return false;">view data</button>
+			<input type="submit" name="submit" />
+			</div>
+
+		</form>
+	</body>
+</html>

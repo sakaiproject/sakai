@@ -1,0 +1,24 @@
+<table class="dijit dijitReset dijitInline dijitLeft dijitSpinner" baseClass="dijitSpinner" cellspacing="0"  cellpadding="0"
+	id="widget_${id}" name="${name}"
+	dojoAttachEvent="onmouseover:_onMouse,onmouseout:_onMouse,onkeypress:_onKeyPress"
+	waiRole="presentation">
+	<tr class="dijitReset">
+		<td rowspan="2" class="dijitReset dijitStretch dijitSpinnerInput">
+			<input dojoAttachPoint="textbox,focusNode" type="${type}" dojoAttachEvent="onfocus,onkeyup"
+				value="${value}" name="${name}" size="${size}" maxlength="${maxlength}"
+				waiRole="spinbutton" autocomplete="off" tabIndex="${tabIndex}" id="${id}"
+			></td>
+		<td class="dijitReset dijitRight dijitButtonNode dijitUpArrowButton" 
+				dojoAttachPoint="upArrowNode"
+				dojoAttachEvent="onmousedown:_handleUpArrowEvent,onmouseup:_handleUpArrowEvent,onmouseover:_handleUpArrowEvent,onmouseout:_handleUpArrowEvent"
+				baseClass="dijitSpinnerUpArrow"
+			><div class="dijitA11yUpArrow" waiRole="presentation" tabIndex="-1">&#9650;</div></td>
+	</tr><tr class="dijitReset">
+		<td class="dijitReset dijitRight dijitButtonNode dijitDownArrowButton" 
+				dojoAttachPoint="downArrowNode"
+				dojoAttachEvent="onmousedown:_handleDownArrowEvent,onmouseup:_handleDownArrowEvent,onmouseover:_handleDownArrowEvent,onmouseout:_handleDownArrowEvent"
+				baseClass="dijitSpinnerDownArrow"
+			><div class="dijitA11yDownArrow" waiRole="presentation" tabIndex="-1">&#9660;</div></td>
+	</tr>
+</table>
+

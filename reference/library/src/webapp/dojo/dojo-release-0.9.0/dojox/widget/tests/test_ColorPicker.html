@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Dojox ColorPicker Test</title>
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../../dijit/themes/tundra/tundra.css";
+		@import "../../../dijit/themes/dijit.css";
+		@import "../../../dijit/tests/css/dijitTests.css"; 
+		@import "../ColorPicker/ColorPicker.css"; 
+	</style>
+
+	<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug:true, parseOnLoad: true"></script>
+	<script type="text/javascript" src="../ColorPicker.js"></script>
+	<script type="text/javascript">
+		// dojo.require("dojox.widget.ColorPicker");
+		dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+
+	</script>
+</head>
+<body class="tundra">
+
+	<h1 class="testTitle">Dojox ColorPicker test</h1>
+
+	<h3>defaults:</h3>
+	<div id="picker" dojoType="dojox.widget.ColorPicker"></div>
+
+	<h3>no animation, no hsv, no rgb, no webSafe info:</h3>
+	<div id="pickerToo" dojoType="dojox.widget.ColorPicker"
+		animatePoint="false"
+		showHsv="false"
+		showRgb="false"	
+		webSafe="false"
+	></div>
+
+</body>
+</html>

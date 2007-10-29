@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>Dojo ComboBox Widget Destruction Issue</title>
+
+		<style type="text/css">
+			@import "../../../dojo/resources/dojo.css";
+			@import "../../themes/tundra/tundra.css";
+			@import "../css/dijitTests.css";
+		</style>
+		<script type="text/javascript" src="../testBidi.js"></script>
+		<script type="text/javascript" src="../../../dojo/dojo.js"
+			djConfig="isDebug: true, parseOnLoad: true"></script>
+		<script type="text/javascript">
+			dojo.require("dijit.form.ComboBox");
+			dojo.require("dojo.parser");	// scan page for widgets and instantiate them
+
+			dojo.addOnLoad(function(){
+				dojo.connect(dojo.byId("killit"), "onclick", function(){
+					dijit.byId("combo_01").destroy(true);
+				});
+			});
+		</script>
+	</head>
+	<body class="tundra">
+		<h1>Dojo ComboBox Widget Destruction Issue</h1>
+		<p>
+			<tt>ComboBox</tt> does not destroy itself properly, leading to a
+			JavaScript error.  Could it have something to do with not disconnecting
+			events?
+		</p>
+		<p>
+		Steps:
+		<ol>
+			<li>Pick a state from the combo box below.</li>
+			<li>Click the "killit" button, which calls <tt>destroy</tt> on the widget.</li>
+			<li>Observe the JavaScript error.</li>
+		</ol>
+		</p>
+		<form action="#" method="GET">
+		   <input type="button" id="killit" name="killit" value="killit" />
+			<select name="state" searchField="name" keyField="abbreviation" 
+				id="combo_01" dojoType="dijit.form.ComboBox" style="width: 300px;" 
+				name="foo.bar1" autocomplete="false">
+				<option value="AL">Alabama</option>
+
+				<option value="AK">Alaska</option>
+				<option value="AS">American Samoa</option>
+				<option value="AZ">Arizona</option>
+				<option value="AR">Arkansas</option>
+				<option value="AE">Armed Forces Europe</option>
+				<option value="AP">Armed Forces Pacific</option>
+			</select>
+		</form>
+	</body>
+</html>

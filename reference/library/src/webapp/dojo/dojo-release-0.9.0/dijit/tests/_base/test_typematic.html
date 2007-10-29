@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Typematic Test</title>
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../themes/tundra/tundra.css";
+		@import "../css/dijitTests.css";
+	</style>
+
+	<script type="text/javascript" src="../../../dojo/dojo.js"
+		djConfig="isDebug: true, debugAtAllCosts: true"></script>
+	<script type="text/javascript">
+		dojo.require("dijit._base.typematic");
+
+		var lastCount = 0;
+		function typematicCallBack(count, node, evt){
+			var inputNode = dojo.byId('typematicInput');
+			if (node == inputNode){
+				key = "a";
+			}else{
+				key = "b";
+			}
+			if(-1 == count){
+				console.debug((lastCount+1) + ' ' + key + ' events');
+			}else{
+				lastCount = count;
+				inputNode.value += key;
+			}
+			inputNode.focus();
+		}
+		dojo.addOnLoad(function(){
+			var keyNode = dojo.byId('typematicInput');
+			var mouseNode = dojo.byId('typematicButton');
+			dijit.typematic.addKeyListener(keyNode, 
+				{
+					keyCode:dojo.keys.F10,
+					ctrlKey:true
+				},
+				this, typematicCallBack, 200, 200);
+			dijit.typematic.addMouseListener(mouseNode,
+				this, typematicCallBack, 0.9, 200);
+			keyNode.focus(); // make it easier to type
+		});
+	</script>
+</head>
+<body class="tundra">
+
+	<h2>Dijit typematic tests</h2>
+	Press and hold the <b>ctrl+F10</b> keys to see a's typed (constant rate) in the input field,<br>
+	or left-mouse click the button and hold down to see b's typed (increasing rate) in the input field.<br>
+	<input id="typematicInput" size="500"><button id="typematicButton">to B or not to B</button>
+
+</body>
+</html>

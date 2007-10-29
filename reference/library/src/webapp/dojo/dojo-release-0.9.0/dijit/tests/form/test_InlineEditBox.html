@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>Inline Edit Box Test</title>
+
+		<script type="text/javascript" src="../testBidi.js"></script>
+		<script type="text/javascript" src="../../../dojo/dojo.js"
+			djConfig="isDebug: true, parseOnLoad: true"></script>
+		<script type="text/javascript">
+			dojo.require("dojo.data.ItemFileReadStore");
+			dojo.require("dijit.form.InlineEditBox");
+			dojo.require("dijit.form.Textarea");
+			dojo.require("dijit.form.TextBox");
+			dojo.require("dijit.form.DateTextBox");
+			dojo.require("dijit.form.FilteringSelect");
+			dojo.require("dijit.form.NumberSpinner");
+			dojo.require("dijit.form.Slider");
+			dojo.require("dojo.parser");      // scan page for widgets and instantiate them
+
+			function myHandler(id,newValue){
+				console.debug("onChange for id = " + id + ", value: " + newValue);
+			};
+			dojo.addOnLoad(function(){
+				dojo.subscribe("widgetFocus", function(widget){
+					console.log("focused on widget " + (widget?widget:"nothing"));
+				});
+				dojo.subscribe("widgetBlur", function(widget){
+					console.log("blurred widget " + (widget?widget:"nothing"));
+				});
+				dojo.subscribe("focusNode", function(node){ console.log("focused on node " + (node?(node.id||node.tagName):"nothing"));});
+			});
+		</script>
+		<style type="text/css">
+			@import "../../../dojo/resources/dojo.css";
+			@import "../../themes/tundra/tundra.css";
+			@import "../css/dijitTests.css";
+
+			.inlineEdit { background-color: #CCC76A; }
+		</style>
+	</head>
+	<body class="tundra">
+		<h1 class="testTitle">Dijit InlineEditBox Test</h1>
+		before block
+		<span id="editable" style="font-size:larger;display:block;" dojoType="dijit.form.InlineEditBox" onChange="myHandler(this.id,arguments[0])">
+			<input dojoType="dijit.form.TextBox" value="Edit me - I trigger the onChange callback" style="width:300px;">
+		</span>after<br>
+
+		<hr style="width:100%;">
+
+		before inline
+		<span id="editableWithButtons" style="font-size:larger;" dojoType="dijit.form.InlineEditBox" onChange="myHandler(this.id,arguments[0])" autoSave="false">
+			<input dojoType="dijit.form.TextBox" value="Edit me - I trigger the onChange callback when Save button is clicked" style="width:500px;">
+		</span>
+		after<br>
+
+		<hr style="width:100%;">
+		The following block text area has Save/Cancel buttons when open.		
+		<blockquote style="width:50%;">
+			before block<span id="areaEditable" dojoType="dijit.form.InlineEditBox" renderAsHtml="false" autoSave="false" style="display:block;">
+				<textarea dojoType="dijit.form.Textarea" style="width:500px">I'm one big paragraph.  Go ahead and edit me.  I dare you. The quick brown fox jumped over the lazy dog.  Blah blah blah blah blah blah blah ...</textarea>
+			</span>after
+		</blockquote>
+		These links will
+		<a href="#" onClick="dijit.byId('areaEditable').setDisabled(true)">disable</a> /
+		<a href="#" onClick="dijit.byId('areaEditable').setDisabled(false)">enable</a>
+		the text area above.
+
+		<hr style="width:100%;">
+		The following inline text area does not have Save/Cancel buttons when open.		
+		<blockquote style="width:50%;">
+			<b>before inline</b><span id="areaEditable_autosave" dojoType="dijit.form.InlineEditBox" renderAsHtml="false" autoSave="true" style="display:inline;">
+				<textarea dojoType="dijit.form.Textarea" style="width:500px">I'm one big paragraph.  Go ahead and edit me.  I dare you. The quick brown fox jumped over the lazy dog.  Blah blah blah blah blah blah blah ...</textarea>
+			</span><b>after</b>
+		</blockquote>
+		
+		<hr style="width:100%;">
+
+		<b>Date text box:</b>
+		<span id="backgroundArea" dojoType="dijit.form.InlineEditBox">
+			<input name="date" value="2005-12-30"
+					dojoType="dijit.form.DateTextBox"
+					constraints={datePattern:'MM/dd/yy'}
+					lang="en-us"
+					required="true"
+					promptMessage="mm/dd/yy"
+					invalidMessage="Invalid date. Use mm/dd/yy format.">
+		</span>
+		<hr style="width:100%;">
+		<b>FilteringSelect:</b>
+		<span dojoType="dojo.data.ItemFileReadStore" jsId="stateStore"
+			url="comboBoxData.json"></span>
+		<span id="filteringSelect" dojoType="dijit.form.InlineEditBox" >
+			<input searchAttr="name" keyAttr="abbreviation" id="setvaluetest" dojoType="dijit.form.FilteringSelect" value="IA"
+					store="stateStore" name="state1" autocomplete="true" hasDownArrow="false">
+		</span>
+		<hr style="width:100%;">
+		before block<div style="display:block;" id="programmatic"></div>after
+		<script type="text/javascript">
+			// See if we can make a widget in script
+			// do it on load so Safari does not say display is none
+			dojo.addOnLoad(function(){
+				var inlineWidget = new dijit.form.InlineEditBox({renderAsHtml: true}, 'programmatic');
+	 			var editorWidget = new dijit.form.TextBox({
+										value:"Click here to edit a block programmatically created inline edit region"
+									});
+				editorWidget.domNode.style.width="100%";
+	 			inlineWidget.addChild(editorWidget);
+	 			inlineWidget.startup(); // scan for editWidget here, not on widget creation
+ 			});
+
+		</script>
+		<hr style="width:100%;">
+		<b>Spinner:</b>
+		<span dojoType="dijit.form.InlineEditBox">
+			<input dojoType="dijit.form.NumberSpinner"
+				name="spinner"
+				value="900"
+				constraints="{places:0}">
+		</span>
+<!-- InlineEditBox/Slider doesn't work on Firefox but does on IE and Safari
+		<hr style="width:100%;">
+		<b>Slider:</b>
+		<p dojoType="dijit.form.InlineEditBox">
+			<input dojoType="dijit.form.VerticalSlider"
+				value="10"
+				maximum="100"
+				minimum="0"
+				showButtons="false"
+				style="height:100px;width:20px;">
+		</p>
+-->
+	</body>
+</html>

@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<title>dijit.place tests</title>
+		<script type="text/javascript" src="../../../dojo/dojo.js"
+			djConfig="isDebug: true, extraLocale: ['de-de', 'en-us']"></script>
+		<script type="text/javascript">
+			dojo.require("dijit.dijit");
+		</script>
+		<script>
+			dojo.addOnLoad(function(){
+				var vp = dijit.getViewport();
+				alert("viewport w="+vp.w + ", h=" + vp.h);
+			});
+		</script>
+		<style type="text/css">
+			@import "../../../dojo/resources/dojo.css";
+			@import "../../themes/tundra/tundra.css";
+			@import "../css/dijitTests.css";
+
+			body {
+				padding: 1em;
+			}
+			.formQuestion {
+				background-color:#d0e3f5;
+				padding:0.3em;
+				font-weight:900;
+				font-family:Verdana, Arial, sans-serif;
+				font-size:0.8em;
+				color:#5a5a5a;
+			}
+			.formAnswer {
+				background-color:#f5eede;
+				padding:0.3em;
+				margin-bottom:1em;
+			}
+			.pageSubContentTitle {
+					color:#8e8e8e;
+					font-size:1em;
+					font-family:Verdana, Arial, sans-serif;
+					margin-bottom:0.75em;
+			}
+			.small {
+				width: 2.5em;
+			}
+			.medium {
+				width: 10em;
+			}
+			.long {
+				width: 20em;
+			}
+
+			.dojoValidationTextBoxMessage {
+				display: inline;
+				margin-left: 1em;
+				font-weight: bold;
+				font-style: italic;
+				font-family: Arial, Verdana, sans-serif;
+				color: #f66;
+				font-size: 0.9em;
+			}
+
+			.noticeMessage {
+				font-weight: normal;
+				font-family:Arial, Verdana, sans-serif;
+				color:#663;
+				font-size:0.9em;
+			}
+		</style>
+	</head>
+
+	<body class=tundra>
+		<h2 class="pageSubContentTitle">Test dijit.place</h2>
+		<p>Currently this just tests getViewport().  Change the size of your browser window and then reload,
+		and see if it reports the browser window size correctly.<br>
+		<p>All the text below is just filler text...<br>
+		<!--	to test form submission, you'll need to create an action handler similar to
+			http://www.utexas.edu/teamweb/cgi-bin/generic.cgi -->
+		<form id="form1" action="" name="example" method="post">
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q01">First Name:  </label></span>
+				<span class="noticeMessage"> TextBox class, <b>tabIndex=2</b>, Attributes: {trim: true, ucFirst: true, class: 'medium'}, First letter of each word is upper case.</span>
+			</div>
+			<div class="formAnswer">
+				<input id="q01" type="text" name="firstname" value="testing testing" class="medium" tabIndex=2
+					dojoType="dijit.form.TextBox"
+					trim="true"
+					ucfirst="true" />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q02">Last Name:  </label></span>
+				<span class="noticeMessage"> TextBox class, Attributes: {trim: true, uppercase: true, class: 'medium'}, all letters converted to upper case. </span>
+			</div>
+			<div class="formAnswer">
+				<input id="q02" type="text" name="lastname" value="testing testing" class="medium"
+					dojoType="dijit.form.TextBox"
+					trim="true"
+					uppercase="true" />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q03">Age:  </label></span>
+				<span class="noticeMessage"> TextBox class, <b>tabIndex=1</b>, Attributes: {trim: true, digit: true, class: 'small'}, all but digits extracted.</span>
+			</div>
+			<div class="formAnswer">
+				<input id="q03" type="text" name="age" value="38" class="small" tabIndex=1
+					dojoType="dijit.form.NumberTextBox"
+					promptMessage="(optional) Enter an age between 0 and 120"
+					constraints={places:0,min:0,max:120}
+					onChange="console.debug('onChange fired for widget id = ' + this.id + ' with value = ' + arguments[0]);"
+					digit="true"
+					trim="true"
+					/>
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q04">Occupation:  </label></span>
+				<span class="noticeMessage">ValidationTextBox class,
+					Attributes: {lowercase: true, required: true}. Displays a prompt message if field is missing. </span>
+			</div>
+			<div class="formAnswer">
+				<input id="q04" type="text" name="occupation" class="medium"
+					dojoType="dijit.form.ValidationTextBox"
+					lowercase="true"
+					required="true"
+					promptMessage="Enter an occupation" />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q05">Elevation:  </label></span>
+				<span class="noticeMessage">IntegerTextBox class,
+					Attributes: {required: true, min:-20000, max:+20000 }, Enter feet above sea level with a sign.</span>
+			</div>
+			<div class="formAnswer">
+				<input id="q05" class="medium"/>
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q08">Annual Income:  </label></span>
+				<span class="noticeMessage">CurrencyTextBox class,
+					Attributes: {fractional: true}. Enter whole and cents.  Currency symbol is optional.</span>
+			</div>
+			<div class="formAnswer">
+				<input id="q08" type="text" name="income1" class="medium" value="54775.53"
+					dojoType="dijit.form.CurrencyTextBox"
+					required="true"
+					currency="USD"
+					invalidMessage="Invalid amount.  Include dollar sign, commas, and cents. Example: $12,000.00" />USD
+			</div>
+
+			<div class="formAnswer">
+				<input id="q08eur" type="text" name="income2" class="medium" value="54775.53"
+					dojoType="dijit.form.CurrencyTextBox"
+					required="true"
+					currency="EUR"
+					invalidMessage="Invalid amount.  Include euro sign, commas, and cents. Example: &#x20ac;12,000.00" />EUR
+			</div>
+<!--
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q08a">Annual Income:  </label></span>
+				<span class="noticeMessage">Old regexp currency textbox,
+					Attributes: {fractional: true}. Enter dollars and cents.</span>
+			</div>
+			<div class="formAnswer">
+				<input id="q08a" type="text" name="income3" class="medium" value="$54,775.53"
+					dojoType="dijit.form.ValidationTextBox"
+					regExpGen="dojo.regexp.currency"
+					trim="true"
+					required="true"
+					constraints={fractional:true}
+					invalidMessage="Invalid amount.  Include dollar sign, commas, and cents. Example: $12,000.00" />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q09">IPv4 Address:  </label></span>
+				<span class="noticeMessage">IpAddressTextBox class,
+					Attributes: {allowIPv6: false, allowHybrid: false}. Also Dotted Hex works, 0x18.0x11.0x9b.0x28</span>
+			</div>
+			<div class="formAnswer">
+				<input id="q09" type="text" name="ipv4" class="medium" value="24.17.155.40"
+					dojoType="dijit.form.ValidationTextBox"
+					regExpGen="dojo.regexp.ipAddress"
+					trim="true"
+					required="true"
+					constraints={allowIPv6:false,allowHybrid:false}
+					invalidMessage="Invalid IPv4 address." />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q10"> IPv6 Address:  </label></span>
+				<span class="noticeMessage">IpAddressTextBox class,
+					Attributes: {allowDottedDecimal: false, allowDottedHex: false}.
+					Also hybrid works, x:x:x:x:x:x:d.d.d.d</span>
+			</div>
+			<div class="formAnswer">
+				<input id="q10" type="text" name="ipv6" class="long" value="0000:0000:0000:0000:0000:0000:0000:0000"
+					dojoType="dijit.form.ValidationTextBox"
+					regExpGen="dojo.regexp.ipAddress"
+					trim="true"
+					uppercase = "true"
+					required="true"
+					constraints={allowDottedDecimal:false, allowDottedHex:false, allowDottedOctal:false}
+					invalidMessage="Invalid IPv6 address, please enter eight groups of four hexadecimal digits. x:x:x:x:x:x:x:x" />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q11"> URL:  </label></span>
+				<span class="noticeMessage">UrlTextBox class,
+					Attributes: {required: true, trim: true, scheme: true}. </span>
+			</div>
+			<div class="formAnswer">
+				<input id="q11" type="text" name="url" class="long" value="http://www.xyz.com/a/b/c?x=2#p3"
+					dojoType="dijit.form.ValidationTextBox"
+					regExpGen="dojo.regexp.url"
+					trim="true"
+					required="true"
+					constraints={scheme:true}
+					invalidMessage="Invalid URL.  Be sure to include the scheme, http://..." />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q12"> Email Address  </label></span>
+				<span class="noticeMessage">EmailTextBox class,
+					Attributes: {required: true, trim: true}. </span>
+			</div>
+			<div class="formAnswer">
+				<input id="q12" type="text" name="email" class="long" value="fred&barney@stonehenge.com"
+					dojoType="dijit.form.ValidationTextBox"
+					regExpGen="dojo.regexp.emailAddress"
+					trim="true"
+					required="true"
+					invalidMessage="Invalid Email Address." />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q13"> Email Address List </label></span>
+				<span class="noticeMessage">EmailListTextBox class,
+					Attributes: {required: true, trim: true}. </span>
+			</div>
+			<div class="formAnswer">
+				<input id="q13" type="text" name="email" class="long" value="a@xyz.com; b@xyz.com; c@xyz.com; "
+					dojoType="dijit.form.ValidationTextBox"
+					regExpGen="dojo.regexp.emailAddressList"
+					trim="true"
+					required="true"
+					invalidMessage="Invalid Email Address List." />
+			</div>
+-->
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q14"> Date (American format) </label></span>
+				<span class="noticeMessage">DateTextBox class,
+					Attributes: {locale: "en-us", required: true}. Works for leap years</span>
+			</div>
+			<div class="formAnswer">
+				<input id="q14" type="text" name="date1" class="medium" value="2005-12-30"
+					dojoType="dijit.form.DateTextBox"
+					constraints={locale:'en-us'}
+					required="true"
+					promptMessage="mm/dd/yyyy"
+					invalidMessage="Invalid date. Use mm/dd/yyyy format." />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q15"> Date (German format) </label></span>
+				<span class="noticeMessage">DateTextBox class,
+					Attributes: {locale: "de-de", min:2006-01-01, max:2006-12-31}. Works for leap years</span>
+			</div>
+			<div class="formAnswer">
+				<input id="q15" class="medium"/>
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q16"> 12 Hour Time </label></span>
+				<span class="noticeMessage">TimeTextBox class,
+					Attributes: {formatLength: "medium", required: true, trim: true}</span>
+			</div>
+			<div class="formAnswer">
+				<input id="q16" type="text" name="time1" class="medium" value="5:45:00 pm"
+					dojoType="dijit.form.ValidationTextBox"
+					validator="dojo.date.local.parse"
+					constraints={formatLength:'medium',selector:'time'}
+					trim="true"
+					required="true"
+					invalidMessage="Invalid time." />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q17"> 24 Hour Time</label></span>
+				<span class="noticeMessage">TimeTextBox class,
+					Attributes: {displayFormat:"HH:mm:ss", required: true, trim: true}</span>
+			</div>
+			<div class="formAnswer">
+				<input id="q17" type="text" name="time2" class="medium" value="17:45:00"
+					dojoType="dijit.form.ValidationTextBox"
+					validator="dojo.date.local.parse"
+					constraints={formatLength:'short',selector:'time',timePattern:'HH:mm:ss'}
+					trim="true"
+					required="true"
+					invalidMessage="Invalid time. Use HH:mm:ss where HH is 00 - 23 hours." />
+			</div>
+
+<!--
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q18"> US State 2 letter abbr. </label></span>
+				<span class="noticeMessage">UsStateTextBox class,
+					Attributes: {required: true, trim: true, uppercase: true}</span>
+			</div>
+			<div class="formAnswer">
+				<input id="q18" type="text" name="state" class="small" value="CA"
+					dojoType="dijit.form.ValidationTextBox"
+					regExpGen="dojo.regexp.us.state"
+					constraints={allowTerritories:false}
+					trim="true"
+					uppercase="true"
+					required="true"
+					invalidMessage="Invalid US state abbr." />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q19"> US Zip Code </label></span>
+				<span class="noticeMessage">UsZipTextBox class,
+					Attributes: {required: true, trim: true} Five digit Zip code or 5 + 4.</span>
+			</div>
+			<div class="formAnswer">
+				<input id="q19" type="text" name="zip" class="medium" value="98225-1649"
+					dojoType="dijit.form.ValidationTextBox"
+					validator="dojo.validate.us.isZipCode"
+					trim="true"
+					required="true"
+					invalidMessage="Invalid US Zip Code." />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q20"> US Social Security Number </label></span>
+				<span class="noticeMessage">UsSocialSecurityNumberTextBox class,
+					Attributes: {required: true, trim: true} </span>
+			</div>
+			<div class="formAnswer">
+				<input id="q20" type="text" name="ssn" class="medium" value="123-45-6789"
+					dojoType="dijit.form.ValidationTextBox"
+					validator="dojo.validate.us.isSocialSecurityNumber"
+					trim="true"
+					required="true"
+					invalidMessage="Invalid US Social Security Number." />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q21"> 10-digit US Phone Number </label></span>
+				<span class="noticeMessage">UsPhoneNumberTextBox class,
+					Attributes: {required: true, trim: true} </span>
+			</div>
+			<div class="formAnswer">
+				<input id="q21" type="text" name="phone" class="medium" value="(123) 456-7890"
+					dojoType="dijit.form.ValidationTextBox"
+					validator="dojo.validate.us.isPhoneNumber"
+					trim="true"
+					required="true"
+					invalidMessage="Invalid US Phone Number." />
+			</div>
+ -->
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q22"> Regular Expression </label></span>
+				<span class="noticeMessage">RegexpTextBox class,
+					Attributes: {required: true} </span>
+			</div>
+			<div class="formAnswer">
+				<input id="q22" type="text" name="phone" class="medium" value="someTestString"
+					dojoType="dijit.form.ValidationTextBox"
+					regExp="[\w]+"
+					required="true"
+					invalidMessage="Invalid Non-Space Text." />
+			</div>
+
+			<div class="formQuestion">
+				<span class="emphasize"><label for="q23"> Password </label></span>
+				<span class="noticeMessage">(just a test that type attribute is obeyed) </span>
+			</div>
+			<div class="formAnswer">
+				<input id="q23" type="password" name="password" class="medium"
+					dojoType="dijit.form.TextBox" />
+			</div>
+
+                        <div class="formQuestion">
+                                <span class="emphasize"><label for="ticket1651">Trac ticket 1651:  </label></span>
+                                <span class="noticeMessage">value: null should show up as empty</span>
+                        </div>
+                        <div class="formAnswer">
+                                <input id="ticket1651" class="medium" value="not null"/>
+                        </div>
+
+			<button name="button" onclick="displayData(); return false;">view data</button>
+			<input type="submit" name="submit" />
+			</div>
+
+		</form>
+	</body>
+</html>

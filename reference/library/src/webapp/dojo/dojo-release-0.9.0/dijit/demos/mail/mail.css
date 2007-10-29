@@ -1,0 +1,81 @@
+html, body, #main{	
+	width: 100%;	/* make the body expand to fill the visible window */
+	height: 100%;
+	overflow: hidden;	/* erase window level scrollbars */
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	font-family: Myriad,Tahoma,Verdana,sans-serif;
+}
+
+#banner, #footer {
+background-color: #274383; color: white;
+}
+
+/* list of messages
+TODO: If i add the rules below as a plain tr/td it seems to mess up accordion, tree, etc. ???
+*/
+#listPane tr:hover, #listPane td:hover, .dijitTreeContent:hover {
+	background-color: gray;
+	color: white;
+	cursor: pointer;
+}
+#listPane tr, #listPane td { cursor: pointer; }
+
+th {
+	background-color: #274383; color: white; font: bold;
+}
+
+.oddRow {
+	background-color: #f2f5f9;
+}
+
+#message {
+	padding: 8px;
+}
+
+/* Stuff for new messages */
+
+.subject {
+	background: gray;
+	width: 100%;
+	padding-top: 5px;
+	padding-bottom: 10px;
+}
+
+.message {
+	border: black 2px;
+}
+
+body .dojoSplitPane {
+	background: #ededff;
+	overflow: auto;
+}
+
+/* Icons */
+
+.mailIconCancel,
+.mailIconOptions,
+.mailIconFolderDocuments,
+.mailIconFolderInbox,
+.mailIconFolderSent,
+.mailIconGetMail,
+.mailIconNewMessage,
+.mailIconMailbox,
+.mailIconOk,
+.mailIconTrashcanFull {
+	background-image: url('icons.gif'); /* mail icons sprite image */
+	background-repeat: no-repeat; 
+	width: 18px;
+	height: 18px;
+	text-align: center;
+}
+.mailIconCancel { background-position: 0px; }
+.mailIconOptions { background-position: -22px; }
+.mailIconFolderDocuments { background-position: -44px; }
+.mailIconFolderInbox { background-position: -66px; }
+.mailIconFolderSent { background-position: -88px; }
+.mailIconGetMail { background-position: -110px; }
+.mailIconNewMessage { background-position: -132px; }
+.mailIconMailbox { background-position: -154px; }
+.mailIconOk { background-position: -176px; }
+.mailIconTrashcanFull { background-position: -198px; }

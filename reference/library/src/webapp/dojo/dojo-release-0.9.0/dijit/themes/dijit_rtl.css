@@ -1,0 +1,57 @@
+/* Tree */
+
+.dijitRtl .dijitTreeContainer .dijitTreeExpando {
+	float:right;
+}
+
+.dijitRtl .dijitTreeContainer .dijitTreeExpand {
+	float:right;
+}
+
+/* can't specify .dijitRtl and .dijit_a11y on this rule, since they are on the same node */
+.dijitRtl .dijitExpandoText { 
+	float: right; 
+	padding-left: 3px;
+	padding-right: 0; 
+} 
+
+/* ComboBox */
+
+.dijitRtl .dijitComboBoxInput {
+	border-right-width:1px !important;
+	border-left-width:0px !important;
+}
+
+/* Calendar */
+
+.dijitRtl .dijitCalendarNextYear {
+	margin:0 0.55em 0 0;
+}
+
+.dijitRtl .dijitCalendarPreviousYear {
+	margin:0 0 0 0.55em;
+}
+
+.dijitRtl .dijitProgressBarFull .dijitProgressBarLabel {
+	right:0px; /* FF workaround */
+}
+
+/* Button */
+
+.dijitRtl .dijitComboButton .dijitButtonContents {
+	border-right-width:1px !important;
+}
+
+/* A11y */
+.dijitRtl .dijitA11ySideArrow {
+	margin-left:1em;
+	margin-right:0;
+}
+
+/* AccordionPane */
+
+.dijitRtl .dijitAccordionPane .dijitAccordionTitle .dijitAccordionArrow,
+.dijitRtl .dijitAccordionPane .dijitAccordionTitle .arrowTextUp,
+.dijitRtl .dijitAccordionPane .dijitAccordionTitle .arrowTextDown {
+	float: left;
+}

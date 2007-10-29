@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>dijit.focus Test</title>
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../themes/tundra/tundra.css";
+		@import "../css/dijitTests.css";
+	</style>
+
+	<script type="text/javascript" src="../../../dojo/dojo.js"
+		djConfig="isDebug: true, parseOnLoad: true"></script>
+	<script type="text/javascript">
+		dojo.require("dijit.form.DateTextBox");
+		dojo.require("dijit.form.ComboBox");
+		dojo.require("dijit.form.NumberSpinner");
+		dojo.require("dijit.form.InlineEditBox");
+		dojo.require("dijit.form.Button");
+		dojo.require("dijit.Menu");
+		dojo.require("dijit.layout.ContentPane");
+
+		var queue=[];
+		var animation;
+		function animateBorderColor(widget, color, startWidth, endWidth){
+			if(animation){
+				queue.push(arguments);
+				return;
+			}
+			with(widget.domNode.style){
+				borderStyle="solid";
+				outlineStyle="solid";
+
+			}
+			animation = dojo.animateProperty({ 
+				node: widget.domNode, 
+				duration: 400,
+				properties: {
+					// depending on browser and node type, sometimes border or outline is ineffective.
+					// doing both seems to work in all cases though (for at least one of them)
+					borderColor: { end: color },
+					borderWidth: { start: startWidth, end: endWidth },
+					outlineColor: { end: color },
+					outlineWidth: { start: startWidth, end: endWidth }
+				},
+				onEnd: function(){
+					animation=null;
+					if(queue.length){
+						animateBorderColor.apply(null, queue.shift());
+					}
+				}
+			});
+			animation.play();
+		}
+
+		dojo.addOnLoad(function(){
+			dojo.subscribe("widgetFocus", function(widget){
+				console.log("focused on widget " + (widget?widget:"nothing"));
+				animateBorderColor(widget, "#ff0000", 2, 5);
+			});
+			dojo.subscribe("widgetBlur", function(widget){
+				console.log("blurred widget " + (widget?widget:"nothing"));
+				animateBorderColor(widget, "#0000ff", 5, 2);
+			});
+			dojo.subscribe("focusNode", function(node){ console.log("focused on node " + (node?(node.id||node.tagName):"nothing"));});
+		});
+	</script>
+	<style>
+		div, fieldset, form, input {
+			padding: 10px;
+			margin: 10px;
+			border: 2px solid blue;
+		}
+	</style>
+</head>
+<body style="background-color: #fff; color: black; padding: 0; margin: 0" class="tundra">
+
+	<h3>Widget Focus Test</h3>
+	<p>
+		This is for testing code to detect onBlur and onFocus on a widget level.<br>
+		Focused widgets' borders will turn red.<br>
+		Also, heck the console log for focus and blur events on widgets.
+	</p>
+
+	<label for="fieldset1">a form ContentPane widget:</label><br>
+	<form dojoType="dijit.layout.ContentPane">
+		<label for="first">simple input: </label><input id=first><br>
+		
+		<label for="fieldset1">a fieldset ContentPane widget:</label><br>
+		<fieldset id=fieldset1 dojoType="dijit.layout.ContentPane">
+			<label for="select">a ComboBox widget:</label>
+			<select id=select dojoType="dijit.form.ComboBox">
+				<option>this</option>
+				<option>is</option>
+				<option>a</option>
+				<option>list</option>
+			</select>
+			<label for="plain">a plain input:</label>
+			<input id=plain value=plain>
+		</fieldset>
+		<br>
+		<label for="fieldset1">another fieldset ContentPane:</label><br>
+		<fieldset id=fieldset2 dojoType="dijit.layout.ContentPane">
+			<label for="date">a DateTextBox widget:</label>
+			<input id=date dojoType="dijit.form.DateTextBox"><br>
+			
+			<label for="textarea">a plain textarea:</label><br>
+			<textarea id=textarea>hello there!</textarea><br>
+
+			<label for="spinner">a Spinner widget:</label>
+			<input id=spinner dojoType="dijit.form.NumberSpinner" value=100><br>
+			
+			<label for="editSpinner">a Spinner widget inside an inlineEditBox:</label>
+			<div id=editSpinner dojoType=dijit.form.InlineEditBox>
+				<input id=spinner2 dojoType="dijit.form.NumberSpinner" value=100>
+			</div>
+			<br>
+			
+			<label for="button">a Combobutton widget:</label>
+			<div id=button dojoType="dijit.form.ComboButton" tabIndex=0>
+				<span>push me</span>
+				<div id=menu dojoType="dijit.Menu">
+					<div id=mi1 dojoType="dijit.MenuItem">menu item 1</div>
+					<div id=mi2 dojoType="dijit.MenuItem">menu item 2</div>
+					<div id=popupMenuItem dojoType="dijit.PopupMenuItem">
+						<span>submenu</span>
+						<div id=submenu dojoType="dijit.Menu">
+							<div id=smi1 dojoType="dijit.MenuItem">submenu item 1</div>
+							<div id=smi2 dojoType="dijit.MenuItem">submenu item 2</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</fieldset>
+	</form>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>dojox.fx.addClass / adojxo.fx.removeClass</title>
+		
+	<script type="text/javascript" src="../../../dojo/dojo.js" djConfig="isDebug:true, parseOnLoad: true" ></script>
+	<script type="text/javascript" src="../_base.js"></script>
+	<style type="text/css">
+		@import "../../../dojo/resources/dojo.css";
+		@import "../../../dijit/themes/dijit.css";
+		@import "../../../dijit/themes/tundra/tundra.css";
+		@import "../../../dijit/tests/css/dijitTests.css";
+
+		.baseClass {
+			position:absolute;
+			top:100px;
+			right:200px;
+			color:#666;
+			background-color:#ededed;
+			border:1px solid #ccc; 
+			padding:8px; 
+		}
+
+		.testFontSizeClass {
+			font-size:22px; 
+		}
+
+		.testClassOne {
+			width:100px;
+			height:100px;
+		}
+		
+		.testClassTwo {
+			width:250px;
+			height:150px; 
+			padding:30px; 
+		}
+
+		.hoverBaseClass {
+			height:22px; line-height:20px;
+			padding:20px;
+			font-size:12pt;
+			text-align:center;
+			border:2px solid #ccc;
+			background-color:#ededed;
+		}
+		.hoverTestClass {
+			font-size:18pt; 
+			padding:14px; 
+		}
+
+
+		.testClassThree {
+			bottom:90px;
+			right:90px;
+		}
+	</style>
+	<script type="text/javascript">
+
+		dojo.require("dojox.fx"); 
+
+		var classNode = null;
+		var theNode = null; 
+		var fontShowing = false; 
+
+		var _hoverAnim = null;
+		function hoverTest(/* Boolean */direction){
+			_hoverAnim = dojox.fx[(direction ? "addClass":"removeClass")]({
+				node: dojo.byId('hoverTestNode'),
+				cssClass: 'hoverTestClass',
+				duration: 400,
+			}).play();
+		}	
+
+		function fontTest(){
+			if(!fontShowing){
+				dojox.fx.addClass({
+					node: theNode,
+					cssClass: "testFontSizeClass",
+					duration: 250,
+					onEnd: function(){ 
+						fontShowing =!fontShowing; 
+					}
+				}).play();	
+			}else{
+				dojox.fx.removeClass({
+					node: theNode,
+					cssClass: "testFontSizeClass",
+					duration: 250,
+					onEnd: function(){ 
+						fontShowing=!fontShowing; 
+					}
+				}).play();
+			}
+		};	
+
+		dojo.addOnLoad(function(){ 
+			classNode = dojo.byId('classNode'); 
+			theNode = dojo.byId('theNode'); 
+			var mixin = { 
+				node: theNode, 
+				cssClass: "testClassOne", 
+				duration: 1000 
+			};
+			classNode.innerHTML = theNode.className; 
+			var anim = dojox.fx.addClass(mixin);
+			dojo.connect(anim,"onEnd",function(){
+				classNode.innerHTML = theNode.className; 
+				console.log('foo',theNode); 
+				var anim2 = dojox.fx.addClass({
+					node: theNode,
+					cssClass: 'testClassThree',
+					duration: 500
+				}); // this breaks in IE?!?
+				anim2.play();
+			});
+			anim.play(); 
+		});
+	</script>
+</head>
+<body class="tundra">
+
+	<h1 class="testTitle">dojox.fx.addlass/removeClass test</h1>
+
+	<p>this is Bill's animation idea, to animate to a CSS class 
+	(from it's existing class definition/computedStyle) ...
+	</p>
+
+	<div>
+	<input type="button" onclick="fontTest();" value="run font test"> 
+	</div>
+	<div>
+	<br><br>
+	<span id="hoverTestNode" class="hoverBaseClass" onmouseover="hoverTest(true);" onmouseout="hoverTest(false);"> Hover this small block of text </span>	
+	<br><br>
+	(FIXME: animation dies if you hover/unhover too quickly? not setting cssClass in that event.) 
+	</div>
+
+	<div id="theNode" class="baseClass">
+		current class string: <span id="classNode"></span>
+	</div>
+
+</body>
+</html>
+

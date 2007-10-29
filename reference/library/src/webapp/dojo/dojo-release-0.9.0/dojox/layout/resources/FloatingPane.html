@@ -1,0 +1,12 @@
+<div id="${id}">
+	<div tabindex="0" waiRole="button" class="dijitTitlePaneTitle" dojoAttachPoint="focusNode">
+		<span dojoAttachPoint="closeNode" dojoAttachEvent="onclick: close" class="dojoxFloatingCloseIcon"></span>
+		<span dojoAttachPoint="dockNode" dojoAttachEvent="onclick: minimize" class="dojoxFloatingMiniMizeIcon"></span>
+		<span dojoAttachPoint="titleNode" class="dijitInlineBox dijitTitleNode"></span>
+	</div>
+	<div>
+	<div dojoAttachPoint="containerNode" dojoType="dijit.layout.ContentPane" waiRole="region" tabindex="-1" class="${contentClass}">
+	</div>
+	<span dojoAttachPoint="resizeHandle" class="dojoxFloatingResizeHandle"></span>
+	</div>
+</div>

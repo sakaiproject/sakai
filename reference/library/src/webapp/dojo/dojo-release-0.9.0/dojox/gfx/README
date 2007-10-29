@@ -1,0 +1,30 @@
+-------------------------------------------------------------------------------
+dojox.gfx
+-------------------------------------------------------------------------------
+Version 1.100
+Release date: 08/01/2006
+-------------------------------------------------------------------------------
+Project state:
+beta
+-------------------------------------------------------------------------------
+Credits
+	Eugene Lazutkin (eugene.lazutkin@gmail.com)
+	Kun Xi (bookstack@gmail.com)
+-------------------------------------------------------------------------------
+Project description
+
+Implementation of simple portable 2D graphics library.
+-------------------------------------------------------------------------------
+Dependencies:
+
+Dojo Core
+-------------------------------------------------------------------------------
+Documentation
+
+Currently it can be found here: http://docs.google.com/Doc?id=d764479_1hnb2tn
+-------------------------------------------------------------------------------
+Installation instructions
+
+Just include this line in your code:
+
+dojo.require("dojox.gfx");
