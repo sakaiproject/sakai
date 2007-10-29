@@ -1,22 +1,14 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteCourseManual.vm,v 1.4 2005/06/03 14:08:16 gsilver.umich.edu Exp $ -->
 <script type="text/javascript">
-	function submitRemoveRequestedSection(index){
-		id = "removeRequestedSection"+index;
+	function submitRemoveSection(index){
+		id = "removeSection"+index;
 		removeSection = document.getElementById(id);
 		removeSection.value="true";
-		document.getElementById("option").value="removeRequestedSection";
+		document.getElementById("option").value="removeSection";
 		document.requestCourseForm.submit();
 		return false;
 }
 
-	function submitRemoveSelectedSection(index){
-		id = "removeSelectedSection"+index;
-		removeSection = document.getElementById(id);
-		removeSection.value="true";
-		document.getElementById("option").value="removeSelectedSection";
-		document.requestCourseForm.submit();
-		return false;
-}
 </script>
 
 <div class="portletBody">
@@ -78,8 +70,8 @@
 								<p class="indnt2">
 										$section.title
 										<!-- Remove Section -->
-										(<a href="#" onclick="javascript:submitRemoveRequestedSection('$section.eid');">Remove</a>)
-										<input type="hidden" id="removeRequestedSection$section.eid" name="removeRequestedSection$section.eid" value="" />
+										(<a href="#" onclick="javascript:submitRemoveSection('$section.eid');">Remove</a>)
+										<input type="hidden" id="removeSection$section.eid" name="removeSection$section.eid" value="" />
 								</p>
 							#end
 						#else
@@ -87,8 +79,8 @@
 								<p class="indnt2">
 										$s.title
 										<!-- Remove Section -->
-										(<a href="#" onclick="javascript:submitRemoveSelectedSection('$s.eid');">Remove</a>)
-										<input type="hidden" id="removeSelectedSection$s.eid" name="removeSelectedSection$s.eid" value="" />
+										(<a href="#" onclick="javascript:submitRemoveSection('$s.eid');">Remove</a>)
+										<input type="hidden" id="removeSection$s.eid" name="removeSection$s.eid" value="" />
 								</p>
 							#end
 					#end
