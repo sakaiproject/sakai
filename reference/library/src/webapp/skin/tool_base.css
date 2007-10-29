@@ -371,9 +371,21 @@ table.discTria img, .topicHeadings img,  .msgHeadings img{
 	padding: 2px;
 }
 
+/*itemAction will become a list for 2.6*/
+.itemAction li{
+	list-style: none;
+	display: inline;
+}
 h4 + div.itemAction{
 	margin: .1em 0 0 1.5em;
 }
+
+/*toolbar - turn into a list for 2.6 - default list render here, style in tool.css*/
+.navIntraTool li{
+	list-style: none;
+	display: inline;
+}
+
 
 /*for action controls */
 /*create any item type*/
