@@ -32,10 +32,10 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
 
     private static final Log LOG = LogFactory.getLog(PrivateMessageImpl.class);
     
-    private List recipients = null;//new UniqueArrayList();
+    private List recipients = null;//new UniqueArrayList();  addRecipient(MessageForumsUser user)
     private Boolean externalEmail;
     private String externalEmailAddress;
-    private String recipientsAsText;
+    private String recipientsAsText;//
     
     public static Comparator RECIPIENT_LIST_COMPARATOR_ASC;
     public static Comparator RECIPIENT_LIST_COMPARATOR_DESC;

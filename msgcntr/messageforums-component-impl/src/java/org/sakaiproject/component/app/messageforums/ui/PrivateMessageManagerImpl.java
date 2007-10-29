@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.hibernate.Hibernate;
@@ -53,6 +54,7 @@ import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.site.api.ToolConfiguration;
+
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.TestUtil;
@@ -62,15 +64,24 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.cover.SiteService;
+
+import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.User;
+
+import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+
+//support for internationalization by huxt
+import org.sakaiproject.i18n.InternationalizedMessages;
 
 public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     PrivateMessageManager
@@ -93,10 +104,22 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private SessionManager sessionManager;  
   private EmailService emailService;
   
-  private static final String MESSAGES_TITLE = "pvt_message_nav";
-  private static final String PVT_RECEIVED = "pvt_received";
-  private static final String PVT_SENT = "pvt_sent";
-  private static final String PVT_DELETED = "pvt_deleted";
+  
+  // SAK-11130:  modified to support sakai localization 	 SAK-11130
+  
+  private static final String Local_Dictionary="Spain";
+  private static final String Language="Spanish";//"Spanish(Spain)";
+
+  private static final String Spanish_Received="Recibidos";
+  private static final String Spanish_Sent="Enviados";
+  private static final String Spanish_Deleted="Borrados";
+
+  ////
+  private static final String MESSAGES_TITLE = "pvt_message_nav";// Mensajes-->Messages/need to be modified to support internationalization
+  
+  private static final String PVT_RECEIVED = "pvt_received";     // Recibidos ( 0 mensajes )-->Received ( 8 messages - 8 unread )
+  private static final String PVT_SENT = "pvt_sent";             // Enviados ( 0 mensajes )--> Sent ( 0 message )
+  private static final String PVT_DELETED = "pvt_deleted";       // Borrados ( 0 mensajes )-->Deleted ( 0 message )
  
   /** String ids for email footer messsage */
   private static final String EMAIL_FOOTER1 = "pvt_email_footer1";
@@ -157,9 +180,35 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#initializePrivateMessageArea(org.sakaiproject.api.app.messageforums.Area)
    */
+  
+  
+  //==============Need to be modified to support localization huxt
   public PrivateForum initializePrivateMessageArea(Area area)
   {
+	  /** The type string for this "application": should not change over time as it may be stored in various parts of persistent entities. */
+		String APPLICATION_ID = "sakai:resourceloader";
+
+		/** Preferences key for user's regional language locale */
+		String LOCALE_KEY = "locale";
+
     String userId = getCurrentUser();
+    
+    //huxt-begin
+    //added by huxt for test localization
+	  Locale loc = null;
+	  //getLocale( String userId )
+	  ResourceLoader rl = new ResourceLoader();
+	  loc = rl.getLocale( userId);//SessionManager.getCurrentSessionUserId() );//country="ES" language="es"
+	  
+	  
+	  Preferences prefs = PreferencesService.getPreferences(userId);
+		ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
+		String localeString = locProps.getProperty(LOCALE_KEY);
+	  
+	  //loc = new Locale(locValues[0], locValues[1]); // language, country
+	  //huxt -end
+	  
+    
     
     initializeMessageCounts();
     
@@ -1365,6 +1414,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     }
     else
     {
+    	//org.sakaiproject.tool.api.ToolManager manager = getInstance();
       return ToolManager.getCurrentPlacement().getContext();
     }
   }  

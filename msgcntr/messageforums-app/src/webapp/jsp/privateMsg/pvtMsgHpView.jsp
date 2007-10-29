@@ -8,6 +8,7 @@
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
 
+
 <%  
   /** initialize user's private message area per request **/
   FacesContext context = FacesContext.getCurrentInstance();
@@ -93,6 +94,9 @@
 							<h:panelGrid columns="2" summary="layout" width="100%"
 												   cellpadding="0" cellspacing="0" styleClass="listHier"
 								           style="margin:0">
+								           
+				
+								
 								<h:panelGroup rendered="#{!topic.topic.mutable}">
 									<h:graphicImage url="/images/dir_closed.gif" alt="" />
 									<h:commandLink action="#{PrivateMessagesTool.processPvtMsgTopic}"
@@ -112,6 +116,10 @@
 										            styleClass="textPanelFooter" />
 									<h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter" />
 								</h:panelGroup>
+								
+				
+							
+								
 								<h:panelGroup rendered="#{!topic.topic.mutable}">
 									<h:outputText value=" " />
 								</h:panelGroup>
@@ -140,6 +148,7 @@
 										<f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId" />
 									</h:commandLink>
 								</h:panelGroup>
+					
 							</h:panelGrid>
 
 						</h:column>

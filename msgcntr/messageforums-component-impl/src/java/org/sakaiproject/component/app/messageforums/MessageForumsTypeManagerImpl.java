@@ -50,6 +50,8 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   private static final String PRIVATE_USER_DEFINED_TOPIC = "privateUserDefinedTopic";
   private static final String DISCUSSION = "discussionForums";
   private static final String OPEN = "openForums";
+  
+  //============need to be modified to support internationalization type  by huxt
 
   private static final String RECEIVED = "ReceivedPrivateMessageType";
 
@@ -59,11 +61,14 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
 
   private static final String DRAFT = "DraftPrivateMessageType";
   
+  
+  
   // Permission Level Types
   private static final String OWNER = "Owner Permission Level";
   private static final String AUTHOR = "Author Permission Level";
   private static final String NONEDITING_AUTHOR = "Nonediting Author Permission Level";
   private static final String CONTRIBUTOR = "Contributor Permission Level";
+  
   private static final String REVIEWER = "Reviewer Permission Level";  
   private static final String NONE = "None Permission Level";  
   private static final String CUSTOM = "Custom Permission Level";
@@ -321,6 +326,9 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   {
     LOG.debug("getReceivedPrivateMessageType()");
     Type type = typeManager.getType(AUTHORITY, DOMAIN, RECEIVED);
+    //authority = "org.sakaiproject.component.app.messageforums"
+    //domain="sakai_messageforums"
+    // keyword= "ReveivedPrivateMessageType"
     if (type != null)
     {
       return type.getUuid();

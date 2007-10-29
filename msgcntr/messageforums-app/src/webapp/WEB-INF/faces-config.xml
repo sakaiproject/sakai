@@ -133,6 +133,13 @@
             <redirect/>
         </navigation-case> 
         
+         <!-- SAKAI-huxt -->
+        <navigation-case>
+            <from-outcome>pvtMsgReplyAll</from-outcome>
+            <to-view-id>/jsp/pvtMsgReplyAll.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        
         <navigation-case>
             <from-outcome>pvtMsgDelete</from-outcome>
             <to-view-id>/jsp/privateMsg/pvtMsgDelete.jsp</to-view-id>
