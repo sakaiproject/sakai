@@ -244,12 +244,14 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 					//add assignments
 					//List assignments = getGradebookManager().getAssignmentsForCategory(cat.getId());
 					List assignments = cat.getAssignmentList();
-					for (Iterator assignmentsIter = assignments.iterator(); assignmentsIter.hasNext();){
-						gradableObjectColumns.add(new GradableObjectColumn((GradableObject)assignmentsIter.next()));
-					}
-					//if not selectedCategoryUID, then add category field after
-					if(selectedCategoryUid == null) {
-						gradableObjectColumns.add(categoryColumn);
+					if (assignments != null && !assignments.isEmpty()){
+						for (Iterator assignmentsIter = assignments.iterator(); assignmentsIter.hasNext();){
+							gradableObjectColumns.add(new GradableObjectColumn((GradableObject)assignmentsIter.next()));
+						}
+						//if not selectedCategoryUID, then add category field after
+						if(selectedCategoryUid == null) {
+							gradableObjectColumns.add(categoryColumn);
+						}
 					}
 				}
 			}
