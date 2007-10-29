@@ -20,7 +20,6 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.tool;
 
-import java.util.Date;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -220,14 +219,13 @@ public class RequestScopeSuperBean
 		{
 			Session session = sessionManager.getCurrentSession();
 
-			String user = this.getCurrentUser();
-			if (user != null && user.length() > 0)
+			String userId = this.getCurrentUserId();
+			if (userId != null && userId.length() > 0)
 			{
 				String currentPageName = this.getCurrentPageName();
 				String pageSpace = this.getCurrentPageSpace();
 				if ( currentPageName != null && currentPageName.length() < 255 && pageSpace != null && pageSpace.length() < 255 ) {
-					messageService.updatePresence(session.getId(), this
-							.getCurrentUser(), this.getCurrentPageName(), this
+					messageService.updatePresence(session.getId(), userId, this.getCurrentPageName(), this
 							.getCurrentPageSpace());
 				} else {
 					log.warn("Page names in wiki cannot be over 225 characters in length, presence not updated. Page Name was "+currentPageName);
@@ -341,6 +339,16 @@ public class RequestScopeSuperBean
 		if (map.get(key) == null)
 		{
 			map.put(key, getNameHelperBean().getSearchPage());
+		}
+		return (String) map.get(key);
+	}
+	
+	public String getCurrentUserId() 
+	{
+		String key = "currentUserId";
+		if (map.get(key) == null)
+		{
+			map.put(key, sessionManager.getCurrentSessionUserId());
 		}
 		return (String) map.get(key);
 	}

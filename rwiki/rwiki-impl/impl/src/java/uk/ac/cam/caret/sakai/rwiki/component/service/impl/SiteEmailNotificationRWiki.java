@@ -292,7 +292,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 				RWikiObjectService.REFERENCE_ROOT.length(), resourceReference
 						.lastIndexOf('.'));
 
-		String preference = preferenceService.findPreferenceAt(user.getEid(),
+		String preference = preferenceService.findPreferenceAt(user.getId(),
 				resourceReference, PreferenceService.MAIL_NOTIFCIATION);
 
 		if (preference == null || "".equals(preference)) //$NON-NLS-1$
