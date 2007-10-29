@@ -8378,7 +8378,8 @@ public class AssignmentAction extends PagedResourceActionII
 						.getAttribute(STATE_CONTEXT_STRING));
 			}
 			else if (allowAddAssignment && view.equals(MODE_STUDENT_VIEW)
-					|| !allowAddAssignment)
+					|| (!allowAddAssignment && AssignmentService.allowAddSubmission((String) state
+						.getAttribute(STATE_CONTEXT_STRING))))
 			{
 				// in the student list view of assignments
 				Iterator assignments = AssignmentService
@@ -8415,6 +8416,12 @@ public class AssignmentAction extends PagedResourceActionII
 						addAlert(state, rb.getString("youarenot14"));
 					}
 				}
+			}
+			else
+			{
+				// read all Assignments
+				returnResources = AssignmentService.getListAssignmentsForContext((String) state
+						.getAttribute(STATE_CONTEXT_STRING));
 			}
 			
 			state.setAttribute(HAS_MULTIPLE_ASSIGNMENTS, Boolean.valueOf(returnResources.size() > 1));
@@ -8517,16 +8524,31 @@ public class AssignmentAction extends PagedResourceActionII
 								// add those users who haven't made any submissions
 								if (!found)
 								{
-									// construct fake submissions for grading purpose
+									// construct fake submissions for grading purpose if the user has right for grading
+									if (AssignmentService.allowGradeSubmission(a.getReference()))
+									{
 									
-									AssignmentSubmissionEdit s = AssignmentService.addSubmission(contextString, a.getId(), userId);
-									s.setSubmitted(true);
-									s.setAssignment(a);
-									AssignmentService.commitEdit(s);
-									
-									// update the UserSubmission list by adding newly created Submission object
-									AssignmentSubmission sub = AssignmentService.getSubmission(s.getReference());
-									returnResources.add(new UserSubmission(u, sub));
+										// temporarily allow the user to read and write from assignments (asn.revise permission)
+								        SecurityService.pushAdvisor(new SecurityAdvisor()
+								            {
+								                public SecurityAdvice isAllowed(String userId, String function, String reference)
+								                {
+								                    return SecurityAdvice.ALLOWED;
+								                }
+								            });
+								        
+										AssignmentSubmissionEdit s = AssignmentService.addSubmission(contextString, a.getId(), userId);
+										s.setSubmitted(true);
+										s.setAssignment(a);
+										AssignmentService.commitEdit(s);
+										
+										// update the UserSubmission list by adding newly created Submission object
+										AssignmentSubmission sub = AssignmentService.getSubmission(s.getReference());
+										returnResources.add(new UserSubmission(u, sub));
+
+								        // clear the permission
+								        SecurityService.clearAdvisors();
+									}
 								}
 							}
 						}

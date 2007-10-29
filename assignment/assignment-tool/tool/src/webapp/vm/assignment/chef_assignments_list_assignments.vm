@@ -319,7 +319,7 @@ function allowClick(object)
 								#end
 							</td>
 							<td headers="title">
-									#if ($!allowAddAssignment && $!view.equals('lisofass1'))
+									#if (($!allowAddAssignment || $!service.allowGradeSubmission($assignment.getReference())) && $!view.equals('lisofass1'))
 										<h4>
 											## normal instructor view
 											#if ($assignment.draft && $!allowUpdateAssignment )
