@@ -39,6 +39,7 @@ public class EventSummary implements Serializable {
 
 	private String		displayName		= "";
 	private String		type			= "";
+	private String		typeLocalized	= "";
 	private String		description		= "";
 	private String		date			= "";
 	private String		location		= "";
@@ -125,6 +126,14 @@ public class EventSummary implements Serializable {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public void setTypeLocalized(String localizedEventType) {
+		this.typeLocalized = localizedEventType;
+		
+	}	
+	public String getTypeLocalized() {
+		return typeLocalized;
 	}
 
 	public String getUrl() {

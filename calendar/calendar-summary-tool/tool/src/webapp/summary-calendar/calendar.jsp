@@ -139,7 +139,7 @@
 		        layout="simple"
        		 	style="width:100%">
 		        <t:graphicImage value="#{CalBean.eventImageMap[event.type]}"/>
-				<t:outputText value=" #{event.type} - "/>
+				<t:outputText value=" #{event.typeLocalized} - "/>
 			    <h:commandLink value="#{event.truncatedDisplayName}" actionListener="#{CalBean.selectEvent}" immediate="true">
 			       	<f:param name="calendarRef" value="#{event.calendarRef}"/>
 			       	<f:param name="eventRef" value="#{event.eventRef}"/>
@@ -160,7 +160,7 @@
 				<h:outputLabel for="type" value="#{msgs.type}" />
 				<t:div>
 		        	<t:graphicImage value="#{CalBean.eventImageMap[CalBean.selectedEvent.type]}"/>
-		        	<h:outputText id="type" value="#{CalBean.selectedEvent.type}" style="padding-left: 3px;"/>
+		        	<h:outputText id="type" value="#{CalBean.selectedEvent.typeLocalized}" style="padding-left: 3px;"/>
 		        </t:div>
 				<h:outputLabel for="description" value="#{msgs.description}" />
 		        <h:outputText id="description" value="#{CalBean.selectedEvent.description}" />

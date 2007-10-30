@@ -19,7 +19,9 @@
 	<sakai:script contextBase="/sakai-jsf-resource/" path="/inputColor/inputColor.js"/>
 	<sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
 	<sakai:script path="/summary-calendar/js/calendar-summary.js"/>
-
+	
+	<h:outputText value="#{PrefsBean.initValues}"/>
+	
 	<h3><h:outputText value="#{msgs.menu_prefs}"/></h3>
 	<sakai:instruction_message value="#{msgs.instructions_preferences}" />
 		
@@ -56,7 +58,7 @@
 	        	<h:outputLabel for="highPriorityEvents" value="#{msgs.prefs_high_priority}: "/>
 	            <h:selectManyListbox id="highPriorityEvents" size="200" style="height:50px; width: 200px;"
 	            	value="#{PrefsBean.selectedHighPriorityEvents}">
-	            	<f:selectItems value="#{PrefsBean.highPriorityEvents}"/>
+	            	<t:selectItems value="#{PrefsBean.highPriorityEvents}" var="mapEntry" itemValue="#{mapEntry.value}" itemLabel="#{mapEntry.key}"/>
 	            </h:selectManyListbox>
 	
 				<h:outputText value=""/>
@@ -70,7 +72,7 @@
 				<h:outputLabel for="mediumPriorityEvents" value="#{msgs.prefs_medium_priority}: "/>	            
 	            <h:selectManyListbox id="mediumPriorityEvents" size="200" style="height:50px; width: 200px;"
 	            	value="#{PrefsBean.selectedMediumPriorityEvents}">
-	            	<f:selectItems value="#{PrefsBean.mediumPriorityEvents}"/>
+	            	<t:selectItems value="#{PrefsBean.mediumPriorityEvents}" var="mapEntry" itemValue="#{mapEntry.value}" itemLabel="#{mapEntry.key}"/>
 	            </h:selectManyListbox>
 	
 				<h:outputText value=""/>
@@ -84,7 +86,7 @@
 	        	<h:outputLabel for="lowPriorityEvents" value="#{msgs.prefs_low_priority}: "/>	            
 	            <h:selectManyListbox id="lowPriorityEvents" size="200" style="height:50px; width: 200px;"
 	            	value="#{PrefsBean.selectedLowPriorityEvents}">
-	            	<f:selectItems value="#{PrefsBean.lowPriorityEvents}"/>
+	            	<t:selectItems value="#{PrefsBean.lowPriorityEvents}" var="mapEntry" itemValue="#{mapEntry.value}" itemLabel="#{mapEntry.key}"/>
 	            </h:selectManyListbox>
 	        </h:panelGrid>	  
 		</t:div>

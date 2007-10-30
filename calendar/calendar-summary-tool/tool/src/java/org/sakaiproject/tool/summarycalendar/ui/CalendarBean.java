@@ -142,6 +142,9 @@ public class CalendarBean {
 	}
 	
 	public String getInitValues() {
+		// reload localized event types
+		EventTypes.reloadLocalization();
+		
 		long lastModified = PrefsBean.getPreferenceLastModified();
 		if(lastModifiedPrefs != lastModified)
 			readPreferences();
@@ -357,6 +360,7 @@ public class CalendarBean {
 			EventSummary es = new EventSummary();
 			es.setDisplayName(e.getDisplayName());
 			es.setType(e.getType());
+			es.setTypeLocalized(EventTypes.getLocalizedEventType(e.getType()));
 			es.setCalendarRef(e.getCalendarReference());
 			es.setEventRef(e.getId());
 			es.setUrl(e.getUrl());
@@ -732,6 +736,7 @@ public class CalendarBean {
 				selectedEvent.setDisplayName(event.getDisplayName());
 				selectedEvent.setDate(event.getRange());
 				selectedEvent.setType(event.getType());
+				selectedEvent.setTypeLocalized(EventTypes.getLocalizedEventType(event.getType()));
 				selectedEvent.setDescription(event.getDescription());
 				selectedEvent.setLocation(event.getLocation());
 				Site site = M_ss.getSite(calendar.getContext());

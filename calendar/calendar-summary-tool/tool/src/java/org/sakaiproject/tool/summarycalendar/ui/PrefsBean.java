@@ -27,9 +27,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.Map.Entry;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.application.FacesMessage.Severity;
@@ -79,7 +83,7 @@ public class PrefsBean {
 	private String								selectedHighPrColor			= null;
 	private String								selectedMediumPrColor		= null;
 	private String								selectedLowPrColor			= null;
-	private static List							eventTypes					= null;
+	//private static List							eventTypes					= null;
 	private Collection							highPriorityEvents			= null;
 	private Collection							mediumPriorityEvents		= null;
 	private Collection							lowPriorityEvents			= null;
@@ -95,30 +99,17 @@ public class PrefsBean {
 	private static transient SessionManager		M_sm						= (SessionManager) ComponentManager.get(SessionManager.class.getName());
 	private static transient ServerConfigurationService M_cfg				= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
 
-	static {
-		eventTypes = new ArrayList();
-		eventTypes.add("Academic Calendar");
-		eventTypes.add("Activity");
-		eventTypes.add("Cancellation");
-		eventTypes.add("Class section - Discussion");
-		eventTypes.add("Class section - Lab");
-		eventTypes.add("Class section - Lecture");
-		eventTypes.add("Class section - Small Group");
-		eventTypes.add("Class session");
-		eventTypes.add("Computer Session");
-		eventTypes.add("Deadline");
-		eventTypes.add("Exam");
-		eventTypes.add("Meeting");
-		eventTypes.add("Multidisciplinary Conference");
-		eventTypes.add("Quiz");
-		eventTypes.add("Special event");
-		eventTypes.add("Web Assignment");
-	}
 	
 	// ######################################################################################
 	// Main methods
 	// ######################################################################################
 	public PrefsBean(){
+	}
+	
+	public String getInitValues() {
+		// reload localized event types
+		EventTypes.reloadLocalization();
+		return "";
 	}
 
 	// ######################################################################################
@@ -242,59 +233,85 @@ public class PrefsBean {
 	}
 	
 	
-	public List getHighPriorityEvents(){
+	public Set<Entry<String,String>> getHighPriorityEvents(){
 		if(priorityEventsMap == null)
 			readPriorityEventsMap();
-		return listOfStringsToListOfSelectItem(highPriorityEvents);
+		return listOfEventTypesToLocalizedEntrySet(highPriorityEvents);
+//		Set<Entry<String,String>> set = listOfEventTypesToLocalizedEntrySet(highPriorityEvents).entrySet();
+//		TreeSet<Entry<String,String>> treeSet = new TreeSet<Entry<String,String>>();
+//		Iterator<Entry<String,String>> i = set.iterator();
+//		while(i.hasNext()){
+//			Entry<String,String> e = i.next();
+//			treeSet.add(e);
+//		}
+//		return treeSet;
 	}	
-	public void setHighPriorityEvents(List events){
+	public void setHighPriorityEvents(Set<Entry<String,String>> events){
+		this.highPriorityEvents = new ArrayList<String>();
+		Iterator<Entry<String,String>> i = events.iterator();
+		while(i.hasNext()){
+			Entry<String,String> e = i.next();
+			highPriorityEvents.add(e.getValue());
+		}
+		//this.highPriorityEvents = events.values();
+	}
+	public List<String> getSelectedHighPriorityEvents(){
+		return new ArrayList<String>();
+	}	
+	public void setSelectedHighPriorityEvents(List<String> events){
 		this.highPriorityEvents = events;
 	}
-	public List getSelectedHighPriorityEvents(){
-		return new ArrayList();
-	}	
-	public void setSelectedHighPriorityEvents(Collection events){
-		this.highPriorityEvents = events;
-	}
-	public void setSelectedHighPriorityEvents(List events){
+	public void setSelectedHighPriorityEvents(Collection<String> events){
 		this.highPriorityEvents = events;
 	}
 	
 	
-	public List getMediumPriorityEvents(){
+	public Set<Entry<String,String>> getMediumPriorityEvents(){
 		if(priorityEventsMap == null)
 			readPriorityEventsMap();
-		return listOfStringsToListOfSelectItem(mediumPriorityEvents);
+		return listOfEventTypesToLocalizedEntrySet(mediumPriorityEvents);
 	}	
-	public void setMediumPriorityEvents(List events){
+	public void setMediumPriorityEvents(Set<Entry<String,String>> events){
+		this.mediumPriorityEvents = new ArrayList<String>();
+		Iterator<Entry<String,String>> i = events.iterator();
+		while(i.hasNext()){
+			Entry<String,String> e = i.next();
+			mediumPriorityEvents.add(e.getValue());
+		}
+		//this.mediumPriorityEvents = events.values();
+	}
+	public List<String> getSelectedMediumPriorityEvents(){
+		return new ArrayList<String>();
+	}	
+	public void setSelectedMediumPriorityEvents(List<String> events){
 		this.mediumPriorityEvents = events;
 	}
-	public List getSelectedMediumPriorityEvents(){
-		return new ArrayList();
-	}	
-	public void setSelectedMediumPriorityEvents(Collection events){
-		this.mediumPriorityEvents = events;
-	}
-	public void setSelectedMediumPriorityEvents(List events){
+	public void setSelectedMediumPriorityEvents(Collection<String> events){
 		this.mediumPriorityEvents = events;
 	}
 	
 	
-	public List getLowPriorityEvents(){
+	public Set<Entry<String,String>> getLowPriorityEvents(){
 		if(priorityEventsMap == null)
 			readPriorityEventsMap();
-		return listOfStringsToListOfSelectItem(lowPriorityEvents);
+		return listOfEventTypesToLocalizedEntrySet(lowPriorityEvents);
 	}	
-	public void setLowPriorityEvents(List events){
+	public void setLowPriorityEvents(Set<Entry<String,String>> events){
+		this.lowPriorityEvents = new ArrayList<String>();
+		Iterator<Entry<String,String>> i = events.iterator();
+		while(i.hasNext()){
+			Entry<String,String> e = i.next();
+			lowPriorityEvents.add(e.getValue());
+		}
+		//this.lowPriorityEvents = events.values();
+	}
+	public List<String> getSelectedLowPriorityEvents(){
+		return new ArrayList<String>();
+	}	
+	public void setSelectedLowPriorityEvents(List<String> events){
 		this.lowPriorityEvents = events;
 	}
-	public List getSelectedLowPriorityEvents(){
-		return new ArrayList();
-	}	
-	public void setSelectedLowPriorityEvents(Collection events){
-		this.lowPriorityEvents = events;
-	}
-	public void setSelectedLowPriorityEvents(List events){
+	public void setSelectedLowPriorityEvents(Collection<String> events){
 		this.lowPriorityEvents = events;
 	}
 	
@@ -371,7 +388,7 @@ public class PrefsBean {
 		// make sure all available events are listed
 		// no pass-by-reference in java, must use a work-around...
 		List temp = new ArrayList();
-		temp.addAll(eventTypes);		
+		temp.addAll(EventTypes.getEventTypes());		
 		PairList lists = new PairList(h, temp);
 		lists = validateEventList(lists);
 		h = lists.dataList;
@@ -388,9 +405,9 @@ public class PrefsBean {
 		l.addAll(lists.tempList);		
 
 		// sort lists
-		Collections.sort(h);
-		Collections.sort(m);
-		Collections.sort(l);
+		//Collections.sort(h);
+		//Collections.sort(m);
+		//Collections.sort(l);
 		
 		map.put(PREFS_HIGHPRIORITY_EVENTS, h);		
 		map.put(PREFS_MEDIUMPRIORITY_EVENTS, m);		
@@ -529,16 +546,24 @@ public class PrefsBean {
 		return str[0];
 	}
 	
-	private List listOfStringsToListOfSelectItem(Collection l) {
-		List losi = new ArrayList();
+	private Set<Entry<String,String>> listOfEventTypesToLocalizedEntrySet(Collection<String> l) {
+		//TreeSet<Entry<String,String>> treeSet = new TreeSet<Entry<String,String>>();
+		TreeMap<String,String> map = new TreeMap<String,String>();
 		if(l == null)
-			return losi;
-		Iterator los = l.iterator();
-		while(los.hasNext()){
-			String s = (String) los.next();
-			losi.add(new SelectItem(s));
+			return map.entrySet();
+		Iterator<String> lI = l.iterator();
+		while(lI.hasNext()){
+			String eventType = lI.next();
+			map.put(EventTypes.getLocalizedEventType(eventType), eventType);
 		}
-		return losi;
+		return map.entrySet();
+		
+//		TreeSet<Entry<String,String>> treeSet = new TreeSet<Entry<String,String>>();
+//		Iterator<Entry<String,String>> i = set.iterator();
+//		while(i.hasNext()){
+//			Entry<String,String> e = i.next();
+//			treeSet.add(e);
+//		}
 	}
 
 	/**
