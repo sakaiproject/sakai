@@ -3,142 +3,168 @@
 <!--  Request-scope beans for TaskList - actually just the handler -->
 <beans>
 
- 		<!-- for now we will just hardwire the rich text control for this app to be
+	<!-- for now we will just hardwire the rich text control for this app to be
 		the Sakai FCKEditor-based rich text control -->
 	<bean id="richTextEvolver"
 		class="org.springframework.beans.factory.config.BeanReferenceFactoryBean">
 		<property name="targetBeanName" value="sakaiFCKTextEvolver" />
 	</bean>
- 	
- <bean id="pollToolBean" class="org.sakaiproject.poll.tool.params.PollToolBean">
-  <property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
-  <property name="voteBean" ref="voteBean"/>
-  <property name="pollVoteManager" ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
-  <property name="voteCollection" ref="voteCollection" />
-  <property name="option" ref="option" />
-  <property name="poll" ref="poll" />
-  <property name="localeGetter" ref="requestLocaleProxy" />
-  <property name="messages" ref="targettedMessageList"/>
- </bean>	
 
-	
- 	
-	<bean id="permissionsProducer" class="org.sakaiproject.poll.tool.producers.PermissionsProducer">
-  		<property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
+	<bean id="pollToolBean"
+		class="org.sakaiproject.poll.tool.params.PollToolBean">
+		<property name="pollListManager"
+			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+		<property name="voteBean" ref="voteBean" />
+		<property name="pollVoteManager"
+			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
+		<property name="voteCollection" ref="voteCollection" />
+		<property name="option" ref="option" />
+		<property name="poll" ref="poll" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="messages" ref="targettedMessageList" />
+	</bean>
+
+
+
+	<bean id="permissionsProducer"
+		class="org.sakaiproject.poll.tool.producers.PermissionsProducer">
+		<property name="pollListManager"
+			ref="org.sakaiproject.tool.poll.api.PollListManager" />
 		<property name="toolManager"
 			ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="userDirectoryService"
 			ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
-		<property name="messageLocator" ref="messageLocator"/>
+		<property name="messageLocator" ref="messageLocator" />
 		<property name="roleperms" ref="roleperms" />
 	</bean>
- 	
-	<bean id="roleperms" factory-bean="RoleFactory" factory-method="getRoles"/>
 
-	<bean id="RoleFactory" class="org.sakaiproject.poll.tool.params.RoleFactory">
+	<bean id="roleperms" factory-bean="RoleFactory"
+		factory-method="getRoles" />
+
+	<bean id="RoleFactory"
+		class="org.sakaiproject.poll.tool.params.RoleFactory">
 	</bean>
- 
 
- 
-  	
- <bean id="pollListProducer" class="org.sakaiproject.poll.tool.producers.PollToolProducer">
-  <property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
-  <property name="toolManager"
+
+
+
+	<bean id="pollListProducer"
+		class="org.sakaiproject.poll.tool.producers.PollToolProducer">
+		<property name="pollListManager"
+			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+		<property name="toolManager"
 			ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="userDirectoryService"
 			ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
-		<property name="messageLocator" ref="messageLocator"/>
-				<property name="pollVoteManager" 
+		<property name="messageLocator" ref="messageLocator" />
+		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
-			<property name="voteBean" ref="voteBean"/>
-			<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-</bean>
- 
-<bean id="permissionAction" class="org.sakaiproject.poll.tool.params.PermissionAction">
-	<property name="roleperms" ref="roleperms" />
- </bean>	
+		<property name="voteBean" ref="voteBean" />
+		<property name="siteService"
+			ref="org.sakaiproject.site.api.SiteService" />
+	</bean>
 
-<bean id="confirmProducer" class="org.sakaiproject.poll.tool.producers.ConfirmProducer">		
-	<property name="voteBean" ref="voteBean"/>
-	<property name="messageLocator" ref="messageLocator"/>
-</bean>
+	<bean id="permissionAction"
+		class="org.sakaiproject.poll.tool.params.PermissionAction">
+		<property name="roleperms" ref="roleperms" />
+	</bean>
 
-<bean id="pollOptionProducer" class="org.sakaiproject.poll.tool.producers.PollOptionProducer">		
-	<property name="voteBean" ref="voteBean"/>
-	<property name="messageLocator" ref="messageLocator"/>
-	<property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
-	<property name="targettedMessageList" ref="targettedMessageList" /> 
-	<property name="richTextEvolver" ref="richTextEvolver" />
-</bean>
+	<bean id="confirmProducer"
+		class="org.sakaiproject.poll.tool.producers.ConfirmProducer">
+		<property name="voteBean" ref="voteBean" />
+		<property name="messageLocator" ref="messageLocator" />
+	</bean>
 
-<bean id="pollOptionDeleteProducer" class="org.sakaiproject.poll.tool.producers.PollOptionDeleteProducer">		
-	<property name="voteBean" ref="voteBean"/>
-	<property name="messageLocator" ref="messageLocator"/>
-	<property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
-</bean>
+	<bean id="pollOptionProducer"
+		class="org.sakaiproject.poll.tool.producers.PollOptionProducer">
+		<property name="voteBean" ref="voteBean" />
+		<property name="messageLocator" ref="messageLocator" />
+		<property name="pollListManager"
+			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+		<property name="targettedMessageList"
+			ref="targettedMessageList" />
+		<property name="richTextEvolver" ref="richTextEvolver" />
+	</bean>
 
-<bean id="addPollProducer" class="org.sakaiproject.poll.tool.producers.AddPollProducer">		
-	<property name="voteBean" ref="voteBean"/>
-	<property name="messageLocator" ref="messageLocator"/>
-	<property name="userDirectoryService"
+	<bean id="pollOptionDeleteProducer"
+		class="org.sakaiproject.poll.tool.producers.PollOptionDeleteProducer">
+		<property name="voteBean" ref="voteBean" />
+		<property name="messageLocator" ref="messageLocator" />
+		<property name="pollListManager"
+			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+	</bean>
+
+	<bean id="addPollProducer"
+		class="org.sakaiproject.poll.tool.producers.AddPollProducer">
+		<property name="voteBean" ref="voteBean" />
+		<property name="messageLocator" ref="messageLocator" />
+		<property name="userDirectoryService"
 			ref="org.sakaiproject.user.api.UserDirectoryService" />
-	<property name="localeGetter" ref="requestLocaleProxy" />
-	<property name="toolManager"
+		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="toolManager"
 			ref="org.sakaiproject.tool.api.ToolManager" />
-	<property name="pollListManager" 
-		ref="org.sakaiproject.tool.poll.api.PollListManager"/>
-	<property name="richTextEvolver" ref="richTextEvolver" />
-	<property name="targettedMessageList" ref="targettedMessageList" /> 
-	 <property name="dateEvolver" ref="fieldDateInputEvolver"/>
-	 <property name="pollVoteManager" 
+		<property name="pollListManager"
+			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+		<property name="richTextEvolver" ref="richTextEvolver" />
+		<property name="targettedMessageList"
+			ref="targettedMessageList" />
+		<property name="dateEvolver" ref="fieldDateInputEvolver" />
+		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
 	</bean>
 
-  
- <bean id="pollVoteProducer" class="org.sakaiproject.poll.tool.producers.PollVoteProducer">
-  <property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
-  <property name="toolManager"
+
+	<bean id="pollVoteProducer"
+		class="org.sakaiproject.poll.tool.producers.PollVoteProducer">
+		<property name="pollListManager"
+			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+		<property name="toolManager"
 			ref="org.sakaiproject.tool.api.ToolManager" />
-  <property name="userDirectoryService"
+		<property name="userDirectoryService"
 			ref="org.sakaiproject.user.api.UserDirectoryService" />
-  <property name="localeGetter" ref="requestLocaleProxy" />
-  <property name="messageLocator" ref="messageLocator"/>
-  <property name="pollVoteManager" 
+		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="messageLocator" ref="messageLocator" />
+		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
- <property name="targettedMessageList" ref="targettedMessageList" /> 
-</bean>   
-  
-<bean id="resultsProducer" class="org.sakaiproject.poll.tool.producers.ResultsProducer">
-	<property name="messageLocator" ref="messageLocator"/>
-	<property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
-	<property name="pollVoteManager" 
+		<property name="targettedMessageList"
+			ref="targettedMessageList" />
+	</bean>
+
+	<bean id="resultsProducer"
+		class="org.sakaiproject.poll.tool.producers.ResultsProducer">
+		<property name="messageLocator" ref="messageLocator" />
+		<property name="pollListManager"
+			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
-	<property name="toolManager"
+		<property name="toolManager"
 			ref="org.sakaiproject.tool.api.ToolManager" />
-			<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
-			<property name="localeGetter" ref="requestLocaleProxy" />
-</bean>
+		<property name="eventTrackingService"
+			ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
 
-	<bean id="voteCollection" class="org.sakaiproject.poll.model.VoteCollection" />
- 	<bean id="option" class="org.sakaiproject.poll.model.Option" />
- 	<bean id="poll" class="org.sakaiproject.poll.model.Poll" />
+	<bean id="voteCollection"
+		class="org.sakaiproject.poll.model.VoteCollection" />
+	<bean id="option" class="org.sakaiproject.poll.model.Option" />
+	<bean id="poll" class="org.sakaiproject.poll.model.Poll" />
 
 
 
-  <bean id="fieldDateTransit" parent="beanExploder">
-    <property name="factory">
-      <bean class="uk.org.ponder.dateutil.StandardFieldDateTransit"
-        init-method="init">
-        <property name="locale" ref="requestLocale" />
-        <property name="timeZone" ref="requestTimeZone"/>
-      </bean>
-    </property>
-  </bean>
+	<bean id="fieldDateTransit" parent="beanExploder">
+		<property name="factory">
+			<bean
+				class="uk.org.ponder.dateutil.StandardFieldDateTransit"
+				init-method="init">
+				<property name="locale" ref="requestLocale" />
+				<property name="timeZone" ref="requestTimeZone" />
+			</bean>
+		</property>
+	</bean>
 
 
 </beans>
 
 
-  
