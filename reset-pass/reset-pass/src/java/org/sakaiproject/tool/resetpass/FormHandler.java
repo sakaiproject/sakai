@@ -8,7 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -54,6 +54,10 @@ public class FormHandler {
 		eventService=etc;
 	}
 	
+	private SecurityService securityService;
+	public void setSecurityService(SecurityService ss) {
+		securityService = ss;
+	}
 	
 	private static Log m_log  = LogFactory.getLog(FormHandler.class);
 	
@@ -71,7 +75,7 @@ public class FormHandler {
 			try {
 
 			// Need: SECURE_UPDATE_USER_ANY
-			SecurityService.pushAdvisor(new SecurityAdvisor() {
+			securityService.pushAdvisor(new SecurityAdvisor() {
 			    public SecurityAdvice isAllowed(String userId, String function, String reference) {
 			            if (SECURE_UPDATE_USER_ANY.equals(function)) {
 			                return SecurityAdvice.ALLOWED;
@@ -85,7 +89,7 @@ public class FormHandler {
 			userE.setPassword(pass);
 			userDirectoryService.commitEdit(userE);
 
-			SecurityService.popAdvisor();
+			securityService.popAdvisor();
 			
 			String productionSiteName = serverConfigurationService.getString("ui.service", "");
 			
@@ -119,7 +123,7 @@ public class FormHandler {
 			}
 			catch (Exception e) {
 				e.printStackTrace();
-				SecurityService.clearAdvisors();
+				securityService.clearAdvisors();
 				return null;
 			}
 		
