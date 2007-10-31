@@ -49,6 +49,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.MultipleAssignmentSavingException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -2780,5 +2781,55 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     public void setSynchronizer(GbSynchronizer synchronizer) 
     {
     	this.synchronizer = synchronizer;
+    }
+    
+    public void createAssignments(Long gradebookId, List assignList) throws MultipleAssignmentSavingException
+    {
+    	List assignIds = new ArrayList();
+    	try
+    	{
+    		for(Iterator iter = assignList.iterator(); iter.hasNext();)
+    		{
+    			Assignment assign = (Assignment) iter.next();
+    			if(assign.getCategory() == null)
+    			{
+    				assignIds.add(createAssignment(gradebookId, assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isCounted(), assign.isReleased()));
+    			}
+    			else
+    				assignIds.add(createAssignmentForCategory(gradebookId, assign.getCategory().getId(), assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased()));
+    		}
+    	}
+    	catch(Exception e)
+    	{
+    		for(Iterator iter = assignIds.iterator(); iter.hasNext();)
+    		{
+    			removeAssignment((Long)iter.next());
+    		}
+
+    		throw new MultipleAssignmentSavingException("Errors occur while trying to saving multiple assignment items in createAssignments -- " + e.getMessage());
+    	}
+    }
+    
+    public boolean checkValidName(final Long gradebookId, final Assignment assignment)
+    {
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+    			List conflictList = ((List)session.createQuery(
+    					"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+    					setString(0, assignment.getName()).
+    					setEntity(1, gb).list());
+    			int numNameConflicts = conflictList.size();
+
+    			return new Integer(numNameConflicts);
+    		}
+    	};
+
+    	Integer conflicts =  (Integer) getHibernateTemplate().execute(hc);
+    	
+    	if(conflicts.intValue() > 0)
+    		return false;
+    	else
+    		return true;
     }
 }

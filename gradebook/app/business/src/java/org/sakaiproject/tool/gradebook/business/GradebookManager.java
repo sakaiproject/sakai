@@ -30,6 +30,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.MultipleAssignmentSavingException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.*;
 
@@ -798,4 +799,21 @@ public interface GradebookManager {
      * @throws IllegalArgumentException
      */    
     public List getPermissionsForUserForGroup(final Long gradebookId, final String userId, final List groupIds) throws IllegalArgumentException;
+    
+    /**
+     * Add a list of assignments. If errors occur while saving, it will back off all saved ones.
+     *
+     * @param gradebookId The gradebook ID to which this new assignment belongs
+     * @param assignList List of assignments
+     */
+    public void createAssignments(Long gradebookId, List assignList) throws MultipleAssignmentSavingException;
+    
+    /**
+     * Check if the assignment's name is valid to add or not.
+     *
+     *@param gradebookId Long of the gradebook's ID
+     * @param assignment Assignment to be added
+     * @return boolean
+     */
+    public boolean checkValidName(final Long gradebookId, final Assignment assignment);
 }

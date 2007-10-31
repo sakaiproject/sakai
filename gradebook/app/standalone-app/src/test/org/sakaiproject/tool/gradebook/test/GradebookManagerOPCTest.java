@@ -3137,4 +3137,52 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 //		}		
 
 	}
+	
+	public void testCreateAssignments() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		int originalSize = gradebookManager.getAssignments(persistentGradebook.getId()).size();
+		try
+		{
+			Assignment assignment1 = new Assignment();
+			assignment1.setGradebook(persistentGradebook);
+			assignment1.setName("test testCreateAssignments1");
+			assignment1.setPointsPossible(new Double(10.0));
+			assignment1.setDueDate(new Date());
+			assignment1.setUngraded(false);
+			
+			Assignment assignment2 = new Assignment();
+			assignment2.setGradebook(persistentGradebook);
+			assignment2.setName("test testCreateAssignments2");
+			assignment2.setPointsPossible(new Double(10.0));
+			assignment2.setDueDate(new Date());
+			assignment2.setUngraded(false);
+			
+			Assignment assignment3 = new Assignment();
+			assignment3.setGradebook(persistentGradebook);
+			assignment3.setName("test testCreateAssignments1");
+			assignment3.setPointsPossible(new Double(10.0));
+			assignment3.setDueDate(new Date());
+			assignment3.setUngraded(false);
+			
+			List assignments = new ArrayList();
+			assignments.add(assignment1);
+			assignments.add(assignment2);
+			assignments.add(assignment3);
+			
+			Assert.assertTrue(gradebookManager.checkValidName(persistentGradebook.getId(), assignment1));
+			Assert.assertTrue(gradebookManager.checkValidName(persistentGradebook.getId(), assignment2));
+			Assert.assertTrue(gradebookManager.checkValidName(persistentGradebook.getId(), assignment3));
+			
+			gradebookManager.createAssignments(persistentGradebook.getId(), assignments);
+		}
+		catch(Exception e)
+		{
+			Assert.assertTrue(originalSize == gradebookManager.getAssignments(persistentGradebook.getId()).size());
+		}
+		finally
+		{
+			Assert.assertTrue(originalSize == gradebookManager.getAssignments(persistentGradebook.getId()).size());
+		}
+	}
 }
