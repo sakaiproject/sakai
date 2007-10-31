@@ -126,7 +126,6 @@ public class VoteValidator implements Validator {
 		}
 	}
 	  
-	
 	  logger.debug("options selected is " + options.size());
 	  // the exact choise case
 	  
@@ -134,27 +133,20 @@ public class VoteValidator implements Validator {
 			errors.reject("vote_hasvoted","has voted");
 			return;
 		}
-		
 	  
 	  if (poll.getMaxOptions() == poll.getMinOptions() && options.size() != poll.getMaxOptions()){
 		  logger.debug("exact match failure!");
 		  String errStr = new Integer(poll.getMinOptions()).toString();
 		  errors.reject("error_exact_required", new Object[] {errStr}, "exact required");
-	  }
-	  if (options.size() > poll.getMaxOptions()) {
+	  }else if (options.size() > poll.getMaxOptions()) {
 		  logger.debug("votes are for more than allowed!");
 		  String errStr = new Integer(poll.getMaxOptions()).toString();
 		  errors.reject("error_tomany_votes", new Object[] {errStr}, "to many votes");
-	  }
-	  
-	  if (options.size() < poll.getMinOptions()) {
+	  }else if (options.size() < poll.getMinOptions()) {
 		  logger.debug("votes are for fewer than required!");
 		  String errStr = new Integer(poll.getMinOptions()).toString();
 		  errors.reject("error_tofew_votes", new Object[] {errStr}, "to few");
 	  }
-	  
-		
-
 	}
 
 }
