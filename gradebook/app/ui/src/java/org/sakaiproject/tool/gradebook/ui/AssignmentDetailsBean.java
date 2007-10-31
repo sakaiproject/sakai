@@ -106,7 +106,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				return truncateScore(gradeRecord.getPointsEarned());
 		}
 		public void setScore(Double score) {
-			if (getGradeEntryByPoints()) {
+			if (getGradeEntryByPoints() || getGradeEntryByNonCal()) {
 				Double originalScore = gradeRecord.getPointsEarned();
 				if (originalScore != null) {
 					// truncate to two decimals for more accurate comparison
@@ -304,7 +304,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				
 				List studentUids = new ArrayList(enrollmentMap.keySet());
 				List gradeRecords = new ArrayList();
-				if (getGradeEntryByPoints())
+				if (getGradeEntryByPoints() || getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_NO_CALCULATED)
 					gradeRecords = getGradebookManager().getAssignmentGradeRecords(assignment, studentUids);
 				else 
 					gradeRecords = getGradebookManager().getAssignmentGradeRecordsConverted(assignment, studentUids);
@@ -472,7 +472,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         
         String messageKey = null;
         if (updatedGradeRecords.size() > 0) {
-        	if (excessiveScores.size() > 0) {
+        	if (excessiveScores != null && excessiveScores.size() > 0) {
         		messageKey = "assignment_details_scores_saved_excessive";
         	} else if (updatedComments.size() > 0) {
         		messageKey = "assignment_details_scores_comments_saved";

@@ -507,7 +507,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     {
     	List allAssignRecordsFromDB = getAllAssignmentGradeRecords(gradebookId, studentUids);
     	Gradebook gradebook = getGradebook(gradebookId);
-    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS)
+    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS || gradebook.getGrade_type() == GradebookService.GRADE_TYPE_NO_CALCULATED)
     		return allAssignRecordsFromDB;
     	else if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
     	{
@@ -988,7 +988,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     public List getStudentGradeRecordsConverted(final Long gradebookId, final String studentId) {
     	List studentGradeRecsFromDB = getStudentGradeRecords(gradebookId, studentId);
     	Gradebook gradebook = getGradebook(gradebookId);
-    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS)
+    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS || gradebook.getGrade_type() == GradebookService.GRADE_TYPE_NO_CALCULATED)
     		return studentGradeRecsFromDB;
     	else if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
     	{
@@ -2014,7 +2014,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     
     public Set updateAssignmentGradeRecords(Assignment assignment, Collection gradeRecords, int grade_type)
     {
-    	if(grade_type == GradebookService.GRADE_TYPE_POINTS)
+    	if(grade_type == GradebookService.GRADE_TYPE_POINTS || grade_type == GradebookService.GRADE_TYPE_NO_CALCULATED)
     		return updateAssignmentGradeRecords(assignment, gradeRecords);
     	else if(grade_type == GradebookService.GRADE_TYPE_PERCENTAGE)
     	{
@@ -2072,7 +2072,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
      */
     public Set updateStudentGradeRecords(Collection gradeRecords, int grade_type, String studentId)
     {
-    	if(grade_type == GradebookService.GRADE_TYPE_POINTS)
+    	if(grade_type == GradebookService.GRADE_TYPE_POINTS || grade_type == GradebookService.GRADE_TYPE_NO_CALCULATED)
     		return updateStudentGradeRecords(gradeRecords, studentId);
     	else if(grade_type == GradebookService.GRADE_TYPE_PERCENTAGE)
     	{
@@ -2196,7 +2196,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     {
     	List assignRecordsFromDB = getAssignmentGradeRecords(assignment, studentUids);
     	Gradebook gradebook = getGradebook(assignment.getGradebook().getId());
-    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS)
+    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS || gradebook.getGrade_type() == GradebookService.GRADE_TYPE_NO_CALCULATED)
     		return assignRecordsFromDB;
     	else if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
     	{

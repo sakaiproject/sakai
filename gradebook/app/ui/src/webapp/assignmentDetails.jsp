@@ -208,7 +208,7 @@
 			<h:column>
 				<f:facet name="header">
 		      <t:commandSortHeader columnName="studentScore" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
-					  <h:outputText value="#{msgs.assignment_details_points}" rendered="#{assignmentDetailsBean.gradeEntryByPoints && !assignmentDetailsBean.assignment.ungraded}"/>
+					  <h:outputText value="#{msgs.assignment_details_points}" rendered="#{(assignmentDetailsBean.gradeEntryByPoints && !assignmentDetailsBean.assignment.ungraded) || (assignmentDetailsBean.gradeEntryByNonCal && !assignmentDetailsBean.assignment.ungraded)}"/>
 					  <h:outputText value="#{msgs.assignment_details_percent}" rendered="#{assignmentDetailsBean.gradeEntryByPercent && !assignmentDetailsBean.assignment.ungraded}"/>
 					  <h:outputText value="#{msgs.assignment_details_letters}" rendered="#{assignmentDetailsBean.gradeEntryByLetter && !assignmentDetailsBean.assignment.ungraded}"/>}" />
 					  <h:outputText value="#{msgs.assignment_details_points}" rendered="#{assignmentDetailsBean.assignment.ungraded}" />
@@ -218,7 +218,7 @@
 				<t:div>
 					<h:panelGroup rendered="#{!assignmentDetailsBean.assignment.externallyMaintained && scoreRow.userCanGrade}">
 						<h:inputText id="Score" value="#{scoreRow.score}" size="6" 
-							 rendered="#{(assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent) && !assignmentDetailsBean.assignment.ungraded}"
+							 rendered="#{((assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent) && !assignmentDetailsBean.assignment.ungraded) || (assignmentDetailsBean.gradeEntryByNonCal && !assignmentDetailsBean.assignment.ungraded)}"
 							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 							<f:validateDoubleRange minimum="0"/>
@@ -237,7 +237,7 @@
 					</h:panelGroup>
 					
 					<h:panelGroup rendered="#{assignmentDetailsBean.assignment.externallyMaintained || !scoreRow.userCanGrade}">
-						<h:outputText value="#{scoreRow.score}" rendered="#{(assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent) && !assignmentDetailsBean.assignment.ungraded}">
+						<h:outputText value="#{scoreRow.score}" rendered="#{((assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent) && !assignmentDetailsBean.assignment.ungraded) || (assignmentDetailsBean.gradeEntryByNonCal && !assignmentDetailsBean.assignment.ungraded)}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 						</h:outputText>
 						<h:outputText value="#{scoreRow.letterScore}" 
