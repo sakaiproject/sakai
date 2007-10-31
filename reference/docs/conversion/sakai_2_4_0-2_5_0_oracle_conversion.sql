@@ -19,15 +19,15 @@ alter table searchbuilderitem add itemscope integer;
 create index isearchbuilderitem_sco on searchbuilderitem (itemscope);
 
 -- SAK-9808: Implement ability to delete threaded messages within Forums
-
+alter table MFR_MESSAGE_T add DELETED number(1, 0) default '0' not null;
 create index MFR_MESSAGE_DELETED_I on MFR_MESSAGE_T (DELETED);
 
 --Chat SAK-10682
 alter table CHAT2_CHANNEL modify (CONTEXT VARCHAR2(99));
 
 --Chat SAK-10163
---ALTER TABLE CHAT2_CHANNEL ADD PLACEMENT_ID varchar2(99) NULL;
---ALTER TABLE CHAT2_CHANNEL RENAME COLUMN contextDefaultChannel TO placementDefaultChannel;
+ALTER TABLE CHAT2_CHANNEL ADD PLACEMENT_ID varchar2(99) NULL;
+ALTER TABLE CHAT2_CHANNEL RENAME COLUMN contextDefaultChannel TO placementDefaultChannel;
 
 update CHAT2_CHANNEL cc
 set cc.PLACEMENT_ID = (select st.TOOL_ID from SAKAI_SITE_TOOL st where st.REGISTRATION = 'sakai.chat' 
@@ -745,6 +745,11 @@ RENAME osp_report_def_xml TO reports_def_xml;
 RENAME osp_reports_params TO reports_param;
 RENAME osp_reports TO reports_report;
 RENAME osp_reports_results TO reports_result;
+
+-- SAK-9865 search Missing columns
+
+alter table searchbuilderitem add itemscope number(4,0);
+create index isearchbuilderitem_sco on searchbuilderitem (itemscope);
 
 -- SAK-11245 -- new search indexer
 
