@@ -72,9 +72,11 @@
 	</div>
 	<br />
 	#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
-	#if ($!siteUsers.size() == 0)
+	#set ($showMsg = false)
+	#set ($showMsg = $!allMsgNumber)
+	#if (!$!showMsg || $showMsg ==0)
 		<p class="instruction">
-			$tlang.getString("nostudent")
+			$tlang.getString("theisnostudent")
 		</p>
 	#else
 		<div class="navIntraTool">
