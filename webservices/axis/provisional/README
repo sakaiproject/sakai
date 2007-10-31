@@ -1,0 +1,5 @@
+This is a provisional space for new webservices.
+
+In order to install any of these webservices, copy the jws file into
+../src/webapp. If you have already deployed Sakai they can be copied into
+tomcat/webapps/sakai-axis.
