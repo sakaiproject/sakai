@@ -19,6 +19,11 @@
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-assignment-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-announcement-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>

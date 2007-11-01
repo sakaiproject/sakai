@@ -41,6 +41,8 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.cover.AnnouncementService;
+import org.sakaiproject.assignment.api.Assignment;
+import org.sakaiproject.assignment.cover.AssignmentService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -76,6 +78,7 @@ import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -83,6 +86,7 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.MergedList;
@@ -1982,6 +1986,57 @@ public class AnnouncementAction extends PagedResourceActionII
 			if (!this.isOkayToDisplayMessageMenu(state))
 			{
 				menu_new = menu_delete = menu_revise = false;
+			}
+			
+			try // Check to see if this is an announcement associated with an assignment
+			{
+				Iterator i = AssignmentService.getAssignmentsForContext(channel.getContext());
+				String assignmentId = "";
+				
+				while (i.hasNext()) // if i is empty, none of this code is ran
+				{
+					Assignment a = (Assignment) i.next();
+					
+					// This is the only link we have to know if the announcement is associated with an assignment
+					String announcementCheck = a.getProperties().getProperty("CHEF:assignment_opendate_announcement_message_id");
+					
+					// Get the titles of both for comparison
+					String title = a.getTitle();
+					String title2 = message.getAnnouncementHeader().getSubject();
+					
+					// Lots of checks to make absolutely sure this is the assignment we are looking for
+					if (announcementCheck!="" && announcementCheck!=null && announcementCheck.equals(message.getId()) && title2.endsWith(title))
+					{
+						assignmentId = a.getId();
+						context.put("assignment", a);
+						if (assignmentId != null && assignmentId.length() > 0)
+						{
+							String assignmentContext = a.getContext(); // assignment context
+							boolean allowReadAssignment = AssignmentService.allowGetAssignment(assignmentContext); // check for read permission
+							if (allowReadAssignment && a.getOpenTime().before(TimeService.newTime())) // this checks if we want to display an assignment link
+							{
+								Site site = SiteService.getSite(assignmentContext); // site id
+								ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
+								boolean allowAddAssignment = AssignmentService.allowAddAssignment(assignmentContext); // this checks for the asn.new permission and determines the url we present the user
+								
+								// Two different urls to be rendered depending on the user's permission
+								if (allowAddAssignment)
+								{
+									context.put("assignmenturl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentId=" + a.getReference() + "&panel=Main&sakai_action=doView_assignment");
+								}
+								else
+								{
+									context.put("assignmenturl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentReference=" + a.getReference() + "&panel=Main&sakai_action=doView_submission");
+								}
+							}
+						}
+						break; // no need to keep iterating if we find the match
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				// no assignment associated
 			}
 
 			// check the state status to decide which vm to render

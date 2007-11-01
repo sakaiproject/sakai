@@ -1,4 +1,13 @@
 <!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-metadata.vm,v 1.7 2005/05/15 17:02:52 gsilver.umich.edu Exp $ -->
+
+<script language="JavaScript" type="text/JavaScript">
+<!--
+	function change_parent_url(url)
+	{
+	  parent.location=url;
+	}		
+//-->
+</script>
 <div class="portletBody">
 	#if($menu && $EnabledMenuItemExists)
 		#toolbar($menu)
@@ -44,11 +53,22 @@
 			<th>$tlang.getString("gen.date")</th>
 			<td>$message.Header.Date.toStringLocalFull()</td>
 		</tr>
+
 		#if ($!range)
 			<tr>
 				<th>$tlang.getString("meta.groups")</th>
 				<td>$!range</td>
 			</tr>
+		#end
+		#if($assignmenturl && $assignmenturl !="")
+		<tr>
+			<th>$tlang.getString("gen.assignmentlink")</th>
+			<td>
+				<a href="javascript:change_parent_url('$assignmenturl');">
+					$validator.limit($validator.escapeHtml($!assignment.getTitle()), 40)
+				</a>
+			</td>
+		</tr>
 		#end
 	</table>
 	<h4>
