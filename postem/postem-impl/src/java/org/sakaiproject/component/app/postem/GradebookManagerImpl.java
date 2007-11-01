@@ -25,20 +25,30 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Comparator;
+import java.util.ArrayList;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
 import org.sakaiproject.api.app.postem.data.Gradebook;
 import org.sakaiproject.api.app.postem.data.GradebookManager;
+import org.sakaiproject.api.app.postem.data.Heading;
+import org.sakaiproject.api.app.postem.data.StudentGradeData;
 import org.sakaiproject.api.app.postem.data.StudentGrades;
 import org.sakaiproject.api.app.postem.data.Template;
 import org.sakaiproject.component.app.postem.data.GradebookImpl;
+import org.sakaiproject.component.app.postem.data.HeadingImpl;
+import org.sakaiproject.component.app.postem.data.StudentGradeDataImpl;
 import org.sakaiproject.component.app.postem.data.StudentGradesImpl;
 import org.sakaiproject.component.app.postem.data.TemplateImpl;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -59,7 +69,7 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 	public static final String RELEASED = "released";
 
 	public Gradebook createGradebook(String title, String creator,
-			String context, List headings, SortedSet students, Template template) {
+			String context, List<Heading> headings, SortedSet students, Template template) {
 		if (title == null || creator == null || context == null || headings == null
 				|| students == null) {
 			throw new IllegalArgumentException("Null Argument");
@@ -174,31 +184,22 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 		if (context == null) {
 			throw new IllegalArgumentException("Null Argument");
 		} else {
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException,
-						SQLException {
+			List gbList = getHibernateTemplate().find("from GradebookImpl as gb where gb.context=?",
+		    		context);
+			
+			Comparator gbComparator = determineComparator(sortBy, ascending);
+			
+			SortedSet gradebooks = new TreeSet(gbComparator);
 
-					Criteria crit = session.createCriteria(GradebookImpl.class).add(
-							Expression.eq(CONTEXT, context));
+			Iterator gbIterator = gbList.iterator();
 
-					List gbs = crit.list();
-					
-					Comparator gbComparator = determineComparator(sortBy, ascending);
-					
-					SortedSet gradebooks = new TreeSet(gbComparator);
+			while (gbIterator.hasNext()) {
+				gradebooks.add((Gradebook) gbIterator.next());
 
-					Iterator gbIterator = gbs.iterator();
+			}
 
-					while (gbIterator.hasNext()) {
-						gradebooks.add((Gradebook) gbIterator.next());
-
-					}
-
-					return gradebooks;
-				}
-			};
-
-			return (SortedSet) getHibernateTemplate().execute(hcb);
+			return gradebooks;
+			
 		}
 	}
 
@@ -267,11 +268,88 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 		} else {
 			HibernateTemplate temp = getHibernateTemplate();
 			temp.saveOrUpdate(gradebook);
-			/*
-			 * Iterator iter = gradebook.getStudents().iterator(); while
-			 * (iter.hasNext()) { temp.saveOrUpdate((StudentGradesImpl) iter.next()); }
-			 */
 		}
+	}
+	
+	public void saveGradebook(final Gradebook gradebook, final List<String> headingTitles, final Map usernameGradesListMap) {
+		HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Long gradebookId = gradebook.getId();
+    			
+    			if (gradebookId == null) {
+    				gradebookId = (Long)session.save(gradebook);
+    			}
+    			
+    			if (headingTitles != null && !headingTitles.isEmpty()) {
+    				List headingList = new ArrayList();
+    				int location = 0;
+    				for (Iterator titleIter = headingTitles.iterator(); titleIter.hasNext();)
+    				{
+    					String title = (String) titleIter.next();
+    					Heading newHeading = new HeadingImpl(gradebookId, title, location);
+    					headingList.add(newHeading);
+    					location++;
+    				}
+    				
+    				gradebook.setHeadings(headingList);
+    			}
+    			
+    			if (usernameGradesListMap != null && !usernameGradesListMap.isEmpty()) {
+    				// first, we need to create the StudentGrades objects - we need the ids of these
+    				// to save the grades
+    				Set<StudentGrades> studentSet = new TreeSet();
+    				for (Iterator usernameIter = usernameGradesListMap.keySet().iterator(); usernameIter.hasNext();) {
+    					String username = (String) usernameIter.next();
+    					StudentGrades student = new StudentGradesImpl(username, null);
+    					student.setGradebook(gradebook);
+    					studentSet.add(student);
+    				}
+    				
+    				gradebook.setStudents(studentSet);
+    			}
+    			
+    			session.saveOrUpdate(gradebook);
+				
+				return gradebookId;
+    		}
+    	};
+    	
+    	Long gradebookId = (Long)getHibernateTemplate().execute(hc);
+    	
+    	// now, we need to populate the student grade data since we now have student id values
+    	Gradebook gbWithStudents = getGradebookByIdWithStudents(gradebookId);
+    	if (gbWithStudents != null) {
+    		Set<StudentGrades> studentGrades = gbWithStudents.getStudents();
+			Set<StudentGrades> studentsWithGrades = new TreeSet();
+			if (studentGrades != null) {
+				for (Iterator studentIter = studentGrades.iterator(); studentIter.hasNext();) {
+					StudentGrades student = (StudentGrades) studentIter.next();
+					List<StudentGradeData> gradesList = new ArrayList();
+					if (student != null) {
+						String username = student.getUsername();
+						Long studentId = student.getId();
+						List<String> listFromMap = (List)usernameGradesListMap.get(username);
+
+						if (listFromMap != null) {
+							int location = 0;
+							for (Iterator gradesIter = listFromMap.iterator(); gradesIter.hasNext();) {
+								String gradeEntry = (String) gradesIter.next();
+								StudentGradeData gradeData = new StudentGradeDataImpl(studentId, gradeEntry, location);
+								gradesList.add(gradeData);
+								location++;
+							}
+						}
+					}
+					
+					student.setGrades(gradesList);
+					studentsWithGrades.add(student);
+				}
+				
+				gbWithStudents.setStudents(studentsWithGrades);
+			}
+    	}
+    	
+    	getHibernateTemplate().saveOrUpdate(gbWithStudents);
 	}
 
 	public void updateGrades(Gradebook gradebook, List headings,
@@ -284,6 +362,40 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 	public void updateTemplate(Gradebook gradebook, String template) {
 		gradebook.setTemplate(createTemplate(template));
 		getHibernateTemplate().saveOrUpdate(gradebook);
+	}
+	
+	public Gradebook getGradebookByIdWithHeadingsStudentsAndGrades(final Long gradebookId) {
+		if (gradebookId == null) {
+	        throw new IllegalArgumentException("Null gradebookId passed to getGradebookByIdWithHeadingsStudentsAndGrades");
+	       }
+
+	      HibernateCallback hcb = new HibernateCallback() {
+	        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	          Query q = session.getNamedQuery("findGradebookByIdWithHeadingsStudentsAndGrades");
+	          q.setParameter("id", gradebookId, Hibernate.LONG);
+
+	          return (Gradebook) q.uniqueResult();
+	        }
+	      };   
+
+	      return (Gradebook) getHibernateTemplate().execute(hcb); 
+	}
+	
+	private Gradebook getGradebookByIdWithStudents(final Long gradebookId) {
+		if (gradebookId == null) {
+	        throw new IllegalArgumentException("Null gradebookId passed to getGradebookByIdWithStudents");
+	       }
+
+	      HibernateCallback hcb = new HibernateCallback() {
+	        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	          Query q = session.getNamedQuery("findGradebookByIdWithStudents");
+	          q.setParameter("id", gradebookId, Hibernate.LONG);
+
+	          return (Gradebook) q.uniqueResult();
+	        }
+	      };   
+
+	      return (Gradebook) getHibernateTemplate().execute(hcb); 
 	}
 	
 	private Comparator determineComparator(String sortBy, boolean ascending) {
@@ -312,6 +424,26 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 				return GradebookImpl.TitleDescComparator;
 			}	
 		}
+	}
+	
+	public boolean titleExistsInContext(String title, String context) {
+		List gbList = getHibernateTemplate().find("from GradebookImpl as gb where gb.context=? and title=?", new Object[] {context, title});
+		return gbList != null && gbList.size() > 0;
+	}
+	
+	public Map<String, List> createUsernameGradesListMap(List gradesLists) {
+		Map<String, List> usernameGradesListMap = new HashMap();
+		if (gradesLists == null || gradesLists.isEmpty()) {
+			return usernameGradesListMap;
+		}
+		
+		for (Iterator listIter = gradesLists.iterator(); listIter.hasNext();) {
+			List studentList = (ArrayList) listIter.next();
+			String username = (String)studentList.remove(0);
+			usernameGradesListMap.put(username, studentList);
+		}
+		
+		return usernameGradesListMap;
 	}
 
 }

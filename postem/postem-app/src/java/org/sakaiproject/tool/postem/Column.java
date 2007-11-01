@@ -28,6 +28,7 @@ package org.sakaiproject.tool.postem;
 import java.util.List;
 
 import org.sakaiproject.api.app.postem.data.Gradebook;
+import org.sakaiproject.api.app.postem.data.Heading;
 
 public class Column {
 
@@ -58,7 +59,8 @@ public class Column {
 
 	public String getName() {
 		try {
-			return (String) gradebook.getHeadings().get(column + 1);
+			Heading heading = (Heading)gradebook.getHeadings().get(column + 1);
+			return heading.getHeadingTitle();
 		} catch (Exception exception) {
 			return "" + (column + 1);
 		}

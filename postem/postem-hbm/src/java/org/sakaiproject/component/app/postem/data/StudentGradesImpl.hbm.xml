@@ -25,14 +25,14 @@
 		</property>
 
 		<many-to-one name="gradebook" column="surrogate_key" class="org.sakaiproject.component.app.postem.data.GradebookImpl" />
-
-		<list name="grades" lazy="false" table="SAKAI_POSTEM_STUDENT_GRADES">
-			<key column="student_id" />
-			<index column="location" />
-			<element type="string" column="grade" not-null="false" length="2000"/>
-		</list>
-
+		
+		<list name="grades" cascade="all" inverse="true">
+	        <key column="student_id"/>
+	        <index column="location" />
+	        <one-to-many class="org.sakaiproject.component.app.postem.data.StudentGradeDataImpl"/>
+    </list>
 
 	</class>
+
 
 </hibernate-mapping>

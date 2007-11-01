@@ -101,12 +101,12 @@
 						</h:commandLink>
 					</h:column>
 					<h:column rendered="#{PostemTool.editable}">
-						<h:commandLink action="#{PostemTool.processCsvDownload}" rendered="#{gradebook.hasGrades}" >
+						<h:commandLink action="#{PostemTool.processCsvDownload}" >
 							<h:outputText value="#{msgs.csv_download}"/>
 						</h:commandLink>
 					</h:column>
 					<h:column rendered="#{PostemTool.editable}">
-						<h:commandLink action="#{PostemTool.processTemplateDownload}" rendered="#{gradebook.hasTemplate}">
+						<h:commandLink action="#{PostemTool.processTemplateDownload}" rendered="#{gradebook.template != null}">
 							<h:outputText value="#{msgs.template}"/>
 						</h:commandLink>
 					</h:column>

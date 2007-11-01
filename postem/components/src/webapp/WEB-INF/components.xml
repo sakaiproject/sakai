@@ -7,6 +7,8 @@
 			<list>
 				<value>org/sakaiproject/component/app/postem/data/GradebookImpl.hbm.xml</value>
 				<value>org/sakaiproject/component/app/postem/data/StudentGradesImpl.hbm.xml</value>
+				<value>org/sakaiproject/component/app/postem/data/HeadingImpl.hbm.xml</value>
+				<value>org/sakaiproject/component/app/postem/data/StudentGradeDataImpl.hbm.xml</value>
 			</list>
 		</property>
 	</bean>

@@ -23,6 +23,7 @@ package org.sakaiproject.api.app.postem.data;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -68,17 +69,17 @@ public interface Gradebook {
 
 	public void setContext(String context);
 
-	public Set getStudents();
+	public Set<StudentGrades> getStudents();
 
-	public void setStudents(Set students);
+	public void setStudents(Set<StudentGrades> students);
 
 	public Template getTemplate();
 
 	public void setTemplate(Template template);
 
-	public List getHeadings();
+	public List<Heading> getHeadings();
 
-	public void setHeadings(List headings);
+	public void setHeadings(List<Heading> headings);
 
 	public Long getId();
 
@@ -90,13 +91,7 @@ public interface Gradebook {
 
 	public String getHeadingsRow();
 
-	public TreeMap getStudentMap();
-
 	public boolean hasStudent(String username);
-
-	public boolean getHasGrades();
-
-	public boolean getHasTemplate();
 
 	public boolean getRelease();
 
@@ -120,8 +115,23 @@ public interface Gradebook {
 
 	public StudentGrades studentGrades(String username);
 	
+	public TreeMap getStudentMap();
+	
 	public String getFirstUploadedUsername();
 	
 	public void setFirstUploadedUsername(String username);
+	
+	/**
+	 * 
+	 * @return a list of the heading titles (String) associated with this
+	 * gradebook
+	 */
+	public List getHeadingsTitleList();
+	
+	public List<String> getTempHeadingsTitleList();
+	public void setTempHeadingsTitleList(List<String> headingTitles);
+	
+	public Map<String, List> getTempStudentToGradesMap();
+	public void setTempStudentToGradesMap(Map<String, List> tempStudentToGradesMap);
 
 }

@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/svn/postem/trunk/postem-hbm/src/java/org/sakaiproject/component/app/postem/data/StudentGradeData.java $
+ * $Id: StudentGradeData.java 17140 2006-10-16 17:40:49Z wagnermr@iupui.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
@@ -21,43 +21,13 @@
 
 package org.sakaiproject.api.app.postem.data;
 
-import java.sql.Timestamp;
-import java.util.List;
-
-
-public interface StudentGrades {
-	public Gradebook getGradebook();
-
-	public void setGradebook(Gradebook gradebook);
-
-	public String getUsername();
-
-	public void setUsername(String username);
-
-	public List<StudentGradeData> getGrades();
-
-	public void setGrades(List<StudentGradeData> grades);
-
-	public String getCheckDateTime();
-
-	public Timestamp getLastChecked();
-
-	public void setLastChecked(Timestamp lastChecked);
-
-	public Long getId();
-
-	public void setId(Long id);
-
-	public boolean getReadAfterUpdate();
-
-	public String formatGrades(List<String> headingTitles, List<String> gradesList);
-
-	public String getGradesRow();
+public interface StudentGradeData  {
+	public Long getStudentId();
+	public void setStudentId(Long studentId);
 	
-	/**
-	 * 
-	 * @return list of (String) gradeEntry data
-	 */
-	public List getGradeEntryList();
-
+	public String getGradeEntry(); 
+	public void setGradeEntry(String heading); 
+	
+	public Integer getLocation(); 
+	public void setLocation(Integer location);
 }

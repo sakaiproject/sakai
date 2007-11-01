@@ -22,11 +22,12 @@
 package org.sakaiproject.api.app.postem.data;
 
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 
 public interface GradebookManager {
 	public Gradebook createGradebook(String title, String creator,
-			String context, List headings, SortedSet students, Template template);
+			String context, List<Heading> headings, SortedSet students, Template template);
 
 	public Gradebook createEmptyGradebook(String creator, String context);
 
@@ -48,7 +49,7 @@ public interface GradebookManager {
 
 	public void saveGradebook(Gradebook gradebook);
 
-	public void updateGrades(Gradebook gradebook, List headings,
+	public void updateGrades(Gradebook gradebook, List<Heading> headings,
 			SortedSet students);
 
 	public void updateTemplate(Gradebook gradebook, String template);
@@ -56,4 +57,30 @@ public interface GradebookManager {
 	public void deleteGradebook(final Gradebook gradebook);
 
 	public void deleteStudentGrades(final StudentGrades student);
+	
+	/**
+	 * 
+	 * @param gradebookId
+	 * @return the Gradebook object with the given id
+	 * with the headings, students, and grade information populated
+	 */
+	public Gradebook getGradebookByIdWithHeadingsStudentsAndGrades(final Long gradebookId);
+	
+	/**
+	 * 
+	 * @param gradesLists
+	 * 	list of lists parsed from the csv file for each student
+	 * @return Map of username to the list of associated grades for each student
+	 */
+	public Map<String, List> createUsernameGradesListMap(List gradesLists);
+	
+	public void saveGradebook(Gradebook gradebook, List<String> headingTitles, Map usernameGradesListMap);
+	
+	/**
+	 * 
+	 * @param title
+	 * @param context
+	 * @return true if the given title already exists in the given context
+	 */
+	public boolean titleExistsInContext(String title, String context);
 }
