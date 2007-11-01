@@ -7,6 +7,10 @@
 	  window.open(theURL,winName,winSettings);
 	  return false;
 	}
+	function change_parent_url(url)
+	{
+	  parent.location=url;
+	}		
 //-->
 </script>
 
@@ -195,6 +199,16 @@
 			<tr>
 				<th class="chefLabel">$tlang.getString("groups")</th>
 				<td>$!groupRange</td>
+			</tr>
+			#end
+			#if($assignmenturl && $assignmenturl !="")
+			<tr>
+				<th>$tlang.getString("gen.assignmentlink")</th>
+				<td>
+					<a href="javascript:change_parent_url('$assignmenturl');">
+						$validator.limit($validator.escapeHtml($!assignment.getTitle()), 40)
+					</a>
+				</td>
 			</tr>
 			#end
 		</table>

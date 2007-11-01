@@ -22,6 +22,7 @@
 package org.sakaiproject.calendar.tool;
 
 import java.io.ByteArrayInputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,6 +32,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
@@ -76,6 +78,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -94,6 +97,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 
@@ -2574,9 +2578,28 @@ extends VelocityPortletStateAction
 						if (a != null) {
 							
 						context.put("assignment", a);
+
+						String assignmentContext = a.getContext(); // assignment context
+						boolean allowReadAssignment = AssignmentService.allowGetAssignment(assignmentContext); // check for read permission
 						
-						sstate.setAttribute(ATTACHMENTS, a.getContent().getAttachments());
+						if (allowReadAssignment && a.getOpenTime().before(TimeService.newTime())) // this checks if we want to display an assignment link based on the open date
+						{
+							Site site = SiteService.getSite(assignmentContext); // site id
+							ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
+							boolean allowAddAssignment = AssignmentService.allowAddAssignment(assignmentContext); // this checks for the asn.new permission and determines the url we present the user
+							
+							// Two different urls to be rendered depending on the user's permission
+							if (allowAddAssignment)
+							{
+								context.put("assignmenturl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentId=" + a.getReference() + "&panel=Main&sakai_action=doView_assignment");
+							}
+							else
+							{
+								context.put("assignmenturl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentReference=" + a.getReference() + "&panel=Main&sakai_action=doView_submission");
+							}
+						}
 						
+						sstate.setAttribute(ATTACHMENTS, a.getContent().getAttachments());						
 						}
 					}
 					catch (IdUnusedException e)
