@@ -439,7 +439,7 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 		
 		for (Iterator listIter = gradesLists.iterator(); listIter.hasNext();) {
 			List studentList = (ArrayList) listIter.next();
-			String username = (String)studentList.remove(0);
+			String username = ((String)studentList.remove(0)).trim();
 			usernameGradesListMap.put(username, studentList);
 		}
 		

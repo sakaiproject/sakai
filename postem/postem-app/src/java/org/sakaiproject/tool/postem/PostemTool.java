@@ -172,7 +172,6 @@ public class PostemTool {
 						.getReleasedGradebooksByContext(getSiteId(), sortBy, ascending));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			gradebooks = null;
 		}
 		
