@@ -1424,6 +1424,7 @@ public class MessageForumSynopticBean {
 	 * @param ActionEvent e
 	 */
 	public void processReadAll(ActionEvent e) {
+		//need modified to support internationalization
 		final String typeUuid = typeManager.getReceivedPrivateMessageType();
 
 		if (isMyWorkspace()) {

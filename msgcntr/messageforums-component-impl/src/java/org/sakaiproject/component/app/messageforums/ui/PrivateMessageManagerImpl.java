@@ -259,7 +259,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 //    		getHibernateTemplate().initialize(oldForum.getTopicsSet());
     		List pvtTopics = oldForum.getTopics();
     		
-    		for(int i=0; i<pvtTopics.size(); i++)
+    		for(int i=0; i<pvtTopics.size(); i++)//reveived deleted sent
     		{
     			PrivateTopic currentTopic = (PrivateTopic) pvtTopics.get(i);
     			if(currentTopic != null)
