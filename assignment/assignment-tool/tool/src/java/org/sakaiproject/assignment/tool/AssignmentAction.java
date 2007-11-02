@@ -9924,8 +9924,7 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			byte[] buffer = new byte[4096];
 			
-			File f = new File(fName);
-			f.getParentFile().mkdirs();
+			File f = File.createTempFile("asgnup", "tmp");
 			
 			FileOutputStream fout = new FileOutputStream(f);
 			int len;
@@ -9943,6 +9942,7 @@ public class AssignmentAction extends PagedResourceActionII
 			fc.read(bb);
 			
 			//remove the file
+			fc.close(); // The file channel needs to be closed before the deletion.
 			f.delete();
 			
 			return data;
