@@ -464,7 +464,7 @@ function allowClick(object)
 										#set($groupFound=$!site.getGroup($group))
 										#if($!groupFound)
 											#if ($count>1)
-												#set($for=$for.concat(","))
+												#set($for=$for.concat(", "))
 											#end
 											#set($for= $for.concat($groupFound.Title))
 											#set($count=$count+1)
