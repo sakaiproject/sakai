@@ -11,11 +11,11 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 </style>
 <![endif]><![endif]-->
 <style type="text/css">
-    @import "/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/themes/sakadojo/sakadojo.css";
+    @import "/library/dojo/dojo-release-0.9.0/dijit/themes/sakadojo/sakadojo.css";
 </style>
-<script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
-<script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dijit/dijit.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
-<script type="text/javascript" src="/sakai-content-tool/dojo/dojo-release-0.9.0/dojo/dojo.xd.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript" src="/library/dojo/dojo-release-0.9.0/dojo/dojo.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript" src="/library/dojo/dojo-release-0.9.0/dijit/dijit.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
+<script type="text/javascript" src="/library/dojo/dojo-release-0.9.0/dojo/dojo.xd.js" djConfig="parseOnLoad: true"></script>
 <script type="text/javascript">
 	dojo.require("dojo.parser");
 	dojo.require("dijit.form.Button");
