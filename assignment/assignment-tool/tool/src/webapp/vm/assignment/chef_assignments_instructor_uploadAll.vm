@@ -33,8 +33,8 @@
 			<div class="highlightPanel">
 			<p class="shorttext">
 				<label for="file">$tlang.getString("uploadall.choose.file")</label>
-				<input type="file" name="file" id="file" class="upload" />
-			</p>
+				<input type="file" name="file" id="file" class="upload" onchange="javascript:document.getElementById('filechosenconfirm').style.display='block';" />
+			<p id="filechosenconfirm" class="information" style="display:none;clear:both">$tlang.getString("uploadall.choose.file.confirm")</p>
 			<h4>$tlang.getString("uploadall.choose.file2")</h4>
 			<p class="checkbox indnt2">
 				## student submission text
