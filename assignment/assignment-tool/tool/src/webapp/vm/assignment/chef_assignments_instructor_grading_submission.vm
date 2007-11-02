@@ -81,6 +81,11 @@ function handleEnterKeyPress(ev)
 					#set ($count = 1)
 					#foreach ($submitter in $submission.submitters)
 						#set($submitterName = $submitter.getSortName())
+						#set($submitterId = $submitter.getDisplayId())
+						#if ($!submitterId)
+							##attach the displayId
+							#set($submitterName=$submitterName.concat("(").concat($submitterId).concat(")"))
+						#end
 						#if ($!submitterName)
 							#if ($count == 1)
 								#set ($submitterNames = $!submitterName)

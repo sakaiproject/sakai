@@ -69,14 +69,21 @@
 						#end
 					</tr>
 					#foreach ($member in $studentMembers)
+						#set($submitterName=$!member.sortName)
+						#set($submitterId=$!member.getDisplayId())
+						#if ($!submitterId)
+							##attach the displayId
+							#set($submitterName=$submitterName.concat("(").concat($submitterId).concat(")"))
+							#end
 						<tr>
 							<td headers="studentname" class="specialLink">	
 								<h4>
 								#if (!$studentListShowSet.contains($member.Id))
-									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.shostuass")"><img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("stulistsunbm.shostuass")" width="13" height="13" border="0" /></a>$member.SortName
+									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.shostuass")"><img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("stulistsunbm.shostuass")" width="13" height="13" border="0" /></a>
 								#else 
-									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.hidstuass")"><img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.hidstuass")" width="13" height="13" border="0" /></a>$member.SortName
+									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.hidstuass")"><img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.hidstuass")" width="13" height="13" border="0" /></a>
 								#end
+								$submitterName
 								</h4>
 							</td>
 							<td colspan="4">

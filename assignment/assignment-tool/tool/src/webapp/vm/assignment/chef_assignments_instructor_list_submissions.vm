@@ -283,6 +283,12 @@
 					#set($submission = $userSubmission.Submission)
 					#set($siteUser=false)
 					#set($siteUser = $userSubmission.User)
+					#set($submitterName=$!siteUser.sortName)
+					#set($submitterId=$!siteUser.getDisplayId())
+					#if ($!submitterId)
+						##attach the displayId
+						#set($submitterName=$submitterName.concat("(").concat($submitterId).concat(")"))
+					#end
 					#set($submitTime=false)
 					#set($returnedTime=false)
 					#if ($!submission)## && $submission.submitted) 
@@ -306,7 +312,7 @@
 							</td>
 							<td headers="studentname">
 								#if ($taggable)
-									$!siteUser.sortName
+									$submitterName
 									<div class="itemAction">
 										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("listsub.grade")</a>
 										#foreach ($provider in $providers)
@@ -320,7 +326,7 @@
 									</div>
 								#else
 									<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">
-										$siteUser.sortName
+										$submitterName
 									</a>
 								#end
 							</td>

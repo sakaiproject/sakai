@@ -165,19 +165,15 @@
 						<tr>
 							<td headers="studentname">
 								#set ($submitterNames = "")
-								## start with recorded submitter id first
-								#set ($count = 1)
-								#foreach ($userId in $submission.SubmitterIds)
-									#if ($count > 1)
-										#set ($submitterNames = $submitterNames.concat(", "))
-									#end
-									#set ($submitterNames = $submitterNames.concat($!userId))
-									#set ($count = $count + 1)
-								#end
 								## replace it with submitter sort names
 								#set ($count = 1)
 								#foreach ($submitter in $submission.submitters)
 									#set($submitterName = $submitter.getSortName())
+									#set($submitterId=$!submitter.getDisplayId())
+									#if ($!submitterId)
+										##attach the displayId
+									#set($submitterName=$submitterName.concat("(").concat($submitterId).concat(")"))
+									#end
 									#if ($!submitterName)
 										#if ($count == 1)
 											#set ($submitterNames = $!submitterName)
