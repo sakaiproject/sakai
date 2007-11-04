@@ -145,7 +145,7 @@
 					    	selected="true" 
 					    #end
 					    >
-						        $coursething.title
+						        $coursething.title 
 					    </option>
 				      #end
 				  #end
@@ -168,15 +168,18 @@
 		    <td>$tlang.getString("nscourse.findCourse.selected")</td>
 		    <td>
 			    #if ($selectedCourse)
-			        $selectedCourse.title 
+			        $selectedCourse.title
+						     #set($authGroupSet=$!authzGroupService.getAuthzGroupIds($selectedCourse.eid))
+											#if ($!authGroupSet && !$!authGroupSet.isEmpty())
+												$tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:document.getElementById('continueButton').disabled=false;document.getElementById('sectionInfo').style.display = 'block';">$tlang.getString("nscourse.select_anyways")</a>)</span>
+											#end
 			    #else
 				    None
 			    #end
 			</td>
 		  </tr>
 		</table>
-		
-		#if ($selectedCourse)
+		<div id="sectionInfo" #if ($selectedCourse && !($!authGroupSet && !$!authGroupSet.isEmpty())) style="display:block;clear:both" #else style="display:none" #end>
 					<div class="shorttext required">
 						<span class="reqStar">*</span>						
 						<label for="uniqname">		
@@ -196,10 +199,8 @@
 					<p  class="instruction labelindnt">
 						$tlang.getString("man.please")
 					</p>
-
-			<a href="#" onclick="javascript:blur();document.findCourseForm.option.value='add';document.findCourseForm.submit();">$tlang.getString('nscourse.findCourse.addAnotherSection')</a>		
-		#end
-		
+			</div>
+			<a href="#" onclick="javascript:blur();document.findCourseForm.option.value='add';document.findCourseForm.submit();">$tlang.getString('nscourse.findCourse.addAnotherSection')</a>				
 
 		<input id="index" type="hidden" name="template-index" value="53" />
 		<input type="hidden" name="back" value="$backIndex" />
@@ -207,9 +208,9 @@
 		<input type="hidden" name="option" value="find"/>
 		<p class="act">
 			<input id="continueButton" 
-#if (!$selectedCourse && !$requestedSections)
-  disabled="true"
-#end
+				#if (!$selectedCourse || ($!authGroupSet && !$!authGroupSet.isEmpty()))
+  			disabled="true"
+				#end
 			 type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" 
 				value="$tlang.getString('gen.continue')" onclick="resetOption('continue');" />
 			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" 
