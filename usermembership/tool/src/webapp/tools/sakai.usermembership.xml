@@ -13,5 +13,9 @@
 		<!-- Sakai 2.3.0, up -->
 		<configuration name="functions.require" value="usermembership.view" /> 
 		
+		<!-- SAK-12088: filtering the searching and viewing of users to only those users with the same named usertype(s) -->
+		<configuration name="userType.limitToSelf" value="false" /> 
+		<configuration name="userType.limitToList" value="" /> 
+		
 	</tool>
 </registration>

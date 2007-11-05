@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -67,6 +68,8 @@ public class UserListBean {
 	private static final String				SORT_USER_TYPE		= "type";
 	private static final String				SORT_USER_AUTHORITY	= "authority";
 	private static final String				NO_NAME_USER		= "";
+	private static final String				CFG_USER_TYPE_LIMIT_TO_SELF		= "userType.limitToSelf";
+	private static final String				CFG_USER_TYPE_LIMIT_TO_LIST		= "userType.limitToList";
 
 	/** Our log (commons). */
 	private static Log						LOG					= LogFactory.getLog(UserListBean.class);
@@ -260,7 +263,7 @@ public class UserListBean {
 		selectedUserType = newUserType;
 		selectedAuthority = newAuthority;
 		searchKeyword = searchKeyword.trim();
-		boolean filtering = (selectedUserType != null && userTypes != null && !selectedUserType.equals(((SelectItem) getUserTypes().get(0)).getLabel()));
+		boolean filtering = (selectedUserType != null && userTypes != null && !selectedUserType.equals(USER_TYPE_ALL));
 		boolean searching = (searchKeyword != null && !searchKeyword.equals("") && !searchKeyword.equals(msgs.getString("bar_input_search_inst")) );
 		userRows = new ArrayList();
 			
@@ -279,8 +282,12 @@ public class UserListBean {
 					if(filtering){
 						if(selectedUserType.equals(USER_TYPE_NONE))
 							sql += " (TYPE='' or TYPE IS NULL) ";
-						else
-							sql += " (TYPE='"+selectedUserType+"') ";
+						else{
+							if(selectedUserType.indexOf(",") == -1)
+								sql += " (TYPE='"+selectedUserType+"') ";
+							else
+								sql += " (TYPE in ("+selectedUserType+") ) ";
+						}
 					}
 				}		
 				
@@ -527,30 +534,50 @@ public class UserListBean {
 	
 	public List getUserTypes() {
 		if(userTypes == null){
-			userTypes = new ArrayList();		
-			userTypes.add(new SelectItem(USER_TYPE_ALL));
-			try{
-				Connection c = M_sql.borrowConnection();
-				String vendor = M_sql.getVendor();
-				String sql = null;
-				if(vendor.equalsIgnoreCase("oracle")){
-					sql = "select distinct TYPE from SAKAI_USER where TYPE is not null";
-				}else{
-					sql = "select distinct TYPE from SAKAI_USER where TYPE!='' and TYPE is not null;";
+			Properties config = M_tm.getCurrentPlacement().getConfig();
+			Boolean userTypeLimitToSelf = Boolean.parseBoolean(config.getProperty(CFG_USER_TYPE_LIMIT_TO_SELF, "false"));
+			String userTypeLimitToListStr = config.getProperty(CFG_USER_TYPE_LIMIT_TO_LIST, "");
+			String[] userTypeLimitToList = null;
+			userTypes = new ArrayList();
+			
+			if(userTypeLimitToSelf){
+				userTypes.add(new SelectItem(M_uds.getCurrentUser().getType()));				
+			}else if(!"".equals(userTypeLimitToListStr)){
+				userTypeLimitToList = userTypeLimitToListStr.split(",");
+				String all = "";
+				for(int i=0; i<userTypeLimitToList.length; i++){
+					userTypes.add(new SelectItem(userTypeLimitToList[i]));
+					all += "'"+ userTypeLimitToList[i] +"'";
+					if(i<userTypeLimitToList.length-1)
+						all += ",";
 				}
-				Statement st = c.createStatement();
-				ResultSet rs = st.executeQuery(sql);
-				while (rs.next()){
-					String type = rs.getString(1);
-					userTypes.add(new SelectItem(type));
+				userTypes.add(0,new SelectItem(all,USER_TYPE_ALL));
+			}else
+			{					
+				userTypes.add(new SelectItem(USER_TYPE_ALL));
+				try{
+					Connection c = M_sql.borrowConnection();
+					String vendor = M_sql.getVendor();
+					String sql = null;
+					if(vendor.equalsIgnoreCase("oracle")){
+						sql = "select distinct TYPE from SAKAI_USER where TYPE is not null";
+					}else{
+						sql = "select distinct TYPE from SAKAI_USER where TYPE!='' and TYPE is not null;";
+					}
+					Statement st = c.createStatement();
+					ResultSet rs = st.executeQuery(sql);
+					while (rs.next()){
+						String type = rs.getString(1);
+						userTypes.add(new SelectItem(type));
+					}
+					rs.close();
+					st.close();
+					M_sql.returnConnection(c);
+				}catch(SQLException e){
+					LOG.error("SQL error occurred while retrieving user types: " + e.getMessage(), e);
 				}
-				rs.close();
-				st.close();
-				M_sql.returnConnection(c);
-			}catch(SQLException e){
-				LOG.error("SQL error occurred while retrieving user types: " + e.getMessage(), e);
+				userTypes.add(new SelectItem(USER_TYPE_NONE));
 			}
-			userTypes.add(new SelectItem(USER_TYPE_NONE));
 		}
 		return userTypes;
 	}
