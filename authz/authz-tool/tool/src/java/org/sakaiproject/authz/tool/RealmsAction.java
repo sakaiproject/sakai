@@ -625,7 +625,7 @@ public class RealmsAction extends PagedResourceActionII
 			}
 			catch (Exception e)
 			{
-				Log.warn("chef", this + "doSave_edit(): realmId = " + realm.getId());
+				Log.warn("chef", this + "doSave_edit(): realmId = " + realm.getId() + " " + e.getMessage());
 			}
 		}
 
