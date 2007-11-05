@@ -6833,23 +6833,20 @@ extends VelocityPortletStateAction
 				
 				if ((schToGroups != null) && (schToGroups.size()>0))
 				{
+					boolean eventInGroup = false;
 					for (Iterator j = schToGroups.iterator(); j.hasNext();)
 					{
-						String groupRangeForDispaly = e.getGroupRangeForDisplay(calendarObj);
+						String groupRangeForDisplay = e.getGroupRangeForDisplay(calendarObj);
 						String groupId = j.next().toString();
-						try
-						{
-							Site site = SiteService.getSite(calendarObj.getContext());
-							Group group = site.getGroup(groupId);
-							if (groupRangeForDispaly.equals("")||groupRangeForDispaly.equals("site")) break;
-							if (groupRangeForDispaly.indexOf(group.getTitle()) == -1)
-							{
-								newEventVectorObj.remove(e);
-								break;
-							}
-						}
-						catch(Exception ignore){}
+						Site site = SiteService.getSite(calendarObj.getContext());
+						Group group = site.getGroup(groupId);
+						if (groupRangeForDisplay.equals("")||groupRangeForDisplay.equals("site")) 
+							eventInGroup = true;
+						if (groupRangeForDisplay.indexOf(group.getTitle()) != -1)
+							eventInGroup = true;
 					}
+					if ( ! eventInGroup )
+						newEventVectorObj.remove(e);
 				}
 			}
 				
