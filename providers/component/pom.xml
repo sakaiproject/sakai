@@ -76,6 +76,13 @@
 			<version>${sakai.version}</version>
 		</dependency>
 		-->
+<!-- Needed for the All Hands Provider 
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-allhands-provider</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+	 	-->
   </dependencies>
   <build>
     <resources/>
