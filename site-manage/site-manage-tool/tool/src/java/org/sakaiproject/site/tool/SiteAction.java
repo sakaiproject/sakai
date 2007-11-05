@@ -7848,7 +7848,7 @@ public class SiteAction extends PagedResourceActionII {
 				try
 				{
 					Section section = cms.getSection(providerCourseEid);
-					if (cms.isSectionDefined(providerCourseEid))
+					if (section != null)
 					{
 						// in case of Section eid
 						EnrollmentSet enrollmentSet = section.getEnrollmentSet();
