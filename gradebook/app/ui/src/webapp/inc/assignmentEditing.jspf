@@ -1,6 +1,8 @@
 <%/*
-	Assignment creation and editing.
+	A single Assignment creation and editing.
 	Accessed via <t:aliasBean alias="#{bean}" value="#{realPageBean}">...</t:aliasBean> .
+	
+	NOTE: 10/20/07 Any changes to this display needs to be duplicated in bulkNewItems.jspf
 */%>
 
 
@@ -52,7 +54,7 @@
    	<gbx:convertDateTime/>
   </h:outputText>
 	
-	<h:outputLabel for="category" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
+	<h:outputLabel for="selectCategory" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
 	<h:panelGroup rendered="#{bean.categoriesEnabled}">
 		<h:selectOneMenu id="selectCategory" value="#{bean.assignmentCategory}">
 			<f:selectItems value="#{bean.categoriesSelectList}" />
@@ -93,6 +95,8 @@
 	</h:panelGrid>
 </h:panelGrid>
 <h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
+
+</div>
 
 <script type="text/javascript">
 	assignmentReleased('gbForm', false);

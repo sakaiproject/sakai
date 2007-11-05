@@ -1,5 +1,21 @@
 <f:view>
-  <div class="portletBody">
+		<%
+		  String thisId = request.getParameter("panel");
+		  if (thisId == null) 
+		  {
+	    	thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+		  }
+		%>
+	<script type="text/javascript">
+		var thisId = "<%= thisId %>";
+		var MAX_NEW_ITEMS = <h:outputText value="#{msgs.add_assignment_max_bulk_items}" />;
+	</script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/js/multiItemAdd.js"></script>
+<%--  Commented out due to prototype already being embedded
+		so including will break calendar widget
+  	<script type="text/javascript" src="/library/js/jquery.js"></script> --%>
+
+   <div class="portletBody">
 	<h:form id="gbForm">
 
 		<t:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
@@ -12,10 +28,39 @@
 
 		<p class="instruction"><h:outputText value="#{msgs.add_assignment_instruction}" /></p>
 
+		<%-- ********************************************* --%>
+		<%-- TODO: pull these selection values from bean   --%>
+		<%-- ALSO: pull max from bundle                    --%>
+		<%-- ********************************************* --%>
+		<p>
+			<h:outputText value="#{msgs.add_assignment_selector1}" />
+			<h:selectOneMenu id="numItems" value="">
+				<f:selectItems value="#{addAssignmentBean.addItemSelectList}" />
+			</h:selectOneMenu>
+			<h:outputText value="#{msgs.add_assignment_selector2}" />
+		</p>
+
 		<t:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
-			<%@include file="/inc/assignmentEditing.jspf"%>
+<%--			<%@include file="/inc/assignmentEditing.jspf"%> --%>
+			<%@include file="/inc/globalMessages.jspf"%>
+
+			<%-- Allows bulk creation of Gradebook Items --%>
+			<%@include file="/inc/bulkNewItems.jspf" %>
 		</t:aliasBean>
 
+		</div>
+		
+
+		<%-- Calls a javascript function to add another Add Gradebook Item Pane --%>
+		<p class="act">
+			<h:outputLink id="addSecond" value="#" styleClass="addSecond" >
+				<h:outputText value="#{msgs.add_assignment_add_pane}" />
+			</h:outputLink>
+		</p>
+
+		<%-- Keeps track of how many panes are displayed --%>
+		<h:inputHidden id="numTotalItems" value="#{addAssignmentBean.numTotalItems}" />
+		
 		<p class="act calendarPadding">
 			<h:commandButton
 				id="saveButton"
@@ -26,6 +71,36 @@
 				value="#{msgs.add_assignment_cancel}"
 				action="overview" immediate="true"/>
 		</p>
-	</h:form>
+ 		
+ 		<%-- Need to attach listeners, must be here --%>
+ 		<script type="text/javascript">
+ 			// Add functionality for Add another link on page
+			Event.observe(
+				"gbForm:addSecond",
+				"click",
+				function(event){
+					addItemScreen();
+		
+					adjustNumBulkItems(1);
+
+					// since DOM changed, resize
+					setMainFrameHeightNow(thisId, 'grow');
+				}
+			);
+
+			// Add functionality to Add item drop down			
+			Event.observe(
+				"gbForm:numItems",
+				"change",
+				function(event){
+					addMultipleItems(this);
+
+					// since DOM changed, resize
+					setMainFrameHeightNow(thisId, 'grow');
+				}
+			);
+  		</script>
+  	</h:form>
   </div>
+ 
 </f:view>
