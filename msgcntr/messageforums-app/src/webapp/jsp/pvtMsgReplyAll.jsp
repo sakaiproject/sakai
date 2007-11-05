@@ -167,7 +167,7 @@
 						           
       	
       <sakai:button_bar>
-        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplyAllSend}" value="#{msgs.pvt_repmsg_ALL}" accesskey="s" styleClass="active" />
+        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplyAllSend}" value="#{msgs.pvt_send}" accesskey="s" styleClass="active" />
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancelToDetailView}" value="#{msgs.pvt_cancel}" accesskey="x" />
       </sakai:button_bar>
     </h:form>

@@ -55,8 +55,8 @@
   <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReply}" value="#{msgs.pvt_repmsg}" accesskey="r"/>
           
           <%--SAK-10505 add forward --%>
-            <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgForward}" value="#{msgs.pvt_forwardmsg}" accesskey="r"/>
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplyAll}" value="Reply All" accesskey="r"/>
+            <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplyAll}" value="#{msgs.pvt_repmsg_ALL}" accesskey="r" /><sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgForward}" value="#{msgs.pvt_forwardmsg}" accesskey="r"/>
+          
 				</td>
 
 
@@ -159,8 +159,8 @@
 				<td text-align="left">
   <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReply}" value="#{msgs.pvt_repmsg}" accesskey="r"/>
           <%--SAKAI-10505 add forward--%>
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgForward}" value="#{msgs.pvt_forwardmsg}" accesskey="r"/>
-          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplyAll}" value="Reply All" accesskey="r"/>
+          <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplyAll}" value="#{msgs.pvt_repmsg_ALL}" accesskey="r" /><sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgForward}" value="#{msgs.pvt_forwardmsg}" accesskey="r"/>
+          
 
 				</td>
 
