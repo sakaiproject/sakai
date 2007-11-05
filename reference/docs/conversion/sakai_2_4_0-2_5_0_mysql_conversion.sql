@@ -722,10 +722,7 @@ RENAME TABLE osp_reports_params TO reports_param;
 RENAME TABLE osp_reports TO reports_report;
 RENAME TABLE osp_reports_results TO reports_result;
 
--- SAK-9865 search Missing columns
 
-alter table searchbuilderitem add itemscope integer;
-alter table searchbuilderitem add index isearchbuilderitem_sco(itemscope);
 
 -- SAK-11245 -- new search indexer
 
