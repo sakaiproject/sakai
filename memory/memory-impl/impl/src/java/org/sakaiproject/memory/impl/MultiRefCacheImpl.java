@@ -21,11 +21,11 @@
 
 package org.sakaiproject.memory.impl;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.sf.ehcache.CacheException;
@@ -63,7 +63,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 	protected class MultiRefCacheEntry extends CacheEntry
 	{
 		/** These are the entity reference strings that this entry is sensitive to. */
-		protected Collection m_refs = new ArrayList();
+		protected Collection m_refs = new Vector();
 
 		/**
 		 * Construct to cache the payload for the duration.
@@ -133,7 +133,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 		Collection azgRefs = null;
 		if (azgIds != null)
 		{
-			azgRefs = new ArrayList(azgIds.size());
+			azgRefs = new Vector(azgIds.size());
 			for (Iterator i = azgIds.iterator(); i.hasNext();)
 			{
 				String azgId = (String) i.next();
@@ -187,7 +187,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 	{
 		Collection cachedKeys = m_refs.get(ref);
 		if ( cachedKeys == null ) {
-			cachedKeys = new ArrayList();
+			cachedKeys = new Vector<Object>();
 			m_refs.put(ref, cachedKeys);
 		}
 		cachedKeys.add(key);
