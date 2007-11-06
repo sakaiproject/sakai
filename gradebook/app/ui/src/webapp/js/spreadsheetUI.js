@@ -6,53 +6,67 @@ adjustScrolls = function(){
 
 function gethandles(){
    ie = $.browser.msie;
-   if ( $.browser.msie && $.browser.version < 7){ $("div#q2 div ul").css("position", "absolute"); $("div#q4").css("left", "-3px"); }
-   $("div#q3 div").width($("ul#q1").width());
-   $("ul#q1 li").each(function(i){
-      this_width = $(this).width() + parseInt($(this).css("padding-right")) *2;
-      if($("div#q3 tr:first td:eq(" + i + ")").width() < this_width){
-         $("div#q3 tr:first td:eq(" + i + ")").width(this_width - parseInt($("div#q3 tr:first td:eq(" + i + ")").css("padding-right")) * 2);
+   q2_div_ul = $("#q2 div ul");
+   q4s = $("#q4");
+   q3_div = $("#q3 div");
+   q1_width = $("#q1").width();
+   q2_ul_li = $("#q2 div ul li");
+   if ( ie && $.browser.version < 7){ q2_div_ul.css("position", "absolute"); $(q4).css("left", "-3px"); }
+   $(q3_div).width(q1_width);
+   paddingRight = parseInt($("#q1 li:first").css("padding-right"));
+   $("#q1 li").each(function(i){
+	  this_width = $(this).width() + paddingRight *2;
+	  q3_tr_td = $("#q3 tr:first td:eq(" + i + ")");
+	  match_width = $(q3_tr_td).width();
+      if(match_width < this_width){
+         $(q3_tr_td).width(this_width - paddingRight * 2);
       }else{
-         $(this).width($("div#q3 tr:first td:eq(" + i + ")").width() - parseInt($(this).css("padding-right")) - parseInt($(this).css("padding-left")) - 2);
+         $(this).width(match_width - paddingRight * 2 - 2);
       }
    });
-   $("div#q3 div").width($("ul#q1").width() + ($("div#q3 div").css("overflow") == "auto" ? 15 : 0));
+   $(q3_div).width(q1_width);
+   $(q3_div).width(q1_width + 14);
    total = 0; count = 0;
-   $("div#q2 div ul li").each(function(c){
+   $(q2_ul_li).each(function(c){
    	  if($(this).width() < 50) $(this).css("width", "45px"); 
-      total += $(this).width() + parseInt($(this).css("padding-right")) * 2; count=c+1;
+      total += $(this).width() + paddingRight * 2; count=c+1;
    });
-   total += count * 2;     
-   if($("div#q4 table").width() > total){
-      $("div#q2 ul").width($("div#q4 table").width());
+   total += count * 2;
+   q4_table = $("#q4 table")
+   if($(q4_table).width() > total){
+      $(q2_div_ul).width($(q4_table).width());
    }else{
-      $("div#q4 table").width(total);
+      $(q4_table).width(total);
    }
-   $("div#q2 ul li").each(function(i){
-      $("div#q4 tr:first td:eq(" + i + ")").width($(this).width() - parseInt($("div#q4 tr:first td:eq(" + i + ")").css("padding-right")) * 2
-         + parseInt($(this).css("padding-right")) * 2);
+   $(q2_ul_li).each(function(i){
+      $("#q4 tr:first td:eq(" + i + ")").width($(this).width() - paddingRight * 2
+         + paddingRight * 2);
    });   
-
-   $("div#q3 tr").each(function(i){
-      if($(this).height() > $("div#q4 tr:eq(" + i + ")").height()){
-         ie ? $("div#q4 tr:eq(" + i + ")").height($(this).height() - 12) 
-            : $("div#q4 tr:eq(" + i + ")").height($(this).height());
+   $("#q3 tr").each(function(i){
+   	  thisHeight = $(this).height();
+   	  thatHeight = $("#q4 tr:eq(" + i + ")").height();
+      if(thisHeight > thatHeight){
+         ie ? $("#q4 tr:eq(" + i + ")").height(thisHeight - 12) 
+            : $("#q4 tr:eq(" + i + ")").height(thisHeight);
       } else {
-         ie ? $(this).css("height", $("div#q4 tr:eq(" + i + ")").height() - 12 + "px") 
-            :$(this).css("height", $("div#q4 tr:eq(" + i + ")").height() + "px");
+         ie ? $(this).css("height", thatHeight - 12 + "px") 
+            :$(this).css("height",thatHeight + "px");
       }
    });
    //check if we need scrollbars - SAK-9969
-   maxwidth = $("div#mainwrap").width() - ($("div#q4").width() - $("div#q4 table").width()) + 15 + (ie?2:0);
-   if(maxwidth < $("body").width() - 2) $("div#mainwrap").css("max-width", maxwidth);
-   if($("div#q4 div table").height() < $("div#q4").height()){
-      $("div#q3").height($("div#q3").height() - ($("div#q4").height() - $("div#q4 table").height()) + 15 + (ie?2:0));
-      $("div#q4 div").height($("div#q4 div").height() - ($("div#q4").height() - $("div#q4 table").height()) + 15 + (ie?2:0));
+   q4_div = $("#q4 div");
+   q3s = $("#q3");
+   var mainwrap = $("#mainwrap");
+   maxwidth = $(mainwrap).width() - ($(q4s).width() - $(q4_table).width()) + 15 + (ie?2:0);
+   if(maxwidth < $("body").width() - 2) $(mainwrap).css("max-width", maxwidth);
+   if($(q4_table).height() < $(q4s).height()){
+      $(q3s).height($(q3s).height() - ($(q4s).height() - $(q4_table).height()) + 15 + (ie?2:0));
+      $(q4_div).height($(q4_div).height() - ($(q4s).height() - $(q4_table).height()) + 15 + (ie?2:0));
    }
    //end check if we need scrollbars - SAK-9969
-   el1 = $("div#q2 div ul").get(0);
-   el2 = $("div#q3 div table").get(0);
-   els = $("div#q4 div").get(0);
-   $("div#q4 div").scroll(adjustScrolls);
+   el1 = $(q2_div_ul).get(0);
+   el2 = $("#q3 div table").get(0);
+   els = $(q4_div).get(0);
+   $(q4_div).scroll(adjustScrolls);
 }
 $(document).ready(gethandles);
