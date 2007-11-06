@@ -133,7 +133,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	
 	/** added to allow for scheduled notifications */
 	private static final String SCHED_INV_UUID = "schInvUuid";
-	private static final String SCHINV_DELETE_EVENT = "schInv.delete";
+//	private static final String SCHINV_DELETE_EVENT = "schInv.delete";
 	
 
 	/**
@@ -2612,8 +2612,8 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 				scheduledInvocationManager.deleteDelayedInvocation(edit.getProperties().getProperty(SCHED_INV_UUID));
 				edit.getPropertiesEdit().removeProperty(SCHED_INV_UUID);
 
-				Event event = m_eventTrackingService.newEvent(SCHINV_DELETE_EVENT, edit.getReference(), true, priority);
-				m_eventTrackingService.post(event);				
+//				Event event = m_eventTrackingService.newEvent(SCHINV_DELETE_EVENT, edit.getReference(), true, priority);
+//				m_eventTrackingService.post(event);				
 			}
 
 			// For Scheduled Notification, compare header date with now to deterine
