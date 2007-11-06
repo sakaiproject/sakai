@@ -328,6 +328,7 @@ public class PostemTool {
 		while (iter.hasNext()) {
 			StudentGrades student = (StudentGrades) iter.next();
 			if (selectedStudent.equals(student.getUsername())) {
+				student = gradebookManager.populateGradesForStudent(student);
 				return student.formatGrades(currentGradebook.getHeadingsTitleList(), student.getGradeEntryList());
 			}
 		}
@@ -733,21 +734,29 @@ public class PostemTool {
 
 	public String processGradebookView() {
 		Long currentGbId = ((Gradebook) gradebookTable.getRowData()).getId();
-		currentGradebook = gradebookManager.getGradebookByIdWithHeadingsStudentsAndGrades(currentGbId);
 		
-		this.userId = SessionManager.getCurrentSessionUserId();
-		if (currentGradebook.hasStudent(this.userEid)) {
-			currentGradebook.studentGrades(this.userEid).setLastChecked(
-					new Timestamp(new Date().getTime()));
-			gradebookManager.saveGradebook(currentGradebook);
-		}
-		if (checkAccess()) {
+		// depending on whether this user has edit permission, we will show
+		// either the drop down to select a student or the current user's
+		// entry for the selected gb
+		currentGradebook = gradebookManager.getGradebookByIdWithHeadingsAndStudents(currentGbId);
+		
+		if (isEditable()) {
+			// user has permission according to checkAccess()
 			TreeMap ss = currentGradebook.getStudentMap();
 			setSelectedStudent((String) ss.firstKey());
 			return "view_student";
-		} else {
-			return "view_grades";
 		}
+		
+		// this is a student
+		this.userId = SessionManager.getCurrentSessionUserId();
+		if (currentGradebook.hasStudent(this.userEid)) {
+			StudentGrades currStudent = currentGradebook.studentGrades(this.userEid);
+			currStudent = gradebookManager.populateGradesForStudent(currStudent);
+			currStudent.setLastChecked(new Timestamp(new Date().getTime()));
+			gradebookManager.saveGradebook(currentGradebook);
+		}
+
+		return "view_grades";
 	}
 
 	public String processInstructorView() {
@@ -1087,7 +1096,7 @@ public class PostemTool {
 		if (firstStudentList == null || firstStudentList.isEmpty())
 			return null;
 		
-		return (String)firstStudentList.get(0);
+		return ((String)firstStudentList.get(0)).trim();
 	}
 	
 }

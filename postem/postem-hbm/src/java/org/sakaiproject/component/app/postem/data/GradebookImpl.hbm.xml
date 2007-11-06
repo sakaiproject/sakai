@@ -86,5 +86,12 @@
              left join fetch gradebook.students
              where gradebook.id = :id]]>
   </query>
+  
+  <query name="findGradebookByIdWithHeadingsAndStudents">
+    <![CDATA[from org.sakaiproject.component.app.postem.data.GradebookImpl as gradebook
+             left join fetch gradebook.students
+             left join fetch gradebook.headings
+             where gradebook.id = :id]]>
+  </query>
 
 </hibernate-mapping>

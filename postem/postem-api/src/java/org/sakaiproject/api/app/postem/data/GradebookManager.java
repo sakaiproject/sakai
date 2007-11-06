@@ -83,4 +83,33 @@ public interface GradebookManager {
 	 * @return true if the given title already exists in the given context
 	 */
 	public boolean titleExistsInContext(String title, String context);
+	
+	/**
+	 * 
+	 * @param gradebookId
+	 * @return Gradebook object with the student data (not grades) populated
+	 */
+	public Gradebook getGradebookByIdWithStudents(final Long gradebookId);
+	
+	/**
+	 * 
+	 * @param gradebookId
+	 * @return Gradebook object with the headings and student data (no grades) populated
+	 */
+	public Gradebook getGradebookByIdWithHeadingsAndStudents(final Long gradebookId);
+	
+	/**
+	 * 
+	 * @param gradebookId
+	 * @return Gradebook object with the headings populated (no students or grades)
+	 */
+	public Gradebook getGradebookByIdWithHeadings(final Long gradebookId);
+	
+	/**
+	 * 
+	 * @param student
+	 * @return the passed student object with the grades info populated since
+	 * it is lazy loading
+	 */
+	public StudentGrades populateGradesForStudent(StudentGrades student);
 }

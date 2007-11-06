@@ -381,7 +381,7 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 	      return (Gradebook) getHibernateTemplate().execute(hcb); 
 	}
 	
-	private Gradebook getGradebookByIdWithStudents(final Long gradebookId) {
+	public Gradebook getGradebookByIdWithStudents(final Long gradebookId) {
 		if (gradebookId == null) {
 	        throw new IllegalArgumentException("Null gradebookId passed to getGradebookByIdWithStudents");
 	       }
@@ -389,6 +389,40 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 	      HibernateCallback hcb = new HibernateCallback() {
 	        public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	          Query q = session.getNamedQuery("findGradebookByIdWithStudents");
+	          q.setParameter("id", gradebookId, Hibernate.LONG);
+
+	          return (Gradebook) q.uniqueResult();
+	        }
+	      };   
+
+	      return (Gradebook) getHibernateTemplate().execute(hcb); 
+	}
+	
+	public Gradebook getGradebookByIdWithHeadingsAndStudents(final Long gradebookId) {
+		if (gradebookId == null) {
+	        throw new IllegalArgumentException("Null gradebookId passed to getGradebookByIdWithStudents");
+	       }
+
+	      HibernateCallback hcb = new HibernateCallback() {
+	        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	          Query q = session.getNamedQuery("findGradebookByIdWithHeadingsAndStudents");
+	          q.setParameter("id", gradebookId, Hibernate.LONG);
+
+	          return (Gradebook) q.uniqueResult();
+	        }
+	      };   
+
+	      return (Gradebook) getHibernateTemplate().execute(hcb); 
+	}
+	
+	public Gradebook getGradebookByIdWithHeadings(final Long gradebookId) {
+		if (gradebookId == null) {
+	        throw new IllegalArgumentException("Null gradebookId passed to getGradebookByIdWithHeadings");
+	       }
+
+	      HibernateCallback hcb = new HibernateCallback() {
+	        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	          Query q = session.getNamedQuery("findGradebookByIdWithHeadings");
 	          q.setParameter("id", gradebookId, Hibernate.LONG);
 
 	          return (Gradebook) q.uniqueResult();
@@ -444,6 +478,21 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 		}
 		
 		return usernameGradesListMap;
+	}
+	
+	public StudentGrades populateGradesForStudent(StudentGrades student) {
+		if (student == null) {
+			throw new IllegalArgumentException("Null StudentGrades object passed to getStudentWithGrades");
+		}
+		
+		Long studentId = student.getId();
+		if (studentId == null)
+			return student;
+		
+		List studentGrades = getHibernateTemplate().find("from StudentGradeDataImpl as grades where grades.studentId=?", studentId);
+		student.setGrades(studentGrades);
+		
+		return student;
 	}
 
 }
