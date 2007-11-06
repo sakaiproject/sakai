@@ -156,6 +156,21 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 
 		}
 	}
+	
+	public void deleteHeading(final Heading heading) {
+		if (heading != null) {
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException,
+						SQLException {
+
+					session.delete(heading);
+					return null;
+				}
+			};
+			getHibernateTemplate().execute(hcb);
+
+		}
+	}
 
 	public Gradebook getGradebookByTitleAndContext(final String title,
 			final String context) {
@@ -494,5 +509,14 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 		
 		return student;
 	}
+	
+	public void updateStudent(StudentGrades student) throws IllegalArgumentException {
+		if (student == null) {
+			throw new IllegalArgumentException("Null Argument");
+		} else {
+			HibernateTemplate temp = getHibernateTemplate();
+			temp.saveOrUpdate(student);
+		}
+}
 
 }

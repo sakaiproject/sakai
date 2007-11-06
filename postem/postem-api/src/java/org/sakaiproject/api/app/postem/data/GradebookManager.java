@@ -112,4 +112,8 @@ public interface GradebookManager {
 	 * it is lazy loading
 	 */
 	public StudentGrades populateGradesForStudent(StudentGrades student);
+	
+	public void updateStudent(StudentGrades student);
+	
+	public void deleteHeading(final Heading heading);
 }

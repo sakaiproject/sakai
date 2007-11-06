@@ -463,6 +463,7 @@ public class PostemTool {
 				.getCreator(), currentGradebook.getContext());
 		oldGradebook.setId(currentGradebook.getId());
 		oldGradebook.setStudents(currentGradebook.getStudents());
+		oldGradebook.setHeadings(currentGradebook.getHeadings());
 
 		gradebooks = null;
 
@@ -609,14 +610,17 @@ public class PostemTool {
 							"has_students", new Object[] { new Integer(grades.getStudents()
 									.size()) });
 				}
-				
-				if (withHeader == true) {
-					currentGradebook.setTempHeadingsTitleList(grades.getHeaders());
-				}
 
 				if (oldGradebook.getId() != null && !this.userPressedBack) {
 					Set oldStudents = currentGradebook.getStudents();
 					oldGradebook.setStudents(oldStudents);
+					List oldHeadings = currentGradebook.getHeadings();
+					oldGradebook.setHeadings(oldHeadings);
+				}
+				
+				
+				if (withHeader == true) {
+					currentGradebook.setTempHeadingsTitleList(grades.getHeaders());
 				}
 
 				currentGradebook.setStudents(new TreeSet());
@@ -678,6 +682,9 @@ public class PostemTool {
 		while (oi.hasNext()) {
 			gradebookManager.deleteStudentGrades((StudentGrades) oi.next());
 		}
+		for (Iterator hi = oldGradebook.getHeadings().iterator(); hi.hasNext();) {
+			gradebookManager.deleteHeading((Heading) hi.next());
+		}
 		this.userId = SessionManager.getCurrentSessionUserId();
 		currentGradebook.setLastUpdated(new Timestamp(new Date().getTime()));
 		currentGradebook.setLastUpdater(this.userId);
@@ -695,6 +702,9 @@ public class PostemTool {
 		Iterator oi = oldGradebook.getStudents().iterator();
 		while (oi.hasNext()) {
 			gradebookManager.deleteStudentGrades((StudentGrades) oi.next());
+		}
+		for (Iterator hi = oldGradebook.getHeadings().iterator(); hi.hasNext();) {
+			gradebookManager.deleteHeading((Heading) hi.next());
 		}
 		this.userId = SessionManager.getCurrentSessionUserId();
 		currentGradebook.setLastUpdated(new Timestamp(new Date().getTime()));
@@ -753,7 +763,7 @@ public class PostemTool {
 			StudentGrades currStudent = currentGradebook.studentGrades(this.userEid);
 			currStudent = gradebookManager.populateGradesForStudent(currStudent);
 			currStudent.setLastChecked(new Timestamp(new Date().getTime()));
-			gradebookManager.saveGradebook(currentGradebook);
+			gradebookManager.updateStudent(currStudent);
 		}
 
 		return "view_grades";
