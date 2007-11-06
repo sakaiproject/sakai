@@ -102,6 +102,10 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private String pageName;
     
     public SpreadsheetUploadBean() {
+    
+    }
+    
+    public void init() {
     	
     	localGradebook = getGradebook();
 
@@ -880,11 +884,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	String assignmentName = (String) assignIter.next();
         	String pointsPossibleAsString = null;
         	
-        	String [] parsedAssignmentName = assignmentName.split(" \\["); // 5B == '['
+        	String [] parsedAssignmentName = assignmentName.split(" \\[");
         	
         	assignmentName = parsedAssignmentName[0].trim();
         	if (parsedAssignmentName.length > 1) {
-        		String [] parsedPointsPossible = parsedAssignmentName[1].split("\\]"); // 5D == ']'
+        		String [] parsedPointsPossible = parsedAssignmentName[1].split("\\]");
         		pointsPossibleAsString = parsedPointsPossible[0].trim();
         	}
         	
@@ -978,7 +982,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         			if (assignment.isExternallyMaintained()) {
         				externallyMaintainedImportMsg.append(getLocalizedString("import_assignment_externally_maintained_settings",
         						new String[] {assignment.getName(), assignment.getExternalAppName()}) + "<br />");
-        			} else {
+        			} else if (pointsPossibleAsString != null) {
         				assignment.setPointsPossible(new Double(pointsPossibleAsString));
         				getGradebookManager().updateAssignment(assignment);
         				gbUpdated = true;
