@@ -55,6 +55,8 @@ public class ContentReviewItem {
 	private Date dateQueued;
 	private Date dateSubmitted;
 	private Date dateReportReceived;
+	private Date nextRetryTime;
+	
 	private Long status;
 	private Integer reviewScore;
 	private String lastError;
@@ -239,5 +241,13 @@ public class ContentReviewItem {
 	
 	public void setRetryCount(Long l) {
 		this.retryCount = l;
+	}
+
+	public Date getNextRetryTime() {
+		return nextRetryTime;
+	}
+
+	public void setNextRetryTime(Date nextRetryTime) {
+		this.nextRetryTime = nextRetryTime;
 	}
 }
