@@ -6500,6 +6500,7 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 
 		ParameterParser params = data.getParameters();
+		int typeOfGrade = -1;
 
 		boolean withGrade = state.getAttribute(WITH_GRADES) != null ? ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue()
 				: false;
@@ -6534,12 +6535,12 @@ public class AssignmentAction extends PagedResourceActionII
 			String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
 
 			Assignment a = AssignmentService.getSubmission(sId).getAssignment();
-			int typeOfGrade = a.getContent().getTypeOfGrade();
+			typeOfGrade = a.getContent().getTypeOfGrade();
 
 			if (withGrade)
 			{
 				// do grade validation only for Assignment with Grade tool
-				if (typeOfGrade == 3)
+				if (typeOfGrade == Assignment.SCORE_GRADE_TYPE)
 				{
 					if ((grade.length() == 0))
 					{
@@ -6584,7 +6585,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 
 				// if ungraded and grade type is not "ungraded" type
-				if ((grade == null || grade.equals("ungraded")) && (typeOfGrade != 1) && gradeOption.equals("release"))
+				if ((grade == null || grade.equals("ungraded")) && (typeOfGrade != Assignment.UNGRADED_GRADE_TYPE) && gradeOption.equals("release"))
 				{
 					addAlert(state, rb.getString("plespethe2"));
 				}
@@ -6664,7 +6665,7 @@ public class AssignmentAction extends PagedResourceActionII
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
 			String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
-			grade = scalePointGrade(state, grade);
+			grade = (typeOfGrade == Assignment.SCORE_GRADE_TYPE)?scalePointGrade(state, grade):grade;
 			state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
 		}
 	}
