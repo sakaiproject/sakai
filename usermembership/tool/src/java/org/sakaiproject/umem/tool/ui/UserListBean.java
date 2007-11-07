@@ -26,8 +26,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -67,6 +69,9 @@ public class UserListBean {
 	private static final String				SORT_USER_EMAIL		= "email";
 	private static final String				SORT_USER_TYPE		= "type";
 	private static final String				SORT_USER_AUTHORITY	= "authority";
+	private static final String				SORT_USER_CREATED_ON	= "createdOn";
+	private static final String				SORT_USER_MODIFIED_ON	= "modifiedOn";
+	private static final String				SORT_INTERNAL_USER_ID	= "internalUserId";
 	private static final String				NO_NAME_USER		= "";
 	private static final String				CFG_USER_TYPE_LIMIT_TO_SELF		= "userType.limitToSelf";
 	private static final String				CFG_USER_TYPE_LIMIT_TO_LIST		= "userType.limitToList";
@@ -122,11 +127,15 @@ public class UserListBean {
 		private String				userEmail;
 		private String				userType;
 		private String				authority;
+		private String              createdOn;
+		private String              modifiedOn;
 
 		public UserRow() {
 		}
 
-		public UserRow(String userID, String userEID, String userDisplayId, String userName, String userEmail, String userType, String authority) {
+		public UserRow(String userID, String userEID, String userDisplayId, String userName, 
+				       String userEmail, String userType, String authority, String createdOn, 
+				       String modifiedOn) {
 			this.userID = userID;
 			this.userEID = userEID;
 			this.userDisplayId = userDisplayId;
@@ -134,6 +143,8 @@ public class UserListBean {
 			this.userEmail = userEmail;
 			this.userType = userType;
 			this.authority = authority;
+			this.createdOn = createdOn;
+			this.modifiedOn = modifiedOn;
 		}
 
 		public String getUserEmail() {
@@ -165,6 +176,14 @@ public class UserListBean {
 			return this.authority;
 		}
 
+		public String getCreatedOn() {
+			return createdOn;
+		}
+
+		public String getModifiedOn() {
+			return modifiedOn;
+		}
+		
 		public void setUserRow(UserRow row, String authority) {
 			this.userID = row.getUserID();
 			this.userEID = row.getUserEID();
@@ -173,6 +192,8 @@ public class UserListBean {
 			this.userEmail = row.getUserEmail();
 			this.userType = row.getUserType();
 			this.authority = authority;
+			this.createdOn = row.createdOn;
+			this.modifiedOn = row.modifiedOn;
 		}
 
 		public UserRow getUserRow() {
@@ -215,6 +236,24 @@ public class UserListBean {
 						}else if(fieldName.equals(SORT_USER_AUTHORITY)){
 							String s1 = r1.getAuthority();
 							String s2 = r2.getAuthority();
+							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							if(sortAscending) return res;
+							else return -res;
+						}else if(fieldName.equals(SORT_USER_CREATED_ON)){
+							String s1 = r1.getCreatedOn();
+							String s2 = r2.getCreatedOn();
+							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							if(sortAscending) return res;
+							else return -res;
+						}else if(fieldName.equals(SORT_USER_MODIFIED_ON)){
+							String s1 = r1.getModifiedOn();
+							String s2 = r2.getModifiedOn();
+							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
+							if(sortAscending) return res;
+							else return -res;
+						}else if(fieldName.equals(SORT_INTERNAL_USER_ID)){
+							String s1 = r1.getUserID().toLowerCase();
+							String s2 = r2.getUserID();
 							int res = collator.compare(s1!=null? s1.toLowerCase():"", s2!=null? s2.toLowerCase():"");
 							if(sortAscending) return res;
 							else return -res;
@@ -270,9 +309,9 @@ public class UserListBean {
 		try{
 			if(selectedAuthority.equals(USER_AUTH_ALL) || selectedAuthority.equals(USER_AUTH_INTERNAL)){
 				// 1. Query internal users from SAKAI_USER
-				String sql = "SELECT SAKAI_USER.USER_ID,EID,EMAIL,FIRST_NAME,LAST_NAME,TYPE FROM SAKAI_USER " +
-						"LEFT JOIN SAKAI_USER_ID_MAP " +
-						"ON SAKAI_USER.USER_ID=SAKAI_USER_ID_MAP.USER_ID";
+				String sql = "SELECT EID,EMAIL,FIRST_NAME,LAST_NAME,TYPE, CREATEDON, "
+					        +"MODIFIEDON, SAKAI_USER_ID_MAP.USER_ID as USER_ID FROM SAKAI_USER LEFT JOIN SAKAI_USER_ID_MAP " 
+					        +"ON SAKAI_USER.USER_ID=SAKAI_USER_ID_MAP.USER_ID";
 				if(searching || filtering){
 					sql += " WHERE ";
 					if(searching)
@@ -303,8 +342,13 @@ public class UserListBean {
 						String f = rs.getString("FIRST_NAME");
 						String l = rs.getString("LAST_NAME");
 						String t = rs.getString("TYPE");
+						Timestamp createdOn = rs.getTimestamp("CREATEDON");
+						String co = createdOn.toString();
+						Timestamp modifiedOn = rs.getTimestamp("MODIFIEDON");
+						String mo = modifiedOn.toString();
 						// For internal users, making the assumption that eid will do for displayId
-						userRows.add(new UserRow(id, eid, eid, getFullName(f, l), e, t, USER_AUTH_INTERNAL));
+						userRows.add(new UserRow(id, eid, eid, getFullName(f, l), e, t, 
+								     USER_AUTH_INTERNAL, co, mo));
 					}
 					rs.close();
 					st.close();
@@ -346,6 +390,8 @@ public class UserListBean {
 				String n;
 				String t;
 				String regexp = null;
+				String co;
+				String mo;
 				List pUsers = M_uds.getUsers(eUsers);
 				Iterator it = pUsers.iterator();
 				if(searching)
@@ -360,7 +406,8 @@ public class UserListBean {
 					t = u.getType();
 					t = (t == null) ? "" : t;
 					if(!t.equals("")) addExtraUserType(t);
-					
+					co = (u.getCreatedTime() == null) ? "" : u.getCreatedTime().toStringLocalDate();
+                    mo = (u.getModifiedTime() == null) ? "" : u.getModifiedTime().toStringLocalDate();
 					boolean add = false;
 					if(filtering && !searching){
 						if((!selectedUserType.equals(USER_TYPE_NONE) && t.equals(selectedUserType)) || (selectedUserType.equals(USER_TYPE_NONE) && t.equals(""))) add = true;
@@ -373,7 +420,7 @@ public class UserListBean {
 					}else{
 						add = true;
 					}
-					if(add) userRows.add(new UserRow(id, eid, dispId, n, e, t, USER_AUTH_EXTERNAL));
+					if(add) userRows.add(new UserRow(id, eid, dispId, n, e, t, USER_AUTH_EXTERNAL, co, mo));
 				}
 			}
 		}catch(Exception e){
@@ -635,6 +682,8 @@ public class UserListBean {
 		// Add the headers
 		Export.appendQuoted(sb, msgs.getString("user_id"));
 		sb.append(",");
+		Export.appendQuoted(sb, msgs.getString("internal_user_id"));
+		sb.append(",");
 		Export.appendQuoted(sb, msgs.getString("user_name"));
 		sb.append(",");
 		Export.appendQuoted(sb, msgs.getString("user_email"));
@@ -642,6 +691,10 @@ public class UserListBean {
 		Export.appendQuoted(sb, msgs.getString("user_type"));
 		sb.append(",");
 		Export.appendQuoted(sb, msgs.getString("user_authority"));
+		sb.append(",");
+		Export.appendQuoted(sb, msgs.getString("user_created_on"));
+		sb.append(",");
+		Export.appendQuoted(sb, msgs.getString("user_modified_on"));
 		sb.append("\n");
 
 		// Add the data
@@ -651,6 +704,8 @@ public class UserListBean {
 			// user name
 			Export.appendQuoted(sb, usr.getUserEID());
 			sb.append(",");
+			Export.appendQuoted(sb, usr.getUserID());
+			sb.append(",");
 			Export.appendQuoted(sb, usr.getUserName());
 			sb.append(",");
 			Export.appendQuoted(sb, usr.getUserEmail());
@@ -658,6 +713,10 @@ public class UserListBean {
 			Export.appendQuoted(sb, usr.getUserType());
 			sb.append(",");
 			Export.appendQuoted(sb, usr.getAuthority());
+			sb.append(",");
+			Export.appendQuoted(sb, usr.getCreatedOn());
+			sb.append(",");
+			Export.appendQuoted(sb, usr.getModifiedOn());
 			sb.append("\n");
 		}
 		return sb.toString();

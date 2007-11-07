@@ -97,6 +97,14 @@
 					<f:param name="userId" value="#{row.userID}"/>
 				</h:commandLink>      
 			</h:column>
+			<h:column id="internalUserId">
+				<f:facet name="header">
+		            <t:commandSortHeader columnName="internalUserId" immediate="true" arrow="true">
+		                <h:outputText value="#{msgs.internal_user_id}"/>		                
+		            </t:commandSortHeader>
+		        </f:facet>		  
+				<h:outputText value="#{row.userID}"/>
+			</h:column>
 			<h:column id="userName">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="name" immediate="true" arrow="true">
@@ -128,6 +136,22 @@
 		            </t:commandSortHeader>
 		        </f:facet>
 				<h:outputText value="#{row.authority}"/>
+			</h:column>
+			<h:column id="createdOn">
+				<f:facet name="header">
+		            <t:commandSortHeader columnName="createdOn" immediate="true" arrow="true">
+		                <h:outputText value="#{msgs.user_created_on}"/>
+		            </t:commandSortHeader>
+		        </f:facet>
+				<h:outputText value="#{row.createdOn}"/>
+			</h:column>
+			<h:column id="modifiedOn">
+				<f:facet name="header">
+		            <t:commandSortHeader columnName="modifiedOn" immediate="true" arrow="true">
+		                <h:outputText value="#{msgs.user_modified_on}"/>
+		            </t:commandSortHeader>
+		        </f:facet>
+				<h:outputText value="#{row.modifiedOn}"/>
 			</h:column>
 		</t:dataTable>
 	
