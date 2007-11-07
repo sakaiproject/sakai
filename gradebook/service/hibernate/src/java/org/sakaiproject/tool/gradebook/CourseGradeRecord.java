@@ -45,13 +45,13 @@ public class CourseGradeRecord extends AbstractGradeRecord {
     static {
         calcComparator = new Comparator<CourseGradeRecord>() {
             public int compare(CourseGradeRecord cgr1, CourseGradeRecord cgr2) {
-                if(cgr1 == null && cgr2 == null) {
+                if((cgr1 == null && cgr2 == null) || (cgr1.getGradeAsPercentage() == null && cgr2.getGradeAsPercentage() == null)) {
                     return 0;
                 }
-                if(cgr1 == null) {
+                if(cgr1 == null || cgr1.getGradeAsPercentage() == null) {
                     return -1;
                 }
-                if(cgr2 == null) {
+                if(cgr2 == null || cgr2.getGradeAsPercentage() == null) {
                     return 1;
                 }
                 //SAK-12017 - Commented out as getPointsEarned is no longer an accurate comparator
