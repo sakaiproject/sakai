@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.sakaiproject.api.app.postem.data.Gradebook;
-import org.sakaiproject.api.app.postem.data.StudentGradeData;
 import org.sakaiproject.api.app.postem.data.StudentGrades;
 import org.sakaiproject.api.app.postem.data.Template;
 
@@ -41,7 +40,7 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 
 	protected String username;
 
-	protected List<StudentGradeData> grades = new ArrayList();
+	protected List grades = new ArrayList();
 
 	protected DateFormat dateFormat = new SimpleDateFormat("d MMM yyyy HH:mm");
 
@@ -55,7 +54,7 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 
 	}
 
-	public StudentGradesImpl(String username, List<StudentGradeData> grades) {
+	public StudentGradesImpl(String username, List grades) {
 		this.username = username.trim();
 		this.grades = grades;
 	}
@@ -84,11 +83,11 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 		this.username = username.trim();
 	}
 
-	public List<StudentGradeData> getGrades() {
+	public List getGrades() {
 		return grades;
 	}
 
-	public void setGrades(List<StudentGradeData> grades) {
+	public void setGrades(List grades) {
 		this.grades = grades;
 	}
 
@@ -158,19 +157,20 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 	 * controller, or possibly in the manager class (using a defaultTemplate
 	 * property). This works for the quick and dirty now.
 	 */
-	public String formatGrades(List<String> headingTitlesList, List <String>gradeList) {
+	public String formatGrades() {
 		if (gradebook.getTemplate() == null) {
-			List titles = new ArrayList(headingTitlesList);
-			List grades = new ArrayList(gradeList);
+
+			List h2 = new ArrayList(gradebook.getHeadings());
+
 			StringBuilder gradeBuffer = new StringBuilder();
 			gradeBuffer.append("<table class=\"itemSummary\">");
 
-			if (titles.size() != 0) {
-				gradeBuffer.append("<tr><th scope=\"row\">" + titles.get(0).toString() + "</th><td>");
-				titles.remove(0);
+			if (h2.size() != 0) {
+				gradeBuffer.append("<tr><th scope=\"row\">" + h2.get(0).toString() + "</th><td>");
+				h2.remove(0);
 				gradeBuffer.append(getUsername());
 				gradeBuffer.append("</td></tr>");
-				Iterator ii = titles.iterator();
+				Iterator ii = h2.iterator();
 				Iterator jj = grades.iterator();
 
 				while (ii.hasNext()) {
@@ -203,36 +203,38 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 		// gradeBuffer.append("<table><tr>");
 		int totalWidth = 0;
 
-		Iterator jj = getGradeEntryList().iterator();
+		Iterator jj = grades.iterator();
 		int ii = 0;
 		while (jj.hasNext()) {
 			String current = (String) jj.next();
 			String width = gradebook.getProperWidth(ii);
 			int iwidth = Integer.parseInt(width.substring(0, width.length() - 2));
 			totalWidth += iwidth;
-
+			/*gradeBuffer.append("<td width='");
+			gradeBuffer.append(width);
+			gradeBuffer.append("' style='min-width: ");
+			gradeBuffer.append(width);
+			gradeBuffer.append("; width: ");
+			gradeBuffer.append(width);
+			gradeBuffer.append(";' >");*/
 			gradeBuffer.append("<td style=\"padding:0.6em;\">");
 			gradeBuffer.append(current);
 			gradeBuffer.append("</td>");
 			ii++;
 		}
+		/*StringBuilder newBuffer = new StringBuilder();
+		newBuffer.append("<table width='");
+		newBuffer.append(totalWidth);
+		newBuffer.append("px' style='min-width: ");
+		newBuffer.append(totalWidth);
+		newBuffer.append("px; width: ");
+		newBuffer.append(totalWidth);
+		newBuffer.append("px;' ><tr>");
+		newBuffer.append(gradeBuffer);
+
+		newBuffer.append("</tr></table>");
+		newBuffer.append("</tr>");*/
 		return gradeBuffer.toString();
-	}
-	
-	public List getGradeEntryList() {
-		List gradeEntryList = new ArrayList();
-		if (grades == null || grades.isEmpty()) {
-			return gradeEntryList;
-		}
-		
-		for (Iterator gradeIter = grades.iterator(); gradeIter.hasNext();) {
-			StudentGradeData gradeData = (StudentGradeData) gradeIter.next();
-			if (gradeData != null) {
-				gradeEntryList.add(gradeData.getGradeEntry());
-			}
-		}
-		
-		return gradeEntryList;
 	}
 
 }

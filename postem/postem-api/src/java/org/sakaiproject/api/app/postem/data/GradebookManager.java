@@ -22,12 +22,11 @@
 package org.sakaiproject.api.app.postem.data;
 
 import java.util.List;
-import java.util.Map;
 import java.util.SortedSet;
 
 public interface GradebookManager {
 	public Gradebook createGradebook(String title, String creator,
-			String context, List<Heading> headings, SortedSet students, Template template);
+			String context, List headings, SortedSet students, Template template);
 
 	public Gradebook createEmptyGradebook(String creator, String context);
 
@@ -49,7 +48,7 @@ public interface GradebookManager {
 
 	public void saveGradebook(Gradebook gradebook);
 
-	public void updateGrades(Gradebook gradebook, List<Heading> headings,
+	public void updateGrades(Gradebook gradebook, List headings,
 			SortedSet students);
 
 	public void updateTemplate(Gradebook gradebook, String template);
@@ -61,59 +60,37 @@ public interface GradebookManager {
 	/**
 	 * 
 	 * @param gradebookId
-	 * @return the Gradebook object with the given id
-	 * with the headings, students, and grade information populated
-	 */
-	public Gradebook getGradebookByIdWithHeadingsStudentsAndGrades(final Long gradebookId);
-	
-	/**
-	 * 
-	 * @param gradesLists
-	 * 	list of lists parsed from the csv file for each student
-	 * @return Map of username to the list of associated grades for each student
-	 */
-	public Map<String, List> createUsernameGradesListMap(List gradesLists);
-	
-	public void saveGradebook(Gradebook gradebook, List<String> headingTitles, Map usernameGradesListMap);
-	
-	/**
-	 * 
-	 * @param title
-	 * @param context
-	 * @return true if the given title already exists in the given context
-	 */
-	public boolean titleExistsInContext(String title, String context);
-	
-	/**
-	 * 
-	 * @param gradebookId
-	 * @return Gradebook object with the student data (not grades) populated
-	 */
-	public Gradebook getGradebookByIdWithStudents(final Long gradebookId);
-	
-	/**
-	 * 
-	 * @param gradebookId
-	 * @return Gradebook object with the headings and student data (no grades) populated
+	 * @return gradebook object with the headings and student data populated
 	 */
 	public Gradebook getGradebookByIdWithHeadingsAndStudents(final Long gradebookId);
 	
 	/**
 	 * 
 	 * @param gradebookId
-	 * @return Gradebook object with the headings populated (no students or grades)
+	 * @return gradebook object with headings populated, not students
 	 */
 	public Gradebook getGradebookByIdWithHeadings(final Long gradebookId);
 	
 	/**
-	 * 
-	 * @param student
-	 * @return the passed student object with the grades info populated since
-	 * it is lazy loading
+	 * Return the StudentGrades object associated with the given gradebook and
+	 * username
+	 * @param gradebook
+	 * @param username
+	 * @return
 	 */
-	public StudentGrades populateGradesForStudent(StudentGrades student);
+	public StudentGrades getStudentByGBAndUsername(final Gradebook gradebook, final String username);
 	
+	/**
+	 * Update an individual StudentGrades object
+	 * @param student
+	 */
 	public void updateStudent(StudentGrades student);
 	
-	public void deleteHeading(final Heading heading);
+	/**
+	 * 
+	 * @param gradebook
+	 * @return a list of all of the usernames associated with the given gradebook
+	 */
+	public List getUsernamesInGradebook(Gradebook gradebook);
+	
 }

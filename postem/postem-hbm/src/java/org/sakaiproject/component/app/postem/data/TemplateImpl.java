@@ -25,7 +25,6 @@ import java.io.Serializable;
 import java.util.ListIterator;
 
 import org.sakaiproject.api.app.postem.data.StudentGrades;
-import org.sakaiproject.api.app.postem.data.StudentGradeData;
 import org.sakaiproject.api.app.postem.data.Template;
 
 public class TemplateImpl implements Template, Serializable {
@@ -45,8 +44,7 @@ public class TemplateImpl implements Template, Serializable {
 		ListIterator grades = student.getGrades().listIterator();
 		while (grades.hasNext()) {
 			int index = grades.nextIndex();
-			StudentGradeData gradeData = (StudentGradeData) grades.next();
-			String grade = gradeData.getGradeEntry();
+			String grade = (String) grades.next();
 			output = output.replaceAll("\\$" + (index + 1) + "\\" +
 					"$", grade);
 		}

@@ -24,7 +24,6 @@ package org.sakaiproject.api.app.postem.data;
 import java.sql.Timestamp;
 import java.util.List;
 
-
 public interface StudentGrades {
 	public Gradebook getGradebook();
 
@@ -34,9 +33,9 @@ public interface StudentGrades {
 
 	public void setUsername(String username);
 
-	public List<StudentGradeData> getGrades();
+	public List getGrades();
 
-	public void setGrades(List<StudentGradeData> grades);
+	public void setGrades(List grades);
 
 	public String getCheckDateTime();
 
@@ -50,14 +49,8 @@ public interface StudentGrades {
 
 	public boolean getReadAfterUpdate();
 
-	public String formatGrades(List<String> headingTitles, List<String> gradesList);
+	public String formatGrades();
 
 	public String getGradesRow();
-	
-	/**
-	 * 
-	 * @return list of (String) gradeEntry data
-	 */
-	public List getGradeEntryList();
 
 }

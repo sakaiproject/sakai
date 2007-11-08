@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -38,8 +37,6 @@ import java.util.TreeSet;
 
 import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 import org.sakaiproject.api.app.postem.data.Gradebook;
-import org.sakaiproject.api.app.postem.data.Heading;
-import org.sakaiproject.api.app.postem.data.StudentGradeData;
 import org.sakaiproject.api.app.postem.data.StudentGrades;
 import org.sakaiproject.api.app.postem.data.Template;
 
@@ -68,14 +65,11 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 	
 	protected String firstUploadedUsername;
 
-	protected Set<StudentGrades> students;
+	protected Set students = new TreeSet();
 
 	protected Template template;
 
-	protected List<Heading> headings = new ArrayList();
-	
-	protected List<String> tempHeadingsTitleList;
-	protected Map<String,List> tempStudentToGradesMap;
+	protected List headings = new ArrayList();
 
 	protected Long id;
 
@@ -84,6 +78,8 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 	protected Boolean released = new Boolean(false);
 
 	protected Boolean releaseStatistics = new Boolean(false);
+	
+	protected List<String> usernames;
 
 	private static String units = "px";
 	
@@ -103,7 +99,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 	}
 
 	public GradebookImpl(String title, String creator, String context,
-			List<Heading> headings, SortedSet<StudentGrades> students, Template template) {
+			List headings, SortedSet students, Template template) {
 		Timestamp now = new Timestamp(new Date().getTime());
 		this.title = title;
 		this.creator = creator;
@@ -216,16 +212,12 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 		this.context = context;
 	}
 
-	public Set<StudentGrades> getStudents() {
+	public Set getStudents() {
 		return students;
 	}
 
-	public void setStudents(Set<StudentGrades> students) {
-		if (students == null) {
-			this.students = new TreeSet();
-		} else {
-			this.students = students;
-		}
+	public void setStudents(Set students) {
+		this.students = students;
 	}
 
 	public Template getTemplate() {
@@ -295,9 +287,16 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 	public String getFirstUploadedUsername() {
 		return firstUploadedUsername;
 	}
+	
+	public void setUsernames(List<String> usernames) {
+		this.usernames = usernames;
+	}
+	public List<String> getUsernames() {
+		return usernames;
+	}
 
 	public String getHeadingsRow() {
-		List<Heading> h2 = new ArrayList(headings);
+		List h2 = new ArrayList(headings);
 		h2.remove(0);
 		StringBuilder headingBuffer = new StringBuilder();
 		// headingBuffer.append("<table><tr>");
@@ -306,16 +305,34 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 		Iterator jj = h2.iterator();
 		int ii = 0;
 		while (jj.hasNext()) {
-			Heading currentHeading = (Heading)jj.next();
-			String current = currentHeading.getHeadingTitle();
+			String current = (String) jj.next();
 			String width = getProperWidth(ii);
 			int iwidth = Integer.parseInt(width.substring(0, width.length() - 2));
 			totalWidth += iwidth;
-
+			/*headingBuffer.append("<th width='");
+			headingBuffer.append(width);
+			headingBuffer.append("' style='min-width: ");
+			headingBuffer.append(width);
+			headingBuffer.append("; width: ");
+			headingBuffer.append(width);
+			headingBuffer.append(";' >");
+			headingBuffer.append(current);
+			headingBuffer.append("</th>");*/
 			headingBuffer.append("<th style=\"padding: 0.6em;\" scope=\"col\">" + current + "</th>");
 			ii++;
 		}
+		/*StringBuilder newBuffer = new StringBuilder();
+		newBuffer.append("<table width='");
+		newBuffer.append(totalWidth);
+		newBuffer.append("px' style='min-width: ");
+		newBuffer.append(totalWidth);
+		newBuffer.append("px; width: ");
+		newBuffer.append(totalWidth);
+		newBuffer.append("px;' ><tr>");
+		newBuffer.append(headingBuffer);
 
+		newBuffer.append("</tr></table>");
+		return newBuffer.toString();*/
 		return headingBuffer.toString();
 	}
 
@@ -372,8 +389,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 		while (iter.hasNext()) {
 			StudentGrades sg = (StudentGrades) iter.next();
 			try {
-				StudentGradeData gradeData = (StudentGradeData)sg.getGrades().get(column);
-				int chars = gradeData.getGradeEntry().length();
+				int chars = ((String) sg.getGrades().get(column)).length();
 				int width = chars * 10;
 				if (width >= tops) {
 					maxWidth = tops;
@@ -396,8 +412,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 		while (iter.hasNext()) {
 			StudentGrades sg = (StudentGrades) iter.next();
 			try {
-				StudentGradeData gradeData = (StudentGradeData)sg.getGrades().get(column);
-				rawData.add(new Pair(sg.getUsername(), gradeData.getGradeEntry()));
+				rawData.add(new Pair(sg.getUsername(), sg.getGrades().get(column)));
 			} catch (IndexOutOfBoundsException exception) {
 				rawData.add(new Pair(sg.getUsername(), ""));
 			}
@@ -416,8 +431,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 		while (iter.hasNext()) {
 			StudentGrades sg = (StudentGrades) iter.next();
 			try {
-				StudentGradeData gradeData = (StudentGradeData) sg.getGrades().get(column);
-				String value = gradeData.getGradeEntry();
+				String value = (String) sg.getGrades().get(column);
 				if ("".equals(value.trim())) {
 					// TODO: do blanks count as zeros for stats?
 					// stats.addValue(0);
@@ -444,8 +458,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 	}
 
 	public StudentGrades studentGrades(String username) {
-		List studentList = new ArrayList(students);
-		Iterator iter = studentList.iterator();
+		Iterator iter = getStudents().iterator();
 		while (iter.hasNext()) {
 			StudentGrades current = (StudentGrades) iter.next();
 			if (current.getUsername().equalsIgnoreCase(username)) {
@@ -459,10 +472,10 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 		TreeMap studentMap = new TreeMap();
 		studentMap.put(" ", "blank");
 
-		Iterator iter = getStudents().iterator();
+		Iterator iter = getUsernames().iterator();
 		while (iter.hasNext()) {
-			StudentGrades ss = (StudentGrades) iter.next();
-			studentMap.put(ss.getUsername(), ss.getUsername());
+			String username = (String) iter.next();
+			studentMap.put(username, username);
 		}
 		return studentMap;
 	}
@@ -603,34 +616,4 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 	    };
 
 	  }
-
-	public List getHeadingsTitleList() {
-		List headingTitles = new ArrayList();
-		if (headings == null || headings.isEmpty()) {
-			return headingTitles;
-		}
-		
-		for (Iterator headingIter = headings.iterator(); headingIter.hasNext();) {
-			Heading heading = (Heading) headingIter.next();
-			if (heading != null) {
-				headingTitles.add(heading.getHeadingTitle());
-			}
-		}
-		
-		return headingTitles;
-	}
-	
-	public List getTempHeadingsTitleList() {
-		return tempHeadingsTitleList;
-	}
-	public void setTempHeadingsTitleList(List<String> headingTitles) {
-		this.tempHeadingsTitleList = headingTitles;
-	}
-	
-	public Map<String, List> getTempStudentToGradesMap() {
-		return tempStudentToGradesMap;
-	}
-	public void setTempStudentToGradesMap(Map<String, List> tempStudentToGradesMap) {
-		this.tempStudentToGradesMap = tempStudentToGradesMap;
-	}
 }

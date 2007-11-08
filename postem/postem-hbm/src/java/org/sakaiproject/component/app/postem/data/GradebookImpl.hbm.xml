@@ -53,45 +53,18 @@
 			<property name="templateCode" type="string" length="4000" column="template" />
 		</component>
 
-		<set name="students" order-by="username asc" lazy="true" cascade="save-update" inverse="true">
+		<set name="students" lazy="true" cascade="save-update" order-by="username asc" inverse="true">
 			<key column="surrogate_key" />
 			<one-to-many class="org.sakaiproject.component.app.postem.data.StudentGradesImpl" />
 		</set>
-		
-		<list name="headings" cascade="all" inverse="true">
-	        <key column="gradebook_id"/>
-	        <index column="location" />
-	        <one-to-many class="org.sakaiproject.component.app.postem.data.HeadingImpl"/>
-    </list>
+
+		<list name="headings" lazy="true" table="SAKAI_POSTEM_HEADINGS">
+			<key column="gradebook_id" />
+			<index column="location" />
+			<element type="string" column="heading" not-null="true" length="500" />
+		</list>
+
 
 	</class>
-	
-	<query name="findGradebookByIdWithHeadings">
-    <![CDATA[from org.sakaiproject.component.app.postem.data.GradebookImpl as gradebook
-             left join fetch gradebook.headings
-             where gradebook.id = :id]]>
-  </query>
-  
-  <query name="findGradebookByIdWithHeadingsStudentsAndGrades">
-    <![CDATA[from org.sakaiproject.component.app.postem.data.GradebookImpl as gradebook
-             left join fetch gradebook.headings
-             left join fetch gradebook.students as students
-             left join fetch students.grades
-             where gradebook.id = :id 
-    ]]>
-  </query>
-  
-  <query name="findGradebookByIdWithStudents">
-    <![CDATA[from org.sakaiproject.component.app.postem.data.GradebookImpl as gradebook
-             left join fetch gradebook.students
-             where gradebook.id = :id]]>
-  </query>
-  
-  <query name="findGradebookByIdWithHeadingsAndStudents">
-    <![CDATA[from org.sakaiproject.component.app.postem.data.GradebookImpl as gradebook
-             left join fetch gradebook.students
-             left join fetch gradebook.headings
-             where gradebook.id = :id]]>
-  </query>
 
 </hibernate-mapping>

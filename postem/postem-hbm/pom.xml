@@ -36,12 +36,6 @@
       <version>1.0</version>
 <!--properties:  deploy.target: shared -->
     </dependency>
-    
-    <dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>${sakai.commons.lang.version}</version>
-		</dependency>
   </dependencies>
   <build>
     <resources>

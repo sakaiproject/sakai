@@ -23,7 +23,6 @@ package org.sakaiproject.tool.postem;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -44,13 +43,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.util.MessageUtils;
 import org.sakaiproject.api.app.postem.data.Gradebook;
-import org.sakaiproject.api.app.postem.data.Heading;
 import org.sakaiproject.api.app.postem.data.GradebookManager;
-import org.sakaiproject.api.app.postem.data.StudentGradeData;
 import org.sakaiproject.api.app.postem.data.StudentGrades;
-
-import org.sakaiproject.component.app.postem.data.HeadingImpl;
-import org.sakaiproject.component.app.postem.data.StudentGradesImpl;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.cover.AuthzGroupService;
@@ -85,11 +79,11 @@ public class PostemTool {
 
 	protected String csv = null;
 
+	protected String siteId = null;
+
 	protected UIData gradebookTable;
 
 	protected String title;
-
-	protected String editAble;
 
 	protected String newTemplate;
 
@@ -113,10 +107,10 @@ public class PostemTool {
 	
 	private static final String COMMA_DELIM_STR = "comma";
 	private static final String TAB_DELIM_STR = "tab";
-	
-	private static final String UNITS = "px";
 
 	protected Logger logger = null;
+	
+	protected StudentGrades currentStudent;
 
 	// protected String release = "yes";
 
@@ -161,15 +155,19 @@ public class PostemTool {
 			}
 		}
 
+		Placement placement = ToolManager.getCurrentPlacement();
+		String currentSiteId = placement.getContext();
+
+		siteId = currentSiteId;
 		try {
 			if (checkAccess()) {
 				// logger.info("**** Getting by context!");
 				gradebooks = new ArrayList(gradebookManager
-						.getGradebooksByContext(getSiteId(), sortBy, ascending));
+						.getGradebooksByContext(siteId, sortBy, ascending));
 			} else {
 				// logger.info("**** Getting RELEASED by context!");
 				gradebooks = new ArrayList(gradebookManager
-						.getReleasedGradebooksByContext(getSiteId(), sortBy, ascending));
+						.getReleasedGradebooksByContext(siteId, sortBy, ascending));
 			}
 		} catch (Exception e) {
 			gradebooks = null;
@@ -263,30 +261,14 @@ public class PostemTool {
 	}
 
 	public String getCurrentStudentGrades() {
-		this.userId = SessionManager.getCurrentSessionUserId();
-		try {
-			this.userEid = UserDirectoryService.getUserEid(this.userId);
-			
-				/*
-				 * if (checkAccess()) { if (currentGradebook.getTemplate() != null) { return
-				 * currentGradebook.getTemplate().getTemplateCode(); } else { return "<p>No
-				 * template currently exists for this gradebook.</p>"; } }
-				 */
-			if (currentGradebook == null) {
-				return "<p>" + msgs.getString("no_gradebook_selected") + "</p>";
-			}
-			if (!currentGradebook.hasStudent(this.userEid)) {
-				return "<p>" + msgs.getString("no_grades_for_user") + " " + currentGradebook.getTitle() + ".</p>";
-			}
-			
-			StudentGrades student = currentGradebook.studentGrades(this.userEid);
-			return student.formatGrades(currentGradebook.getHeadingsTitleList(), student.getGradeEntryList());
-			
-		} catch (UserNotDefinedException e) {
-			LOG.error("UserNotDefinedException:",e);
-		}
 		
-		return "";
+		if (currentGradebook == null) {
+			return "<p>" + msgs.getString("no_gradebook_selected") + "</p>";
+		}
+		if (currentStudent == null) {
+			return "<p>" + msgs.getString("no_grades_for_user") + " " + currentGradebook.getTitle() + ".</p>";
+		}
+		return currentStudent.formatGrades();
 		
 	}
 
@@ -294,44 +276,38 @@ public class PostemTool {
 		if (currentGradebook == null) {
 			return "<p>" + msgs.getString("no_gradebook_selected") + "</p>";
 		}
-		Map<String, List> usernameToGradesMap = currentGradebook.getTempStudentToGradesMap();
-		if (usernameToGradesMap.size() == 0) {
+		Set students = currentGradebook.getStudents();
+		if (students.size() == 0) {
 			return "<p>" + msgs.getString("no_grades_in_gradebook") + " " + currentGradebook.getTitle() + ".</p>";
 		}
-		
-		String studentToDisplay = currentGradebook.getFirstUploadedUsername();
-		if (studentToDisplay == null) {
-			List usernames = new ArrayList(usernameToGradesMap.keySet());
-			Collections.sort(usernames);
-			studentToDisplay = (String)usernames.get(0);
+		if (currentGradebook.getFirstUploadedUsername() != null) {
+			StudentGrades student = currentGradebook.studentGrades(currentGradebook.getFirstUploadedUsername());
+			return student.formatGrades();
+		} else {
+			StudentGrades student = (StudentGrades) students.iterator().next();
+			return student.formatGrades();
 		}
-		
-		List gradesList = (List) usernameToGradesMap.get(studentToDisplay);
-		StudentGrades student = new StudentGradesImpl(studentToDisplay, null);
-		student.setGradebook(currentGradebook);
-		return student.formatGrades(currentGradebook.getTempHeadingsTitleList(), gradesList);
 	}
 
 	public String getSelectedStudentGrades() {
 		if (currentGradebook == null) {
 			return "<p>" + msgs.getString("no_gradebook_selected") + "</p>";
 		}
-		Set students = currentGradebook.getStudents();
-		if (students.size() == 0) {
+
+		if (currentGradebook.getUsernames() == null || currentGradebook.getUsernames().isEmpty()) {
 			return "<p>" + msgs.getString("no_grades_in_gradebook") + " " + currentGradebook.getTitle() + ".</p>";
 		}
-		if (selectedStudent == null) {
+		
+		if (selectedStudent == null || selectedStudent.equals("")) {
 			return msgs.getString("select_participant");
 		}
-
-		Iterator iter = students.iterator();
-		while (iter.hasNext()) {
-			StudentGrades student = (StudentGrades) iter.next();
-			if (selectedStudent.equals(student.getUsername())) {
-				student = gradebookManager.populateGradesForStudent(student);
-				return student.formatGrades(currentGradebook.getHeadingsTitleList(), student.getGradeEntryList());
-			}
-		}
+		
+		StudentGrades selStudent = gradebookManager.getStudentByGBAndUsername(currentGradebook, selectedStudent);
+		if (selStudent != null) {
+			selStudent.setGradebook(currentGradebook);
+			return selStudent.formatGrades();
+		} 
+		
 		return msgs.getString("select_participant");
 	}
 	
@@ -424,10 +400,11 @@ public class PostemTool {
 			return "permission_error";
 		}
 		this.userId = SessionManager.getCurrentSessionUserId();
+		this.siteId = ToolManager.getCurrentPlacement().getContext();
 		this.currentGradebook = gradebookManager.createEmptyGradebook(this.userId,
-				getSiteId());
+				this.siteId);
 		this.oldGradebook = gradebookManager.createEmptyGradebook(this.userId,
-				getSiteId());
+				this.siteId);
 		this.csv = null;
 		this.newTemplate = null;
 		this.delimiter = COMMA_DELIM_STR;
@@ -455,15 +432,15 @@ public class PostemTool {
 			return "permission_error";
 		}
 		this.userId = SessionManager.getCurrentSessionUserId();
+		this.siteId = ToolManager.getCurrentPlacement().getContext();
 		
 		Long currentGbId = ((Gradebook) gradebookTable.getRowData()).getId();
-		currentGradebook = gradebookManager.getGradebookByIdWithHeadingsStudentsAndGrades(currentGbId);
+		currentGradebook = gradebookManager.getGradebookByIdWithHeadingsAndStudents(currentGbId);
 		
 		oldGradebook = gradebookManager.createEmptyGradebook(currentGradebook
 				.getCreator(), currentGradebook.getContext());
 		oldGradebook.setId(currentGradebook.getId());
 		oldGradebook.setStudents(currentGradebook.getStudents());
-		oldGradebook.setHeadings(currentGradebook.getHeadings());
 
 		gradebooks = null;
 
@@ -497,6 +474,7 @@ public class PostemTool {
     }
 
 	public String processCreate() {
+
 		try {
 			if (!this.checkAccess()) {
 				throw new PermissionException(SessionManager.getCurrentSessionUserId(),
@@ -516,13 +494,20 @@ public class PostemTool {
 			// this.release = null;
 			return "permission_error";
 		}
-		if (currentGradebook.getId() == null && gradebookManager.titleExistsInContext(currentGradebook.getTitle(), getSiteId())) {
-			//To stay consistent, remove current messages when adding a new message
-			//so as to only display one error message before returning
-			PostemTool.clearMessages();
-			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
-					"duplicate_title", new Object[] {});
-			return "create_gradebook";
+		if (currentGradebook.getId() == null) {
+			ArrayList gb = getGradebooks();
+			Iterator gi = gb.iterator();
+			while (gi.hasNext()) {
+				if (((Gradebook) gi.next()).getTitle().equals(
+						currentGradebook.getTitle())) {
+					//To stay consistent, remove current messages when adding a new message
+					//so as to only display one error message before returning
+					PostemTool.clearMessages();
+					PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+							"duplicate_title", new Object[] {});
+					return "create_gradebook";
+				}
+			}
 		}
 		if (currentGradebook.getTitle() == null
 				|| currentGradebook.getTitle().equals("")) {
@@ -610,25 +595,30 @@ public class PostemTool {
 							"has_students", new Object[] { new Integer(grades.getStudents()
 									.size()) });
 				}
+				if (withHeader == true) {
+					currentGradebook.setHeadings(grades.getHeaders());
+				}
+				List slist = grades.getStudents();
 
 				if (oldGradebook.getId() != null && !this.userPressedBack) {
 					Set oldStudents = currentGradebook.getStudents();
 					oldGradebook.setStudents(oldStudents);
-					List oldHeadings = currentGradebook.getHeadings();
-					oldGradebook.setHeadings(oldHeadings);
-				}
-				
-				
-				if (withHeader == true) {
-					currentGradebook.setTempHeadingsTitleList(grades.getHeaders());
 				}
 
 				currentGradebook.setStudents(new TreeSet());
-				currentGradebook.setFirstUploadedUsername(getFirstUploadedUsername(grades.getStudents()));
-				
-				Map usernameGradesListMap = gradebookManager.createUsernameGradesListMap(grades.getStudents());			
-				currentGradebook.setTempStudentToGradesMap(usernameGradesListMap);
-				
+				// gradebookManager.saveGradebook(currentGradebook);
+				Iterator si = slist.iterator();
+				while (si.hasNext()) {
+					List ss = (List) si.next();
+					String uname = ((String) ss.remove(0)).trim();
+					// logger.info("[POSTEM] processCreate -- adding student " +
+					// uname);
+					gradebookManager.createStudentGradesInGradebook(uname, ss,
+							currentGradebook);
+					if (currentGradebook.getStudents().size() == 1) {
+						currentGradebook.setFirstUploadedUsername(uname);  //otherwise, the verify screen shows first in ABC order
+					}
+				}
 			} catch (DataFormatException exception) {
 				/*
 				 * TODO: properly subclass exception in order to allow for localized
@@ -682,14 +672,10 @@ public class PostemTool {
 		while (oi.hasNext()) {
 			gradebookManager.deleteStudentGrades((StudentGrades) oi.next());
 		}
-		for (Iterator hi = oldGradebook.getHeadings().iterator(); hi.hasNext();) {
-			gradebookManager.deleteHeading((Heading) hi.next());
-		}
 		this.userId = SessionManager.getCurrentSessionUserId();
 		currentGradebook.setLastUpdated(new Timestamp(new Date().getTime()));
 		currentGradebook.setLastUpdater(this.userId);
-
-		gradebookManager.saveGradebook(currentGradebook, currentGradebook.getTempHeadingsTitleList(), currentGradebook.getTempStudentToGradesMap());
+		gradebookManager.saveGradebook(currentGradebook);
 
 		this.currentGradebook = null;
 		this.oldGradebook = null;
@@ -703,13 +689,10 @@ public class PostemTool {
 		while (oi.hasNext()) {
 			gradebookManager.deleteStudentGrades((StudentGrades) oi.next());
 		}
-		for (Iterator hi = oldGradebook.getHeadings().iterator(); hi.hasNext();) {
-			gradebookManager.deleteHeading((Heading) hi.next());
-		}
 		this.userId = SessionManager.getCurrentSessionUserId();
 		currentGradebook.setLastUpdated(new Timestamp(new Date().getTime()));
 		currentGradebook.setLastUpdater(this.userId);
-		gradebookManager.saveGradebook(currentGradebook, currentGradebook.getTempHeadingsTitleList(), currentGradebook.getTempStudentToGradesMap());
+		gradebookManager.saveGradebook(currentGradebook);
 
 		this.currentGradebook = null;
 		this.oldGradebook = null;
@@ -745,27 +728,27 @@ public class PostemTool {
 	public String processGradebookView() {
 		Long currentGbId = ((Gradebook) gradebookTable.getRowData()).getId();
 		
-		// depending on whether this user has edit permission, we will show
-		// either the drop down to select a student or the current user's
-		// entry for the selected gb
-		currentGradebook = gradebookManager.getGradebookByIdWithHeadingsAndStudents(currentGbId);
-		
+		// if instructor, we need to load all students
 		if (isEditable()) {
-			// user has permission according to checkAccess()
+			currentGradebook = gradebookManager.getGradebookByIdWithHeadings(currentGbId);
+			currentGradebook.setUsernames(gradebookManager.getUsernamesInGradebook(currentGradebook));
 			TreeMap ss = currentGradebook.getStudentMap();
 			setSelectedStudent((String) ss.firstKey());
 			return "view_student";
 		}
 		
-		// this is a student
+		// otherwise, just load what we need for the current user
+		currentGradebook = gradebookManager.getGradebookByIdWithHeadings(currentGbId);
 		this.userId = SessionManager.getCurrentSessionUserId();
-		if (currentGradebook.hasStudent(this.userEid)) {
-			StudentGrades currStudent = currentGradebook.studentGrades(this.userEid);
-			currStudent = gradebookManager.populateGradesForStudent(currStudent);
-			currStudent.setLastChecked(new Timestamp(new Date().getTime()));
-			gradebookManager.updateStudent(currStudent);
+		
+		currentStudent = gradebookManager.getStudentByGBAndUsername(currentGradebook, this.userEid);
+		if (currentStudent != null) {
+			currentStudent.setLastChecked(new Timestamp(new Date().getTime()));
+			gradebookManager.updateStudent(currentStudent);
+			
+			currentStudent.setGradebook(currentGradebook);
 		}
-
+		
 		return "view_grades";
 	}
 
@@ -785,9 +768,8 @@ public class PostemTool {
 									.getCurrentInstance()));
 			return "permission_error";
 		}
-		
 		Long currentGbId = ((Gradebook) gradebookTable.getRowData()).getId();
-		currentGradebook = gradebookManager.getGradebookByIdWithHeadingsStudentsAndGrades(currentGbId);
+		currentGradebook = gradebookManager.getGradebookByIdWithHeadingsAndStudents(currentGbId);
 		
 		students = new ArrayList(currentGradebook.getStudents());
 
@@ -811,7 +793,7 @@ public class PostemTool {
 			return "permission_error";
 		}
 		Long currentGbId = ((Gradebook) gradebookTable.getRowData()).getId();
-		currentGradebook = gradebookManager.getGradebookByIdWithHeadingsStudentsAndGrades(currentGbId);
+		currentGradebook = gradebookManager.getGradebookByIdWithHeadingsAndStudents(currentGbId);
 
 		return "delete_confirm";
 
@@ -859,18 +841,18 @@ public class PostemTool {
 			return "permission_error";
 		}
 		Long currentGbId = ((Gradebook) gradebookTable.getRowData()).getId();
-		currentGradebook = gradebookManager.getGradebookByIdWithHeadingsStudentsAndGrades(currentGbId);
+		currentGradebook = gradebookManager.getGradebookByIdWithHeadingsAndStudents(currentGbId);
 
 		List csvContents = new ArrayList();
 		if (currentGradebook.getHeadings().size() > 0) {
-			csvContents.add(currentGradebook.getHeadingsTitleList());
+			csvContents.add(currentGradebook.getHeadings());
 		}
 		Iterator si = currentGradebook.getStudents().iterator();
 		while (si.hasNext()) {
 			List sgl = new ArrayList();
 			StudentGrades sg = (StudentGrades) si.next();
 			sgl.add(sg.getUsername());
-			sgl.addAll(sg.getGradeEntryList());
+			sgl.addAll(sg.getGrades());
 			csvContents.add(sgl);
 		}
 
@@ -896,8 +878,7 @@ public class PostemTool {
 									.getCurrentInstance()));
 			return "permission_error";
 		}
-		Long currentGbId = ((Gradebook) gradebookTable.getRowData()).getId();
-		currentGradebook = gradebookManager.getGradebookByIdWithHeadingsStudentsAndGrades(currentGbId);
+		currentGradebook = (Gradebook) gradebookTable.getRowData();
 
 		return "download_template";
 
@@ -915,23 +896,16 @@ public class PostemTool {
 	private Boolean editable;
 	public boolean isEditable() {
 		if (editable == null) {
-			editable = new Boolean(checkAccess());
+			editable = checkAccess();
 		}
-		
-		return editable.booleanValue();
-	}
-	
-	private String siteId;
-	private String getSiteId() {
-		if (siteId == null) {
-			siteId = ToolManager.getCurrentPlacement().getContext();
-		}
-		
-		return siteId;
+		return editable;
+
 	}
 
 	public boolean checkAccess() {
-		return SiteService.allowUpdateSite(getSiteId());
+		// return true;
+		return SiteService.allowUpdateSite(ToolManager.getCurrentPlacement()
+				.getContext());
 	}
 
 	// perhaps this should be moved to GradebookImpl
@@ -974,11 +948,9 @@ public class PostemTool {
 		while (usernameList.size() > 0) {
 			String username = (String)usernameList.get(0);
 			usernameList.remove(username);
-			for (Iterator usernameIter = usernameList.iterator(); usernameIter.hasNext();) {
-				String currUsername = (String) usernameIter.next();
-				if (currUsername.equalsIgnoreCase(username) && !duplicatesList.contains(username)) {
-					duplicatesList.add(username);
-				}
+			if (usernameList.contains(username)
+					&& !duplicatesList.contains(username)) {
+				duplicatesList.add(username);
 			}
 		}
 		
@@ -1070,17 +1042,23 @@ public class PostemTool {
 	  return usersAreValid;
 	}
 	
-	private List getSiteMembers() {
-		List siteMembers = new ArrayList();
+	private boolean isSiteMember(String uid)
+	{
+		AuthzGroup realm;
 		try	{
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup("/site/" + getSiteId());
-			siteMembers = new ArrayList(realm.getUsers());
+			realm = AuthzGroupService.getAuthzGroup("/site/" + getCurrentSiteId());
+			return realm.getUsers().contains(uid);
 		}
 		catch (GroupNotDefinedException e) {
-			LOG.error("GroupNotDefinedException:", e);
-		}
-		
-		return siteMembers;
+			LOG.error("IdUnusedException:", e);
+		}		
+		return false;
+	}
+	
+	private String getCurrentSiteId()
+	{
+		Placement placement = ToolManager.getCurrentPlacement();
+		return placement.getContext();
 	}
 	
 	private String getUserId(String usr)
@@ -1093,20 +1071,16 @@ public class PostemTool {
 		}
 	}
 	
-	/**
-	 * 
-	 * @param gradesListFromCsv
-	 * @return the first username in the uploaded csv file
-	 */
-	private String getFirstUploadedUsername(List gradesListFromCsv) {
-		if (gradesListFromCsv == null || gradesListFromCsv.isEmpty())
-			return null;
-			
-		List firstStudentList = (List)gradesListFromCsv.get(0);
-		if (firstStudentList == null || firstStudentList.isEmpty())
-			return null;
+	private List getSiteMembers() {
+		List siteMembers = new ArrayList();
+		try	{
+			AuthzGroup realm = AuthzGroupService.getAuthzGroup("/site/" + getCurrentSiteId());
+			siteMembers = new ArrayList(realm.getUsers());
+		}
+		catch (GroupNotDefinedException e) {
+			LOG.error("GroupNotDefinedException:", e);
+		}
 		
-		return ((String)firstStudentList.get(0)).trim();
+		return siteMembers;
 	}
-	
 }
