@@ -45,6 +45,8 @@ import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.api.PageFilter;
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -661,7 +663,7 @@ public class PortalSiteHelper
 	 */
 
 	// TODO: Move this into Site
-	public List getPermittedPagesInOrder(Site site)
+	public List getPermittedPagesInOrder(Portal portal, Site site)
 	{
 		// Get all of the pages
 		List pages = site.getOrderedPages();
@@ -685,6 +687,10 @@ public class PortalSiteHelper
 			}
 			if (allowPage) newPages.add(p);
 		}
+		PageFilter pageFilter = portal.getPageFilter();
+		if ( pageFilter != null ) {
+			newPages = pageFilter.filter(newPages,site);
+		}
 		return newPages;
 	}
 
@@ -695,10 +701,10 @@ public class PortalSiteHelper
 	 * permission for the page as well.
          */
 
-	public SitePage lookupSitePage(String pageId, Site site)
+	public SitePage lookupSitePage(Portal portal, String pageId, Site site)
 	{
 		// Make sure we have some permitted pages
-                List pages = getPermittedPagesInOrder(site);
+        List pages = getPermittedPagesInOrder(portal,site);
 		if (pages.isEmpty() ) return null;
                 SitePage page = site.getPage(pageId);
 		if ( page == null )

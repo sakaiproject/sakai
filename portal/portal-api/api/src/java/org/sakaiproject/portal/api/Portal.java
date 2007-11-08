@@ -412,4 +412,16 @@ public interface Portal
  	void includeSubSites(PortalRenderContext rcontext, HttpServletRequest req,
 			Session session, String siteId, String toolContextPath, 
 			String prefix, boolean resetTools );
+
+	/**
+	 * Get a the page Filter Implementation
+	 * @return
+	 */
+	PageFilter getPageFilter();
+	
+	/**
+	 * Set page Filter
+	 *
+	 */
+	void setPageFilter(PageFilter pageFilter);
 }

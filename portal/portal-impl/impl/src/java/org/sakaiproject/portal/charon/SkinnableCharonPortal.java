@@ -45,6 +45,7 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderContext;
@@ -177,6 +178,20 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private boolean forceContainer = false;
 
 	private String handlerPrefix;
+
+	private PageFilter pageFilter = new PageFilter() {
+
+		public List filter(List newPages, Site site)
+		{
+			return newPages;
+		}
+
+		public List<Map> filterPlacements(List<Map> l, Site site)
+		{
+			return l;
+		}
+		
+	};
 
 	public String getPortalContext()
 	{
@@ -1653,7 +1668,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// order the pages based on their tools and the tool order for the
 		// site type
 		// List pages = site.getOrderedPages();
-		List pages = siteHelper.getPermittedPagesInOrder(site);
+		List pages = siteHelper.getPermittedPagesInOrder(this,site);
 
 		List<Map> l = new ArrayList<Map>();
 
@@ -1696,8 +1711,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				} else {
 					m.put("menuClass", "icon-default-tool" );					
 				}
-            m.put("pageProps", createPageProps(p));            
-            l.add(m);
+				m.put("pageProps", createPageProps(p));
+				// this is here to allow the tool reorder to work
+				m.put("_sitePage", p);
+				l.add(m);
 				continue;
 			}
 
@@ -1721,10 +1738,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				String menuClass = placement.getToolId();
 				menuClass = "icon-"+menuClass.replace('.', '-');
 				m.put("menuClass", menuClass);
+				// this is here to allow the tool reorder to work if requried.
+				m.put("_placement", placement);
 				l.add(m);
 			}
 
 		}
+		
+		if ( pageFilter != null ) {
+			l = pageFilter.filterPlacements(l,site);
+		}
+		
 		theMap.put("pageNavTools", l);
 		theMap.put("pageMaxIfSingle",ServerConfigurationService.getBoolean("portal.experimental.maximizesinglepage", false));
 		theMap.put("pageNavToolsCount", Integer.valueOf(l.size()));
@@ -2022,5 +2046,22 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			return SiteService.getUserSiteId(userId);
 		}
 	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.api.Portal#getPageFilter()
+	 */
+	public PageFilter getPageFilter()
+	{
+		return pageFilter;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.api.Portal#setPageFilter(org.sakaiproject.portal.api.PageFilter)
+	 */
+	public void setPageFilter(PageFilter pageFilter)
+	{
+		this.pageFilter = pageFilter;
+	}
+	
 
 }

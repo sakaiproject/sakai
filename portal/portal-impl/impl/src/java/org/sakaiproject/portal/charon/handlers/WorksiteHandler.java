@@ -138,7 +138,7 @@ public class WorksiteHandler extends PageHandler
 
 		// Lookup the page in the site - enforcing access control
 		// business rules
-		SitePage page = siteHelper.lookupSitePage(pageId, site);
+		SitePage page = siteHelper.lookupSitePage(portal,pageId, site);
 		if (page == null)
 		{
 			portal.doError(req, res, session, Portal.ERROR_WORKSITE);
