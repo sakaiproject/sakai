@@ -2470,9 +2470,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		// check security 
-      if ( ! allowRemoveCollection(edit.getId()) )
+		if ( ! allowRemoveCollection(edit.getId()) )
 		   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
                                        AUTH_RESOURCE_REMOVE_ANY, edit.getReference());
+
+		// clear thread-local cache SAK-12126
+		ThreadLocalManager.set("members@" + edit.getId(), null);
+		ThreadLocalManager.set("getResources@" + edit.getId(), null);
+		
 
 		// check for members
 		List members = edit.getMemberResources();
@@ -2544,6 +2549,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// get an edit
 		ContentCollectionEdit edit = editCollection(id);
 
+		// clear thread-local cache SAK-12126
+		ThreadLocalManager.set("members@" + edit.getId(), null);
+		ThreadLocalManager.set("getResources@" + edit.getId(), null);
+		
 		// clear of all members (recursive)
 		// Note: may fail if something's in use or not permitted. May result in a partial clear.
 		try
