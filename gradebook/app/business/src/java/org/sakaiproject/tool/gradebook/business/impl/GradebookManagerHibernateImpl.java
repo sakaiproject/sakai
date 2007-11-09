@@ -1522,7 +1522,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         	}
             getHibernateTemplate().execute(hc);
         	/** synchronize from external application*/
-        	if(synchronizer != null && oldTitle != null)
+        	if(synchronizer != null && oldTitle != null  && !synchronizer.isProjectSite())
         	{
         		synchronizer.updateAssignment(oldTitle, assignment.getName());
         	}
