@@ -1554,18 +1554,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			
 			isAllowed = ref != null && SecurityService.unlock(lock, ref);
-		}
-		
-		if(isAllowed && lock != null && (lock.startsWith("content.") || lock.startsWith("dropbox.")) && m_availabilityChecksEnabled)
-		{
-			try 
+			
+			if(isAllowed && lock != null && (lock.startsWith("content.") || lock.startsWith("dropbox.")) && m_availabilityChecksEnabled)
 			{
-				isAllowed = availabilityCheck(id);
-			} 
-			catch (IdUnusedException e) 
-			{
-				// ignore because we would have caught this earlier.
-			}
+				try 
+				{
+					isAllowed = availabilityCheck(id);
+				} 
+				catch (IdUnusedException e) 
+				{
+					// ignore because we would have caught this earlier.
+				}
+			}	
 		}
 		
 		return isAllowed;
@@ -2478,7 +2478,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		ThreadLocalManager.set("members@" + edit.getId(), null);
 		ThreadLocalManager.set("getResources@" + edit.getId(), null);
 		
-
 		// check for members
 		List members = edit.getMemberResources();
 		if (!members.isEmpty()) throw new InconsistentException(edit.getId());
@@ -2501,11 +2500,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 		catch (AuthzPermissionException e)
 		{
-			M_log.warn("removeCollection: removing realm for : " + edit.getReference() + " : " + e);
+			M_log.debug("removeCollection: removing realm for : " + edit.getReference() + " : " + e);
 		}
 		catch (GroupNotDefinedException ignore)
 		{
-			M_log.warn("removeCollection: removing realm for : " + edit.getReference() + " : " + ignore);
+			M_log.debug("removeCollection: removing realm for : " + edit.getReference() + " : " + ignore);
 		}
 
 		// track it (no notification)
@@ -2550,8 +2549,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		ContentCollectionEdit edit = editCollection(id);
 
 		// clear thread-local cache SAK-12126
-		ThreadLocalManager.set("members@" + edit.getId(), null);
-		ThreadLocalManager.set("getResources@" + edit.getId(), null);
+		ThreadLocalManager.set("members@" + id, null);
+		ThreadLocalManager.set("getResources@" + id, null);
 		
 		// clear of all members (recursive)
 		// Note: may fail if something's in use or not permitted. May result in a partial clear.
