@@ -42,6 +42,10 @@ public interface Area extends MutableEntity {
     public Boolean getEnabled();
 
     public void setEnabled(Boolean enabled);
+    
+    public Boolean getSendEmailOut();
+    
+    public void setSendEmailOut(Boolean sendEmailOut);
 
     public List getOpenForums();
     

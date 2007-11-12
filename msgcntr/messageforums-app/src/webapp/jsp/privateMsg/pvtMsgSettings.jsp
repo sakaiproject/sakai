@@ -34,6 +34,19 @@
 						</h:selectOneRadio>
 				  </h:panelGroup>
 			  </h:panelGrid>
+			   <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout" 
+			  				rendered="#{PrivateMessagesTool.emailPermit}">
+			    <h:panelGroup styleClass="shorttext">
+					  <h:outputLabel for="" ><h:outputText value="#{msgs.pvt_sendemailout}"/></h:outputLabel>
+					</h:panelGroup>
+					<h:panelGroup >
+					  <h:selectOneRadio id="email_sendout"	value="#{PrivateMessagesTool.sendEmailOut}"
+							                              layout="pageDirection"  styleClass="checkbox inlineForm">
+							  <f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_yes}" />
+							  <f:selectItem itemValue="no" itemLabel="#{msgs.pvt_no}" />
+						</h:selectOneRadio>
+				  </h:panelGroup>
+			  </h:panelGrid>
 
 	      <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout" >
 			    <h:panelGroup styleClass="shorttext">
@@ -60,15 +73,8 @@
 				  </h:panelGroup>
 				  
 			  </h:panelGrid>
-			  
-			 <%--
-  							<h:selectOneRadio value="#{PrivateMessagesTool.forwardPvtMsg}" layout="pageDirection" >
-    							<f:selectItem itemValue='yes' itemLabel='Yes'/>
-    							<f:selectItem itemValue='no' itemLabel='No'/>
-  							</h:selectOneRadio>
-  				      --%>
-  				 
-
+			
+		
 
 
 			<sakai:button_bar>

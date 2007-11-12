@@ -171,6 +171,8 @@ public interface PrivateMessageManager {
     
     public boolean isInstructor();
     
+    public boolean isEmailPermit();
+    
     public PrivateMessage getNextMessage(PrivateMessage message);
     public PrivateMessage getPreviousMessage(PrivateMessage message);
     public boolean hasPreviousMessage(PrivateMessage message);

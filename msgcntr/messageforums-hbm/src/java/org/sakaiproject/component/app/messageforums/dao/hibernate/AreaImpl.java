@@ -47,6 +47,8 @@ public class AreaImpl extends MutableEntityImpl implements Area
   private Boolean moderated;
   
   private Boolean enabled;
+  
+  private Boolean sendEmailOut;
 
   private String typeUuid;
 
@@ -112,6 +114,16 @@ public class AreaImpl extends MutableEntityImpl implements Area
   public void setEnabled(Boolean enabled)
   {
     this.enabled = enabled;
+  }
+  
+  public Boolean getSendEmailOut()
+  {
+    return sendEmailOut;
+  }
+
+  public void setSendEmailOut(Boolean sendEmailOut)
+  {
+    this.sendEmailOut = sendEmailOut;
   }
 
   public List getOpenForums()

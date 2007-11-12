@@ -48,19 +48,18 @@
 		         <f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 		       </h:selectManyListbox>
 				</h:panelGroup>
-		  
-		  
-		 
 				
-				<h:panelGroup styleClass="shorttext">
-  					<h:outputLabel for="sent_as" ><h:outputText value="#{msgs.pvt_send}" /></h:outputLabel>
-  				</h:panelGroup>
-  				<h:panelGroup>
-					<h:selectOneRadio id="sent_as" value="#{PrivateMessagesTool.composeSendAsPvtMsg}" layout="pageDirection"  style="margin:0" styleClass="checkbox">
-		    			  <f:selectItem itemValue="yes" itemLabel="#{msgs.pvt_send_as_private}"/>
-		    			  <f:selectItem itemValue="no" itemLabel="#{msgs.pvt_send_as_email}"/>
-    			    </h:selectOneRadio>
-				</h:panelGroup>
+		    <h:panelGroup styleClass="shorttext" rendered= "#{PrivateMessagesTool.dispSendEmailOut}">
+					<h:outputLabel><h:outputText value="#{msgs.pvt_send_cc}"/></h:outputLabel>
+			  </h:panelGroup>
+			   
+			  
+			  <h:panelGroup styleClass="checkbox" style="white-space: nowrap;" rendered= "#{PrivateMessagesTool.dispSendEmailOut}">
+			  <h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanEmailOut}" id="send_email_out" >
+			  </h:selectBooleanCheckbox>
+		   <h:outputLabel for="send_email_out"><h:outputText value="#{msgs.pvt_send_as_email}"/></h:outputLabel>
+			</h:panelGroup>			  
+			
 				
 				<h:panelGroup  styleClass="shorttext">
 					<h:outputLabel for="viewlist" ><h:outputText value="#{msgs.pvt_label}"/></h:outputLabel>

@@ -42,6 +42,9 @@
     <property name="enabled">
       <column name="ENABLED" not-null="true" />
     </property>
+    <property name="sendEmailOut">
+      <column name="SENDEMAILOUT" not-null="true" />
+    </property>
     <property name="locked">
       <column name="LOCKED" not-null="true" />
     </property>    

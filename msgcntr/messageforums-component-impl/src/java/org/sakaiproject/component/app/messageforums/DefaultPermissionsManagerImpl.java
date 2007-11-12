@@ -48,6 +48,15 @@ public class DefaultPermissionsManagerImpl
   public void init()
   {
      LOG.info("init()");
+     
+     
+     Collection registered = functionManager.getRegisteredFunctions(DefaultPermissionsManager.MESSAGE_FUNCTION_PREFIX);
+     if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_EMAIL)) {
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_EMAIL);
+     }
+
+     
+     
 /*    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_FORUM);
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_TOPIC);
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_RESPONSE);

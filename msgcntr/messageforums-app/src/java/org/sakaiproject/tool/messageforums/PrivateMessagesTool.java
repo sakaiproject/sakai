@@ -168,9 +168,7 @@ public class PrivateMessagesTool
   public static final String MESSAGE_STATISTICS_PG="pvtMsgStatistics";
   public static final String MESSAGE_HOME_PG="pvtMsgHpView";
   public static final String MESSAGE_REPLY_PG="pvtMsgReply";
-  
-  
-  //SAKAI-1050
+
   public static final String MESSAGE_FORWARD_PG="pvtMsgForward";
   
   //sakai-huxt pvtMsgReplyAll
@@ -228,6 +226,7 @@ public class PrivateMessagesTool
   //Compose Screen-webpage
   private List selectedComposeToList = new ArrayList();
   private String composeSendAsPvtMsg=SET_AS_YES; // currently set as Default as change by user is allowed
+  private boolean booleanEmailOut= false;
   private String composeSubject ;
   private String composeBody;
   private String selectedLabel="Normal" ;   //defautl set
@@ -261,6 +260,7 @@ public class PrivateMessagesTool
   private String replyToAllSubject;
   
   //Setting Screen
+  private String sendEmailOut=SET_AS_NO;
   private String activatePvtMsg=SET_AS_NO; 
   private String forwardPvtMsg=SET_AS_NO;
   private String forwardPvtMsgEmail;
@@ -434,7 +434,7 @@ public class PrivateMessagesTool
    * @return
    */
   public MessageForumsTypeManager getTypeManager()
-  {
+  { 
     return typeManager;
   }
 
@@ -510,15 +510,17 @@ public class PrivateMessagesTool
     	area.setEnabled(true);
     }
     
-    if (getPvtAreaEnabled() || isInstructor()){      
+    if (getPvtAreaEnabled() || isInstructor() || isEmailPermit()){      
       PrivateForum pf = prtMsgManager.initializePrivateMessageArea(area);
       pf = prtMsgManager.initializationHelper(pf, area);
       pvtTopics = pf.getTopics();
       Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
       forum=pf;
       activatePvtMsg = (Boolean.TRUE.equals(area.getEnabled())) ? SET_AS_YES : SET_AS_NO;
+      sendEmailOut = (Boolean.TRUE.equals(area.getSendEmailOut())) ? SET_AS_YES : SET_AS_NO;
       forwardPvtMsg = (Boolean.TRUE.equals(pf.getAutoForward())) ? SET_AS_YES : SET_AS_NO;
-      forwardPvtMsgEmail = pf.getAutoForwardEmail();      
+      forwardPvtMsgEmail = pf.getAutoForwardEmail();     
+      sendEmailOut = (Boolean.TRUE.equals(area.getSendEmailOut())) ? SET_AS_YES : SET_AS_NO;
     } 
   }
   
@@ -537,11 +539,28 @@ public class PrivateMessagesTool
       return false;
     }
   }
-
+  
   public boolean getPvtAreaEnabled()
   {  
     return area.getEnabled().booleanValue();
-  }      
+  } 
+  
+  
+  public boolean isDispSendEmailOut()
+  {
+    if (getPvtSendEmailOut())
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  
+  public Boolean getPvtSendEmailOut() {
+	  return area.getSendEmailOut().booleanValue();
+  }
   
   //Return decorated Forum
   public PrivateForumDecoratedBean getDecoratedForum()
@@ -1007,6 +1026,14 @@ public class PrivateMessagesTool
   {
     this.selectedLabel = selectedLabel;
   }
+  
+  public boolean getBooleanEmailOut() {
+	  return booleanEmailOut;
+  }
+  
+  public void setBooleanEmailOut(boolean booleanEmailOut) {
+	  this.booleanEmailOut= booleanEmailOut;
+  }
 
   public String getComposeSendAsPvtMsg()
   {
@@ -1062,7 +1089,7 @@ public class PrivateMessagesTool
    		for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {
    			MembershipItem item = (MembershipItem) i.next();
 
-   			if (isInstructor() || item.isViewable()) {
+   			if (isInstructor() || item.isViewable() || isEmailPermit()) {
    				selectItemList.add(new SelectItem(item.getId(), item.getName()));
    			}
    		}
@@ -1094,7 +1121,7 @@ public class PrivateMessagesTool
 
 		MembershipItem item = (MembershipItem) i.next();
 
-		if (isInstructor() || item.isViewable()) {
+		if (isInstructor() || item.isViewable() || isEmailPermit()) {
 			selectItemList.add(new SelectItem(item.getId(), item.getName()));//51d20a77----, "Maintain Role"
 		}
 	}
@@ -1423,7 +1450,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	searchPvtMsgs.clear();
     return DISPLAY_MESSAGES_PG;
   }
- //SAKAI-10505 
+
   public String processDisplayMessages()
   {
     LOG.debug("processDisplayMessages()");
@@ -1861,6 +1888,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     this.setComposeBody("");
     this.setComposeSubject("");
     this.setComposeSendAsPvtMsg(SET_AS_YES); //set as default
+    this.setBooleanEmailOut(false); //set as default
     this.getSelectedComposeToList().clear();
     this.setReplyToSubject("");
     this.setReplyToBody("");
@@ -1955,7 +1983,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     dMsg.setDraft(Boolean.TRUE);
     dMsg.setDeleted(Boolean.FALSE);
     
-    if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
+    if(!getBooleanEmailOut())
     {
       prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), false); 
     }
@@ -2486,7 +2514,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       prtMsgManager.addAttachToPvtMsg(rrepMsg, ((DecoratedAttachment)allAttachments.get(i)).getAttachment());         
     }            
     
-    if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
+    if(!getBooleanEmailOut())
     {
       prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), false);
     }
@@ -2584,7 +2612,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       prtMsgManager.addAttachToPvtMsg(rrepMsg, ((DecoratedAttachment)allAttachments.get(i)).getAttachment());         
     }            
     
-    if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
+    if(!getBooleanEmailOut())
     {
       prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), false);
     }
@@ -2892,7 +2920,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       prtMsgManager.addAttachToPvtMsg(drrepMsg, ((DecoratedAttachment)allAttachments.get(i)).getAttachment());         
     } 
     
-    if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
+    if(!getBooleanEmailOut())
     {
      prtMsgManager.sendPrivateMessage(drrepMsg, getRecipients(), false);  
     }
@@ -3282,6 +3310,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
   {
     this.forwardPvtMsgEmail = forwardPvtMsgEmail;
   }
+  public String getSendEmailOut()
+  {
+    return sendEmailOut;
+  }
+  public void setSendEmailOut(String sendEmailOut)
+  {
+    this.sendEmailOut = sendEmailOut;
+  }
   public boolean getSuperUser()
   {
     superUser=SecurityService.isSuperUser();
@@ -3291,6 +3327,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public boolean isInstructor()
   {
     return prtMsgManager.isInstructor();
+  }
+  
+  public boolean isEmailPermit() {
+	  return prtMsgManager.isEmailPermit();
   }
   
   public void setSuperUser(boolean superUser)
@@ -3336,13 +3376,16 @@ public void processChangeSelectView(ValueChangeEvent eve)
   {
     LOG.debug("processPvtMsgSettingsSave()");
     
+ 
     String email= getForwardPvtMsgEmail();
+    String sendEmailOut=getSendEmailOut();
     String activate=getActivatePvtMsg() ;
     String forward=getForwardPvtMsg() ;
     if (email != null && (!SET_AS_NO.equals(forward)) && (!email.matches(".+@.+\\..+"))){
       setValidEmail(false);
       setErrorMessage(getResourceBundleString(PROVIDE_VALID_EMAIL));
       setActivatePvtMsg(activate);
+      setSendEmailOut(sendEmailOut);
       return MESSAGE_SETTING_PG;
     }
     else
@@ -3351,6 +3394,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
       
       Boolean formAreaEnabledValue = (SET_AS_YES.equals(activate)) ? Boolean.TRUE : Boolean.FALSE;
       area.setEnabled(formAreaEnabledValue);
+      
+      Boolean formSendEmailOut = (SET_AS_YES.equals(sendEmailOut)) ? Boolean.TRUE : Boolean.FALSE;
+      area.setSendEmailOut(formSendEmailOut);
+      
       
       Boolean formAutoForward = (SET_AS_YES.equals(forward)) ? Boolean.TRUE : Boolean.FALSE;            
       forum.setAutoForward(formAutoForward);

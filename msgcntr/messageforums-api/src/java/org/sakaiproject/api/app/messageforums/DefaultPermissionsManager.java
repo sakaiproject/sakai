@@ -40,6 +40,9 @@ public interface DefaultPermissionsManager
   public static final String FUNCTION_DELETE_OWN="messagecenter.deleteOwn";
   public static final String FUNCTION_MARK_AS_READ="messagecenter.markAsRead";
   
+  public static final String MESSAGE_FUNCTION_PREFIX="msg.";
+  public static final String MESSAGE_FUNCTION_EMAIL= MESSAGE_FUNCTION_PREFIX +"emailout";
+  
   
   // control permissions
   public boolean isNewForum(String role);
