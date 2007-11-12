@@ -25,10 +25,13 @@
     
     	<table class="indnt1 nolines">
     	  <tr>
-     		<td>
-     		  <h:outputText value="#{msgs.file_to_upload}" rendered="#{podHomeBean.displayNoFileErrMsg && ! empty podHomeBean.filename }" />
+    	   <td>
+     		  <h:outputText value=" " rendered="#{podHomeBean.errorOnPage && ! empty podHomeBean.filename}" />
       		</td>
-      		<td><h:outputText value="#{podHomeBean.filename}" rendered="#{podHomeBean.displayNoFileErrMsg}" /></td>
+     		<td>
+     		  <h:outputText value="#{msgs.file_to_upload}" rendered="#{podHomeBean.errorOnPage && ! empty podHomeBean.filename}" />
+      		</td>
+      		<td><b><h:outputText value="#{podHomeBean.filename}" rendered="#{podHomeBean.errorOnPage && ! empty podHomeBean.filename}" /></b></td>
 		  </tr>
     	  <tr> <!-- ****** Choose a file ****** -->
       		<td class="reqStarInline">*</td>

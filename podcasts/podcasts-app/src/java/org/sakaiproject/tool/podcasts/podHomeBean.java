@@ -1599,8 +1599,7 @@ public class podHomeBean {
 	 */
 	public String processCancelDelete() {
 		selectedPodcast = null;
-		return "cancel";
-		
+		return "cancel";		
 	}
 
 	/**
@@ -1608,12 +1607,10 @@ public class podHomeBean {
 	 */
 	public boolean getDisplayNoFileErrMsg() {
 		return displayNoFileErrMsg;
-	
 	}
 
 	public void setDisplayNoFileErrMsg(boolean displayNoFileErrMsg) {
 		this.displayNoFileErrMsg = displayNoFileErrMsg;
-	
 	}
 
 	/**
@@ -1621,12 +1618,10 @@ public class podHomeBean {
 	 */
 	public boolean getDisplayNoDateErrMsg() {
 		return displayNoDateErrMsg;
-	
 	}
 
 	public void setDisplayNoDateErrMsg(boolean displayNoDateErrMsg) {
 		this.displayNoDateErrMsg = displayNoDateErrMsg;
-	
 	}
 
 	/**
@@ -1634,14 +1629,16 @@ public class podHomeBean {
 	 */
 	public boolean getDisplayNoTitleErrMsg() {
 		return displayNoTitleErrMsg;
-	
 	}
 
 	public void setDisplayNoTitleErrMsg(boolean displayNoTitleErrMsg) {
 		this.displayNoTitleErrMsg = displayNoTitleErrMsg;
-	
 	}
 
+	public boolean getErrorOnPage() {
+		return displayNoFileErrMsg || displayNoDateErrMsg || displayNoTitleErrMsg;
+	}
+	
 	/**
 	 * Returns whether an invalid date error message is displayed
 	 */

@@ -769,38 +769,7 @@ public class PodcastServiceImpl implements PodcastService {
 		final List filteredPodcasts = filterResources(podcasts);
 		
 		return filteredPodcasts != null && ! filteredPodcasts.isEmpty();
-/*		for (Iterator podIter = podcasts.iterator(); podIter.hasNext();) {
-			ContentResource podcastResource = (ContentResource) podIter.next();
-			
-			// get release/publish date
-			try {
-				Date tempDate = null;
-				if (podcastResource.getReleaseDate() == null) {
-					tempDate = getGMTdate(podcastResource.getProperties()
-														.getTimeProperty(DISPLAY_DATE).getTime());
-				} 
-				else {
-					tempDate = new Date(podcastResource.getReleaseDate().getTime());
-				}
-
-				if (! (podcastResource.isHidden() 
-						|| (podcastResource.getRetractDate() != null 
-							&& podcastResource.getRetractDate().getTime() <= TimeService.newTime().getTime())
-						|| tempDate.getTime() >= TimeService.newTime().getTime())) {
-					
-					return true;
-				}
-			}
-			catch (Exception e) {
-				// EntityPropertyNotDefinedException, EntityPropertyTypeException
-				// Weirdness since DISPLAY_DATE should be set before this check
-				// but if occurs, skip over since will assume not visible
-				LOG.error("Exception determining if any podcasts visible for user", e);
-			}
-		}
-		
-		return false;
-*/	}
+	}
 	
 	/**
 	 * Determines if folder contains actual files
