@@ -1597,8 +1597,7 @@ public abstract class BaseCitationService implements CitationService
 
 				// Trim the value
 				RISvalue = RISvalue.trim();
-					
-
+				
 				// The RIS code TY must be the first entry is a RIS record. This sets the Schema type.
 				if (i == 0)
 				{
@@ -1609,6 +1608,15 @@ public abstract class BaseCitationService implements CitationService
 					}
 					else // process the schema
 					{
+						// RIS resource type forced mappings
+						
+						if (RISvalue.equalsIgnoreCase("NEWS"))
+						{
+						   	logger.debug("importFromRisList: force mapping NEWS resource type to JOUR");
+							RISvalue = "JOUR";
+						}
+							
+
 					   	logger.debug("importFromRisList: size of m_RISTypeInverse = " + m_RISTypeInverse.size());
 					 	logger.debug("importFromRisList: RISvalue before schemaName = " + RISvalue);
 					 	
