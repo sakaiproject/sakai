@@ -56,6 +56,7 @@ public interface ContentReviewService {
 	 * @throws QueueException
 	 * @throws ReportException
 	 * @throws Exception
+	 * * @deprecated since Nov 2007, use {@link getReviewReportInstructor(String contentId)} or {@link getReviewReportInstructor(String contentId)}
 	 */
 	public int getReviewScore(String contentId)
 	throws QueueException, ReportException, Exception;
@@ -76,7 +77,6 @@ public interface ContentReviewService {
 	 * @return
 	 * @throws QueueException
 	 * @throws ReportException
-	 * @deprecated since Nov 2007, use {@link getReviewReportInstructor(String contentId)} or {@link getReviewReportInstructor(String contentId)}	 
 	 * */
 	public String getReviewReportStudent(String contentId)
 	throws QueueException, ReportException;
