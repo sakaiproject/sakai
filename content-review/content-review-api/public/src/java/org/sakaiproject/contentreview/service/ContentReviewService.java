@@ -71,6 +71,29 @@ public interface ContentReviewService {
 	throws QueueException, ReportException;
 	
 	/**
+	 * Get the URL of a report constructed for a student
+	 * @param contentId
+	 * @return
+	 * @throws QueueException
+	 * @throws ReportException
+	 * @deprecated since Nov 2007, use {@link getReviewReportInstructor(String contentId)} or {@link getReviewReportInstructor(String contentId)}	 
+	 * */
+	public String getReviewReportStudent(String contentId)
+	throws QueueException, ReportException;
+	
+	/**
+	 * Get the URL for a report constructed for an Instructor
+	 * 
+	 * @param contentId
+	 * @return
+	 * @throws QueueException
+	 * @throws ReportException
+	 */
+	public String getReviewReportInstructor(String contentId)
+	throws QueueException, ReportException;
+	
+	
+	/**
 	 * Get the status of a submission
 	 * @param contentId
 	 * @return
