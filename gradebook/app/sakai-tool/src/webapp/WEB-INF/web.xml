@@ -48,6 +48,28 @@
 		<servlet-class>org.sakaiproject.tool.gradebook.ui.EntryServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
+	<!-- Dispatcher for helper tool -->    
+    <servlet>
+		<servlet-name>
+          sakai.gradebook.addItem.helper
+       </servlet-name>
+       <servlet-class>
+          org.sakaiproject.jsf.util.HelperAwareJsfTool
+       </servlet-class>
+       <init-param>
+            <param-name>default</param-name>
+            <param-value>addAssignment</param-value>
+        </init-param>
+        <init-param>
+            <param-name>path</param-name>
+            <param-value>/</param-value>
+        </init-param>
+        <init-param>
+            <param-name>default.last.view</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
 	<servlet-mapping>
 		<servlet-name>Entry Servlet</servlet-name>
 		<url-pattern>/entry.servlet</url-pattern>
@@ -89,7 +111,13 @@
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
-
+        <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.gradebook.addItem.helper</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
 
 
     <!-- Support for MyFaces component resources. -->
@@ -105,6 +133,7 @@
             <param-value>100k</param-value>
         </init-param>
    </filter>
+
 
     <filter-mapping>
         <filter-name>MyFacesExtensionsFilter</filter-name>
@@ -146,7 +175,6 @@
 		<dispatcher>FORWARD</dispatcher>
 		<dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
-
 
 
 

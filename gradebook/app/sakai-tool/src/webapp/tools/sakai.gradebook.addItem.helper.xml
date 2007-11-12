@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<registration>
+
+	<tool id="sakai.gradebook.addItem.helper" title="Add Gradebook Items" description="Sakai Add Gradebook Items Helper Tool">
+             <category name="sakai.helper" />
+
+	</tool>
+
+</registration>
