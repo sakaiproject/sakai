@@ -50,6 +50,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentServ
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Comment;
@@ -72,6 +73,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     private GradebookFrameworkService frameworkService;
     private GradebookExternalAssessmentService externalAssessmentService;
     private Authz authz;
+    private GradebookPermissionService gradebookPermissionService;
 
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName)
         throws GradebookNotFoundException {
@@ -454,6 +456,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     }
     public void setAuthz(Authz authz) {
         this.authz = authz;
+    }
+    
+    public GradebookPermissionService getGradebookPermissionService() {
+    	return gradebookPermissionService;
+    }
+    public void setGradebookPermissionService(GradebookPermissionService gradebookPermissionService) {
+    	this.gradebookPermissionService = gradebookPermissionService;
     }
 
     // Deprecated calls to new framework-specific interface.
@@ -965,5 +974,66 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	if(!ascending) {
   		Collections.reverse(assignments);
   	}
+  }
+  
+  /*
+   * (non-Javadoc)
+   * @see org.sakaiproject.service.gradebook.shared.GradebookService#getViewableAssignmentsForCurrentUser(java.lang.String)
+   */
+  public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid)
+  	throws GradebookNotFoundException {
+	  if (!getAuthz().isUserAbleToGrade(gradebookUid)) {
+			  return null;
+	  }
+	  
+	 if (getAuthz().isUserAbleToGradeAll(gradebookUid) || !getAuthz().isUserHasGraderPermissions(gradebookUid)) {
+		  return getAssignments(gradebookUid);
+	  }
+	  
+	  // if this gradebook has categories enabled, we need to check for category-specific restrictions
+	  Gradebook gradebook = getGradebook(gradebookUid);
+	  if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
+		  return getAssignments(gradebookUid);
+	  }
+	  
+	  String userUid = getUserUid();
+	  if (getGradebookPermissionService().getPermissionForUserForAllAssignment(gradebook.getId(), userUid)) {
+		  return getAssignments(gradebookUid);
+	  }
+	  
+	  List<Assignment> viewableAssignments = new ArrayList();
+	  
+	  // categories are enabled, so we need to check the category restrictions
+	  List allCategories = getCategoriesWithAssignments(gradebook.getId());
+	  if (allCategories != null && !allCategories.isEmpty()) {
+		  List<Category> viewableCategories = getGradebookPermissionService().getCategoriesForUser(gradebook.getId(), userUid, allCategories, gradebook.getCategory_type());
+		  
+		  for (Iterator catIter = viewableCategories.iterator(); catIter.hasNext();) {
+			  Category cat = (Category) catIter.next();
+			  if (cat != null) {
+				  List assignments = cat.getAssignmentList();
+				  if (assignments != null && !assignments.isEmpty()) {
+					  viewableAssignments.addAll(assignments);
+				  }
+			  }
+		  }
+	  }
+	  
+	  // Now we need to convert these to the assignment template objects
+	  if (viewableAssignments == null || viewableAssignments.isEmpty())
+		  return new ArrayList();
+	  
+	  List assignmentsToReturn = new ArrayList();
+	  for (Iterator assignIter = viewableAssignments.iterator(); assignIter.hasNext();) {
+		  Assignment assignment = (Assignment) assignIter.next();
+		  assignmentsToReturn.add(getAssignmentDefinition(assignment));
+	  }
+	  
+	  return assignmentsToReturn;
+	  
+  }
+  
+  public boolean isGradableObjectDefined(Long gradableObjectId) {
+	  return isAssignmentDefined(gradableObjectId);
   }
 }

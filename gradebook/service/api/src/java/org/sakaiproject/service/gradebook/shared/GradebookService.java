@@ -308,6 +308,15 @@ public interface GradebookService {
 	 */
 	public void updateAssignment(String gradebookUid, String assignmentName, Assignment assignmentDefinition);
 	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @return list of assignments that the current user is authorized to view or grade.
+	 * Will return null for users without the Instructor or TA role marker
+	 */
+	public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid);
+	
+	
 	// Site management hooks.
 
 	/**
@@ -387,4 +396,12 @@ public interface GradebookService {
 	public Object getGradebook(String uid) throws GradebookNotFoundException;
 
 	public boolean checkStuendsNotSubmitted(String gradebookUid);
+
+	/**
+	 * 
+	 * @param gradableObjectId
+	 * @return true if a gradable object with the given id exists and was
+	 * removed
+	 */
+	public boolean isGradableObjectDefined(Long gradableObjectId);
 }
