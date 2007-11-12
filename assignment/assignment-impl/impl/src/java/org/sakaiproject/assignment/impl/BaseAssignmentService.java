@@ -7625,8 +7625,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						M_log.debug("No suitable attachments found in list");
 						return "error";
 					}
+					
 					String contentId = cr.getId();
-					return contentReviewService.getReviewReport(contentId);
+					
+					if (SecurityService.unlock(UserDirectoryService.getCurrentUser(), "asn.grade", "/site/" + this.m_context))
+						return contentReviewService.getReviewReportInstructor(contentId);
+					else
+						return contentReviewService.getReviewReportStudent(contentId);
 					
 				} catch (Exception e) {
 					//e.printStackTrace();
