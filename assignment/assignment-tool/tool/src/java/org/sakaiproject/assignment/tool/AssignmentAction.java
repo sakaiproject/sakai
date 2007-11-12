@@ -9383,14 +9383,22 @@ public class AssignmentAction extends PagedResourceActionII
 						AssignmentSubmission sub = AssignmentService.getSubmission(s.getReference());
 						userSubmissionsNew.add(new UserSubmission(u, sub));
 					}
-					else if (!submission.getGraded() || StringUtil.trimToNull(submission.getGrade()) == null)
+					else if (StringUtil.trimToNull(submission.getGrade()) == null)
 					{
 						// update the grades for those existing non-submissions
 						AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(submission.getReference());
 						sEdit.setGrade(grade);
 						sEdit.setSubmitted(true);
 						sEdit.setGraded(true);
-						sEdit.setAssignment(a);
+						AssignmentService.commitEdit(sEdit);
+						
+						userSubmissionsNew.add(new UserSubmission(u, AssignmentService.getSubmission(sEdit.getReference())));
+					}
+					else if (StringUtil.trimToNull(submission.getGrade()) != null && !submission.getGraded())
+					{
+						// correct the grade status if there is a grade but the graded is false
+						AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(submission.getReference());
+						sEdit.setGraded(true);
 						AssignmentService.commitEdit(sEdit);
 						
 						userSubmissionsNew.add(new UserSubmission(u, AssignmentService.getSubmission(sEdit.getReference())));
