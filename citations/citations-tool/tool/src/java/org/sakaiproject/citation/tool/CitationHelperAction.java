@@ -2568,10 +2568,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	public void doCancelSearch( RunData data )
 	{
+		logger.debug("CitationHelper: In doCancelSearch");
+		
+		
 		// get state and params
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters();
-
+		
 		// cancel the running search
 		ActiveSearch search = ( ActiveSearch )state.getAttribute( STATE_SEARCH_INFO );
 		if( search != null )
@@ -2594,6 +2597,22 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 							+ ", group=" + searchThread.getThreadGroup().getName()
 							+ "]");
 				}
+			}
+		}
+		
+		// added to make search state next state (currently mode = database)
+		
+		String searchPage = params.getString( "searchpage" );
+		
+		if (searchPage != null)
+		{
+			if (searchPage.equalsIgnoreCase("search"))
+			{
+				setMode(state, Mode.SEARCH);
+			}
+			else if (searchPage.equalsIgnoreCase("results"))
+			{
+				setMode(state, Mode.RESULTS);
 			}
 		}
 
