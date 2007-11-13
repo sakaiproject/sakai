@@ -3662,6 +3662,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									submittersString = submittersString.concat("; ");
 								}
 								String fullName = submitters[i].getSortName();
+								// in case the user doesn't have first name or last name
+								if (fullName.indexOf(",") == -1)
+								{
+									fullName=fullName.concat(",");
+								}
 								submittersString = submittersString.concat(fullName);
 								// add the eid to the end of it to guarantee folder name uniqness
 								submittersString = submittersString + "(" + submitters[i].getEid() + ")";
