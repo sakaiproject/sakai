@@ -46,6 +46,8 @@
           id="$databaseId" value="$databaseId" style="display: none;"
         />
       #end
+      
+      #set( $searchpage = "results" )
 
       #parse( "vm/citation/_advSearch.vm" )
 
