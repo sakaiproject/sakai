@@ -6118,6 +6118,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 						res.setContentType(contentType);
 						res.addHeader("Content-Disposition", disposition);
+						res.addHeader("Accept-Ranges", "none");
 						res.setContentLength(len);
 						
 						// set the buffer of the response to match what we are reading from the request
