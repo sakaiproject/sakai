@@ -698,16 +698,18 @@ public class PodcastServiceImpl implements PodcastService {
 		resourceProperties.addProperty(DISPLAY_DATE, formatter
 				.format(displayDate));
 
-		resourceProperties.addProperty(
-				ResourceProperties.PROP_DISPLAY_NAME, filename);
-
+/* Removed since can get filename from resource url, was actually overwriting
+   title
+ 		resourceProperties.addProperty(
+				ResourceProperties.PROP_ORIGINAL_FILENAME, filename);
+*/
 		resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH,
 				new Integer(body.length).toString());
 
 		// TODO: change NotificationService based on user input
 		/**
 		 *  Parameters:
-		 *  	name of resource
+		 *  	name of resource (filename)
 		 *  	id of parent collection
 		 *  	num attempts to create unique id for this resource
 		 *  	type of content
@@ -716,7 +718,7 @@ public class PodcastServiceImpl implements PodcastService {
 		 *  	groups if only for specific groups (empty because inherits from parent collection)
 		 *  	is this resource hidden
 		 *  	release date
-		 *  	retract date (currently only release date supported in UI
+		 *  	retract date (currently only release date supported in UI)
 		 *  	notification level
 		 */
 		contentHostingService.addResource(Validator
@@ -874,13 +876,14 @@ public class PodcastServiceImpl implements PodcastService {
 				podcastEditable.setReleaseDate(TimeService.newTime(date.getTime()));
 			}
 
-			if (!filename.equals(podcastResourceEditable
-								   .getProperty(ResourceProperties.PROP_DISPLAY_NAME))) {
-
-				podcastResourceEditable.removeProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			// REMOVED SINCE IF FILENAME CHANGED, ENTIRELY NEW RESOURCE CREATED SO THIS CODE SHOULD NEVER BE EXECUTED
+/* 			if (!filename.equals(podcastResourceEditable.getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME)))) {
+				String oldFilename = podcastResourceEditable.getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME);
+				
+				podcastResourceEditable.removeProperty(ResourceProperties.PROP_ORIGINAL_FILENAME);
 
 				podcastResourceEditable.addProperty(
-						ResourceProperties.PROP_DISPLAY_NAME, Validator
+						ResourceProperties.PROP_ORIGINAL_FILENAME, Validator
 								.escapeResourceName(filename));
 
 				podcastResourceEditable.removeProperty(ResourceProperties.PROP_CONTENT_LENGTH);
@@ -888,12 +891,15 @@ public class PodcastServiceImpl implements PodcastService {
 				podcastResourceEditable.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, 
 														new Integer(body.length).toString());
 
-				podcastResourceEditable.removeProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				// If title = filename, since filename changed, change title to match 
+				if (oldFilename == podcastResourceEditable.getProperty(ResourceProperties.PROP_DISPLAY_NAME)) {
+					podcastResourceEditable.removeProperty(ResourceProperties.PROP_DISPLAY_NAME);
 
-				podcastResourceEditable.addProperty(ResourceProperties.PROP_DISPLAY_NAME, 
+					podcastResourceEditable.addProperty(ResourceProperties.PROP_DISPLAY_NAME, 
 													  Validator.escapeResourceName(filename));
+				}
 			}
-
+*/
 			// Set for no notification. TODO: when notification implemented,
 			// need to revisit 2nd parameter.
 			contentHostingService.commitResource(podcastEditable,

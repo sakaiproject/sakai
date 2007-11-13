@@ -660,9 +660,21 @@ public class podHomeBean {
 			if (uiHidden) {
 				podcastInfo.setStyleClass("inactive");
 			}
-
-			final String filename = podcastProperties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-
+			
+			String filename = null;
+			try {
+				String url = podcastService.getPodcastFileURL(podcastResource.getId());
+				filename = url.substring(url.lastIndexOf("/")+1);
+			}
+			catch (PermissionException e) {
+				LOG.warn("PermissionException getting podcast with id " + podcastResource.getId() + " while constructing DecoratedPodcastBean for site "
+						+ podcastService.getSiteId() + ". " + e.getMessage());
+			}
+			catch (IdUnusedException e) {
+				LOG.warn("IdUnusedException getting podcast with id " + podcastResource.getId() + " while constructing DecoratedPodcastBean for site "
+						+ podcastService.getSiteId() + ". " + e.getMessage());
+			}
+			
 			// if user puts URL instead of file, this is result of retrieving filename
 			if (filename == null)
 				return null;
@@ -1455,6 +1467,7 @@ public class podHomeBean {
 				podcastService.removePodcast(selectedPodcast.getResourceId());
 			} 
 			else {
+
 				// only title, description, or date has changed, so can revise
 				podcastService.revisePodcast(selectedPodcast.resourceId,
 						selectedPodcast.title, displayDateRevise,

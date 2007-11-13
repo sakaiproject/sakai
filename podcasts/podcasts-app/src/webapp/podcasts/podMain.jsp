@@ -12,7 +12,6 @@
 
        <script type="text/javascript" language="JavaScript" src="scripts/popupscripts.js"></script>
 
-  
       <h:form>
       
       <%-- if Resources tool not exist, if instructor, display error message
