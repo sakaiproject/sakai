@@ -1739,7 +1739,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   //function: add Reply All Tools
 
   /**
-   * navigate to "forward" a private message
+   * navigate to "Reply to all" a private message
    * @return - pvtMsgForward
    */ 
   public String processPvtMsgReplyAll() {
@@ -1753,63 +1753,55 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	if(title != null && !title.startsWith(getResourceBundleString(ReplyAll_SUBJECT_PREFIX)))
     		forwardSubject = getResourceBundleString(ReplyAll_SUBJECT_PREFIX) + ' ' + title;
     	else
-    		forwardSubject = title;
+    		forwardSubject = title;//forwardSubject
 
     	// format the created date according to the setting in the bundle
 	    SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"));
 		formatter.setTimeZone(TimeService.getLocalTimeZone());
 		String formattedCreateDate = formatter.format(pm.getCreated());
 		
-		StringBuilder forwardedText = new StringBuilder();
+		SimpleDateFormat formatter_date_time = new SimpleDateFormat(getResourceBundleString("date_format_time"));
+		formatter_date_time.setTimeZone(TimeService.getLocalTimeZone());
+		String formattedCreateTime = formatter_date_time.format(pm.getCreated());
+
+		StringBuilder replyallText = new StringBuilder();
+		
 	    
-	    // populate replyToBody with the forwarded text
-		forwardedText.append(getResourceBundleString("pvt_msg_replyall_heading") + "<br /><br />" +
-	    	getResourceBundleString("pvt_msg_fwd_authby", new Object[] {pm.getAuthor(), formattedCreateDate}) +  "<br />" +
-	    	getResourceBundleString("pvt_msg_fwd_to", new Object[] {pm.getRecipientsAsText()}) + "<br />" +
-	    	getResourceBundleString("pvt_msg_fwd_subject", new Object[] {pm.getTitle()}) + "<br />" +
-	    	getResourceBundleString("pvt_msg_fwd_label", new Object[] {pm.getLabel()}) + "<br />");
+	    // populate replyToBody with the reply text
+		replyallText.append("<br /><br />");
+		replyallText.append("<span style=\"font-weight:bold;font-style:italic;\">");
+		replyallText.append(getResourceBundleString("pvt_msg_on"));
+		replyallText.append(" " + formattedCreateDate + " ");
+		replyallText.append(getResourceBundleString("pvt_msg_at"));
+		replyallText.append(" " +formattedCreateTime);
+		replyallText.append(getResourceBundleString("pvt_msg_comma"));
+		replyallText.append(" " + pm.getAuthor() + " ");
+		replyallText.append(getResourceBundleString("pvt_msg_wrote")); 
+		replyallText.append("</span>");
+	    	
+	    String origBody = pm.getBody();
+	    if (origBody != null && origBody.trim().length() > 0) {
+	    	replyallText.append("<br />" + pm.getBody() + "<br />");
+	    }
 	    
 	    List attachList = getDetailMsg().getAttachList();
 	    if (attachList != null && attachList.size() > 0) {
-	    	forwardedText.append(getResourceBundleString("pvt_msg_fwd_attachments") + "<br />");
-	    	forwardedText.append("<ul style=\"list-style-type:none;margin:0;padding:0;padding-left:0.5em;\">");
 	    	for (Iterator attachIter = attachList.iterator(); attachIter.hasNext();) {
 	    		DecoratedAttachment decoAttach = (DecoratedAttachment) attachIter.next();
 	    		if (decoAttach != null) {
-	    			forwardedText.append("<li>");
-	    			// It seems like there must be a better way to do the attachment image...
-	    			String fileType = decoAttach.getAttachment().getAttachmentType();
-	    			String imageUrl = null;
-	    			if (fileType.equalsIgnoreCase("application/vnd.ms-excel"))
-	    				imageUrl = "/sakai-messageforums-tool/images/excel.gif";
-	    			else if (fileType.equalsIgnoreCase("text/html"))
-	    				imageUrl = "/sakai-messageforums-tool/images/html.gif";
-	    			else if (fileType.equalsIgnoreCase("application/pdf"))
-	    				imageUrl = "/sakai-messageforums-tool/images/pdf.gif";
-	    			else if (fileType.equalsIgnoreCase("application/vnd.ms-powerpoint"))
-	    				imageUrl = "/sakai-messageforums-tool/images/ppt.gif";
-	    			else if (fileType.equalsIgnoreCase("text/plain"))
-	    				imageUrl = "/sakai-messageforums-tool/images/text.gif";
-	    			else if (fileType.equalsIgnoreCase("application/msword"))
-	    				imageUrl = "/sakai-messageforums-tool/images/word.gif";
-	    			
-	    			if (imageUrl != null) {
-	    				forwardedText.append("<img alt=\"\" src=\"" + imageUrl + "\" />");
-	    			}
-	    			
-	    			forwardedText.append("<a href=\"" + decoAttach.getUrl() + "\" target=\"_blank\">" + decoAttach.getAttachment().getAttachmentName() + "</a></li>");
+	    			replyallText.append("<span style=\"font-style:italic;\">");
+	    			replyallText.append(getResourceBundleString("pvt_msg_["));
+	    			replyallText.append(decoAttach.getAttachment().getAttachmentName() );
+	    			replyallText.append(getResourceBundleString("pvt_msg_]") + "  ");
+	    			replyallText.append("</span>");
 	    		}
 	    	}
-	    	forwardedText.append("</ul>");
-	    }
-	    String origBody = pm.getBody();
-	    if (origBody != null && origBody.trim().length() > 0) {
-	    	forwardedText.append(pm.getBody());
 	    }
 	    
-	    this.setForwardBody(forwardedText.toString());
+	    this.setForwardBody(replyallText.toString());
 	    //from message detail screen
 	    this.setDetailMsg(getDetailMsg()) ;
+	  
 
 	    return MESSAGE_ReplyAll_PG;//MESSAGE_FORWARD_PG;
 	  }
