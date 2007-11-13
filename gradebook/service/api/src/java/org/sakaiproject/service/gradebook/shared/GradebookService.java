@@ -404,4 +404,11 @@ public interface GradebookService {
 	 * removed
 	 */
 	public boolean isGradableObjectDefined(Long gradableObjectId);
+	
+	/**
+	 * Using the grader permissions, return 
+	 * @param gradebookUid
+	 * @return
+	 */
+	public Map getViewableSectionUuidToNameMap(String gradebookUid);
 }

@@ -62,6 +62,7 @@ import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 /**
@@ -1035,5 +1036,27 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   
   public boolean isGradableObjectDefined(Long gradableObjectId) {
 	  return isAssignmentDefined(gradableObjectId);
+  }
+  
+  public Map getViewableSectionUuidToNameMap(String gradebookUid) {
+	  if (gradebookUid == null) {
+		  throw new IllegalArgumentException("Null gradebookUid passed to getViewableSectionIdToNameMap");
+	  }
+	  
+	  Map<String, String> sectionIdNameMap = new HashMap();
+	  
+	  List viewableCourseSections = getAuthz().getViewableSections(gradebookUid); 
+	  if (viewableCourseSections == null || viewableCourseSections.isEmpty()) {
+		  return sectionIdNameMap;
+	  }
+	  
+	  for (Iterator sectionIter = viewableCourseSections.iterator(); sectionIter.hasNext();) {
+		  CourseSection section = (CourseSection) sectionIter.next();
+		  if (section != null) {
+			  sectionIdNameMap.put(section.getUuid(), section.getTitle());
+		  }
+	  }
+	  
+	  return sectionIdNameMap;
   }
 }
