@@ -1913,7 +1913,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     PrivateMessage pMsg= constructMessage() ;
     
-    if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
+    if(!getBooleanEmailOut())
     {
       prtMsgManager.sendPrivateMessage(pMsg, getRecipients(), false); 
     }
@@ -2853,7 +2853,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    // MembershipItem itemTmp2 = (MembershipItem) courseMemberMap.get(currentMessage.getCreatedBy());
 
     
-    if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
+    if(!getBooleanEmailOut())
     {
     	
       prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, false);//getRecipients()  replyalllist
