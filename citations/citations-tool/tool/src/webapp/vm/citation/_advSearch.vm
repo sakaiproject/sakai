@@ -25,7 +25,7 @@
         </span>
         <input type="button" class="advCancel" name="advFormCancelButton" id="advFormCancelButton"
           value="$tlang.getString("cancel.search")" style="color: #FF0000; display: none;"
-          onclick="javascript: location.assign( '#toolForm("CitationHelperAction")&sakai_action=doCancelSearch' );"
+          onclick="javascript: location.assign( '#toolForm("CitationHelperAction")&sakai_action=doCancelSearch&searchpage=$searchpage' );"
         />
         <span class="advancedSearchLoad_replace">
           <span class="itemAction">
