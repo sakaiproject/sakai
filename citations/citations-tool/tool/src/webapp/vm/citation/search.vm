@@ -32,6 +32,8 @@
     <p class="instruction">$tlang.getString("instr.search.main")</p>
     <p class="instruction">$tlang.getString("instr.search.sub")</p>
 
+    #set( $searchpage = "search" )
+
     #parse( "vm/citation/_advSearch.vm" )
 
     #parse( "vm/citation/_basicSearch.vm" )
