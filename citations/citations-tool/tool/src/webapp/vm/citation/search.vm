@@ -93,7 +93,7 @@
       </span>
       <input type="button" class="basicCancel" name="basicCancelButton" id="basicCancelButton"
         value="$tlang.getString("cancel.search")" style="color: #FF0000; display: none;"
-        onclick="javascript: cancelSearchForm( '$FORM_NAME', '#toolForm("CitationHelperAction")' );"
+        onclick="javascript: location.assign( '#toolForm("CitationHelperAction")&sakai_action=doCancelSearch&searchpage=$searchpage' );"
       />
       <span class="advSearch">
         <input style="display: none;" type="button" class="active" name="advancedSearchButton"
@@ -103,7 +103,7 @@
       </span>
       <input type="button" class="advCancel" name="advCancelButton" id="advCancelButton"
         value="$tlang.getString("cancel.search")" style="color: #FF0000; display: none;"
-        onclick="javascript: cancelSearchForm( '$FORM_NAME', '#toolForm("CitationHelperAction")' );"
+        onclick="javascript: location.assign( '#toolForm("CitationHelperAction")&sakai_action=doCancelSearch&searchpage=$searchpage' );"
       />
       #if( $resourcesTool )
         <input type="button" name="AddCitations" id="AddCitations"
@@ -113,7 +113,7 @@
         #if( $resourcesAddAction )
         <input type="button" name="Cancel" id="Cancel"
           value="$tlang.getString("label.cancel")"
-          onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
+-         onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
         />
         #else
         <input type="button" name="Done" id="Done"
