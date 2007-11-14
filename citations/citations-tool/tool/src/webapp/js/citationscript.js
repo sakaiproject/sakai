@@ -446,13 +446,19 @@ function checkSearchSpinner( basicType, advancedType ) {
   if( searchType == basicType ) {
     // show basic spinner
     showSpinner( '.basicSearchLoad' );
-    
+
+// In case artifacts from advanced button are still showing
+    $( ".advSearch" ).hide();
+
     // show basic cancel button
     $( ".basicSearch" ).hide();
     $( ".basicCancel" ).show();
   } else if( searchType == advancedType ) {
     // show advanced spinner
     showSpinner( '.advancedSearchLoad' );
+
+// In case artifacts from basic button are still showing
+    $( ".basicSearch" ).hide();
     
     // show advanced cancel button
     $( ".advSearch" ).hide();
