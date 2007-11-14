@@ -2134,7 +2134,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		String text = StringUtil.trimToNull(s.getSubmittedText());
 		if ( text != null)
 		{
-			buffer.append(rb.getString("noti.submit.text") + "\n\n" + text + "\n\n");
+			buffer.append(rb.getString("noti.submit.text") + "\n\n" + Validator.escapeHtmlFormattedText(text) + "\n\n");
 		}
 		
 		// attachment if any

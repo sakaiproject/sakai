@@ -216,7 +216,7 @@ function handleEnterKeyPress(ev)
 					#if($submission.submitted && $!value_feedback_text.length() >0 )
 						<p class="instruction">$tlang.getString("gradingsub.belisthe")</p>
 						<table border="0" summary="layout"><tr><td>
-						<textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">$cheffeedbackhelper.escapeAssignmentFeedbackTextarea("$!value_feedback_text")</textarea>		
+						<textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">$!value_feedback_text</textarea>		
 						#chef_setupformattedtextarea($name_feedback_text)
 						</td></tr></table>
 					#else
