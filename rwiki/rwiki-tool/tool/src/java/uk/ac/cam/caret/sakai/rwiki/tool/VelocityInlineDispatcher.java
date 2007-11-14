@@ -34,7 +34,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
+import org.apache.velocity.context.Context;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.tool.cover.ToolManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.ReadPermissionException;
@@ -50,7 +53,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.UserDisplayHelper;
 public class VelocityInlineDispatcher implements Dispatcher
 {
 	private static final String MACROS = "/WEB-INF/vm/macros.vm";
-
+	private static final String WIKI_CONFIG = "/sakai-rwiki-tool/scripts/";
 	private VelocityEngine vengine;
 
 	private String inlineMacros;
@@ -58,6 +61,11 @@ public class VelocityInlineDispatcher implements Dispatcher
 	private String basePath;
 
 	private VelocityUtilBean utilBean = new VelocityUtilBean();
+	protected static final String LIBRARY_PATH = "/library/";
+
+	/** The name of the context variable containing the identifier for the site's root content collection */
+	protected static final String CONTEXT_SITE_COLLECTION_ID = "vppa_site_collection_id";
+
 
 	public void init(ServletContext context) throws ServletException
 	{
@@ -95,11 +103,15 @@ public class VelocityInlineDispatcher implements Dispatcher
 		// EventCartridge ec = new EventCartridge();
 		// ec.addEventHandler(new ExcludeEscapeHtmlReference());
 		// ec.attachToContext(vcontext);
+		String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
 
 		vcontext.put("session", request.getSession());
 		vcontext.put("request", request);
 		vcontext.put("requestScope", RequestScopeSuperBean.getFromRequest(request));
 		vcontext.put("util", utilBean);
+		vcontext.put("collectionId", collectionId);
+		vcontext.put("fckLibraryPath", LIBRARY_PATH);
+		vcontext.put("fckConfigPath", WIKI_CONFIG);
 		try
 		{
 			String filePath = path + ".vm";
