@@ -76,7 +76,7 @@ public class OptionValidator implements Validator {
 			return;
 
 		
-		 if (option.getOptionText() == null || option.getOptionText().length()==0) {
+		 if (option.getOptionText() == null || option.getOptionText().trim().length()==0) {
 			 logger.error("OptionText is empty!");
 			 errors.reject("option_empty","option empty");
 			return;
