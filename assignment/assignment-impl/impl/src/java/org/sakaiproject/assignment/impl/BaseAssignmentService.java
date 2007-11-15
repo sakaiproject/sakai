@@ -2068,14 +2068,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				List receivers = new Vector();
 				receivers.add(u);
-				List headers = new Vector();
-				headers.add(rb.getString("noti.subject.label") + rb.getString("noti.subject.content"));
 				
-				String messageBody = getNotificationMessage(s);
-				EmailService.sendToUsers(receivers, headers, messageBody);
+				EmailService.sendToUsers(receivers, getHeaders(), getNotificationMessage(s));
 			}
 		}
 	}
+	
+	protected List<String> getHeaders()
+	{
+		List<String> rv = new Vector<String>();
+		
+		rv.add("MIME-Version: 1.0");
+		rv.add("Content-Type: multipart/alternative; boundary=\""+MULTIPART_BOUNDARY+"\"");
+		
+		return rv;
+	}
+	
 	private final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
 	private final String BOUNDARY_LINE = "\n\n--"+MULTIPART_BOUNDARY+"\n";
 	private final String TERMINATION_LINE = "\n\n--"+MULTIPART_BOUNDARY+"--\n\n";
@@ -2094,11 +2102,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		message.append(MIME_ADVISORY);
 		message.append(BOUNDARY_LINE);
 		message.append(plainTextHeaders());
-		message.append(plainTextContent());
+		message.append(plainTextContent(s));
 		message.append(BOUNDARY_LINE);
 		message.append(htmlHeaders());
-		message.append(htmlPreamble(s));
-		message.append(htmlContent());
+		message.append(htmlPreamble());
+		message.append(htmlContent(s));
 		message.append(htmlEnd());
 		message.append(TERMINATION_LINE);
 		return message.toString();
@@ -2108,35 +2116,31 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		return "Content-Type: text/plain\n\n";
 	}
 	
-	protected String plainTextContent() {
-		return null;
+	protected String plainTextContent(AssignmentSubmission s) {
+		return htmlContent(s);
 	}
 	
 	protected String htmlHeaders() {
 		return "Content-Type: text/html\n\n";
 	}
 	
-	protected String htmlPreamble(AssignmentSubmission s) {
+	protected String htmlPreamble() {
 		StringBuilder buf = new StringBuilder();
 		buf.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n");
 		buf.append("    \"http://www.w3.org/TR/html4/loose.dtd\">\n");
 		buf.append("<html>\n");
 		buf.append("  <head><title>");
-		buf.append(getHTMLNotificationMessage(s));
+		buf.append(rb.getString("noti.subject.label") + rb.getString("noti.subject.content"));
 		buf.append("</title></head>\n");
 		buf.append("  <body>\n");
 		return buf.toString();
-	}
-	
-	protected String htmlContent() {
-		return Web.encodeUrlsAsHtml(FormattedText.escapeHtml(plainTextContent(),true));
 	}
 	
 	protected String htmlEnd() {
 		return "\n  </body>\n</html>\n";
 	}
 
-	private String getHTMLNotificationMessage(AssignmentSubmission s) 
+	private String htmlContent(AssignmentSubmission s) 
 	{
 		String newline = "<br />\n";
 		
