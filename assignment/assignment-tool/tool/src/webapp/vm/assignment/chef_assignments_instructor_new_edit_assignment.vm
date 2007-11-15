@@ -510,7 +510,7 @@
 								</td>
 								<td headers="name" class="checkbox">
 									<label for="$group.Id">
-										$group.Title
+										$validator.escapeHtml($group.Title)
 									</label>	
 								</td>
 								<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here

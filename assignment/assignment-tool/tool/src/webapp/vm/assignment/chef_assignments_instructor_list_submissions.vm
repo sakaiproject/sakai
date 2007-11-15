@@ -64,7 +64,7 @@
 					<select id="view" name="view" size="1" tabindex="3" onchange="blur();document.viewForm.submit();">
 						<option value="$tlang.getString('gen.viewallgroupssections')" #if($!view.equals($tlang.getString('gen.viewallgroupssections')))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
 						#foreach($aGroup in $groups)
-						<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$aGroup.Title</option>
+						<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
 						#end
 					</select>
 				</form>
