@@ -2031,15 +2031,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				finalReceivers.addAll(receivers);
 			}
 			
-			List headers = new Vector();
-			headers.add(rb.getString("noti.subject.label") + rb.getString("noti.subject.content"));
-			
 			String messageBody = getNotificationMessage(s);
 			
 			if (notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH))
 			{
 				// send the message immidiately
-				EmailService.sendToUsers(finalReceivers, headers, messageBody);
+				EmailService.sendToUsers(finalReceivers, getHeaders(), messageBody);
 			}
 			else if (notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST))
 			{
@@ -2047,7 +2044,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				for (Iterator iReceivers = finalReceivers.iterator(); iReceivers.hasNext();)
 				{
 					User user = (User) iReceivers.next();
-					DigestService.digest(user.getId(), rb.getString("noti.subject.label") + rb.getString("noti.subject.content")/*the subject*/, messageBody);
+					DigestService.digest(user.getId(), getSubject(), messageBody);
 				}
 			}
 		}
@@ -2080,8 +2077,23 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		rv.add("MIME-Version: 1.0");
 		rv.add("Content-Type: multipart/alternative; boundary=\""+MULTIPART_BOUNDARY+"\"");
+		// set the subject
+		rv.add("Subject: " + getSubject());
+
+		// from
+		rv.add(getFrom());
 		
 		return rv;
+	}
+	
+	protected String getSubject()
+	{
+		return rb.getString("noti.subject.label") + rb.getString("noti.subject.content");
+	}
+	
+	protected String getFrom()
+	{
+		return "From: " + "\"" + m_serverConfigurationService.getString("ui.service", "Sakai") + "\"<no-reply@"+ m_serverConfigurationService.getServerName() + ">";
 	}
 	
 	private final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
@@ -2111,7 +2123,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		message.append(TERMINATION_LINE);
 		return message.toString();
 	}
-
+	
 	protected String plainTextHeaders() {
 		return "Content-Type: text/plain\n\n";
 	}
@@ -2130,7 +2142,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		buf.append("    \"http://www.w3.org/TR/html4/loose.dtd\">\n");
 		buf.append("<html>\n");
 		buf.append("  <head><title>");
-		buf.append(rb.getString("noti.subject.label") + rb.getString("noti.subject.content"));
+		buf.append(getSubject());
 		buf.append("</title></head>\n");
 		buf.append("  <body>\n");
 		return buf.toString();
