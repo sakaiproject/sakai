@@ -16,7 +16,6 @@ courier			https://source.sakaiproject.org/svn/courier/trunk
 course-management	https://source.sakaiproject.org/svn/course-management/trunk
 dav			https://source.sakaiproject.org/svn/dav/trunk
 db			https://source.sakaiproject.org/svn/db/trunk
-discussion		https://source.sakaiproject.org/svn/discussion/trunk
 email			https://source.sakaiproject.org/svn/email/trunk
 entity			https://source.sakaiproject.org/svn/entity/trunk
 entitybroker		https://source.sakaiproject.org/svn/entitybroker/trunk
