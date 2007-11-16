@@ -98,12 +98,12 @@ doubleDeep = true;
 			    <td align="center">
 			      <div class="act">
 				    <input type="button" name="ImportCitation" id="ImportCitation"
-				      value="Import Citations"
+				      value="$tlang.getString("import.title")"
 				      onclick="document.getElementById('sakai_action').value='doImportPage';submitform('$FORM_NAME');"
 				    />
 			      </div>
 			    </td>
-			    <td>Import citations in RIS format from EndNote, RefWorks or other citation management tools.</td>
+			    <td>$tlang.getString("import.create")</td>
 			  </tr>
 			</table>
 			<hr />
