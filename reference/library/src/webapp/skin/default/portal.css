@@ -63,7 +63,7 @@ can set display:none if needed because the list-style is taking care of it*/
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
 #toolMenuWrap{
 	float: left;
-	width: 9.6em;
+	width: 11em;
 	color: #000;
 	text-align: right;
 	padding:0 .5em 0 0;
@@ -90,10 +90,10 @@ site types are a local setting - adjust */
 #content{
 	padding: 0;
 	margin-top: .5em;
-	margin-left: 11em;
+	margin-left: 12.3em;
 }
 /*margin tweak for IE to avoid float drop*/
-* html #content{margin-left:11.3em}
+* html #content{margin-left:12.3em}
 /*wrapper for footer blocks*/
 #footer{
 	color: #000;
@@ -501,7 +501,7 @@ html>body .dhtml_more_tabs {
 /*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
 /*wrapper for ul that lists the links to tools*/
 #toolMenu{
-	width: 9.6em;
+	width: 11em;
 	padding: 0;
 	margin: 1em 0 0 0;
 	color: #000;
