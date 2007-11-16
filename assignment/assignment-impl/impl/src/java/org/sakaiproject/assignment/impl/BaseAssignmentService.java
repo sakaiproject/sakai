@@ -2036,7 +2036,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			if (notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH))
 			{
 				// send the message immidiately
-				EmailService.sendToUsers(finalReceivers, getHeaders(), messageBody);
+				EmailService.sendToUsers(finalReceivers, getHeaders(null), messageBody);
 			}
 			else if (notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST))
 			{
@@ -2066,29 +2066,35 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				List receivers = new Vector();
 				receivers.add(u);
 				
-				EmailService.sendToUsers(receivers, getHeaders(), getNotificationMessage(s));
+				EmailService.sendToUsers(receivers, getHeaders(u.getEmail()), getNotificationMessage(s));
 			}
 		}
 	}
 	
-	protected List<String> getHeaders()
+	protected List<String> getHeaders(String receiverEmail)
 	{
 		List<String> rv = new Vector<String>();
 		
 		rv.add("MIME-Version: 1.0");
 		rv.add("Content-Type: multipart/alternative; boundary=\""+MULTIPART_BOUNDARY+"\"");
 		// set the subject
-		rv.add("Subject: " + getSubject());
+		rv.add(getSubject());
 
 		// from
 		rv.add(getFrom());
+		
+		// to
+		if (StringUtil.trimToNull(receiverEmail) != null)
+		{
+			rv.add("To: " + receiverEmail);
+		}
 		
 		return rv;
 	}
 	
 	protected String getSubject()
 	{
-		return rb.getString("noti.subject.label") + rb.getString("noti.subject.content");
+		return rb.getString("noti.subject.label") + " " + rb.getString("noti.subject.content");
 	}
 	
 	protected String getFrom()
