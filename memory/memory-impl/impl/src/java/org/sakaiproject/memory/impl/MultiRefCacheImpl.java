@@ -23,10 +23,12 @@ package org.sakaiproject.memory.impl;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -57,13 +59,13 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 	private static Log M_log = LogFactory.getLog(MultiRefCacheImpl.class);
 
 	/** Map of reference string -> Collection of cache keys. */
-	protected final Map<String, Collection> m_refs = new ConcurrentHashMap<String, Collection>();
+	protected final Map<String, Map<Object, Object>> m_refsStore = new ConcurrentHashMap<String, Map<Object, Object>>();
 
 
 	protected class MultiRefCacheEntry extends CacheEntry
 	{
 		/** These are the entity reference strings that this entry is sensitive to. */
-		protected Collection m_refs = new Vector();
+		protected List<Object> m_refs = new CopyOnWriteArrayList<Object>();
 
 		/**
 		 * Construct to cache the payload for the duration.
@@ -77,7 +79,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 		 * @param azgRefs
 		 *        AuthzGroup refs that, if the changed, will invalidate this entry.
 		 */
-		public MultiRefCacheEntry(Object payload, int duration, String ref, Collection azgRefs)
+		public MultiRefCacheEntry(Object payload, int duration, String ref, Collection<Object> azgRefs)
 		{
 			super(payload, duration);
 			if (ref != null) m_refs.add(ref);
@@ -87,7 +89,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 		/**
 		 * @inheritDoc
 		 */
-		public Collection getRefs()
+		public List<Object> getRefs()
 		{
 			return m_refs;
 		}
@@ -185,12 +187,12 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 	 */
 	protected void addRefCachedKey(String ref, Object key)
 	{
-		Collection cachedKeys = m_refs.get(ref);
+		Map<Object,Object> cachedKeys = m_refsStore.get(ref);
 		if ( cachedKeys == null ) {
-			cachedKeys = new Vector<Object>();
-			m_refs.put(ref, cachedKeys);
+			cachedKeys = new ConcurrentHashMap<Object, Object>();
+			m_refsStore.put(ref, cachedKeys);
 		}
-		cachedKeys.add(key);
+		cachedKeys.put(key, key);
 	}
 
 	/**
@@ -199,7 +201,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 	public void clear()
 	{
 		super.clear();
-		m_refs.clear();
+		m_refsStore.clear();
 	}
 
 	private void cleanEntityReferences(Object key, Object value)
@@ -216,8 +218,8 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 		for (Iterator iRefs = cachedEntry.getRefs().iterator(); iRefs.hasNext();)
 		{
 			String ref = (String) iRefs.next();
-			Collection keys = m_refs.get(ref);
-			if ((keys != null) && (keys.contains(key)))
+			Map<Object, Object> keys = m_refsStore.get(ref);
+			if ((keys != null) && (keys.containsKey(key)))
 			{
 				keys.remove(key);
 
@@ -225,7 +227,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 				// its collection
 				if (keys.isEmpty())
 				{
-					m_refs.remove(ref);
+					m_refsStore.remove(ref);
 				}
 			}				
 		}
@@ -286,11 +288,11 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 					+ " event: " + event.getEvent());
 
 		// do we have this in our ref list
-		if (m_refs.containsKey(ref))
+		if (m_refsStore.containsKey(ref))
 		{
 			// get the copy of the Collection of cache keys for this reference (the actual collection will be reduced as the removes occur)
-			Collection cachedKeys = m_refs.get(ref);
-			for (Iterator iKeys = cachedKeys.iterator(); iKeys.hasNext();)
+			Map<Object, Object> cachedKeys = m_refsStore.get(ref);
+			for (Iterator iKeys = cachedKeys.keySet().iterator(); iKeys.hasNext();)
 			{
 					remove(iKeys.next()); // evict primary authz cache
 			}
@@ -333,7 +335,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 	{
 		M_log.debug("dispose()");
 		// may not be necessary...
-		m_refs.clear();
+		m_refsStore.clear();
 	}
 
 	public void notifyElementEvicted(Ehcache cache, Element element) 
@@ -389,7 +391,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 		if (M_log.isDebugEnabled())
 			M_log.debug("notifyRemoveAll(Ehcache " + cache + ")");
 		
-		m_refs.clear();
+		m_refsStore.clear();
 	}
 
 	/**
