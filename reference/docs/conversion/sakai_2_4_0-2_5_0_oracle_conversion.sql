@@ -967,7 +967,10 @@ alter table ASSIGNMENT_SUBMISSION add SUBMITTER_ID VARCHAR2 (99) default null;
 alter table ASSIGNMENT_SUBMISSION add SUBMIT_TIME VARCHAR2 (99) default null;
 alter table ASSIGNMENT_SUBMISSION add SUBMITTED VARCHAR2 (6) default null;
 alter table ASSIGNMENT_SUBMISSION add GRADED VARCHAR2 (6) default null;
-alter table ASSIGNMENT_SUBMISSION add KEEP VARCHAR2 (1) default 'X'; 
+CREATE UNIQUE INDEX ASN_SUB_SUB_INDEX ON ASSIGNMENT_SUBMISSION
+(
+	CONTEXT,SUBMITTER_ID
+);
 
 -- SAK-11876, SAK-10490
 alter table sakai_person_t add locked number(1.0);
