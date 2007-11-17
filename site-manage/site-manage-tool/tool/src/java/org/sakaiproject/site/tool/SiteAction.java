@@ -4478,17 +4478,22 @@ public class SiteAction extends PagedResourceActionII {
 										.getString("officialAccountName")
 								+ ". ");
 					} else {
-						try {
-							UserDirectoryService.getUserByEid(uniqname);
-						} catch (UserNotDefinedException e) {
-							addAlert(
-									state,
-									rb.getString("java.validAuthor1")
-											+ " "
-											+ ServerConfigurationService
-													.getString("officialAccountName")
-											+ " "
-											+ rb.getString("java.validAuthor2"));
+						// in case of multiple instructors
+						List instructors = new ArrayList(Arrays.asList(uniqname.split(",")));
+						for (Iterator iInstructors = instructors.iterator(); iInstructors.hasNext();)
+						{
+							try {
+								UserDirectoryService.getUserByEid(StringUtil.trimToZero((String) iInstructors.next()));
+							} catch (UserNotDefinedException e) {
+								addAlert(
+										state,
+										rb.getString("java.validAuthor1")
+												+ " "
+												+ ServerConfigurationService
+														.getString("officialAccountName")
+												+ " "
+												+ rb.getString("java.validAuthor2"));
+							}
 						}
 					}
 				}
@@ -5137,7 +5142,7 @@ public class SiteAction extends PagedResourceActionII {
 	private void sendSiteRequest(SessionState state, String request,
 			int requestListSize, List requestFields, String fromContext) {
 		User cUser = UserDirectoryService.getCurrentUser();
-		boolean sendEmailToRequestee = false;
+		String sendEmailToRequestee = null;
 		StringBuilder buf = new StringBuilder();
 
 		// get the request email from configuration
@@ -5205,57 +5210,65 @@ public class SiteAction extends PagedResourceActionII {
 			if (!isFutureTerm) {
 				// To site quest account - the instructor of record's
 				if (requestId != null) {
-					try {
-						User instructor = UserDirectoryService
-								.getUser(requestId);
-						from = requestEmail;
-						to = instructor.getEmail();
-						headerTo = instructor.getEmail();
-						replyTo = requestEmail;
-						buf.append(rb.getString("java.hello") + " \n\n");
-						buf.append(rb.getString("java.receiv") + " "
-								+ sessionUserName + ", ");
-						buf.append(rb.getString("java.who") + "\n");
-						if (termExist) {
-							buf.append(term.getTitle());
-						}
-
-						// requsted sections
-						if (fromContext.equals("manual"))
-						{
-							addRequestedSectionIntoNotification(state, requestFields, buf);
-						}
-						else if (fromContext.equals("cmRequest"))
-						{
-							addRequestedCMSectionIntoNotification(state, requestFields, buf);
-						}
+					// in case of multiple instructors
+					List instructors = new ArrayList(Arrays.asList(requestId.split(",")));
+					for (Iterator iInstructors = instructors.iterator(); iInstructors.hasNext();)
+					{
+						String instructorId = (String) iInstructors.next();
+						try {
+							User instructor = UserDirectoryService.getUserByEid(instructorId);
 							
-						
-						buf.append("\n" + rb.getString("java.sitetitle") + "\t"
-								+ title + "\n");
-						buf.append(rb.getString("java.siteid") + "\t" + id);
-						buf.append("\n\n" + rb.getString("java.according")
-								+ " " + sessionUserName + " "
-								+ rb.getString("java.record"));
-						buf.append(" " + rb.getString("java.canyou") + " "
-								+ sessionUserName + " "
-								+ rb.getString("java.assoc") + "\n\n");
-						buf.append(rb.getString("java.respond") + " "
-								+ sessionUserName
-								+ rb.getString("java.appoint") + "\n\n");
-						buf.append(rb.getString("java.thanks") + "\n");
-						buf.append(productionSiteName + " "
-								+ rb.getString("java.support"));
-						content = buf.toString();
-
-						// send the email
-						EmailService.send(from, to, message_subject, content,
-								headerTo, replyTo, null);
-
-						// email has been sent successfully
-						sendEmailToRequestee = true;
-					} catch (UserNotDefinedException ee) {
-					} // try
+							// reset 
+							buf.setLength(0);
+							
+							to = instructor.getEmail();	
+							from = requestEmail;
+							headerTo = to;
+							replyTo = requestEmail;
+							buf.append(rb.getString("java.hello") + " \n\n");
+							buf.append(rb.getString("java.receiv") + " "
+									+ sessionUserName + ", ");
+							buf.append(rb.getString("java.who") + "\n");
+							if (termExist) {
+								buf.append(term.getTitle());
+							}
+	
+							// requested sections
+							if (fromContext.equals("manual"))
+							{
+								addRequestedSectionIntoNotification(state, requestFields, buf);
+							}
+							else if (fromContext.equals("cmRequest"))
+							{
+								addRequestedCMSectionIntoNotification(state, requestFields, buf);
+							}
+							
+							buf.append("\n" + rb.getString("java.sitetitle") + "\t"
+									+ title + "\n");
+							buf.append(rb.getString("java.siteid") + "\t" + id);
+							buf.append("\n\n" + rb.getString("java.according")
+									+ " " + sessionUserName + " "
+									+ rb.getString("java.record"));
+							buf.append(" " + rb.getString("java.canyou") + " "
+									+ sessionUserName + " "
+									+ rb.getString("java.assoc") + "\n\n");
+							buf.append(rb.getString("java.respond") + " "
+									+ sessionUserName
+									+ rb.getString("java.appoint") + "\n\n");
+							buf.append(rb.getString("java.thanks") + "\n");
+							buf.append(productionSiteName + " "
+									+ rb.getString("java.support"));
+							content = buf.toString();
+	
+							// send the email
+							EmailService.send(from, to, message_subject, content,
+									headerTo, replyTo, null);
+						}
+						catch (Exception e)
+						{
+							sendEmailToRequestee = sendEmailToRequestee == null?instructorId:sendEmailToRequestee.concat(", ").concat(instructorId);
+						}
+					}
 				}
 			}
 
@@ -5298,7 +5311,7 @@ public class SiteAction extends PagedResourceActionII {
 				buf.append(" " + rb.getString("java.forthis") + "\n\n");
 			}
 
-			// requsted sections
+			// requested sections
 			if (fromContext.equals("manual"))
 			{
 				addRequestedSectionIntoNotification(state, requestFields, buf);
@@ -5318,12 +5331,12 @@ public class SiteAction extends PagedResourceActionII {
 					+ "\n\n");
 
 			if (!isFutureTerm) {
-				if (sendEmailToRequestee) {
+				if (sendEmailToRequestee == null) {
 					buf.append(rb.getString("java.authoriz") + " " + requestId
 							+ " " + rb.getString("java.asreq"));
 				} else {
 					buf.append(rb.getString("java.thesiteemail") + " "
-							+ requestId + " " + rb.getString("java.asreq"));
+							+ sendEmailToRequestee + " " + rb.getString("java.asreq"));
 				}
 			}
 			content = buf.toString();
