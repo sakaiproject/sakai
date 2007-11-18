@@ -19,6 +19,24 @@
   </scm>
   
 
+ <profiles>
+ <profile>
+        <id>kernel</id>
+  <modules>
+    <module>site-manage-api/api</module>
+    <module>site-manage-help</module>
+    <module>site-manage-impl/impl</module>
+    <module>site-manage-impl/pack</module>
+    <module>site-manage-tool/tool</module>
+    <module>site-manage-util/util</module>
+  </modules>
+ </profile>
+
+ <profile>
+        <id>full</id>
+        <activation>
+          <activeByDefault>true</activeByDefault>
+        </activation>
   <modules>
     <module>site-manage-api/api</module>
     <module>site-manage-help</module>
@@ -28,4 +46,6 @@
     <module>site-manage-util/util</module>
     <module>pageorder/tool</module>
   </modules>
+ </profile>
+ </profiles>
 </project>
