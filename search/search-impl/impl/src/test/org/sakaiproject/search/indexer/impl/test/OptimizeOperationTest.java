@@ -102,7 +102,7 @@ public class OptimizeOperationTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		super.setUp();
-		testBase = new File("m2-target");
+		testBase = new File("target");
 		testBase = new File(testBase, "OptimizeOperationTest");
 		
 		

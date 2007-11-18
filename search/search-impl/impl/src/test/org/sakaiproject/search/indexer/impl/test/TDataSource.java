@@ -83,7 +83,7 @@ public class TDataSource
 
 		log.info("Using Derby DB");
 		cpds.setDriver("org.apache.derby.jdbc.EmbeddedDriver");
-		cpds.setUrl("jdbc:derby:m2-target/testdb;create=true");
+		cpds.setUrl("jdbc:derby:target/testdb;create=true");
 		cpds.setUser("sa");
 		cpds.setPassword("manager");
 

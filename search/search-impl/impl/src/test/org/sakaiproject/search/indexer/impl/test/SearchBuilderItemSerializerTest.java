@@ -68,7 +68,7 @@ public class SearchBuilderItemSerializerTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		super.setUp();
-		testBase = new File("m2-target");
+		testBase = new File("target");
 		testBase = new File(testBase, "SearchBuilderItemSerializerTest");
 		work = new File(testBase, "work");
 		work.mkdirs();

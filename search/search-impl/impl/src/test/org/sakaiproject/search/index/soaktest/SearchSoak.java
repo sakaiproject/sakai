@@ -79,7 +79,7 @@ public class SearchSoak extends TestCase
 	 */
 	private void init() throws Exception
 	{
-		testBase = new File("m2-target");
+		testBase = new File("target");
 		testBase = new File(testBase, "SearchSoak");
 		dbFile = new File(testBase, "searchsoakdb");
 		FileUtils.deleteAll(testBase);

@@ -73,7 +73,7 @@ public class SingleSearchSoakTest extends TestCase
 	 */
 	private void init() throws Exception
 	{
-		testBase = new File("m2-target");
+		testBase = new File("target");
 		testBase = new File(testBase, "SingleSearchSoak");
 		FileUtils.deleteAll(testBase);
 	}

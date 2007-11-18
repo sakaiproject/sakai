@@ -91,7 +91,7 @@ public class MergeUpdateOperationTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		super.setUp();
-		testBase = new File("m2-target");
+		testBase = new File("target");
 		testBase = new File(testBase, "MergeUpdateOperationTest");
 
 		String localIndexBase = new File(testBase,"local").getAbsolutePath();

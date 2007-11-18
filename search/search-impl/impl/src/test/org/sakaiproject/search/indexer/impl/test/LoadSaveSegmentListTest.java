@@ -62,7 +62,7 @@ public class LoadSaveSegmentListTest extends TestCase
 	{
 		super.setUp();
 		journaledFSIndexStorage = new JournaledFSIndexStorage();
-		testBase = new File("m2-target");
+		testBase = new File("target");
 		testBase = new File(testBase, "LoadSaveSegmentListTest");
 		FileUtils.deleteAll(testBase);
 		

@@ -94,7 +94,7 @@ public class TransactionalIndexWorkerTest extends TestCase
 	{
 		super.setUp();
 		tds = new TDataSource(5,false);
-		testBase = new File("m2-target");
+		testBase = new File("target");
 		testBase = new File(testBase, "TransactionalIndexWorkerTest");
 		
 		String localIndexBase = new File(testBase,"local").getAbsolutePath();
