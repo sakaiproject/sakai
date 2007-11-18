@@ -24,7 +24,7 @@
    <parent>
       <artifactId>master</artifactId>
       <groupId>org.sakaiproject</groupId>
-      <version>M2</version>
+      <version>SNAPSHOT</version>
    </parent>
 
    <!-- Define the modules that are part of this -->
