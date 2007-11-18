@@ -1,129 +1,142 @@
 <!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:rsf="http://ponder.org.uk/rsf">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rsf="http://ponder.org.uk/rsf">
 <head>
 <title>Polls: Add/edit a poll</title>
-<link rsf:id="scr=portal-matter"  href="https:https://vula.uct.ac.za/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
-<link href="https://vula.uct.ac.za/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" rsf:id="scr=portal-matter" />
-<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<link rsf:id="scr=portal-matter"
+	href="https:https://vula.uct.ac.za/library/skin/tool_base.css"
+	type="text/css" rel="stylesheet" media="all" />
+<link href="https://vula.uct.ac.za/library/skin/default/tool.css"
+	type="text/css" rel="stylesheet" media="all" rsf:id="scr=portal-matter" />
+<script rsf:id="scr=portal-matter" type="text/javascript"
+	language="JavaScript" src="/library/js/headscripts.js"></script>
+	<link href="../css/poll_base.css" type="text/css" rel="stylesheet" media="all" />
 </head>
 
 <body rsf:id="scr=sakai-body">
 <div class="portletBody">
 <h3 rsf:id="new_poll_title">Add/Edit a poll</h3>
 <div rsf:id="error-row:">
-  <div class="alertMessage" rsf:id="error">We Have Errors!</div>
+<div class="alertMessage" rsf:id="error">We Have Errors!</div>
 </div>
 <form rsf:id="add-poll-form">
-<table>
 
-  <tr>
-    <td><span class="reqStarInline">*</span> <label rsf:id="new-poll-question-label">Question</label></td>
-    <td><input name="Question" type="text" size="50" rsf:id="new-poll-text" /></td>
-  </tr>
-  <tr>
-    <td colspan="2"><label rsf:id="new-poll-descr-label">Additional Instructions</label> <span rsf:id="new-poll-descr-label2">(if applicable)</span></td>
-</tr>
-<tr>
-    <td colspan="2">
-    <div rsf:id="newpolldescr:">
-    <textarea name="Instructions" cols="50" rows="3"></textarea>
-    </div>
-    </td>
-</tr>
-<tr>
-    <td> <span class="reqStarInline">*</span> <label rsf:id="new-poll-open-label">Opening</label></td>
-    <td>
-		<span  rsf:id="openDate:">
-							 <input type="text" id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY" size="12" maxlength="10"/>
-							  <img src="../images/calendar.gif" alt="calendar"/>
-		</span>
-	</td>
-  </tr>
-  <tr>
-    <td> <span class="reqStarInline">*</span> <label rsf:id="new-poll-close-label">Closing Date</label></td>
-    <td>
-    		<span  rsf:id="closeDate:">
-							 <input type="text" id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY" size="12" maxlength="10"/>
-							  <img src="../images/calendar.gif" alt="calendar"/>
-		</span>
-    	</td>
-  </tr>
+<table>
+	<tr>
+		<td><span class="reqStarInline">*</span> <label
+			rsf:id="new-poll-question-label">Question</label></td>
+		<td><input name="Question" type="text" size="50"
+			rsf:id="new-poll-text" /></td>
+	</tr>
+	<tr>
+		<td colspan="2"><label rsf:id="new-poll-descr-label">Additional
+		Instructions</label> <span rsf:id="new-poll-descr-label2">(if
+		applicable)</span></td>
+	</tr>
+</table>
+<p>
+<div class="pollEditorSmall">
+<div rsf:id="newpolldescr:"><textarea name="Instructions"
+	cols="50" rows="3"></textarea></div></div>
+</p>
+<table>
+	<tr>
+		<td><span class="reqStarInline">*</span> <label
+			rsf:id="new-poll-open-label">Opening</label></td>
+		<td><span rsf:id="openDate:"> <input type="text"
+			id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY"
+			size="12" maxlength="10" /> <img src="../images/calendar.gif"
+			alt="calendar" /> </span></td>
+	</tr>
+	<tr>
+		<td><span class="reqStarInline">*</span> <label
+			rsf:id="new-poll-close-label">Closing Date</label></td>
+		<td><span rsf:id="closeDate:"> <input type="text"
+			id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY"
+			size="12" maxlength="10" /> <img src="../images/calendar.gif"
+			alt="calendar" /> </span></td>
+	</tr>
 </table>
 <div rsf:id="option-headers:">
-<p>
-<strong rsf:id="options-title">Answer Options:</strong><br />
-<a rsf:id="option-add" href="pollOption.html">Add Option</a>
-</p>
+<p><strong rsf:id="options-title">Answer Options:</strong><br />
+<a rsf:id="option-add" href="pollOption.html">Add Option</a></p>
 
 
 <table class="listHier lines" cellspacing="0" border="0">
-<tr><th>Option</th><th>actions</th></tr>
-<tr rsf:id="options-row:">
-<td rsf:id="options-name">Option Name</td><td valign="middle"><p>&nbsp;<a rsf:id="option-edit">edit</a>&nbsp;&nbsp;<a rsf:id="option-delete">delete</a></p></td>
-</tr>
+	<tr>
+		<th>Option</th>
+		<th>actions</th>
+	</tr>
+	<tr rsf:id="options-row:">
+		<td rsf:id="options-name">Option Name</td>
+		<td valign="middle">
+		<p>&nbsp;<a rsf:id="option-edit">edit</a>&nbsp;&nbsp;<a
+			rsf:id="option-delete">delete</a></p>
+		</td>
+	</tr>
 </table>
 </div>
 <p><strong rsf:id="new-poll-limits">Limits:</strong></p>
 <table>
-<tr><td>
-<span class="reqStarInline">*</span> <label rsf:id="new-poll-min-limits">What is the minimum number of Answer Options that can be selected?</label></td><td>
-<select name="minOptions" rsf:id="min-votes">
-<option value="0">0</option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-<option value="6">6</option>
-<option value="7">7</option>
-<option value="8">8</option>
-<option value="9">9</option>
-<option value="10">10</option>
-<option value="11">11</option>
-<option value="12">12</option>
-<option value="13">13</option>
-<option value="14">14</option>
-<option value="15">15</option>
-</select>
-</td></tr>
-<tr><td>
-<span class="reqStarInline">*</span> <label rsf:id="new-poll-max-limits">What is the maximum number of Answer Options that can be selected?</label></td><td>
-<select name="maxOptions" rsf:id="max-votes">
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-<option value="6">6</option>
-<option value="7">7</option>
-<option value="8">8</option>
-<option value="9">9</option>
-<option value="10">10</option>
-<option value="11">11</option>
-<option value="12">12</option>
-<option value="13">13</option>
-<option value="14">14</option>
-<option value="15">15</option>
-</select>
-</td></tr>
+	<tr>
+		<td><span class="reqStarInline">*</span> <label
+			rsf:id="new-poll-min-limits">What is the minimum number of
+		Answer Options that can be selected?</label></td>
+		<td><select name="minOptions" rsf:id="min-votes">
+			<option value="0">0</option>
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+			<option value="6">6</option>
+			<option value="7">7</option>
+			<option value="8">8</option>
+			<option value="9">9</option>
+			<option value="10">10</option>
+			<option value="11">11</option>
+			<option value="12">12</option>
+			<option value="13">13</option>
+			<option value="14">14</option>
+			<option value="15">15</option>
+		</select></td>
+	</tr>
+	<tr>
+		<td><span class="reqStarInline">*</span> <label
+			rsf:id="new-poll-max-limits">What is the maximum number of
+		Answer Options that can be selected?</label></td>
+		<td><select name="maxOptions" rsf:id="max-votes">
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+			<option value="6">6</option>
+			<option value="7">7</option>
+			<option value="8">8</option>
+			<option value="9">9</option>
+			<option value="10">10</option>
+			<option value="11">11</option>
+			<option value="12">12</option>
+			<option value="13">13</option>
+			<option value="14">14</option>
+			<option value="15">15</option>
+		</select></td>
+	</tr>
 </table>
 
-<p>
-<strong rsf:id="add_results_label">Release results: </strong><br />
+<p><strong rsf:id="add_results_label">Release results: </strong><br />
 </p>
 
 <span rsf:id="release-select" />
-<div rsf:id="releaserow:">
-<input type="radio" rsf:id="release"/>
-<label rsf:id="releaseLabel">Open</label>
-</div>
+<div rsf:id="releaserow:"><input type="radio" rsf:id="release" />
+<label rsf:id="releaseLabel">Open</label></div>
 
 <!--<input name="immediately" type="radio" value="" checked="checked" rsf:id="" /> Immediately--><br />
 
-<p class="act">
-<input type="submit" value="Post" rsf:id="submit-new-poll" class="active"/>
-<input name="_cancel" type="submit" value="Cancel" rsf:id="cancel" />
-</p>
+<p class="act"><input type="submit" value="Post"
+	rsf:id="submit-new-poll" class="active" /> <input name="_cancel"
+	type="submit" value="Cancel" rsf:id="cancel" /></p>
 </form>
 </div>
 </body>
