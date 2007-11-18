@@ -11,6 +11,14 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>calendar-base</artifactId>
   <packaging>pom</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/calendar/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/calendar/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/calendar/trunk</url>
+  </scm>
+  
+
   <modules>
     <module>calendar-api/api</module>
     <module>calendar-help</module>
