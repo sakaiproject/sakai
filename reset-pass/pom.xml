@@ -11,6 +11,14 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-reset-pass-base</artifactId>
   <packaging>pom</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/reset-pass/trunk</url>
+  </scm>
+  
+
  <modules>
 	<module>reset-pass</module>
 	<module>reset-pass-help</module>
