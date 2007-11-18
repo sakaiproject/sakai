@@ -11,6 +11,14 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>rights-base</artifactId>
   <packaging>pom</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/rights/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/rights/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/rights/trunk</url>
+  </scm>
+  
+
   <modules>
     <module>rights-api/api</module>
     <module>rights-impl/impl</module>
