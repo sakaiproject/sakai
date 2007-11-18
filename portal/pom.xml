@@ -11,6 +11,14 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>portal-base</artifactId>
   <packaging>pom</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/portal/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/portal/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/portal/trunk</url>
+  </scm>
+  
+
   <modules>
     <module>portal-api/api</module>
     <module>portal-charon/charon</module>
