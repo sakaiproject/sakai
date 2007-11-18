@@ -6,7 +6,7 @@
   <parent>
     <artifactId>content-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject</groupId>
