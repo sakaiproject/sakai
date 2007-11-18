@@ -11,6 +11,14 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>announcement-base</artifactId>
   <packaging>pom</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/announcement/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/announcement/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/announcement/trunk</url>
+  </scm>
+  
+
   <modules>
     <module>announcement-api/api</module>
     <module>announcement-help</module>
