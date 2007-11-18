@@ -19,6 +19,23 @@
   </scm>
   
 
+ <profiles>
+ <profile>
+        <id>kernel</id>
+  <modules>
+    <module>web-api/api</module>
+    <module>web-help</module>
+    <module>web-impl/impl</module>
+    <module>web-impl/pack</module>
+    <module>web-tool/tool</module>
+  </modules>
+ </profile>
+
+ <profile>
+        <id>full</id>
+        <activation>
+          <activeByDefault>true</activeByDefault>
+        </activation>
   <modules>
     <module>news-api/api</module>
     <module>news-impl/impl</module>
@@ -30,4 +47,6 @@
     <module>web-impl/pack</module>
     <module>web-tool/tool</module>
   </modules>
+ </profile>
+ </profiles>
 </project>
