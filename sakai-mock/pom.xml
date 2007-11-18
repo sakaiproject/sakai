@@ -11,6 +11,14 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-mock</artifactId>
   <packaging>jar</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/sakai-mock/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai-mock/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/sakai-mock/trunk</url>
+  </scm>
+  
+
   <properties>
     <deploy.target/>
   </properties>
