@@ -11,6 +11,15 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>jobscheduler-base</artifactId>
   <packaging>pom</packaging>
+
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/jobscheduler/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/jobscheduler/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/jobscheduler/trunk</url>
+  </scm>
+  
+
   <modules>
     <module>scheduler-api</module>
     <module>scheduler-component</module>
