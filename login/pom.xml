@@ -11,6 +11,14 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>login-base</artifactId>
   <packaging>pom</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/login/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/login/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/login/trunk</url>
+  </scm>
+  
+
   <modules>
     <module>login-authn-tool/tool</module>
     <module>login-tool/tool</module>
