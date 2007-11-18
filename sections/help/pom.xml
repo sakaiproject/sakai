@@ -4,7 +4,7 @@
   <parent>
     <artifactId>sections-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Section Info Help</name>
