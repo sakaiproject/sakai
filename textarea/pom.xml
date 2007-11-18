@@ -11,6 +11,14 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>textarea-base</artifactId>
   <packaging>pom</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/textarea/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/textarea/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/textarea/trunk</url>
+  </scm>
+  
+
   <modules>
     <module>FCKeditor/connector</module>
   </modules>
