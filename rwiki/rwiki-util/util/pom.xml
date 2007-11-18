@@ -24,7 +24,7 @@ limitations under the License.
   <parent>
     <artifactId>rwiki-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
+    <version>SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-rwiki-util</name>
