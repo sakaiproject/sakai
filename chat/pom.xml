@@ -11,6 +11,14 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>chat-base</artifactId>
   <packaging>pom</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/chat/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/chat/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/chat/trunk</url>
+  </scm>
+  
+
   <modules>
     <module>chat-api/api</module>
     <module>chat-help</module>
