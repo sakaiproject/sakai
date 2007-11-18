@@ -59,9 +59,9 @@
         </license>
     </licenses>
    <scm>
-     <connection>scm:svn:https://source.sakaiproject.org/svn/sakai/</connection>
-     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai/</developerConnection>
-     <url>https://source.sakaiproject.org/svn/sakai/</url>
+     <connection>scm:svn:https://source.sakaiproject.org/svn/master/trunk</connection>
+     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/master/trunk</developerConnection>
+     <url>https://source.sakaiproject.org/svn/master/trunk</url>
    </scm> 
   
   <properties>
