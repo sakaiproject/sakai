@@ -19,13 +19,13 @@
   <parent>
     <artifactId>jsf-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai JSF Tool Using Sun's Reference Implementation</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-jsf-myfaces-tool</artifactId>
-  <version>M2</version>
+  <version>SNAPSHOT</version>
   <organization>
     <name>Sakai Project</name>
     <url>http://www.sakaiproject.org/</url>
