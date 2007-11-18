@@ -11,6 +11,14 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>web-base</artifactId>
   <packaging>pom</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/web/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/web/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/web/trunk</url>
+  </scm>
+  
+
   <modules>
     <module>news-api/api</module>
     <module>news-impl/impl</module>
