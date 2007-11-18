@@ -11,6 +11,14 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>reference-base</artifactId>
   <packaging>pom</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/library/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/library/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/library/trunk</url>
+  </scm>
+  
+
   <modules>
     <module>library</module>
   </modules>
