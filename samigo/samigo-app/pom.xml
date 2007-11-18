@@ -4,7 +4,7 @@
   <parent>
     <artifactId>sam-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Samigo Tool</name>
@@ -565,7 +565,7 @@
                 <echo message="project.build.directory=${project.build.directory}"/>
                 <echo message="basedir=${basedir}"/>             
                 <echo message="basedir=${project.version}"/>             
-                <copy file="${basedir}/../samigo-audio/m2-target/sakai-samigo-audio-${project.version}.jar" tofile="${project.build.directory}/samigo-${project.version}/applets/sakai-samigo-audio-dev.jar"/>
+                <copy file="${basedir}/../samigo-audio/target/sakai-samigo-audio-${project.version}.jar" tofile="${project.build.directory}/samigo-${project.version}/applets/sakai-samigo-audio-dev.jar"/>
               </tasks>
             </configuration>
             <goals>
