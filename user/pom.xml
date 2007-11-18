@@ -18,6 +18,24 @@
   </scm>
 
 
+ <profiles>
+ <profile>
+        <id>kernel</id>
+  <modules>
+    <module>user-api/api</module>
+    <module>user-impl/impl</module>
+    <module>user-impl/pack</module>
+    <module>user-tool/tool</module>
+    <module>user-util/util</module>
+  </modules>
+ </profile>
+
+ <profile>
+        <id>full</id>
+        <activation>
+          <activeByDefault>true</activeByDefault>
+        </activation>
+
   <modules>
     <module>user-api/api</module>
     <module>user-impl/impl</module>
@@ -27,4 +45,6 @@
     <module>user-tool-prefs/tool</module>
     <module>user-util/util</module>
   </modules>
+ </profile>
+ </profiles>
 </project>
