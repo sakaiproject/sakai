@@ -21,6 +21,17 @@
    
   <profiles>
     <profile>
+        <id>kernel</id>
+        <modules>
+            <module>tool-api/api</module>
+            <module>tool-impl/impl</module>
+            <module>tool-impl/pack</module>
+            <module>tool-util/servlet</module>
+            <module>tool-util/util</module>
+            <module>tool-shared-deploy</module>
+        </modules>
+     </profile>
+    <profile>
         <id>mini</id>
         <modules>
             <module>tool-api/api</module>
