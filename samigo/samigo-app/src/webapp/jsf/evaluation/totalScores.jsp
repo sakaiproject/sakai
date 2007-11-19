@@ -238,12 +238,12 @@ document.location='../evaluation/totalScores';
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
 
-         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
-         <h:outputText value=", " rendered="#{(description.assessmentGradingId eq '-1' || description.submittedDate==null) && description.lastInitial ne 'Anonymous'}"/>
-         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
-         <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous' && (description.assessmentGradingId eq '-1' || description.submittedDate==null)}" />
+         <h:outputText value="#{description.lastName}" rendered="#{!description.forGrade}" />
+         <h:outputText value=", " rendered="#{(!description.forGrade) && description.lastInitial ne 'Anonymous'}"/>
+         <h:outputText value="#{description.firstName}" rendered="#{!description.forGrade}" />
+         <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous' && (!description.forGrade)}" />
        <h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true" 
-          rendered="#{description.submittedDate!=null &&  description.assessmentGradingId ne '-1'}" >
+          rendered="#{description.forGrade}" >
          <h:outputText value="#{description.lastName}" />
          <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
          <h:outputText value="#{description.firstName}" />
@@ -289,12 +289,12 @@ document.location='../evaluation/totalScores';
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
 
-         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
-         <h:outputText value=", " rendered="#{(description.assessmentGradingId eq '-1' || description.submittedDate==null) && description.lastInitial ne 'Anonymous'}"/>
-         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
-         <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous' && (description.assessmentGradingId eq '-1' || description.submittedDate==null)}" />
+         <h:outputText value="#{description.lastName}" rendered="#{!description.forGrade}" />
+         <h:outputText value=", " rendered="#{(!description.forGrade) && description.lastInitial ne 'Anonymous'}"/>
+         <h:outputText value="#{description.firstName}" rendered="#{!description.forGrade}" />
+         <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous' && (!description.forGrade)}" />
        <h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true" 
-          rendered="#{description.submittedDate!=null && description.assessmentGradingId ne '-1'}" >
+          rendered="#{description.forGrade}" >
          <h:outputText value="#{description.lastName}" />
          <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
          <h:outputText value="#{description.firstName}" />
@@ -339,12 +339,12 @@ document.location='../evaluation/totalScores';
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
 
-         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
-         <h:outputText value=", " rendered="#{(description.assessmentGradingId eq '-1' || description.submittedDate==null) && description.lastInitial ne 'Anonymous'}"/>
-         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' || description.submittedDate==null}" />
-         <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous' && (description.assessmentGradingId eq '-1' || description.submittedDate==null)}" />
+         <h:outputText value="#{description.lastName}" rendered="#{!description.forGrade}" />
+         <h:outputText value=", " rendered="#{(!description.forGrade) && description.lastInitial ne 'Anonymous'}"/>
+         <h:outputText value="#{description.firstName}" rendered="#{!description.forGrade}" />
+         <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous' && (!description.forGrade)}" />
        <h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true" 
-          rendered="#{description.submittedDate!=null && description.assessmentGradingId ne '-1'}" >
+          rendered="#{description.forGrade}" >
          <h:outputText value="#{description.lastName}" />
          <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
          <h:outputText value="#{description.firstName}" />
@@ -513,7 +513,7 @@ document.location='../evaluation/totalScores';
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.role}" 
-             rendered="#{totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1'}" />
+             rendered="#{totalScores.anonymous eq 'false' || description.forGrade}" />
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='role' && totalScores.sortAscending}">
@@ -527,7 +527,7 @@ document.location='../evaluation/totalScores';
           </h:commandLink>    
       </f:facet>
        <h:outputText value="#{description.role}" 
-             rendered="#{totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1'}" />
+             rendered="#{totalScores.anonymous eq 'false' || description.forGrade}" />
     </h:column>
     
     <h:column rendered="#{totalScores.sortType=='role'  && !totalScores.sortAscending}">
@@ -541,7 +541,7 @@ document.location='../evaluation/totalScores';
       </h:commandLink> 
       </f:facet>
        <h:outputText value="#{description.role}" 
-             rendered="#{totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1'}" />
+             rendered="#{totalScores.anonymous eq 'false' || description.forGrade}" />
     </h:column>
     
 
@@ -556,18 +556,18 @@ document.location='../evaluation/totalScores';
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
-        <h:outputText value="#{description.submittedDate}" rendered="#{description.attemptDate != null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}" >
+        <h:outputText value="#{description.submittedDate}" rendered="#{description.forGrade}" >
           <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
         </h:outputText>
 		<h:panelGroup rendered="#{description.isLate == 'true' && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')
+                    &&  description.forGrade
 					&& !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}">
 			<f:verbatim><br/></f:verbatim>
 			<h:outputText style="color:red" value="#{evaluationMessages.late}"/>
 		</h:panelGroup>
 		
       <h:outputText value="#{evaluationMessages.no_submission}"
-         rendered="#{description.attemptDate == null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+         rendered="#{!description.forGrade}"/>
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='submittedDate' && totalScores.sortAscending}">
@@ -580,18 +580,18 @@ document.location='../evaluation/totalScores';
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-        <h:outputText value="#{description.submittedDate}" rendered="#{description.attemptDate != null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}" >
-          <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
+        <h:outputText value="#{description.submittedDate}" rendered="#{description.forGrade}" >
+		<f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
         </h:outputText>
 		<h:panelGroup rendered="#{description.isLate == 'true' && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1') 
+                    && description.forGrade
 					&& !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}">
 			<f:verbatim><br/></f:verbatim>
 			<h:outputText style="color:red" value="#{evaluationMessages.late}"/>
 		</h:panelGroup>
 
         <h:outputText value="#{evaluationMessages.no_submission}"
-         rendered="#{description.attemptDate == null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+         rendered="#{!description.forGrade}"/>
 
     </h:column>
     
@@ -605,17 +605,17 @@ document.location='../evaluation/totalScores';
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-        <h:outputText value="#{description.submittedDate}" rendered="#{description.attemptDate != null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}" >
-          <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
+        <h:outputText value="#{description.submittedDate}" rendered="#{description.forGrade}" >
+		<f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
         </h:outputText>
 		<h:panelGroup rendered="#{description.isLate eq 'true' && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1') 
+                    && description.forGrade
 					&& !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}">
 			<f:verbatim><br/></f:verbatim>
 			<h:outputText style="color:red" value="#{evaluationMessages.late}"/>
 		</h:panelGroup>
         <h:outputText value="#{evaluationMessages.no_submission}"
-         rendered="#{description.attemptDate == null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+         rendered="#{!description.forGrade}"/>
     </h:column>
     
 
@@ -632,10 +632,10 @@ document.location='../evaluation/totalScores';
       </f:facet>
       <h:outputText value="#{evaluationMessages.auto_scored}" 
          rendered="#{description.status == 2 && description.attemptDate != null 
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+                    && description.forGrade}"/>
       <h:outputText value=" " 
          rendered="#{description.status == 3 && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+                    && description.forGrade}"/>
     </h:column>
 
 	<h:column rendered="#{totalScores.sortType=='status' && totalScores.sortAscending}">
@@ -650,10 +650,10 @@ document.location='../evaluation/totalScores';
       </f:facet>
 <h:outputText value="#{evaluationMessages.auto_scored}" 
          rendered="#{description.status == 2 && description.attemptDate != null 
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+                    && description.forGrade}"/>
       <h:outputText value=" " 
          rendered="#{description.status == 3 && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+                    && description.forGrade}"/>
     </h:column>
     
     <h:column rendered="#{totalScores.sortType=='status'  && !totalScores.sortAscending}">
@@ -668,10 +668,10 @@ document.location='../evaluation/totalScores';
       </f:facet>
       <h:outputText value="#{evaluationMessages.auto_scored}" 
          rendered="#{description.status == 2 && description.attemptDate != null 
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+                    && description.forGrade}"/>
       <h:outputText value=" " 
          rendered="#{description.status == 3 && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+                    && description.forGrade}"/>
     </h:column>
 
 
@@ -686,8 +686,9 @@ document.location='../evaluation/totalScores';
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         </h:commandLink>
       </f:facet>
-      <h:outputText value="#{description.roundedTotalAutoScore}" rendered="#{totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1'}" />
-    </h:column>
+      <h:outputText value="#{description.roundedTotalAutoScore}" rendered="#{description.forGrade}" />
+      <h:outputText value="0" rendered="#{!description.forGrade}" />
+	</h:column>
 
     <h:column rendered="#{totalScores.sortType=='totalAutoScore' && totalScores.sortAscending}">
       <f:facet name="header">
@@ -699,7 +700,8 @@ document.location='../evaluation/totalScores';
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-      <h:outputText value="#{description.roundedTotalAutoScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+      <h:outputText value="#{description.roundedTotalAutoScore}" rendered="#{description.forGrade}"/>
+      <h:outputText value="0" rendered="#{!description.forGrade}" />
     </h:column>
     
     <h:column rendered="#{totalScores.sortType=='totalAutoScore'  && !totalScores.sortAscending}">
@@ -712,9 +714,10 @@ document.location='../evaluation/totalScores';
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-      <h:outputText value="#{description.roundedTotalAutoScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
-    </h:column>
-    
+      <h:outputText value="#{description.roundedTotalAutoScore}" rendered="#{description.forGrade}"/>
+      <h:outputText value="0" rendered="#{!description.forGrade}" />
+	</h:column>
+
     <!-- ADJUSTMENT -->
     <h:column rendered="#{totalScores.sortType!='totalOverrideScore'}">
       <f:facet name="header">
@@ -726,7 +729,7 @@ document.location='../evaluation/totalScores';
 	        <f:param name="sortAscending" value="true"/>
         </h:commandLink>
       </f:facet>
-      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"  onchange="toPoint(this.id);" >
+      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal" required="false" rendered="#{totalScores.anonymous eq 'false' || description.forGrade}"  onchange="toPoint(this.id);" >
 		<f:validateDoubleRange/>
 	 </h:inputText>
      <h:message for="adjustTotal" style="color:red"/>
@@ -743,7 +746,7 @@ document.location='../evaluation/totalScores';
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal2" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"  onchange="toPoint(this.id);" >
+      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal2" required="false" rendered="#{totalScores.anonymous eq 'false' || description.forGrade}"  onchange="toPoint(this.id);" >
 		<f:validateDoubleRange/>
 	 </h:inputText>
      <h:message for="adjustTotal2" style="color:red"/>
@@ -759,7 +762,7 @@ document.location='../evaluation/totalScores';
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal3" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"  onchange="toPoint(this.id);" >
+      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal3" required="false" rendered="#{totalScores.anonymous eq 'false' || description.forGrade}"  onchange="toPoint(this.id);" >
 		<f:validateDoubleRange/>
 	 </h:inputText>
      <h:message for="adjustTotal3" style="color:red"/>
@@ -777,7 +780,8 @@ document.location='../evaluation/totalScores';
         <f:param name="sortAscending" value="true"/>
       </h:commandLink>
      </f:facet>
-        <h:outputText value="#{description.roundedFinalScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+        <h:outputText value="#{description.roundedFinalScore}" rendered="#{description.forGrade}"/>
+        <h:outputText value="#{description.totalOverrideScore}" rendered="#{totalScores.anonymous eq 'false'  && !description.forGrade}"/>
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='finalScore' && totalScores.sortAscending}">
@@ -790,8 +794,9 @@ document.location='../evaluation/totalScores';
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-      <h:outputText value="#{description.roundedFinalScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
-    </h:column>
+      <h:outputText value="#{description.roundedFinalScore}" rendered="#{description.forGrade}"/>
+      <h:outputText value="#{description.totalOverrideScore}" rendered="#{totalScores.anonymous eq 'false'  && !description.forGrade}"/>
+	</h:column>
     
     <h:column rendered="#{totalScores.sortType=='finalScore'  && !totalScores.sortAscending}">
       <f:facet name="header">
@@ -803,8 +808,9 @@ document.location='../evaluation/totalScores';
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-      <h:outputText value="#{description.roundedFinalScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
-    </h:column>
+      <h:outputText value="#{description.roundedFinalScore}" rendered="#{description.forGrade}"/>
+      <h:outputText value="#{description.totalOverrideScore}" rendered="#{totalScores.anonymous eq 'false'  && !description.forGrade}"/>
+	</h:column>
 
 
     <!-- COMMENT -->
@@ -818,7 +824,7 @@ document.location='../evaluation/totalScores';
         <f:param name="sortAscending" value="true"/>
       </h:commandLink>
      </f:facet>
-   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false' || description.forGrade}"/>
 
 <%-- temporary replaced by inputTextArea util toggle small/large produced
      <samigo:wysiwyg rows="140" value="#{description.comments}" >
@@ -837,7 +843,7 @@ document.location='../evaluation/totalScores';
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
   	    </h:commandLink>    
       </f:facet>
-   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false' || description.forGrade}"/>
 
 <%-- temporary replaced by inputTextArea util toggle small/large produced
      <samigo:wysiwyg rows="140" value="#{description.comments}" >
@@ -856,7 +862,7 @@ document.location='../evaluation/totalScores';
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />              
       </h:commandLink> 
       </f:facet>
-   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false' || description.forGrade}"/>
 
 <%-- temporary replaced by inputTextArea util toggle small/large produced
      <samigo:wysiwyg rows="140" value="#{description.comments}" >

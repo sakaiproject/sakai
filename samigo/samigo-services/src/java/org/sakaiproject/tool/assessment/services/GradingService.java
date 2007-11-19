@@ -83,6 +83,20 @@ public class GradingService
     }
     return results;
   }
+  
+  public ArrayList getTotalScores(String publishedId, String which, boolean submittedOnly)
+  {
+    ArrayList results = null;
+    try {
+      results =
+        new ArrayList(PersistenceService.getInstance().
+           getAssessmentGradingFacadeQueries().getTotalScores(publishedId,
+             which, submittedOnly));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return results;
+  }
 
  /**
   * Get all submissions for a published assessment from the back end.
@@ -1338,7 +1352,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       data.setStatus(new Integer(1));
     else
       data.setStatus(new Integer(0));
-    data.setTotalOverrideScore(new Float(0));
+    data.setTotalOverrideScore(data.getTotalOverrideScore());
   }
 
   public void deleteAll(Collection c)

@@ -526,7 +526,10 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
             ((HistogramScoresBean) ContextUtil.lookupBean("histogramScores")).setAllSubmissions(TotalScoresBean.LAST_SUBMISSION);
         }
       }
-      allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions());
+   	  String ananymousGrading = bean.getAnonymous();
+   	  log.debug("ananymousGrading=" + ananymousGrading);
+   	  allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions(), Boolean.parseBoolean(ananymousGrading));
+
       bean.setAssessmentGradingList(allscores);
     }
     getFilteredList(bean, allscores, scores, students_not_submitted, useridMap);
@@ -752,6 +755,7 @@ log.debug("testing agent getEid agent.geteid = " + agent.getEidString());
       results.setFinalScore("0");
       results.setComments("");
       results.setStatus(AssessmentGradingIfc.NO_SUBMISSION);  //  no submission
+      results.setForGrade(Boolean.FALSE);
       agents.add(results);
     }
   }
