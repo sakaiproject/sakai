@@ -554,6 +554,8 @@ public abstract class BaseCitationService implements CitationService
 			m_imageUrl = other.m_imageUrl;
 			m_searchSourceUrl = other.m_searchSourceUrl;
 			m_preferredUrl = other.m_preferredUrl;
+			
+			m_schema = other.m_schema;
 
 			if (m_citationProperties == null)
 			{
