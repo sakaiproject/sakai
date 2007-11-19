@@ -89,12 +89,12 @@
 
                 #end  ## -- end of if-elseif-else                          
                                                                                                                                            				
-                <p><a href="#toolLinkParam("$action" "doDay" "day=$mu.getDay()&month=$mu.getMonth()&year=$mu.getYear()")">
-                $mu.getDay()</a></p>
+                <a href="#toolLinkParam("$action" "doDay" "day=$mu.getDay()&month=$mu.getMonth()&year=$mu.getYear()")"  style="padding:3px;margin:0;display:block;width:50%">
+                $mu.getDay()</a>
 
-                <p align="left">
+                <div style="text-align:left;font-size:.9em;">
                 #foreach ($m in $eventsn)                    
-                    <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($m.getReference())")" title="$validator.escapeHtml($m.getDisplayName())">
+                    <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($m.getReference())")" title="$validator.escapeHtml($m.getDisplayName())" style="	text-decoration: none !important">
                     #set($size = $m.getDisplayName().length())
                     #if($m.getType()=="Academic Calendar")
                         <img src = "#imageLink("sakai/academic_calendar.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
@@ -138,7 +138,7 @@
                     #end
                     </a><br />
                 #end
-                </p>
+                </div>
             </td>
             #end  ## -- end of foreach
         </tr>
@@ -148,4 +148,3 @@
 #eventLegend($tlang)
 
 </div>
-
