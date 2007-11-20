@@ -312,6 +312,13 @@
 							</td>
 							<td headers="studentname">
 								#if ($taggable)
+									#if (!$!submission.submitted)
+										#set($submittedText = $!submission.submittedText)
+										#set($submittedAttachments = $submission.submittedAttachments)
+										#if ($!submittedText.length() > 0 || $!submittedAttachments.size() > 0 )
+										<span class="highlight">$tlang.getString("gen.dra2") </span>
+										#end
+									#end
 									$submitterName
 									<div class="itemAction">
 										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("listsub.grade")</a>
@@ -326,6 +333,13 @@
 									</div>
 								#else
 									<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">
+										#if (!$!submission.submitted)
+											#set($submittedText = $!submission.submittedText)
+											#set($submittedAttachments = $submission.submittedAttachments)
+											#if ($!submittedText.length() > 0 || $!submittedAttachments.size() > 0 )
+											<span class="highlight">$tlang.getString("gen.dra2") </span>
+											#end
+										#end
 										$submitterName
 									</a>
 								#end

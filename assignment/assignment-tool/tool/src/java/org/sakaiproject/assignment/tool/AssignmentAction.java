@@ -1705,6 +1705,9 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		int gradeType = -1;
 
+		// need to show the alert for grading drafts?
+		boolean addGradeDraftAlert = false;
+		
 		// assignment
 		Assignment a = null;
 		try
@@ -1729,6 +1732,24 @@ public class AssignmentAction extends PagedResourceActionII
 			if (s != null)
 			{
 				context.put("submission", s);
+				
+				// show alert if student is working on a draft
+				if (!s.getSubmitted() // not submitted
+					&& ((s.getSubmittedText() != null && s.getSubmittedText().length()> 0) // has some text
+						|| (s.getSubmittedAttachments() != null && s.getSubmittedAttachments().size() > 0))) // has some attachment
+				{
+					if (s.getCloseTime().after(TimeService.newTime()))	 
+					{
+						// not pass the close date yet
+						addGradeDraftAlert = true;
+					}
+					else
+					{
+						// passed the close date already
+						addGradeDraftAlert = false;
+					}
+				}
+			
 				ResourceProperties p = s.getProperties();
 				if (p.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null)
 				{
@@ -1810,6 +1831,12 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// is this a non-electronic submission type of assignment
 		context.put("nonElectronic", (a!=null && a.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)?Boolean.TRUE:Boolean.FALSE);
+		
+		if (addGradeDraftAlert)
+		{
+			addAlert(state, rb.getString("grading.alert.draft.beforeclosedate"));
+		}
+		context.put("alertGradeDraft", Boolean.valueOf(addGradeDraftAlert));
 		
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;
