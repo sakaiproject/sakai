@@ -21,7 +21,7 @@
   <profiles>
 
   <profile>
-        <id>kernel</id>
+        <id>framework</id>
         <modules>
           <module>content-api/api</module>
           <module>content-help</module>
@@ -34,7 +34,7 @@
         </modules>
   </profile>
   <profile>
-        <id>kernel-jcr</id>
+        <id>framework-jcr</id>
         <modules>
           <module>content-api/api</module>
           <module>content-help</module>
