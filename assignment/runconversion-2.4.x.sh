@@ -18,7 +18,7 @@ CLASSPATH="$CLASSPATH:$HOME/dev/commons-dbcp-1.2.2.jar"
 
 ##### JDBC DRIVER #####
 ## MYSQL ##
-CLASSPATH="$CLASSPATH:$CATALINA_HOME/common/lib/mysql-connector-java-3.1.11.jar"
+CLASSPATH="$CLASSPATH:$CATALINA_HOME/common/lib/mysql-connector-java-3.1.14.jar"
 ## ORACLE ##
 CLASSPATH="$CLASSPATH:$CATALINA_HOME/common/lib/ojdbc-14.jar"
 
