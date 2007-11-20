@@ -20,7 +20,7 @@
 
  <profiles>
  <profile>
-        <id>kernel</id>
+        <id>framewok</id>
   <modules>
     <module>user-api/api</module>
     <module>user-impl/impl</module>
