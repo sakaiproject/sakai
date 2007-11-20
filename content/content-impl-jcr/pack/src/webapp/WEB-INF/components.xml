@@ -11,12 +11,12 @@
 
 
 	<bean id="org.sakaiproject.content.api.ContentHostingService"
-			class="org.sakaiproject.content.multiplexContentHostingMultiplexService"
+			class="org.sakaiproject.content.multiplex.ContentHostingMultiplexService"
             init-method="init" destroy-method="destroy" singleton="true">
              <property name="defaultContentHostingService">              
              	<ref bean="org.sakaiproject.content.api.ContentHostingService.dbservice" />
              </property>
-    </property>
+    </bean>
 
     <!-- database beans -->
     
@@ -41,7 +41,19 @@
         <property name="lockManager">                <ref bean="org.sakaiproject.content.api.LockManager"/>                  </property>
         <property name="authzGroupService">          <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>              </property>
         <property name="resourceTypeRegistry">       <ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/>         </property>
+        
+        <!--
         <property name="contentHostingHandlerResolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
+		-->
+        <property name="collectionSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"/></property>
+        <property name="resourceSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.resourceSerializer"/></property>
+        <!--
+        If you want to use the new serializers you have to let them migrate the data, set to true
+        so that they can write the new format when they update an item.
+        
+        -->
+        <property name="migrateData"><value>true</value></property>
+
 
         <property name="collectionTableName">       <value>CONTENT_COLLECTION</value>           </property>
         <property name="resourceTableName">         <value>CONTENT_RESOURCE</value>             </property>
@@ -142,6 +154,50 @@
 
 
 
+
+	<bean id="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"
+			class="org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer"
+			singleton="true">
+        <property name="timeService">
+        	<ref bean="org.sakaiproject.time.api.TimeService"/>
+		</property>			
+	</bean>
+	
+	<bean id="org.sakaiproject.content.api.ContentHostingService.resourceSerializer"
+			class="org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer"
+			singleton="true">
+        <property name="timeService">
+        	<ref bean="org.sakaiproject.time.api.TimeService"/>
+		</property>			
+	</bean>
+
+	<!-- enable logging of method calls on entrance and exit -->
+	<!-- must set log level to debug -->
+	<!-- 
+	<bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator"> 
+		<property name="beanNames"><value>org.sakaiproject.content.api.ContentHostingService</value></property> 
+		<property name="interceptorNames"> 
+			<list> 
+				<value>debugInterceptor</value>
+				<value>customizableTraceInterceptor</value> 
+			</list> 
+		</property> 
+	</bean>
+
+	<bean id="customizableTraceInterceptor" class="org.springframework.aop.interceptor.CustomizableTraceInterceptor" >
+		<property name="exitMessage">
+			<value>"ContentHosting: $[targetClassShortName].$[methodName]: args: [$[arguments]] return: [$[returnValue]] ms:$[invocationTime]"</value>
+		</property>
+		<property name="exceptionMessage">
+			<value>"ContentHosting: $[targetClassShortName].$[methodName]: args: [$[arguments]] exception: [$[exception]]"</value>
+		</property>
+		<property name="useDynamicLogger"><value>true</value></property>
+	</bean>
+
+	<bean id="debugInterceptor" class="org.springframework.aop.interceptor.DebugInterceptor" >
+		<property name="useDynamicLogger"><value>true</value></property>
+	</bean>
+	-->
 
 
 

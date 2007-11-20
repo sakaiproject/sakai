@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -74,6 +76,8 @@ import org.w3c.dom.Element;
 public class ContentHostingMultiplexService implements ContentHostingService
 {
 
+	private static final Log log = LogFactory.getLog(ContentHostingMultiplexService.class);
+
 	private ThreadLocal<Stack<ContentHostingService>> selectedService = new ThreadLocal<Stack<ContentHostingService>>();
 
 	private ContentHostingService defaultContentHostingService = null;
@@ -84,6 +88,7 @@ public class ContentHostingMultiplexService implements ContentHostingService
 		if (s == null)
 		{
 			s = new Stack<ContentHostingService>();
+			selectedService.set(s);
 		}
 		if (s.size() == 0)
 		{
@@ -103,6 +108,7 @@ public class ContentHostingMultiplexService implements ContentHostingService
 		if (s == null)
 		{
 			s = new Stack<ContentHostingService>();
+			selectedService.set(s);
 		}
 		s.push(service);
 	}
@@ -113,8 +119,13 @@ public class ContentHostingMultiplexService implements ContentHostingService
 		if (s == null)
 		{
 			s = new Stack<ContentHostingService>();
+			selectedService.set(s);
 		}
-		s.pop();
+		if ( s.size() > 0 ) {
+			s.pop();
+		} else {
+			log.warn("Multiplexer Stack is empty, this should not happen ");
+		}
 	}
 
 	/**
@@ -124,6 +135,13 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	{
 	}
 
+	public void init() {
+		
+	}
+	
+	public void destory() {
+		
+	}
 	/*
 	 * (non-Javadoc)
 	 * 

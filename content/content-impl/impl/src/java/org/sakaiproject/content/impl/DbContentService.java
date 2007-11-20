@@ -373,7 +373,9 @@ public class DbContentService extends BaseContentService
 				}
 			}
 
-			filesizeColumnExists = filesizeColumnExists();
+			if ( m_sqlService != null ) {
+				filesizeColumnExists = filesizeColumnExists();
+			}
 
 			// If CHH resolvers are turned off in sakai.properties, unset the resolver property.
 			// This MUST happen before super.init() calls newStorage()
