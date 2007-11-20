@@ -85,31 +85,9 @@ public class ShowAttachmentMediaServlet extends HttpServlet
   public void doPost(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException
   {
-	String actionMode = req.getParameter("actionMode");
-	String resourceId = "";
-	String mimeType = "";
-	String filename = "";
-	if ("delivery".equals(actionMode)) {
-		String attachmentId = req.getParameter("attachmentId");
-		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-		PublishedAttachmentData publishedAttachmentData = publishedAssessmentService.getPublishedAttachmentData(Long.valueOf(attachmentId));
-		if (publishedAttachmentData == null) {
-			log.error("publishedAttachmentData is null");
-			return;
-		}
-		resourceId = publishedAttachmentData.getResourceId();
-		mimeType = publishedAttachmentData.getMimeType();
-		filename = publishedAttachmentData.getFilename();
-	}
-	else if ("preview".equals(actionMode)) {
-		resourceId = req.getParameter("resourceId");
-		mimeType = req.getParameter("mimeType");
-		filename = req.getParameter("filename");
-	}
-	else {
-		log.error("wrong actionMode");
-		return;
-	}
+	String resourceId = req.getParameter("resourceId");
+	String mimeType = req.getParameter("mimeType");
+	String filename = req.getParameter("filename");
 
     res.setHeader("Content-Disposition", "inline;filename=\"" + filename +"\";");
     log.debug("resourceId = " + resourceId);
