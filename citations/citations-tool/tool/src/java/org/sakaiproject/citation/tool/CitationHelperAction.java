@@ -1452,18 +1452,18 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put( "instrArgs", instrArgs );
 
 		String searchType = null;
-		
+
 		if (searchInfo != null)
 		{
 			searchType = searchInfo.getSearchType();
 		}
-			
+
 		if (searchType == null)
 			searchType = ActiveSearch.BASIC_SEARCH_TYPE;
 
 		context.put("searchType", searchType);
-			
-		
+
+
 	    return TEMPLATE_SEARCH;
 
 	}	// buildSearchPanelContext
@@ -2219,7 +2219,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         // through all customUrls below
         citation.setPreferredUrl( null );
         String id = null;
-        
+
         for(int i = 0; i < urlCount; i++)
         {
         	String label = params.getString("label_" + i);
@@ -2227,7 +2227,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         	String url = params.getString("url_" + i);
 
         	String urlid = params.getString("urlid_" + i);
-        	
+
         	String preferred = params.getString( "pref_" + i );
 
          	if(url == null)
@@ -2255,7 +2255,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         	else if(urlid == null || urlid.trim().equals(""))
         	{
         		id = citation.addCustomUrl(label, url);
-        		
+
         		if( preferred != null && !preferred.trim().equals( "" ) )
         		{
         			// this customUrl is the new preferredUrl
@@ -2266,7 +2266,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         	{
         		// update an existing customUrl
         		citation.updateCustomUrl(urlid, label, url);
-        		
+
             	if( preferred != null && !preferred.trim().equals( "" ) )
         		{
             		// this customUrl is the new preferredUrl
@@ -2569,12 +2569,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	public void doCancelSearch( RunData data )
 	{
 		logger.debug("CitationHelper: In doCancelSearch");
-		
-		
+
+
 		// get state and params
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters();
-		
+
 		// cancel the running search
 		ActiveSearch search = ( ActiveSearch )state.getAttribute( STATE_SEARCH_INFO );
 		if( search != null )
@@ -2599,11 +2599,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				}
 			}
 		}
-		
+
 		// added to make search state next state (currently mode = database)
-		
+
 		String searchPage = params.getString( "searchpage" );
-		
+
 		if (searchPage != null)
 		{
 			if (searchPage.equalsIgnoreCase("search"))
@@ -2717,7 +2717,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					return;
 				}
 			}
-			
+
 			/*
 			 * Specify which databases should be searched
 			 */
@@ -2745,7 +2745,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			doBasicSearch( params, state, search );
 		}
-		
+
 		// check for a cancel
     	String cancel = params.getString( "cancelOp" );
     	if( cancel != null && !cancel.trim().equals("") )
@@ -2759,7 +2759,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
     			state.setAttribute( STATE_CANCEL_PAGE, Mode.SEARCH );
     		}
     	}
-    	
+
 		/*
 		 * BEGIN SEARCH
 		 */
@@ -2788,17 +2788,17 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	    catch(SearchException se)
 	    {
 	    	// either page indices are off or there has been a metasearch error
-	    	
+
 	    	// do some logging & find the proper alert message
 	    	StringBuilder alertMsg = new StringBuilder( se.getMessage() );
 	    	logger.warn("doBeginSearch() SearchException: " + alertMsg );
-	    	
+
 	    	if( search.getStatusMessage() != null && !search.getStatusMessage().trim().equals("") )
 	    	{
 	    		logger.warn( " |-- nested metasearch error: " + search.getStatusMessage() );
 	    		alertMsg.append( " (" + search.getStatusMessage() + ")" );
 	    	}
-	    	
+
 	    	// add an alert and set the next mode
 	    	addAlert( state, alertMsg.toString() );
 	    	state.setAttribute( STATE_NO_RESULTS, Boolean.TRUE );
@@ -2810,9 +2810,26 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	    	logger.debug( "doBeginSearch() SearchCancelException: user cancelled search" );
 	    	setMode( state, (Mode)state.getAttribute(STATE_CANCEL_PAGE) );
 	    }
+	    catch (Exception error)
+	    {
+	    	String alertMsg = error.getMessage();
+        /*
+         * An issue we didn't anticipate - let our user know there's a problem
+         */
+        logger.debug("Unexpected condition encountered: " + error);
+
+	    	if ((alertMsg == null) || (alertMsg.length() == 0))
+	    	{
+	    	  alertMsg = rb.getString("error.search");
+	    	}
+	    	addAlert(state, alertMsg);
+	    	state.setAttribute(STATE_NO_RESULTS, Boolean.TRUE);
+  			setMode(state, Mode.RESULTS);
+	  		return;
+	    }
 
 	    ActiveSearch newSearch = SearchManager.newSearch();
-		state.setAttribute( STATE_SEARCH_INFO, newSearch );
+  		state.setAttribute( STATE_SEARCH_INFO, newSearch );
 
 	}	// doBeginSearch
 
@@ -2941,7 +2958,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		int pageSize = listIterator.getPageSize();
 		int totalSize = collection.size();
 		int lastPage = 0;
-		
+
 		listIterator.setStart(totalSize - pageSize);
 
  	}	// doSearch
