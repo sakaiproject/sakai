@@ -48,7 +48,7 @@
       </modules>
     </profile>
     <profile>
-      <id>kernel</id>
+      <id>framework</id>
       <properties>
          <build.version>K</build.version>
       </properties>
