@@ -93,14 +93,17 @@ public class BaseSitePage implements SitePage, Identifiable
 	/** The site skin, in case I have no m_site. */
 	protected String m_skin = null;
 
+	private BaseSiteService siteService;
+
 	/**
 	 * Construct. Auto-generate the id.
 	 * 
 	 * @param site
 	 *        The site in which this page lives.
 	 */
-	protected BaseSitePage(Site site)
+	protected BaseSitePage(BaseSiteService siteService, Site site)
 	{
+		this.siteService = siteService;
 		m_site = site;
 		m_id = IdManager.createUuid();
 		m_properties = new BaseResourcePropertiesEdit();
@@ -121,9 +124,10 @@ public class BaseSitePage implements SitePage, Identifiable
 	 * @param popup
 	 *        The page popup setting.
 	 */
-	protected BaseSitePage(Site site, String id, String title, String layout,
+	protected BaseSitePage(BaseSiteService siteService, Site site, String id, String title, String layout,
 			boolean popup)
 	{
+		this.siteService = siteService;
 		m_site = site;
 		m_id = id;
 
@@ -164,9 +168,11 @@ public class BaseSitePage implements SitePage, Identifiable
 	 * @param skin
 	 *        The page's site's skin.
 	 */
-	protected BaseSitePage(String pageId, String title, String layout, boolean popup,
+	protected BaseSitePage(BaseSiteService siteService, String pageId, String title, String layout, boolean popup,
 			String siteId, String skin)
 	{
+		this.siteService = siteService;
+
 		m_site = null;
 		m_id = pageId;
 		m_popup = popup;
@@ -205,8 +211,10 @@ public class BaseSitePage implements SitePage, Identifiable
 	 *        If true, we copy ids - else we generate new ones for page and
 	 *        tools.
 	 */
-	protected BaseSitePage(SitePage other, Site site, boolean exact)
+	protected BaseSitePage(BaseSiteService siteService, SitePage other, Site site, boolean exact)
 	{
+		this.siteService = siteService;
+
 		BaseSitePage bOther = (BaseSitePage) other;
 
 		m_site = site;
@@ -250,7 +258,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		for (Iterator iTools = bOther.getTools().iterator(); iTools.hasNext();)
 		{
 			BaseToolConfiguration tool = (BaseToolConfiguration) iTools.next();
-			m_tools.add(new BaseToolConfiguration(tool, this, exact));
+			m_tools.add(new BaseToolConfiguration(siteService,tool, this, exact));
 		}
 		m_toolsLazy = ((BaseSitePage) other).m_toolsLazy;
 
@@ -266,8 +274,10 @@ public class BaseSitePage implements SitePage, Identifiable
 	 * @param site
 	 *        The site in which this page lives.
 	 */
-	protected BaseSitePage(Element el, Site site)
+	protected BaseSitePage(BaseSiteService siteService, Element el, Site site)
 	{
+		this.siteService = siteService;
+
 		m_site = site;
 
 		// setup for properties
@@ -321,7 +331,7 @@ public class BaseSitePage implements SitePage, Identifiable
 					Element toolEl = (Element) toolNode;
 					if (!toolEl.getTagName().equals("tool")) continue;
 
-					BaseToolConfiguration tool = new BaseToolConfiguration(toolEl, this);
+					BaseToolConfiguration tool = new BaseToolConfiguration(siteService, toolEl, this);
 					m_tools.add(tool);
 				}
 			}
@@ -351,7 +361,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		if (m_site != null)
 		{
-			return ((BaseSiteService) (SiteService.getInstance())).adjustSkin(m_site
+			return siteService.adjustSkin(m_site
 					.getSkin(), m_site.isPublished());
 		}
 
@@ -500,7 +510,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	public ToolConfiguration addTool()
 	{
-		BaseToolConfiguration tool = new BaseToolConfiguration(this);
+		BaseToolConfiguration tool = new BaseToolConfiguration(siteService, this);
 		((ResourceVector) getTools()).add(tool);
 
 		return tool;
@@ -511,7 +521,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	public ToolConfiguration addTool(Tool reg)
 	{
-		BaseToolConfiguration tool = new BaseToolConfiguration(reg, this);
+		BaseToolConfiguration tool = new BaseToolConfiguration(siteService,reg, this);
 		((ResourceVector) getTools()).add(tool);
 
 		return tool;
@@ -522,7 +532,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	public ToolConfiguration addTool(String toolId)
 	{
-		BaseToolConfiguration tool = new BaseToolConfiguration(toolId, this);
+		BaseToolConfiguration tool = new BaseToolConfiguration(siteService, toolId, this);
 		((ResourceVector) getTools()).add(tool);
 
 		return tool;

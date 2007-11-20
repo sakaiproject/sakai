@@ -1053,7 +1053,7 @@ public abstract class DbSiteService extends BaseSiteService
 						skin = m_service.adjustSkin(skin, (published == 1));
 
 						// make the tool
-						BaseToolConfiguration tool = new BaseToolConfiguration(id, registration, title, layout, pageId, siteId, skin, pageOrder);
+						BaseToolConfiguration tool = new BaseToolConfiguration(DbSiteService.this,id, registration, title, layout, pageId, siteId, skin, pageOrder);
 
 						return tool;
 					}
@@ -1108,7 +1108,7 @@ public abstract class DbSiteService extends BaseSiteService
 						skin = m_service.adjustSkin(skin, (published == 1));
 
 						// make the page
-						BaseSitePage page = new BaseSitePage(pageId, title, layout, popup, siteId, skin);
+						BaseSitePage page = new BaseSitePage(DbSiteService.this,pageId, title, layout, popup, siteId, skin);
 
 						return page;
 					}
@@ -1821,7 +1821,7 @@ public abstract class DbSiteService extends BaseSiteService
 						boolean popup = "1".equals(result.getString(4)) ? true : false;
 
 						// make the page
-						BaseSitePage page = new BaseSitePage(site, id, title, layout, popup);
+						BaseSitePage page = new BaseSitePage(DbSiteService.this, site, id, title, layout, popup);
 
 						// add it to the pages
 						pages.add(page);
@@ -1863,7 +1863,7 @@ public abstract class DbSiteService extends BaseSiteService
 						int pageOrder = result.getInt(5);
 
 						// make the tool
-						BaseToolConfiguration tool = new BaseToolConfiguration(page, id, registration, title, layout, pageOrder);
+						BaseToolConfiguration tool = new BaseToolConfiguration(DbSiteService.this,page, id, registration, title, layout, pageOrder);
 
 						// add it to the tools
 						tools.add(tool);
@@ -1910,7 +1910,7 @@ public abstract class DbSiteService extends BaseSiteService
 						if ((page != null) && (page.m_toolsLazy))
 						{
 							// make the tool
-							BaseToolConfiguration tool = new BaseToolConfiguration(page, id, registration, title, layout, pageOrder);
+							BaseToolConfiguration tool = new BaseToolConfiguration(DbSiteService.this,page, id, registration, title, layout, pageOrder);
 
 							// add it to the tools
 							page.m_tools.add(tool);
@@ -1956,7 +1956,7 @@ public abstract class DbSiteService extends BaseSiteService
 						String description = result.getString(3);
 
 						// make the group
-						BaseGroup group = new BaseGroup(groupId, title, description, site);
+						BaseGroup group = new BaseGroup(DbSiteService.this,groupId, title, description, site);
 
 						// add it to the groups
 						groups.add(group);
@@ -2088,7 +2088,7 @@ public abstract class DbSiteService extends BaseSiteService
 				boolean customPageOrdered = "1".equals(result.getString(19)) ? true : false;
 
 				// create the Resource from these fields
-				return new BaseSite(id, title, type, shortDesc, description, icon, info, skin, published, joinable, pubView, joinRole, isSpecial,
+				return new BaseSite(DbSiteService.this,id, title, type, shortDesc, description, icon, info, skin, published, joinable, pubView, joinRole, isSpecial,
 						isUser, createdBy, createdOn, modifiedBy, modifiedOn, customPageOrdered);
 			}
 			catch (SQLException e)

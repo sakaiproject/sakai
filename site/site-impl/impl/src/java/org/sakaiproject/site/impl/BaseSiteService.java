@@ -533,7 +533,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 				rv = (Site) o;
 
 				// return a copy of the site from the cache
-				rv = new BaseSite(rv, true);
+				rv = new BaseSite(this,rv, true);
 
 				return rv;
 			}
@@ -553,7 +553,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		// cache a copy
 		if (m_siteCache != null)
 		{
-			Site copy = new BaseSite(rv, true);
+			Site copy = new BaseSite(this,rv, true);
 			m_siteCache.put(ref, copy, m_cacheSeconds);
 		}
 
@@ -1242,7 +1242,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			if (rv != null)
 			{
 				// return a copy from the cache
-				rv = new BaseToolConfiguration(rv, rv.getContainingPage(), true);
+				rv = new BaseToolConfiguration(this, rv, rv.getContainingPage(), true);
 				return rv;
 			}
 
@@ -1286,7 +1286,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			rv = m_siteCache.getPage(id);
 			if (rv != null)
 			{
-				rv = new BaseSitePage(rv, rv.getContainingSite(), true);
+				rv = new BaseSitePage(this,rv, rv.getContainingSite(), true);
 				return rv;
 			}
 
@@ -2386,7 +2386,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	public Entity newResource(Entity container, String id, Object[] others)
 	{
-		return new BaseSite(id);
+		return new BaseSite(this,id);
 	}
 
 	/**
@@ -2414,7 +2414,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	public Entity newResource(Entity container, Entity other)
 	{
-		return new BaseSite((Site) other, true);
+		return new BaseSite(this,(Site) other, true);
 	}
 
 	/**
@@ -2466,7 +2466,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	public Edit newResourceEdit(Entity container, String id, Object[] others)
 	{
-		BaseSite e = new BaseSite(id);
+		BaseSite e = new BaseSite(this,id);
 		e.activate();
 		return e;
 	}
@@ -2496,7 +2496,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	public Edit newResourceEdit(Entity container, Entity other)
 	{
-		BaseSite e = new BaseSite((Site) other);
+		BaseSite e = new BaseSite(this,(Site) other);
 		e.activate();
 		return e;
 	}
@@ -2600,7 +2600,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 				}
 
 				// assign source site's attributes to the target site
-				((BaseSite) site).set(new BaseSite(el), false);
+				((BaseSite) site).set(new BaseSite(this,el), false);
 
 				try
 				{
@@ -2659,7 +2659,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 					// The group we get from the siteCache is a group from the actual cached site, so it's containing site is the actual cached site.
 
 					// get a copy of the site from the cache
-					Site site = new BaseSite(group.getContainingSite(), true);
+					Site site = new BaseSite(this,group.getContainingSite(), true);
 
 					// get the group from there
 					rv = site.getGroup(refOrId);
