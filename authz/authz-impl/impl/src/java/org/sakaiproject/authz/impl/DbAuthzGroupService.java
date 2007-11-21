@@ -1405,7 +1405,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				Integer dbid = new Integer(result.getInt(8));
 
 				// create the Resource from these fields
-				return new BaseAuthzGroup(dbid, id, providerId, maintainRole, createdBy, createdOn, modifiedBy, modifiedOn);
+				return new BaseAuthzGroup(DbAuthzGroupService.this,dbid, id, providerId, maintainRole, createdBy, createdOn, modifiedBy, modifiedOn);
 			}
 			catch (SQLException e)
 			{

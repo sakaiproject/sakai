@@ -729,7 +729,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	public AuthzGroup newAuthzGroup(String id, AuthzGroup other, String userId) throws GroupAlreadyDefinedException
 	{
 		// make the new AuthzGroup
-		BaseAuthzGroup azGroup = new BaseAuthzGroup(id);
+		BaseAuthzGroup azGroup = new BaseAuthzGroup(this,id);
 		azGroup.m_isNew = true;
 
 		// move in the values from the old AuthzGroup (this includes the id, which we restore)
@@ -1389,7 +1389,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	public Entity newResource(Entity container, String id, Object[] others)
 	{
-		return new BaseAuthzGroup(id);
+		return new BaseAuthzGroup(this,id);
 	}
 
 	/**
@@ -1403,7 +1403,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	public Entity newResource(Entity container, Element element)
 	{
-		return new BaseAuthzGroup(element);
+		return new BaseAuthzGroup(this,element);
 	}
 
 	/**
@@ -1417,7 +1417,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	public Entity newResource(Entity container, Entity other)
 	{
-		return new BaseAuthzGroup((AuthzGroup) other);
+		return new BaseAuthzGroup(this,(AuthzGroup) other);
 	}
 
 	/**
@@ -1469,7 +1469,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	public Edit newResourceEdit(Entity container, String id, Object[] others)
 	{
-		BaseAuthzGroup e = new BaseAuthzGroup(id);
+		BaseAuthzGroup e = new BaseAuthzGroup(this,id);
 		e.activate();
 		return e;
 	}
@@ -1485,7 +1485,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	public Edit newResourceEdit(Entity container, Element element)
 	{
-		BaseAuthzGroup e = new BaseAuthzGroup(element);
+		BaseAuthzGroup e = new BaseAuthzGroup(this,element);
 		e.activate();
 		return e;
 	}
@@ -1501,7 +1501,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	public Edit newResourceEdit(Entity container, Entity other)
 	{
-		BaseAuthzGroup e = new BaseAuthzGroup((AuthzGroup) other);
+		BaseAuthzGroup e = new BaseAuthzGroup(this,(AuthzGroup) other);
 		e.activate();
 		return e;
 	}
