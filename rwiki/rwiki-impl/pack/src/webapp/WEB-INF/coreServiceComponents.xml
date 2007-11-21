@@ -62,6 +62,7 @@
     <property name="autoDdl"><value>${auto.ddl}</value></property>
     <property name="RWikiCurrentObjectDao"><ref bean="rwikiCurrentObjectDao"/></property>
     <property name="RWikiHistoryObjectDao"><ref bean="rwikiHistoryObjectDao"/></property>
+    <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
     <property name="handlers">
       <map>
         <entry key=""><ref bean="rwikiRAWHandler" /></entry>

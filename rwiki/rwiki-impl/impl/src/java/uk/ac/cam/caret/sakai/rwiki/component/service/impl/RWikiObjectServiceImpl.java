@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -58,6 +59,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.StringUtil;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -138,6 +140,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 	/** Configuration: to run the ddl on init or not. */
 	protected boolean autoDdl = false;
+
+	private AliasService aliasService;
 
 	/**
 	 * Configuration: to run the ddl on init or not.
@@ -1274,6 +1278,36 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	public boolean parseEntityReference(String reference, Reference ref)
 	{
 		if (!reference.startsWith(REFERENCE_ROOT)) return false;
+		String[] parts = StringUtil.split(reference, Entity.SEPARATOR);
+		String context = null;
+		
+		// the first part will be null, then next the service, and the fourth will be the (worksite) context
+		if ( parts.length > 3 )
+		{
+			context = parts[3];
+			if ( context.endsWith(".") )
+			context = context.substring(0, context.length()-1 );
+		}
+		
+		// Translate context alias into site id if necessary
+		if ((context != null) && (context.length() > 0))
+		{
+			if (!siteService.siteExists(context))
+			{
+				try
+				{
+					String newContext = aliasService.getTarget(context);
+					reference = reference.replaceFirst("/site/" + context, newContext);
+					ref.updateReference(reference);
+				}
+				catch (Exception e)
+				{
+					log.debug(".parseEntityReference(): " + e.toString());
+				}
+			}
+		}
+		
+
 		EntityHandler eh = findEntityReferenceMatch(reference);
 		if (eh != null) {
 			eh.setReference(APPLICATION_ID, ref, reference);
@@ -1657,6 +1691,20 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	public PageLinkRenderer getComponentPageLinkRender(String pageSpace, boolean withBreadCrumb)
 	{
 		return new ComponentPageLinkRenderImpl(pageSpace,withBreadCrumb);
+	}
+	/**
+	 * @return the aliasService
+	 */
+	public AliasService getAliasService()
+	{
+		return aliasService;
+	}
+	/**
+	 * @param aliasService the aliasService to set
+	 */
+	public void setAliasService(AliasService aliasService)
+	{
+		this.aliasService = aliasService;
 	}
 
 }
