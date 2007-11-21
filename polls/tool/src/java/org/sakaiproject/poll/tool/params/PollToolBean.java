@@ -257,16 +257,29 @@ public class PollToolBean {
 		  return "cancel";
     
 	 m_log.debug("adding option with text " + option.getOptionText());
-	 if (option.getOptionText() == null || option.getOptionText().length()==0) {
-		 m_log.error("OptionText is empty");
+	 if (option.getOptionText() == null || option.getOptionText().trim().length()==0) {
 		 //errors.reject("vote_closed","vote closed");
 		// return null;
 	 }
-		 
-	 option.setOptionText(FormattedText.processFormattedText(option.getOptionText(), new StringBuilder()));
+	 StringBuilder sb = new StringBuilder();
+	 option.setOptionText(FormattedText.processFormattedText(option.getOptionText(), sb, true, true));
 	 
+	 String text = option.getOptionText();
+	 String check = text.substring(3, text.length());
+
+	 //if the only <p> tag is the one at the start we will trim off the start and end <p> tags
+	if (!org.sakaiproject.util.StringUtil.containsIgnoreCase(check, "<p>")) {
+		//this is a single para block
+		m_log.debug("we will clean up <P> tags here");
+		text = text.substring(3, text.length());
+		text = text.substring(0,text.length()- 4);
+		m_log.debug("resulting text is: " + text);
+		option.setOptionText(text);
+		
+	}
+	
 	 manager.saveOption(option);
-	 m_log.info("Succesuly save option with id" + option.getId());
+	 m_log.debug("Succesuly save option with id" + option.getId());
 	
 	 voteBean.poll = manager.getPollById(option.getPollId());
 	
