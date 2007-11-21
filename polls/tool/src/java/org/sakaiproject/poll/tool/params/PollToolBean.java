@@ -270,24 +270,29 @@ public class PollToolBean {
 	 //if the only <p> tag is the one at the start we will trim off the start and end <p> tags
 	if (!org.sakaiproject.util.StringUtil.containsIgnoreCase(check, "<p>")) {
 		//this is a single para block
-		m_log.debug("we will clean up <P> tags here");
 		text = text.substring(3, text.length());
 		text = text.substring(0,text.length()- 4);
-		m_log.debug("resulting text is: " + text);
-		option.setOptionText(text);
-		
 	}
 	
-	 manager.saveOption(option);
-	 m_log.debug("Succesuly save option with id" + option.getId());
+	//are there trailing <p>&nbsp;</p>
+	String empty = "<p>&nbsp;</p>";
+	while (text.length() > empty.length() && text.substring(text.length() - empty.length()).trim().equals(empty)) {
+		m_log.debug("found the empty string: " + empty);
+		text = text.substring(0, text.length() - empty.length()).trim();
+	}
 	
-	 voteBean.poll = manager.getPollById(option.getPollId());
+	
+ 	option.setOptionText(text);
+ 	manager.saveOption(option);
+ 	m_log.debug("Succesuly save option with id" + option.getId());
+	
+	voteBean.poll = manager.getPollById(option.getPollId());
 	
 	 
-	 if (submissionStatus.equals("option"))
-		 return "option";
-	 else 
-		 return "save";
+	if (submissionStatus.equals("option"))
+	 return "option";
+	else 
+	 return "save";
 	  
 		 
   }
