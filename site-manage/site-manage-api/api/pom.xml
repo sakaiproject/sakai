@@ -35,6 +35,11 @@
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+        <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-user-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <resources/>

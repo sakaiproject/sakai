@@ -157,6 +157,9 @@ public class SiteAction extends PagedResourceActionII {
 	private org.sakaiproject.sitemanage.api.AffiliatedSectionProvider affiliatedSectionProvider = (org.sakaiproject.sitemanage.api.AffiliatedSectionProvider) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.AffiliatedSectionProvider.class);
 
+	private org.sakaiproject.sitemanage.api.UserNotificationProvider userNotificationProvider = (org.sakaiproject.sitemanage.api.UserNotificationProvider) ComponentManager
+	.get(org.sakaiproject.sitemanage.api.UserNotificationProvider.class);
+	
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 
 	private static final String SITE_MODE_SITEINFO = "siteinfo";
@@ -9127,7 +9130,7 @@ public class SiteAction extends PagedResourceActionII {
 						if(usersWithEmail != null) {
 							if(usersWithEmail.size() == 0) {
 								// If the collection is empty, we didn't find any users with this email address
-								M_log.info("Unable to fund users with email " + officialAccount);
+								M_log.info("Unable to find users with email " + officialAccount);
 							} else if (usersWithEmail.size() == 1) {
 								// We found one user with this email address.  Use it.
 								u = (User)usersWithEmail.iterator().next();
@@ -9141,6 +9144,8 @@ public class SiteAction extends PagedResourceActionII {
 						// We didn't find anyone via email address, so try getting the user by EID
 						if(u == null) {
 							u = UserDirectoryService.getUserByEid(officialAccount);
+							if (u != null)
+								M_log.info("found user with eid " + officialAccount);
 						}
 						
 						if (site != null && site.getUserRole(u.getId()) != null) {
@@ -9392,8 +9397,10 @@ public class SiteAction extends PagedResourceActionII {
 										.toString()))
 								.equalsIgnoreCase(Boolean.TRUE.toString());
 						if (notifyNewUserEmail) {
-							notifyNewUserEmail(uEdit.getEid(),
-									uEdit.getEmail(), pw, siteTitle);
+						
+								userNotificationProvider.notifyNewUserEmail(uEdit, pw, siteTitle);
+							
+							
 						}
 					} catch (UserIdInvalidException ee) {
 						addAlert(state, nonOfficialAccountLabel + " id " + eId
@@ -9489,49 +9496,8 @@ public class SiteAction extends PagedResourceActionII {
 
 	} // removeAddParticipantContext
 
-	/**
-	 * Send an email to newly added user informing password
-	 * 
-	 * @param newnonOfficialAccount
-	 * @param emailId
-	 * @param userName
-	 * @param siteTitle
-	 */
-	private void notifyNewUserEmail(String userName, String newUserEmail,
-			String newUserPassword, String siteTitle) {
-		String from = getSetupRequestEmailAddress();
-		String productionSiteName = ServerConfigurationService.getString(
-				"ui.service", "");
-		String productionSiteUrl = ServerConfigurationService.getPortalUrl();
 
-		String to = newUserEmail;
-		String headerTo = newUserEmail;
-		String replyTo = newUserEmail;
-		String message_subject = productionSiteName + " "
-				+ rb.getString("java.newusernoti");
-		String content = "";
 
-		if (from != null && newUserEmail != null) {
-			StringBuilder buf = new StringBuilder();
-			buf.setLength(0);
-
-			// email body
-			buf.append(userName + ":\n\n");
-
-			buf.append(rb.getString("java.addedto") + " " + productionSiteName
-					+ " (" + productionSiteUrl + ") ");
-			buf.append(rb.getString("java.simpleby") + " ");
-			buf.append(UserDirectoryService.getCurrentUser().getDisplayName()
-					+ ". \n\n");
-			buf.append(rb.getString("java.passwordis1") + "\n"
-					+ newUserPassword + "\n\n");
-			buf.append(rb.getString("java.passwordis2") + "\n\n");
-
-			content = buf.toString();
-			EmailService.send(from, to, message_subject, content, headerTo,
-					replyTo, null);
-		}
-	} // notifyNewUserEmail
 
 	private String getSetupRequestEmailAddress() {
 		String from = ServerConfigurationService.getString("setup.request",
@@ -9544,69 +9510,7 @@ public class SiteAction extends PagedResourceActionII {
 		return from;
 	}
 
-	/**
-	 * send email notification to added participant
-	 */
-	private void notifyAddedParticipant(boolean newNonOfficialAccount,
-			String emailId, String userName, String siteTitle) {
-		String from = getSetupRequestEmailAddress();
-		if (from != null) {
-			String productionSiteName = ServerConfigurationService.getString(
-					"ui.service", "");
-			String productionSiteUrl = ServerConfigurationService
-					.getPortalUrl();
-			String nonOfficialAccountUrl = ServerConfigurationService.getString(
-					"nonOfficialAccount.url", null);
-			String to = emailId;
-			String headerTo = emailId;
-			String replyTo = emailId;
-			String message_subject = productionSiteName + " "
-					+ rb.getString("java.sitenoti");
-			String content = "";
-			StringBuilder buf = new StringBuilder();
-			buf.setLength(0);
 
-			// email bnonOfficialAccounteen newly added nonOfficialAccount account
-			// and other users
-			buf.append(userName + ":\n\n");
-			buf.append(rb.getString("java.following") + " "
-					+ productionSiteName + " "
-					+ rb.getString("java.simplesite") + "\n");
-			buf.append(siteTitle + "\n");
-			buf.append(rb.getString("java.simpleby") + " ");
-			buf.append(UserDirectoryService.getCurrentUser().getDisplayName()
-					+ ". \n\n");
-			if (newNonOfficialAccount) {
-				buf.append(ServerConfigurationService.getString(
-						"nonOfficialAccountInstru", "")
-						+ "\n");
-
-				if (nonOfficialAccountUrl != null) {
-					buf.append(rb.getString("java.togeta1") + "\n"
-							+ nonOfficialAccountUrl + "\n");
-					buf.append(rb.getString("java.togeta2") + "\n\n");
-				}
-				buf.append(rb.getString("java.once") + " " + productionSiteName
-						+ ": \n");
-				buf.append(rb.getString("java.loginhow1") + " "
-						+ productionSiteName + ": " + productionSiteUrl + "\n");
-				buf.append(rb.getString("java.loginhow2") + "\n");
-				buf.append(rb.getString("java.loginhow3") + "\n");
-			} else {
-				buf.append(rb.getString("java.tolog") + "\n");
-				buf.append(rb.getString("java.loginhow1") + " "
-						+ productionSiteName + ": " + productionSiteUrl + "\n");
-				buf.append(rb.getString("java.loginhow2") + "\n");
-				buf.append(rb.getString("java.loginhow3u") + "\n");
-			}
-			buf.append(rb.getString("java.tabscreen"));
-			content = buf.toString();
-			EmailService.send(from, to, message_subject, content, headerTo,
-					replyTo, null);
-
-		} // if
-
-	} // notifyAddedParticipant
 
 	/*
 	 * Given a list of user eids, add users to realm If the user account does
@@ -9649,8 +9553,10 @@ public class SiteAction extends PagedResourceActionII {
 									String emailId = user.getEmail();
 									String userName = user.getDisplayName();
 									// send notification email
-									notifyAddedParticipant(nonOfficialAccount,
-											emailId, userName, sEdit.getTitle());
+									if (this.userNotificationProvider == null)
+										M_log.warn("notification provider is null!");
+									userNotificationProvider.notifyAddedParticipant(nonOfficialAccount, user, sEdit.getTitle());
+									
 								}
 							}
 						} catch (UserNotDefinedException e) {
