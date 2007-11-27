@@ -4,17 +4,17 @@
  ***********************************************************************************
  *
  * Copyright (c) 2006, 2007 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -32,19 +32,24 @@ import org.sakaibrary.xserver.session.MetasearchSessionManager;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-/** 
+/**
  * @author gbhatnag
  * @version
  */
-public class AssetIterator extends org.xml.sax.helpers.DefaultHandler 
+public class AssetIterator extends org.xml.sax.helpers.DefaultHandler
 implements org.osid.repository.AssetIterator {
+  /*
+   * Xserver error codes
+   */
+  public static final int XSERVER_ERROR_MERGE_LIMIT = 134;
+  public static final int XSERVER_ERROR_ALL_MERGED  = 137;
 
 	private static final long serialVersionUID = 1L;
 	private static final String REGULAR_EXPRESSION_FILE = "/data/citationRegex.txt";
 	private static final org.apache.commons.logging.Log LOG =
 		org.apache.commons.logging.LogFactory.getLog(
 				"org.sakaibrary.osid.repository.xserver.AssetIterator" );
-	
+
 	private java.util.LinkedList assetQueue;
 	private java.util.ArrayList regexArray;
 	private String guid;
@@ -62,23 +67,23 @@ implements org.osid.repository.AssetIterator {
 	private MetasearchSessionManager msm;
 	org.osid.shared.Properties statusProperties;
 
-	
+
 	/**
 	 * Constructs an empty AssetIterator
-	 * 
+	 *
 	 * @param guid globally unique identifier for this session
 	 * @throws org.osid.repository.RepositoryException
 	 */
 	protected AssetIterator( String guid )
 	throws org.osid.repository.RepositoryException {
 		this.guid = guid;
-		
+
 		// get session cache manager
 		msm = MetasearchSessionManager.getInstance();
 
 		// create assetQueue
 		assetQueue = new java.util.LinkedList();
-		
+
 		// load citation regular expressions
 		try {
 			regexArray = loadCitationRegularExpressions( REGULAR_EXPRESSION_FILE );
@@ -87,11 +92,11 @@ implements org.osid.repository.AssetIterator {
 					"expressions - regex file: " + REGULAR_EXPRESSION_FILE, ioe );
 		}
 	}
-	
+
 	private java.util.ArrayList loadCitationRegularExpressions( String filename )
 	throws java.io.IOException {
 		java.util.ArrayList regexArray = new java.util.ArrayList();
-		
+
 		java.io.InputStream is = this.getClass().getResourceAsStream( filename );
 		java.io.BufferedReader regexes = new java.io.BufferedReader(
 				new java.io.InputStreamReader( is ) );
@@ -100,16 +105,16 @@ implements org.osid.repository.AssetIterator {
 		String regex;
 		while( ( regex = regexes.readLine() ) != null ) {
 			String [] nameRegex = regex.split( "=" );
-			
+
 			CitationRegex citationRegex = new CitationRegex();
 			citationRegex.setName( nameRegex[ 0 ].trim() );
 			citationRegex.setRegex( nameRegex[ 1 ].trim() );
-			
+
 			regexArray.add( citationRegex );
 		}
 		regexes.close();
 		is.close();
-		
+
 		return regexArray;
 	}
 
@@ -127,31 +132,31 @@ implements org.osid.repository.AssetIterator {
 		} catch( org.sakaibrary.xserver.XServerException xse ) {
 			LOG.warn( "X-Server error: " + xse.getErrorCode() +
 					" - " + xse.getErrorText() );
-      
+
       // throw exception now that status has been updated
-      throw new org.osid.repository.RepositoryException( 
+      throw new org.osid.repository.RepositoryException(
           org.sakaibrary.osid.repository.xserver.MetasearchException.
           METASEARCH_ERROR );
 		}
-		
+
 		// check status for error/timeout
 		String status = null;
-		
+
 		try {
 			status = ( String ) statusProperties.getProperty( "status" );
 		} catch( org.osid.shared.SharedException se ) {
 			LOG.warn( "hasNextAsset() failed getting status " +
 					"property", se );
 		}
-		
+
 		if( status != null ) {
       // status and statusMessage are set by XServer.updateSearchStatusProperties
 			if( status.equals( "error" ) ) {
-			  throw new org.osid.repository.RepositoryException( 
+			  throw new org.osid.repository.RepositoryException(
 						org.sakaibrary.osid.repository.xserver.MetasearchException.
 						METASEARCH_ERROR );
 			} else if( status.equals( "timeout" ) ) {
-				throw new org.osid.repository.RepositoryException( 
+				throw new org.osid.repository.RepositoryException(
 						org.sakaibrary.osid.repository.xserver.MetasearchException.
 						SESSION_TIMED_OUT );
 			} else if( status.equals( "empty" ) ) {
@@ -161,16 +166,16 @@ implements org.osid.repository.AssetIterator {
 		} else {
 			LOG.warn( "hasNextAsset() - status property is null" );
 		}
-		
+
 		// get updated metasearchSession
 		metasearchSession = msm.getMetasearchSession( guid );
 		Integer numRecordsFound = metasearchSession.getNumRecordsFound();
-		
+
 		if( numRecordsFound == null || numRecordsFound.intValue() == 0 ) {
 			// still searching for records, return true
 			return true;
 		}
-		
+
 		// check if passed max number of attainable records
     int maxAttainable;
     boolean gotMergeError = metasearchSession.isGotMergeError();
@@ -179,7 +184,7 @@ implements org.osid.repository.AssetIterator {
     } else {
       maxAttainable = numRecordsFound.intValue();
     }
-    
+
 		return ( numRecordsReturned < maxAttainable );
 	}
 
@@ -187,19 +192,19 @@ implements org.osid.repository.AssetIterator {
 	throws org.osid.repository.RepositoryException {
 		LOG.debug( "nextAsset() [entry] - returned: " + numRecordsReturned + "; total: " +
         totalRecordsCursor + "; in queue: " + assetQueue.size() );
-		
+
 		// return Asset, if ready
 		if( assetQueue.size() > 0 ) {
 			numRecordsReturned++;
 			return ( org.osid.repository.Asset ) assetQueue.removeFirst();
 		}
-		
+
 		// assetQueue is empty - check whether we should get more records
 		// or throw an Exception
 		if( hasNextAsset() ) {
 			// hasNextAsset() will throw timeout/error Exceptions if any
 			String status = null;
-			
+
 			try {
 				status = ( String ) statusProperties.getProperty( "status" );
 			} catch( org.osid.shared.SharedException se ) {
@@ -208,11 +213,11 @@ implements org.osid.repository.AssetIterator {
 
 			if( !status.equals( "ready" ) ) {
 				// the X-Server is still searching/fetching - try again later
-				throw new org.osid.repository.RepositoryException( 
+				throw new org.osid.repository.RepositoryException(
 						org.sakaibrary.osid.repository.xserver.
 						MetasearchException.ASSET_NOT_FETCHED );
 			}
-			
+
 			// get records from the X-Server
 			MetasearchSession metasearchSession = msm.getMetasearchSession( guid );
 			org.osid.shared.Id repositoryId = metasearchSession.getRepositoryId();
@@ -228,15 +233,45 @@ implements org.osid.repository.AssetIterator {
 			} catch( org.sakaibrary.xserver.XServerException xse ) {
 			  LOG.warn( "X-Server error: " + xse.getErrorCode() + " - " +
 			      xse.getErrorText() );
-        
-        throw new org.osid.repository.RepositoryException( 
+        //
+        // Have all (or too many) records been merged?  If so, indicate
+        // we've fetched everything we can (end-of-file)
+        //
+        if ((xse.getErrorCodeIntValue() == XSERVER_ERROR_MERGE_LIMIT) ||
+            (xse.getErrorCodeIntValue() == XSERVER_ERROR_ALL_MERGED))
+        {
+          LOG.debug("nextAsset(), Xserver Error "
+                +                 xse.getErrorCodeIntValue()
+                +                 ", throwing NO_MORE_ITERATOR_ELEMENTS");
+
+       		throw new org.osid.repository.RepositoryException(
+  				          org.osid.shared.SharedException.NO_MORE_ITERATOR_ELEMENTS);
+        }
+        //
+        // Search error
+        //
+        throw new org.osid.repository.RepositoryException(
 			      org.sakaibrary.osid.repository.xserver.MetasearchException.
 			      METASEARCH_ERROR );
 			}
 			LOG.debug( "nextAsset(), XServer.getRecordsXML() returns - assets in " +
 			    "queue: " + assetQueue.size() );
+      //
+      // Make sure there really is an asset available - if not, signal "end-of-file"
+      //
+      // Note: this issue can come up if a database provides an estimate but
+      // no actual results
+      //
+      if (assetQueue.size() == 0)
+      {
+        LOG.debug("nextAsset(), An asset is expected, but the asset queue is enpty");
 
+     		throw new org.osid.repository.RepositoryException(
+				          org.osid.shared.SharedException.NO_MORE_ITERATOR_ELEMENTS);
+      }
+      //
 			// records have been fetched and Assets queued
+			//
 			totalRecordsCursor += assetQueue.size();
 			numRecordsReturned++;
 			return ( org.osid.repository.Asset ) assetQueue.removeFirst();
@@ -246,7 +281,7 @@ implements org.osid.repository.AssetIterator {
 					org.osid.shared.SharedException.NO_MORE_ITERATOR_ELEMENTS );
 		}
 	}
-	
+
 	/**
 	 * This method parses the xml StringBuilder and creates Assets, Records
 	 * and Parts in the Repository with the given repositoryId.
@@ -255,7 +290,7 @@ implements org.osid.repository.AssetIterator {
 	 * @param log the log being used by the Repository
 	 * @param repositoryId the Id of the Repository in which to create Assets,
 	 * Records and Parts.
-	 * 
+	 *
 	 * @throws org.osid.repository.RepositoryException
 	 */
 	private void createAssets( java.io.ByteArrayInputStream xml,
@@ -316,12 +351,12 @@ implements org.osid.repository.AssetIterator {
 
 	/**
 	 * Receive notification of the beginning of an element.
-	 *   
+	 *
 	 * @see DefaultHandler
 	 */
 	public void startElement( String namespaceURI, String sName,
 			String qName, org.xml.sax.Attributes attrs ) throws
-			org.xml.sax.SAXException {		
+			org.xml.sax.SAXException {
 		if( qName.equals( "record" ) ) {
 			populateAssetFromText( "record_start" );
 		}
@@ -329,24 +364,24 @@ implements org.osid.repository.AssetIterator {
 
 	/**
 	 * Receive notification of the end of an element.
-	 *   
+	 *
 	 * @see DefaultHandler
 	 */
-	public void endElement( String namespaceURI, String sName, String qName ) 
+	public void endElement( String namespaceURI, String sName, String qName )
 	throws org.xml.sax.SAXException {
 		populateAssetFromText( qName );
 	}
 
 	/**
 	 * Receive notification of character data inside an element.
-	 *   
+	 *
 	 * @see DefaultHandler
 	 */
 	public void characters( char[] buf, int offset, int len )
 	throws org.xml.sax.SAXException {
 		// store character data
 		String text = new String( buf, offset, len );
-		
+
 		if( textBuffer == null ) {
 			textBuffer = new StringBuilder( text );
 		} else {
@@ -369,10 +404,10 @@ implements org.osid.repository.AssetIterator {
 			}
 		} else if( elementName.equals( "record" ) ) {
 			// a record has ended: do post-processing //
-			
+
 			// set dateRetrieved
 			setDateRetrieved();
-			
+
 			// use inLineCitation to fill in other fields, if possible
 			org.osid.repository.Part inLineCitation;
 			try {
@@ -385,19 +420,19 @@ implements org.osid.repository.AssetIterator {
 				LOG.warn( "populateAssetFromText() failed to " +
 						"gracefully process inLineCitation value.", re );
 			}
-			
+
 			assetQueue.add( asset );
 		}
-		
+
 		if( textBuffer == null ) {
 			return;
 		}
-		
+
 		String text = textBuffer.toString().trim();
 		if( text.equals( "" ) ) {
 			return;
 		}
-		
+
 		try {
 			if( elementName.equals( "title" ) ) {
 				asset.updateDisplayName( text );
@@ -472,7 +507,7 @@ implements org.osid.repository.AssetIterator {
 			LOG.warn( "populateAssetFromText() failed to " +
 					"create new Part.", re );
 		}
-		
+
 		textBuffer = null;
 	}
 
@@ -495,7 +530,7 @@ implements org.osid.repository.AssetIterator {
 		}
 		String dateRetrieved = now.get( java.util.Calendar.YEAR ) + "-" +
 		monthStr + "-" + dateStr;
-		
+
 		try {
 			record.createPart( DateRetrievedPartStructure.getInstance().getId(),
 				dateRetrieved );
@@ -504,11 +539,11 @@ implements org.osid.repository.AssetIterator {
 					"creating new dateRetrieved Part.", re );
 		}
 	}
-	
+
 	/**
-	 * This method searches the current record for a Part using its 
+	 * This method searches the current record for a Part using its
 	 * PartStructure Type.
-	 * 
+	 *
 	 * @param partStructureType PartStructure Type of Part you need.
 	 * @return the Part if it exists in the current record, null if it does not.
 	 */
@@ -516,10 +551,10 @@ implements org.osid.repository.AssetIterator {
 			org.osid.shared.Type partStructureType ) {
 		try {
 			org.osid.repository.PartIterator pit = record.getParts();
-			
+
 			while( pit.hasNextPart() ) {
 				org.osid.repository.Part part = pit.nextPart();
-				
+
 				if( part.getPartStructure().getType().isEqual( partStructureType ) ) {
 					return part;
 				}
@@ -527,18 +562,18 @@ implements org.osid.repository.AssetIterator {
 		} catch( org.osid.repository.RepositoryException re ) {
 			LOG.warn( "recordHasPart() failed getting Parts.", re );
 		}
-		
+
 		// did not find the Part
 		return null;
 	}
-	
+
 	/**
 	 * This method does its best to map data contained in an inLineCitation to
 	 * other fields such as volume, issue, etc. in the case that they are empty.
 	 * It compares the citation to a known set of regular expressions contained
 	 * in REGULAR_EXPRESSION_FILE.  Adding a new regular expression entails
 	 * adding a new case for parsing in this method.
-	 * 
+	 *
 	 * @param citation inLineCitation to be parsed
 	 */
 	private void doRegexParse( String citation ) {
@@ -550,29 +585,29 @@ implements org.osid.repository.AssetIterator {
 		boolean hasDate = false;
 		boolean hasPages = false;
 		boolean hasSourceTitle = false;
-		
+
 		for( int i = 0; i < regexArray.size(); i++ ) {
 			CitationRegex citationRegex = ( CitationRegex ) regexArray.get( i );
 			pattern = Pattern.compile( citationRegex.getRegex() );
 			matcher = pattern.matcher( citation );
-			
+
 			if( matcher.find() ) {
 				regexName = citationRegex.getName();
 				break;
 			}
 		}
-		
+
 		if( regexName != null ) {
 			// determine which fields are necessary
 			try {
 				hasVolume =
 					recordHasPart( VolumePartStructure.getInstance().getType() )
 					== null ? false : true;
-				
+
 				hasIssue =
 					recordHasPart( IssuePartStructure.getInstance().getType() )
 					== null ? false : true;
-				
+
 				hasDate =
 					recordHasPart( DatePartStructure.getInstance().getType() )
 					== null ? false : true;
@@ -580,16 +615,16 @@ implements org.osid.repository.AssetIterator {
 				hasPages =
 					recordHasPart( PagesPartStructure.getInstance().getType() )
 					== null ? false : true;
-				
+
 				hasSourceTitle =
 					recordHasPart( SourceTitlePartStructure.getInstance().getType() )
 					== null ? false : true;
-				
+
 				// if all true, no need to go further
 				if( hasVolume && hasIssue && hasDate && hasPages && hasSourceTitle ) {
 					return;
 				}
-				
+
 				// check for matching regex
 				if( regexName.equals( "zooRec" ) ) {
 					// .+ \d+(\(\d+\))?, (.*)? \d{4}: \d+-\d+
@@ -601,7 +636,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group() );
 						}
 					}
-					
+
 					if( !hasIssue ) {
 						pattern = Pattern.compile( "\\(\\d+\\)" );
 						matcher = pattern.matcher( citation );
@@ -610,7 +645,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group().replaceAll( "\\D", "" ) );
 						}
 					}
-					
+
 					if( !hasDate ) {
 						pattern = Pattern.compile( ", (.*)? \\d{4}:" );
 						matcher = pattern.matcher( citation );
@@ -621,7 +656,7 @@ implements org.osid.repository.AssetIterator {
 									date );
 						}
 					}
-					
+
 					if( !hasPages ) {
 						pattern = Pattern.compile( "\\d+-\\d+" );
 						matcher = pattern.matcher( citation );
@@ -629,7 +664,7 @@ implements org.osid.repository.AssetIterator {
 							createPagesPart( matcher.group() );
 						}
 					}
-					
+
 					if( !hasSourceTitle ) {
 						pattern = Pattern.compile( "\\D+\\d" );
 						matcher = pattern.matcher( citation );
@@ -651,7 +686,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group().replaceAll( "\\D", "" ) );
 						}
 					}
-					
+
 					if( !hasIssue ) {
 						pattern = Pattern.compile( "no\\. \\d+" );
 						matcher = pattern.matcher( citation );
@@ -660,7 +695,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group().replaceAll( "\\D", "" ) );
 						}
 					}
-					
+
 					if( !hasDate ) {
 						pattern = Pattern.compile( "(pp\\.|p\\.) \\d+(-\\d+\\.)? (.*)? \\d{4}\\.$" );
 						matcher = pattern.matcher( citation );
@@ -672,7 +707,7 @@ implements org.osid.repository.AssetIterator {
 									date );
 						}
 					}
-					
+
 					if( !hasPages ) {
 						pattern = Pattern.compile( "(pp\\.|p\\.) \\d+(-\\d+\\.)?" );
 						matcher = pattern.matcher( citation );
@@ -680,7 +715,7 @@ implements org.osid.repository.AssetIterator {
 							createPagesPart( matcher.group() );
 						}
 					}
-					
+
 					if( !hasSourceTitle ) {
 						pattern = Pattern.compile( ".+ \\[" );
 						matcher = pattern.matcher( citation );
@@ -702,7 +737,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group().replaceAll( "\\D", "" ) );
 						}
 					}
-					
+
 					if( !hasIssue ) {
 						pattern = Pattern.compile( "Issue: ((\\d+)|(\\w+))" );
 						matcher = pattern.matcher( citation );
@@ -713,7 +748,7 @@ implements org.osid.repository.AssetIterator {
 									issue );
 						}
 					}
-					
+
 					if( !hasDate ) {
 						pattern = Pattern.compile( "Date: \\d{4} \\d+ \\d+" );
 						matcher = pattern.matcher( citation );
@@ -725,7 +760,7 @@ implements org.osid.repository.AssetIterator {
 									date );
 						}
 					}
-					
+
 					if( !hasPages ) {
 						pattern = Pattern.compile( "\\d+-\\d+" );
 						matcher = pattern.matcher( citation );
@@ -733,7 +768,7 @@ implements org.osid.repository.AssetIterator {
 							createPagesPart( matcher.group() );
 						}
 					}
-					
+
 					if( !hasSourceTitle ) {
 						pattern = Pattern.compile( ".+\\. Vol" );
 						matcher = pattern.matcher( citation );
@@ -755,7 +790,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group() );
 						}
 					}
-					
+
 					if( !hasIssue ) {
 						pattern = Pattern.compile( "\\(\\d+\\)" );
 						matcher = pattern.matcher( citation );
@@ -764,7 +799,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group().replaceAll( "\\D", "" ) );
 						}
 					}
-					
+
 					if( !hasDate ) {
 						pattern = Pattern.compile( "( \\w{3})?( \\w{3}-\\w{3})?( \\d+)? \\d{4}$" );
 						matcher = pattern.matcher( citation );
@@ -773,7 +808,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group().trim() );
 						}
 					}
-					
+
 					if( !hasPages ) {
 						pattern = Pattern.compile( " \\w+(-\\w+)?" );
 						matcher = pattern.matcher( citation );
@@ -791,7 +826,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group().replaceAll( "\\D", "" ) );
 						}
 					}
-					
+
 					if( !hasIssue ) {
 						pattern = Pattern.compile( "No\\. \\d+" );
 						matcher = pattern.matcher( citation );
@@ -800,7 +835,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group().replaceAll( "\\D", "" ) );
 						}
 					}
-					
+
 					if( !hasSourceTitle ) {
 						pattern = Pattern.compile( ".+, Vol" );
 						matcher = pattern.matcher( citation );
@@ -822,7 +857,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group().replaceAll( "\\D", "" ) );
 						}
 					}
-					
+
 					if( !hasIssue ) {
 						pattern = Pattern.compile( " (n|v)\\d+" );
 						matcher = pattern.matcher( citation );
@@ -831,7 +866,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group().trim().replaceAll( "\\D", "" ) );
 						}
 					}
-					
+
 					if( !hasDate ) {
 						pattern = Pattern.compile( "( \\w{3})?( \\w{3}-\\w{3})?( \\d+)? \\d{4}$" );
 						matcher = pattern.matcher( citation );
@@ -840,7 +875,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group().trim() );
 						}
 					}
-					
+
 					if( !hasPages ) {
 						pattern = Pattern.compile( "\\d+-\\d+" );
 						matcher = pattern.matcher( citation );
@@ -858,7 +893,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group() );
 						}
 					}
-					
+
 					if( !hasIssue ) {
 						pattern = Pattern.compile( "; \\d+" );
 						matcher = pattern.matcher( citation );
@@ -867,7 +902,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group().replaceAll( "\\D", "" ) );
 						}
 					}
-					
+
 					if( !hasSourceTitle ) {
 						pattern = Pattern.compile( "; \\D+$" );
 						matcher = pattern.matcher( citation );
@@ -886,7 +921,7 @@ implements org.osid.repository.AssetIterator {
 									matcher.group().replaceAll( "\\D", "" ) );
 						}
 					}
-					
+
 					if( !hasIssue ) {
 						pattern = Pattern.compile( "\\(.+\\)" );
 						matcher = pattern.matcher( citation );
@@ -903,33 +938,33 @@ implements org.osid.repository.AssetIterator {
 			}
 		}
 	}
-	
+
 	private void createPagesPart( String text )
 	throws org.osid.repository.RepositoryException {
 		if( text.charAt( 0 ) == ',' ) {
 			// getting a poorly formatted field
 			return;
 		}
-		
+
 		record.createPart( PagesPartStructure.getInstance().getId(), text );
-		
+
 		// get start and end page if possible
 		String [] pages = text.split( "-" );
-		
+
 		if( pages.length == 0 ) {
 			// cannot create start/end page.
 			return;
 		}
 
 		String spage = pages[ 0 ].trim();
-		
+
 		// delete all non-digit chars (ie: p., pp., etc.)
 		spage = spage.replaceAll( "\\D", "" );
 
 		// create startPage part
 		record.createPart( StartPagePartStructure.getInstance().getId(),
 				spage );
-		
+
 		// end page
 		if( pages.length == 2 ) {
 			String epage = pages[ 1 ].trim();
@@ -938,7 +973,7 @@ implements org.osid.repository.AssetIterator {
 					epage );
 		}
 	}
-	
+
 	private String getId() {
 		return "asset" +
 		Math.random() * 1000 +
