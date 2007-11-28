@@ -316,6 +316,9 @@ public class SakaiMailet extends GenericMailet
 							StringBuilder bodyContentType = new StringBuilder();
 							Integer embedCount = parseParts(msg, id, bodyBuf, bodyContentType, attachments, new Integer(-1));
 							body = bodyBuf.toString();
+							// remove extra line breaks added by mac Mail, perhaps others
+							// characterized by a space followed by a line break
+							body = body.replaceAll(" \n", " ");
 							// treat the message exactly as-is - as plaintext. Stuff like "<b>" will appear
 							// to the users as "<b>", NOT as bolded text. Since the message service
 							// treats messages as formatted text, plaintext must be converted to formatted text encoding.
