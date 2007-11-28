@@ -4,17 +4,17 @@
  ***********************************************************************************
  *
  * Copyright (c) 2006, 2007 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -46,6 +46,12 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class XServer extends DefaultHandler {
+  //
+  // Number of records the Xserver should fetch at one time
+  //
+  // The is relevant for "merge_more/merge_more_set" activities
+  //
+  public static final int XSERVER_RECORDS_TO_FETCH = 10;
 
 	// debugging
 	boolean printXML = false;
@@ -206,12 +212,12 @@ public class XServer extends DefaultHandler {
 	/**
 	 * Logs a user into the X-server using URL Syntax for communications.
 	 * Uses the login X-service.
-	 * 
+	 *
 	 * @param username String representing user username
 	 * @param password String representing user password
-	 * 
+	 *
 	 * @return boolean true if authorization succeeds, false otherwise.
-	 * 
+	 *
 	 * @throws XServerException if login fails due to X-server error
 	 */
 	private boolean loginURL( String username, String password )
@@ -256,12 +262,12 @@ public class XServer extends DefaultHandler {
 	/**
 	 * Finds records within the given sources using the given find command
 	 * query.  Uses the find X-service.
-	 * 
+	 *
 	 * @param findCommand String representing find_request_command.  See
 	 *   <a href="http://searchtools.lib.umich.edu/X/?op=explain&func=find">
 	 *   find</a> explanation from MetaLib X-Server to see how
 	 *   find_request_command should be built.
-	 *   
+	 *
 	 * @param waitFlag String representing the wait_flag.  A "Y" indicates
 	 *   the X-server will not produce a response until the find command has
 	 *   completed.  Full information about the group and each search set will
@@ -270,7 +276,7 @@ public class XServer extends DefaultHandler {
 	 *   A "N" indicates the X-server will immediately respond with the group
 	 *   number while the find continues to run in the background.  The user
 	 *   can then use the findGroupInfo method to poll for results.
-	 * 
+	 *
 	 * @throws XServerException if find fails due to X-server error
 	 */
 	private void findURL( String findCommand, String waitFlag )
@@ -361,10 +367,10 @@ public class XServer extends DefaultHandler {
 	/**
 	 * Finds records within the given sources using the given find command
 	 * query.  Uses the find X-service.
-	 * 
+	 *
 	 * @param action valid values: merge, merge_more, remerge, sort_only
 	 * @param primarySortKey valid values: rank, title, author, year, database
-	 * 
+	 *
 	 * @throws XServerException if mergeSort fails due to X-server error
 	 */
 	private void mergeSortURL( String action, String primarySortKey )
@@ -376,12 +382,18 @@ public class XServer extends DefaultHandler {
 		}
 
 		// build URL query string
+		//
+		// Limit the number of records fetched to a predefined maximum,
+		// XSERVER_RECORDS_TO_FETCH.  This limit applies only to the
+		// merge_more and merge_more_set actions - it's ignored for others.
+		//
 		StringBuilder query = new StringBuilder( xserverBaseUrl );
 		query.append( "?op=merge_sort_request" +
 				"&group_number=" + foundGroupNumber +
 				"&action=" + action +
 				"&primary_sort_key=" + primarySortKey +
-				"&session_id=" + sessionId );
+				"&session_id=" + sessionId +
+				"&fetch_more_records=" + XSERVER_RECORDS_TO_FETCH );
 
 		// connect to URL and get response
 		java.io.ByteArrayOutputStream xml = doURLConnection( query.toString() );
@@ -413,12 +425,12 @@ public class XServer extends DefaultHandler {
 	/**
 	 * Presents records found in the given set.  Displays records in full MARC
 	 * format.
-	 * 
+	 *
 	 * @param setNumber identifier for a set to obtain records from
 	 * @param setEntry  how many/which records to present
 	 * @throws XServerException
 	 */
-	private ByteArrayOutputStream presentURL( String setNumber, String setEntry ) 
+	private ByteArrayOutputStream presentURL( String setNumber, String setEntry )
 	throws XServerException {
 
 		// build URL query string
@@ -461,7 +473,7 @@ public class XServer extends DefaultHandler {
 	/**
 	 * Returns a metasearchStatus Type Properties object describing this search's
 	 * status.
-	 * 
+	 *
 	 * @return metasearchStatus org.osid.shared.Properties
 	 */
 	public org.osid.shared.Properties getSearchStatusProperties() {
@@ -471,7 +483,7 @@ public class XServer extends DefaultHandler {
 
 	/**
 	 * Runs a blocking search of the X-Server and returns the response xml.
-	 * 
+	 *
 	 * @param numAssets number of records presented from the X-Server. Must be 0
 	 * or greater.
 	 * @return ByteArrayInputStream encapsulating response xml from the X-Server
@@ -488,7 +500,7 @@ public class XServer extends DefaultHandler {
 		// check session state
 		if( !checkSessionState() ) {
 			// throw invalid session exception (TODO use of RepositoryException = bad)
-			throw new org.osid.repository.RepositoryException( 
+			throw new org.osid.repository.RepositoryException(
 					org.sakaibrary.osid.repository.xserver.
 					MetasearchException.SESSION_TIMED_OUT );
 		}
@@ -542,12 +554,28 @@ public class XServer extends DefaultHandler {
 			// we've already returned all the records that the X-Server has.
 			// need to wait longer
 			// TODO - dangerous to throw a RepositoryException here...
-			throw new org.osid.repository.RepositoryException( 
+			throw new org.osid.repository.RepositoryException(
 					org.sakaibrary.osid.repository.xserver.
 					MetasearchException.ASSET_NOT_FETCHED );
 		}
 
 		int setEntryEndValue = numRecords.intValue();
+    //
+    // Ensure that our minimum page size is at least as large as the number
+    // of records the Xserver could return.  Based on that, determine the
+    // record count for two pages.
+    //
+    int minPage = Math.max(pageSize.intValue(), XSERVER_RECORDS_TO_FETCH);
+    int twoPage = (minPage * 2) + (setEntryStartValue - 1);
+    //
+    // Never cache more than two pages of results
+    //
+    if (setEntryEndValue > twoPage)
+    {
+      setEntryEndValue = twoPage;
+    }
+
+/* **** original code ***********
 		if( numRecords.intValue() >= pageSize.intValue() + setEntryStartValue - 1 ) {
 			setEntryEndValue = pageSize.intValue() + setEntryStartValue - 1;
 			if( numRecords.intValue() >= pageSize.intValue() * 2 + setEntryStartValue - 1 ) {
@@ -555,6 +583,7 @@ public class XServer extends DefaultHandler {
 				setEntryEndValue = pageSize.intValue() * 2 + setEntryStartValue - 1;
 			}
 		}
+** **** end original code ********/
 
 		setEntryEnd = df.format( setEntryEndValue );
 		LOG.debug( "getRecordsXML() - presenting records: " +
@@ -601,7 +630,7 @@ public class XServer extends DefaultHandler {
 		// check session state
 		if( !checkSessionState() ) {
 			// throw invalid session exception (TODO use of RepositoryException = bad)
-			throw new org.osid.repository.RepositoryException( 
+			throw new org.osid.repository.RepositoryException(
 					org.sakaibrary.osid.repository.xserver.
 					MetasearchException.SESSION_TIMED_OUT );
 		}
@@ -789,7 +818,7 @@ public class XServer extends DefaultHandler {
 	/**
 	 * Returns the list of find result sets found during this session.  This
 	 * method should be called only after calling the findURL method.
-	 * 
+	 *
 	 * @return array of FindResultSetBeans encapsulating a list of result sets
 	 * provided by the find X-service data
 	 */
@@ -804,7 +833,7 @@ public class XServer extends DefaultHandler {
 
 	/**
 	 * Receive notification of the beginning of an element.
-	 *   
+	 *
 	 * @see DefaultHandler
 	 */
 	public void startElement( String namespaceURI, String sName,
@@ -817,10 +846,10 @@ public class XServer extends DefaultHandler {
 
 	/**
 	 * Receive notification of the end of an element.
-	 *   
+	 *
 	 * @see DefaultHandler
 	 */
-	public void endElement( String namespaceURI, String sName, String qName ) 
+	public void endElement( String namespaceURI, String sName, String qName )
 	throws SAXException {
 		// extract data
 		extractDataFromText( qName );
@@ -833,7 +862,7 @@ public class XServer extends DefaultHandler {
 
 	/**
 	 * Receive notification of character data inside an element.
-	 *   
+	 *
 	 * @see DefaultHandler
 	 */
 	public void characters( char[] buf, int offset, int len )
@@ -971,7 +1000,7 @@ public class XServer extends DefaultHandler {
 
 	/**
 	 * Setup a URL Connection, get an InputStream for parsing
-	 * 
+	 *
 	 * @param urlQuery String with URL Query for X-server
 	 */
 	private ByteArrayOutputStream doURLConnection( String urlQuery )
@@ -1006,7 +1035,7 @@ public class XServer extends DefaultHandler {
 
 		return xml;
 	}
-	
+
 	private void wrapXServerException( String errorCode, String errorMsg ) throws XServerException
 	{
 		// update searchStatusProperties
@@ -1024,9 +1053,9 @@ public class XServer extends DefaultHandler {
 
 	/**
 	 * Initiate the SAX Parser with the given InputStream.
-	 * 
+	 *
 	 * @param is InputStream to parse
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws SAXException
 	 */
@@ -1039,7 +1068,7 @@ public class XServer extends DefaultHandler {
 
 	/**
 	 * Validate login X-service
-	 * 
+	 *
 	 * @return true if succesful, false otherwise
 	 */
 	private boolean loginSuccessful() {
