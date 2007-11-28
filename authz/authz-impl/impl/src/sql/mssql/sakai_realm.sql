@@ -355,6 +355,7 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'gradebook.viewOwnGrades
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'mail.delete.any')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'mail.new')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'mail.read')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'msg.emailout')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.create')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.edit')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'metaobj.export')
@@ -743,6 +744,8 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'gradebook.viewOwnGrades'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.emailout'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.student'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
@@ -1153,6 +1156,8 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.emailout'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.edit'
@@ -1529,6 +1534,8 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_c
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.emailout'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
@@ -4440,6 +4447,8 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.emailout'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.edit'
@@ -4599,6 +4608,8 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instruct
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.emailout'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
