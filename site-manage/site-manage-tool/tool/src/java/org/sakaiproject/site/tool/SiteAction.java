@@ -1644,6 +1644,14 @@ public class SiteAction extends PagedResourceActionII {
 					}
 					b.add(new MenuEntry(rb.getString("java.edittools"),
 							"doMenu_edit_site_tools"));
+					
+					// if the page order helper is available, not
+					// stealthed and not hidden, show the link
+					if (notStealthOrHiddenTool("sakai-site-pageorder-helper")) {
+						b.add(new MenuEntry(rb.getString("java.orderpages"),
+								"doPageOrderHelper"));
+					}
+					
 				}
 
 				if (allowUpdateSiteMembership) 
@@ -1732,13 +1740,6 @@ public class SiteAction extends PagedResourceActionII {
 								}
 							}
 						}
-					}
-
-					// if the page order helper is available, not
-					// stealthed and not hidden, show the link
-					if (notStealthOrHiddenTool("sakai-site-pageorder-helper")) {
-						b.add(new MenuEntry(rb.getString("java.orderpages"),
-								"doPageOrderHelper"));
 					}
 				}
 				
