@@ -9558,7 +9558,7 @@ public class AssignmentAction extends PagedResourceActionII
 						User[] users = s.getSubmitters();
 						if (users.length > 0 && users[0] != null)
 						{
-							submissionTable.put(users[0].getEid(), new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), s.getSubmittedAttachments(), s.getFeedbackAttachments(), (s.getSubmitted() && s.getTimeSubmitted() != null)?s.getTimeSubmitted().toString():"", s.getFeedbackText()));
+							submissionTable.put(users[0].getDisplayId(), new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), s.getSubmittedAttachments(), s.getFeedbackAttachments(), (s.getSubmitted() && s.getTimeSubmitted() != null)?s.getTimeSubmitted().toString():"", s.getFeedbackText()));
 						}
 					}
 				}
@@ -9640,7 +9640,7 @@ public class AssignmentAction extends PagedResourceActionII
 									        			User u = UserDirectoryService.getUserByEid(items[1]/*user eid*/);
 									        			if (u != null)
 									        			{
-										        			UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(u.getEid());
+										        			UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(u.getDisplayId());
 										        			if (w != null)
 										        			{
 										        				String itemString = items[4];
@@ -9656,7 +9656,7 @@ public class AssignmentAction extends PagedResourceActionII
 										        				if (state.getAttribute(STATE_MESSAGE) == null)
 										        				{
 											        				w.setGrade(gradeType == Assignment.SCORE_GRADE_TYPE?scalePointGrade(state, itemString):itemString);
-											        				submissionTable.put(u.getEid(), w);
+											        				submissionTable.put(u.getDisplayId(), w);
 										        				}
 										        			}
 									        			}
@@ -9785,7 +9785,7 @@ public class AssignmentAction extends PagedResourceActionII
 						User[] users = s.getSubmitters();
 						if (users.length > 0 && users[0] != null)
 						{
-							String uName = users[0].getEid();
+							String uName = users[0].getDisplayId();
 							if (submissionTable.containsKey(uName))
 							{
 								// update the AssignmetnSubmission record
@@ -9844,16 +9844,20 @@ public class AssignmentAction extends PagedResourceActionII
 									}
 									
 									// release or not
-									sEdit.setGradeReleased(releaseGrades);
-									sEdit.setReturned(releaseGrades);
-									if (releaseGrades)
+									if (sEdit.getGraded())
+									{
+										sEdit.setGradeReleased(releaseGrades);
+										sEdit.setReturned(releaseGrades);
+									}
+									else
+									{
+										sEdit.setGradeReleased(false);
+										sEdit.setReturned(false);
+									}
+									
+									if (releaseGrades && sEdit.getGraded())
 									{
 										sEdit.setTimeReturned(TimeService.newTime());
-										// update grade in gradebook
-										if (associateGradebookAssignment != null)
-										{
-											integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sEdit.getReference(), "update");
-										}
 									}
 									
 									// if the current submission lacks timestamp while the timestamp exists inside the zip file
@@ -9863,8 +9867,22 @@ public class AssignmentAction extends PagedResourceActionII
 										sEdit.setSubmitted(true);
 									}
 									
+									// for further information
+									boolean graded = sEdit.getGraded();
+									String sReference = sEdit.getReference();
+									
 									// commit
 									AssignmentService.commitEdit(sEdit);
+									
+									if (releaseGrades && graded)
+									{
+										// update grade in gradebook
+										if (associateGradebookAssignment != null)
+										{
+											integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "update");
+										}
+									}
+									
 								}
 								catch (Exception ee)
 								{
