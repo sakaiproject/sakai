@@ -53,6 +53,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.LockManager;
 import org.sakaiproject.content.impl.BaseContentService.BaseResourceEdit;
+import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobCollectionConversionHandler;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -134,6 +135,11 @@ public class DbContentService extends BaseContentService
 	 * The extra field(s) to write to the database - resources - when we are doing bodys the db with the context-query conversion.
 	 */
 	protected static final String[] RESOURCE_FIELDS_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID"};
+
+	
+	private static final String[] BASE_COLLECTION_IDS = new String[]{
+		"/","/attachment/","/group-user/","/group/","/private/","/public/","/user/"   
+	};
 
 	/** Table name for resources delete. */
 	protected String m_resourceDeleteTableName = "CONTENT_RESOURCE_DELETE";
@@ -395,7 +401,14 @@ public class DbContentService extends BaseContentService
 	
 				M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName + " "
 						+ m_groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath);
+				
+				
+				
+				
+				
+				
 			}
+			
 			
 		}
 		catch (Throwable t)
@@ -840,6 +853,7 @@ public class DbContentService extends BaseContentService
 	 ************************************************************************************************************************************************/
 	protected class DbStorage implements Storage
 	{
+
 		/** A storage for collections. */
 		protected DbSingleStorage m_collectionStore = null;
 
@@ -877,6 +891,8 @@ public class DbContentService extends BaseContentService
 			Connection connection = null;
 			Statement statement = null;
 			ResultSet rs = null;
+			PreparedStatement updateStatement = null;
+			PreparedStatement selectStatement = null;
 			boolean binaryCollection = false;
 			boolean xmlCollection = true;
 			boolean binaryResource = false;
@@ -922,6 +938,44 @@ public class DbContentService extends BaseContentService
 					xmlDelete= true;
 				} catch ( Exception ex ) {
 					xmlDelete = false;
+				}
+				
+				if ( migrateData && binaryCollection && xmlCollection ) {
+
+					
+					// migrate the base XML entities
+					Type1BlobCollectionConversionHandler t1ch = new Type1BlobCollectionConversionHandler();
+					
+					selectStatement = connection.prepareStatement("select XML from CONTENT_COLLECTION where BINARY_ENTITY IS NULL AND COLLECTION_ID = ? ");
+					updateStatement = connection.prepareStatement("update CONTENT_COLLECTION set XML = NULL, BINARY_ENTITY = ?  where COLLECTION_ID = ? ");
+					for ( String collectionid : BASE_COLLECTION_IDS ) {
+						M_log.info("Migrating "+collectionid);
+						selectStatement.clearParameters();
+						selectStatement.setString(1, collectionid);
+						rs = selectStatement.executeQuery();
+						if ( rs.next() ) {
+							String xml = rs.getString(1);
+							boolean bnull = rs.wasNull();
+							rs.close();
+							if ( !bnull && xml != null  ) {
+								updateStatement.clearParameters();
+								if ( t1ch.convertSource(collectionid, xml, updateStatement) ) {
+									updateStatement.executeUpdate();
+									M_log.info("Migrated "+collectionid);
+								} else {
+									M_log.info("XML Pase failed "+collectionid);
+												
+								}
+							} else {
+								M_log.info("Already Done "+collectionid+" "+bnull);
+							}
+						} else {
+							M_log.info("Didnt Find "+collectionid);
+							rs.close();
+						}
+					}
+					connection.commit();
+
 				}
 				
 				if ( !migrateData && binaryCollection ) {
@@ -982,7 +1036,10 @@ public class DbContentService extends BaseContentService
 				M_log.warn("Unable to get database setatemnt ",e);
 				
 			} finally {
+				try { rs.close(); } catch ( Exception ex ) {}
 				try { statement.close(); } catch ( Exception ex ) {}
+				try { selectStatement.close(); } catch ( Exception ex ) {}
+				try { updateStatement.close(); } catch ( Exception ex ) {}
 				m_sqlService.returnConnection(connection);
 			}
 			

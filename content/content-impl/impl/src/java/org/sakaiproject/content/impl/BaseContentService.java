@@ -963,6 +963,16 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			collectionSerializer.parse(bce,blob);
 			return bce;
 		}
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.entity.api.serialize.EntityReaderHandler#parse(org.sakaiproject.entity.api.Entity, java.lang.String, byte[])
+		 */
+		public Entity parse(Entity container, String xml, byte[] blob) throws EntityParseException
+		{
+			BaseCollectionEdit bce = new BaseCollectionEdit();
+			collectionSerializer.parse(bce,blob);
+			return bce;
+		}
+
 
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.util.EntityReader#toString(org.sakaiproject.entity.api.Entity)
@@ -999,6 +1009,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			this.entityReaderAdapter = entityReaderAdapter;
 		}
+
 
 
 
@@ -1247,6 +1258,16 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			resourceSerializer.parse(bre,blob);
 			return bre;
 		}
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.entity.api.serialize.EntityReaderHandler#parse(org.sakaiproject.entity.api.Entity, java.lang.String, byte[])
+		 */
+		public Entity parse(Entity container, String xml, byte[] blob) throws EntityParseException
+		{
+			BaseResourceEdit bre = new BaseResourceEdit();
+			resourceSerializer.parse(bre,blob);
+			return bre;
+		}
+
 
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.util.EntityReader#toString(org.sakaiproject.entity.api.Entity)
@@ -1282,6 +1303,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			this.entityReaderAdapter = entityReaderAdapter;
 		}
+
 
 
 
