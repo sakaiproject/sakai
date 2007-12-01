@@ -637,6 +637,19 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		this.convertToContextQueryForCollectionSize = convertToContextQueryForCollectionSize;
 	}
 
+
+	private boolean m_primaryContentService = true;
+
+	public void setPrimaryContentService(boolean primaryContentService) 
+	{
+		m_primaryContentService = primaryContentService;
+	}
+	
+	public boolean getPrimaryContentService() 
+	{
+		return m_primaryContentService;
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -702,20 +715,22 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 
 			// register as an entity producer
-			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
+			if ( m_primaryContentService ) {
+				m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
-			// register functions
-			FunctionManager.registerFunction(AUTH_RESOURCE_ADD);
-			FunctionManager.registerFunction(AUTH_RESOURCE_READ);
-			FunctionManager.registerFunction(AUTH_RESOURCE_WRITE_ANY);
-			FunctionManager.registerFunction(AUTH_RESOURCE_WRITE_OWN);
-			FunctionManager.registerFunction(AUTH_RESOURCE_REMOVE_ANY);
-			FunctionManager.registerFunction(AUTH_RESOURCE_REMOVE_OWN);
-			FunctionManager.registerFunction(AUTH_RESOURCE_ALL_GROUPS);
-			FunctionManager.registerFunction(AUTH_RESOURCE_HIDDEN);
+				// register functions
+				FunctionManager.registerFunction(AUTH_RESOURCE_ADD);
+				FunctionManager.registerFunction(AUTH_RESOURCE_READ);
+				FunctionManager.registerFunction(AUTH_RESOURCE_WRITE_ANY);
+				FunctionManager.registerFunction(AUTH_RESOURCE_WRITE_OWN);
+				FunctionManager.registerFunction(AUTH_RESOURCE_REMOVE_ANY);
+				FunctionManager.registerFunction(AUTH_RESOURCE_REMOVE_OWN);
+				FunctionManager.registerFunction(AUTH_RESOURCE_ALL_GROUPS);
+				FunctionManager.registerFunction(AUTH_RESOURCE_HIDDEN);
 
-			FunctionManager.registerFunction(AUTH_DROPBOX_OWN);
-			FunctionManager.registerFunction(AUTH_DROPBOX_MAINTAIN);
+				FunctionManager.registerFunction(AUTH_DROPBOX_OWN);
+				FunctionManager.registerFunction(AUTH_DROPBOX_MAINTAIN);
+			}
 
 			M_log.info("init(): site quota: " + m_siteQuota + " body path: " + m_bodyPath + " volumes: "
 					+ buf.toString());

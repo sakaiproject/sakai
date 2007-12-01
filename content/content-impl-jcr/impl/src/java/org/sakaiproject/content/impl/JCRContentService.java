@@ -349,6 +349,6 @@ public class JCRContentService extends DbContentService
 	@Override
 	public void addResourceToDeleteTable(ContentResourceEdit edit, String uuid, String userId) throws PermissionException
 	{
-		log.warn("Delete table not implemented in JCR, managed by persistance manger ");
+		log.debug("Delete table not implemented in JCR, managed by persistance manger ");
 	}
 }

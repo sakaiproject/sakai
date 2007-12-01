@@ -81,6 +81,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	private ThreadLocal<Stack<ContentHostingService>> selectedService = new ThreadLocal<Stack<ContentHostingService>>();
 
 	private ContentHostingService defaultContentHostingService = null;
+
+	private List<ContentHostingService> contentHostingServices = null;
 	
 	public ContentHostingService getService()
 	{
@@ -136,7 +138,30 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	}
 
 	public void init() {
-		
+		int i = 0;
+		for ( ContentHostingService chs : contentHostingServices ) 
+		{
+			if ( chs.getPrimaryContentService() ) {
+				defaultContentHostingService = chs;	
+				log.info("Selected Default Service as "+chs);
+				i++;
+			}
+		}
+		if ( i != 1 ) {
+			log.fatal("Only One ContentHostingService can be marked as primary");
+			System.exit(-10);
+		}
+	}
+
+
+	public void setContentHostingServices(List<ContentHostingService> contentHostingServices ) 
+	{
+		this.contentHostingServices = contentHostingServices;
+	}
+
+	public List<ContentHostingService> getContentHostingServices() 
+	{
+		return contentHostingServices;
 	}
 	
 	public void destory() {
@@ -2139,4 +2164,9 @@ public class ContentHostingMultiplexService implements ContentHostingService
 		}
 	}
 
+
+	public boolean getPrimaryContentService()
+	{
+		return true;
+	}
 }

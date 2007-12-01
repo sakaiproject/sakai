@@ -582,7 +582,8 @@ public class JCRStorage implements Storage
 				Entity ce =  m_resourceStore.getResource(id);
 				if ( ce != null ) {
 					if ( ! (ce instanceof ContentResource) ) {
-						log.error("=================RESORUCE is not a RESOURCE ");
+						// CHS tries to see if urls not ending in a / are resources first
+						if ( log.isDebugEnabled() ) log.debug("=================RESORUCE is not a RESOURCE "+id);
 					} else {
 						cr = (ContentResource) ce;
 					}

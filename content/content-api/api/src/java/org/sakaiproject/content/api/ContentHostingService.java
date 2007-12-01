@@ -1665,4 +1665,8 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page);
 
+	/**
+	 * returns true if the serivce is the primary service 
+         */
+	public boolean getPrimaryContentService();
 }

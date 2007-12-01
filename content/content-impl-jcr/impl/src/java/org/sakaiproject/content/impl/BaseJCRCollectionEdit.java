@@ -84,7 +84,8 @@ public class BaseJCRCollectionEdit extends BaseCollectionEdit
 	 */
 	public void setNode(Node node)
 	{
-		log.info("Setting Node on "+this+" to "+node);
+		if ( log.isDebugEnabled() )
+			log.debug("Setting Node on "+this+" to "+node);
 		this.node = node;
 	}
 

@@ -11,7 +11,10 @@
 			class="org.sakaiproject.content.impl.JCRContentService"
 			init-method="init"
 			destroy-method="destroy"
-			singleton="true">
+	  		singleton="true">
+
+        <property name="primaryContentService"><value>true</value></property>
+
 
 		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 		<property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
@@ -43,6 +46,19 @@
 		<property name="storage"><ref bean="org.sakaiproject.content.api.ContentHostingService.storage" /></property>
 		
   	</bean>
+
+        <bean id="org.sakaiproject.content.impl.DropboxContextObserver.jcrservice"
+                        class="org.sakaiproject.content.impl.DropboxContextObserver"
+            init-method="init" destroy-method="destroy" singleton="true">
+            
+        <property name="contentService">
+                <ref bean="org.sakaiproject.content.api.ContentHostingService.jcrservice"/>
+                </property>
+        <property name="entityManager">
+                <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+                </property>
+        </bean>
+
 
 
 	<bean id="org.sakaiproject.content.api.ContentHostingService.storage" 
