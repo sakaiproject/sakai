@@ -2167,6 +2167,18 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			assignment = AssignmentService.getAssignment((String) state.getAttribute(VIEW_ASSIGNMENT_ID));
 			context.put("assignment", assignment);
+			
+			// the creator 
+			String creatorId = assignment.getCreator();
+			try
+			{
+				User creator = UserDirectoryService.getUser(creatorId);
+				context.put("creator", creator.getDisplayName());
+			}
+			catch (Exception ee)
+			{
+				context.put("creator", creatorId);
+			}
 		}
 		catch (IdUnusedException e)
 		{
@@ -2207,9 +2219,6 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("hideAssignmentFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_ASSIGNMENT_FLAG));
 		context.put("hideStudentViewFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_STUDENT_VIEW_FLAG));
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
-
-		// the user directory service
-		context.put("userDirectoryService", UserDirectoryService.getInstance());
 
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_VIEW_ASSIGNMENT;
