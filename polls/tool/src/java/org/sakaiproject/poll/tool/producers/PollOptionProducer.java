@@ -29,6 +29,7 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIELBinding;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 //import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIForm;
@@ -146,6 +147,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 			m_log.debug("got a paramater with id: " + new Long(aivp.id));
 			// passed in an id so we should be modifying an item if we can find it
 			option = pollListManager.getOptionById(new Long(aivp.id));
+			UIMessage.make(tofill,"new-option-title","edit_option_title");
 		} else {
 			option = new Option();
 			if (aivp.pollId != null)
@@ -154,6 +156,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 				option.setPollId(voteBean.getPoll().getPollId());
 				
 			newOption = true;
+			UIMessage.make(tofill,"new-option-title","new_option_title");
 		}
 		
 
