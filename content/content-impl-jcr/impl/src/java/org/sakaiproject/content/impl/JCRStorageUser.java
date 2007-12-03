@@ -268,28 +268,31 @@ public class JCRStorageUser implements LiteStorageUser
 				setJCRProperty(DAVConstants.DAV_GETCONTENTLENGTH, bedit
 						.getContentLength(), n);
 				setJCRProperty(DAVConstants.DAV_GETCONTENTTYPE, bedit.getContentType(), n);
+								
 				setJCRProperty(
 						convertEntityName2JCRName(SakaiConstants.SAKAI_RESOURCE_TYPE),
 						bedit.getResourceType(), n);;
 				setJCRProperty(convertEntityName2JCRName(SakaiConstants.SAKAI_FILE_PATH),
-						bedit.m_filePath, n);;
+						bedit.m_filePath, n);
+				
+				Node content = null;
+				if (n.hasNode(JCRConstants.JCR_CONTENT))
+				{						
+					content = n.getNode(JCRConstants.JCR_CONTENT);
+				}
+				else
+				{
+					content = n.addNode(JCRConstants.JCR_CONTENT,
+								JCRConstants.NT_RESOURCE);
+				}
 				if (bedit.m_body != null)
 				{
-					Node content = null;
-					if (n.hasNode(JCRConstants.JCR_CONTENT))
-					{
-						content = n.getNode(JCRConstants.JCR_CONTENT);
-					}
-					else
-					{
-						content = n.addNode(JCRConstants.JCR_CONTENT,
-								JCRConstants.NT_RESOURCE);
-					}
 					log.warn("Setting Content from Byte Array in Memory, size: "
 							+ bedit.m_body.length);
 					content.setProperty(JCRConstants.JCR_DATA, new ByteArrayInputStream(
 							bedit.m_body));
 				}
+				content.setProperty(JCRConstants.JCR_MIMETYPE, bedit.getContentType());	
 			}
 		}
 
@@ -409,6 +412,14 @@ public class JCRStorageUser implements LiteStorageUser
 					Property p = content.getProperty(JCRConstants.JCR_DATA);
 					bedit.m_contentLength = (int) p.getLength();
 					rp.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, String.valueOf(bedit.m_contentLength));
+					p = content.getProperty(JCRConstants.JCR_MIMETYPE);
+					if ( p != null ) {
+						bedit.m_contentType = p.getString();
+						log.info("Content type set to "+bedit.m_contentType);
+					} else {
+						bedit.m_contentType = "application/octet-stream";
+						log.info("Content default to "+bedit.m_contentType);
+					}
 				}
 				else if (n.hasProperty(DAVConstants.DAV_GETCONTENTLENGTH))
 				{
@@ -424,6 +435,7 @@ public class JCRStorageUser implements LiteStorageUser
 					rp.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, String.valueOf(bedit.m_contentLength));
 				}
 
+				// could optimize this property away
 				if (n
 						.hasProperty(convertEntityName2JCRName(SakaiConstants.SAKAI_RESOURCE_TYPE)))
 				{
@@ -819,6 +831,7 @@ public class JCRStorageUser implements LiteStorageUser
 		resourceConverterMap.put(SakaiConstants.SAKAI_HIDDEN, nullConverter);
 		resourceConverterMap.put(SakaiConstants.DAV_CONTENT_LENGTH, nullConverter);
 		resourceConverterMap.put(SakaiConstants.DAV_CONTENT_TYPE, nullConverter);
+		resourceConverterMap.put(ResourceProperties.PROP_CONTENT_TYPE,nullConverter);
 		resourceConverterMap.put(SakaiConstants.SAKAI_RESOURCE_TYPE, nullConverter);
 		resourceConverterMap.put(SakaiConstants.SAKAI_FILE_PATH, nullConverter);
 		resourceConverterMap.put(ResourceProperties.PROP_DISPLAY_NAME, nullConverter);
