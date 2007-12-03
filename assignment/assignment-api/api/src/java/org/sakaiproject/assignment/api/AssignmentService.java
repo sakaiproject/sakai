@@ -270,6 +270,14 @@ public interface AssignmentService extends EntityProducer
 	 */
 	public List allowAddSubmissionUsers(String assignmentReference);
 	
+	 /* Get the List of Users who can grade submission for this assignment.
+	 * 
+	 * @param assignmentReference -
+	 *        a reference to an assignment
+	 * @return the List (User) of users who can grade submission for this assignment.
+	 */
+	public List allowGradeAssignmentUsers(String assignmentReference);
+	
 	/**
 	 * Get the list of users who can add submission for at lease one assignment within the context
 	 * @param context the context string
