@@ -1,0 +1,9 @@
+/* scorm.css : Styles for scorm console */
+div.actionList {
+	color:#888888;
+	font-family:verdana,arial;
+	font-size:0.85em;
+	line-height:1.6em;
+	margin:0.1em 0pt 0pt 1.5em;
+	padding:2px;
+}

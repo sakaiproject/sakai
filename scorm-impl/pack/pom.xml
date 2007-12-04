@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+        <modelVersion>4.0.0</modelVersion>
+        <parent>
+                <artifactId>scorm-base</artifactId>
+                <groupId>org.sakaiproject</groupId>
+                <version>M2</version>
+                <relativePath>../../pom.xml</relativePath>
+        </parent>
+        <name>sakai-scorm-pack</name>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-scorm-pack</artifactId>
+        <description>
+          This project packs the components used by the Sakai Scorm Tool
+        </description>
+        <packaging>sakai-component</packaging>
+	<properties>
+		<deploy.target>components</deploy.target>
+	</properties>
+
+    	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-scorm-adl-impl</artifactId>
+			<version>${sakai.version}</version>
+			<type>jar</type>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-scorm-content-impl</artifactId>
+			<version>${sakai.version}</version>
+			<type>jar</type>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-scorm-client-impl</artifactId>
+			<version>${sakai.version}</version>
+			<type>jar</type>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-scorm-model-impl</artifactId>
+			<version>${sakai.version}</version>
+			<type>jar</type>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-scorm-service-impl</artifactId>
+			<version>${sakai.version}</version>
+			<type>jar</type>
+		</dependency>
+		
+		<dependency>
+			<groupId>xerces</groupId>
+    		<artifactId>xercesImpl</artifactId>
+    		<version>2.6.2</version>
+    		<type>jar</type>
+    		<scope>runtime</scope>
+		</dependency>
+		
+		<dependency>
+    		<groupId>xalan</groupId>
+    		<artifactId>xalan</artifactId>
+    		<version>2.6.0</version>
+    		<type>jar</type>
+    		<scope>runtime</scope>
+		</dependency>
+		
+		<dependency>
+      		<groupId>xerces</groupId>
+      		<artifactId>xmlParserAPIs</artifactId>
+      		<version>2.6.2</version>
+      		<type>jar</type>
+      		<scope>runtime</scope>
+    	</dependency>
+	
+	</dependencies>
+	
+</project>

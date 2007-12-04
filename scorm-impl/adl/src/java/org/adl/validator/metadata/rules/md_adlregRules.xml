@@ -1,0 +1,698 @@
+<rules type="metadata" appprof="adlreg">
+
+   <!-- Revisit - are Best Practice Vocabularies treated as they were in SCORM 2nd Edition -->
+
+   <!-- mandatory -->
+   <element name="lom" path="">
+     <min>1</min>
+     <max>1</max>
+     <datatype>parent</datatype>
+   </element>
+
+   <!-- mandatory -->
+   <element name="general" path="lom">
+     <min>1</min>
+     <max>1</max>
+     <datatype>parent</datatype>
+   </element>
+
+   <element name="identifier" path="lom.general">
+      <min>0</min>
+      <max>10</max>
+     <datatype>parent</datatype>
+   </element>
+
+   <!-- optional, but special case that if identifier exist, than best practice that catalog exists  -->
+   <element name="catalog" path="lom.general.identifier">
+      <min>0</min>
+      <max>1</max>
+      <spm>1000</spm>
+      <datatype>text</datatype>
+   </element>
+
+   <!-- optional, but special case that if identifier exist, than best practice that entry exists  -->
+   <element name="entry" path="lom.general.identifier">
+      <min>0</min>
+      <max>1</max>
+      <spm>1000</spm>
+      <datatype>text</datatype>
+   </element>
+
+   <!-- mandatory -->
+   <element name="title" path="lom.general">
+      <min>1</min>
+      <max>1</max>
+      <spm>1000</spm>
+      <datatype>langstring</datatype>
+   </element>
+
+   <element name="language" path="lom.general">
+      <min>0</min>
+      <max>10</max>
+      <spm>100</spm>
+      <datatype>text</datatype>
+   </element>
+
+   <!-- mandatory -->
+   <element name="description" path="lom.general">
+      <min>1</min>
+      <max>10</max>
+      <spm>2000</spm>
+      <datatype>langstring</datatype>
+   </element>
+
+   <!-- mandatory -->
+   <element name="keyword" path="lom.general">
+      <min>1</min>
+      <max>10</max>
+      <spm>1000</spm>
+      <datatype>langstring</datatype>
+   </element>
+
+   <element name="coverage" path="lom.general">
+      <min>0</min>
+      <max>10</max>
+      <spm>1000</spm>
+      <datatype>langstring</datatype>
+   </element>
+
+   <element name="structure" path="lom.general">
+      <min>0</min>
+      <max>1</max>
+      <datatype>restrictedvocabulary</datatype>
+      <vocab>atomic</vocab>
+      <vocab>collection</vocab>
+      <vocab>networked</vocab>
+      <vocab>hierarchical</vocab>
+      <vocab>linear</vocab>
+   </element>
+
+   <element name="aggregationLevel" path="lom.general">
+      <min>0</min>
+      <max>1</max>
+      <datatype>restrictedvocabulary</datatype>
+      <vocab>1</vocab>
+      <vocab>2</vocab>
+      <vocab>3</vocab>
+      <vocab>4</vocab>
+   </element>
+
+   <!-- mandatory -->
+   <element name="lifeCycle" path="lom">
+     <min>1</min>
+     <max>1</max>
+     <datatype>parent</datatype>
+   </element>
+
+   <!-- mandatory -->
+   <element name="version" path="lom.lifeCycle">
+      <min>1</min>
+      <max>1</max>
+      <spm>50</spm>
+      <datatype>langstring</datatype>
+   </element>
+
+   <element name="status" path="lom.lifeCycle">
+      <min>0</min>
+      <max>1</max>
+      <datatype>restrictedvocabulary</datatype>
+      <vocab>draft</vocab>
+      <vocab>final</vocab>
+      <vocab>revised</vocab>
+      <vocab>unavailable</vocab>
+   </element>
+
+   <!-- optional, but special case best practice where role must contain at least one author -->
+   <element name="contribute" path="lom.lifeCycle">
+      <min>0</min>
+      <max>30</max>
+      <datatype>parent</datatype>
+   </element>
+
+   <!-- optional, but special case where if contribute exists, than role must exist with at least one author --> 
+   <!-- revisit, may be best practice that at least one role exists as author -->
+   <element name="role" path="lom.lifeCycle.contribute">
+      <min>0</min>
+      <max>1</max>
+      <datatype>bestpracticevocabulary</datatype>
+      <vocab>author</vocab>
+      <vocab>publisher</vocab>
+      <vocab>unknown</vocab>
+      <vocab>initiator</vocab>
+      <vocab>terminator</vocab>
+      <vocab>validator</vocab>
+      <vocab>editor</vocab>
+      <vocab>graphical designer</vocab>
+      <vocab>technical implementer</vocab>
+      <vocab>content provider</vocab>
+      <vocab>technical validator</vocab>
+      <vocab>educational validator</vocab>
+      <vocab>script writer</vocab>
+      <vocab>instructional designer</vocab>
+      <vocab>subject matter expert</vocab>
+   </element>
+
+   <!-- optional, but special case that if contribute exist, than best practice that entity exists  -->
+   <element name="entity" path="lom.lifeCycle.contribute">
+      <min>0</min>
+      <max>40</max>
+      <spm>1000</spm>
+      <datatype>text</datatype>
+   </element>
+
+   <element name="date" path="lom.lifeCycle.contribute">
+      <min>0</min>
+      <max>1</max>
+      <datatype>datetime</datatype>
+   </element>
+
+   <!-- mandatory -->
+   <element name="metaMetadata" path="lom">
+      <min>1</min>
+      <max>1</max>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="identifier" path="lom.metaMetadata">
+      <min>0</min>
+      <max>10</max>
+     <datatype>parent</datatype>
+   </element>
+
+   <!-- optional, but special case that if identifier exist, than best practice that catalog exists  -->
+   <element name="catalog" path="lom.metaMetadata.identifier">
+       <min>0</min>
+       <max>1</max>
+       <spm>1000</spm>
+      <datatype>text</datatype>
+   </element>
+
+    <!-- optional, but special case that if identifier exist, than best practice that entry exists  -->
+    <element name="entry" path="lom.metaMetadata.identifier">
+       <min>0</min>
+       <max>1</max>
+       <spm>1000</spm>
+      <datatype>text</datatype>
+    </element>
+
+    <element name="contribute" path="lom.metaMetadata">
+       <min>0</min>
+       <max>10</max>
+      <datatype>parent</datatype>
+    </element>
+
+   <!-- optional, but special case that if contribute exist, than best practice that role exists  -->
+    <element name="role" path="lom.metaMetadata.contribute">
+       <min>0</min>
+       <max>1</max>
+       <datatype>bestpracticevocabulary</datatype>
+       <vocab>creator</vocab>
+       <vocab>validator</vocab>
+    </element>
+
+    <!-- optional, but special case that if contribute exist, than best practice that entity exists  -->
+    <element name="entity" path="lom.metaMetadata.contribute">
+       <min>0</min>
+       <max>10</max>
+       <spm>1000</spm>
+      <datatype>text</datatype>
+    </element>
+
+    <element name="date" path="lom.metaMetadata.contribute">
+       <min>0</min>
+       <max>1</max>
+      <datatype>datetime</datatype>
+    </element>
+
+    <!-- mandatory -->
+    <!-- REVISIT, not sure what the controlled voc will be here-->
+    <element name="metadataSchema" path="lom.metaMetadata">
+       <min>2</min>
+       <max>10</max>
+       <spm>30</spm>
+      <datatype>metadataschema</datatype>
+      <vocab>LOMv1.0</vocab>
+      <vocab>ADLv1.0</vocab>
+    </element>
+
+    <element name="language" path="lom.metaMetadata">
+       <min>0</min>
+       <max>1</max>
+       <spm>100</spm>
+      <datatype>text</datatype>
+    </element>
+
+    <!-- mandatory -->
+    <element name="technical" path="lom">
+       <min>1</min>
+       <max>1</max>
+      <datatype>parent</datatype>
+    </element>
+
+    <!-- mandatory -->
+    <element name="format" path="lom.technical">
+       <min>1</min>
+       <max>40</max>
+       <spm>500</spm>
+      <datatype>text</datatype>
+    </element>
+
+     <element name="size" path="lom.technical">
+        <min>0</min>
+        <max>1</max>
+        <spm>30</spm>
+        <datatype>text</datatype>
+     </element>
+
+     <element name="location" path="lom.technical">
+        <min>0</min>
+        <max>10</max>
+        <spm>1000</spm>
+        <datatype>text</datatype>
+     </element>
+
+     <element name="requirement" path="lom.technical">
+        <min>0</min>
+        <max>40</max>
+        <datatype>parent</datatype>
+     </element>
+
+     <element name="orComposite" path="lom.technical.requirement">
+       <min>0</min>
+       <max>40</max>
+       <datatype>parent</datatype>
+     </element>
+
+     <element name="type" path="lom.technical.requirement.orComposite">
+        <min>0</min>
+        <max>1</max>
+        <datatype>nametypepair</datatype>
+        <vocab>operating system</vocab>
+        <vocab>browser</vocab>
+     </element>
+
+     <element name="name" path="lom.technical.requirement.orComposite">
+        <min>0</min>
+        <max>1</max>
+        <datatype>nametypepair</datatype>
+        <vocab>pc-dos</vocab>
+        <vocab>ms-windows</vocab>
+        <vocab>macos</vocab>
+        <vocab>unix</vocab>
+        <vocab>multi-os</vocab>
+        <vocab>none</vocab>
+        <vocab>any</vocab>
+        <vocab>netscape communicator</vocab>
+        <vocab>ms-internet explorer</vocab>
+        <vocab>opera</vocab>
+        <vocab>amaya</vocab>
+     </element>
+
+     <element name="minimumVersion" path="lom.technical.requirement.orComposite">
+        <min>0</min>
+        <max>1</max>
+        <spm>30</spm>
+        <datatype>text</datatype>
+     </element>
+
+     <element name="maximumVersion" path="lom.technical.requirement.orComposite">
+        <min>0</min>
+        <max>1</max>
+        <spm>30</spm>
+        <datatype>text</datatype>
+     </element>
+
+     <element name="installationRemarks" path="lom.technical">
+        <min>0</min>
+        <max>1</max>
+        <spm>1000</spm>
+        <datatype>langstring</datatype>
+     </element>
+
+     <element name="otherPlatformRequirements" path="lom.technical">
+        <min>0</min>
+        <max>1</max>
+        <spm>1000</spm>
+        <datatype>langstring</datatype>
+     </element>
+
+     <element name="duration" path="lom.technical">
+        <min>0</min>
+        <max>1</max>
+        <datatype>duration</datatype>
+     </element>
+
+    <element name="educational" path="lom">
+       <min>0</min>
+       <max>100</max>
+       <datatype>parent</datatype>
+    </element>
+
+    <element name="interactivityType" path="lom.educational">
+       <min>0</min>
+       <max>1</max>
+       <datatype>restrictedvocabulary</datatype>
+       <vocab>active</vocab>
+       <vocab>expositive</vocab>
+       <vocab>mixed</vocab>
+    </element>
+
+     <element name="learningResourceType" path="lom.educational">
+        <min>0</min>
+        <max>10</max>
+        <datatype>bestpracticevocabulary</datatype>
+        <vocab>exercise</vocab>
+        <vocab>simulation</vocab>
+        <vocab>questionnaire</vocab>
+        <vocab>diagram</vocab>
+        <vocab>figure</vocab>
+        <vocab>graph</vocab>
+        <vocab>index</vocab>
+        <vocab>slide</vocab>
+        <vocab>table</vocab>
+        <vocab>narrative text</vocab>
+        <vocab>exam</vocab>
+        <vocab>experiment</vocab>
+        <vocab>problem statement</vocab>
+        <vocab>self assessment</vocab>
+        <vocab>lecture</vocab>
+     </element>
+
+     <element name="interactivityLevel" path="lom.educational">
+        <min>0</min>
+        <max>1</max>
+        <datatype>restrictedvocabulary</datatype>
+        <vocab>very low</vocab>
+        <vocab>low</vocab>
+        <vocab>medium</vocab>
+        <vocab>high</vocab>
+        <vocab>very high</vocab>
+     </element>
+
+     <element name="semanticDensity" path="lom.educational">
+        <min>0</min>
+        <max>1</max>
+        <datatype>restrictedvocabulary</datatype>
+        <vocab>very low</vocab>
+        <vocab>low</vocab>
+        <vocab>medium</vocab>
+        <vocab>high</vocab>
+        <vocab>very high</vocab>
+     </element>
+
+     <element name="intendedEndUserRole" path="lom.educational">
+        <min>0</min>
+        <max>10</max>
+        <datatype>restrictedvocabulary</datatype>
+        <vocab>teacher</vocab>
+        <vocab>author</vocab>
+        <vocab>learner</vocab>
+        <vocab>manager</vocab>
+     </element>
+
+     <element name="context" path="lom.educational">
+        <min>0</min>
+        <max>10</max>
+        <datatype>bestpracticevocabulary</datatype>
+        <vocab>school</vocab>
+        <vocab>higher education</vocab>
+        <vocab>training</vocab>
+        <vocab>other</vocab>
+     </element>
+
+     <element name="typicalAgeRange" path="lom.educational">
+        <min>0</min>
+        <max>5</max>
+        <spm>1000</spm>
+        <datatype>langstring</datatype>
+     </element>
+
+     <element name="difficulty" path="lom.educational">
+        <min>0</min>
+        <max>1</max>
+        <datatype>restrictedvocabulary</datatype>
+        <vocab>very easy</vocab>
+        <vocab>easy</vocab>
+        <vocab>medium</vocab>
+        <vocab>difficult</vocab>
+        <vocab>very difficult</vocab>
+     </element>
+
+     <element name="typicalLearningTime" path="lom.educational">
+        <min>0</min>
+        <max>1</max>
+        <datatype>duration</datatype>
+     </element>
+
+     <element name="description" path="lom.educational">
+        <min>0</min>
+        <max>10</max>
+        <spm>1000</spm>
+        <datatype>langstring</datatype>
+     </element>
+
+     <element name="language" path="lom.educational">
+        <min>0</min>
+        <max>10</max>
+        <spm>100</spm>
+        <datatype>text</datatype>
+     </element>
+
+     <!-- mandatory -->
+    <element name="rights" path="lom">
+       <min>1</min>
+       <max>1</max>
+       <datatype>parent</datatype>
+    </element>
+
+    <element name="cost" path="lom.rights">
+       <min>0</min>
+       <max>1</max>
+       <datatype>restrictedvocabulary</datatype>
+       <vocab>yes</vocab>
+       <vocab>no</vocab>
+    </element>
+
+    <!-- mandatory -->
+     <element name="copyrightAndOtherRestrictions" path="lom.rights">
+        <min>1</min>
+        <max>1</max>
+        <datatype>restrictedvocabulary</datatype>
+        <vocab>yes</vocab>
+        <vocab>no</vocab>
+     </element>
+
+     <!-- optional, best practice that description exists  -->
+     <element name="description" path="lom.rights">
+        <min>0</min>
+        <max>1</max>
+        <spm>1000</spm>
+        <datatype>langstring</datatype>
+     </element>
+
+     <element name="relation" path="lom">
+        <min>0</min>
+        <max>100</max>
+        <datatype>parent</datatype>
+     </element>
+
+     <element name="kind" path="lom.relation">
+        <min>0</min>
+        <max>1</max>
+        <datatype>bestpracticevocabulary</datatype>
+        <vocab>ispartof</vocab>
+        <vocab>haspart</vocab>
+        <vocab>isversionof</vocab>
+        <vocab>hasversion</vocab>
+        <vocab>isformatof</vocab>
+        <vocab>hasformat</vocab>
+        <vocab>references</vocab>
+        <vocab>isreferencedby</vocab>
+        <vocab>isbasedon</vocab>
+        <vocab>isbasisfor</vocab>
+        <vocab>requires</vocab>
+        <vocab>isrequiredby</vocab>
+     </element>
+
+     <element name="resource" path="lom.relation">
+        <min>0</min>
+        <max>1</max>
+        <datatype>parent</datatype>
+     </element>
+
+     <element name="identifier" path="lom.relation.resource">
+         <min>0</min>
+         <max>10</max>
+        <datatype>parent</datatype>
+     </element>
+
+     <!-- optional, but special case that if identifier exist, than best practice that catalog exists  -->
+     <element name="catalog" path="lom.relation.resource.identifier">
+        <min>0</min>
+        <max>1</max>
+        <spm>1000</spm>
+        <datatype>text</datatype>
+     </element>
+
+    <!-- optional, but special case that if identifier exist, than best practice that entry exists  -->
+    <element name="entry" path="lom.relation.resource.identifier">
+       <min>0</min>
+       <max>1</max>
+       <spm>1000</spm>
+       <datatype>text</datatype>
+    </element>
+
+     <element name="description" path="lom.relation.resource">
+        <min>0</min>
+        <max>10</max>
+        <spm>1000</spm>
+        <datatype>langstring</datatype>
+     </element>
+
+     <element name="annotation" path="lom">
+        <min>0</min>
+        <max>30</max>
+        <datatype>parent</datatype>
+     </element>
+
+     <element name="entity" path="lom.annotation">
+       <min>0</min>
+       <max>1</max>
+       <spm>1000</spm>
+       <datatype>text</datatype>
+     </element>
+
+     <element name="date" path="lom.annotation">
+       <min>0</min>
+       <max>1</max>
+       <datatype>datetime</datatype>
+     </element>
+
+     <element name="description" path="lom.annotation">
+       <min>0</min>
+       <max>1</max>
+       <spm>1000</spm>
+       <datatype>langstring</datatype>
+     </element>
+
+     <element name="classification" path="lom">
+       <min>0</min>
+       <max>40</max>
+       <datatype>parent</datatype>
+     </element>
+
+     <element name="purpose" path="lom.classification">
+       <min>0</min>
+       <max>1</max>
+       <datatype>bestpracticevocabulary</datatype>
+       <vocab>discipline</vocab>
+       <vocab>idea</vocab>
+       <vocab>prerequisite</vocab>
+       <vocab>educational objective</vocab>
+       <vocab>accessibility restrictions</vocab>
+       <vocab>educational level</vocab>
+       <vocab>skill level</vocab>
+       <vocab>security level</vocab>
+       <vocab>competency</vocab>
+     </element>
+
+     <element name="taxonPath" path="lom.classification">
+       <min>0</min>
+       <max>15</max>
+       <datatype>parent</datatype>
+     </element>
+
+     <element name="source" path="lom.classification.taxonPath">
+       <min>0</min>
+       <max>1</max>
+       <spm>1000</spm>
+       <datatype>langstring</datatype>
+     </element>
+
+     <element name="taxon" path="lom.classification.taxonPath">
+       <min>0</min>
+       <max>15</max>
+       <datatype>parent</datatype>
+     </element>
+
+     <element name="id" path="lom.classification.taxonPath.taxon">
+       <min>0</min>
+       <max>1</max>
+       <spm>100</spm>
+       <datatype>text</datatype>
+     </element>
+
+     <element name="entry" path="lom.classification.taxonPath.taxon">
+       <min>0</min>
+       <max>1</max>
+       <spm>500</spm>
+       <datatype>langstring</datatype>
+     </element>
+
+     <element name="description" path="lom.classification">
+       <min>0</min>
+       <max>1</max>
+       <spm>2000</spm>
+       <datatype>langstring</datatype>
+     </element>
+
+     <element name="keyword" path="lom.classification">
+       <min>0</min>
+       <max>40</max>
+       <spm>1000</spm>
+       <datatype>langstring</datatype>
+     </element>
+
+     <!-- Data Types -->
+     <element name="string" path="">
+       <min>0</min>
+       <max>10</max>
+        <attrib name="language">
+          <min>0</min>
+          <max>1</max>
+          <spm>100</spm>
+          <datatype>text</datatype>
+        </attrib>
+        <datatype>text</datatype>
+     </element>
+
+     <element name="DateTime" path="">
+       <min>0</min>
+       <max>1</max>
+       <spm>200</spm>
+       <datatype>text</datatype>
+     </element>
+
+     <element name="Duration" path="">
+       <min>0</min>
+       <max>1</max>
+       <spm>200</spm>
+       <datatype>text</datatype>
+     </element>
+
+     <element name="description" path="">
+       <min>0</min>
+       <max>1</max>
+       <spm>1000</spm>
+       <datatype>langstring</datatype>
+     </element>
+
+     <element name="source" path="">
+       <min>0</min>
+       <max>1</max>
+       <spm>1000</spm>
+       <datatype>text</datatype>
+     </element>
+
+     <element name="value" path="">
+       <min>0</min>
+       <max>1</max>
+       <spm>1000</spm>
+       <datatype>text</datatype>
+     </element>
+
+    <!-- End Data Types -->
+
+</rules>
+
+

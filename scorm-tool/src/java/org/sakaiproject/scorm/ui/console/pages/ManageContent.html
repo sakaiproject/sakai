@@ -1,0 +1,38 @@
+<html>
+<head>
+	<title>SCORM Player</title>
+</head>
+<body>
+	<wicket:extend>
+	
+		
+	
+		<div class="navIntraTool">List | <a href="#" wicket:id="uploadLink">Upload</a></div>
+		
+		<h2 wicket:id="title">[title]</h2>
+		
+		<table class="listHier lines" cellspacing="0" border="0"  summary="Tabled view of SCORM Content Packages">
+		<caption class="skip"  style="display:none">List of content packages</caption>
+		<tbody>
+			<tr><th id="title">File Name</th><th id="title"></th><th id="title"></th></tr>
+			<tr wicket:id="rows" class="even">
+				<td><span wicket:id="packageName">[name]</span></td>
+				<td><a href="#" wicket:id="summary">Results</a></td>
+				<td><a href="#" wicket:id="launch">Launch</a></td>
+			</tr>
+		</tbody>
+		</table>
+		<p/>
+		<br/>
+		
+		
+		<!-- form wicket:id="form">
+	        <input type="hidden" wicket:id="arg1"/>
+	        <input type="hidden" wicket:id="arg2"/>
+	        <input type="hidden" wicket:id="result"/>
+		</form-->
+		
+		<!-- div wicket:id="SCORM_API">SCORM API disabled</div-->
+	</wicket:extend>
+</body>
+</html>
