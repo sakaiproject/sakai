@@ -452,18 +452,18 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			if(obj instanceof BulkAssignmentDecoratedBean){
 				BulkAssignmentDecoratedBean assignment = (BulkAssignmentDecoratedBean) newBulkItems.get(i);
 			
-				if (assignment.getBlnSaveThisItem() || i == 0)
-				{
-					if(i != 0){
-						rowClasses.append(",");
-					}
-					rowClasses.append("bogus show");
+				if (i != 0) rowClasses.append(",");
+
+				if (assignment.getBlnSaveThisItem() || i == 0) {
+					rowClasses.append("show bogus");
 				}
 				else {
-					if(i != 0){
-						rowClasses.append(",");
-					}
-					rowClasses.append("bogus hide");					
+					rowClasses.append("hide bogus");					
+				}
+				
+				// to color every other panel
+				if (i % 2 == 1) {
+					rowClasses.append(" actionitem");
 				}
 			}		
 		}

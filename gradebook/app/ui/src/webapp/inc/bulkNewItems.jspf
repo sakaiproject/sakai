@@ -6,12 +6,14 @@
   .hide { display:none; }
  </style>
 
+<h:outputText value="#{msgs.flag_required}" rendered="#{!bean.assignment.externallyMaintained}"/>
+
 <t:div id="bulkAssignments" styleClass="bulkAssignments gbSection">
 	<t:dataTable cellpadding="0" cellspacing="0"
 		id="bulkNewAssignmentsTable"
 		value="#{bean.newBulkItems}"
 		var="item"
-	    columnClasses=""
+	    columnClasses="highlightPanel"
    		rowClasses="#{bean.rowClasses}"
 		styleClass="listHier narrowTable"
 		rowIndexVar="rowIndex">
@@ -94,6 +96,10 @@
 			</h:panelGrid>
 		  </h:panelGrid>
 		  <h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
+		  <h:panelGrid>
+		  	<%-- Added to put some spacing between add item panels --%>
+		  	<h:outputText value=" " />
+		  </h:panelGrid>
 		</h:column>	
 	</t:dataTable>
 </t:div>

@@ -28,18 +28,15 @@
 
 		<p class="instruction"><h:outputText value="#{msgs.add_assignment_instruction}" /></p>
 
-		<%-- ********************************************* --%>
-		<%-- TODO: pull these selection values from bean   --%>
-		<%-- ALSO: pull max from bundle                    --%>
-		<%-- ********************************************* --%>
+<%-- 
 		<p>
-			<h:outputText value="#{msgs.add_assignment_selector1}" />
+		<h:outputText value="#{msgs.add_assignment_selector1}" />
 			<h:selectOneMenu id="numItems" value="">
 				<f:selectItems value="#{addAssignmentBean.addItemSelectList}" />
 			</h:selectOneMenu>
 			<h:outputText value="#{msgs.add_assignment_selector2}" />
 		</p>
-
+--%>
 		<t:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
 <%--			<%@include file="/inc/assignmentEditing.jspf"%> --%>
 			<%@include file="/inc/globalMessages.jspf"%>
