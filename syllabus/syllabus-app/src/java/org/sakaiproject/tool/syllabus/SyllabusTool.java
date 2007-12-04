@@ -1801,7 +1801,14 @@ public class SyllabusTool
   public String getPrintFriendlyUrl()
   {
 	  try {
-		  currentRediredUrl = getSyllabusItem().getRedirectURL();
+		  SyllabusItem syItem = getSyllabusItem();
+		  
+		  if (syItem != null) {
+			  currentRediredUrl = syItem.getRedirectURL();
+		  }
+		  else {
+			  currentRediredUrl = "";
+		  }
 		  if (currentRediredUrl != null && !"".equals(currentRediredUrl)) {
 			  if (currentRediredUrl.indexOf(httpPrefix) == -1 && currentRediredUrl.indexOf(httpsPrefix) == -1 ) {
 				  if (ServerConfigurationService.getToolUrl().indexOf(httpsPrefix) != -1) {
