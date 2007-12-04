@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+        <modelVersion>4.0.0</modelVersion>
+        <parent>
+                <artifactId>scorm-base</artifactId>
+                <groupId>org.sakaiproject</groupId>
+                <version>M2</version>
+                <relativePath>../../pom.xml</relativePath>
+        </parent>
+        <name>sakai-scorm-adl-impl</name>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-scorm-adl-impl</artifactId>
+        <description>
+          This project creates the ADL implementation used by the Sakai Scorm Tool
+        </description>
+        <packaging>jar</packaging>
+
+  	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-scorm-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>ant</groupId>
+			<artifactId>ant</artifactId>
+			<version>1.6.5</version>
+			<type>jar</type>
+		</dependency>
+		
+		<dependency>
+			<groupId>ant</groupId>
+			<artifactId>ant-optional</artifactId>
+			<version>1.5.3-1</version>
+			<type>jar</type>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.1.1</version>
+			<scope>provided</scope>
+		</dependency>
+	
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.2</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+			<scope>provided</scope>
+		</dependency>	
+		
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>1.4</version>
+			<type>jar</type>
+		</dependency>
+		
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.4</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>xalan</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.6.0</version>
+			<type>jar</type>
+		</dependency>
+		
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.6.2</version>
+			<type>jar</type>
+		</dependency>
+		
+		<dependency>
+      		<groupId>xerces</groupId>
+      		<artifactId>xmlParserAPIs</artifactId>
+      		<version>2.6.2</version>
+      		<type>jar</type>
+    	</dependency>
+		
+	</dependencies>
+  	
+</project>
