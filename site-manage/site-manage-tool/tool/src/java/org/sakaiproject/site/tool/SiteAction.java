@@ -2561,9 +2561,11 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("currentNumber", new Integer(number));
 			}
 			context.put("currentNumber", new Integer(number));
-			context.put("listSize", new Integer(number - 1));
-			context.put("fieldValues", state
-					.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
+			context.put("listSize", number>0?new Integer(number - 1):0);
+			if (state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS) != null && ((List) state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS)).size() > 0)
+			{
+				context.put("fieldValues", state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
+			}
 
 			if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null) {
 				List l = (List) state
