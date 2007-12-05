@@ -1,0 +1,3 @@
+Please see SiteStats Confluence page for release changes:
+
+http://bugs.sakaiproject.org/confluence/display/STAT/Changes
