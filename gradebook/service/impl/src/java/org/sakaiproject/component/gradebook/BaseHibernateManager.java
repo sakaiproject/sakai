@@ -1210,4 +1210,13 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         String hql = "from Assignment as asn where asn.id=? and removed=false";
         return getHibernateTemplate().find(hql, gradableObjectId).size() == 1;
     }
+    
+    /**
+     * 
+     * @param gradableObjectId
+     * @return the Assignment object with the given id
+     */
+    public Assignment getAssignment(Long gradableObjectId) {
+        return (Assignment)getHibernateTemplate().load(Assignment.class, gradableObjectId);
+    }
 }

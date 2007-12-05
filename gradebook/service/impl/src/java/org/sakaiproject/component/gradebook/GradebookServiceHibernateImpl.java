@@ -1034,6 +1034,35 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  
   }
   
+  public Map<String, String> getViewableStudentsForItemForCurrentUser(String gradebookUid, Long gradableObjectId) {
+	  if (gradebookUid == null || gradableObjectId == null) {
+		  throw new IllegalArgumentException("null gradebookUid or gradableObjectId passed to getViewableStudentsForUserForItem");
+	  }
+	  
+	  Assignment gradebookItem = getAssignment(gradableObjectId);
+	  if (gradebookItem == null) {
+		  log.debug("The gradebook item does not exist, so returning empty set");
+		  return new HashMap();
+	  }
+	  
+	  Long categoryId = gradebookItem.getCategory() == null ? null : gradebookItem.getCategory().getId();
+	  
+	  Map<EnrollmentRecord, String> enrRecFunctionMap = new HashMap();
+	  enrRecFunctionMap = authz.findMatchingEnrollmentsForItem(gradebookUid, categoryId, null, null);
+	  if (enrRecFunctionMap == null) {
+		  return new HashMap();
+	  }
+	  
+	  Map<String, String> studentIdFunctionMap = new HashMap();
+	  for (Iterator enrIter = enrRecFunctionMap.keySet().iterator(); enrIter.hasNext();) {
+		  EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
+		  if (enr != null && enrRecFunctionMap.get(enr) != null) {
+			  studentIdFunctionMap.put(enr.getUser().getUserUid(), enrRecFunctionMap.get(enr));
+		  }
+	  }
+	  return studentIdFunctionMap;
+  }
+  
   public boolean isGradableObjectDefined(Long gradableObjectId) {
 	  return isAssignmentDefined(gradableObjectId);
   }
@@ -1059,4 +1088,20 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  
 	  return sectionIdNameMap;
   }
+  
+  public boolean currentUserHasGradeAllPerm(String gradebookUid) {
+	  return authz.isUserAbleToGradeAll(gradebookUid);
+  }
+
+  public boolean currentUserHasGradingPerm(String gradebookUid) {
+	  return authz.isUserAbleToGrade(gradebookUid);
+  }
+
+  public boolean currentUserHasEditPerm(String gradebookUid) {
+	  return authz.isUserAbleToEditAssessments(gradebookUid);
+  }
+
+  public boolean currentUserHasViewOwnGradesPerm(String gradebookUid) {
+	  return authz.isUserAbleToViewOwnGrades(gradebookUid);
+	}
 }

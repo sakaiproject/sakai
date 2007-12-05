@@ -316,6 +316,15 @@ public interface GradebookService {
 	 */
 	public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid);
 	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param gradableObjectId
+	 * @return a map of studentId to view/grade function  for the given 
+	 * gradebook and gradebook item. students who are not viewable or gradable
+	 * will not be returned
+	 */
+	public Map<String, String> getViewableStudentsForItemForCurrentUser(String gradebookUid, Long gradableObjectId);
 	
 	// Site management hooks.
 
@@ -411,4 +420,29 @@ public interface GradebookService {
 	 * @return
 	 */
 	public Map getViewableSectionUuidToNameMap(String gradebookUid);
+	
+	/**
+	 * @param gradebookUid
+	 * @return true if current user has the gradebook.gradeAll permission
+	 */
+	public boolean currentUserHasGradeAllPerm(String gradebookUid);
+	
+	/**
+	 * @param gradebookUid
+	 * @return true if the current user has the gradebook.gradeAll or
+	 * gradebook.gradeSection permission
+	 */
+	public boolean currentUserHasGradingPerm(String gradebookUid);
+	
+	/**
+	 * @param gradebookUid
+	 * @return true if the current user has the gradebook.editAssignments permission
+	 */
+	public boolean currentUserHasEditPerm(String gradebookUid);
+	
+	/**
+	 * @param gradebookUid
+	 * @return true if the current user has the gradebook.viewOwnGrades permission
+	 */
+	public boolean currentUserHasViewOwnGradesPerm(String gradebookUid);
 }
