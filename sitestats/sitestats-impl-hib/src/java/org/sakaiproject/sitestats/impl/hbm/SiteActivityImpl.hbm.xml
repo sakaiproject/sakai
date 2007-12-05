@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.sakaiproject.sitestats.impl.SiteActivityImpl"
+		table="SST_SITEACTIVITY"
+		lazy="true">
+		<id name="id" type="long" column="ID" unsaved-value="0">
+			<generator class="native">
+				<param name="sequence">SST_SITEACTIVITY_ID</param>
+			</generator>
+		</id>
+		<property name="siteId" column="SITE_ID" type="string" length="99" not-null="true" index="SST_SITEACTIVITY_SITE_ID_IX" />
+		<property name="date" column="ACTIVITY_DATE" type="date" not-null="true" index="SST_SITEACTIVITY_DATE_IX" />
+		<property name="eventId" column="EVENT_ID" type="string" length="32" not-null="true" index="SST_SITEACTIVITY_EVENT_ID_IX" />
+		<property name="count" column="ACTIVITY_COUNT" type="long" not-null="true" />		
+	</class>
+</hibernate-mapping>

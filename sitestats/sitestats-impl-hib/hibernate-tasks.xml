@@ -1,0 +1,112 @@
+<project name="Hibernate-Tasks" default="all" basedir=".">
+	<!-- PROPERTIES -->	
+	<property name="project" location="sitestats-impl-hib" />
+	<property name="eclipse-home" location="D:/DevApps/eclipse-3.2" />
+	<property name="hib-plugin" location="${eclipse-home}/plugins/org.hibernate.eclipse_3.2.0.beta6" />
+	
+	<!-- CLASSPATH -->
+	<taskdef name="hibernatetool" 
+		classname="org.hibernate.tool.ant.HibernateToolTask">
+		<classpath>
+			<fileset dir="${hib-plugin}/lib/">
+				<include name="**/*.jar"/>
+			</fileset>
+			<fileset dir="D:/DevLibs">
+				<include name="**/mysql-connector-java-*.jar"/>
+			</fileset>
+		</classpath>
+	</taskdef>
+	<taskdef name="schemaexport" 
+		classname="org.hibernate.tool.hbm2ddl.SchemaExportTask">
+		<classpath>
+			<fileset dir="${hib-plugin}/lib/">
+				<include name="**/*.jar"/>
+			</fileset>
+			<fileset dir="D:/DevLibs">
+				<!--<include name="**/mysql-connector-java-*.jar"/>-->
+				<include name="**/ojdbc14-*.jar"/>
+			</fileset>
+			<pathelement location="bin" /> 
+			<pathelement location="../sitestats-api/bin" /> 
+		</classpath>
+	</taskdef>
+
+	<!-- TASKS -->
+	<!-- java-pojo-create -->
+	<target name="all" depends="schema-export-mysql,schema-export-oracle">
+		<!-- 
+		<eclipse.refreshLocal resource="${basedir}/" depth="infinite"/>
+		-->
+	</target>
+	
+	<target name="compile">
+		<!--<eclipse.refreshLocal resource="${basedir}/" depth="infinite"/>
+		<eclipse.incrementalBuild/>-->
+	</target>
+	
+	<target name="schema-export-mysql" depends="compile">	
+		<schemaexport
+	    	config="hibernate.cfg.xml"
+	        quiet="no" text="yes" drop="no" delimiter=";" 
+	        output="impl/src/resources/mysql/sakai_sitestats_schema-export.sql">
+	        <fileset dir="impl\src\java">
+	            <include name="**/*.hbm.xml"/>
+	        </fileset>	    	
+	    </schemaexport>
+	</target>
+	<target name="schema-export-oracle" depends="compile">	
+			<schemaexport
+		    	config="hibernate-oracle.cfg.xml"
+		        quiet="no" text="yes" drop="no" delimiter=";" 
+		        output="impl/src/resources/oracle/sakai_sitestats_schema-export.sql">
+		        <fileset dir="impl\src\java">
+		            <include name="**/*.hbm.xml"/>
+		        </fileset>	    	
+		    </schemaexport>
+	</target>
+	
+	<target name="schema-recreate" depends="compile">
+		<hibernatetool destdir=".">
+			<configuration configurationfile="hibernate.cfg.xml">
+				<fileset dir="impl\src\java">
+					<include name="**/*.hbm.xml"/>
+				</fileset>
+			</configuration>
+			<hbm2ddl drop="true" create="true" export="true" update="false" />
+		</hibernatetool>
+	</target>
+	
+	<target name="schema-drop" depends="compile">
+		<hibernatetool destdir="." classpath="bin/">
+			<configuration configurationfile="hibernate.cfg.xml">
+				<fileset dir="tool\src\java">
+					<include name="**/*.hbm.xml"/>
+				</fileset>
+			</configuration>
+			<hbm2ddl drop="true" create="false" export="true" update="false"/>
+		</hibernatetool>
+	</target>
+	
+	<target name="java-pojo-create" depends="compile">
+		<hibernatetool destdir="tool\src\java" >
+			<configuration configurationfile="hibernate.cfg.xml">
+				<fileset dir="tool\src\java">
+					<include name="**/*.hbm.xml"/>
+				</fileset>
+			</configuration>
+			<hbm2java />
+		</hibernatetool>
+	</target>
+	
+	<target name="schema-doc">
+		<hibernatetool destdir="hib-doc" >
+			<configuration configurationfile="hibernate.cfg.xml">
+				<fileset dir="tool\src\java">
+					<include name="**/*.hbm.xml"/>
+				</fileset>
+			</configuration>
+			<hbm2doc />
+		</hibernatetool>
+	</target>
+
+</project>

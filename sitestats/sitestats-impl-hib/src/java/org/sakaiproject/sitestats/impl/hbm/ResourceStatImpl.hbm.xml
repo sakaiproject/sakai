@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.sakaiproject.sitestats.impl.ResourceStatImpl"
+		table="SST_RESOURCES"
+		lazy="true">
+		<id name="id" type="long" column="ID" unsaved-value="0">
+			<generator class="native">
+				<param name="sequence">SST_RESOURCES_ID</param>
+			</generator>
+		</id>
+		<property name="userId" column="USER_ID" type="string" length="99" not-null="true" index="SST_RESOURCES_USER_ID_IX" />
+		<property name="siteId" column="SITE_ID" type="string" length="99" not-null="true" index="SST_RESOURCES_SITE_ID_IX" />
+		<property name="resourceRef" column="RESOURCE_REF" type="string" length="255" not-null="true" />		
+		<property name="resourceAction" column="RESOURCE_ACTION" type="string" length="12" not-null="true"  index="SST_RESOURCES_RES_ACT_IDX"/>		
+		<property name="date" column="RESOURCE_DATE" type="date" not-null="true" index="SST_RESOURCES_DATE_IX" />
+		<property name="count" column="RESOURCE_COUNT" type="long" not-null="true" />
+	</class>
+</hibernate-mapping>
