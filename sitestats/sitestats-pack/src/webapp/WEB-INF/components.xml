@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+	<!-- 
+	IMPORTANT:
+		The following beans can be user-configured:
+			- org.sakaiproject.sitestats.api.StatsManager
+			- org.sakaiproject.sitestats.api.StatsUpdateManager
+		The preferred way to change these values is on sakai.properties. Please refer to
+		http://bugs.sakaiproject.org/confluence/display/STAT to detailed caonfiguration
+		information.
+	 -->
+		
+	
+	<!-- Load HBM related beans -->
+	<import resource="hibernate-hbms.xml" />
+	
+
+	
+	<!-- StatsManager ______________________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.StatsManager"
+		class="org.sakaiproject.sitestats.impl.StatsManagerImpl"
+		singleton="true"
+		init-method="init">
+		
+		<!-- OPTIONS: -->		
+			
+			<!-- Tool event definition file (events to be collected) -->
+			<!-- Default:
+					1. File specified in property below
+					2. If (1.) not found/specified, load defaults from bundled config file:
+						sitestats-api/api/src/config/org/sakaiproject/sitestats.config/toolEventDef.xml
+			 -->
+			<!-- <property name="toolEventsDefinitionFile" value="${sakai.home}/toolEventsDef.xml" /> -->
+			
+			<!-- Tool event definition file: add support for new tools or new events to existing tools -->
+			<!-- <property name="toolEventsAddDefinitionFile" value="${sakai.home}/toolEventsAddDef.xml" /> -->
+			
+			<!-- Tool event definition file: remove support for entire Tools or subset of Tool events -->
+			<!-- <property name="toolEventsRemoveDefinitionFile" value="${sakai.home}/toolEventsRemoveDef.xml" /> -->
+			
+			<!-- Force enable/disable site visits if SAK-8499 is solved.
+				Probably don't need to cahnge: by default, this is true if display.users.present=true in sakai.properties -->			
+			<!-- <property name="enableSiteVisits" value="true" /> -->
+			
+			<!-- Default chart background color (default: white) -->
+			<property name="chartBackgroundColor" value="#ffffff" />
+			
+			<!-- Show charts in 3D by default? (default: false) -->
+			<property name="chartIn3D" value="false" />
+			
+			<!-- Default chart transparency (default: 1.00f (100%); acceptable: 0.10f - 1.00f) -->
+			<property name="chartTransparency" value="1.00f" />
+			
+			<!-- Show bar charts item labels by default? (default: false) -->
+			<property name="itemLabelsVisible" value="true" />
+			
+			<!-- Show last quartz job run date in tool overview page? 
+				(default: false if collectThreadEnabled@org.sakaiproject.sitestats.api.StatsUpdateManager=true, true otherwise) -->
+			<!-- <property name="lastJobRunDateVisible" value="true" /> -->
+		<!-- /OPTIONS -->
+				
+		
+		<!-- Sakai services -->
+		<property name="autoDdl" value="${auto.ddl}"/>
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+		<!-- Hibernate related -->
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		
+	</bean>
+	<bean id="org.sakaiproject.sitestats.api.StatsManagerTransactionProxyFactoryBean"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" ref="org.sakaiproject.sitestats.api.StatsManager"/>
+		<property name="transactionAttributes">
+			<props><prop key="*">PROPAGATION_REQUIRED</prop></props>
+		</property>
+	</bean>
+	
+	
+	<!-- StatsUpdateManager ____________________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager"
+		class="org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl"
+		singleton="true"
+		lazy-init="true"
+		init-method="init"
+		destroy-method="destroy">
+		
+		<!-- OPTIONS: -->
+			<!-- Enable/disable collect thread -->
+			<property name="collectThreadEnabled" value="true"/>
+			
+			<!-- Db update interval for collect thread -->
+			<property name="collectThreadUpdateInterval" value="4000"/>
+			
+			<!-- Aggregate administrator events? (default: false) -->
+			<property name="collectAdminEvents" value="false" />
+			
+			<!-- Aggregate events ONLY for sites with SiteStats tool? (default: true) -->
+			<property name="collectEventsForSiteWithToolOnly" value="true" />
+		<!-- /OPTIONS -->
+			
+		<!-- Sakai services -->
+		<property name="sessionFactory" ref ="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService" />
+	</bean>
+	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManagerTransactionProxyFactoryBean"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" ref="org.sakaiproject.sitestats.api.StatsUpdateManager"/>
+		<property name="transactionAttributes">
+			<props><prop key="*">PROPAGATION_REQUIRED</prop></props>
+		</property>
+	</bean>
+
+
+	<!-- Authz _________________________________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.Authz"
+		class="org.sakaiproject.sitestats.impl.AuthzImpl"
+		singleton="true"
+		init-method="init">
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+	</bean>
+
+
+	<!-- StatsUpdateJob _________________________________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.StatsAggregateJob"
+		class="org.sakaiproject.sitestats.impl.StatsAggregateJobImpl"
+		init-method="init">
+		<!-- OPTIONS: -->
+			<!-- Maximum number of processed events per job run. -->
+			<property name="maxEventsPerRun" value="50000" />
+			
+			<!-- Starting eventId to be processed.
+				WARNING: This value is only read on the first job run; after that, job status is
+						tracked in SST_JOB_RUN table... If not specified, the job will use the most
+						recent EVENT_ID from SAKAI_EVENT table when Sakai starts up.
+			 -->
+			<!-- 
+			<property name="startEventId" value="-1" />
+			-->
+			
+			<!-- Specify db properties below if SAKAI_EVENT and SAKAI_SESSION tables lives on a different database of Sakai -->
+			<!--
+			<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+	        <property name="url" value="jdbc:mysql://127.0.0.1:3306/GEPUV?useUnicode=true&amp;characterEncoding=UTF-8&amp;autoReconnect=true"/>
+	        <property name="username" value="dbuser"/>
+	        <property name="password" value="dbpassword"/>
+	        -->
+		<!-- /OPTIONS -->
+			
+		<!-- Sakai services -->
+        <property name="statsUpdateManager" ref="org.sakaiproject.sitestats.api.StatsUpdateManager" />
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+	</bean>
+	<bean id="org.sakaiproject.sitestats.api.StatsUpdateJobBeanWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		singleton="true" init-method="init">
+		<property name="jobName" value="SiteStats Event Aggregator" />
+		<property name="beanId" value="org.sakaiproject.sitestats.api.StatsAggregateJob" />
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	</bean>
+
+
+</beans>
