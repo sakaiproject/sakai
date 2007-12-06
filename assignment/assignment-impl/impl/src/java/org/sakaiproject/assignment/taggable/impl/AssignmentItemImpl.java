@@ -81,7 +81,7 @@ public class AssignmentItemImpl implements TaggableItem {
 			sb.append(' ');
 			sb.append(user.getLastName());
 			sb.append(' ');
-			sb.append(rb.getString("submission"));
+			sb.append(rb.getString("gen.submission"));
 		} catch (UserNotDefinedException unde) {
 			logger.error(unde.getMessage(), unde);
 		}
