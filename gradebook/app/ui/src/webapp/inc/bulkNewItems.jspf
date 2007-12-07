@@ -23,7 +23,7 @@
 		  		Done to deal with removing item in 'middle' 				--%>
 		  <h:inputHidden id="hiddenAdd" value="#{item.saveThisItem}" />
 
-		  <h:panelGrid cellpadding="0" cellspacing="0" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
+		  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite actionitem">
 			<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}" rendered="#{!item.assignment.externallyMaintained}"/>
 			
 			<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
@@ -33,13 +33,19 @@
 				<h:outputText id="dupTitleErrMsg" value="#{msgs.add_assignment_duplicate_name}" styleClass="alertMessageInline" rendered="#{item.bulkNoTitleError == 'dup'}" />
 		
 				<%-- Will remove this pane from the page TODO: refactor entirly in JSF --%>
-				<h:panelGroup rendered="#{rowIndex != 0}" >
-				<f:verbatim>
-					<a href="#" id="removeTrigger_0" onclick="removeItem(event)" style="text-decoration: none" class="indnt2" >
-						<img src="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
-				</f:verbatim>
-				<h:outputText value="#{msgs.add_assignment_remove_pane}" />
-				<f:verbatim></a></f:verbatim>
+				<h:panelGroup rendered="#{rowIndex != 0}">
+					<h:commandLink onclick="removeItem(event); return false;" title="#{msgs.add_assignment_remove_title}" styleClass="indnt2">
+						<h:graphicImage value="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
+					</h:commandLink>
+						
+<%--					<f:verbatim>
+						<a href="#" id="removeTrigger_0" onclick="removeItem(event)" style="text-decoration: none" class="indnt2" >
+							<img src="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
+						</a>
+					</f:verbatim> --%>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{rowIndex == 0}" styleClass="indnt2" >
+					<h:graphicImage value="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
 				</h:panelGroup>
 			</h:panelGroup>
 	
@@ -50,7 +56,9 @@
 				<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline" rendered="#{item.bulkNoPointsError == 'blank'}" />
 				<h:outputText id="nanPtsErrMsg" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline" rendered="#{item.bulkNoPointsError == 'NaN'}" />
 			</h:panelGroup>
-
+		  </h:panelGrid>
+		  
+		  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
 			<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
 				<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.add_assignment_due_date}"/>
 				<h:outputText style="font-weight:normal;" value=" #{msgs.date_entry_format_description}"/>
@@ -96,10 +104,6 @@
 			</h:panelGrid>
 		  </h:panelGrid>
 		  <h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
-		  <h:panelGrid>
-		  	<%-- Added to put some spacing between add item panels --%>
-		  	<h:outputText value=" " />
-		  </h:panelGrid>
 		</h:column>	
 	</t:dataTable>
 </t:div>

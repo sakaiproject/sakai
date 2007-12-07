@@ -135,6 +135,7 @@ function addMultipleItems(itemSelect)
 // removeItem
 //
 // This does the actual work of hiding the current add item pane
+// User CANNOT remove pane zero, even if others are present
 //*********************************************************************
 function removeItem(event) {
 	var element = Event.element(event);

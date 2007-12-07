@@ -460,11 +460,6 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 				else {
 					rowClasses.append("hide bogus");					
 				}
-				
-				// to color every other panel
-				if (i % 2 == 1) {
-					rowClasses.append(" actionitem");
-				}
 			}		
 		}
 		
