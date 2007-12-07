@@ -956,7 +956,7 @@ This is not needed now that pluto have been released
             <configuration>
                <debug>true</debug>
                <links>
-                  <link>http://java.sun.com/j2se/1.4.2/docs/api/</link>
+                  <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
                </links>
                <breakiterator>true</breakiterator>
                <verbose>true</verbose>
@@ -971,6 +971,7 @@ This is not needed now that pluto have been released
             <!-- unit test coverage reporting -->
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>cobertura-maven-plugin</artifactId>
+            <version>2.0</version>
          </plugin>
          <plugin>
             <!-- Code analysis report -->
