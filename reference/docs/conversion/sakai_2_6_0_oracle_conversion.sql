@@ -7,7 +7,7 @@ alter table MFR_AREA_T modify (SENDEMAILOUT NUMBER(1,0) not null);
 
 --new msg.emailout permission 
 
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.emailout');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'msg.emailout');
 
 -- maintain role
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.emailout'));
@@ -28,7 +28,7 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 ----------------------------------------------------------------------------------------------------------------------------------------
 
 -- for each realm that has a role matching something in this table, we will add to that role the function from this table
-CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
+CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR2(99), FUNCTION_NAME VARCHAR2(99));
 
 INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','msg.emailout');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','msg.emailout');
