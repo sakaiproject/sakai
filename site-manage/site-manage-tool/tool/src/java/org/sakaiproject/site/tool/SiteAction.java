@@ -173,26 +173,26 @@ public class SiteAction extends PagedResourceActionII {
 			"-newSiteFeatures",
 			"-addRemoveFeature",
 			"-addParticipant",
-			"-removeParticipants",
-			"-changeRoles",
+			"",
+			"",
 			"-siteDeleteConfirm",
-			"-publishUnpublish",
+			"",
 			"-newSiteConfirm",// 10
-			"-newSitePublishUnpublish",
+			"",
 			"-siteInfo-list",// 12
 			"-siteInfo-editInfo",
 			"-siteInfo-editInfoConfirm",
 			"-addRemoveFeatureConfirm",// 15
-			"-publishUnpublish-sendEmail",
-			"-publishUnpublish-confirm",
+			"",
+			"",
 			"-siteInfo-editAccess",
 			"-addParticipant-sameRole",
 			"-addParticipant-differentRole",// 20
 			"-addParticipant-notification",
 			"-addParticipant-confirm",
-			"-siteInfo-editAccess-globalAccess",
-			"-siteInfo-editAccess-globalAccess-confirm",
-			"-changeRoles-confirm",// 25
+			"",
+			"",
+			"",// 25
 			"-modifyENW", "-importSites",
 			"-siteInfo-import",
 			"-siteInfo-duplicate",
@@ -1366,57 +1366,6 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("backIndex", "12");
 			return (String) getContext(data).get("template") + TEMPLATE[5];
-		case 6:
-			/*
-			 * buildContextForTemplate chef_site-removeParticipants.vm
-			 * 
-			 */
-			context.put("title", site.getTitle());
-			realmId = SiteService.siteReference(site.getId());
-			try {
-				AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
-				try {
-					List removeableList = (List) state
-							.getAttribute(STATE_REMOVEABLE_USER_LIST);
-					List removeableParticipants = new Vector();
-
-					for (int k = 0; k < removeableList.size(); k++) {
-						User user = UserDirectoryService
-								.getUser((String) removeableList.get(k));
-						Participant participant = new Participant();
-						participant.name = user.getSortName();
-						participant.uniqname = user.getId();
-						Role r = realm.getUserRole(user.getId());
-						if (r != null) {
-							participant.role = r.getId();
-						}
-						removeableParticipants.add(participant);
-					}
-					context.put("removeableList", removeableParticipants);
-				} catch (UserNotDefinedException ee) {
-				}
-			} catch (GroupNotDefinedException e) {
-			}
-
-			context.put("backIndex", "18");
-			return (String) getContext(data).get("template") + TEMPLATE[6];
-		case 7:
-			/*
-			 * buildContextForTemplate chef_site-changeRoles.vm
-			 * 
-			 */
-			context.put("same_role", state
-					.getAttribute(STATE_CHANGEROLE_SAMEROLE));
-			roles = getRoles(state);
-			context.put("roles", roles);
-			context.put("currentRole", state
-					.getAttribute(STATE_CHANGEROLE_SAMEROLE_ROLE));
-			context.put("participantSelectedList", state
-					.getAttribute(STATE_SELECTED_PARTICIPANTS));
-			context.put("selectedRoles", state
-					.getAttribute(STATE_SELECTED_PARTICIPANT_ROLES));
-			context.put("siteTitle", site.getTitle());
-			return (String) getContext(data).get("template") + TEMPLATE[7];
 		case 8:
 			/*
 			 * buildContextForTemplate chef_site-siteDeleteConfirm.vm
@@ -1464,15 +1413,6 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("removals", remove);
 			return (String) getContext(data).get("template") + TEMPLATE[8];
-		case 9:
-			/*
-			 * buildContextForTemplate chef_site-publishUnpublish.vm
-			 * 
-			 */
-			context.put("publish", Boolean.valueOf(((SiteInfo) state
-					.getAttribute(STATE_SITE_INFO)).getPublished()));
-			context.put("backIndex", "12");
-			return (String) getContext(data).get("template") + TEMPLATE[9];
 		case 10:
 			/*
 			 * buildContextForTemplate chef_site-newSiteConfirm.vm
@@ -1561,12 +1501,6 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
 
 			return (String) getContext(data).get("template") + TEMPLATE[10];
-		case 11:
-			/*
-			 * buildContextForTemplate chef_site-newSitePublishUnpublish.vm
-			 * 
-			 */
-			return (String) getContext(data).get("template") + TEMPLATE[11];
 		case 12:
 			/*
 			 * buildContextForTemplate chef_site-siteInfo-list.vm
@@ -2005,31 +1939,6 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			return (String) getContext(data).get("template") + TEMPLATE[15];
-		case 16:
-			/*
-			 * buildContextForTemplate chef_site-publishUnpublish-sendEmail.vm
-			 * 
-			 */
-			context.put("title", site.getTitle());
-			context.put("willNotify", state.getAttribute(FORM_WILL_NOTIFY));
-			return (String) getContext(data).get("template") + TEMPLATE[16];
-		case 17:
-			/*
-			 * buildContextForTemplate chef_site-publishUnpublish-confirm.vm
-			 * 
-			 */
-			context.put("title", site.getTitle());
-			context.put("continueIndex", "12");
-			SiteInfo sInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
-			if (sInfo.getPublished()) {
-				context.put("publish", Boolean.TRUE);
-				context.put("backIndex", "16");
-			} else {
-				context.put("publish", Boolean.FALSE);
-				context.put("backIndex", "9");
-			}
-			context.put("willNotify", state.getAttribute(FORM_WILL_NOTIFY));
-			return (String) getContext(data).get("template") + TEMPLATE[17];
 		case 18:
 			/*
 			 * buildContextForTemplate chef_siteInfo-editAccess.vm
@@ -2211,63 +2120,6 @@ public class SiteAction extends PagedResourceActionII {
 					.put("selectedRole", state
 							.getAttribute("form_selectedRole"));
 			return (String) getContext(data).get("template") + TEMPLATE[22];
-		case 23:
-			/*
-			 * buildContextForTemplate chef_siteInfo-editAccess-globalAccess.vm
-			 * 
-			 */
-			context.put("title", site.getTitle());
-			context.put("roles", getRoles(state));
-			if (state.getAttribute("form_joinable") == null) {
-				state.setAttribute("form_joinable", new Boolean(site
-						.isJoinable()));
-			}
-			context.put("form_joinable", state.getAttribute("form_joinable"));
-			if (state.getAttribute("form_joinerRole") == null) {
-				state.setAttribute("form_joinerRole", site.getJoinerRole());
-			}
-			context.put("form_joinerRole", state
-					.getAttribute("form_joinerRole"));
-			return (String) getContext(data).get("template") + TEMPLATE[23];
-		case 24:
-			/*
-			 * buildContextForTemplate
-			 * chef_siteInfo-editAccess-globalAccess-confirm.vm
-			 * 
-			 */
-			context.put("title", site.getTitle());
-			context.put("form_joinable", state.getAttribute("form_joinable"));
-			context.put("form_joinerRole", state
-					.getAttribute("form_joinerRole"));
-			return (String) getContext(data).get("template") + TEMPLATE[24];
-		case 25:
-			/*
-			 * buildContextForTemplate chef_changeRoles-confirm.vm
-			 * 
-			 */
-			Boolean sameRole = (Boolean) state
-					.getAttribute(STATE_CHANGEROLE_SAMEROLE);
-			context.put("sameRole", sameRole);
-			if (sameRole.booleanValue()) {
-				// same role
-				context.put("currentRole", state
-						.getAttribute(STATE_CHANGEROLE_SAMEROLE_ROLE));
-			} else {
-				context.put("selectedRoles", state
-						.getAttribute(STATE_SELECTED_PARTICIPANT_ROLES));
-			}
-
-			roles = getRoles(state);
-			context.put("roles", roles);
-
-			context.put("participantSelectedList", state
-					.getAttribute(STATE_SELECTED_PARTICIPANTS));
-			if (state.getAttribute(STATE_SELECTED_PARTICIPANT_ROLES) != null) {
-				context.put("selectedRoles", state
-						.getAttribute(STATE_SELECTED_PARTICIPANT_ROLES));
-			}
-			context.put("siteTitle", site.getTitle());
-			return (String) getContext(data).get("template") + TEMPLATE[25];
 		case 26:
 			/*
 			 * buildContextForTemplate chef_site-modifyENW.vm
@@ -4813,16 +4665,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		actionForTemplate(direction, index, params, state);
 		if (state.getAttribute(STATE_MESSAGE) == null) {
-			if (index == 9) {
-				// go to the send site publish email page if "publish" option is
-				// chosen
-				SiteInfo sInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
-				if (sInfo.getPublished()) {
-					state.setAttribute(STATE_TEMPLATE_INDEX, "16");
-				} else {
-					state.setAttribute(STATE_TEMPLATE_INDEX, "17");
-				}
-			} else if (index == 36 && ("add").equals(option)) {
+			if (index == 36 && ("add").equals(option)) {
 				// this is the Add extra Roster(s) case after a site is created
 				state.setAttribute(STATE_TEMPLATE_INDEX, "44");
 			} else if (params.getString("continue") != null) {
@@ -5514,13 +5357,6 @@ public class SiteAction extends PagedResourceActionII {
 
 			params = data.getParameters();
 			state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("back"));
-		} else if (currentIndex.equals("6")) {
-			state.removeAttribute(STATE_REMOVEABLE_USER_LIST);
-		} else if (currentIndex.equals("9")) {
-			state.removeAttribute(FORM_WILL_NOTIFY);
-		} else if (currentIndex.equals("17") || currentIndex.equals("16")) {
-			state.removeAttribute(FORM_WILL_NOTIFY);
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		} else if (currentIndex.equals("13") || currentIndex.equals("14")) {
 			// clean state attributes
 			state.removeAttribute(FORM_SITEINFO_TITLE);
@@ -5545,16 +5381,6 @@ public class SiteAction extends PagedResourceActionII {
 			removeAddParticipantContext(state);
 
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
-		} else if (currentIndex.equals("23") || currentIndex.equals("24")) {
-			// from change global access
-			state.removeAttribute("form_joinable");
-			state.removeAttribute("form_joinerRole");
-
-			state.setAttribute(STATE_TEMPLATE_INDEX, "18");
-		} else if (currentIndex.equals("7") || currentIndex.equals("25")) {
-			// from change role
-			removeChangeRoleContext(state);
-			state.setAttribute(STATE_TEMPLATE_INDEX, "18");
 		} else if (currentIndex.equals("3")) {
 			// from adding class
 			if (((String) state.getAttribute(STATE_SITE_MODE))
@@ -5850,74 +5676,6 @@ public class SiteAction extends PagedResourceActionII {
 	} // doMenu_siteInfo_addParticipant
 
 	/**
-	 * doMenu_siteInfo_removeParticipant
-	 */
-	public void doMenu_siteInfo_removeParticipant(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		ParameterParser params = data.getParameters();
-
-		if (params.getStrings("selectedUser") == null) {
-			addAlert(state, rb.getString("java.nousers"));
-		} else {
-			List removeUser = Arrays.asList(params.getStrings("selectedUser"));
-
-			// all or some selected user(s) can be removed, go to confirmation
-			// page
-			if (removeUser.size() > 0) {
-				state.setAttribute(STATE_TEMPLATE_INDEX, "6");
-			} else {
-				addAlert(state, rb.getString("java.however"));
-			}
-
-			state.setAttribute(STATE_REMOVEABLE_USER_LIST, removeUser);
-		}
-
-	} // doMenu_siteInfo_removeParticipant
-
-	/**
-	 * doMenu_siteInfo_changeRole
-	 */
-	public void doMenu_siteInfo_changeRole(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		ParameterParser params = data.getParameters();
-		if (params.getStrings("selectedUser") == null) {
-			state.removeAttribute(STATE_SELECTED_USER_LIST);
-			addAlert(state, rb.getString("java.nousers2"));
-		} else {
-			state.setAttribute(STATE_CHANGEROLE_SAMEROLE, Boolean.TRUE);
-
-			List selectedUserIds = Arrays.asList(params
-					.getStrings("selectedUser"));
-			state.setAttribute(STATE_SELECTED_USER_LIST, selectedUserIds);
-
-			// get roles for selected participants
-			setSelectedParticipantRoles(state);
-
-			if (state.getAttribute(STATE_MESSAGE) == null) {
-				state.setAttribute(STATE_TEMPLATE_INDEX, "7");
-			}
-		}
-
-	} // doMenu_siteInfo_changeRole
-
-	/**
-	 * doMenu_siteInfo_globalAccess
-	 */
-	public void doMenu_siteInfo_globalAccess(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		if (state.getAttribute(STATE_MESSAGE) == null) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "23");
-		}
-
-	} // doMenu_siteInfo_globalAccess
-
-	/**
 	 * doMenu_siteInfo_cancel_access
 	 */
 	public void doMenu_siteInfo_cancel_access(RunData data) {
@@ -6025,23 +5783,6 @@ public class SiteAction extends PagedResourceActionII {
 	} // doMenu_siteInfo_import
 
 	/**
-	 * doMenu_change_roles
-	 */
-	public void doMenu_change_roles(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		ParameterParser params = data.getParameters();
-		if (params.getStrings("removeUser") != null) {
-			state.setAttribute(STATE_SELECTED_USER_LIST, new ArrayList(Arrays
-					.asList(params.getStrings("removeUser"))));
-			state.setAttribute(STATE_TEMPLATE_INDEX, "7");
-		} else {
-			addAlert(state, rb.getString("java.nousers2"));
-		}
-
-	} // doMenu_change_roles
-
-	/**
 	 * doMenu_edit_site_info
 	 * 
 	 */
@@ -6126,23 +5867,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 	} // doMenu_edit_site_access
-
-	/**
-	 * doMenu_publish_site
-	 * 
-	 */
-	public void doMenu_publish_site(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		// get the site properties
-		sitePropertiesIntoState(state);
-
-		if (state.getAttribute(STATE_MESSAGE) == null) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "9");
-		}
-
-	} // doMenu_publish_site
 
 	/**
 	 * Back to worksite setup's list view
@@ -6648,22 +6372,6 @@ public class SiteAction extends PagedResourceActionII {
 	} // doUpdate_site_access
 
 	/**
-	 * remove related state variable for changing participants roles
-	 * 
-	 * @param state
-	 *            SessionState object
-	 */
-	private void removeChangeRoleContext(SessionState state) {
-		// remove related state variables
-		state.removeAttribute(STATE_CHANGEROLE_SAMEROLE);
-		state.removeAttribute(STATE_CHANGEROLE_SAMEROLE_ROLE);
-		state.removeAttribute(STATE_ADD_PARTICIPANTS);
-		state.removeAttribute(STATE_SELECTED_USER_LIST);
-		state.removeAttribute(STATE_SELECTED_PARTICIPANT_ROLES);
-
-	} // removeChangeRoleContext
-
-	/**
 	 * /* Actions for vm templates under the "chef_site" root. This method is
 	 * called by doContinue. Each template has a hidden field with the value of
 	 * template-index that becomes the value of index for the switch statement
@@ -6751,48 +6459,11 @@ public class SiteAction extends PagedResourceActionII {
 				removeAddParticipantContext(state);
 			}
 			break;
-		case 6:
-			/*
-			 * actionForTemplate chef_site-removeParticipants.vm
-			 * 
-			 */
-
-			break;
-		case 7:
-			/*
-			 * actionForTemplate chef_site-changeRoles.vm
-			 * 
-			 */
-			if (forward) {
-				if (!((Boolean) state.getAttribute(STATE_CHANGEROLE_SAMEROLE))
-						.booleanValue()) {
-					getSelectedRoles(state, params, STATE_SELECTED_USER_LIST);
-				} else {
-					String role = params.getString("role_to_all");
-					if (role == null) {
-						addAlert(state, rb.getString("java.pleasechoose") + " ");
-					} else {
-						state
-								.setAttribute(STATE_CHANGEROLE_SAMEROLE_ROLE,
-										role);
-					}
-				}
-			} else {
-				removeChangeRoleContext(state);
-			}
-			break;
 		case 8:
 			/*
 			 * actionForTemplate chef_site-siteDeleteConfirm.vm
 			 * 
 			 */
-			break;
-		case 9:
-			/*
-			 * actionForTemplate chef_site-publishUnpublish.vm
-			 * 
-			 */
-			updateSiteInfo(params, state);
 			break;
 		case 10:
 			/*
@@ -6804,12 +6475,6 @@ public class SiteAction extends PagedResourceActionII {
 					updateCurrentStep(state, false);
 				}
 			}
-			break;
-		case 11:
-			/*
-			 * actionForTemplate chef_site_newsitePublishUnpublish.vm
-			 * 
-			 */
 			break;
 		case 12:
 			/*
@@ -6898,57 +6563,6 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			break;
-		case 16:
-			/*
-			 * actionForTemplate
-			 * chef_site_siteInfo-publishUnpublish-sendEmail.vm
-			 * 
-			 */
-			if (forward) {
-				String notify = params.getString("notify");
-				if (notify != null) {
-					state.setAttribute(FORM_WILL_NOTIFY, new Boolean(notify));
-				}
-			}
-			break;
-		case 17:
-			/*
-			 * actionForTemplate chef_site_siteInfo--publishUnpublish-confirm.vm
-			 * 
-			 */
-			if (forward) {
-				boolean oldStatus = getStateSite(state).isPublished();
-				boolean newStatus = ((SiteInfo) state
-						.getAttribute(STATE_SITE_INFO)).getPublished();
-				saveSiteStatus(state, newStatus);
-
-				if (oldStatus == false || newStatus == true) {
-					// if site's status been changed from unpublish to publish
-					// and notification is selected, send out notification to
-					// participants.
-					if (((Boolean) state.getAttribute(FORM_WILL_NOTIFY))
-							.booleanValue()) {
-						// %%% place holder for sending email
-					}
-				}
-
-				// commit site edit
-				Site site = getStateSite(state);
-
-				try {
-					SiteService.save(site);
-				} catch (IdUnusedException e) {
-					// TODO:
-				} catch (PermissionException e) {
-					// TODO:
-				}
-
-				// TODO: hard coding this frame id is fragile, portal dependent,
-				// and needs to be fixed -ggolden
-				// schedulePeerFrameRefresh("sitenav");
-				scheduleTopRefresh();
-			}
-			break;
 		case 18:
 			/*
 			 * actionForTemplate chef_siteInfo-editAccess.vm
@@ -7000,34 +6614,10 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			break;
-		case 23:
-			/*
-			 * actionForTemplate chef_siteInfo-editAccess-globalAccess.vm
-			 * 
-			 */
-			if (forward) {
-				String joinable = params.getString("joinable");
-				state.setAttribute("form_joinable", Boolean.valueOf(joinable));
-				String joinerRole = params.getString("joinerRole");
-				state.setAttribute("form_joinerRole", joinerRole);
-				if (joinable.equals("true")) {
-					if (joinerRole == null) {
-						addAlert(state, rb.getString("java.pleasesel") + " ");
-					}
-				}
-			} else {
-			}
-			break;
 		case 24:
 			/*
 			 * actionForTemplate
 			 * chef_site-siteInfo-editAccess-globalAccess-confirm.vm
-			 * 
-			 */
-			break;
-		case 25:
-			/*
-			 * actionForTemplate chef_site-changeRoles-confirm.vm
 			 * 
 			 */
 			break;
