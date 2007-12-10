@@ -311,8 +311,12 @@ public interface GradebookService {
 	/**
 	 * 
 	 * @param gradebookUid
-	 * @return list of assignments that the current user is authorized to view or grade.
-	 * Will return null for users without the Instructor or TA role marker
+	 * @return list of gb items that the current user is authorized to view.
+	 * If user has gradeAll permission, returns all gb items.
+	 * If user has gradeSection or viewOwnGrades perm with no grader permissions,
+	 * returns all gb items. (need to be able to retrieve item info for students)
+	 * If user has gradeSection with grader perms, returns only the items that
+	 * the current user is authorized to view or grade.
 	 */
 	public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid);
 	
