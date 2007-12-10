@@ -157,7 +157,7 @@ public class DirectServlet extends HttpServlet {
       // (there is some auth completed already or no auth is required)
       try {
          EntityReference ref = entityBroker.parseReference(path);
-         if (!entityBroker.entityExists(path)) {
+         if (ref == null || !entityBroker.entityExists(ref.toString())) {
             log.warn("Attempted to access an entity URL path (" + path + ") for an entity ("
                   + ref.toString() + ") that does not exist");
             sendError(res, HttpServletResponse.SC_NOT_FOUND);
@@ -165,17 +165,20 @@ public class DirectServlet extends HttpServlet {
             HttpServletAccessProvider accessProvider = accessProviderManager
                   .getProvider(ref.prefix);
             if (accessProvider == null) {
-               log
-                     .warn("Attempted to access an entity URL path ("
-                           + path
-                           + ") for an entity ("
-                           + ref.toString()
+               log.warn("Attempted to access an entity URL path ("
+                           + path + ") for an entity (" + ref.toString()
                            + ") when there is no HttpServletAccessProvider to handle the request for prefix ("
                            + ref.prefix + ")");
                sendError(res, HttpServletResponse.SC_NOT_FOUND);
             } else {
-               // let the helper do the work
-               accessProvider.handleAccess(req, res, ref);
+               ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+               try {
+                  Thread.currentThread().setContextClassLoader(accessProvider.getClass().getClassLoader());
+                  // send request to the access provider which will route it on to the correct entity world
+                  accessProvider.handleAccess(req, res, ref);
+               } finally {
+                  Thread.currentThread().setContextClassLoader(currentClassLoader);
+               }
             }
          }
       } catch (SecurityException e) {
