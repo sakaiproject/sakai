@@ -32,6 +32,7 @@ import org.sakaiproject.exception.TypeException;
  * <p>
  * ContentHostingService is a static Cover for the {@link org.sakaiproject.content.api.ContentHostingService ContentHostingService}; see that interface for usage details.
  * </p>
+ * @deprecated Use Spring injection or ComponentManager instead of referencing this static cover.
  */
 public class ContentHostingService
 {
