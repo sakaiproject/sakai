@@ -700,13 +700,9 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                               }
                             }
                           }
-
                         }
                       }
                     }
-//sakai2                  }
-//sakai2                }
-//sakai2              }
             }
           }
 
@@ -738,31 +734,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
    */
   private String addSyllabusToolToPage(String siteId,String pageName)
   {
-/*sakai2  try
-  {
-    SiteEdit siteEdit = SiteService.editSite(siteId);
-    SitePageEdit editPage=siteEdit.addPage();
-    editPage.setTitle(pageName);
-    ToolRegistration reg = ServerConfigurationService.getToolRegistration("sakai.syllabus");
-    editPage.addTool(reg);    
-    SiteService.commitEdit(siteEdit);
-    return editPage.getId();
-  }
-  
-  catch (IdUnusedException e)
-  {
-  logger.error(e.getMessage(),e);
-  }
-  catch (PermissionException e)
-  {
-    logger.error(e.getMessage(),e);
-  }
-  catch (InUseException e)
-  {
-    logger.error(e.getMessage(),e);
-  }
-  
-    return null;*/
     return siteId;
   }
 
@@ -772,60 +743,32 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
    * @see org.sakaiproject.service.legacy.entity.ResourceService#importResources(java.lang.String,
    *      java.lang.String, java.util.List)
    */
-  public void importEntities(String fromSiteId, String toSiteId,
-      List resourceIds)
+  public void importEntities(String fromSiteId, String toSiteId, List resourceIds)
   {
-   try {
-//sakai2    Iterator fromPages = getSyllabusPages(fromSiteId);
-//    if (fromPages == null || !fromPages.hasNext())
-//    {
-//      logger
-//          .debug("importResources: no source syllabus tool found to be imported");
-//    }
-//    else
-//    {
-//      Iterator toPages = getSyllabusPages(toSiteId);
-//      if (toPages == null || !toPages.hasNext())
-//      {
-//        logger
-//            .debug("importResources: no destination syllabus tool found where data can be imported");
-//      }
-//      else
-//      {
-//        while (fromPages.hasNext())
-//        {
-          
+	  try {
           logger.debug("importResources: Begin importing syllabus data");
-//sakai2          String fromPage = (String) fromPages.next();
-//sakai2          toPages = getSyllabusPages(toSiteId);
+
           String fromPage = fromSiteId;
-          SyllabusItem fromSyllabusItem = syllabusManager
-              .getSyllabusItemByContextId(fromPage);
+          SyllabusItem fromSyllabusItem = syllabusManager.getSyllabusItemByContextId(fromPage);
+          
           if (fromSyllabusItem != null)
           {
-            Set fromSyDataSet = syllabusManager
-                .getSyllabiForSyllabusItem(fromSyllabusItem);
+            Set fromSyDataSet = syllabusManager.getSyllabiForSyllabusItem(fromSyllabusItem);
+            
             if (fromSyDataSet != null && fromSyDataSet.size() > 0)
             {
-//sakai2              while (toPages.hasNext())
-//             {
-                fromSyDataSet = syllabusManager
-                    .getSyllabiForSyllabusItem(fromSyllabusItem);
-//sakai2                String toPage = (String) toPages.next();
-                // String toPage=addSyllabusToolToPage(toSiteId,SiteService.getSite(fromSiteId).getPage(fromPage).getTitle());
-//sakai2                SyllabusItem toSyItem = syllabusManager
-//sakai2                    .getSyllabusItemByContextId(toPage);
-                String toPage=addSyllabusToolToPage(toSiteId,
-                    SiteService.getSite(toSiteId).getTitle());
-                SyllabusItem toSyItem = syllabusManager
-                    .getSyllabusItemByContextId(toPage);
+                fromSyDataSet = syllabusManager.getSyllabiForSyllabusItem(fromSyllabusItem);
+
+                String toPage=addSyllabusToolToPage(toSiteId, SiteService.getSite(toSiteId).getTitle());
+                SyllabusItem toSyItem = syllabusManager.getSyllabusItemByContextId(toPage);
+                
                 if (toSyItem == null)
                 {
                   toSyItem = syllabusManager.createSyllabusItem(
                       UserDirectoryService.getCurrentUser().getId(), toPage,
                       fromSyllabusItem.getRedirectURL());
                 }
-                else if (fromSyllabusItem.getRedirectURL() !=null) {
+                else if (fromSyllabusItem.getRedirectURL() != null) {
                 	toSyItem.setRedirectURL(fromSyllabusItem.getRedirectURL());
                		syllabusManager.saveSyllabusItem(toSyItem);
                 }                
@@ -835,31 +778,24 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                 {
                   SyllabusData toSyData = (SyllabusData) fromSetIter.next();
                   Integer positionNo = new Integer(syllabusManager
-                      .findLargestSyllabusPosition(toSyItem).intValue() + 1);
+                		  .findLargestSyllabusPosition(toSyItem).intValue() + 1);
+                  
                   SyllabusData newToSyData = syllabusManager
-                      .createSyllabusDataObject(toSyData.getTitle(),
+                  		  .createSyllabusDataObject(toSyData.getTitle(),
                           positionNo, toSyData.getAsset(), toSyData.getView(),
                           toSyData.getStatus(), toSyData.getEmailNotification());
-                  syllabusManager.addSyllabusToSyllabusItem(toSyItem,
-                      newToSyData);
+                  
+                  syllabusManager.addSyllabusToSyllabusItem(toSyItem, newToSyData);
                 }
-//sakai2              }
             }
             else
             {
               logger.debug("importResources: no data found for syllabusItem id"
                   + fromSyllabusItem.getSurrogateKey().toString());
             }
-          }
-//sakai2        }
+        }
         logger.debug("importResources: End importing syllabus data");
-//sakai2      }
-//sakai2    }
    }
-//   catch (IdUnusedException e)
-//   {
-//   logger.error(e.getMessage(),e);
-//   }
    catch(Exception e)
    {
      logger.error(e.getMessage(),e);
@@ -877,53 +813,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     syPages = new ArrayList();
     syPages.add(siteId);
     return syPages.iterator();
-/*sakai2    if (siteId != null && siteId.trim().length() > 0)
-    {
-      Site site = null;
-      try
-      {
-        site = SiteService.getSite(siteId);
-      }
-      catch (IdUnusedException e)
-      {
-        logger.error("Error retriving site: unused IdUnusedException "
-            + e.getMessage(), e);
-        return null;
-      }
-      List pages = site.getPages();
-
-      if (pages != null && pages.size() > 0)
-      {
-        syPages = new ArrayList();
-
-        Iterator pageIter = pages.iterator();
-        while (pageIter.hasNext())
-        {
-          SitePage page = (SitePage) pageIter.next();
-          if (page != null)
-          {
-            // process each tool till we see syllabus
-            for (Iterator iTools = page.getTools().iterator(); iTools.hasNext();)
-            {
-              ToolConfiguration tool = (ToolConfiguration) iTools.next();
-              String toolId = tool.getId();
-              if (toolId != null && tool.getToolId().equals("sakai.syllabus"))
-              {
-                syPages.add(page.getId());
-              }
-            }
-          }
-        }
-      }
-    }
-    if (syPages != null && syPages.size() > 0)
-    {
-      return syPages.iterator();
-    }
-    else
-    {
-      return null;
-    }*/
   }
 
   public void setNotificationService(NotificationService notificationService)
@@ -1280,8 +1169,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 						.getSyllabiForSyllabusItem(fromSyllabusItem);
 				if (fromSyDataSet != null && fromSyDataSet.size() > 0) 
 				{
-					fromSyDataSet = syllabusManager
-							.getSyllabiForSyllabusItem(fromSyllabusItem);
 					String toPage = addSyllabusToolToPage(toContext, SiteService
 							.getSite(toContext).getTitle());
 					SyllabusItem toSyItem = syllabusManager
