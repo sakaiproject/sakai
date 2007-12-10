@@ -132,7 +132,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setHidden(Boolean.TRUE);
             area.setLocked(Boolean.FALSE);
             area.setModerated(Boolean.FALSE);
-            area.setSendEmailOut(Boolean.FALSE);
+            area.setSendEmailOut(Boolean.TRUE);
             saveArea(area);
         }
         return area;
