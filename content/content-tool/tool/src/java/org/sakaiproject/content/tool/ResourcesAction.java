@@ -4745,6 +4745,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				finishAction(state, toolSession, pipe);
 			}
+			else
+			{
+				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			}
 			toolSession.removeAttribute(ResourceToolAction.DONE);
 		}
 		
