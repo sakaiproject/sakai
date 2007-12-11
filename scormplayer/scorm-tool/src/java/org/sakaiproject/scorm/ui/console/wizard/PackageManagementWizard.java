@@ -14,8 +14,6 @@ import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.feedback.ContainerFeedbackMessageFilter;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.ui.console.components.FileUploadForm;
 import org.sakaiproject.scorm.ui.console.components.NotificationPanel;
 import org.sakaiproject.scorm.ui.console.pages.PackageListPage;
@@ -38,9 +36,6 @@ public class PackageManagementWizard extends Wizard {
 	private UploadFileStep uploadFileStep;
 	
 	private FileUploadForm form;
-	
-	@SpringBean
-	ScormClientFacade clientFacade;
 	
 	public PackageManagementWizard(String id) {
 		super(id, false);

@@ -31,8 +31,8 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.model.api.ContentPackage;
+import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.wicket.markup.html.form.CancelButton;
 
 public class PackageRemovePage extends ConsoleBasePage {
@@ -40,7 +40,7 @@ public class PackageRemovePage extends ConsoleBasePage {
 	private static final long serialVersionUID = 1L;
 	
 	@SpringBean
-	ScormClientFacade clientFacade;
+	ScormContentService contentService;
 
 	public PackageRemovePage(PageParameters params) {
 		String title = params.getString("title");
@@ -65,7 +65,7 @@ public class PackageRemovePage extends ConsoleBasePage {
 			
 			@Override
 			protected void onSubmit() {
-				clientFacade.contentPackageInterface().removeContentPackage(id);
+				contentService.removeContentPackage(id);
 				setResponsePage(PackageListPage.class);
 			}
 			

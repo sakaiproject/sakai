@@ -23,7 +23,7 @@ package org.sakaiproject.scorm.service.impl;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.scorm.client.api.ScormConstants;
+import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.service.api.ScormPermissionService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;

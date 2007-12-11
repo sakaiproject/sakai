@@ -24,8 +24,8 @@ import org.adl.sequencer.SeqNavRequests;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.model.api.SessionBean;
+import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.player.components.ActivityAjaxButton;
 import org.sakaiproject.scorm.ui.player.components.LaunchPanel;
 import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
@@ -41,10 +41,9 @@ public class ButtonForm extends Form {
 
 	private ActivityAjaxButton prevButton, nextButton, startButton, quitButton, suspendButton;
 	private PlayerPage view;
-	//private LaunchPanel launchPanel;
 	
 	@SpringBean
-	ScormClientFacade clientFacade;
+	ScormSequencingService sequencingService;
 	
 	public ButtonForm(String id, final SessionBean sessionBean, PlayerPage view) {
 		super(id);
@@ -67,11 +66,11 @@ public class ButtonForm extends Form {
 	}
 	
 	public void synchronizeState(SessionBean sessionBean, AjaxRequestTarget target) {
-		boolean isContinueEnabled = clientFacade.sequencingInterface().isContinueEnabled(sessionBean);
-		boolean isContinueExitEnabled = clientFacade.sequencingInterface().isContinueExitEnabled(sessionBean);
-		boolean isPreviousEnabled = clientFacade.sequencingInterface().isPreviousEnabled(sessionBean);
-		boolean isStartEnabled = clientFacade.sequencingInterface().isStartEnabled(sessionBean);
-		boolean isSuspendEnabled = clientFacade.sequencingInterface().isSuspendEnabled(sessionBean);
+		boolean isContinueEnabled = sequencingService.isContinueEnabled(sessionBean);
+		boolean isContinueExitEnabled = sequencingService.isContinueExitEnabled(sessionBean);
+		boolean isPreviousEnabled = sequencingService.isPreviousEnabled(sessionBean);
+		boolean isStartEnabled = sequencingService.isStartEnabled(sessionBean);
+		boolean isSuspendEnabled = sequencingService.isSuspendEnabled(sessionBean);
 		
 		setNextButtonVisible(isContinueEnabled || isContinueExitEnabled, target);
 		setPrevButtonVisible(isPreviousEnabled, target);

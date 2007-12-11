@@ -20,13 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.player;
 
-import org.sakaiproject.scorm.client.api.ScormClientFacade;
+import org.apache.wicket.util.file.Folder;
 import org.sakaiproject.scorm.ui.console.pages.PackageListPage;
 import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
 
 public class ScormTool extends SakaiWebApplication {
-	
-	private ScormClientFacade clientFacade;
 	
 	@Override
 	public void init() {
@@ -37,13 +35,15 @@ public class ScormTool extends SakaiWebApplication {
 	public Class getHomePage() {
 		return PackageListPage.class;
 	}
-	
-	public ScormClientFacade getClientFacade() {
-		return clientFacade;
-	}
 
-	public void setClientFacade(ScormClientFacade clientFacade) {
-		this.clientFacade = clientFacade;
+	
+	public Folder getUploadFolder() {
+		Folder folder = new Folder(System.getProperty("java.io.tmpdir"), "scorm-uploads");
+	
+		// Make sure that this directory exists.
+		folder.mkdirs();
+		
+		return folder;
 	}
 		
 }

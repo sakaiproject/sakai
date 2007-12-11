@@ -1,12 +1,10 @@
-package org.sakaiproject.scorm.ui.player.components;
+package org.sakaiproject.scorm.ui.player.behaviors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.ComponentTag;
-import org.sakaiproject.scorm.client.api.IRunState;
 import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.ui.player.behaviors.ActivityAjaxEventBehavior;
 
 public class CloseWindowBehavior extends ActivityAjaxEventBehavior {
 

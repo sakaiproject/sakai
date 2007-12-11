@@ -8,17 +8,12 @@ import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.ui.console.components.FileUploadForm;
 
 public class ChooseFileStep extends WizardStep {
 
 	private static final long serialVersionUID = 1L;
 
-	@SpringBean
-	ScormClientFacade clientFacade;
-	
 	private FileUploadForm form;
 	
 	private PackageManagementWizard wizard;
