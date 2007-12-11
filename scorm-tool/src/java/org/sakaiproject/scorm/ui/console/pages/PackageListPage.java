@@ -46,7 +46,7 @@ import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.ActionColumn;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.ImageLinkColumn;
-import org.sakaiproject.wicket.markup.html.repeater.data.table.SakaiBasicDataTable;
+import org.sakaiproject.wicket.markup.html.repeater.data.table.BasicDataTable;
 
 public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 
@@ -99,7 +99,7 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 		if (canDelete)
 			columns.add(new ImageLinkColumn(new Model("Remove"), PackageRemovePage.class, paramPropertyExpressions, deleteIconReference));
 
-		SakaiBasicDataTable table = new SakaiBasicDataTable("cpTable", columns, contentPackages);
+		BasicDataTable table = new BasicDataTable("cpTable", columns, contentPackages);
 		
 		add(table);
 	}	
