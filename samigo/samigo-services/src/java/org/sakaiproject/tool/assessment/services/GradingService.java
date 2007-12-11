@@ -37,6 +37,7 @@ import java.util.regex.Matcher;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -52,6 +53,7 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
@@ -180,6 +182,13 @@ public class GradingService
       for (int i=0; i<gdataList.size(); i++){
         AssessmentGradingData ag = (AssessmentGradingData)gdataList.get(i);
         saveOrUpdateAssessmentGrading(ag);
+        EventTrackingService.post(EventTrackingService.newEvent("sam.total.score.update", 
+        		"gradedBy=" + AgentFacade.getAgentString() + 
+        		", assessmentGradingId=" + ag.getAssessmentGradingId() + 
+          		", totalAutoScore=" + ag.getTotalAutoScore() + 
+          		", totalOverrideScore=" + ag.getTotalOverrideScore() + 
+          		", FinalScore=" + ag.getFinalScore() + 
+          		", comments=" + ag.getComments() , true));
       }
 
       // no need to notify gradebook if this submission is not for grade
@@ -595,6 +604,8 @@ public class GradingService
         if (i.getItemGradingId().equals(gdata.getItemGradingId())){
 	  i.setAutoScore(gdata.getAutoScore());
           i.setComments(gdata.getComments());
+          i.setGradedBy(AgentFacade.getAgentString());
+          i.setGradedDate(new Date());
 	}
         if (i.getAutoScore()!=null)
           totalAutoScore += i.getAutoScore().floatValue();

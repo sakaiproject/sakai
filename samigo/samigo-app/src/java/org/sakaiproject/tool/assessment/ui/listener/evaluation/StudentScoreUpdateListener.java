@@ -36,8 +36,10 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -107,6 +109,7 @@ public class StudentScoreUpdateListener
     {
       ArrayList parts = delivery.getPageContents().getPartsContents();
       Iterator iter = parts.iterator();
+      boolean updateFlag = false;
       while (iter.hasNext())
       {
         ArrayList items = ((SectionContentsBean) iter.next()).getItemContents();
@@ -135,19 +138,62 @@ public class StudentScoreUpdateListener
             ItemGradingData data = (ItemGradingData) iter3.next();
             if (adata == null && data.getAssessmentGradingId() != null){
               adata = delegate.load(data.getAssessmentGradingId().toString());
-	    }
+            }
             if (data.getAgentId() == null)
             { // this is a skipped question, set submittedDate=null
               data.setSubmittedDate(null);
               data.setAgentId(bean.getStudentId());
             }
-            data.setAutoScore(new Float
-              (new Float(question.getExactPoints()).floatValue()
-               / (float) gradingarray.size()));
-            data.setComments(question.getGradingComment());
-            log.debug("****4 itemGradingId="+data.getItemGradingId());
-            log.debug("****5 set points = " + data.getAutoScore() + ", comments to " + data.getComments());
-            itemGradingSet.add(data);
+            float newAutoScore = (new Float(question.getExactPoints()).floatValue() / (float) gradingarray.size());
+            float oldAutoScore = 0;
+            if (data.getAutoScore() !=null) {
+              oldAutoScore=data.getAutoScore().floatValue();
+            }
+            String newComments = question.getGradingComment();
+            if (newComments != null) {
+      		  newComments = newComments.trim();
+            }
+            else {
+              newComments = "";
+            }
+            String oldComments = data.getComments();
+            if (oldComments != null) { 	
+          	  oldComments = oldComments.trim();
+            }
+            else {
+              oldComments = "";
+            }
+            boolean updateScore = newAutoScore != oldAutoScore;
+            boolean updateComments = !newComments.equals(oldComments);
+            StringBuffer logString = new StringBuffer();
+            logString.append("gradedBy=");
+            logString.append(AgentFacade.getAgentString());
+            logString.append(", itemGradingId=");
+            logString.append(data.getItemGradingId());
+            
+            if (updateScore) {
+              data.setAutoScore(Float.valueOf(newAutoScore));
+              logString.append(", newAutoScore=");
+              logString.append(newAutoScore);
+              logString.append(", oldAutoScore=");
+              logString.append(oldAutoScore);
+            }
+            if (updateComments) {
+              data.setComments(question.getGradingComment());
+              logString.append(", newComments=");
+              logString.append(newComments);
+              logString.append(", oldComments=");
+              logString.append(oldComments);
+            }
+            if (updateScore || updateComments) {
+              updateFlag = true;	
+              data.setGradedBy(AgentFacade.getAgentString());
+              data.setGradedDate(new Date());
+              EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", logString.toString(), true));
+              log.debug("****4 itemGradingId="+data.getItemGradingId());
+              log.debug("****5 set points = " + data.getAutoScore() + ", comments to " + data.getComments());
+              itemGradingSet.add(data);
+            }
           }
         }
         if (adata==null){
@@ -155,26 +201,60 @@ public class StudentScoreUpdateListener
           // when we won't be able to get teh assessmentGrading based on itemGrdaing ('cos there is none).
           String assessmentGradingId = cu.lookupParam("gradingData");
           adata = delegate.load(assessmentGradingId);
-	}
+        }
         adata.setItemGradingSet(itemGradingSet);
       }
 
       if (adata == null)
         return true; // Nothing to save.
 
-      adata.setComments(bean.getComments());
+      String newComments = bean.getComments();
+      if (newComments != null) {
+    	  newComments = newComments.trim();
+      }
+      else {
+    	  newComments = "";
+      }
+      String oldComments = adata.getComments();
+      if (oldComments != null) { 	
+    	  oldComments = oldComments.trim();
+      }
+      else {
+    	  oldComments = "";
+      }
+
+      if (!newComments.equals(oldComments)) {
+    	  updateFlag = true;
+    	  adata.setComments(bean.getComments());
+    	  adata.setGradedBy(AgentFacade.getAgentString());
+    	  adata.setGradedDate(new Date());
+    	  StringBuffer logString = new StringBuffer();
+          logString.append("gradedBy=");
+          logString.append(AgentFacade.getAgentString());
+          logString.append(", assessmentGradingId=");
+          logString.append(adata.getAssessmentGradingId());
+          logString.append(", newComments=");
+          logString.append(newComments);
+          logString.append(", oldComments=");
+          logString.append(oldComments);
+    	  EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", logString.toString(), true));
+      }
+
       //log.debug("Got total comments: " + adata.getComments());
 
-      // Some of the itemgradingdatas may be new.
+      // Some of the itemgradingdatas may be new - comment this out
+      // I don't know how itemgradingdatas may be new
+      /*
       iter = itemGradingSet.iterator();
       while (iter.hasNext())
       {
         ItemGradingData data = (ItemGradingData) iter.next();
         data.setAssessmentGradingId(adata.getAssessmentGradingId());
       }
-
-      delegate.updateAssessmentGradingScore(adata, tbean.getPublishedAssessment());
-
+	  */
+      if (updateFlag) {
+    	  delegate.updateAssessmentGradingScore(adata, tbean.getPublishedAssessment());
+      }
       log.debug("Saved student scores.");
 
     } catch (GradebookServiceException ge) {

@@ -25,26 +25,26 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
-import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.BeanSort;
 
 /**
  * <p>
@@ -128,21 +128,50 @@ public class QuestionScoreUpdateListener
           // check if there is differnce in score, if so, update. Otherwise, do nothing
           float newAutoScore = (new Float(ar.getTotalAutoScore())).floatValue() / (float) datas.size();
           String newComments = ar.getComments();
-          if (newComments!=null) 
- 		newComments = newComments.trim();
+          if (newComments!=null) {
+        	  newComments = newComments.trim();
+          }
+          else {
+        	  newComments = "";
+          }
 
           float oldAutoScore = 0;
           if (data.getAutoScore() !=null)
             oldAutoScore=data.getAutoScore().floatValue();
           String oldComments = data.getComments();
 
-          if (oldComments!=null) 
-		oldComments = oldComments.trim();
-          if (newAutoScore != oldAutoScore || !newComments.equals(oldComments)){
-	    data.setAutoScore(new Float(newAutoScore));
+          if (oldComments!=null) {
+        	  oldComments = oldComments.trim();
+          }
+          else {
+        	  oldComments = "";
+          }
+          StringBuffer logString = new StringBuffer();
+          logString.append("gradedBy=");
+          logString.append(AgentFacade.getAgentString());
+          logString.append(", itemGradingId=");
+          logString.append(data.getItemGradingId());
+          
+          if (newAutoScore != oldAutoScore){
+        	data.setAutoScore(new Float(newAutoScore));
+        	logString.append(", newAutoScore=");
+            logString.append(newAutoScore);
+            logString.append(", oldAutoScore=");
+            logString.append(oldAutoScore);
+          }
+          if (!newComments.equals(oldComments)) {
             data.setComments(ar.getComments());
+            logString.append(", newComments=");
+            logString.append(newComments);
+            logString.append(", oldComments=");
+            logString.append(oldComments);
+          }
+          if (newAutoScore != oldAutoScore || !newComments.equals(oldComments)){
+            data.setGradedBy(AgentFacade.getAgentString());
+            data.setGradedDate(new Date());
+            EventTrackingService.post(EventTrackingService.newEvent("sam.question.score.update", logString.toString(), true));
             delegate.updateItemScore(data, newAutoScore-oldAutoScore, tbean.getPublishedAssessment());
-	  }
+          }
         }
       }
 

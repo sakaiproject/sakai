@@ -26,24 +26,25 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 
-
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
-import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -116,11 +117,11 @@ public class TotalScoreUpdateListener
         boolean update = needUpdate(agentResults, map);
         if (update){
         	log.debug("update is true");
+            AssessmentGradingData data = new AssessmentGradingData();
           if (!agentResults.getAssessmentGradingId().equals(new Long(-1)) ) {
 	    // these are students who have submitted for grades.
             // Add up new score
             agentResults.setFinalScore(newScore+"");
-            AssessmentGradingData data = new AssessmentGradingData();
             BeanUtils.copyProperties(data, agentResults);
     	    data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
             data.setTotalAutoScore(new Float(agentResults.getTotalAutoScore()));
@@ -128,13 +129,14 @@ public class TotalScoreUpdateListener
             data.setFinalScore(new Float(agentResults.getFinalScore()));
             data.setIsLate(agentResults.getIsLate());
             data.setComments(agentResults.getComments());
+            data.setGradedBy(AgentFacade.getAgentString());
+            data.setGradedDate(new Date());
             grading.add(data);
           }
           else {
             // these are students who have not submitted for grades and instructor made adjustment to their scores
             // Add up new score
             agentResults.setFinalScore(newScore+"");
-	    AssessmentGradingData data = new AssessmentGradingData();
             BeanUtils.copyProperties(data, agentResults);
 
             data.setAgentId(agentResults.getIdString());
@@ -150,6 +152,8 @@ public class TotalScoreUpdateListener
             data.setTotalOverrideScore(new Float(agentResults.getTotalOverrideScore()));
             data.setFinalScore(new Float(agentResults.getFinalScore()));
             data.setComments(agentResults.getComments());
+            data.setGradedBy(AgentFacade.getAgentString());
+            data.setGradedDate(new Date());
             // note that I am not sure if we should set this people as late or what?
             grading.add(data);
           }
