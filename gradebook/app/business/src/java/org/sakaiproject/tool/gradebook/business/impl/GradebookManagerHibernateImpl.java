@@ -2791,12 +2791,20 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		for(Iterator iter = assignList.iterator(); iter.hasNext();)
     		{
     			Assignment assign = (Assignment) iter.next();
-    			if(assign.getCategory() == null)
+    			if(assign.getCategory() != null)
     			{
-    				assignIds.add(createAssignment(gradebookId, assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isCounted(), assign.isReleased()));
+					if(!assign.getUngraded())
+						assignIds.add(createAssignmentForCategory(gradebookId, assign.getCategory().getId(), assign.getName(), assign.getPointsPossible(), assign.getDueDate(), new Boolean(assign.isNotCounted()),new Boolean(assign.isReleased())));
+					else
+						assignIds.add(createUngradedAssignmentForCategory(gradebookId,  assign.getCategory().getId(), assign.getName(), assign.getDueDate(), new Boolean(assign.isNotCounted()),new Boolean(assign.isReleased()), assign.getPointsPossible()));
     			}
     			else
-    				assignIds.add(createAssignmentForCategory(gradebookId, assign.getCategory().getId(), assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased()));
+				{
+					if(!assign.getUngraded())
+						assignIds.add(createAssignment(gradebookId,  assign.getName(), assign.getPointsPossible(), assign.getDueDate(), new Boolean(assign.isNotCounted()),new Boolean(assign.isReleased())));
+					else
+						assignIds.add(createUngradedAssignment(gradebookId, assign.getName(), assign.getDueDate(), new Boolean(assign.isNotCounted()), new Boolean(assign.isReleased()), assign.getPointsPossible()));
+				}
     		}
     	}
     	catch(Exception e)
@@ -2809,7 +2817,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		throw new MultipleAssignmentSavingException("Errors occur while trying to saving multiple assignment items in createAssignments -- " + e.getMessage());
     	}
     }
-    
+	
     public boolean checkValidName(final Long gradebookId, final Assignment assignment)
     {
     	HibernateCallback hc = new HibernateCallback() {
@@ -2831,5 +2839,103 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		return false;
     	else
     		return true;
+    }
+	
+	/** synchronize from external application - override createUngradedAssignment method in BaseHibernateManager.*/
+	public Long createUngradedAssignment(final Long gradebookId, final String name, 
+    		final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Double points)
+    throws ConflictingAssignmentNameException, StaleObjectModificationException
+    {
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+    			int numNameConflicts = ((Integer)session.createQuery(
+    			"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+    			setString(0, name).
+    			setEntity(1, gb).
+    			uniqueResult()).intValue();
+    			if(numNameConflicts > 0) {
+    				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+    			}
+
+    			Assignment asn = new Assignment();
+    			asn.setGradebook(gb);
+    			asn.setName(name);
+    			asn.setDueDate(dueDate);
+    			asn.setUngraded(true);
+    			asn.setPointsPossible(points);
+    			if (isNotCounted != null) {
+    				asn.setNotCounted(isNotCounted.booleanValue());
+    			}
+
+    			if(isReleased!=null){
+    				asn.setReleased(isReleased.booleanValue());
+    			}
+				
+    			/** synchronize from external application */
+    			if (synchronizer != null && !synchronizer.isProjectSite())
+    			{
+    				synchronizer.addLegacyAssignment(name);
+    			}
+				  
+    			Long id = (Long)session.save(asn);
+
+    			return id;
+    		}
+    	};
+    	return (Long)getHibernateTemplate().execute(hc);
+    }
+	
+    /** synchronize from external application - override createUngradedAssignmentForCategory method in BaseHibernateManager.*/
+	public Long createUngradedAssignmentForCategory(final Long gradebookId, final Long categoryId, 
+    		final String name, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Double points)
+    throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException
+    {
+    	if(gradebookId == null || categoryId == null)
+    	{
+    		throw new IllegalArgumentException("gradebookId or categoryId is null in GradebookManagerHivernateImpl.createUngradedAssignmentForCategory");
+    	}
+
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+    			Category cat = (Category)session.load(Category.class, categoryId);
+    			int numNameConflicts = ((Integer)session.createQuery(
+    			"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+    			setString(0, name).
+    			setEntity(1, gb).
+    			uniqueResult()).intValue();
+    			if(numNameConflicts > 0) {
+    				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+    			}
+
+    			Assignment asn = new Assignment();
+    			asn.setGradebook(gb);
+    			asn.setCategory(cat);
+    			asn.setName(name);
+    			asn.setDueDate(dueDate);
+    			asn.setUngraded(true);
+    			asn.setPointsPossible(points);
+    			if (isNotCounted != null) {
+    				asn.setNotCounted(isNotCounted.booleanValue());
+    			}
+
+    			if(isReleased!=null){
+    				asn.setReleased(isReleased.booleanValue());
+    			}
+
+    			/** synchronize from external application */
+    			if (synchronizer != null && !synchronizer.isProjectSite())
+    			{
+    				synchronizer.addLegacyAssignment(name);
+    			}
+				
+    			Long id = (Long)session.save(asn);
+
+    			return id;
+    		}
+    	};
+
+    	return (Long)getHibernateTemplate().execute(hc);
     }
 }
