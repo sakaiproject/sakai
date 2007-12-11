@@ -19,6 +19,8 @@ import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
+import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -82,27 +84,12 @@ public class DirectServlet extends HttpServlet {
       checkDependencies();
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
-    *      javax.servlet.http.HttpServletResponse)
+   /**
+    * Now this will handle all kinds of requests and not just post and get
     */
-   public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException,
-         IOException {
-      handleRequest(req, res);
-   }
-
-   /*
-    * (non-Javadoc)
-    * 
-    * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest,
-    *      javax.servlet.http.HttpServletResponse)
-    */
-   public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException,
-         IOException {
-      // The fact that this handles posts completely is the core change from the
-      // AccessServlet
+   @Override
+   protected void service(HttpServletRequest req, HttpServletResponse res)
+         throws ServletException, IOException {
       handleRequest(req, res);
    }
 
@@ -173,7 +160,12 @@ public class DirectServlet extends HttpServlet {
             } else {
                ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
                try {
-                  Thread.currentThread().setContextClassLoader(accessProvider.getClass().getClassLoader());
+                  ClassLoader newClassLoader = accessProvider.getClass().getClassLoader();
+                  // check to see if this access provider reports the correct classloader
+                  if (accessProvider instanceof ClassLoaderReporter) {
+                     newClassLoader = ((ClassLoaderReporter) accessProvider).getSuitableClassLoader();
+                  }
+                  Thread.currentThread().setContextClassLoader(newClassLoader);
                   // send request to the access provider which will route it on to the correct entity world
                   accessProvider.handleAccess(req, res, ref);
                } finally {
