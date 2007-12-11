@@ -1,5 +1,6 @@
 package org.sakaiproject.scorm.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -25,15 +26,18 @@ import org.adl.validator.contentpackage.ILaunchData;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
+import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.service.api.INavigationEvent;
 import org.sakaiproject.scorm.service.api.INavigable;
+import org.sakaiproject.scorm.service.api.INavigationEvent;
 import org.sakaiproject.scorm.service.api.ScoBean;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 public abstract class ScormApplicationServiceImpl implements ScormApplicationService {
 
@@ -59,6 +63,8 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	// Dependency injection method lookup signatures
 	protected abstract UserDirectoryService userDirectoryService();
 	protected abstract ScormSequencingService scormSequencingService();
+	protected abstract AttemptDao attemptDao();
+	
 	
 	protected DataManagerDao dataManagerDao;
 	
@@ -102,6 +108,11 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		
 		if (sessionBean.isCloseOnNextTerminate()) {
 			scormSequencingService().navigate(SeqNavRequests.NAV_SUSPENDALL, sessionBean, agent, null);
+			
+			Attempt attempt = sessionBean.getAttempt();
+			attempt.setSuspended(true);
+			
+			attemptDao().save(attempt);
 		}
 	}
 	
@@ -131,7 +142,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				// LMS is terminated
 				errorManager.setCurrentErrorCode(APIErrorCodes.COMMIT_AFTER_TERMINATE);
 			} else {
-				IDataManager dataManager = scormSequencingService().getDataManager(sessionBean);
+				IDataManager dataManager = scormSequencingService().getDataManager(sessionBean, scoBean);
 				ISeqActivityTree tree = scormSequencingService().getActivityTree(sessionBean);
 				ISequencer sequencer = scormSequencingService().getSequencer(tree);
 				IValidRequests validRequests = commit(sessionBean, dataManager, sequencer);
@@ -275,16 +286,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		else {
 			sessionBean.setSuspended(false);
 			
-			String courseId = sessionBean.getCourseId();
-			String scoId = sessionBean.getScoId();
-			String userId = sessionBean.getLearnerId();
-			String title = sessionBean.getTitle();
-			
-			ILaunchData launchData = sessionBean.getLaunchData();
-			IValidRequests validRequests = sessionBean.getNavigationState();
-			
-			IDataManager dm = initialize(courseId, scoId, userId, title, launchData,
-						validRequests, sessionBean.getObjectiveStatusSet(), String.valueOf(scoBean.getAttemptNumber()));
+			IDataManager dm = initialize(sessionBean);
 	
 			if (dm != null) {
 				sessionBean.setDataManager(dm);
@@ -435,6 +437,11 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 				if (exitValue.equals("time-out") || exitValue.equals("logout")) {
 					event = SeqNavRequests.NAV_EXITALL;
+					
+					Attempt attempt = sessionBean.getAttempt();
+					attempt.setSuspended(false);
+					attempt.setNotExited(false);
+					attemptDao().save(attempt);
 				} 
 
 				// handle if sco set nav.request
@@ -468,25 +475,71 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		return new NavigationEvent();
 	}
 		
+	private Attempt getAttempt(SessionBean sessionBean) {
+		Attempt attempt = sessionBean.getAttempt();
+		
+		if (attempt == null) {
+			String courseId = sessionBean.getCourseId();
+			String learnerId = sessionBean.getLearnerId();
+			
+			long attemptNumber = sessionBean.getAttemptNumber();
+			
+			attempt = attemptDao().find(courseId, learnerId, attemptNumber);
+			
+			if (attempt == null) {
+				attempt = new Attempt();
+				attempt.setCourseId(courseId);
+				attempt.setLearnerId(learnerId);
+				attempt.setAttemptNumber(attemptNumber);
+				attempt.setLearnerName("Unavailable");
+				attempt.setBeginDate(new Date());
+				try {
+					User learner = userDirectoryService().getUser(learnerId);
+					
+					if (learner != null)
+						attempt.setLearnerName(learner.getDisplayName());
+				} catch (UserNotDefinedException e) {
+					log.error("Could not find user " + learnerId, e);
+				}
+				
+			}
+			sessionBean.setAttempt(attempt);
+		}
+
+		return attempt;
+	}
 	
-	private IDataManager initialize(String courseId, String scoId, String userId, String title,
-			  ILaunchData launchData, IValidRequests validRequests, List mStatusVector, 
-			  String attemptNumber) {
+	
+	private IDataManager initialize(SessionBean sessionBean) {
 		log.debug("Service - Initialize");
 
 		boolean isNewDataManager = false;
         IDataManager dm = null;
         
+        String courseId = sessionBean.getCourseId();
+		String scoId = sessionBean.getScoId();
+		String userId = sessionBean.getLearnerId();
+		String title = sessionBean.getTitle();
+		
+		ILaunchData launchData = sessionBean.getLaunchData();
+		IValidRequests validRequests = sessionBean.getNavigationState();
+		List mStatusVector = sessionBean.getObjectiveStatusSet();
+        
+		Attempt attempt = getAttempt(sessionBean);
+		
+		long dataManagerId = attempt.getDataManagerId();
+		
         // FIXME : We need to look in the db first -- but currently it doesn't seem that data is getting saved correctly
         // First, check to see if we have a ScoDataManager persisted
-        dm = dataManagerDao.find(courseId, userId);
+        if (dataManagerId != -1)
+        	dm = dataManagerDao.load(dataManagerId);
+        	//dataManagerDao.find(courseId, userId, attemptNumber);
 
         if (dm == null) {
-	        // If not, create one
-	        dm = new SCODataManager(courseId, userId, title);
+	        // If not, create one, which means this is the 
+	        dm = new SCODataManager(courseId, userId, title, sessionBean.getAttemptNumber());
 	        dm.setValidatorFactory(new ValidatorFactory());
-	        
-	        
+
 	        //  Add a SCORM 2004 Data Model
 	        dm.addDM(DMFactory.DM_SCORM_2004);
 	
@@ -509,7 +562,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	
 	        // TODO: Need to replace this with some reasonable alternative
 	        // SSP addition
-	        initSSPData(dm, courseId, scoId, String.valueOf(attemptNumber), userId);
+	        initSSPData(dm, courseId, scoId, String.valueOf(sessionBean.getAttemptNumber()), userId);
         	        
 	        isNewDataManager = true;
         } else {
@@ -625,6 +678,9 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
         }
         
         persistDataManager(validRequests, dm);
+        
+        attempt.setDataManagerId(dm.getId());
+        attemptDao().save(attempt);
         
         return dm;
 	}
@@ -928,17 +984,16 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			}*/
    }
 	
-	
-	
-	
-	
+
 	private void persistDataManager(IValidRequests validRequests, IDataManager scoDataManager) {
 		if (null != validRequests) {
 	        SCORM_2004_NAV_DM navDM = (SCORM_2004_NAV_DM)scoDataManager.getDataModel("adl");
 	
 			navDM.setValidRequests(validRequests);
-	        
+			
 			dataManagerDao.save(scoDataManager);
+			
+
         } else {
         	log.error("Current nav state is null!");
         }

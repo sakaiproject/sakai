@@ -51,8 +51,6 @@ public class ScoBeanImpl implements ScoBean {
 
 	// The public version attribute of the SCORM API.
 	//public static final String version = "1.0";	
-		
-	private long attemptNumber = 1L;
 	
 	private String scoId;
 	
@@ -746,14 +744,6 @@ public class ScoBeanImpl implements ScoBean {
 			Terminate("");
 		}
 	}*/
-
-	public long getAttemptNumber() {
-		return attemptNumber;
-	}
-
-	public void setAttemptNumber(long attemptNumber) {
-		this.attemptNumber = attemptNumber;
-	}
 
 	public boolean isSuspended() {
 		return isSuspended;

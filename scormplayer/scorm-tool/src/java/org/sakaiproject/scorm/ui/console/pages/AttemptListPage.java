@@ -20,8 +20,12 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.service.api.ScormResultService;
+import org.sakaiproject.scorm.ui.console.components.DecoratedDatePropertyColumn;
+import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
+import org.sakaiproject.wicket.markup.html.repeater.data.table.ActionColumn;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.SakaiBasicDataTable;
 
 public class AttemptListPage extends ConsoleBasePage {
@@ -40,12 +44,22 @@ public class AttemptListPage extends ConsoleBasePage {
 				
 		List<IColumn> columns = new LinkedList<IColumn>();
 		columns.add(new PropertyColumn(new StringResourceModel("column.header.learner.name", this, null), "learnerName", "learnerName"));
-
+		
+		
+		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.begin.date", this, null), "beginDate", "beginDate"));
+		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.last.modified.date", this, null), "lastModifiedDate", "lastModifiedDate"));
+		
+		String[] paramPropertyExpressions = {"courseId", "learnerId", "attemptNumber"};
+		
+		ActionColumn actionColumn = new ActionColumn(new StringResourceModel("column.header.attempt.number", this, null), "attemptNumber", "attemptNumber");
+		Action detailAction = new Action("attemptNumber", AttemptDetailPage.class, paramPropertyExpressions);
+		actionColumn.addAction(detailAction);
+		
+		columns.add(actionColumn);
 		
 		List<Attempt> attempts = resultService.getAttempts(courseId);
 		
-		IModel captionModel = new ResourceModel("table.caption");
-		SakaiBasicDataTable table = new SakaiBasicDataTable("attemptTable", columns, attempts, 10, captionModel);
+		SakaiBasicDataTable table = new SakaiBasicDataTable("attemptTable", columns, attempts);
 
 		add(table);
 		

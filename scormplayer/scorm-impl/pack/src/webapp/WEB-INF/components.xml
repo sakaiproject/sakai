@@ -77,6 +77,8 @@
 		
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />	  
 		<lookup-method name="scormSequencingService" bean="org.sakaiproject.scorm.service.api.ScormSequencingService" />	  
+		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />	  
+		
 		
 		<property name="dataManagerDao"><ref bean="org.sakaiproject.scorm.dao.api.DataManagerDao"/></property>
 	</bean>
@@ -114,9 +116,9 @@
 		class="org.sakaiproject.scorm.service.impl.ScormResultServiceImpl"
 		singleton="true">
 		
-		<property name="dataManagerDao"><ref bean="org.sakaiproject.scorm.dao.api.DataManagerDao"/></property>
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />	  
-		
+		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />
+		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
 	</bean>
 	
 	<bean id="org.sakaiproject.scorm.service.api.ScormSequencingService"

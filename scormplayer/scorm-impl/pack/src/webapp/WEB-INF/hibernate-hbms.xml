@@ -7,6 +7,7 @@
 		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="mappingResources">
 			<list>
+				<value>org/sakaiproject/scorm/model/api/Attempt.hbm.xml</value>
 				<value>org/sakaiproject/scorm/model/api/ContentPackageMapping.hbm.xml</value>
 				<value>org/sakaiproject/scorm/model/api/DataModelMappings.hbm.xml</value>
 				<value>org/sakaiproject/scorm/model/api/SequencerMappings.hbm.xml</value>

@@ -25,11 +25,13 @@ import java.util.List;
 
 public interface DataManagerDao {
 
+	public IDataManager load(long id);
+	
 	public List<IDataManager> find(String courseId);
 	
-	public IDataManager find(String courseId, String userId);
+	public IDataManager find(String courseId, String userId, long attemptNumber);
 	
-	public IDataManager find(String courseId, String userId, boolean fetchAll);
+	public IDataManager find(String courseId, String userId, boolean fetchAll, long attemptNumber);
 	
 	public void save(IDataManager dataManager);
 	

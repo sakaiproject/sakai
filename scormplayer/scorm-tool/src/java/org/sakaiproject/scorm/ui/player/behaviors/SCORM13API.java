@@ -1,8 +1,10 @@
 package org.sakaiproject.scorm.ui.player.behaviors;
 
 import org.adl.api.ecmascript.SCORM13APIInterface;
+import org.adl.sequencer.SeqNavRequests;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.INavigable;
 import org.sakaiproject.scorm.service.api.INavigationEvent;
@@ -108,7 +110,7 @@ public abstract class SCORM13API implements SCORM13APIInterface {
 
 			if (navigationEvent.isChoiceEvent()) 
 				getSequencingService().navigate(navigationEvent.getChoiceEvent(), getSessionBean(), getAgent(), getTarget());
-			else
+			else 
 				getSequencingService().navigate(navigationEvent.getEvent(), getSessionBean(), getAgent(), getTarget());
 			
 		} 

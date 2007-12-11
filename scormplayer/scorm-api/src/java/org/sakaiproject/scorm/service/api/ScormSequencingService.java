@@ -62,7 +62,7 @@ public interface ScormSequencingService {
 
 	public ISeqActivityTree getActivityTree(SessionBean sessionBean);
 	
-	public IDataManager getDataManager(SessionBean sessionBean);
+	public IDataManager getDataManager(SessionBean sessionBean, ScoBean scoBean);
 
 	public ISequencer getSequencer(ISeqActivityTree tree);
 	

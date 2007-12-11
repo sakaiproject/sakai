@@ -10,6 +10,8 @@ public interface ScormResultService {
 	
 	public List<Attempt> getAttempts(String courseId);
 	
+	public List<Attempt> getAttempts(String courseId, String learnerId);
 	
+	public void saveAttempt(Attempt attempt);
 	
 }

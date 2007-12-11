@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import org.adl.datamodels.IDataManager;
@@ -33,6 +34,10 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManagerDao {
 	private static Log log = LogFactory.getLog(DataManagerDaoImpl.class);
 	
+	public IDataManager load(long id) {
+		return (IDataManager)getHibernateTemplate().load(SCODataManager.class, id);
+	}
+	
 	public List<IDataManager> find(String courseId) {
 		List r = getHibernateTemplate().find(
 				"from " + SCODataManager.class.getName()
@@ -42,13 +47,13 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 		return r;
 	}
 	
-	public IDataManager find(String courseId, String userId) {
+	public IDataManager find(String courseId, String userId, long attemptNumber) {
 				
-		return find(courseId, userId, true);
+		return find(courseId, userId, true, attemptNumber);
 	}
 	
 	
-	public IDataManager find(String courseId, String userId, boolean fetchAll) {
+	public IDataManager find(String courseId, String userId, boolean fetchAll, long attemptNumber) {
 		StringBuilder buffer = new StringBuilder();
 		
 		buffer.append("from ").append(SCODataManager.class.getName());
@@ -56,11 +61,11 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 		if (fetchAll) 
 			buffer.append(" fetch all properties ");
 		
-		buffer.append(" where courseId=? and userId=? ");
+		buffer.append(" where courseId=? and userId=? and attemptNumber=? ");
 		
 		
 		List r = getHibernateTemplate().find(buffer.toString(), 
-						new Object[]{ courseId, userId });
+						new Object[]{ courseId, userId, attemptNumber });
 		
 		if (log.isDebugEnabled())
 			log.debug("DataManagerDaoImpl::find: records: " + r.size());	
@@ -77,6 +82,7 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 	
 
 	public void save(IDataManager dataManager) {
+		dataManager.setLastModifiedDate(new Date());
 		getHibernateTemplate().saveOrUpdate(dataManager);
 	}
 	
