@@ -874,6 +874,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// validator
 		context.put("xilator", new Validator());
+		
+		// change mode back to SEARCH (DATABASE not needed anymore)
+		setMode( state, Mode.SEARCH );
 
 		return TEMPLATE_DATABASE;
 	}  // buildDatabasePanelContext
@@ -1378,95 +1381,95 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 * @param state
 	 * @return
 	 */
-	public String buildSearchPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
-	{
- 		Caller caller = getCaller(state);
+    public String buildSearchPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
+    {
+    	Caller caller = getCaller(state);
 
-		// always put appropriate bundle in velocity context
-		context.put("tlang", rb);
+    	// always put appropriate bundle in velocity context
+    	context.put("tlang", rb);
 
-		// validators
-		context.put("TextValidator", new QuotedTextValidator());
-		context.put("xilator", new Validator());
+    	// validators
+    	context.put("TextValidator", new QuotedTextValidator());
+    	context.put("xilator", new Validator());
 
-		// Set:
-		//  * the javascript to run on page load
-		//  * the page execution context (resources tool or editor integration)
-		switch (caller)
-		{
-  	  case EDITOR_INTEGRATION:
-  		  context.put("sakai_onload", "SRC_verifyWindowOpener(); showTopCategory();");
+    	// Set:
+    	//  * the javascript to run on page load
+    	//  * the page execution context (resources tool or editor integration)
+    	switch (caller)
+    	{
+    	case EDITOR_INTEGRATION:
+    		context.put("sakai_onload", "SRC_verifyWindowOpener(); showTopCategory();");
 
-   			context.put("editorIntegration", Boolean.TRUE);
-   			context.put("resourcesTool", Boolean.FALSE);
-  		  break;
+    		context.put("editorIntegration", Boolean.TRUE);
+    		context.put("resourcesTool", Boolean.FALSE);
+    		break;
 
-  	  case RESOURCE_TOOL:
-  	  default:
-  		  context.put("sakai_onload", "setMainFrameHeight( window.name ); showTopCategory();");
+    	case RESOURCE_TOOL:
+    	default:
+    		context.put("sakai_onload", "setMainFrameHeight( window.name ); showTopCategory();");
 
-   			context.put("editorIntegration", Boolean.FALSE);
-   			context.put("resourcesTool", Boolean.TRUE);
+    	context.put("editorIntegration", Boolean.FALSE);
+    	context.put("resourcesTool", Boolean.TRUE);
 
-    		// put citation list title/size
-		    putCitationCollectionDetails(context, state);
-        break;
-    }
+    	// put citation list title/size
+    	putCitationCollectionDetails(context, state);
+    	break;
+    	}
 
-		// resource-related
-		String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
-		ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-		String guid = contentService.getUuid(resourceId);
-		context.put("RESOURCE_ID", guid);
+    	// resource-related
+    	String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
+    	ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+    	String guid = contentService.getUuid(resourceId);
+    	context.put("RESOURCE_ID", guid);
 
-		// category information from hierarchy
-		SearchDatabaseHierarchy hierarchy = (SearchDatabaseHierarchy) state.getAttribute(STATE_SEARCH_HIERARCHY);
-		context.put( "defaultCategory", hierarchy.getDefaultCategory() );
-		context.put( "categoryListing", hierarchy.getCategoryListing() );
+    	// category information from hierarchy
+    	SearchDatabaseHierarchy hierarchy = (SearchDatabaseHierarchy) state.getAttribute(STATE_SEARCH_HIERARCHY);
+    	context.put( "defaultCategory", hierarchy.getDefaultCategory() );
+    	context.put( "categoryListing", hierarchy.getCategoryListing() );
 
-		// load basic/advanced search form state
-		loadSearchFormState( context, state );
+    	// load basic/advanced search form state
+    	loadSearchFormState( context, state );
 
-		/*
-		 * MISCELLANEOUS CONTEXT PARAMS
-		 */
-		// default to basicSearch
-		context.put( "basicSearch", state.getAttribute( STATE_BASIC_SEARCH ) );
+    	/*
+    	 * MISCELLANEOUS CONTEXT PARAMS
+    	 */
+    	// default to basicSearch
+    	context.put( "basicSearch", state.getAttribute( STATE_BASIC_SEARCH ) );
 
-		// searchInfo
-		ActiveSearch searchInfo = (ActiveSearch) state.getAttribute(STATE_SEARCH_INFO);
-		context.put("searchInfo", searchInfo);
+    	// searchInfo
+    	ActiveSearch searchInfo = (ActiveSearch) state.getAttribute(STATE_SEARCH_INFO);
+    	context.put("searchInfo", searchInfo);
 
-		// max number of searchable databases
-		Integer maxDbNum = new Integer(hierarchy.getNumMaxSearchableDb());
-		context.put( "maxDbNum", maxDbNum );
+    	// max number of searchable databases
+    	Integer maxDbNum = new Integer(hierarchy.getNumMaxSearchableDb());
+    	context.put( "maxDbNum", maxDbNum );
 
-		// form name
-		context.put(PARAM_FORM_NAME, ELEMENT_ID_SEARCH_FORM);
+    	// form name
+    	context.put(PARAM_FORM_NAME, ELEMENT_ID_SEARCH_FORM);
 
-		// OpenURL Label
-		context.put( "openUrlLabel", ConfigurationService.getSiteConfigOpenUrlLabel() );
+    	// OpenURL Label
+    	context.put( "openUrlLabel", ConfigurationService.getSiteConfigOpenUrlLabel() );
 
-		// object arrays for formatted messages
-		Object[] instrArgs = { rb.getString( "submit.search" ) };
-		context.put( "instrArgs", instrArgs );
+    	// object arrays for formatted messages
+    	Object[] instrArgs = { rb.getString( "submit.search" ) };
+    	context.put( "instrArgs", instrArgs );
 
-		String searchType = null;
+    	String searchType = null;
 
-		if (searchInfo != null)
-		{
-			searchType = searchInfo.getSearchType();
-		}
+    	if (searchInfo != null)
+    	{
+    		searchType = searchInfo.getSearchType();
+    	}
 
-		if (searchType == null)
-			searchType = ActiveSearch.BASIC_SEARCH_TYPE;
+    	if (searchType == null)
+    		searchType = ActiveSearch.BASIC_SEARCH_TYPE;
 
-		context.put("searchType", searchType);
+    	context.put("searchType", searchType);
 
 
-	    return TEMPLATE_SEARCH;
+    	return TEMPLATE_SEARCH;
 
-	}	// buildSearchPanelContext
+    }	// buildSearchPanelContext
 
     /**
      * @param portlet
@@ -2219,7 +2222,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         // through all customUrls below
         citation.setPreferredUrl( null );
         String id = null;
-
+        
         for(int i = 0; i < urlCount; i++)
         {
         	String label = params.getString("label_" + i);
@@ -2227,7 +2230,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         	String url = params.getString("url_" + i);
 
         	String urlid = params.getString("urlid_" + i);
-
+        	
         	String preferred = params.getString( "pref_" + i );
 
          	if(url == null)
@@ -2255,7 +2258,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         	else if(urlid == null || urlid.trim().equals(""))
         	{
         		id = citation.addCustomUrl(label, url);
-
+        		
         		if( preferred != null && !preferred.trim().equals( "" ) )
         		{
         			// this customUrl is the new preferredUrl
@@ -2266,7 +2269,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         	{
         		// update an existing customUrl
         		citation.updateCustomUrl(urlid, label, url);
-
+        		
             	if( preferred != null && !preferred.trim().equals( "" ) )
         		{
             		// this customUrl is the new preferredUrl
@@ -2568,9 +2571,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	public void doCancelSearch( RunData data )
 	{
-		logger.debug("CitationHelper: In doCancelSearch");
-
-
 		// get state and params
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters();
@@ -2597,22 +2597,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 							+ ", group=" + searchThread.getThreadGroup().getName()
 							+ "]");
 				}
-			}
-		}
-
-		// added to make search state next state (currently mode = database)
-
-		String searchPage = params.getString( "searchpage" );
-
-		if (searchPage != null)
-		{
-			if (searchPage.equalsIgnoreCase("search"))
-			{
-				setMode(state, Mode.SEARCH);
-			}
-			else if (searchPage.equalsIgnoreCase("results"))
-			{
-				setMode(state, Mode.RESULTS);
 			}
 		}
 
@@ -2717,7 +2701,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					return;
 				}
 			}
-
+			
 			/*
 			 * Specify which databases should be searched
 			 */
@@ -2745,7 +2729,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			doBasicSearch( params, state, search );
 		}
-
+		
 		// check for a cancel
     	String cancel = params.getString( "cancelOp" );
     	if( cancel != null && !cancel.trim().equals("") )
@@ -2759,7 +2743,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
     			state.setAttribute( STATE_CANCEL_PAGE, Mode.SEARCH );
     		}
     	}
-
+    	
 		/*
 		 * BEGIN SEARCH
 		 */
@@ -2788,17 +2772,17 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	    catch(SearchException se)
 	    {
 	    	// either page indices are off or there has been a metasearch error
-
+	    	
 	    	// do some logging & find the proper alert message
 	    	StringBuilder alertMsg = new StringBuilder( se.getMessage() );
 	    	logger.warn("doBeginSearch() SearchException: " + alertMsg );
-
+	    	
 	    	if( search.getStatusMessage() != null && !search.getStatusMessage().trim().equals("") )
 	    	{
 	    		logger.warn( " |-- nested metasearch error: " + search.getStatusMessage() );
 	    		alertMsg.append( " (" + search.getStatusMessage() + ")" );
 	    	}
-
+	    	
 	    	// add an alert and set the next mode
 	    	addAlert( state, alertMsg.toString() );
 	    	state.setAttribute( STATE_NO_RESULTS, Boolean.TRUE );
@@ -2810,26 +2794,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	    	logger.debug( "doBeginSearch() SearchCancelException: user cancelled search" );
 	    	setMode( state, (Mode)state.getAttribute(STATE_CANCEL_PAGE) );
 	    }
-	    catch (Exception error)
-	    {
-	    	String alertMsg = error.getMessage();
-        /*
-         * An issue we didn't anticipate - let our user know there's a problem
-         */
-        logger.debug("Unexpected condition encountered: " + error);
-
-	    	if ((alertMsg == null) || (alertMsg.length() == 0))
-	    	{
-	    	  alertMsg = rb.getString("error.search");
-	    	}
-	    	addAlert(state, alertMsg);
-	    	state.setAttribute(STATE_NO_RESULTS, Boolean.TRUE);
-  			setMode(state, Mode.RESULTS);
-	  		return;
-	    }
 
 	    ActiveSearch newSearch = SearchManager.newSearch();
-  		state.setAttribute( STATE_SEARCH_INFO, newSearch );
+		state.setAttribute( STATE_SEARCH_INFO, newSearch );
 
 	}	// doBeginSearch
 
@@ -2958,7 +2925,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		int pageSize = listIterator.getPageSize();
 		int totalSize = collection.size();
 		int lastPage = 0;
-
+		
 		listIterator.setStart(totalSize - pageSize);
 
  	}	// doSearch
@@ -3254,87 +3221,132 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	}	// doView
 
-
-
-	protected void initHelper(VelocityPortlet portlet, Context context,
-	        RunData rundata, SessionState state)
+	/**
+	 * This method is used to ensure the Citations Helper is not invoked by
+	 * the Resources tool in a state other than ADD_CITATIONS or LIST.  It uses
+	 * a simple state machine to accomplish this
+	 * 
+	 * @return the Mode that the Citations Helper should be in
+	 */
+	protected Mode validateState()
 	{
-    Mode mode;
+		
+		return null;
+	}
 
-    /*
-     * Editor Integration support?
-     */
-    if (getCaller(state) == Caller.EDITOR_INTEGRATION)
-    {
-  		mode = (Mode) state.getAttribute(CitationHelper.STATE_HELPER_MODE);
 
-      if (mode == null)
-      {
-        logger.debug("initHelper(): mode is undefined, using " + Mode.SEARCH);
-        setMode(state, Mode.SEARCH);
-      }
+	/**
+	 * This method is called upon each Citations Helper request to properly
+	 * initialize the Citations Helper in case of a null Mode
+	 * 
+	 * @param portlet
+	 * @param context
+	 * @param rundata
+	 * @param state
+	 */
+	protected void initHelper(VelocityPortlet portlet, Context context,
+			RunData rundata, SessionState state)
+	{
+		Mode mode;
 
-  		if (state.getAttribute(STATE_RESULTS_PAGE_SIZE) == null)
-  		{
-        logger.debug("initHelper(): result page size is undefined, using "
-                +    DEFAULT_RESULTS_PAGE_SIZE);
-  			state.setAttribute(STATE_RESULTS_PAGE_SIZE, DEFAULT_RESULTS_PAGE_SIZE);
-  		}
+		/*
+		 * Editor Integration support
+		 */
+		if (getCaller(state) == Caller.EDITOR_INTEGRATION)
+		{
+			mode = (Mode) state.getAttribute(CitationHelper.STATE_HELPER_MODE);
 
-      return;
-    }
-    /*
-     * Resources Tool support
-     */
-    ToolSession toolSession = SessionManager.getCurrentToolSession();
+			if (mode == null)
+			{
+				logger.debug("initHelper(): mode is undefined, using " + Mode.SEARCH);
+				setMode(state, Mode.SEARCH);
+			}
+
+			if (state.getAttribute(STATE_RESULTS_PAGE_SIZE) == null)
+			{
+				logger.debug("initHelper(): result page size is undefined, using "
+						+    DEFAULT_RESULTS_PAGE_SIZE);
+				state.setAttribute(STATE_RESULTS_PAGE_SIZE, DEFAULT_RESULTS_PAGE_SIZE);
+			}
+
+			return;
+		}
+
+		/*
+		 * Resources Tool support
+		 */
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-		// TODO: if not enterring as a helper, we will need to create pipe???
+		// TODO: if not entering as a helper, will we need to create pipe???
 
 		if(pipe.isActionCompleted())
 		{
 			return;
 		}
-    /*
-     * Resources Tool/Citation Helper support
-     */
-		mode = (Mode) state.getAttribute(CitationHelper.STATE_HELPER_MODE);
-		if(mode == null)
+		
+		/*
+		 * Resources Tool/Citation Helper support
+		 */
+		
+		String initId = pipe.getInitializationId();
+		if( initId == null )
 		{
+			// we're starting afresh: an action has been clicked in Resources
+			
+			// set the Mode according to our action
 			switch(pipe.getAction().getActionType())
 			{
-				case CREATE:
-					ContentResource tempResource = createTemporaryResource(pipe);
-					state.setAttribute(CitationHelper.RESOURCE_ID, tempResource.getId());
+			case CREATE:
+				ContentResource tempResource = createTemporaryResource(pipe);
+				state.setAttribute(CitationHelper.RESOURCE_ID, tempResource.getId());
 
-					String displayName = tempResource.getProperties().getProperty( org.sakaiproject.entity.api.ResourceProperties.PROP_DISPLAY_NAME );
-					state.setAttribute( STATE_COLLECTION_TITLE , displayName );
+				String displayName = tempResource.getProperties().getProperty( org.sakaiproject.entity.api.ResourceProperties.PROP_DISPLAY_NAME );
+				state.setAttribute( STATE_COLLECTION_TITLE , displayName );
 
-					try
-	                {
-	                    state.setAttribute(STATE_COLLECTION_ID, new String(tempResource.getContent()));
-	                }
-	                catch (ServerOverloadException e)
-	                {
-	                    logger.warn("ServerOverloadException ", e);
-	                }
-	                state.setAttribute( STATE_RESOURCES_ADD, Boolean.TRUE );
-					setMode(state, Mode.ADD_CITATIONS);
-					break;
-				case REVISE_CONTENT:
-					state.setAttribute(CitationHelper.RESOURCE_ID, pipe.getContentEntity().getId());
-					try
-	                {
-	                    state.setAttribute(STATE_COLLECTION_ID, new String(((ContentResource) pipe.getContentEntity()).getContent()));
-	                }
-	                catch (ServerOverloadException e)
-	                {
-	                    logger.warn("ServerOverloadException ", e);
-	                }
-	                state.removeAttribute( STATE_RESOURCES_ADD );
-					setMode(state, Mode.LIST);
-					break;
-				default:
-					break;
+				try
+				{
+					state.setAttribute(STATE_COLLECTION_ID, new String(tempResource.getContent()));
+				}
+				catch (ServerOverloadException e)
+				{
+					logger.warn("ServerOverloadException ", e);
+				}
+				state.setAttribute( STATE_RESOURCES_ADD, Boolean.TRUE );
+				setMode(state, Mode.ADD_CITATIONS);
+				break;
+			case REVISE_CONTENT:
+				state.setAttribute(CitationHelper.RESOURCE_ID, pipe.getContentEntity().getId());
+				try
+				{
+					state.setAttribute(STATE_COLLECTION_ID, new String(((ContentResource) pipe.getContentEntity()).getContent()));
+				}
+				catch (ServerOverloadException e)
+				{
+					logger.warn("ServerOverloadException ", e);
+				}
+				state.removeAttribute( STATE_RESOURCES_ADD );
+				setMode(state, Mode.LIST);
+				break;
+			default:
+				break;
+			}
+			
+			// set Citations Helper to "initialized"
+			pipe.setInitializationId( "initialized" );
+		}
+		
+		else
+		{
+			// we're in the middle of a Citations Helper workflow:
+			// Citations Helper has been "initialized"
+			// (pipe.initializationId != null)
+			
+			// make sure we have a Mode to display
+			mode = (Mode) state.getAttribute(CitationHelper.STATE_HELPER_MODE);
+			if( mode == null )
+			{
+				// default to ADD_CITATIONS
+				setMode( state, Mode.ADD_CITATIONS );
 			}
 		}
 
