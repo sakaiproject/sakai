@@ -1,15 +1,11 @@
 package org.sakaiproject.scorm.ui.console.pages;
 
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.scorm.client.api.ScormClientFacade;
 
 public class DataManagerListPage extends ConsoleBasePage {
 
-	
-	@SpringBean
-	ScormClientFacade clientFacade;
-	
+	private static final long serialVersionUID = 1L;
+
 	public DataManagerListPage(PageParameters params) {
 		
 		// TODO: Build a simple data grid abstraction that displays lists

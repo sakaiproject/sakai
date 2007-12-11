@@ -44,7 +44,6 @@ import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 import org.sakaiproject.scorm.entity.api.ScormEntityReference;
 import org.sakaiproject.scorm.service.api.ScormEntityProvider;
-import org.sakaiproject.scorm.ui.console.pages.ManageContent;
 
 public class ScormAccessProviderApplication extends WebApplication implements HttpServletAccessProvider {
 
@@ -60,7 +59,7 @@ public class ScormAccessProviderApplication extends WebApplication implements Ht
 		
 		//this.mountBookmarkablePage("navigate", "navFrame", NavigationFrame.class);
 		//this.mountBookmarkablePage("content", "contentFrame", ContentFrame.class);
-		this.mountBookmarkablePage("manage", "contentFrame", ManageContent.class);
+		//this.mountBookmarkablePage("manage", "contentFrame", ManageContent.class);
 		//this.mountBookmarkablePage("launch", "launch", LaunchFrameset.class);
 		
 		//this.mount("launch", PackageName.forClass(LaunchFrameset.class));

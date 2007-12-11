@@ -59,7 +59,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.scorm.client.api.ScormConstants;
+import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.content.impl.ScormCHH;
 import org.sakaiproject.scorm.content.impl.ScormCollectionType;
 import org.sakaiproject.scorm.content.impl.ZipCHH;

@@ -24,16 +24,12 @@
 
 package org.adl.datamodels;
 
-import java.io.Serializable;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.adl.datamodels.ieee.IValidatorFactory;
-import org.sakaiproject.scorm.client.api.ScormClientFacade;
 
 
 /**
@@ -60,6 +56,8 @@ import org.sakaiproject.scorm.client.api.ScormClientFacade;
  * @author ADL Technical Team
  */
 public class SCODataManager implements IDataManager {
+
+	private static final long serialVersionUID = 1L;
 
 	private IValidatorFactory validatorFactory;
 	

@@ -14,9 +14,9 @@ import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.INavigable;
+import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.wicket.ajax.markup.html.form.AjaxRolloverImageButton;
 
 public class ActivityAjaxButton extends AjaxRolloverImageButton implements INavigable {
@@ -39,8 +39,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton implements INavi
 	private String rootSrc;
 	
 	@SpringBean
-	ScormClientFacade clientFacade;
-	
+	ScormSequencingService sequencingService;
 	
 	public ActivityAjaxButton(final ButtonForm form, SessionBean sessionBean, String id, int seqRequest, String rootSrc) {
 		super(id, form);
@@ -112,7 +111,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton implements INavi
 	}
 	
 	private void doNavigate(SessionBean sessionBean, int seqRequest, AjaxRequestTarget target) {
-		clientFacade.sequencingInterface().navigate(seqRequest, sessionBean, this, target);
+		sequencingService.navigate(seqRequest, sessionBean, this, target);
 		
 		if (form.getLaunchPanel() != null) {		
 			form.getLaunchPanel().synchronizeState(sessionBean, target);

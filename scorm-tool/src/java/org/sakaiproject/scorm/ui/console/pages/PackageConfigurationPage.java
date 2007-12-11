@@ -38,6 +38,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 			protected void onSubmit()
         	{
         		contentService.updateContentPackage(contentPackage);
+        		setResponsePage(PackageListPage.class);
         	}
         };
                 

@@ -1,3 +1,43 @@
+/**********************************************************************************
+ * $URL:  $
+ * $Id:  $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2007 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
+/*
+ * Contains code copied from org.apache.wicket.examples.upload.UploadPage, 
+ * authored by Eelco Hillenius, and originally licensed under the following
+ * license:
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.scorm.ui.console.components;
 
 import java.io.ByteArrayInputStream;
@@ -9,6 +49,7 @@ import java.io.InputStream;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.wicket.Application;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Session;
@@ -22,9 +63,12 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.file.Files;
+import org.apache.wicket.util.file.Folder;
 import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.scorm.ui.AbsoluteUrl;
+import org.sakaiproject.scorm.ui.player.ScormTool;
 
 public class FileUploadForm extends Form {
 
@@ -74,9 +118,10 @@ public class FileUploadForm extends Form {
 	        if (upload != null)
 	        {
 	            // Create a new file
-	            File newFile = new File("/home/jrenfro/junk", upload.getClientFileName());
-	
-	            // Check new file, delete if it allready existed
+	        	Folder folder = getUploadFolder();
+	            File newFile = new File(folder.getAbsoluteFile(), upload.getClientFileName());
+	            
+	            // Check new file, delete if it already existed
 	            //checkFileExists(newFile);
 	            try
 	            {
@@ -95,6 +140,21 @@ public class FileUploadForm extends Form {
 		notify("noFile");
 		return null;
 	}
+	
+	/*
+	 * This code is copied from org.apache.wicket.examples.upload.UploadPage
+	 * 
+	 */
+	private void removeExistingFile(File newFile)
+    {
+        if (newFile.exists())
+        {
+            // Try to delete the file
+            if (!Files.remove(newFile)) {
+                throw new IllegalStateException("Unable to overwrite " + newFile.getAbsolutePath());
+            }
+        }
+    }
 	
 	
 	public final void notify(String key) {
@@ -205,27 +265,8 @@ public class FileUploadForm extends Form {
 	}
 
 
-	/*public FileUpload getFileInput() {
-		return fileInput;
-	}
-
-
-	public void setFileInput(FileUpload fileInput) {
-		this.fileInput = fileInput;
-	}*/
-
-
-	/*public FileUploadField getFileUploadField() {
-		return fileUploadField;
-	}
-
-
-	public void setFileUploadField(FileUploadField fileUploadField) {
-		this.fileUploadField = fileUploadField;
-	}*/
-	
-	/*public FileItem getFileItem() {
-		return (FileItem)((WebRequest)getRequest()).getHttpServletRequest().getAttribute("fileInput");
-	}*/
+	 private Folder getUploadFolder() {
+	        return ((ScormTool)Application.get()).getUploadFolder();
+	 }
 
 }

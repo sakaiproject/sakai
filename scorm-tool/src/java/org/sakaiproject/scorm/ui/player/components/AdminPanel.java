@@ -1,36 +1,18 @@
 package org.sakaiproject.scorm.ui.player.components;
 
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
 
-import org.adl.datamodels.IDataManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.service.api.ScoBean;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class AdminPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
 	private static Log log = LogFactory.getLog(AdminPanel.class);
-	
-	@SpringBean
-	ScormClientFacade clientFacade;
 	
 	protected String selectedLearner;
 	protected String binding;

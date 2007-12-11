@@ -48,14 +48,13 @@ import org.apache.wicket.markup.html.tree.LinkIconPanel;
 import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.time.Duration;
-import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.INavigable;
+import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.player.behaviors.ActivityAjaxEventBehavior;
 
-public class ActivityTree extends LinkTree implements INavigable {	
+public abstract class ActivityTree extends LinkTree implements INavigable {	
 	private static Log log = LogFactory.getLog(ActivityTree.class);
 	
 	private static final long serialVersionUID = 1L;
@@ -66,21 +65,21 @@ public class ActivityTree extends LinkTree implements INavigable {
 	
 	private boolean wasEmpty = false;
 	private boolean isEmpty = true;
-	
-	@SpringBean
-	ScormClientFacade clientFacade;
 		
 	public ActivityTree(String id, SessionBean sessionBean, TreePanel parent) {
 		super(id);
 		this.treePanel = parent;
+		this.sessionBean = sessionBean;
 		
 		bindModel(sessionBean);
 		treePanel.getLaunchPanel().synchronizeState(sessionBean, null);
 		add(new AttributeModifier("role", new Model(ARIA_TREE_ROLE)));
 	}
 		
+	protected abstract ScormSequencingService getSequencingService();
+	
 	private void bindModel(SessionBean sessionBean) {
-		TreeModel treeModel = clientFacade.sequencingInterface().getTreeModel(sessionBean);
+		TreeModel treeModel = getSequencingService().getTreeModel(sessionBean);
 		
 		if (null != treeModel) {
 			setModel(new Model((Serializable)treeModel));
@@ -90,7 +89,7 @@ public class ActivityTree extends LinkTree implements INavigable {
 		}
 	
 		if (!isEmpty && sessionBean != null) {
-			TreeNode node = selectNode(sessionBean.getActivityId());
+			selectNode(sessionBean.getActivityId());
 		} 
 	}
 	
@@ -127,11 +126,11 @@ public class ActivityTree extends LinkTree implements INavigable {
 	}
 	
 	public boolean isChoice() {
-		return clientFacade.sequencingInterface().isControlModeChoice(sessionBean);
+		return getSequencingService().isControlModeChoice(sessionBean);
 	}
 	
 	public boolean isFlow() {
-		return clientFacade.sequencingInterface().isControlModeFlow(sessionBean);
+		return getSequencingService().isControlModeFlow(sessionBean);
 	}
 	
 	protected void onNodeLinkClicked(TreeNode node, BaseTree tree, AjaxRequestTarget target)
@@ -142,7 +141,7 @@ public class ActivityTree extends LinkTree implements INavigable {
 		
 		log.info("ID: " + activity.getID() + " State ID: " + activity.getStateID());
 
-		clientFacade.sequencingInterface().navigateToActivity(activity.getID(), sessionBean, this, target);
+		getSequencingService().navigateToActivity(activity.getID(), sessionBean, this, target);
 		
 		treePanel.getLaunchPanel().synchronizeState(sessionBean, target);
 		
@@ -319,7 +318,7 @@ public class ActivityTree extends LinkTree implements INavigable {
 			((AjaxRequestTarget)target).appendJavascript("window.location.href='" + sessionBean.getCompletionUrl() + "';");
 		}
 		
-		String url = clientFacade.sequencingInterface().getCurrentUrl(sessionBean);
+		String url = getSequencingService().getCurrentUrl(sessionBean);
 		if (null != url) {
 			if (log.isDebugEnabled())
 				log.debug("Going to " + url);

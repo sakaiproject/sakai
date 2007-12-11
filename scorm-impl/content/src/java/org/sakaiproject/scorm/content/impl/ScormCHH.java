@@ -35,7 +35,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.scorm.client.api.ScormConstants;
+import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;

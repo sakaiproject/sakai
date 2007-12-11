@@ -22,7 +22,9 @@ package org.sakaiproject.scorm.ui.player.components;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
+import org.sakaiproject.scorm.service.api.ScormSequencingService;
 
 public class TreePanel extends Panel {
 	private static final long serialVersionUID = 1L;
@@ -30,11 +32,23 @@ public class TreePanel extends Panel {
 	private ActivityTree tree;
 	private LaunchPanel launchPanel;
 		
+	@SpringBean
+	ScormSequencingService sequencingService;
+	
 	public TreePanel(String id, final SessionBean sessionBean, LaunchPanel launchPanel) {
 		super(id);
 		this.launchPanel = launchPanel;
 		
-		tree = new ActivityTree("tree", sessionBean, this);
+		tree = new ActivityTree("tree", sessionBean, this) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected ScormSequencingService getSequencingService() {
+				return sequencingService;
+			}
+			
+		};
 		tree.setOutputMarkupId(true);
 		add(tree);
 	}
