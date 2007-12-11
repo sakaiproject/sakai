@@ -41,6 +41,7 @@ import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.INavigable;
+import org.sakaiproject.scorm.service.api.ScoBean;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -225,8 +226,11 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		return null;
 	}
 	
-	public IDataManager getDataManager(SessionBean sessionBean) {
-		return dataManagerDao().find(sessionBean.getCourseId(), sessionBean.getLearnerId());
+	public IDataManager getDataManager(SessionBean sessionBean, ScoBean scoBean) {
+		if (sessionBean.getDataManager() == null)
+			sessionBean.setDataManager(dataManagerDao().find(sessionBean.getCourseId(), sessionBean.getLearnerId(), sessionBean.getAttemptNumber()));
+		
+		return sessionBean.getDataManager();
 	}
 	
 	
@@ -287,7 +291,10 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
         	sequencer.clearSeqState();
         	
         	log.warn("Status is " + status + " -- ending course!");
-        	sessionBean.setEnded(true);
+        	if (!sessionBean.isRestart())
+        		sessionBean.setEnded(true);
+        	else
+        		sessionBean.setRestart(false);
         } 
         
         seqActivityTreeDao().save(sessionBean.getTree());

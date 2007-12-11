@@ -28,10 +28,6 @@ public interface ScoBean extends Serializable {
 	public static final int SCO_VERSION_3 = 3;
 	
 	public abstract void clearState();
-
-	public abstract long getAttemptNumber();
-	
-	public abstract void setAttemptNumber(long attemptNumber);
 	
 	public abstract String getScoId();
 	

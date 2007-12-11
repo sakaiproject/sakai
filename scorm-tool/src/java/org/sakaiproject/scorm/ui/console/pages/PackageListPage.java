@@ -40,6 +40,7 @@ import org.sakaiproject.scorm.client.api.ScormConstants;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormPermissionService;
+import org.sakaiproject.scorm.ui.console.components.DecoratedDatePropertyColumn;
 import org.sakaiproject.scorm.ui.console.components.DecoratedPropertyColumn;
 import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
@@ -97,36 +98,12 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 		
 		if (canDelete)
 			columns.add(new ImageLinkColumn(new Model("Remove"), PackageRemovePage.class, paramPropertyExpressions, deleteIconReference));
-		
-		
-		IModel captionModel = new ResourceModel("table.caption");
-		
-		SakaiBasicDataTable table = new SakaiBasicDataTable("cpTable", columns, contentPackages, 10, captionModel);
+
+		SakaiBasicDataTable table = new SakaiBasicDataTable("cpTable", columns, contentPackages);
 		
 		add(table);
 	}	
 	
-	public class DecoratedDatePropertyColumn extends DecoratedPropertyColumn {
-
-		private static final long serialVersionUID = 1L;
-		
-		private SimpleDateFormat dateFormat;
-		
-		public DecoratedDatePropertyColumn(IModel displayModel, String sortProperty, String propertyExpression) {
-			super(displayModel, sortProperty, propertyExpression);
-			this.dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-		}
-
-		@Override
-		public Object convertObject(Object object) {
-			
-			if (object instanceof Date)
-				return dateFormat.format(object);
-			
-			return object;
-		}
-		
-	}
 	
 	
 	

@@ -1,24 +1,3 @@
-README
+README!
 
-12/03/2007
-
-This is still a relatively early prototype of the SCORM Player, but it's starting to look relatively similar to the final product. Note
-that it only works currently for admin, or a user you give all the scorm.* functions to within a given realm. I'm going to fix that very 
-soon so it will work for a user with scorm.visible and scorm.launch, minimally. 
-
-Pay no attention to the "Status" field yet, and the content package dates for Open, Due, and Accept Until are not yet being fully recognized.
-That should be a relatively quick fix. 
-
-The big chunk of work right now is to get the "Grade" screens to work. I've temporarily disabled the old code I'd written (which was fairly
-skeletal anyway) in favor of using services that for the most part don't expose any ADL interfaces or classes. The goal here is to have 
-a cleanly abstracted service layer, which has not been the case until this point... there are still some artifacts of the earlier way of
-doing things around, including the use of a "facade" called ScormClientFacade, which was pretty much pointless. I'm going to be removing 
-that in favor of the actual services themselves being dependency injected. 
-
-The SjaxCall stuff has been significantly refactored and cleaned up, and there's probably still some work to be done there. 
-
-Once the Newport Beach Conference is over, I'll most likely have a chance to fix most of these holes and some others I'm forgetting right
-now. I'm hoping to have something solid by the end of December for the first stage of beta testing. 
-
- 
-
+This project is still in early development. Nothing here is ready to be used.

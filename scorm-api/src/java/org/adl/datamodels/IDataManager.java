@@ -21,11 +21,15 @@
 package org.adl.datamodels;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import org.adl.datamodels.ieee.IValidatorFactory;
 
 public interface IDataManager extends Serializable {
 
+	public long getId();
+	
+	public void setId(long id);
 	
 	public String getCourseId();
 	
@@ -36,6 +40,19 @@ public interface IDataManager extends Serializable {
 	public void setUserId(String userId);
 	
 	public String getTitle();
+	
+	public Date getBeginDate();
+	
+	public void setBeginDate(Date beginDate);
+	
+	public Date getLastModifiedDate();
+	
+	public void setLastModifiedDate(Date lastModifiedDate);
+	
+	public long getAttemptNumber();
+	
+	public void setAttemptNumber(long attemptNumber);
+	
 	
 	/**
 	 * Adds the identified data model to the set of run-time data models managed

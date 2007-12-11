@@ -19,6 +19,7 @@ public class SessionBean implements Serializable {
 	private String courseId;
 	private String learnerId;
 	private String title;
+	private long attemptNumber;
 	
 	private ISeqActivityTree tree;
 	
@@ -39,9 +40,12 @@ public class SessionBean implements Serializable {
 	private boolean isSuspended = false;
 	
 	private boolean closeOnNextTerminate = false;
+	private boolean isRestart = false;
 	
 	private IDataManager dataManager;
 	private IErrorManager errorManager;
+	
+	private Attempt attempt;
 	
 	public SessionBean() {
 		this.scoBeans = new ConcurrentHashMap<String, ScoBean>();
@@ -231,6 +235,30 @@ public class SessionBean implements Serializable {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public Attempt getAttempt() {
+		return attempt;
+	}
+
+	public void setAttempt(Attempt attempt) {
+		this.attempt = attempt;
+	}
+
+	public long getAttemptNumber() {
+		return attemptNumber;
+	}
+
+	public void setAttemptNumber(long attemptNumber) {
+		this.attemptNumber = attemptNumber;
+	}
+
+	public boolean isRestart() {
+		return isRestart;
+	}
+
+	public void setRestart(boolean isRestart) {
+		this.isRestart = isRestart;
 	}
 
 	

@@ -365,6 +365,12 @@
 		
 		<property name="title" column="TITLE"/>
 		
+		<property name="attemptNumber" column="ATTEMPT_NUMBER"/>
+		
+		<property name="beginDate" column="BEGIN_DATE"/>
+		
+		<property name="lastModifiedDate" column="LAST_MODIFIED_DATE"/>
+		
 		<map name="mDataModels" table="SCORM_MAP_DATAMODELS_T">
     		<key column="DATAMANAGER_ID"/>
     		<map-key column="DM_BINDING" type="string"/>

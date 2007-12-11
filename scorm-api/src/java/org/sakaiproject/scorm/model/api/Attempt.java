@@ -1,20 +1,26 @@
 package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class Attempt implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
+	private long id;
+	private String courseId;
 	private String learnerId;
 	private String learnerName;
 	private long attemptNumber;
 	private String scoreScaled;
 	private String successStatus;
 	private String completionStatus;
+	private Date beginDate;
+	private Date lastModifiedDate;
 	
+	private long dataManagerId = -1;
 	
-	
+	private boolean isNotExited = true;
 	private boolean isSuspended = false;
 	
 	
@@ -80,5 +86,75 @@ public class Attempt implements Serializable {
 	public void setAttemptNumber(long attemptNumber) {
 		this.attemptNumber = attemptNumber;
 	}
-	
+
+
+	public String getCourseId() {
+		return courseId;
+	}
+
+
+	public void setCourseId(String courseId) {
+		this.courseId = courseId;
+	}
+
+
+	public Date getBeginDate() {
+		return beginDate;
+	}
+
+
+	public void setBeginDate(Date beginDate) {
+		this.beginDate = beginDate;
+	}
+
+
+	public Date getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+
+
+	public void setLastModifiedDate(Date lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
+
+
+	public long getDataManagerId() {
+		return dataManagerId;
+	}
+
+
+	public void setDataManagerId(long dataManagerId) {
+		this.dataManagerId = dataManagerId;
+	}
+
+
+	public long getId() {
+		return id;
+	}
+
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+
+	public boolean isSuspended() {
+		return isSuspended;
+	}
+
+
+	public void setSuspended(boolean isSuspended) {
+		this.isSuspended = isSuspended;
+	}
+
+
+	public boolean isNotExited() {
+		return isNotExited;
+	}
+
+
+	public void setNotExited(boolean isNotExited) {
+		this.isNotExited = isNotExited;
+	}
+
 }

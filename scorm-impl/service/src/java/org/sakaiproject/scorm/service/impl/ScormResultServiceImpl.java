@@ -1,6 +1,5 @@
 package org.sakaiproject.scorm.service.impl;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.adl.api.ecmascript.APIErrorCodes;
@@ -9,46 +8,59 @@ import org.adl.datamodels.DMProcessingInfo;
 import org.adl.datamodels.IDataManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.service.api.ScormResultService;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
 public abstract class ScormResultServiceImpl implements ScormResultService {
 
 	private static Log log = LogFactory.getLog(ScormResultServiceImpl.class);
 	
-	protected DataManagerDao dataManagerDao;
+	// Dependency injection method lookup signatures
+	protected abstract DataManagerDao dataManagerDao();
 	protected abstract UserDirectoryService userDirectoryService();
+	protected abstract AttemptDao attemptDao();
 	
-	public Attempt lookupAttempt(String courseId, String learnerId, int attemptNumber) {
+	public Attempt lookupAttempt(String courseId, String learnerId, long attemptNumber) {
 		
-		IDataManager dataManager = dataManagerDao.find(courseId, learnerId);
+		IDataManager dataManager = dataManagerDao().find(courseId, learnerId, attemptNumber);
 		
 		String completionStatus = getValue(dataManager, "cmi.completion_status");
 		String scaledScore = getValue(dataManager, "cmi.score.scaled");
 		String successStatus = getValue(dataManager, "cmi.success_status");
 		
-		Attempt attempt = new Attempt();
+		Attempt attempt = attemptDao().find(courseId, learnerId, attemptNumber);
+		if (attempt == null)
+			attempt = new Attempt();
 		attempt.setCompletionStatus(completionStatus);
 		attempt.setScoreScaled(scaledScore);
 		attempt.setSuccessStatus(successStatus);
+		attempt.setBeginDate(dataManager.getBeginDate());
+		attempt.setLastModifiedDate(dataManager.getLastModifiedDate());
 		
 		return attempt;
 	}
 	
 	
+	public List<Attempt> getAttempts(String courseId, String learnerId) {
+		return attemptDao().find(courseId, learnerId);
+	}
+	
+	
 	public List<Attempt> getAttempts(String courseId) {
-		List<IDataManager> dataManagers = dataManagerDao.find(courseId);
+		/*List<IDataManager> dataManagers = dataManagerDao().find(courseId);
 		List<Attempt> list = new LinkedList<Attempt>();
 		
 		for (IDataManager dataManager : dataManagers) {
 			Attempt attempt = new Attempt();
 			String learnerId = dataManager.getUserId();
+			attempt.setCourseId(courseId);
 			attempt.setLearnerId(learnerId);
 			attempt.setAttemptNumber(1);
+			attempt.setBeginDate(dataManager.getBeginDate());
+			attempt.setLastModifiedDate(dataManager.getLastModifiedDate());
 			
 			try {
 				User user = userDirectoryService().getUser(learnerId);
@@ -63,7 +75,14 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 			list.add(attempt);
 		}
 		
-		return list;
+		return list;*/
+		
+		return attemptDao().find(courseId);
+	}
+	
+	
+	public void saveAttempt(Attempt attempt) {
+		attemptDao().save(attempt);
 	}
 	
 
@@ -116,15 +135,5 @@ and e.PARENT is null
 	}
 
 
-
-	public DataManagerDao getDataManagerDao() {
-		return dataManagerDao;
-	}
-
-
-
-	public void setDataManagerDao(DataManagerDao dataManagerDao) {
-		this.dataManagerDao = dataManagerDao;
-	}
 	
 }

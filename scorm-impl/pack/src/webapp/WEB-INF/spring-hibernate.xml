@@ -4,6 +4,15 @@
 
 <beans>
 
+
+	<bean id="scorm.AttemptDaoTarget"
+		class="org.sakaiproject.scorm.dao.AttemptDaoImpl">
+		<property name="sessionFactory">
+				<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		</property>
+	</bean>
+	
+
 	<bean id="scorm.ContentPackageDaoTarget"
 		class="org.sakaiproject.scorm.dao.ContentPackageDaoImpl">
 		<property name="sessionFactory">
@@ -17,11 +26,6 @@
 		<property name="sessionFactory">
 				<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
-		<!--property name="persistentClasses">
-			<list>
-				<value>org.adl.datamodels.AbstractDataManager</value>
-			</list>
-		</property-->
 	</bean>
 	
 	<bean id="scorm.SeqActivityTreeDaoTarget"
@@ -29,14 +33,22 @@
 		<property name="sessionFactory">
 				<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
-		<!--property name="persistentClasses">
-			<list>
-				<value>org.adl.sequencer.SeqActivityTree</value>
-			</list>
-		</property-->
 	</bean>
 	
 	<!-- This wraps our DAO so that the transactions are managed -->
+	<bean id="org.sakaiproject.scorm.dao.api.AttemptDao"
+			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" 
+			ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" 
+			ref="scorm.AttemptDaoTarget" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	
 	<bean id="org.sakaiproject.scorm.dao.api.ContentPackageDao"
 			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager" 

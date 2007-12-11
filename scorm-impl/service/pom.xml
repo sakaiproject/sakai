@@ -76,9 +76,9 @@
 			<version>${sakai.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-entitybroker-api</artifactId>
-			<version>${sakai.version}</version>
+			<groupId>org.sakaiproject.entitybroker</groupId>
+			<artifactId>entitybroker-api</artifactId>
+			<version>${sakai.entitybroker.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

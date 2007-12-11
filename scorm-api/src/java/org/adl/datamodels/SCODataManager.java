@@ -25,6 +25,7 @@
 package org.adl.datamodels;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -71,8 +72,11 @@ public class SCODataManager implements IDataManager {
 	
 	public String title = null;
 	
-	// JLR -- We may want to add an attemptNum integer to track which attempt this is -- this will probably
-	// need to be managed by the LMS
+	private Date beginDate;
+	
+	private Date lastModifiedDate;
+	
+	private long attemptNumber;
 	
 	
     /**
@@ -85,15 +89,18 @@ public class SCODataManager implements IDataManager {
     * is to create a null Hashtable mDataModels.
     */
    public SCODataManager() {
-	   mDataModels = new Hashtable();
+	   this(null, null, null, -1);
    }
 	
-   public SCODataManager(String courseId, String userId, String title) 
+   public SCODataManager(String courseId, String userId, String title, long attemptNumber) 
    {
 	   this.courseId = courseId;
 	   this.userId = userId;
 	   this.title = title;
 	   this.mDataModels = new Hashtable();
+	   this.beginDate = new Date();
+	   this.lastModifiedDate = new Date();
+	   this.attemptNumber = attemptNumber;
    }
       
    //public AbstractDataManager getAbstractDataManager() {
@@ -423,6 +430,38 @@ public class SCODataManager implements IDataManager {
 
 	public String getTitle() {
 		return title;
+	}
+
+	public Date getBeginDate() {
+		return beginDate;
+	}
+
+	public void setBeginDate(Date beginDate) {
+		this.beginDate = beginDate;
+	}
+
+	public Date getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+
+	public void setLastModifiedDate(Date lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
+
+	public long getAttemptNumber() {
+		return attemptNumber;
+	}
+
+	public void setAttemptNumber(long attemptNumber) {
+		this.attemptNumber = attemptNumber;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 }  // SCODataManager
