@@ -1063,31 +1063,51 @@ public class BaseSearchManager implements SearchManager, Observer
 				// List to be returned
 				Vector<SearchDatabase> databases = new Vector<SearchDatabase>();
 
-				for( int i = 0; i < databaseList.size(); i++ )
+				// make sure this category has databases in it
+				if( !hasDatabases() )
 				{
-					String databaseId = databaseList.get(i);
-					SearchDatabase database;
+					m_log.warn( "Search Library Resources Category: '" + 
+							displayName + "' contains no databases." );
+				}
+				else
+				{
+					for( int i = 0; i < databaseList.size(); i++ )
+					{
+						String databaseId = databaseList.get(i);
+						SearchDatabase database;
 
-					// check if there is an alternate for this database
-					if( altDatabases != null &&
-							altDatabases.containsKey( databaseId ) )
-					{
-						database = altDatabases.get( databaseId );
-					}
-					else
-					{
-						// get the database from the global map of databases
-						database = databaseMap.get( databaseId );
-					}
-
-					// check if the database is a member of authorized groups
-					for( String groupId : groups )
-					{
-						if( database.isGroupMember( groupId ) )
+						// check if there is an alternate for this database
+						if( altDatabases != null &&
+								altDatabases.containsKey( databaseId ) )
 						{
-							// add to the return List
-							databases.add( database );
-							break;
+							database = altDatabases.get( databaseId );
+						}
+						else
+						{
+							// get the database from the global map of databases
+							database = databaseMap.get( databaseId );
+						}
+
+						// make sure we have found the database
+						if( database == null )
+						{
+							// database not found
+							m_log.warn( "Unidentified Search Libary Resources " +
+									"database: '" + databaseId +
+									"' in category: " + displayName );
+						}
+						else
+						{
+							// check if the database is a member of authorized groups
+							for( String groupId : groups )
+							{
+								if( database.isGroupMember( groupId ) )
+								{
+									// add to the return List
+									databases.add( database );
+									break;
+								}
+							}
 						}
 					}
 				}

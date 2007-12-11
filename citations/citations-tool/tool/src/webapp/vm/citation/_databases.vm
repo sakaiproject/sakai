@@ -1,3 +1,4 @@
+#if( $category.hasDatabases() )
 <p class="instruction">$tlang.getFormattedMessage("instr.search.db",$maxDbArgs)</p>
 <div class="itemAction">
   <a href="#" onclick="showDbDescriptions('$tlang.getString("alt.dbhide.search")'); return false;">$tlang.getString("link.dbshow.search")</a> |
@@ -29,3 +30,6 @@
   <a href="#" onclick="showDbDescriptions('$tlang.getString("alt.dbhide.search")'); return false;">$tlang.getString("link.dbshow.search")</a> |
   <a href="#" onclick="hideDbDescriptions('$tlang.getString("alt.dbshow.search")'); return false;">$tlang.getString("link.dbhide.search")</a>
 </div>
+#else
+	<p class="instruction">$tlang.getString("empty.cat.search")</p>
+#end
