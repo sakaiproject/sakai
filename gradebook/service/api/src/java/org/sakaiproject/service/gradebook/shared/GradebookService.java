@@ -449,4 +449,12 @@ public interface GradebookService {
 	 * @return true if the current user has the gradebook.viewOwnGrades permission
 	 */
 	public boolean currentUserHasViewOwnGradesPerm(String gradebookUid);
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @return a list of all the gb items in the given gradebook.  Does NOT check
+	 * for permissions!
+	 */
+	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAllGradebookItems(String gradebookUid);
 }
