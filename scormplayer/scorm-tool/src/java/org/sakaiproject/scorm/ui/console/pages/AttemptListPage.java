@@ -26,7 +26,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.ActionColumn;
-import org.sakaiproject.wicket.markup.html.repeater.data.table.SakaiBasicDataTable;
+import org.sakaiproject.wicket.markup.html.repeater.data.table.BasicDataTable;
 
 public class AttemptListPage extends ConsoleBasePage {
 
@@ -59,7 +59,7 @@ public class AttemptListPage extends ConsoleBasePage {
 		
 		List<Attempt> attempts = resultService.getAttempts(courseId);
 		
-		SakaiBasicDataTable table = new SakaiBasicDataTable("attemptTable", columns, attempts);
+		BasicDataTable table = new BasicDataTable("attemptTable", columns, attempts);
 
 		add(table);
 		
