@@ -520,6 +520,8 @@ public interface ContentHostingService extends EntityProducer
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object.
+	 * @deprecated Suggest use of {@link #addResource(String)} followed by {@link #Edit.getPropertiesEdit()},
+	 * 		and {@link #commitResource(ContentResourceEdit)}
 	 */
 	public ContentResource addResource(String id, String type, byte[] content, ResourceProperties properties, int priority)
 			throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
@@ -560,6 +562,8 @@ public interface ContentHostingService extends EntityProducer
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object.
+	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
+	 * 		followed by {@link #Edit.getPropertiesEdit()} and {@link #commitResource(ContentResourceEdit)}
 	 */
 	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, int priority)
 			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
@@ -594,6 +598,8 @@ public interface ContentHostingService extends EntityProducer
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object.
+	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
+	 * 		followed by {@link #Edit.getPropertiesEdit()} and {@link #commitResource(ContentResourceEdit)}
 	 */
 	public ContentResource addResource(String id, String type, byte[] content, ResourceProperties properties, Collection groups, int priority)
 			throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
@@ -637,6 +643,8 @@ public interface ContentHostingService extends EntityProducer
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object.
+	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
+	 * 		followed by {@link #Edit.getPropertiesEdit()} and {@link #commitResource(ContentResourceEdit)}
 	 */
 	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, Collection groups, int priority)
 			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
@@ -686,6 +694,8 @@ public interface ContentHostingService extends EntityProducer
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object.
+	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
+	 * 		followed by {@link #Edit.getPropertiesEdit()} and {@link #commitResource(ContentResourceEdit)}
 	 */
 	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, Collection groups, boolean hidden, Time releaseDate, Time retractDate, int priority)
 			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
