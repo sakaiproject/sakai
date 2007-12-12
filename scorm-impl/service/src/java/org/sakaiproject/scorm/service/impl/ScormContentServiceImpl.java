@@ -94,29 +94,33 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	protected abstract ToolManager toolManager();
 	protected abstract ScormPermissionService permissionService();
 	
-	private ZipCHH zipContentHostingHandler;
-	private ScormCHH scormContentHostingHandler;
-	protected DataManagerDao dataManagerDao;
-	protected SeqActivityTreeDao seqActivityTreeDao;
-	protected ContentPackageDao contentPackageDao;
+	// Data access objects (also dependency injected by lookup method)
+	protected abstract ContentPackageDao contentPackageDao();
 	protected abstract ContentPackageManifestDao contentPackageManifestDao();
+	protected abstract DataManagerDao dataManagerDao();
+	protected abstract SeqActivityTreeDao seqActivityTreeDao();
 	
+	// Content hosting handler (also dependency injected by lookup method)
+	protected abstract ScormCHH scormCHH();
+	
+	
+	
+	public String addContentPackage(File contentPackage, IValidator validator, IValidatorOutcome outcome) throws Exception {
+		String resourceId = storeFile(contentPackage, "application/zip");
+		
+		convertToContentPackage(resourceId, validator, outcome);
+	
+		return resourceId;
+	}
 	
 	public ContentPackage getContentPackage(long contentPackageId) {
-		return contentPackageDao.load(contentPackageId);
+		return contentPackageDao().load(contentPackageId);
 	}
 	
-	public void updateContentPackage(ContentPackage contentPackage) {
-		contentPackageDao.save(contentPackage);
-	}
-	
-	
-	public List<ContentPackage> getSiteContentPackages() {
-		//String userId = sessionManager().getCurrentSessionUserId();
+	public List<ContentPackage> getContentPackages() {
 		String context = toolManager().getCurrentPlacement().getContext();
-		//String siteCollectionId = contentService().getSiteCollection(siteId);
 		
-		List<ContentPackage> allPackages = contentPackageDao.find(context);
+		List<ContentPackage> allPackages = contentPackageDao().find(context);
 		List<ContentPackage> releasedPackages = new LinkedList<ContentPackage>();
 		
 		if (permissionService().canModify())
@@ -126,200 +130,97 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 			if (cp.isReleased())
 				releasedPackages.add(cp);
 		}
-		
-		
-		
-		/*List<ContentEntity> entities = findContentPackages(siteCollectionId);
-		List<ContentPackage> packages = new LinkedList<ContentPackage>();
-		
-		for (ContentEntity ce : entities) {
-			try {
-				String courseId = ce.getId();
-				String title = courseId;
-				String url = ce.getUrl();
-				
-				if (courseId.endsWith("/"))
-					courseId = courseId.substring(0, courseId.length() - 1);
-				
-				ResourceProperties props = ce.getProperties();
-				
-				if (props != null && props.getProperty(CONTENT_PACKAGE_TITLE_PROPERTY) != null) 
-					title = props.getProperty(CONTENT_PACKAGE_TITLE_PROPERTY);
-				
-								
-				packages.add(new ContentPackage(title, courseId, url));
-			} catch (Exception e) {
-				log.error("Caught an exception looking for a Content Package", e);
-			}
-		}*/
 
 		return releasedPackages;
 	}
 	
-
-	public ISeqActivityTree getActivityTree(String courseId, String userId, boolean isFresh) {
-		// First, let's check to see if we've gone a saved one
+	public int getContentPackageStatus(ContentPackage contentPackage) {
+		int status = CONTENT_PACKAGE_STATUS_UNKNOWN;
+		Date now = new Date();
 		
-		ISeqActivityTree tree = null;
-		
-		if (!isFresh)
-			tree = seqActivityTreeDao.find(courseId, userId);
-		
-		if (null == tree) {
-			ContentPackageManifest manifest = contentPackageManifestDao().find(courseId);
-			
-			tree = manifest.getActTreePrototype();
-
-			tree.setCourseID(courseId);
-			tree.setLearnerID(userId);
-	        
-	        //seqActivityTreeDao.save(tree);
+		if (now.after(contentPackage.getReleaseOn())) {
+			if (now.before(contentPackage.getDueOn())) 
+				status = CONTENT_PACKAGE_STATUS_OPEN;
+			else if (now.before(contentPackage.getAcceptUntil()))
+				status = CONTENT_PACKAGE_STATUS_OVERDUE;
+			else 
+				status = CONTENT_PACKAGE_STATUS_CLOSED;
+		} else {
+			status = CONTENT_PACKAGE_STATUS_NOTYETOPEN;
 		}
 		
-		return tree;
+		return status;
 	}
 	
-	
-	
-	public ContentResource addManifest(ContentPackageManifest manifest, String id) {
-		ContentResource resource = null;
+	public String getContentPackageTitle(Document document) {
+		Node orgRoot = document.getElementsByTagName("organizations").item(0);
+		String defaultId = DOMTreeUtility.getAttributeValue(orgRoot, "default");
 		
-		String name = "manifest.obj"; // + manifest.getTitle();
-		String site = getContext();
-		String tool = "scorm";
-		String type = "application/octet-stream";
-				
-		try {	
-			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-			ObjectOutputStream out = new ObjectOutputStream(byteOut);
-			out.writeObject(manifest);
-			out.close();
-			
-			resource = contentService().addAttachmentResource(name, site, tool, type, byteOut.toByteArray(), null);
-		} catch (Exception soe) {
-			log.error("Caught an exception adding an attachment resource!", soe);
-		} 
-		
-		return resource;
-	}
+		NodeList orgs = document.getElementsByTagName("organization");
 
-	// Recursively search for content packages in the file system
-	private List<ContentEntity> findContentPackages(String collectionId) {
-		List<ContentEntity> packages = new LinkedList<ContentEntity>();
-		try {
-			ContentCollection collection = contentService().getCollection(collectionId);
-			List<ContentEntity> members = collection.getMemberResources();
-			
-			for (ContentEntity member : members) {
-				if (member.isCollection()) {
-					
-					// We don't want to be recursive on Content Packages themselves
-					if (member.getResourceType().equals(ScormCollectionType.SCORM_CONTENT_TYPE_ID)) {
-						ResourceProperties props = member.getProperties();
-					
-						// We only want to return the top-level virtual collection
-						if (props.getProperty(IS_CONTENT_PACKAGE_PROPERTY) != null)
-							packages.add(member);
-					} else
-						packages.addAll(findContentPackages(member.getId()));
-				}
+		Node defaultNode = null;
+		for (int i = 0; i < orgs.getLength(); ++i) {
+			if (DOMTreeUtility.getAttributeValue(orgs.item(i), "identifier")
+					.equalsIgnoreCase(defaultId)) {
+				defaultNode = orgs.item(i);
+				break;
 			}
-		
-		} catch (Exception e) {
-			log.error("Caught an exception looking for content packages", e);
 		}
+		List<Node> titleNodes = DOMTreeUtility.getNodes(defaultNode, "title");
 		
-		return packages;
-	}
-	
-	private List<ContentResource> findZipArchives(String collectionId) {
-		List<ContentResource> zipFiles = new LinkedList<ContentResource>();
-		try {
-			ContentCollection collection = contentService().getCollection(collectionId);
-			List<ContentEntity> members = collection.getMemberResources();
-			
-			for (ContentEntity member : members) {
-				if (member.isResource()) {
-					String mimeType = ((ContentResource)member).getContentType();
-					if (mimeType != null && mimeType.equals("application/zip")) 
-						zipFiles.add((ContentResource)member);	
-				} else if (member.isCollection() && member.getVirtualContentEntity() == null &&
-						member.getContentHandler() == null)
-					zipFiles.addAll(findZipArchives(member.getId()));
-			}
+		String title = null;
+		if (!titleNodes.isEmpty())
+			title = DOMTreeUtility.getNodeValue(titleNodes.get(0));
 		
-		} catch (Exception e) {
-			log.error("Caught an exception looking for content packages", e);
-		}
+		if (null == title) 
+			title = "Unknown";
 		
-		return zipFiles;
-	}
-	
-	public List<ContentEntity> getContentPackages() {
-		String siteId = toolManager().getCurrentPlacement().getContext();
-		String siteCollectionId = contentService().getSiteCollection(siteId);
-		
-		return findContentPackages(siteCollectionId);
+		return title;
 	}
 	
 	public List<ContentResource> getZipArchives() {
 		String siteId = toolManager().getCurrentPlacement().getContext();
 		String siteCollectionId = contentService().getSiteCollection(siteId);
 		
-		return findZipArchives(siteCollectionId);
+		return findPotentialContentPackages(siteCollectionId);
 	}
 	
-	public InputStream getManifestAsStream(String contentPackageId) {
-		InputStream stream = null;
-		
-		String path = new StringBuffer().append(contentPackageId).append("/imsmanifest.xml").toString();
-		try {
-			ContentResource resource = contentService().getResource(path);
-			
-			if (resource != null) {
-				byte[] content = resource.getContent();
-				
-				if (content != null) {
-					stream = new ByteArrayInputStream(content);
-				} else {
-					stream = resource.streamContent();
-				}
-			}
-		} catch (Exception iue) {
-			log.error("Caught an exception grabbing the manifest file as a stream", iue);
-		}
-		
-		return stream;
-	}
-	
-	public ContentPackageManifest getManifest(String contentPackageId) {
-		ContentPackageManifest manifest = null;
-		
-		try {
-			ContentResource contentPackageResource = contentService().getResource(contentPackageId);
-			String manifestResourceId = (String)contentPackageResource.getProperties().get(MANIFEST_RESOURCE_ID_PROPERTY);
-			ContentResource manifestResource = contentService().getResource(manifestResourceId);
-			
-			byte[] bytes = manifestResource.getContent();
-		
-			ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-			
-			//FileInputStream in = new FileInputStream("/home/jrenfro/manifest.obj");
-	        ObjectInputStream ie = new ObjectInputStream(in);
-	        manifest = (ContentPackageManifest)ie.readObject();
-	        ie.close();
-	        in.close();
-	        
-	        manifest.setResourceId(contentPackageResource.getUrl());
-	        
-	        
-		} catch (Exception ioe) {
-			log.error("Caught io exception reading manifest from file!", ioe);
-		}
-		
-		return manifest;
-	}
+	public void removeContentPackage(long contentPackageId) {
 
+		ContentPackage contentPackage = contentPackageDao().load(contentPackageId);
+		
+		ContentResourceEdit edit = null;
+		
+		try {
+			edit = contentService().editResource(contentPackage.getCourseId());
+			
+			ResourceProperties props = edit.getProperties();
+			String manifestResourceId = props.getProperty(MANIFEST_RESOURCE_ID_PROPERTY);
+			
+			if (manifestResourceId != null) {
+				ContentResourceEdit manifestEdit = contentService().editResource(manifestResourceId);
+				
+				if (manifestEdit != null) 
+					contentService().removeResource(manifestEdit);
+			}
+			
+		} catch (Exception e) {
+			log.error("Unable to get edit resource object for: " + contentPackageId, e);
+		}
+		try {
+			if (edit != null)
+				contentService().removeResource(edit);
+		} catch (PermissionException e) {
+			log.error("Unable to remove resource for: " + contentPackageId, e);
+		}
+		
+		contentPackageDao().remove(contentPackage);
+	}
+	
+	public void updateContentPackage(ContentPackage contentPackage) {
+		contentPackageDao().save(contentPackage);
+	}
+	
 	public void validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema) throws Exception {
 		ContentResource resource = contentService().getResource(resourceId);
 		
@@ -374,254 +275,25 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	}
 	
 	
-	public IValidatorOutcome validateContentPackage(File contentPackage, boolean onlyValidateManifest) {
-		String directoryPath = contentPackage.getParent();
-		CPValidator validator = new CPValidator(directoryPath);
-		validator.setSchemaLocation(directoryPath);
-		validator.setPerformValidationToSchema(!onlyValidateManifest);
-		boolean isValid = validator.validate(contentPackage.getPath(), "pif", "contentaggregation", onlyValidateManifest);
 
-		IValidatorOutcome outcome = validator.getADLValidatorOutcome();
-
-		
-		/*if ( (onlyValidateManifest && outcome.getDoesIMSManifestExist()  &&
-	               outcome.getIsWellformed() && outcome.getIsValidRoot()) || 
-	         (!onlyValidateManifest && 
-	               (outcome.getDoesIMSManifestExist() && 
-	                outcome.getIsValidRoot() && 
-	                outcome.getIsWellformed() && 
-	                outcome.getIsValidToSchema() &&
-	                outcome.getIsValidToApplicationProfile() && 
-	                outcome.getDoRequiredCPFilesExist())) )
-	         {
-	            outcome.rollupSubManifests( false );
-	            Document mDocument = outcome.getDocument();
-
-	            Vector mLaunchDataList = validator.getLaunchData(mDocument, false, false);
-
-	            Node mManifest = mDocument.getDocumentElement();
-
-	            // get information from manifest and update database
-	            Vector mOrganizationList = ManifestHandler.getOrganizationNodes(mManifest, false);
-	            
-	            // JLR: We don't need this because we're not using the db to store the ItemInfo, etc.
-	            boolean mDBUpdateResult = true; //updateDB();
-	            
-	            // get ssp addition
-	            boolean sspDBUpdateResult = true;
-	            Vector resources = ManifestHandler.getSSPResourceList( mManifest );
-	            
-	            // Only update SSP Database if intial database insert was successful
-	            if ( mDBUpdateResult )
-	            {
-	               // FIXME: JLR - Do we need to worry about SSP?
-	               //sspDBUpdateResult = updateSSPDB( resources );
-	            }
-	                     
-	         }*/
-		
-		if (isValid) {
-			saveContentPackage(contentPackage, validator, outcome);
-		
-			//createContentPackage(contentPackage, validator, outcome);
-		}
-		
-		return outcome;
-	}
+	// Helper methods
 	
-	public void uploadZipArchive(File zipArchive) throws IdUnusedException, IdUniquenessException, IdLengthException, IdInvalidException, OverQuotaException, ServerOverloadException, PermissionException  {
-		addVirtualCollection(zipArchive, this.zipContentHostingHandler, ZipCollectionType.ZIP_COLLECTION_TYPE_ID);
-	}
-	
-	public void xaddVirtualCollection(File file, ZipCHH chh, String resourceType) throws IdUnusedException, IdUniquenessException, IdLengthException, IdInvalidException, OverQuotaException, ServerOverloadException, PermissionException  {
-		
-		ToolSession toolSession = sessionManager().getCurrentToolSession();	
-		
-		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-		
-		byte[] content = getFileAsBytes(file);
-        
-		ContentCollection collection = (ContentCollection)pipe.getContentEntity();
-		
-		StringBuilder id = new StringBuilder();
-		id.append(collection.getId()).append(file.getName());
-		
-		try {
-			ContentResourceEdit resource = contentService().addResource(id.toString());
-			
-			resource.setContent(content);
-			resource.setContentType("application/zip");
-			resource.setResourceType(resourceType);
-			resource.setContentHandler(zipContentHostingHandler);
-			
-			ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
-			
-			String displayName = file.getName();
-			if	(displayName != null) {
-				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
-			}
-			
-			resourceProperties.addProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, "org.sakaiproject.scorm.content.api.ZipCHH");
-						
-			int notification = NotificationService.NOTI_NONE;
-			contentService().commitResource(resource, notification);
-		} catch (Exception e) {
-			log.error("Caught an exception adding a new resource ", e);
-		}
-		
-		
-		//pipe.setRevisedContent(content);
-        //pipe.setRevisedMimeType("application/zip");
-        //pipe.setFileName(file.getName());
-        
-        pipe.setActionCanceled(false);
-        pipe.setErrorEncountered(false);
-        pipe.setActionCompleted(true);
-        
-		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
-	}
-	
-	public void addVirtualCollection(File file, ZipCHH chh, String resourceType) throws IdUnusedException, IdUniquenessException, IdLengthException, IdInvalidException, OverQuotaException, ServerOverloadException, PermissionException  {
-		// Grab the pipe
-		ToolSession toolSession = sessionManager().getCurrentToolSession();	
-		/*ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-
-		ContentEntity collection = pipe.getContentEntity();		
-		String filename = file.getName();
-		int extensionIndex = filename.lastIndexOf('.');
-		
-		String basename = filename;
-		String extension = "";
-		
-		if (extensionIndex != -1 && extensionIndex + 1 < filename.length()) {
-			basename = filename.substring(0, extensionIndex);
-			extension = filename.substring(extensionIndex + 1);
-		}
-		
-		ContentResourceEdit cr = contentService().addResource(collection.getId(), Validator.escapeResourceName(basename), Validator.escapeResourceName(extension), 100);
-		
-		// TODO: Can we switch this to only use stream instead of bytes?
-		byte[] content = getFileAsBytes(file);
-		cr.setContent(content);
-		// TODO: Can we handle other content types by extension here?
-		cr.setContentType("application/zip");
-		cr.setResourceType(resourceType);
-		//cr.setContentHandler(chh);
-		
-		ResourcePropertiesEdit properties = cr.getPropertiesEdit();
-		properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, filename);
-		properties.addProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, chh.getContentHostingHandlerName());
-		
-		//ContentEntity vce = chh.getVirtualContentEntity(cr, cr.getId() + "/");
-		//cr.setVirtualContentEntity(vce);
-		
-		contentService().commitResource(cr);
-		
-		pipe.setActionCanceled(false);
-        pipe.setErrorEncountered(false);
-        pipe.setActionCompleted(true);*/
-		
-		
-		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-		
-		byte[] content = getFileAsBytes(file);
-        pipe.setRevisedContent(content);
-        pipe.setRevisedMimeType("application/zip");
-        pipe.setFileName(file.getName());
-        
-        pipe.setRevisedResourceProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, "org.sakaiproject.scorm.content.api.ZipCHH");
-            
-        
-        
-        
-        pipe.setActionCanceled(false);
-        pipe.setErrorEncountered(false);
-        pipe.setActionCompleted(true);
-        
-        /*ContentEntity ce = pipe.getContentEntity();
-        //ce.setContentHandler(zipContentHostingHandler);
-        
-        ContentEntity vce = zipContentHostingHandler.getVirtualContentEntity(ce, ce.getId() + "/");
-        ce.setVirtualContentEntity(vce);
-        vce.setContentHandler(zipContentHostingHandler);
-        */
-		
-		//pipe.setActionCanceled(true);
-        //pipe.setErrorEncountered(false);
-        //pipe.setActionCompleted(true);
-		
-        toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
-	}
-	
-	public String identifyZipArchive() {
-		// Grab the pipe
-		ToolSession toolSession = sessionManager().getCurrentToolSession();	
-		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-
-		
-		ContentEntity ce = pipe.getContentEntity();
-		
-		String id = ce.getId();
-
-        pipe.setActionCanceled(true);
-        pipe.setErrorEncountered(false);
-        pipe.setActionCompleted(false); 
-           
-        toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
-
-        return id;
-	}
-	
-	
-	public String addZipFile(File zipFile) throws Exception {
-		byte[] content = getFileAsBytes(zipFile);
-		
-		ContentEntity ce = null;
-		
-		String siteId = toolManager().getCurrentPlacement().getContext();
-		String collectionId = contentService().getSiteCollection(siteId);
-		
-		String fileName = zipFile.getName();
-		int extIndex = fileName.lastIndexOf('.');
-		String basename = fileName.substring(0, extIndex);
-		String extension = fileName.substring(extIndex);
-		
-		//String resourceId = new StringBuilder().append(siteCollectionId)
-		//	.append(contentPackage.getName()).toString();
-		ContentResourceEdit edit = null;
-		try {
-			edit = contentService().addResource(collectionId,Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
-				
-			edit.setContent(content);
-			edit.setContentLength(content.length);
-			edit.setContentType("application/zip");
-        
-			ResourcePropertiesEdit props = edit.getPropertiesEdit();
-			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, zipFile.getName());
-	        		
-	        contentService().commitResource(edit);			
-
-	        return edit.getId();
-		} catch (Exception e) {
-			if (edit != null)
-				contentService().cancelResource(edit);
-			throw e;
-		}
-	}
-	
-	
-	public void convertToContentPackage(String resourceId, IValidator validator, IValidatorOutcome outcome) throws Exception {
-				
+	/**
+	 * Takes the identifier for a content package that's been stored in the content repository
+	 * and creates the necessary objects in the database to make it recognizable as a content
+	 * package. 
+	 */
+	private void convertToContentPackage(String resourceId, IValidator validator, IValidatorOutcome outcome) throws Exception {
 		
 		ContentResourceEdit modify = null;
 		try {
 			ContentPackageManifest manifest = createManifest(outcome.getDocument(), validator);
-			ContentResource manifestResource = addManifest(manifest, resourceId);
+			ContentResource manifestResource = storeManifest(manifest, resourceId);
 	        String manifestResourceId = manifestResource.getId();
 			
 			modify = contentService().editResource(resourceId);
 			
-			modify.setContentHandler(scormContentHostingHandler);
+			modify.setContentHandler(scormCHH());
 			modify.setResourceType("org.sakaiproject.content.types.scormContentPackage");
 	        
 			ResourcePropertiesEdit props = modify.getPropertiesEdit();
@@ -656,7 +328,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	        cp.setCreatedOn(now);
 	        cp.setModifiedOn(now);
 
-	        contentPackageDao.save(cp);
+	        contentPackageDao().save(cp);
 		
 		} catch (Exception e) {
 			if (modify != null)
@@ -665,106 +337,107 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		}
 	}
 	
-	
-	
-	public String addContentPackage(File contentPackage, IValidator validator, IValidatorOutcome outcome) throws Exception {
-		String resourceId = addZipFile(contentPackage);
-		
-		convertToContentPackage(resourceId, validator, outcome);
-	
-		return resourceId;
-	}
-	
-	
-	public String saveContentPackage(File contentPackage, IValidator validator, IValidatorOutcome outcome) {
-		// Grab the pipe
-		ToolSession toolSession = sessionManager().getCurrentToolSession();	
-		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-				
-		byte[] content = getFileAsBytes(contentPackage);
-			
-        pipe.setRevisedContent(content);
-        pipe.setRevisedMimeType("application/zip");
-        pipe.setFileName(contentPackage.getName());
-        
-        ContentPackageManifest manifest = createManifest(outcome.getDocument(), validator);
-        ContentResource manifestResource = addManifest(manifest, pipe.getContentEntity().getId());
-        String manifestResourceId = manifestResource.getId();
-        
-        pipe.setRevisedResourceProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, "org.sakaiproject.scorm.content.api.ScormCHH");
-        pipe.setRevisedResourceProperty("MANIFEST_RESOURCE_ID", manifestResourceId);
-        
-        if (manifest != null)
-        	pipe.setRevisedResourceProperty("CONTENT_PACKAGE_TITLE", manifest.getTitle());
-            
-        pipe.setActionCanceled(false);
-        pipe.setErrorEncountered(false);
-        pipe.setActionCompleted(true); 
-           
-        toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
-
-		return pipe.getContentEntity().getId();
-	}
-	
-	
-	public void removeContentPackage(long contentPackageId) {
-
-		ContentPackage contentPackage = contentPackageDao.load(contentPackageId);
-		
-		ContentResourceEdit edit = null;
-		
+	/**
+	 * Recursive method that gathers together all the zip files in a collection 
+	 * 
+	 * @param collectionId
+	 * @return List of ContentResource objects
+	 */
+	private List<ContentResource> findPotentialContentPackages(String collectionId) {
+		List<ContentResource> zipFiles = new LinkedList<ContentResource>();
 		try {
-			edit = contentService().editResource(contentPackage.getCourseId());
+			ContentCollection collection = contentService().getCollection(collectionId);
+			List<ContentEntity> members = collection.getMemberResources();
 			
-			ResourceProperties props = edit.getProperties();
-			String manifestResourceId = props.getProperty(MANIFEST_RESOURCE_ID_PROPERTY);
-			
-			if (manifestResourceId != null) {
-				ContentResourceEdit manifestEdit = contentService().editResource(manifestResourceId);
-				
-				if (manifestEdit != null) 
-					contentService().removeResource(manifestEdit);
+			for (ContentEntity member : members) {
+				if (member.isResource()) {
+					String mimeType = ((ContentResource)member).getContentType();
+					if (mimeType != null && mimeType.equals("application/zip")) 
+						zipFiles.add((ContentResource)member);	
+				} else if (member.isCollection() && member.getVirtualContentEntity() == null &&
+						member.getContentHandler() == null)
+					zipFiles.addAll(findPotentialContentPackages(member.getId()));
 			}
-			
+		
 		} catch (Exception e) {
-			log.error("Unable to get edit resource object for: " + contentPackageId, e);
-		}
-		try {
-			if (edit != null)
-				contentService().removeResource(edit);
-		} catch (PermissionException e) {
-			log.error("Unable to remove resource for: " + contentPackageId, e);
+			log.error("Caught an exception looking for content packages", e);
 		}
 		
-		contentPackageDao.remove(contentPackage);
+		return zipFiles;
 	}
 	
-	public String getContentPackageTitle(Document document) {
-		Node orgRoot = document.getElementsByTagName("organizations").item(0);
-		String defaultId = DOMTreeUtility.getAttributeValue(orgRoot, "default");
+	
+	/**
+	 * Serializes the ContentPackageManifest and stores it as an attachment in the content 
+	 * repository
+	 * 
+	 */
+	private ContentResource storeManifest(ContentPackageManifest manifest, String id) {
+		ContentResource resource = null;
 		
-		NodeList orgs = document.getElementsByTagName("organization");
+		String name = "manifest.obj"; // + manifest.getTitle();
+		String site = getContext();
+		String tool = "scorm";
+		String type = "application/octet-stream";
+				
+		try {	
+			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+			ObjectOutputStream out = new ObjectOutputStream(byteOut);
+			out.writeObject(manifest);
+			out.close();
+			
+			resource = contentService().addAttachmentResource(name, site, tool, type, byteOut.toByteArray(), null);
+		} catch (Exception soe) {
+			log.error("Caught an exception adding an attachment resource!", soe);
+		} 
+		
+		return resource;
+	}
+	
+	/**
+	 * Stores the passed file in the content repository
+	 * 
+	 * @param file
+	 * @return identifier for th
+	 * @throws Exception
+	 */
+	private String storeFile(File file, String mimeType) throws Exception {
+		byte[] content = getFileAsBytes(file);
+				
+		String siteId = toolManager().getCurrentPlacement().getContext();
+		String collectionId = contentService().getSiteCollection(siteId);
+		
+		String fileName = file.getName();
+		int extIndex = fileName.lastIndexOf('.');
+		String basename = fileName.substring(0, extIndex);
+		String extension = fileName.substring(extIndex);
 
-		Node defaultNode = null;
-		for (int i = 0; i < orgs.getLength(); ++i) {
-			if (DOMTreeUtility.getAttributeValue(orgs.item(i), "identifier")
-					.equalsIgnoreCase(defaultId)) {
-				defaultNode = orgs.item(i);
-				break;
-			}
+		ContentResourceEdit edit = null;
+		try {
+			edit = contentService().addResource(collectionId,Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				
+			edit.setContent(content);
+			edit.setContentLength(content.length);
+			edit.setContentType(mimeType);
+        
+			ResourcePropertiesEdit props = edit.getPropertiesEdit();
+			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, file.getName());
+	        		
+	        contentService().commitResource(edit);			
+
+	        return edit.getId();
+		} catch (Exception e) {
+			if (edit != null)
+				contentService().cancelResource(edit);
+			throw e;
 		}
-		List<Node> titleNodes = DOMTreeUtility.getNodes(defaultNode, "title");
-		
-		String title = null;
-		if (!titleNodes.isEmpty())
-			title = DOMTreeUtility.getNodeValue(titleNodes.get(0));
-		
-		if (null == title) 
-			title = "Unknown";
-		
-		return title;
 	}
 	
+	
+	
+	
+
+
 	
 	private ContentPackageManifest createManifest(Document document, IValidator validator) {
 		ContentPackageManifest manifest = new ContentPackageManifestImpl();
@@ -827,36 +500,224 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		return byteOut.toByteArray();
 	}
 	
-	public ZipCHH getZipContentHostingHandler() {
-		return this.zipContentHostingHandler;
-	}
+	
+
+	/*public ISeqActivityTree getActivityTree(String courseId, String userId, boolean isFresh) {
+		// First, let's check to see if we've gone a saved one
+		
+		ISeqActivityTree tree = null;
+		
+		if (!isFresh)
+			tree = seqActivityTreeDao.find(courseId, userId);
+		
+		if (null == tree) {
+			ContentPackageManifest manifest = contentPackageManifestDao().find(courseId);
+			
+			tree = manifest.getActTreePrototype();
+
+			tree.setCourseID(courseId);
+			tree.setLearnerID(userId);
+	        
+	        //seqActivityTreeDao.save(tree);
+		}
+		
+		return tree;
+	}*/
 	
 	
-	public void setZipContentHostingHandler(ZipCHH zipContentHostingHandler) {
-		this.zipContentHostingHandler = zipContentHostingHandler;
+
+	// Recursively search for content packages in the file system
+	/*private List<ContentEntity> findContentPackages(String collectionId) {
+		List<ContentEntity> packages = new LinkedList<ContentEntity>();
+		try {
+			ContentCollection collection = contentService().getCollection(collectionId);
+			List<ContentEntity> members = collection.getMemberResources();
+			
+			for (ContentEntity member : members) {
+				if (member.isCollection()) {
+					
+					// We don't want to be recursive on Content Packages themselves
+					if (member.getResourceType().equals(ScormCollectionType.SCORM_CONTENT_TYPE_ID)) {
+						ResourceProperties props = member.getProperties();
+					
+						// We only want to return the top-level virtual collection
+						if (props.getProperty(IS_CONTENT_PACKAGE_PROPERTY) != null)
+							packages.add(member);
+					} else
+						packages.addAll(findContentPackages(member.getId()));
+				}
+			}
+		
+		} catch (Exception e) {
+			log.error("Caught an exception looking for content packages", e);
+		}
+		
+		return packages;
+	}*/
+	
+
+	
+	/*public List<ContentEntity> getContentPackages() {
+		String siteId = toolManager().getCurrentPlacement().getContext();
+		String siteCollectionId = contentService().getSiteCollection(siteId);
+		
+		return findContentPackages(siteCollectionId);
+	}*/
+	
+	
+	
+	/*public InputStream getManifestAsStream(String contentPackageId) {
+		InputStream stream = null;
+		
+		String path = new StringBuffer().append(contentPackageId).append("/imsmanifest.xml").toString();
+		try {
+			ContentResource resource = contentService().getResource(path);
+			
+			if (resource != null) {
+				byte[] content = resource.getContent();
+				
+				if (content != null) {
+					stream = new ByteArrayInputStream(content);
+				} else {
+					stream = resource.streamContent();
+				}
+			}
+		} catch (Exception iue) {
+			log.error("Caught an exception grabbing the manifest file as a stream", iue);
+		}
+		
+		return stream;
+	}*/
+	
+	/*public ContentPackageManifest getManifest(String contentPackageId) {
+		ContentPackageManifest manifest = null;
+		
+		try {
+			ContentResource contentPackageResource = contentService().getResource(contentPackageId);
+			String manifestResourceId = (String)contentPackageResource.getProperties().get(MANIFEST_RESOURCE_ID_PROPERTY);
+			ContentResource manifestResource = contentService().getResource(manifestResourceId);
+			
+			byte[] bytes = manifestResource.getContent();
+		
+			ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+			
+			//FileInputStream in = new FileInputStream("/home/jrenfro/manifest.obj");
+	        ObjectInputStream ie = new ObjectInputStream(in);
+	        manifest = (ContentPackageManifest)ie.readObject();
+	        ie.close();
+	        in.close();
+	        
+	        manifest.setResourceId(contentPackageResource.getUrl());
+	        
+	        
+		} catch (Exception ioe) {
+			log.error("Caught io exception reading manifest from file!", ioe);
+		}
+		
+		return manifest;
+	}*/
+
+
+	
+	
+	/*public IValidatorOutcome validateContentPackage(File contentPackage, boolean onlyValidateManifest) {
+		String directoryPath = contentPackage.getParent();
+		CPValidator validator = new CPValidator(directoryPath);
+		validator.setSchemaLocation(directoryPath);
+		validator.setPerformValidationToSchema(!onlyValidateManifest);
+		boolean isValid = validator.validate(contentPackage.getPath(), "pif", "contentaggregation", onlyValidateManifest);
+
+		IValidatorOutcome outcome = validator.getADLValidatorOutcome();
+
+		
+	
+		if (isValid) {
+			saveContentPackage(contentPackage, validator, outcome);
+		
+			//createContentPackage(contentPackage, validator, outcome);
+		}
+		
+		return outcome;
+	}*/
+	
+	/*public void uploadZipArchive(File zipArchive) throws IdUnusedException, IdUniquenessException, IdLengthException, IdInvalidException, OverQuotaException, ServerOverloadException, PermissionException  {
+		addVirtualCollection(zipArchive, this.zipContentHostingHandler, ZipCollectionType.ZIP_COLLECTION_TYPE_ID);
+	}*/
+	
+	
+	
+	/*public void addVirtualCollection(File file, ZipCHH chh, String resourceType) throws IdUnusedException, IdUniquenessException, IdLengthException, IdInvalidException, OverQuotaException, ServerOverloadException, PermissionException  {
+		// Grab the pipe
+		ToolSession toolSession = sessionManager().getCurrentToolSession();		
+		
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+		byte[] content = getFileAsBytes(file);
+        pipe.setRevisedContent(content);
+        pipe.setRevisedMimeType("application/zip");
+        pipe.setFileName(file.getName());
+        
+        pipe.setRevisedResourceProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, "org.sakaiproject.scorm.content.api.ZipCHH");
+            
+        
+        
+        
+        pipe.setActionCanceled(false);
+        pipe.setErrorEncountered(false);
+        pipe.setActionCompleted(true);
+		
+        toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+	}*/
+	
+	/*public String identifyZipArchive() {
+		// Grab the pipe
+		ToolSession toolSession = sessionManager().getCurrentToolSession();	
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+
+		
+		ContentEntity ce = pipe.getContentEntity();
+		
+		String id = ce.getId();
+
+        pipe.setActionCanceled(true);
+        pipe.setErrorEncountered(false);
+        pipe.setActionCompleted(false); 
+           
+        toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+
+        return id;
+	}*/
+	
+	
+	/*
+	 * private String saveContentPackage(File contentPackage, IValidator validator, IValidatorOutcome outcome) {
+		// Grab the pipe
+		ToolSession toolSession = sessionManager().getCurrentToolSession();	
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+				
+		byte[] content = getFileAsBytes(contentPackage);
+			
+        pipe.setRevisedContent(content);
+        pipe.setRevisedMimeType("application/zip");
+        pipe.setFileName(contentPackage.getName());
+        
+        ContentPackageManifest manifest = createManifest(outcome.getDocument(), validator);
+        ContentResource manifestResource = storeManifest(manifest, pipe.getContentEntity().getId());
+        String manifestResourceId = manifestResource.getId();
+        
+        pipe.setRevisedResourceProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, "org.sakaiproject.scorm.content.api.ScormCHH");
+        pipe.setRevisedResourceProperty("MANIFEST_RESOURCE_ID", manifestResourceId);
+        
+        if (manifest != null)
+        	pipe.setRevisedResourceProperty("CONTENT_PACKAGE_TITLE", manifest.getTitle());
+            
+        pipe.setActionCanceled(false);
+        pipe.setErrorEncountered(false);
+        pipe.setActionCompleted(true); 
+           
+        toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+
+		return pipe.getContentEntity().getId();
 	}
-	public ScormCHH getScormContentHostingHandler() {
-		return scormContentHostingHandler;
-	}
-	public void setScormContentHostingHandler(ScormCHH scormContentHostingHandler) {
-		this.scormContentHostingHandler = scormContentHostingHandler;
-	}
-	public DataManagerDao getDataManagerDao() {
-		return dataManagerDao;
-	}
-	public void setDataManagerDao(DataManagerDao dataManagerDao) {
-		this.dataManagerDao = dataManagerDao;
-	}
-	public SeqActivityTreeDao getSeqActivityTreeDao() {
-		return seqActivityTreeDao;
-	}
-	public void setSeqActivityTreeDao(SeqActivityTreeDao seqActivityTreeDao) {
-		this.seqActivityTreeDao = seqActivityTreeDao;
-	}
-	public ContentPackageDao getContentPackageDao() {
-		return contentPackageDao;
-	}
-	public void setContentPackageDao(ContentPackageDao contentPackageDao) {
-		this.contentPackageDao = contentPackageDao;
-	}
+	 */
 }

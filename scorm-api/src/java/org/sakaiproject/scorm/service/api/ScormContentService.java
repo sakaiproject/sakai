@@ -26,43 +26,30 @@ import java.util.List;
 import org.adl.validator.IValidator;
 import org.adl.validator.IValidatorOutcome;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.w3c.dom.Document;
 
-public interface ScormContentService {
-		
+public interface ScormContentService extends ScormConstants {
+	
 	public String addContentPackage(File contentPackage, IValidator validator, IValidatorOutcome outcome) throws Exception;
 	
 	public ContentPackage getContentPackage(long contentPackageId);
 	
-	public void updateContentPackage(ContentPackage contentPackage);
+	public List<ContentPackage> getContentPackages();
 	
-	
-	//public ContentResource addManifest(ContentPackageManifest manifest, String id);
-	
-	//public List<ContentEntity> getContentPackages();
-	
-	public List<ContentPackage> getSiteContentPackages();
-	
-	public List<ContentResource> getZipArchives();
+	public int getContentPackageStatus(ContentPackage contentPackage);
 	
 	public String getContentPackageTitle(Document document);
+
+	public List<ContentResource> getZipArchives();
 	
-	//public ContentPackageManifest getManifest(String contentPackageId);
+	public void removeContentPackage(long contentPackageId);
 	
-	//public InputStream getManifestAsStream(String contentPackageId);
+	public void updateContentPackage(ContentPackage contentPackage);
 	
 	public void validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema) throws Exception;
 	
 	public IValidator validate(File contentPackage, boolean iManifestOnly, boolean iValidateToSchema);
 	
-	//public IValidatorOutcome validateContentPackage(File contentPackage, boolean onlyValidateManifest);
-	
-	//public void uploadZipArchive(File zipArchive) throws IdUnusedException, IdUniquenessException, IdLengthException, IdInvalidException, OverQuotaException, PermissionException, ServerOverloadException;
-	
-	//public String identifyZipArchive();
-	
-	public void removeContentPackage(long contentPackageId);
-	
-	//public void uploadZipEntry(File zipEntry, String path);
 }

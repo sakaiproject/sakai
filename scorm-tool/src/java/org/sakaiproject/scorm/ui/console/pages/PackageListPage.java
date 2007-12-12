@@ -27,9 +27,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.api.ScormConstants;
@@ -58,7 +62,7 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 	
 	public PackageListPage(PageParameters params) {
 		
-		List<ContentPackage> contentPackages = contentService.getSiteContentPackages();
+		List<ContentPackage> contentPackages = contentService.getContentPackages();
 		
 		final boolean canConfigure = permissionService.canConfigure();
 		final boolean canViewResults = permissionService.canViewResults();
@@ -83,8 +87,7 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 				
 		columns.add(actionColumn);
 		
-		
-		columns.add(new PropertyColumn(new StringResourceModel("column.header.status", this, null), "status", "status"));
+		columns.add(new StatusColumn(new StringResourceModel("column.header.status", this, null), "status"));
 		
 		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.releaseOn", this, null), "releaseOn", "releaseOn"));
 
@@ -100,6 +103,47 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 	}	
 	
 	
+	public class StatusColumn extends AbstractColumn {
+
+		private static final long serialVersionUID = 1L;
+
+		public StatusColumn(IModel displayModel, String sortProperty) {
+			super(displayModel, sortProperty);
+		}
+
+		public void populateItem(Item item, String componentId, IModel model) {
+			item.add(new Label(componentId, createLabelModel(model)));
+		}
+		
+		protected IModel createLabelModel(IModel embeddedModel)
+		{
+			String resourceId = "status.unknown";
+			Object target = embeddedModel.getObject();
+			
+			if (target instanceof ContentPackage) {
+				ContentPackage contentPackage = (ContentPackage)target;
+				
+				int status = contentService.getContentPackageStatus(contentPackage);
+				
+				switch (status) {
+				case CONTENT_PACKAGE_STATUS_OPEN:
+					resourceId = "status.open";
+					break;
+				case CONTENT_PACKAGE_STATUS_OVERDUE:
+					resourceId = "status.overdue";
+					break;
+				case CONTENT_PACKAGE_STATUS_CLOSED:
+					resourceId = "status.closed";
+					break;
+				case CONTENT_PACKAGE_STATUS_NOTYETOPEN:
+					resourceId = "status.notyetopen";
+					break;
+				}
+			}
+			
+			return new ResourceModel(resourceId);
+		}
+	}
 	
 	
 }

@@ -26,10 +26,12 @@ import org.adl.validator.contentpackage.ILaunchData;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.SessionBean;
+import org.sakaiproject.scorm.service.api.ADLManager;
 import org.sakaiproject.scorm.service.api.INavigable;
 import org.sakaiproject.scorm.service.api.INavigationEvent;
 import org.sakaiproject.scorm.service.api.ScoBean;
@@ -39,34 +41,23 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-public abstract class ScormApplicationServiceImpl implements ScormApplicationService {
+public abstract class ScormApplicationServiceImpl implements ScormApplicationService, ScormConstants {
 
 	private static Log log = LogFactory.getLog(ScormApplicationServiceImpl.class);
 	
-	private final static String CMI_OBJECTIVES_ROOT = "cmi.objectives.";
-	private final static String CMI_COMPLETION_STATUS = "cmi.completion_status";
-	private final static String CMI_SUCCESS_STATUS = "cmi.success_status";
-	private final static String CMI_ENTRY = "cmi.entry";
-	private final static String CMI_SCORE_SCALED = "cmi.score.scaled";
-	private final static String CMI_SESSION_TIME = "cmi.session_time";
-	
-	private static final String DEFAULT_USER_AUDIO_LEVEL = "1";
-	private static final String DEFAULT_USER_AUDIO_CAPTIONING = "0";
-	private static final String DEFAULT_USER_DELIVERY_SPEED = "1";
-	private static final String DEFAULT_USER_LANGUAGE = "";
-	
-	private static final String PREF_USER_AUDIO_LEVEL = "1";
-	private static final String PREF_USER_AUDIO_CAPTIONING = "0";
-	private static final String PREF_USER_DELIVERY_SPEED = "1";
-	private static final String PREF_USER_LANGUAGE = "";
-	
 	// Dependency injection method lookup signatures
 	protected abstract UserDirectoryService userDirectoryService();
+	
+	// Sequencing service
 	protected abstract ScormSequencingService scormSequencingService();
+	
+	// Local utility bean (also dependency injected by lookup method)
+	protected abstract ADLManager adlManager();
+	
+	// Data access objects (also dependency injected by lookup method)
 	protected abstract AttemptDao attemptDao();
+	protected abstract DataManagerDao dataManagerDao();
 	
-	
-	protected DataManagerDao dataManagerDao;
 	
 	public ScoBean produceScoBean(String scoId, SessionBean sessionBean) {
 		ScoBean scoBean = null;
@@ -142,9 +133,9 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				// LMS is terminated
 				errorManager.setCurrentErrorCode(APIErrorCodes.COMMIT_AFTER_TERMINATE);
 			} else {
-				IDataManager dataManager = scormSequencingService().getDataManager(sessionBean, scoBean);
-				ISeqActivityTree tree = scormSequencingService().getActivityTree(sessionBean);
-				ISequencer sequencer = scormSequencingService().getSequencer(tree);
+				IDataManager dataManager = adlManager().getDataManager(sessionBean, scoBean);
+				ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
+				ISequencer sequencer = adlManager().getSequencer(tree);
 				IValidRequests validRequests = commit(sessionBean, dataManager, sequencer);
 				
 				if (validRequests == null) {
@@ -532,7 +523,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
         // FIXME : We need to look in the db first -- but currently it doesn't seem that data is getting saved correctly
         // First, check to see if we have a ScoDataManager persisted
         if (dataManagerId != -1)
-        	dm = dataManagerDao.load(dataManagerId);
+        	dm = dataManagerDao().load(dataManagerId);
         	//dataManagerDao.find(courseId, userId, attemptNumber);
 
         if (dm == null) {
@@ -991,7 +982,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	
 			navDM.setValidRequests(validRequests);
 			
-			dataManagerDao.save(scoDataManager);
+			dataManagerDao().save(scoDataManager);
 			
 
         } else {
@@ -1274,15 +1265,6 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		}
 
 		return validRequests;
-	}
-	
-	
-	
-	public DataManagerDao getDataManagerDao() {
-		return dataManagerDao;
-	}
-	public void setDataManagerDao(DataManagerDao dataManagerDao) {
-		this.dataManagerDao = dataManagerDao;
 	}
 	
 	
