@@ -81,10 +81,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public List getTotalScores(final String publishedId, String which) {
-	  return getTotalScores(publishedId, which, true);
-  }
-  
-  public List getTotalScores(final String publishedId, String which, final boolean submittedOnly) {
     try {
       // sectionSet of publishedAssessment is defined as lazy loading in
       // Hibernate OR map, so we need to initialize them. Unfortunately our
@@ -105,18 +101,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
       final HibernateCallback hcb = new HibernateCallback(){
       	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-      		Query q = null;
-      		if (submittedOnly) {
-      			q = session.createQuery(
-      			"from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=? order by a.agentId ASC, a.finalScore DESC, a.submittedDate DESC");
-      			q.setLong(0, Long.parseLong(publishedId));
-      			q.setBoolean(1, true);
-      		}
-      		else {
-      			q = session.createQuery(
-      			"from AssessmentGradingData a where a.publishedAssessmentId=? order by a.agentId ASC, a.finalScore DESC, a.submittedDate DESC");
-      			q.setLong(0, Long.parseLong(publishedId));
-      		}
+      		Query q = session.createQuery(
+      				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=? order by a.agentId ASC, a.finalScore DESC, a.submittedDate DESC");
+      		q.setLong(0, Long.parseLong(publishedId));
+      		q.setBoolean(1, true);
       		return q.list();
       	};
       };
@@ -130,18 +118,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       if (which.equals(EvaluationModelIfc.LAST_SCORE.toString())) {
     	    final HibernateCallback hcb2 = new HibernateCallback(){
     	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    	    		Query q = null;
-    	    		if (submittedOnly) {
-    	    			q = session.createQuery(
+    	    		Query q = session.createQuery(
     	    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=? order by a.agentId ASC, a.submittedDate DESC");
-    	    			q.setLong(0, Long.parseLong(publishedId));
-    	    			q.setBoolean(1, true);
-    	    		}
-    	    		else {
-    	    			q = session.createQuery(
-	    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=? order by a.agentId ASC, a.submittedDate DESC");
-    	    			q.setLong(0, Long.parseLong(publishedId));
-    	    		}
+    	      		q.setLong(0, Long.parseLong(publishedId));
+    	      		q.setBoolean(1, true);
     	    		return q.list();
     	    	};
     	    };

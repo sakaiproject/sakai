@@ -140,7 +140,7 @@ public class TotalScoreUpdateListener
             BeanUtils.copyProperties(data, agentResults);
 
             data.setAgentId(agentResults.getIdString());
-  	    data.setForGrade(Boolean.FALSE);
+  	    data.setForGrade(Boolean.TRUE);
 	    //data.setStatus(new Integer(1));
             data.setIsLate(Boolean.FALSE);
    	    data.setItemGradingSet(new HashSet());
