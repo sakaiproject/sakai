@@ -68,6 +68,7 @@ alter table GB_GRADEBOOK_T modify ( GRADE_TYPE number(10,0) not null, CATEGORY_T
 --Gradebook SAK-10427
 alter table GB_GRADABLE_OBJECT_T add (UNGRADED number(1,0));
 update GB_GRADABLE_OBJECT_T set UNGRADED = 0;
+alter table GB_GRADE_RECORD_T add NON_CALCULATE_GRADE varchar2(255);
 
 --Gradebook SAK-10571
 create table GB_LETTERGRADE_MAPPING (LG_MAPPING_ID number(19,0) not null, VALUE double precision, GRADE varchar2(255 char) not null, primary key (LG_MAPPING_ID, GRADE));

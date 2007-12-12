@@ -64,6 +64,7 @@ update GB_GRADEBOOK_T set GRADE_TYPE = 1, CATEGORY_TYPE = 1;
 --Gradebook SAK-10427
 alter table GB_GRADABLE_OBJECT_T add column UNGRADED bit;
 update GB_GRADABLE_OBJECT_T set UNGRADED = false;
+alter table GB_GRADE_RECORD_T add NON_CALCULATE_GRADE varchar(255);
 
 --Gradebook SAK-10571
 drop table if exists GB_LETTERGRADE_PERCENT_MAPPING;
