@@ -24,24 +24,21 @@ import javax.swing.tree.TreeModel;
 
 import org.adl.api.ecmascript.APIErrorManager;
 import org.adl.api.ecmascript.IErrorManager;
-import org.adl.datamodels.IDataManager;
 import org.adl.sequencer.ILaunch;
 import org.adl.sequencer.ISeqActivity;
 import org.adl.sequencer.ISeqActivityTree;
 import org.adl.sequencer.ISequencer;
 import org.adl.sequencer.IValidRequests;
 import org.adl.sequencer.SeqNavRequests;
-import org.adl.sequencer.impl.ADLSequencer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
-import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.SessionBean;
+import org.sakaiproject.scorm.service.api.ADLManager;
 import org.sakaiproject.scorm.service.api.INavigable;
-import org.sakaiproject.scorm.service.api.ScoBean;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -52,26 +49,35 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	
 	// Dependency injection lookup methods
 	protected abstract ScormContentService scormContentService();
-	protected abstract DataManagerDao dataManagerDao();
-	protected abstract SeqActivityTreeDao seqActivityTreeDao();
 	protected abstract SessionManager sessionManager();
+	
+	// Local utility bean (also dependency injected by lookup method)
+	protected abstract ADLManager adlManager();
+	
+	// Data access objects (also dependency injected by lookup method)
+	protected abstract SeqActivityTreeDao seqActivityTreeDao();
 	protected abstract ContentPackageManifestDao contentPackageManifestDao();
+	
 	
 	
 	public String navigate(int request, SessionBean sessionBean, INavigable agent, Object target) {
 		// SessionBean needs to be populated with courseId and learnerId by this point
-		
-		if (log.isDebugEnabled())
+		if (log.isDebugEnabled()) {
 			log.debug("navigate (" + request + ")");
 		
-		ISeqActivityTree tree = getActivityTree(sessionBean);
+			if (sessionBean.getCourseId() == null || sessionBean.getLearnerId() == null)
+				log.error("Session bean should be populated with course id and learner id");
+		}
+			
+		
+		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
 		
 		if (tree.getSuspendAll() != null && request == SeqNavRequests.NAV_START)
 			request = SeqNavRequests.NAV_RESUMEALL;
 		
-		ISequencer sequencer = getSequencer(tree);
+		ISequencer sequencer = adlManager().getSequencer(tree);
 		ILaunch launch = sequencer.navigate(request);
-		ContentPackageManifest manifest = getManifest(sessionBean);
+		ContentPackageManifest manifest = adlManager().getManifest(sessionBean);
 		
 		update(sessionBean, sequencer, launch, manifest);
 		
@@ -101,10 +107,10 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		if (log.isDebugEnabled())
 			log.debug("navigate (" + choiceRequest + ")");
 		
-		ISeqActivityTree tree = getActivityTree(sessionBean);
-		ISequencer sequencer = getSequencer(tree);
+		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
+		ISequencer sequencer = adlManager().getSequencer(tree);
 		ILaunch launch = sequencer.navigate(choiceRequest);
-		ContentPackageManifest manifest = getManifest(sessionBean);
+		ContentPackageManifest manifest = adlManager().getManifest(sessionBean);
 		
 		update(sessionBean, sequencer, launch, manifest);
 		
@@ -113,15 +119,15 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	}
 	
 	public void navigateToActivity(String activityId, SessionBean sessionBean, INavigable agent, Object target) {
-		ISeqActivityTree tree = getActivityTree(sessionBean);
-		ISequencer sequencer = getSequencer(tree);
+		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
+		ISequencer sequencer = adlManager().getSequencer(tree);
 		sessionBean.setActivityId(activityId);
 		
 		if (log.isDebugEnabled())
 			log.debug("navigate (" + sessionBean.getActivityId() + ")");
 			
 		ILaunch launch = sequencer.navigate(sessionBean.getActivityId());
-		ContentPackageManifest manifest = getManifest(sessionBean);
+		ContentPackageManifest manifest = adlManager().getManifest(sessionBean);
 		
 		update(sessionBean, sequencer, launch, manifest);
 		
@@ -133,7 +139,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		String learnerId = sessionManager().getCurrentSessionUserId();
 		SessionBean sessionBean = new SessionBean(courseId, learnerId);
 		
-		ContentPackageManifest manifest = getManifest(sessionBean);
+		ContentPackageManifest manifest = adlManager().getManifest(sessionBean);
 		
 		if (manifest != null)
 			sessionBean.setTitle(manifest.getTitle());
@@ -183,7 +189,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	}
 	
 	public boolean isControlModeFlow(SessionBean sessionBean) {
-		ISeqActivityTree tree = getActivityTree(sessionBean);
+		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
 		String activityId = sessionBean.getActivityId();
 		
 		ISeqActivity activity = tree.getActivity(activityId);
@@ -192,7 +198,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	}
 	
 	public boolean isControlModeChoice(SessionBean sessionBean) {
-		ISeqActivityTree tree = getActivityTree(sessionBean);
+		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
 		String activityId = sessionBean.getActivityId();
 		
 		ISeqActivity activity = tree.getActivity(activityId);
@@ -226,54 +232,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		return null;
 	}
 	
-	public IDataManager getDataManager(SessionBean sessionBean, ScoBean scoBean) {
-		if (sessionBean.getDataManager() == null)
-			sessionBean.setDataManager(dataManagerDao().find(sessionBean.getCourseId(), sessionBean.getLearnerId(), sessionBean.getAttemptNumber()));
-		
-		return sessionBean.getDataManager();
-	}
 	
-	
-	public ISeqActivityTree getActivityTree(SessionBean sessionBean) {
-		// First, we check to see if the tree is cached in the session bean 
-		ISeqActivityTree tree = sessionBean.getTree();
-		
-		if (tree == null) {
-			// If not, we look to see if there's a modified version in the data store
-			tree = seqActivityTreeDao().find(sessionBean.getCourseId(), sessionBean.getLearnerId());
-			
-			if (tree == null) {
-				// Finally, if all else fails, we look up the prototype version - this is the first time
-				// the user has launched the content package
-				ContentPackageManifest manifest = getManifest(sessionBean);
-				tree = manifest.getActTreePrototype();
-				tree.setCourseID(sessionBean.getCourseId());
-				tree.setLearnerID(sessionBean.getLearnerId());
-			}
-			
-			sessionBean.setTree(tree);
-		}
-		
-		return tree;
-	}
-	
-	public ISequencer getSequencer(ISeqActivityTree tree) {
-        // Create the sequencer and set the tree		
-        ISequencer sequencer = new ADLSequencer();
-        sequencer.setActivityTree(tree);
-        
-        return sequencer;
-	}
-	
-	public ContentPackageManifest getManifest(SessionBean sessionBean) {
-		// First, check to see if the manifest is cached in the session bean
-		ContentPackageManifest manifest = sessionBean.getManifest();
-		
-		if (manifest == null)
-			manifest = contentPackageManifestDao().find(sessionBean.getCourseId());
-			
-		return manifest;
-	}
 	
 	private void update(SessionBean sessionBean, ISequencer sequencer, ILaunch launch, ContentPackageManifest manifest) {
 		sessionBean.setActivityId(launch.getActivityId());

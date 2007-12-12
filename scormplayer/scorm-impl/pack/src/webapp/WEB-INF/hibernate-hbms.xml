@@ -8,9 +8,18 @@
 		<property name="mappingResources">
 			<list>
 				<value>org/sakaiproject/scorm/model/api/Attempt.hbm.xml</value>
-				<value>org/sakaiproject/scorm/model/api/ContentPackageMapping.hbm.xml</value>
-				<value>org/sakaiproject/scorm/model/api/DataModelMappings.hbm.xml</value>
-				<value>org/sakaiproject/scorm/model/api/SequencerMappings.hbm.xml</value>
+				<value>org/sakaiproject/scorm/model/api/ContentPackage.hbm.xml</value>
+				
+				<value>org/adl/datamodels/DMDelimiter.hbm.xml</value>
+				<value>org/adl/datamodels/DMDelimiterDescriptor.hbm.xml</value>
+				<value>org/adl/datamodels/DMElement.hbm.xml</value>
+				<value>org/adl/datamodels/DMElementDescriptor.hbm.xml</value>
+				<value>org/adl/datamodels/DataModel.hbm.xml</value>
+				<value>org/adl/datamodels/DMTypeValidator.hbm.xml</value>
+				<value>org/adl/datamodels/SCODataManager.hbm.xml</value>
+				
+				
+				<value>org/adl/sequencer/SequencerMappings.hbm.xml</value>
 			</list>
 		</property>
 	</bean>

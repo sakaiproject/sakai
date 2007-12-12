@@ -20,8 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.service.api;
 
-import org.adl.api.ecmascript.IErrorManager;
-import org.adl.datamodels.IDataManager;
 import org.sakaiproject.scorm.model.api.SessionBean;
 
 public interface ScormApplicationService {

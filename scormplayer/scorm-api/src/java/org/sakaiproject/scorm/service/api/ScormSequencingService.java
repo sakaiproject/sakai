@@ -22,48 +22,82 @@ package org.sakaiproject.scorm.service.api;
 
 import javax.swing.tree.TreeModel;
 
-import org.adl.datamodels.IDataManager;
-import org.adl.sequencer.ISeqActivityTree;
-import org.adl.sequencer.ISequencer;
 import org.sakaiproject.scorm.model.api.SessionBean;
 
 public interface ScormSequencingService {
 
+	/**
+	 * This navigate method is used for start, next, previous, suspend, and quit requests
+	 */
 	public String navigate(int request, SessionBean sessionBean, INavigable agent, Object target);
 	
+	/**
+	 * This navigate method is used for 'choice' requests, that is, ones that arise from a user
+	 * clicking on the tree of available activities
+	 */
 	public void navigate(String choiceRequest, SessionBean sessionBean, INavigable agent, Object target);
 	
+	/**
+	 * This navigate method is almost identical to the one above, except that it uses a different
+	 * identifier to determine which activity has been clicked on.
+	 */
 	public void navigateToActivity(String activityId, SessionBean sessionBean, INavigable agent, Object target);
 	
+	/**
+	 * This method is called once at the beginning of each user session to provide the bean
+	 * where all state information will be stored
+	 */
 	public SessionBean newSessionBean(String courseId);
 	
-	public boolean isContinueEnabled(SessionBean sessionBean);
-	
-	public boolean isContinueExitEnabled(SessionBean sessionBean);
-	
-	public boolean isPreviousEnabled(SessionBean sessionBean);
-
-	public boolean isResumeEnabled(SessionBean sessionBean);
-	
-	public boolean isStartEnabled(SessionBean sessionBean);
-	
-	public boolean isSuspendEnabled(SessionBean sessionBean);
-	
-	public boolean isControlModeFlow(SessionBean sessionBean);
-	
-	public boolean isControlModeChoice(SessionBean sessionBean);
-	
+	/**
+	 * Called to get the destination url for the selected sco
+	 */
 	public String getCurrentUrl(SessionBean sessionBean);
 	
+	/**
+	 * Called to get the TreeModel object that represents the 'choice' tree of activities
+	 */
 	public TreeModel getTreeModel(SessionBean sessionBean);
 	
-	// TODO: These methods don't need to be made visible to the tool and probably shouldn't be included
-	// in the interface
-
-	public ISeqActivityTree getActivityTree(SessionBean sessionBean);
+	/**
+	 * Indicates if the user is allowed to 'continue' to the next sco
+	 */
+	public boolean isContinueEnabled(SessionBean sessionBean);
 	
-	public IDataManager getDataManager(SessionBean sessionBean, ScoBean scoBean);
+	/**
+	 * Indicates if the user is allowed to 'continue' to the next sco, even if it means exiting
+	 * the session
+	 */
+	public boolean isContinueExitEnabled(SessionBean sessionBean);
+	
+	/**
+	 * Indicates if the user is allowed to return to the previous sco
+	 */
+	public boolean isPreviousEnabled(SessionBean sessionBean);
 
-	public ISequencer getSequencer(ISeqActivityTree tree);
+	/**
+	 * Indicates if the user is allowed to resume a suspended session
+	 */
+	public boolean isResumeEnabled(SessionBean sessionBean);
+	
+	/**
+	 * Indicates if the user is allowed to start a given session
+	 */
+	public boolean isStartEnabled(SessionBean sessionBean);
+	
+	/**
+	 * Indicates if the user is allowed to suspend a given session
+	 */
+	public boolean isSuspendEnabled(SessionBean sessionBean);
+	
+	/**
+	 * Indicates if the user is currently in 'flow' mode
+	 */
+	public boolean isControlModeFlow(SessionBean sessionBean);
+	
+	/**
+	 * Indicates if the user is currently in 'choice' mode
+	 */
+	public boolean isControlModeChoice(SessionBean sessionBean);
 	
 }
