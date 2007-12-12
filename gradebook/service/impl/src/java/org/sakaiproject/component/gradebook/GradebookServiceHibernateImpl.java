@@ -548,7 +548,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Map enrollmentMap;
 			String userUid = authn.getUserUid();
 			
-			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, null, null);
+			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, thisGradebook.getCategory_type(), null, null);
 			enrollmentMap = new HashMap();
 
 			Map enrollmentMapUid = new HashMap();
@@ -1054,7 +1054,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  Long categoryId = gradebookItem.getCategory() == null ? null : gradebookItem.getCategory().getId();
 	  
 	  Map<EnrollmentRecord, String> enrRecFunctionMap = new HashMap();
-	  enrRecFunctionMap = authz.findMatchingEnrollmentsForItem(gradebookUid, categoryId, null, null);
+	  enrRecFunctionMap = authz.findMatchingEnrollmentsForItem(gradebookUid, categoryId, getGradebook(gradebookUid).getCategory_type(), null, null);
 	  if (enrRecFunctionMap == null) {
 		  return new HashMap();
 	  }

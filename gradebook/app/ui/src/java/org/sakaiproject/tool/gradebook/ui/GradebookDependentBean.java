@@ -276,15 +276,16 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	
 	
 	public Map findMatchingEnrollmentsForItem(Long categoryId, String optionalSearchString, String optionalSectionUid) {
-		return getGradebookBean().getAuthzService().findMatchingEnrollmentsForItem(getGradebookUid(), categoryId, optionalSearchString, optionalSectionUid);
+		return getGradebookBean().getAuthzService().findMatchingEnrollmentsForItem(getGradebookUid(), categoryId, getGradebook().getCategory_type(), optionalSearchString, optionalSectionUid);
 	}
 	
 	public Map findMatchingEnrollmentsForAllItems(String optionalSearchString, String optionalSectionUid) {
-		return getGradebookBean().getAuthzService().findMatchingEnrollmentsForViewableItems(getGradebookUid(), optionalSearchString, optionalSectionUid);
+		return getGradebookBean().getAuthzService().findMatchingEnrollmentsForViewableItems(getGradebookUid(), 
+				getGradebookManager().getAssignments(getGradebookId()), optionalSearchString, optionalSectionUid);
 	}
 	
 	public Map findMatchingEnrollmentsForViewableCourseGrade(String optionalSearchString, String optionalSectionUid) {
-		return getGradebookBean().getAuthzService().findMatchingEnrollmentsForViewableCourseGrade(getGradebookUid(), optionalSearchString, optionalSectionUid);
+		return getGradebookBean().getAuthzService().findMatchingEnrollmentsForViewableCourseGrade(getGradebookUid(), getGradebook().getCategory_type(), optionalSearchString, optionalSectionUid);
 	}
 	
 	public List getAllSections() {

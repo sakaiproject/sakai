@@ -309,6 +309,16 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		}
 		return null;
 	}
+	
+	public Map getStudentsForItem(String gradebookUid, String userId, List studentIds, int cateType, Long categoryId, List courseSections)
+	throws IllegalArgumentException
+	{
+		if(gradebookUid == null || userId == null)
+			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getStudentsForItem");
+	
+		Long gradebookId = getGradebook(gradebookUid).getId();
+		return getStudentsForItem(gradebookId, userId, studentIds, cateType, categoryId, courseSections);
+	}
 
 	public List getViewableGroupsForUser(Long gradebookId, String userId, List groupIds) {
 		if(gradebookId == null || userId == null)
@@ -348,9 +358,28 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		
 	}
 	
+	public List getViewableGroupsForUser(String gradebookUid, String userId, List groupIds) {
+		if(gradebookUid == null || userId == null)
+			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getViewableSectionsForUser");
+	
+		Long gradebookId = getGradebook(gradebookUid).getId();
+		
+		return getViewableGroupsForUser(gradebookId, userId, groupIds);
+	}
+	
 	public List getGraderPermissionsForUser(Long gradebookId, String userId) {
 		if(gradebookId == null || userId == null)
 			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getPermissionsForUser");
+		
+		return getPermissionsForUser(gradebookId, userId);
+	}
+	
+	public List getGraderPermissionsForUser(String gradebookUid, String userId) {
+		if (gradebookUid == null || userId == null) {
+			throw new IllegalArgumentException("Null gradebookUid or userId passed to getGraderPermissionsForUser");
+		}
+		
+		Long gradebookId = getGradebook(gradebookUid).getId();
 		
 		return getPermissionsForUser(gradebookId, userId);
 	}
@@ -672,6 +701,16 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		
 		return getAvailableItemsForStudent(gradebook, userId, studentId, sectionIdCourseSectionMap, catIdCategoryMap, assignments, permsForUserAnyGroup, allPermsForUser, permsForAnyGroupForCategories, permsForUserAnyGroupAnyCategory, permsForGroupsAnyCategory, permsForUserForCategories, sectionIdStudentIdsMap);
 	}
+	
+	public Map getAvailableItemsForStudent(String gradebookUid, String userId, String studentId, Collection courseSections) throws IllegalArgumentException {
+		if(gradebookUid == null || userId == null || studentId == null)
+			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getAvailableItemsForStudent");
+		
+		Long gradebookId = getGradebook(gradebookUid).getId();
+		
+		return getAvailableItemsForStudent(gradebookId, userId, studentId, courseSections);
+
+	}
 
 	private List getAssignments(final Long gradebookId) throws HibernateException 
 	{
@@ -853,6 +892,15 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 
 		return new HashMap();
 	}
+	
+	public Map getAvailableItemsForStudents(String gradebookUid, String userId, List studentIds, Collection courseSections) throws IllegalArgumentException
+	{
+		if(gradebookUid == null || userId == null)
+			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getAvailableItemsForStudents");
+		
+		Long gradebookId = getGradebook(gradebookUid).getId();
+		return getAvailableItemsForStudents(gradebookId, userId, studentIds, courseSections);
+	}
 
 	public Map getCourseGradePermission(Long gradebookId, String userId, List studentIds, List courseSections) throws IllegalArgumentException
 	{
@@ -945,6 +993,15 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			return studentsMap;
 		}
 		return new HashMap();
+	}
+	
+	public Map getCourseGradePermission(String gradebookUid, String userId, List studentIds, List courseSections) throws IllegalArgumentException
+	{
+		if(gradebookUid == null || userId == null)
+			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getCourseGradePermission");
+	
+		Long gradebookId = getGradebook(gradebookUid).getId();
+		return getCourseGradePermission(gradebookId, userId, studentIds, courseSections);
 	}
 	
 	private Map filterForAllCategoryStudents(List perms, List studentIds, List cateList, Map sectionIdStudentIdsMap)
@@ -1133,6 +1190,16 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		
 		return new ArrayList(studentMap.keySet());
 	}
+	
+	public List getViewableStudentsForUser(String gradebookUid, String userId, List studentIds, List sections) {
+		if(gradebookUid == null || userId == null)
+			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getViewableStudentsForUser");
+		
+		Long gradebookId = getGradebook(gradebookUid).getId();
+		
+		return getViewableStudentsForUser(gradebookId, userId, studentIds, sections);
+		
+	}
 
 	public SectionAwareness getSectionAwareness()
 	{
@@ -1167,4 +1234,5 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		}
 		return sectionIdStudentIdsMap;
 	}
+
 }

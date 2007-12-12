@@ -34,7 +34,9 @@ public interface Authz {
 	public boolean isUserAbleToEditAssessments(String gradebookUid);
 	public boolean isUserAbleToViewOwnGrades(String gradebookUid);
 	public boolean isUserHasGraderPermissions(String gradebookUid);
+	public boolean isUserHasGraderPermissions(Long gradebookId);
 	public boolean isUserHasGraderPermissions(Long gradebookId, String userUid);
+	public boolean isUserHasGraderPermissions(String gradebookUid, String userUid);
 
 	/**
 	 * 
@@ -74,6 +76,8 @@ public interface Authz {
 	 * @param gradebookUid
 	 * @param categoryId
 	 * 			The category id that the desired item is associated with
+	 * @param gbCategoryType
+	 * 			The category type setting for this gradebook
 	 * @param optionalSearchString
 	 * 			a substring search for student name or display UID; the exact rules are
 	 *  		up to the implementation - leave null to use all students
@@ -82,11 +86,13 @@ public interface Authz {
 	 * @return a map of EnrollmentRecords to grade/view permission that the current user is authorized to
 	 * 			view or grade for the given gradebook item
 	 */
-	public Map findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, String optionalSearchString, String optionalSectionUid);
+	public Map findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid);
 	
 	/**
 	 * 
 	 * @param gradebookUid
+	 * @param gbCategoryType
+	 * 			The category type setting for this gradebook
 	 * @param optionalSearchString
 	 * @param optionalSectionUid
 	 * @return Map of EnrollmentRecord --> function (grade/view) for all students that the current user has permission to
@@ -95,10 +101,12 @@ public interface Authz {
 	 * 			everything in the gradebook for that student. If he/she can grade only a subset of the items, the
 	 * 			student is not returned.
 	 */
-	public Map findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, String optionalSearchString, String optionalSectionUid);
+	public Map findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, int gbCategoryType, String optionalSearchString, String optionalSectionUid);
 	/**
 	 * 
 	 * @param gradebookUid
+	 * @param allGbItems
+	 * 			List of all Assignments associated with this gradebook
 	 * @param optionalSearchString
 	 * 			a substring search for student name or display UID; the exact rules are
 	 *  		up to the implementation - leave null to use all students
@@ -107,7 +115,7 @@ public interface Authz {
 	 * @return a map of EnrollmentRecords to a map of item id and function (grade/view) that the user is
 	 * 			authorized to view/grade
 	 */
-	public Map findMatchingEnrollmentsForViewableItems(String gradebookUid, String optionalSearchString, String optionalSectionUid);
+	public Map findMatchingEnrollmentsForViewableItems(String gradebookUid, List allGbItems, String optionalSearchString, String optionalSectionUid);
 	
 	/**
 	 * 
