@@ -13,47 +13,16 @@ body {
 }
 
 .podDateFormat {
-	position: relative;
-	top: 10px;
 	font-size: 13pt;
 }
 
 .podTitleFormat {
-	position: relative;
-	top: 15px;
 	font-size: 11pt;
-}
-
-.podDescFormat {
-	position: relative;
-	top: 18px;
-}
-
-.podMenuPosition {
-	position: relative;
-	top: -15px;
-}
-
-.podLinksPosition {
-	position: relative;
-	top: 22px;
 }
 
 .rssIcon {
 	position: relative;
 	top: 6px;
-}
-
-.posted {
-	position: relative;
-	top: 13px;
-	font-size: 8pt;
-}
-
-.podDelTitleFormat {
-	position: relative;
-	top: 12px;
-	font-size: 11pt;
 }
 
 .podDelDescPosition {

@@ -22,22 +22,18 @@
       <div class="indnt1">
           <p class="instruction"> 
             <h:outputText value="#{msgs.options_directions1}" />
-            <span onClick="showPopupHere(this,'podcatcher'); return false;" 
-            	     onMouseOver="this.style.cursor='pointer'; return false;"
- 	              onMouseOut="hidePopup('podcatcher');">
- 	        <h:outputLink styleClass="active" onclick="return false">
- 	           <h:outputText value="#{msgs.podcatcher}" />
- 	        </h:outputLink>,
- 	        </span>
+ 	          <h:outputLink styleClass="active" onclick="showPopupHere(this,'podcatcher'); return false;"
+                  onmouseover="this.style.cursor='pointer'; return false;" onmouseout="hidePopup('podcatcher');">
+	          	   <h:outputText value="#{msgs.podcatcher}" />
+	          </h:outputLink>
+	          <h:outputText value="," />
 
  	        <h:outputText value="#{msgs.options_directions2}" />
-            <span onClick="showPopupHere(this,'podcatcher'); return false;" 
-            	     onMouseOver="this.style.cursor='pointer'; return false;"
- 	              onMouseOut="hidePopup('podcatcher');">
-	        <h:outputLink styleClass="active" onclick="return false">
- 	           <h:outputText value="#{msgs.podcatcher}" />
- 	        </h:outputLink>,
- 	        </span>
+ 			<h:outputLink styleClass="active" onclick="showPopupHere(this,'podcatcher'); return false;"
+                  onmouseover="this.style.cursor='pointer'; return false;" onmouseout="hidePopup('podcatcher');">
+	          	   <h:outputText value="#{msgs.podcatcher}" />
+	        </h:outputLink>
+	        <h:outputText value="," />
 
  	        <h:outputText value="#{msgs.options_directions3}" />
           </p>
@@ -68,12 +64,12 @@
             accesskey="c" title="Cancel Podcast Display Options" />
     </sakai:button_bar>
   </h:form>
-  
-  </sakai:view>
 
     <!-- This is the div for the popup definition. It is not displayed until the element is moused over -->
     <div id="podcatcher" class="podcatcher_popup" 
         style="position:absolute; top: -1000px; left: -1000px;">
       <h:outputText value="#{msgs.popup_text}" />
     </div>
+  
+  </sakai:view>
 </f:view>  

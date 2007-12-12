@@ -5,7 +5,7 @@
 	<h:messages styleClass="alertMessage" id="errorMessagesNR" /> 
 </h:panelGroup>
 
-<%-- Students (access) getno podcasts exist --%>
+<%-- Students (access) get no podcasts exist --%>
 <h:panelGroup rendered="#{! podHomeBean.canUpdateSite}" >
 	<f:verbatim><div><h3></f:verbatim>
  	        	
