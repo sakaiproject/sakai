@@ -60,6 +60,9 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 
 import org.sakaiproject.site.cover.SiteService;
+/*
+import org.sakaiproject.site.tool.SiteAction;
+*/
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -108,7 +111,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
  
   /** Dependency: a logger component. */
   private Log logger = LogFactory.getLog(SyllabusServiceImpl.class);
-  
+   
   protected NotificationService notificationService = null;
   protected String m_relativeAccessPoint = null;
   
@@ -1312,6 +1315,38 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	public boolean checkPermission(String lock, String reference)
 	{
 		return SecurityService.unlock(lock, reference);
+	}
+	
+	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{	
+		try
+		{
+			if(cleanup == true)
+			{
+				String toSiteId = toContext;
+			
+				SyllabusItem fromSyllabusItem = syllabusManager.getSyllabusItemByContextId(toSiteId);
+			    
+				if (fromSyllabusItem != null) 
+				{
+					Set fromSyDataSet = syllabusManager.getSyllabiForSyllabusItem(fromSyllabusItem);
+					
+					Iterator fromSetIter = fromSyDataSet.iterator();
+					
+					while (fromSetIter.hasNext()) 
+					{
+						SyllabusData fromSyllabusData = (SyllabusData) fromSetIter.next();
+						
+						syllabusManager.removeSyllabusFromSyllabusItem(fromSyllabusItem, fromSyllabusData);
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			logger.debug("Syllabus transferCopyEntities failed" + e);
+		}
+		transferCopyEntities(fromContext, toContext, ids);
 	}
 	
 }
