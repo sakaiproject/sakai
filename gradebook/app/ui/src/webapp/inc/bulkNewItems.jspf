@@ -13,7 +13,7 @@
 		id="bulkNewAssignmentsTable"
 		value="#{bean.newBulkItems}"
 		var="item"
-	    columnClasses="highlightPanel"
+	    columnClasses=""
    		rowClasses="#{bean.rowClasses}"
 		styleClass="listHier narrowTable"
 		rowIndexVar="rowIndex">
@@ -23,7 +23,11 @@
 		  		Done to deal with removing item in 'middle' 				--%>
 		  <h:inputHidden id="hiddenAdd" value="#{item.saveThisItem}" />
 
-		  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite actionitem">
+		  <h:panelGroup rendered="#{rowIndex != 0}">
+		  	<f:verbatim><hr class="itemSeparator" /></f:verbatim>
+		  </h:panelGroup>
+		  
+		  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite actionitem highlightPanel">
 			<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}" rendered="#{!item.assignment.externallyMaintained}"/>
 			
 			<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
@@ -32,17 +36,11 @@
 				<h:outputText id="noTitleErrMsg"  value="#{msgs.add_assignment_no_title}" styleClass="alertMessageInline" rendered="#{item.bulkNoTitleError == 'blank'}" />
 				<h:outputText id="dupTitleErrMsg" value="#{msgs.add_assignment_duplicate_name}" styleClass="alertMessageInline" rendered="#{item.bulkNoTitleError == 'dup'}" />
 		
-				<%-- Will remove this pane from the page TODO: refactor entirly in JSF --%>
+				<%-- Will remove this pane from the page --%>
 				<h:panelGroup rendered="#{rowIndex != 0}">
 					<h:commandLink onclick="removeItem(event); return false;" title="#{msgs.add_assignment_remove_title}" styleClass="indnt2">
 						<h:graphicImage value="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
 					</h:commandLink>
-						
-<%--					<f:verbatim>
-						<a href="#" id="removeTrigger_0" onclick="removeItem(event)" style="text-decoration: none" class="indnt2" >
-							<img src="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
-						</a>
-					</f:verbatim> --%>
 				</h:panelGroup>
 				<h:panelGroup rendered="#{rowIndex == 0}" styleClass="indnt2" >
 					<h:graphicImage value="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
@@ -60,8 +58,8 @@
 		  
 		  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
 			<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
-				<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.add_assignment_due_date}"/>
-				<h:outputText style="font-weight:normal;" value=" #{msgs.date_entry_format_description}"/>
+				<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.add_assignment_due_date} #{msgs.date_entry_format_description}"/>
+<%--				<h:outputText style="font-weight:normal;" value=" #{msgs.date_entry_format_description}"/> --%>
 			</h:panelGroup>
 			<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
   				<t:inputCalendar id="dueDate" value="#{item.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true" popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />

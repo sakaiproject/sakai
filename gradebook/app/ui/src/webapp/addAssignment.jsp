@@ -28,7 +28,7 @@
 
 		<p class="instruction"><h:outputText value="#{msgs.add_assignment_instruction}" /></p>
 
-<%-- 
+<%-- Commented out per SAK-12285
 		<p>
 		<h:outputText value="#{msgs.add_assignment_selector1}" />
 			<h:selectOneMenu id="numItems" value="">
@@ -85,17 +85,18 @@
 				}
 			);
 
-			// Add functionality to Add item drop down			
-			Event.observe(
-				"gbForm:numItems",
-				"change",
-				function(event){
-					addMultipleItems(this);
+			// Add functionality to Add item drop down
+			// Commented out per SAK-12285
+//			Event.observe(
+//				"gbForm:numItems",
+//				"change",
+//				function(event){
+//					addMultipleItems(this);
 
 					// since DOM changed, resize
-					setMainFrameHeightNow(thisId, 'grow');
-				}
-			);
+//					setMainFrameHeightNow(thisId, 'grow');
+//				}
+//			);
   		</script>
   	</h:form>
   </div>
