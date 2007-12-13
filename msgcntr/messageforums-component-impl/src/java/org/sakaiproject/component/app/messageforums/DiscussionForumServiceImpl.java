@@ -1158,5 +1158,37 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	public PermissionLevelManager getPermissionManager() {
 		return permissionManager;
 	}
-
+	
+	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{	
+		try
+		{
+			if(cleanup == true)
+			{
+				try 
+				{
+					List existingForums = dfManager.getDiscussionForumsByContextId(toContext);
+				
+					if (existingForums != null && !existingForums.isEmpty()) 
+					{
+						for (int currForum = 0; currForum < existingForums.size(); currForum++) 
+						{
+							DiscussionForum fromForum = (DiscussionForum)existingForums.get(currForum);
+						
+							forumManager.deleteDiscussionForum(fromForum);
+						}
+					}
+				}
+				catch(Exception e)
+				{
+					LOG.debug ("Remove Forums from Site Import failed" + e);
+				}
+			}
+			transferCopyEntities(fromContext, toContext, ids);
+		}
+		catch(Exception e)
+		{
+			LOG.debug ("Forums transferCopyEntities failed" + e);
+		}
+	}
 }
