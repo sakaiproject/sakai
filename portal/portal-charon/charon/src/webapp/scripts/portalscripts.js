@@ -2,48 +2,57 @@
  * uses jQuery library
  */
 
+/* dhtml_more_tabs
+ * displays the More Sites div 
+ * note the technique of recasting the function after initalization
+ */
+
 var dhtml_more_tabs = function() {
-	//initialize the more tabs area then reset the function to just the show/hide behavior
-	$('div#selectNav').appendTo('#linkNav').addClass('dhtml_more_tabs');
-	$('div#selectNav').css('top',$('#linkNav').height() - 3); // adjust the vertical position
-	$('div#selectNav').width($('#linkNav').width()*0.75); // fixes an IE6 bug
+	// first time through set up the DOM
+	jQuery('div#selectNav').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectNav in the DOM
+	jQuery('div#selectNav').css('top',jQuery('#linkNav').height() - 3);       // set its top position
+	jQuery('div#selectNav').width(jQuery('#linkNav').width()*0.75);           // set its width to fix an IE6 bug
+	jQuery('#selectNav').css('z-index',9900);                                 // explicitely set the z-index
+	jQuery('.more-tab').css('z-index',9800);                                  //  " for the More Tabs div element
+	
+	// then recast the function to the post initialized state which will run from then on
 	dhtml_more_tabs = function() {
-		if ($('#selectNav').css('display') == 'none' ) {
-			$('div#selectNav').show();
+		if (jQuery('#selectNav').css('display') == 'none' ) {
+			jQuery('div#selectNav').show();
 			// highlight the more tab
-			$('.more-tab').addClass('more-active');
+			jQuery('.more-tab').addClass('more-active');
 			// dim the current tab
-			$('.selectedTab').addClass('tab-dim');
+			jQuery('.selectedTab').addClass('tab-dim');
 			// mask the rest of the page
 			createDHTMLMask() ;
-			$('.more-tab').css('z-index',9800);
-			$('#selectNav').css('z-index',9900);
-			$('.selectedTab').bind('click',function(){dhtml_more_tabs();return false;});
+			// bind this function to the More Tabs tab to close More Tabs on click
+			jQuery('.selectedTab').bind('click',function(){dhtml_more_tabs();return false;});
 		} else {
 			// unhighlight the more tab
-			$('.more-tab').removeClass('more-active');
+			jQuery('.more-tab').removeClass('more-active');
 			// hide the dropdown
-			$('div#selectNav').hide(); // hide the box
+			jQuery('div#selectNav').hide(); // hide the box
 			//undim the currently selected tab
-			$('.selectedTab').removeClass('tab-dim');
+			jQuery('.selectedTab').removeClass('tab-dim');
 			removeDHTMLMask()
-			$('.selectedTab').unbind('click');
+			jQuery('.selectedTab').unbind('click');
 		}
 	}
+	// finally run the inner function, first time through
 	dhtml_more_tabs();
 }
 
 function createDHTMLMask() {
-	$('body').append('<div id="portalMask">&nbsp;</div>');
-	$('#portalMask').css('height',browserSafeDocHeight()).css('width','100%').css('z-index',1000).bind("click",function(event){
+	jQuery('body').append('<div id="portalMask">&nbsp;</div>');
+	jQuery('#portalMask').css('height',browserSafeDocHeight()).css('width','100%').css('z-index',1000).bind("click",function(event){
 		dhtml_more_tabs();
 		return false;
 	});
-	$('#portalMask').bgiframe();
+	jQuery('#portalMask').bgiframe();
 }
 
 function removeDHTMLMask() {
-	$('#portalMask').remove();
+	jQuery('#portalMask').remove();
 }
 
 /* Copyright (c) 2006 Brandon Aaron (http://brandonaaron.net)
