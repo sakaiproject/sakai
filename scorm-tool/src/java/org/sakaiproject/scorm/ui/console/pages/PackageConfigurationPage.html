@@ -8,57 +8,76 @@
 <body>
 	<wicket:extend>	
 		<form wicket:id="configurationForm">	
-			<table border="0" width="100%">
-			<tr>
-				<td><wicket:message key="form.label.package.name">Package</wicket:message></td>
-				<td><input type="text" wicket:id="packageName" size="50" maxlength="200" /></td>
-			</tr>
-			<tr>
-				<td><wicket:message key="form.label.open.date">Open Date</wicket:message></td>
-				<td><span wicket:id="releaseOnDTF"></span></td>
-			</tr>
-			<tr>
-				<td><wicket:message key="form.label.due.date">Due Date</wicket:message></td>
-				<td><span wicket:id="dueOnDTF"></span></td>
-			</tr>
-			<tr>
-				<td><wicket:message key="form.label.accept.until">Accept Until</wicket:message></td>
-				<td><span wicket:id="acceptUntilDTF"></span></td>
-			</tr>
-			<tr>
-				<td><wicket:message key="form.label.number.of.tries">Number of Tries</wicket:message></td>
-				<td><input type="text" wicket:id="numberOfTries" size="2" /></td>
-			</tr>
-			
-			<tr>
-				<td><wicket:message key="form.label.created.by">Created By</wicket:message></td>
-				<td><span wicket:id="createdBy"></span></td>
-			</tr>
-			<tr>
-				<td><wicket:message key="form.label.created.on">Created On</wicket:message></td>
-				<td><span wicket:id="createdOn"></span></td>
-			</tr>
-			<tr>
-				<td><wicket:message key="form.label.last.changed.by">Last Changed By</wicket:message></td>
-				<td><span wicket:id="modifiedBy"></span></td>
-			</tr>
-			<tr>
-				<td><wicket:message key="form.label.last.changed.on">Last Changed On</wicket:message></td>
-				<td><span wicket:id="modifiedOn"></span></td>
-			</tr>
-			
-			<tr>
-				<td colspan="2" align="right">
-				
-					<div class="act">
-						  <input type="submit" wicket:message="value:page.submit" class="active" />
-						  <input wicket:id="cancel" type="submit" wicket:message="value:page.cancel" />
-					</div>
+			<p class="shorttext">
+				<span class="reqStar">*</span>
 
-				</td>
-			</tr>
+				<label for="packageName">
+					<wicket:message key="form.label.package.name"></wicket:message>
+				</label>	
+				<input type="text" wicket:id="packageName" size="50" maxlength="200" />
+			</p>
+			<p class="instruction labelindnt">
+				<wicket:message key="form.instructions.open.date"></wicket:message>
+			</p>
+			<p class="shorttext">
+				<span class="reqStar">*</span>
+
+				<label for="releaseOnDTF">
+					<wicket:message key="form.label.open.date"></wicket:message>
+				</label>	
+				<span wicket:id="releaseOnDTF"></span>
+			</p>
+			<p class="shorttext">
+				<label for="dueOnDTF">
+					<wicket:message key="form.label.due.date"></wicket:message>
+				</label>	
+				<span wicket:id="dueOnDTF"></span>
+			</p>
+			<p class="instruction labelindnt">
+				<wicket:message key="form.instructions.accept.until"></wicket:message>
+			</p>
+			<p class="shorttext">
+				<label for="acceptUntilDTF">
+					<wicket:message key="form.label.accept.until"></wicket:message>
+				</label>	
+				<span wicket:id="acceptUntilDTF"></span>
+			</p>
+			<p class="shorttext">
+				<label for="numberOfTries">
+					<wicket:message key="form.label.number.of.tries"></wicket:message>
+				</label>	
+				<select wicket:id="numberOfTries"/>
+			</p>
+			<p class="shorttext">
+				<label for="createdBy">
+					<wicket:message key="form.label.created.by"></wicket:message>
+				</label>	
+				<span wicket:id="createdBy"></span>
+			</p>
+			<p class="shorttext">
+				<label for="createdOn">
+					<wicket:message key="form.label.created.on"></wicket:message>
+				</label>	
+				<span wicket:id="createdOn"></span>
+			</p>
+			<p class="shorttext">
+				<label for="modifiedBy">
+					<wicket:message key="form.label.last.changed.by"></wicket:message>
+				</label>	
+				<span wicket:id="modifiedBy"></span>
+			</p>
+			<p class="shorttext">
+				<label for="modifiedOn">
+					<wicket:message key="form.label.last.changed.on"></wicket:message>
+				</label>	
+				<span wicket:id="modifiedOn"></span>
+			</p>
 			
-			</table>
+			<div class="act">
+				  <input type="submit" wicket:message="value:page.submit" class="active" />
+				  <input wicket:id="cancel" type="submit" wicket:message="value:page.cancel" />
+			</div>
+
 		</form>
 	</wicket:extend>
 </body>

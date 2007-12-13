@@ -6,7 +6,7 @@
 
 	<!-- This 'dao' actually just wraps the content hosting service -->
 	<bean id="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao"
-		class="org.sakaiproject.scorm.dao.ContentPackageManifestDaoImpl"
+		class="org.sakaiproject.scorm.dao.sakai.ContentPackageManifestDaoImpl"
 		singleton="true">
 		
 		<!-- Sakai API Service -->

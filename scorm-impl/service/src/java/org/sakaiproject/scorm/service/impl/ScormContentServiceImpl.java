@@ -218,6 +218,14 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	}
 	
 	public void updateContentPackage(ContentPackage contentPackage) {
+		String currentUser = sessionManager().getCurrentSessionUserId();
+		
+		if (currentUser == null)
+			currentUser = "unknown";
+			
+		contentPackage.setModifiedBy(currentUser);
+		contentPackage.setModifiedOn(new Date());
+		
 		contentPackageDao().save(contentPackage);
 	}
 	

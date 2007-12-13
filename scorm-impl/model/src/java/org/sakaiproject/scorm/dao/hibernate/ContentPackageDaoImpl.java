@@ -18,8 +18,9 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.scorm.dao;
+package org.sakaiproject.scorm.dao.hibernate;
 
+import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;

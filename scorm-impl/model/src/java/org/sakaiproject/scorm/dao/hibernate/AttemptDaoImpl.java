@@ -1,4 +1,4 @@
-package org.sakaiproject.scorm.dao;
+package org.sakaiproject.scorm.dao.hibernate;
 
 import java.util.Date;
 import java.util.List;

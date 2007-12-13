@@ -1,4 +1,4 @@
-package org.sakaiproject.scorm.dao;
+package org.sakaiproject.scorm.dao.sakai;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
