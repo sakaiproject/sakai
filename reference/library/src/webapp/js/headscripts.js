@@ -254,7 +254,7 @@ function setMainFrameHeightNow(id)
 
 		var objToResize = (frame.style) ? frame.style : frame;
   
-               if ( false ) {
+    // SAK-11014 revert           if ( false ) {
 
 		var height; 		
 		var offsetH = document.body.offsetHeight;
@@ -279,9 +279,9 @@ function setMainFrameHeightNow(id)
 			// every other browser!
 			height = offsetH;
 		}
-		} 
+   // SAK-11014 revert		} 
 
-                var height = getFrameHeight(frame);
+   // SAK-11014 revert             var height = getFrameHeight(frame);
 
 		// here we fudge to get a little bigger
 		var newHeight = height + 40;
