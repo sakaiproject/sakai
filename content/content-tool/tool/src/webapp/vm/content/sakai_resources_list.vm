@@ -326,7 +326,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 					</td>
 					#set ($actionCount=($actionCount - 1))
 					#set ($actionCount2=($actionCount2 - 1))
-					<td headers="actions2"   class="attach sakadojo">
+					<td headers="actions2"   class="attach sakadojo" style="padding:0">
 						#if($item.addActions && !$item.addActions.isEmpty())
 							<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("addMenu-${item.id}")">
     							<span>$tlang.getString("button.add")</span>
@@ -341,7 +341,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 					        </div>
 						#end
 					</td>
-					<td headers="actions3"   class="attach sakadojo">
+					<td headers="actions3"   class="attach sakadojo"  style="padding:0">
 						#if($item.otherActions && !$item.otherActions.isEmpty())
 							<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("actionMenu-${item.id}")">
     							<span>$tlang.getString("button.actions")</span>
@@ -557,7 +557,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 							</td>
 							#set ($actionCount=($actionCount - 1))
 							#set ($actionCount2=($actionCount2 - 1))
-							<td headers="actions2"   class="attach sakadojo">
+							<td headers="actions2"   class="attach sakadojo" style="padding:0">
 								#if($item.addActions && !$item.addActions.isEmpty())
 									<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("addMenu-${item.id}")">
 			    						<span>$tlang.getString("button.add")</span>
@@ -572,7 +572,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 							        </div>
 								#end
 							</td>
-							<td headers="actions3"   class="attach">
+							<td headers="actions3"   class="attach  sakadojo" style="padding:0">
 								#if($item.otherActions && !$item.otherActions.isEmpty())
 									<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("actionMenu-${item.id}")">
 		    							<span>$tlang.getString("button.actions")</span>
