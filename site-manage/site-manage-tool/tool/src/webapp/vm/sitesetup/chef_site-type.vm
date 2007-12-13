@@ -37,7 +37,7 @@
 							#end
 						</label>	
 				</p>		
-						#if ($type == $courseSiteType)
+						#if ($type == $courseSiteType && $canAddCourse)
 							<div class="indnt3">
 								<p class="shorttext required">
 									<span class ="reqStar"> *</span>

@@ -333,6 +333,9 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String WEB_CONTENT_DEFAULT_URL = "http://";
 
 	private final static String STATE_SITE_QUEST_UNIQNAME = "site_quest_uniqname";
+	
+	private static final String STATE_SITE_ADD_COURSE = "canAddCourse";
+	
 
 	// %%% get rid of the IdAndText tool lists and just use ToolConfiguration or
 	// ToolRegistration lists
@@ -704,7 +707,11 @@ public class SiteAction extends PagedResourceActionII {
 				STATE_SITE_MODE);
 		state.setAttribute(STATE_SITE_MODE, site_mode);
 
+
+		
 	} // initState
+	
+	
 
 	/**
 	 * cleanState removes the current site instance and it's properties from
@@ -854,7 +861,8 @@ public class SiteAction extends PagedResourceActionII {
 		ParameterParser params = data.getParameters();
 		context.put("tlang", rb);
 		context.put("alertMessage", state.getAttribute(STATE_MESSAGE));
-
+		
+		
 		// If cleanState() has removed SiteInfo, get a new instance into state
 		SiteInfo siteInfo = new SiteInfo();
 		if (state.getAttribute(STATE_SITE_INFO) != null) {
@@ -894,6 +902,10 @@ public class SiteAction extends PagedResourceActionII {
 
 		// course site type
 		context.put("courseSiteType", state.getAttribute(STATE_COURSE_SITE_TYPE));
+		
+		//can the user create course sites?
+		context.put(STATE_SITE_ADD_COURSE, SiteService.allowAddCourseSite());
+
 		
 		Site site = getStateSite(state);
 
@@ -5995,12 +6007,13 @@ public class SiteAction extends PagedResourceActionII {
 				t = StringUtil.trimToNull(config.getInitParameter("siteTypes"));
 			if (t != null) {
 				List types = new ArrayList(Arrays.asList(t.split(",")));
-				if (cms == null)
+				if (cms == null || !SiteService.allowAddCourseSite())
 				{
 					// if there is no CourseManagementService, disable the process of creating course site
 					String courseType = ServerConfigurationService.getString("courseSiteType", (String) state.getAttribute(STATE_COURSE_SITE_TYPE));
 					types.remove(courseType);
 				}
+					
 				state.setAttribute(STATE_SITE_TYPES, types);
 			} else {
 				state.setAttribute(STATE_SITE_TYPES, new Vector());
@@ -11887,5 +11900,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		return rv;
 	}
+	
 
 }
