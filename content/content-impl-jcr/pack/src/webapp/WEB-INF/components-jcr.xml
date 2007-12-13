@@ -9,11 +9,8 @@
 
   <bean id="org.sakaiproject.content.api.ContentHostingService.jcrservice"
 			class="org.sakaiproject.content.impl.JCRContentService"
-			init-method="init"
-			destroy-method="destroy"
 	  		singleton="true">
 
-        <property name="primaryContentService"><value>true</value></property>
 
 
 		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
@@ -126,6 +123,52 @@
         </property>
         
 	</bean>
+
+
+
+<!-- Utility service for copying files and folders from Legacy Content Hosting to the JCR
+       Implementation -->
+  <bean id="org.sakaiproject.content.migration.api.ContentToJCRCopier"
+    class="org.sakaiproject.content.migration.ContentToJCRCopierImpl">
+    <property name="jcrService" ref="org.sakaiproject.jcr.api.JCRService"></property>
+    <property name="jcrStorageUser" ref="org.sakaiproject.content.api.ContentHostingService.storageUser"></property>
+    <property name="oldCHSService" ref="org.sakaiproject.content.api.ContentHostingService.dbservice"></property>
+  </bean>
+
+  <!-- Used to track CHS Events while we're migrating. -->
+  <bean id="org.sakaiproject.content.migration.api.ContentToJCRCopier.observer"
+  	  class="org.sakaiproject.content.migration.MigrationInProgressObserver"
+      init-method="init" destroy-method="destroy">
+	<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>      
+    <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+    <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+  </bean>
+
+  <!-- Migration Status -->
+  <bean id="org.sakaiproject.content.migration.api.MigrationStatusReporter"
+    class="org.sakaiproject.content.migration.MigrationStatusReporterImpl"
+    init-method="init" destroy-method="destroy" >
+	<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>      
+    <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+  </bean>
+
+  <!-- The actual Migrator with the algorithm -->
+  <bean id="org.sakaiproject.content.migration.api.CHStoJCRMigrator"
+    class="org.sakaiproject.content.migration.CHStoJCRMigratorImpl"
+    init-method="init" destroy-method="destroy" >
+        
+    
+    <property name="contentToJCRCopier" ref="org.sakaiproject.content.migration.api.ContentToJCRCopier" />
+    <property name="jcrService" ref="org.sakaiproject.jcr.api.UnboundJCRService" />
+    <property name="migrationStatusReporter" ref="org.sakaiproject.content.migration.api.MigrationStatusReporter" />
+    <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+    
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        
+    <property name="autoDDL" ><value>${auto.ddl}</value></property>
+  </bean>
 
 
 	

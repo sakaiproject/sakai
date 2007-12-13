@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.multiplex;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -35,11 +36,17 @@ import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.providers.SiteContentAdvisor;
+import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
+import org.sakaiproject.content.api.providers.SiteContentAdvisorTypeRegistry;
+import org.sakaiproject.content.migration.api.RequestThreadServiceSwitcher;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
@@ -51,41 +58,80 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * A content hosting service multiplexer The defaultContentHosting service is used by default, 
- * but if you replace this with a pushThreadBoundService() all subsiquent calls to CHS in 
- * that thread will be bound to the new CHS, untill the call stack unwinds
- * back to the calling point. you should use the construct
- * <pre> 
- * try {
- *    mchs.pushThreadBoundService(myService);
- *    .
- *    .
- *    .
- *  } finally {
- *    mchs.popThreadBoundService();
- *  }
- *  </pre>
+ * A content hosting service multiplexer The defaultContentHosting service is
+ * used by default, but if you replace this with a pushThreadBoundService() all
+ * subsiquent calls to CHS in that thread will be bound to the new CHS, untill
+ * the call stack unwinds back to the calling point. you should use the
+ * construct
+ * 
+ * <pre>
+ *     
+ *     try {
+ *        mchs.pushThreadBoundService(myService);
+ *        .
+ *        .
+ *        .
+ *      } finally {
+ *        mchs.popThreadBoundService();
+ *      }
+ * </pre>
+ * 
+ * In addition this class implements the service multiplexer API, which has the
+ * setService(Object) method. When this method is called the live service will
+ * be changed to the supplied service. The replacement is performed at the start
+ * of each request cycle on first use of the API and remains inforce for the
+ * remainder of the request cycle.
  * 
  * @author ieb
  */
-public class ContentHostingMultiplexService implements ContentHostingService
+public class ContentHostingMultiplexService implements ContentHostingService,
+		SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry,
+		RequestThreadServiceSwitcher, CacheRefresher
 {
 
-	private static final Log log = LogFactory.getLog(ContentHostingMultiplexService.class);
+	private static final Log log = LogFactory
+			.getLog(ContentHostingMultiplexService.class);
+
+	private static final String LIVE_SERVICE = ContentHostingMultiplexService.class
+			.getName()
+			+ "_liveService";
 
 	private ThreadLocal<Stack<ContentHostingService>> selectedService = new ThreadLocal<Stack<ContentHostingService>>();
 
 	private ContentHostingService defaultContentHostingService = null;
 
-	private List<ContentHostingService> contentHostingServices = null;
-	
+	private Map<String, ContentHostingService> contentHostingServices = null;
+
+	private ThreadLocalManager threadLocalManager;
+
+	/**
+	 * The next content hosting service to use on each thread
+	 */
+	private ContentHostingService nextContentHostingService;
+
+	/**
+	 * The key in the content hosting services map
+	 */
+	private String defaultService;
+
+	private EntityManager entityManager;
+
+	/**
+	 * get the current content hosting service
+	 * 
+	 * @return
+	 */
 	public ContentHostingService getService()
 	{
+		ContentHostingService liveService = getLiveService();
 		Stack<ContentHostingService> s = selectedService.get();
 		if (s == null)
 		{
@@ -94,16 +140,40 @@ public class ContentHostingMultiplexService implements ContentHostingService
 		}
 		if (s.size() == 0)
 		{
-
-			s.push(defaultContentHostingService);
+			// push the live service onto the stack
+			s.push(liveService);
 		}
 		else
 		{
+			// push the current service onto the stack.
 			s.push(s.peek());
 		}
 		return s.peek();
 	}
 
+	/**
+	 * gets the current live service bound to the thread, or binds the next live
+	 * service to the thread.
+	 * 
+	 * @return
+	 */
+	private ContentHostingService getLiveService()
+	{
+		ContentHostingService liveService = (ContentHostingService) threadLocalManager
+				.get(LIVE_SERVICE);
+		if (liveService == null)
+		{
+			threadLocalManager.set(LIVE_SERVICE, nextContentHostingService);
+			liveService = nextContentHostingService;
+		}
+		return liveService;
+	}
+
+	/**
+	 * Push a service onto the stack
+	 * 
+	 * @param service
+	 */
 	public void pushThreadBoundService(ContentHostingService service)
 	{
 		Stack<ContentHostingService> s = selectedService.get();
@@ -115,6 +185,9 @@ public class ContentHostingMultiplexService implements ContentHostingService
 		s.push(service);
 	}
 
+	/**
+	 * Pop a service from the stack
+	 */
 	public void popThreadBoundService()
 	{
 		Stack<ContentHostingService> s = selectedService.get();
@@ -123,9 +196,12 @@ public class ContentHostingMultiplexService implements ContentHostingService
 			s = new Stack<ContentHostingService>();
 			selectedService.set(s);
 		}
-		if ( s.size() > 0 ) {
+		if (s.size() > 0)
+		{
 			s.pop();
-		} else {
+		}
+		else
+		{
 			log.warn("Multiplexer Stack is empty, this should not happen ");
 		}
 	}
@@ -137,43 +213,54 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	{
 	}
 
-	public void init() {
+	/**
+	 * Initialise, locating the defailt service, and setting it to be the next
+	 * live service.
+	 */
+	public void init()
+	{
 		int i = 0;
-		for ( ContentHostingService chs : contentHostingServices ) 
+		defaultContentHostingService = contentHostingServices.get(defaultService);
+		nextContentHostingService = defaultContentHostingService;
+		log.info("Selected Default Service as " + nextContentHostingService);
+		if (nextContentHostingService == null)
 		{
-			if ( chs.getPrimaryContentService() ) {
-				defaultContentHostingService = chs;	
-				log.info("Selected Default Service as "+chs);
-				i++;
-			}
+			log.fatal("Content Hosting Service not found");
+			throw new IllegalStateException("Content Hosting Service of type "
+					+ defaultService + " not found");
 		}
-		if ( i != 1 ) {
-			log.fatal("Only One ContentHostingService can be marked as primary");
-			System.exit(-10);
-		}
+		entityManager.registerEntityProducer(this,
+					ContentHostingService.REFERENCE_ROOT);
+		invokeTargets("init", new Object[] {}, new Class[] {});
+		
+		entityManager.registerEntityProducer(this,
+				ContentHostingService.REFERENCE_ROOT);
 	}
 
-
-	public void setContentHostingServices(List<ContentHostingService> contentHostingServices ) 
+	public void setContentHostingServices(
+			Map<String, ContentHostingService> contentHostingServices)
 	{
 		this.contentHostingServices = contentHostingServices;
 	}
 
-	public List<ContentHostingService> getContentHostingServices() 
+	public Map<String, ContentHostingService> getContentHostingServices()
 	{
 		return contentHostingServices;
 	}
-	
-	public void destory() {
-		
+
+	public void destroy()
+	{
+		invokeTargets("destroy", new Object[] {}, new Class[] {});
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#addAttachmentResource(java.lang.String)
 	 */
-	public ContentResourceEdit addAttachmentResource(String name) throws IdInvalidException, InconsistentException,
-			IdUsedException, PermissionException, ServerOverloadException
+	public ContentResourceEdit addAttachmentResource(String name)
+			throws IdInvalidException, InconsistentException, IdUsedException,
+			PermissionException, ServerOverloadException
 	{
 		try
 		{
@@ -190,8 +277,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#addCollection(java.lang.String)
 	 */
-	public ContentCollectionEdit addCollection(String id) throws IdUsedException, IdInvalidException, PermissionException,
-			InconsistentException
+	public ContentCollectionEdit addCollection(String id) throws IdUsedException,
+			IdInvalidException, PermissionException, InconsistentException
 	{
 		try
 		{
@@ -208,8 +295,9 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String)
 	 */
-	public ContentResourceEdit addResource(String id) throws PermissionException, IdUsedException, IdInvalidException,
-			InconsistentException, ServerOverloadException
+	public ContentResourceEdit addResource(String id) throws PermissionException,
+			IdUsedException, IdInvalidException, InconsistentException,
+			ServerOverloadException
 	{
 		try
 		{
@@ -292,7 +380,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#allowCopy(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#allowCopy(java.lang.String,
+	 *      java.lang.String)
 	 */
 	public boolean allowCopy(String id, String new_id)
 	{
@@ -411,7 +500,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#allowRename(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#allowRename(java.lang.String,
+	 *      java.lang.String)
 	 */
 	public boolean allowRename(String id, String new_id)
 	{
@@ -462,9 +552,11 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#archiveResources(java.util.List, org.w3c.dom.Document, java.util.Stack, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#archiveResources(java.util.List,
+	 *      org.w3c.dom.Document, java.util.Stack, java.lang.String)
 	 */
-	public String archiveResources(List resources, Document doc, Stack stack, String archivePath)
+	public String archiveResources(List resources, Document doc, Stack stack,
+			String archivePath)
 	{
 		try
 		{
@@ -515,7 +607,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#checkCollection(java.lang.String)
 	 */
-	public void checkCollection(String id) throws IdUnusedException, TypeException, PermissionException
+	public void checkCollection(String id) throws IdUnusedException, TypeException,
+			PermissionException
 	{
 		try
 		{
@@ -532,7 +625,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#checkResource(java.lang.String)
 	 */
-	public void checkResource(String id) throws PermissionException, IdUnusedException, TypeException
+	public void checkResource(String id) throws PermissionException, IdUnusedException,
+			TypeException
 	{
 		try
 		{
@@ -566,7 +660,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#commitResource(org.sakaiproject.content.api.ContentResourceEdit)
 	 */
-	public void commitResource(ContentResourceEdit edit) throws OverQuotaException, ServerOverloadException
+	public void commitResource(ContentResourceEdit edit) throws OverQuotaException,
+			ServerOverloadException
 	{
 		try
 		{
@@ -581,9 +676,11 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#commitResource(org.sakaiproject.content.api.ContentResourceEdit, int)
+	 * @see org.sakaiproject.content.api.ContentHostingService#commitResource(org.sakaiproject.content.api.ContentResourceEdit,
+	 *      int)
 	 */
-	public void commitResource(ContentResourceEdit edit, int priority) throws OverQuotaException, ServerOverloadException
+	public void commitResource(ContentResourceEdit edit, int priority)
+			throws OverQuotaException, ServerOverloadException
 	{
 		try
 		{
@@ -615,10 +712,12 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#copy(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#copy(java.lang.String,
+	 *      java.lang.String)
 	 */
-	public String copy(String id, String new_id) throws PermissionException, IdUnusedException, TypeException, InUseException,
-			OverQuotaException, IdUsedException, ServerOverloadException
+	public String copy(String id, String new_id) throws PermissionException,
+			IdUnusedException, TypeException, InUseException, OverQuotaException,
+			IdUsedException, ServerOverloadException
 	{
 		try
 		{
@@ -633,11 +732,13 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#copyIntoFolder(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#copyIntoFolder(java.lang.String,
+	 *      java.lang.String)
 	 */
-	public String copyIntoFolder(String id, String folder_id) throws PermissionException, IdUnusedException, TypeException,
-			InUseException, OverQuotaException, IdUsedException, ServerOverloadException, InconsistentException, IdLengthException,
-			IdUniquenessException
+	public String copyIntoFolder(String id, String folder_id) throws PermissionException,
+			IdUnusedException, TypeException, InUseException, OverQuotaException,
+			IdUsedException, ServerOverloadException, InconsistentException,
+			IdLengthException, IdUniquenessException
 	{
 		try
 		{
@@ -705,8 +806,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#editCollection(java.lang.String)
 	 */
-	public ContentCollectionEdit editCollection(String id) throws IdUnusedException, TypeException, PermissionException,
-			InUseException
+	public ContentCollectionEdit editCollection(String id) throws IdUnusedException,
+			TypeException, PermissionException, InUseException
 	{
 		try
 		{
@@ -723,7 +824,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#editResource(java.lang.String)
 	 */
-	public ContentResourceEdit editResource(String id) throws PermissionException, IdUnusedException, TypeException, InUseException
+	public ContentResourceEdit editResource(String id) throws PermissionException,
+			IdUnusedException, TypeException, InUseException
 	{
 		try
 		{
@@ -755,7 +857,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#findResources(java.lang.String, java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#findResources(java.lang.String,
+	 *      java.lang.String, java.lang.String)
 	 */
 	public List findResources(String type, String primaryMimeType, String subMimeType)
 	{
@@ -808,7 +911,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#getCollection(java.lang.String)
 	 */
-	public ContentCollection getCollection(String id) throws IdUnusedException, TypeException, PermissionException
+	public ContentCollection getCollection(String id) throws IdUnusedException,
+			TypeException, PermissionException
 	{
 		try
 		{
@@ -842,7 +946,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#getCollectionSize(java.lang.String)
 	 */
-	public int getCollectionSize(String id) throws IdUnusedException, TypeException, PermissionException
+	public int getCollectionSize(String id) throws IdUnusedException, TypeException,
+			PermissionException
 	{
 		try
 		{
@@ -874,7 +979,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#getDepth(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#getDepth(java.lang.String,
+	 *      java.lang.String)
 	 */
 	public int getDepth(String resourceId, String baseCollectionId)
 	{
@@ -1046,7 +1152,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#getResource(java.lang.String)
 	 */
-	public ContentResource getResource(String id) throws PermissionException, IdUnusedException, TypeException
+	public ContentResource getResource(String id) throws PermissionException,
+			IdUnusedException, TypeException
 	{
 		try
 		{
@@ -1095,7 +1202,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#getUrl(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#getUrl(java.lang.String,
+	 *      java.lang.String)
 	 */
 	public String getUrl(String id, String rootProperty)
 	{
@@ -1350,7 +1458,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#lockObject(java.lang.String, java.lang.String, java.lang.String, boolean)
+	 * @see org.sakaiproject.content.api.ContentHostingService#lockObject(java.lang.String,
+	 *      java.lang.String, java.lang.String, boolean)
 	 */
 	public void lockObject(String id, String lockId, String subject, boolean system)
 	{
@@ -1367,10 +1476,12 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#moveIntoFolder(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#moveIntoFolder(java.lang.String,
+	 *      java.lang.String)
 	 */
-	public String moveIntoFolder(String id, String folder_id) throws PermissionException, IdUnusedException, TypeException,
-			InUseException, OverQuotaException, IdUsedException, InconsistentException, ServerOverloadException
+	public String moveIntoFolder(String id, String folder_id) throws PermissionException,
+			IdUnusedException, TypeException, InUseException, OverQuotaException,
+			IdUsedException, InconsistentException, ServerOverloadException
 	{
 		try
 		{
@@ -1385,7 +1496,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#newContentHostingComparator(java.lang.String, boolean)
+	 * @see org.sakaiproject.content.api.ContentHostingService#newContentHostingComparator(java.lang.String,
+	 *      boolean)
 	 */
 	public Comparator newContentHostingComparator(String property, boolean ascending)
 	{
@@ -1421,8 +1533,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#removeCollection(java.lang.String)
 	 */
-	public void removeCollection(String id) throws IdUnusedException, TypeException, PermissionException, InUseException,
-			ServerOverloadException
+	public void removeCollection(String id) throws IdUnusedException, TypeException,
+			PermissionException, InUseException, ServerOverloadException
 	{
 		try
 		{
@@ -1439,8 +1551,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#removeCollection(org.sakaiproject.content.api.ContentCollectionEdit)
 	 */
-	public void removeCollection(ContentCollectionEdit edit) throws TypeException, PermissionException, InconsistentException,
-			ServerOverloadException
+	public void removeCollection(ContentCollectionEdit edit) throws TypeException,
+			PermissionException, InconsistentException, ServerOverloadException
 	{
 		try
 		{
@@ -1455,7 +1567,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#removeLock(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#removeLock(java.lang.String,
+	 *      java.lang.String)
 	 */
 	public void removeLock(String id, String lockId)
 	{
@@ -1474,7 +1587,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#removeResource(java.lang.String)
 	 */
-	public void removeResource(String id) throws PermissionException, IdUnusedException, TypeException, InUseException
+	public void removeResource(String id) throws PermissionException, IdUnusedException,
+			TypeException, InUseException
 	{
 		try
 		{
@@ -1506,10 +1620,12 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#rename(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#rename(java.lang.String,
+	 *      java.lang.String)
 	 */
-	public String rename(String id, String new_id) throws PermissionException, IdUnusedException, TypeException, InUseException,
-			OverQuotaException, InconsistentException, IdUsedException, ServerOverloadException
+	public String rename(String id, String new_id) throws PermissionException,
+			IdUnusedException, TypeException, InUseException, OverQuotaException,
+			InconsistentException, IdUsedException, ServerOverloadException
 	{
 		try
 		{
@@ -1541,7 +1657,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#setPubView(java.lang.String, boolean)
+	 * @see org.sakaiproject.content.api.ContentHostingService#setPubView(java.lang.String,
+	 *      boolean)
 	 */
 	public void setPubView(String id, boolean pubview)
 	{
@@ -1558,7 +1675,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#setUuid(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#setUuid(java.lang.String,
+	 *      java.lang.String)
 	 */
 	public void setUuid(String id, String uuid) throws IdInvalidException
 	{
@@ -1575,10 +1693,12 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#updateResource(java.lang.String, java.lang.String, byte[])
+	 * @see org.sakaiproject.content.api.ContentHostingService#updateResource(java.lang.String,
+	 *      java.lang.String, byte[])
 	 */
-	public ContentResource updateResource(String id, String type, byte[] content) throws PermissionException, IdUnusedException,
-			TypeException, InUseException, OverQuotaException, ServerOverloadException
+	public ContentResource updateResource(String id, String type, byte[] content)
+			throws PermissionException, IdUnusedException, TypeException, InUseException,
+			OverQuotaException, ServerOverloadException
 	{
 		try
 		{
@@ -1610,11 +1730,14 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#addAttachmentResource(java.lang.String, java.lang.String, byte[], org.sakaiproject.entity.api.ResourceProperties)
+	 * @see org.sakaiproject.content.api.ContentHostingService#addAttachmentResource(java.lang.String,
+	 *      java.lang.String, byte[],
+	 *      org.sakaiproject.entity.api.ResourceProperties)
 	 */
-	public ContentResource addAttachmentResource(String name, String type, byte[] content, ResourceProperties properties)
-			throws IdInvalidException, InconsistentException, IdUsedException, PermissionException, OverQuotaException,
-			ServerOverloadException
+	public ContentResource addAttachmentResource(String name, String type,
+			byte[] content, ResourceProperties properties) throws IdInvalidException,
+			InconsistentException, IdUsedException, PermissionException,
+			OverQuotaException, ServerOverloadException
 	{
 		try
 		{
@@ -1629,15 +1752,19 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#addAttachmentResource(java.lang.String, java.lang.String, java.lang.String, java.lang.String, byte[], org.sakaiproject.entity.api.ResourceProperties)
+	 * @see org.sakaiproject.content.api.ContentHostingService#addAttachmentResource(java.lang.String,
+	 *      java.lang.String, java.lang.String, java.lang.String, byte[],
+	 *      org.sakaiproject.entity.api.ResourceProperties)
 	 */
-	public ContentResource addAttachmentResource(String name, String site, String tool, String type, byte[] content,
-			ResourceProperties properties) throws IdInvalidException, InconsistentException, IdUsedException, PermissionException,
-			OverQuotaException, ServerOverloadException
+	public ContentResource addAttachmentResource(String name, String site, String tool,
+			String type, byte[] content, ResourceProperties properties)
+			throws IdInvalidException, InconsistentException, IdUsedException,
+			PermissionException, OverQuotaException, ServerOverloadException
 	{
 		try
 		{
-			return getService().addAttachmentResource(name, site, tool, type, content, properties);
+			return getService().addAttachmentResource(name, site, tool, type, content,
+					properties);
 		}
 		finally
 		{
@@ -1648,10 +1775,12 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#addCollection(java.lang.String, org.sakaiproject.entity.api.ResourceProperties)
+	 * @see org.sakaiproject.content.api.ContentHostingService#addCollection(java.lang.String,
+	 *      org.sakaiproject.entity.api.ResourceProperties)
 	 */
-	public ContentCollection addCollection(String id, ResourceProperties properties) throws IdUsedException, IdInvalidException,
-			PermissionException, InconsistentException
+	public ContentCollection addCollection(String id, ResourceProperties properties)
+			throws IdUsedException, IdInvalidException, PermissionException,
+			InconsistentException
 	{
 		try
 		{
@@ -1666,10 +1795,13 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#addCollection(java.lang.String, org.sakaiproject.entity.api.ResourceProperties, java.util.Collection)
+	 * @see org.sakaiproject.content.api.ContentHostingService#addCollection(java.lang.String,
+	 *      org.sakaiproject.entity.api.ResourceProperties,
+	 *      java.util.Collection)
 	 */
-	public ContentCollection addCollection(String id, ResourceProperties properties, Collection groups) throws IdUsedException,
-			IdInvalidException, PermissionException, InconsistentException
+	public ContentCollection addCollection(String id, ResourceProperties properties,
+			Collection groups) throws IdUsedException, IdInvalidException,
+			PermissionException, InconsistentException
 	{
 		try
 		{
@@ -1684,15 +1816,20 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#addCollection(java.lang.String, org.sakaiproject.entity.api.ResourceProperties, java.util.Collection, boolean, org.sakaiproject.time.api.Time, org.sakaiproject.time.api.Time)
+	 * @see org.sakaiproject.content.api.ContentHostingService#addCollection(java.lang.String,
+	 *      org.sakaiproject.entity.api.ResourceProperties,
+	 *      java.util.Collection, boolean, org.sakaiproject.time.api.Time,
+	 *      org.sakaiproject.time.api.Time)
 	 */
-	public ContentCollection addCollection(String id, ResourceProperties properties, Collection groups, boolean hidden,
-			Time releaseDate, Time retractDate) throws IdUsedException, IdInvalidException, PermissionException,
+	public ContentCollection addCollection(String id, ResourceProperties properties,
+			Collection groups, boolean hidden, Time releaseDate, Time retractDate)
+			throws IdUsedException, IdInvalidException, PermissionException,
 			InconsistentException
 	{
 		try
 		{
-			return getService().addCollection(id, properties, groups, hidden, releaseDate, retractDate);
+			return getService().addCollection(id, properties, groups, hidden,
+					releaseDate, retractDate);
 		}
 		finally
 		{
@@ -1703,10 +1840,12 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#addProperty(java.lang.String, java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#addProperty(java.lang.String,
+	 *      java.lang.String, java.lang.String)
 	 */
-	public ResourceProperties addProperty(String id, String name, String value) throws PermissionException, IdUnusedException,
-			TypeException, InUseException, ServerOverloadException
+	public ResourceProperties addProperty(String id, String name, String value)
+			throws PermissionException, IdUnusedException, TypeException, InUseException,
+			ServerOverloadException
 	{
 		try
 		{
@@ -1721,11 +1860,14 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String, java.lang.String, byte[], org.sakaiproject.entity.api.ResourceProperties, int)
+	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String,
+	 *      java.lang.String, byte[],
+	 *      org.sakaiproject.entity.api.ResourceProperties, int)
 	 */
-	public ContentResource addResource(String id, String type, byte[] content, ResourceProperties properties, int priority)
-			throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
-			ServerOverloadException
+	public ContentResource addResource(String id, String type, byte[] content,
+			ResourceProperties properties, int priority) throws PermissionException,
+			IdUsedException, IdInvalidException, InconsistentException,
+			OverQuotaException, ServerOverloadException
 	{
 		try
 		{
@@ -1740,34 +1882,20 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String, java.lang.String, int, java.lang.String, byte[], org.sakaiproject.entity.api.ResourceProperties, int)
+	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String,
+	 *      java.lang.String, int, java.lang.String, byte[],
+	 *      org.sakaiproject.entity.api.ResourceProperties, int)
 	 */
-	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content,
-			ResourceProperties properties, int priority) throws PermissionException, IdUniquenessException, IdLengthException,
-			IdInvalidException, InconsistentException, IdLengthException, OverQuotaException, ServerOverloadException
-	{
-		try
-		{
-			return getService().addResource(name, collectionId, limit, type, content, properties, priority);
-		}
-		finally
-		{
-			popThreadBoundService();
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String, java.lang.String, byte[], org.sakaiproject.entity.api.ResourceProperties, java.util.Collection, int)
-	 */
-	public ContentResource addResource(String id, String type, byte[] content, ResourceProperties properties, Collection groups,
-			int priority) throws PermissionException, IdUsedException, IdInvalidException, InconsistentException,
+	public ContentResource addResource(String name, String collectionId, int limit,
+			String type, byte[] content, ResourceProperties properties, int priority)
+			throws PermissionException, IdUniquenessException, IdLengthException,
+			IdInvalidException, InconsistentException, IdLengthException,
 			OverQuotaException, ServerOverloadException
 	{
 		try
 		{
-			return getService().addResource(id, type, content, properties, groups, priority);
+			return getService().addResource(name, collectionId, limit, type, content,
+					properties, priority);
 		}
 		finally
 		{
@@ -1778,16 +1906,46 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String, java.lang.String, int, java.lang.String, byte[], org.sakaiproject.entity.api.ResourceProperties, java.util.Collection, int)
+	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String,
+	 *      java.lang.String, byte[],
+	 *      org.sakaiproject.entity.api.ResourceProperties,
+	 *      java.util.Collection, int)
 	 */
-	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content,
-			ResourceProperties properties, Collection groups, int priority) throws PermissionException, IdUniquenessException,
-			IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
+	public ContentResource addResource(String id, String type, byte[] content,
+			ResourceProperties properties, Collection groups, int priority)
+			throws PermissionException, IdUsedException, IdInvalidException,
+			InconsistentException, OverQuotaException, ServerOverloadException
+	{
+		try
+		{
+			return getService().addResource(id, type, content, properties, groups,
+					priority);
+		}
+		finally
+		{
+			popThreadBoundService();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String,
+	 *      java.lang.String, int, java.lang.String, byte[],
+	 *      org.sakaiproject.entity.api.ResourceProperties,
+	 *      java.util.Collection, int)
+	 */
+	public ContentResource addResource(String name, String collectionId, int limit,
+			String type, byte[] content, ResourceProperties properties,
+			Collection groups, int priority) throws PermissionException,
+			IdUniquenessException, IdLengthException, IdInvalidException,
+			InconsistentException, IdLengthException, OverQuotaException,
 			ServerOverloadException
 	{
 		try
 		{
-			return getService().addResource(name, collectionId, limit, type, content, properties, groups, priority);
+			return getService().addResource(name, collectionId, limit, type, content,
+					properties, groups, priority);
 		}
 		finally
 		{
@@ -1798,18 +1956,23 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String, java.lang.String, int, java.lang.String, byte[], org.sakaiproject.entity.api.ResourceProperties, java.util.Collection, boolean, org.sakaiproject.time.api.Time,
+	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String,
+	 *      java.lang.String, int, java.lang.String, byte[],
+	 *      org.sakaiproject.entity.api.ResourceProperties,
+	 *      java.util.Collection, boolean, org.sakaiproject.time.api.Time,
 	 *      org.sakaiproject.time.api.Time, int)
 	 */
-	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content,
-			ResourceProperties properties, Collection groups, boolean hidden, Time releaseDate, Time retractDate, int priority)
-			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException,
+	public ContentResource addResource(String name, String collectionId, int limit,
+			String type, byte[] content, ResourceProperties properties,
+			Collection groups, boolean hidden, Time releaseDate, Time retractDate,
+			int priority) throws PermissionException, IdUniquenessException,
+			IdLengthException, IdInvalidException, InconsistentException,
 			IdLengthException, OverQuotaException, ServerOverloadException
 	{
 		try
 		{
-			return getService().addResource(name, collectionId, limit, type, content, properties, groups, hidden, releaseDate,
-					retractDate, priority);
+			return getService().addResource(name, collectionId, limit, type, content,
+					properties, groups, hidden, releaseDate, retractDate, priority);
 		}
 		finally
 		{
@@ -1822,7 +1985,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#getProperties(java.lang.String)
 	 */
-	public ResourceProperties getProperties(String id) throws PermissionException, IdUnusedException
+	public ResourceProperties getProperties(String id) throws PermissionException,
+			IdUnusedException
 	{
 		try
 		{
@@ -1854,10 +2018,12 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.content.api.ContentHostingService#removeProperty(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.content.api.ContentHostingService#removeProperty(java.lang.String,
+	 *      java.lang.String)
 	 */
-	public ResourceProperties removeProperty(String id, String name) throws PermissionException, IdUnusedException, TypeException,
-			InUseException, ServerOverloadException
+	public ResourceProperties removeProperty(String id, String name)
+			throws PermissionException, IdUnusedException, TypeException, InUseException,
+			ServerOverloadException
 	{
 		try
 		{
@@ -1872,9 +2038,12 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.entity.api.EntityProducer#archive(java.lang.String, org.w3c.dom.Document, java.util.Stack, java.lang.String, java.util.List)
+	 * @see org.sakaiproject.entity.api.EntityProducer#archive(java.lang.String,
+	 *      org.w3c.dom.Document, java.util.Stack, java.lang.String,
+	 *      java.util.List)
 	 */
-	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
+	public String archive(String siteId, Document doc, Stack stack, String archivePath,
+			List attachments)
 	{
 		try
 		{
@@ -1906,7 +2075,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.entity.api.EntityProducer#getEntityAuthzGroups(org.sakaiproject.entity.api.Reference, java.lang.String)
+	 * @see org.sakaiproject.entity.api.EntityProducer#getEntityAuthzGroups(org.sakaiproject.entity.api.Reference,
+	 *      java.lang.String)
 	 */
 	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
@@ -2008,14 +2178,18 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.entity.api.EntityProducer#merge(java.lang.String, org.w3c.dom.Element, java.lang.String, java.lang.String, java.util.Map, java.util.Map, java.util.Set)
+	 * @see org.sakaiproject.entity.api.EntityProducer#merge(java.lang.String,
+	 *      org.w3c.dom.Element, java.lang.String, java.lang.String,
+	 *      java.util.Map, java.util.Map, java.util.Set)
 	 */
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
+	public String merge(String siteId, Element root, String archivePath,
+			String fromSiteId, Map attachmentNames, Map userIdTrans,
 			Set userListAllowImport)
 	{
 		try
 		{
-			return getService().merge(siteId, root, archivePath, fromSiteId, attachmentNames, userIdTrans, userListAllowImport);
+			return getService().merge(siteId, root, archivePath, fromSiteId,
+					attachmentNames, userIdTrans, userListAllowImport);
 		}
 		finally
 		{
@@ -2026,7 +2200,8 @@ public class ContentHostingMultiplexService implements ContentHostingService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.entity.api.EntityProducer#parseEntityReference(java.lang.String, org.sakaiproject.entity.api.Reference)
+	 * @see org.sakaiproject.entity.api.EntityProducer#parseEntityReference(java.lang.String,
+	 *      org.sakaiproject.entity.api.Reference)
 	 */
 	public boolean parseEntityReference(String reference, Reference ref)
 	{
@@ -2057,31 +2232,19 @@ public class ContentHostingMultiplexService implements ContentHostingService
 		}
 	}
 
-	/**
-	 * @return the defaultContentHostingService
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.api.ContentHostingService#addCollection(java.lang.String,
+	 *      java.lang.String)
 	 */
-	public ContentHostingService getDefaultContentHostingService()
-	{
-		return defaultContentHostingService;
-	}
-
-	/**
-	 * @param defaultContentHostingService
-	 *        the defaultContentHostingService to set
-	 */
-	public void setDefaultContentHostingService(ContentHostingService defaultContentHostingService)
-	{
-		this.defaultContentHostingService = defaultContentHostingService;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.content.api.ContentHostingService#addCollection(java.lang.String, java.lang.String)
-	 */
-	public ContentCollectionEdit addCollection(String collectionId, String name) throws PermissionException, IdUnusedException, IdUsedException, IdLengthException, IdInvalidException, TypeException
+	public ContentCollectionEdit addCollection(String collectionId, String name)
+			throws PermissionException, IdUnusedException, IdUsedException,
+			IdLengthException, IdInvalidException, TypeException
 	{
 		try
 		{
-			return getService().addCollection(collectionId,name);
+			return getService().addCollection(collectionId, name);
 		}
 		finally
 		{
@@ -2089,14 +2252,21 @@ public class ContentHostingMultiplexService implements ContentHostingService
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String, java.lang.String, java.lang.String, int)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String,
+	 *      java.lang.String, java.lang.String, int)
 	 */
-	public ContentResourceEdit addResource(String collectionId, String basename, String extension, int maximum_tries) throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, IdUnusedException, OverQuotaException, ServerOverloadException
+	public ContentResourceEdit addResource(String collectionId, String basename,
+			String extension, int maximum_tries) throws PermissionException,
+			IdUniquenessException, IdLengthException, IdInvalidException,
+			IdUnusedException, OverQuotaException, ServerOverloadException
 	{
 		try
 		{
-			return getService().addResource(collectionId,basename,extension,maximum_tries);
+			return getService().addResource(collectionId, basename, extension,
+					maximum_tries);
 		}
 		finally
 		{
@@ -2104,7 +2274,9 @@ public class ContentHostingMultiplexService implements ContentHostingService
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#getQuota(org.sakaiproject.content.api.ContentCollection)
 	 */
 	public long getQuota(ContentCollection collection)
@@ -2119,7 +2291,9 @@ public class ContentHostingMultiplexService implements ContentHostingService
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#getIndividualDropboxId(java.lang.String)
 	 */
 	public String getIndividualDropboxId(String entityId)
@@ -2134,14 +2308,18 @@ public class ContentHostingMultiplexService implements ContentHostingService
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.content.api.ContentHostingService#getResourcesOfType(java.lang.String, int, int)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.api.ContentHostingService#getResourcesOfType(java.lang.String,
+	 *      int, int)
 	 */
-	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page)
+	public Collection<ContentResource> getResourcesOfType(String resourceType,
+			int pageSize, int page)
 	{
 		try
 		{
-			return getService().getResourcesOfType(resourceType,pageSize,page);
+			return getService().getResourcesOfType(resourceType, pageSize, page);
 		}
 		finally
 		{
@@ -2149,7 +2327,9 @@ public class ContentHostingMultiplexService implements ContentHostingService
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.content.api.ContentHostingService#isContentHostingHandlersEnabled()
 	 */
 	public boolean isContentHostingHandlersEnabled()
@@ -2164,9 +2344,465 @@ public class ContentHostingMultiplexService implements ContentHostingService
 		}
 	}
 
-
-	public boolean getPrimaryContentService()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.BaseContentService#setAllowGroupResources(boolean)
+	 */
+	public void setAllowGroupResources(boolean allowGroupResources)
 	{
-		return true;
+		invokeTargets("setAllowGroupResources", new Object[] { allowGroupResources },
+				new Class[] { boolean.class });
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.DbContentService#setAutoDdl(java.lang.String)
+	 */
+	public void setAutoDdl(String value)
+	{
+		invokeTargets("setAutoDdl", new Object[] { value }, new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.BaseContentService#setAvailabilityChecksEnabled(boolean)
+	 */
+	public void setAvailabilityChecksEnabled(boolean value)
+	{
+		invokeTargets("setAvailabilityChecksEnabled", new Object[] { value },
+				new Class[] { boolean.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.BaseContentService#setBodyPath(java.lang.String)
+	 */
+	public void setBodyPath(String value)
+	{
+		invokeTargets("setBodyPath", new Object[] { value }, new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.BaseContentService#setBodyVolumes(java.lang.String)
+	 */
+	public void setBodyVolumes(String value)
+	{
+		invokeTargets("setBodyVolumes", new Object[] { value },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.BaseContentService#setCaching(java.lang.String)
+	 */
+	public void setCaching(String value)
+	{
+		invokeTargets("setCaching", new Object[] { value }, new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.DbContentService#setCollectionTableName(java.lang.String)
+	 */
+	public void setCollectionTableName(String name)
+	{
+		invokeTargets("setCollectionTableName", new Object[] { name },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.DbContentService#setContentServiceSql(java.lang.String)
+	 */
+	public void setContentServiceSql(String vendor)
+	{
+		invokeTargets("setContentServiceSql", new Object[] { vendor },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.BaseContentService#setConvertToContextQueryForCollectionSize(boolean)
+	 */
+	public void setConvertToContextQueryForCollectionSize(
+			boolean convertToContextQueryForCollectionSize)
+	{
+		invokeTargets("setConvertToContextQueryForCollectionSize",
+				new Object[] { convertToContextQueryForCollectionSize },
+				new Class[] { boolean.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.DbContentService#setConvertToFile(java.lang.String)
+	 */
+	public void setConvertToFile(String value)
+	{
+		invokeTargets("setConvertToFile", new Object[] { value },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.DbContentService#setEntityGroupTableName(java.lang.String)
+	 */
+	public void setEntityGroupTableName(String name)
+	{
+		invokeTargets("setEntityGroupTableName", new Object[] { name },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.DbContentService#setLocksInDb(java.lang.String)
+	 */
+	public void setLocksInDb(String value)
+	{
+		invokeTargets("setLocksInDb", new Object[] { value },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.DbContentService#setMigrateData(boolean)
+	 */
+	public void setMigrateData(boolean migrateData)
+	{
+		invokeTargets("setMigrateData", new Object[] { migrateData },
+				new Class[] { boolean.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.BaseContentService#setPrioritySortEnabled(boolean)
+	 */
+	public void setPrioritySortEnabled(boolean value)
+	{
+		invokeTargets("setPrioritySortEnabled", new Object[] { value },
+				new Class[] { boolean.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.DbContentService#setResourceBodyDeleteTableName(java.lang.String)
+	 */
+	public void setResourceBodyDeleteTableName(String name)
+	{
+		invokeTargets("setResourceBodyDeleteTableName", new Object[] { name },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.DbContentService#setResourceBodyTableName(java.lang.String)
+	 */
+	public void setResourceBodyTableName(String name)
+	{
+		invokeTargets("setResourceBodyTableName", new Object[] { name },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.DbContentService#setResourceDeleteTableName(java.lang.String)
+	 */
+	public void setResourceDeleteTableName(String name)
+	{
+		invokeTargets("setResourceDeleteTableName", new Object[] { name },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.DbContentService#setResourceTableName(java.lang.String)
+	 */
+	public void setResourceTableName(String name)
+	{
+		invokeTargets("setResourceTableName", new Object[] { name },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.BaseContentService#setShortRefs(java.lang.String)
+	 */
+	public void setShortRefs(String value)
+	{
+		invokeTargets("setShortRefs", new Object[] { value },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.BaseContentService#setSiteAlias(java.lang.String)
+	 */
+	public void setSiteAlias(String value)
+	{
+		invokeTargets("setSiteAlias", new Object[] { value },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.BaseContentService#setSiteAttachments(java.lang.String)
+	 */
+	public void setSiteAttachments(String value)
+	{
+		invokeTargets("setSiteAttachments", new Object[] { value },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.BaseContentService#setSiteQuota(java.lang.String)
+	 */
+	public void setSiteQuota(String quota)
+	{
+		invokeTargets("setSiteQuota", new Object[] { quota },
+				new Class[] { String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.BaseContentService#setUseContextQueryForCollectionSize(boolean)
+	 */
+	public void setUseContextQueryForCollectionSize(
+			boolean useContextQueryForCollectionSize)
+	{
+		invokeTargets("setUseContextQueryForCollectionSize",
+				new Object[] { useContextQueryForCollectionSize },
+				new Class[] { boolean.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.impl.BaseContentService#setUseResourceTypeRegistry(boolean)
+	 */
+	public void setUseResourceTypeRegistry(boolean useRegistry)
+	{
+		invokeTargets("setUseResourceTypeRegistry", new Object[] { useRegistry },
+				new Class[] { boolean.class });
+	}
+
+	/**
+	 * @param string
+	 * @param useRegistry
+	 */
+	private void invokeTargets(String method, Object[] args, Class[] c)
+	{
+
+		for (ContentHostingService chs : contentHostingServices.values())
+		{
+
+			try
+			{
+
+				chs.getClass().getMethod(method, c).invoke(chs, args);
+				if (log.isDebugEnabled() && args.length > 0)
+				{
+					log.debug(">>>>>>>>>>>>>>Done " + chs + "." + method + "(" + args[0]
+							+ ")");
+				}
+			}
+			catch (IllegalArgumentException e)
+			{
+				log.info("Method " + method
+						+ " failed to invoke with an argument exception, ignoring");
+			}
+			catch (SecurityException e)
+			{
+				log.info("Method " + method
+						+ " failed to invoke with an security exception, ignoring");
+			}
+			catch (IllegalAccessException e)
+			{
+				log
+						.info("Method "
+								+ method
+								+ " failed to invoke with an illeagal access exception, ignoring");
+			}
+			catch (InvocationTargetException e)
+			{
+				log.info("Method " + method
+						+ " failed to invoke with a target exception, ignoring");
+			}
+			catch (NoSuchMethodException e)
+			{
+				log.info("Method " + method + " does not exist on " + chs + ", ignoring "
+						+ e.getMessage());
+			}
+		}
+
+	}
+
+	/**
+	 * @return the threadLocalManager
+	 */
+	public ThreadLocalManager getThreadLocalManager()
+	{
+		return threadLocalManager;
+	}
+
+	/**
+	 * @param threadLocalManager
+	 *        the threadLocalManager to set
+	 */
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager)
+	{
+		this.threadLocalManager = threadLocalManager;
+	}
+
+	/**
+	 * @return the defaultService
+	 */
+	public String getDefaultService()
+	{
+		return defaultService;
+	}
+
+	/**
+	 * @param defaultService
+	 *        the defaultService to set
+	 */
+	public void setDefaultService(String defaultService)
+	{
+		setNextService(defaultService);
+	}
+
+	public String getNextService()
+	{
+		return defaultService;
+	}
+
+	public void setNextService(String nextService)
+	{
+		if (defaultService != null)
+		{
+			if (nextService == null)
+			{
+				nextContentHostingService = defaultContentHostingService;
+			}
+			else
+			{
+				if (!defaultService.equals(nextService))
+				{
+					ContentHostingService chsnew = contentHostingServices
+							.get(nextService);
+					if (chsnew == null)
+					{
+						throw new IllegalStateException(
+								"Content Hosting Service of type " + nextService
+										+ " not found in the multiplexer");
+					}
+					nextContentHostingService = chsnew;
+				}
+			}
+		}
+		defaultService = nextService;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.api.providers.SiteContentAdvisorTypeRegistry#registerSiteContentAdvisorProvidor(org.sakaiproject.content.api.providers.SiteContentAdvisorProvider,
+	 *      java.lang.String)
+	 */
+	public void registerSiteContentAdvisorProvidor(SiteContentAdvisorProvider advisor,
+			String type)
+	{
+		for (ContentHostingService chs : contentHostingServices.values())
+		{
+			if (chs instanceof SiteContentAdvisorTypeRegistry)
+			{
+				((SiteContentAdvisorTypeRegistry) chs)
+						.registerSiteContentAdvisorProvidor(advisor, type);
+			}
+		}
+		invokeTargets("registerSiteContentAdvisorProvidor",
+				new Object[] { advisor, type }, new Class[] {
+						SiteContentAdvisorProvider.class, String.class });
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.content.api.SiteContentAdvisorProvider#getContentAdvisor(org.sakaiproject.site.api.Site)
+	 */
+	public SiteContentAdvisor getContentAdvisor(Site site)
+	{
+		try
+		{
+			ContentHostingService chs = getService();
+			if (chs instanceof SiteContentAdvisorProvider)
+			{
+				return ((SiteContentAdvisorProvider) chs).getContentAdvisor(site);
+			}
+			return null;
+		}
+		finally
+		{
+			popThreadBoundService();
+		}
+
+	}
+	
+	public Object refresh(Object key, Object oldValue, Event event) {
+		try
+		{
+			ContentHostingService chs = getService();
+			if (chs instanceof CacheRefresher)
+			{
+				return ((CacheRefresher) chs).refresh( key,  oldValue,  event);
+			}
+			return null;
+		}
+		finally
+		{
+			popThreadBoundService();
+		}
+		
+	}
+
+	/**
+	 * @return the entityManager
+	 */
+	public EntityManager getEntityManager()
+	{
+		return entityManager;
+	}
+
+	/**
+	 * @param entityManager the entityManager to set
+	 */
+	public void setEntityManager(EntityManager entityManager)
+	{
+		this.entityManager = entityManager;
+	}
+
+	
 }

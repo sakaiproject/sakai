@@ -54,8 +54,6 @@ import org.sakaiproject.content.impl.jcr.SakaiConstants;
 import org.sakaiproject.content.impl.util.GMTDateformatter;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
-import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.jcr.api.DAVConstants;
 import org.sakaiproject.jcr.api.JCRConstants;
@@ -126,7 +124,7 @@ public class JCRStorageUser implements LiteStorageUser
 		 * @param jname
 		 *        the destincation name
 		 */
-		void copy(Edit edit, ResourceProperties rp, String name, Node n, String jname);
+		void  copy(Edit edit, ResourceProperties rp, String name, Node n, String jname);
 
 		/**
 		 * Convert from JCR property to entity
@@ -415,10 +413,12 @@ public class JCRStorageUser implements LiteStorageUser
 					p = content.getProperty(JCRConstants.JCR_MIMETYPE);
 					if ( p != null ) {
 						bedit.m_contentType = p.getString();
-						log.info("Content type set to "+bedit.m_contentType);
+						if ( log.isDebugEnabled() ) {
+							log.debug("Content type set to "+bedit.m_contentType);
+						}
 					} else {
 						bedit.m_contentType = "application/octet-stream";
-						log.info("Content default to "+bedit.m_contentType);
+						log.debug("Content default to "+bedit.m_contentType);
 					}
 				}
 				else if (n.hasProperty(DAVConstants.DAV_GETCONTENTLENGTH))
@@ -893,7 +893,7 @@ public class JCRStorageUser implements LiteStorageUser
 	 * @param n
 	 * @throws RepositoryException
 	 */
-	private void copy(Edit edit, Object o) throws RepositoryException
+	public void copy(Edit edit, Object o) throws RepositoryException
 	{
 		if ((o instanceof Node)
 				&& ((edit instanceof BaseCollectionEdit) || (edit instanceof BaseResourceEdit)))
@@ -935,7 +935,7 @@ public class JCRStorageUser implements LiteStorageUser
 	 * @param e
 	 * @throws RepositoryException
 	 */
-	private void copy(Node n, Entity e) throws RepositoryException
+	public void copy(Node n, Entity e) throws RepositoryException
 	{
 
 		// copy from the node to the entity,

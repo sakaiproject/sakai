@@ -153,6 +153,9 @@
 		</property>			
 	</bean>
 
+
+
+
 	<!-- enable logging of method calls on entrance and exit -->
 	<!-- must set log level to debug -->
 	<!-- 

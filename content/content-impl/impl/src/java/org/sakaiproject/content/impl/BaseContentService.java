@@ -638,17 +638,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	}
 
 
-	private boolean m_primaryContentService = true;
-
-	public void setPrimaryContentService(boolean primaryContentService) 
-	{
-		m_primaryContentService = primaryContentService;
-	}
 	
-	public boolean getPrimaryContentService() 
-	{
-		return m_primaryContentService;
-	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -666,6 +656,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// construct a storage helper and read
 			m_storage = newStorage();
 			m_storage.open();
+			
+			M_log.info("Loaded Storage as "+m_storage+" for "+this);
 
 			// make the cache
 			if (m_caching)
@@ -714,10 +706,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 			}
 
-			// register as an entity producer
-			if ( m_primaryContentService ) {
-				m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
-
+			// The entity producer is registerd by the thrird party manager
+				
+				m_entityManager.registerEntityProducer(this,
+					ContentHostingService.REFERENCE_ROOT);
+	
 				// register functions
 				FunctionManager.registerFunction(AUTH_RESOURCE_ADD);
 				FunctionManager.registerFunction(AUTH_RESOURCE_READ);
@@ -730,7 +723,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 				FunctionManager.registerFunction(AUTH_DROPBOX_OWN);
 				FunctionManager.registerFunction(AUTH_DROPBOX_MAINTAIN);
-			}
+			
 
 			M_log.info("init(): site quota: " + m_siteQuota + " body path: " + m_bodyPath + " volumes: "
 					+ buf.toString());
@@ -756,7 +749,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public void destroy()
 	{
-		m_storage.close();
+		if ( m_storage != null ) {
+			m_storage.close();
+		}
 		m_storage = null;
 
 		if ((m_caching) && (m_cache != null))

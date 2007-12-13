@@ -27,10 +27,10 @@
           <module>content-help</module>
           <module>content-impl/hbm</module>
           <module>content-impl/impl</module>
-          <module>content-impl/pack</module>
           <module>content-tool</module>
           <module>content-tool/tool</module>
           <module>content-util/util</module>
+          <module>content-impl/pack</module>
         </modules>
   </profile>
   <profile>
@@ -41,6 +41,8 @@
           <module>content-impl/hbm</module>
           <module>content-impl/impl</module>
           <module>content-impl-jcr/impl</module>
+          <module>content-jcr-migration-api</module>
+          <module>content-jcr-migration-impl</module>
           <module>content-tool</module>
           <module>content-tool/tool</module>
           <module>content-util/util</module>
@@ -48,6 +50,27 @@
           <module>contentmultiplex-impl/impl</module>
         </modules>
   </profile>
+
+  <profile>
+        <id>full-jcr</id>
+  <modules>
+    <module>content-api/api</module>
+    <module>content-help</module>
+    <module>content-impl/hbm</module>
+    <module>content-impl/impl</module>
+    <module>content-jcr-migration-api</module>
+    <module>content-jcr-migration-impl</module>
+    <module>content-impl-jcr/impl</module>
+    <module>content-impl-jcr/pack</module>
+    <module>content-impl-providers/impl</module>
+    <module>content-impl-providers/pack</module>
+    <module>content-tool</module>
+    <module>content-tool/tool</module>
+    <module>content-util/util</module>
+    <module>contentmultiplex-impl/impl</module>
+  </modules>
+  </profile>
+
 
   <profile>
         <id>full</id>
@@ -59,23 +82,12 @@
     <module>content-help</module>
     <module>content-impl/hbm</module>
     <module>content-impl/impl</module>
-<!--
-This only builds a jar 
-Uncomment when the JCR API issues are sorted
--->
-
-    <module>content-impl-jcr/impl</module>
     <module>content-impl/pack</module>
-<!--
-To add the  JCR CHS as well as the DB CHS to sakai 
-    <module>content-impl-jcr/pack</module>
--->
     <module>content-impl-providers/impl</module>
     <module>content-impl-providers/pack</module>
     <module>content-tool</module>
     <module>content-tool/tool</module>
     <module>content-util/util</module>
-    <module>contentmultiplex-impl/impl</module>
   </modules>
   </profile>
   </profiles>

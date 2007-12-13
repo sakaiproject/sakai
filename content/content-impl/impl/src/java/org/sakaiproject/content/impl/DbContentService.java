@@ -313,6 +313,7 @@ public class DbContentService extends BaseContentService
 	 */
 	public void init()
 	{
+
 		if ( m_sqlService != null ) {
 			setContentServiceSql(m_sqlService.getVendor());
 			try
@@ -949,7 +950,6 @@ public class DbContentService extends BaseContentService
 					selectStatement = connection.prepareStatement("select XML from CONTENT_COLLECTION where BINARY_ENTITY IS NULL AND COLLECTION_ID = ? ");
 					updateStatement = connection.prepareStatement("update CONTENT_COLLECTION set XML = NULL, BINARY_ENTITY = ?  where COLLECTION_ID = ? ");
 					for ( String collectionid : BASE_COLLECTION_IDS ) {
-						M_log.info("Migrating "+collectionid);
 						selectStatement.clearParameters();
 						selectStatement.setString(1, collectionid);
 						rs = selectStatement.executeQuery();
@@ -961,16 +961,11 @@ public class DbContentService extends BaseContentService
 								updateStatement.clearParameters();
 								if ( t1ch.convertSource(collectionid, xml, updateStatement) ) {
 									updateStatement.executeUpdate();
-									M_log.info("Migrated "+collectionid);
 								} else {
-									M_log.info("XML Pase failed "+collectionid);
-												
+									M_log.info("XML Pase failed "+collectionid);												
 								}
-							} else {
-								M_log.info("Already Done "+collectionid+" "+bnull);
 							}
 						} else {
-							M_log.info("Didnt Find "+collectionid);
 							rs.close();
 						}
 					}

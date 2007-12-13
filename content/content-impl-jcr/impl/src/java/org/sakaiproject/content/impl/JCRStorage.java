@@ -107,6 +107,9 @@ public class JCRStorage implements Storage
 
 	public void init()
 	{
+		if ( !jcrService.isEnabled() ) {
+			return;
+		}
 
 		for (String prefix : namespaces.keySet())
 		{
@@ -126,34 +129,12 @@ public class JCRStorage implements Storage
 		{
 			try
 			{
-				/*
-				ClassLoader cl = this.getClass().getClassLoader();
-				if ( cl instanceof URLClassLoader ) {
-					URLClassLoader ucl = (URLClassLoader) cl;
-					for( URL url : ucl.getURLs() ) {
-						log.info("Classloader Path "+url.toString());
-					}
-					
-					
-				}
-				ClassLoader pcl = cl.getParent();
-				log.info("Parent Class Loader is "+pcl);
-				if ( pcl instanceof URLClassLoader ) {
-					URLClassLoader ucl = (URLClassLoader) pcl;
-					for( URL url : ucl.getURLs() ) {
-						log.info("Parent Classloader Path "+url.toString());
-					}
-					
-					
-				}
-				log.info("Registering Node Types ["+nodeTypeResource+"] with "+this.getClass().getClassLoader());
-				*/
 				InputStream in = this.getClass().getResourceAsStream(nodeTypeResource);
 				if ( in == null ) {
 					log.error("Didnt Find with class.getResourceAsStream "+nodeTypeResource);
 					in = this.getClass().getClassLoader().getResourceAsStream(nodeTypeResource);
 				} else {
-					log.error("GOT IT!");
+					log.debug("Loaded resource: " + nodeTypeResource);
 				}
 				
 				jcrRegistrationService.registerNodetypes(in);
@@ -556,11 +537,6 @@ public class JCRStorage implements Storage
 
 	public ContentResource getResource(String id) throws TypeException
 	{
-//		Exception ex = new Exception("GET GRESOURCE TRACEBACK");
-//		log.info("Trace back ",ex);
-		
-//		StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-//		log.info(ste[2].getClassName()+"."+ste[2].getMethodName()+":"+ste[2].getLineNumber()+" called by "+ste[3].getClassName()+"."+ste[3].getMethodName()+":"+ste[3].getLineNumber());
 		if (id == null || id.trim().length() == 0)
 		{
 			return null;

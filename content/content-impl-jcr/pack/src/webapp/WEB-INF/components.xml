@@ -14,13 +14,17 @@
 			class="org.sakaiproject.content.multiplex.ContentHostingMultiplexService"
             init-method="init" destroy-method="destroy" singleton="true">
              <property name="contentHostingServices">              
-		<list>
-             	<ref bean="org.sakaiproject.content.api.ContentHostingService.jcrservice" />
-             	<ref bean="org.sakaiproject.content.api.ContentHostingService.dbservice" />
-		</list>
+				<map>
+					<entry key="jcr" ><ref bean="org.sakaiproject.content.api.ContentHostingService.jcrservice" /></entry>
+             		<entry key="db" ><ref bean="org.sakaiproject.content.api.ContentHostingService.dbservice" /></entry>
+				</map>
              </property>
+        <property name="defaultService" value="db" />
+        <property name="entityManager"
+               ref="org.sakaiproject.entity.api.EntityManager" />
+ 
+        <property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
     </bean>
-
     <!-- database beans -->
     
     <bean id="org.sakaiproject.content.impl.ContentServiceSqlDb2"       class="org.sakaiproject.content.impl.ContentServiceSqlDb2"     singleton="true"/>
@@ -32,9 +36,8 @@
     
 	<bean id="org.sakaiproject.content.api.ContentHostingService.dbservice"
 			class="org.sakaiproject.content.impl.DbContentService"
-            init-method="init" destroy-method="destroy" singleton="true">
+            singleton="true">
 
-        <property name="primaryContentService"><value>false</value></property>
 
         <property name="memoryService">              <ref bean="org.sakaiproject.memory.api.MemoryService"/>                 </property>
         <property name="aliasService">               <ref bean="org.sakaiproject.alias.api.AliasService"/>                   </property>
@@ -143,6 +146,10 @@
         <property name="sqlService"> <ref bean="org.sakaiproject.db.api.SqlService"/> </property>
         <property name="autoDdl">    <value>${auto.ddl}</value>                       </property>
 	</bean>
+	
+
+
+
 	
 	<bean id="org.sakaiproject.content.impl.DropboxContextObserver.dbservice"
 			class="org.sakaiproject.content.impl.DropboxContextObserver"

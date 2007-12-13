@@ -5,11 +5,11 @@
     <artifactId>content-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../</relativePath>
   </parent>
-  <name>sakai-contentmulti-impl</name>
+  <name>sakai-content-jcr-migration-impl</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-contentmulti-impl</artifactId>
+  <artifactId>sakai-content-jcr-migration-impl</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
@@ -20,14 +20,24 @@
     <deploy.target/>
   </properties>
   <dependencies>
-    <dependency>      
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-content-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-    <dependency>      
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-content-jcr-migration-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-content-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-content-jcr-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
@@ -37,12 +47,17 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
+      <artifactId>sakai-user-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-api</artifactId>
+      <artifactId>sakai-authz-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-db-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
@@ -52,18 +67,67 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-tool-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-component</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-component-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-memory-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-db-storage</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>      
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+
+<!-- jcr dependencies -->
+
+    <dependency>
+        <groupId>javax.jcr</groupId>
+        <artifactId>jcr</artifactId>
+        <version>${sakai.jcr.version}</version> 
     </dependency>
     <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.artifactId}</artifactId>
-      <version>${sakai.spring.version}</version>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-jcr-api</artifactId>
+        <version>${sakai.version}</version> <!-- 1.4 latest -->
+        <scope>provided</scope> <!-- remove when in master -->
     </dependency>
+
+
+
+
+<!-- end jcr dependencies -->
+
+
+
+
   </dependencies>
   <build>
     
@@ -83,6 +147,7 @@
         <directory>${basedir}/src/config</directory>
         <includes>
           <include>**/*.properties</include>
+          <include>**/*.xml</include>
         </includes>
       </resource>
       <resource>
