@@ -198,6 +198,13 @@ public class SiteService
 		return service.allowAddSite(param0);
 	}
 
+	public static boolean allowAddCourseSite() {
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) return false;
+
+		return service.allowAddCourseSite();		
+	}
+	
 	public static org.sakaiproject.site.api.Site addSite(java.lang.String param0, java.lang.String param1)
 			throws org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.IdUsedException,
 			org.sakaiproject.exception.PermissionException
