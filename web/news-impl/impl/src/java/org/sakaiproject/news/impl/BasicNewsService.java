@@ -670,4 +670,56 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 		if (value.length() == 0) return null;
 		return value;
 	}
+	
+	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{	
+		try
+		{
+			if(cleanup == true)
+			{
+				// retrieve all of the news tools to remove
+				
+				Site toSite = SiteService.getSite(toContext);
+				
+				List toSitePages = toSite.getPages();
+
+				if (toSitePages != null && !toSitePages.isEmpty()) 
+				{
+					Iterator pageIter = toSitePages.iterator();
+					while (pageIter.hasNext()) 
+					{
+						SitePage currPage = (SitePage) pageIter.next();
+
+						List toolList = currPage.getTools();
+						Iterator toolIter = toolList.iterator();
+						while (toolIter.hasNext()) 
+						{
+							ToolConfiguration toolConfig = (ToolConfiguration)toolIter.next();
+							String toolId =  toolConfig.getToolId();
+
+							if (toolId.equals(TOOL_ID)) 
+							{
+								toolConfig.getPlacementConfig().setProperty(NEWS_URL_PROP, null);
+								toolConfig.setTitle(null);
+								currPage.setTitle(null);
+
+							}
+						}
+					}
+				}
+				SiteService.save(toSite);
+				ToolSession session = SessionManager.getCurrentToolSession();
+
+				if (session.getAttribute(ATTR_TOP_REFRESH) == null)	
+				{
+					session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			M_log.info("News transferCopyEntities Error" + e);
+		}
+		transferCopyEntities(fromContext, toContext, ids);
+	}
 }
