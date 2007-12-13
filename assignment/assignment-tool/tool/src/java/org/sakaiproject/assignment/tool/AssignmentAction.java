@@ -9641,7 +9641,9 @@ public class AssignmentAction extends PagedResourceActionII
 										// read grades.cvs from zip
 								        String result = StringUtil.trimToZero(readIntoString(zin));
 								        String[] lines=null;
-								        if (result.indexOf("\r") != -1)
+								        if (result.indexOf("\r\n") != -1)
+								        	lines = result.split("\r\n");
+								        else if (result.indexOf("\r") != -1)
 								        		lines = result.split("\r");
 								        else if (result.indexOf("\n") != -1)
 							        			lines = result.split("\n");
