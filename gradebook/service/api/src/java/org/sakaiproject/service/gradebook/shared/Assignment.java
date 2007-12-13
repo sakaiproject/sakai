@@ -42,6 +42,11 @@ public class Assignment implements Serializable {
     private String externalId;
     private String externalAppName;
     private boolean released;
+    
+    private String categoryName;
+//  private Category category;
+    private Double weight;
+    
 
     public Assignment() {
     }
@@ -150,6 +155,22 @@ public class Assignment implements Serializable {
 	
 	public void setId(Long id) {
 		this.id = id;
+	}
+	
+	public String getCategoryName() {
+		return categoryName;
+	}
+
+	public void setCategoryName(String categoryName) {
+		this.categoryName = categoryName;
+	}
+		
+	public Double getWeight() {
+		return weight;
+	}
+		
+	public void setWeight(Double weight) {
+		this.weight = weight;
 	}
 
 }
