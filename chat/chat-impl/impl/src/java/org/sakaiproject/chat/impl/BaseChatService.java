@@ -39,6 +39,7 @@ import org.sakaiproject.chat.api.ChatMessageEdit;
 import org.sakaiproject.chat.api.ChatMessageHeader;
 import org.sakaiproject.chat.api.ChatMessageHeaderEdit;
 import org.sakaiproject.chat.api.ChatService;
+import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -1230,6 +1231,11 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 		return new String[] {
 				"sakai.chat"
 		};
+	}
+	
+	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{	
+		//TODO
 	}
 
 }
