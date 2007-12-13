@@ -1094,6 +1094,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		int count = params.getInt("fileCount");
 		mfp.setFileCount(count);
+		if(count < 1)
+		{
+			mfp.setFileCount(1);
+		}
 		
 		int lastIndex = params.getInt("lastIndex");
 		
