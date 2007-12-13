@@ -776,5 +776,43 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
    public void setChatManager(ChatManager chatManager) {
       this.chatManager = chatManager;
    }
+   
+   public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{	
+	   try
+	   {   
+		   if(cleanup == true) 
+		   {
+			   // retrieve all of the chat rooms
+			   List channels = getChatManager().getContextChannels(toContext, true);
+			   
+			   if (channels != null && !channels.isEmpty()) 
+			   {
+				   Iterator channelIterator = channels.iterator();
+				   
+				   while (channelIterator.hasNext()) 
+				   {
+					   ChatChannel oldChannel = (ChatChannel)channelIterator.next();
+					  
+					   try 
+					   {
+						   getChatManager().deleteChannel(oldChannel);
+					   } 
+					   catch (Exception e) 
+					   {
+						   logger.debug("Exception while removing chat channel: " + e);
+					   }
+
+				   }
+			   }
+		   } 
+	       transferCopyEntities(fromContext, toContext, ids);
+	   }
+
+	   catch (Exception e)
+	   {
+	       logger.debug("Chat transferCopyEntities(): exception in handling " + e);
+	   }
+	}
 
 }
