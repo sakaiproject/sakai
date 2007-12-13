@@ -102,7 +102,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       final HibernateCallback hcb = new HibernateCallback(){
       	public Object doInHibernate(Session session) throws HibernateException, SQLException {
       		Query q = session.createQuery(
-      				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=? order by a.agentId ASC, a.finalScore DESC, a.submittedDate DESC");
+      				"from AssessmentGradingData a where a.publishedAssessmentId=? " +
+      				"and (a.forGrade=? or a.gradedBy is not null or a.gradedDate is not null) " +
+      				"order by a.agentId ASC, a.finalScore DESC, a.submittedDate DESC");
       		q.setLong(0, Long.parseLong(publishedId));
       		q.setBoolean(1, true);
       		return q.list();
@@ -119,7 +121,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     	    final HibernateCallback hcb2 = new HibernateCallback(){
     	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     	    		Query q = session.createQuery(
-    	    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=? order by a.agentId ASC, a.submittedDate DESC");
+    	    				"from AssessmentGradingData a where a.publishedAssessmentId=? " +
+    	    				"and (a.forGrade=? or a.gradedBy is not null or a.gradedDate is not null) " +
+    	    				"order by a.agentId ASC, a.submittedDate DESC");
     	      		q.setLong(0, Long.parseLong(publishedId));
     	      		q.setBoolean(1, true);
     	    		return q.list();
@@ -281,7 +285,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
       final HibernateCallback hcb = new HibernateCallback(){
       	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-      		Query q = session.createQuery("from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? order by a.submittedDate DESC");
+      		Query q = session.createQuery("from AssessmentGradingData a where a.publishedAssessmentId=? " +
+      				"and a.agentId=? and a.gradedBy is null and a.gradedDate is null " +
+      				"order by a.submittedDate DESC");
       		q.setLong(0, publishedId.longValue());
       		q.setString(1, agentId);
       		return q.list();
@@ -1883,4 +1889,23 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			}
 		}
 	}
+	
+	  public void removeUnsubmittedAssessmentGradingData(final AssessmentGradingIfc data) {
+		    final HibernateCallback hcb = new HibernateCallback(){
+		    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+		    		Query q = session.createQuery(
+		    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? " +
+		    				"and a.forGrade=? and a.gradedBy is not null and a.gradedDate is not null " +
+		    				"order by a.submittedDate desc");
+		    		q.setLong(0, data.getPublishedAssessmentId().longValue());
+		    		q.setString(1, data.getAgentId());
+		    		q.setBoolean(2, false);
+		    		return q.list();
+		    	};
+		    };
+		    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
+		    if (assessmentGradings.size() != 0) { 
+		    	deleteAll(assessmentGradings);
+		    }
+	  }
 }

@@ -778,6 +778,11 @@ public class GradingService
     notifyGradebookByScoringType(data, pub);
     log.debug("****x8. "+(new Date()).getTime());
     //log.debug("**#2 total AutoScore"+data.getTotalAutoScore());
+    
+    if (Boolean.TRUE.equals(data.getForGrade())) {
+    	// remove the assessmentGradingData created during gradiing (by updatding total score page)
+    	removeUnsubmittedAssessmentGradingData(data);
+    }
   }
 
   private float getTotalAutoScore(Set itemGradingSet){
@@ -1625,6 +1630,17 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    }
 	    return list;
   }
+  
+  private void removeUnsubmittedAssessmentGradingData(AssessmentGradingIfc data){
+	  try {
+	      PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().removeUnsubmittedAssessmentGradingData(data);
+	    } catch (Exception e) {
+	      //e.printStackTrace();
+	      log.error("Exception thrown from removeUnsubmittedAssessmentGradingData" + e.getMessage());
+	    }
+  }
+  
 }
 
 
