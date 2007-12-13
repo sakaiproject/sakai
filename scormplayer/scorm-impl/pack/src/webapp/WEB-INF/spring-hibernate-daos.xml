@@ -6,7 +6,7 @@
 
 
 	<bean id="scorm.AttemptDaoTarget"
-		class="org.sakaiproject.scorm.dao.AttemptDaoImpl">
+		class="org.sakaiproject.scorm.dao.hibernate.AttemptDaoImpl">
 		<property name="sessionFactory">
 				<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
@@ -14,7 +14,7 @@
 	
 
 	<bean id="scorm.ContentPackageDaoTarget"
-		class="org.sakaiproject.scorm.dao.ContentPackageDaoImpl">
+		class="org.sakaiproject.scorm.dao.hibernate.ContentPackageDaoImpl">
 		<property name="sessionFactory">
 				<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
@@ -22,14 +22,14 @@
 
 
 	<bean id="scorm.DataManagerDaoTarget"
-		class="org.sakaiproject.scorm.dao.DataManagerDaoImpl">
+		class="org.sakaiproject.scorm.dao.hibernate.DataManagerDaoImpl">
 		<property name="sessionFactory">
 				<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
 	</bean>
 	
 	<bean id="scorm.SeqActivityTreeDaoTarget"
-		class="org.sakaiproject.scorm.dao.SeqActivityTreeDaoImpl">
+		class="org.sakaiproject.scorm.dao.hibernate.SeqActivityTreeDaoImpl">
 		<property name="sessionFactory">
 				<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>

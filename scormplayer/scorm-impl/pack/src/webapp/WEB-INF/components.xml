@@ -74,6 +74,8 @@
 		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
 		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
 		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
+		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />	  
+		
 	</bean>
 	
 	

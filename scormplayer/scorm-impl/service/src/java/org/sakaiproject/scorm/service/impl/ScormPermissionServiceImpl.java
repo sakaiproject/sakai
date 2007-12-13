@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.service.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -27,13 +29,34 @@ import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.service.api.ScormPermissionService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 public abstract class ScormPermissionServiceImpl implements ScormPermissionService, ScormConstants {
 
+	private static Log log = LogFactory.getLog(ScormPermissionServiceImpl.class);
+	
 	protected abstract SecurityService securityService();
 	protected abstract ServerConfigurationService serverConfigurationService();
 	protected abstract ToolManager toolManager();
 	protected abstract SiteService siteService();
+	protected abstract UserDirectoryService userDirectoryService();
+	
+	public String getDisplayName(String userId) {
+		String displayName = null;
+		try {
+			User user = userDirectoryService().getUser(userId);
+			
+			if (user != null)
+				displayName = user.getDisplayName();
+			
+		} catch (UserNotDefinedException e) {
+			log.error("Could not determine display name for user " + userId, e);
+		}
+		
+		return displayName;
+	}
 	
 	public boolean canModify() {
 		return canConfigure() || canDelete() || canViewResults();
