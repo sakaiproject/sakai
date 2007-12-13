@@ -30,7 +30,7 @@
 	/* enabled state - inner */
 	/* border:1px outset #a0a0a0; */
 	border:1px solid #9b9b9b;
-	padding:.3em .4em .2em .4em;
+	padding:.1em .4em .1em .4em;
 	background:#e9e9e9 url("images/buttonEnabled.png") repeat-x top;
 }
 .dj_ie6 .sakadojo .dijitButtonNode {
