@@ -465,5 +465,52 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 		return null;
 	}
 
+	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{	
+		try
+		{
+			if(cleanup == true)
+			{
+				Site toSite = SiteService.getSite(toContext);
+				
+				List toSitePages = toSite.getPages();
+				if (toSitePages != null && !toSitePages.isEmpty()) {
+					Iterator pageIter = toSitePages.iterator();
+					while (pageIter.hasNext()) {
+						SitePage currPage = (SitePage) pageIter.next();
+
+						List toolList = currPage.getTools();
+						Iterator toolIter = toolList.iterator();
+						while (toolIter.hasNext()) {
+							ToolConfiguration toolConfig = (ToolConfiguration)toolIter.next();
+							
+							 // we do not want to import "special" uses of sakai.iframe, such as worksite info
+							String special = toolConfig.getPlacementConfig().getProperty(SPECIAL_PROP);
+
+							if (toolConfig.getToolId().equals(TOOL_ID) && special == null) {
+								
+								toolConfig.getPlacementConfig().setProperty(WEB_CONTENT_URL_PROP, null);
+								toolConfig.setTitle(null);
+								currPage.setTitle(null);
+								toolConfig.getPlacementConfig().setProperty(HEIGHT_PROP, null);
+							}
+						}
+					}
+					SiteService.save(toSite);
+					ToolSession session = SessionManager.getCurrentToolSession();
+
+					if (session.getAttribute(ATTR_TOP_REFRESH) == null)
+					{
+						session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+					}
+				}
+			}
+			transferCopyEntities(fromContext, toContext, ids);
+		}
+		catch (Exception e)
+		{
+			M_log.info("WebContent transferCopyEntities Error" + e);
+		}
+	}
 
 }
