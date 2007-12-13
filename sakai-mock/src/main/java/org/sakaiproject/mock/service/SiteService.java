@@ -345,4 +345,12 @@ public class SiteService implements org.sakaiproject.site.api.SiteService {
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.site.api.SiteService#allowAddCourseSite()
+	 */
+	public boolean allowAddCourseSite()
+	{
+		return true;
+	}
+
 }
