@@ -379,6 +379,7 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'section.role.instructor
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'section.role.student')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'section.role.ta')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'site.add')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'site.add.course')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'site.add.usersite')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'site.del')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'site.upd')
@@ -663,6 +664,8 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add.course'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add.usersite'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'user.add'
@@ -685,6 +688,8 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add.course'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add.usersite'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'user.add'
@@ -706,6 +711,8 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm.upd.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add.course'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add.usersite'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
@@ -4003,6 +4010,7 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'section.role.instructor
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'section.role.student')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'section.role.ta')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'site.add')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'site.add.course')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'site.add.usersite')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'site.del')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'site.upd')
@@ -4233,6 +4241,8 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add.course'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add.usersite'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'user.add'
@@ -4255,6 +4265,8 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add.course'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add.usersite'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'user.add'
@@ -4276,6 +4288,8 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm.upd.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add.course'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.add.usersite'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@r_temp, @role_auth, @f1)
