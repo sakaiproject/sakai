@@ -1,0 +1,45 @@
+/*
+ * Style to use when the DHTML More Sites is enabled (SAK-11460).  See sakai.properties and the
+ * "portal.use.dhtml.more" key.  These styles modify the rendering of the side-by-side list widget.
+ * @author Shaw-Han Liem.
+ * @author Joseph Scheuhammer.
+ */
+ 
+#tab-dhtml-more-sites .instruction{
+    height: 5em;
+    font-size: 1em;
+}
+
+
+#tab-dhtml-more-sites #top-text{
+    margin: 1em 0 2em 0;
+    line-height: 150%;
+}
+
+            
+#tab-dhtml-more-sites #sites-active{
+    width: 300px;
+    background-color: lightyellow;
+    border: 1px solid #ccc;
+    border-width: 1px 1px 1px 0;
+    padding: 10px;
+}
+                
+
+#tab-dhtml-more-sites #sites-active-button{
+	background-color: lightyellow;
+	border: 1px solid #ccc;
+	border-width: 1px 0 1px 1px;
+}
+
+#tab-dhtml-more-sites #sites-hidden{
+    width: 300px;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+            
+#tab-dhtml-more-sites #publish{
+    margin: 2em 0;
+    color: #666;
+}

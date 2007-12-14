@@ -14,127 +14,41 @@
             <supported-locale>es</supported-locale>
         </locale-config>
     </application>
-    
-	<navigation-rule>
-		<from-view-id>/prefs/tab.jsp</from-view-id>
-		<navigation-case>
-			<from-outcome>noti</from-outcome>
-			<to-view-id>/prefs/noti.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>timezone</from-outcome>
-			<to-view-id>/prefs/timezone.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>		
-		<navigation-case>
-			<from-outcome>locale</from-outcome>
-			<to-view-id>/prefs/locale.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>privacy</from-outcome>
-			<to-view-id>/prefs/privacy.jsp</to-view-id>
-			<redirect />
-		</navigation-case>
-	</navigation-rule>
 
-	<navigation-rule>
-		<from-view-id>/prefs/noti.jsp</from-view-id>
-		<navigation-case>
-			<from-outcome>tab</from-outcome>
-			<to-view-id>/prefs/tab.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>timezone</from-outcome>
-			<to-view-id>/prefs/timezone.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>locale</from-outcome>
-			<to-view-id>/prefs/locale.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>privacy</from-outcome>
-			<to-view-id>/prefs/privacy.jsp</to-view-id>
-			<redirect />
-		</navigation-case>
-	</navigation-rule>
-
-	<navigation-rule>
-		<from-view-id>/prefs/timezone.jsp</from-view-id>
-		<navigation-case>
-			<from-outcome>tab</from-outcome>
-			<to-view-id>/prefs/tab.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>noti</from-outcome>
-			<to-view-id>/prefs/noti.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>locale</from-outcome>
-			<to-view-id>/prefs/locale.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>privacy</from-outcome>
-			<to-view-id>/prefs/privacy.jsp</to-view-id>
-			<redirect />
-		</navigation-case>
-	</navigation-rule>
-		
-	<navigation-rule>
-		<from-view-id>/prefs/locale.jsp</from-view-id>
-		<navigation-case>
-			<from-outcome>tab</from-outcome>
-			<to-view-id>/prefs/tab.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>noti</from-outcome>
-			<to-view-id>/prefs/noti.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>timezone</from-outcome>
-			<to-view-id>/prefs/timezone.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>privacy</from-outcome>
-			<to-view-id>/prefs/privacy.jsp</to-view-id>
-			<redirect />
-		</navigation-case>
-	</navigation-rule>
-
-	<navigation-rule>
-		<from-view-id>/prefs/privacy.jsp</from-view-id>
-		<navigation-case>
-			<from-outcome>tab</from-outcome>
-			<to-view-id>/prefs/tab.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>noti</from-outcome>
-			<to-view-id>/prefs/noti.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>timezone</from-outcome>
-			<to-view-id>/prefs/timezone.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-		<navigation-case>
-			<from-outcome>locale</from-outcome>
-			<to-view-id>/prefs/locale.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
-	</navigation-rule>
-	
+    <navigation-rule>
+        <from-view-id>/prefs/*</from-view-id>
+        <navigation-case>
+            <from-outcome>tab</from-outcome>
+            <to-view-id>/prefs/tab.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>tabDHTMLMoreSites</from-outcome>
+            <to-view-id>/prefs/tab-dhtml-moresites.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>noti</from-outcome>
+            <to-view-id>/prefs/noti.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>timezone</from-outcome>
+            <to-view-id>/prefs/timezone.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>      
+        <navigation-case>
+            <from-outcome>locale</from-outcome>
+            <to-view-id>/prefs/locale.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>privacy</from-outcome>
+            <to-view-id>/prefs/privacy.jsp</to-view-id>
+            <redirect />
+        </navigation-case>
+    </navigation-rule>
+ 	
 	<managed-bean>
 		<description>
 			The Tool controller bean for the Admin Prefs Tool
