@@ -97,6 +97,7 @@ public class BaseDelivery implements Delivery
 	 */
 	public void act()
 	{
+		// do nothing...
 	}
 
 	/**
@@ -114,7 +115,7 @@ public class BaseDelivery implements Delivery
 	 */
 	public String toString()
 	{
-		return m_address + " : " + m_elementId;
+		return businessKey();
 	}
 
 	/**
@@ -127,9 +128,23 @@ public class BaseDelivery implements Delivery
 		if (!(obj instanceof BaseDelivery)) return false;
 
 		BaseDelivery bob = (BaseDelivery) obj;
-		if (StringUtil.different(bob.getAddress(), getAddress())) return false;
-		if (StringUtil.different(bob.getElement(), getElement())) return false;
+		return businessKey().equals(bob.businessKey());
+	}
 
-		return true;
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return this.businessKey().hashCode();
+	}
+	
+	/**
+	 * Useful for equals and hashCode method implementations.
+	 * @return
+	 */
+	private String businessKey()
+	{
+		return m_address + ":" + m_elementId;
 	}
 }
