@@ -23,26 +23,17 @@
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.ContextObserver;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.importer.api.HandlesImportable;
 import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.tool.gradebook.CourseGrade;
-import org.sakaiproject.tool.gradebook.Category;
-
 
 /**
  * Implements the Sakai EntityProducer approach to integration of tool-specific
@@ -106,12 +97,6 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 		String fromGradebookXml = gradebookService.getGradebookDefinitionXml(fromContext);
 		gradebookService.mergeGradebookDefinitionXml(toContext, fromGradebookXml);
 	}
-	
-	public void transferCopyEntitiesWithSettings(String fromContext, String toContext, List ids) {
-		String fromGradebookXml = gradebookService.getGradebookDefinitionXml(fromContext);
-		gradebookService.transferGradebookDefinitionXml(fromContext, toContext, fromGradebookXml);
-	}
-	
 
 	public void setGradebookFrameworkService(GradebookFrameworkService gradebookFrameworkService) {
 		this.gradebookFrameworkService = gradebookFrameworkService;
@@ -140,43 +125,5 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 		List<Importable> importables = new ArrayList<Importable>();
 		importables.add(new XmlImportable(GRADEBOOK_DEFINITION_TYPE, gradebookService.getGradebookDefinitionXml(contextId)));
 		return importables;
-	}
-	
-	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup) {
-		
-			if(cleanup == true) {				
-				// remove the gradebook assignments
-				String toSiteId = toContext;
-				List gbItems = gradebookService.getAssignments(toSiteId);
-				
-				if (gbItems != null && !gbItems.isEmpty()) 
-				{
-					for (Iterator iter = gbItems.iterator(); iter.hasNext();)
-					{
-						Assignment assign = (Assignment) iter.next(); 				
-						gradebookService.removeAssignment(assign.getId());
-					}
-				}
-				// remove the gradebook categories
-				Gradebook gradebook =(Gradebook) gradebookService.getGradebook(toSiteId);				
-				Long gradebookId = gradebook.getId();				
-				List categoryList = gradebookService.getCategories(gradebookId);
-				
-				if (categoryList != null) 
-				{
-					for (Iterator iter = categoryList.iterator(); iter.hasNext();)
-					{
-						Category category = (Category) iter.next(); 
-						gradebookService.removeCategory(category.getId());
-					}
-				}
-				 
-				transferCopyEntitiesWithSettings(fromContext, toContext, ids);
-				
-			}
-			else {
-				transferCopyEntities(fromContext, toContext, ids);
-			}
-	
 	}
 }
