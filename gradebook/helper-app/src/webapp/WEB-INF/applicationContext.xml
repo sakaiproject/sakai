@@ -10,7 +10,7 @@
     <property name="baseDirectory" value="content/templates/" />
   </bean>
 -->
-    <bean id="GradebookEntryEntityProducer" class="org.sakaiproject.gradebook.tool.entity.GradebookEntryEntityProducer"
+    <bean id="GradebookEntryEntityProvider" class="org.sakaiproject.gradebook.tool.entity.GradebookEntryEntityProvider"
       init-method="init" destroy-method="destroy">
       <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
     </bean>	

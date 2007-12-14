@@ -2,7 +2,6 @@ package org.sakaiproject.gradebook.tool.entity;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.entity.api.EntityProducer;
 
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -13,18 +12,20 @@ import uk.ac.cam.caret.sakai.rsf.entitybroker.EntityViewParamsInferrer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
-public class GradebookEntryEntityProducer implements EntityProvider, CoreEntityProvider,
+public class GradebookEntryEntityProvider implements EntityProvider, CoreEntityProvider,
 EntityViewParamsInferrer {
-    private Log log = LogFactory.getLog(GradebookEntryEntityProducer.class);
+    private Log log = LogFactory.getLog(GradebookEntryEntityProvider.class);
     public final static String ENTITY_PREFIX = "grade-entry";
     private EntityProviderManager entityProviderManager;
     
     public void init() {
         log.info("init()");
+        entityProviderManager.registerEntityProvider(this);
     }
     
     public void destroy() {
         log.info("destroy()");
+        entityProviderManager.unregisterEntityProvider(this);
     }
     
     public String getEntityPrefix() {
@@ -36,7 +37,7 @@ EntityViewParamsInferrer {
     }
 
     public String[] getHandledPrefixes() {
-        return new String[] {this.ENTITY_PREFIX};
+        return new String[] {ENTITY_PREFIX};
     }
 
     public ViewParameters inferDefaultViewParameters(String reference) {
