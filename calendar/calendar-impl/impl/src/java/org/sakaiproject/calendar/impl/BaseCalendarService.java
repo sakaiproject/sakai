@@ -2326,7 +2326,10 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 			if ((!m_caching) || (m_calendarCache == null) || (m_calendarCache.disabled()))
 			{
-				events = m_storage.getEvents(this, range.firstTime().getTime(), range.lastTime().getTime() );
+            if ( range != null )
+               events = m_storage.getEvents(this, range.firstTime().getTime(), range.lastTime().getTime() );
+            else
+               events = m_storage.getEvents(this);
 			}
 
 			else
