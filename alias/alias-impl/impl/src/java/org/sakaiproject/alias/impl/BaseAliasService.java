@@ -540,7 +540,11 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 		String ref = aliasReference(alias);
 		if ((m_callCache != null) && (m_callCache.containsKey(ref)))
 		{
-			return (String) m_callCache.get(ref);
+			String t = (String) m_callCache.get(ref);
+			if ( t != null ) {
+				return t;
+			} 
+			M_log.warn("Null Cache Entry found, should not happen, please nottify Ian Boston, thanks, SAK-12447, line 547 BaseAliasService");
 		}
 
 		BaseAliasEdit a = (BaseAliasEdit) m_storage.get(alias);
