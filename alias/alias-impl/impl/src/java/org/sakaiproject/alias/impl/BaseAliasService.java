@@ -551,7 +551,13 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 		if (a == null) throw new IdUnusedException(alias);
 
 		// cache
-		if (m_callCache != null) m_callCache.put(ref, a.getTarget(), m_cacheSeconds);
+		if (m_callCache != null) {
+			if ( a.getTarget() == null ) {
+				M_log.warn("Null Target Entry found, there may be a DB problem, please nottify Ian Boston, thanks, SAK-12447, line 556 BaseAliasService");				
+			} else {
+				m_callCache.put(ref, a.getTarget(), m_cacheSeconds);
+			}
+		}
 
 		return a.getTarget();
 
