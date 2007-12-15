@@ -238,6 +238,7 @@ public class TransactionalIndexWorker implements IndexWorker
 					if (SearchBuilderItem.ACTION_ADD.equals(sbi.getSearchaction()))
 					{
 						ref = sbi.getName();
+						threadLocalManager.clear();
 						fireStartDocument(ref);
 
 						try
