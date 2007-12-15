@@ -57,6 +57,7 @@ import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockSearchService;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
 import org.sakaiproject.search.mock.MockSessionManager;
+import org.sakaiproject.search.mock.MockThreadLocalManager;
 import org.sakaiproject.search.mock.MockUserDirectoryService;
 import org.sakaiproject.search.optimize.impl.OptimizableIndexImpl;
 import org.sakaiproject.search.optimize.impl.OptimizeIndexManager;
@@ -72,6 +73,7 @@ import org.sakaiproject.search.optimize.shared.impl.SharedFilesystemSaveTransact
 import org.sakaiproject.search.transaction.api.TransactionListener;
 import org.sakaiproject.search.transaction.impl.LocalTransactionSequenceImpl;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
  * @author ieb
@@ -104,6 +106,8 @@ public class SearchIndexerNode
 	private JournaledFSIndexStorage journaledFSIndexStorage;
 
 	private MockClusterService clusterService;
+
+	private ThreadLocalManager threadLocalManager;
 
 	public SearchIndexerNode(MockClusterService clusterService, String base,
 			String instanceName, String driver, String url, String userame,
@@ -206,6 +210,8 @@ public class SearchIndexerNode
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(serverConfigurationService);
 		tiw.setTransactionIndexManager(transactionIndexManager);
+		threadLocalManager = new MockThreadLocalManager();
+		tiw.setThreadLocalManager(threadLocalManager);
 		// tiw.addIndexWorkerDocumentListener(new
 		// DebugIndexWorkerDocumentListener());
 		tiw.addIndexWorkerListener(new DebugIndexWorkerListener());

@@ -49,6 +49,7 @@ import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockClusterService;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
+import org.sakaiproject.search.mock.MockThreadLocalManager;
 import org.sakaiproject.search.optimize.impl.OptimizableIndexImpl;
 import org.sakaiproject.search.optimize.impl.OptimizeIndexManager;
 import org.sakaiproject.search.optimize.impl.OptimizeIndexOperation;
@@ -64,6 +65,7 @@ import org.sakaiproject.search.transaction.api.TransactionListener;
 import org.sakaiproject.search.transaction.impl.LocalTransactionSequenceImpl;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 import org.sakaiproject.search.util.FileUtils;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
  * @author ieb
@@ -97,6 +99,8 @@ public class JournalOptimzationOperationTest extends TestCase
 	private File journalOptimizeWork;
 
 	private JournalSettings journalSettings;
+
+	private ThreadLocalManager threadLocalManager;
 
 	/**
 	 * @param name
@@ -283,6 +287,8 @@ public class JournalOptimzationOperationTest extends TestCase
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(serverConfigurationService);
 		tiw.setTransactionIndexManager(transactionIndexManager);
+		threadLocalManager = new MockThreadLocalManager();
+		tiw.setThreadLocalManager(threadLocalManager);
 
 		sequence.init();
 		searchBuilderQueueManager.init();

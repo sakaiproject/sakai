@@ -47,6 +47,7 @@ import org.sakaiproject.search.journal.impl.MergeUpdateOperation;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
+import org.sakaiproject.search.mock.MockThreadLocalManager;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.optimize.impl.OptimizableIndexImpl;
 import org.sakaiproject.search.optimize.impl.OptimizeIndexManager;
@@ -55,6 +56,7 @@ import org.sakaiproject.search.optimize.impl.OptimizeTransactionListenerImpl;
 import org.sakaiproject.search.transaction.impl.LocalTransactionSequenceImpl;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 import org.sakaiproject.search.util.FileUtils;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
  * @author ieb
@@ -85,6 +87,8 @@ public class OptimizeOperationTest extends TestCase
 	protected ThreadLocal<Object> insearcherclose = new ThreadLocal<Object>();
 
 	private JournalSettings journalSettings;
+
+	private ThreadLocalManager threadLocalManager;
 
 	/**
 	 * @param name
@@ -271,6 +275,8 @@ public class OptimizeOperationTest extends TestCase
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(serverConfigurationService);
 		tiw.setTransactionIndexManager(transactionIndexManager);
+		threadLocalManager = new MockThreadLocalManager();
+		tiw.setThreadLocalManager(threadLocalManager);
 
 		sequence.init();
 		searchBuilderQueueManager.init();

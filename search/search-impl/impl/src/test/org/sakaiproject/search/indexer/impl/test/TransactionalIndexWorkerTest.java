@@ -47,9 +47,11 @@ import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
+import org.sakaiproject.search.mock.MockThreadLocalManager;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 import org.sakaiproject.search.util.FileUtils;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
  * @author ieb
@@ -76,6 +78,8 @@ public class TransactionalIndexWorkerTest extends TestCase
 	private JournalManagerUpdateTransaction journalManagerUpdateTransaction;
 
 	private SharedFilesystemJournalStorage sharedFilesystemJournalStorage;
+
+	private ThreadLocalManager mockThreadLocalManager;
 
 	/**
 	 * @param name
@@ -150,6 +154,9 @@ public class TransactionalIndexWorkerTest extends TestCase
 		searchBuilderQueueManager.init();
 		transactionIndexManager.init();
 		journalManager.init();
+		
+		
+		mockThreadLocalManager = new MockThreadLocalManager();
 
 	}
 
@@ -186,6 +193,7 @@ public class TransactionalIndexWorkerTest extends TestCase
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(mockServerConfigurationService);
 		tiw.setTransactionIndexManager(transactionIndexManager);
+		tiw.setThreadLocalManager(mockThreadLocalManager);
 		tiw.addIndexWorkerDocumentListener(new DebugIndexWorkerDocumentListener());
 		tiw.addIndexWorkerListener(new DebugIndexWorkerListener());
 		tiw.init();

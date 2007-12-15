@@ -47,9 +47,11 @@ import org.sakaiproject.search.journal.impl.MergeUpdateOperation;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
+import org.sakaiproject.search.mock.MockThreadLocalManager;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 import org.sakaiproject.search.util.FileUtils;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
  * @author ieb
@@ -74,6 +76,8 @@ public class MergeUpdateOperationTest extends TestCase
 	private TransactionalIndexWorker tiw;
 
 	private JournaledFSIndexStorage journaledFSIndexStorage;
+
+	private ThreadLocalManager threadLocalManager;
 
 	/**
 	 * @param name
@@ -179,6 +183,8 @@ public class MergeUpdateOperationTest extends TestCase
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(serverConfigurationService);
 		tiw.setTransactionIndexManager(transactionIndexManager);
+		threadLocalManager = new MockThreadLocalManager();
+		tiw.setThreadLocalManager(threadLocalManager);
 		tiw.addIndexWorkerDocumentListener(new DebugIndexWorkerDocumentListener());
 		tiw.addIndexWorkerListener(new DebugIndexWorkerListener());
 
