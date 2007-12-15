@@ -24,6 +24,7 @@ package org.sakaiproject.component.gradebook;
 import java.io.Externalizable;
 import java.util.Collection;
 import java.util.Map;
+import java.util.List;
 
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
@@ -34,6 +35,10 @@ public class GradebookDefinition extends VersionedExternalizable implements Exte
 	private String selectedGradingScaleUid;
 	private Map<String, Double> selectedGradingScaleBottomPercents;
 	private Collection<Assignment> assignments;
+	
+	private int gradeType;
+	private int categoryType;
+	private List category;
 	
     public GradebookDefinition() {
 	}
@@ -60,5 +65,26 @@ public class GradebookDefinition extends VersionedExternalizable implements Exte
 	public void setSelectedGradingScaleUid(String selectedGradingScaleUid) {
 		this.selectedGradingScaleUid = selectedGradingScaleUid;
 	}
-
+	
+	public int getGradeType() {
+		return gradeType;
+	}
+	public void setGradeType(int gradeType) {
+		this.gradeType = gradeType;
+	}
+	public int getCategoryType() {
+		return categoryType;
+	}
+	public void setCategoryType(int categoryType) {
+		this.categoryType = categoryType;
+	}
+	
+	public List getCategory() {
+		return category;
+	}
+	public void setCategory(List category) {
+		this.category = category;
+	}
+	
+	
 }

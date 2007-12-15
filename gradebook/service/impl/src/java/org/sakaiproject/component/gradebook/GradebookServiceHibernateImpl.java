@@ -51,6 +51,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
+import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Comment;
@@ -75,7 +76,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     private GradebookExternalAssessmentService externalAssessmentService;
     private Authz authz;
     private GradebookPermissionService gradebookPermissionService;
-
+    
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName)
         throws GradebookNotFoundException {
 		if (!isUserAbleToViewAssignments(gradebookUid)) {
@@ -189,7 +190,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			return null;
 		}
 	}
-
+		
 	private org.sakaiproject.service.gradebook.shared.Assignment getAssignmentDefinition(Assignment internalAssignment) {
 		org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
     	assignmentDefinition.setName(internalAssignment.getName());
@@ -201,8 +202,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     	assignmentDefinition.setExternalId(internalAssignment.getExternalId());
     	assignmentDefinition.setReleased(internalAssignment.isReleased());
     	assignmentDefinition.setId(internalAssignment.getId());
+    	if(internalAssignment.getCategory() != null) {
+    		assignmentDefinition.setCategoryName(internalAssignment.getCategory().getName());
+    		assignmentDefinition.setWeight(internalAssignment.getCategory().getWeight());
+    	}
     	return assignmentDefinition;
-    }
+    }   
 
 	public Double getAssignmentScore(final String gradebookUid, final String assignmentName, final String studentUid)
 		throws GradebookNotFoundException, AssessmentNotFoundException {
@@ -328,8 +333,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             }
 		});
 	}
-
-	public String getGradebookDefinitionXml(String gradebookUid) {
+	
+	public String getGradebookDefinitionXml(String gradebookUid) {		
+		Long gradebookId = getGradebook(gradebookUid).getId();
 		Gradebook gradebook = getGradebook(gradebookUid);
 		
 		GradebookDefinition gradebookDefinition = new GradebookDefinition();
@@ -338,9 +344,153 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		gradebookDefinition.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
 		gradebookDefinition.setAssignments(getAssignments(gradebookUid));
 		
+		gradebookDefinition.setGradeType(gradebook.getGrade_type());
+		gradebookDefinition.setCategoryType(gradebook.getCategory_type());	
+		gradebookDefinition.setCategory(getCategories(gradebookId));
+		
 		return VersionedExternalizable.toXml(gradebookDefinition);
 	}
-
+	
+	public void transferGradebookDefinitionXml(String fromGradebookUid, String toGradebookUid, String fromGradebookXml) {
+		final Gradebook gradebook = getGradebook(toGradebookUid);
+		final Gradebook fromGradebook = getGradebook(fromGradebookUid);
+		
+		GradebookDefinition gradebookDefinition = (GradebookDefinition)VersionedExternalizable.fromXml(fromGradebookXml);
+		
+		gradebook.setCategory_type(gradebookDefinition.getCategoryType());
+		gradebook.setGrade_type(gradebookDefinition.getGradeType());
+		
+		updateGradebook(gradebook);
+		
+		List category = getCategories(fromGradebook.getId());
+	
+		int assignmentsAddedCount = 0;
+		Long catId = null;
+		int undefined_nb = 0;
+		
+		List catList = gradebookDefinition.getCategory();
+		List<Category> catList_tempt = new ArrayList<Category>();
+				
+		if(category.size() !=0) {
+			//deal with category with assignments
+			for(Iterator iter = category.iterator(); iter.hasNext();) {
+			
+				int categoryCount = 0;
+				String catName = ((Category)iter.next()).getName();
+		
+				for (org.sakaiproject.service.gradebook.shared.Assignment obj : gradebookDefinition.getAssignments()) {
+					org.sakaiproject.service.gradebook.shared.Assignment assignmentDef = (org.sakaiproject.service.gradebook.shared.Assignment)obj;
+				
+					boolean newCategory = false;
+					// Externally managed assessments should not be included.
+					if (assignmentDef.isExternallyMaintained()) {
+						continue;
+					}
+					
+					if(catName.equals(assignmentDef.getCategoryName())) {
+						newCategory = true;
+						categoryCount++;
+					}
+		
+					if (assignmentDef.getCategoryName() != null) {
+						if(!newCategory) {}
+						else if(newCategory && categoryCount == 1) {
+							catId = createCategory(gradebook.getId(), assignmentDef.getCategoryName(), assignmentDef.getWeight(), 0);
+							Category catTempt = getCategory(catId);
+							
+							catList_tempt.add(catTempt);
+							createAssignmentForCategory(gradebook.getId(), catId, assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), !assignmentDef.isCounted(), false);
+							assignmentsAddedCount++;
+						}
+						else{
+							createAssignmentForCategory(gradebook.getId(), catId, assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), !assignmentDef.isCounted(), false);
+							assignmentsAddedCount++;
+						}
+					
+					}
+					//deal with assignments in undefined.
+					else {
+						if (undefined_nb == 0) {
+							createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), !assignmentDef.isCounted(), false);
+							assignmentsAddedCount++;
+							
+						}
+					}
+				}
+				undefined_nb++;
+			}
+			
+			//deal with Category without assignments inside
+			Iterator it_tempt = catList_tempt.iterator();
+			Iterator it = catList.iterator();
+			
+			Category cat_cat ;
+			Category cat_tempt;
+		
+			while(it_tempt.hasNext()) {
+				cat_tempt = (Category) it_tempt.next();
+				while(it.hasNext()) {
+					cat_cat = (Category) it.next();
+					if(cat_tempt.getName().equals(cat_cat.getName())) {
+						catList.remove(cat_cat);
+						it = catList.iterator();
+					}	
+				}
+				it = catList.iterator();
+			}
+						
+			Iterator itUpdate = catList.iterator();
+			while(itUpdate.hasNext()){
+				Category catObj = (Category)itUpdate.next();
+				createCategory(gradebook.getId(), catObj.getName(), catObj.getWeight(), 0);				
+			}
+		}
+		//deal with no categories
+		else {
+			for (org.sakaiproject.service.gradebook.shared.Assignment obj : gradebookDefinition.getAssignments()) {
+				org.sakaiproject.service.gradebook.shared.Assignment assignmentDef = (org.sakaiproject.service.gradebook.shared.Assignment)obj;
+				
+				// Externally managed assessments should not be included.
+				if (assignmentDef.isExternallyMaintained()) {
+					continue;
+				}
+				
+				// All assignments should be unreleased even if they were released in the original.
+				createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), !assignmentDef.isCounted(), false);
+				assignmentsAddedCount++;
+			}	
+			
+		}
+				
+		if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " added " + assignmentsAddedCount + " assignments");
+		
+			// Carry over the old gradebook's selected grading scheme if possible.
+		String fromGradingScaleUid = gradebookDefinition.getSelectedGradingScaleUid();
+		MERGE_GRADE_MAPPING: if (!StringUtils.isEmpty(fromGradingScaleUid)) {
+		for (GradeMapping gradeMapping : gradebook.getGradeMappings()) {
+				if (gradeMapping.getGradingScale().getUid().equals(fromGradingScaleUid)) {
+					// We have a match. Now make sure that the grades are as expected.
+					Map<String, Double> inputGradePercents = gradebookDefinition.getSelectedGradingScaleBottomPercents();
+					Set<String> gradeCodes = (Set<String>)inputGradePercents.keySet();
+					if (gradeCodes.containsAll(gradeMapping.getGradeMap().keySet())) {
+						// Modify the existing grade-to-percentage map.
+						for (String gradeCode : gradeCodes) {
+							gradeMapping.getGradeMap().put(gradeCode, inputGradePercents.get(gradeCode));							
+						}
+						gradebook.setSelectedGradeMapping(gradeMapping);
+						updateGradebook(gradebook);
+						if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " updated grade mapping");
+					} else {
+						if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because the " + fromGradingScaleUid + " grade codes did not match");
+					}
+					break MERGE_GRADE_MAPPING;
+				}
+			}
+			// Did not find a matching grading scale.
+			if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because grading scale " + fromGradingScaleUid + " is not defined");
+		}
+	}
+	
 	public void mergeGradebookDefinitionXml(String toGradebookUid, String fromGradebookXml) {
 		final Gradebook gradebook = getGradebook(toGradebookUid);
 		GradebookDefinition gradebookDefinition = (GradebookDefinition)VersionedExternalizable.fromXml(fromGradebookXml);
@@ -396,13 +546,30 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because the " + fromGradingScaleUid + " grade codes did not match");
 					}
 					break MERGE_GRADE_MAPPING;
-				}
+				}			
 			}
 			// Did not find a matching grading scale.
 			if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " skipped grade mapping change because grading scale " + fromGradingScaleUid + " is not defined");
 		}
 	}
-
+	
+	public void removeAssignment(final Long assignmentId) throws StaleObjectModificationException {
+    	
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                Assignment asn = (Assignment)session.load(Assignment.class, assignmentId);
+                Gradebook gradebook = asn.getGradebook();
+                asn.setRemoved(true);
+                session.update(asn);
+                
+                if(log.isInfoEnabled()) log.info("Assignment " + asn.getName() + " has been removed from " + gradebook);
+                return null;
+            }
+        };
+        getHibernateTemplate().execute(hc);
+        
+    }
+	
 	public void addAssignment(String gradebookUid, org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) {
 		if (!getAuthz().isUserAbleToEditAssessments(gradebookUid)) {
 			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to add an assignment");
@@ -1068,7 +1235,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  }
 	  return studentIdFunctionMap;
   }
-  
+
   public boolean isGradableObjectDefined(Long gradableObjectId) {
 	  return isAssignmentDefined(gradableObjectId);
   }

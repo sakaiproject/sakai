@@ -265,6 +265,15 @@ public interface GradebookService {
 	public String getGradebookDefinitionXml(String gradebookUid);
 	
 	/**
+	 * Attempt to transfer gradebook data with Category and weight and settings
+	 * 
+	 * @param fromGradebookUid
+	 * @param toGradebookUid
+	 * @param fromGradebookXml
+	 */
+	public void transferGradebookDefinitionXml(String fromGradebookUid, String toGradebookUid, String fromGradebookXml);
+	
+	/**
 	 * Attempt to merge archived gradebook data (notably the assignnments) into a new gradebook.
 	 * 
 	 * Assignment definitions whose names match assignments that are already in
@@ -285,6 +294,33 @@ public interface GradebookService {
 	 * @param fromGradebookXml
 	 */
 	public void mergeGradebookDefinitionXml(String toGradebookUid, String fromGradebookXml);
+	
+	 /**
+     * Removes an assignment from a gradebook.  The assignment should not be
+     * deleted, but the assignment and all grade records associated with the
+     * assignment should be ignored by the application.  A removed assignment
+     * should not count toward the total number of points in the gradebook.
+     *
+     * @param assignmentId The assignment id
+     */
+    public void removeAssignment(Long assignmentId) throws StaleObjectModificationException;
+    
+    /**method to get all categories for a gradebook
+    *
+    * @param gradebookId
+    * @return List of categories
+    * @throws HibernateException
+    */
+    public List getCategories(final Long gradebookId);
+    
+    /**
+     * remove category from gradebook
+     *
+     * @param categoryId
+     * @throws StaleObjectModificationException
+     */
+    
+    public void removeCategory(Long categoryId) throws StaleObjectModificationException;
 	
 	/**
 	 * Create a new Gradebook-managed assignment.
@@ -320,15 +356,6 @@ public interface GradebookService {
 	 */
 	public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid);
 	
-	/**
-	 * 
-	 * @param gradebookUid
-	 * @param gradableObjectId
-	 * @return a map of studentId to view/grade function  for the given 
-	 * gradebook and gradebook item. students who are not viewable or gradable
-	 * will not be returned
-	 */
-	public Map<String, String> getViewableStudentsForItemForCurrentUser(String gradebookUid, Long gradableObjectId);
 	
 	// Site management hooks.
 
@@ -424,31 +451,6 @@ public interface GradebookService {
 	 * @return
 	 */
 	public Map getViewableSectionUuidToNameMap(String gradebookUid);
-	
-	/**
-	 * @param gradebookUid
-	 * @return true if current user has the gradebook.gradeAll permission
-	 */
-	public boolean currentUserHasGradeAllPerm(String gradebookUid);
-	
-	/**
-	 * @param gradebookUid
-	 * @return true if the current user has the gradebook.gradeAll or
-	 * gradebook.gradeSection permission
-	 */
-	public boolean currentUserHasGradingPerm(String gradebookUid);
-	
-	/**
-	 * @param gradebookUid
-	 * @return true if the current user has the gradebook.editAssignments permission
-	 */
-	public boolean currentUserHasEditPerm(String gradebookUid);
-	
-	/**
-	 * @param gradebookUid
-	 * @return true if the current user has the gradebook.viewOwnGrades permission
-	 */
-	public boolean currentUserHasViewOwnGradesPerm(String gradebookUid);
 	
 	/**
 	 * 
