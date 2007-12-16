@@ -4,11 +4,13 @@
 */%>
 <style>
   .hide { display:none; }
+  
+  .hideRemove { display:none; }
  </style>
 
 <h:outputText value="#{msgs.flag_required}" rendered="#{!bean.assignment.externallyMaintained}"/>
 
-<t:div id="bulkAssignments" styleClass="bulkAssignments gbSection">
+<t:div id="bulkAssignments" styleClass="gbSection">
 	<t:dataTable cellpadding="0" cellspacing="0"
 		id="bulkNewAssignmentsTable"
 		value="#{bean.newBulkItems}"
@@ -19,89 +21,95 @@
 		rowIndexVar="rowIndex">
 	
 		<h:column>
-		
-			<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
-				<h:selectOneRadio value="#{item.ungraded}" id="assignNonGraded" layout="pageDirection" onclick="submit();" valueChangeListener="#{item.processUngradedSettingChange}">
-					<f:selectItem itemValue="normal" itemLabel="#{msgs.add_assignment_non_calculated3}" />
-		  		<f:selectItem itemValue="ungraded" itemLabel="#{msgs.add_assignment_non_calculated1}" /> 
-				</h:selectOneRadio>
-			</h:panelGrid>
-
-		  <%-- Used to determine if this item should be added/was displayed
+			<%-- Used to determine if this item should be added/was displayed
 		  		Done to deal with removing item in 'middle' 				--%>
-		  <h:inputHidden id="hiddenAdd" value="#{item.saveThisItem}" />
-
-		  <h:panelGroup rendered="#{rowIndex != 0}">
-		  	<f:verbatim><hr class="itemSeparator" /></f:verbatim>
-		  </h:panelGroup>
+		  	<h:inputHidden id="hiddenAdd" value="#{item.saveThisItem}" />
 		  
-		  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite actionitem highlightPanel">
-			<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}" rendered="#{!item.assignment.externallyMaintained}"/>
+			<h:selectOneRadio value="#{item.ungraded}" id="assignNonGraded" layout="pageDirection" onclick="submit();" 
+				valueChangeListener="#{item.processUngradedSettingChange}">
+					<f:selectItem itemValue="normal" itemLabel="#{msgs.add_assignment_non_calculated3}" />
+		  			<f:selectItem itemValue="ungraded" itemLabel="#{msgs.add_assignment_non_calculated1}" /> 
+			</h:selectOneRadio>
+
+		    <h:panelGrid cellpadding="0" cellspacing="5" columns="2" 
+		    		columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" 
+		  			styleClass="actionitem highlightPanel" width="100%">
+						<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}"
+							rendered="#{!item.assignment.externallyMaintained}"/>
 			
-			<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
-				<h:inputText id="title" value="#{item.assignment.name}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-				</h:inputText>
-				<h:outputText id="noTitleErrMsg"  value="#{msgs.add_assignment_no_title}" styleClass="alertMessageInline" rendered="#{item.bulkNoTitleError == 'blank'}" />
-				<h:outputText id="dupTitleErrMsg" value="#{msgs.add_assignment_duplicate_name}" styleClass="alertMessageInline" rendered="#{item.bulkNoTitleError == 'dup'}" />
+						<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
+							<h:inputText id="title" value="#{item.assignment.name}" 
+								onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+							</h:inputText>
+							<h:outputText id="noTitleErrMsg"  value="#{msgs.add_assignment_no_title}" 
+								styleClass="alertMessageInline" rendered="#{item.bulkNoTitleError == 'blank'}" />
+							<h:outputText id="dupTitleErrMsg" value="#{msgs.add_assignment_duplicate_name}"
+								styleClass="alertMessageInline" rendered="#{item.bulkNoTitleError == 'dup'}" />
 		
-				<%-- Will remove this pane from the page --%>
-				<h:panelGroup rendered="#{rowIndex != 0}">
-					<h:commandLink onclick="removeItem(event); return false;" title="#{msgs.add_assignment_remove_title}" styleClass="indnt2">
-						<h:graphicImage value="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
-					</h:commandLink>
+					<%-- Will remove this pane from the page --%>
+					<h:panelGroup rendered="#{rowIndex != 0}">
+						<h:commandLink onclick="removeItem(event); return false;" title="#{msgs.add_assignment_remove_title}" styleClass="indnt2">
+							<h:graphicImage value="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
+						</h:commandLink>
+					</h:panelGroup>
+					<%-- Hide for first item, but display if more than one. Will remove this pane from the page --%>
+					<h:panelGroup rendered="#{rowIndex == 0}">
+						<h:commandLink onclick="removeItem(event); return false;" title="#{msgs.add_assignment_remove_title}" styleClass="indnt2 hideRemove firstDel">
+							<h:graphicImage value="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
+						</h:commandLink>
+					</h:panelGroup>  
 				</h:panelGroup>
-				<h:panelGroup rendered="#{rowIndex == 0}" styleClass="indnt2" >
-					<h:graphicImage value="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
+	
+				<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained && item.ungraded == 'normal'}"/>
+				<h:panelGroup rendered="#{!item.assignment.externallyMaintained && item.ungraded == 'normal'}">
+					<h:inputText id="points" value="#{item.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+					</h:inputText>
+					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
+									rendered="#{item.bulkNoPointsError == 'blank'}" />
+					<h:outputText id="nanPtsErrMsg" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline"
+									rendered="#{item.bulkNoPointsError == 'NaN'}" />
 				</h:panelGroup>
-			</h:panelGroup>
-	
-			<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained && item.ungraded == 'normal'}"/>
-			<h:panelGroup rendered="#{!item.assignment.externallyMaintained && item.ungraded == 'normal'}">
-				<h:inputText id="points" value="#{item.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-				</h:inputText>
-				<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline" rendered="#{item.bulkNoPointsError == 'blank'}" />
-				<h:outputText id="nanPtsErrMsg" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline" rendered="#{item.bulkNoPointsError == 'NaN'}" />
-			</h:panelGroup>
-		  </h:panelGrid>
-		  
-		  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
-			<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
-				<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.add_assignment_due_date} #{msgs.date_entry_format_description}"/>
-<%--				<h:outputText style="font-weight:normal;" value=" #{msgs.date_entry_format_description}"/> --%>
-			</h:panelGroup>
-			<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
-  				<t:inputCalendar id="dueDate" value="#{item.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true" popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
-				<h:message for="dueDate" styleClass="alertMessageInline" />
-			</h:panelGroup>
-	
-			<h:outputLabel for="selectCategory" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
-			<h:panelGroup rendered="#{bean.categoriesEnabled}">
-				<h:selectOneMenu id="selectCategory" value="#{item.category}">
-					<f:selectItems value="#{bean.categoriesSelectList}" />
-				</h:selectOneMenu>
-				<f:verbatim><div class="instruction"></f:verbatim>
-					<h:outputText value="#{msgs.add_assignment_category_info}" rendered="#{bean.weightingEnabled}"/>
-				<f:verbatim></div></f:verbatim>			
-			</h:panelGroup>
-		  </h:panelGrid>
+			  </h:panelGrid>
 
-		  <h:panelGrid columns="2" columnClasses="prefixedCheckbox">
-    		<h:selectBooleanCheckbox id="released" value="#{bean.assignment.released}" onclick="assignmentReleased(this.form.name, true);"
-				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
-			<h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
+			  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" 
+		  					styleClass="itemSummaryLite">
+				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
+					<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.add_assignment_due_date} #{msgs.date_entry_format_description}"/>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
+  					<t:inputCalendar id="dueDate" value="#{item.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true"
+  							popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
+					<h:message for="dueDate" styleClass="alertMessageInline" />
+				</h:panelGroup>
 	
-			<h:outputText escape="false" value="&nbsp;" rendered="#{!bean.localGradebook.assignmentsDisplayed}" />
-			<h:outputText styleClass="instruction" value="#{msgs.add_assignment_released_conditional}" rendered="#{!bean.localGradebook.assignmentsDisplayed}" />
+				<h:outputLabel for="selectCategory" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
+				<h:panelGroup rendered="#{bean.categoriesEnabled}">
+					<h:selectOneMenu id="selectCategory" value="#{item.category}">
+						<f:selectItems value="#{bean.categoriesSelectList}" />
+					</h:selectOneMenu>
 
-			<h:outputText escape="false" value="&nbsp;" />
-	
-			<h:panelGrid columns="2" columnClasses="prefixedCheckbox" rendered="#{item.ungraded == 'normal'}">
+					<h:outputText value="#{msgs.add_assignment_category_info}" styleClass="instruction" rendered="#{bean.weightingEnabled}"/>
+				</h:panelGroup>
+			  </h:panelGrid>
+
+			  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="prefixedCheckbox">
+	   			<h:selectBooleanCheckbox id="released" value="#{item.assignment.released}"
+    				onclick="assignmentReleased((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}), true);"
+					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
+				<h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
+
+				<h:outputText escape="false" value="&nbsp;" /> <%-- rendered="#{!bean.localGradebook.assignmentsDisplayed}"/> --%>
+				<h:outputText value="#{msgs.add_assignment_released_conditional}" />
+								<%-- rendered="#{!bean.localGradebook.assignmentsDisplayed}"/>--%> 
+			
 				<h:selectBooleanCheckbox id="countAssignment" value="#{item.assignment.counted}"
 					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{item.ungraded == 'normal'}"/>
 				<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{item.ungraded == 'normal'}"/>
-			</h:panelGrid>
-		  </h:panelGrid>
-		  <h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
+<%-- 				<h:outputText value="" /> --%>
+		  	  </h:panelGrid>
+			  	<h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
+
+	  		  <f:verbatim><hr class="itemSeparator" /></f:verbatim>
 		</h:column>	
 	</t:dataTable>
 </t:div>

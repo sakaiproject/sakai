@@ -91,6 +91,10 @@ function addItemScreen()
 	var hiddenAddEl = getHiddenAdd(trEls[0]);		
 	hiddenAddEl.value = 'true';
 	
+	// make sure delete link on first item is displayed
+	var firstDelEl = document.getElementsByClassName('firstDel');
+	firstDelEl[0].style.display='inline';
+	
 	if (numBulkItems == MAX_NEW_ITEMS - 1)
 		$("gbForm:addSecond").style.display = "none";
 }
@@ -141,6 +145,8 @@ function removeItem(event) {
 	var element = Event.element(event);
 	var numBulkItems = getNumTotalItem();
 
+	// TODO: CLEAR OUT THE VALUES IN THIS PANE
+
 	// hack to get the enclosing tr for the enclosing table this pane is nested inside of
 	// in order to hide it and/or set prop so not saved
 	element = element.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;   		
@@ -157,6 +163,12 @@ function removeItem(event) {
    	var hiddenAddEl = getHiddenAdd(element);
 	hiddenAddEl.value = 'false';
 
+	if (numBulkItems == 2) {
+		// make sure delete link on first item is displayed
+		var firstDelEl = document.getElementsByClassName('firstDel');
+		firstDelEl[0].style.display='none';
+	}
+	
     adjustNumBulkItems(-1);
 }
 
@@ -226,4 +238,36 @@ function adjustNumBulkItems(amt) {
 	var numTotalItemEl = getNumTotalItemEl();
 	var numBulkItems = parseInt(numTotalItemEl.value);
 	numTotalItemEl.value = numBulkItems + amt;
+}
+
+//*********************************************************************
+// togglePointEntry
+//
+// To hide/show point entry row based on the radio button clicked
+//*********************************************************************
+function togglePointEntry(event, elementPrefix) {
+	var element = Event.element(event);
+	var pointsLabelEl;
+	var pointsEl;
+	
+	if (document.all)
+	{
+		pointsLabelEl = document.all[elementPrefix + 'pointsLabel'];
+		pointsEl = document.all[elementPrefix + 'points'];
+	}
+	else {
+		pointsLabelEl = document.getElementById(elementPrefix + 'pointsLabel');
+		pointsEl = document.getElementById(elementPrefix + 'points');
+	}
+
+	if (element.value) {
+		pointsLabelEl.style.display='inline';
+		pointsEl.style.display='inline';
+		pointsEl.parentNode.style.display='block';
+	}
+	else {
+		pointsLabelEl.style.display='none';
+		pointsEl.style.display='none';
+		pointsEl.parentNode.style.display='none';
+	}
 }
