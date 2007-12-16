@@ -98,14 +98,17 @@
 					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
 				<h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
 
-				<h:outputText escape="false" value="&nbsp;" /> <%-- rendered="#{!bean.localGradebook.assignmentsDisplayed}"/> --%>
-				<h:outputText value="#{msgs.add_assignment_released_conditional}" />
-								<%-- rendered="#{!bean.localGradebook.assignmentsDisplayed}"/>--%> 
-			
-				<h:selectBooleanCheckbox id="countAssignment" value="#{item.assignment.counted}"
-					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{item.ungraded == 'normal'}"/>
-				<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{item.ungraded == 'normal'}"/>
-<%-- 				<h:outputText value="" /> --%>
+				<h:outputText escape="false" value="&nbsp;" rendered="#{!bean.localGradebook.assignmentsDisplayed}"/> 
+				<h:outputText value="#{msgs.add_assignment_released_conditional}"
+							rendered="#{!bean.localGradebook.assignmentsDisplayed}"/>
+
+ 				<h:outputText escape="false" value="&nbsp;" />
+ 				
+ 				<h:panelGroup>
+					<h:selectBooleanCheckbox id="countAssignment" value="#{item.assignment.counted}"
+						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{item.ungraded == 'normal'}"/>
+					<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{item.ungraded == 'normal'}"/>
+				</h:panelGroup>
 		  	  </h:panelGrid>
 			  	<h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
 
