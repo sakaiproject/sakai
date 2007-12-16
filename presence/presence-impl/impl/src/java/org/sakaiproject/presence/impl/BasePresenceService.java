@@ -503,7 +503,7 @@ public abstract class BasePresenceService implements PresenceService
 			String location = (String) locations.nextElement();
 
 			Presence p = (Presence) ts.getAttribute(location);
-			if (p.isExpired())
+			if (p != null && p.isExpired())
 			{
 				ts.removeAttribute(location);
 			}
