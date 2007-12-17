@@ -905,7 +905,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// if we have it in the cache, use it
 			if (m_assignmentCache.containsKey(assignmentReference))
 				assignment = (Assignment) m_assignmentCache.get(assignmentReference);
-			else
+			if ( assignment == null ) //SAK-12447 cache.get can return null on expired
 			{
 				assignment = m_assignmentStorage.get(assignmentId);
 
@@ -1481,7 +1481,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			if (m_contentCache.containsKey(contentReference))
 				content = (AssignmentContent) m_contentCache.get(contentReference);
-			else
+			if ( content == null ) //SAK-12447 cache.get can return null on expired
 			{
 				content = m_contentStorage.get(contentId);
 
@@ -2730,8 +2730,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// if we have it in the cache, use it
 			if (m_submissionCache.containsKey(submissionReference))
 				submission = (AssignmentSubmission) m_submissionCache.get(submissionReference);
-			else
-			{
+			if ( submission == null ) //SAK-12447 cache.get can return null on expired
+ 			{
 				submission = m_submissionStorage.get(submissionId);
 
 				// cache the result
