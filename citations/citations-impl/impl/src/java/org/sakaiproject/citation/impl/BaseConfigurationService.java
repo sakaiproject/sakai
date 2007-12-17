@@ -836,7 +836,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 	for(String config : this.m_configs)
 	{
 	  String configFileRef = this.getConfigFolderReference() + config;
-
+	  m_log.error(">>>>>>>>>>>>>> Update  "+configFileRef);
 	  updateConfig(configFileRef);
 	}
   }
@@ -1259,10 +1259,12 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   protected void updateConfig(String configFileRef)
   {
     Reference ref = EntityManager.newReference(configFileRef);
+    m_log.error(">>>>>>>>>>>>>>>>>>>>Got ref = "+ref);
 
     if (ref != null)
     {
-      try
+    	  m_log.error(">>>>>>>>>>>>>>>Got ref ID = "+ref.getId());
+    try
       {
         ContentResource resource;
         /*
