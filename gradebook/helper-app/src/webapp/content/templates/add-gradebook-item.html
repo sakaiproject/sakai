@@ -4,7 +4,7 @@
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 
-   <title rsf:id="page-title">Assignments</title>
+   <title rsf:id="msg=gradebook.add-gradebook-item.title">Gradebook</title>
 
 	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 	<!-- vm/editor/FCKeditor/sakai_header.vm -->
@@ -22,12 +22,12 @@
 
 <div class="portletBody">
 
-	<h3 rsf:id="heading">Add Gradebook Item via Assignments</h3>
-	<p rsf:id="instructions" class="instruction">Complete the form and choose an action below to return to your Assignment creation. <span class="reqStar">*</span> Indicates required information.</p>
+	<h3 rsf:id="msg=gradebook.add-gradebook-item.heading">Add Gradebook Item</h3>
+	<p rsf:id="instructions" class="instruction"><span class="reqStar">*</span> Indicates required information.</p>
 
 	<form rsf:id="form">
 	<fieldset>
-		<legend rsf:id="gradebook_item_legend">Gradebook Item Details</legend>
+		<legend rsf:id="msg=gradebook.add-gradebook-item.gradebook_item_legend">Gradebook Item Details</legend>
 		<ol>
 			<li>
 				<label rsf:id="title_label"><span class="reqStar">*</span> Title</label> <input rsf:id="title" type="text" size="30" maxlength="100"/>
@@ -39,20 +39,20 @@
 				<label rsf:id="due_date_label"><span class="reqStar">*</span> Due Date</label> <input rsf:id="due_date:" value="12/31/2007"/>
 			</li>
 			<li>
-				<label rsf:id="category_label">Category</label>
+				<label rsf:id="msg=gradebook.add-gradebook-item.category_label">Category</label>
 				<select rsf:id="category" size="1">
 					<option value="unassigned">Unassigned</option>
 					<option value="">Homework</option>
 					<option value="">Quizzes</option>
 					<option value="">Exams</option>
 				</select>
-				<p rsf:id="category_instruction" class="instruction">Items not assigned to a category will not be counted toward the course grade calculation.</p>
+				<p rsf:id="msg=gradebook.add-gradebook-item.cateogry_instruction" class="instruction">Items not assigned to a category will not be counted toward the course grade calculation.</p>
 			</li>
 			<li>
 				<fieldset>
 					<ol>
-						<li><input rsf:id="release" type="checkbox" /> <label rsf:id="release_label">Release this item to Students</label></li>
-						<li class="indent"><input rsf:id="course_grade" type="checkbox" /> <label rsf:id="course_grade_label">Include this item in course grade calculations</label></li>
+						<li><input rsf:id="release" type="checkbox" /> <label rsf:id="msg=gradebook.add-gradebook-item.release_label">Release this item to Students</label></li>
+						<li class="indent"><input rsf:id="course_grade" type="checkbox" /> <label rsf:id="msg=gradebook.add-gradebook-item.course_grade_label">Include this item in course grade calculations</label></li>
 					</ol>
 				</fieldset>
 			</li>

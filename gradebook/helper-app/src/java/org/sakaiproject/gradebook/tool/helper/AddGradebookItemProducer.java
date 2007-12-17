@@ -23,7 +23,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 public class AddGradebookItemProducer implements // DynamicNavigationCaseReporter, 
 ViewComponentProducer, DefaultView {
 
-    public static final String VIEW_ID = "assignment_add-gradebook-item";
+    public static final String VIEW_ID = "add-gradebook-item";
     public String getViewID() {
         return VIEW_ID;
     }
@@ -55,45 +55,34 @@ ViewComponentProducer, DefaultView {
         dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);
         Date date = new Date();
         
-    	
-        UIMessage.make(tofill, "page-title", "assignment2.assignment_add-gradebook-item.title");
-        UIMessage.make(tofill, "heading", "assignment2.assignment_add-gradebook-item.heading");
-        UIVerbatim.make(tofill, "instructions", messageLocator.getMessage("assignment2.assignment_add-gradebook-item.instructions",
+        UIVerbatim.make(tofill, "instructions", messageLocator.getMessage("gradebook.add-gradebook-item.instructions",
         		new Object[]{ reqStar }));
         
         //Start Form
         UIForm form = UIForm.make(tofill, "form");
-        UIMessage.make(form, "gradebook_item_legend", "assignment2.assignment_add-gradebook-item.gradebook_item_legend");
         
-        UIVerbatim.make(form, "title_label", messageLocator.getMessage("assignment2.assignment_add-gradebook-item.title_label",
+        UIVerbatim.make(form, "title_label", messageLocator.getMessage("gradebook.add-gradebook-item.title_label",
         		new Object[]{ reqStar }));
         UIInput.make(form, "title", "Title Here");
         
-        UIVerbatim.make(form, "point_label", messageLocator.getMessage("assignment2.assignment_add-gradebook-item.point_label",
+        UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.point_label",
         		new Object[]{ reqStar }));
         UIInput.make(form, "point", "POINTS HERE");
         
-        UIVerbatim.make(form, "due_date_label", messageLocator.getMessage("assignment2.assignment_add-gradebook-item.due_date_label",
+        UIVerbatim.make(form, "due_date_label", messageLocator.getMessage("gradebook.add-gradebook-item.due_date_label",
         		new Object[]{ reqStar }));
         UIInput due_date = UIInput.make(form, "due_date:", "");
         dateEvolver.evolveDateInput(due_date, date);
         
-        UIMessage.make(form, "category_label", "assignment2.assignment_add-gradebook-item.category_label");
         UISelect category_select = UISelect.make(form, "category", new String[] {}, new String[] {}, "");
-        UIMessage.make(form, "category_instruction", "assignment2.assignment_add-gradebook-item.category_instruction");
-        
-        UIMessage.make(form, "release_label", "assignment2.assignment_add-gradebook-item.release_label");
+                
         UIBoundBoolean.make(form, "release");
-        
-        UIMessage.make(form, "course_grade_label", "assignment2.assignment_add-gradebook-item.course_grade_label");
         UIBoundBoolean.make(form, "course_grade");
         
         
         //Action Buttons
-        //TODO i18n
-        UICommand.make(form, "add_item", "Add Markbook Item", "#{GradebookItemBean.processActionAddItem}");
-        //TODO i18n
-        UICommand.make(form, "cancel", "Cancel", null); //"#{GradebookItemBean.processActionCancel}");
+        UICommand.make(form, "add_item", UIMessage.make("gradebook.add-gradebook-item.add_item"), "#{GradebookItemBean.processActionAddItem}");
+        UICommand.make(form, "cancel", UIMessage.make("gradebook.add-gradebook-item.cancel"), null); //"#{GradebookItemBean.processActionCancel}");
     }
 
     public void setMessageLocator(MessageLocator messageLocator) {

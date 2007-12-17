@@ -9,7 +9,12 @@
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="dateEvolver" ref="fieldDateInputEvolver" />
 		<property name="messageLocator" ref="messageLocator" />
-		
 	</bean>
+	
+	   
+   <bean id="GradebookItemBean" class="org.sakaiproject.gradebook.tool.beans.GradebookItemBean">
+   	  <property name="messages" ref="targettedMessageList"/>
+   	  <property name="messageLocator" ref="messageLocator" />
+   </bean>
 
 </beans>
