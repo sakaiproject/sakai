@@ -233,6 +233,7 @@
 						<h:inputText id="NonCalculatedScore" value="#{scoreRow.nonCaculateGrade}" size="6" 
 							 rendered="#{assignmentDetailsBean.assignment.ungraded}"
 							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.NON_GRADED_VALIDATOR"/>
 						</h:inputText>
 					</h:panelGroup>
 					
@@ -271,6 +272,7 @@
 				</f:facet>
 				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>
 				<h:message for="LetterScore" styleClass="validationEmbedded gbMessageAdjustForContent"/>
+				<h:message for="NonCalculatedScore" styleClass="validationEmbedded gbMessageAdjustForContent"/>
 				<t:div styleClass="gbTextOnRow" rendered="#{!scoreRow.commentEditable}">
 					<h:outputText value="#{scoreRow.commentText}"/>
 				</t:div>
