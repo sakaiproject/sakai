@@ -5,6 +5,9 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.model.api.Attempt;
+import org.sakaiproject.scorm.model.api.CMIFieldGroup;
+import org.sakaiproject.scorm.model.api.ContentPackage;
+import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
 
 public class AttemptDetailPage extends ConsoleBasePage {
@@ -13,35 +16,27 @@ public class AttemptDetailPage extends ConsoleBasePage {
 
 	@SpringBean
 	ScormResultService resultService;
-
+	@SpringBean
+	ScormContentService contentService;
+	
 	public AttemptDetailPage(PageParameters pageParams) {
-		//super(new StringBuilder().append(pageParams.getString("contentPackageName")).append(" Attempt Detail for")
-		//	.append(pageParams.getString("learnerName")).toString());
-		
-		String title = new StringBuilder().append(pageParams.getString("contentPackageName")).append(" Attempt Detail for")
-		.append(pageParams.getString("learnerName")).toString();
-		
-		String contentPackageName = pageParams.getString("contentPackageName");
 		String courseId = pageParams.getString("courseId");
 		String learnerName = pageParams.getString("learnerName");
 		String learnerId = pageParams.getString("learnerId");
-		int attemptNumber = pageParams.getInt("attemptNumber");
+		long attemptNumber = pageParams.getLong("attemptNumber");
+		long id = pageParams.getLong("id");
 		
-		add(new Label("content.package.name", contentPackageName));
+		String[] fields = {"cmi.completion_status", "cmi.score.scaled", "cmi.success_status" };
+		
+		Attempt attempt = resultService.getAttempt(id);
+		CMIFieldGroup fieldGroup = resultService.getAttemptResults(attempt);
+		
+		ContentPackage contentPackage = contentService.getContentPackage(attempt.getContentPackageId());
+		
+		add(new Label("content.package.name", contentPackage.getTitle()));
 		add(new Label("learner.name", learnerName));
 		
-		Attempt attempt = resultService.lookupAttempt(courseId, learnerId, attemptNumber);
 		
-		add(new Label("completion.status", new PropertyModel(attempt, "completionStatus")));
-		add(new Label("score.scaled", new PropertyModel(attempt, "scoreScaled")));
-		add(new Label("success.status", new PropertyModel(attempt, "successStatus")));
-		
-		//add(new Label("courseId", courseId));
-		//add(new Label("userId", userId));
-		
-		//IDataManager dataManager = clientFacade.getContentPackageDataManger(courseId, userId);
-		
-		//String value = getValue(dataManager, "");
 	}
 
 	

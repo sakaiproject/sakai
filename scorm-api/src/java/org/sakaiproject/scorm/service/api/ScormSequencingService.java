@@ -47,7 +47,7 @@ public interface ScormSequencingService {
 	 * This method is called once at the beginning of each user session to provide the bean
 	 * where all state information will be stored
 	 */
-	public SessionBean newSessionBean(String courseId);
+	public SessionBean newSessionBean(String courseId, long contentPackageId);
 	
 	/**
 	 * Called to get the destination url for the selected sco

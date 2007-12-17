@@ -14,6 +14,8 @@ drop table   SCORM_ADL_SEQ_RULE_T           ;
 drop table   SCORM_ADL_TOC                  ;
 drop table   SCORM_ADL_TRACKING             ;
 drop table   SCORM_ADL_VALID_REQUESTS_T     ;
+drop table   SCORM_ATTEMPT_T                ;
+drop table   SCORM_CONTENT_PACKAGE_T        ;
 drop table   SCORM_DATAMANAGER_T            ;
 drop table   SCORM_DATAMODEL_T              ;
 drop table   SCORM_DELIMITER_T              ;

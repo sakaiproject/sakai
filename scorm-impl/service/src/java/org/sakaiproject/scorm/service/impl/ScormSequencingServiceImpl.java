@@ -135,9 +135,9 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 			agent.displayContent(sessionBean, target);
 	}
 	
-	public SessionBean newSessionBean(String courseId) {
+	public SessionBean newSessionBean(String courseId, long contentPackageId) {
 		String learnerId = sessionManager().getCurrentSessionUserId();
-		SessionBean sessionBean = new SessionBean(courseId, learnerId);
+		SessionBean sessionBean = new SessionBean(courseId, learnerId, contentPackageId);
 		
 		ContentPackageManifest manifest = adlManager().getManifest(sessionBean);
 		

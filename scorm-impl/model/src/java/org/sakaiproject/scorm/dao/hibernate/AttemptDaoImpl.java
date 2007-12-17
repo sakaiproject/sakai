@@ -9,6 +9,10 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 
+	public Attempt load(long id) {
+		return (Attempt)getHibernateTemplate().load(Attempt.class, id);
+	}
+	
 	public List<Attempt> find(String courseId, String learnerId) {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("from ").append(Attempt.class.getName())

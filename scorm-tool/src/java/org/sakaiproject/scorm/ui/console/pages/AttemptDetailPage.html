@@ -8,31 +8,24 @@
 <body>
 	<wicket:extend>
 
-		<table border="0">
-		<tr>
-			<td><wicket:message key="cp.name.label">Name:</wicket:message></td>
-			<td><span wicket:id="content.package.name"></span></td>
-		</tr>
-		<tr>
-			<td><wicket:message key="learner.name.label">Name:</wicket:message></td>
-			<td><span wicket:id="learner.name"></span></td>
-		</tr>
-		<tr>
-			<td><wicket:message key="completion.status.label">Completion Status</wicket:message></td>
-			<td><span wicket:id="completion.status"></span></td>
-		</tr>
-		<tr>
-			<td><wicket:message key="success.status.label">Success Status</wicket:message></td>
-			<td><span wicket:id="success.status"></span></td>
-		</tr>
-		<tr>
-			<td><wicket:message key="score.scaled.label">Scaled score</wicket:message></td>
-			<td><span wicket:id="score.scaled"></span></td>
-		</tr>
-		</table>
+		<p class="shorttext">
+			<label for="content.package.name">
+				<wicket:message key="cp.name.label"></wicket:message>
+			</label>					
+			
+			<span wicket:id="content.package.name"></span>			
+		</p>
+		
+		<p class="shorttext">
+			<label for="learner.name">
+				<wicket:message key="learner.name.label"></wicket:message>
+			</label>					
+			
+			<span wicket:id="learner.name"></span>			
+		</p>	
 
-	
 
+		<div id="resultPanel"/>
 
 	</wicket:extend>
 </body>

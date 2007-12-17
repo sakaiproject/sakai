@@ -175,6 +175,5 @@ public class ContentPackage implements Serializable {
 	public void setContext(String context) {
 		this.context = context;
 	}
-	
 
 }

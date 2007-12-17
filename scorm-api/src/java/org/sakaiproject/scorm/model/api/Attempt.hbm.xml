@@ -11,6 +11,7 @@
             </generator>
         </id>
 	
+		<property name="contentPackageId" column="CONTENT_PACKAGE_ID" />
 		<property name="courseId" column="COURSE_ID" />
 		<property name="learnerId" column="LEARNER_ID" />
 		<property name="learnerName" column="LEARNER_NAME" />
