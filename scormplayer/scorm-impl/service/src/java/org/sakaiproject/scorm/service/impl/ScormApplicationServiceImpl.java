@@ -479,6 +479,8 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			
 			if (attempt == null) {
 				attempt = new Attempt();
+				
+				attempt.setContentPackageId(sessionBean.getContentPackageId());
 				attempt.setCourseId(courseId);
 				attempt.setLearnerId(learnerId);
 				attempt.setAttemptNumber(attemptNumber);

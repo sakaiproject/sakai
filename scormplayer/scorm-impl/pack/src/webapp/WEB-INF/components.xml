@@ -84,6 +84,7 @@
 		singleton="true">
 		
 		<!-- Sakai API Service -->
+		<lookup-method name="contentService" bean="org.sakaiproject.scorm.service.api.ScormContentService" />	
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />	  
 		
 		<!-- Data Access Objects -->

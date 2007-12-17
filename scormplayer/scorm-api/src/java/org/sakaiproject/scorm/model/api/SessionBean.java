@@ -16,6 +16,7 @@ public class SessionBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
+	private long contentPackageId;
 	private String courseId;
 	private String learnerId;
 	private String title;
@@ -51,10 +52,11 @@ public class SessionBean implements Serializable {
 		this.scoBeans = new ConcurrentHashMap<String, ScoBean>();
 	}
 	
-	public SessionBean(String courseId, String learnerId) {
+	public SessionBean(String courseId, String learnerId, long contentPackageId) {
 		this();
 		this.courseId = courseId;
 		this.learnerId = learnerId;
+		this.contentPackageId = contentPackageId;
 	}
 
 
@@ -259,6 +261,14 @@ public class SessionBean implements Serializable {
 
 	public void setRestart(boolean isRestart) {
 		this.isRestart = isRestart;
+	}
+
+	public long getContentPackageId() {
+		return contentPackageId;
+	}
+
+	public void setContentPackageId(long contentPackageId) {
+		this.contentPackageId = contentPackageId;
 	}
 
 	

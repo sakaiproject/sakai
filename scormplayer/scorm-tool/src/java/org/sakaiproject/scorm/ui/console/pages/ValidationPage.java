@@ -19,19 +19,19 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 
-public class ZipListPage extends ConsoleBasePage {
+public class ValidationPage extends ConsoleBasePage {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Log log = LogFactory.getLog(ZipListPage.class);
+	private static Log log = LogFactory.getLog(ValidationPage.class);
 	
-	private static final ResourceReference validateIconReference = new ResourceReference(ZipListPage.class, "res/add.png");
+	private static final ResourceReference validateIconReference = new ResourceReference(ValidationPage.class, "res/add.png");
 
 	
 	@SpringBean
 	ScormContentService contentService;
 	
-	public ZipListPage(PageParameters params) {
+	public ValidationPage(PageParameters params) {
 		List<ContentResource> zipFiles = contentService.getZipArchives();
 		List<ZipFileWrapper> contentPackageWrappers = new LinkedList<ZipFileWrapper>();
 		

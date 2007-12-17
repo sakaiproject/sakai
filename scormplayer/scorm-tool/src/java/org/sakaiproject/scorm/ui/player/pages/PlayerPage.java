@@ -83,9 +83,10 @@ public class PlayerPage extends BaseToolPage implements INavigable {
 	public PlayerPage(final PageParameters pageParams) {
 		super();
 		
+		long contentPackageId = pageParams.getLong("id");
 		String courseId = pageParams.getString("courseId");
 		
-		sessionBean = sequencingService.newSessionBean(courseId);
+		sessionBean = sequencingService.newSessionBean(courseId, contentPackageId);
 		sessionBean.setCompletionUrl(getCompletionUrl());
 		
 		buttonForm = new ButtonForm("buttonForm", sessionBean, this);

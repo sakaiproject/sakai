@@ -2,19 +2,18 @@ package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Properties;
 
 public class Attempt implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
 	private long id;
+	private long contentPackageId;
 	private String courseId;
 	private String learnerId;
 	private String learnerName;
 	private long attemptNumber;
-	private String scoreScaled;
-	private String successStatus;
-	private String completionStatus;
 	private Date beginDate;
 	private Date lastModifiedDate;
 	
@@ -25,39 +24,8 @@ public class Attempt implements Serializable {
 	
 	
 	public Attempt() {
-		
 	}
 	
-
-	public String getSuccessStatus() {
-		return successStatus;
-	}
-
-	public void setSuccessStatus(String successStatus) {
-		this.successStatus = successStatus;
-	}
-
-
-	public String getScoreScaled() {
-		return scoreScaled;
-	}
-
-
-	public void setScoreScaled(String scoreScaled) {
-		this.scoreScaled = scoreScaled;
-	}
-
-
-	public String getCompletionStatus() {
-		return completionStatus;
-	}
-
-
-	public void setCompletionStatus(String completionStatus) {
-		this.completionStatus = completionStatus;
-	}
-
-
 	public String getLearnerId() {
 		return learnerId;
 	}
@@ -155,6 +123,16 @@ public class Attempt implements Serializable {
 
 	public void setNotExited(boolean isNotExited) {
 		this.isNotExited = isNotExited;
+	}
+
+
+	public long getContentPackageId() {
+		return contentPackageId;
+	}
+
+
+	public void setContentPackageId(long contentPackageId) {
+		this.contentPackageId = contentPackageId;
 	}
 
 }

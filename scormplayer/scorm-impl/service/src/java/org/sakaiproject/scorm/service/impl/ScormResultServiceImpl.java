@@ -1,6 +1,7 @@
 package org.sakaiproject.scorm.service.impl;
 
 import java.util.List;
+import java.util.Properties;
 
 import org.adl.api.ecmascript.APIErrorCodes;
 import org.adl.datamodels.DMInterface;
@@ -11,6 +12,9 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.sakaiproject.scorm.model.api.Attempt;
+import org.sakaiproject.scorm.model.api.CMIField;
+import org.sakaiproject.scorm.model.api.CMIFieldGroup;
+import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
@@ -18,31 +22,106 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 
 	private static Log log = LogFactory.getLog(ScormResultServiceImpl.class);
 	
+	private static String[] fields = {"cmi.completion_status", "cmi.score.scaled", "cmi.success_status" };
+	
 	// Dependency injection method lookup signatures
-	protected abstract DataManagerDao dataManagerDao();
+	protected abstract ScormContentService contentService();
 	protected abstract UserDirectoryService userDirectoryService();
+	
+	protected abstract DataManagerDao dataManagerDao();
 	protected abstract AttemptDao attemptDao();
 	
-	public Attempt lookupAttempt(String courseId, String learnerId, long attemptNumber) {
+	public CMIFieldGroup getAttemptResults(Attempt attempt) {
 		
-		IDataManager dataManager = dataManagerDao().find(courseId, learnerId, attemptNumber);
+		IDataManager dataManager = dataManagerDao().load(attempt.getDataManagerId());
 		
-		String completionStatus = getValue(dataManager, "cmi.completion_status");
-		String scaledScore = getValue(dataManager, "cmi.score.scaled");
-		String successStatus = getValue(dataManager, "cmi.success_status");
+		CMIFieldGroup group = getDefaultFieldGroup();
+		List<CMIField> list = group.getList();
 		
+		for (CMIField field : list) {
+			populateValues(field, dataManager);
+		}
+		
+		return group;
+	}
+	
+	
+	// FIXME: Doesn't handle arbitrary depth -- only 1 deep with children
+	private void populateValues(CMIField field, IDataManager dataManager) {
+		
+		if (field.isParent()) {
+					
+			int count = getCount(field.getFieldName(), dataManager);
+			
+			if (count != 0) {
+				for (CMIField child : field.getChildren()) {
+					for (int i=0;i<count;i++) {
+						String fieldName = new StringBuilder(field.getFieldName()).append(".").append(i).append(".").append(child.getFieldName()).toString();		
+						String value = getValue(fieldName, dataManager);
+				
+						child.addFieldValue(value);
+					}
+				}
+			}
+		} else {
+			String value = getValue(field.getFieldName(), dataManager);
+			
+			if (value != null && !value.equals("unknown"))
+				field.addFieldValue(value);
+		}
+	}
+	
+	
+	private int getCount(String fieldName, IDataManager dataManager) {
+		
+		String countFieldName = new StringBuilder(fieldName).append("._count").toString();
+		
+		String strValue = getValue(countFieldName, dataManager);
+		
+		int count = 0;
+		
+		if (strValue != null && !strValue.equals("")) {
+			try {
+				count = Integer.parseInt(strValue);
+			} catch (NumberFormatException nfe) {
+				log.warn("Count field name " + countFieldName + " retrieved a non-numeric result from the data manager", nfe);
+			}
+		}
+		
+		return count;
+	}
+	
+	
+	public Attempt lookupAttempt(String courseId, String learnerId, long attemptNumber, 
+			String[] fields) {
+				
 		Attempt attempt = attemptDao().find(courseId, learnerId, attemptNumber);
+		
+		IDataManager dataManager = dataManagerDao().load(attempt.getDataManagerId());
+		
+		Properties dataProperties = new Properties();
+		
+		for (int i=0;i<fields.length;i++) {
+			String value = getValue(fields[i], dataManager);
+			
+		}
+		
+		String completionStatus = getValue("cmi.completion_status", dataManager);
+		String scaledScore = getValue("cmi.score.scaled", dataManager);
+		String successStatus = getValue("cmi.success_status", dataManager);
+		
 		if (attempt == null)
 			attempt = new Attempt();
-		attempt.setCompletionStatus(completionStatus);
-		attempt.setScoreScaled(scaledScore);
-		attempt.setSuccessStatus(successStatus);
+		
 		attempt.setBeginDate(dataManager.getBeginDate());
 		attempt.setLastModifiedDate(dataManager.getLastModifiedDate());
 		
 		return attempt;
 	}
 	
+	public Attempt getAttempt(long id) {
+		return attemptDao().load(id);
+	}
 	
 	public List<Attempt> getAttempts(String courseId, String learnerId) {
 		return attemptDao().find(courseId, learnerId);
@@ -50,33 +129,6 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 	
 	
 	public List<Attempt> getAttempts(String courseId) {
-		/*List<IDataManager> dataManagers = dataManagerDao().find(courseId);
-		List<Attempt> list = new LinkedList<Attempt>();
-		
-		for (IDataManager dataManager : dataManagers) {
-			Attempt attempt = new Attempt();
-			String learnerId = dataManager.getUserId();
-			attempt.setCourseId(courseId);
-			attempt.setLearnerId(learnerId);
-			attempt.setAttemptNumber(1);
-			attempt.setBeginDate(dataManager.getBeginDate());
-			attempt.setLastModifiedDate(dataManager.getLastModifiedDate());
-			
-			try {
-				User user = userDirectoryService().getUser(learnerId);
-				
-				if (user != null) 
-					attempt.setLearnerName(user.getDisplayName());
-				
-			} catch (UserNotDefinedException e) {
-				log.warn("The current learner is not a valid user according to Sakai.", e);
-			}
-			
-			list.add(attempt);
-		}
-		
-		return list;*/
-		
 		return attemptDao().find(courseId);
 	}
 	
@@ -117,7 +169,7 @@ and e.PARENT is null
 
 	 */
 	
-	private String getValue(IDataManager dataManager, String iDataModelElement) {
+	private String getValue(String iDataModelElement, IDataManager dataManager) {
 		// Process 'GET'
         DMProcessingInfo dmInfo = new DMProcessingInfo();
         
@@ -134,6 +186,28 @@ and e.PARENT is null
         return result;
 	}
 
+	
+	private CMIFieldGroup getDefaultFieldGroup() {
+		CMIFieldGroup group = new CMIFieldGroup();
+		
+		List<CMIField> list = group.getList();
+		list.add(new CMIField("cmi.entry", "Access"));
+		list.add(new CMIField("cmi.exit", "Exit Type"));
+		list.add(new CMIField("cmi.learner_id", "Learner Id"));
+		
+		CMIField objectives = new CMIField("cmi.objectives", "Objectives");
+		objectives.addChild(new CMIField("id", "Objective Id"));
+		objectives.addChild(new CMIField("score.scaled", "Scaled Score"));
+		
+		list.add(objectives);
+		
+		return group;
+	}
+	
+	
+	
+	
+	
 
 	
 }

@@ -34,11 +34,10 @@ public class AttemptListPage extends ConsoleBasePage {
 		List<IColumn> columns = new LinkedList<IColumn>();
 		columns.add(new PropertyColumn(new StringResourceModel("column.header.learner.name", this, null), "learnerName", "learnerName"));
 		
-		
 		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.begin.date", this, null), "beginDate", "beginDate"));
 		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.last.modified.date", this, null), "lastModifiedDate", "lastModifiedDate"));
 		
-		String[] paramPropertyExpressions = {"courseId", "learnerId", "attemptNumber"};
+		String[] paramPropertyExpressions = {"courseId", "learnerId", "attemptNumber", "id"};
 		
 		ActionColumn actionColumn = new ActionColumn(new StringResourceModel("column.header.attempt.number", this, null), "attemptNumber", "attemptNumber");
 		Action detailAction = new Action("attemptNumber", AttemptDetailPage.class, paramPropertyExpressions);
@@ -51,48 +50,6 @@ public class AttemptListPage extends ConsoleBasePage {
 		BasicDataTable table = new BasicDataTable("attemptTable", columns, attempts);
 
 		add(table);
-		
-		
-		
-	/*	List<IDataManager> dataManagers = clientFacade.getContentPackageDataManagers(contentPackageId);
-		
-		add(new ListView("dataManagers", dataManagers) {
-			private static final long serialVersionUID = 1L;
-			
-		 	public void populateItem(final ListItem item) {
-		 		IDataManager manager = (IDataManager)item.getModelObject();
-		 		String id = manager.getCourseId();
-		 		String[] parts = id.split("/");
-		 		
-		 		String userId = manager.getUserId();
-		 		String userName = "Undefined";
-		 		try {
-		 			User user = clientFacade.getUser(userId);
-		 			userName = user.getDisplayName();
-		 		} catch (UserNotDefinedException unde) {
-		 			log.warn("This user is not defined: " + userId);
-		 		}
-		 		
-		 		if (null != parts && parts.length > 0) {
-		 			final String fileName = parts[parts.length - 1];
-		 		
-		 			PageParameters newParams = new PageParameters();
-		 			newParams.add("contentPackageName", contentPackageName);
-		 			newParams.add("courseId", manager.getCourseId());
-		 			newParams.add("learnerName", userName);
-		 			newParams.add("learnerId", manager.getUserId());
-		 			newParams.add("attemptNumber", "1");
-		 			
-		 			item.add(new Label("learnerName", userName));
-		 			item.add(new Label("learnerId", userId));
-		 			
-		 			BookmarkablePageLink resultsPageLink = new BookmarkablePageLink("resultsLink", AttemptDetailPage.class, newParams);
-		 			resultsPageLink.add(new Label("attemptNum", "1"));
-
-		 			item.add(resultsPageLink);
-		 		}
-		 	}
-		});*/
 	}
 	
 	
