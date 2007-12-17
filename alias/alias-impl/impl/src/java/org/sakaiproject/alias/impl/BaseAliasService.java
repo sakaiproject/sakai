@@ -544,7 +544,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			if ( t != null ) {
 				return t;
 			} 
-			M_log.warn("Null Cache Entry found, should not happen, please nottify Ian Boston, thanks, SAK-12447, line 547 BaseAliasService");
+			M_log.warn("Null Cache Entry found, should not happen, please nottify Ian Boston, thanks, SAK-12447, line 547 BaseAliasService ref="+ref);
 		}
 
 		BaseAliasEdit a = (BaseAliasEdit) m_storage.get(alias);
@@ -552,9 +552,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 
 		// cache
 		if (m_callCache != null) {
-			if ( a.getTarget() == null ) {
-				M_log.warn("Null Target Entry found, there may be a DB problem, please nottify Ian Boston, thanks, SAK-12447, line 556 BaseAliasService");				
-			} else {
+			if ( a.getTarget() != null ) {
 				m_callCache.put(ref, a.getTarget(), m_cacheSeconds);
 			}
 		}
