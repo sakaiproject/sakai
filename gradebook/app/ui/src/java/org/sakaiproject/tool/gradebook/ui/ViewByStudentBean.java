@@ -592,10 +592,6 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			Object gradebookItem = iter.next();
     			if (gradebookItem instanceof AssignmentGradeRow) {
     				AssignmentGradeRow gr = (AssignmentGradeRow)gradebookItem;
-    				if(gr.getAssociatedAssignment().getUngraded())
-    				{
-    					nonCalItems.add(gradebookItem);
-    				}
     				if(gr.getAssociatedAssignment().isExternallyMaintained()) {
     					rowStyles.append("external");
     					anyExternallyMaintained = true;
