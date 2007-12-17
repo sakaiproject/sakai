@@ -139,7 +139,9 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		Date now = new Date();
 		
 		if (now.after(contentPackage.getReleaseOn())) {
-			if (now.before(contentPackage.getDueOn())) 
+			if (contentPackage.getDueOn() == null || contentPackage.getAcceptUntil() == null)
+				status = CONTENT_PACKAGE_STATUS_OPEN;			
+			else if (now.before(contentPackage.getDueOn())) 
 				status = CONTENT_PACKAGE_STATUS_OPEN;
 			else if (now.before(contentPackage.getAcceptUntil()))
 				status = CONTENT_PACKAGE_STATUS_OVERDUE;
