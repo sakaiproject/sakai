@@ -1,15 +1,10 @@
 package org.sakaiproject.gradebook.tool.helper;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 
-import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
-import uk.ac.cam.caret.sakai.rsf.util.SakaiURLUtil;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UICommand;
@@ -20,16 +15,12 @@ import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
-import uk.org.ponder.rsf.flow.jsfnav.DynamicNavigationCaseReporter;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.DefaultView;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
-import uk.org.ponder.rsf.viewstate.RawViewParameters;
-import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
-public class AddGradebookItemProducer implements DynamicNavigationCaseReporter, 
+public class AddGradebookItemProducer implements // DynamicNavigationCaseReporter, 
 ViewComponentProducer, DefaultView {
 
     public static final String VIEW_ID = "assignment_add-gradebook-item";
@@ -109,16 +100,16 @@ ViewComponentProducer, DefaultView {
         this.messageLocator = messageLocator;
     }
     
-    public List reportNavigationCases() {
-        Tool tool = toolManager.getCurrentTool();
-        List togo = new ArrayList();
-        togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
-        togo.add(new NavigationCase("done", 
-                 new RawViewParameters(SakaiURLUtil.getHelperDoneURL(tool, sessionManager))));
+    //public List reportNavigationCases() {
+        //Tool tool = toolManager.getCurrentTool();
+      //  List togo = new ArrayList();
+     //   togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
+     //   togo.add(new NavigationCase("done", 
+      //           new RawViewParameters(SakaiURLUtil.getHelperDoneURL(tool, sessionManager))));
         
 
-        return togo;
-    }
+      //  return togo;
+    //}
 
 
 	public void setToolManager(ToolManager toolManager) {

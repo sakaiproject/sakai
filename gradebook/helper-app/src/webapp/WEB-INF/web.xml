@@ -14,12 +14,12 @@
     THIS MUST AGREE WITH THE DEPLOYED WEBAPP NAME, i.e. the artifactId of this
     tool, where the Sakai plugin build was used.
     -->
-    <!-- 
+    
   <context-param>
     <param-name>resourceurlbase</param-name>
     <param-value>/sakai-gradebook-helper-item-tool/</param-value>
   </context-param>
-  -->
+  
 
  <!-- Configure standard Spring application contexts. Be sure to mention
     rsf config files first, so any overrides may be processed. The first two
@@ -76,14 +76,16 @@
       so that sakai.flowtalk appears in UI for Sakai 2.0, with
       new Sakai dispatching architecture. Note that this must agree with tool id -->
     <servlet-name>sakai-gradebook-item-helper</servlet-name>
-    <!-- 
+     
     <servlet-class>
       uk.ac.cam.caret.sakai.rsf.servlet.ReasonableSakaiServlet
     </servlet-class>
-    -->
+    
+    <!-- 
     <servlet-class>
       uk.org.ponder.rsf.servlet.ReasonableSpringServlet
     </servlet-class>
+    -->
     <!--<load-on-startup>1</load-on-startup>-->
   </servlet>
   <!-- This is the mapping we would LIKE to apply, if it were supported by Sakai.
