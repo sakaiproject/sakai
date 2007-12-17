@@ -9,23 +9,25 @@ function gethandles(){
    q2_div_ul = $("#q2 div ul");
    q4s = $("#q4");
    q3_div = $("#q3 div");
+   q3_div_table = $("#q3 div table");
    q1_width = $("#q1").width();
    q2_ul_li = $("#q2 div ul li");
    if ( ie && $.browser.version < 7){ q2_div_ul.css("position", "absolute"); $(q4).css("left", "-3px"); }
-   $(q3_div).width(q1_width);
+   $(q3_div).width(10000);
+   $("#q1 div").width(10000);
+
    paddingRight = parseInt($("#q1 li:first").css("padding-right"));
+   add = 0;
    $("#q1 li").each(function(i){
 	  this_width = $(this).width() + paddingRight *2;
 	  q3_tr_td = $("#q3 tr:first td:eq(" + i + ")");
-	  match_width = $(q3_tr_td).width();
-      if(match_width < this_width){
-         $(q3_tr_td).width(this_width - paddingRight * 2);
-      }else{
-         $(this).width(match_width - paddingRight * 2 - 2);
-      }
+	  match_width = $(q3_tr_td).width() + 10;
+	  new_width = (match_width < this_width ? this_width : match_width);
+     $(q3_tr_td).width(new_width - paddingRight * 2);
+     $(this).width(new_width - paddingRight * 2 - 2);
    });
+   q1_width = $("#q1").width();
    $(q3_div).width(q1_width);
-   $(q3_div).width(q1_width + 14);
    total = 0; count = 0;
    $(q2_ul_li).each(function(c){
    	  if($(this).width() < 50) $(this).css("width", "45px"); 
