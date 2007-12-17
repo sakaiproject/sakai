@@ -376,7 +376,10 @@ public class MemCache implements Cache, Observer
 	 */
 	public boolean containsKeyExpiredOrNot(Object key)
 	{
-		return containsKey(key);
+		if ( disabled() ) {
+			return false;
+		}
+		return cache.isKeyInCache(key);
 	} // containsKeyExpiredOrNot
 
 	/**
@@ -394,7 +397,10 @@ public class MemCache implements Cache, Observer
 		if (disabled())
 			return false;
 
-		return cache.isKeyInCache(key);
+		if ( cache.isKeyInCache(key) ) {
+			return ( cache.get(key) != null );
+		}
+		return false;
 	} // containsKey
 
 	/**

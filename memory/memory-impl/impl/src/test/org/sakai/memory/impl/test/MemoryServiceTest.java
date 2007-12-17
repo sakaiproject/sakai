@@ -84,7 +84,7 @@ public class MemoryServiceTest extends TestCase
 		Random r = new Random();
 		int hit = 0;
 		int miss = 0;
-		for ( int i = 0; i < 10000000; i++) {
+		for ( int i = 0; i < 10000; i++) {
 			int k = r.nextInt(1000);
 			if ( cache.containsKey(k)) {
 				Object k2 = cache.get(k);
@@ -96,6 +96,32 @@ public class MemoryServiceTest extends TestCase
 			}
 		}
 		log.info("Hits ="+hit+" Misses="+miss);
+	}
+	public void XtestGetLong() {
+		Cache cache = basicMemoryService.newCache("org.sakaiproject.alias.api.AliasService.callCache","");
+		int hit = 0;
+		int miss = 0;
+		for ( int i = 0; i < 100; i++) {
+			cache.put(i, i);
+		}
+		long endTime = System.currentTimeMillis() + 10*60*1000;
+		long ncount = 0;
+		long errors = 0;
+		while(errors < 100 && System.currentTimeMillis() < endTime ) {
+		for ( int i = 0; i < 100; i++) {
+			ncount++;
+			if ( cache.containsKey(i) ) {
+				if ( cache.get(i) == null ) {
+					log.info("Found Null Key for "+i+" after "+ncount+" attempts ");
+					errors++;
+				}
+			} else {
+				log.info("Key missing ");
+				cache.put(i, i);
+			}
+		}
+		}
+		log.info("All Ok");
 	}
 
 }
