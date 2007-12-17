@@ -41,6 +41,18 @@
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-user-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${sakai.servletapi.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
@@ -60,5 +72,14 @@
         </includes>
       </resource>
     </resources><!-- java source -->
+    <testResources>
+      <testResource>
+        <directory>${basedir}/src/test</directory>
+        <includes>
+          <include>**/*.*</include>
+        </includes>
+        <filtering>false</filtering>
+      </testResource>
+    </testResources>
   </build>
 </project>
