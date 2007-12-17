@@ -405,55 +405,6 @@ public class DiscussionForumTool
 
     if (forums == null || forums.size() < 1)
     {
-      try 
-      { 
-    	assignments = new ArrayList(); 
-    	SelectItem item = new SelectItem(DEFAULT_GB_ITEM, getResourceBundleString(SELECT_ASSIGN)); 
-    	assignments.add(item); 
-    	  
-        GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
-        ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
-        if(getGradebookExist())
-        {
-          List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
-          List gradeAssignments = new ArrayList();
-          for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++)
-          {
-            Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
-            if(!thisAssign.isExternallyMaintained())
-            {
-              gradeAssignments.add(thisAssign);
-            }
-          }
-            
-          for(int i=0; i<gradeAssignments.size(); i++) 
-          { 
-            try 
-            { 
-              Assignment thisAssign = (Assignment) gradeAssignments.get(i); 
-            
-              String assignName = thisAssign.getName(); 
-            
-              item = new SelectItem((new Integer(i+1)).toString(), assignName); 
-              assignments.add(item); 
-            } 
-            catch(Exception e) 
-            { 
-              LOG.error("DiscussionForumTool - processDfMsgGrd:" + e); 
-              e.printStackTrace(); 
-            } 
-          }
-        }
-      } 
-      catch(SecurityException se)
-      {
-    	  // ignore - don't want to print out stacktrace every time a non-admin user uses MC
-      }
-      catch(Exception e1) 
-      { 
-        LOG.error("DiscussionForumTool&processDfMsgGrad:" + e1); 
-        e1.printStackTrace(); 
-      }
       forums = new ArrayList();
       //List tempForum = forumManager.getDiscussionForums();
       List tempForum = forumManager.getDiscussionForumsWithTopics();
@@ -461,6 +412,9 @@ public class DiscussionForumTool
       {
         return null;
       }
+      
+      retrieveGradebookAssignments();
+      
       Iterator iterForum = tempForum.iterator();
       List msgIds = new ArrayList();
       while (iterForum.hasNext())
@@ -3093,7 +3047,14 @@ public class DiscussionForumTool
 	  GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
 	  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
 	  // first, check to see if user is authorized to view or grade this item in the gradebook
-	  String function = gradebookService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, selAssignmentName, studentId);
+	  String function = null;
+	  try {
+		  function = gradebookService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, selAssignmentName, studentId);
+	  } catch (SecurityException se) {
+		  function = null;
+		  LOG.debug("current user attempted to retrieve gradebook information but does not have permission");
+	  }
+	  
 	  if (function == null) {
 		  allowedToGradeItem = false;
 		  selGBItemRestricted = true;
@@ -6117,5 +6078,56 @@ public class DiscussionForumTool
 	 
 	 public boolean getShowForumLinksInNav() {
 		 return showForumLinksInNav;
+	 }
+	 
+	 private void retrieveGradebookAssignments() {
+		 try 
+	      { 
+	    	assignments = new ArrayList(); 
+	    	SelectItem item = new SelectItem(DEFAULT_GB_ITEM, getResourceBundleString(SELECT_ASSIGN)); 
+	    	assignments.add(item); 
+	    	GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
+	        ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
+	        if(getGradebookExist())
+	        {
+	          List gradeAssignmentsBeforeFilter = gradebookService.getAllGradebookItems(ToolManager.getCurrentPlacement().getContext());
+	          List gradeAssignments = new ArrayList();
+	          for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++)
+	          {
+	            Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
+	            if(!thisAssign.isExternallyMaintained())
+	            {
+	              gradeAssignments.add(thisAssign);
+	            }
+	          }
+	            
+	          for(int i=0; i<gradeAssignments.size(); i++) 
+	          { 
+	            try 
+	            { 
+	              Assignment thisAssign = (Assignment) gradeAssignments.get(i); 
+	            
+	              String assignName = thisAssign.getName(); 
+	            
+	              item = new SelectItem((new Integer(i+1)).toString(), assignName); 
+	              assignments.add(item); 
+	            } 
+	            catch(Exception e) 
+	            { 
+	              LOG.error("DiscussionForumTool - processDfMsgGrd:" + e); 
+	              e.printStackTrace(); 
+	            } 
+	          }
+	        }
+	      } 
+	      catch(SecurityException se)
+	      {
+	    	  LOG.warn("unauthorized user attempt to access gradebook information");
+	      }
+	      catch(Exception e1) 
+	      { 
+	        LOG.error("DiscussionForumTool&processDfMsgGrad:" + e1); 
+	        e1.printStackTrace(); 
+	      }
 	 }
 }
