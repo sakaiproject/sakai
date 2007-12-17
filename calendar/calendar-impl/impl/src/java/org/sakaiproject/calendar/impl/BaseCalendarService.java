@@ -696,7 +696,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		}
 
 		// if not in the cache, see if we have it in our info store
-		else
+		if ( calendar == null ) //SAK-12447 cache.get can return null on expired
 		{
 			calendar = m_storage.getCalendar(ref);
 
@@ -3305,7 +3305,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				}
 
 				// if not in the cache, see if we have it in our info store
-				else
+				if ( e == null ) //SAK-12447 cache.get can return null on expired
 				{
 					e = m_storage.getEvent(this, eventId);
 
