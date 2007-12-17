@@ -349,12 +349,15 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         		if (studentId != null) {
         			Map itemIdFunctionMap = (Map)studentIdItemIdFunctionMap.get(studentId);
         			for (Iterator itemIter = allAssignments.iterator(); itemIter.hasNext();) {
-        				Assignment assign = (Assignment) itemIter.next();
-        				if (assign != null) {
-        					Long itemId = assign.getId();
-        					if (itemIdFunctionMap == null || itemIdFunctionMap.get(itemId) == null){
-        						AssignmentGradeRecord agr = new AssignmentGradeRecord(assign, studentId, null);
-        						gradeRecords.add(agr);
+        				Object obj = itemIter.next();
+        				if (obj instanceof Assignment){
+        					Assignment assignment = (Assignment) obj;
+        					if (assignment != null) {
+        						Long itemId = assignment.getId();
+        						if (itemIdFunctionMap == null || itemIdFunctionMap.get(itemId) == null){
+        							AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentId, null);
+        							gradeRecords.add(agr);
+        						}
         					}
         				}
         			}
