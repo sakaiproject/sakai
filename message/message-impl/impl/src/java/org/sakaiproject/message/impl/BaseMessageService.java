@@ -800,7 +800,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		}
 
 		// if not in the cache, see if we have it in our info store
-		else
+		if ( channel == null ) //SAK-12447 cache.get can return null on expired
 		{
 			channel = m_storage.getChannel(ref);
 
@@ -3058,7 +3058,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			}
 
 			// if not in the cache, see if we have it in our info store
-			else
+			if ( m == null ) //SAK-12447 cache.get can return null on expired
 			{
 				m = m_storage.getMessage(this, messageId);
 
