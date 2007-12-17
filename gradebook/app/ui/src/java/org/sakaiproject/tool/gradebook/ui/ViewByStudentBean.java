@@ -421,9 +421,8 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	}
 
     	Map goEventListMap = getGradebookManager().getGradingEventsForStudent(studentUid, assignments);
-    	if (goEventListMap != null) {
-    		getGradebookManager().convertGradingEventsConvertedForStudent(gradebook, goEventListMap, gradebook.getGrade_type());
-    	}
+		 // NOTE: we are no longer converting the events b/c we are
+         // storing what the user entered, not just points
 
     	//iterate through the assignments and update the comments and grading events
     	Iterator assignmentIterator = assignments.iterator();

@@ -631,8 +631,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 				studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
                 			}
 
-                			// Log the grading event, and keep track of the students with saved/updated grades
-                			session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
+                			logAssignmentGradingEvent(gradeRecordFromCall, graderId, assignment, session);
                 			studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
                 		}
 
@@ -669,7 +668,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 		}
 
                 		// Log the grading event, and keep track of the students with saved/updated grades
-                		session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
+                		logAssignmentGradingEvent(gradeRecordFromCall, graderId, assignment, session);
+                		
                 		studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
                 	}
                 }
@@ -800,7 +800,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 			}
 
                 			// Log the grading event, and keep track of the students with saved/updated grades
-                			session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
+                			logAssignmentGradingEvent(gradeRecordFromCall, graderId, assignment, session);
+                			
                 			studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
                 		}
 
@@ -841,7 +842,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 	                	}
 	
 	                	// Log the grading event, and keep track of the students with saved/updated grades
-	                	session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
+	                	logAssignmentGradingEvent(gradeRecordFromCall, graderId, assignment, session);
+	                	
 	                	studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
 	                }
                 }
@@ -2938,4 +2940,26 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
     	return (Long)getHibernateTemplate().execute(hc);
     }
+	
+	private void logAssignmentGradingEvent(AssignmentGradeRecord gradeRecord, String graderId, Assignment assignment, Session session) {
+		if (gradeRecord == null || assignment == null) {
+			throw new IllegalArgumentException("null gradeRecord or assignment passed to logAssignmentGradingEvent");
+		}
+		
+		// Log the grading event, and keep track of the students with saved/updated grades
+		// we need to log what the user entered depending on the grade entry type
+		Gradebook gradebook = assignment.getGradebook();
+		String gradeEntry = null;
+		if (assignment.getUngraded()) {
+			gradeEntry = gradeRecord.getNonCaculateGrade();
+		} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+			gradeEntry = gradeRecord.getLetterEarned();
+		} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+			gradeEntry = gradeRecord.getPercentEarned().toString();
+		} else {
+			gradeEntry = gradeRecord.getPointsEarned().toString();
+		}
+		
+		session.save(new GradingEvent(assignment, graderId, gradeRecord.getStudentId(), gradeEntry));
+	}
 }

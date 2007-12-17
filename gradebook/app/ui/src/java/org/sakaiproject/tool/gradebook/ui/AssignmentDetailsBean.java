@@ -328,7 +328,9 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
                 // Get all of the grading events for these enrollments on this assignment
                 GradingEvents allEvents = getGradebookManager().getGradingEvents(assignment, studentUids);
-                getGradebookManager().convertGradingEventsConverted(assignment, allEvents, studentUids, getGradebook().getGrade_type());
+                // NOTE: we are no longer converting the events b/c we are
+                // storing what the user entered, not just points
+                //getGradebookManager().convertGradingEventsConverted(assignment, allEvents, studentUids, getGradebook().getGrade_type());
                 
                 Map gradeRecordMap = new HashMap();
                 if(gradeRecords != null)
