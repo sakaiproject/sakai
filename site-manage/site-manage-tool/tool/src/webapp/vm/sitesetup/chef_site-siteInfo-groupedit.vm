@@ -33,7 +33,7 @@
 			<label for="$tlang.getString('group.title')">
 				$tlang.getString("group.title")
 			</label>
-			<input type="text" name="$tlang.getString('group.title')" id="$tlang.getString('group.title')" size="20" value="$validator.escapeHtml($!title)" />
+			<input type="text" name="$tlang.getString('group.title')" id="$tlang.getString('group.title')" size="20" maxlength="90"#*this is the field size in db*# value="$validator.escapeHtml($!title)" />
 		</p>
 		<p class="shorttext">
 			<label for="$tlang.getString('group.description')">
