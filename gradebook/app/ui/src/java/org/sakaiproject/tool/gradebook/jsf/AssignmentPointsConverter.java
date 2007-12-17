@@ -68,7 +68,10 @@ public class AssignmentPointsConverter extends PointsConverter {
 				int gradeType = gradebook.getGrade_type();
 				AssignmentGradeRecord agr = (AssignmentGradeRecord)value;
 				if (agr.isUserAbleToView()) {
-					if(gradeType == GradebookService.GRADE_TYPE_POINTS ){
+					if (((Assignment)((AssignmentGradeRecord)value).getAssignment()).getUngraded()){
+						workingValue = ((AssignmentGradeRecord)value).getNonCaculateGrade();
+					}
+					else if(gradeType == GradebookService.GRADE_TYPE_POINTS ){
 						//if grade by points and no category weighting
 						workingValue = ((AbstractGradeRecord)value).getPointsEarned();	
 					} else if (gradeType == GradebookService.GRADE_TYPE_LETTER) {
