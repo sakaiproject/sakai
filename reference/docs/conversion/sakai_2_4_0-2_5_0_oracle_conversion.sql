@@ -980,3 +980,8 @@ CREATE UNIQUE INDEX ASN_SUB_SUB_INDEX ON ASSIGNMENT_SUBMISSION
 
 -- SAK-11876, SAK-10490
 alter table sakai_person_t add locked number(1.0);
+
+
+--Chat SAK-10215
+--This only has to be run if you've upgraded from 2.3 and had chat data
+update SAKAI_SITE_TOOL set title = 'Chat Room' where REGISTRATION = 'sakai.chat' and TITLE like 'Chat Room: "%';

@@ -958,3 +958,9 @@ CREATE UNIQUE INDEX ASSIGNMENT_SUBMISSION_SUBMITTER_INDEX ON ASSIGNMENT_SUBMISSI
 
 -- SAK-11876, SAK-10490
 alter table SAKAI_PERSON_T add locked bit(1);
+
+--Chat SAK-10215
+--This only has to be run if you've upgraded from 2.3 and had chat data
+update SAKAI_SITE_TOOL set title = 'Chat Room' where REGISTRATION = 'sakai.chat' and TITLE like 'Chat Room: "%';
+
+
