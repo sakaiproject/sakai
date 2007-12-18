@@ -1,10 +1,23 @@
 INSTALLATION DIRECTIONS
 
-It's important that you enable Content Hosting in order to be able to correctly make use of the Scorm Player.
+FIRST STEP: Checkout the Foundation 2.5.x branch of Sakai and build it. (You'll need maven 2 installed and configured, and a tomcat dir
+as per the normal Sakai directions for building)
+
+(1) svn co https://source.sakaiproject.org/svn/sakai/branches/sakai_2-5-x/ sakai
+
+(2) cd sakai/
+
+(3) mvn clean install sakai:deploy
+
+
+
+SECOND STEP: Activate 'Content Hosting Handler Resolver'
+
+It's important that you enable the Content Hosting Handler resolver in order to be able to correctly make use of the Scorm Player.
 
 To do this, 
 
-(1) Add the following properties to your sakai.properties:
+(1) Add the following properties to your sakai.properties (in your tomcat/sakai directory):
 
 	content.useCHH=true
 
@@ -14,7 +27,37 @@ To do this,
 	<!--
 	<property name="contentHostingHandlerResolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
 	-->
-	
+	^^ Remove both sets of comment tags (<!-- and -->)	
+
+
 (3) Rebuild content.
+	(a) cd content/
+	(b) mvn clean install sakai:deploy
+
+
+THIRD STEP: Install sakai-wicket
+
+(1) In your sakai base directory (e.g. sakai/), svn co https://source.sakaiproject.org/contrib/wicket/sakai-wicket/trunk/ sakai-wicket 
+
+(2) Modify the pom.xml at the base directory (e.g. sakai/pom.xml) to include a module "sakai-wicket" (and "scorm", as directed below)
+
+(3) cd sakai-wicket/
+
+(4) mvn clean install sakai:deploy
+
+
+FOURTH STEP: Install the scorm component (api, impl, and tool) -- you may already have done this, if you're reading this file.
+
+(1) In your sakai base directory (e.g. sakai/), svn co https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk/ scorm
+
+(2) Modify the pom.xml at the base directory (e.g. sakai/pom.xml) to include a module "scorm"
+
+(3) cd scorm/
+
+(4) mvn clean install sakai:deploy
+
+
+FIFTH STEP: Start up tomcat.
+
 
 
