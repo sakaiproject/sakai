@@ -49,10 +49,10 @@ public class RSSPodfeedServlet extends HttpServlet {
 	private static final String RESPONSE_MIME_TYPE = "application/xml; charset=UTF-8";
 
 	/** Used to track the event of generating a public feed **/
-	private final String EVENT_PUBLIC_FEED = "podcast.generate.public";
+	private final String EVENT_PUBLIC_FEED = "podcast.read.public";
 	
 	/** Used to track the event of generating a private feed **/
-	private final String EVENT_PRIVATE_FEED = "podcast.generate.private";
+	private final String EVENT_PRIVATE_FEED = "podcast.read.site";
 	
 	/** FUTURE DEVELOPMENT: set to pass in feed type as a parameter with name 'type' **/ 
 	private static final String FEED_TYPE = "type";
