@@ -4,7 +4,6 @@
 	
 @import url("../dijit.css");
 
-
 .dj_safari .sakadojo .dijitPopup {
 	/* -webkit-border-radius: 5px; */
 	-webkit-box-shadow: 0px 3px 7px #adadad;
@@ -24,6 +23,13 @@
 		dijit.form.ComboButton
 		dijit.form.ComboBox (partial)
  *****/
+
+
+.sakadojo .dijitA11yDownArrow{
+	/* tone down the default arrow down image*/
+	opacity: 0.65;
+	filter: gray() alpha(opacity=30); /* IE */
+}
 
 
 .sakadojo .dijitButtonNode {
