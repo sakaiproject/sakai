@@ -51,6 +51,7 @@ public class ChatMessage implements Entity {
    
    static String urlRegexp = "https?://[\\S]+";
    static String bodyRegexp = ".*"+urlRegexp+".*";
+   static String parenRegexp = "[\\s+(]";
    static String cleanRegexp = "\\s+";
    static String firstRegexp = "^";
    
@@ -92,7 +93,8 @@ public class ChatMessage implements Entity {
       // create hyperlinks from urls
       if ( formattedBody.matches(bodyRegexp) )
       {
-         String[] parts = formattedBody.split("\\s");
+         // split on spaces, parenthesis, and backslashes
+         String[] parts = formattedBody.split("[\\s()\\\\]");
       
          for (int i=0; i<parts.length; i++)
          {
@@ -104,10 +106,14 @@ public class ChatMessage implements Entity {
                href.append(parts[i]);
                href.append(href_3);
 					
-					// replace url that's embedded in text
+					// replace url that's preceded by space(s)
                formattedBody = 
 						formattedBody.replaceFirst( cleanRegexp+parts[i], 
                                               href.toString() );
+					// replace url that's preceded by parenthesis
+               formattedBody = 
+						formattedBody.replaceFirst( parenRegexp+parts[i], 
+                                              "("+href.toString() );
 					// replace url that's first in text
                formattedBody = 
 						formattedBody.replaceFirst( firstRegexp+parts[i], 
