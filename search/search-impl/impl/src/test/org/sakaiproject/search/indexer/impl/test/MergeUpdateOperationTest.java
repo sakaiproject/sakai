@@ -101,6 +101,8 @@ public class MergeUpdateOperationTest extends TestCase
 		String localIndexBase = new File(testBase,"local").getAbsolutePath();
 		String sharedJournalBase = new File(testBase,"shared").getAbsolutePath();
 
+		threadLocalManager = new MockThreadLocalManager();
+
 		
 		JournalSettings journalSettings = new JournalSettings();
 		journalSettings.setLocalIndexBase(localIndexBase);
@@ -113,6 +115,7 @@ public class MergeUpdateOperationTest extends TestCase
 
 		mu = new MergeUpdateOperation();
 		journaledFSIndexStorage = new JournaledFSIndexStorage();
+		journaledFSIndexStorage.setThreadLocalManager(threadLocalManager);
 		StandardAnalyzerFactory analyzerFactory = new StandardAnalyzerFactory();
 		DbJournalManager journalManager = new DbJournalManager();
 		MockServerConfigurationService serverConfigurationService = new MockServerConfigurationService();
@@ -183,7 +186,6 @@ public class MergeUpdateOperationTest extends TestCase
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(serverConfigurationService);
 		tiw.setTransactionIndexManager(transactionIndexManager);
-		threadLocalManager = new MockThreadLocalManager();
 		tiw.setThreadLocalManager(threadLocalManager);
 		tiw.addIndexWorkerDocumentListener(new DebugIndexWorkerDocumentListener());
 		tiw.addIndexWorkerListener(new DebugIndexWorkerListener());

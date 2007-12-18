@@ -23,10 +23,13 @@ package org.sakaiproject.search.index.soaktest;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
@@ -55,6 +58,7 @@ import org.sakaiproject.search.mock.MockComponentManager;
 import org.sakaiproject.search.mock.MockEventTrackingService;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockSearchService;
+import org.sakaiproject.search.mock.MockSecurityService;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
 import org.sakaiproject.search.mock.MockSessionManager;
 import org.sakaiproject.search.mock.MockThreadLocalManager;
@@ -129,6 +133,8 @@ public class SearchIndexerNode
 		String localIndexBase = instanceBase + "/index/local";
 		String sharedJournalBase = shared ;
 		
+		threadLocalManager = new MockThreadLocalManager();
+
 		JournalSettings journalSettings = new JournalSettings();
 		journalSettings.setLocalIndexBase(localIndexBase);
 		journalSettings.setSharedJournalBase(sharedJournalBase);
@@ -140,6 +146,7 @@ public class SearchIndexerNode
 
 		mu = new MergeUpdateOperation();
 		journaledFSIndexStorage = new JournaledFSIndexStorage();
+		journaledFSIndexStorage.setThreadLocalManager(threadLocalManager);
 		StandardAnalyzerFactory analyzerFactory = new StandardAnalyzerFactory();
 		DbJournalManager journalManager = new DbJournalManager();
 		MockServerConfigurationService serverConfigurationService = new MockServerConfigurationService();
@@ -210,7 +217,6 @@ public class SearchIndexerNode
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(serverConfigurationService);
 		tiw.setTransactionIndexManager(transactionIndexManager);
-		threadLocalManager = new MockThreadLocalManager();
 		tiw.setThreadLocalManager(threadLocalManager);
 		// tiw.addIndexWorkerDocumentListener(new
 		// DebugIndexWorkerDocumentListener());
@@ -255,13 +261,14 @@ public class SearchIndexerNode
 		searchService.setDatasource(tds.getDataSource());
 		MockSessionManager sessionManager = new MockSessionManager();
 		MockUserDirectoryService userDirectoryService = new MockUserDirectoryService();
+		MockSecurityService securityService = new MockSecurityService();
 
 		ConcurrentSearchIndexBuilderWorkerImpl csibw = new ConcurrentSearchIndexBuilderWorkerImpl();
 		csibw.setComponentManager(componentManager);
 		csibw.setEventTrackingService(eventTrackingService);
 		csibw.setIndexWorker(tiw);
 		csibw.setSearchService(searchService);
-		csibw.setSessionManager(sessionManager);
+		csibw.setSecurityService(securityService);
 		csibw.setJournalSettings(journalSettings);
 		csibw.setUserDirectoryService(userDirectoryService);
 		csibw.init();
@@ -416,6 +423,49 @@ public class SearchIndexerNode
 			log.error("Search Failed with, perhapse due to a file being removed "
 					+ ex.getMessage());
 		}
+	}
+	public void testSlowSearch() throws Exception
+	{
+			long start1 = System.currentTimeMillis();
+			IndexSearcher is = journaledFSIndexStorage.getIndexSearcher();
+			TermQuery tq = new TermQuery(new Term(SearchService.FIELD_CONTENTS, "node"));
+
+			long start = System.currentTimeMillis();
+			log.info("Searching with "+is);
+			Hits h = is.search(tq);
+			log.info("Performing Search and Slepping 500ms with "+is);
+			Thread.sleep(500);
+			log.info("Performing Search and Slepping 500ms with "+is);
+			long end = System.currentTimeMillis();
+			log.info("Got " + h.length() + " hits from " + is.getIndexReader().numDocs()
+					+ " for node " + instanceName + " in " + (end - start) + ":"
+					+ (start - start1) + " ms");
+			for ( int i = 0; i < h.length(); i++ ) {
+				Document d = h.doc(i);
+				for ( Enumeration<Field> e = d.fields(); e.hasMoreElements(); ) {
+					e.nextElement();
+				}
+			}
+	}
+
+	/**
+	 * @throws IOException 
+	 * 
+	 */
+	public void reopenIndex() throws IOException
+	{
+		journaledFSIndexStorage.markModified();
+		journaledFSIndexStorage.getIndexReader();
+		log.info("Reopend Index");
+		
+	}
+
+	/**
+	 * @return
+	 */
+	public ThreadLocalManager getThreadLocalManager()
+	{
+		return threadLocalManager;
 	}
 
 }

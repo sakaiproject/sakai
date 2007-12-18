@@ -60,8 +60,10 @@ import org.sakaiproject.search.journal.api.IndexStorageProvider;
 import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.JournalManager;
 import org.sakaiproject.search.journal.api.JournaledIndex;
+import org.sakaiproject.search.journal.api.ThreadBinder;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 import org.sakaiproject.search.util.FileUtils;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
  * <pre>
@@ -177,6 +179,8 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	private long lastLoadTime;
 
 	private JournalSettings journalSettings;
+
+	private ThreadLocalManager threadLocalManager;
 
 	public void destroy()
 	{
@@ -396,6 +400,10 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		{
 			loadIndexSearcherInternal();
 		}
+		if ( indexSearcher instanceof ThreadBinder ) {
+			((ThreadBinder)indexSearcher).bind(threadLocalManager);
+		}
+
 		return indexSearcher;
 	}
 
@@ -409,43 +417,9 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		if (tmpIndexReader != ir || indexSearcher == null)
 		{
 			long start = System.currentTimeMillis();
-			IndexSearcher newIndexSearcher = new IndexSearcher(ir)
-			{
-
-				/*
-				 * (non-Javadoc)
-				 * 
-				 * @see org.apache.lucene.search.IndexSearcher#close()
-				 */
-				@Override
-				public void close() throws IOException
-				{
-					try
-					{
-						fireIndexSearcherClose(this);
-					}
-					catch (Exception ioex)
-					{
-						return;
-					}
-					try
-					{
-						super.close();
-					}
-					catch (IOException ioex)
-					{
-
-					}
-					try
-					{
-						ir.close();
-					}
-					catch (IOException ioex)
-					{
-
-					}
-				}
-			};
+			
+			
+			RefCountIndexSearcher newIndexSearcher = new RefCountIndexSearcher(ir,this);
 			if (indexSearcher != null)
 			{
 				indexSearcher.close(); // this will be postponed
@@ -645,7 +619,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 						}
 						f3 = System.currentTimeMillis();
 					}
-				}
+				} 
 			}
 			else
 			{
@@ -663,6 +637,9 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 			log.info("Read Lock aquire " + (f1 - x1) + " ms");
 			log.info("Index Load aquire " + (r2 - r1) + " ms");
 			log.info("Read Lock Release " + (f3 - f3) + " ms");
+		}
+		if ( multiReader instanceof ThreadBinder ) {
+			((ThreadBinder)multiReader).bind(threadLocalManager);
 		}
 		return multiReader;
 	}
@@ -727,73 +704,8 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 			indexReaders[i] = IndexReader.open(s);
 			i++;
 		}
-		MultiReader newMultiReader = new MultiReader(indexReaders)
-		{
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see org.apache.lucene.index.MultiReader#doClose()
-			 */
-			@Override
-			protected synchronized void doClose() throws IOException
-			{
-				try
-				{
-					log
-							.debug("Closing Index ================================================"
-									+ this);
-					// set the singleton on null
-					if (multiReader == this)
-					{
-						multiReader = null;
-					}
-					// this will throw an IO exception if not invoked by a timer
-					// task
-					fireIndexReaderClose(this);
-				}
-				catch (Exception ioex)
-				{
-					log.debug("Closing index exception ", ioex);
-					toRemove.clear();
-					return;
-				}
-				try
-				{
-					super.doClose();
-				}
-				catch (IOException ex)
-				{
-
-				}
-				for (IndexReader ir : indexReaders)
-				{
-					try
-					{
-						ir.close();
-						log.info("Closed " + ir.directory().toString());
-					}
-					catch (IOException ioex)
-					{
-
-					}
-				}
-			}
-
-			/**
-			 * The isCurrent method in 1.9.1 has a NPE bug, this fixes it
-			 * 
-			 * @see org.apache.lucene.index.IndexReader#isCurrent()
-			 */
-			@Override
-			public boolean isCurrent() throws IOException
-			{
-				for (IndexReader ir : indexReaders)
-				{
-					if (!ir.isCurrent()) return false;
-				}
-				return true;
-			}
-		};
+		RefCountMultiReader newMultiReader = new RefCountMultiReader(indexReaders, this);
+		
 		if (multiReader != null)
 		{
 			multiReader.close(); // this will postpone due to the override
@@ -1126,20 +1038,25 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	 * @param oldMultiReader
 	 * @throws IOException
 	 */
-	private void fireIndexReaderClose(IndexReader oldMultiReader) throws IOException
+	protected void fireIndexReaderClose(IndexReader oldMultiReader) throws IOException
 	{
+		if ( oldMultiReader == multiReader ) {
+			multiReader = null;
+		}
+		
 		File[] f = toRemove.toArray(new File[toRemove.size()]);
 		for (Iterator<IndexListener> itl = getIndexListeners().iterator(); itl.hasNext();)
 		{
 			IndexListener tl = itl.next();
-			tl.doIndexReaderClose(oldMultiReader, f);
+			tl.doIndexReaderClose(oldMultiReader);
 		}
+		toRemove.clear();
 	}
 
 	/**
 	 * @param newMultiReader
 	 */
-	private void fireIndexReaderOpen(IndexReader newMultiReader)
+	protected void fireIndexReaderOpen(IndexReader newMultiReader)
 	{
 		for (Iterator<IndexListener> itl = getIndexListeners().iterator(); itl.hasNext();)
 		{
@@ -1152,7 +1069,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	 * @param indexSearcher2
 	 * @throws IOException
 	 */
-	private void fireIndexSearcherClose(IndexSearcher indexSearcher) throws IOException
+	void fireIndexSearcherClose(IndexSearcher indexSearcher) throws IOException
 	{
 		for (Iterator<IndexListener> itl = getIndexListeners().iterator(); itl.hasNext();)
 		{
@@ -1447,6 +1364,30 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	public void setJournalSettings(JournalSettings journalSettings)
 	{
 		this.journalSettings = journalSettings;
+	}
+	
+	public void markModified() throws IOException {
+		modified = true;
+		if ( multiReader != null ) {
+			multiReader.close();
+			multiReader = null;
+		}
+	}
+
+	/**
+	 * @return the threadLocalManager
+	 */
+	public ThreadLocalManager getThreadLocalManager()
+	{
+		return threadLocalManager;
+	}
+
+	/**
+	 * @param threadLocalManager the threadLocalManager to set
+	 */
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager)
+	{
+		this.threadLocalManager = threadLocalManager;
 	}
 
 }

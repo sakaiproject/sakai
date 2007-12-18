@@ -38,11 +38,9 @@ public interface IndexListener
 	 * 
 	 * @param oldMultiReader
 	 *        the index reader that has been detached and is ready to close
-	 * @param f
-	 *        array of files that need to be removed after close
 	 * @throws IOException
 	 */
-	void doIndexReaderClose(IndexReader oldMultiReader, File[] f) throws IOException;
+	void doIndexReaderClose(IndexReader oldMultiReader) throws IOException;
 
 	/**
 	 * @param newMultiReader

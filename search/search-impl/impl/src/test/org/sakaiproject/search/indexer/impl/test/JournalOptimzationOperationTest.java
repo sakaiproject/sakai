@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import junit.framework.TestCase;
 
@@ -38,8 +39,10 @@ import org.sakaiproject.search.indexer.impl.JournalStorageUpdateTransactionListe
 import org.sakaiproject.search.indexer.impl.SearchBuilderQueueManager;
 import org.sakaiproject.search.indexer.impl.TransactionIndexManagerImpl;
 import org.sakaiproject.search.indexer.impl.TransactionalIndexWorker;
+import org.sakaiproject.search.journal.api.IndexCloser;
 import org.sakaiproject.search.journal.api.IndexListener;
 import org.sakaiproject.search.journal.impl.DbJournalManager;
+import org.sakaiproject.search.journal.impl.IndexListenerCloser;
 import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorage;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorageUpdateTransactionListener;
@@ -86,9 +89,6 @@ public class JournalOptimzationOperationTest extends TestCase
 
 	private JournaledFSIndexStorage journaledFSIndexStorage;
 
-	protected ThreadLocal<Object> inclose = new ThreadLocal<Object>();
-
-	protected ThreadLocal<Object> insearcherclose = new ThreadLocal<Object>();
 
 	private TransactionalIndexWorker tiw;
 
@@ -101,6 +101,8 @@ public class JournalOptimzationOperationTest extends TestCase
 	private JournalSettings journalSettings;
 
 	private ThreadLocalManager threadLocalManager;
+
+	protected ConcurrentHashMap<IndexCloser, IndexCloser> closeMap = new ConcurrentHashMap<IndexCloser, IndexCloser>();
 
 	/**
 	 * @param name
@@ -128,6 +130,8 @@ public class JournalOptimzationOperationTest extends TestCase
 		String sharedJournalBase = new File(testBase,"shared").getAbsolutePath();
 
 		
+		threadLocalManager = new MockThreadLocalManager();
+
 		journalSettings = new JournalSettings();
 		journalSettings.setLocalIndexBase(localIndexBase);
 		journalSettings.setSharedJournalBase(sharedJournalBase);
@@ -140,6 +144,8 @@ public class JournalOptimzationOperationTest extends TestCase
 		
 		mu = new MergeUpdateOperation();
 		journaledFSIndexStorage = new JournaledFSIndexStorage();
+		journaledFSIndexStorage.setThreadLocalManager(threadLocalManager);
+
 		StandardAnalyzerFactory analyzerFactory = new StandardAnalyzerFactory();
 		DbJournalManager journalManager = new DbJournalManager();
 		MockServerConfigurationService serverConfigurationService = new MockServerConfigurationService();
@@ -180,83 +186,7 @@ public class JournalOptimzationOperationTest extends TestCase
 		mu.setJournaledObject(journaledFSIndexStorage);
 		mu.setMergeUpdateManager(mergeUpdateManager);
 
-		journaledFSIndexStorage.addIndexListener(new IndexListener()
-		{
-
-			public void doIndexReaderClose(IndexReader oldMultiReader, File[] f)
-					throws IOException
-			{
-				if (inclose.get() == null)
-				{
-					if (oldMultiReader != null)
-					{
-						try
-						{
-							inclose.set("inclose");
-							oldMultiReader.close();
-						}
-						catch (IOException e)
-						{
-							e.printStackTrace();
-						}
-						finally
-						{
-							inclose.set(null);
-						}
-					}
-					for (File fs : f)
-					{
-						try
-						{
-							FileUtils.deleteAll(fs);
-							log.info("Deleted " + fs.getPath());
-						}
-						catch (IOException e)
-						{
-							e.printStackTrace();
-						}
-					}
-					throw new IOException("Imediate close already performed ");
-				}
-
-			}
-
-			public void doIndexReaderOpen(IndexReader newMultiReader)
-			{
-
-			}
-
-			public void doIndexSearcherClose(IndexSearcher indexSearcher)
-					throws IOException
-			{
-				if (insearcherclose.get() == null)
-				{
-					if (indexSearcher != null)
-					{
-						try
-						{
-							insearcherclose.set("inclose");
-							indexSearcher.close();
-						}
-						catch (IOException e)
-						{
-							e.printStackTrace();
-						}
-						finally
-						{
-							insearcherclose.set(null);
-						}
-					}
-					throw new IOException("Imediate close already performed ");
-				}
-			}
-
-			public void doIndexSearcherOpen(IndexSearcher indexSearcher)
-			{
-				
-			}
-
-		});
+		journaledFSIndexStorage.addIndexListener(new IndexListenerCloser());
 
 		// index updater
 
@@ -287,7 +217,6 @@ public class JournalOptimzationOperationTest extends TestCase
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(serverConfigurationService);
 		tiw.setTransactionIndexManager(transactionIndexManager);
-		threadLocalManager = new MockThreadLocalManager();
 		tiw.setThreadLocalManager(threadLocalManager);
 
 		sequence.init();

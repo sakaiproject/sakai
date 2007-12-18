@@ -26,6 +26,8 @@ import java.util.Observer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -35,14 +37,12 @@ import org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener;
 import org.sakaiproject.search.journal.api.ManagementOperation;
 import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
  * A management operation to perform indexing to the journal
  * 
- * @author ieb No unit test TODO Unit Test
+ * @author ieb 
  */
 public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperation,
 		IndexWorkerDocumentListener
@@ -53,10 +53,6 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 
 	private boolean enabled = false;
 
-	/**
-	 * dependency
-	 */
-	private SessionManager sessionManager;
 
 	/**
 	 * dependency
@@ -113,11 +109,11 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 
 	private ThreadLocal<String> nowIndexing = new ThreadLocal<String>();
 
-	private Session session;
-
 	private JournalSettings journalSettings;
 
 	private SqlService sqlService;
+
+	private SecurityService securityService;
 
 	public void destroy()
 	{
@@ -173,19 +169,6 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 			return;
 		}
 
-		if (session == null)
-		{
-			try
-			{
-				session = sessionManager.startSession();
-				User u = userDirectoryService.getUser("admin");
-				session.setUserId(u.getId());
-			}
-			catch (Exception ex)
-			{
-				log.error("Failed to login as admin ", ex);
-			}
-		}
 
 		nowIndexing.set("-");
 		if (journalSettings.getSoakTest() && (searchService.getPendingDocs() == 0))
@@ -269,17 +252,22 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 					batchSize = 1000;
 				}
 				Session oldSession = null;
+				securityService.pushAdvisor(new SecurityAdvisor() {
+
+					public SecurityAdvice isAllowed(String userId, String function, String reference)
+					{
+						return SecurityAdvice.ALLOWED;
+					}
+					
+				});
 				try
 				{
-					oldSession = sessionManager.getCurrentSession();
-					sessionManager.setCurrentSession(session);
-
 					indexWorker.process(batchSize);
 
 				}
 				finally
 				{
-					sessionManager.setCurrentSession(oldSession);
+					securityService.popAdvisor();
 				}
 
 				lastIndexRun = System.currentTimeMillis();
@@ -393,23 +381,8 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 		this.searchService = searchService;
 	}
 
-	/**
-	 * @return the sessionManager
-	 */
-	public SessionManager getSessionManager()
-	{
-		return sessionManager;
-	}
 
-	/**
-	 * @param sessionManager
-	 *        the sessionManager to set
-	 */
-	public void setSessionManager(SessionManager sessionManager)
-	{
-		this.sessionManager = sessionManager;
-	}
-
+	
 	/**
 	 * @return the userDirectoryService
 	 */
@@ -458,6 +431,22 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	public void setSqlService(SqlService sqlService)
 	{
 		this.sqlService = sqlService;
+	}
+
+	/**
+	 * @return the securityService
+	 */
+	public SecurityService getSecurityService()
+	{
+		return securityService;
+	}
+
+	/**
+	 * @param securityService the securityService to set
+	 */
+	public void setSecurityService(SecurityService securityService)
+	{
+		this.securityService = securityService;
 	}
 
 }

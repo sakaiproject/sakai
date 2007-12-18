@@ -21,20 +21,19 @@
 
 package org.sakaiproject.search.journal.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.DelayQueue;
-import java.util.concurrent.Delayed;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.journal.api.IndexCloser;
 import org.sakaiproject.search.journal.api.IndexListener;
 
 /**
@@ -54,28 +53,22 @@ public class ConcurrentIndexManager implements IndexListener
 
 	private boolean closed = false;
 
-	private long closeDelay = 10000;
-
-	protected ThreadLocal<Object> inclose = new ThreadLocal<Object>();
-
-	private DelayQueue<Delayed> delayQueue = new DelayQueue<Delayed>();
-
 	private int nsopen = 0;
 
 	private int nropen = 0;
 
 	private SearchService searchService;
 
-
+	private IndexListenerCloser indexListenerCloser;
 
 	public void init()
 	{
-		
 
-		if ( !searchService.isEnabled() ) {
+		if (!searchService.isEnabled())
+		{
 			return;
 		}
-		
+
 		for (Iterator<IndexManagementTimerTask> i = tasks.iterator(); i.hasNext();)
 		{
 			IndexManagementTimerTask task = i.next();
@@ -89,31 +82,16 @@ public class ConcurrentIndexManager implements IndexListener
 
 			}
 		}
+		indexListenerCloser = new IndexListenerCloser();
 		timer.schedule(new TimerTask()
 		{
 
 			@Override
 			public void run()
 			{
-				try
-				{
-
-					inclose.set("xxx");
-					log
-							.debug("Start Purge ------------------------- "
-									+ delayQueue.size());
-					DelayedClose dc = (DelayedClose) delayQueue.poll();
-					while (dc != null)
-					{
-						dc.close();
-						dc = (DelayedClose) delayQueue.poll();
-					}
-					log.debug("Purge complete ----------------------" + delayQueue.size());
-				}
-				finally
-				{
-					inclose.set(null);
-				}
+				log.debug("Start Purge ------------------------- " + indexListenerCloser.size());
+				indexListenerCloser.purge();
+				log.debug("Purge complete ----------------------" + indexListenerCloser.size());
 			}
 
 		}, 5000, 15000);
@@ -136,17 +114,7 @@ public class ConcurrentIndexManager implements IndexListener
 
 	public void cleanup()
 	{
-		inclose.set("inclose");
-		while (delayQueue.size() > 0)
-		{
-
-			DelayedClose dc = (DelayedClose) delayQueue.poll();
-			if (dc != null)
-			{
-				dc.close();
-			}
-		}
-		inclose.set(null);
+		indexListenerCloser.cleanup();
 		closed = true;
 
 		log.debug("N Searchers is " + nsopen);
@@ -175,19 +143,12 @@ public class ConcurrentIndexManager implements IndexListener
 	 * 
 	 * @see org.sakaiproject.search.journal.api.IndexListener#doIndexReaderClose(org.apache.lucene.index.IndexReader)
 	 */
-	public void doIndexReaderClose(IndexReader oldMultiReader, File[] toRemove)
-			throws IOException
+	public void doIndexReaderClose(IndexReader oldMultiReader) throws IOException
 	{
-		if (inclose.get() == null)
-		{
-			nropen--;
-			log.debug("Closed Readerr " + nropen + " " + oldMultiReader);
-			delayQueue.offer(new DelayedIndexReaderClose(closeDelay, oldMultiReader,
-					toRemove));
-			throw new IOException("Close Will take place in " + closeDelay + " ms");
-		} else {
-			log.debug("Close in Thread ");
-		}
+		nropen--;
+		indexListenerCloser.doIndexReaderClose(oldMultiReader);
+		log.debug("Closed Readerr " + nropen + " " + oldMultiReader);
+		indexListenerCloser.doIndexReaderClose(oldMultiReader);
 
 	}
 
@@ -198,13 +159,9 @@ public class ConcurrentIndexManager implements IndexListener
 	 */
 	public void doIndexSearcherClose(IndexSearcher indexSearcher) throws IOException
 	{
-		if (inclose.get() == null)
-		{
-			nsopen--;
-			log.debug("Closed Searcher " + nsopen + " " + indexSearcher);
-			delayQueue.offer(new DelayedIndexSearcherClose(closeDelay, indexSearcher));
-			throw new IOException("Close Will take place in " + closeDelay + " ms");
-		}
+		nsopen--;
+		log.debug("Closed Searcher " + nsopen + " " + indexSearcher);
+		indexListenerCloser.doIndexSearcherClose(indexSearcher);
 
 	}
 
@@ -215,6 +172,7 @@ public class ConcurrentIndexManager implements IndexListener
 	{
 		nsopen++;
 		log.debug(this + "Opened New Searcher " + nsopen + " " + indexSearcher);
+		indexListenerCloser.doIndexSearcherOpen(indexSearcher);
 	}
 
 	/*
@@ -226,24 +184,8 @@ public class ConcurrentIndexManager implements IndexListener
 	{
 		nropen++;
 		log.debug("Opened New Reader " + nropen + " " + newMultiReader);
+		indexListenerCloser.doIndexReaderOpen(newMultiReader);
 
-	}
-
-	/**
-	 * @return the closeDelay
-	 */
-	public long getCloseDelay()
-	{
-		return closeDelay;
-	}
-
-	/**
-	 * @param closeDelay
-	 *        the closeDelay to set
-	 */
-	public void setCloseDelay(long closeDelay)
-	{
-		this.closeDelay = closeDelay;
 	}
 
 
@@ -256,7 +198,8 @@ public class ConcurrentIndexManager implements IndexListener
 	}
 
 	/**
-	 * @param searchService the searchService to set
+	 * @param searchService
+	 *        the searchService to set
 	 */
 	public void setSearchService(SearchService searchService)
 	{

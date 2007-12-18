@@ -19,56 +19,31 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.journal.impl;
+package org.sakaiproject.search.journal.api;
 
-import java.util.concurrent.Delayed;
-import java.util.concurrent.TimeUnit;
+import org.sakaiproject.search.journal.impl.RefCountIndexSearcher;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * @author ieb
+ *
  */
-public abstract class DelayedClose implements Delayed
+public interface IndexCloser
 {
+	boolean doFinalClose();
 
-	private static final Log log = LogFactory.getLog(DelayedClose.class);
-
-	private long end;
+	boolean forceClose();
+	
+	boolean canClose();
 
 	/**
-	 * @param delay2
-	 * @param inclose
+	 * @param searcher
 	 */
-	public DelayedClose(long delay)
-	{
-		this.end = System.currentTimeMillis() + delay;
-		log.debug("Delayed close will trigger at "+end);
-	}
+	void addParent(Object parent);
 
-	public long getDelay(TimeUnit unit)
-	{
-		long tnow = System.currentTimeMillis();
-		long milisdiff = end - tnow;
-		long t = unit.convert(milisdiff, TimeUnit.MILLISECONDS);
-		return t;
-	}
-
-	public int compareTo(Delayed del)
-	{
-
-		if (end < ((DelayedClose) del).end)
-		{
-			return -1;
-		}
-		else if (end > ((DelayedClose) del).end)
-		{
-			return 1;
-		}
-		return 0;
-	}
-
-	protected abstract void close();
+	/**
+	 * @param searcher
+	 */
+	void removeParent(Object searcher);
 
 }

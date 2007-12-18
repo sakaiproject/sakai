@@ -257,6 +257,7 @@
     id="org.sakaiproject.search.api.SearchService.parallel.index.journaledFSIndexStorage"
 	   	init-method="init" 
     	destroy-method="destroy" >
+    		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" /></property>
     		<property name="analyzerFactory" ><ref bean="org.sakaiproject.search.index.AnalyzerFactory" /></property>    
 			<property name="datasource"><ref bean="javax.sql.DataSource"/></property>
 			<property name="journalManager"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.journalManager" /></property>
@@ -290,9 +291,9 @@
 			<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService" /></property>
 			<property name="indexWorker"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.transactionalIndexWorker" /></property>
 			<property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService" /></property>
-			<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
 			<property name="journalSettings"><ref bean="org.sakaiproject.search.api.JournalSettings" /></property>			
 			<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
+    		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService" /></property>
     </bean>
 	<bean 
     	class="org.sakaiproject.search.journal.impl.JournaledFSIndexStorageUpdateTransactionListener" 

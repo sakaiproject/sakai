@@ -19,56 +19,15 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.journal.impl;
+package org.sakaiproject.search.journal.api;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.search.IndexSearcher;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
  * @author ieb
+ *
  */
-public class DelayedIndexSearcherClose extends DelayedClose
+public interface ThreadBinder
 {
-
-	private static final Log log = LogFactory.getLog(DelayedIndexSearcherClose.class);
-
-	private IndexSearcher searcher;
-
-	/**
-	 * @param l
-	 * @param indexSearcher
-	 * @param insearcherclose
-	 */
-	public DelayedIndexSearcherClose(long delay, IndexSearcher indexSearcher)
-	{
-		super(delay);
-		this.searcher = indexSearcher;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.journal.impl.DelayedClose#doClose()
-	 */
-	@Override
-	protected void close()
-	{
-		try
-		{
-			searcher.close();
-			log.debug(this+"Index Searcher Closed ");
-
-		}
-		catch (Exception ex)
-		{
-			log.warn("Close of old index " + searcher + "failed " + ex.getMessage());
-		}
-		finally
-		{
-			searcher = null;
-		}
-
-	}
-
+	void bind(ThreadLocalManager tlm);
 }

@@ -31,7 +31,9 @@ import junit.framework.TestCase;
 import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorage;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
+import org.sakaiproject.search.mock.MockThreadLocalManager;
 import org.sakaiproject.search.util.FileUtils;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
  * @author ieb
@@ -44,6 +46,7 @@ public class LoadSaveSegmentListTest extends TestCase
 	private File localIndexBase;
 	private File sharedJournalBase;
 	private JournalSettings journalSettings;
+	private ThreadLocalManager threadLocalManager;
 
 	/**
 	 * @param name
@@ -61,7 +64,10 @@ public class LoadSaveSegmentListTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		super.setUp();
+		threadLocalManager = new MockThreadLocalManager();
+
 		journaledFSIndexStorage = new JournaledFSIndexStorage();
+		journaledFSIndexStorage.setThreadLocalManager(threadLocalManager);
 		testBase = new File("target");
 		testBase = new File(testBase, "LoadSaveSegmentListTest");
 		FileUtils.deleteAll(testBase);

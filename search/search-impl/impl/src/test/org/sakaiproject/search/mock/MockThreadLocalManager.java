@@ -21,6 +21,12 @@
 
 package org.sakaiproject.search.mock;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.thread_local.api.ThreadBound;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
@@ -30,39 +36,147 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 public class MockThreadLocalManager implements ThreadLocalManager
 {
 
+	/** Our log (commons). */
+	private static Log M_log = LogFactory.getLog(MockThreadLocalManager.class);
+
 	/**
-	 * 
+	 * <p>
+	 * ThreadBindings is a thread local map of keys to objects, holding the things bound to each thread.
+	 * </p>
 	 */
-	public MockThreadLocalManager()
+	protected class ThreadBindings extends ThreadLocal
 	{
-		// TODO Auto-generated constructor stub
+		public Object initialValue()
+		{
+			return new HashMap();
+		}
+
+		public Map getBindings()
+		{
+			return (Map) get();
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.thread_local.api.ThreadLocalManager#clear()
-	 */
-	public void clear()
-	{
-		// TODO Auto-generated method stub
+	/** The bindings for each thread. */
+	protected ThreadBindings m_bindings = new ThreadBindings();
 
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Dependencies and their setter methods
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Init and Destroy
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	/**
+	 * Final initialization, once all dependencies are set.
+	 */
+	public void init()
+	{
+		M_log.info("init()");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.thread_local.api.ThreadLocalManager#get(java.lang.String)
+	/**
+	 * Final cleanup.
 	 */
-	public Object get(String name)
+	public void destroy()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		M_log.info("destroy()");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.thread_local.api.ThreadLocalManager#set(java.lang.String, java.lang.Object)
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Work interface methods: org.sakaiproject.api.kernel.thread_local.ThreadLocalManager
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public void set(String name, Object value)
 	{
-		// TODO Auto-generated method stub
+		// find the map that might already exist
+		Map bindings = m_bindings.getBindings();
+		if (bindings == null)
+		{
+			M_log.warn("setInThread: no bindings!");
+			return;
+		}
 
+		Object existing = bindings.get(name);
+		if (existing instanceof ThreadBound)
+		{
+			if (!existing.equals(value))
+			{
+				unbind((ThreadBound) existing);
+			}
+		}
+
+		// remove if nulling
+		if (value == null)
+		{
+			bindings.remove(name);
+		}
+
+		// otherwise bind the object
+		else
+		{
+			bindings.put(name, value);
+		}
+	}
+
+	/**
+	 * @param bound
+	 */
+	private void unbind(ThreadBound bound)
+	{
+		try
+		{
+			bound.unbind();
+			M_log.debug("Unbound from ThreadLocal " + bound);
+		}
+		catch (Throwable t)
+		{
+			M_log.error("Failed to unbind Object " + bound, t);
+		}
+
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void clear()
+	{
+		Map bindings = m_bindings.getBindings();
+		if (bindings == null)
+		{
+			M_log.warn("clear: no bindings!");
+			return;
+		}
+		
+		// unbind all objects that need it
+		Object[] ba = bindings.values().toArray();
+		for ( Object o : ba ) {
+			if ( o instanceof ThreadBound ) {
+				unbind((ThreadBound)o);
+			}
+		}
+
+		// clear the bindings map associated with this thread
+		bindings.clear();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Object get(String name)
+	{
+		Map bindings = m_bindings.getBindings();
+		if (bindings == null)
+		{
+			M_log.warn("get: no bindings!");
+			return null;
+		}
+
+		return bindings.get(name);
 	}
 
 }
