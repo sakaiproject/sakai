@@ -1009,6 +1009,10 @@ below they are contextually defined depending on the column as an example,as you
 	background-image: url(../../image/silk/vcard.png);
 }
 
+.icon-sakai-synoptic-messagecenter{
+background-image: url(../../image/silk/comment.png);
+}
+
 .icon-sakai-conferencing {
     background-image : url(../../image/silk/webcam.png);
 }
