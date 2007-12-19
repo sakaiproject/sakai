@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- The webapp (standalone) version -->
+	<bean id="org.sakaiproject.scorm.service.api.ScormResourceService"
+		class="org.sakaiproject.scorm.service.standalone.impl.StandaloneResourceService"
+		singleton="true">
+		
+		<!-- Sakai API Service -->
+		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
+		
+	</bean>
+	
+</beans>

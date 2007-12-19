@@ -12,7 +12,7 @@ public interface AttemptDao {
 	
 	public Attempt find(String courseId, String learnerId, long attemptNumber);
 	
-	public List<Attempt> find(String courseId);
+	public List<Attempt> find(long contentPackageId);
 	
 	public void save(Attempt attempt);
 	

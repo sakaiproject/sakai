@@ -21,14 +21,21 @@
 package org.sakaiproject.scorm.ui.player;
 
 import org.apache.wicket.util.file.Folder;
+import org.sakaiproject.scorm.service.api.ScormResourceService;
+import org.sakaiproject.scorm.ui.ContentPackageResourceMountStrategy;
 import org.sakaiproject.scorm.ui.console.pages.PackageListPage;
 import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
 
 public class ScormTool extends SakaiWebApplication {
 	
+	private ScormResourceService resourceService;
+	
 	@Override
 	public void init() {
 		super.init();
+
+		this.mount(new ContentPackageResourceMountStrategy("contentPackages"));
+		
 	}
 	
 	@Override
@@ -36,7 +43,6 @@ public class ScormTool extends SakaiWebApplication {
 		return PackageListPage.class;
 	}
 
-	
 	public Folder getUploadFolder() {
 		Folder folder = new Folder(System.getProperty("java.io.tmpdir"), "scorm-uploads");
 	
@@ -45,5 +51,15 @@ public class ScormTool extends SakaiWebApplication {
 		
 		return folder;
 	}
+	
+	
+	public ScormResourceService getResourceService() {
+		return resourceService;
+	}
+
+	public void setResourceService(ScormResourceService resourceService) {
+		this.resourceService = resourceService;
+	}
+
 		
 }

@@ -44,10 +44,9 @@ public class PackageRemovePage extends ConsoleBasePage {
 
 	public PackageRemovePage(PageParameters params) {
 		String title = params.getString("title");
-		final String courseId = params.getString("courseId");
 		final long id = params.getLong("id");
 		
-		ContentPackage contentPackage = new ContentPackage(title, courseId);
+		ContentPackage contentPackage = new ContentPackage(title, id);
 		
 		List<ContentPackage> list = new LinkedList<ContentPackage>();
 		list.add(contentPackage);

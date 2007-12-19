@@ -4,6 +4,6 @@ import org.sakaiproject.scorm.model.api.SessionBean;
 
 public interface INavigable {
 
-	public void displayContent(SessionBean sessionBean, Object target);
+	public void displayResource(SessionBean sessionBean, Object target);
 	
 }

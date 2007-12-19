@@ -40,11 +40,11 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 		return attempt;
 	}
 
-	public List<Attempt> find(String courseId) {
+	public List<Attempt> find(long contentPackageId) {
 		List r = getHibernateTemplate().find(
 				"from " + Attempt.class.getName()
-						+ " where courseId=? ", 
-						new Object[]{ courseId });
+						+ " where contentPackageId=? ", 
+						new Object[]{ contentPackageId });
 		
 		return r;
 	}

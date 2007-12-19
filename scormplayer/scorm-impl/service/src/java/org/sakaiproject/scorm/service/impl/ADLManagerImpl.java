@@ -4,17 +4,17 @@ import org.adl.datamodels.IDataManager;
 import org.adl.sequencer.ISeqActivityTree;
 import org.adl.sequencer.ISequencer;
 import org.adl.sequencer.impl.ADLSequencer;
-import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.ADLManager;
 import org.sakaiproject.scorm.service.api.ScoBean;
+import org.sakaiproject.scorm.service.api.ScormResourceService;
 
 public abstract class ADLManagerImpl implements ADLManager {
 
-	protected abstract ContentPackageManifestDao contentPackageManifestDao();
+	protected abstract ScormResourceService resourceService();
 	protected abstract DataManagerDao dataManagerDao();
 	protected abstract SeqActivityTreeDao seqActivityTreeDao();
 	
@@ -62,9 +62,11 @@ public abstract class ADLManagerImpl implements ADLManager {
 		// First, check to see if the manifest is cached in the session bean
 		ContentPackageManifest manifest = sessionBean.getManifest();
 		
-		if (manifest == null)
-			manifest = contentPackageManifestDao().find(sessionBean.getCourseId());
-			
+		if (manifest == null) {
+			manifest = resourceService().getManifest(sessionBean.getCourseId(), null);
+			//sessionBean.setManifest(manifest);
+		}
+		
 		return manifest;
 	}
 

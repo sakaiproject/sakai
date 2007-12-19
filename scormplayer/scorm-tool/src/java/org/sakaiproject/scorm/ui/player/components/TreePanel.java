@@ -24,6 +24,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
+import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 
 public class TreePanel extends Panel {
@@ -32,6 +33,8 @@ public class TreePanel extends Panel {
 	private ActivityTree tree;
 	private LaunchPanel launchPanel;
 		
+	@SpringBean
+	ScormResourceService resourceService;
 	@SpringBean
 	ScormSequencingService sequencingService;
 	
@@ -44,7 +47,12 @@ public class TreePanel extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected ScormSequencingService getSequencingService() {
+			protected ScormResourceService resourceService() {
+				return resourceService;
+			}
+			
+			@Override
+			protected ScormSequencingService sequencingService() {
 				return sequencingService;
 			}
 			

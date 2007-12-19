@@ -7,17 +7,25 @@
 
 	<!-- Bring in the hibernate daos -->
 	<import resource="spring-hibernate-daos.xml" />
-
-	<!-- Bring in any other data access objects that are not hibernate related -->
-	<import resource="spring-non-hibernate-daos.xml" />
-
 	
+	<!-- Bring in the standalone webapp beans -->
+	<!-- // To store your content in tomcat's file system, uncomment this and comment
+			out the spring-sakai-chh.xml import below -->
+	<!--
+	<import resource="spring-standalone-webapp.xml" />
+	-->	
+
+	<!-- Bring in the sakai beans -->
+	<!-- // Comment this out if you want to use 'standalone' content storage in place of Sakai's standard repository -->
+	<import resource="spring-sakai-chh.xml" />
+		
 	<bean id="org.sakaiproject.scorm.service.api.ADLManager"
 		class="org.sakaiproject.scorm.service.impl.ADLManagerImpl"
 		singleton="true">
 		
+		<lookup-method name="resourceService" bean="org.sakaiproject.scorm.service.api.ScormResourceService" />
+		
 		<!-- Data Access Objects -->
-		<lookup-method name="contentPackageManifestDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
 		<lookup-method name="seqActivityTreeDao" bean="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao" />
 		
@@ -53,10 +61,11 @@
 		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
 		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
 		<lookup-method name="permissionService" bean="org.sakaiproject.scorm.service.api.ScormPermissionService" />
+		<lookup-method name="resourceService" bean="org.sakaiproject.scorm.service.api.ScormResourceService" />
+		
 		
 		<!-- Data Access Objects -->
 		<lookup-method name="contentPackageDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageDao" />
-		<lookup-method name="contentPackageManifestDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
 		<lookup-method name="seqActivityTreeDao" bean="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao" />
 		
@@ -83,7 +92,7 @@
 		class="org.sakaiproject.scorm.service.impl.ScormResultServiceImpl"
 		singleton="true">
 		
-		<!-- Sakai API Service -->
+		<!-- Sakai API Services -->
 		<lookup-method name="contentService" bean="org.sakaiproject.scorm.service.api.ScormContentService" />	
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />	  
 		
@@ -105,7 +114,6 @@
 		<lookup-method name="adlManager" bean="org.sakaiproject.scorm.service.api.ADLManager" />
 		
 		<!-- Data Access Objects -->
-		<lookup-method name="contentPackageManifestDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
 		<lookup-method name="seqActivityTreeDao" bean="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao" />		
 		
 	</bean>	

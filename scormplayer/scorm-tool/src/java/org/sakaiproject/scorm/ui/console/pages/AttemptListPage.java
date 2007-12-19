@@ -28,7 +28,8 @@ public class AttemptListPage extends ConsoleBasePage {
 	
 	public AttemptListPage(PageParameters pageParams) {
 		String title = new StringBuilder().append("Attempt Listing - ").append(pageParams.getString("contentPackage")).toString();
-		final String courseId = pageParams.getString("courseId");
+
+		final long contentPackageId = pageParams.getLong("id");
 		final String contentPackageName = pageParams.getString("contentPackageName");
 				
 		List<IColumn> columns = new LinkedList<IColumn>();
@@ -37,7 +38,7 @@ public class AttemptListPage extends ConsoleBasePage {
 		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.begin.date", this, null), "beginDate", "beginDate"));
 		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.last.modified.date", this, null), "lastModifiedDate", "lastModifiedDate"));
 		
-		String[] paramPropertyExpressions = {"courseId", "learnerId", "attemptNumber", "id"};
+		String[] paramPropertyExpressions = {"learnerId", "attemptNumber", "id"};
 		
 		ActionColumn actionColumn = new ActionColumn(new StringResourceModel("column.header.attempt.number", this, null), "attemptNumber", "attemptNumber");
 		Action detailAction = new Action("attemptNumber", AttemptDetailPage.class, paramPropertyExpressions);
@@ -45,7 +46,7 @@ public class AttemptListPage extends ConsoleBasePage {
 		
 		columns.add(actionColumn);
 		
-		List<Attempt> attempts = resultService.getAttempts(courseId);
+		List<Attempt> attempts = resultService.getAttempts(contentPackageId);
 		
 		BasicDataTable table = new BasicDataTable("attemptTable", columns, attempts);
 

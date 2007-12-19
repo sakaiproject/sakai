@@ -20,6 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.player.pages;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,12 +36,16 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.Resource;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.DynamicWebResource;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.request.IRequestCodingStrategy;
 import org.apache.wicket.request.target.component.BookmarkablePageRequestTarget;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.file.File;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -44,8 +54,10 @@ import org.sakaiproject.scorm.service.api.INavigable;
 import org.sakaiproject.scorm.service.api.ScoBean;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormContentService;
+import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
+import org.sakaiproject.scorm.ui.ResourceNavigator;
 import org.sakaiproject.scorm.ui.player.behaviors.ActivityAjaxEventBehavior;
 import org.sakaiproject.scorm.ui.player.behaviors.CloseWindowBehavior;
 import org.sakaiproject.scorm.ui.player.components.ButtonForm;
@@ -55,7 +67,7 @@ import org.sakaiproject.scorm.ui.player.components.LaunchPanel;
 import org.sakaiproject.scorm.ui.player.components.LazyLoadPanel;
 
 
-public class PlayerPage extends BaseToolPage implements INavigable {
+public class PlayerPage extends BaseToolPage {
 	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(PlayerPage.class);
 	
@@ -63,6 +75,8 @@ public class PlayerPage extends BaseToolPage implements INavigable {
 	ScormApplicationService api;
 	@SpringBean
 	ScormContentService contentService;
+	@SpringBean
+	ScormResourceService resourceService;
 	@SpringBean
 	ScormResultService resultService;
 	@SpringBean
@@ -84,7 +98,7 @@ public class PlayerPage extends BaseToolPage implements INavigable {
 		super();
 		
 		long contentPackageId = pageParams.getLong("id");
-		String courseId = pageParams.getString("courseId");
+		String courseId = pageParams.getString("resourceId");
 		
 		sessionBean = sequencingService.newSessionBean(courseId, contentPackageId);
 		sessionBean.setCompletionUrl(getCompletionUrl());
@@ -128,6 +142,8 @@ public class PlayerPage extends BaseToolPage implements INavigable {
 			
 		String result = null;
 		
+		LocalResourceNavigator navigator = new LocalResourceNavigator();
+		
 		try {
 			// FIXME: We need to make a decision here about which attempt this is. 
 			// If there's already an existing, suspended attempt, then we should use that. 
@@ -151,7 +167,7 @@ public class PlayerPage extends BaseToolPage implements INavigable {
 					attempt.setNotExited(false);
 					resultService.saveAttempt(attempt);
 					sessionBean.setRestart(true);
-					sequencingService.navigate(SeqNavRequests.NAV_ABANDONALL, sessionBean, this, target);
+					sequencingService.navigate(SeqNavRequests.NAV_ABANDONALL, sessionBean, navigator, target);
 				} else {
 					// Otherwise, we can start a new one
 					attemptNumber = attempt.getAttemptNumber() + 1;
@@ -178,14 +194,8 @@ public class PlayerPage extends BaseToolPage implements INavigable {
 			if (pageParams.containsKey("navRequest"))
 				navRequest = pageParams.getInt("navRequest");
 			
-			result = sequencingService.navigate(navRequest, sessionBean, this, target);
-			
-			/*if (result != null && result.contains("_INVALIDNAVREQ_")) {
-				log.warn("Abandoning old attempt and re-starting . . . ");
-				sequencingService.navigate(SeqNavRequests.NAV_ABANDONALL, sessionBean, this, target);
-				result = sequencingService.navigate(SeqNavRequests.NAV_START, sessionBean, this, target);
-			}*/
-			
+			result = sequencingService.navigate(navRequest, sessionBean, null, target);
+						
 			if (result == null || result.contains("_TOC_")) {
 				launchPanel = new LaunchPanel(lazyId, sessionBean, PlayerPage.this);
 				
@@ -198,12 +208,12 @@ public class PlayerPage extends BaseToolPage implements INavigable {
 					launchPanel.getTreePanel().setVisible(false);
 				}
 				
-				displayContent(sessionBean, target);
+				navigator.displayResource(sessionBean, target);
 				
 				return launchPanel;
 			} 
 			
-			log.warn("Result is " + result);
+			log.info("Result is " + result);
 			
 		} catch (Exception e) {
 			result = e.getMessage();
@@ -233,20 +243,18 @@ public class PlayerPage extends BaseToolPage implements INavigable {
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		
-		//response.renderJavascriptReference(ORGANIZE_DIMENSIONS_JS);
-		
-		//response.renderOnBeforeUnloadJavascript(closeWindowBehavior.getCall());
-		
 		response.renderOnEventJavacript("window", "beforeunload", closeWindowBehavior.getCall());
+	}
+	
+	public class LocalResourceNavigator extends ResourceNavigator {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected ScormResourceService resourceService() {
+			return PlayerPage.this.resourceService;
+		}
 		
-		/*if (launchPanel != null) {
-			StringBuffer onDomReadyJs = new StringBuffer().append(ON_DOM_READY_JS_BEGIN);
-			onDomReadyJs.append(launchPanel.getMarkupId()).append(", ").append(launchPanel.getTreePanel().getMarkupId());
-			onDomReadyJs.append(", ").append(" scormContent");
-			onDomReadyJs.append(ON_DOM_READY_JS_END);
-			
-			response.renderOnDomReadyJavascript(onDomReadyJs.toString());
-		}*/
 	}
 	
 	/*public void displayContent(org.sakaiproject.scorm.client.api.IRunState runState, Object target) {
@@ -270,7 +278,7 @@ public class PlayerPage extends BaseToolPage implements INavigable {
 		}
 	}*/
 	
-	public void displayContent(SessionBean sessionBean, Object target) {
+	/*public void displayContent(SessionBean sessionBean, Object target) {
 		if (null == target)
 			return;
 		
@@ -280,6 +288,38 @@ public class PlayerPage extends BaseToolPage implements INavigable {
 		
 		String url = sequencingService.getCurrentUrl(sessionBean);
 		if (null != url) {
+			
+			final DynamicWebResource fileResource = new DynamicWebResource() {
+				
+				protected ResourceState getResourceState() {
+					return new ResourceState() {
+
+						@Override
+						public String getContentType() {
+							return "text/html";
+						}
+
+						@Override
+						public byte[] getData() {
+							File file = new File("/home/jrenfro/hello.html");
+							
+							return getFileAsBytes(file);
+						}
+						
+					};
+				}
+				
+			};
+			
+			ResourceReference reference = new ResourceReference("dynamic")
+			{
+				protected Resource newResource() {
+					return fileResource;
+				}
+			};
+			
+			url = RequestCycle.get().urlFor(reference).toString();
+			
 			if (log.isDebugEnabled())
 				log.debug("Going to " + url);
 			
@@ -289,7 +329,24 @@ public class PlayerPage extends BaseToolPage implements INavigable {
 		}
 	}
 	
-	
+	private byte[] getFileAsBytes(File file) {
+		int len = 0;
+		byte[] buf = new byte[1024];
+		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+		
+		try {
+			FileInputStream fileIn = new FileInputStream(file);
+			while ((len = fileIn.read(buf)) > 0) {
+				byteOut.write(buf,0,len);
+			}
+			
+			fileIn.close();
+		} catch (IOException ioe) {
+			log.error("Caught an io exception trying to write file into byte array!", ioe);
+		}
+		
+		return byteOut.toByteArray();
+	}*/
 
 	public ButtonForm getButtonForm() {
 		return buttonForm;
