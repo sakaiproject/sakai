@@ -9,18 +9,17 @@
 		<div class="alertMessage">
 			$tlang.getString("sitegen.sitedel.deleting1")
 		</div>
-		<div class="alertMessage">
-		##	$tlang.getString("sitegen.sitedel.deleting")
+		<p class="highlight">
 			#if($removals.size() == 1)
 				$tlang.getString("sitegen.sitedel.you")
 			#else
-				$tlang.getString("sitegen.sitedel.you")
+				$tlang.getString("sitegen.sitedel.you2")
 			#end
-		</div>
-			<ul>
+		</p>
+			<ul class="attachList indnt2">
 				#foreach($site in $removals)
 					<li>	<input type="hidden" name="selectedMembers" value="$site.getId()" />
-							$validator.escapeHtml($site.getTitle()) <br />
+							$validator.escapeHtml($site.getTitle())
 					</li>
 				#end
 			</ul>

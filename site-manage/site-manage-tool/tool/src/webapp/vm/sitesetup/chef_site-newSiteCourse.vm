@@ -56,6 +56,7 @@ function disableContinueButton(){
 function selectAll(begin, end) {
     var checkboxes = document.getElementsByName("providerCourseAdd");
     for (i=begin; i<end; i++){
+	document.getElementById('row-course' + i).className='selectedSelected';
 	checkboxes[i].checked = true;
 	checkboxes[i].disabled = false;
     }
@@ -67,6 +68,7 @@ function selectAll(begin, end) {
 function unselectAll(begin, end) {
     var checkboxes = document.getElementsByName("providerCourseAdd");
     for (i=begin; i<end; i++){
+		document.getElementById('row-course' + i).className='';
 		checkboxes[i].checked = false;
 		checkboxes[i].disabled = false;
     }
@@ -126,6 +128,7 @@ function redirectBasedOnSelection(){
 // -->
 </script>
 
+
 <div class="portletBody">
 	#if (!$!site)
 		<h3>$tlang.getString("nscourse.creating")</h3>
@@ -133,7 +136,7 @@ function redirectBasedOnSelection(){
 			$tlang.getString("nscourse.course_sections_selection") - $term.title
 		</p>
 	#else
-		<h3>$tlang.getString("nscourse.edit") $!siteTitle...</h3>
+		<h3>$tlang.getString("nscourse.edit") <span class="highlight">$!siteTitle</span></h3>
 	#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
@@ -144,78 +147,74 @@ function redirectBasedOnSelection(){
 		#end
 	</p>
 	<form name = "addCourseForm" method="post" action="#toolForm($action)">
-
-		<h4>		
-			$tlang.getString("nscourse.cinfo")
-		</h4>	
-		$tlang.getString("nscourse.already")
-		<ul>
-		#foreach($id in $!providerCourseList)
-				<li>
-					#set($pSection = false)
-					#set($pSection = $!cms.getSection($id))
-					#if ($!pSection)$pSection.getTitle()#end
-				</li>
-			#end
-			#foreach($id in $!cmRequestedCourseList)
-				<li>
-						$id.title $tlang.getString("man.requested")<br />
-				</li>
-			#end
-			#foreach($id in $!manualCourseList)
-				<li>
-						$id $tlang.getString("man.requested")<br />
-				</li>
-			#end
-		</ul>
-
-		#if ($site)
-		<p class="shorttext  required">
-			<span class ="reqStar">*</span>
-			<label for="selectTerm">
-				$tlang.getString("nscourse.acad2")
-			</label>	
-			<select name="selectTerm" id="selectTerm" onchange="javascript:document.getElementById('option').value='change';document.addCourseForm.submit();">
-				#foreach($t in $termList)
-					<option value ="$t.eid"
-						#if($t.eid == $term.eid)
-							selected="selected"
-						#end
-					>
-					$t.title
-					</option>
+		## no value in the below block that I can see
+	#*
+		<p class="instruction">$tlang.getString("nscourse.already")</p>
+			<ul>
+			#foreach($id in $!providerCourseList)
+					<li>
+						#set($pSection = false)
+						#set($pSection = $!cms.getSection($id))
+						#if ($!pSection)$pSection.getTitle()#end
+					</li>
 				#end
-			</select> 
-		</p>
+				#foreach($id in $!cmRequestedCourseList)
+					<li>
+							$id.title $tlang.getString("man.requested")<br />
+					</li>
+				#end
+				#foreach($id in $!manualCourseList)
+					<li>
+							$id $tlang.getString("man.requested")<br />
+					</li>
+				#end
+			</ul>
+		*#	
+		#if ($site)
+			<p class="shorttext  required">
+				<span class ="reqStar">*</span>
+				<label for="selectTerm">
+					$tlang.getString("nscourse.acad2")
+				</label>	
+				<select name="selectTerm" id="selectTerm" onchange="javascript:document.getElementById('option').value='change';document.addCourseForm.submit();">
+					#foreach($t in $termList)
+						<option value ="$t.eid"
+							#if($t.eid == $term.eid)
+								selected="selected"
+							#end
+						>
+						$t.title
+						</option>
+					#end
+				</select> 
+			</p>
 		#end
+		
+		
+		
 	#if ($enableCourseCreationForUser )
-		<table>
-			<tr>
-			<td>
-				<b>$tlang.getString("nscourse.current_displaying_courses_sections_for_id")</b>
-			</td>
-			<td>
-				<input type="text" name="userId" value="$userId"/>
+		<div class="highlightPanel">
+			<div class="labelindnt">
+				<p class="textPanelFooter">$tlang.getString("nscourse.change_this_ID")</p>
+			</div>
+			<p class="shorttext">
+				<label for="userId-id">
+					$tlang.getString("nscourse.current_displaying_courses_sections_for_id")
+				</label>	
+				<input type="text" name="userId" id="userId-id" value="$userId"/>
 				<input type="hidden" name="itemType" value="$!courseSiteType" />
 				<input type="hidden" name="selectTerm" value="$term.eid" />
 				<input type="submit" accesskey="s" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
-				onclick="javascript:submitChangeUser()" 
-				/>
-			</td>
-			</tr>
-			<tr>
-			<td></td>
-			<td>
-				<div class="textPanelFooter">$tlang.getString("nscourse.change_this_ID")
+				onclick="javascript:submitChangeUser()" />
 				#if ($campusDirectory)
-			   		<p><a href="#" onclick="javascript:window.open('$campusDirectory','new_window'); return false;">$tlang.getString("nscourse.look_up_an_username")...</a></p>
+					<a href="#" onclick="javascript:window.open('$campusDirectory','new_window'); return false;"
+						title="$tlang.getString("nscourse.look_up_an_username")">
+						<img alt="" src="/library/image/silk/magnifier.png" style="vertical-align:middle"/>
+					</a>
 				#end
-				</div>
-			</td>
-			</tr>
-		</table>
-		#end
-
+			</p>
+		</div>
+	#end		
 
 			#if ($!termCourseList)
 				#if ($!providerCourseList.size() != 0 || $!requestedCourseList.size() != 0)
@@ -225,9 +224,9 @@ function redirectBasedOnSelection(){
 				## display only subject, course number and section
 				##and finally - the labels work, but having commas in the id does not validate. Can we concatenate or replace with underscore? Here is reqs on ids and labels: an id attribute value must begin with a letter (A-Z or a-z) and consist of the following characters: (A-Z), (a-z), (0-9), hyphens (-), underscores (_), colons (:), and periods (.).
 				#set($crosslisted=0)	
-				#set($courseNumber=0)	
+				#set($courseNumber=0)
 				#foreach($courseObject in $termCourseList)
-					<table class="listHier lines nolines specialLink" cellpadding="0" cellspacing="0" >
+					<table class="listHier lines nolines specialLink" cellpadding="0" cellspacing="0"  summary="$tlang.getString("nscourse.courselist.summary")" border="0" style="width:auto">
 					<tr>	
 					<th colspan="2">
 					$courseObject.title 
@@ -238,7 +237,7 @@ function redirectBasedOnSelection(){
 					</th>
 					</tr>
 					#foreach($courseOfferingObject in $courseObject.courseOfferingObjects)
-						<tr class="exclude"><td colspan="2">
+						<tr class="exclude"><td colspan="2" style="white-space:nowrap">
 						#if ($providerCourseList) 
 							#set($endKey = $courseNumber + $!courseOfferingObject.sections.size() - $!providerCourseList.size())
 						#else
@@ -253,38 +252,51 @@ function redirectBasedOnSelection(){
 								#end
 							#end
 							#if(!$hasAttachedSectionObject)
-								<div id="selectAll$courseNumber">							
-									<a href="#" onclick="javascript:selectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.select_group_sections")</a>
+								<div id="selectAll$courseNumber">
+								 ## this should probably be toggled to "unselect" if the group is all selected
+								 ##	(user continued then came back to this view)
+									<h4>
+										<a href="javascript:selectAll($courseNumber, $endKey)"  >
+										$tlang.getString("nscourse.select_group_sections")</a>
+									</h4>	
 								</div>
 								<div id="unselectAll$courseNumber" style="display:none">
-									<a href="#" onclick="javascript:unselectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.unselect_group_sections")</a>
+									<h4><a href="javascript:unselectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.unselect_group_sections")</a></h4>
 								</div>
 							#end
 						#end
 						</td></tr>
 						#foreach($sectionObject in $courseOfferingObject.sections)
 							#if (!$!providerCourseList.contains("$sectionObject.eid")) 
-								<tr><td class="attach"
+								<tr 
+									#if ($!selectedProviderCourse.contains("$sectionObject.eid") || 		$!selectedAuthorizerCourse.contains("$sectionObject.eid") )
+										class="selectedSelected"
+									#end
+									id="row-course$courseNumber"
+								><td class="attach"
 								#if (!$sectionObject.isLecture)
-									style="padding-left:1em"
+									style="padding-left:1.5em"
 								#end
 								>
 								<input type="checkbox" name="providerCourseAdd" value="$sectionObject.eid" id="course$courseNumber"
 								#if ($!selectedProviderCourse.contains("$sectionObject.eid") || $!selectedAuthorizerCourse.contains("$sectionObject.eid") )
-									checked
+									checked="checked"
 								#end 
 								#if ((!$!selectedProviderCourse.contains("$sectionObject.eid") || !$!selectedAuthorizerCourse.contains("$sectionObject.eid")) && $sectionObject.attached)
-									disabled
+									disabled="disabled"
 								#end
 								onclick="javascript:setContinueButton();"
+								onchange="this.checked ? document.getElementById('row-course$courseNumber').className='selectedSelected' :document.getElementById('row-course$courseNumber').className=''"
 								/>
 								</td>
-								<td>
- 								<label for="course$courseNumber">$sectionObject.title: $sectionObject.getCategoryDescription()</label>
-								#if ($sectionObject.attached)
-									<span class="instruction">($tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">$tlang.getString("nscourse.select_anyways")</a>)</span>
-								#end
-								#set ($courseNumber = $courseNumber +1)
+								<td style="white-space:nowrap">
+									<h5>
+									<label for="course$courseNumber">$sectionObject.title: $sectionObject.getCategoryDescription()</label>
+									#if ($sectionObject.attached)
+										<span class="instruction">($tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">$tlang.getString("nscourse.select_anyways")</a>)</span>
+									#end
+									#set ($courseNumber = $courseNumber +1)
+									</h5>
 								</td></tr>
 							#end
 						#end
@@ -342,7 +354,7 @@ function redirectBasedOnSelection(){
 					/>
 				<input
 					type="button" 
-					accesskey="s"
+					accesskey="b"
 					name="Back" 
 					id="backButton" 
 					value="$tlang.getString('gen.back')"
@@ -350,7 +362,7 @@ function redirectBasedOnSelection(){
 					/>
 				<input
 					type="button" 
-					accesskey="s"
+					accesskey="x"
 					name="Cancel" 
 					id="cancelButton" 
 					value="$tlang.getString('gen.cancel')"

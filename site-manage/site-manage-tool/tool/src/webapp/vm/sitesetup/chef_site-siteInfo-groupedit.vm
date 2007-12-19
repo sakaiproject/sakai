@@ -35,8 +35,8 @@
 			</label>
 			<input type="text" name="$tlang.getString('group.title')" id="$tlang.getString('group.title')" size="20" maxlength="90"#*this is the field size in db*# value="$validator.escapeHtml($!title)" />
 		</p>
-		<p class="shorttext">
-			<label for="$tlang.getString('group.description')">
+		<p class="longtext">
+			<label for="$tlang.getString('group.description')" class="block">
 				$tlang.getString("group.description")
 			</label>
 			<textarea wrap="virtual" name="$tlang.getString('group.description')" id="$tlang.getString('group.description')"  rows="3" cols="50">$validator.escapeHtmlTextarea($!description)</textarea>

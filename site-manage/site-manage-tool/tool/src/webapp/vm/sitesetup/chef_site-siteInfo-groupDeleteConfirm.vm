@@ -17,7 +17,7 @@
 		<input type="hidden" name="back" value="49" />
 		<div class="act">
 			#if($removeGroupIds && $removeGroupIds.size() != 0)
-				<input type="submit" accesskey="s"  name="eventSubmit_doGroup_remove_confirmed" value="$tlang.getString("sitegen.sitedel.remove")" />
+				<input type="submit" accesskey="s"  name="eventSubmit_doGroup_remove_confirmed" value="$tlang.getString("sitegen.sitedel.remove")" class="active"/>
 			#end
 			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitegen.sitedel.cancel")" />
 		</div>

@@ -40,7 +40,7 @@
 						#if ($type == $courseSiteType && $canAddCourse)
 							<div class="indnt3">
 								<p class="shorttext required">
-									<span class ="reqStar"> *</span>
+									<span class ="reqStar" id="term-required"> *</span>
 									<label for="selectTerm">
 										$tlang.getString("sitetype.acater")
 									</label>	

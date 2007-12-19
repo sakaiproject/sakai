@@ -19,7 +19,7 @@ function LimitText(fieldObj,maxChars)
   
 <div class="portletBody">
 	<h3>
-		$tlang.getString("sitediinf.rev") $validator.escapeHtml($title)
+		$tlang.getString("sitediinf.rev") <span class="highlight">$validator.escapeHtml($title)</span>
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form name="classInformationForm" method="post" action="#toolForm("SiteAction")">
@@ -45,6 +45,9 @@ function LimitText(fieldObj,maxChars)
 		<div class="longtext">
 			<label for="description" class="block">
 				$tlang.getString("sitediinf.des")
+				<span class="instruction textPanelFooter">
+					$tlang.getString("sitediinf.dis")
+				</span>
 			</label>
 			<table border="0" cellpadding="0" cellspacing="0" >
 					<tr>
@@ -54,18 +57,15 @@ function LimitText(fieldObj,maxChars)
 						</td>
 					</tr>
 			</table>		
-			<span class="instruction">
-					$tlang.getString("sitediinf.dis")
-				</span>
 		</div>
 		<div class="longtext">
 			<label for="short_description" class="block">
-				$tlang.getString("sitediinf.shodes")
+				$tlang.getString("sitediinf.shodes") 
+				<span class="instruction textPanelFooter">
+					$tlang.getString("sitediinf.dis2")
+				</span>
 			</label>
 			<textarea  name="short_description" id="short_description" tabindex="2" rows="2" cols="45" onkeyup="LimitText(this,80)">$validator.escapeHtmlTextarea($!short_description)</textarea>
-			<br /><span class="instruction">
-				$tlang.getString("sitediinf.dis2")
-			</span>
 		</div>	
 		#if ($!isCourseSite)
 			<p class ="shorttext">
@@ -87,7 +87,7 @@ function LimitText(fieldObj,maxChars)
 						#end
 					</select>
 					<div class="labelindnt"
-						<span class="instruction">
+						<span class="instruction textPanelFooter">
 							$tlang.getString("sitediinf.sit")
 						</span>
 					</div>

@@ -3,7 +3,7 @@
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 	<h3>
-		$tlang.getString("addrc.confirming") $validator.escapeHtml($title)
+		$tlang.getString("addrc.confirming") <span class="highlight">$validator.escapeHtml($title)</span>
 	</h3>
 		#if ($alertMessage)
 			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
@@ -11,12 +11,15 @@
 		#end
 ## (gsilver) should check what has happened - if tools have been removed output the following block, if not not. Same with added tools (and change the language to suit)	
 ##  (gsilver) the removed tools do not show up consistently in the removed tools list - also - if you remove an email archive tool it reads "Email Archive: @localhost"
-	<p class="instruction">
+	<p class="instruction" id="removedInstruction" style="display:none">
 		$tlang.getString("addrc.youhave")
 	</p>
 	<p class="indnt3">
 		#if (($oldSelectedHome) && (!$check_home))
 			$tlang.getString("java.home")<br />
+			<script type="text/javascript">
+				document.getElementById('removedInstruction').style.display='block'
+			</script>
 		#end
 		#foreach ($oldTool in $oldSelectedTools)
 			#foreach($t in $toolRegistrationList)
@@ -31,6 +34,10 @@
 				#end
 			#end
 			#if (!$found)
+				<script type="text/javascript">
+					document.getElementById('removedInstruction').style.display='block'
+				</script>
+
 				#if ($oldTool == "sakai.mailbox")
 					$!oldToolTitle: $!emailId@$serverName
 				#elseif ($oldTool.indexOf("sakai.news") != -1)

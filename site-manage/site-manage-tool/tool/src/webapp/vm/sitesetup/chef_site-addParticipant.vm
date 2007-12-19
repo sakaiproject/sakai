@@ -2,16 +2,15 @@
 ## Add a participant to ssite
 <div class ="portletBody">
 	<h3>
- 		$tlang.getString("add.addpart") $validator.escapeHtml($title)...
+ 		$tlang.getString("add.addpart") <span class="highlight">$validator.escapeHtml($title)</span>
 	</h3>
 	#if ($alertMessage)
 		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
 		<div class="clear"></div>
 	#end
-	</p>
-	<p class="instruction">
+	<div class="instruction">
 		<h4>$tlang.getString("add.official")</h4>
-	</p>
+	</div>
 	<div class="indnt1">
 		<p class="instruction">
 			$tlang.getString("add.official1")
@@ -20,38 +19,36 @@
 			$tlang.getString("add.official.instruction")
 		</p>
 	</div>
-	<p/>
-	<p/>
 	<form action="#toolForm("SiteAction")" method="post">
-		<p class="instruction">
+		<div class="instruction">
 			<h4>$!officialAccountSectionTitle</h4>
-		</p>
+		</div>
 		<div class="indnt1">
 			<label for="officialAccount" class="block">
 				$!officialAccountLabel
 			</label>
 			<textarea id="officialAccount" name="officialAccount"  cols="35" rows="4" wrap="virtual">$!validator.escapeHtmlTextarea($!officialAccountValue)</textarea>
-			<br /><span class="instruction">
+			<div class="instruction textPanelFooter">
 				$tlang.getString("add.multiple")
-			</span>
+			</div>
 		</div>
-		<p class="instruction">
+		<div class="instruction">
 			<h4>$!nonOfficialAccountSectionTitle</h4>
-		</p>
+		</div>
 		<div class="indnt1">
 			<label for="nonOfficialAccount" class="block">
 				$!nonOfficialAccountLabel
 			</label>
 			<textarea  id="nonOfficialAccount" name="nonOfficialAccount"  cols="35" rows="4" wrap="virtual">$!validator.escapeHtmlTextarea($!nonOfficialAccountValue)</textarea>
-			<br /><span class="instruction">
+			<div class="instruction textPanelFooter">
 				$tlang.getString("add.multiple")
-			</span>
+			</div>
 		</div>
 		
 		<h4>
 			$tlang.getString("add.participants")
 		</h4>
-		<p class="checkbox">
+		<p class="checkbox indnt1">
 			<input type="radio" id="same_role_true" name="same_role" value="true" 
 				#if ($!form_same_role == "true")
 					checked="checked"
@@ -61,7 +58,7 @@
 				$tlang.getString("add.assign")
 			</label>
 		</p>
-		<p class="checkbox">
+		<p class="checkbox indnt1">
 			<input type="radio" id="same_role_false" name="same_role" value="false" 
 				#if ($!form_same_role == "false")
 					checked="checked"

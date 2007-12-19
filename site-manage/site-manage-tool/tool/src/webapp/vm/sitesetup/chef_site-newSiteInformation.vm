@@ -29,7 +29,7 @@
 	
 </script>
 <div class="portletBody">
-	#if ($!isProjectSite)
+#if ($!isProjectSite)
 		<h3>
 			$tlang.getString("sinfo.pi")
 		</h3>
@@ -60,56 +60,84 @@
 		<input type="hidden" name="option" id="option" value="continue" />
 		<input type="hidden" name="eventSubmit_doSite_information" value="x" />	
 	#if ($isCourseSite)
-	 <ul>
+	<table class="listHier lines nolines indnt1" style="width:auto" summary="$tlang.getString("sinfo.rosterlist.summary")" border="0">
+	
 		#if ($!selectedProviderCourse)
-		$tlang.getString("sinfo.youare")
+			<tr class="exclude" id="selectedProviderCourse-head"><td colspan="2" style="padding:.4em 0">
+				<h4><span class="instruction">$tlang.getString("sinfo.youare")</span></h4>
+			</td></tr>
+			#set ($selectedProviderCourse-num=0)
 			#foreach ($item in $!selectedProviderCourse)
-				<li>
+				<tr>
+					<td style="padding-left:1em">
+					#set ($selectedProviderCourse-num=1)
 					#set($pSection = false)
 					#set($pSection = $!cms.getSection($item))
 					#if ($!pSection)$pSection.getTitle()#end
+					</td>
+					<td>
 					<!-- Remove Section -->
-					(<a href="#" onclick="javascript:submitRemoveSection('$item');">Remove</a>)
+					
+					##gsilver: am surprised this works at all, the ids may not be valid
+					<span class="itemAction"><a href="#" onclick="javascript:submitRemoveSection('$item');">$tlang.getString("sinfo.removeSections")</a></span>
 					<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
-				</li>
+				</td></tr>
+			#end
+			<tr>
+				<td style="height:0;display:none">
+				## do it this way
+					#if ($selectedProviderCourse-num ==0)
+						<script type="text/javascript">document.getElementById('selectedProviderCourse-head').style.display='none'</script>
+				</td>
+			</tr>
+#end								
+		#end
+		#if ($!cmAuthorizerSections || $!cmRequestedSections || $!manualAddNumber)
+			<tr class="exclude"><td colspan="2" style="padding:.4em 0">
+			<h4><span class="instruction">$tlang.getString("sinfo.requestedSections")</span></h4>
+			#foreach ($sect in $!cmRequestedSections)
+				<tr>
+					<td style="padding-left:1em">
+						$sect.title
+					</td>
+					<td>
+						<!-- Remove Section -->
+						<span class="itemAction"><a href="#" onclick="javascript:submitRemoveSection('$sect.eid');">$tlang.getString("sinfo.removeSections")</a></span>
+						<input type="hidden" id="removeSection$sect.eid" name="removeSection$sect.eid" value="" />
+					</td>
+				</tr>	
+			#end
+            #foreach ($sect in $!cmAuthorizerSections)
+            	<tr>
+					<td style="padding-left:1em">
+						$sect.eid: $sect.title, $sect.categoryDescription (Pending approval by $sect.authorizer)
+					</td>
+					<td>
+						<span class="itemAction">
+							<a href="#" onclick="javascript:submitRemoveSection('$sect.eid');">$tlang.getString("sinfo.removeSections")</a>
+                            <input type="hidden" id="removeSection$sect.eid" name="removeSection$sect.eid" value="" />
+						</span>	
+					</td>
+				</tr>	
+			#end
+			#foreach ($k in [0..$manualAddNumber])
+					#set($courseFieldValues = $!fieldValues.get($k))
+					#set($bound = $!form_requiredFields.size())
+					#set($bound = $bound - 1)
+					<tr><td colspan="2" style="padding-left:1em">
+						#foreach ($fieldCount in [0..$!bound])
+							$!courseFieldValues.get($fieldCount).getValue()
+						#end
+					</td></tr>
 			#end
 		#end
-  <br />
-		#if ($!cmAuthorizerSections || $!cmRequestedSections || $!manualAddNumber)
-			$tlang.getString("sinfo.requestedSections")
-			#foreach ($sect in $!cmRequestedSections)
-				<li>
-			$sect.title
-                                        <!-- Remove Section -->
-                                        (<a href="#" onclick="javascript:submitRemoveSection('$sect.eid');">Remove</a>)
-                                        <input type="hidden" id="removeSection$sect.eid" name="removeSection$sect.eid" value="" />
-				</li>
-				#end
-                                #foreach ($sect in $!cmAuthorizerSections)
-                                <li>
-                                        $sect.eid: $sect.title, $sect.categoryDescription (Pending approval by $sect.authorizer)
-                                        <!-- Remove Section -->
-                                        (<a href="#" onclick="javascript:submitRemoveSection('$sect.eid');">Remove</a>)
-                                        <input type="hidden" id="removeSection$sect.eid" name="removeSection$sect.eid" value="" />
-                                </li>
-                                #end
-				#foreach ($k in [0..$manualAddNumber])
-						#set($courseFieldValues = $!fieldValues.get($k))
-						#set($bound = $!form_requiredFields.size())
-						#set($bound = $bound - 1)
-						<li>
-							#foreach ($fieldCount in [0..$!bound])
-								$!courseFieldValues.get($fieldCount).getValue()
-							#end
-						</li>
-				#end
-		#end
-		</ul>
+		</table>
 	#end
-	
-	<p class="instruction">
-		$tlang.getString("sinfo.enter3")#if ($!isProjectSite) $tlang.getString("sinfo.simplea") <span class ="reqStarInline">*</span> $tlang.getString("sinfo.means") #end
-	</p>
+	#if ($!isProjectSite)
+		<p class="instruction">
+			$tlang.getString("sinfo.enter3") $tlang.getString("sinfo.simplea") <span class ="reqStarInline">*</span> $tlang.getString("sinfo.means")
+		</p>
+	 #end
 		<p class="shorttext required">
 			#if (!$!isCourseSite)
 			<span class="reqStar">*</span>
@@ -118,39 +146,28 @@
 			</label>
 				<input type="text" name="title" class="req" id="title" maxlength="20" size="20" value="$validator.escapeHtml($form_title)" />
 			#else
-			<label for="title">
+			<span>
 				$tlang.getString("sinfo.stitle")
-			</label>
-				$validator.escapeHtml($form_title)
-				&nbsp;
+			</span>
+			 &nbsp;&nbsp;$validator.escapeHtml($form_title)
 			#end
 		</p>
-		<p class="longtext">
-			<label for="description" class="block">
-				$tlang.getString("sinfo.descr")
-			</label>
-			<table border="0" cellpadding="0" cellspacing="0" >
-					<tr>
-						<td>
-							<textarea name="description" id="description" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($!form_description)</textarea>
-							#chef_setupformattedtextarea("description")
-						</td>
-					</tr>
-			</table>		
-			<span class="instruction">
-			
-			<br /><span class="instruction">
+		<div class="longtext">
+			<label  class="block" for="description">
+				$tlang.getString("sinfo.descr") 
+				<span class="instruction textPanelFooter">
 				$tlang.getString("sinfo.display")
 			</span>
-		</p>	
+			</label>
+			<textarea name="description" id="description" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($!form_description)</textarea>
+			#chef_setupformattedtextarea("description")
+		</div>	
 		<p class="longtext">
 			<label for="short_description" class="block"> 
-				$tlang.getString("sinfo.short")
+				$tlang.getString("sinfo.short") <span class="instruction textPanelFooter">$tlang.getString("sinfo.display2")</span>
 			</label>
 			<textarea  name="short_description" id="short_description" rows="2" cols="45" onkeyup="LimitText(this,80)" wrap="hard">$validator.escapeHtmlTextarea($form_short_description)</textarea>
-			<br /><span class="instruction">
-				$tlang.getString("sinfo.display2")
-			</span>
+			
 		</p>
 		#if ($!isCourseSite && $!skins.size() > 0)
 			<p class="shorttext">
@@ -209,7 +226,6 @@
 						accesskey="x"
 						onclick="document.siteInfoForm.option.value='cancel'; document.siteInfoForm.submit(); return false;" />
 			</p>
-		</p>
 	</form>
 </div>
 

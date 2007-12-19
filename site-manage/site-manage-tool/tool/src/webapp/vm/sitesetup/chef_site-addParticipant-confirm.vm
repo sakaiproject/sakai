@@ -2,15 +2,17 @@
 ## Confirming a participant to the site
 <div class ="portletBody">
 	<h3>
-		$tlang.getString("addconf.confirming") $validator.escapeHtml($title)
+	$tlang.getString("addconf.confirming") <span class="highlight">$validator.escapeHtml($title)</span>
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
-		$tlang.getString("addconf.finish")<br />
+		$tlang.getString("addconf.finish")
+	</p>	
+	<p class="instruction">		
 		$tlang.getString("addconf.theywill") #if (!$notify) $tlang.getString("addconf.not") #end $tlang.getString("addconf.besent") 
 	</p>
 	<form action="#toolForm("SiteAction")" method="post">
-		<table class ="listHier lines nolines" cellspacing="0" summary ="$tlang.getString("addconf.summary")">
+		<table class ="listHier lines nolines" cellspacing="0" summary ="$tlang.getString("addconf.summary")" style="width:50%">
 			<tr>
 				<th id="count">
 					$tlang.getString("addconf.number")

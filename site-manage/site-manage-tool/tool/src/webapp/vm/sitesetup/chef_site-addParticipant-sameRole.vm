@@ -15,8 +15,9 @@
 		<h4>
 			$tlang.getString("addsame.roles")
 		</h4>
+			<dl>
 			#foreach ($role in $roles)
-				<p class="checkbox">
+				<dt class="checkbox indnt1">
 					<input type="radio" name="selectRole" id="selectRole_$role.Id" value="$role.Id"
 						#if($form_selectedRole == $role.Id)
 							checked="checked"
@@ -25,17 +26,18 @@
 					<label for="selectRole_$role.Id">
 						$role.Id
 					</label>
-				</p>	
-				<p class="instruction indnt3">
+				</dt>	
+				<dd class="instruction indnt3">
 						#set($description = "")
 						#set($description = $role.Description)
 						$!description
-				</p>		
+				</dd>		
 			#end
+			</dl>
     	<h4>
 			$tlang.getString("addsame.participants")
 		</h4>	
-		<ul class="attachList indnt2">
+		<ul class="attachList indnt3">
 			#foreach ($participant in $participantList)
 				<li>
 					$participant.getDisplayId()

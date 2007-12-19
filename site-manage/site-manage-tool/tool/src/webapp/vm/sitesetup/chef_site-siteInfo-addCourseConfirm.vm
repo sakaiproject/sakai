@@ -1,7 +1,7 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-addCourseConfirm.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
 ##Confirmation page for adding  classes
 <div class ="portletBody">
-	<h3 class ="insBor insBak insCol">
+	<h3>
 		$tlang.getString("sitegen.addcourse.adding") $validator.escapeHtml($siteTitle)...
 	</h3>
 	#if ($alertMessage)
@@ -18,7 +18,7 @@
 	<p class="instruction">
 		$tlang.getString("sitegen.addcourse.foll")<br />
 	</p>
-	<ul>
+	<ul class="attachList indnt2">
 		#foreach($id in $providerCourseList)
 			<li>
 				#set($pSection = false)
@@ -40,7 +40,7 @@
 	<p class="instruction">
 		$tlang.getString("sitegen.addcourse.you")<br />
 	</p>
-	<ul>
+	<ul class="attachList indnt2">
 		#foreach($id in $providerAddCourses)
 			<li>
 				#set($pSection = false)
@@ -50,7 +50,7 @@
 		#end
 	</ul>
 	#foreach ($c in $!cmSelectedSections)
-			<ul>
+			<ul class="attachList indnt2">
 				## for cm request section based on course lookup
 				<li>
 						$c.title
@@ -58,7 +58,7 @@
 			</ul>
 		#end	
 		#if ($!manualAddNumber)
-			<ul>
+			<ul class="attachList indnt2">
 				#foreach ($k in [0..$manualAddNumber])
 						#set($courseFieldValues = $!fieldValues.get($k))
 						#set($bound = $!form_requiredFields.size())

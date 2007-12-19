@@ -15,7 +15,7 @@
 	
 	##if($menu)#toolbar($menu)#end<br/><br/>
 		#if (!$!site)
-			<h3>$tlang.getString("man.creat")</h3>
+			<h3>$tlang.getString("nscourse.creating")</h3>
 			<p class="step">
 				$tlang.getString("nscourse.course_sections_selection") - $term.title
 			</p>
@@ -33,7 +33,7 @@
 			#if ($!site && ($!providerCourseList.size() > 0 || $!manualCourseList.size()>0 ))
 				<p class="instruction">
 				$tlang.getString("nscourse.already")
-				</p>	
+				</p>
 				#foreach($id in $!providerCourseList)
 					<p class="indnt2">
 						#set($pSection = false)
@@ -54,35 +54,60 @@
 								</p>
 							#end
 				#end
-				<p class="instruction">$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this")</p> 
+				<p class="instruction">$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this")</p>
+				<table class="listHier lines nolines" cellapadding="0" cellspacing="0" summary="todo: summary" style="width:auto">
 					#foreach ($item in $!selectedProviderCourse)
-						<p class="indnt2">
-							#set($pSection = false)
-							#set($pSection = $!cms.getSection($item))
-							#if ($!pSection)$pSection.getTitle()#end
+						<tr>
+							<td>
+								#set($pSection = false)
+								#set($pSection = $!cms.getSection($item))
+								#if ($!pSection)$pSection.getTitle()#end
+							</td>
+							<td>
+							<span class="itemAction">
 							<!-- Remove Section -->
-							(<a href="#" onclick="javascript:submitRemoveSection('$item');">Remove</a>)
+							<a href="#" onclick="javascript:submitRemoveSection('$item');">$tlang.getString("man.remove")</a>
 							<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
-						</p>
+							</span>
+							</td>
+						</tr>
 					#end
+					</table>
 						#if (!$!editSite)
+							<table class="listHier lines nolines" cellapadding="0" cellspacing="0" summary="todo: summary" style="width:auto">
+
 							#foreach($section in $!cmRequestedSections)
-								<p class="indnt2">
-										$section.title
-										<!-- Remove Section -->
-										(<a href="#" onclick="javascript:submitRemoveSection('$section.eid');">Remove</a>)
-										<input type="hidden" id="removeSection$section.eid" name="removeSection$section.eid" value="" />
-								</p>
+								<tr>
+									<td>
+											$section.title
+									</td>
+									<td>
+										<span class="itemAction">
+											<!-- Remove Section -->
+											<a href="#" onclick="javascript:submitRemoveSection('$section.eid');">$tlang.getString("man.remove")</a>
+											<input type="hidden" id="removeSection$section.eid" name="removeSection$section.eid" value="" />
+										</span>	
+									</td>
+							</tr>
 							#end
+						</table>	
 						#else
+						<table class="listHier lines nolines" cellapadding="0" cellspacing="0" summary="todo: summary" style="width:auto">
 							#foreach($s in $!cmSelectedSections)
-								<p class="indnt2">
+								<tr>
+									<td>
 										$s.title
+									</td>
+									<td>
+									<span class="itemAction">
 										<!-- Remove Section -->
-										(<a href="#" onclick="javascript:submitRemoveSection('$s.eid');">Remove</a>)
+										<a href="#" onclick="javascript:submitRemoveSection('$s.eid');">$tlang.getString("man.remove")</a>
 										<input type="hidden" id="removeSection$s.eid" name="removeSection$s.eid" value="" />
-								</p>
+										</span>
+									</td>
+								</tr>
 							#end
+						</table>	
 					#end
 				<p class="instruction">
 					#if (!$!isFutureTerm)
@@ -152,7 +177,7 @@
 				#if (!$!isFutureTerm)
 					<div class="shorttext required">
 						<span class="reqStar">*</span>						
-						<label for="uniqname">		
+						<label for="uniqname">
 						   $tlang.getString("man.authoriz")
 						</label>
 						<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!value_uniqname" />

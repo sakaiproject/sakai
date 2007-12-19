@@ -11,33 +11,33 @@
 			<input type="hidden" name="option" value="x" />
 			<input type="hidden" name="eventSubmit_doNavigate_to_site" value="x" />
 			<div class="navPanel">
-			<div class="itemNav">
-				#if ($!prevSite)
-					<input type="button" 
-						name="previous" 
-						value="&lt; $tlang.getString("sitegen.siteinfolist.previous1")" 
-						onclick="document.siteForm.option.value='$prevSite.Id';javascript:document.siteForm.submit();" accesskey="p" />
-				#else
-					<input type="submit" 
+				<div class="itemNav">
+					#if ($!prevSite)
+						<input type="button" 
 							name="previous" 
 							value="&lt; $tlang.getString("sitegen.siteinfolist.previous1")" 
-							disabled="disabled" />
-				#end
-				<input type="button" 
-						name="back" 
-						value="$tlang.getString("sitegen.siteinfolist.return")" 
-						onclick="document.siteForm.option.value='';javascript:document.siteForm.submit();" accesskey="l" />
-				#if ($!nextSite)
+							onclick="document.siteForm.option.value='$prevSite.Id';javascript:document.siteForm.submit();" accesskey="p" />
+					#else
+						<input type="submit" 
+								name="previous" 
+								value="&lt; $tlang.getString("sitegen.siteinfolist.previous1")" 
+								disabled="disabled" />
+					#end
 					<input type="button" 
-						name="next" 
-						value="$tlang.getString("sitegen.siteinfolist.next1") &gt;" 
-						onclick="document.siteForm.option.value='$nextSite.Id';javascript:document.siteForm.submit();" accesskey="n" />
-				#else
-					<input type="button" 
-						name="next" 
-						value="$tlang.getString("sitegen.siteinfolist.next1") &gt;" disabled="disabled" />
-				#end
-			</div>		
+							name="back" 
+							value="$tlang.getString("sitegen.siteinfolist.return")" 
+							onclick="document.siteForm.option.value='';javascript:document.siteForm.submit();" accesskey="l" />
+					#if ($!nextSite)
+						<input type="button" 
+							name="next" 
+							value="$tlang.getString("sitegen.siteinfolist.next1") &gt;" 
+							onclick="document.siteForm.option.value='$nextSite.Id';javascript:document.siteForm.submit();" accesskey="n" />
+					#else
+						<input type="button" 
+							name="next" 
+							value="$tlang.getString("sitegen.siteinfolist.next1") &gt;" disabled="disabled" />
+					#end
+				</div>		
 			</div>		
 		</form>
 	#end
@@ -45,29 +45,7 @@
 		$validator.escapeHtml($!siteTitle) 
 	</h3>
 	<table cellpadding="0" border="0" cellspacing="0" class="itemSummary" summary="$tlang.getString("sitegen.siteinfolist.summary")">
-		<tr> 
-			<th>
-				$tlang.getString("sitegen.siteinfolist.sitedes")
-			</th>
-			<td>
-				$!siteDescription
-			</td>
-		</tr>
 		#if ($!isCourseSite)
-			<tr> 
-				<th>
-					$tlang.getString("sitegen.siteinfolist.courses")
-				</th>
-				<td>
-					$!providedSectionTitle
-					#foreach($id in $!cmRequestedCourseList)
-						$id.title $tlang.getString("man.requested")<br />
-					#end
-					#foreach($id in $!manualCourseList)
-						$id $tlang.getString("man.requested")<br />
-					#end
-				</td>
-			</tr>
 			<tr> 
 				<th>
 					$tlang.getString("sitegen.siteinfolist.term")
@@ -76,81 +54,122 @@
 					$!term
 				</td>
 			</tr>
-		#end
-		<tr>
-			<th>
-				$tlang.getString("sitegen.siteinfolist.sitecont")
-			</th>
-			<td>
-				$validator.escapeHtml($!contactName)#if($!contactEmail && !$contactEmail.equals("")), <a href="mailto:$!contactEmail">$!contactEmail</a>#end
-			</td>
-		</tr>
-		<tr> 
-			<th>
-				$tlang.getString("sitegen.siteinfolist.ava")
-			</th>
-			<td>
-				#if ($!published)
-					#if ($!siteJoinable)
-						$tlang.getString("sitegen.siteinfolist.sitecan")
-					#else
-						$tlang.getString("sitegen.siteinfolist.sitepar")
-					#end
-				#else
-					## unpublished site
-					$tlang.getString("sitegen.siteinfolist.siteown")
-				#end
-			</td>
-		</tr>
-		<tr>
-			<th>
-				$tlang.getString("sitegen.siteinfolist.iclu")
-			</th>
-			<td>
-				#if ($!published && $!include)
-					$tlang.getString("sitegen.siteinfolist.yes")
-				#else
-					$tlang.getString("sitegen.siteinfolist.no")
-				#end
-			</td>
-		</tr>
-		<tr>
-			<th>
-				$tlang.getString("sitegen.siteinfolist.crea")
-			</th>
-			<td>
-				$!siteCreationDate
-			</td>
-		</tr> 
-		
-		<tr>
-		#if ($!isCourseSite)
-			<th>
-				$tlang.getString("sitegen.siteinfolist.app")
-			</th>
-			<td>
-				$!siteUnit
-			</td>
-
-		#else
-			<th>
-				$tlang.getString("sitegen.siteinfolist.icon")
-			</th>
-			<td>
-				$!siteIcon
-			</td>
-		#end
-		</tr>
-		#if (!$!allowUpdate && $!groupsWithMember.size() >0)
-			<tr>
+			#if ($!allowUpdate)
+			<tr> 
 				<th>
-					$tlang.getString("group.membership")
+					$tlang.getString("sitegen.siteinfolist.courses")
 				</th>
 				<td>
+					#foreach($id in $!providerCourseList)
+						#set($pSection = false)
+						#set($pSection = $!cms.getSection($id))
+						#if ($!pSection)$pSection.getTitle()#end<br />
+					#end
+					#foreach($id in $!cmRequestedCourseList)
+						$id.title $tlang.getString("man.requested")<br />
+					#end
+					#foreach($id in $!manualCourseList)
+						$id $tlang.getString("man.requested")<br />
+					#end
+				</td>
+			</tr>
+			#end
+		#end
+
+			<tr>
+				<th>
+					$tlang.getString("sitegen.siteinfolist.sitecont")
+				</th>
+				<td>
+					$validator.escapeHtml($!contactName)#if($!contactEmail && !$contactEmail.equals("")), <a href="mailto:$!contactEmail">$!contactEmail</a>#end
+				</td>
+			</tr>
+		#if ($!allowUpdate)
+			<tr> 
+				<th>
+					$tlang.getString("sitegen.siteinfolist.ava")
+				</th>
+				<td>
+					#if ($!published)
+						#if ($!siteJoinable)
+							$tlang.getString("sitegen.siteinfolist.sitecan")
+						#else
+							$tlang.getString("sitegen.siteinfolist.sitepar")
+						#end
+					#else
+						## unpublished site
+						$tlang.getString("sitegen.siteinfolist.siteown")
+					#end
 				</td>
 			</tr>
 			<tr>
-				<td colspan="2">
+				<th>
+					$tlang.getString("sitegen.siteinfolist.iclu")
+				</th>
+				<td>
+					#if ($!published && $!include)
+						$tlang.getString("sitegen.siteinfolist.yes")
+					#else
+						$tlang.getString("sitegen.siteinfolist.no")
+					#end
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("sitegen.siteinfolist.crea")
+				</th>
+				<td>
+					$!siteCreationDate
+				</td>
+			</tr> 
+		
+		#if ($!isCourseSite)
+			<tr>
+				<th>
+					$tlang.getString("sitegen.siteinfolist.app")
+				</th>
+				<td>
+					$!siteUnit
+				</td>
+			</tr>
+		#else
+			#if ($!siteIcon)
+				<tr>
+					<th>
+						$tlang.getString("sitegen.siteinfolist.icon")
+					</th>
+					<td>
+						<p class="textPanelFooter">$!siteIcon</p>
+					</td>
+				</tr>	
+			#end
+		#end
+		#end			
+		</table>
+		#if (!$!allowUpdate && $!groupsWithMember.size() >0)
+		<h4>
+			$tlang.getString("group.membership")
+		</h4>			
+		<dl class="indnt1">
+			#foreach ($g in $!groupsWithMember)
+				<dt>
+					$g.Title
+				</dt>
+
+				<dd>
+					#if ($g.Description)
+						<span class="textPanelFooter">
+							#set($description = "")
+							#set($description = $g.Description)
+							$!description
+						</span>			
+					#end					
+				</dd>				
+			#end
+		</dl>
+		<div style="clear:both"> </div>			
+				
+	#* turned the table below to a definition list above 
 					<table id="groupTable" class="listHier lines" border="0" cellspacing="0" summary="$tlang.getString("group.siteinfo.tablesummary")">
 						<tr>
 					 		<th id ="name">
@@ -177,19 +196,29 @@
 								</tr>
 							#end
 						</table>
-				</td>
-			</tr>
+	*#
 		#end
-	</table>	
+		#if($!siteDescription)
+			<h4 style="padding-left:5px">
+				$tlang.getString("sitegen.siteinfolist.sitedes")
+			</h4>
+			<div style="padding-left:5px">
+				$!siteDescription
+			</div>
+
+		#end
+
 	#if ($!allowUpdate || $allowUpdateSiteMembership || $!viewRoster)
-		 <h4>		
-			$validator.escapeHtml($!siteTitle) $tlang.getString("sitegen.siteinfolist.part") (# $!participantListSize)
-		</h4>
 		#if ($participantList.size() > 0)
 		 <div class="navPanel">
+		 	<div class="viewNav">
+			 	<h4>
+					$validator.escapeHtml($!siteTitle) $tlang.getString("sitegen.siteinfolist.part") (# $!participantListSize)		 		
+			 	</h4>
+			</div>
 			<div class="listNav">
 					<div class="instruction">$tlang.getString("sitegen.siteinfolist.view") $topMsgPos - $btmMsgPos $tlang.getString("sitegen.siteinfolist.of") $allMsgNumber $tlang.getString("sitegen.siteinfolist.items")</div>
-						#if ($pagesize != 0)
+					#if ($pagesize != 0)
 						#if ($goFPButton == "true")
 							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" />
@@ -419,20 +448,21 @@
 			</div>
 		</form>
 		<h4>$tlang.getString("sitegen.siteinfolist.roledes")</h4>
-			<ul class="attachList indnt2">
+			<dl>
 				#foreach ($role in $roles)
 					#set ($description = false)
-					<li>
+					<dt>
 						$role.Id
-						<p class="instruction indnt2">
+					</dt>
+					<dd class="instruction indnt3">
 							#set($description = "")
 							#if ($role.Description)
 								#set($description = $role.Description)
 							#end
 							$validator.escapeHtml($!description)
-						</p>
-					</li>
+
+					</dd>
 				#end
-			</ul>	
+			</dl>	
 	#end
 </div>

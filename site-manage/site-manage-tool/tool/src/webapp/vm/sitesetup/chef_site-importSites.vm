@@ -27,43 +27,43 @@
 			</tr>
 			#set ($toolCount=0)
 			#foreach($toolId in $selectedTools)
-			#set($selectedSites = $!importSitesTools.get($toolId))
-			#set ($toolCount=$toolCount + 1)
-				#if ($importSupportedTools.contains($toolId))
-					<tr>
+					#set($selectedSites = $!importSitesTools.get($toolId))
+					#set ($toolCount=$toolCount + 1)
+					#if ($importSupportedTools.contains($toolId))
+					<tr>					
 						<td>
-							#set($toolTitle = "")
-							#foreach($t in $toolRegistrationList)
-								#if ($t.getId() == $toolId)
-									#set($toolTitle = $t.getTitle())
-								#end
-							#end
-							<h4>$toolTitle</h4>
-						</td>
-						#set ($siteCount=0)
-						#foreach($site in $importSites.keys())
-						#set ($siteCount=$siteCount + 1)
-							<td>
-								#set($toolFound = false)
-								#set($allPages = $site.getPages())
-								#foreach ($page in $allPages)
-									#set($pageTools = $page.getTools())
-									#foreach ($pageTool in $pageTools)
-										#if ($pageTool.getTool().getId() == $toolId)
-											#set($toolFound = true)
-										#end
+								#set($toolTitle = "")
+								#foreach($t in $toolRegistrationList)
+									#if ($t.getId() == $toolId)
+										#set($toolTitle = $t.getTitle())
 									#end
 								#end
-								#if ($toolFound)
-									<input type="checkbox" id="toolSite$toolCount$siteCount" name="$toolId" value="$site.Id" #if($!selectedSites.contains($site.Id))checked="checked"#end />
-									<label  class="skip" for="toolSite$toolCount$siteCount">$tlang.getString('import.choose.label1')  $toolTitle $tlang.getString('import.choose.label2') $validator.escapeHtml($site.getTitle())</label>
-								#else
-									<input type="checkbox" id="toolSite$toolCount$siteCount"  name="$toolId" value="$site.Id" disabled="disabled" />
-								#end
+								<h4>$toolTitle</h4>
 							</td>
-						#end
-					</tr>
-				#end
+							#set ($siteCount=0)
+							#foreach($site in $importSites.keys())
+								#set ($siteCount=$siteCount + 1)
+									<td>
+										#set($toolFound = false)
+										#set($allPages = $site.getPages())
+										#foreach ($page in $allPages)
+											#set($pageTools = $page.getTools())
+											#foreach ($pageTool in $pageTools)
+												#if ($pageTool.getTool().getId() == $toolId)
+													#set($toolFound = true)
+												#end
+											#end
+										#end
+										#if ($toolFound)
+											<input type="checkbox" id="toolSite$toolCount$siteCount" name="$toolId" value="$site.Id" #if($!selectedSites.contains($site.Id))checked="checked"#end />
+											<label  class="skip" for="toolSite$toolCount$siteCount">$tlang.getString('import.choose.label1')  $toolTitle $tlang.getString('import.choose.label2') $validator.escapeHtml($site.getTitle())</label>
+										#else
+											<input type="checkbox" id="toolSite$toolCount$siteCount"  name="$toolId" value="$site.Id" disabled="disabled" />
+										#end
+									</td>
+							#end
+						</tr>	
+					#end
 			#end
 		</table>
 		<input type="hidden" name="back" value="$back" />

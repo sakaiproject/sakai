@@ -4,12 +4,22 @@
 	#if($menu)#toolbar($menu)#end
 	#if ($!site)
 		<h3>
-			$tlang.getString("ediacc.chaacc") $validator.escapeHtml($site.Title)
+			$tlang.getString("ediacc.chaacc") <span class="highlight">$validator.escapeHtml($site.Title)</span>
 		</h3>
 	#else
-		<h3>
-			$tlang.getString("ediacc.setsitacc")
-		</h3>
+		#if ($!isProjectSite)
+			<h3>
+				$tlang.getString("ediacc.project.setsitacc")
+			</h3>
+		#elseif ($!isCourseSite)
+			<h3>
+				$tlang.getString("ediacc.course.setsitacc")
+			</h3>
+		#else
+			<h3>
+				$tlang.getString("ediacc.other.setsitacc")
+			</h3>
+		#end
 		<p class="step">
 			$tlang.getString("ediacc.setacc")
 		</p>
@@ -51,7 +61,8 @@
 				</label>
 			</p>
 			<p class="checkbox indnt1" style="margin-bottom:2em">
-				<input type="radio" name="include" id="access_public" value="true" #if($!include)checked="checked"#end />
+				<input type="radio" name="include" id="access_public" value="true" #if($!include)checked="checked"#end
+				/>
 				<label for="access_public">
 					$tlang.getString("ediacc.dismysit")
 				</label>
@@ -68,14 +79,17 @@
 		#if (!$!disableJoinable)
 			## set site joinable and joiner role
 			<p class="checkbox indnt1">
-				<input type="checkbox" name="joinable" id="joinable" value="true" #if ($joinable) checked="checked"#end />
+				<input type="checkbox" name="joinable" id="joinable" value="true" #if ($joinable) checked="checked"#end 
+				onchange="this.checked ? document.getElementById('joinreqStar').style.visibility='visible':  document.getElementById('joinreqStar').style.visibility='hidden'"
+				/>
 				<label for="joinable">
 					$tlang.getString("ediacc.canbejoi")
 				</label>
 			</p>
 			<p class="checkbox indnt3">
 				<label for="joinerRole">
-					$tlang.getString("ediacc.rolforpep")
+						<span class="reqStar"   #if ($joinable) style="visibility:visible" #else style="visibility:hidden"  #end id="joinreqStar">*</span>
+						#if ($alertMessage)<span class="highlight"> $tlang.getString("ediacc.rolforpep")</span> #else  $tlang.getString("ediacc.rolforpep") #end
 				</label>
 				<select name="joinerRole" id="joinerRole">
 					<option value="">$tlang.getString("ediacc.plesel")</option>

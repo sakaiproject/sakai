@@ -2,7 +2,7 @@
 ## Edit Site Information Confirmation page
 <div class="portletBody">
 	<h3>
-		$tlang.getString("sitediconf.con") $validator.escapeHtml($!title)
+		$tlang.getString("sitediconf.con") <span class="highlight">$validator.escapeHtml($!title)</span>
 	</h3>
 	<p class="instruction">
 		$tlang.getString("sitediconf.cli")
@@ -31,30 +31,34 @@
 					</td>					
 				</tr>
 			#end
-			<tr>
-				<th>
-					$tlang.getString("sitediconf.des")
-				</th>
-				<td>
-					#if (!$!description.equals($!oDescription))
-						<span class="highlight">$!description</span>
-					#else
-						$!description
-					#end
-				</td>					
-			</tr>
-			<tr>
-				<th>
-					$tlang.getString("sitediconf.shodes")
-				</th>
-				<td>
-					#if (!$!short_description.equals($!oShort_description))
-						<span class="highlight">$validator.escapeHtml($!short_description)</span>
-					#else
-						$validator.escapeHtml($!short_description)
-					#end
-				</td>
-			</tr>
+			#if($!description)
+				<tr>
+					<th>
+						$tlang.getString("sitediconf.des")
+					</th>
+					<td>
+						#if (!$!description.equals($!oDescription))
+							<span class="highlight">$!description</span>
+						#else	
+							$!description
+						#end	
+					</td>					
+				</tr>
+			#end
+			#if ($!short_description)
+				<tr>
+					<th>
+						$tlang.getString("sitediconf.shodes")
+					</th>
+					<td>
+						#if (!$!short_description.equals($!oShort_description))
+							<span class="highlight">$validator.escapeHtml($!short_description)</span>
+						#else
+								$validator.escapeHtml($!short_description)
+						#end
+					</td>
+				</tr>
+			#end	
 			#if ($!isCourseSite)
 				<tr>
 					<th>
@@ -79,29 +83,38 @@
 					</td>
 				</tr>
 			#else
-				<tr>
-					<th>
-						$tlang.getString("sitediconf.sitico")
-					</th>
-					<td>
-						#if (!$!icon.equals($!oIcon))
-							<span class="highlight">$!icon</span>
-						#else
-							$!icon
-						#end
-					</td>
-				</tr>
+				#if ($!icon)
+					<tr>
+						<th>
+							$tlang.getString("sitediconf.sitico")
+						</th>
+						<td>
+							#if (!$!icon.equals($!oIcon))
+								<img src="$!icon" alt="$tlang.getString("sitediconf.sitico")" />
+								<p class="highlight">$!icon</p>
+							#else
+								<img src="$!icon" alt="$tlang.getString("sitediconf.sitico")" />
+								<p class="textPanelFooter">$!icon</p>
+
+							#end
+						</td>
+					</tr>
+				#end	
 			#end
 			<tr>
 				<th>
 					$tlang.getString("sitediconf.sitconnam")
 				</th>
 				<td>
-					#if (!$!name.equals($!oName))
-						<span class="highlight">$!name</span>
-					#else
-						$!name
-					#end
+					#if ($!name=="")
+						<span class="instruction">$tlang.getString("sitediconf.none")</span>
+					#else	
+						#if (!$!name.equals($!oName))
+							<span class="highlight">$!name</span>
+						#else
+							$!name
+						#end
+					#end	
 				</td>					
 			</tr>
 			<tr>
@@ -109,10 +122,14 @@
 					$tlang.getString("sitediconf.siticonema")
 				</th>
 				<td>
-					#if (!$!email.equals($!oEmail))
-						<span class="highlight">$!email</span>
+					#if ($!email=="")
+						<span class="instruction">$tlang.getString("sitediconf.none")</span>
 					#else
-						$!email
+						#if (!$!email.equals($!oEmail))
+							<span class="highlight">$!email</span>
+						#else
+							$!email
+						#end
 					#end
 				</td>					
 			</tr>

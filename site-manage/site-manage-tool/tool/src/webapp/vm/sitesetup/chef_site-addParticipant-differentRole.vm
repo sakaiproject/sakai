@@ -8,22 +8,20 @@
 	<p class="instruction">
 		$tlang.getString("adddif.chroles") <span class="reqStarInline"> *</span>. 
 	</p>
-	<table cellspacing="0" cellpadding="0" class="itemSummary" summary ="$tlang.getString("adddif.rolelist.summary")" >
+	<dl title ="$tlang.getString("adddif.rolelist.summary")" >
 		#foreach ($role in $roles)
-			<tr>
-				<th>
-					$role.Id
-				</th>
-				<td>
-					#set($description = "")
-					#set($description = $role.Description)
-					$!description
-				</td>
-			</tr>
+			<dt  class="indnt1">
+				$role.Id
+			</dt>
+			<dd class="instruction indnt3">
+				#set($description = "")
+				#set($description = $role.Description)
+				$!description
+			</dd>					
 		#end
-	</table>
+	</dl>
 	<form action="#toolForm("SiteAction")" method="post">
-	<table cellspacing="0" cellpadding="0" class ="listHier lines nolines" summary ="$tlang.getString("adddif.rolepicklist.summary")">
+	<table cellspacing="0" cellpadding="0" class ="listHier lines nolines" summary ="$tlang.getString("adddif.rolepicklist.summary")" style="width:50%">
 			<tr>
 				<th>
 					$tlang.getString("addconf.username")

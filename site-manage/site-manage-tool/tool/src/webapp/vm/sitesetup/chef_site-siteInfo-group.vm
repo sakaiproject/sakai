@@ -14,7 +14,7 @@
 		#if ($!groups && $!groups.hasNext())
 			#set($hasgroup = true)
 			
-			<table class ="listHier lines nolines"  border="0" cellpadding="0" cellspacing="0" summary ="$tlang.getString('group.tablesummary')">
+			<table class ="listHier lines nolines"  border="0" cellpadding="0" cellspacing="0" summary ="$tlang.getString('group.tablesummary')" style="width:50%">
 				<tr>
 					<th id="name">
 						<a href="#toolLinkParam($action "doSort_sites" "criterion=$tlang.getString('group.title')")" title ="$tlang.getString("group.title")"> 
@@ -50,7 +50,9 @@
 				#foreach($group in $!groups)
 					<tr>
 						<td headers="name">
-							<h4>$validator.escapeHtml($group.Title)</h4>
+							<h4>
+								<label for="remove_$group.Id">$validator.escapeHtml($group.Title)</label> 
+							</h4>
 						</td>
 						<td headers="revise">
 							<span class="itemAction">
@@ -61,14 +63,13 @@
 							$!group.getMembers().size()
 						</td>
 						<td headers="remove" class="screenOnly">
-							<label class="skip" for="remove_$group.Id">$tlang.getString("editgroup.selectremovechecked")  $group.Title</label> 
 							<input type="checkbox" name="removeGroups" value="$group.Id" id="remove_$group.Id" onclick="adjustCount(this, 'removeCount', 'removeButton');"  />
 						</td>
 					</tr>
 				#end
 			</table>
 		#else	
-			$tlang.getString("group.nogroup")
+			<p class="instruction">$tlang.getString("group.nogroup")</p>
 		#end		
 		<input type="hidden" name="template-index" value="49" />
 		<input type="hidden" name="back" value="12" />
@@ -101,7 +102,7 @@
 				if(counter.value > 0)
 				{
 					button.disabled = false;
-					button.className='enabled';
+					button.className='enabled active';
 				}
 				else
 				{

@@ -1,13 +1,23 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteConfirm.vm,v 1.3 2005/05/23 04:04:12 ggolden.umich.edu Exp $ -->
 <div class="portletBody">
-	<h3>
-		$tlang.getString("newsc.confirm")
-	</h3>
+		#if ($!isProjectSite)
+			<h3>
+				$tlang.getString("newsc.project.confirm")
+			</h3>
+		#elseif ($!isCourseSite)
+			<h3>
+				$tlang.getString("newsc.course.confirm")
+			</h3>
+		#else
+			<h3>
+				$tlang.getString("newsc.other.confirm")
+			</h3>
+		#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="step">
 		$tlang.getString("newsc.selection")
 	</p>
-	<p>
+	<p class="instruction">
 		$tlang.getString("newsc.please")
 		#if ($!isCourseSite && $!manualAddNumber)
 			$tlang.getString("newsc.ifthis") 
@@ -17,8 +27,8 @@
 		$tlang.getString("newsc.ifyou")
 	</p>
 	#if ($isCourseSite)
-		$tlang.getString("newsc.youare")
-		<ul>
+		<p class="instruction">$tlang.getString("newsc.youare")</p>
+		<ul class="indnt2 attachList">
 			#foreach ($item in $!selectedProviderCourse)
 				<li>
 					#set($pSection = false)
@@ -48,12 +58,11 @@
 			<li>$item.title </li>
 			#end
 		</ul>
-		<br />
 	#end
 	<form name="addSiteForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="eventSubmit_doAdd_site_option" value="x" />
 		<input type="hidden" name="option" value="cancel" />
-		<table class ="itemSummary" cellspacing="0" summary="$tlang.getString("newsc.list.summary")">
+		<table class ="itemSummary" cellspacing="0" summary="$tlang.getString("newsc.list.summary")" border="0">
 			<tr>
 				<th>
 					$tlang.getString("newsc.site")
@@ -64,54 +73,42 @@
 			</tr>
 			<tr>
 				<th>
-					$tlang.getString("newsc.descr")
-				</th>
-				<td>
-					$description
-				</td>
-			</tr>
-			<tr>
-				<th>
-					$tlang.getString("newsc.short")
-				</th>
-				<td>
-					$validator.escapeHtml($short_description)
-				</td>
-			</tr>
-			<tr>
-				<th>
 				$tlang.getString("newsc.tools")
 				</th>
 				<td>
-					#if ($check_home)
-						$tlang.getString("java.home")<br />
-					#end
-					#foreach($tool in $toolRegistrationList)
-						#set($toolId = $tool.Id)
-						#if ($toolRegistrationSelectedList.contains($tool.Id))
-							#if ($toolId.equals("sakai.mailbox"))
-								$tool.Title: $emailId@$serverName <br />
-							#elseif ($toolId.indexOf("sakai.news") != -1)
-								$tool.Title: $validator.escapeHtml($!newsTitles.get($toolId)) <br />
-							#elseif ($toolId.indexOf("sakai.iframe") != -1)
-								$tool.Title: $validator.escapeHtml($!wcTitles.get($toolId)) <br />
-							#else
-								$tool.Title
-								#foreach ($tId in $!importSiteTools.keys())
-								#if ($tId == $toolId)
-									(
-										#set($importSiteIds = $importSiteTools.get($toolId))
-										#foreach($importSiteId in $importSiteIds)
-											#set($importSite = $siteService.getSite($importSiteId))
-											$validator.escapeHtml($importSite.getTitle()),
-										#end
-									)
-								#end
-							#end
-							<br />
-							#end
+					<ul class="attachList" style="margin:0">
+						#if ($check_home)
+							<li><span class="home">$tlang.getString("java.home")</span></li>
 						#end
-					#end
+						
+						#foreach($tool in $toolRegistrationList)
+							#set($toolId = $tool.Id)
+								#if ($toolRegistrationSelectedList.contains($tool.Id))
+									<li>
+										#if ($toolId.equals("sakai.mailbox"))
+											$tool.Title: $emailId@$serverName <br />
+										#elseif ($toolId.indexOf("sakai.news") != -1)
+											$tool.Title: $validator.escapeHtml($!newsTitles.get($toolId)) <br />
+										#elseif ($toolId.indexOf("sakai.iframe") != -1)
+											$tool.Title: $validator.escapeHtml($!wcTitles.get($toolId)) <br />
+										#else
+											$tool.Title
+											#foreach ($tId in $!importSiteTools.keys())
+												#if ($tId == $toolId)
+													(
+														#set($importSiteIds = $importSiteTools.get($toolId))
+														#foreach($importSiteId in $importSiteIds)
+															#set($importSite = $siteService.getSite($importSiteId))
+															$validator.escapeHtml($importSite.getTitle()),
+														#end
+													)
+												#end
+											#end
+										#end
+									</li>
+								#end
+						#end
+					</ul>
 				</td>
 			</tr>
 			<tr> 
@@ -166,7 +163,11 @@
 						$tlang.getString("newsc.icon")
 					</th>
 					<td>
-						$!validator.escapeHtml($!iconUrl)
+					#if (!$!iconUrl)
+					<span class="instruction">$tlang.getString("newsc.icon.none")</span>
+				#else
+					$!validator.escapeHtml($!iconUrl)
+				#end
 					</td>
 				</tr>
 			#end
@@ -183,10 +184,44 @@
 					$tlang.getString("newsc.sitecont2")
 				</th>
 				<td>
+				#if ($!siteContactEmail=="")
+					<span class="instruction">$tlang.getString("newsc.sitecont2.none")</span>
+				#else
 					$validator.escapeHtml($!siteContactEmail)
+				#end
+					
 				</td>
 			</tr>
-		</table>
+			<tr>
+				<th>
+					$tlang.getString("newsc.short")
+				</th>
+				<td>
+				#if ($short_description =="")
+					<span class="instruction">$tlang.getString("newsc.short.none")</span>
+				#else
+					$validator.escapeHtml($short_description)
+				#end	
+
+				</td>
+			</tr>
+			<tr>
+					<th colspan="2">
+						<h4>
+							$tlang.getString("newsc.descr")
+						</h4>
+					</th>
+			</tr>	
+			<tr>
+					<td colspan="2">
+						#if ($description =="")
+							<span class="instruction">$tlang.getString("newsc.descr.none")</span>
+						#else	
+							$description
+						#end						
+					</td>
+			</tr>	
+		</table>	
 		<input type="hidden" name="back" value="18" />
 		<input type="hidden" name="template-index" value="10" />
 		<input type="hidden" name="continue" value="0" />

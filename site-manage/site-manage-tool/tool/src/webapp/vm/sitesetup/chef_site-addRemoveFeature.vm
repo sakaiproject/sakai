@@ -3,7 +3,7 @@
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 	<h3>
-		$tlang.getString('addrem.revising') $validator.escapeHtml($SiteTitle)...
+		$tlang.getString('addrem.revising') <span class="highlight">$validator.escapeHtml($SiteTitle)</span>
 	</h3>
 		#if ($alertMessage)
 			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
@@ -21,13 +21,14 @@
 				<th class="skip">$tlang.getString("addrem.list.toolname")</th>
 				<th class="skip">$tlang.getString("addrem.list.description")</th>
 			</tr>	
-			<tr>
+			<tr id="home-row" #if ($check_home) class="selectedSelected" #end>
 				<td>
 					#if (!$myworkspace_site)
 						<input type="checkbox" name="selectedTools" id="home" value="home"
 							#if ($check_home)
 								checked="checked"
 							#end
+							onchange="this.checked ? document.getElementById('home-row').className='selectedSelected' :document.getElementById('home-row').className=''";
 						/>
 					#else
 						#if ($check_home)
@@ -40,7 +41,10 @@
 			</tr>	
 			#set ($checkedNewsTool = 0)
 			#set ($checkedWCTool = 0)
+			#set ($rowCount=0)
 			#foreach($tool in $toolRegistrationList)
+						#set ($rowCount=$rowCount + 1)
+
 				#set($toolId = $tool.getId())
 				#set ($toolfound=false)
 				#if($toolRegistrationSelectedList)
@@ -53,7 +57,8 @@
 				#if ($!defaultTools.indexOf($toolId) != -1)
 					<input type="hidden" name="selectedTools" value="$toolId" />
 				#end
-				<tr>
+				<tr #if($toolfound==true) class="selectedSelected" #end
+					id="row-$rowCount">
 					<td>
 							<input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"  
 								#if ($!defaultTools.indexOf($toolId) != -1)
@@ -67,7 +72,7 @@
 										#end
 									#end
 								#end
-							/>
+							onchange="this.checked ? document.getElementById('row-$rowCount').className='selectedSelected' :document.getElementById('row-$rowCount').className=''";/>
 					</td>
 					<td>
 						<h4>

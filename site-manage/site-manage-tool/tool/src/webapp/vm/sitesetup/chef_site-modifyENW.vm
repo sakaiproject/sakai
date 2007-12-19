@@ -61,17 +61,22 @@
 							<label for="emailId">
 								$tlang.getString("enw.site")
 							</label>
-							<input type="text" title="$tlang.getString('enw.emailreq')" name="emailId" id="emailId" value="$!emailId" size="10" maxlength="32" />@$serverName
+							<input type="text" title="$tlang.getString('enw.emailreq')" name="emailId" id="emailId" value="$!emailId" size="15" maxlength="32" />@$serverName
 						</p>
 					</div>
 				#end	
 			#end
 			#if ($hasNews)
-				#set ($Newscount=0)			
+				<h4>
+					$tlang.getString("enw.news")
+				</h4>
+				#set ($Newscount=0)	
 				#set($newNewsTool=false)
 				#foreach($toolId in $toolRegistrationSelectedList)
+
 					#if ($toolId.indexOf("sakai.news") != -1)
-						#set ($Newscount=$Newscount +1)			
+
+						#set ($Newscount=$Newscount +1)	
 						<input type="hidden" name="selectedTools" value="$toolId" />
 						## if this news tool is being added, show those input areas
 						#set($toolExist=false)
@@ -81,23 +86,20 @@
 							#if (!$newNewsTool)
 								#set($newNewsTool=true)
 								## show lab for News tool
-								<h4>
-									$tlang.getString("enw.news")
-								</h4>
+
 								<div class="indnt1">
 							#end
 						#end
 						#set($name = "titlefor")
 						#set($name = $name.concat($toolId))
 						#if(!$toolExist)
-							<p class="shorttext">
-								## commenting - as not really required - if empty a default is used (gsilver)
-								##<span class="reqStar">*</span>
-								<label for="${name}${Newscount}-NewsT">
-									$tlang.getString("enw.title")
-								</label>
-								<input type="text" id="${name}${Newscount}-NewsT" name="$name" value="$validator.escapeHtml($!newsTitles.get($toolId))" size="15" maxlength="32"  /><span class="inlinstruction"> $tlang.getString("enw.suggest")</span>
-							</p>
+							<div class="highlightPanel">
+								<p class="shorttext">
+									<label for="${name}${Newscount}-NewsT">
+										$tlang.getString("enw.title")
+									</label>
+									<input type="text" id="${name}${Newscount}-NewsT" name="$name" value="$validator.escapeHtml($!newsTitles.get($toolId))" size="15" maxlength="32"  /><span class="instruction"> $tlang.getString("enw.suggest")</span>
+								</p>
 						#else
 							<input type="hidden" id="${name}${Newscount}-NewsT" name="$name" value="$validator.escapeHtml($!newsTitles.get($toolId))" />
 						#end
@@ -112,13 +114,15 @@
 								</label>
 								<input type="text" id="${name}${Newscount}-NewsU"  name="$name" value="$validator.escapeHtml($!newsUrls.get($toolId))" size="50" />
 							</p>
+							</div>
 						#else
 							<input type="hidden" id="${name}${Newscount}-NewsU"  name="$name" value="$validator.escapeHtml($!newsUrls.get($toolId))" />
 						#end
+
 					#end
 				#end
 				#if ($newNewsTool)
-						<div class="labelindnt" style="text-indent:.5em"><label for="newsNum" class="skip">$tlang.getString("enw.more")</label>
+						<div class="labelindnt" style="text-indent:.5em"><label for="newsNum" class="skip">$tlang.getString("enw.more")</label><img src="/library/image/silk/add.png" alt="$tlang.getString("enw.more")" style="vertical-align:text-bottom"/>
 							<select name="newsNum" id="newsNum" onchange="document.ENWForm.option.value='addNews';javascript:document.ENWForm.submit();">
 								<option value="$j" selected="selected">$tlang.getString("enw.morent")</option>
 									#foreach ($j in [1 .. 3])
@@ -130,6 +134,9 @@
 				#end
 			#end
 			#if ($hasWC)
+				<h4>
+					$tlang.getString("enw.web")
+				</h4>
 				#set ($WCcount=0)
 				#set($newWCTool=false)
 				#foreach($toolId in $toolRegistrationSelectedList)
@@ -143,23 +150,21 @@
 						#else
 							#if (!$newWCTool)
 								#set($newWCTool=true)
-								<h4>
-									$tlang.getString("enw.web")
-								</h4>
 								<div class="indnt1">
 							#end
 						#end
 						#set($name = "titlefor")
 						#set($name = $name.concat($toolId))
 						#if (!$toolExist)
-							<p class="shorttext">
-								## commenting - as not really required - if empty a default is used (gsilver)
-								##<span class="reqStar">*</span>
-								<label for="${name}${WCcount}-WCT">
-									$tlang.getString("enw.title")
-								</label>
-								<input type="text" id="${name}${WCcount}-WCT" name="$name" value="$validator.escapeHtml($!wcTitles.get($toolId))" size="15" maxlength="32" /> <span class="inlinstruction">$tlang.getString("enw.suggest")</span><br />
-							</p>
+							<div class="highlightPanel">
+								<p class="shorttext">
+									## commenting - as not really required - if empty a default is used (gsilver)
+									##<span class="reqStar">*</span>
+									<label for="${name}${WCcount}-WCT">
+										$tlang.getString("enw.title")
+									</label>
+									<input type="text" id="${name}${WCcount}-WCT" name="$name" value="$validator.escapeHtml($!wcTitles.get($toolId))" size="15" maxlength="32" /> <span class="instruction">$tlang.getString("enw.suggest")</span><br />
+								</p>
 						#else
 							<input type="hidden" id="${name}${WCcount}-WCT" name="$name" value="$validator.escapeHtml($!wcTitles.get($toolId))" />
 						#end
@@ -172,13 +177,14 @@
 								</label>
 								<input type="text"  id="${name}${WCcount}-WCU" name="$name" value="$validator.escapeHtml($!wcUrls.get($toolId))" size="50" />
 							</p>
+							</div>
 						#else
 							<input type="hidden"  id="${name}${WCcount}-WCU" name="$name" value="$validator.escapeHtml($!wcUrls.get($toolId))" />
 						#end
 					#end
 				#end
 				#if($newWCTool)
-						<div class="labelindnt" style="text-indent:.5em"><label for="wcNum" class="skip">$tlang.getString("enw.morewct")</label>
+						<div class="labelindnt" style="text-indent:.5em"><label for="wcNum" class="skip">$tlang.getString("enw.morewct")</label><img src="/library/image/silk/add.png" alt="$tlang.getString("enw.morewct")" style="vertical-align:text-bottom"/>
 							<select name="wcNum" id="wcNum" onchange="document.ENWForm.option.value='addWC';javascript:document.ENWForm.submit();">
 								<option value="$j" selected="selected">$tlang.getString("enw.morewct")</option>
 								#foreach ($j in [1 .. 3])

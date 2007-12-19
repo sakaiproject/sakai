@@ -2,7 +2,7 @@
 ## Add a participant to the worksite
 <div class ="portletBody">
 	<h3>
-		$tlang.getString("add.addpart") $validator.escapeHtml($title)...
+		$tlang.getString("add.addpart") <span class="highlight">$validator.escapeHtml($title)</span>
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<form action="#toolForm("SiteAction")" method="post">
@@ -10,7 +10,7 @@
 			<p class="instruction">
 				$tlang.getString("addnoti.anemail")
 			</p>
-			<p class="checkbox">
+			<p class="checkbox indnt1">
 				<input type="radio" name="notify" value="true" id="notify_yes" 
 					#if ($notify)
 						checked="checked"
@@ -20,7 +20,7 @@
 					$tlang.getString("addnoti.sendnow")
 				</label>
 			</p>
-			<p class="checkbox">
+			<p class="checkbox indnt1">
 				<input type="radio" name="notify" value="false" id="notify_no"
 					#if (!$notify)
 						checked="checked"
