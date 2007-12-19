@@ -73,7 +73,7 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 
 		ActionColumn actionColumn = new ActionColumn(new StringResourceModel("column.header.content.package.name", this, null), "title", "title");
 			
-		String[] paramPropertyExpressions = {"courseId", "title", "id"};
+		String[] paramPropertyExpressions = {"id", "resourceId", "title"};
 		
 		Action launchAction = new Action("title", PlayerPage.class, paramPropertyExpressions, "ScormPlayer");
 		launchAction.setEnabled(canLaunch);

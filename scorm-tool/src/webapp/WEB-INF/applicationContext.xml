@@ -4,7 +4,9 @@
 <beans>
 
 	<!-- setup wicket application -->
-	<bean id="toolWicketApplication" class="org.sakaiproject.scorm.ui.player.ScormTool"/>
+	<bean id="toolWicketApplication" class="org.sakaiproject.scorm.ui.player.ScormTool">
+		<property name="resourceService"><ref bean="org.sakaiproject.scorm.service.api.ScormResourceService"/></property>
+	</bean>
 
     <!--bean id="scormAccessProvider" class="org.sakaiproject.scorm.ui.ScormAccessProvider"
     	init-method="init"

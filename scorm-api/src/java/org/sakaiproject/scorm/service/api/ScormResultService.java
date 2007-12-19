@@ -11,7 +11,7 @@ public interface ScormResultService {
 	
 	public Attempt getAttempt(long id);
 	
-	public List<Attempt> getAttempts(String courseId);
+	public List<Attempt> getAttempts(long contentPackageId);
 	
 	public List<Attempt> getAttempts(String courseId, String learnerId);
 	

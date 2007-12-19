@@ -128,8 +128,8 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 	}
 	
 	
-	public List<Attempt> getAttempts(String courseId) {
-		return attemptDao().find(courseId);
+	public List<Attempt> getAttempts(long contentPackageId) {
+		return attemptDao().find(contentPackageId);
 	}
 	
 	

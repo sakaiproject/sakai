@@ -15,11 +15,12 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.service.api.INavigable;
+import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
+import org.sakaiproject.scorm.ui.ResourceNavigator;
 import org.sakaiproject.wicket.ajax.markup.html.form.AjaxRolloverImageButton;
 
-public class ActivityAjaxButton extends AjaxRolloverImageButton implements INavigable {
+public class ActivityAjaxButton extends AjaxRolloverImageButton {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -38,6 +39,8 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton implements INavi
 	private int seqRequest;
 	private String rootSrc;
 	
+	@SpringBean
+	ScormResourceService resourceService;
 	@SpringBean
 	ScormSequencingService sequencingService;
 	
@@ -111,7 +114,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton implements INavi
 	}
 	
 	private void doNavigate(SessionBean sessionBean, int seqRequest, AjaxRequestTarget target) {
-		sequencingService.navigate(seqRequest, sessionBean, this, target);
+		sequencingService.navigate(seqRequest, sessionBean, new LocalResourceNavigator(), target);
 		
 		if (form.getLaunchPanel() != null) {		
 			form.getLaunchPanel().synchronizeState(sessionBean, target);
@@ -202,6 +205,18 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton implements INavi
 	protected void onError(AjaxRequestTarget target, Form form)
 	{
 
+	}
+	
+	
+	public class LocalResourceNavigator extends ResourceNavigator {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected ScormResourceService resourceService() {
+			return ActivityAjaxButton.this.resourceService;
+		}
+		
 	}
 	
 }

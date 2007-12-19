@@ -52,7 +52,7 @@ public interface ScormSequencingService {
 	/**
 	 * Called to get the destination url for the selected sco
 	 */
-	public String getCurrentUrl(SessionBean sessionBean);
+	//public String getCurrentUrl(SessionBean sessionBean);
 	
 	/**
 	 * Called to get the TreeModel object that represents the 'choice' tree of activities

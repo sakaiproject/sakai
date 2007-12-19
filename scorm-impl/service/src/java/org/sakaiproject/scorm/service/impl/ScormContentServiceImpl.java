@@ -20,15 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.service.impl;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,29 +39,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.content.api.ResourceToolAction;
-import org.sakaiproject.content.api.ResourceToolActionPipe;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdLengthException;
-import org.sakaiproject.exception.IdUniquenessException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.OverQuotaException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.content.impl.ScormCHH;
-import org.sakaiproject.scorm.content.impl.ScormCollectionType;
-import org.sakaiproject.scorm.content.impl.ZipCHH;
-import org.sakaiproject.scorm.content.impl.ZipCollectionType;
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
-import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
 import org.sakaiproject.scorm.exceptions.ValidationException;
@@ -74,29 +53,25 @@ import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormPermissionService;
+import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public abstract class ScormContentServiceImpl implements ScormContentService, ScormConstants {
 	private static Log log = LogFactory.getLog(ScormContentServiceImpl.class);
-	
-	private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
-	private static final String MANIFEST_RESOURCE_ID_PROPERTY = "manifest_resource_id";
-	
+		
 	// Dependency injected lookup methods
 	protected abstract ContentHostingService contentService();
 	protected abstract SessionManager sessionManager();
 	protected abstract ToolManager toolManager();
 	protected abstract ScormPermissionService permissionService();
+	protected abstract ScormResourceService resourceService();
 	
 	// Data access objects (also dependency injected by lookup method)
 	protected abstract ContentPackageDao contentPackageDao();
-	protected abstract ContentPackageManifestDao contentPackageManifestDao();
 	protected abstract DataManagerDao dataManagerDao();
 	protected abstract SeqActivityTreeDao seqActivityTreeDao();
 	
@@ -106,8 +81,10 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	
 	
 	public String addContentPackage(File contentPackage, IValidator validator, IValidatorOutcome outcome) throws Exception {
-		String resourceId = storeFile(contentPackage, "application/zip");
+		FileInputStream inputStream = new FileInputStream(contentPackage);
 		
+		//String resourceId = storeFile(contentPackage, "application/zip");
+		String resourceId = resourceService().putArchive(inputStream, contentPackage.getName(), "application/zip");
 		convertToContentPackage(resourceId, validator, outcome);
 	
 		return resourceId;
@@ -191,30 +168,9 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 
 		ContentPackage contentPackage = contentPackageDao().load(contentPackageId);
 		
-		ContentResourceEdit edit = null;
-		
-		try {
-			edit = contentService().editResource(contentPackage.getCourseId());
-			
-			ResourceProperties props = edit.getProperties();
-			String manifestResourceId = props.getProperty(MANIFEST_RESOURCE_ID_PROPERTY);
-			
-			if (manifestResourceId != null) {
-				ContentResourceEdit manifestEdit = contentService().editResource(manifestResourceId);
-				
-				if (manifestEdit != null) 
-					contentService().removeResource(manifestEdit);
-			}
-			
-		} catch (Exception e) {
-			log.error("Unable to get edit resource object for: " + contentPackageId, e);
-		}
-		try {
-			if (edit != null)
-				contentService().removeResource(edit);
-		} catch (PermissionException e) {
-			log.error("Unable to remove resource for: " + contentPackageId, e);
-		}
+		String manifestResourceId = resourceService().removeArchive(contentPackage.getResourceId());
+		if (manifestResourceId != null)
+			resourceService().removeManifest(contentPackage.getResourceId(), manifestResourceId);
 		
 		contentPackageDao().remove(contentPackage);
 	}
@@ -298,39 +254,16 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		ContentResourceEdit modify = null;
 		try {
 			ContentPackageManifest manifest = createManifest(outcome.getDocument(), validator);
-			ContentResource manifestResource = storeManifest(manifest, resourceId);
-	        String manifestResourceId = manifestResource.getId();
-			
-			modify = contentService().editResource(resourceId);
-			
-			modify.setContentHandler(scormCHH());
-			modify.setResourceType("org.sakaiproject.content.types.scormContentPackage");
-	        
-			ResourcePropertiesEdit props = modify.getPropertiesEdit();
-			
-			props.addProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, "org.sakaiproject.scorm.content.api.ScormCHH");
-			props.addProperty(MANIFEST_RESOURCE_ID_PROPERTY, manifestResourceId);
-	        
-			String title = "Name unavailable";
-			
-	        if (manifest != null)
-	        	title = manifest.getTitle();
-	        
-	        props.addProperty("CONTENT_PACKAGE_TITLE", manifest.getTitle());
-			
-	       // ContentEntity vce = scormContentHostingHandler.getVirtualContentEntity(modify, resourceId + "/");
-	       // modify.setVirtualContentEntity(vce);
-	        
-	        int noti = NotificationService.NOTI_NONE;
-	        contentService().commitResource(modify, noti);
-		
+	        String manifestResourceId = resourceService().putManifest(resourceId, manifest);
+			resourceService().convertArchive(resourceId, manifestResourceId);
+				
 	        // Grab some important info about the site and user
 	        String context = toolManager().getCurrentPlacement().getContext();
 	        String userId = sessionManager().getCurrentSessionUserId();
 	        Date now = new Date();
 	        
 	        // Now create a representation of this content package in the database
-	        ContentPackage cp = new ContentPackage(title, resourceId);
+	        ContentPackage cp = new ContentPackage(manifest.getTitle(), resourceId);
 	        cp.setContext(context);
 	        cp.setReleaseOn(new Date());
 	        cp.setCreatedBy(userId);
@@ -377,32 +310,6 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	}
 	
 	
-	/**
-	 * Serializes the ContentPackageManifest and stores it as an attachment in the content 
-	 * repository
-	 * 
-	 */
-	private ContentResource storeManifest(ContentPackageManifest manifest, String id) {
-		ContentResource resource = null;
-		
-		String name = "manifest.obj"; // + manifest.getTitle();
-		String site = getContext();
-		String tool = "scorm";
-		String type = "application/octet-stream";
-				
-		try {	
-			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-			ObjectOutputStream out = new ObjectOutputStream(byteOut);
-			out.writeObject(manifest);
-			out.close();
-			
-			resource = contentService().addAttachmentResource(name, site, tool, type, byteOut.toByteArray(), null);
-		} catch (Exception soe) {
-			log.error("Caught an exception adding an attachment resource!", soe);
-		} 
-		
-		return resource;
-	}
 	
 	/**
 	 * Stores the passed file in the content repository
@@ -411,7 +318,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	 * @return identifier for th
 	 * @throws Exception
 	 */
-	private String storeFile(File file, String mimeType) throws Exception {
+	/*private String storeFile(File file, String mimeType) throws Exception {
 		byte[] content = getFileAsBytes(file);
 				
 		String siteId = toolManager().getCurrentPlacement().getContext();
@@ -441,7 +348,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 				contentService().cancelResource(edit);
 			throw e;
 		}
-	}
+	}*/
 	
 	
 	

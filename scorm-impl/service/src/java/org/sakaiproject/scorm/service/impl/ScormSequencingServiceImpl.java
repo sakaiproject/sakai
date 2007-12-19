@@ -32,8 +32,6 @@ import org.adl.sequencer.IValidRequests;
 import org.adl.sequencer.SeqNavRequests;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.SessionBean;
@@ -56,7 +54,6 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	
 	// Data access objects (also dependency injected by lookup method)
 	protected abstract SeqActivityTreeDao seqActivityTreeDao();
-	protected abstract ContentPackageManifestDao contentPackageManifestDao();
 	
 	
 	
@@ -87,7 +84,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 			sessionBean.setSuspended(false);
 		
 		if (agent != null)
-			agent.displayContent(sessionBean, target);
+			agent.displayResource(sessionBean, target);
 		
 		String result = launch.getLaunchStatusNoContent();
 		
@@ -115,7 +112,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		update(sessionBean, sequencer, launch, manifest);
 		
 		if (agent != null)
-			agent.displayContent(sessionBean, target);
+			agent.displayResource(sessionBean, target);
 	}
 	
 	public void navigateToActivity(String activityId, SessionBean sessionBean, INavigable agent, Object target) {
@@ -132,7 +129,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		update(sessionBean, sequencer, launch, manifest);
 		
 		if (agent != null)
-			agent.displayContent(sessionBean, target);
+			agent.displayResource(sessionBean, target);
 	}
 	
 	public SessionBean newSessionBean(String courseId, long contentPackageId) {
@@ -207,7 +204,9 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	}
 
 	
-	public String getCurrentUrl(SessionBean sessionBean) {
+	/*public String getCurrentUrl(SessionBean sessionBean) {
+		log.warn("THIS IS BROKEN -- sessionBean.getBaseUrl will return NULL");
+		
 		if (null != sessionBean.getLaunchData()) {
 			String launchLine = sessionBean.getLaunchData().getLaunchLine();
 			String baseUrl = sessionBean.getBaseUrl();
@@ -221,7 +220,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 			return fullPath.toString();
 		}
 		return null;
-	}
+	}*/
 	
 	public TreeModel getTreeModel(SessionBean sessionBean) {
 		IValidRequests requests = sessionBean.getNavigationState();

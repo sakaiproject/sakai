@@ -15,25 +15,31 @@ public class ChoicePanel extends Panel {
 	public ChoicePanel(String id, PageParameters pageParams, String error) {
 		super(id);
 		
-		String courseId = pageParams.getString("courseId");
+		long contentPackageId = -1;
+		String resourceId = null;
 		
-		
+		if (pageParams.containsKey("id")) 
+			contentPackageId = pageParams.getLong("id");
+		if (pageParams.containsKey("resourceId"))
+			resourceId = pageParams.getString("resourceId");
+	
 		add(new Label("error", error));
 		
-		addChoice("navStart", SeqNavRequests.NAV_START, courseId);
-		addChoice("navAbandon", SeqNavRequests.NAV_ABANDON, courseId);
-		addChoice("navAbandonAll", SeqNavRequests.NAV_ABANDONALL, courseId);
-		addChoice("navNone", SeqNavRequests.NAV_NONE, courseId);
-		addChoice("navResumeAll", SeqNavRequests.NAV_RESUMEALL, courseId);
-		addChoice("navExit", SeqNavRequests.NAV_EXIT, courseId);
-		addChoice("navExitAll", SeqNavRequests.NAV_EXITALL, courseId);
+		addChoice("navStart", SeqNavRequests.NAV_START, contentPackageId, resourceId);
+		addChoice("navAbandon", SeqNavRequests.NAV_ABANDON, contentPackageId, resourceId);
+		addChoice("navAbandonAll", SeqNavRequests.NAV_ABANDONALL, contentPackageId, resourceId);
+		addChoice("navNone", SeqNavRequests.NAV_NONE, contentPackageId, resourceId);
+		addChoice("navResumeAll", SeqNavRequests.NAV_RESUMEALL, contentPackageId, resourceId);
+		addChoice("navExit", SeqNavRequests.NAV_EXIT, contentPackageId, resourceId);
+		addChoice("navExitAll", SeqNavRequests.NAV_EXITALL, contentPackageId, resourceId);
 		
 	}
 
 	
-	private void addChoice(String requestId, int request, String courseId) {
+	private void addChoice(String requestId, int request, long id, String resourceId) {
 		final PageParameters params = new PageParameters();
-		params.add("courseId", courseId);
+		params.add("id", "" + id);
+		params.add("resourceId", resourceId);
 		params.add("navRequest", "" + request);
 		
 		add(new BookmarkablePageLink(requestId, PlayerPage.class, params));

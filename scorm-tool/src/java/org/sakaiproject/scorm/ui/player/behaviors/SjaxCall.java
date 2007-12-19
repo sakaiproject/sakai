@@ -41,7 +41,9 @@ import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.INavigable;
 import org.sakaiproject.scorm.service.api.ScoBean;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
+import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
+import org.sakaiproject.scorm.ui.ResourceNavigator;
 import org.sakaiproject.scorm.ui.player.decorators.SjaxCallDecorator;
 
 /**
@@ -55,7 +57,7 @@ import org.sakaiproject.scorm.ui.player.decorators.SjaxCallDecorator;
  * 
  * @author jrenfro
  */
-public abstract class SjaxCall extends AjaxEventBehavior implements INavigable {	
+public abstract class SjaxCall extends AjaxEventBehavior {	
 	public static final String ARG_COMPONENT_ID = "arg";
 	public static final String RESULT_COMPONENT_ID = "result";
 	public static final String SCO_COMPONENT_ID = "scoId";
@@ -91,7 +93,16 @@ public abstract class SjaxCall extends AjaxEventBehavior implements INavigable {
 	 * 
 	 * @return API Service dependency injected at the Component level
 	 */
-	protected abstract ScormApplicationService getApplicationService();
+	protected abstract ScormApplicationService applicationService();
+	
+	/**
+	 * Since Wicket only injects Spring annotations for classes that extend Component, we can't use
+	 * it inside the SjaxCall itself, therefore, we abstract the getter here to avoid having to 
+	 * create a member variable that would then be serialized.
+	 * 
+	 * @return API Service dependency injected at the Component level
+	 */
+	protected abstract ScormResourceService resourceService();
 	
 	/**
 	 * Since Wicket only injects Spring annotations for classes that extend Component, we can't use
@@ -100,7 +111,7 @@ public abstract class SjaxCall extends AjaxEventBehavior implements INavigable {
 	 * 
 	 * @return Sequencing Service dependency injected at the Component level
 	 */
-	protected abstract ScormSequencingService getSequencingService();
+	protected abstract ScormSequencingService sequencingService();
 	
 
 	/**
@@ -131,12 +142,12 @@ public abstract class SjaxCall extends AjaxEventBehavior implements INavigable {
 
 			@Override
 			public INavigable getAgent() {
-				return SjaxCall.this;
+				return new LocalResourceNavigator();
 			}
 
 			@Override
 			public ScormApplicationService getApplicationService() {
-				return SjaxCall.this.getApplicationService();
+				return SjaxCall.this.applicationService();
 			}
 
 			@Override
@@ -146,7 +157,7 @@ public abstract class SjaxCall extends AjaxEventBehavior implements INavigable {
 
 			@Override
 			public ScormSequencingService getSequencingService() {
-				return SjaxCall.this.getSequencingService();
+				return SjaxCall.this.sequencingService();
 			}
 
 			@Override
@@ -185,7 +196,7 @@ public abstract class SjaxCall extends AjaxEventBehavior implements INavigable {
 			if (log.isDebugEnabled())
 				log.debug("Processing " + scoValue + " as " + callNumber);
 			
-			final ScoBean scoBean = getApplicationService().produceScoBean(scoValue, getSessionBean());
+			final ScoBean scoBean = applicationService().produceScoBean(scoValue, getSessionBean());
 
 			Object[] args = new Object[numArgs];
 			
@@ -315,25 +326,15 @@ public abstract class SjaxCall extends AjaxEventBehavior implements INavigable {
 	}
 	
 	
-	// Implementation of IRefreshable
-	
-	public void displayContent(SessionBean sessionBean, Object target) {
-		if (null == target)
-			return;
-		
-		if (sessionBean.isEnded()) {		
-			((AjaxRequestTarget)target).appendJavascript("window.location.href='" + sessionBean.getCompletionUrl() + "';");
+	public class LocalResourceNavigator extends ResourceNavigator {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected ScormResourceService resourceService() {
+			return SjaxCall.this.resourceService();
 		}
 		
-		String url = getSequencingService().getCurrentUrl(sessionBean);
-		if (null != url) {
-			if (log.isDebugEnabled())
-				log.debug("Going to " + url);
-			
-			((AjaxRequestTarget)target).appendJavascript("parent.scormContent.location.href='" + url + "'");
-		} else {
-			log.warn("Url is null!");
-		}
 	}
 	
 }

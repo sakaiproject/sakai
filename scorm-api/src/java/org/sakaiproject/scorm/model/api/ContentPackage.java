@@ -32,7 +32,7 @@ public class ContentPackage implements Serializable {
 	private long id;
 	private String context;
 	private String title;
-	private String courseId;
+	private String resourceId;
 	private String url;
 	private Date releaseOn;
 	private Date dueOn;
@@ -47,15 +47,14 @@ public class ContentPackage implements Serializable {
 		
 	}
 	
-	public ContentPackage(String title, String courseId) {
+	public ContentPackage(String title, long id) {
 		this.title = title;
-		this.courseId = courseId;
+		this.id = id;
 	}
 	
-	public ContentPackage(String title, String courseId, String url) {
+	public ContentPackage(String title, String resourceId) {
 		this.title = title;
-		this.courseId = courseId;
-		this.url = url;
+		this.resourceId = resourceId;
 	}
 	
 	public boolean isReleased() {
@@ -80,12 +79,12 @@ public class ContentPackage implements Serializable {
 		this.title = title;
 	}
 	
-	public String getCourseId() {
-		return courseId;
+	public String getResourceId() {
+		return resourceId;
 	}
 	
-	public void setCourseId(String courseId) {
-		this.courseId = courseId;
+	public void setResourceId(String resourceId) {
+		this.resourceId = resourceId;
 	}
 
 	public Date getReleaseOn() {

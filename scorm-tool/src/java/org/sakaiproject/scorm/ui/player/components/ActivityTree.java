@@ -50,11 +50,12 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.service.api.INavigable;
+import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
+import org.sakaiproject.scorm.ui.ResourceNavigator;
 import org.sakaiproject.scorm.ui.player.behaviors.ActivityAjaxEventBehavior;
 
-public abstract class ActivityTree extends LinkTree implements INavigable {	
+public abstract class ActivityTree extends LinkTree {	
 	private static Log log = LogFactory.getLog(ActivityTree.class);
 	
 	private static final long serialVersionUID = 1L;
@@ -76,10 +77,11 @@ public abstract class ActivityTree extends LinkTree implements INavigable {
 		add(new AttributeModifier("role", new Model(ARIA_TREE_ROLE)));
 	}
 		
-	protected abstract ScormSequencingService getSequencingService();
+	protected abstract ScormSequencingService sequencingService();
+	protected abstract ScormResourceService resourceService();
 	
 	private void bindModel(SessionBean sessionBean) {
-		TreeModel treeModel = getSequencingService().getTreeModel(sessionBean);
+		TreeModel treeModel = sequencingService().getTreeModel(sessionBean);
 		
 		if (null != treeModel) {
 			setModel(new Model((Serializable)treeModel));
@@ -126,11 +128,11 @@ public abstract class ActivityTree extends LinkTree implements INavigable {
 	}
 	
 	public boolean isChoice() {
-		return getSequencingService().isControlModeChoice(sessionBean);
+		return sequencingService().isControlModeChoice(sessionBean);
 	}
 	
 	public boolean isFlow() {
-		return getSequencingService().isControlModeFlow(sessionBean);
+		return sequencingService().isControlModeFlow(sessionBean);
 	}
 	
 	protected void onNodeLinkClicked(TreeNode node, BaseTree tree, AjaxRequestTarget target)
@@ -141,7 +143,7 @@ public abstract class ActivityTree extends LinkTree implements INavigable {
 		
 		log.info("ID: " + activity.getID() + " State ID: " + activity.getStateID());
 
-		getSequencingService().navigateToActivity(activity.getID(), sessionBean, this, target);
+		sequencingService().navigateToActivity(activity.getID(), sessionBean, new LocalResourceNavigator(), target);
 		
 		treePanel.getLaunchPanel().synchronizeState(sessionBean, target);
 		
@@ -310,23 +312,15 @@ public abstract class ActivityTree extends LinkTree implements INavigable {
 		return isEmpty;
 	}
 	
-	public void displayContent(SessionBean sessionBean, Object target) {
-		if (null == target)
-			return;
-		
-		if (sessionBean.isEnded()) {		
-			((AjaxRequestTarget)target).appendJavascript("window.location.href='" + sessionBean.getCompletionUrl() + "';");
+	public class LocalResourceNavigator extends ResourceNavigator {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected ScormResourceService resourceService() {
+			return ActivityTree.this.resourceService();
 		}
 		
-		String url = getSequencingService().getCurrentUrl(sessionBean);
-		if (null != url) {
-			if (log.isDebugEnabled())
-				log.debug("Going to " + url);
-			
-			((AjaxRequestTarget)target).appendJavascript("parent.scormContent.location.href='" + url + "'");
-		} else {
-			log.warn("Url is null!");
-		}
 	}
 	
 

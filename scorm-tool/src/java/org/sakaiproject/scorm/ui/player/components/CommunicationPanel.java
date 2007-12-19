@@ -32,6 +32,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.ScoBean;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
+import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.player.behaviors.SjaxCall;
 
@@ -48,6 +49,8 @@ public class CommunicationPanel extends Panel implements IHeaderContributor {
 	
 	@SpringBean
 	ScormApplicationService applicationService;
+	@SpringBean
+	ScormResourceService resourceService;
 	@SpringBean
 	ScormSequencingService sequencingService;
 	
@@ -106,7 +109,7 @@ public class CommunicationPanel extends Panel implements IHeaderContributor {
 					tree.updateTree(target);
 				}
 				
-				applicationService.discardScoBean(scoBean.getScoId(), sessionBean, this);
+				applicationService.discardScoBean(scoBean.getScoId(), sessionBean, new LocalResourceNavigator());
 				
 				updatePageSco("", target);
 				
@@ -164,12 +167,17 @@ public class CommunicationPanel extends Panel implements IHeaderContributor {
 		}
 		
 		@Override
-		protected ScormApplicationService getApplicationService() {
+		protected ScormApplicationService applicationService() {
 			return applicationService;
 		}
 
 		@Override
-		protected ScormSequencingService getSequencingService() {
+		protected ScormResourceService resourceService() {
+			return resourceService;
+		}
+		
+		@Override
+		protected ScormSequencingService sequencingService() {
 			return sequencingService;
 		}
 		
