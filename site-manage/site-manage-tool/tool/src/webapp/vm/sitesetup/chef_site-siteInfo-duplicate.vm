@@ -5,7 +5,7 @@
 		<input type="hidden" name="eventSubmit_doDuplicate_site_option" value="x" />
 		<input type="hidden" name="option" value="cancel" />
 		<h3>
-			$tlang.getString("sitdup.dupsit") "$siteTitle"	
+			$tlang.getString("sitdup.dupsit") <span class="highlight">$siteTitle</span>
 		</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitdup.alert") $validator.escapeHtml($alertMessage)</div>#end
 			#if (!$!siteDuplicated)
@@ -72,7 +72,7 @@
 					type="button" 
 					name="$tlang.getString("sitdup.can")" 
 					id="$tlang.getString("sitdup.can")" 
-					accesskey="c"
+					accesskey="x"
 					value="$tlang.getString("sitdup.can")"
 					onclick="document.duplicateSiteForm.option.value='cancel'; document.duplicateSiteForm.submit(); return false;"
 				/>
@@ -84,7 +84,7 @@
 					type="button" 
 					name="$tlang.getString("pubuncon.fin")" 
 					id="$tlang.getString("pubuncon.fin")" 
-					accesskey="c"
+					accesskey="x"
 					value="$tlang.getString("pubuncon.fin")"
 					onclick="document.duplicateSiteForm.option.value='finish'; document.duplicateSiteForm.submit(); return false;"
 				/>
