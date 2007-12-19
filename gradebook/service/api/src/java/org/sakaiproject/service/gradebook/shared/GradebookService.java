@@ -198,6 +198,20 @@ public interface GradebookService {
 	public Double getAssignmentScore(String gradebookUid,
 			String assignmentName, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
+	
+	/**
+	 * Besides the declared exceptions, possible runtime exceptions include:
+	 * <ul>
+	 * <li> SecurityException - If the current user is not authorized to view
+	 * the student's score
+	 * </ul>
+	 * 
+	 * @return Returns the current score for the student, or null if no score
+	 *         has been assigned yet.
+	 */
+	public Double getAssignmentScore(String gradebookUid, 
+			Long gbItemId, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
 	 * Get the comment (if any) currently provided for the given combination
@@ -212,6 +226,21 @@ public interface GradebookService {
 	 */
 	public CommentDefinition getAssignmentScoreComment(String gradebookUid,
 			String assignmentName, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+	
+	/**
+	 * Get the comment (if any) currently provided for the given combination
+	 * of student and assignment. 
+	 * 
+	 * @param gradebookUid
+	 * @param gbItemId
+	 * @param studentUid
+	 * @return null if no comment is avaailable
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public CommentDefinition getAssignmentScoreComment(String gradebookUid,
+			Long gbItemId, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**

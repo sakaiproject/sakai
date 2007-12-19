@@ -244,6 +244,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		if (log.isDebugEnabled()) log.debug("returning " + assignmentScore);
 		return assignmentScore;
 	}
+	
+	public Double getAssignmentScore(final String gradebookUid, final Long gbItemId, final String studentUid) {
+		if (gradebookUid == null || gbItemId == null || studentUid == null) {
+			throw new IllegalArgumentException("null parameter passed to getAssignmentScore");
+		}
+		
+		Assignment assignment = getAssignment(gbItemId);
+		if (assignment == null) {
+			throw new AssessmentNotFoundException("There is no assignment with the gbItemId " + gbItemId);
+		}
+		
+		return getAssignmentScore(gradebookUid, gbItemId, assignment.getName());
+	}
 
 	public void setAssignmentScore(final String gradebookUid, final String assignmentName, final String studentUid, final Double score, final String clientServiceDescription)
 		throws GradebookNotFoundException, AssessmentNotFoundException {
@@ -315,6 +328,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         	commentDefinition.setStudentUid(comment.getStudentId());
         }
 		return commentDefinition;
+	}
+	
+	public CommentDefinition getAssignmentScoreComment(final String gradebookUid, final Long gbItemId, final String studentUid) throws GradebookNotFoundException, AssessmentNotFoundException {
+		if (gradebookUid == null || gbItemId == null || studentUid == null) {
+			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreComment");
+		}
+		
+		Assignment assignment = getAssignment(gbItemId);
+		if (assignment == null) {
+			throw new AssessmentNotFoundException("There is no assignment with the gbItemId " + gbItemId);
+		}
+		
+		return getAssignmentScoreComment(gradebookUid, assignment.getName(), studentUid);
 	}
 
 	public void setAssignmentScoreComment(final String gradebookUid, final String assignmentName, final String studentUid, final String commentText) throws GradebookNotFoundException, AssessmentNotFoundException {
