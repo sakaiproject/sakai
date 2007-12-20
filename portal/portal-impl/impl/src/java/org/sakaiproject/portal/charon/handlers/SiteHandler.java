@@ -221,7 +221,7 @@ public class SiteHandler extends WorksiteHandler
 				pageId = EntityManager.newReference(refString).getId();
 			}
 			catch (IdUnusedException e) {
-				log.warn("Alias does not resolve "+e.getMessage());
+				log.debug("Alias does not resolve "+e.getMessage());
 			}
 		}
 		
