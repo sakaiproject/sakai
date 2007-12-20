@@ -12,6 +12,9 @@ import uk.ac.cam.caret.sakai.rsf.entitybroker.EntityViewParamsInferrer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
+/*
+ * This is a provider for looking up and adding/editing Gradebook Items.
+ */
 public class GradebookEntryEntityProvider implements EntityProvider, CoreEntityProvider,
 EntityViewParamsInferrer {
     private Log log = LogFactory.getLog(GradebookEntryEntityProvider.class);
