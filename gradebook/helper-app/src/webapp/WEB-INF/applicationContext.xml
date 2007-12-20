@@ -29,5 +29,10 @@
       </property>
       <property name="localeGetter" ref="requestLocaleProxy" />
    </bean>	
+   
+   	<!-- view param inferrer beans to handle entity urls -->
+	<bean class="org.sakaiproject.gradebook.tool.inferrers.GradebookEntryViewParamsInferrer">
+		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.shared.GradebookService" />
+	</bean>
 
 </beans>
