@@ -6,6 +6,8 @@
   .hide { display:none; }
   
   .hideRemove { display:none; }
+  
+  .errHide { display:none; }
  </style>
 
 <h:outputText value="#{msgs.flag_required}" rendered="#{!bean.assignment.externallyMaintained}"/>
@@ -44,8 +46,13 @@
 							</h:inputText>
 							<h:outputText id="noTitleErrMsg"  value="#{msgs.add_assignment_no_title}" 
 								styleClass="alertMessageInline" rendered="#{item.bulkNoTitleError == 'blank'}" />
+							<h:outputText id="noTitleErrMsgH"  value="#{msgs.add_assignment_no_title}" 
+								styleClass="alertMessageInline errHide" rendered="#{item.bulkNoTitleError != 'blank'}" />
+
 							<h:outputText id="dupTitleErrMsg" value="#{msgs.add_assignment_duplicate_name}"
 								styleClass="alertMessageInline" rendered="#{item.bulkNoTitleError == 'dup'}" />
+							<h:outputText id="dupTitleErrMsgH" value="#{msgs.add_assignment_duplicate_name}"
+								styleClass="alertMessageInline errHide" rendered="#{item.bulkNoTitleError != 'dup'}" />
 		
 					<%-- Will remove this pane from the page --%>
 					<h:panelGroup rendered="#{rowIndex != 0}">
@@ -68,8 +75,12 @@
 					</h:inputText>
 					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
 									rendered="#{item.bulkNoPointsError == 'blank'}" />
+					<h:outputText id="blankPtsErrMsgH"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline errHide"
+									rendered="#{item.bulkNoPointsError != 'blank'}" />
 					<h:outputText id="nanPtsErrMsg" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline"
 									rendered="#{item.bulkNoPointsError == 'NaN'}" />
+					<h:outputText id="nanPtsErrMsgH" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline errHide"
+									rendered="#{item.bulkNoPointsError != 'NaN'}" />
 				</h:panelGroup>
 			  </h:panelGrid>
 

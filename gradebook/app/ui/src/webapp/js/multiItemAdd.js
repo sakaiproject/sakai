@@ -186,6 +186,47 @@ function copyPanes(rowIndex1, rowIndex2, idPrefix) {
 	curEl1 = getEl(idPrefix + rowIndex1 + ':countAssignment');
 	curEl2 = getEl(idPrefix + rowIndex2 + ':countAssignment');
 	curEl1.checked = curEl2.checked;
+	
+	// copy/hide error messages
+	curEl1 = getEl(idPrefix + rowIndex1 + ':noTitleErrMsg');
+	if (!curEl1) curEl1 = getEl(idPrefix + rowIndex1 + ':noTitleErrMsgH');
+	curEl2 = getEl(idPrefix + rowIndex2 + ':noTitleErrMsg');
+	if (curEl2) {
+		curEl1.style.display = 'inline';
+	}
+	else { 
+		curEl1.style.display = 'none';
+	}
+
+	curEl1 = getEl(idPrefix + rowIndex1 + ':dupTitleErrMsg');
+	if (!curEl1) curEl1 = getEl(idPrefix + rowIndex1 + ':dupTitleErrMsgH');
+	curEl2 = getEl(idPrefix + rowIndex2 + ':dupTitleErrMsg');
+	if (curEl2) {
+		curEl1.style.display = 'inline';
+	}
+	else { 
+		curEl1.style.display = 'none';
+	}
+
+	curEl1 = getEl(idPrefix + rowIndex1 + ':blankPtsErrMsg');
+	if (!curEl1) curEl1 = getEl(idPrefix + rowIndex1 + ':blankPtsErrMsgH');
+	curEl2 = getEl(idPrefix + rowIndex2 + ':blankPtsErrMsg');
+	if (curEl2) {
+		curEl1.style.display = 'inline';
+	}
+	else { 
+		curEl1.style.display = 'none';
+	}
+
+	curEl1 = getEl(idPrefix + rowIndex1 + ':nanPtsErrMsg');
+	if (!curEl1) curEl1 = getEl(idPrefix + rowIndex1 + ':nanPtsErrMsgH');
+	curEl2 = getEl(idPrefix + rowIndex2 + ':nanPtsErrMsg');
+	if (curEl2) {
+		curEl1.style.display = 'inline';
+	}
+	else { 
+		curEl1.style.display = 'none';
+	}
 }
 
 //*********************************************************************
@@ -220,6 +261,15 @@ function eraseAndHide(idPrefix, rowIndex) {
 //	Commented out with non-graded item roll back
 //	curEl = document.getElementsByName(idPrefix + ':assignNonGraded');
 //	curEl[0].checked = true;
+
+	// Remove the error messages if they exist
+	curEl = getEl(idPrefix + ':noTitleErrMsg');
+	if (!curEl) curEl = getEl(idPrefix + ':dupTitleErrMsg');
+	if (curEl) curEl.style.display = 'none';
+	
+	curEl = getEl(idPrefix + ':blankPtsErrMsg');
+	if (!curEl) curEl = getEl(idPrefix + ':nanPtsErrMsg');
+	if (curEl) curEl.style.display = 'none';
 
 	// Get the enclosing tr for the enclosing table this pane is nested inside of
 	// in order to hide it
