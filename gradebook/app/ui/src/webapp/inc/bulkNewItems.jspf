@@ -25,15 +25,16 @@
 		  		Done to deal with removing item in 'middle' 				--%>
 		  	<h:inputHidden id="hiddenAdd" value="#{item.saveThisItem}" />
 		  
+<%-- Commented out with roll back of non-graded items 
 			<h:selectOneRadio value="#{item.ungraded}" id="assignNonGraded" layout="pageDirection" onclick="submit();" 
 				valueChangeListener="#{item.processUngradedSettingChange}">
 					<f:selectItem itemValue="normal" itemLabel="#{msgs.add_assignment_non_calculated3}" />
 		  			<f:selectItem itemValue="ungraded" itemLabel="#{msgs.add_assignment_non_calculated1}" /> 
 			</h:selectOneRadio>
-
+--%>
 		    <h:panelGrid cellpadding="0" cellspacing="5" columns="2" 
 		    		columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" 
-		  			styleClass="actionitem highlightPanel" width="100%">
+		  			styleClass="highlightPanel" width="100%">
 						<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}"
 							rendered="#{!item.assignment.externallyMaintained}"/>
 			
@@ -48,20 +49,21 @@
 		
 					<%-- Will remove this pane from the page --%>
 					<h:panelGroup rendered="#{rowIndex != 0}">
-						<h:commandLink onclick="removeItem(event); return false;" title="#{msgs.add_assignment_remove_title}" styleClass="indnt2">
+						<h:commandLink title="#{msgs.add_assignment_remove_title}" styleClass="indnt2"
+								onclick="removeItem(event, 'gbForm:bulkNewAssignmentsTable:', #{rowIndex}); return false;" >
 							<h:graphicImage value="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
 						</h:commandLink>
 					</h:panelGroup>
 					<%-- Hide for first item, but display if more than one. Will remove this pane from the page --%>
 					<h:panelGroup rendered="#{rowIndex == 0}">
-						<h:commandLink onclick="removeItem(event); return false;" title="#{msgs.add_assignment_remove_title}" styleClass="indnt2 hideRemove firstDel">
+						<h:commandLink onclick="removeItem(event, 'gbForm:bulkNewAssignmentsTable:', #{rowIndex}); return false;" title="#{msgs.add_assignment_remove_title}" styleClass="hideRemove indnt2">
 							<h:graphicImage value="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
 						</h:commandLink>
 					</h:panelGroup>  
 				</h:panelGroup>
-	
-				<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained && item.ungraded == 'normal'}"/>
-				<h:panelGroup rendered="#{!item.assignment.externallyMaintained && item.ungraded == 'normal'}">
+	<%-- Commented out for non-graded rollback && item.ungraded == 'normal' --%>
+				<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained}"/>
+				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
 					<h:inputText id="points" value="#{item.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 					</h:inputText>
 					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
@@ -106,8 +108,9 @@
  				
  				<h:panelGroup>
 					<h:selectBooleanCheckbox id="countAssignment" value="#{item.assignment.counted}"
-						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{item.ungraded == 'normal'}"/>
-					<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{item.ungraded == 'normal'}"/>
+						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
+						<%-- Commented out due to non-graded rollback rendered="#{item.ungraded == 'normal'}"/> --%>
+					<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
 				</h:panelGroup>
 		  	  </h:panelGrid>
 			  	<h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />

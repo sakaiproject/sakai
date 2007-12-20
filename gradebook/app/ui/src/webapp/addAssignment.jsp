@@ -97,8 +97,14 @@
 //					setMainFrameHeightNow(thisId, 'grow');
 //				}
 //			);
+
+			// adds X remove icon to first pane if more than 2 are displayed
+		 	if (getNumTotalItem() >= 2) {
+ 				addDelX();
+		 	}
+ 			
+		    setMainFrameHeight('<%= thisId %>');
   		</script>
   	</h:form>
   </div>
- 
 </f:view>

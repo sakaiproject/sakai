@@ -1,11 +1,12 @@
 var DOT = "_";
 var addSecond = true;
+var comingBack = false;
 
 //*********************************************************************
 // setMainFrameHeight
 //
 // set the parent iframe's height to hold our entire contents
-// COPIED AND MODIFIED TO EXPAND APPRORIATE AMOUNT FOR BULK
+// COPIED, MODIFIED, AND RENAMED TO EXPAND APPRORIATE AMOUNT FOR BULK
 // GRADEBOOK ITEM CREATION
 //*********************************************************************
 function setMainFrameHeight(id, direction)
@@ -74,6 +75,17 @@ function setMainFrameHeightNow(id,direction)
 }
 
 //*********************************************************************
+// addDelX
+//
+// If more than 1 pane is displayed, add the X remove to the first pane
+//*********************************************************************
+function addDelX() { 
+	var firstDelEl = document.getElementsByClassName('hideRemove');
+	firstDelEl[0].className = 'firstDel' + firstDelEl[0].className.substring(10);
+	firstDelEl[0].style.display='inline';
+}
+
+//*********************************************************************
 // addItemScreen
 //
 // This does the actual work of showing another add item pane
@@ -92,8 +104,9 @@ function addItemScreen()
 	hiddenAddEl.value = 'true';
 	
 	// make sure delete link on first item is displayed
-	var firstDelEl = document.getElementsByClassName('firstDel');
-	firstDelEl[0].style.display='inline';
+	if (numBulkItems == 1) {
+		addDelX();
+	}
 	
 	if (numBulkItems == MAX_NEW_ITEMS - 1)
 		$("gbForm:addSecond").style.display = "none";
@@ -136,40 +149,125 @@ function addMultipleItems(itemSelect)
 }
  
 //*********************************************************************
+// copyPanes
+//
+// This copies the values from rowIndex2 to rowIndex1
+//*********************************************************************
+function copyPanes(rowIndex1, rowIndex2, idPrefix) {
+// Commented out with non-graded items roll back
+//	var radioEl1 = document.getElementsByName(idPrefix + rowIndex1 + ':assignNonGraded');
+//	var radioEl2 = document.getElementsByName(idPrefix + rowIndex2 + ':assignNonGraded');
+//	radioEl1[0].checked = radioEl2[0].checked;
+//	radioEl1[1].checked = radioEl2[1].checked;
+	
+	var curEl1 = getEl(idPrefix + rowIndex1 + ':title');
+	var curEl2 = getEl(idPrefix + rowIndex2 + ':title');
+	curEl1.value = curEl2.value;
+	
+	curEl1 = getEl(idPrefix + rowIndex1 + ':points');
+	curEl2 = getEl(idPrefix + rowIndex2 + ':points');
+	curEl1.value = curEl2.value;
+//	if (radioEl1[1].checked) curEl1.style.display = 'none'; Commented out with non-graded item rollback
+	
+	curEl1 = getEl(idPrefix + rowIndex1 + ':dueDate');
+	curEl2 = getEl(idPrefix + rowIndex2 + ':dueDate');
+	curEl1.value = curEl2.value;
+	
+	curEl1 = getEl(idPrefix + rowIndex1 + ':selectCategory');
+	if (curEl1) {
+		curEl2 = getEl(idPrefix + rowIndex2 + ':selectCategory');
+		curEl1.selectedIndex = curEl2.selectedIndex;
+	}
+	
+	curEl1 = getEl(idPrefix + rowIndex1 + ':released');
+	curEl2 = getEl(idPrefix + rowIndex2 + ':released');
+	curEl1.checked = curEl2.checked;
+	
+	curEl1 = getEl(idPrefix + rowIndex1 + ':countAssignment');
+	curEl2 = getEl(idPrefix + rowIndex2 + ':countAssignment');
+	curEl1.checked = curEl2.checked;
+}
+
+//*********************************************************************
+// eraseAndHide
+//
+// This will remove the values for the pane to be hidden as well as
+// hide the pane
+//*********************************************************************
+function eraseAndHide(idPrefix, rowIndex) {
+	var curEl = getEl(idPrefix + ':title');
+	curEl.value = "";
+	
+	curEl = getEl(idPrefix + ':points');
+	curEl.value = "";
+	curEl.style.display = 'inline';
+	
+	curEl = getEl(idPrefix + ':dueDate');
+	curEl.value = "";
+	
+	curEl = getEl(idPrefix + ':selectCategory');
+	if (curEl) curEl.selectedIndex = 0;
+	
+	curEl = getEl(idPrefix + ':released');
+	curEl.value = true;
+	
+	curEl = getEl(idPrefix + ':countAssignment');
+	curEl.value = true;
+	
+	curEl = getEl(idPrefix + ':hiddenAdd');
+	curEl.value = 'false';
+	
+//	Commented out with non-graded item roll back
+//	curEl = document.getElementsByName(idPrefix + ':assignNonGraded');
+//	curEl[0].checked = true;
+
+	// Get the enclosing tr for the enclosing table this pane is nested inside of
+	// in order to hide it
+	// tbodyPrefix - need to chop off the rowIndex from id prefix
+	tbodyPrefix = idPrefix.substring(0,idPrefix.lastIndexOf(':'));
+	var element = document.getElementById(tbodyPrefix + ':tbody_element').rows[rowIndex];
+  	element.className = "hide" + element.className.substring(4);
+   	element.style.display = "none";
+   	
+	setMainFrameHeightNow(thisId, 'shrink');
+}
+
+//*********************************************************************
 // removeItem
 //
-// This does the actual work of hiding the current add item pane
-// User CANNOT remove pane zero, even if others are present
+// This does the actual work of 'hiding' the current add item pane
+// by coping all panes after it. The last pane with the class
+// show is then hidden.
 //*********************************************************************
-function removeItem(event) {
+function removeItem(event, idPrefix, rowIndex) {
 	var element = Event.element(event);
 	var numBulkItems = getNumTotalItem();
-
-	// TODO: CLEAR OUT THE VALUES IN THIS PANE
-
-	// hack to get the enclosing tr for the enclosing table this pane is nested inside of
-	// in order to hide it and/or set prop so not saved
-	element = element.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;   		
-  	element.className = "hide" + element.className.substring(4);
-   	element.style.display = "none";    	
-	setMainFrameHeight(thisId, 'shrink');
-
+	var candidatePaneEl = element;
+	
+    for (i = rowIndex; i < (MAX_NEW_ITEMS-1); i++) {
+    	if (getEl(idPrefix + (i+1) + ':hiddenAdd').value == "false") {
+    		eraseAndHide(idPrefix + i, i);
+    		break;	// all the rest are hidden so no copying needed
+    	}
+    	else {
+	    	copyPanes(i, i+1, idPrefix);
+    	}
+	}
+	
 	// just in case we were full up and now we're not
 	$("gbForm:addSecond").style.display = "inline";
-
-	setMainFrameHeightNow(thisId, 'shrink');
 	
-   	// set saveThisItem property to TRUE so it will be saved
-   	var hiddenAddEl = getHiddenAdd(element);
-	hiddenAddEl.value = 'false';
-
 	if (numBulkItems == 2) {
-		// make sure delete link on first item is displayed
+		// make sure delete link on first item is removed since
+		// there will only be one item
 		var firstDelEl = document.getElementsByClassName('firstDel');
-		firstDelEl[0].style.display='none';
+		firstDelEl[0].className = "hideRemove" + firstDelEl[0].className.substring(8);
+		firstDelEl[0].style.display='none';		
 	}
 	
     adjustNumBulkItems(-1);
+
+	setMainFrameHeightNow(thisId, 'shrink');
 }
 
 //*********************************************************************
@@ -182,13 +280,7 @@ function getNumTotalItemEl() {
 
 	// Get the hidden numTotalItems textbox to update it
 	// prefix added by jsf when rendering
-	if (document.all) {
-		numTotalItemEl = document.all['gbForm:numTotalItems'];
-	}
-	else {
-		numTotalItemEl = document.getElementById('gbForm:numTotalItems');
-	}
-	return numTotalItemEl;
+	return getEl('gbForm:numTotalItems');
 }
 
 //*********************************************************************
@@ -201,12 +293,7 @@ function getNumTotalItem() {
 
 	// Get the hidden numTotalItems textbox to update it
 	// prefix added by jsf when rendering
-	if (document.all) {
-		numTotalItemEl = document.all['gbForm:numTotalItems'];
-	}
-	else {
-		numTotalItemEl = document.getElementById('gbForm:numTotalItems');
-	}
+	numTotalItemEl = getEl('gbForm:numTotalItems');
 	return parseInt(numTotalItemEl.value);
 }
 
@@ -243,6 +330,7 @@ function adjustNumBulkItems(amt) {
 //*********************************************************************
 // togglePointEntry
 //
+// NEEDED WHEN NON-GRADED ENTRY PUT BACK IN
 // To hide/show point entry row based on the radio button clicked
 //*********************************************************************
 function togglePointEntry(event, elementPrefix) {
@@ -250,16 +338,9 @@ function togglePointEntry(event, elementPrefix) {
 	var pointsLabelEl;
 	var pointsEl;
 	
-	if (document.all)
-	{
-		pointsLabelEl = document.all[elementPrefix + 'pointsLabel'];
-		pointsEl = document.all[elementPrefix + 'points'];
-	}
-	else {
-		pointsLabelEl = document.getElementById(elementPrefix + 'pointsLabel');
-		pointsEl = document.getElementById(elementPrefix + 'points');
-	}
-
+	pointsLabelEl = getEl(elementPrefix + 'pointsLabel');
+	pointsEl = getEl(elementPrefix + 'pointsLabel');
+	
 	if (element.value) {
 		pointsLabelEl.style.display='inline';
 		pointsEl.style.display='inline';
@@ -269,5 +350,19 @@ function togglePointEntry(event, elementPrefix) {
 		pointsLabelEl.style.display='none';
 		pointsEl.style.display='none';
 		pointsEl.parentNode.style.display='none';
+	}
+}
+
+//*********************************************************************
+// getEl
+//
+// Returns the DOM element for the id passed in
+//*********************************************************************
+function getEl(elId) {
+	if (document.all) {
+		return document.all[elId];
+	}
+	else {
+		return document.getElementById(elId);
 	}
 }
