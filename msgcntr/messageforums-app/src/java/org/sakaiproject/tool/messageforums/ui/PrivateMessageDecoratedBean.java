@@ -172,6 +172,10 @@ public class PrivateMessageDecoratedBean
   public String getRecipientsAsText() {
 	  return msg.getRecipientsAsText();
   }
+  
+  public void setRecipientsAsText(String recipientAsText) {
+	   this.sendToStringDecorated=recipientAsText;
+  }
 
   public String getAuthor() {
 	  return msg.getAuthor();
