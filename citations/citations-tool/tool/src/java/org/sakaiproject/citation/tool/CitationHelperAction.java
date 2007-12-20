@@ -467,16 +467,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String ELEMENT_ID_RESULTS_FORM = "resultsForm";
 	protected static final String ELEMENT_ID_VIEW_FORM = "viewForm";
 
-  /**
-   * The calling application reflects the nature of our caller
-   */
-  public final static String CITATIONS_HELPER_CALLER = "citations_helper_caller";
+	/**
+	 * The calling application reflects the nature of our caller
+	 */
+	public final static String CITATIONS_HELPER_CALLER = "citations_helper_caller";
 
-  public enum Caller
-  {
-    RESOURCE_TOOL,
-    EDITOR_INTEGRATION;
-  }
+	public enum Caller
+	{
+		RESOURCE_TOOL,
+		EDITOR_INTEGRATION;
+	}
 
 	/**
 	 * Mode defines a complete set of values describing the user's navigation intentions
@@ -510,7 +510,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	protected static final String STATE_RESOURCES_ADD = CitationHelper.CITATION_PREFIX + "resources_add";
 	protected static final String STATE_CURRENT_DATABASES = CitationHelper.CITATION_PREFIX + "current_databases";
-	protected static final String STATE_BACK_BUTTON_STACK = CitationHelper.CITATION_PREFIX + "back-button_stack";
 	protected static final String STATE_CANCEL_PAGE = CitationHelper.CITATION_PREFIX + "cancel_page";
 	protected static final String STATE_COLLECTION_ID = CitationHelper.CITATION_PREFIX + "collection_id";
 	protected static final String STATE_COLLECTION = CitationHelper.CITATION_PREFIX + "collection";
@@ -562,7 +561,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		//Object started = toolSession.getAttribute(ResourceToolAction.STARTED);
 		Object done = toolSession.getAttribute(ResourceToolAction.DONE);
 
-		if (done != null)
+		// if we're done or not properly initialized, redirect to Resources
+		if ( done != null || !initHelper( getState(req) ) )
 		{
 			toolSession.removeAttribute(ResourceToolAction.STARTED);
 			Tool tool = ToolManager.getCurrentTool();
@@ -586,100 +586,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		super.toolModeDispatch(methodBase, methodExt, req, res);
 	}
 
-	/**
-	 * build the context in helper mode.
-	 *
-	 * @return The name of the template to use.
-	 */
-	public String buildCitationsPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
-	{
-		initHelper(portlet, context, rundata, state);
-
-		// always put appropriate bundle in velocity context
-		context.put("tlang", rb);
-
-		//context.put("mainFrameId", CitationHelper.CITATION_FRAME_ID);
-		//context.put("citationToolId", CitationHelper.CITATION_ID);
-		//context.put("specialHelperFlag", CitationHelper.SPECIAL_HELPER_ID);
-		context.put("xilator", new Validator());
-
-		// set me as the helper class
-		// state.setAttribute(VelocityPortletPaneledAction.STATE_HELPER, CitationHelperAction.class.getName());
-
-		String alertMessages = (String) state.getAttribute(STATE_MESSAGE);
-		if(alertMessages != null)
-		{
-			context.put("alertMessages", alertMessages);
-			state.removeAttribute(STATE_MESSAGE);
-		}
-
-		if(showBackButton(state))
-		{
-			context.put("showBackButton", Boolean.TRUE);
-		}
-
-		// make sure observers are disabled
-		VelocityPortletPaneledAction.disableObservers(state);
-
-		String template = "";
-		Mode mode = (Mode) state.getAttribute(CitationHelper.STATE_HELPER_MODE);
-		if(mode == null)
-		{
-			mode = Mode.ADD_CITATIONS;
-			setMode(state, mode);
-		}
-
-		switch(mode)
-		{
-			case ADD_CITATIONS:
-				template = buildAddCitationsPanelContext(portlet, context, rundata, state);
-				break;
-			case CREATE:
-				template = buildCreatePanelContext(portlet, context, rundata, state);
-				break;
-			case EDIT:
-				template = buildEditPanelContext(portlet, context, rundata, state);
-				break;
-			case ERROR:
-				template = buildErrorPanelContext(portlet, context, rundata, state);
-				break;
-			case LIST:
-				template = buildListPanelContext(portlet, context, rundata, state);
-				break;
-			case MESSAGE:
-				template = buildMessagePanelContext(portlet, context, rundata, state);
-				break;
-			case SEARCH:
-				template = buildSearchPanelContext(portlet, context, rundata, state);
-				break;
-			case VIEW:
-				template = buildViewPanelContext(portlet, context, rundata, state);
-				break;
-		}
-
-		return template;
-
-	}	// buildCitationsPanelContext
-
-	/**
-     * @param state
-     * @return
-     */
-    private boolean showBackButton(SessionState state)
-    {
-	    Stack<Mode> stack = (Stack<Mode>) state.getAttribute( STATE_BACK_BUTTON_STACK );
-
-	    if( stack == null )
-	    {
-	    	logger.warn( "showBackButton getting null back-button stack from state" );
-	    	return false;
-	    }
-
-	    // only show the button if you have somewhere to go back to
-	    return ( stack.size() > 1 );
-    }
-
-    protected void putCitationCollectionDetails( Context context, SessionState state )
+	protected void putCitationCollectionDetails( Context context, SessionState state )
     {
 		// get the citation list title
 		String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
@@ -1130,8 +1037,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
-		initHelper(portlet, context, rundata, state);
-
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
 
@@ -1143,11 +1048,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if( state.getAttribute( STATE_RESOURCES_ADD ) != null )
 		{
 			context.put( "resourcesAddAction", Boolean.TRUE );
-		}
-
-		if(showBackButton(state))
-		{
-			context.put("showBackButton", Boolean.TRUE);
 		}
 
 		// make sure observers are disabled
@@ -1648,7 +1548,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 
-		cleanup(toolSession, CitationHelper.CITATION_PREFIX);
+		cleanup(toolSession, CitationHelper.CITATION_PREFIX, state);
 
 		// Remove session sort
 		state.removeAttribute("sort");
@@ -1664,12 +1564,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
      */
     public void doCancel(RunData data)
     {
+    	SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 
 		if(pipe.getAction().getActionType() == ResourceToolAction.ActionType.CREATE)
 		{
-			SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 			// TODO: delete the citation collection and all citations
 
 	    	// TODO: delete the temporary resource
@@ -1716,7 +1616,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 
-		cleanup(toolSession, CitationHelper.CITATION_PREFIX);
+		cleanup(toolSession, CitationHelper.CITATION_PREFIX, state);
 
     }
 
@@ -1760,42 +1660,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         CitationService.save(permCollection);
         // setMode(state, Mode.LIST);
  	}
-
-	/**
-	 * @param data
-	 */
-	public void doBack(RunData data)
-	{
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		popMode( state );
-	}
-
-	/**
-     * @param state
-     */
-    protected void popMode( SessionState state )
-    {
-		Stack<Mode> stack = (Stack<Mode>) state.getAttribute( STATE_BACK_BUTTON_STACK );
-
-		if( stack != null && stack.size() > 1 )
-		{
-			// pop the Mode currently being viewed
-			stack.pop();
-
-			// pop the previous Mode - the one to go back to
-			Mode mode = stack.pop();
-			logger.debug( "popMode popped " + mode );
-
-			state.setAttribute( CitationHelper.STATE_HELPER_MODE, mode );
-		}
-		else
-		{
-			// stack should not be null or < 2
-			logger.warn( "popMode() getting null or < 2 back-button stack from state." );
-		}
-    }
 
 	/**
 	* Removes a citation from the current citation collection.  Called from the search-results popup.
@@ -2042,96 +1906,41 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	}	// doCreate
 
-  /**
-   * Fetch the calling application
-   * @param state The session state
-   * @return The calling application (default to Resources if nothing is set)
-   */
-  protected Caller getCaller(SessionState state)
-  {
-    Caller caller = (Caller) state.getAttribute(CITATIONS_HELPER_CALLER);
-
-    return (caller == null) ? Caller.RESOURCE_TOOL : Caller.EDITOR_INTEGRATION;
-  }
-
-  /**
-   * Set the calling applcation
-   * @param state The session state
-   * @param caller The calling application
-   */
-  protected void setCaller(SessionState state, Caller caller)
-  {
-    state.setAttribute(CITATIONS_HELPER_CALLER, caller);
-  }
-
 	/**
-	 * Pushes a non-ignorable Mode onto the back-button stack within the given
-	 * state object. Checks toPush against ignoreModes Set.
-	 *
-	 * @param state this session's state with non-null back-button stack
-	 * @param toPush Mode to push on the stack
+	 * Fetch the calling application
+	 * @param state The session state
+	 * @return The calling application (default to Resources if nothing is set)
 	 */
-	protected void pushMode( SessionState state, Mode toPush )
+	protected Caller getCaller(SessionState state)
 	{
-		// get stack from state
-		Stack<Mode> stack = ( Stack<Mode> ) state.getAttribute(STATE_BACK_BUTTON_STACK);
+		Caller caller = (Caller) state.getAttribute(CITATIONS_HELPER_CALLER);
 
-		// (assuming stack is not null)
-		// push only if toPush is not in ignoreModes and is not at the top of
-		// the stack (a Mode should not be adjacent to itself)
-		if( ignoreModes.contains( toPush ) )
-		{
-			return;
-		}
-
-		if( stack.size() > 0 && stack.peek().equals( toPush ) )
-		{
-			return;
-		}
-
-		stack.push( toPush );
-		logger.debug( "pushMode pushed " + toPush );
-
-		// put this stack back into state
-		state.setAttribute( STATE_BACK_BUTTON_STACK, stack );
+		return (caller == null) ? Caller.RESOURCE_TOOL : Caller.EDITOR_INTEGRATION;
 	}
 
 	/**
-     * @param state
-     * @param new_mode
-     */
-    protected void setMode(SessionState state, Mode new_mode)
-    {
-	    Stack<Mode> stack = ( Stack<Mode> ) state.getAttribute(STATE_BACK_BUTTON_STACK);
-	    if( stack == null )
-	    {
-	    	/* first time setMode has been called */
-
-	    	// create a new Stack
-	    	stack = new Stack<Mode>();
-
-	    	// add to state
-	    	state.setAttribute( STATE_BACK_BUTTON_STACK, stack );
-
-	    	// add the previous mode (if any) to the stack
-	    	Mode previous_mode = ( Mode ) state.getAttribute(CitationHelper.STATE_HELPER_MODE);
-	    	if( previous_mode != null )
-	    	{
-	    		pushMode( state, previous_mode );
-	    	}
-	    }
-
-	    // push newly selected Mode on the stack
-	    pushMode( state, new_mode );
-
-	    // set state attributes
-	    state.setAttribute( CitationHelper.STATE_HELPER_MODE, new_mode );
-    	state.setAttribute( STATE_BACK_BUTTON_STACK, stack );
-    }
+	 * Set the calling applcation
+	 * @param state The session state
+	 * @param caller The calling application
+	 */
+	protected void setCaller(SessionState state, Caller caller)
+	{
+		state.setAttribute(CITATIONS_HELPER_CALLER, caller);
+	}
 
 	/**
-	*
-	*/
+	 * @param state
+	 * @param new_mode
+	 */
+	protected void setMode(SessionState state, Mode new_mode)
+	{
+		// set state attributes
+		state.setAttribute( CitationHelper.STATE_HELPER_MODE, new_mode );
+	}
+
+	/**
+	 *
+	 */
 	public void doCreateCitation ( RunData data)
 	{
 		// get the state object and the parameter parser
@@ -3237,15 +3046,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	/**
 	 * This method is called upon each Citations Helper request to properly
-	 * initialize the Citations Helper in case of a null Mode
+	 * initialize the Citations Helper in case of a null Mode.  Returns true if
+	 * succeeded, false otherwise
 	 * 
-	 * @param portlet
-	 * @param context
-	 * @param rundata
 	 * @param state
 	 */
-	protected void initHelper(VelocityPortlet portlet, Context context,
-			RunData rundata, SessionState state)
+	protected boolean initHelper(SessionState state)
 	{
 		Mode mode;
 
@@ -3269,7 +3075,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				state.setAttribute(STATE_RESULTS_PAGE_SIZE, DEFAULT_RESULTS_PAGE_SIZE);
 			}
 
-			return;
+			return true;
 		}
 
 		/*
@@ -3281,7 +3087,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		if(pipe.isActionCompleted())
 		{
-			return;
+			return true;
 		}
 		
 		/*
@@ -3298,6 +3104,18 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			{
 			case CREATE:
 				ContentResource tempResource = createTemporaryResource(pipe);
+				
+				// tempResource could be null if exception encountered
+				if( tempResource == null )
+				{
+					// leave helper
+					pipe.setActionCompleted( true );
+					toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+					cleanup( toolSession, CitationHelper.CITATION_PREFIX, state);
+					
+					return false;
+				}
+				
 				state.setAttribute(CitationHelper.RESOURCE_ID, tempResource.getId());
 
 				String displayName = tempResource.getProperties().getProperty( org.sakaiproject.entity.api.ResourceProperties.PROP_DISPLAY_NAME );
@@ -3359,6 +3177,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			state.setAttribute(STATE_LIST_PAGE_SIZE, DEFAULT_LIST_PAGE_SIZE);
 		}
+		
+		return true;
 
 	}	// initHelper
 
@@ -3419,8 +3239,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         }
         catch (OverQuotaException e)
         {
-            // TODO Auto-generated catch block
-            logger.warn("OverQuotaException ", e);
+            logger.warn( e.getMessage() );
+            
+            // send an error back to Resources
+            pipe.setErrorEncountered( true );
+            pipe.setErrorMessage( rb.getString( "action.create.quota" ) );
         }
         catch (ServerOverloadException e)
         {
@@ -3430,22 +3253,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
  	    return null;
     }
-
-	/**
-	 * Remove the state variables used internally, on the way out.
-	 */
-	private void cleanupState(SessionState state)
-	{
-		state.removeAttribute(CitationHelper.STATE_HELPER_MODE);
-		state.removeAttribute(STATE_BACK_BUTTON_STACK);
-		// state.removeAttribute(VelocityPortletPaneledAction.STATE_HELPER);
-
-
-
-		// re-enable observers
-		VelocityPortletPaneledAction.enableObservers(state);
-
-	}	// cleanupState
 
 	protected String validateURL(String url) throws MalformedURLException
 	{
@@ -3558,12 +3365,15 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	}
 
 	/**
-	 * Iterate over attributes in ToolSession and remove all attributes starting with a particular prefix.
+	 * Cleans up tool state used internally. Useful before leaving helper mode.
+	 * 
 	 * @param toolSession
 	 * @param prefix
 	 */
-	protected void cleanup(ToolSession toolSession, String prefix)
+	protected void cleanup(ToolSession toolSession, String prefix,
+			SessionState sessionState )
 	{
+		// cleanup everything dealing with citations
 		Enumeration attributeNames = toolSession.getAttributeNames();
 		while(attributeNames.hasMoreElements())
 		{
@@ -3574,6 +3384,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			}
 		}
 
+		// re-enable observers
+		VelocityPortletPaneledAction.enableObservers(sessionState);
 	}
 
 	public void doSortCollection( RunData data )
