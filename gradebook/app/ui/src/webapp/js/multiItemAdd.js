@@ -263,12 +263,19 @@ function eraseAndHide(idPrefix, rowIndex) {
 //	curEl[0].checked = true;
 
 	// Remove the error messages if they exist
+	// for each textbox there can only be at most one
+	// error message so once found we can skip the rest
 	curEl = getEl(idPrefix + ':noTitleErrMsg');
+	if (!curEl) curEl = getEl(idPrefix + ':noTitleErrMsgH');
 	if (!curEl) curEl = getEl(idPrefix + ':dupTitleErrMsg');
+	if (!curEl) curEl = getEl(idPrefix + ':dupTitleErrMsgH');
+	
 	if (curEl) curEl.style.display = 'none';
 	
 	curEl = getEl(idPrefix + ':blankPtsErrMsg');
+	if (!curEl) curEl = getEl(idPrefix + ':blankPtsErrMsgH');
 	if (!curEl) curEl = getEl(idPrefix + ':nanPtsErrMsg');
+	if (!curEl) curEl = getEl(idPrefix + ':nanPtsErrMsgH');
 	if (curEl) curEl.style.display = 'none';
 
 	// Get the enclosing tr for the enclosing table this pane is nested inside of
