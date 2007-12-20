@@ -3,7 +3,7 @@
 <beans>
     <bean id="resetPassOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
-            <value>poll</value>
+            <value>resetpass</value>
         </property>
         <property name="name">
             <value>Reset Password Overview</value>
