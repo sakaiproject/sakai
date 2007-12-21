@@ -43,17 +43,18 @@ languages, as follows:
    Local ID: iw_IL
 
 7) Brazilian Portuguese 
-   Status: ??
+   Status: inquiry December 2007
    Translated by: n/a
-   Contact: Nilton Lessa		  nlessa@moleque.com.br
-				Alceu Fernandes Filho   alceu@unisinos.br
+	Contact: Alessandro Oliveira			  aro1976@gmail.com
+				Eduardo Hideki Tanaka		  etanaka@ic.unicamp.br
+				Nilton Lessa		  nlessa@moleque.com.br
    Local ID: pt_BR
    
 8) Portuguese
-   Status: in progress (see http://elearning.ufp.pt)
-   Translated by: n/a
-   Contact:  Feliz Gouveia    fribeiro@ufp.pt
-             Nuno Fernandes   nuno@ufp.pt
+   Status: released
+   Translated by: Nuno Fernandes (http://elearning.ufp.pt)
+   Contact: Nuno Fernandes   nuno@ufp.pt
+				Feliz Gouveia    fribeiro@ufp.pt
    Local ID: pt_PT
    
 9) Slovakian
@@ -146,6 +147,7 @@ languages, as follows:
     Status: inquiry on 4/02/2007
     Translated by: n/a
     Contact:  Nam Nguyen (nam.h.nguyen@3nexus.com)
+				  Billy Pham (bpham@huric.org)
     Local ID: vi_VN
                 
 
