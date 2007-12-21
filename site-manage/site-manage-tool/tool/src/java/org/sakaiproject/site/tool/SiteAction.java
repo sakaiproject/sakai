@@ -1345,7 +1345,10 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("title", site.getTitle());
 			roles = getRoles(state);
 			context.put("roles", roles);
-
+			
+			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
+			context.put("isCourseSite", siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))?Boolean.TRUE:Boolean.FALSE);
+			
 			// Note that (for now) these strings are in both sakai.properties
 			// and sitesetupgeneric.properties
 			context.put("officialAccountSectionTitle", ServerConfigurationService

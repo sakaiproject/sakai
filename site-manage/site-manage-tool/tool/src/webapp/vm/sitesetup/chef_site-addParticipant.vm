@@ -8,17 +8,19 @@
 		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
 		<div class="clear"></div>
 	#end
-	<div class="instruction">
-		<h4>$tlang.getString("add.official")</h4>
-	</div>
-	<div class="indnt1">
-		<p class="instruction">
-			$tlang.getString("add.official1")
-		</p>
-		<p class="instruction">
-			$tlang.getString("add.official.instruction")
-		</p>
-	</div>
+	#if ($!isCourseSite)
+		<div class="instruction">
+			<h4>$tlang.getString("add.official")</h4>
+		</div>
+		<div class="indnt1">
+			<p class="instruction">
+				$tlang.getString("add.official1")
+			</p>
+			<p class="instruction">
+				$tlang.getString("add.official.instruction")
+			</p>
+		</div>
+	#end
 	<form action="#toolForm("SiteAction")" method="post">
 		<div class="instruction">
 			<h4>$!officialAccountSectionTitle</h4>
