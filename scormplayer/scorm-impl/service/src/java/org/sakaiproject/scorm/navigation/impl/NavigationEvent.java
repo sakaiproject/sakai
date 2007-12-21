@@ -1,6 +1,6 @@
-package org.sakaiproject.scorm.service.impl;
+package org.sakaiproject.scorm.navigation.impl;
 
-import org.sakaiproject.scorm.service.api.INavigationEvent;
+import org.sakaiproject.scorm.navigation.INavigationEvent;
 
 public class NavigationEvent implements INavigationEvent {
 

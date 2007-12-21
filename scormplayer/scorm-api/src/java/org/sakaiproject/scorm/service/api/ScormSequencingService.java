@@ -23,6 +23,7 @@ package org.sakaiproject.scorm.service.api;
 import javax.swing.tree.TreeModel;
 
 import org.sakaiproject.scorm.model.api.SessionBean;
+import org.sakaiproject.scorm.navigation.INavigable;
 
 public interface ScormSequencingService {
 

@@ -42,7 +42,7 @@ public interface ScormContentService extends ScormConstants {
 	
 	public String getContentPackageTitle(Document document);
 
-	public List<ContentResource> getZipArchives();
+	//public List<ContentResource> getZipArchives();
 	
 	public void removeContentPackage(long contentPackageId);
 	

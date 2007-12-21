@@ -8,21 +8,30 @@
 	<!-- Bring in the hibernate daos -->
 	<import resource="spring-hibernate-daos.xml" />
 	
-	<!-- Bring in the standalone webapp beans -->
-	<!-- // To store your content in tomcat's file system, uncomment this and comment
-			out the spring-sakai-chh.xml import below -->
-	<!--
-	<import resource="spring-standalone-webapp.xml" />
-	-->	
-
-	<!-- Bring in the sakai beans -->
+	<!-- Bring in the sakai daos -->
+	<import resource="spring-sakai-daos.xml" />
+	
+	<!-- Bring in the sakai implementation service beans -->
+	<import resource="spring-sakai-service.xml" />
+	
+	<!-- Bring in the sakai content hosting handler beans -->
 	<!-- // Comment this out if you want to use 'standalone' content storage in place of Sakai's standard repository -->
 	<import resource="spring-sakai-chh.xml" />
+	
+	
+	<!-- Bring in the standalone webapp beans -->
+	<!-- // To store your content in tomcat's file system, uncomment this and comment
+                        out the spring-sakai-chh.xml import above -->
+    <!--
+	<import resource="spring-standalone-webapp.xml" />
+	-->
+	
 		
-	<bean id="org.sakaiproject.scorm.service.api.ADLManager"
-		class="org.sakaiproject.scorm.service.impl.ADLManagerImpl"
+	<bean id="org.sakaiproject.scorm.adl.ADLConsultant"
+		class="org.sakaiproject.scorm.adl.impl.ADLConsultantImpl"
 		singleton="true">
 		
+		<!-- Service beans -->
 		<lookup-method name="resourceService" bean="org.sakaiproject.scorm.service.api.ScormResourceService" />
 		
 		<!-- Data Access Objects -->
@@ -42,13 +51,10 @@
 		<!-- Local utility bean -->
 		<lookup-method name="adlManager" bean="org.sakaiproject.scorm.service.api.ADLManager" />
 		
-		<!-- Sakai API Service -->
-		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />	  
-			  		
 		<!-- Data Access Objects -->
 		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />	  
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
-		
+		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
 	</bean>
 	
 	<!-- This bean manages content -->
@@ -56,24 +62,20 @@
 		class="org.sakaiproject.scorm.service.impl.ScormContentServiceImpl"
 		singleton="true">
 		
-		<!-- Sakai API Services -->
-		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
-		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
-		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
+		<!-- Service beans -->
+		<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem"/>
 		<lookup-method name="permissionService" bean="org.sakaiproject.scorm.service.api.ScormPermissionService" />
 		<lookup-method name="resourceService" bean="org.sakaiproject.scorm.service.api.ScormResourceService" />
-		
 		
 		<!-- Data Access Objects -->
 		<lookup-method name="contentPackageDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageDao" />
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
+		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
 		<lookup-method name="seqActivityTreeDao" bean="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao" />
-		
-		<!-- Content Hosting Handlers -->
-		<lookup-method name="scormCHH" bean="org.sakaiproject.scorm.content.api.ScormCHH" />
-		
+
 	</bean>	
 	
+	<!-- THE SAKAI STUFF IN THIS NEEDS TO BE ABSTRACTED -->
 	<bean id="org.sakaiproject.scorm.service.api.ScormPermissionService"
 		class="org.sakaiproject.scorm.service.impl.ScormPermissionServiceImpl"
 		singleton="true">
@@ -92,10 +94,6 @@
 		class="org.sakaiproject.scorm.service.impl.ScormResultServiceImpl"
 		singleton="true">
 		
-		<!-- Sakai API Services -->
-		<lookup-method name="contentService" bean="org.sakaiproject.scorm.service.api.ScormContentService" />	
-		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />	  
-		
 		<!-- Data Access Objects -->
 		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
@@ -105,13 +103,12 @@
 		class="org.sakaiproject.scorm.service.impl.ScormSequencingServiceImpl"
 		singleton="true">
 		
+		<!-- Service beans -->
+		<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem"/>
 		<lookup-method name="scormContentService" bean="org.sakaiproject.scorm.service.api.ScormContentService"/> 
 		
-		<!-- Sakai API Services -->
-		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
-		
 		<!-- Local utility bean -->
-		<lookup-method name="adlManager" bean="org.sakaiproject.scorm.service.api.ADLManager" />
+		<lookup-method name="adlManager" bean="org.sakaiproject.scorm.adl.ADLConsultant" />
 		
 		<!-- Data Access Objects -->
 		<lookup-method name="seqActivityTreeDao" bean="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao" />		
@@ -123,32 +120,4 @@
 		
 	</bean>
 	
-	
-	<!-- This is just an ehcache for the content hosting handler below -->
-	<bean id="org.sakaiproject.scorm.content.api.ZipCHH.cache" 
-		class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-  		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
-    	<property name="cacheName"><value>org.sakaiproject.scorm.content.api.ZipCHH</value></property>
-    	<property name="maxElementsInMemory" ><value>10000</value></property>
-    	<property name="diskPersistent" ><value>false</value></property>
-    	<property name="eternal" ><value>false</value></property>
-   	 	<property name="timeToLive" ><value>300</value></property>
-    	<property name="timeToIdle" ><value>600</value></property>
-  	</bean>
-
-	<!-- This is the content hosting handler that the component uses to manage content in the
-		Sakai content repository so the zip files can be read as virtual file systems -->
-	<bean id="org.sakaiproject.scorm.content.api.ScormCHH"
-		class="org.sakaiproject.scorm.content.impl.ScormCHH"
-		singleton="true"
-		init-method="init">
-		<lookup-method name="scormContentService" bean="org.sakaiproject.scorm.service.api.ScormContentService"/>
-		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
-		<property name="resolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
-		<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
-		<property name="cache"><ref bean="org.sakaiproject.scorm.content.api.ZipCHH.cache"/></property>
-	</bean>
-	
-	
-
 </beans>

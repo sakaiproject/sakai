@@ -59,13 +59,9 @@ public class CMIFieldGroupPanel extends Panel {
 	 */
 	private void addField(CMIField field, RepeatingView container)
 	{
-		WebMarkupContainer fieldComponent = new WebMarkupContainer("field");
+		CMIFieldPanel fieldComponent = new CMIFieldPanel("field", field, field.getFieldValue());
 		fieldComponent.setRenderBodyOnly(true);
 
-		fieldComponent.add(new Label("fieldName", new Model(field.getFieldName())));
-		fieldComponent.add(new Label("fieldValue", new Model(field.getFieldValue())));
-		
-		// create a container item for the toolbar (required by repeating view)
 		WebMarkupContainer item = new WebMarkupContainer(container.newChildId());
 		item.setRenderBodyOnly(true);
 		item.add(fieldComponent);

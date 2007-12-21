@@ -20,7 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.console.pages;
 
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
 import org.sakaiproject.wicket.markup.html.link.NavIntraLink;
 
@@ -29,11 +34,19 @@ public class ConsoleBasePage extends SakaiPortletWebPage {
 	private static final long serialVersionUID = 1L;
 	
 	public ConsoleBasePage() {
-		
+		this(null);
+	}
+	
+	public ConsoleBasePage(PageParameters params) {
+		add(newPageTitleLabel(params));
 		add(new NavIntraLink("listLink", new ResourceModel("link.list"), PackageListPage.class));
 		add(new NavIntraLink("uploadLink", new ResourceModel("link.upload"), PackageUploadPage.class));
 		add(new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class));
-
+	}	
+	
+	protected Label newPageTitleLabel(PageParameters params) {
+		return new Label("page.title", new ResourceModel("page.title"));
 	}
+	
 	
 }

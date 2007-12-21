@@ -18,14 +18,14 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.scorm.service.impl;
+package org.sakaiproject.scorm.model;
 
 import org.adl.api.ecmascript.IErrorManager;
 import org.adl.datamodels.DMErrorCodes;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.service.api.ScoBean;
 
 public class ScoBeanImpl implements ScoBean {
 	

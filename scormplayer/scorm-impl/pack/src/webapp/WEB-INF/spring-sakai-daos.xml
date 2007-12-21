@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- Grab the learner information from Sakai -->
+	<bean id="org.sakaiproject.scorm.dao.api.LearnerDao"
+		class="org.sakaiproject.scorm.dao.sakai.LearnerDaoImpl"
+		singleton="true">
+
+		<lookup-method name="groupProvider" bean="org.sakaiproject.authz.api.GroupProvider" />
+		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
+		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" /> 
+	</bean>
+
+
+</beans>

@@ -1,12 +1,13 @@
-package org.sakaiproject.scorm.service.api;
+package org.sakaiproject.scorm.adl;
 
 import org.adl.datamodels.IDataManager;
 import org.adl.sequencer.ISeqActivityTree;
 import org.adl.sequencer.ISequencer;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
+import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
 
-public interface ADLManager {
+public interface ADLConsultant {
 
 	public ISeqActivityTree getActivityTree(SessionBean sessionBean);
 	

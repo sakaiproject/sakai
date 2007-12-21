@@ -11,7 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.file.File;
 import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.service.api.INavigable;
+import org.sakaiproject.scorm.navigation.INavigable;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 
 public abstract class ResourceNavigator implements INavigable, Serializable {

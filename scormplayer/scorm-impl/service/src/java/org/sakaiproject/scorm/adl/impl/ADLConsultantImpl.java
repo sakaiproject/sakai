@@ -1,18 +1,18 @@
-package org.sakaiproject.scorm.service.impl;
+package org.sakaiproject.scorm.adl.impl;
 
 import org.adl.datamodels.IDataManager;
 import org.adl.sequencer.ISeqActivityTree;
 import org.adl.sequencer.ISequencer;
 import org.adl.sequencer.impl.ADLSequencer;
+import org.sakaiproject.scorm.adl.ADLConsultant;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
+import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.service.api.ADLManager;
-import org.sakaiproject.scorm.service.api.ScoBean;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 
-public abstract class ADLManagerImpl implements ADLManager {
+public abstract class ADLConsultantImpl implements ADLConsultant {
 
 	protected abstract ScormResourceService resourceService();
 	protected abstract DataManagerDao dataManagerDao();

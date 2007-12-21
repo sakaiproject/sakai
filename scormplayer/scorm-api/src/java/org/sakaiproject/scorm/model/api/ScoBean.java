@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.scorm.service.api;
+package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
 

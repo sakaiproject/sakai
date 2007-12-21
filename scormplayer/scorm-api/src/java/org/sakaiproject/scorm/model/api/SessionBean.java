@@ -10,7 +10,6 @@ import org.adl.datamodels.IDataManager;
 import org.adl.sequencer.ISeqActivityTree;
 import org.adl.sequencer.IValidRequests;
 import org.adl.validator.contentpackage.ILaunchData;
-import org.sakaiproject.scorm.service.api.ScoBean;
 
 public class SessionBean implements Serializable {
 

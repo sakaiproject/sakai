@@ -35,5 +35,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/site-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sakai-scorm-api"/>
 	<classpathentry kind="var" path="M2_REPO/joda-time/joda-time/1.4/joda-time-1.4.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/cm-api"/>
 	<classpathentry kind="output" path="m2-target/classes"/>
 </classpath>

@@ -8,6 +8,8 @@ public interface AttemptDao {
 
 	public Attempt load(long id);
 	
+	public List<Attempt> find(long contentPackageId, String learnerId);
+	
 	public List<Attempt> find(String courseId, String learnerId);
 	
 	public Attempt find(String courseId, String learnerId, long attemptNumber);

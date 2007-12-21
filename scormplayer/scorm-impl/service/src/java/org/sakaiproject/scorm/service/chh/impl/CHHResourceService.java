@@ -1,9 +1,16 @@
 package org.sakaiproject.scorm.service.chh.impl;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.Date;
 
+import org.adl.validator.IValidator;
+import org.adl.validator.IValidatorOutcome;
+import org.adl.validator.contentpackage.CPValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentHostingHandlerResolver;
@@ -15,6 +22,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.scorm.content.impl.ScormCHH;
+import org.sakaiproject.scorm.exceptions.ValidationException;
+import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.model.api.SessionBean;
@@ -176,5 +185,10 @@ public abstract class CHHResourceService extends SakaiResourceService {
 			log.error("Unable to remove manifest: " + manifestResourceId, e);
 		}
 	}
+	
+	
+	
+	
+
 	
 }

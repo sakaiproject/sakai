@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,6 +45,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.content.impl.ScormCHH;
+import org.sakaiproject.scorm.dao.LearnerDao;
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
@@ -51,6 +53,8 @@ import org.sakaiproject.scorm.exceptions.ValidationException;
 import org.sakaiproject.scorm.model.ContentPackageManifestImpl;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
+import org.sakaiproject.scorm.model.api.UnvalidatedResource;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormPermissionService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
@@ -64,20 +68,16 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	private static Log log = LogFactory.getLog(ScormContentServiceImpl.class);
 		
 	// Dependency injected lookup methods
-	protected abstract ContentHostingService contentService();
-	protected abstract SessionManager sessionManager();
-	protected abstract ToolManager toolManager();
 	protected abstract ScormPermissionService permissionService();
 	protected abstract ScormResourceService resourceService();
+	
+	protected abstract LearningManagementSystem lms();
 	
 	// Data access objects (also dependency injected by lookup method)
 	protected abstract ContentPackageDao contentPackageDao();
 	protected abstract DataManagerDao dataManagerDao();
+	protected abstract LearnerDao learnerDao();
 	protected abstract SeqActivityTreeDao seqActivityTreeDao();
-	
-	// Content hosting handler (also dependency injected by lookup method)
-	protected abstract ScormCHH scormCHH();
-	
 	
 	
 	public String addContentPackage(File contentPackage, IValidator validator, IValidatorOutcome outcome) throws Exception {
@@ -95,7 +95,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	}
 	
 	public List<ContentPackage> getContentPackages() {
-		String context = toolManager().getCurrentPlacement().getContext();
+		String context = lms().currentContext();
 		
 		List<ContentPackage> allPackages = contentPackageDao().find(context);
 		List<ContentPackage> releasedPackages = new LinkedList<ContentPackage>();
@@ -157,12 +157,12 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		return title;
 	}
 	
-	public List<ContentResource> getZipArchives() {
+	/*public List<ContentResource> getZipArchives() {
 		String siteId = toolManager().getCurrentPlacement().getContext();
 		String siteCollectionId = contentService().getSiteCollection(siteId);
 		
 		return findPotentialContentPackages(siteCollectionId);
-	}
+	}*/
 	
 	public void removeContentPackage(long contentPackageId) {
 
@@ -176,21 +176,23 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	}
 	
 	public void updateContentPackage(ContentPackage contentPackage) {
-		String currentUser = sessionManager().getCurrentSessionUserId();
+		String learnerId = lms().currentLearnerId();
 		
-		if (currentUser == null)
-			currentUser = "unknown";
+		if (learnerId == null)
+			learnerId = "unknown";
 			
-		contentPackage.setModifiedBy(currentUser);
+		contentPackage.setModifiedBy(learnerId);
 		contentPackage.setModifiedOn(new Date());
 		
 		contentPackageDao().save(contentPackage);
 	}
 	
 	public void validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema) throws Exception {
-		ContentResource resource = contentService().getResource(resourceId);
+		//ContentResource resource = contentService().getResource(resourceId);
 		
-		File file = createFile(resource.getContent());
+		UnvalidatedResource resource = resourceService().getUnvalidatedResource(resourceId);
+		
+		File file = createFile(resource.getContentStream());
 		
 		if (!file.exists()) {
 			throw new ValidationException("noFile");
@@ -250,34 +252,26 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	 * package. 
 	 */
 	private void convertToContentPackage(String resourceId, IValidator validator, IValidatorOutcome outcome) throws Exception {
-		
-		ContentResourceEdit modify = null;
-		try {
-			ContentPackageManifest manifest = createManifest(outcome.getDocument(), validator);
-	        String manifestResourceId = resourceService().putManifest(resourceId, manifest);
-			resourceService().convertArchive(resourceId, manifestResourceId);
-				
-	        // Grab some important info about the site and user
-	        String context = toolManager().getCurrentPlacement().getContext();
-	        String userId = sessionManager().getCurrentSessionUserId();
-	        Date now = new Date();
-	        
-	        // Now create a representation of this content package in the database
-	        ContentPackage cp = new ContentPackage(manifest.getTitle(), resourceId);
-	        cp.setContext(context);
-	        cp.setReleaseOn(new Date());
-	        cp.setCreatedBy(userId);
-	        cp.setModifiedBy(userId);
-	        cp.setCreatedOn(now);
-	        cp.setModifiedOn(now);
 
-	        contentPackageDao().save(cp);
-		
-		} catch (Exception e) {
-			if (modify != null)
-				contentService().cancelResource(modify);
-			throw e;
-		}
+		ContentPackageManifest manifest = createManifest(outcome.getDocument(), validator);
+	    String manifestResourceId = resourceService().putManifest(resourceId, manifest);
+		resourceService().convertArchive(resourceId, manifestResourceId);
+				
+	    // Grab some important info about the site and user
+	    String context = lms().currentContext();
+	    String learnerId = lms().currentLearnerId();
+	    Date now = new Date();
+	        
+	    // Now create a representation of this content package in the database
+	    ContentPackage cp = new ContentPackage(manifest.getTitle(), resourceId);
+	    cp.setContext(context);
+	    cp.setReleaseOn(new Date());
+	    cp.setCreatedBy(learnerId);
+	    cp.setModifiedBy(learnerId);
+	    cp.setCreatedOn(now);
+	    cp.setModifiedOn(now);
+
+	    contentPackageDao().save(cp);
 	}
 	
 	/**
@@ -286,7 +280,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	 * @param collectionId
 	 * @return List of ContentResource objects
 	 */
-	private List<ContentResource> findPotentialContentPackages(String collectionId) {
+	/*private List<ContentResource> findPotentialContentPackages(String collectionId) {
 		List<ContentResource> zipFiles = new LinkedList<ContentResource>();
 		try {
 			ContentCollection collection = contentService().getCollection(collectionId);
@@ -307,7 +301,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		}
 		
 		return zipFiles;
-	}
+	}*/
 	
 	
 	
@@ -377,8 +371,10 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		return manifest;
 	}
 	
-	private String getContext() {
-		return toolManager().getCurrentPlacement().getContext();
+	
+	private File createFile(InputStream inputStream) {
+		log.error("NOT IMPLEMENTED - createFile!!!");
+		return null;
 	}
 	
 	private File createFile(byte[] bytes) {

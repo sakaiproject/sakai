@@ -5,10 +5,10 @@ import org.adl.sequencer.SeqNavRequests;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.model.api.Attempt;
+import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.service.api.INavigable;
-import org.sakaiproject.scorm.service.api.INavigationEvent;
-import org.sakaiproject.scorm.service.api.ScoBean;
+import org.sakaiproject.scorm.navigation.INavigable;
+import org.sakaiproject.scorm.navigation.INavigationEvent;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 

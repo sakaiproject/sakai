@@ -67,6 +67,10 @@ public class CMIField {
 		return fieldValues.get(0);
 	}
 
+	public List<String> getFieldValues() {
+		return fieldValues;
+	}
+	
 	public void addFieldValue(String fieldValue) {
 		this.fieldValues.add(fieldValue);
 	}

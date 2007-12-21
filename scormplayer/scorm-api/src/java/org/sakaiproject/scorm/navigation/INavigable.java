@@ -1,4 +1,4 @@
-package org.sakaiproject.scorm.service.api;
+package org.sakaiproject.scorm.navigation;
 
 import org.sakaiproject.scorm.model.api.SessionBean;
 
