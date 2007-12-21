@@ -87,7 +87,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
@@ -651,6 +651,8 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	// view all or grouped submission list
 	private static final String VIEW_SUBMISSION_LIST_OPTION = "view_submission_list_option";
+	
+	private ContentHostingService m_contentHostingService = null;
 	
 	/**
 	 * central place for dispatching the build routines based on the state name
@@ -6711,6 +6713,11 @@ public class AssignmentAction extends PagedResourceActionII
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData data)
 	{
 		super.initState(state, portlet, data);
+		
+		if (m_contentHostingService == null)
+		{
+			m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+		}
 
 		String siteId = ToolManager.getCurrentPlacement().getContext();
 
@@ -9233,7 +9240,7 @@ public class AssignmentAction extends PagedResourceActionII
 			ToolSession toolSession = SessionManager.getCurrentToolSession();
 			String userId = SessionManager.getCurrentSessionUserId();
 			String siteId = SiteService.getUserSiteId(userId);
-	        String collectionId = ContentHostingService.getSiteCollection(siteId);
+	        String collectionId = m_contentHostingService.getSiteCollection(siteId);
 	        toolSession.setAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID, collectionId);
 			doAttachments(data);
 		}
@@ -9945,7 +9952,7 @@ public class AssignmentAction extends PagedResourceActionII
 				if(!fName.contains(".") || (fName.contains(".") && fName.indexOf(".") != 0))
 				{
 					// add the file as attachment
-					ResourceProperties properties = ContentHostingService.newResourceProperties();
+					ResourceProperties properties = m_contentHostingService.newResourceProperties();
 					properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fName);
 					
 					String[] parts = fName.split("\\.");
@@ -9954,11 +9961,11 @@ public class AssignmentAction extends PagedResourceActionII
 						extension = parts[parts.length - 1];
 					}
 					String contentType = ((ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE)).getContentType(extension);
-					ContentResourceEdit attachment = ContentHostingService.addAttachmentResource(fName);
+					ContentResourceEdit attachment = m_contentHostingService.addAttachmentResource(fName);
 					attachment.setContent(readIntoBytes(zin, entryName, entry.getSize()));
 					attachment.setContentType(contentType);
 					attachment.getPropertiesEdit().addAll(properties);
-					ContentHostingService.commitResource(attachment);
+					m_contentHostingService.commitResource(attachment);
 					
 		    		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
 		    		List attachments = submissionOrFeedback.equals("submission")?r.getSubmissionAttachments():r.getFeedbackAttachments();

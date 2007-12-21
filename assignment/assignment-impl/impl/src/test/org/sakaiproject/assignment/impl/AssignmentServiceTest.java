@@ -32,28 +32,7 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-
-/*import org.sakaiproject.assignment.api.AssignmentSubmission;
-import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
-import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.impl.BaseAssignmentService;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;*
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
-
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;*/
-
-//import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.Entity;
-///import org.sakaiproject.entity.api.ResourceProperties;
-///import org.sakaiproject.entity.cover.EntityManager;
 
 import org.sakaiproject.util.Blob;
 import org.sakaiproject.util.StringUtil;

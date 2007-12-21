@@ -77,7 +77,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.email.cover.DigestService;
 import org.sakaiproject.entity.api.AttachmentContainer;
@@ -493,6 +493,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public void setMemoryService(MemoryService service)
 	{
 		m_memoryService = service;
+	}
+	
+	/** Dependency: ContentHostingService. */
+	protected ContentHostingService m_contentHostingService = null;
+
+	/**
+	 * Dependency:ContentHostingService.
+	 * 
+	 * @param service
+	 *        The ContentHostingService.
+	 */
+	public void setContentHostingService(ContentHostingService service)
+	{
+		m_contentHostingService = service;
 	}
 
 	/** Configuration: cache, or not. */
@@ -1417,19 +1431,19 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						if (tempRef != null)
 						{
 							String tempRefId = tempRef.getId();
-							String tempRefCollectionId = ContentHostingService.getContainingCollectionId(tempRefId);
+							String tempRefCollectionId = m_contentHostingService.getContainingCollectionId(tempRefId);
 							try
 							{
 								// get the original attachment display name
-								ResourceProperties p = ContentHostingService.getProperties(tempRefId);
+								ResourceProperties p = m_contentHostingService.getProperties(tempRefId);
 								String displayName = p.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 								// add another attachment instance
-								String newItemId = ContentHostingService.copyIntoFolder(tempRefId, tempRefCollectionId);
-								ContentResourceEdit copy = ContentHostingService.editResource(newItemId);
+								String newItemId = m_contentHostingService.copyIntoFolder(tempRefId, tempRefCollectionId);
+								ContentResourceEdit copy = m_contentHostingService.editResource(newItemId);
 								// with the same display name
 								ResourcePropertiesEdit pedit = copy.getPropertiesEdit();
 								pedit.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
-								ContentHostingService.commitResource(copy, NotificationService.NOTI_NONE);
+								m_contentHostingService.commitResource(copy, NotificationService.NOTI_NONE);
 								newRef = m_entityManager.newReference(copy.getReference());
 								retVal.addAttachment(newRef);
 							}
@@ -3874,7 +3888,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			Reference r = (Reference) attachments.get(j);
 			try
 			{
-				ContentResource resource = ContentHostingService.getResource(r.getId());
+				ContentResource resource = m_contentHostingService.getResource(r.getId());
 
 				String contentType = resource.getContentType();
 				
@@ -4802,20 +4816,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									String nAttachmentId = oAttachmentId.replaceAll(fromContext, toContext);
 									try
 									{
-										ContentResource attachment = ContentHostingService.getResource(nAttachmentId);
+										ContentResource attachment = m_contentHostingService.getResource(nAttachmentId);
 										nAttachments.add(m_entityManager.newReference(attachment.getReference()));
 									}
 									catch (IdUnusedException e)
 									{
 										try
 										{
-											ContentResource oAttachment = ContentHostingService.getResource(oAttachmentId);
+											ContentResource oAttachment = m_contentHostingService.getResource(oAttachmentId);
 											try
 											{
-												if (ContentHostingService.isAttachmentResource(nAttachmentId))
+												if (m_contentHostingService.isAttachmentResource(nAttachmentId))
 												{
 													// add the new resource into attachment collection area
-													ContentResource attachment = ContentHostingService.addAttachmentResource(
+													ContentResource attachment = m_contentHostingService.addAttachmentResource(
 															Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)), 
 															ToolManager.getCurrentPlacement().getContext(), 
 															ToolManager.getTool("sakai.assignment.grades").getTitle(), 
@@ -4828,7 +4842,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 												else
 												{
 													// add the new resource into resource area
-													ContentResource attachment = ContentHostingService.addResource(
+													ContentResource attachment = m_contentHostingService.addResource(
 															Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
 															ToolManager.getCurrentPlacement().getContext(), 
 															1, 
@@ -9337,7 +9351,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			for( int i =0; i < attachments.size();i++ ) { 
 				Reference attachment = (Reference)attachments.get(i);
 				try {
-					ContentResource res = ContentHostingService.getResource(attachment.getId());
+					ContentResource res = m_contentHostingService.getResource(attachment.getId());
 					if (contentReviewService.isAcceptableContent(res)) {
 						return res;
 					}

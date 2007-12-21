@@ -8,6 +8,7 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
+		<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
 		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
