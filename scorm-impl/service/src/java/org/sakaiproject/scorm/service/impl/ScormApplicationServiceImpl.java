@@ -3,6 +3,7 @@ package org.sakaiproject.scorm.service.impl;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.adl.api.ecmascript.APIErrorCodes;
 import org.adl.api.ecmascript.IErrorManager;
@@ -26,15 +27,20 @@ import org.adl.validator.contentpackage.ILaunchData;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.scorm.adl.ADLConsultant;
 import org.sakaiproject.scorm.api.ScormConstants;
+import org.sakaiproject.scorm.dao.LearnerDao;
 import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
+import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
+import org.sakaiproject.scorm.model.ScoBeanImpl;
 import org.sakaiproject.scorm.model.api.Attempt;
+import org.sakaiproject.scorm.model.api.Learner;
+import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.service.api.ADLManager;
-import org.sakaiproject.scorm.service.api.INavigable;
-import org.sakaiproject.scorm.service.api.INavigationEvent;
-import org.sakaiproject.scorm.service.api.ScoBean;
+import org.sakaiproject.scorm.navigation.INavigable;
+import org.sakaiproject.scorm.navigation.INavigationEvent;
+import org.sakaiproject.scorm.navigation.impl.NavigationEvent;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.user.api.User;
@@ -45,18 +51,16 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 	private static Log log = LogFactory.getLog(ScormApplicationServiceImpl.class);
 	
-	// Dependency injection method lookup signatures
-	protected abstract UserDirectoryService userDirectoryService();
-	
 	// Sequencing service
 	protected abstract ScormSequencingService scormSequencingService();
 	
 	// Local utility bean (also dependency injected by lookup method)
-	protected abstract ADLManager adlManager();
+	protected abstract ADLConsultant adlManager();
 	
 	// Data access objects (also dependency injected by lookup method)
 	protected abstract AttemptDao attemptDao();
 	protected abstract DataManagerDao dataManagerDao();
+	protected abstract LearnerDao learnerDao();
 	
 	
 	public ScoBean produceScoBean(String scoId, SessionBean sessionBean) {
@@ -487,12 +491,12 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				attempt.setLearnerName("Unavailable");
 				attempt.setBeginDate(new Date());
 				try {
-					User learner = userDirectoryService().getUser(learnerId);
+					Learner learner = learnerDao().load(learnerId);
 					
 					if (learner != null)
 						attempt.setLearnerName(learner.getDisplayName());
-				} catch (UserNotDefinedException e) {
-					log.error("Could not find user " + learnerId, e);
+				} catch (LearnerNotDefinedException e) {
+					log.error("Could not find learner " + learnerId, e);
 				}
 				
 			}
@@ -511,7 +515,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
         
         String courseId = sessionBean.getCourseId();
 		String scoId = sessionBean.getScoId();
-		String userId = sessionBean.getLearnerId();
+		String learnerId = sessionBean.getLearnerId();
 		String title = sessionBean.getTitle();
 		
 		ILaunchData launchData = sessionBean.getLaunchData();
@@ -530,7 +534,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
         if (dm == null) {
 	        // If not, create one, which means this is the 
-	        dm = new SCODataManager(courseId, userId, title, sessionBean.getAttemptNumber());
+	        dm = new SCODataManager(courseId, learnerId, title, sessionBean.getAttemptNumber());
 	        dm.setValidatorFactory(new ValidatorFactory());
 
 	        //  Add a SCORM 2004 Data Model
@@ -542,20 +546,20 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	        //  Add a SSP Datamodel
 	        dm.addDM(DMFactory.DM_SSP);
 
-	        User user = null;
+	        Learner learner = null;
 	        
 	        try {
-	        	user = userDirectoryService().getUser(userId);
+	        	learner = learnerDao().load(learnerId);
 	        } catch (Exception exc) {
-	        	log.error("Unable to find user for " + userId, exc);
+	        	log.error("Unable to find user for " + learnerId, exc);
 	        }
 	        	
 	        // TODO: Need to replace this with some reasonable alternative
-	        initSCOData(dm, launchData, user, courseId, scoId);
+	        initSCOData(dm, launchData, learner, courseId, scoId);
 	
 	        // TODO: Need to replace this with some reasonable alternative
 	        // SSP addition
-	        initSSPData(dm, courseId, scoId, String.valueOf(sessionBean.getAttemptNumber()), userId);
+	        initSSPData(dm, courseId, scoId, String.valueOf(sessionBean.getAttemptNumber()), learnerId);
         	        
 	        isNewDataManager = true;
         } else {
@@ -680,7 +684,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	
 	
 	
-	private void initSCOData(IDataManager ioSCOData, ILaunchData launchData, User user, String iCourseID, String iItemID) {
+	private void initSCOData(IDataManager ioSCOData, ILaunchData launchData, Learner learner, String iCourseID, String iItemID) {
 		   
 		try {   	
 			String masteryScore = new String();
@@ -696,7 +700,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			String lang = DEFAULT_USER_LANGUAGE;
 				
 			// Get the learner preference values from Sakai
-			ResourceProperties props = user.getProperties();
+			Properties props = learner.getProperties();
 				
 		    if (props != null) {
 		       	if (null != props.getProperty(PREF_USER_AUDIO_LEVEL))
@@ -719,15 +723,15 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 			String element = new String();
 
-			if (null != user) {
+			if (null != learner) {
 				// Initialize the learner id
 				element = "cmi.learner_id";
-				DMInterface.processSetValue(element, user.getId(), true,
+				DMInterface.processSetValue(element, learner.getId(), true,
 						ioSCOData);
 
 				// Initialize the learner name
 				element = "cmi.learner_name";
-				DMInterface.processSetValue(element, user.getDisplayName(),
+				DMInterface.processSetValue(element, learner.getDisplayName(),
 						true, ioSCOData);
 			}
 

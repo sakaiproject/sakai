@@ -32,25 +32,25 @@ import org.adl.sequencer.IValidRequests;
 import org.adl.sequencer.SeqNavRequests;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.scorm.adl.ADLConsultant;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.service.api.ADLManager;
-import org.sakaiproject.scorm.service.api.INavigable;
+import org.sakaiproject.scorm.navigation.INavigable;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
-import org.sakaiproject.tool.api.SessionManager;
 
 public abstract class ScormSequencingServiceImpl implements ScormSequencingService {
 
 	private static Log log = LogFactory.getLog(ScormSequencingServiceImpl.class);
 	
 	// Dependency injection lookup methods
+	protected abstract LearningManagementSystem lms();
 	protected abstract ScormContentService scormContentService();
-	protected abstract SessionManager sessionManager();
 	
 	// Local utility bean (also dependency injected by lookup method)
-	protected abstract ADLManager adlManager();
+	protected abstract ADLConsultant adlManager();
 	
 	// Data access objects (also dependency injected by lookup method)
 	protected abstract SeqActivityTreeDao seqActivityTreeDao();
@@ -133,7 +133,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	}
 	
 	public SessionBean newSessionBean(String courseId, long contentPackageId) {
-		String learnerId = sessionManager().getCurrentSessionUserId();
+		String learnerId = lms().currentLearnerId();
 		SessionBean sessionBean = new SessionBean(courseId, learnerId, contentPackageId);
 		
 		ContentPackageManifest manifest = adlManager().getManifest(sessionBean);

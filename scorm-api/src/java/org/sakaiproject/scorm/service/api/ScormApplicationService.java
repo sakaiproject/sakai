@@ -20,7 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.service.api;
 
+import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
+import org.sakaiproject.scorm.navigation.INavigable;
+import org.sakaiproject.scorm.navigation.INavigationEvent;
 
 public interface ScormApplicationService {
 

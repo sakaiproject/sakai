@@ -24,6 +24,17 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 		return r;
 	}
 	
+	public List<Attempt> find(long contentPackageId, String learnerId) {
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("from ").append(Attempt.class.getName())
+			.append(" where contentPackageId=? and learnerId=? order by attemptNumber desc");
+		
+		List r = getHibernateTemplate().find(buffer.toString(), 
+				new Object[]{ contentPackageId, learnerId });
+		
+		return r;
+	}
+	
 	public Attempt find(String courseId, String learnerId, long attemptNumber) {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("from ").append(Attempt.class.getName())
@@ -48,7 +59,7 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 		
 		return r;
 	}
-
+	
 	public void save(Attempt attempt) {
 		attempt.setLastModifiedDate(new Date());
 		getHibernateTemplate().saveOrUpdate(attempt);

@@ -15,9 +15,14 @@ import java.util.zip.ZipInputStream;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import org.adl.validator.IValidator;
+import org.adl.validator.IValidatorOutcome;
+import org.adl.validator.contentpackage.CPValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.scorm.exceptions.ValidationException;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.model.api.SessionBean;

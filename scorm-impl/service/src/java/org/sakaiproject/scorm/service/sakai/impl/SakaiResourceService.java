@@ -2,10 +2,13 @@ package org.sakaiproject.scorm.service.sakai.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.adl.validator.IValidator;
+import org.adl.validator.contentpackage.CPValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -210,7 +213,5 @@ public abstract class SakaiResourceService implements ScormResourceService {
 			log.error("Unable to remove manifest: " + manifestResourceId, e);
 		}
 	}
-	
-	
 	
 }

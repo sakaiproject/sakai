@@ -25,9 +25,6 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 	private static String[] fields = {"cmi.completion_status", "cmi.score.scaled", "cmi.success_status" };
 	
 	// Dependency injection method lookup signatures
-	protected abstract ScormContentService contentService();
-	protected abstract UserDirectoryService userDirectoryService();
-	
 	protected abstract DataManagerDao dataManagerDao();
 	protected abstract AttemptDao attemptDao();
 	
@@ -121,6 +118,10 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 	
 	public Attempt getAttempt(long id) {
 		return attemptDao().load(id);
+	}
+	
+	public List<Attempt> getAttempts(long contentPackageId, String learnerId) {
+		return attemptDao().find(contentPackageId, learnerId);
 	}
 	
 	public List<Attempt> getAttempts(String courseId, String learnerId) {
