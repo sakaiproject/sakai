@@ -19,7 +19,9 @@
 		<h4>
 			$tlang.getString("custom.display")
 		</h4>
+      
 	#if ($toolId == "sakai.announcements")
+	<!-- start of announcement options -->
 		
 		#set ($selected = $tlang.getString("custom.sortab"))
 		#if ( $displayOptions.isShowAllColumns())
@@ -92,7 +94,33 @@
 			#end
 			</select>
 		</p>
+		
+		<h4>
+			$tlang.getString("custom.rss_option") 
+			#if ($displayOptions.isRssEnable())
+			<a href="$!rssUrl" target="_new_">$rssUrl</a>
+			#end
+		</h4>
+		<p class="shorttext indnt2">
+			<label for ="rssAlias">
+				$tlang.getString("custom.rss_alias")
+			</label>
+			<input type="text" name="rssAlias" id="rssAlias" value="$!rssAlias" />
+		</p>
+		
+		<p class="shorttext indnt2">
+			<label for ="$displayOptions.getVarNameRssEnable()">
+				$tlang.getString("custom.rss_enable")
+			</label>
+			<input type="checkbox" value="true"
+					name="$displayOptions.getVarNameRssEnable()" id="$displayOptions.getVarNameRssEnable()" 
+					#if ($displayOptions.isRssEnable()) checked #end />
+		</p>
+		 
+	<!-- end of announcement options -->
+
 	#else
+	<!-- start of synoptic announcement options -->
 		<p class="checkbox indnt2">
 		<input 	type="checkbox"
 				name="$displayOptions.getVarNameShowAnnouncementBody()" 
@@ -136,8 +164,9 @@
 			#end
 			</select>
 		</p>
+	<!-- end of synoptic announcement options -->
 	#end
-	
+   
 		<h4>
 			$tlang.getString("custom.dplimits") 
 		</h4>

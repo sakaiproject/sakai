@@ -80,7 +80,9 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 		private static final String varNameShowOnlyOptionsButton = "showOnlyOptionsButton";
 
 		private static final String VarNameDisplaySelection = "displaySelection";
-
+		
+		private static final String varNameRssEnable = "rssEnable";
+		
 		private static final String ANNOUNCEMENT_TOOL_ID = "sakai.announcements";
 
 		boolean showAllColumns = true;
@@ -100,6 +102,8 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 		boolean enforceNumberOfCharsPerAnnouncement;
 
 		boolean showOnlyOptionsButton = false;
+      
+		boolean isRssEnable = false;
 
 		/**
 		 * Default constructor
@@ -149,6 +153,14 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 		}
 
 		/**
+		 * Gets whether or not the RSS Feed of Announcements is enabled
+		 */
+		public boolean isRssEnable()
+		{
+			return isRssEnable;
+		}
+
+		/**
 		 * Sets the limit on the number of announcements to show (if the limit is enabled).
 		 */
 		public void setNumberOfAnnouncements(int i)
@@ -192,6 +204,14 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 		public void setShowAllColumns(boolean b)
 		{
 			showAllColumns = b;
+		}
+
+		/**
+		 * Sets whether or not the RSS Feed of Announcements is enabled
+		 */
+		public void setRssEnable(boolean b)
+		{
+			isRssEnable = b;
 		}
 
 		/**
@@ -284,6 +304,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 			setShowAllColumns(getBooleanParameter(params, varNameShowAllColumns, showAllColumns));
 			setShowAnnouncementBody(getBooleanParameter(params, varNameShowAnnouncementBody, showAnnouncementBody));
 			setShowOnlyOptionsButton(getBooleanParameter(params, varNameShowOnlyOptionsButton, showOnlyOptionsButton));
+			setRssEnable(getBooleanParameter(params, varNameRssEnable, isRssEnable));
 
 			if (params.get(varNameNumberOfDaysInPast) != null)
 			{
@@ -364,6 +385,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 						setEnforceNumberOfCharsPerAnnouncement(false);
 					}
 				}
+				setRssEnable(parameters.getBoolean(varNameRssEnable));
 			}
 			else
 			{
@@ -412,6 +434,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 			resEdit.setProperty(varNameShowAllColumns, Boolean.toString(showAllColumns));
 			resEdit.setProperty(varNameShowAnnouncementBody, Boolean.toString(showAnnouncementBody));
 			resEdit.setProperty(varNameShowOnlyOptionsButton, Boolean.toString(showOnlyOptionsButton));
+			resEdit.setProperty(varNameRssEnable, Boolean.toString(isRssEnable));
 
 			if (isEnforceNumberOfDaysInThePastLimit())
 			{
@@ -510,7 +533,15 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 		{
 			return varNameShowAnnouncementBody;
 		}
-
+		
+		/**
+		 * Gets a variable name for use in Velocity scripts to enable rss
+		 */
+		public static String getVarNameRssEnable()
+		{
+			return varNameRssEnable;
+		}
+		
 		public boolean isShowOnlyOptionsButton()
 		{
 			return showOnlyOptionsButton;
