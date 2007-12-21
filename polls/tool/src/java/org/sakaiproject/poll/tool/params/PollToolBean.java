@@ -214,7 +214,7 @@ public class PollToolBean {
 	  
 
 	  VoteCollection votes = voteCollection;
-	  m_log.info("got vote collexction with id " + votes.getId());
+	  m_log.info("got vote collection with id " + votes.getId());
 	  
 		List options = new ArrayList();
 		
