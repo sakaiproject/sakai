@@ -103,7 +103,7 @@ public class FormHandler {
 					serverConfigurationService.getString("support.email")
 			};
 			
-			buff.append(messageLocator.getMessage("mailBody1",new Object[]{productionSiteName})+ "\n\n");
+			buff.append(messageLocator.getMessage("mailBody1",new Object[]{productionSiteName, serverConfigurationService.getPortalUrl()})+ "\n\n");
 			buff.append(messageLocator.getMessage("mailBody2",new Object[]{userE.getEid()})+ "\n");
 			buff.append(messageLocator.getMessage("mailBody3",new Object[]{pass})+ "\n\n");
 			buff.append(messageLocator.getMessage("mailBody4",new Object[]{serverConfigurationService.getString("support.email")}) + "\n\n");
