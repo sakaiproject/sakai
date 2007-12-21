@@ -22,6 +22,7 @@ package org.sakaiproject.tool.messageforums;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -123,6 +124,7 @@ public class PrivateMessagesTool
   private static final String SELECT_MSGS_TO_DELETE = "pvt_select_msgs_to_delete";
   private static final String SELECT_RECIPIENT_LIST_FOR_REPLY = "pvt_select_reply_recipients_list";
   private static final String MISSING_SUBJECT = "pvt_missing_subject";
+  private static final String MISSING_SUBJECT_CC = "pvt_missing_subject_CC";
   private static final String SELECT_MSG_RECIPIENT = "pvt_select_msg_recipient";
   //skai-huxt reply all 
   private static final String SELECT_MSG_RECIPIENT_replyall = "pvt_select_msg_recipient_replyall";
@@ -1803,19 +1805,118 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    
 	    String msgautherString=getDetailMsg().getAuthor();
 	    String msgCClistString=getDetailMsg().getRecipientsAsText();
-	    //remove the auther in Cc string 
-	    if(msgCClistString.length()>=msgautherString.length()){
-	    String msgCClistStringwithoutAuthor=msgCClistString.substring(msgautherString.length()+1-1, msgCClistString.length());
-	    getDetailMsg().setRecipientsAsText(msgCClistStringwithoutAuthor);
-	  //  getDetailMsg().setSendToStringDecorated(sendToStringDecorated)
+	    
+	    //remove the auther in Cc string 	    
+	    if(msgCClistString.length()>=msgautherString.length())
+	    {
+	    	String msgCClistStringwithoutAuthor = msgCClistString;
+	    /*if(getUserName().equals(msgautherString))//send to myself
+	    {	
+	     msgCClistStringwithoutAuthor=msgCClistString.substring(msgautherString.length()+1-1, msgCClistString.length());
+	    }*/
+	    
+	    List ccauther = new ArrayList();
+	    String currentUserasAuther = getUserName();
+	    char letter=';';
+	    int  n=getNum(letter,msgCClistStringwithoutAuthor);
+	    
+	    int numberofAuther=0;
+	    
+	    if(n==0)
+	    {numberofAuther=1;}
+	    else if(n>=1)	    	
+	    { numberofAuther=n+1;}//add the end ";"
+	    String[] ccSS = new String[numberofAuther];
+	    ccSS=msgCClistStringwithoutAuthor.split("; ");
+	    
+	    
+	   String tmpCC=new String();
+	    
+					    if((numberofAuther>0)&&(numberofAuther<=msgCClistStringwithoutAuthor.length()))
+					      {
+					    
+						    for(int indexCC =0;indexCC<numberofAuther-1;indexCC++)	    //last for ";"	
+						    {
+						    	if(!ccSS[indexCC].equals(currentUserasAuther)&&(!ccSS[indexCC].equals(msgautherString)))//not equal current auther and not equal old auther
+						    	{
+						    		//if()
+						    		
+						    		tmpCC=tmpCC+ccSS[indexCC];
+						    		tmpCC=tmpCC+";";
+						    		
+						    	}
+						    	
+						    	
+						    	
+						    	
+						    }
+						    String tmp1=new String(ccSS[numberofAuther-1]);
+						    String tmp2=new String(currentUserasAuther);
+						    boolean b = ccSS[numberofAuther-1].equals(currentUserasAuther);
+						    boolean a = tmp1.equals(tmp2);
+						    if(!tmp1.equals(tmp2))//last letter have no: ";"
+						    {
+						    	tmpCC=tmpCC+ccSS[numberofAuther-1];
+						    	
+						    }
+						    else if(tmp1.equals(tmp2)){
+						    	if(tmpCC.length()>1){
+						    	tmpCC=tmpCC.substring(0,tmpCC.length()-1);
+						    	}
+						    }
+						    /*
+						    if(ccSS[numberofAuther-1]!=currentUserasAuther)//last letter have no: ";"
+						    {
+						    	tmpCC=tmpCC+ccSS[numberofAuther-1];
+						    	
+						    }
+						    else if(ccSS[numberofAuther-1]==currentUserasAuther){
+						    	tmpCC=tmpCC.substring(0,tmpCC.length()-1);
+						    }*/
+						    
+						    if(getUserName().equals(msgautherString))//send to myself
+						    {	
+						     //msgCClistStringwithoutAuthor=msgCClistString.substring(msgautherString.length()+1-1, msgCClistString.length());
+						    	tmpCC=tmpCC+"; ";
+						    	tmpCC=tmpCC+msgautherString;
+						    	
+						    }else if(!getUserName().equals(msgautherString)){// send to others
+						    	
+						    	
+						    }
+						    
+						    //remove old other form CC  Strinig msgautherString
+						    
+						    
+						    
+						    getDetailMsg().setRecipientsAsText(tmpCC);//msgCClistStringwithoutAuthor);
+						    getDetailMsg().setSendToStringDecorated(tmpCC);
+						    getDetailMsg().getMsg().setRecipientsAsText(tmpCC);
+						  //  getDetailMsg().setSendToStringDecorated(sendToStringDecorated)
+						  }//f((numberofAuther>0)&&(numberofAuther<=msgCClistStringwithoutAuthor.length()))
+						    
+	    
 	    }
-	    //from message detail screen
+	    
+	    
 	    this.setDetailMsg(getDetailMsg()) ;
 	  
 	    
 	    return MESSAGE_ReplyAll_PG;//MESSAGE_FORWARD_PG;
 	  }
 	
+  
+//  how many letters k in string a  a= "fdh,jlg,jds,lgjd"  k=","
+  private   int   getNum(char letter,   String   a)
+  {  
+  int   j=0;  
+  for(int   i=0;   i<a.length();   i++){  
+  if(a.charAt(i)==(letter)){  //s.charAt(j) == 'x'
+  j++;  
+  }  
+  }  
+  return   j;  
+  }   
   
   //////////modified by hu2@iupui.edu end
   /**
@@ -2794,6 +2895,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     List tmpRecipList = currentMessage.getRecipients();
     List replyalllist=new ArrayList();
     Set returnSet = new HashSet();
+    
+    Set returnSet2 = new HashSet();
     Iterator iter = tmpRecipList.iterator();
     
     String sendToStringreplyall="";
@@ -2867,6 +2970,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	}
 		
 	}
+   
 
     if(!"".equals(sendToStringreplyall))
     {
@@ -2877,8 +2981,40 @@ public void processChangeSelectView(ValueChangeEvent eve)
     }
     //replyalllist.add(authoruser);
  //2007-12-19
+    String userIdtmp=SessionManager.getCurrentSessionUserId();
+    User usercurrent=null;
+    try
+    {
+       usercurrent=UserDirectoryService.getUser(userIdtmp) ;
+      //userName= user.getDisplayName();
+    }catch (UserNotDefinedException e) {
+    	// TODO Auto-generated catch block
+    	e.printStackTrace();
+    }
+    if( usercurrent!=authoruser){
+    	
     returnSet.add(authoruser);
-  
+    
+    }
+    
+    
+    
+    Iterator iterCC = returnSet.iterator();
+    while(iterCC.hasNext())
+    {
+    	User tmpCCusr=(User)iterCC.next();
+    	if(tmpCCusr!=usercurrent)
+    		returnSet2.add(tmpCCusr);
+    		
+    	
+    }
+    if(returnSet2==null)
+    {setErrorMessage(getResourceBundleString(MISSING_SUBJECT_CC));
+    return null ;
+    }	
+    
+    
+    
    // MembershipItem itemTmp = (MembershipItem) courseMemberMap.get(currentMessage.getAuthor());//UUID);//msgauther);//selectedComposeToList.get(i));
    // MembershipItem itemTmp2 = (MembershipItem) courseMemberMap.get(currentMessage.getCreatedBy());
 
@@ -2886,11 +3022,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
     {
     	
-      prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, false);//getRecipients()  replyalllist
+      prtMsgManager.sendPrivateMessage(rrepMsg, returnSet2, false);//getRecipients()  replyalllist
      // prtMsgManager.sendPrivateMessage(rrepMsg, returnSetreplyall, false);
     }
     else{
-      prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, true);//getRecipients()  replyalllist
+      prtMsgManager.sendPrivateMessage(rrepMsg, returnSet2, true);//getRecipients()  replyalllist
       //prtMsgManager.sendPrivateMessage(rrepMsg, returnSetreplyall, true);
     }
     
