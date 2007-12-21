@@ -72,331 +72,335 @@ import org.apache.commons.logging.Log;
 
 
 public class PollToolProducer implements ViewComponentProducer,
-	DefaultView,NavigationCaseReporter {
-  public static final String VIEW_ID = "votePolls";
-  private UserDirectoryService userDirectoryService;
-  private PollListManager pollListManager;
-  private ToolManager toolManager;
-  private MessageLocator messageLocator;
-  private LocaleGetter localegetter;
-  private PollVoteManager pollVoteManager;  
-  
-  private static final String NAVIGATE_ADD = "actions-add";
-  private static final String NAVIGATE_PERMISSIONS = "actions-permissions";
-  private static final String NAVIGATE_VOTE = "poll-vote";
-  
-  
-  
-  
+DefaultView,NavigationCaseReporter {
+	public static final String VIEW_ID = "votePolls";
+	private UserDirectoryService userDirectoryService;
+	private PollListManager pollListManager;
+	private ToolManager toolManager;
+	private MessageLocator messageLocator;
+	private LocaleGetter localegetter;
+	private PollVoteManager pollVoteManager;  
 
-  private static Log m_log = LogFactory.getLog(PollToolProducer.class);
-  
-  public String getViewID() {
-    return VIEW_ID;
-  }
+	private static final String NAVIGATE_ADD = "actions-add";
+	private static final String NAVIGATE_PERMISSIONS = "actions-permissions";
+	private static final String NAVIGATE_VOTE = "poll-vote";
 
-  public void setMessageLocator(MessageLocator messageLocator) {
-	  
-    this.messageLocator = messageLocator;
-  }
 
-  public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-    this.userDirectoryService = userDirectoryService;
-  }
 
-  public void setPollListManager(PollListManager pollListManager) {
-    this.pollListManager = pollListManager;
-  }
 
-  public void setToolManager(ToolManager toolManager) {
-    this.toolManager = toolManager;
-  }
 
-  public void setLocaleGetter(LocaleGetter localegetter) {
-    this.localegetter = localegetter;
-  }
+	private static Log m_log = LogFactory.getLog(PollToolProducer.class);
+
+	public String getViewID() {
+		return VIEW_ID;
+	}
+
+	public void setMessageLocator(MessageLocator messageLocator) {
+
+		this.messageLocator = messageLocator;
+	}
+
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
+
+	public void setPollListManager(PollListManager pollListManager) {
+		this.pollListManager = pollListManager;
+	}
+
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
+
+	public void setLocaleGetter(LocaleGetter localegetter) {
+		this.localegetter = localegetter;
+	}
 
 	public void setPollVoteManager(PollVoteManager pvm){
 		this.pollVoteManager = pvm;
 	}
-	
+
 	private SiteService siteService;
 	public void setSiteService(SiteService s){
 		this.siteService = s;
-		
+
 	}
-	
 
-	  private VoteBean voteBean;
-	  public void setVoteBean(VoteBean vb){
-		  this.voteBean = vb;
-	  }
-	
-  public void fillComponents(UIContainer tofill, ViewParameters viewparams,
-      ComponentChecker checker) {
-    
 
-	  voteBean.setPoll(null);
-	  voteBean.voteCollection = null;
-	 
-    UIOutput.make(tofill, "poll-list-title", messageLocator.getMessage("poll_list_title"));
-    
-    boolean renderDelete = false;
-    //populte the action links
-    if (this.isAllowedPollAdd() || this.isSiteOwner() ) {
-    	UIBranchContainer actions = UIBranchContainer.make(tofill,"actions:",Integer.toString(0));
-    	m_log.debug("this user has some admin functions");
-	    if (this.isAllowedPollAdd()) {
-	    	m_log.debug("User can add polls");
-	        //UIOutput.make(tofill, "poll-add", messageLocator
-	         //       .getMessage("action_add_poll"));
-	    	UIInternalLink.make(actions,NAVIGATE_ADD,UIMessage.make("action_add_poll"),
-	    	        new EntityCentredViewParameters(AddPollProducer.VIEW_ID, new EntityID("Poll", "0"),
-	    	                EntityCentredViewParameters.MODE_NEW));
-	    } 
-	    if (this.isSiteOwner()) {
-	    	UIInternalLink.make(actions, NAVIGATE_PERMISSIONS, UIMessage.make("action_set_permissions"),new SimpleViewParameters(PermissionsProducer.VIEW_ID));
-	    } 
-    }
+	private VoteBean voteBean;
+	public void setVoteBean(VoteBean vb){
+		this.voteBean = vb;
+	}
 
-    User currentuser = userDirectoryService.getCurrentUser();
-    String currentuserid = currentuser.getEid();
+	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
+			ComponentChecker checker) {
 
-   
-    
 
-    
-    List polls = null;
+		voteBean.setPoll(null);
+		voteBean.voteCollection = null;
 
-        
-    
-    
-    String siteId = toolManager.getCurrentPlacement().getContext();
-    if (siteId != null) {
-    	polls = pollListManager.findAllPolls(siteId);
-    } else {
-    	m_log.warn("Unable to get siteid!");
-    
-    }
+		UIOutput.make(tofill, "poll-list-title", messageLocator.getMessage("poll_list_title"));
 
-    
+		boolean renderDelete = false;
+		//populte the action links
+		if (this.isAllowedPollAdd() || this.isSiteOwner() ) {
+			UIBranchContainer actions = UIBranchContainer.make(tofill,"actions:",Integer.toString(0));
+			m_log.debug("this user has some admin functions");
+			if (this.isAllowedPollAdd()) {
+				m_log.debug("User can add polls");
+				//UIOutput.make(tofill, "poll-add", messageLocator
+				//       .getMessage("action_add_poll"));
+				UIInternalLink.make(actions,NAVIGATE_ADD,UIMessage.make("action_add_poll"),
+						new EntityCentredViewParameters(AddPollProducer.VIEW_ID, new EntityID("Poll", "0"),
+								EntityCentredViewParameters.MODE_NEW));
+			} 
+			if (this.isSiteOwner()) {
+				UIInternalLink.make(actions, NAVIGATE_PERMISSIONS, UIMessage.make("action_set_permissions"),new SimpleViewParameters(PermissionsProducer.VIEW_ID));
+			} 
+		}
 
-    // fix for broken en_ZA locale in JRE http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6488119
-    Locale M_locale = null;
-    String langLoc[] = localegetter.get().toString().split("_");
-    if ( langLoc.length >= 2 ) {
-             if (langLoc[0].equals("en") && langLoc[1].equals("ZA"))
-        		 M_locale = new Locale("en", "GB");
-        	 else
-        		 M_locale = new Locale(langLoc[0], langLoc[1]);
-    } else{
-       M_locale = new Locale(langLoc[0]);
-    }
-    
-    DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
-    	DateFormat.SHORT, M_locale);
-    
-    UIForm deleteForm = UIForm.make(tofill, "delete-poll-form");
-    // Create a multiple selection control for the tasks to be deleted.
-    // We will fill in the options at the loop end once we have collected them.
-    UISelect deleteselect = UISelect.makeMultiple(deleteForm, "delete-poll",
-        null, "#{pollToolBean.deleteids}", new String[] {});
-    
-     //get the headers for the table
-    UIMessage.make(deleteForm, "poll-question-title","poll_question_title");
-    UIMessage.make(deleteForm, "poll-open-title", "poll_open_title");
-    UIMessage.make(deleteForm, "poll-close-title", "poll_close_title");
-    UIMessage.make(deleteForm, "poll-result-title", "poll_result_title");
-    UIMessage.make(deleteForm, "poll-remove-title", "poll_remove_title");
-    
-    StringList deletable = new StringList();
-    m_log.debug("got a list of " + polls.size() + " polls");
-    for (int i = 0 ; i < polls.size(); i++) {
-      Poll poll = (Poll)polls.get(i);
-      boolean canVote = pollIsVotable(poll);
-      UIBranchContainer pollrow = UIBranchContainer.make(deleteForm,
-    		  canVote ? "poll-row:votable"
-    				  : "poll-row:nonvotable", poll.getPollId().toString());
-      m_log.debug("adding poll row for " + poll.getText());
-   
-      if (canVote) {
-    	  UIInternalLink voteLink = UIInternalLink.make(pollrow, NAVIGATE_VOTE, poll.getText(),
-              new EntityCentredViewParameters(PollVoteProducer.VIEW_ID, 
-                      new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
-    	  //we need to add a decorator for the alt text
-    	  voteLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_vote_title") +":" + poll.getText()));
-    	  
-      } else {
-    	  UIOutput.make(pollrow,"poll-text",poll.getText());
-      }
-      
-      
-      
-      if (isAllowedViewResults(poll)) {
-    	  UIInternalLink resultsLink =  UIInternalLink.make(pollrow, "poll-results", messageLocator.getMessage("action_view_results"),
-	              new EntityCentredViewParameters(ResultsProducer.VIEW_ID, 
-	                      new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
-    	  resultsLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("action_view_results")+ ":" + poll.getText()));
-    	  
-      }
-      
-      if (poll.getVoteOpen()!=null)
-    	  UIOutput.make(pollrow,"poll-open-date",df.format(poll.getVoteOpen()));
-      else 
-    	  UIVerbatim.make(pollrow,"poll-open-date","  ");
-      
-      if (poll.getVoteClose()!=null)
-    	  UIOutput.make(pollrow,"poll-close-date",df.format(poll.getVoteClose()));
-      else 
-    	  UIVerbatim.make(pollrow,"poll-close-date","  ");
-    	  
-      if (pollCanEdit(poll)) {
-    	  UIInternalLink editLink = UIInternalLink.make(pollrow,"poll-revise",messageLocator.getMessage("action_revise_poll"),  
-    			  new EntityCentredViewParameters(AddPollProducer.VIEW_ID, 
-                  new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
-    	  editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("action_revise_poll")+ ":" + poll.getText()));
-    	  
-      }
-      if (pollCanDelete(poll)) {
-    	  deletable.add(poll.getPollId().toString());
-    	  UISelectChoice delete =  UISelectChoice.make(pollrow, "poll-select", deleteselect.getFullID(), (deletable.size()-1));
-          delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_poll_tooltip", new String[] {poll.getText()})));
-          UIMessage message = UIMessage.make(pollrow,"delete-label","delete_poll_tooltip", new String[] {poll.getText()});
-          UILabelTargetDecorator.targetLabel(message,delete);
-          m_log.debug("this poll can be deleted");
-    	  renderDelete = true;
+		User currentuser = userDirectoryService.getCurrentUser();
+		String currentuserid = currentuser.getEid();
 
-      }
-    }
-    
-    
 
-  	  deleteselect.optionlist.setValue(deletable.toStringArray());
-  	  deleteForm.parameters.add(new UIELBinding("#{pollToolBean.siteID}", siteId));
 
-  	  if (renderDelete) 
-	    UICommand.make(deleteForm, "delete-polls",  UIMessage.make("poll_list_update"),
-	        "#{pollToolBean.processActionDelete}");
-  }
 
-  
 
-    
-  private boolean isAllowedPollAdd() {
-	  if (SecurityService.isSuperUser())
-		  return true;
-	  
-	  if (SecurityService.unlock("poll.add", "/site/" + toolManager.getCurrentPlacement().getContext()))
-		  return true;
-	  
-	  return false;
-  }
+		List polls = null;
 
-  private boolean isSiteOwner(){
-	  if (SecurityService.isSuperUser())
-		  return true;
-	  else if (SecurityService.unlock("site.upd", "/site/" + toolManager.getCurrentPlacement().getContext()))
-		  return true;
-	  else
-		  return false;
-  }
-  
-  public List reportNavigationCases() {
-	    List togo = new ArrayList(); // Always navigate back to this view.
-	    togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
-	    return togo;
-  }
-  
-  private boolean pollIsVotable(Poll poll)
-  {
-	  //poll must have options to be votable
-	  
-	  poll.setOptions(pollListManager.getOptionsForPoll(poll));
-	  if (poll.getPollOptions()== null || poll.getPollOptions().size() == 0) {
-		m_log.debug("poll has no options");
-		  return false;
-	  }
-	  
-	  boolean pollAfterOpen = true;
-	  boolean pollBeforeClose = true;
-	  
-	  if (poll.getVoteClose()!=null) {
-		 if (poll.getVoteClose().before(new Date())) {
-			 m_log.debug("Poll is closed for voting");
-			 pollBeforeClose=false;
-		 }
-		  
-	  } 
-	  
-	  if (poll.getVoteOpen()!=null) {
-		  if(new Date().before(poll.getVoteOpen())) {
-			  m_log.debug("Poll is not open yet");
-			  pollAfterOpen=false;
-		  }
-	  } 
-	  
-	  if (pollAfterOpen && pollBeforeClose)
-	  {
-		if (poll.getLimitVoting() && pollVoteManager.userHasVoted(poll.getPollId())) {
+
+
+
+		String siteId = toolManager.getCurrentPlacement().getContext();
+		if (siteId != null) {
+			polls = pollListManager.findAllPolls(siteId);
+		} else {
+			m_log.warn("Unable to get siteid!");
+
+		}
+
+
+
+		// fix for broken en_ZA locale in JRE http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6488119
+		Locale M_locale = null;
+		String langLoc[] = localegetter.get().toString().split("_");
+		if ( langLoc.length >= 2 ) {
+			if (langLoc[0].equals("en") && langLoc[1].equals("ZA"))
+				M_locale = new Locale("en", "GB");
+			else
+				M_locale = new Locale(langLoc[0], langLoc[1]);
+		} else{
+			M_locale = new Locale(langLoc[0]);
+		}
+
+		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
+				DateFormat.SHORT, M_locale);
+
+		UIForm deleteForm = UIForm.make(tofill, "delete-poll-form");
+		// Create a multiple selection control for the tasks to be deleted.
+		// We will fill in the options at the loop end once we have collected them.
+		UISelect deleteselect = UISelect.makeMultiple(deleteForm, "delete-poll",
+				null, "#{pollToolBean.deleteids}", new String[] {});
+
+		//get the headers for the table
+		UIMessage.make(deleteForm, "poll-question-title","poll_question_title");
+		UIMessage.make(deleteForm, "poll-open-title", "poll_open_title");
+		UIMessage.make(deleteForm, "poll-close-title", "poll_close_title");
+		UIMessage.make(deleteForm, "poll-result-title", "poll_result_title");
+		UIMessage.make(deleteForm, "poll-remove-title", "poll_remove_title");
+
+		StringList deletable = new StringList();
+		m_log.debug("got a list of " + polls.size() + " polls");
+		for (int i = 0 ; i < polls.size(); i++) {
+			Poll poll = (Poll)polls.get(i);
+			boolean canVote = pollIsVotable(poll);
+			UIBranchContainer pollrow = UIBranchContainer.make(deleteForm,
+					canVote ? "poll-row:votable"
+							: "poll-row:nonvotable", poll.getPollId().toString());
+			m_log.debug("adding poll row for " + poll.getText());
+
+			if (canVote) {
+				UIInternalLink voteLink = UIInternalLink.make(pollrow, NAVIGATE_VOTE, poll.getText(),
+						new EntityCentredViewParameters(PollVoteProducer.VIEW_ID, 
+								new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
+				//we need to add a decorator for the alt text
+				voteLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_vote_title") +":" + poll.getText()));
+
+			} else {
+				//is this not votable because of no options?
+				if (poll.getPollOptions().size() == 0 )
+					UIOutput.make(pollrow,"poll-text",poll.getText() + " (" + messageLocator.getMessage("poll_no_options") + ")");
+				else
+					UIOutput.make(pollrow,"poll-text",poll.getText());
+			}
+
+
+
+			if (isAllowedViewResults(poll)) {
+				UIInternalLink resultsLink =  UIInternalLink.make(pollrow, "poll-results", messageLocator.getMessage("action_view_results"),
+						new EntityCentredViewParameters(ResultsProducer.VIEW_ID, 
+								new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
+				resultsLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("action_view_results")+ ":" + poll.getText()));
+
+			}
+
+			if (poll.getVoteOpen()!=null)
+				UIOutput.make(pollrow,"poll-open-date",df.format(poll.getVoteOpen()));
+			else 
+				UIVerbatim.make(pollrow,"poll-open-date","  ");
+
+			if (poll.getVoteClose()!=null)
+				UIOutput.make(pollrow,"poll-close-date",df.format(poll.getVoteClose()));
+			else 
+				UIVerbatim.make(pollrow,"poll-close-date","  ");
+
+			if (pollCanEdit(poll)) {
+				UIInternalLink editLink = UIInternalLink.make(pollrow,"poll-revise",messageLocator.getMessage("action_revise_poll"),  
+						new EntityCentredViewParameters(AddPollProducer.VIEW_ID, 
+								new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
+				editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("action_revise_poll")+ ":" + poll.getText()));
+
+			}
+			if (pollCanDelete(poll)) {
+				deletable.add(poll.getPollId().toString());
+				UISelectChoice delete =  UISelectChoice.make(pollrow, "poll-select", deleteselect.getFullID(), (deletable.size()-1));
+				delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_poll_tooltip", new String[] {poll.getText()})));
+				UIMessage message = UIMessage.make(pollrow,"delete-label","delete_poll_tooltip", new String[] {poll.getText()});
+				UILabelTargetDecorator.targetLabel(message,delete);
+				m_log.debug("this poll can be deleted");
+				renderDelete = true;
+
+			}
+		}
+
+
+
+		deleteselect.optionlist.setValue(deletable.toStringArray());
+		deleteForm.parameters.add(new UIELBinding("#{pollToolBean.siteID}", siteId));
+
+		if (renderDelete) 
+			UICommand.make(deleteForm, "delete-polls",  UIMessage.make("poll_list_update"),
+			"#{pollToolBean.processActionDelete}");
+	}
+
+
+
+
+	private boolean isAllowedPollAdd() {
+		if (SecurityService.isSuperUser())
+			return true;
+
+		if (SecurityService.unlock("poll.add", "/site/" + toolManager.getCurrentPlacement().getContext()))
+			return true;
+
+		return false;
+	}
+
+	private boolean isSiteOwner(){
+		if (SecurityService.isSuperUser())
+			return true;
+		else if (SecurityService.unlock("site.upd", "/site/" + toolManager.getCurrentPlacement().getContext()))
+			return true;
+		else
+			return false;
+	}
+
+	public List reportNavigationCases() {
+		List togo = new ArrayList(); // Always navigate back to this view.
+		togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
+		return togo;
+	}
+
+	private boolean pollIsVotable(Poll poll)
+	{
+		//poll must have options to be votable
+
+		poll.setOptions(pollListManager.getOptionsForPoll(poll));
+		if (poll.getPollOptions()== null || poll.getPollOptions().size() == 0) {
+			m_log.debug("poll has no options");
 			return false;
 		}
-		  //the user hasn't voted do they have permission to vote?'
+
+		boolean pollAfterOpen = true;
+		boolean pollBeforeClose = true;
+
+		if (poll.getVoteClose()!=null) {
+			if (poll.getVoteClose().before(new Date())) {
+				m_log.debug("Poll is closed for voting");
+				pollBeforeClose=false;
+			}
+
+		} 
+
+		if (poll.getVoteOpen()!=null) {
+			if(new Date().before(poll.getVoteOpen())) {
+				m_log.debug("Poll is not open yet");
+				pollAfterOpen=false;
+			}
+		} 
+
+		if (pollAfterOpen && pollBeforeClose)
+		{
+			if (poll.getLimitVoting() && pollVoteManager.userHasVoted(poll.getPollId())) {
+				return false;
+			}
+			//the user hasn't voted do they have permission to vote?'
 			m_log.debug("about to check if this user can vote in " + toolManager.getCurrentPlacement().getContext());
 			if (SecurityService.unlock("poll.vote","/site/" + toolManager.getCurrentPlacement().getContext()) || SecurityService.isSuperUser())
 			{
 				m_log.debug("this poll is votable  " + poll.getText());
 				return true;
 			}
-	  }
-	  
-	  return false;
-  }
-  
-  private boolean isAllowedViewResults(Poll poll) {
-	  if (SecurityService.isSuperUser())
-		  return true;
-	
-	  if (poll.getDisplayResult().equals("open"))
-		  return true;
-	  
-	  if (poll.getOwner().equals(userDirectoryService.getCurrentUser().getId()))
-		  return true;
-	  
-	  if (poll.getDisplayResult().equals("afterVoting") && pollVoteManager.userHasVoted(poll.getPollId()))
-		  return true;
-	  
-	  if ((poll.getDisplayResult().equals("afterClosing") || poll.getDisplayResult().equals("afterVoting") )&& poll.getVoteClose().before(new Date()))
-		  return true;
-	  
-	  //the owner can view the results
-	  if(poll.getOwner().equals(userDirectoryService.getCurrentUser().getId()))
-		  return true;
-	  
-	  return false;
-  }
-  
-  private boolean pollCanEdit(Poll poll) {
-	  if (SecurityService.isSuperUser() )
-		  return true;
-	  
-	  if (SecurityService.unlock(pollListManager.PERMISSION_EDIT_ANY,"/site/" + toolManager.getCurrentPlacement().getContext()))
-		  return true;
-	  
-	  if (SecurityService.unlock(pollListManager.PERMISSION_EDIT_OWN,"/site/" + toolManager.getCurrentPlacement().getContext()) && poll.getOwner().equals(userDirectoryService.getCurrentUser().getId()))
-		  return true;
-	  
-	  return false;
- }
- 
-  private boolean pollCanDelete(Poll poll) {
-	  if (SecurityService.isSuperUser() )
-		  return true;
-	  if (SecurityService.unlock(pollListManager.PERMISSION_DELETE_ANY,"/site/" + toolManager.getCurrentPlacement().getContext()))
-	  	return true;
-	  	
-	  	if (SecurityService.unlock(pollListManager.PERMISSION_DELETE_OWN,"/site/" + toolManager.getCurrentPlacement().getContext()) && poll.getOwner().equals(userDirectoryService.getCurrentUser().getId())) 
-	  		return true;
-	  	
-	  return false;
-  }
+		}
+
+		return false;
+	}
+
+	private boolean isAllowedViewResults(Poll poll) {
+		if (SecurityService.isSuperUser())
+			return true;
+
+		if (poll.getDisplayResult().equals("open"))
+			return true;
+
+		if (poll.getOwner().equals(userDirectoryService.getCurrentUser().getId()))
+			return true;
+
+		if (poll.getDisplayResult().equals("afterVoting") && pollVoteManager.userHasVoted(poll.getPollId()))
+			return true;
+
+		if ((poll.getDisplayResult().equals("afterClosing") || poll.getDisplayResult().equals("afterVoting") )&& poll.getVoteClose().before(new Date()))
+			return true;
+
+		//the owner can view the results
+		if(poll.getOwner().equals(userDirectoryService.getCurrentUser().getId()))
+			return true;
+
+		return false;
+	}
+
+	private boolean pollCanEdit(Poll poll) {
+		if (SecurityService.isSuperUser() )
+			return true;
+
+		if (SecurityService.unlock(pollListManager.PERMISSION_EDIT_ANY,"/site/" + toolManager.getCurrentPlacement().getContext()))
+			return true;
+
+		if (SecurityService.unlock(pollListManager.PERMISSION_EDIT_OWN,"/site/" + toolManager.getCurrentPlacement().getContext()) && poll.getOwner().equals(userDirectoryService.getCurrentUser().getId()))
+			return true;
+
+		return false;
+	}
+
+	private boolean pollCanDelete(Poll poll) {
+		if (SecurityService.isSuperUser() )
+			return true;
+		if (SecurityService.unlock(pollListManager.PERMISSION_DELETE_ANY,"/site/" + toolManager.getCurrentPlacement().getContext()))
+			return true;
+
+		if (SecurityService.unlock(pollListManager.PERMISSION_DELETE_OWN,"/site/" + toolManager.getCurrentPlacement().getContext()) && poll.getOwner().equals(userDirectoryService.getCurrentUser().getId())) 
+			return true;
+
+		return false;
+	}
 }
