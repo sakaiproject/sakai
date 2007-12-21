@@ -96,12 +96,6 @@ public class FormHandler {
 			StringBuffer buff = new StringBuffer();
 			buff.setLength(0);
 			buff.append(messageLocator.getMessage("mailBodyPre",userE.getDisplayName()) + "\n\n");
-			//opbeject array - service name, password, helpemail
-			Object[] params = new Object[]{
-					productionSiteName,
-					pass,
-					serverConfigurationService.getString("support.email")
-			};
 			
 			buff.append(messageLocator.getMessage("mailBody1",new Object[]{productionSiteName, serverConfigurationService.getPortalUrl()})+ "\n\n");
 			buff.append(messageLocator.getMessage("mailBody2",new Object[]{userE.getEid()})+ "\n");
