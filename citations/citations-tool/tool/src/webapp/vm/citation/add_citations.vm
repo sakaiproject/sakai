@@ -73,7 +73,7 @@ doubleDeep = true;
 			      <div class="act">
 				    <input type="button" name="SearchGoogle" id="SearchGoogle"
 				      value="$tlang.getString("action.google")"
-				      onclick="openWindow('$googleUrl','$tlang.getString("popup.title.google")','scrollbars=yes,toolbar=yes,resizable=yes,height=600,width=800');"
+				      onclick="openWindow('$googleUrl','$tlang.getString("popup.title.google")','scrollbars=yes,toolbar=yes,resizable=yes,height=610,width=850');"
 				    />
 			      </div>
 			    </td>
