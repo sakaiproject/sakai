@@ -985,3 +985,8 @@ alter table sakai_person_t add locked number(1.0);
 --Chat SAK-10215
 --This only has to be run if you've upgraded from 2.3 and had chat data
 update SAKAI_SITE_TOOL set title = 'Chat Room' where REGISTRATION = 'sakai.chat' and TITLE like 'Chat Room: "%';
+
+--SAK-8957 new colums for polls
+alter table POLL_POLL add POLL_UUID varchar2(255);
+alter table POLL_OPTION add OPTION_UUID varchar2(255);
+

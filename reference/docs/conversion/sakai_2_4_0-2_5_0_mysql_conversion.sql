@@ -964,3 +964,6 @@ alter table SAKAI_PERSON_T add locked bit(1);
 update SAKAI_SITE_TOOL set title = 'Chat Room' where REGISTRATION = 'sakai.chat' and TITLE like 'Chat Room: "%';
 
 
+--SAK-8957 new colums for polls
+alter table POLL_POLL add column POLL_UUID varchar(255);
+alter table POLL_OPTION add column OPTION_UUID varchar(255);
