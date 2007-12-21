@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>SNAPSHOT</version>
+    <version>M2</version>
     <relativePath>../../master/pom.xml</relativePath>
   </parent>
   <name>Reset pass</name>

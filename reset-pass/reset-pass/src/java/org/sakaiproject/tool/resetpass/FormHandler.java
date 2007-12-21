@@ -103,9 +103,12 @@ public class FormHandler {
 					serverConfigurationService.getString("support.email")
 			};
 			
-			buff.append(messageLocator.getMessage("mailBody1",params)+ "\n\n");
+			buff.append(messageLocator.getMessage("mailBody1",new Object[]{productionSiteName})+ "\n\n");
+			buff.append(messageLocator.getMessage("mailBody2",new Object[]{userE.getEid()})+ "\n");
+			buff.append(messageLocator.getMessage("mailBody3",new Object[]{pass})+ "\n\n");
+			buff.append(messageLocator.getMessage("mailBody4",new Object[]{serverConfigurationService.getString("support.email")}) + "\n\n");
 			
-			m_log.debug(messageLocator.getMessage("mailBody1",params));
+			m_log.debug(messageLocator.getMessage("mailBody1",new Object[]{productionSiteName}));
 			buff.append(messageLocator.getMessage("mailBodySalut")+"\n");
 			buff.append(messageLocator.getMessage("mailBodySalut1",productionSiteName));
 			
