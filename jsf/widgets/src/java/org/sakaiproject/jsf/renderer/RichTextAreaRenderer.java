@@ -32,9 +32,10 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
 import org.sakaiproject.jsf.util.RendererUtil;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Web;
@@ -84,7 +85,8 @@ public class RichTextAreaRenderer extends Renderer
         String rowsStr = (String) RendererUtil.getAttribute(context, component, "rows");
         if (rowsStr != null && rowsStr.length() > 0) rows = Integer.parseInt(rowsStr);
         	
-        String editor = ServerConfigurationService.getString("wysiwyg.editor");
+    	ServerConfigurationService serverConfigurationService = (ServerConfigurationService)ComponentManager.get(ServerConfigurationService.class.getName());
+        String editor = serverConfigurationService.getString("wysiwyg.editor");
         if(editor!=null && !editor.equalsIgnoreCase("FCKeditor"))
         {
 
@@ -339,10 +341,12 @@ public class RichTextAreaRenderer extends Renderer
         }
         else
         {
-                String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+        	ToolManager toolManager = (ToolManager)ComponentManager.get(ToolManager.class.getName());
+        	ContentHostingService contentHostingService = (ContentHostingService)ComponentManager.get(ContentHostingService.class.getName());
+        	String collectionId = contentHostingService.getSiteCollection(toolManager.getCurrentPlacement().getContext());
 
-                //is there a slicker way to get this? 
-                String connector = "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector";
+        	//is there a slicker way to get this? 
+        	String connector = "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector";
 
         	writer.write("<table border=\"0\"><tr><td>");
         	writer.write("<textarea name=\"" + textareaId + "\" id=\"" + textareaId + "\"");
@@ -351,64 +355,64 @@ public class RichTextAreaRenderer extends Renderer
         	writer.write(">");
         	writer.write((String) value);
         	writer.write("</textarea>");
-        	
-         RendererUtil.writeExternalJSDependencies(context, writer, "richtextarea.jsf.fckeditor.js", "/library/editor/FCKeditor/fckeditor.js");
-         //writer.write("<script type=\"text/javascript\" src=\"/library/editor/FCKeditor/fckeditor.js\"></script>\n");
+
+        	RendererUtil.writeExternalJSDependencies(context, writer, "richtextarea.jsf.fckeditor.js", "/library/editor/FCKeditor/fckeditor.js");
+        	//writer.write("<script type=\"text/javascript\" src=\"/library/editor/FCKeditor/fckeditor.js\"></script>\n");
         	writer.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
         	writer.write("function chef_setupformattedtextarea(textarea_id){\n");
         	writer.write("var oFCKeditor = new FCKeditor(textarea_id);\n");
         	writer.write("oFCKeditor.BasePath = \"/library/editor/FCKeditor/\";\n");
 
-                if (width < 0) 
-                     width = 600;
-                if (height < 0) 
-                     height = 400;
+        	if (width < 0) 
+        		width = 600;
+        	if (height < 0) 
+        		height = 400;
 
         	writer.write("oFCKeditor.Width  = \"" + width + "\" ;\n");
         	writer.write("oFCKeditor.Height = \"" + height + "\" ;\n");
 
-                if ("archival".equals(ServerConfigurationService.getString("tags.focus")))
-                     writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/archival_config.js\";\n");
-                else {
- 
-                     writer.write("\n\t\tvar courseId = \"" + collectionId  + "\";");
-                     writer.write("\n\toFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + " +
-                          "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Image&CurrentFolder=\" + courseId;");
-                     writer.write("\n\toFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + " +
-                          "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Link&CurrentFolder=\" + courseId;");
-                     writer.write("\n\toFCKeditor.Config['FlashBrowserURL'] = oFCKeditor.BasePath + " +
-                          "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Flash&CurrentFolder=\" + courseId;");
-                     writer.write("\n\toFCKeditor.Config['ImageUploadURL'] = oFCKeditor.BasePath + " +
-                          "\"" + connector + "?Type=Image&Command=QuickUpload&Type=Image&CurrentFolder=\" + courseId;");
-                     writer.write("\n\toFCKeditor.Config['FlashUploadURL'] = oFCKeditor.BasePath + " +
-                          "\"" + connector + "?Type=Flash&Command=QuickUpload&Type=Flash&CurrentFolder=\" + courseId;");
-                     writer.write("\n\toFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + " +
-                          "\"" + connector + "?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=\" + courseId;");
+        	if ("archival".equals(serverConfigurationService.getString("tags.focus")))
+        		writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/archival_config.js\";\n");
+        	else {
 
-                     writer.write("\n\n\toFCKeditor.Config['CurrentFolder'] = courseId;");
+        		writer.write("\n\t\tvar courseId = \"" + collectionId  + "\";");
+        		writer.write("\n\toFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + " +
+        				"\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Image&CurrentFolder=\" + courseId;");
+        		writer.write("\n\toFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + " +
+        				"\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Link&CurrentFolder=\" + courseId;");
+        		writer.write("\n\toFCKeditor.Config['FlashBrowserURL'] = oFCKeditor.BasePath + " +
+        				"\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Flash&CurrentFolder=\" + courseId;");
+        		writer.write("\n\toFCKeditor.Config['ImageUploadURL'] = oFCKeditor.BasePath + " +
+        				"\"" + connector + "?Type=Image&Command=QuickUpload&Type=Image&CurrentFolder=\" + courseId;");
+        		writer.write("\n\toFCKeditor.Config['FlashUploadURL'] = oFCKeditor.BasePath + " +
+        				"\"" + connector + "?Type=Flash&Command=QuickUpload&Type=Flash&CurrentFolder=\" + courseId;");
+        		writer.write("\n\toFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + " +
+        				"\"" + connector + "?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=\" + courseId;");
 
-                     boolean resourceSearch = EditorConfiguration.enableResourceSearch();
-                     if(resourceSearch)
-                     {
-                     	// need to set document.__pid to placementId
-                     	String placementId = ToolManager.getCurrentPlacement().getId();
-                     	writer.write("\t\tdocument.__pid=\"" + placementId + "\";\n");
-                     	
-                     	// need to set document.__baseUrl to baseUrl
-                     	String baseUrl = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placementId);
-                     	writer.write("\t\tdocument.__baseUrl=\"" + baseUrl + "\";\n");
-                      	writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config_rs.js\";\n");
-                     }
-                     else
-                     {
-                    	 writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
-                     }
-                 }
+        		writer.write("\n\n\toFCKeditor.Config['CurrentFolder'] = courseId;");
+
+        		boolean resourceSearch = EditorConfiguration.enableResourceSearch();
+        		if(resourceSearch)
+        		{
+        			// need to set document.__pid to placementId
+        			String placementId = toolManager.getCurrentPlacement().getId();
+        			writer.write("\t\tdocument.__pid=\"" + placementId + "\";\n");
+
+        			// need to set document.__baseUrl to baseUrl
+        			String baseUrl = serverConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placementId);
+        			writer.write("\t\tdocument.__baseUrl=\"" + baseUrl + "\";\n");
+        			writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config_rs.js\";\n");
+        		}
+        		else
+        		{
+        			writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
+        		}
+        	}
 
         	writer.write("oFCKeditor.ReplaceTextarea() ;}\n");
         	writer.write("</script>\n");
         	writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('"+textareaId+"');</script>");
-        	
+
         	writer.write("</td></tr></table>\n");
         }
     }

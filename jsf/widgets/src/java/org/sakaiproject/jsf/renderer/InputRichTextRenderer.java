@@ -24,12 +24,13 @@ package org.sakaiproject.jsf.renderer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.jsf.model.InitObjectContainer;
 import org.sakaiproject.jsf.util.ConfigurationResource;
 import org.sakaiproject.jsf.util.RendererUtil;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.Web;
 
@@ -199,7 +200,8 @@ public class InputRichTextRenderer extends Renderer
 
     Locale locale = Locale.getDefault();
 
-    String editor = ServerConfigurationService.getString("wysiwyg.editor");
+	ServerConfigurationService serverConfigurationService = (ServerConfigurationService)ComponentManager.get(ServerConfigurationService.class.getName());
+    String editor = serverConfigurationService.getString("wysiwyg.editor");
     if(editor != null && !editor.equalsIgnoreCase("FCKeditor"))
     {
       // Render JavaScripts.
@@ -228,6 +230,9 @@ public class InputRichTextRenderer extends Renderer
     }
     else
     {
+    	ToolManager toolManager = (ToolManager)ComponentManager.get(ToolManager.class.getName());
+    	ContentHostingService contentHostingService = (ContentHostingService)ComponentManager.get(ContentHostingService.class.getName());
+
        //not as slick as the way htmlarea is rendered, but the difference in functionality doesn't all
        //make sense for FCK at this time since it's already got the ability to insert files and such.
        String collectionBase = (String) RendererUtil.getAttribute(context, component, "collectionBase");
@@ -242,7 +247,7 @@ public class InputRichTextRenderer extends Renderer
        }
        else
        {
-         collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+         collectionId = contentHostingService.getSiteCollection(toolManager.getCurrentPlacement().getContext());
        }
 
        writer.write("<table border=\"0\"><tr><td>");
@@ -285,7 +290,7 @@ public class InputRichTextRenderer extends Renderer
        writer.write("oFCKeditor.Width  = \"" + widthPx + "\" ;\n");
        writer.write("oFCKeditor.Height = \"" + heightPx + "\" ;\n");
 
-       if ("archival".equals(ServerConfigurationService.getString("tags.focus")))
+       if ("archival".equals(serverConfigurationService.getString("tags.focus")))
           writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/archival_config.js\";\n");
        else {
 
@@ -309,11 +314,11 @@ public class InputRichTextRenderer extends Renderer
          if(resourceSearch)
          {
          	// need to set document.__pid to placementId
-         	String placementId = ToolManager.getCurrentPlacement().getId();
+         	String placementId = toolManager.getCurrentPlacement().getId();
          	writer.write("\t\tdocument.__pid=\"" + placementId + "\";\n");
          	
          	// need to set document.__baseUrl to baseUrl
-         	String baseUrl = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placementId);
+         	String baseUrl = serverConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placementId);
          	writer.write("\t\tdocument.__baseUrl=\"" + baseUrl + "\";\n");
           	writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config_rs.js\";\n");
          }
