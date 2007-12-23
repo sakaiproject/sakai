@@ -72,6 +72,7 @@ public class IndexListenerCloser implements IndexListener
 
 	public void purge()
 	{
+		log.info("IndexCloser Purge has "+closeMap.size()+" open indexes ");
 		for (IndexCloser c : closeMap.values())
 		{
 			try
