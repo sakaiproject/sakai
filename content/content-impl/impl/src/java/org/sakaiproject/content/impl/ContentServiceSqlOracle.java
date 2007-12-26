@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/rsmart/dbrefactor/chat/chat-impl/impl/src/java/org/sakaiproject/chat/impl/ChatServiceSqlOracle.java $
- * $Id: ChatServiceSqlOracle.java 3560 2007-02-19 22:08:01Z jbush@rsmart.com $
+ * $URL: https://source.sakaiproject.org/svn/content/branches/SAK-12239/content-impl/impl/src/java/org/sakaiproject/content/impl/ContentServiceSqlOracle.java $
+ * $Id: ContentServiceSqlOracle.java 38956 2007-12-03 18:10:39Z jimeng@umich.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2007 The Sakai Foundation.
@@ -61,6 +61,15 @@ public class ContentServiceSqlOracle extends ContentServiceSqlDefault
 	public String getFilesizeColumnExistsSql() 
 	{
 		return "select column_name from user_tab_columns where table_name = 'CONTENT_RESOURCE' and column_name = 'FILE_SIZE'";
+	}
+
+	/**
+	 * returns the sql statement which inserts the individual-dropbox-id, site-level dropbox-id and last-update fields into the content_dropbox_changes table.
+	 */
+	public String getInsertIndividualDropboxChangeSql() 
+	{
+		return "merge into CONTENT_DROPBOX_CHANGES (DROPBOX_ID, IN_COLLECTION, LAST_UPDATE) using dual on (dual.dummy is not null and CONTENT_DROPBOX_CHANGES.DROPBOX_ID = ?) when not matched then insert values (?,?,?) when matched then update set CONTENT_DROPBOX_CHANGES.IN_COLLECTION = ?, LAST_UPDATE = ?";
+		// return "insert into CONTENT_DROPBOX_CHANGES (DROPBOX_ID, IN_COLLECTION, LAST_UPDATE) values (? , ? , ?) on duplicate key update IN_COLLECTION = ?, LAST_UPDATE = ?";
 	}
 
 }

@@ -1574,12 +1574,26 @@ public class DbContentService extends BaseContentService
 		{
 			String sql = contentServiceSql.getInsertIndividualDropboxChangeSql();
 			
-			Object[] fields = new Object[5];
-			fields[0] = individualDropboxId;
-			fields[1] = isolateContainingId(individualDropboxId);
-			fields[2] = Long.toString(TimeService.newTime().getTime());
-			fields[3] = isolateContainingId(individualDropboxId);
-			fields[4] = Long.toString(TimeService.newTime().getTime());
+			Object[] fields = null;
+			if("oracle".equalsIgnoreCase(m_sqlService.getVendor()))
+			{
+				fields = new Object[6];
+				fields[0] = individualDropboxId;
+				fields[1] = individualDropboxId;
+				fields[2] = isolateContainingId(individualDropboxId);
+				fields[3] = Long.toString(TimeService.newTime().getTime());
+				fields[4] = isolateContainingId(individualDropboxId);
+				fields[5] = Long.toString(TimeService.newTime().getTime());
+			}
+			else
+			{
+				fields = new Object[5];
+				fields[0] = individualDropboxId;
+				fields[1] = isolateContainingId(individualDropboxId);
+				fields[2] = Long.toString(TimeService.newTime().getTime());
+				fields[3] = isolateContainingId(individualDropboxId);
+				fields[4] = Long.toString(TimeService.newTime().getTime());
+			}
 			
 			boolean ok = m_sqlService.dbWrite(sql, fields);
 			
