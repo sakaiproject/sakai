@@ -22,6 +22,7 @@
 package org.sakaiproject.announcement.impl;
 
 import java.io.PrintWriter;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -79,6 +80,8 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.alias.api.Alias;
+import org.sakaiproject.alias.cover.AliasService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -484,7 +487,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			String context = null;
 			String container = null;
 
-			// the first part will be null, then next the service, the third will be "msg" or "channel"
+			// the first part will be null, then next the service, the third will be: "msg", "channel", "announcement" or "rss"
 			if (parts.length > 2)
 			{
 				subType = parts[2];
@@ -512,6 +515,12 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 						id = parts[5];
 					}
 				}
+				else if (REF_TYPE_ANNOUNCEMENT_RSS.equals(subType) || REF_TYPE_ANNOUNCEMENT.equals(subType))
+				{
+					// next is the context id
+					if (parts.length > 3)
+						context = parts[3];
+				}
 				else
 					M_log.warn("parse(): unknown message subtype: " + subType + " in ref: " + reference);
 			}
@@ -523,7 +532,48 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 
 		return false;
 	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public Reference getAnnouncementReference(String context)
+	{
+      StringBuilder refString = new StringBuilder();
+		refString.append(getAccessPoint(true));
+		refString.append(Entity.SEPARATOR);
+		refString.append(REF_TYPE_ANNOUNCEMENT);
+		refString.append(Entity.SEPARATOR);
+		refString.append(context);
+		
+		return  m_entityManager.newReference( refString.toString() );
+	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public String getRssUrl(Reference ref) 
+	{
+      String alias = null;
+      List aliasList =  AliasService.getAliases( ref.getReference() );
+		
+      if ( ! aliasList.isEmpty() )
+         alias = ((Alias)aliasList.get(0)).getId();
+         
+      StringBuilder rssUrlString = new StringBuilder();
+		rssUrlString.append( m_serverConfigurationService.getAccessUrl() );
+		rssUrlString.append(getAccessPoint(true));
+		rssUrlString.append(Entity.SEPARATOR);
+		rssUrlString.append(REF_TYPE_ANNOUNCEMENT_RSS);
+		rssUrlString.append(Entity.SEPARATOR);
+
+      if ( alias != null)
+   		rssUrlString.append(alias);
+      else
+			rssUrlString.append(ref.getContext());
+			
+		return rssUrlString.toString();
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -556,6 +606,72 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 		String[] toolIds = { "sakai.announcements" };
 		return toolIds;
 	}
+	
+	/**
+	 **
+	 **/
+	protected void printAnnouncementRss( PrintWriter out, Reference ref)
+	{
+	   out.print("<html><body><h1>This could be an RSS feed<h1></body></html>");
+	}
+
+	/**
+	 **
+	 **/
+	protected void printAnnouncementHtml( PrintWriter out, Reference ref )
+		throws EntityPermissionException, EntityNotDefinedException
+	{
+		try
+		{
+			// check security on the message (throws if not permitted)
+			unlock(SECURE_READ, ref.getReference());
+			
+			AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
+			AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
+
+			out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+							+ "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n"
+							+ "<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
+							+ "<style type=\"text/css\">body{margin:0px;padding:1em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:80%;}</style>\n"
+							+ "<title>"
+							+ rb.getString("announcement")
+							+ ": "
+							+ Validator.escapeHtml(hdr.getSubject())
+							+ "</title>" + "</head>\n<body>");
+
+			out.println("<h1>" + rb.getString("announcement") + "</h1>");
+
+			// header
+			out.println("<table><tr><td><b>" + rb.getString("from") + ":</b></td><td>"
+					+ Validator.escapeHtml(hdr.getFrom().getDisplayName()) + "</td></tr>");
+			out.println("<tr><td><b>" + rb.getString("date") + ":</b></td><td>" + Validator.escapeHtml(hdr.getDate().toStringLocalFull())
+					+ "</td></tr>");
+			out.println("<tr><td><b>" + rb.getString("subject") + ":</b></td><td>" + Validator.escapeHtml(hdr.getSubject()) + "</td></tr></table>");
+
+			// body
+			out.println("<p>" + Validator.escapeHtmlFormattedText(msg.getBody()) + "</p>");
+
+			// attachments
+			List attachments = hdr.getAttachments();
+			if (attachments.size() > 0)
+			{
+				out.println("<p><b>" + rb.getString("attachments") + ":</b></p><p>");
+				for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
+				{
+					Reference attachment = (Reference) iAttachments.next();
+					out.println("<a href=\"" + Validator.escapeHtml(attachment.getUrl()) + "\">"
+							+ Validator.escapeHtml(attachment.getUrl()) + "</a><br />");
+				}
+				out.println("</p>");
+			}
+
+			out.println("</body></html>");
+		}
+		catch (PermissionException e)
+		{
+			throw new EntityPermissionException(e.getUser(), e.getLock(), e.getResource());
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -564,69 +680,30 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	{
 		return new HttpAccess()
 		{
-			public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref,
-					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
-					EntityAccessOverloadException, EntityCopyrightException
+			public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref, Collection copyrightAcceptedRefs) 
+				throws EntityPermissionException, EntityNotDefinedException //, EntityAccessOverloadException, EntityCopyrightException
 			{
-				/** Resource bundle using current language locale */
-				// final ResourceBundle rb = ResourceBundle.getBundle("access");
-				// check security on the message (throws if not permitted)
+				// we only access the msg & rss reference
+				if ( !REF_TYPE_MESSAGE.equals(ref.getSubType()) &&
+					  !REF_TYPE_ANNOUNCEMENT_RSS.equals(ref.getSubType()) ) 
+						throw new EntityNotDefinedException(ref.getReference());
+						
 				try
 				{
-					unlock(SECURE_READ, ref.getReference());
-				}
-				catch (PermissionException e)
-				{
-					throw new EntityPermissionException(e.getUser(), e.getLock(), e.getResource());
-				}
-
-				try
-				{
-					AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
-					AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
-
-					res.setContentType("text/html; charset=UTF-8");
 					PrintWriter out = res.getWriter();
-					out
-							.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
-									+ "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n"
-									+ "<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
-									+ "<style type=\"text/css\">body{margin:0px;padding:1em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:80%;}</style>\n"
-									+ "<title>"
-									+ rb.getString("announcement")
-									+ ": "
-									+ Validator.escapeHtml(hdr.getSubject())
-									+ "</title>" + "</head>\n<body>");
-
-					out.println("<h1>" + rb.getString("announcement") + "</h1>");
-
-					// header
-					out.println("<table><tr><td><b>" + rb.getString("from") + ":</b></td><td>"
-							+ Validator.escapeHtml(hdr.getFrom().getDisplayName()) + "</td></tr>");
-					out.println("<tr><td><b>" + rb.getString("date") + ":</b></td><td>" + Validator.escapeHtml(hdr.getDate().toStringLocalFull())
-							+ "</td></tr>");
-					out.println("<tr><td><b>" + rb.getString("subject") + ":</b></td><td>" + Validator.escapeHtml(hdr.getSubject()) + "</td></tr></table>");
-
-					// body
-					out.println("<p>" + Validator.escapeHtmlFormattedText(msg.getBody()) + "</p>");
-
-					// attachments
-					List attachments = hdr.getAttachments();
-					if (attachments.size() > 0)
+					if ( REF_TYPE_MESSAGE.equals(ref.getSubType()) )
 					{
-						out.println("<p><b>" + rb.getString("attachments") + ":</b></p><p>");
-						for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
-						{
-							Reference attachment = (Reference) iAttachments.next();
-							out.println("<a href=\"" + Validator.escapeHtml(attachment.getUrl()) + "\">"
-									+ Validator.escapeHtml(attachment.getUrl()) + "</a><br />");
-						}
-						out.println("</p>");
+						res.setContentType("text/html; charset=UTF-8");
+						printAnnouncementHtml( out, ref );
 					}
-
-					out.println("</body></html>");
+					else
+					{
+						// tbd
+						res.setContentType("text/html; charset=UTF-8");
+						printAnnouncementRss( out, ref );
+					}
 				}
-				catch (Throwable t)
+				catch ( IOException e )
 				{
 					throw new EntityNotDefinedException(ref.getReference());
 				}

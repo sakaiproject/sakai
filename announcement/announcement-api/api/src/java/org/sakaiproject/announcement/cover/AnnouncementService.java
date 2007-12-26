@@ -22,6 +22,7 @@
 package org.sakaiproject.announcement.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.Reference;
 
 /**
  * <p>
@@ -291,13 +292,29 @@ public class AnnouncementService
 		return service.archive(param0, param1, param2, param3, param4);
 	}
 
-        public static java.util.Map getSummary( java.lang.String param0, int param1, int param2)
-                        throws org.sakaiproject.exception.IdUsedException, org.sakaiproject.exception.IdInvalidException,
-                        org.sakaiproject.exception.PermissionException
-        {
-                org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
-                if (service == null) return null;
+	public static java.util.Map getSummary( java.lang.String param0, int param1, int param2)
+								throws org.sakaiproject.exception.IdUsedException, org.sakaiproject.exception.IdInvalidException,
+										 org.sakaiproject.exception.PermissionException
+	{
+		org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
+		if (service == null) return null;
 
-                return service.getSummary(param0, param1, param2);
-        }
+		return service.getSummary(param0, param1, param2);
+	}
+	  
+	public static Reference getAnnouncementReference(String param0)
+	{
+		org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
+		if (service == null) return null;
+
+		return service.getAnnouncementReference(param0);
+	}
+	
+	public static String getRssUrl(Reference param0)
+	{
+		org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
+		if (service == null) return null;
+
+		return service.getRssUrl(param0);
+	}
 }

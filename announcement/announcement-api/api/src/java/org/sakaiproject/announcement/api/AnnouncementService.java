@@ -22,6 +22,7 @@
 package org.sakaiproject.announcement.api;
 
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -57,8 +58,14 @@ public interface AnnouncementService extends MessageService
 	/** The type string for this application: should not change over time as it may be stored in various parts of persistent entities. */
 	static final String APPLICATION_ID = "sakai:announcement";
 
+	/** The Reference type for an announcement */
+	public static final String REF_TYPE_ANNOUNCEMENT = "announcement";
+	
+	/** The Reference type for an announcement rss feed */
+	public static final String REF_TYPE_ANNOUNCEMENT_RSS = "rss";
+	
 	/** This string starts the references to resources in this service. */
-	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "announcement";
+	public static final String REFERENCE_ROOT = Entity.SEPARATOR + REF_TYPE_ANNOUNCEMENT;
 
 	/** Security lock / event root for generic message events to make it a mail event. */
 	public static final String SECURE_ANNC_ROOT = "annc.";
@@ -116,4 +123,17 @@ public interface AnnouncementService extends MessageService
 	public AnnouncementChannelEdit addAnnouncementChannel(String ref) throws IdUsedException, IdInvalidException,
 			PermissionException;
 
+	/**
+	* Get announcement entity reference for given context
+	* @param context announcement context (site-id)
+	* @return announcement entity reference
+	*/
+	public Reference getAnnouncementReference(String context);
+	
+	/**
+	* Get URL to access the announcement rss feed
+	* @param ref The announcement entity reference
+	* @return URL for announcement rss feed
+	*/
+	public String getRssUrl(Reference ref);
 }
