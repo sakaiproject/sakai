@@ -68,7 +68,7 @@ public class ContentServiceSqlOracle extends ContentServiceSqlDefault
 	 */
 	public String getInsertIndividualDropboxChangeSql() 
 	{
-		return "merge into CONTENT_DROPBOX_CHANGES (DROPBOX_ID, IN_COLLECTION, LAST_UPDATE) using dual on (dual.dummy is not null and CONTENT_DROPBOX_CHANGES.DROPBOX_ID = ?) when not matched then insert values (?,?,?) when matched then update set CONTENT_DROPBOX_CHANGES.IN_COLLECTION = ?, LAST_UPDATE = ?";
+		return "merge into CONTENT_DROPBOX_CHANGES using dual on (dual.dummy is not null and CONTENT_DROPBOX_CHANGES.DROPBOX_ID = ?) when not matched then insert values (CONTENT_DROPBOX_CHANGES.DROPBOX_ID = ?,IN_COLLECTION = ?,LAST_UPDATE = ?) when matched then update set CONTENT_DROPBOX_CHANGES.IN_COLLECTION = ?, LAST_UPDATE = ?";
 		// return "insert into CONTENT_DROPBOX_CHANGES (DROPBOX_ID, IN_COLLECTION, LAST_UPDATE) values (? , ? , ?) on duplicate key update IN_COLLECTION = ?, LAST_UPDATE = ?";
 	}
 
