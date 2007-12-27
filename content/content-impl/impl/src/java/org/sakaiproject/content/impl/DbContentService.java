@@ -1595,7 +1595,14 @@ public class DbContentService extends BaseContentService
 				fields[4] = Long.toString(TimeService.newTime().getTime());
 			}
 			
-			boolean ok = m_sqlService.dbWrite(sql, fields);
+			try
+			{
+				boolean ok = m_sqlService.dbWrite(sql, fields);
+			}
+			catch(Exception e)
+			{
+				M_log.warn("sql == " + sql, e);
+			}
 			
 		}
 
