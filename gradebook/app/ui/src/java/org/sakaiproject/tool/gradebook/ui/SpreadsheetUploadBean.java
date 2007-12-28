@@ -892,12 +892,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         		pointsPossibleAsString = parsedPointsPossible[0].trim();
         	}
         	
-        	index++;
-
         	// probably last column but not sure, so continue
         	if (getLocalizedString(CUMULATIVE_GRADE_STRING).equals(assignmentName)) {
         		continue;
         	}        	
+        	
+        	index++;
         	
         	// Get Assignment object from assignment name
         	Assignment assignment = getAssignmentByName(grAssignments, assignmentName);
@@ -946,30 +946,33 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
            				// checked when imported from user's system so should not happen at this point.
            			}
            			
-           			String inputScore = (String)line.get(index);
-           			if(line.size() > index && inputScore != null && inputScore.trim().length() > 0) {
-               			Double scoreAsDouble = null;
-               			String scoreAsString = inputScore.trim();
+           			if(line.size() > index) {
+               			String inputScore = (String)line.get(index);
+               			
+               			if (inputScore != null && inputScore.trim().length() > 0) {
+           					Double scoreAsDouble = null;
+           					String scoreAsString = inputScore.trim();
            				
-           				// truncate input points/% to 2 decimal places
-       					if (getGradeEntryByPoints() || getGradeEntryByPercent()) {
-       						scoreAsDouble = new Double(FacesUtil.getRoundDown((new Double(inputScore)).doubleValue(), 2));	
-       					} else if (getGradeEntryByLetter()){
-       						scoreAsString = (String)inputScore;
-       					}
+           					// truncate input points/% to 2 decimal places
+           					if (getGradeEntryByPoints() || getGradeEntryByPercent()) {
+           						scoreAsDouble = new Double(FacesUtil.getRoundDown((new Double(inputScore)).doubleValue(), 2));	
+           					} else if (getGradeEntryByLetter()){
+           						scoreAsString = (String)inputScore;
+           					}
 
-           				if(logger.isDebugEnabled())logger.debug("user "+user + " userid " + userid +" score "+inputScore.toString());
+           					if(logger.isDebugEnabled())logger.debug("user "+user + " userid " + userid +" score "+inputScore.toString());
                			
-               			AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,userid, null);
+           					AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,userid, null);
                			
-               			if (getGradeEntryByLetter()) {
-               				asnGradeRecord.setLetterEarned(scoreAsString.trim());
-               				gradeRecords.add(asnGradeRecord);
-               			} else {
-           					asnGradeRecord.setPercentEarned(scoreAsDouble);
-                        	asnGradeRecord.setPointsEarned(scoreAsDouble);
-                        	gradeRecords.add(asnGradeRecord);
-               			}
+           					if (getGradeEntryByLetter()) {
+           						asnGradeRecord.setLetterEarned(scoreAsString.trim());
+           						gradeRecords.add(asnGradeRecord);
+           					} else {
+           						asnGradeRecord.setPercentEarned(scoreAsDouble);
+           						asnGradeRecord.setPointsEarned(scoreAsDouble);
+           						gradeRecords.add(asnGradeRecord);
+           					}
+           				}
            			}
            			
            			i++;
