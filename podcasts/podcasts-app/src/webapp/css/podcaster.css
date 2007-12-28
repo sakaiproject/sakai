@@ -4,7 +4,7 @@ body {
 
 .indnt1 {
     position: relative;
-    left: 15px;
+    left: 21px;
 }
 
 .indnt2 {
@@ -43,4 +43,10 @@ body {
   background-color: #ffffcc;
   border: 1px dotted #003366;
   line-height: 100%;
+}
+
+url {
+	position: relative;
+	left: 15px;
+	margin: .5em 0;
 }

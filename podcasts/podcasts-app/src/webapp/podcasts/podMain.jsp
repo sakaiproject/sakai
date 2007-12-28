@@ -5,65 +5,67 @@
 
 <f:loadBundle basename="org.sakaiproject.api.podcasts.bundle.Messages" var="msgs"/>
 
-   <f:view> 
-     <sakai:view title="#{msgs.podcast_home_title}" toolCssHref="./css/podcaster.css"> 
-       <script type="text/javascript" language="JavaScript" src="scripts/popupscripts.js"></script>
+<f:view> 
+	<sakai:view title="#{msgs.podcast_home_title}" toolCssHref="css/podcaster.css"> 
+	<script type="text/javascript" language="JavaScript" src="scripts/popupscripts.js"></script>
 
-      <h:form>
-      
-      <%-- if Resources tool not exist, if instructor, display error message
+	<h:form>
+
+    <%-- if Resources tool not exist, if instructor, display error message
       		if student, display no podcasts exists --%>
-      <h:panelGroup rendered="#{! podHomeBean.resourceToolExists || ! podHomeBean.canAccessFolder}" >
-      	<%@ include file="podNoResource.jsp" %>
-      </h:panelGroup>
+    <h:panelGroup rendered="#{! podHomeBean.resourceToolExists || ! podHomeBean.canAccessFolder}" >
+    	<%@ include file="podNoResource.jsp" %>
+    </h:panelGroup>
 
-	  <h:panelGroup rendered="#{podHomeBean.resourceToolExists && podHomeBean.canAccessFolder}">
-	  
-    	  <sakai:tool_bar rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasNewPerm}">
+	<h:panelGroup rendered="#{podHomeBean.resourceToolExists && podHomeBean.canAccessFolder}" >
+		<sakai:tool_bar rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasNewPerm}">
         	  <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" />
 	          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.canUpdateSite}" />
 			  <sakai:tool_bar_item action="#{podHomeBean.processPermissions}" value="#{msgs.permissions}" rendered="#{podHomeBean.canUpdateSite}" /> 
-		  </sakai:tool_bar>
+		</sakai:tool_bar>
+
+		<h:outputText value="#{msgs.no_access}" styleClass="validation" rendered="#{! podHomeBean.hasAllGroups && ! podHomeBean.hasReadPerm }" />
       
-      <h:outputText value="#{msgs.no_access}" styleClass="validation" rendered="#{! podHomeBean.hasAllGroups && ! podHomeBean.hasReadPerm }" />
-      
-      <h:panelGroup rendered="#{podHomeBean.hasReadPerm || podHomeBean.hasAllGroups}" > 	  
- 	  	<f:verbatim><div></f:verbatim>
- 	  	  <h:messages styleClass="alertMessage" id="errorMessages"/> 
- 	      <f:verbatim><h3></f:verbatim>
- 	        <h:outputText value="#{msgs.podcast_home_title}" />
- 	      <f:verbatim></h3></div></f:verbatim>
- 	     
- 	      <f:verbatim><div class="instruction indnt1"></f:verbatim>
-			  <h:outputText value="#{msgs.podcast_home_sub} " />
- 
- 	          <h:outputLink styleClass="active" onclick="showPopupHere(this,'podcatcher'); return false;"
-                  onmouseover="this.style.cursor='pointer'; return false;" onmouseout="hidePopup('podcatcher');">
-	          	   <h:outputText value="#{msgs.podcatcher}#{msgs.colon}" />
-	          </h:outputLink>
- 	        <f:verbatim></span></div><br /></f:verbatim>
+		<h:panelGroup rendered="#{podHomeBean.hasReadPerm || podHomeBean.hasAllGroups}"> 
+			<h:panelGrid>
+ 	  	  		<h:messages styleClass="alertMessage" id="errorMessages"/>
+				<h:panelGroup> 
+	 	      		<f:verbatim><h3></f:verbatim>
+ 		        	<h:outputText value="#{msgs.podcast_home_title}" />
+ 	    			<f:verbatim></h3></f:verbatim>
+ 	      		</h:panelGroup>
+ 	  		</h:panelGrid>
+ 	    </h:panelGroup>
+   		<f:verbatim><br /></f:verbatim>
 
- 	     <h:outputText value="#{podHomeBean.URL}" styleClass="indnt1" />
-     
-     	<h:outputLink value="#{podHomeBean.URL}" styleClass="active indnt1 rssIcon" target="_blank">
-<%--       <h:graphicImage value="images/rss-feed-icon.png" /> --%>
- 	       <h:graphicImage value="/../library/image/feed.png" />
- 	    </h:outputLink>
-		 <f:verbatim><br /></f:verbatim> 
+			<h:panelGroup styleClass="instruction indnt1" rendered="#{podHomeBean.hasReadPerm || podHomeBean.hasAllGroups}">
+		  		<h:outputText value="#{msgs.podcast_home_sub} " />
+	 	   		<h:outputLink styleClass="active" onclick="showPopupHere(this,'podcatcher'); return false;"
+            		onmouseover="this.style.cursor='pointer'; return false;" onmouseout="hidePopup('podcatcher');" >
+						<h:outputText value="#{msgs.podcatcher}#{msgs.colon}" />
+	      		</h:outputLink>
+	  		</h:panelGroup>
+ 	  		<f:verbatim><br /><br /></f:verbatim>
 
- 	     <h:commandLink action="podfeedRevise" styleClass="indnt2" rendered="#{podHomeBean.canUpdateSite}" >
- 	         <h:outputText value="#{msgs.revise}" />
- 	     </h:commandLink>
- 	    <f:verbatim></div> 
+		<h:panelGroup rendered="#{podHomeBean.hasReadPerm || podHomeBean.hasAllGroups}" styleClass="indnt1"> 
+			<h:outputText value="#{podHomeBean.URL}" />
+			<h:outputLink value="#{podHomeBean.URL}" styleClass="active indnt2 rssIcon" target="_blank">
+ 	       		<h:graphicImage value="/../library/image/feed.png" />
+      		</h:outputLink>
+	  		<f:verbatim><br /></f:verbatim> 
 
-		<div class="indnt1">
-    	  <br /></f:verbatim>
-          <h:outputText  styleClass="instruction" value="#{msgs.no_podcasts}" rendered="#{!podHomeBean.actPodcastsExist}" />
-    	<f:verbatim></div>
- 
+			<h:commandLink action="podfeedRevise" styleClass="indnt2" rendered="#{podHomeBean.canUpdateSite}" >
+ 	      		<h:outputText value="#{msgs.revise}" />
+	 		</h:commandLink>
+ 	  		<f:verbatim><br /></f:verbatim>
+
+          	<h:outputText  styleClass="instruction" value="#{msgs.no_podcasts}" rendered="#{!podHomeBean.actPodcastsExist}" />
+			<f:verbatim><br /></f:verbatim>
+ 		  </h:panelGroup>
+      </h:panelGroup>
+ 	 
 	<!-- if there are podcasts, display their information here -->
-    	<div id="podcast_info" class="indnt1" ></f:verbatim>
-      	  <h:dataTable value="#{podHomeBean.contents}" var="eachPodcast" rendered="#{podHomeBean.actPodcastsExist}" >
+      	  <h:dataTable value="#{podHomeBean.contents}" var="eachPodcast" rendered="#{podHomeBean.actPodcastsExist}" styleClass="indnt1" >
           <h:column>
           	<h:panelGrid rendered="#{! eachPodcast.hidden || podHomeBean.hasHidden}">
 	            <h:outputText value="#{eachPodcast.displayDate}" styleClass="podDateFormat" />
@@ -93,7 +95,7 @@
             	        rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
                 	<f:param name="resourceId" value="#{eachPodcast.resourceId}" />
 	              </h:commandLink>
-    	          </h:panelGroup>
+    	        </h:panelGroup>
 
 	            <h:panelGroup>
     	          <h:outputText value="#{msgs.posted_by}" />
@@ -106,11 +108,7 @@
               </h:panelGrid>
             </h:column>
       	  </h:dataTable>
-        <f:verbatim></div></f:verbatim>
- 	  </h:panelGroup>
- 	
-      </h:panelGroup>  	
-    </h:form>
+      </h:form> 
  
     <!-- This is the div for the popup definition. It is not displayed until the element is moused over -->
     <div id="podcatcher" class="podcatcher_popup" 
@@ -118,5 +116,5 @@
   	  <h:outputText value="#{msgs.popup_text}" />
     </div>
    </sakai:view> 
-  </f:view> 
+  </f:view>
  
