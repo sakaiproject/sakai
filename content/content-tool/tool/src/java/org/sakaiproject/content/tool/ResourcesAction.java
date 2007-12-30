@@ -1387,27 +1387,27 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				catch(OverQuotaException e)
 				{
 					addAlert(trb.getFormattedMessage("alert.overquota", new String[]{name}));
-					logger.warn("OverQuotaException " + e);
+					logger.debug("OverQuotaException " + e);
 					try
 					{
 						ContentHostingService.removeResource(resource.getId());
 					}
 					catch(Exception e1)
 					{
-						logger.warn("Unable to remove partially completed resource: " + resource.getId(), e); 
+						logger.debug("Unable to remove partially completed resource: " + resource.getId() + "\n" + e); 
 					}
 				}
 				catch(ServerOverloadException e)
 				{
 					addAlert(trb.getFormattedMessage("alert.unable1", new String[]{name}));
-					logger.warn("ServerOverloadException " + e);
+					logger.debug("ServerOverloadException " + e);
 					try
 					{
 						ContentHostingService.removeResource(resource.getId());
 					}
 					catch(Exception e1)
 					{
-						logger.warn("Unable to remove partially completed resource: " + resource.getId(), e); 
+						logger.debug("Unable to remove partially completed resource: " + resource.getId() + "\n" + e); 
 					}
 				}
 			}
@@ -1745,27 +1745,27 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				catch(OverQuotaException e)
 				{
 					addAlert(trb.getFormattedMessage("alert.overquota", new String[]{displayName}));
-					logger.warn("OverQuotaException " + e);
+					logger.debug("OverQuotaException " + e);
 					try
 					{
 						ContentHostingService.removeResource(resource.getId());
 					}
 					catch(Exception e1)
 					{
-						logger.warn("Unable to remove partially completed resource: " + resource.getId(), e); 
+						logger.debug("Unable to remove partially completed resource: " + resource.getId(), e); 
 					}
 				}
 				catch(ServerOverloadException e)
 				{
 					addAlert(trb.getFormattedMessage("alert.unable1", new String[]{displayName}));
-					logger.warn("ServerOverloadException " + e);
+					logger.debug("ServerOverloadException " + e);
 					try
 					{
 						ContentHostingService.removeResource(resource.getId());
 					}
 					catch(Exception e1)
 					{
-						logger.warn("Unable to remove partially completed resource: " + resource.getId(), e); 
+						logger.debug("Unable to remove partially completed resource: " + resource.getId(), e); 
 					}
 				}
 			}	// if-else
@@ -5641,27 +5641,27 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					catch(OverQuotaException e)
 					{
 						addAlert(trb.getFormattedMessage("alert.overquota", new String[]{resource.getId()}));
-						logger.warn("OverQuotaException " + e);
+						logger.debug("OverQuotaException " + e);
 						try
 						{
 							ContentHostingService.removeResource(resource.getId());
 						}
 						catch(Exception e1)
 						{
-							logger.warn("Unable to remove partially completed resource: " + resource.getId(), e); 
+							logger.debug("Unable to remove partially completed resource: " + resource.getId() + "\n" + e); 
 						}
 					}
 					catch(ServerOverloadException e)
 					{
 						addAlert(trb.getFormattedMessage("alert.unable1", new String[]{resource.getId()}));
-						logger.warn("ServerOverloadException " + e);
+						logger.debug("ServerOverloadException " + e);
 						try
 						{
 							ContentHostingService.removeResource(resource.getId());
 						}
 						catch(Exception e1)
 						{
-							logger.warn("Unable to remove partially completed resource: " + resource.getId(), e); 
+							logger.debug("Unable to remove partially completed resource: " + resource.getId() + "\n" + e); 
 						}
 					}
 				}
@@ -8314,27 +8314,27 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				catch(OverQuotaException e)
 				{
 					addAlert(trb.getFormattedMessage("alert.overquota", new String[]{name}));
-					logger.warn("OverQuotaException " + e);
+					logger.debug("OverQuotaException " + e);
 					try
 					{
 						ContentHostingService.removeResource(resource.getId());
 					}
 					catch(Exception e1)
 					{
-						logger.warn("Unable to remove partially completed resource: " + resource.getId(), e); 
+						logger.debug("Unable to remove partially completed resource: " + resource.getId() + "\n" + e); 
 					}
 				}
 				catch(ServerOverloadException e)
 				{
 					addAlert(trb.getFormattedMessage("alert.unable1", new String[]{name}));
-					logger.warn("ServerOverloadException " + e);
+					logger.debug("ServerOverloadException " + e);
 					try
 					{
 						ContentHostingService.removeResource(resource.getId());
 					}
 					catch(Exception e1)
 					{
-						logger.warn("Unable to remove partially completed resource: " + resource.getId(), e); 
+						logger.debug("Unable to remove partially completed resource: " + resource.getId() + "\n" + e); 
 					}
 				}
 			}
