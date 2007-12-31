@@ -4009,6 +4009,27 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			addAlert(state, rb.getString("thiasshas"));
 		}
+		
+		// assignment range?
+		String range = data.getParameters().getString("range");
+		state.setAttribute(NEW_ASSIGNMENT_RANGE, range);
+		if (range.equals("groups"))
+		{
+			String[] groupChoice = data.getParameters().getStrings("selectedGroups");
+			if (groupChoice != null && groupChoice.length != 0)
+			{
+				state.setAttribute(NEW_ASSIGNMENT_GROUPS, new ArrayList(Arrays.asList(groupChoice)));
+			}
+			else
+			{
+				state.setAttribute(NEW_ASSIGNMENT_GROUPS, null);
+				addAlert(state, rb.getString("java.alert.youchoosegroup"));
+			}
+		}
+		else
+		{
+			state.removeAttribute(NEW_ASSIGNMENT_GROUPS);
+		}
 
 		if (state.getAttribute(WITH_GRADES) != null && ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue())
 		{
@@ -4036,27 +4057,6 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 				}
 			}
-		}
-
-		// assignment range?
-		String range = data.getParameters().getString("range");
-		state.setAttribute(NEW_ASSIGNMENT_RANGE, range);
-		if (range.equals("groups"))
-		{
-			String[] groupChoice = data.getParameters().getStrings("selectedGroups");
-			if (groupChoice != null && groupChoice.length != 0)
-			{
-				state.setAttribute(NEW_ASSIGNMENT_GROUPS, new ArrayList(Arrays.asList(groupChoice)));
-			}
-			else
-			{
-				state.setAttribute(NEW_ASSIGNMENT_GROUPS, null);
-				addAlert(state, rb.getString("java.alert.youchoosegroup"));
-			}
-		}
-		else
-		{
-			state.removeAttribute(NEW_ASSIGNMENT_GROUPS);
 		}
 		
 		// allow resubmission numbers
