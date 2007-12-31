@@ -255,7 +255,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new AssessmentNotFoundException("There is no assignment with the gbItemId " + gbItemId);
 		}
 		
-		return getAssignmentScore(gradebookUid, gbItemId, assignment.getName());
+		return getAssignmentScore(gradebookUid, assignment.getName(), studentUid);
 	}
 
 	public void setAssignmentScore(final String gradebookUid, final String assignmentName, final String studentUid, final Double score, final String clientServiceDescription)
