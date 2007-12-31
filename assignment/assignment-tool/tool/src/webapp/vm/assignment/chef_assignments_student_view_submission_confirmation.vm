@@ -13,10 +13,15 @@
 	#else
 		$tlang.getString('confirm.savesubmission.success')
 	#end
-	#if ($!email_confirmation && $!submitted) 
-	$tlang.getString('confirm.submission.email')
-	#end
 </p>
+	#if ($!email_confirmation && $!submitted)	 
+  #if ($!user_email)	 
+  	<p class="success">$tlang.getString('confirm.submission.email')</p>
+  #else	 
+   ## no email could be sent due to the missing recipent email address	 
+   <p class="alertMessage">$tlang.getString('confirm.submission.email.noEmailAddress')</p>	 
+  #end	 
+ #end
 	<form name="addSubmissionForm" action="#toolForm($action)" method="post" onsubmit="return true;">
 		<table class="itemSummary" border="0" cellspacing="0" summary="$tlang.getString('confirm.submission.title')" summary="layout">
 			## user
