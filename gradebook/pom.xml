@@ -22,6 +22,7 @@
   <modules>
     <module>help</module>
     <module>testservice-tool</module>
+    <module>helper-app</module>
     <module>app</module>
     <module>service</module>
     <module>sample-course-grade-converter</module>

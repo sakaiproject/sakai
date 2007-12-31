@@ -11,6 +11,7 @@
     <bean id="GradebookEntryEntityProvider" class="org.sakaiproject.gradebook.tool.entity.GradebookEntryEntityProvider"
       init-method="init" destroy-method="destroy">
       <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
+      <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
     </bean>
     
        <!-- handles configuration of internationalization messages -->

@@ -8,6 +8,7 @@
     <groupId>org.sakaiproject</groupId>
     <artifactId>gradebook-base</artifactId>
     <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-gradebook-helper-item-tool</name>
   <groupId>org.sakaiproject</groupId>
@@ -32,6 +33,15 @@
     </repository>
   </repositories>
   <dependencies>
+	
+	<!--  added these now trouble -->
+	<dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-gradebook-service-api</artifactId>
+      <version>${sakai.version}</version>
+      <!-- <scope>provided</scope> -->
+    </dependency>
+
     <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
       <artifactId>SakaiRSFComponents-templates</artifactId>
@@ -62,14 +72,6 @@
 		<version>${rsfutil.version}</version>
 		<type>war</type>
 	</dependency>
-	
-	<!--  added these now trouble -->
-	<dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-app-business</artifactId>
-      <version>${sakai.version}</version>
-      <scope>provided</scope>
-    </dependency>
         
     <!-- Sakai dependencies (all RSF apps must have this) -->
     <dependency>

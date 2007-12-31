@@ -9,6 +9,9 @@
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="dateEvolver" ref="fieldDateInputEvolver" />
 		<property name="messageLocator" ref="messageLocator" />
+		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+	</bean>
+	<bean class="org.sakaiproject.gradebook.tool.helper.PermissionsErrorProducer" >
 	</bean>
 	
 	   

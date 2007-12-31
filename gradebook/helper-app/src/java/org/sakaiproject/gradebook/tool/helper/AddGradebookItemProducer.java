@@ -2,6 +2,9 @@ package org.sakaiproject.gradebook.tool.helper;
 
 import java.util.Date;
 
+import org.sakaiproject.gradebook.tool.params.AddGradebookItemViewParams;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 
@@ -19,9 +22,10 @@ import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.DefaultView;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 public class AddGradebookItemProducer implements // DynamicNavigationCaseReporter, 
-ViewComponentProducer, DefaultView {
+ViewComponentProducer, ViewParamsReporter, DefaultView {
 
     public static final String VIEW_ID = "add-gradebook-item";
     public String getViewID() {
@@ -33,6 +37,7 @@ ViewComponentProducer, DefaultView {
     private MessageLocator messageLocator;
     private ToolManager toolManager;
     private SessionManager sessionManager;
+    private GradebookService gradebookService;
     
     
 	/*
@@ -47,10 +52,19 @@ ViewComponentProducer, DefaultView {
 	public void setDateEvolver(FormatAwareDateInputEvolver dateEvolver) {
 		this.dateEvolver = dateEvolver;
 	}
+	
+    private SiteService siteService;
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
+    }
     
     
     public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
+    	AddGradebookItemViewParams params = (AddGradebookItemViewParams) viewparams;
 
+    	//Gradebook Info
+    	String xml = gradebookService.getGradebookDefinitionXml(params.contextId);
+    	
         //set dateEvolver
         dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);
         Date date = new Date();
@@ -82,9 +96,13 @@ ViewComponentProducer, DefaultView {
         
         //Action Buttons
         UICommand.make(form, "add_item", UIMessage.make("gradebook.add-gradebook-item.add_item"), "#{GradebookItemBean.processActionAddItem}");
-        UICommand.make(form, "cancel", UIMessage.make("gradebook.add-gradebook-item.cancel"), null); //"#{GradebookItemBean.processActionCancel}");
+        UICommand.make(form, "cancel", UIMessage.make("gradebook.add-gradebook-item.cancel"), "#{GradebookItemBean.processActionCancel}");
     }
 
+    public ViewParameters getViewParameters() {
+        return new AddGradebookItemViewParams();
+    }
+    
     public void setMessageLocator(MessageLocator messageLocator) {
         this.messageLocator = messageLocator;
     }
@@ -109,5 +127,9 @@ ViewComponentProducer, DefaultView {
 	public void setSessionManager(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
 	}
+	
+    public void setGradebookService(GradebookService gradebookService) {
+    	this.gradebookService = gradebookService;
+    }
     
 }
