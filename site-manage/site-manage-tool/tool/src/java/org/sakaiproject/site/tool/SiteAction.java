@@ -7139,6 +7139,32 @@ public class SiteAction extends PagedResourceActionII {
 		
 		// the cm request course into properties
 		setSiteSectionProperty(cmRequestedCourseList, site, STATE_CM_REQUESTED_SECTIONS);
+		
+		// clean the related site groups
+		// if the group realm provider id is not listed for the site, remove the related group
+		for (Iterator iGroups = site.getGroups().iterator(); iGroups.hasNext();)
+		{
+			Group group = (Group) iGroups.next();
+			try
+			{
+				AuthzGroup gRealm = AuthzGroupService.getAuthzGroup(group.getReference());
+				String gProviderId = StringUtil.trimToNull(gRealm.getProviderGroupId());
+				if (gProviderId != null)
+				{ 
+					if ((manualCourseSectionList== null && cmRequestedCourseList == null)
+						|| (manualCourseSectionList != null && !manualCourseSectionList.contains(gProviderId) && cmRequestedCourseList == null)
+						|| (manualCourseSectionList == null && cmRequestedCourseList != null && !cmRequestedCourseList.contains(gProviderId))
+						|| (manualCourseSectionList != null && !manualCourseSectionList.contains(gProviderId) && cmRequestedCourseList != null && !cmRequestedCourseList.contains(gProviderId)))
+					{
+						AuthzGroupService.removeAuthzGroup(group.getReference());
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				M_log.warn(this + ".updateCourseClasses: cannot remove authzgroup : " + group.getReference());
+			}
+		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			commitSite(site);
