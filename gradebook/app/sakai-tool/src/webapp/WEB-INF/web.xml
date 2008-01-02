@@ -11,17 +11,17 @@
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
-			/WEB-INF/spring-db.xml
-			/WEB-INF/spring-beans.xml
-			/WEB-INF/spring-facades.xml
-			/WEB-INF/spring-hib.xml
 			classpath:conf/rsf-config.xml,
 	      classpath:conf/blank-applicationContext.xml,
 	      classpath:conf/sakai-applicationContext.xml,
 	      classpath:conf/components-applicationContext.xml,
 		  classpath:conf/sakaiComponents-applicationContext.xml,
 		  classpath:conf/sakai-entitybroker-applicationContext.xml,
-	      /WEB-INF/applicationContext.xml
+	      /WEB-INF/applicationContext.xml,
+	      			/WEB-INF/spring-db.xml,
+			/WEB-INF/spring-beans.xml,
+			/WEB-INF/spring-facades.xml,
+			/WEB-INF/spring-hib.xml
 		</param-value>
 	</context-param>
 	  <context-param>

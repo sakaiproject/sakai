@@ -1,9 +1,13 @@
 package org.sakaiproject.tool.gradebook.ui.helpers.producers;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
+import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.ui.helpers.params.AddGradebookItemViewParams;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -37,7 +41,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     private MessageLocator messageLocator;
     private ToolManager toolManager;
     private SessionManager sessionManager;
-    private GradebookService gradebookService;
+    private GradebookManager gradebookManager;
     
     
 	/*
@@ -63,7 +67,8 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	AddGradebookItemViewParams params = (AddGradebookItemViewParams) viewparams;
 
     	//Gradebook Info
-    	String xml = gradebookService.getGradebookDefinitionXml(params.contextId);
+    	Long gradebookId = gradebookManager.getGradebook(params.contextId).getId();
+    	List categories = gradebookManager.getCategories(gradebookId);
     	
         //set dateEvolver
         dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);
@@ -88,7 +93,17 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         UIInput due_date = UIInput.make(form, "due_date:", "");
         dateEvolver.evolveDateInput(due_date, date);
         
-        UISelect category_select = UISelect.make(form, "category", new String[] {}, new String[] {}, "");
+        String[] category_labels = new String[categories.size()];
+        String[] category_values = new String[categories.size()];
+        int i =0;
+        for (Iterator catIter = categories.iterator(); catIter.hasNext();){
+        	Category cat = (Category) catIter.next();
+			category_labels[i] = cat.getName();
+			category_values[i] = cat.getId().toString();
+			i++;
+        }
+        
+        UISelect.make(form, "category", category_values, category_labels, "");
                 
         UIBoundBoolean.make(form, "release");
         UIBoundBoolean.make(form, "course_grade");
@@ -128,8 +143,8 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 		this.sessionManager = sessionManager;
 	}
 	
-    public void setGradebookService(GradebookService gradebookService) {
-    	this.gradebookService = gradebookService;
+    public void setGradebookManager(GradebookManager gradebookManager) {
+    	this.gradebookManager = gradebookManager;
     }
     
 }
