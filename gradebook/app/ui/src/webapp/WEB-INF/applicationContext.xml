@@ -2,12 +2,16 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-<!-- 
-  <bean parent="templateContributorParent">
-    <property name="templateNames" value="PageList"/>
-    <property name="baseDirectory" value="content/templates/" />
-  </bean>
--->
+
+   <bean id="messageRenderer" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.GradebookMessageRenderer">
+      <property name="messageLocator">
+         <ref bean="messageLocator" />
+      </property>
+      <property name="infoStyleClass" value="info" />
+      <property name="errorStyleClass" value="error" />
+   </bean>
+   
+   
     <bean id="GradebookEntryEntityProvider" class="org.sakaiproject.tool.gradebook.ui.helpers.entity.GradebookEntryEntityProvider"
       init-method="init" destroy-method="destroy">
       <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
@@ -28,6 +32,12 @@
       </property>
       <property name="localeGetter" ref="requestLocaleProxy" />
    </bean>	
+   
+      <!-- Override the default style of user messages -->
+   <bean id="messageTemplateContributor" parent="templateContributorParent">
+      <property name="baseDirectory" value="component-templates/" />
+      <property name="templateNames" value="Messages" />
+   </bean>
    
    <!-- Define the bean roots from the request scope file that are accessible 
     via incoming request URL -->

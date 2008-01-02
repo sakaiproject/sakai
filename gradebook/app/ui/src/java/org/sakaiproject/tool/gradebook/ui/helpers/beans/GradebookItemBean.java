@@ -2,6 +2,7 @@ package org.sakaiproject.tool.gradebook.ui.helpers.beans;
 
 import java.util.Map;
 
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 
@@ -12,6 +13,7 @@ import org.sakaiproject.tool.gradebook.business.GradebookManager;
 
 import uk.org.ponder.beanutil.entity.EntityBeanLocator;
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 
 public class GradebookItemBean {
@@ -53,12 +55,19 @@ public class GradebookItemBean {
 	public String processActionAddItem(){
 		for (String key : OTPMap.keySet()) {
 			Assignment assignment = OTPMap.get(key);
-			if (this.categoryId != null){
-				gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
-						assignment.getPointsPossible(), assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
-			} else {
-				gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
-						assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
+			try {
+				if (this.categoryId != null){
+					gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
+							assignment.getPointsPossible(), assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
+				} else {
+					gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
+							assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
+				}
+				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.successful",
+						new Object[] {assignment.getName() }, TargettedMessage.SEVERITY_INFO));
+			} catch (ConflictingAssignmentNameException e){
+				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.conflicting_name",
+						new Object[] {assignment.getName() }, "Assignment." + key + ".name"));
 			}
 		}
 		return ADD_ITEM;

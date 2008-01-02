@@ -145,7 +145,7 @@ li p.instruction {
 /* Errors/Notifications ========================================*/
 
 .messages {
-	background: url("/sakai-assignment2-tool/content/images/error-arrow.png") no-repeat .5em 0;
+	background: url("/sakai-gradebook-tool/content/images/error-arrow.png") no-repeat .5em 0;
 	color: #fff;
 	display: block;
 	margin: 0;
@@ -153,7 +153,7 @@ li p.instruction {
 }
 
 .messages li {
-	background: url("/sakai-assignment2-tool/content/images/error-arrow.png") no-repeat .5em 0;
+	background: url("/sakai-gradebook-tool/content/images/error-arrow.png") no-repeat .5em 0;
 	padding: .5em .5em .5em 2em;
 }
 
@@ -171,7 +171,7 @@ li.info {
 
 .error p,
 .error ul {
-	background: #ba0005 url("/sakai-assignment2-tool/content/images/error-arrow.png") no-repeat .5em 0;
+	background: #ba0005 url("/sakai-gradebook-tool/content/images/error-arrow.png") no-repeat .5em 0;
 	color: #fff;
 	display: block;
 	margin: 0;
