@@ -28,5 +28,22 @@
       </property>
       <property name="localeGetter" ref="requestLocaleProxy" />
    </bean>	
+   
+   <!-- Define the bean roots from the request scope file that are accessible 
+    via incoming request URL -->
+   <bean parent="requestAddressibleParent">
+	  <property name="value" value="Assignment,GradebookItemBean"/>
+   </bean>
+
+	<bean id="AssignmentCreator"
+		class="org.sakaiproject.tool.gradebook.ui.helpers.beans.AssignmentCreator">
+	</bean>
+   
+   <bean id="Assignment" parent="entityBeanLocatorParent">
+      <property name="newMethod" 
+      	value="AssignmentCreator.create" />
+      <property name="fetchMethod"
+      	value="GradebookItemBean.getAssignmentById" />
+   </bean>
 
 </beans>

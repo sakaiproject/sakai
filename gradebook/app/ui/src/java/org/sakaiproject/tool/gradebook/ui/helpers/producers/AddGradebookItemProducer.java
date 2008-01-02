@@ -16,9 +16,11 @@ import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIMessage;
+import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
@@ -70,9 +72,12 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	Long gradebookId = gradebookManager.getGradebook(params.contextId).getId();
     	List categories = gradebookManager.getCategories(gradebookId);
     	
+    	
+    	//OTP
+    	String assignmentOTP = "Assignment.new 1";
+    	
         //set dateEvolver
         dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);
-        Date date = new Date();
         
         UIVerbatim.make(tofill, "instructions", messageLocator.getMessage("gradebook.add-gradebook-item.instructions",
         		new Object[]{ reqStar }));
@@ -82,32 +87,38 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         
         UIVerbatim.make(form, "title_label", messageLocator.getMessage("gradebook.add-gradebook-item.title_label",
         		new Object[]{ reqStar }));
-        UIInput.make(form, "title", "Title Here");
+        UIInput.make(form, "title", assignmentOTP + ".name");
         
         UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.point_label",
         		new Object[]{ reqStar }));
-        UIInput.make(form, "point", "POINTS HERE");
+        UIInput.make(form, "point", assignmentOTP + ".pointsPossible");
         
         UIVerbatim.make(form, "due_date_label", messageLocator.getMessage("gradebook.add-gradebook-item.due_date_label",
         		new Object[]{ reqStar }));
-        UIInput due_date = UIInput.make(form, "due_date:", "");
-        dateEvolver.evolveDateInput(due_date, date);
+        UIInput due_date = UIInput.make(form, "due_date:", assignmentOTP + ".dueDate");
+        dateEvolver.evolveDateInput(due_date);
         
-        String[] category_labels = new String[categories.size()];
-        String[] category_values = new String[categories.size()];
-        int i =0;
-        for (Iterator catIter = categories.iterator(); catIter.hasNext();){
-        	Category cat = (Category) catIter.next();
-			category_labels[i] = cat.getName();
-			category_values[i] = cat.getId().toString();
-			i++;
+        if (categories.size() > 0){
+        	
+        	UIOutput.make(form, "category_li");
+        
+	        String[] category_labels = new String[categories.size()];
+	        String[] category_values = new String[categories.size()];
+	        int i =0;
+	        for (Iterator catIter = categories.iterator(); catIter.hasNext();){
+	        	Category cat = (Category) catIter.next();
+				category_labels[i] = cat.getName();
+				category_values[i] = cat.getId().toString();
+				i++;
+	        }
+	        
+	        UISelect.make(form, "category", category_values, category_labels, "#{GradebookItemBean.categoryId}");
         }
         
-        UISelect.make(form, "category", category_values, category_labels, "");
-                
-        UIBoundBoolean.make(form, "release");
-        UIBoundBoolean.make(form, "course_grade");
+        UIBoundBoolean.make(form, "release", assignmentOTP + ".released");
+        UIBoundBoolean.make(form, "course_grade", assignmentOTP + ".counted");
         
+        form.parameters.add( new UIELBinding("#{GradebookItemBean.gradebookId}", gradebookManager.getGradebook(params.contextId).getId()));
         
         //Action Buttons
         UICommand.make(form, "add_item", UIMessage.make("gradebook.add-gradebook-item.add_item"), "#{GradebookItemBean.processActionAddItem}");

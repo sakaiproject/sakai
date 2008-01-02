@@ -18,6 +18,8 @@
    <bean id="GradebookItemBean" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.GradebookItemBean">
    	  <property name="messages" ref="targettedMessageList"/>
    	  <property name="messageLocator" ref="messageLocator" />
+   	  <property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />
+   	  <property name="assignmentEntityBeanLocator" ref="Assignment"/>
    </bean>
 
 </beans>

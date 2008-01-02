@@ -2,6 +2,9 @@ package org.sakaiproject.tool.gradebook.ui.helpers.beans;
 
 import java.util.Map;
 
+import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.business.GradebookManager;
+
 //import org.sakaiproject.assignment2.logic.AssignmentLogic;
 //import org.sakaiproject.assignment2.logic.ExternalLogic;
 //import org.sakaiproject.assignment2.logic.ExternalGradebookLogic;
@@ -22,31 +25,51 @@ public class GradebookItemBean {
     	this.messages = messages;
     }
 		
-/**
-    private Map<String, Assignment2> OTPMap;
+    private Map<String, Assignment> OTPMap;
 	@SuppressWarnings("unchecked")
-	public void setEntityBeanLocator(EntityBeanLocator entityBeanLocator) {
+	public void setAssignmentEntityBeanLocator(EntityBeanLocator entityBeanLocator) {
 		this.OTPMap = entityBeanLocator.getDeliveredBeans();
 	}
-**/
-/**	
-	private ExternalLogic externalGradebookLogic;
-	public void setExternalGradebookLogic(ExternalGradebookLogic externalGradebookLogic) {
-		this.externalGradebookLogic = externalGradebookLogic;
-	}
-**/
+
 	private MessageLocator messageLocator;
 	public void setMessageLocator (MessageLocator messageLocator) {
 		this.messageLocator = messageLocator;
 	}
 	
+	private GradebookManager gradebookManager;
+    public void setGradebookManager(GradebookManager gradebookManager) {
+    	this.gradebookManager = gradebookManager;
+    }
+	
+	private Long categoryId;
+	public void setCategoryId(Long categoryId){
+		this.categoryId = categoryId;
+	}
+	private Long gradebookId;
+	public void setGradebookId(Long gradebookId){
+		this.gradebookId = gradebookId;
+	}
+	
 	public String processActionAddItem(){
-		
+		for (String key : OTPMap.keySet()) {
+			Assignment assignment = OTPMap.get(key);
+			if (this.categoryId != null){
+				gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
+						assignment.getPointsPossible(), assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
+			} else {
+				gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
+						assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
+			}
+		}
 		return ADD_ITEM;
 	}
 	
 	public String processActionCancel(){
 		
 		return CANCEL;
+	}
+	
+	public Assignment getAssignmentById(Long assignmentId){
+		return gradebookManager.getAssignment(assignmentId);
 	}
 }
