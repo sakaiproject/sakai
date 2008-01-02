@@ -7,8 +7,8 @@ public class AssignmentCreator {
 
 	public Assignment create(){
 		Assignment togo = new Assignment();
-		togo.setCounted(false);
-		togo.setReleased(false);
+		togo.setCounted(true);
+		togo.setReleased(true);
 		return togo;
 	}
 	
