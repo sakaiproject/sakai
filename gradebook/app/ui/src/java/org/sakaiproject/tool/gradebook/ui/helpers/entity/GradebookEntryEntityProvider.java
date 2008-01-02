@@ -1,4 +1,4 @@
-package org.sakaiproject.gradebook.tool.entity;
+package org.sakaiproject.tool.gradebook.ui.helpers.entity;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -7,9 +7,9 @@ import org.sakaiproject.entitybroker.IdEntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
-import org.sakaiproject.gradebook.tool.helper.AddGradebookItemProducer;
-import org.sakaiproject.gradebook.tool.helper.PermissionsErrorProducer;
-import org.sakaiproject.gradebook.tool.params.AddGradebookItemViewParams;
+import org.sakaiproject.tool.gradebook.ui.helpers.producers.AddGradebookItemProducer;
+import org.sakaiproject.tool.gradebook.ui.helpers.producers.PermissionsErrorProducer;
+import org.sakaiproject.tool.gradebook.ui.helpers.params.AddGradebookItemViewParams;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 import uk.ac.cam.caret.sakai.rsf.entitybroker.EntityViewParamsInferrer;

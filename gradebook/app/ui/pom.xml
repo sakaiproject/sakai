@@ -13,8 +13,53 @@
   <packaging>jar</packaging>
   <properties>
     <deploy.target/>
+        <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
+    <rsfutil.version>0.7.2</rsfutil.version>
   </properties>
+    <repositories>
+    <repository>
+      <id>caret-dev</id>
+      <name>Caret Dev Repo</name>
+      <layout>default</layout>
+      <url>http://www2.caret.cam.ac.uk/maven2dev</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+  
   <dependencies>
+  <dependency>
+      <groupId>uk.org.ponder.sakairsf</groupId>
+      <artifactId>SakaiRSFComponents-templates</artifactId>
+      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>uk.org.ponder.sakairsf</groupId>
+      <artifactId>SakaiRSFComponents-evolvers</artifactId>
+      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>uk.org.ponder.sakairsf</groupId>
+      <artifactId>sakairsf</artifactId>
+      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+		<groupId>uk.org.ponder.rsfutil</groupId>
+		<artifactId>RSFComponents-templates</artifactId>
+		<version>${rsfutil.version}</version>
+		<type>war</type>
+	</dependency>
+	
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-app-business</artifactId>
@@ -93,6 +138,25 @@
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+    <dependency>
+        <groupId>org.sakaiproject.entitybroker</groupId>
+        <artifactId>entitybroker-api</artifactId>
+        <version>1.2.0</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-entity-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-site-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+    </dependency>
+    
 <!-- End Sakai2 Dependencies -->
 <!-- Database dependencies used for integration testing and schema generation -->
 <!-- Please contact the gradebook development team before removing these -->
@@ -236,6 +300,13 @@
           <artifactId>antlr</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <!-- Spring dependency -->
+    <dependency>
+        <groupId>${sakai.spring.groupId}</groupId>
+        <artifactId>${sakai.spring.artifactId}</artifactId>
+        <version>${sakai.spring.version}</version>
+        <scope>provided</scope>
     </dependency>
 <!-- Needed by MyFaces ExtensionsFilter -->
     <dependency>

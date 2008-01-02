@@ -1,4 +1,4 @@
-package org.sakaiproject.gradebook.tool.helper;
+package org.sakaiproject.tool.gradebook.ui.helpers.producers;
 
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.view.ComponentChecker;

@@ -1,4 +1,4 @@
-package org.sakaiproject.gradebook.tool.params;
+package org.sakaiproject.tool.gradebook.ui.helpers.params;
 
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 

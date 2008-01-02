@@ -1,4 +1,4 @@
-package org.sakaiproject.gradebook.tool.beans;
+package org.sakaiproject.tool.gradebook.ui.helpers.beans;
 
 import java.util.Map;
 

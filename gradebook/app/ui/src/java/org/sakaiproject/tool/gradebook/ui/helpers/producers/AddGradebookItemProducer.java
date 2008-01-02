@@ -1,8 +1,8 @@
-package org.sakaiproject.gradebook.tool.helper;
+package org.sakaiproject.tool.gradebook.ui.helpers.producers;
 
 import java.util.Date;
 
-import org.sakaiproject.gradebook.tool.params.AddGradebookItemViewParams;
+import org.sakaiproject.tool.gradebook.ui.helpers.params.AddGradebookItemViewParams;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
