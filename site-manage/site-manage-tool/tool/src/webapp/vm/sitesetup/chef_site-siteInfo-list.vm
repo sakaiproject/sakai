@@ -60,11 +60,7 @@
 					$tlang.getString("sitegen.siteinfolist.courses")
 				</th>
 				<td>
-					#foreach($id in $!providerCourseList)
-						#set($pSection = false)
-						#set($pSection = $!cms.getSection($id))
-						#if ($!pSection)$pSection.getTitle()#end<br />
-					#end
+					$!providedSectionTitle
 					#foreach($id in $!cmRequestedCourseList)
 						$id.title $tlang.getString("man.requested")<br />
 					#end
