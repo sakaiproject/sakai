@@ -4856,12 +4856,11 @@ public class SiteAction extends PagedResourceActionII {
 
 		if ((providerCourseList != null)
 				&& (providerCourseList.size() != 0)) {
-			String providerRealm = buildExternalRealm(siteId, state,
-					providerCourseList);
-
 			try {
 				AuthzGroup realmEdit = AuthzGroupService
 						.getAuthzGroup(realm);
+				String providerRealm = buildExternalRealm(siteId, state,
+						providerCourseList, StringUtil.trimToNull(realmEdit.getProviderGroupId()));
 				realmEdit.setProviderGroupId(providerRealm);
 				AuthzGroupService.save(realmEdit);
 			} catch (GroupNotDefinedException e) {
@@ -4986,14 +4985,30 @@ public class SiteAction extends PagedResourceActionII {
 	 *            The site id
 	 */
 	private String buildExternalRealm(String id, SessionState state,
-			List<String> providerIdList) {
+			List<String> providerIdList, String existingProviderIdString) {
 		String realm = SiteService.siteReference(id);
 		if (!AuthzGroupService.allowUpdate(realm)) {
 			addAlert(state, rb.getString("java.rosters"));
 			return null;
 		}
-		String[] providers = new String[providerIdList.size()];
-		providers = (String[]) providerIdList.toArray(providers);
+		
+		List<String> allProviderIdList = new Vector<String>();
+		
+		// see if we need to keep existing provider settings
+		if (existingProviderIdString != null)
+		{
+			allProviderIdList.addAll(Arrays.asList(groupProvider.unpackId(existingProviderIdString)));
+		}
+		
+		// update the list with newly added providers
+		allProviderIdList.addAll(providerIdList);
+		
+		if (allProviderIdList == null || allProviderIdList.size() == 0)
+			return null;
+		
+		String[] providers = new String[allProviderIdList.size()];
+		providers = (String[]) allProviderIdList.toArray(providers);
+		
 		String providerId = groupProvider.packId(providers);
 		return providerId;
 
@@ -7094,9 +7109,9 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		if ((providerCourseSectionList != null)
 				&& (providerCourseSectionList.size() != 0)) {
-			// section access so rewrite Provider Id
+			// section access so rewrite Provider Id, don't need the current realm provider String
 			String externalRealm = buildExternalRealm(id, state,
-					providerCourseSectionList);
+					providerCourseSectionList, null);
 			try {
 				AuthzGroup realmEdit2 = AuthzGroupService
 						.getAuthzGroup(realmId);
