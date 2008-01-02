@@ -522,4 +522,15 @@ public interface GradebookService {
 	 * for permissions!
 	 */
 	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAllGradebookItems(String gradebookUid);
+	
+	/**
+	 * 
+	 * @param gradableObjectId
+	 * @param studentIds
+	 * @return a list of GradeDefinition with the grade information for the given
+	 * students for the given assignment
+	 * @throws SecurityException if the current user is not authorized to view
+	 * or grade a student in the passed list
+	 */
+	public List<GradeDefinition> getGradesForStudentsForItem(Long gradableObjectId, List<String> studentIds);
 }

@@ -64,6 +64,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 
 import java.lang.IllegalArgumentException;
+import java.math.BigDecimal;
 
 /**
  * Provides methods which are shared between service business logic and application business
@@ -1218,5 +1219,83 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
      */
     public Assignment getAssignment(Long gradableObjectId) {
         return (Assignment)getHibernateTemplate().load(Assignment.class, gradableObjectId);
+    }
+    
+    /**
+     * 
+     * @param doublePointsPossible
+     * @param doublePointsEarned
+     * @return the % equivalent for the given points possible and points earned
+     */
+    protected Double calculateEquivalentPercent(Double doublePointsPossible, Double doublePointsEarned) {
+ 	
+    	if (doublePointsEarned == null || doublePointsPossible == null)
+    		return null;
+    	
+    	// scale to handle points stored as repeating decimals
+    	BigDecimal pointsEarned = new BigDecimal(doublePointsEarned.toString());
+    	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
+
+    	BigDecimal equivPercent = pointsEarned.divide(pointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+    	return new Double(equivPercent.doubleValue());
+    	
+    }
+   
+    /**
+     * Converts points to percentage for the given AssignmentGradeRecords
+     * @param gradebook
+     * @param studentRecordsFromDB
+     * @return
+     */
+    protected List convertPointsToPercentage(Gradebook gradebook, List studentRecordsFromDB)
+    {
+    	List percentageList = new ArrayList();
+    	for(int i=0; i < studentRecordsFromDB.size(); i++)
+    	{
+    		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
+    		if (agr != null) {
+    			Double pointsPossible = agr.getAssignment().getPointsPossible();
+    			if (pointsPossible == null || agr.getPointsEarned() == null) {
+    				agr.setPercentEarned(null);
+        			percentageList.add(agr);
+    			} else {
+        			agr.setDateRecorded(agr.getDateRecorded());
+        			agr.setGraderId(agr.getGraderId());
+        			agr.setPercentEarned(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
+        			percentageList.add(agr);
+    			}
+    		}
+    	}
+    	return percentageList;
+    }
+    
+    /**
+     * Converts points to letter grade for the given AssignmentGradeRecords
+     * @param gradebook
+     * @param studentRecordsFromDB
+     * @return
+     */
+    protected List convertPointsToLetterGrade(Gradebook gradebook, List studentRecordsFromDB)
+    {
+    	List letterGradeList = new ArrayList();
+    	LetterGradePercentMapping lgpm = getLetterGradePercentMapping(gradebook);
+    	for(int i=0; i < studentRecordsFromDB.size(); i++)
+    	{
+    		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
+    		Double pointsPossible = agr.getAssignment().getPointsPossible();
+    		agr.setDateRecorded(agr.getDateRecorded());
+    		agr.setGraderId(agr.getGraderId());
+    		if (agr != null) {
+    			if (pointsPossible == null || agr.getPointsEarned() == null) {
+    				agr.setLetterEarned(null);
+        			letterGradeList.add(agr);
+    			} else {
+    				String letterGrade = lgpm.getGrade(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
+        			agr.setLetterEarned(letterGrade);
+        			letterGradeList.add(agr);
+    			}
+    		}
+    	}
+    	return letterGradeList;
     }
 }
