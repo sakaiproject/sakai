@@ -322,7 +322,7 @@
           </includes>
 <!-- FIXME: Gradebook tests are disabled theres since they dont all pass
             Please Fix -->
-          <skip>true</skip>
+<!--          <skip>true</skip>-->
         </configuration>
       </plugin>
     </plugins>
