@@ -129,7 +129,7 @@
 				<a4j:region id="activityChartRegion">
 						<%/* #####  ACTIVITY CHART SELECTORS  ##### */%>
 						<a4j:outputPanel id="activitySelectors">					
-								<t:div styleClass="left" style="width: 70%">
+								<t:div styleClass="left" style="width: 60%">
 									<a4j:commandLink id="activityWeekSel" value="#{msgs.submenu_week}" actionListener="#{ChartParams.selectActivityWeekView}" rendered="#{ChartParams.selectedActivityView ne 'week'}"
 					                	status="activityChartStatus" reRender="activitySelectors,activityChartPanel" styleClass="selector"
 			                			oncomplete="setActivityChartRenderFalse()"/>
@@ -151,7 +151,7 @@
 									
 									<a4j:status id="activityChartStatus" startText="..." stopText=" " startStyleClass="ajaxLoading"/>	            		
 								</t:div>
-								<t:div styleClass="right" style="width: 30%">
+								<t:div styleClass="right" style="width: 40%">
 									<a4j:commandLink id="activityPieSel" value="#{msgs.submenu_byTool}" actionListener="#{ChartParams.selectActivityPieChart}" rendered="#{ChartParams.selectedActivityChartType ne 'pie'}"
 					                	status="activityChartStatus" reRender="activitySelectors,activityChartPanel" styleClass="selector"
 			                			oncomplete="setActivityChartRenderFalse()"/>
