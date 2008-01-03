@@ -141,7 +141,7 @@ public class CourseManagementGroupProvider implements GroupProvider {
 					groupRoleMap.put(sectionEid, rrRole);
 				}  else if(preferredRole(existingRole, rrRole).equals(rrRole)){
 					if(log.isDebugEnabled()) log.debug("Changing "+ userEid + "'s role in groupRoleMap from " + existingRole + " to " + rrRole + " for section " + sectionEid);
-					groupRoleMap.put(userEid, rrRole);
+					groupRoleMap.put(sectionEid, rrRole);
 				}
 			}
 		}
