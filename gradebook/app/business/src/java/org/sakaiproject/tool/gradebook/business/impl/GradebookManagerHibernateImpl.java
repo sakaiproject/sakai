@@ -2885,7 +2885,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 			if (gradeRecord.getPercentEarned() != null)
 				gradeEntry = gradeRecord.getPercentEarned().toString();
 		} else {
-			if (gradeRecord.getPercentEarned() != null)
+			if (gradeRecord.getPointsEarned() != null)
 				gradeEntry = gradeRecord.getPointsEarned().toString();
 		}
 		
