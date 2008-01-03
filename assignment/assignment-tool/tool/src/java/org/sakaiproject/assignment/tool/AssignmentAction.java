@@ -1450,7 +1450,24 @@ public class AssignmentAction extends PagedResourceActionII
 				context.put("gradebookChoice_no", AssignmentService.GRADEBOOK_INTEGRATION_NO);
 				context.put("gradebookChoice_add", AssignmentService.GRADEBOOK_INTEGRATION_ADD);
 				context.put("gradebookChoice_associate", AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE);
-				context.put("associateGradebookAssignment", state.getAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+				String associateGradebookAssignment = (String) state.getAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+				if (associateGradebookAssignment != null)
+				{
+					context.put("associateGradebookAssignment", associateGradebookAssignment);
+					String assignmentId = (String) state.getAttribute(EDIT_ASSIGNMENT_ID);
+					if (assignmentId != null)
+					{
+						try
+						{
+							Assignment a = AssignmentService.getAssignment(assignmentId);
+							context.put("noAddToGradebookChoice", Boolean.valueOf(associateGradebookAssignment.equals(a.getReference())));
+						}
+						catch (Exception ee)
+						{
+							// ignore
+						}
+					}
+				}
 			}
 			catch (Exception e)
 			{

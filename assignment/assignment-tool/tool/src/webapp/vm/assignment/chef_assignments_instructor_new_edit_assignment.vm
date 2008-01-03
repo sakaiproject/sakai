@@ -402,12 +402,14 @@
 					<div class="checkbox  indnt2" style="display:$!addToGBDisplay">
 						## hide the assignment list from Gradebook when clicked
 						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
-						<label for="$!gradebookChoice_no">$tlang.getString("grading.no")</label>
+						<label for="$!gradebookChoice_no">#if(!$!noAddToGradebookChoice)$tlang.getString("grading.no")#else$tlang.getString("grading.no2")#end</label>
 						<br/>
-						## hide the assignment list from Gradebook when clicked
-						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add" #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
-						<label for="$!gradebookChoice_add">$tlang.getString("grading.add")</label>
-						<br/>
+						#if (!$!noAddToGradebookChoice)
+							## hide the assignment list from Gradebook when clicked
+							<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add" #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
+							<label for="$!gradebookChoice_add">$tlang.getString("grading.add")</label>
+							<br/>
+						#end
 						## if there exists properiate assignment entries in Gradebook
 						#if ($!gradebookAssignments.size() > 0) 
 							## show the assignment list from Gradebook when clicked
