@@ -113,7 +113,7 @@
                         </td>
                         
                         <td headers="owner">
-                        $site.CreatedBy.DisplayName
+                        	$validator.escapeHtml($site.CreatedBy.DisplayName)
                         </td>
                         
                         <td headers="joinable">
