@@ -30,6 +30,7 @@ import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
 import org.sakaiproject.authz.api.GroupIdInvalidException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
@@ -45,6 +46,9 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.user.api.User;
@@ -63,6 +67,12 @@ public class RealmsAction extends PagedResourceActionII
 
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("authz-tool");
+	
+	private org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager
+	.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
+	
+	private org.sakaiproject.authz.api.GroupProvider groupProvider = (org.sakaiproject.authz.api.GroupProvider) ComponentManager
+	.get(org.sakaiproject.authz.api.GroupProvider.class);
 
 	/**
 	 * {@inheritDoc}
@@ -752,6 +762,28 @@ public class RealmsAction extends PagedResourceActionII
 		String id = data.getParameters().getString("id");
 		String provider = data.getParameters().getString("provider");
 		String maintain = data.getParameters().getString("maintain");
+		
+		// verify provider information
+		if (StringUtil.trimToNull(provider) != null)
+		{
+			String[] providers = groupProvider.unpackId(provider);
+			for (int i = 0; i<providers.length; i++)
+			{
+				try
+				{
+					cms.getSection(providers[i]);
+				}
+				catch (IdNotFoundException e)
+				{
+					addAlert(state, rb.getString("realm.noProviderIdFound") + " " +  rb.getString("realm.edit.provider") + providers[i] + ". ");
+				}
+			}
+			
+			if (state.getAttribute(STATE_MESSAGE) != null)
+			{
+				return false;
+			}
+		}
 
 		// get the realm
 		AuthzGroup realm = (AuthzGroup) state.getAttribute("realm");
