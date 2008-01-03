@@ -517,14 +517,6 @@ public interface GradebookService {
 	
 	/**
 	 * 
-	 * @param gradebookUid
-	 * @return a list of all the gb items in the given gradebook.  Does NOT check
-	 * for permissions!
-	 */
-	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAllGradebookItems(String gradebookUid);
-	
-	/**
-	 * 
 	 * @param gradableObjectId
 	 * @param studentIds
 	 * @return a list of GradeDefinition with the grade information for the given

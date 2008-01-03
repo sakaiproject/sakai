@@ -1324,24 +1324,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  return authz.isUserAbleToViewOwnGrades(gradebookUid);
   }
   
-  public List<org.sakaiproject.service.gradebook.shared.Assignment> getAllGradebookItems(String gradebookUid) {
-	  if (gradebookUid == null) {
-		  throw new IllegalArgumentException("gradebookUid passed to getAllGradebookItems was null");
-	  }
-	  
-	  List<org.sakaiproject.service.gradebook.shared.Assignment> allAssnDef = new ArrayList();
-	  List<Assignment> allAssignments = getAssignments(getGradebook(gradebookUid).getId(), null, true);
-	  
-	  if (allAssignments != null) {
-		  for (Iterator assignIter = allAssignments.iterator(); assignIter.hasNext();) {
-			  Assignment assignment = (Assignment) assignIter.next();
-			  allAssnDef.add(getAssignmentDefinition(assignment));
-		  }
-	  }
-	  
-	  return allAssnDef;
-  }
-  
   public List<GradeDefinition> getGradesForStudentsForItem(Long gradableObjectId, List<String> studentIds) {
 	  if (gradableObjectId == null) {
 		  throw new IllegalArgumentException("null gradableObjectId passed to getGradesForStudentsForItem");
