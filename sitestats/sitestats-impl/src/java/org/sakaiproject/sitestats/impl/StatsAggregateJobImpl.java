@@ -76,7 +76,7 @@ public class StatsAggregateJobImpl implements Job {
 		}catch(Exception e){
 			LOG.error("Make sure SST_JOB_RUN table is created before running the StatsAggregateJob job.");
 		}
-		if(lastJobRun == null){
+		if(lastJobRun == null && !statsUpdateManager.isCollectThreadEnabled()){
 			if(getStartEventId() < 0){
 				LOG.warn("First StatsAggregateJob job run will use last SAKAI_EVENT.EVENT_ID (id = "+getLastEventIdInTable()+"). To override this, please specify a new eventId in sakai.properties (property: startEventId@org.sakaiproject.sitestats.api.StatsAggregateJob=n, where n>=0). This value is for the first job run only.");
 			}else{
