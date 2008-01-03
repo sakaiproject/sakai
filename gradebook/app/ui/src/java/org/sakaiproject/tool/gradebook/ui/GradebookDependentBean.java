@@ -528,17 +528,6 @@ public abstract class GradebookDependentBean extends InitializableBean {
     	
     	return gradeEntryByLetter.booleanValue();
     }
-    
-    /**
-     * Returns whether the gb grade entry is by non_calulated grades
-     */
-    private transient Boolean gradeEntryByNonCal;
-    public boolean getGradeEntryByNonCal() {
-    	if (gradeEntryByNonCal == null)
-    		gradeEntryByNonCal = new Boolean(getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_NO_CALCULATED);
-    	
-    	return gradeEntryByNonCal.booleanValue();
-    }
 
 	/**
 	 * Set proper text for navigation button on assignment detials and

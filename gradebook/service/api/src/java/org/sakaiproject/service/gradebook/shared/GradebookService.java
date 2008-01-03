@@ -48,7 +48,6 @@ public interface GradebookService {
 	public static final int GRADE_TYPE_POINTS = 1;
 	public static final int GRADE_TYPE_PERCENTAGE = 2;
 	public static final int GRADE_TYPE_LETTER = 3;
-	public static final int GRADE_TYPE_NO_CALCULATED = 4;
 	
 	public static final int CATEGORY_TYPE_NO_CATEGORY = 1;
 	public static final int CATEGORY_TYPE_ONLY_CATEGORY = 2;

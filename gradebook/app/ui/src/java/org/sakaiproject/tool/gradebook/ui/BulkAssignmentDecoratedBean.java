@@ -2,8 +2,6 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 
-import javax.faces.event.ValueChangeEvent;
-
 import org.sakaiproject.tool.gradebook.Assignment;
 
 /**
@@ -17,13 +15,9 @@ public class BulkAssignmentDecoratedBean implements Serializable {
 	private Assignment assignment;
 	private String category;
 	private String pointsPossible;
-	private String unGraded = "normal";
     public String bulkNoPointsError;
     public String bulkNoTitleError;
     public Boolean saveThisItem;
-    
-    private static final String UN_GRADED_NORMAL = "normal";
-    private static final String UN_GRADED_NO_GRADED = "ungraded";
 
 	public BulkAssignmentDecoratedBean(Assignment assignment, String category) {
 		this.assignment = assignment;
@@ -80,34 +74,4 @@ public class BulkAssignmentDecoratedBean implements Serializable {
 	public boolean getBlnSaveThisItem() {
 		return saveThisItem.booleanValue();
 	}
-	
-	public String getUngraded()
-	{
-		return unGraded;
-	}
-
-	public void setUngraded(String unGraded)
-	{
-		this.unGraded = unGraded;
-	}
-	
-	public String processUngradedSettingChange(ValueChangeEvent vce)
-	{
-		String value = (String) vce.getNewValue(); 
-		if (value != null && value.equals(UN_GRADED_NO_GRADED))
-		{
-			unGraded = UN_GRADED_NO_GRADED;
-			assignment.setUngraded(true);
-			assignment.setCounted(false);
-		}
-		else
-		{
-			unGraded = UN_GRADED_NORMAL;
-			assignment.setUngraded(false);
-			assignment.setCounted(true);
-		}
-
-		return null;
-	}
-
 }

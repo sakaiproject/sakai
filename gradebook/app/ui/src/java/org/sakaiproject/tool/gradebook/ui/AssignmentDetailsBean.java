@@ -106,7 +106,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				return truncateScore(gradeRecord.getPointsEarned());
 		}
 		public void setScore(Double score) {
-			if (getGradeEntryByPoints() || getGradeEntryByNonCal()) {
+			if (getGradeEntryByPoints()) {
 				Double originalScore = gradeRecord.getPointsEarned();
 				if (originalScore != null) {
 					// truncate to two decimals for more accurate comparison
@@ -146,22 +146,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 			}
 		}
 
-		public String getNonCaculateGrade() {
-			return gradeRecord.getNonCaculateGrade();
-		}
-		
-		public void setNonCaculateGrade(String nonCaculateGrade) {
-			if (nonCaculateGrade != null)
-				nonCaculateGrade = nonCaculateGrade.trim();
-			String original = gradeRecord.getNonCaculateGrade();
-			if ((original != null && !original.equals(nonCaculateGrade)) ||
-					(original == null && nonCaculateGrade != null)) {
-				gradeRecord.setNonCaculateGrade(nonCaculateGrade);
-				updatedGradeRecords.add(gradeRecord);
-			}
-		}
-
-		public EnrollmentRecord getEnrollment() {
+        public EnrollmentRecord getEnrollment() {
             return enrollment;
         }
 
@@ -304,7 +289,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				
 				List studentUids = new ArrayList(enrollmentMap.keySet());
 				List gradeRecords = new ArrayList();
-				if (getGradeEntryByPoints() || getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_NO_CALCULATED)
+				if (getGradeEntryByPoints())
 					gradeRecords = getGradebookManager().getAssignmentGradeRecords(assignment, studentUids);
 				else 
 					gradeRecords = getGradebookManager().getAssignmentGradeRecordsConverted(assignment, studentUids);
@@ -333,15 +318,12 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 //getGradebookManager().convertGradingEventsConverted(assignment, allEvents, studentUids, getGradebook().getGrade_type());
                 
                 Map gradeRecordMap = new HashMap();
-                if(gradeRecords != null)
-                {
                 for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
 					AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)iter.next();
 					if (studentUids.contains(gradeRecord.getStudentId())) {
 						gradeRecordMap.put(gradeRecord.getStudentId(), gradeRecord);
 					}
 				}
-                }
 
                 // If the table is not being sorted by enrollment information, then
                 // we had to gather grade records for all students to set up the
@@ -368,8 +350,6 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 					AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)gradeRecordMap.get(studentUid);
 		            if(gradeRecord == null) {
 		                gradeRecord = new AssignmentGradeRecord(assignment, studentUid, null);
-		                if(gradeRecords  == null)
-		                	gradeRecords = new ArrayList();
 		                gradeRecords.add(gradeRecord);
 		            }
 
@@ -474,7 +454,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         
         String messageKey = null;
         if (updatedGradeRecords.size() > 0) {
-        	if (excessiveScores != null && excessiveScores.size() > 0) {
+        	if (excessiveScores.size() > 0) {
         		messageKey = "assignment_details_scores_saved_excessive";
         	} else if (updatedComments.size() > 0) {
         		messageKey = "assignment_details_scores_comments_saved";

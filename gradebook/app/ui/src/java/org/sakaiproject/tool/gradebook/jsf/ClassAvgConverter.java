@@ -73,7 +73,7 @@ public class ClassAvgConverter extends PointsConverter {
 				gradebook = assignment.getGradebook();
 				pointsPossible = assignment.getPointsPossible();
 
-				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS || gradebook.getGrade_type() == GradebookService.GRADE_TYPE_NO_CALCULATED) {
+				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
 					entryMethod = POINTS;
 					avg = assignment.getAverageTotal();
 				} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {

@@ -15,13 +15,6 @@
 
 <%@include file="/inc/globalMessages.jspf"%>
 
-	<h:panelGrid columns="2" columnClasses="prefixedCheckbox" rendered="#{bean.localGradebook.grade_type != 4}" >
-		<h:selectOneRadio value="#{bean.ungraded}" id="assignNonGraded" layout="pageDirection" onclick="submit();" valueChangeListener="#{bean.processUngradedSettingChange}">
-			<f:selectItem itemValue="normal" itemLabel="#{msgs.add_assignment_non_calculated3}" />
-	 		<f:selectItem itemValue="ungraded" itemLabel="#{msgs.add_assignment_non_calculated1}" /> 
-		</h:selectOneRadio>
-	</h:panelGrid>
-
 <h:panelGrid cellpadding="0" cellspacing="0" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
 	<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}" rendered="#{!bean.assignment.externallyMaintained}"/>
 	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
@@ -33,8 +26,8 @@
 	<h:outputText value="#{msgs.add_assignment_title}" rendered="#{bean.assignment.externallyMaintained}" />
 	<h:outputText value="#{bean.assignment.name}" rendered="#{bean.assignment.externallyMaintained}" />
 
-	<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!bean.assignment.externallyMaintained && bean.ungraded == 'normal'}"/>
-	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained && bean.ungraded == 'normal'}" >
+	<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!bean.assignment.externallyMaintained}"/>
+	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
 		<h:inputText id="points" value="#{bean.assignment.pointsPossible}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 			<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 			<f:validateDoubleRange minimum="0.01" />
@@ -87,10 +80,10 @@
 
 	<h:outputText escape="false" value="&nbsp;" />
 	
-	<h:panelGrid columns="2" columnClasses="prefixedCheckbox" rendered="#{bean.ungraded == 'normal'}">
+	<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
 		<h:selectBooleanCheckbox id="countAssignment" value="#{bean.assignment.counted}"
-			onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{bean.ungraded == 'normal'}"/>
-		<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{bean.ungraded == 'normal'}"/>
+			onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+		<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
 	</h:panelGrid>
 </h:panelGrid>
 <h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />

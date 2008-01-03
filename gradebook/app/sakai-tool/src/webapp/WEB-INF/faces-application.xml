@@ -126,15 +126,6 @@
 			org.sakaiproject.tool.gradebook.jsf.AssignmentGradeValidator
 		</validator-class>
 	</validator>
-	
-	<validator>
-		<validator-id>
-			org.sakaiproject.gradebook.jsf.validator.NON_GRADED_VALIDATOR
-		</validator-id>
-		<validator-class>
-			org.sakaiproject.tool.gradebook.jsf.NonGradedValueValidator
-		</validator-class>
-	</validator>
 
 	<render-kit>
 		<renderer>

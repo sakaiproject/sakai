@@ -386,38 +386,35 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	
     	assignments = new ArrayList(asnMap.keySet());
 
-    	if(gradeRecords != null)
-    	{
-    		for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
-    			AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
+    	for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
+    		AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
 
-    			// Update the AssignmentGradeRow in the map
-    			AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
-    			if (asnGradeRow != null) {
-    				Assignment asnGrAssignment = asnGr.getAssignment();
-
-    				// if weighted gb and no category for assignment,
-    				// it is not counted toward course grade
-    				boolean counted = asnGrAssignment.isCounted();
-    				if (counted && getWeightingEnabled()) {
-    					Category assignCategory = asnGrAssignment.getCategory();
-    					if (assignCategory == null)
-    						counted = false;
-    				}
-
-    				asnGradeRow.setGradeRecord(asnGr);
-
-    				if (asnGr != null) {
-    					if (getGradeEntryByPercent())
-    						asnGradeRow.setScore(truncateScore(asnGr.getPercentEarned()));
-    					else if(getGradeEntryByPoints() || getGradeEntryByNonCal())
-    						asnGradeRow.setScore(truncateScore(asnGr.getPointsEarned())); 
-    					else if (getGradeEntryByLetter())
-    						asnGradeRow.setLetterScore(asnGr.getLetterEarned());
-    				}
+    		// Update the AssignmentGradeRow in the map
+    		AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
+    		if (asnGradeRow != null) {
+    			Assignment asnGrAssignment = asnGr.getAssignment();
+    			
+    			// if weighted gb and no category for assignment,
+    			// it is not counted toward course grade
+    			boolean counted = asnGrAssignment.isCounted();
+    			if (counted && getWeightingEnabled()) {
+    				Category assignCategory = asnGrAssignment.getCategory();
+    				if (assignCategory == null)
+    					counted = false;
     			}
-
+    			
+    			asnGradeRow.setGradeRecord(asnGr);
+    			
+    			if (asnGr != null) {
+    				if (getGradeEntryByPercent())
+    					asnGradeRow.setScore(truncateScore(asnGr.getPercentEarned()));
+    				else if(getGradeEntryByPoints())
+    					asnGradeRow.setScore(truncateScore(asnGr.getPointsEarned())); 
+    				else if (getGradeEntryByLetter())
+    					asnGradeRow.setLetterScore(asnGr.getLetterEarned());
+    			}
     		}
+    		
     	}
 
     	Map goEventListMap = getGradebookManager().getGradingEventsForStudent(studentUid, assignments);
@@ -587,7 +584,6 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			}
     		}
 
-    		List nonCalItems = new ArrayList();
     		for(Iterator iter = gradebookItems.iterator(); iter.hasNext();) {
     			Object gradebookItem = iter.next();
     			if (gradebookItem instanceof AssignmentGradeRow) {
@@ -603,11 +599,6 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			if(iter.hasNext()) {
     				rowStyles.append(",");
     			}
-    		}
-    		
-    		for(Iterator iter = nonCalItems.iterator(); iter.hasNext();)
-    		{
-    			gradebookItems.remove(iter.next());
     		}
     	}
     }

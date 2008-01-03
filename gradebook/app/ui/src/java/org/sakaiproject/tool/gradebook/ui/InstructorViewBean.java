@@ -224,7 +224,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 						gradeRecord = new AssignmentGradeRecord(gradeRow.getAssociatedAssignment(), getStudentUid(), null);
 					}
 					if (gradeRecord != null) {
-						if (getGradeEntryByPoints() || getGradeEntryByNonCal()) { 
+						if (getGradeEntryByPoints()) { 
 							Double originalScore = null;
 							originalScore = gradeRecord.getPointsEarned();
 
@@ -272,7 +272,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 
 		if(updatedGradeRecords.size() > 0){
 			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
-			String messageKey = (excessiveScores != null && excessiveScores.size() > 0) ?
+			String messageKey = (excessiveScores.size() > 0) ?
 					"inst_view_scores_saved_excessive" :
 						"inst_view_scores_saved";
 			

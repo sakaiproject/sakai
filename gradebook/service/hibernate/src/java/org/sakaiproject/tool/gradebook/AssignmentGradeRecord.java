@@ -38,7 +38,6 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     private String letterEarned;
     private Double percentEarned;
     private boolean userAbleToView;
-    private String nonCaculateGrade;
 
     public AssignmentGradeRecord() {
         super();
@@ -166,16 +165,6 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     	agr.setStudentId(studentId);
     	return agr;
     }
-
-		public String getNonCaculateGrade()
-		{
-			return nonCaculateGrade;
-		}
-
-		public void setNonCaculateGrade(String nonCaculateGrade)
-		{
-			this.nonCaculateGrade = nonCaculateGrade;
-		}
 }
 
 
