@@ -40,11 +40,16 @@ public class StatsAggregateJobImpl implements Job {
 	private String				sqlGetEvent			= null;
 	private final static int	SQL_BLOCK_SIZE		= 1000;
 	private boolean				isOracle 			= false;
+	// Statement below has performance problems in MySQL (STAT-58)
+//	private final static String MYSQL_GET_EVENT		= "select EVENT_ID as EVENT_ID,EVENT_DATE as EVENT_DATE,EVENT as EVENT,REF as REF,SESSION_USER as SESSION_USER,e.SESSION_ID as SESSION_ID " +
+//														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
+//														"where EVENT_ID >= ? " +
+//														"order by EVENT_ID asc " +
+//														"limit ? offset ?";
 	private final static String MYSQL_GET_EVENT		= "select EVENT_ID as EVENT_ID,EVENT_DATE as EVENT_DATE,EVENT as EVENT,REF as REF,SESSION_USER as SESSION_USER,e.SESSION_ID as SESSION_ID " +
 														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
-														"where EVENT_ID >= ? " +
-														"order by EVENT_ID asc " +
-														"limit ? offset ?";
+														"where EVENT_ID >= ? and EVENT_ID < ? " +
+														"order by EVENT_ID asc ";
 	private final static String ORACLE_GET_EVENT	= "SELECT * FROM ( " +
 														"SELECT " +
 															" ROW_NUMBER() OVER (ORDER BY EVENT_ID ASC) AS rn," +
@@ -158,12 +163,17 @@ public class StatsAggregateJobImpl implements Job {
 			
 			while(!abortIteration) {
 				abortIteration = true;
-				st.clearParameters();
-				st.setLong(1, eventIdLowerLimit);			// lower limit			
+				st.clearParameters();		
 				if(!isOracle){
-					st.setLong(2, SQL_BLOCK_SIZE);			// MySQL limit	
-					st.setLong(3, offset);					// MySQL offset
+					// old statement parameters
+//					st.setLong(2, SQL_BLOCK_SIZE);			// MySQL limit	
+//					st.setLong(3, offset);					// MySQL offset
+					if(firstEventIdProcessed == -1)
+						offset = eventIdLowerLimit;
+					st.setLong(1, offset);					// MySQL >= startId	
+					st.setLong(2, SQL_BLOCK_SIZE + offset);	// MySQL < endId
 				}else{
+					st.setLong(1, eventIdLowerLimit);		// lower limit	
 					st.setLong(2, SQL_BLOCK_SIZE + offset);	// Oracle limit	
 					st.setLong(3, offset);					// Oracle offset
 				}
