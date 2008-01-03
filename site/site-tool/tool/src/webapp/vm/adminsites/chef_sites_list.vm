@@ -78,7 +78,7 @@
 						</div>
 						<div class="indnt2">
 							#if ($site.CreatedTime) $site.CreatedTime.toStringLocalFull() #end
-							#if ($site.CreatedBy) $site.CreatedBy.DisplayName #end
+							#if ($site.CreatedBy) $validator.escapeHtml($site.CreatedBy.DisplayName) #end
 						</div>
 ##					#if ($realm.ProviderGroupId)
 ##						<div class="instruction">
