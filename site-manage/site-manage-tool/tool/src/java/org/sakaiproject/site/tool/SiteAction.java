@@ -9153,9 +9153,9 @@ public class SiteAction extends PagedResourceActionII {
 		String from = ServerConfigurationService.getString("setup.request",
 				null);
 		if (from == null) {
-			M_log.warn(this + " - no 'setup.request' in configuration");
 			from = "postmaster@".concat(ServerConfigurationService
 					.getServerName());
+			M_log.warn(this + " - no 'setup.request' in configuration, using: "+ from);
 		}
 		return from;
 	}
