@@ -6025,7 +6025,7 @@ public class SiteAction extends PagedResourceActionII {
 				t = StringUtil.trimToNull(config.getInitParameter("siteTypes"));
 			if (t != null) {
 				List types = new ArrayList(Arrays.asList(t.split(",")));
-				if (cms == null || !SiteService.allowAddCourseSite())
+				if (cms == null)
 				{
 					// if there is no CourseManagementService, disable the process of creating course site
 					String courseType = ServerConfigurationService.getString("courseSiteType", (String) state.getAttribute(STATE_COURSE_SITE_TYPE));
@@ -9324,20 +9324,21 @@ public class SiteAction extends PagedResourceActionII {
 		try {
 			Site site = getStateSite(state);
 			SiteInfo siteInfo = new SiteInfo();
-
-			// set from site attributes
-			siteInfo.title = site.getTitle();
-			siteInfo.description = site.getDescription();
-			siteInfo.iconUrl = site.getIconUrl();
-			siteInfo.infoUrl = site.getInfoUrl();
-			siteInfo.joinable = site.isJoinable();
-			siteInfo.joinerRole = site.getJoinerRole();
-			siteInfo.published = site.isPublished();
-			siteInfo.include = site.isPubView();
+			if (site != null)
+			{
+				// set from site attributes
+				siteInfo.title = site.getTitle();
+				siteInfo.description = site.getDescription();
+				siteInfo.iconUrl = site.getIconUrl();
+				siteInfo.infoUrl = site.getInfoUrl();
+				siteInfo.joinable = site.isJoinable();
+				siteInfo.joinerRole = site.getJoinerRole();
+				siteInfo.published = site.isPublished();
+				siteInfo.include = site.isPubView();
+				siteInfo.short_description = site.getShortDescription();
+			}
 			siteInfo.additional = "";
-			siteInfo.short_description = site.getShortDescription();
 			state.setAttribute(STATE_SITE_TYPE, siteInfo.site_type);
-
 			state.setAttribute(STATE_SITE_INFO, siteInfo);
 		} catch (Exception e) {
 			M_log.warn("SiteAction.sitePropertiesIntoState " + e.getMessage());

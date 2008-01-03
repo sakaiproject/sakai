@@ -26,7 +26,7 @@
 	</p>
 	<form name="typeform" id="typeform" action="#toolForm("$action")" method="post">
 		#foreach ($type in $siteTypes)
-			#if ($type != "GradToolsStudent" || ($type == "GradToolsStudent" && $!withDissertation && $!isGradStudent.booleanValue() && $!noGradToolsSite.booleanValue()))
+			#if (($type != "GradToolsStudent" && $type != $courseSiteType) || ($type == $courseSiteType && $canAddCourse) || ($type == "GradToolsStudent" && $!withDissertation && $!isGradStudent.booleanValue() && $!noGradToolsSite.booleanValue()))
 				<p class="checkbox indnt1">
 					<input type="radio" name="itemType" id="$type" value="$type" #if ($type == $typeSelected) checked="checked" #end/>
 						<label for = "$type">
