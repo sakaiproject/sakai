@@ -1420,7 +1420,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						  gradebook.getUid() + " using gradebookService.getGradesForStudentsForItem");
 			  }
 			  
-			  Map enrRecFunctionMap = authz.findMatchingEnrollmentsForItem(gradebook.getUid(), gbItem.getCategory().getId(), gradebook.getCategory_type(), null, null);
+			  Long categoryId = gbItem.getCategory() != null ? gbItem.getCategory().getId() : null;
+			  Map enrRecFunctionMap = authz.findMatchingEnrollmentsForItem(gradebook.getUid(), categoryId, gradebook.getCategory_type(), null, null);
 			  Set enrRecs = enrRecFunctionMap.keySet();
 			  Map studentIdEnrRecMap = new HashMap();
 			  if (enrRecs != null) {
