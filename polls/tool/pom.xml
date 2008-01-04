@@ -102,7 +102,11 @@
 			<artifactId>sakai-event-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-content-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
 		<!-- Spring dependency is required for validation within the webapp-->
 		<dependency>
 			<groupId>${sakai.spring.groupId}</groupId>
