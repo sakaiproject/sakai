@@ -1610,6 +1610,12 @@ public class SiteAction extends PagedResourceActionII {
 						// show the Add Participant menu
 						b.add(new MenuEntry(rb.getString("java.addp"),
 								"doMenu_siteInfo_addParticipant"));
+						
+						// show the Edit Class Roster menu
+						if (siteType != null && siteType.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
+							b.add(new MenuEntry(rb.getString("java.editc"),
+									"doMenu_siteInfo_editClass"));
+						}
 					}
 				}
 				
@@ -1645,10 +1651,7 @@ public class SiteAction extends PagedResourceActionII {
 									rb.getString("java.siteaccess"),
 									"doMenu_edit_site_access"));
 						}
-						if (siteType != null && siteType.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
-							b.add(new MenuEntry(rb.getString("java.editc"),
-									"doMenu_siteInfo_editClass"));
-						}
+						
 						if (siteType == null || siteType != null
 								&& !isGradToolSite) {
 							// hide site duplicate and import

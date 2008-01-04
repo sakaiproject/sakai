@@ -204,7 +204,7 @@
 
 		#end
 
-	#if ($!allowUpdate || $allowUpdateSiteMembership || $!viewRoster)
+	#if ($!viewRoster)
 		#if ($participantList.size() > 0)
 		 <div class="navPanel">
 		 	<div class="viewNav">
@@ -331,7 +331,7 @@
 							#end
 						</a>	
 					</th>
-					#if ($allowUpdate && $allowUpdateSiteMembership)
+					#if ($allowUpdateSiteMembership)
 						#if ($!activeInactiveUser && !$!isMyWorkspace)
 							<th id="status">
 								$tlang.getString("sitegen.siteinfolist.status")
@@ -382,7 +382,7 @@
 							#set($uRole = $participant.getRole())
 							#if ($!isMyWorkspace)
 								$uRole
-							#elseif ($allowUpdate && $allowUpdateSiteMembership)
+							#elseif ($allowUpdateSiteMembership)
 								<label class="skip" for="role$uniqname">$tlang.getString("sitegen.siteinfolist.role.select")  $participant.getDisplayId()</label>
 								<select id="role$uniqname" name="role$uniqname">
 									#foreach($r in $roles)
@@ -399,7 +399,7 @@
 								$!uRole
 							#end
 						</td>
-						#if ($allowUpdate && $allowUpdateSiteMembership)
+						#if ($allowUpdateSiteMembership)
 							#if ($!activeInactiveUser && !$!isMyWorkspace)
 								<td>
 								 #set($grant="")
