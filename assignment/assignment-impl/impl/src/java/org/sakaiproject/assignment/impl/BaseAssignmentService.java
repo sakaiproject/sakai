@@ -2969,7 +2969,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							rv.add(g);
 						}
 					}
-					rv = allAllowedGroups;
 				}
 			}
 			catch (Exception e)
