@@ -91,6 +91,21 @@ public interface GradebookManager {
     public void removeAssignment(Long assignmentId) throws StaleObjectModificationException;
     
     /**
+     * Get an assignment grade record by id
+     * @param assignmentGradeRecordId
+     * @return AssignmentGradeRecord
+     */
+    public AssignmentGradeRecord getAssignmentGradeRecordById(Long id);
+    
+    /**
+     * Get an assignment grade record by assignment and student
+     * @param = assignment
+     * @param = studentUid
+     * @return AssignmentGradeRecord
+     */
+    public AssignmentGradeRecord getAssignmentGradeRecordForAssignmentForStudent(Assignment assignment, String studentUid);
+    
+    /**
      * Get all assignment score records for the given set of student UIDs.
      * 
      * @param assignment

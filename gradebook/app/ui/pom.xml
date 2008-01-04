@@ -156,6 +156,12 @@
         <version>${sakai.version}</version>
         <scope>provided</scope>
     </dependency>
+    <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-user-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+    </dependency>
     
 <!-- End Sakai2 Dependencies -->
 <!-- Database dependencies used for integration testing and schema generation -->

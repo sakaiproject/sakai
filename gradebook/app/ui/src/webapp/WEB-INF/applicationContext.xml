@@ -18,6 +18,12 @@
       <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
     </bean>
     
+    <bean id="GradebookEntryGradeEntityProvider" class="org.sakaiproject.tool.gradebook.ui.helpers.entity.GradebookEntryGradeEntityProvider"
+      init-method="init" destroy-method="destroy">
+      <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
+      <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+    </bean>
+    
        <!-- handles configuration of internationalization messages -->
    <bean id="messageLocator" class="uk.org.ponder.springutil.SpringMessageLocator">
       <property name="messageSource">
@@ -42,7 +48,7 @@
    <!-- Define the bean roots from the request scope file that are accessible 
     via incoming request URL -->
    <bean parent="requestAddressibleParent">
-	  <property name="value" value="Assignment,GradebookItemBean"/>
+	  <property name="value" value="Assignment,GradebookItemBean,AssignmentGradeRecordBean"/>
    </bean>
 
 	<bean id="AssignmentCreator"
@@ -54,6 +60,16 @@
       	value="AssignmentCreator.create" />
       <property name="fetchMethod"
       	value="GradebookItemBean.getAssignmentById" />
+   </bean>
+   
+   <bean id="AssignmentGradeRecordCreator"
+   	    class="org.sakaiproject.tool.gradebook.ui.helpers.beans.AssignmentGradeRecordCreator">
+   </bean>
+   <bean id="AssignmentGradeRecord" parent="entityBeanLocatorParent">
+   	   <property name="newMethod"
+   	   	 value="AssignmentGradeRecordCreator.create" />
+   	   <property name="fetchMethod"
+   	     value="AssignmentGradeRecordBean.getAssignmentGradeRecordById" />
    </bean>
 
 </beans>

@@ -484,6 +484,35 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	return (List)getHibernateTemplate().execute(hc);
     }
 
+    public AssignmentGradeRecord getAssignmentGradeRecordById(Long id) {
+    	return (AssignmentGradeRecord)getHibernateTemplate().load(AssignmentGradeRecord.class, id);
+    }
+    
+    public AssignmentGradeRecord getAssignmentGradeRecordForAssignmentForStudent(final Assignment assignment, final String studentUid) {
+	    HibernateCallback hc = new HibernateCallback() {
+	        public Object doInHibernate(Session session) throws HibernateException {
+	            if(studentUid == null) {
+	                if(log.isInfoEnabled()) log.info("Returning no grade records for a null student UID");
+	                return new ArrayList();
+	            } else if (assignment.isRemoved()) {
+	                return new ArrayList();                	
+	            }
+	
+	            Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.id=:gradableObjectId " +
+	            		"and agr.studentId=:student");
+	            q.setLong("gradableObjectId", assignment.getId().longValue());
+	            q.setString("student", studentUid);
+	            return q.list();
+	        }
+	    };
+	    List results = (List) getHibernateTemplate().execute(hc);
+	    if (results.size() > 0){
+	    	return (AssignmentGradeRecord)results.get(0);
+	    } else {
+	    	return new AssignmentGradeRecord();
+	    }
+	}
+    
     /**
      */
     public List getAllAssignmentGradeRecords(final Long gradebookId, final Collection studentUids) {

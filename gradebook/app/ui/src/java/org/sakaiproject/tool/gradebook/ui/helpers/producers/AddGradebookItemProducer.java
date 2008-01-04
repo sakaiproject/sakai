@@ -12,6 +12,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 
+import uk.org.ponder.beanutil.entity.EntityBeanLocator;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UICommand;
@@ -74,7 +75,13 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	
     	
     	//OTP
-    	String assignmentOTP = "Assignment.new 1";
+    	String assignmentOTP = "Assignment.";
+    	if (params.gradebookItemId != null) {
+    		assignmentOTP += params.gradebookItemId.toString();
+    	} else {
+    		assignmentOTP += EntityBeanLocator.NEW_PREFIX + "1";
+    	}
+    	
     	
         //set dateEvolver
         dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);

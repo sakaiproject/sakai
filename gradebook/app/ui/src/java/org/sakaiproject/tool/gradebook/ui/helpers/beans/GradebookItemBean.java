@@ -6,11 +6,6 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 
-//import org.sakaiproject.assignment2.logic.AssignmentLogic;
-//import org.sakaiproject.assignment2.logic.ExternalLogic;
-//import org.sakaiproject.assignment2.logic.ExternalGradebookLogic;
-//import org.sakaiproject.assignment2.model.Assignment2;
-
 import uk.org.ponder.beanutil.entity.EntityBeanLocator;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;

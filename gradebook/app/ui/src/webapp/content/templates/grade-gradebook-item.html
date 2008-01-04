@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+   <title rsf:id="msg=gradebook.grade-gradebook-item.title">Gradebook</title>
+
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+	<!-- vm/editor/FCKeditor/sakai_header.vm -->
+	<script type="text/javascript" src="/library/editor/FCKeditor/fckeditor.js"></script> 
+
+    <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
+    <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all"/>
+    <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+    <script type="text/javascript" language="JavaScript" src="/library/js/jquery.js"></script>
+    <script type="text/javascript" language="JavaScript" src="/sakai-gradebook-tool/content/js/grade-gradebook-item.js"></script>
+	<link href="/sakai-gradebook-tool/content/css/gradebook.css" type="text/css" rel="stylesheet" media="all" />
+</head>
+<body>
+<div class="portletBody">
+
+	<div rsf:id="message-for:*" class="error">
+		<ul style="margin:0px;">
+			<li>Message for user here</li>
+		</ul>
+	</div>
+
+	<h3 rsf:id="heading">Grade Gradebook Item</h3>
+	<p rsf:id="instructions" class="instruction"><span class="reqStar">*</span> Indicates required information.</p>
+
+	<form rsf:id="form">
+	
+	<h4 rsf:id="msg=gradebook.grade-gradebook-item.gradebook_item_details">Gradebook Item Details</h4>
+	<table class="itemSummary" cellspacing="0" summary="Gradebook Item Details">
+		<tr>
+			<th rsf:id="msg=gradebook.grade-gradebook-item.student_name">Student Name:</th>
+			<td rsf:id="student_name">Name</td>
+		</tr>
+		<tr>
+			<th rsf:id="msg=gradebook.grade-gradebook-item.gb_name">Name:</th>
+			<td rsf:id="name">Assignment Name</td>
+		</tr>
+		<tr>
+			<th rsf:id="msg=gradebook.grade-gradebook-item.gb_point_value">Point Value:</th>
+			<td rsf:id="point_value">Assignment Point Value</td>
+		</tr>
+		<tr>
+			<th rsf:id="msg=gradebook.grade-gradebook-item.gb_entry_type">Gradebook Entry Type:</th>
+			<td rsf:id="entry_type">Assignment Point Value</td>
+		</tr>
+	</table>
+	<fieldset>
+		<legend rsf:id="msg=gradebook.grade-gradebook-item.gradebook_item_legend">Grading Details</legend>
+		<ol>
+			<li>
+				<label rsf:id="points_label"><span class="reqStar">*</span> Points</label> <input rsf:id="score" type="text" size="30" maxlength="100"/> <span rsf:id="percent_sign">%</span>
+			</li>
+			<li>
+				<label rsf:id="msg=gradebook.grade-gradebook-item.instructor_comments">Instructor Comments</label>
+				<p class="msg=gradebook.grade-gradebook-item.comment_instruction">Use the box below to enter additional summary comments about this submission.</p>
+				<div rsf:id="comments:">
+					<textarea name="something" cols="80" rows="20" wrap="virtual"></textarea>
+					<!-- this should be the FCKEditor -->
+				</div>		
+			</li>
+		</ol>
+	</fieldset>
+	<fieldset class="submit">
+		<input rsf:id="submit" accesskey="s" type="submit" class="active" value="Submit"/>
+		<input rsf:id="cancel" accesskey="x" type="submit" name="cancel" value="Cancel"/>
+	</fieldset>													
+	</form>
+</div>
+</body>
+</html>
