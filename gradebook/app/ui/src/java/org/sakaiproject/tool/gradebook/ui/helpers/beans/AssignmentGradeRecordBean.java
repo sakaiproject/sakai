@@ -88,13 +88,20 @@ public class AssignmentGradeRecordBean {
 			for (String key : OTPMap.keySet()) {
 				AssignmentGradeRecord agr = OTPMap.get(key);
 				Assignment assignment = gradebookManager.getAssignment(this.assignmentId);
+				Comment comment = new Comment();
+				comment.setCommentText(this.comment);
+				comment.setDateRecorded(new Date());
+				comment.setGradableObject(assignment);
+				comment.setStudentId(this.studentId);
+				
 				agr.setStudentId(this.studentId);
 				agr.setDateRecorded(new Date());
+				agr.setGradableObject(assignment);
 				
 				List gradeRecords = new ArrayList();
 				gradeRecords.add(agr);
 				List comments = new ArrayList();
-				comments.add(this.comment);
+				comments.add(comment);
 				Set excessiveScores = gradebookManager.updateAssignmentGradesAndComments(assignment, gradeRecords, comments);
 				
 				eventTrackingService.postEvent("gradebook.updateItemScores", "/gradebook/" + this.gradebookId + "/1/" + getAuthzLevel());

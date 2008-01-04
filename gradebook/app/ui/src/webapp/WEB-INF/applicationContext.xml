@@ -48,7 +48,7 @@
    <!-- Define the bean roots from the request scope file that are accessible 
     via incoming request URL -->
    <bean parent="requestAddressibleParent">
-	  <property name="value" value="Assignment,GradebookItemBean,AssignmentGradeRecordBean"/>
+	  <property name="value" value="Assignment,AssignmentGradeRecord,GradebookItemBean,AssignmentGradeRecordBean"/>
    </bean>
 
 	<bean id="AssignmentCreator"

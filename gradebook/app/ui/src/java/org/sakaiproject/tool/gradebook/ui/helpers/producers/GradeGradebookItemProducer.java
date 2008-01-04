@@ -103,7 +103,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	//OTP
     	String agrOTP = "AssignmentGradeRecord.";
     	String OTPKey = "";
-    	if (agr != null){
+    	if (agr != null && agr.getId() != null){
     		OTPKey += agr.getId().toString();
     	} else {
     		OTPKey += EntityBeanLocator.NEW_PREFIX + "1";
