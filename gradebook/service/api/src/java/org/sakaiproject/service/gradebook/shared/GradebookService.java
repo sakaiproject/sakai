@@ -211,6 +211,21 @@ public interface GradebookService {
 	public Double getAssignmentScore(String gradebookUid, 
 			Long gbItemId, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param gbItemId
+	 * @param studentUid
+	 * @return Returns the current score for the student, respecting the grade 
+	 * entry type for the gradebook (ie in %, letter grade, or points format).
+	 * Returns null if no grade
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public GradeDefinition getGradeDefinitionForStudentForItem(String gradebookUid,
+			Long gbItemId, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
 	 * Get the comment (if any) currently provided for the given combination

@@ -2281,66 +2281,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	return new Double(equivPercent.doubleValue());
     	
     }
-   
-    /**
-     * Converts points to percentage for all assignments for a single student
-     * @param gradebook
-     * @param studentRecordsFromDB
-     * @return
-     */
-    public List convertPointsToPercentage(Gradebook gradebook, List studentRecordsFromDB)
-    {
-    	List percentageList = new ArrayList();
-    	for(int i=0; i < studentRecordsFromDB.size(); i++)
-    	{
-    		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
-    		if(agr != null && agr.getPointsEarned() != null)
-    		{
-    			Double pointsPossible = agr.getAssignment().getPointsPossible();
-    			agr.setDateRecorded(agr.getDateRecorded());
-    			agr.setGraderId(agr.getGraderId());
-    			agr.setPercentEarned(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
-    			percentageList.add(agr);
-    		}
-    		else if(agr != null)
-    		{
-    			agr.setPercentEarned(null);
-    			percentageList.add(agr);
-    		}
-    	}
-    	return percentageList;
-    }
-    
-    /**
-     * Converts points to letter grade for all assignments for a single student
-     * @param gradebook
-     * @param studentRecordsFromDB
-     * @return
-     */
-    public List convertPointsToLetterGrade(Gradebook gradebook, List studentRecordsFromDB)
-    {
-    	List letterGradeList = new ArrayList();
-    	LetterGradePercentMapping lgpm = getLetterGradePercentMapping(gradebook);
-    	for(int i=0; i < studentRecordsFromDB.size(); i++)
-    	{
-    		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
-    		Double pointsPossible = agr.getAssignment().getPointsPossible();
-    		agr.setDateRecorded(agr.getDateRecorded());
-    		agr.setGraderId(agr.getGraderId());
-    		if(agr != null && agr.getPointsEarned() != null )
-    		{
-      		String letterGrade = lgpm.getGrade(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
-    			agr.setLetterEarned(letterGrade);
-    			letterGradeList.add(agr);
-    		}
-    		else if(agr != null)
-    		{
-    			agr.setLetterEarned(null);
-    			letterGradeList.add(agr);
-    		}
-    	}
-    	return letterGradeList;
-    }
     
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending) {
     	List categories = getCategories(gradebookId);

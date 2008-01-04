@@ -258,6 +258,82 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 		return getAssignmentScore(gradebookUid, assignment.getName(), studentUid);
 	}
+	
+	public GradeDefinition getGradeDefinitionForStudentForItem(final String gradebookUid,
+			final Long gbItemId, final String studentUid) {
+		
+		if (gradebookUid == null || gbItemId == null || studentUid == null) {
+			throw new IllegalArgumentException("Null gradebookUid or gbItemId or studentUid" +
+					" passed to getGradeDefinitionForStudentForItem");	
+		}
+		
+		final boolean studentRequestingOwnScore = authn.getUserUid().equals(studentUid);
+
+		GradeDefinition gradeDef = (GradeDefinition)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				
+				Assignment assignment = getAssignment(gbItemId);
+				if (assignment == null) {
+					throw new AssessmentNotFoundException("There is no assignment with the gbItemId " 
+							+ gbItemId + " in gradebook " + gradebookUid);
+				}
+				
+				if (!studentRequestingOwnScore && !isUserAbleToViewItemForStudent(gradebookUid, assignment.getId(), studentUid)) {
+					log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to retrieve grade for student " + studentUid + " for assignment " + gbItemId);
+					throw new SecurityException("You do not have permission to perform this operation");
+				}
+				
+				Gradebook gradebook = assignment.getGradebook();
+				
+				GradeDefinition gradeDef = new GradeDefinition();
+				gradeDef.setStudentUid(studentUid);
+				gradeDef.setGradeEntryType(gradebook.getGrade_type());
+				gradeDef.setGradeReleased(assignment.isReleased());
+				
+				// If this is the student, then the assignment needs to have
+				// been released. Return null score information if not released
+				if (studentRequestingOwnScore && !assignment.isReleased()) {
+					gradeDef.setDateRecorded(null);
+					gradeDef.setGrade(null);
+					gradeDef.setGraderUid(null);
+					log.debug("Student " + getUserUid() + " in gradebook " + gradebookUid + " retrieving score for unreleased assignment " + assignment.getName());		
+				
+				} else {
+				
+					AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid, session);
+					if (log.isDebugEnabled()) log.debug("gradeRecord=" + gradeRecord);
+					
+					if (gradeRecord == null) {
+						gradeDef.setDateRecorded(null);
+						gradeDef.setGrade(null);
+						gradeDef.setGraderUid(null);
+					} else {
+						gradeDef.setDateRecorded(gradeRecord.getDateRecorded());
+						gradeDef.setGraderUid(gradeRecord.getGraderId());
+						
+						if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+							List gradeList = new ArrayList();
+							gradeList.add(gradeRecord);
+							convertPointsToLetterGrade(gradebook, gradeList);
+							AssignmentGradeRecord gradeRec = (AssignmentGradeRecord)gradeList.get(0);
+							if (gradeRec != null) {
+								gradeDef.setGrade(gradeRec.getLetterEarned());
+							}
+						} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+							Double percent = calculateEquivalentPercent(assignment.getPointsPossible(), gradeRecord.getPointsEarned());
+							if (percent != null) {
+								gradeDef.setGrade(percent.toString());
+							}
+						}
+					}
+				}
+				
+				return gradeDef;
+			}
+		});
+		if (log.isDebugEnabled()) log.debug("returning grade def for " + studentUid);
+		return gradeDef;
+	}
 
 	public void setAssignmentScore(final String gradebookUid, final String assignmentName, final String studentUid, final Double score, final String clientServiceDescription)
 		throws GradebookNotFoundException, AssessmentNotFoundException {
