@@ -1,5 +1,6 @@
 package org.sakaiproject.tool.gradebook.ui.helpers.producers;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.ui.helpers.params.AddGradebookItemViewParams;
+import org.sakaiproject.tool.gradebook.ui.helpers.params.FinishedHelperViewParams;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -25,13 +27,17 @@ import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
+import uk.org.ponder.rsf.flow.jsfnav.DynamicNavigationCaseReporter;
+import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
+import uk.org.ponder.rsf.util.RSFUtil;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.DefaultView;
+import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-public class AddGradebookItemProducer implements // DynamicNavigationCaseReporter, 
+public class AddGradebookItemProducer implements DynamicNavigationCaseReporter, 
 ViewComponentProducer, ViewParamsReporter, DefaultView {
 
     public static final String VIEW_ID = "add-gradebook-item";
@@ -127,6 +133,9 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         
         form.parameters.add( new UIELBinding("#{GradebookItemBean.gradebookId}", gradebookManager.getGradebook(params.contextId).getId()));
         
+        //RSFUtil.addResultingViewBinding(form, "viewParameters.id", assignmentOTP + ".id");
+        //RSFUtil.addResultingViewBinding(form, "viewParameters.name", assignmentOTP + ".name");
+        
         //Action Buttons
         UICommand.make(form, "add_item", UIMessage.make("gradebook.add-gradebook-item.add_item"), "#{GradebookItemBean.processActionAddItem}");
         UICommand.make(form, "cancel", UIMessage.make("gradebook.add-gradebook-item.cancel"), "#{GradebookItemBean.processActionCancel}");
@@ -140,16 +149,15 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         this.messageLocator = messageLocator;
     }
     
-    //public List reportNavigationCases() {
-        //Tool tool = toolManager.getCurrentTool();
-      //  List togo = new ArrayList();
-     //   togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
-     //   togo.add(new NavigationCase("done", 
-      //           new RawViewParameters(SakaiURLUtil.getHelperDoneURL(tool, sessionManager))));
+    public List reportNavigationCases() {
+        List togo = new ArrayList();
+        togo.add(new NavigationCase("cancel", new SimpleViewParameters(FinishedHelperProducer.VIEWID)));
+        togo.add(new NavigationCase("add_item", 
+                new FinishedHelperViewParams(FinishedHelperProducer.VIEWID, null, null)));
         
 
-      //  return togo;
-    //}
+        return togo;
+    }
 
 
 	public void setToolManager(ToolManager toolManager) {

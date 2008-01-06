@@ -50,14 +50,16 @@ public class GradebookItemBean {
 	public String processActionAddItem(){
 		for (String key : OTPMap.keySet()) {
 			Assignment assignment = OTPMap.get(key);
+			Long id = null;
 			try {
 				if (this.categoryId != null){
-					gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
+					id = gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
 							assignment.getPointsPossible(), assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
 				} else {
-					gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
+					id = gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
 							assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
 				}
+				assignment.setId(id);
 				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.successful",
 						new Object[] {assignment.getName() }, TargettedMessage.SEVERITY_INFO));
 			} catch (ConflictingAssignmentNameException e){

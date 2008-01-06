@@ -104,10 +104,11 @@ public class AssignmentGradeRecordBean {
 				comments.add(comment);
 				Set excessiveScores = gradebookManager.updateAssignmentGradesAndComments(assignment, gradeRecords, comments);
 				
+				/**
 				eventTrackingService.postEvent("gradebook.updateItemScores", "/gradebook/" + this.gradebookId + "/1/" + getAuthzLevel());
 				
 				eventTrackingService.postEvent("gradebook.comment", "/gradebook/" + this.gradebookId + "/1/" + getAuthzLevel());
-				
+				**/
 			}
 			return SUBMIT;
 		}
