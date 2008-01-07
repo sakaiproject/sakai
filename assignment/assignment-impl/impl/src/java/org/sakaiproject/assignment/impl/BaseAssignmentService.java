@@ -8600,7 +8600,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			Assignment m = getAssignment();
 			if (m.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
 			{
-				if (m_grade != null && m_grade.length() > 0)
+				if (m_grade != null && m_grade.length() > 0 && !m_grade.equals("0"))
 				{
 					try
 					{
