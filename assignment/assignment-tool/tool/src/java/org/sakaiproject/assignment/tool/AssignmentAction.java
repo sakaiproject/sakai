@@ -291,6 +291,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** state sort submission by max grade */
 	private static final String SORTED_SUBMISSION_BY_MAX_GRADE = "sorted_submission_by_max_grade";
+	
+	/*********************** Sort by user sort name *****************************************/
+	private static final String SORTED_USER_BY_SORTNAME = "sorted_user_by_sortname";
 
 	/** ******************** student's view assignment submission ****************************** */
 	/** the assignment object been viewing * */
@@ -2307,7 +2310,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		}
 		
-		context.put("studentMembers", studentMembers);
+		context.put("studentMembers", new SortedIterator(studentMembers.iterator(), new AssignmentComparator(state, SORTED_USER_BY_SORTNAME, Boolean.TRUE.toString())));
 		context.put("assignmentService", AssignmentService.getInstance());
 		
 		Hashtable showStudentAssignments = new Hashtable();
@@ -8186,6 +8189,15 @@ public class AssignmentAction extends PagedResourceActionII
 				String title2 = ((AssignmentSubmission) o2).getAssignment().getContent().getTitle();
 
 				result = compareString(title1, title2);
+			}
+			/*************** sort user by sort name ***************/
+			else if (m_criteria.equals(SORTED_USER_BY_SORTNAME))
+			{
+				// sort by user's sort name
+				String name1 = ((User) o1).getSortName();
+				String name2 = ((User) o2).getSortName();
+
+				result = compareString(name1, name2);
 			}
 
 			// sort ascending or descending
