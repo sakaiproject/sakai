@@ -8,6 +8,7 @@ import java.util.List;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.ui.helpers.params.FinishedHelperViewParams;
@@ -100,8 +101,17 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	Gradebook gradebook  = gradebookManager.getGradebook(params.contextId);
     	Long gradebookId = gradebook.getId();
     	String userId = params.userId;
+    	List studentIds = new ArrayList();
+    	studentIds.add(userId);
+    	
+    	//get Options
     	Assignment assignment = gradebookManager.getAssignment(params.assignmentId);
     	AssignmentGradeRecord agr = gradebookManager.getAssignmentGradeRecordForAssignmentForStudent(assignment, userId);
+    	List<Comment> comments = gradebookManager.getComments(assignment, studentIds);
+    	Comment comment = new Comment();
+    	if (comments != null && comments.get(0) != null){
+    		comment = (Comment)comments.get(0);
+    	}
     	
     	UIMessage.make(tofill, "heading", "gradebook.grade-gradebook-item.heading", new Object[]{ assignment.getName()} );
     	
@@ -114,6 +124,15 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     		OTPKey += EntityBeanLocator.NEW_PREFIX + "1";
     	}
     	agrOTP += OTPKey;
+    	
+    	String commentOTP = "Comment.";
+    	String commentOTPKey = "";
+    	if (comment != null && comment.getId() != null){
+    		commentOTPKey += comment.getId().toString();
+    	} else {
+    		commentOTPKey += EntityBeanLocator.NEW_PREFIX + "1";
+    	}
+    	commentOTP += commentOTPKey;
     	
    
         UIVerbatim.make(tofill, "instructions", messageLocator.getMessage("gradebook.grade-gradebook-item.instructions",
@@ -153,8 +172,8 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         	UIInput.make(form, "score", agrOTP + ".letterEarned");
         }
         
-        UIInput comments = UIInput.make(form, "comments:", "#{AssignmentGradeRecordBean.comment}");
-        richTextEvolver.evolveTextInput(comments);
+        UIInput feedback_comment = UIInput.make(form, "comments:", commentOTP + ".commentText");
+        richTextEvolver.evolveTextInput(feedback_comment);
         
         form.parameters.add( new UIELBinding("#{AssignmentGradeRecordBean.gradebookId}", gradebookManager.getGradebook(params.contextId).getId()));
         form.parameters.add( new UIELBinding("#{AssignmentGradeRecordBean.studentId}", params.userId));
@@ -176,7 +195,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     public List reportNavigationCases() {
         List togo = new ArrayList();
         togo.add(new NavigationCase("cancel", new SimpleViewParameters(FinishedHelperProducer.VIEWID)));
-        togo.add(new NavigationCase("add_item", 
+        togo.add(new NavigationCase("submit", 
                 new FinishedHelperViewParams(FinishedHelperProducer.VIEWID, null, null)));
         
 

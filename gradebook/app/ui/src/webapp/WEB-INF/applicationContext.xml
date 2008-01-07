@@ -48,7 +48,7 @@
    <!-- Define the bean roots from the request scope file that are accessible 
     via incoming request URL -->
    <bean parent="requestAddressibleParent">
-	  <property name="value" value="Assignment,AssignmentGradeRecord,GradebookItemBean,AssignmentGradeRecordBean"/>
+	  <property name="value" value="Assignment,AssignmentGradeRecord,Comment,GradebookItemBean,AssignmentGradeRecordBean"/>
    </bean>
 
 	<bean id="AssignmentCreator"
@@ -70,6 +70,12 @@
    	   	 value="AssignmentGradeRecordCreator.create" />
    	   <property name="fetchMethod"
    	     value="AssignmentGradeRecordBean.getAssignmentGradeRecordById" />
+   </bean>
+   
+   <bean id="CommentCreator" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.CommentCreator" />
+   <bean id="Comment" parent="entityBeanLocatorParent">
+   	   <property name="newMethod" value="CommentCreator.create" />
+   	   <property name="fetchMethod" value="AssignmentGradeRecordBean.getCommentById" />
    </bean>
 
 </beans>

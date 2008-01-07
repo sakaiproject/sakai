@@ -485,7 +485,22 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
 
     public AssignmentGradeRecord getAssignmentGradeRecordById(Long id) {
-    	return (AssignmentGradeRecord)getHibernateTemplate().load(AssignmentGradeRecord.class, id);
+    	AssignmentGradeRecord agr = (AssignmentGradeRecord)getHibernateTemplate().load(AssignmentGradeRecord.class, id);
+    	AssignmentGradeRecord agrCalculated = new AssignmentGradeRecord();
+    	if (agr != null){
+    		List assignRecordsFromDB = new ArrayList();
+    		assignRecordsFromDB.add(agr);
+    		List agrs = this.convertPointsToLetterGrade(agr.getAssignment(), agr.getAssignment().getGradebook(), assignRecordsFromDB);
+    		agrs = this.convertPointsToPercentage(agr.getAssignment(), agr.getAssignment().getGradebook(), agrs);
+    		if (agrs.get(0) != null){
+    			agrCalculated = (AssignmentGradeRecord)agrs.get(0);
+    		}
+    	}
+    	return agrCalculated;
+    }
+    
+    public Comment getCommentById(Long id) {
+    	return (Comment) getHibernateTemplate().load(Comment.class, id);
     }
     
     public AssignmentGradeRecord getAssignmentGradeRecordForAssignmentForStudent(final Assignment assignment, final String studentUid) {

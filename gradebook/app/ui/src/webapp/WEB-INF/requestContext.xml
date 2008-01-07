@@ -42,6 +42,7 @@
    	  <property name="messageLocator" ref="messageLocator" />
    	  <property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />
    	  <property name="assignmentGradeRecordEntityBeanLocator" ref="AssignmentGradeRecord"/>
+   	  <property name="commentEntityBeanLocator" ref="Comment" />
    	  <property name="eventTrackingService" ref="org_sakaiproject_tool_gradebook_facades_EventTrackingService" />
    	  <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
    	  

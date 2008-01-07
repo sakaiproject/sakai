@@ -40,6 +40,11 @@ public class AssignmentGradeRecordBean {
 		public void setAssignmentGradeRecordEntityBeanLocator(EntityBeanLocator entityBeanLocator) {
 			this.OTPMap = entityBeanLocator.getDeliveredBeans();
 		}
+		
+		private Map<String, Comment> CommentOTPMap;
+		public void setCommentEntityBeanLocator(EntityBeanLocator entityBeanLocator) {
+			this.CommentOTPMap = entityBeanLocator.getDeliveredBeans();
+		}
 
 		private MessageLocator messageLocator;
 		public void setMessageLocator (MessageLocator messageLocator) {
@@ -85,31 +90,35 @@ public class AssignmentGradeRecordBean {
 			if (this.assignmentId == null || this.studentId == null || this.gradebookId == null){
 				return FAILURE;
 			}
+			Assignment assignment = gradebookManager.getAssignment(this.assignmentId);
+			Comment comment = new Comment();
+			AssignmentGradeRecord agr = new AssignmentGradeRecord();
+			List gradeRecords = new ArrayList();
 			for (String key : OTPMap.keySet()) {
-				AssignmentGradeRecord agr = OTPMap.get(key);
-				Assignment assignment = gradebookManager.getAssignment(this.assignmentId);
-				Comment comment = new Comment();
-				comment.setCommentText(this.comment);
-				comment.setDateRecorded(new Date());
-				comment.setGradableObject(assignment);
-				comment.setStudentId(this.studentId);
+				agr = OTPMap.get(key);
 				
 				agr.setStudentId(this.studentId);
 				agr.setDateRecorded(new Date());
 				agr.setGradableObject(assignment);
 				
-				List gradeRecords = new ArrayList();
 				gradeRecords.add(agr);
-				List comments = new ArrayList();
-				comments.add(comment);
-				Set excessiveScores = gradebookManager.updateAssignmentGradesAndComments(assignment, gradeRecords, comments);
-				
-				/**
-				eventTrackingService.postEvent("gradebook.updateItemScores", "/gradebook/" + this.gradebookId + "/1/" + getAuthzLevel());
-				
-				eventTrackingService.postEvent("gradebook.comment", "/gradebook/" + this.gradebookId + "/1/" + getAuthzLevel());
-				**/
 			}
+			List comments = new ArrayList();
+			for (String key : CommentOTPMap.keySet()) {
+				comment = CommentOTPMap.get(key);
+				comment.setDateRecorded(new Date());
+				comment.setGradableObject(assignment);
+				comment.setStudentId(this.studentId);
+				
+				comments.add(comment);
+			}
+			Set excessiveScores = gradebookManager.updateAssignmentGradesAndComments(assignment, gradeRecords, comments);
+			
+			/**
+			eventTrackingService.postEvent("gradebook.updateItemScores", "/gradebook/" + this.gradebookId + "/1/" + getAuthzLevel());
+			
+			eventTrackingService.postEvent("gradebook.comment", "/gradebook/" + this.gradebookId + "/1/" + getAuthzLevel());
+			**/
 			return SUBMIT;
 		}
 		
@@ -121,6 +130,10 @@ public class AssignmentGradeRecordBean {
 	
 		public AssignmentGradeRecord getAssignmentGradeRecordById(Long assignmentGradeRecordId){
 			return gradebookManager.getAssignmentGradeRecordById(assignmentGradeRecordId);
+		}
+		
+		public Comment getCommentById(Long commentId){
+			return gradebookManager.getCommentById(commentId);
 		}
 		
 		public String getAuthzLevel(){

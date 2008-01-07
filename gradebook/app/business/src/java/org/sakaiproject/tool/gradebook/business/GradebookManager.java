@@ -98,6 +98,13 @@ public interface GradebookManager {
     public AssignmentGradeRecord getAssignmentGradeRecordById(Long id);
     
     /**
+     * Get a comment by id
+     * @param commentId
+     * @return Comment
+     */
+    public Comment getCommentById(Long id);
+    
+    /**
      * Get an assignment grade record by assignment and student
      * @param = assignment
      * @param = studentUid
