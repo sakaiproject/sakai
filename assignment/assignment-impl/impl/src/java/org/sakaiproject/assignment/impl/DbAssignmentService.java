@@ -490,7 +490,7 @@ public class DbAssignmentService extends BaseAssignmentService
 	 */
 	protected void convertToContext()
 	{
-		M_log.info("convertToContext");
+		M_log.info(this + " convertToContext");
 
 		try
 		{
@@ -517,7 +517,7 @@ public class DbAssignmentService extends BaseAssignmentService
 						Element root = doc.getDocumentElement();
 						if (!root.getTagName().equals("assignment"))
 						{
-							M_log.warn("convertToContext(): XML root element not assignment: " + root.getTagName());
+							M_log.warn(this + " convertToContext(): XML root element not assignment: " + root.getTagName());
 							return null;
 						}
 						Assignment a = new BaseAssignment(root);
@@ -532,7 +532,7 @@ public class DbAssignmentService extends BaseAssignmentService
 						fields[1] = id;
 						boolean ok = m_sqlService.dbWrite(connection, update, fields);
 
-						M_log.info("convertToContext: assignment id: " + id + " context: " + context + " ok: " + ok);
+						M_log.info(this + " convertToContext: assignment id: " + id + " context: " + context + " ok: " + ok);
 
 						return null;
 					}
@@ -561,7 +561,7 @@ public class DbAssignmentService extends BaseAssignmentService
 						Element root = doc.getDocumentElement();
 						if (!root.getTagName().equals("content"))
 						{
-							M_log.warn("convertToContext(): XML root element not content: " + root.getTagName());
+							M_log.warn(this + " convertToContext(): XML root element not content: " + root.getTagName());
 							return null;
 						}
 						AssignmentContent c = new BaseAssignmentContent(root);
@@ -576,7 +576,7 @@ public class DbAssignmentService extends BaseAssignmentService
 						fields[1] = id;
 						boolean ok = m_sqlService.dbWrite(connection, update, fields);
 
-						M_log.info("convertToContext: content id: " + id + " context: " + context + " ok: " + ok);
+						M_log.info(this + " convertToContext: content id: " + id + " context: " + context + " ok: " + ok);
 
 						return null;
 					}
@@ -605,7 +605,7 @@ public class DbAssignmentService extends BaseAssignmentService
 						Element root = doc.getDocumentElement();
 						if (!root.getTagName().equals("submission"))
 						{
-							M_log.warn("convertToContext(): XML root element not submission: " + root.getTagName());
+							M_log.warn(this + " convertToContext(): XML root element not submission: " + root.getTagName());
 							return null;
 						}
 						AssignmentSubmission s = new BaseAssignmentSubmission(root);
@@ -620,7 +620,7 @@ public class DbAssignmentService extends BaseAssignmentService
 						fields[1] = id;
 						boolean ok = m_sqlService.dbWrite(connection, update, fields);
 
-						M_log.info("convertToContext: submission id: " + id + " context: " + context + " ok: " + ok);
+						M_log.info(this + " convertToContext: submission id: " + id + " context: " + context + " ok: " + ok);
 
 						return null;
 					}
@@ -637,10 +637,10 @@ public class DbAssignmentService extends BaseAssignmentService
 		}
 		catch (Throwable t)
 		{
-			M_log.warn("convertToContext: failed: " + t);
+			M_log.warn(this + " convertToContext: failed: " + t);
 		}
 
 		// TODO:
-		M_log.info("convertToContext: done");
+		M_log.info(this + " convertToContext: done");
 	}
 }
