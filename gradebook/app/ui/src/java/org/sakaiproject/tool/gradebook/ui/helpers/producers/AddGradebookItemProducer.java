@@ -152,7 +152,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     public List reportNavigationCases() {
         List togo = new ArrayList();
         togo.add(new NavigationCase("cancel", new SimpleViewParameters(FinishedHelperProducer.VIEWID)));
-        togo.add(new NavigationCase("add_item", 
+        togo.add(new NavigationCase("submit", 
                 new FinishedHelperViewParams(FinishedHelperProducer.VIEWID, null, null)));
         
 

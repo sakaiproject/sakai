@@ -14,7 +14,7 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 public class GradebookItemBean {
 	
 	private static final String CANCEL = "cancel";
-	private static final String ADD_ITEM = "add_item";
+	private static final String SUBMIT = "submit";
 	
 	
 	private TargettedMessageList messages;
@@ -50,24 +50,37 @@ public class GradebookItemBean {
 	public String processActionAddItem(){
 		for (String key : OTPMap.keySet()) {
 			Assignment assignment = OTPMap.get(key);
-			Long id = null;
-			try {
-				if (this.categoryId != null){
-					id = gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
-							assignment.getPointsPossible(), assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
-				} else {
-					id = gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
-							assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
+			if (key.equals(EntityBeanLocator.NEW_PREFIX + "1")){
+				//We have a new assignment object
+				Long id = null;
+				try {
+					if (this.categoryId != null){
+						id = gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
+								assignment.getPointsPossible(), assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
+					} else {
+						id = gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
+								assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
+					}
+					assignment.setId(id);
+					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.successful",
+							new Object[] {assignment.getName() }, TargettedMessage.SEVERITY_INFO));
+				} catch (ConflictingAssignmentNameException e){
+					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.conflicting_name",
+							new Object[] {assignment.getName() }, "Assignment." + key + ".name"));
 				}
-				assignment.setId(id);
-				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.successful",
-						new Object[] {assignment.getName() }, TargettedMessage.SEVERITY_INFO));
-			} catch (ConflictingAssignmentNameException e){
-				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.conflicting_name",
-						new Object[] {assignment.getName() }, "Assignment." + key + ".name"));
+			} else {
+				//we are editing an existing object
+				try {
+					gradebookManager.updateAssignment(assignment);
+					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.successful",
+							new Object[] {assignment.getName() }, TargettedMessage.SEVERITY_INFO));
+				} catch (ConflictingAssignmentNameException e){
+					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.conflicting_name",
+							new Object[] {assignment.getName() }, "Assignment." + key + ".name"));
+				}
 			}
 		}
-		return ADD_ITEM;
+		return SUBMIT;
 	}
 	
 	public String processActionCancel(){

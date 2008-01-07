@@ -83,7 +83,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	AssignmentGradeRecord agr = gradebookManager.getAssignmentGradeRecordForAssignmentForStudent(assignment, userId);
     	List<Comment> comments = gradebookManager.getComments(assignment, studentIds);
     	Comment comment = new Comment();
-    	if (comments != null && comments.get(0) != null){
+    	if (comments != null && comments.size() > 0){
     		comment = (Comment)comments.get(0);
     	}
     	
