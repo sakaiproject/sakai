@@ -3,10 +3,6 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-	<!-- rich text evolver bean def -->
-   <bean id="richTextEvolver" class="org.springframework.beans.factory.config.BeanReferenceFactoryBean">
-      <property name="targetBeanName" value="sakaiFCKTextEvolver" />
-   </bean>
 
 	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.AddGradebookItemProducer" >
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
@@ -19,12 +15,8 @@
 	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.FinishedHelperProducer" />
 	
 	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.GradeGradebookItemProducer" >
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
-		<property name="dateEvolver" ref="fieldDateInputEvolver" />
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />
-		<property name="richTextEvolver" ref="richTextEvolver" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 	</bean>
 	

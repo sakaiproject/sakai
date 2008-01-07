@@ -56,33 +56,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     private String reqStar = "<span class=\"reqStar\">*</span>";
 
     private MessageLocator messageLocator;
-    private ToolManager toolManager;
-    private SessionManager sessionManager;
     private GradebookManager gradebookManager;
-    
-    
-	/*
-	 * You can change the date input to accept time as well by uncommenting the lines like this:
-	 * dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);
-	 * and commenting out lines like this:
-	 * dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);
-	 * -AZ
-	 * And vice versa - RWE
-	 */
-	private FormatAwareDateInputEvolver dateEvolver;
-	public void setDateEvolver(FormatAwareDateInputEvolver dateEvolver) {
-		this.dateEvolver = dateEvolver;
-	}
-	
-    private SiteService siteService;
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-    
-    private TextInputEvolver richTextEvolver;
-    public void setRichTextEvolver(TextInputEvolver richTextEvolver) {
-        this.richTextEvolver = richTextEvolver;
-    }
     
     private UserDirectoryService userDirectoryService;
     public void setUserDirectoryService(UserDirectoryService userDirectoryService){
@@ -172,8 +146,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         	UIInput.make(form, "score", agrOTP + ".letterEarned");
         }
         
-        UIInput feedback_comment = UIInput.make(form, "comments:", commentOTP + ".commentText");
-        richTextEvolver.evolveTextInput(feedback_comment);
+        UIInput.make(form, "comments", commentOTP + ".commentText");
         
         form.parameters.add( new UIELBinding("#{AssignmentGradeRecordBean.gradebookId}", gradebookManager.getGradebook(params.contextId).getId()));
         form.parameters.add( new UIELBinding("#{AssignmentGradeRecordBean.studentId}", params.userId));
@@ -202,16 +175,6 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         return togo;
     }
 
-
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
-
-
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-	
     public void setGradebookManager(GradebookManager gradebookManager) {
     	this.gradebookManager = gradebookManager;
     }
