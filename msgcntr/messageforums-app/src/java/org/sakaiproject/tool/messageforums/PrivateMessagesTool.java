@@ -301,9 +301,6 @@ public class PrivateMessagesTool
   /** sort member */
   private String sortType = SORT_DATE_DESC;
   
-  private boolean selectedComposeEquesAuther=false;
-  
-  
   public PrivateMessagesTool()
   {    
   }
@@ -2688,31 +2685,12 @@ public void processChangeSelectView(ValueChangeEvent eve)
    // MembershipItem itemtmp2 = (MembershipItem) courseMemberMap.get(currentMessage.getCreatedBy());
    
     
-    String userIdcurrentuser = SessionManager.getCurrentSessionUserId();
-    User usercurrentisSelected = null;
-    
-   
-    
-    try
-    {
-    	 usercurrentisSelected = UserDirectoryService.getUser(userIdcurrentuser);
-    }catch (UserNotDefinedException e) {
-    	// TODO Auto-generated catch block
-    	e.printStackTrace();
-    }
-    
-    String currentselectedname= usercurrentisSelected.getDisplayName();
-    
     if (selectedComposeToList.size() == 1) {
         MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(0));
         if(membershipItem != null)              //selectedComposeToList
         {
       		  sendToString +=membershipItem.getName()+"; " ;
-        }
-        else if((membershipItem != null)&&(membershipItem.getName().equals(currentselectedname)))//getAuthorString())))
-        {
-        	selectedComposeEquesAuther=true;
-        }
+        }          
     }
     else {
     	for (int i = 0; i < selectedComposeToList.size(); i++)
@@ -2728,12 +2706,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
    		       	else {
    	        		sendToHiddenString += membershipItem.getName() + "; ";
    	        	}
-   	        } 
-    		else if((membershipItem != null)&&(membershipItem.getName().equals(currentselectedname)))//getAuthorString())))
-    		{
-    			selectedComposeEquesAuther=true;
-    		}
-    		
+   	        }          
     	}
     }
     
@@ -2818,7 +2791,6 @@ public void processChangeSelectView(ValueChangeEvent eve)
     List tmpRecipList = currentMessage.getRecipients();
     List replyalllist=new ArrayList();
     Set returnSet = new HashSet();
-    Set returnSet2 = new HashSet();
     Iterator iter = tmpRecipList.iterator();
     
     String sendToStringreplyall="";
@@ -2875,53 +2847,20 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	
     }
     //replyalllist.add(authoruser);
-    if(authoruser!=usercurrentisSelected)
-    {
     returnSet.add(authoruser);
-    }
-    
-   // }
-    
-    
-    
-    Iterator iterCC = returnSet.iterator();
-    while(iterCC.hasNext())
-    {
-    	User tmpCCusr=(User)iterCC.next();
-    	if(tmpCCusr!=usercurrentisSelected)//usercurrent)
-    		returnSet2.add(tmpCCusr);
-    		
-    	
-    }
-    if(returnSet2==null)
-    {
-    setErrorMessage(getResourceBundleString(MISSING_SUBJECT));//MISSING_SUBJECT_CC));
-    return null ;
-    }	
-    
-
-    
-    
-
   
-
    // MembershipItem itemTmp = (MembershipItem) courseMemberMap.get(currentMessage.getAuthor());//UUID);//msgauther);//selectedComposeToList.get(i));
    // MembershipItem itemTmp2 = (MembershipItem) courseMemberMap.get(currentMessage.getCreatedBy());
 
-    //add current user if current auther is selected ---aurthor
-    if(selectedComposeEquesAuther==true)
-    {
-    	returnSet2.add(usercurrentisSelected);//usercurrent);//authoruser);
-    }
     
     if(!getBooleanEmailOut())
     {
     	
-      prtMsgManager.sendPrivateMessage(rrepMsg, returnSet2, false);//getRecipients()  replyalllist
+      prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, false);//getRecipients()  replyalllist
      // prtMsgManager.sendPrivateMessage(rrepMsg, returnSetreplyall, false);
     }
     else{
-      prtMsgManager.sendPrivateMessage(rrepMsg, returnSet2, true);//getRecipients()  replyalllist
+      prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, true);//getRecipients()  replyalllist
       //prtMsgManager.sendPrivateMessage(rrepMsg, returnSetreplyall, true);
     }
     
