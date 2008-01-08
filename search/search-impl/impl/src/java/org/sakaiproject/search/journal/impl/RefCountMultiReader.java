@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiReader;
 import org.sakaiproject.search.journal.api.IndexCloser;
+import org.sakaiproject.search.journal.api.ManagementOperation;
 import org.sakaiproject.search.journal.api.ThreadBinder;
 import org.sakaiproject.thread_local.api.ThreadBound;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -36,7 +37,8 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 /**
  * @author ieb
  */
-public class RefCountMultiReader extends MultiReader implements ThreadBound, ThreadBinder, IndexCloser
+public class RefCountMultiReader extends MultiReader implements ThreadBound,
+		ThreadBinder, IndexCloser
 {
 
 	private static final Log log = LogFactory.getLog(RefCountMultiReader.class);
@@ -55,6 +57,14 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound, Thr
 
 	private ConcurrentHashMap<Object, Object> parents = new ConcurrentHashMap<Object, Object>();
 
+	private ThreadLocal<String> unbindingMonitor = new ThreadLocal<String>();
+
+	private Object closeMonitor = new Object();
+
+	private ManagementOperation managementOperation; 
+
+	private static int opened = 0;
+
 	/**
 	 * @param arg0
 	 * @param storage
@@ -64,6 +74,8 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound, Thr
 			throws IOException
 	{
 		super(indexReaders);
+		this.managementOperation = ConcurrentIndexManager.getCurrentManagementOperation();
+		opened++;
 		this.indexReaders = indexReaders;
 		this.storage = storage;
 	}
@@ -77,10 +89,7 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound, Thr
 	protected synchronized void doClose() throws IOException
 	{
 		doclose = true;
-		if ( threadLocalManager != null )
-		{
-			threadLocalManager.set(String.valueOf(this), null); // will cause an unbind
-		}
+		unbind();
 		storage.fireIndexReaderClose(this);
 	}
 
@@ -95,12 +104,16 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound, Thr
 		}
 		return false;
 	}
-	
-	public boolean forceClose() {
-		if ( closing ) return true;
-		closing = true;
-		if ( log.isDebugEnabled() )
-			log.debug("Closing Index "+this);
+
+	public boolean forceClose()
+	{
+		synchronized (closeMonitor)
+		{
+			if (closing) return true;
+			closing = true;			
+		}
+		opened --;
+		if (log.isDebugEnabled()) log.debug("Closing Index " + this);
 
 		try
 		{
@@ -116,7 +129,7 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound, Thr
 			try
 			{
 				ir.close();
-				if ( log.isDebugEnabled() )
+				if (log.isDebugEnabled())
 					log.debug("Closed " + ir.directory().toString());
 			}
 			catch (IOException ioex)
@@ -150,41 +163,69 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound, Thr
 	 */
 	public void unbind()
 	{
-		if ( threadLocalManager != null ) {
-			Object o = threadLocalManager.get(String.valueOf(this));
-			if ( o != null ) {
-				count--;
-				if ( log.isDebugEnabled() )
-					log.debug("Unbound "+this+" "+count);
+		Object unbinding = unbindingMonitor.get();
+		if (unbinding == null)
+		{
+			try
+			{
+				unbindingMonitor .set("unbinding");
+				if (threadLocalManager != null)
+				{
+					Object o = threadLocalManager.get(String.valueOf(this));
+					if (o != null)
+					{
+						count--;
+						if (log.isDebugEnabled())
+							log.debug("Unbound " + this + " " + count);
+						threadLocalManager.set(String.valueOf(this), null); // unbind
+																			// the
+																			// dependents
+					}
+					for (IndexReader ir : indexReaders)
+					{
+						if (ir instanceof ThreadBound)
+						{
+							((ThreadBound) ir).unbind();
+						}
+
+					}
+				}
+
+				if (canClose())
+				{
+					forceClose();
+				}
 			}
-			for ( IndexReader ir : indexReaders ) {
-				threadLocalManager.set(String.valueOf(ir), null);
+			finally
+			{
+				unbindingMonitor.set(null);
 			}
 		}
 
-		if (canClose())
-		{
-			forceClose();
-		}
 	}
 
 	public void bind(ThreadLocalManager tlm)
 	{
-		count++;
 		threadLocalManager = tlm;
 		Object o = tlm.get(String.valueOf(this));
-		if ( o == null ) {
-			tlm.set(String.valueOf(this),this);
-		} else if ( o != this ) {
+		if (o == null)
+		{
+			count++;
+			tlm.set(String.valueOf(this), this);
+			if (log.isDebugEnabled())
+				log.debug("Bind " + this + " " + indexReaders + " " + count);
+		}
+		else if (o != this)
+		{
 			log.warn(" More than one object bound to the same key ");
 		}
-		for ( IndexReader ir : indexReaders ) {
-			if ( ir instanceof  ThreadBinder ) {
-				((ThreadBinder)ir).bind(tlm);
+		for (IndexReader ir : indexReaders)
+		{
+			if (ir instanceof ThreadBinder)
+			{
+				((ThreadBinder) ir).bind(tlm);
 			}
 		}
-		if ( log.isDebugEnabled() )
-			log.debug("Bind " + this + " "+indexReaders+" " + count);
 	}
 
 	/*
@@ -193,26 +234,52 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound, Thr
 	 * @see org.sakaiproject.search.journal.impl.IndexCloser#canClose()
 	 */
 	public boolean canClose()
-	{	
+	{
 		return (count <= 0 && doclose && parents.size() == 0);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.journal.api.IndexCloser#addParent(org.apache.lucene.search.IndexSearcher)
 	 */
 	public void addParent(Object searcher)
 	{
-		parents.put(searcher,searcher);
-		
+		parents.put(searcher, searcher);
+
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.journal.api.IndexCloser#removeParent(java.lang.Object)
 	 */
 	public void removeParent(Object searcher)
 	{
 		parents.remove(searcher);
-		
+
+	}
+
+	/**
+	 * @return
+	 */
+	public static int getOpened()
+	{
+		return opened;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.journal.api.IndexCloser#getName()
+	 */
+	public String getName()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append(managementOperation).append(" ");
+		sb.append(toString()).append(" RefCount:").append(count);
+		for ( IndexReader ir : indexReaders ) {
+			sb.append("[").append(ir.directory().toString()).append("]");
+		}
+		return sb.toString();
 	}
 
 }

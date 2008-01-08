@@ -22,6 +22,8 @@
 package org.sakaiproject.search.journal.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
@@ -72,7 +74,6 @@ public class IndexListenerCloser implements IndexListener
 
 	public void purge()
 	{
-		log.info("IndexCloser Purge has "+closeMap.size()+" open indexes ");
 		for (IndexCloser c : closeMap.values())
 		{
 			try
@@ -95,6 +96,14 @@ public class IndexListenerCloser implements IndexListener
 	public int size()
 	{
 		return closeMap.size();
+	}
+	
+	public String[] getOpenIndexNames() {
+		List<String> names = new ArrayList<String>();
+		for (IndexCloser ic : closeMap.values() ) {
+			names.add(ic.getName());
+		}
+		return names.toArray(new String[0]);
 	}
 
 	/**

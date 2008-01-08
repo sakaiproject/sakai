@@ -252,7 +252,7 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 
 			log.warn("Failed to roll back transaction ", e);
 		}
-		log.info("Transaction Rollback Completed on " + this);
+		log.debug("Transaction Rollback Completed on " + this);
 	}
 
 	/**

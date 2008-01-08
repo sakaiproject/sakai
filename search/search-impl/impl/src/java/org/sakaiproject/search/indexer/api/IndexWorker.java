@@ -41,4 +41,24 @@ public interface IndexWorker
 	 */
 	int process(int batchSize);
 
+	/**
+	 * @param indexWorkerListener
+	 */
+	void addIndexWorkerListener(IndexWorkerListener indexWorkerListener);
+
+	/**
+	 * @param indexWorkerListener
+	 */
+	void removeIndexWorkerListener(IndexWorkerListener indexWorkerListener);
+
+	/**
+	 * @param indexWorkerDocumentListener
+	 */
+	void addIndexWorkerDocumentListener(IndexWorkerDocumentListener indexWorkerDocumentListener);
+
+	/**
+	 * @param indexWorkerDocumentListener
+	 */
+	void removeIndexWorkerDocumentListener(IndexWorkerDocumentListener indexWorkerDocumentListener);
+
 }

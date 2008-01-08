@@ -19,54 +19,53 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.journal.api;
-
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.search.IndexSearcher;
+package org.sakaiproject.search.mbeans;
 
 /**
  * @author ieb
+ *
  */
-public interface IndexStorageProvider
+public interface SearchServiceManagementMBean
 {
 
 	/**
 	 * @return
-	 * @throws IOException
 	 */
-	IndexSearcher getIndexSearcher() throws IOException;
+	int getOpenIndexSearchers();
 
 	/**
 	 * @return
 	 */
-	long getLastLoad();
+	int getOpenMultiReaders();
 
 	/**
 	 * @return
 	 */
-	long getLastLoadTime();
+	String[] getSegments();
 
 	/**
 	 * @return
 	 */
-	long getLastUpdate();
+	String getStatus();
 
 	/**
 	 * @return
 	 */
-	List getSegmentInfoList();
+	int getNumberOfPendingDocuments();
 
 	/**
 	 * @return
 	 */
-	Analyzer getAnalyzer();
+	int getNumberOfDocuments();
 
 	/**
-	 * @param indexListener
+	 * @return
 	 */
-	void addIndexListener(IndexListener indexListener);
+	int getNumberOfPendingOpenIndexes();
+
+	/**
+	 * @return
+	 */
+	String[] getOpenIndexes();
 
 }

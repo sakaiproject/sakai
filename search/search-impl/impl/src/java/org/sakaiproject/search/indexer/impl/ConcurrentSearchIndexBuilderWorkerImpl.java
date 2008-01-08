@@ -448,5 +448,6 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	{
 		this.securityService = securityService;
 	}
+	
 
 }

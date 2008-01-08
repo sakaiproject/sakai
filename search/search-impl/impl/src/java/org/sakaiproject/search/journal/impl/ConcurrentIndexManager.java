@@ -26,15 +26,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.search.journal.api.IndexCloser;
 import org.sakaiproject.search.journal.api.IndexListener;
+import org.sakaiproject.search.journal.api.ManagementOperation;
 
 /**
  * The ConcurrentIndexManager, manages a single thread performs a number of
@@ -61,6 +60,8 @@ public class ConcurrentIndexManager implements IndexListener
 
 	private IndexListenerCloser indexListenerCloser;
 
+	private static ThreadLocal<ManagementOperation> runningOperation = new ThreadLocal<ManagementOperation>();
+
 	public void init()
 	{
 
@@ -82,7 +83,9 @@ public class ConcurrentIndexManager implements IndexListener
 
 			}
 		}
-		indexListenerCloser = new IndexListenerCloser();
+		if ( indexListenerCloser == null ) {
+			indexListenerCloser = new IndexListenerCloser();
+		}
 		timer.schedule(new TimerTask()
 		{
 
@@ -205,5 +208,39 @@ public class ConcurrentIndexManager implements IndexListener
 	{
 		this.searchService = searchService;
 	}
+
+	/**
+	 * @return the indexListenerCloser
+	 */
+	public IndexListenerCloser getIndexListenerCloser()
+	{
+		return indexListenerCloser;
+	}
+
+	/**
+	 * @param indexListenerCloser the indexListenerCloser to set
+	 */
+	public void setIndexListenerCloser(IndexListenerCloser indexListenerCloser)
+	{
+		this.indexListenerCloser = indexListenerCloser;
+	}
+
+	/**
+	 * @param managementOperation
+	 */
+	public static void setRunning(ManagementOperation managementOperation)
+	{
+		runningOperation.set(managementOperation);	
+	}
+
+	/**
+	 * @return
+	 */
+	public static ManagementOperation getCurrentManagementOperation()
+	{
+		return runningOperation.get();
+	}
+	
+	
 
 }

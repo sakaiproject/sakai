@@ -47,6 +47,8 @@ public class IndexManagementTimerTask extends TimerTask
 
 	private boolean closed = false;
 
+	private ConcurrentIndexManager manager;
+
 	/**
 	 * 
 	 */
@@ -129,12 +131,15 @@ public class IndexManagementTimerTask extends TimerTask
 		}
 		try
 		{
-
+			ConcurrentIndexManager.setRunning(managementOperation);
 			managementOperation.runOnce();
+		
 		}
 		catch (Throwable t)
 		{
 			log.error("Management Operation failed ", t);
+		} finally {
+			ConcurrentIndexManager.setRunning(null);
 		}
 	}
 
@@ -171,5 +176,6 @@ public class IndexManagementTimerTask extends TimerTask
 	{
 		this.closed = closed;
 	}
+
 
 }

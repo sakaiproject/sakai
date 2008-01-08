@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.sakaiproject.search.journal.api.IndexCloser;
+import org.sakaiproject.search.journal.api.ManagementOperation;
 import org.sakaiproject.search.journal.api.ThreadBinder;
 import org.sakaiproject.thread_local.api.ThreadBound;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -53,6 +54,14 @@ public class RefCountIndexSearcher extends IndexSearcher implements ThreadBound,
 
 	private ThreadLocalManager threadLocalManager;
 
+	private ThreadLocal<String> unbindingMonitor = new ThreadLocal<String>();
+	
+	private Object closeMonitor = new Object();
+
+	private ManagementOperation managementOperation; 
+
+	private static int opened = 0;
+
 	/**
 	 * @param storage
 	 * @param ir
@@ -60,10 +69,13 @@ public class RefCountIndexSearcher extends IndexSearcher implements ThreadBound,
 	public RefCountIndexSearcher(IndexReader indexReader, JournaledFSIndexStorage storage)
 	{
 		super(indexReader);
+		opened++;
+		this.managementOperation = ConcurrentIndexManager.getCurrentManagementOperation();
 		this.storage = storage;
 		this.indexReader = indexReader;
-		if ( indexReader instanceof IndexCloser ) {
-			((IndexCloser)indexReader).addParent(this);
+		if (indexReader instanceof IndexCloser)
+		{
+			((IndexCloser) indexReader).addParent(this);
 		}
 	}
 
@@ -76,10 +88,7 @@ public class RefCountIndexSearcher extends IndexSearcher implements ThreadBound,
 	public void close() throws IOException
 	{
 		doclose = true;
-		if (threadLocalManager != null)
-		{
-			threadLocalManager.set(String.valueOf(this), null);
-		}
+		unbind();
 		storage.fireIndexSearcherClose(this);
 	}
 
@@ -90,42 +99,63 @@ public class RefCountIndexSearcher extends IndexSearcher implements ThreadBound,
 	 */
 	public void unbind()
 	{
-		if (threadLocalManager != null)
+		Object unbinding = unbindingMonitor.get();
+		if (unbinding == null)
 		{
-			Object o = threadLocalManager.get(String.valueOf(this));
-			if (o != null)
+			try
 			{
-				count--;
-				if ( log.isDebugEnabled()) 
-					log.debug("Unbound " + this + " " + count);
+				unbindingMonitor.set("unbinding");
+				if (threadLocalManager != null)
+				{
+
+					Object o = threadLocalManager.get(String.valueOf(this));
+
+					if (o != null)
+					{
+						count--;
+						if (log.isDebugEnabled())
+							log.debug("Unbound " + this + " " + count);
+						threadLocalManager.set(String.valueOf(this), null); // unbind
+						// the
+						// dependents
+					}
+					if (indexReader instanceof ThreadBound)
+					{
+						((ThreadBound) indexReader).unbind();
+					}
+				}
+
+				if (canClose())
+				{
+					forceClose();
+				}
 			}
-			threadLocalManager.set(String.valueOf(indexReader), null); // unbind the dependents
-		}
-		
-		if (canClose())
-		{
-			forceClose();
+			finally
+			{
+				unbindingMonitor.set(null);
+			}
 		}
 	}
 
 	public void bind(ThreadLocalManager tlm)
 	{
-		count++;
 		threadLocalManager = tlm;
 		Object o = tlm.get(String.valueOf(this));
 		if (o == null)
 		{
+			count++;
 			tlm.set(String.valueOf(this), this);
+			if (log.isDebugEnabled())
+				log.debug("Bind " + this + " " + indexReader + " " + count);
 		}
 		else if (o != this)
 		{
 			log.warn(" More than one object bound to the same key ");
 		}
-		if ( indexReader instanceof  ThreadBinder ) {
-			((ThreadBinder)indexReader).bind(tlm);
+		if (indexReader instanceof ThreadBinder)
+		{
+			((ThreadBinder) indexReader).bind(tlm);
 		}
-		if ( log.isDebugEnabled() )
-			log.debug("Bind " + this + " "+indexReader+" " + count);
 
 	}
 
@@ -160,13 +190,17 @@ public class RefCountIndexSearcher extends IndexSearcher implements ThreadBound,
 	 */
 	public boolean forceClose()
 	{
-		if (closing) return true;
-		closing = true;
-		if ( indexReader instanceof IndexCloser ) {
-			((IndexCloser)indexReader).removeParent(this);
+		synchronized (closeMonitor)
+		{
+			if (closing) return true;
+			closing = true;			
 		}
-		if ( log.isDebugEnabled())
-			log.debug("Closing Index " + this);
+		opened --;
+		if (indexReader instanceof IndexCloser)
+		{
+			((IndexCloser) indexReader).removeParent(this);
+		}
+		if (log.isDebugEnabled()) log.debug("Closing Index " + this);
 		try
 		{
 			super.close();
@@ -186,22 +220,42 @@ public class RefCountIndexSearcher extends IndexSearcher implements ThreadBound,
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.journal.api.IndexCloser#addParent(org.apache.lucene.search.IndexSearcher)
 	 */
 	public void addParent(Object searcher)
 	{
-		//searchers cant have parents
+		// searchers cant have parents
 		log.debug("Index Searchers may not have parents, ignored");
-		
+
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.journal.api.IndexCloser#removeParent(java.lang.Object)
 	 */
 	public void removeParent(Object searcher)
 	{
-		log.debug("Index Searchers may not have parents, ignored");		
+		log.debug("Index Searchers may not have parents, ignored");
+	}
+
+	/**
+	 * @return
+	 */
+	public static int getOpened()
+	{
+		return opened;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.journal.api.IndexCloser#getName()
+	 */
+	public String getName()
+	{
+		return managementOperation+" "+toString()+" Refcount:"+count;
 	}
 
 }

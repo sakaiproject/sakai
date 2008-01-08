@@ -46,4 +46,9 @@ public interface IndexCloser
 	 */
 	void removeParent(Object searcher);
 
+	/**
+	 * @return
+	 */
+	String getName();
+
 }

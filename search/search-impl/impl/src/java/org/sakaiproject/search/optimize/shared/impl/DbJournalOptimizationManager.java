@@ -223,7 +223,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			rs.close();
 
-			log.info("Optimizing shared Journal Storage to savepoint "
+			log.debug("Optimizing shared Journal Storage to savepoint "
 					+ jms.oldestSavePoint);
 
 			// this requires read committed transaction issolation and WILL NOT
@@ -235,18 +235,21 @@ public class DbJournalOptimizationManager implements JournalManager
 			lockEarlierSavePoints.setLong(2, System.currentTimeMillis());
 			lockEarlierSavePoints.setLong(3, jms.oldestSavePoint);
 			int i = lockEarlierSavePoints.executeUpdate();
-
 			listJournal = jms.connection
-					.prepareStatement("select txid, indexwriter, status, txts  from search_journal");
-			listJournal.clearParameters();
-			rs = listJournal.executeQuery();
-			while (rs.next())
+			.prepareStatement("select txid, indexwriter, status, txts  from search_journal");
+
+			if (log.isDebugEnabled())
 			{
-				log.info("TX[" + rs.getLong(1) + "];indexwriter[" + rs.getString(2)
-						+ "];status[" + rs.getString(3) + "];timestamp[" + rs.getLong(4)
-						+ "]");
+				listJournal.clearParameters();
+				rs = listJournal.executeQuery();
+				while (rs.next())
+				{
+					log.debug("TX[" + rs.getLong(1) + "];indexwriter[" + rs.getString(2)
+							+ "];status[" + rs.getString(3) + "];timestamp["
+							+ rs.getLong(4) + "]");
+				}
+				rs.close();
 			}
-			rs.close();
 
 			if (i < journalSettings.getMinimumOptimizeSavePoints())
 			{
@@ -273,6 +276,15 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 
 			log.info("Locked " + i + " savePoints ");
+			listJournal.clearParameters();
+			rs = listJournal.executeQuery();
+			while (rs.next())
+			{
+				log.info("TX[" + rs.getLong(1) + "];indexwriter[" + rs.getString(2)
+						+ "];status[" + rs.getString(3) + "];timestamp[" + rs.getLong(4)
+						+ "]");
+			}
+			rs.close();
 
 			jms.mergeList = new ArrayList<Long>();
 
