@@ -88,10 +88,6 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 
 	private static final String SEGMENT_LIST_NAME = "local-segments";
 
-	private static final byte[] SEGMENT_LIST_SIGNATURE = { 'S', 'E', 'G', 'L', 'I', 'S',
-			'T' };
-
-	private static final int VERSION_SIGNATURE = 1;
 
 	/**
 	 * Sakai config service
@@ -210,6 +206,29 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		else
 		{
 			log.info("No Segment List File Exists");
+			
+			
+			// If no segments list exists, we have to assume that this a clean node.
+			// we must, clean the index if it exists and delete the db record that records
+			// where this node is. 
+			
+			
+			File searchDirectory = new File(journalSettings.getSearchIndexDirectory());
+			if ( searchDirectory.exists() ) {
+				log.warn("Found Existing Search Directory with no local segment list, I will delete "+searchDirectory.getAbsolutePath());
+				try
+				{
+					FileUtils.deleteAll(searchDirectory);
+				}
+				catch (IOException e)
+				{
+					log.warn("Unable to remove Existing Search Directory ",e);
+				}
+			}
+			deleteJournalSavePoint();
+			
+			
+			
 		}
 		// ensure that the index is closed to avoid stale locks
 		Runtime.getRuntime().addShutdownHook(new Thread()
@@ -234,8 +253,48 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	}
 
 	/**
-	 * Since this is a singleton, we can cahce the savePoint only updating on
-	 * change
+	 * 
+	 */
+	private void deleteJournalSavePoint()
+	{
+		Connection connection = null;
+		PreparedStatement deleteJournalSavePointPst = null;
+		try
+		{
+			connection = datasource.getConnection();
+			deleteJournalSavePointPst = connection
+					.prepareStatement("delete from search_node_status where serverid = ? ");
+			deleteJournalSavePointPst.clearParameters();
+			deleteJournalSavePointPst.setString(1, serverId);
+			deleteJournalSavePointPst.executeUpdate();
+		}
+		catch (Exception ex)
+		{
+			log.warn("Unable to delete Search Jorunal SavePoint ", ex);
+		}
+		finally
+		{
+			try
+			{
+				deleteJournalSavePointPst.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				connection.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		}
+	}
+
+	/**
+	 * Since this is a singleton, we can cache the savePoint only updating on
+	 * change.
+	 * The Save Point is the number of the journal entry that this node has merged upto and including
 	 * 
 	 * @see org.sakaiproject.search.maintanence.impl.JournaledObject#getJounalSavePoint()
 	 */
@@ -1239,53 +1298,15 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	public void saveSegmentList() throws IOException
 	{
 		File f = new File(journalSettings.getSearchIndexDirectory(), SEGMENT_LIST_NAME);
-		FileOutputStream fout = new FileOutputStream(f);
-		DataOutputStream dout = new DataOutputStream(fout);
-		dout.write(SEGMENT_LIST_SIGNATURE);
-		dout.writeInt(VERSION_SIGNATURE);
-		dout.writeInt(segments.size());
-		for (File segs : segments)
-		{
-			String s = segs.getAbsolutePath();
-			dout.writeUTF(s);
-		}
-		dout.close();
-		fout.close();
+		SegmentListWriter sw = new SegmentListWriter(f);
+		sw.write(segments);
 	}
 
 	public void loadSegmentList() throws IOException
 	{
 		File f = new File(journalSettings.getSearchIndexDirectory(), SEGMENT_LIST_NAME);
-		FileInputStream fout = new FileInputStream(f);
-		DataInputStream din = new DataInputStream(fout);
-		byte[] sig = new byte[SEGMENT_LIST_SIGNATURE.length];
-		din.read(sig);
-		for (int i = 0; i < sig.length; i++)
-		{
-			if (sig[i] != SEGMENT_LIST_SIGNATURE[i])
-			{
-				throw new IOException(
-						"Segment List file is corrupt, please remove segments and recover from journal");
-			}
-		}
-		int savePoint = din.readInt();
-		if (savePoint == 1)
-		{
-			segments = new ArrayList<File>();
-			int n = din.readInt();
-			for (int i = 0; i < n; i++)
-			{
-				segments.add(new File(din.readUTF()));
-			}
-		}
-		else
-		{
-			throw new IOException(
-					"Segment List savePoint not recognised, please remove segments and recover from journal ");
-		}
-		din.close();
-		din.close();
-
+		SegmentListReader sr = new SegmentListReader(f);
+		segments = sr.read();
 	}
 
 	/**
