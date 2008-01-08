@@ -478,6 +478,68 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 	}
 	
 	public void testGetGradesForStudentsForItem() throws Exception {
+		setAuthnId(INSTRUCTOR_UID);
+		Map studentIdFunctionMap = 
+			gradebookService.getViewableStudentsForItemForCurrentUser(GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
+		List studentIds = new ArrayList(studentIdFunctionMap.keySet());
+		System.out.println("num students: " + studentIds.size());
+		
+		List gradeDefs = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentIds);
+		Assert.assertNotNull(gradeDefs);
+		Assert.assertTrue(gradeDefs.size() == 0);
+		
+		// add a score to the gb
+		gradebookService.setAssignmentScore(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_IN_SECTION_UID1, new Double(35), "Service Test");
+		gradeDefs = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentIds);
+		Assert.assertTrue(gradeDefs.size() == 1);
+		GradeDefinition gradeForS1 = (GradeDefinition)gradeDefs.get(0);
+		Assert.assertTrue(gradeForS1 != null);
+		Assert.assertEquals(GradebookService.GRADE_TYPE_POINTS, gradeForS1.getGradeEntryType());
+		Assert.assertEquals(STUDENT_IN_SECTION_UID1, gradeForS1.getStudentUid());
+		Assert.assertTrue(gradeForS1.isGradeReleased() == false);
+		Assert.assertEquals("35.0", gradeForS1.getGrade());
+		Assert.assertEquals(INSTRUCTOR_UID, gradeForS1.getGraderUid());
+		Assert.assertNotNull(gradeForS1.getDateRecorded());
+		
+		// add another score to gb
+		gradebookService.setAssignmentScore(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_NOT_IN_SECTION_UID1, new Double(40), "Service Test");
+		gradeDefs = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentIds);
+		Assert.assertTrue(gradeDefs.size() == 2);
+		
+		setAuthnId(TA_UID);
+		//should throw SecurityException b/c trying to get one student that user
+		// is not authorized to view
+		try {
+			gradeDefs = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentIds);
+			Assert.fail();
+		} catch (SecurityException e) {
+			
+		}
+		
+		Gradebook gradebookNoCat = gradebookManager.getGradebook(GRADEBOOK_UID_NO_CAT);
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+		
+		// try with the auth students
+		List studentInSection = new ArrayList();
+		studentInSection.add(STUDENT_IN_SECTION_UID1);
+		gradeDefs = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentInSection);
+		Assert.assertTrue(gradeDefs.size() == 1);
+		gradeForS1 = (GradeDefinition)gradeDefs.get(0);
+		Assert.assertTrue(gradeForS1 != null);
+		Assert.assertEquals(GradebookService.GRADE_TYPE_PERCENTAGE, gradeForS1.getGradeEntryType());
+		Assert.assertEquals(STUDENT_IN_SECTION_UID1, gradeForS1.getStudentUid());
+		Assert.assertTrue(gradeForS1.isGradeReleased() == false);
+		Assert.assertEquals("87.5", gradeForS1.getGrade());
+		Assert.assertEquals(INSTRUCTOR_UID, gradeForS1.getGraderUid());
+		Assert.assertNotNull(gradeForS1.getDateRecorded());
+		
+		gradebookNoCat = gradebookManager.getGradebook(GRADEBOOK_UID_NO_CAT);
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+		gradeDefs = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentInSection);
+		Assert.assertTrue(gradeDefs.size() == 1);
+		gradeForS1 = (GradeDefinition)gradeDefs.get(0);
+		Assert.assertEquals(GradebookService.GRADE_TYPE_LETTER, gradeForS1.getGradeEntryType());
+		Assert.assertEquals("B+", gradeForS1.getGrade());
 
 	}
 }
