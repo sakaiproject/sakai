@@ -24,6 +24,7 @@ package org.sakaiproject.search.optimize.shared.impl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.indexer.api.IndexJournalException;
+import org.sakaiproject.search.indexer.api.LockTimeoutException;
 import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.JournalManager;
 import org.sakaiproject.search.journal.api.JournalManagerState;
@@ -149,6 +151,7 @@ public class DbJournalOptimizationManager implements JournalManager
 	}
 
 	/**
+	 * @throws LockTimeoutException 
 	 * @see org.sakaiproject.search.journal.api.JournalManager#prepareSave(long)
 	 */
 	public JournalManagerState prepareSave(long transactionId)
@@ -234,7 +237,16 @@ public class DbJournalOptimizationManager implements JournalManager
 			lockEarlierSavePoints.setString(1, jms.indexWriter);
 			lockEarlierSavePoints.setLong(2, System.currentTimeMillis());
 			lockEarlierSavePoints.setLong(3, jms.oldestSavePoint);
-			int i = lockEarlierSavePoints.executeUpdate();
+			int i = 0;
+			try
+			{
+				i = lockEarlierSavePoints.executeUpdate();
+			}
+			catch (SQLException lockTimepout)
+			{
+				throw new LockTimeoutException(lockTimepout.getMessage(),
+						lockTimepout);
+			}
 			listJournal = jms.connection
 			.prepareStatement("select txid, indexwriter, status, txts  from search_journal");
 
@@ -327,7 +339,11 @@ public class DbJournalOptimizationManager implements JournalManager
 			{
 			}
 			jms.connection = null;
-			throw new IndexJournalException("Failed to lock savePoints to this node ", ex);
+			if ( ex instanceof LockTimeoutException ) {
+				throw (LockTimeoutException)ex;
+			} else {
+				throw new IndexJournalException("Failed to lock savePoints to this node ", ex);
+			}
 		}
 		finally
 		{

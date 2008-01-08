@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.search.indexer.api.LockTimeoutException;
 import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.ManagementOperation;
 import org.sakaiproject.search.optimize.api.NoOptimizationRequiredException;
@@ -80,6 +81,18 @@ public class JournalOptimizationOperation implements ManagementOperation
 		catch (NoOptimizationRequiredException nop)
 		{
 			log.debug("No Merge Performed " + nop.getMessage());
+		}
+		catch (LockTimeoutException jex)
+		{
+			log.info("Failed to perform optimise, pending  Optimize on other node if cause is a DB lock timeout Cause:"+jex.getMessage());
+			try
+			{
+				journalOptimizationTransaction.rollback();
+			}
+			catch (Exception ex)
+			{
+				log.warn("Failed to rollback transaction ", ex);
+			}
 		}
 		catch (JournalErrorException jex)
 		{
