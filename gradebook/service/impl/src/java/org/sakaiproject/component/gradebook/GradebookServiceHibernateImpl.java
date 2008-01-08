@@ -324,6 +324,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 							if (percent != null) {
 								gradeDef.setGrade(percent.toString());
 							}
+						} else {
+							if (gradeRecord.getPointsEarned() != null) {
+								gradeDef.setGrade(gradeRecord.getPointsEarned().toString());
+							}
 						}
 					}
 				}
@@ -1334,6 +1338,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  throw new IllegalArgumentException("null gradebookUid or gradableObjectId passed to getViewableStudentsForUserForItem");
 	  }
 	  
+	  if (!authz.isUserAbleToGrade(gradebookUid)) {
+		  log.warn("user " + getUserUid() + " attempted to access student information for gb item " + gradableObjectId);
+		  throw new SecurityException("user " + getUserUid() + " attempted to access student information for gb item " + gradableObjectId); 
+	  }
+	  
 	  Assignment gradebookItem = getAssignment(gradableObjectId);
 	  if (gradebookItem == null) {
 		  log.debug("The gradebook item does not exist, so returning empty set");
@@ -1359,6 +1368,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   }
 
   public boolean isGradableObjectDefined(Long gradableObjectId) {
+	  if (gradableObjectId == null) {
+		  throw new IllegalArgumentException("null gradableObjectId passed to isGradableObjectDefined");
+	  }
+	  
 	  return isAssignmentDefined(gradableObjectId);
   }
   

@@ -51,6 +51,9 @@
 				<property name="authz">
 					<ref bean="org_sakaiproject_tool_gradebook_facades_Authz" />
 				</property>
+				<property name="gradebookPermissionService">
+					<ref bean="org_sakaiproject_service_gradebook_GradebookPermissionService" />
+				</property>
 
 				<!-- Temporary support for deprecated methods. -->
 				<property name="frameworkService">

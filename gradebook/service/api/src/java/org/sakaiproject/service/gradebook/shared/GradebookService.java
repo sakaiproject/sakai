@@ -498,7 +498,8 @@ public interface GradebookService {
 	public boolean isGradableObjectDefined(Long gradableObjectId);
 	
 	/**
-	 * Using the grader permissions, return 
+	 * Using the grader permissions, return map of section uuid to section name
+	 * that includes all sections that the current user may view or grade
 	 * @param gradebookUid
 	 * @return
 	 */
