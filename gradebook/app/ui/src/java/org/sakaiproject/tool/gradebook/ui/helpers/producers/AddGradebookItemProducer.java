@@ -88,9 +88,16 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     		assignmentOTP += EntityBeanLocator.NEW_PREFIX + "1";
     	}
     	
+    	Boolean add = (params.gradebookItemId == null);
     	
         //set dateEvolver
         dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);
+        
+        if (add){
+        	UIMessage.make(tofill, "heading", "gradebook.add-gradebook-item.heading_add");
+        } else {
+        	UIMessage.make(tofill, "heading", "gradebook.add-gradebook-item.heading_edit");
+        }
         
         UIVerbatim.make(tofill, "instructions", messageLocator.getMessage("gradebook.add-gradebook-item.instructions",
         		new Object[]{ reqStar }));
@@ -106,8 +113,6 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         		new Object[]{ reqStar }));
         UIInput.make(form, "point", assignmentOTP + ".pointsPossible");
         
-        UIVerbatim.make(form, "due_date_label", messageLocator.getMessage("gradebook.add-gradebook-item.due_date_label",
-        		new Object[]{ reqStar }));
         UIInput due_date = UIInput.make(form, "due_date:", assignmentOTP + ".dueDate");
         dateEvolver.evolveDateInput(due_date);
         
@@ -137,7 +142,11 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         //RSFUtil.addResultingViewBinding(form, "viewParameters.name", assignmentOTP + ".name");
         
         //Action Buttons
-        UICommand.make(form, "add_item", UIMessage.make("gradebook.add-gradebook-item.add_item"), "#{GradebookItemBean.processActionAddItem}");
+        if (add){
+        	UICommand.make(form, "add_item", UIMessage.make("gradebook.add-gradebook-item.add_item"), "#{GradebookItemBean.processActionAddItem}");
+        } else {
+        	UICommand.make(form, "add_item", UIMessage.make("gradebook.add-gradebook-item.edit_item"), "#{GradebookItemBean.processActionAddItem}");
+        }
         UICommand.make(form, "cancel", UIMessage.make("gradebook.add-gradebook-item.cancel"), "#{GradebookItemBean.processActionCancel}");
     }
 
