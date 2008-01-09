@@ -43,6 +43,13 @@
 		<p class="step">
 			$tlang.getString("sinfo.enter2")
 		</p>
+	#elseif ($type && $type=='portfolio')
+		<h3>
+			$tlang.getString("sinfo.portfolio")
+		</h3>
+		<p class="step">
+			$tlang.getString("sinfo.enter3")
+		</p>
 	#else
 		<h3>
 			$tlang.getString("sinfo.other")
