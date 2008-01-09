@@ -183,6 +183,16 @@ public interface GradebookService {
 	 */
 	public Assignment getAssignment(String gradebookUid, String assignmentName) 
 		throws GradebookNotFoundException;
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param gbItemId
+	 * @return the associated Assignment with the given gbItemId
+	 * @throws AssessmentNotFoundException
+	 */
+	public Assignment getAssignment(String gradebookUid, Long gbItemId)
+		throws AssessmentNotFoundException;
 
 	/**
 	 * Besides the declared exceptions, possible runtime exceptions include:

@@ -191,6 +191,35 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			return null;
 		}
 	}
+	
+	public org.sakaiproject.service.gradebook.shared.Assignment getAssignment(final String gradebookUid, final Long gbItemId) throws AssessmentNotFoundException {
+		if (gbItemId == null || gradebookUid == null) {
+			throw new IllegalArgumentException("null gbItemId passed to getAssignment");
+		}
+		if (!isUserAbleToViewAssignments(gradebookUid) && !currentUserHasViewOwnGradesPerm(gradebookUid)) {
+			log.warn("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to get gb item with id " + gbItemId);
+			throw new SecurityException("You do not have permission to perform this operation");
+		}
+		
+		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return getAssignmentWithoutStats(gradebookUid, gbItemId, session);
+			}
+		});
+		
+		if (assignment == null) {
+			throw new AssessmentNotFoundException("No gradebook item exists with gradable object id = " + gbItemId);
+		}
+		
+		org.sakaiproject.service.gradebook.shared.Assignment assnDef;
+		if (assignment != null) {
+			assnDef =  getAssignmentDefinition(assignment);
+		} else {
+			assnDef = null;
+		}
+		
+		return assnDef;
+	}
 		
 	private org.sakaiproject.service.gradebook.shared.Assignment getAssignmentDefinition(Assignment internalAssignment) {
 		org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
@@ -251,7 +280,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new IllegalArgumentException("null parameter passed to getAssignmentScore");
 		}
 		
-		Assignment assignment = getAssignment(gbItemId);
+		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return getAssignmentWithoutStats(gradebookUid, gbItemId, session);
+			}
+		});
 		if (assignment == null) {
 			throw new AssessmentNotFoundException("There is no assignment with the gbItemId " + gbItemId);
 		}
@@ -272,7 +305,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		GradeDefinition gradeDef = (GradeDefinition)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				
-				Assignment assignment = getAssignment(gbItemId);
+				Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+					public Object doInHibernate(Session session) throws HibernateException {
+						return getAssignmentWithoutStats(gradebookUid, gbItemId, session);
+					}
+				});
 				if (assignment == null) {
 					throw new AssessmentNotFoundException("There is no assignment with the gbItemId " 
 							+ gbItemId + " in gradebook " + gradebookUid);
@@ -416,7 +453,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreComment");
 		}
 		
-		Assignment assignment = getAssignment(gbItemId);
+		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return getAssignmentWithoutStats(gradebookUid, gbItemId, session);
+			}
+		});
+		
 		if (assignment == null) {
 			throw new AssessmentNotFoundException("There is no assignment with the gbItemId " + gbItemId);
 		}

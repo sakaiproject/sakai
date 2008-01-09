@@ -165,8 +165,6 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		integrationSupport.addSectionMembership(TA_UID, section2.getUuid(), Role.TA);
 
 		// Add an internal assignment.
-		System.out.println("gb id: " + gradebookWithCat.getId());
-		System.out.println("CAT1_NAME : " + CAT1_NAME);
 		cat1Id = gradebookManager.createCategory(gradebookWithCat.getId(), CAT1_NAME, new Double(0), 0);
 		asn1IdWithCat = gradebookManager.createAssignmentForCategory(gradebookWithCat.getId(), cat1Id, ASN_TITLE1, ASN_POINTS1, new Date(), Boolean.FALSE,Boolean.FALSE);
 		
@@ -251,7 +249,6 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		assignment.setReleased(true);
 		gradebookManager.updateAssignment(assignment);
 		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
-		System.out.println("instructor sees grade: " + gradeDef.getGrade());
 
 		// Now see if the student gets lucky.
 		setAuthnId(STUDENT_IN_SECTION_UID1);
@@ -304,8 +301,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
 		gradebookManager.updateGradebook(gradebookNoCat);
 		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
-		System.out.println("gradeDef.getGrade" + gradeDef.getGrade());
-		System.out.println("gradeDef.getGraderUid " + gradeDef.getGraderUid());
+
 		Assert.assertEquals("B+", gradeDef.getGrade());
 		Assert.assertEquals(GradebookService.GRADE_TYPE_LETTER, gradeDef.getGradeEntryType());
 		
@@ -482,7 +478,6 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Map studentIdFunctionMap = 
 			gradebookService.getViewableStudentsForItemForCurrentUser(GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
 		List studentIds = new ArrayList(studentIdFunctionMap.keySet());
-		System.out.println("num students: " + studentIds.size());
 		
 		List gradeDefs = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentIds);
 		Assert.assertNotNull(gradeDefs);
@@ -541,5 +536,21 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertEquals(GradebookService.GRADE_TYPE_LETTER, gradeForS1.getGradeEntryType());
 		Assert.assertEquals("B+", gradeForS1.getGrade());
 
+	}
+	
+	public void testGetAssignment() throws Exception {
+		setAuthnId(INSTRUCTOR_UID);
+		Assignment assnDef = gradebookService.getAssignment(GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
+		Assert.assertNotNull(assnDef);
+		Assert.assertEquals(ASN_TITLE1, assnDef.getName());
+		Assert.assertEquals(new Double(40), assnDef.getPoints()); 
+		
+		try {
+			assnDef = gradebookService.getAssignment(GRADEBOOK_UID_NO_CAT, new Long(-1));
+			Assert.fail();
+		} catch (AssessmentNotFoundException anfe) {
+			
+		}
+		
 	}
 }

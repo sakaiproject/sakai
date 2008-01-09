@@ -214,6 +214,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 			setString(1, gradebookUid).
 			uniqueResult();
 	}
+	
+	protected Assignment getAssignmentWithoutStats(String gradebookUid, Long assignmentId, Session session) throws HibernateException {
+		return (Assignment)session.createQuery(
+			"from Assignment as asn where asn.id=? and asn.gradebook.uid=? and asn.removed=false").
+			setLong(0, assignmentId).
+			setString(1, gradebookUid).
+			uniqueResult();
+	}
 
 	protected void updateAssignment(Assignment assignment, Session session)
 		throws ConflictingAssignmentNameException, HibernateException {
