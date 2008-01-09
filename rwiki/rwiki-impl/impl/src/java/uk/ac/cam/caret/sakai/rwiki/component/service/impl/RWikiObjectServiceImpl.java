@@ -1297,8 +1297,11 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				try
 				{
 					String newContext = aliasService.getTarget(context);
-					reference = reference.replaceFirst("/site/" + context, newContext);
-					ref.updateReference(reference);
+					if (newContext.startsWith(SiteService.REFERENCE_ROOT)) // only support site aliases
+					{
+						reference = reference.replaceFirst(SiteService.REFERENCE_ROOT + Entity.SEPARATOR + context, newContext);
+						ref.updateReference(reference);
+					}
 				}
 				catch (Exception e)
 				{
