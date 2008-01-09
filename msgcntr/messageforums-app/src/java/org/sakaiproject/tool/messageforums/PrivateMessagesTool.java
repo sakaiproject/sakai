@@ -520,7 +520,6 @@ public class PrivateMessagesTool
       sendEmailOut = (Boolean.TRUE.equals(area.getSendEmailOut())) ? SET_AS_YES : SET_AS_NO;
       forwardPvtMsg = (Boolean.TRUE.equals(pf.getAutoForward())) ? SET_AS_YES : SET_AS_NO;
       forwardPvtMsgEmail = pf.getAutoForwardEmail();     
-      sendEmailOut = (Boolean.TRUE.equals(area.getSendEmailOut())) ? SET_AS_YES : SET_AS_NO;
     } 
   }
   
@@ -545,10 +544,9 @@ public class PrivateMessagesTool
     return area.getEnabled().booleanValue();
   } 
   
-  
   public boolean isDispSendEmailOut()
   {
-    if (getPvtSendEmailOut())
+    if (getPvtSendEmailOut() != null && getPvtSendEmailOut())
     {
       return true;
     }
@@ -559,7 +557,12 @@ public class PrivateMessagesTool
   }
   
   public Boolean getPvtSendEmailOut() {
-	  return area.getSendEmailOut().booleanValue();
+	  if(area != null) {
+		  return area.getSendEmailOut();
+	  }
+	  else {
+		  return Boolean.TRUE;
+	  }
   }
   
   //Return decorated Forum
