@@ -17,9 +17,10 @@
 		<property name="learnerName" column="LEARNER_NAME" />
 		<property name="attemptNumber" column="ATTEMPT_NUMBER" />
 		<property name="beginDate" column="CREATED_ON" />
-		<property name="lastModifiedDate" column="CREATED_BY" />
-		<property name="dataManagerId" column="MODIFIED_ON" />
-
+		<property name="lastModifiedDate" column="MODIFIED_ON" />
+		<!--property name="dataManagerId" column="DATAMANAGER_ID" /-->
+		<property name="suspended" column="IS_SUSPENDED" />
+		<property name="notExited" column="IS_NOT_EXITED" />
 	</class>
 	
 </hibernate-mapping>

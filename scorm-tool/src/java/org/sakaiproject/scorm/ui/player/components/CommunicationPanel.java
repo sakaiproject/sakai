@@ -31,6 +31,7 @@ import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
@@ -48,11 +49,14 @@ public class CommunicationPanel extends Panel implements IHeaderContributor {
 	private LaunchPanel launchPanel;
 	
 	@SpringBean
-	ScormApplicationService applicationService;
+	transient LearningManagementSystem lms;
+	
 	@SpringBean
-	ScormResourceService resourceService;
+	transient ScormApplicationService applicationService;
 	@SpringBean
-	ScormSequencingService sequencingService;
+	transient ScormResourceService resourceService;
+	@SpringBean
+	transient ScormSequencingService sequencingService;
 	
 	private SessionBean sessionBean;
 	
@@ -76,9 +80,9 @@ public class CommunicationPanel extends Panel implements IHeaderContributor {
 			private static final long serialVersionUID = 1L;
 
 			protected String callMethod(ScoBean scoBean, AjaxRequestTarget target, Object... args) {
-				updatePageSco(scoBean.getScoId(), target);
 				
-				ActivityTree tree = launchPanel.getTreePanel().getActivityTree();
+				
+				ActivityTree tree = launchPanel.getTree();
 				if (tree != null && !tree.isEmpty()) {
 					tree.selectNode();
 					tree.updateTree(target);
@@ -86,6 +90,8 @@ public class CommunicationPanel extends Panel implements IHeaderContributor {
 				
 				launchPanel.synchronizeState(sessionBean, target);
 
+				updatePageSco(scoBean.getScoId(), target);
+				
 				return super.callMethod(scoBean, target, args);
 			}
 		};
@@ -103,7 +109,7 @@ public class CommunicationPanel extends Panel implements IHeaderContributor {
 			protected String callMethod(ScoBean scoBean, AjaxRequestTarget target, Object... args) {
 				String result = super.callMethod(scoBean, target, args);
 						
-				ActivityTree tree = launchPanel.getTreePanel().getActivityTree();
+				ActivityTree tree = launchPanel.getTree();
 				if (tree != null && !tree.isEmpty()) {
 					tree.selectNode();
 					tree.updateTree(target);
@@ -111,7 +117,7 @@ public class CommunicationPanel extends Panel implements IHeaderContributor {
 				
 				applicationService.discardScoBean(scoBean.getScoId(), sessionBean, new LocalResourceNavigator());
 				
-				updatePageSco("", target);
+				updatePageSco("undefined", target);
 				
 				return result;
 			}
@@ -164,6 +170,11 @@ public class CommunicationPanel extends Panel implements IHeaderContributor {
 		@Override
 		protected SessionBean getSessionBean() {
 			return sessionBean;
+		}
+		
+		@Override
+		protected LearningManagementSystem lms() {
+			return lms;
 		}
 		
 		@Override

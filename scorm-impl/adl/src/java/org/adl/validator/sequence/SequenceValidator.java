@@ -24,27 +24,23 @@
 package org.adl.validator.sequence;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 
-import java.util.logging.Logger;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.adl.logging.DetailedLogMessageCollection;
+import org.adl.parsers.dom.DOMTreeUtility;
+import org.adl.util.LogMessage;
+import org.adl.util.MessageType;
+import org.adl.util.Messages;
+import org.adl.validator.RulesValidator;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.NamedNodeMap;
-
-import org.adl.validator.RulesValidator;
-
-import org.adl.util.MessageType;
-
-import org.adl.util.LogMessage;
-
-import org.adl.parsers.dom.DOMTreeUtility;
-import org.adl.util.Messages;
-import org.adl.logging.DetailedLogMessageCollection;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * <strong>Filename: </strong>SequenceValidator.java<br><br>
@@ -64,7 +60,7 @@ public class SequenceValidator
   /**
    * Logger object used for debug logging.
    */
-  private Logger mLogger;
+  private static Log log = LogFactory.getLog(SequenceValidator.class);
 
   /**
    * RulesValidator object
@@ -97,8 +93,6 @@ public class SequenceValidator
    */
   public SequenceValidator()
   {
-     mLogger = Logger.getLogger("org.adl.util.debug.validator"); 
-
      mRulesValidator = new RulesValidator( "sequence" ); 
      mObjectiveInfo = new ObjectiveMap();
      mReferencedObjectiveList = new ArrayList();
@@ -122,9 +116,9 @@ public class SequenceValidator
      String msgText;
      String nodeName = iRootNode.getLocalName();
 
-     mLogger.entering( "SequenceValidator", "validate()" );  
+     log.debug( "validate()" );  
 
-     mLogger.finer( "      iRootNodeName coming in is " + nodeName ); 
+     log.debug( "      iRootNodeName coming in is " + nodeName ); 
 
      mRulesValidator.readInRules( "sequence" ); 
 
@@ -136,7 +130,7 @@ public class SequenceValidator
         if ( ! parentNodeName.equals("manifest") ) 
         {
            msgText = Messages.getString("SequenceValidator.8", "sequencingCollection", "manifest"); 
-           mLogger.info( "FAILED: " + msgText ); 
+           log.debug( "FAILED: " + msgText ); 
            DetailedLogMessageCollection.getInstance().addMessage( new LogMessage( MessageType.FAILED,
                                                              msgText ) );
            validateResult = false && validateResult;
@@ -150,7 +144,7 @@ public class SequenceValidator
      //attribute (primary / objective)
      validateResult = checkReferencedObjectives() && validateResult;
 
-     mLogger.exiting( "SequenceValidator", "validate()" );  
+     log.debug("validate()" );  
 
      return validateResult;
   }
@@ -198,7 +192,7 @@ public class SequenceValidator
          //report an error for not having mandatory sequencing children
          result = false && result;
          msgText = Messages.getString("SequenceValidator.15"); 
-         mLogger.info( "FAILED: " + msgText ); 
+         log.debug( "FAILED: " + msgText ); 
          DetailedLogMessageCollection.getInstance().addMessage( new LogMessage( MessageType.FAILED,
                                                            msgText ) );
       }
@@ -246,7 +240,7 @@ public class SequenceValidator
                  if ( !foundMatch ) 
                  {
                     msgText = Messages.getString("SequenceValidator.197", referencedObjectiveValue); 
-                    mLogger.info( "FAILED: " + msgText ); 
+                    log.debug( "FAILED: " + msgText ); 
                     DetailedLogMessageCollection.getInstance().addMessage( 
                           new LogMessage( MessageType.FAILED, msgText ) );
                  }
@@ -258,7 +252,7 @@ public class SequenceValidator
               // objective (primary/objective) identifier values
               result = false && result;
               msgText = Messages.getString("SequenceValidator.198"); 
-              mLogger.info( "FAILED: " + msgText ); 
+              log.debug( "FAILED: " + msgText ); 
               DetailedLogMessageCollection.getInstance().addMessage( 
                     new LogMessage( MessageType.FAILED, msgText ) );
            }
@@ -281,7 +275,7 @@ public class SequenceValidator
    private boolean compareToRules( Node iTestSubjectNode, String iPath )
    {
       // looks exactly like prunetree as we walk down the tree
-      mLogger.entering( "SequenceValidator", "compareToRules" );  
+      log.debug( "compareToRules" );  
 
       boolean result = true;
       String msgText = new String();
@@ -357,7 +351,7 @@ public class SequenceValidator
                                                    currentChildName,
                                                    "sequencing" );  
 
-                     mLogger.info( "FAILED: " + msgText ); 
+                     log.debug( "FAILED: " + msgText ); 
                      DetailedLogMessageCollection.getInstance().addMessage( 
                            new LogMessage( MessageType.FAILED, msgText ) );
                   }
@@ -371,7 +365,7 @@ public class SequenceValidator
                   {
                      msgText = Messages.getString("SequenceValidator.30", 
                                                    currentChildName ); 
-                     mLogger.info( "INFO: " + msgText ); 
+                     log.debug( "INFO: " + msgText ); 
                      DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                                MessageType.INFO,
                                                                msgText ) );
@@ -400,7 +394,7 @@ public class SequenceValidator
                            {
                               msgText = Messages.getString("SequenceValidator.36",
                                                             currentChildName ); 
-                              mLogger.info( "PASSED: " + msgText ); 
+                              log.debug( "PASSED: " + msgText ); 
                               DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                              MessageType.PASSED,
                                                              msgText ) );
@@ -409,7 +403,7 @@ public class SequenceValidator
                            {
                               msgText = Messages.getString("SequenceValidator.39",
                                                             currentChildName ); 
-                              mLogger.info( "FAILED: " + msgText ); 
+                              log.debug( "FAILED: " + msgText ); 
                               DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                              MessageType.FAILED,
                                                              msgText ) );
@@ -423,7 +417,7 @@ public class SequenceValidator
                            {
                               msgText = Messages.getString("SequenceValidator.36",
                                                             currentChildName ); 
-                              mLogger.info( "PASSED: " + msgText ); 
+                              log.debug( "PASSED: " + msgText ); 
                               DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                              MessageType.PASSED,
                                                              msgText ) );
@@ -432,7 +426,7 @@ public class SequenceValidator
                            {
                               msgText = Messages.getString("SequenceValidator.39",
                                                             currentChildName ); 
-                              mLogger.info( "FAILED: " + msgText ); 
+                              log.debug( "FAILED: " + msgText ); 
                               DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                              MessageType.FAILED,
                                                              msgText ) );
@@ -496,7 +490,7 @@ public class SequenceValidator
                                  result = result && false;
                                  msgText = Messages.getString("SequenceValidator.55"); 
 
-                                 mLogger.info( "FAILED: " + msgText ); 
+                                 log.debug( "FAILED: " + msgText ); 
                                  DetailedLogMessageCollection.getInstance().addMessage(
                                  new LogMessage( MessageType.FAILED, msgText ) );
 
@@ -510,7 +504,7 @@ public class SequenceValidator
                                   path.equals("sequencing") ) 
                         {
                            msgText = Messages.getString("SequenceValidator.59"); 
-                           mLogger.info( "INFO: " + msgText ); 
+                           log.debug( "INFO: " + msgText ); 
                            DetailedLogMessageCollection.getInstance().addMessage(
                                      new LogMessage( MessageType.INFO, msgText ) );
 
@@ -527,7 +521,7 @@ public class SequenceValidator
                            // this element is out of scope of SCORM
                            msgText = Messages.getString("SequenceValidator.63",
                                                          currentChildName ); 
-                           mLogger.info( "WARNING: " + msgText ); 
+                           log.debug( "WARNING: " + msgText ); 
                            DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                             MessageType.WARNING,
                                                             msgText ) );
@@ -543,7 +537,7 @@ public class SequenceValidator
                         // This is a deprecated element
                         msgText = Messages.getString("SequenceValidator.67",
                                                       currentChildName );  
-                        mLogger.info( "FAILED: " + msgText ); 
+                        log.debug( "FAILED: " + msgText ); 
                         DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                              MessageType.FAILED,
                                                              msgText ) );
@@ -574,7 +568,7 @@ public class SequenceValidator
 
                         msgText = Messages.getString("SequenceValidator.73",
                                                       currentChildName ); 
-                        mLogger.info( "INFO: " + msgText ); 
+                        log.debug( "INFO: " + msgText ); 
                         DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                              MessageType.INFO,
                                                              msgText ) );
@@ -620,7 +614,7 @@ public class SequenceValidator
          }
       }
 
-      mLogger.exiting( "SequenceValidator", "compareToRules()" );  
+      log.debug("compareToRules()" );  
 
 
       return result;
@@ -680,7 +674,7 @@ public class SequenceValidator
          {
             msgText = Messages.getString("SequenceValidator.84", objectiveID); 
 
-            mLogger.info( "FAILED: " + msgText ); 
+            log.debug( "FAILED: " + msgText ); 
             DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                           MessageType.FAILED, msgText ) );
          }
@@ -727,7 +721,7 @@ public class SequenceValidator
                msgText = Messages.getString("SequenceValidator.90",
                                        iElementName, iSPMRule );  
             }
-            mLogger.info( "WARNING: " + msgText ); 
+            log.debug( "WARNING: " + msgText ); 
             DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                             MessageType.WARNING,
                                                             msgText ) );
@@ -743,7 +737,7 @@ public class SequenceValidator
                msgText = Messages.getString("SequenceValidator.96", iElementName); 
 
             }
-            mLogger.info( "FAILED: " + msgText ); 
+            log.debug( "FAILED: " + msgText ); 
             DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(MessageType.FAILED,
                                                              msgText ) );
 
@@ -759,7 +753,7 @@ public class SequenceValidator
             {
                msgText = Messages.getString("SequenceValidator.101", iElementName); 
             }
-            mLogger.info( "PASSED: " + msgText ); 
+            log.debug( "PASSED: " + msgText ); 
             DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(MessageType.PASSED,
                                                              msgText ) );
          }
@@ -774,7 +768,7 @@ public class SequenceValidator
          {
             msgText = Messages.getString("SequenceValidator.106", iElementName); 
          }
-         mLogger.info( "FAILED: " + msgText ); 
+         log.debug( "FAILED: " + msgText ); 
          DetailedLogMessageCollection.getInstance().addMessage( new LogMessage( MessageType.FAILED,
                                                            msgText ) );
 
@@ -790,7 +784,7 @@ public class SequenceValidator
          {
             msgText = Messages.getString("SequenceValidator.101", iElementName); 
          }
-         mLogger.info( "PASSED: " + msgText ); 
+         log.debug( "PASSED: " + msgText ); 
          DetailedLogMessageCollection.getInstance().addMessage( new LogMessage( MessageType.PASSED,
                                                            msgText ) );
       }
@@ -824,7 +818,7 @@ public class SequenceValidator
                                     Vector iVocabValues,
                                     boolean iAmAnAttribute )
    {
-      mLogger.entering("SequenceValidator", "checkVocabulary()" );  
+      log.debug( "checkVocabulary()" );  
 
       boolean result = false;
       String msgText;
@@ -857,7 +851,7 @@ public class SequenceValidator
                                                                    iName);
              
           }
-          mLogger.info( "PASSED: " + msgText ); 
+          log.debug( "PASSED: " + msgText ); 
           DetailedLogMessageCollection.getInstance().addMessage( new LogMessage( MessageType.PASSED,
                                                             msgText ) );
       }
@@ -878,7 +872,7 @@ public class SequenceValidator
                                                                    iName);  
 
           }
-          mLogger.info( "FAILED: " + msgText ); 
+          log.debug( "FAILED: " + msgText ); 
           DetailedLogMessageCollection.getInstance().addMessage( new LogMessage( MessageType.FAILED,
                                                             msgText ) );
       }
@@ -890,13 +884,13 @@ public class SequenceValidator
          // this vocabulary token is out of scope of SCORM
          msgText = Messages.getString("SequenceValidator.133", iValue, iName); 
 
-         mLogger.info( "WARNING: " + msgText ); 
+         log.debug( "WARNING: " + msgText ); 
          DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                           MessageType.WARNING,
                                           msgText ) );
 
       }
-      mLogger.exiting("SequenceValidator", "checkVocabulary()" );  
+      log.debug("checkVocabulary()" );  
 
       return result;
    }
@@ -986,7 +980,7 @@ public class SequenceValidator
 
       NamedNodeMap attrList = iNode.getAttributes();
       int numAttr = attrList.getLength();
-      mLogger.finer( "There are " + numAttr + " attributes of " +  
+      log.debug( "There are " + numAttr + " attributes of " +  
                       iNodeName + " to test" ); 
 
       // SPECIAL CASE: check for mandatory/shall not exist attributes on
@@ -1000,7 +994,7 @@ public class SequenceValidator
                                                  "ID" ); 
 
          msgText = Messages.getString("SequenceValidator.145"); 
-         mLogger.info( "INFO: " + msgText ); 
+         log.debug( "INFO: " + msgText ); 
          DetailedLogMessageCollection.getInstance().addMessage( new LogMessage( MessageType.INFO,
                                                            msgText ) );
 
@@ -1008,7 +1002,7 @@ public class SequenceValidator
          {
 
             msgText = Messages.getString("SequenceValidator.147"); 
-            mLogger.info( "FAILED: " + msgText ); 
+            log.debug( "FAILED: " + msgText ); 
             DetailedLogMessageCollection.getInstance().addMessage( 
                new LogMessage( MessageType.FAILED, msgText ) );
 
@@ -1019,7 +1013,7 @@ public class SequenceValidator
          {
             msgText = Messages.getString("SequenceValidator.149"); 
 
-            mLogger.info( "PASSED: " + msgText ); 
+            log.debug( "PASSED: " + msgText ); 
             DetailedLogMessageCollection.getInstance().addMessage( 
                new LogMessage( MessageType.PASSED, msgText ) );
             result = true && result;
@@ -1032,7 +1026,7 @@ public class SequenceValidator
          if ( multiplicityUsed >= 1 )
          {
             msgText = Messages.getString("SequenceValidator.152"); 
-            mLogger.info( "FAILED: " + msgText ); 
+            log.debug( "FAILED: " + msgText ); 
             DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                            MessageType.FAILED,
                                            msgText ) );
@@ -1063,7 +1057,7 @@ public class SequenceValidator
          {
             msgText = Messages.getString("SequenceValidator.156", 
                                           currentNodeName ); 
-            mLogger.info( "INFO: " + msgText ); 
+            log.debug( "INFO: " + msgText ); 
             DetailedLogMessageCollection.getInstance().addMessage( new LogMessage( MessageType.INFO,
                                                               msgText ) );
 
@@ -1095,7 +1089,7 @@ public class SequenceValidator
                     {
                        msgText = Messages.getString("SequenceValidator.162",
                                                      currentNodeName ); 
-                       mLogger.info( "PASSED: " + msgText ); 
+                       log.debug( "PASSED: " + msgText ); 
                        DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                             MessageType.PASSED,
                                                             msgText ) );
@@ -1104,7 +1098,7 @@ public class SequenceValidator
                      {
                         msgText = Messages.getString("SequenceValidator.165",
                                                       currentNodeName ); 
-                        mLogger.info( "FAILED: " + msgText ); 
+                        log.debug( "FAILED: " + msgText ); 
                         DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                           MessageType.FAILED,
                                                           msgText ) );
@@ -1139,7 +1133,7 @@ public class SequenceValidator
 
                   msgText = Messages.getString("SequenceValidator.172", 
                                                 currentNodeName ); 
-                  mLogger.info( "INFO: " + msgText ); 
+                  log.debug( "INFO: " + msgText ); 
                   DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                        MessageType.INFO,
                                                        msgText ) );
@@ -1161,7 +1155,7 @@ public class SequenceValidator
                   // This is a deprecated attribute
                   msgText = Messages.getString("SequenceValidator.176",
                                                 currentNodeName );  
-                  mLogger.info( "FAILED: " + msgText ); 
+                  log.debug( "FAILED: " + msgText ); 
                   DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                           MessageType.FAILED,
                                                           msgText ) );
@@ -1199,7 +1193,7 @@ public class SequenceValidator
                {
                   msgText = Messages.getString("SequenceValidator.185",
                                                 currentNodeName ); 
-                  mLogger.info( "INFO: " + msgText ); 
+                  log.debug( "INFO: " + msgText ); 
                   DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                           MessageType.INFO,
                                                           msgText ) );
@@ -1207,7 +1201,7 @@ public class SequenceValidator
                   // the format.
                   msgText = Messages.getString("SequenceValidator.188",
                                                 currentNodeName ); 
-                  mLogger.info( "PASSED: " + msgText ); 
+                  log.debug( "PASSED: " + msgText ); 
                   DetailedLogMessageCollection.getInstance().addMessage(
                                    new LogMessage( MessageType.PASSED, msgText ) );
 
@@ -1221,7 +1215,7 @@ public class SequenceValidator
                      // this attribute is out of scope of SCORM
                       msgText = Messages.getString("SequenceValidator.196",
                                                     currentNodeName ); 
-                      mLogger.info( "WARNING: " + msgText ); 
+                      log.warn( "WARNING: " + msgText ); 
                       DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                MessageType.WARNING, msgText ) );
 

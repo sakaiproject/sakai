@@ -22,6 +22,7 @@ package org.sakaiproject.scorm.model;
 
 import org.adl.api.ecmascript.IErrorManager;
 import org.adl.datamodels.DMErrorCodes;
+import org.adl.datamodels.IDataManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.model.api.ScoBean;
@@ -48,6 +49,8 @@ public class ScoBeanImpl implements ScoBean {
 	private boolean isTerminated = false;
 	
 	private int version;
+	
+	private IDataManager dataManager;
 
 	// The public version attribute of the SCORM API.
 	//public static final String version = "1.0";	
@@ -65,6 +68,13 @@ public class ScoBeanImpl implements ScoBean {
 		return scoId;
 	}
 	
+	public IDataManager getDataManager() {
+		return dataManager;
+	}
+
+	public void setDataManager(IDataManager dataManager) {
+		this.dataManager = dataManager;
+	}
 	
 	/*public String Commit(String parameter) {
 		if (log.isDebugEnabled())

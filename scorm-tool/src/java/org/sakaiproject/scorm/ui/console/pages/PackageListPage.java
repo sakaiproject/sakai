@@ -38,10 +38,11 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.model.api.ContentPackage;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
-import org.sakaiproject.scorm.service.api.ScormPermissionService;
 import org.sakaiproject.scorm.ui.console.components.DecoratedDatePropertyColumn;
 import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
+import org.sakaiproject.scorm.ui.reporting.pages.AttemptListPage;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.ActionColumn;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.BasicDataTable;
@@ -56,18 +57,19 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 	private static final ResourceReference deleteIconReference = new ResourceReference(PackageListPage.class, "res/cross.png");
 	
 	@SpringBean
-	ScormContentService contentService;
+	LearningManagementSystem lms;
 	@SpringBean
-	ScormPermissionService permissionService;
+	ScormContentService contentService;
 	
 	public PackageListPage(PageParameters params) {
 		
 		List<ContentPackage> contentPackages = contentService.getContentPackages();
 		
-		final boolean canConfigure = permissionService.canConfigure();
-		final boolean canViewResults = permissionService.canViewResults();
-		final boolean canLaunch = permissionService.canLaunch();
-		final boolean canDelete = permissionService.canDelete();
+		final String context = lms.currentContext();
+		final boolean canConfigure = lms.canConfigure(context);
+		final boolean canViewResults = lms.canViewResults(context);
+		final boolean canLaunch = lms.canLaunch(context);
+		final boolean canDelete = lms.canDelete(context);
 		
 		List<IColumn> columns = new LinkedList<IColumn>();
 
@@ -75,12 +77,15 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 			
 		String[] paramPropertyExpressions = {"id", "resourceId", "title"};
 		
-		Action launchAction = new Action("title", PlayerPage.class, paramPropertyExpressions, "ScormPlayer");
+		Action launchAction = new Action("title", PlayerPage.class, paramPropertyExpressions);
 		launchAction.setEnabled(canLaunch);
 		actionColumn.addAction(launchAction);
 		
+		if (lms.canLaunchNewWindow())
+			launchAction.setPopupWindowName("ScormPlayer");
+		
 		if (canConfigure)
-			actionColumn.addAction(new Action(new StringResourceModel("column.action.edit.label", this, null), PackageConfigurationPage.class, paramPropertyExpressions));
+			actionColumn.addAction(new Action(new ResourceModel("column.action.edit.label"), PackageConfigurationPage.class, paramPropertyExpressions));
 			
 		if (canViewResults)
 			actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), AttemptListPage.class, paramPropertyExpressions));

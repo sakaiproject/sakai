@@ -31,4 +31,15 @@ public interface ScormConstants {
 	public static final String PREF_USER_DELIVERY_SPEED = "1";
 	public static final String PREF_USER_LANGUAGE = "English";
 	
+	public static final int VALIDATION_SUCCESS = 0;
+	public static final int VALIDATION_NOFILE = 1;
+	public static final int VALIDATION_NOMANIFEST = 2;
+	public static final int VALIDATION_NOTWELLFORMED = 3;
+	public static final int VALIDATION_NOTVALIDROOT = 4;
+	public static final int VALIDATION_NOTVALIDSCHEMA = 5;
+	public static final int VALIDATION_NOTVALIDPROFILE = 6;
+	public static final int VALIDATION_MISSINGREQUIREDFILES = 7;
+	public static final int VALIDATION_CONVERTFAILED = -1;
+	
+	
 }

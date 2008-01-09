@@ -33,8 +33,8 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.model.api.ContentPackage;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
-import org.sakaiproject.scorm.service.api.ScormPermissionService;
 import org.sakaiproject.wicket.markup.html.form.CancelButton;
 import org.sakaiproject.wicket.model.DecoratedPropertyModel;
 import org.sakaiproject.wicket.model.SimpleDateFormatPropertyModel;
@@ -44,9 +44,10 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 	private static final long serialVersionUID = 1L;
 
 	@SpringBean
-	ScormContentService contentService;
+	LearningManagementSystem lms;
 	@SpringBean
-	ScormPermissionService permissionService;
+	ScormContentService contentService;
+	
 	
 	private String unlimitedMessage;
 	
@@ -123,7 +124,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 		public Object convertObject(Object object) {
 			String userId = String.valueOf(object);
 			
-			return permissionService.getDisplayName(userId);
+			return lms.getLearnerName(userId);
 		}
 		
 	}

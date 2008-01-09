@@ -64,7 +64,13 @@ public class SCODataManager implements IDataManager {
 	private long id;
 	
 	// JLR --  Added these so we can persist and find SCODataManagers
+	public long contentPackageId;
+	
 	public String courseId = null;
+	
+	public String activityId = null;
+	
+	public String scoId = null;
 	
 	public String userId = null;
 	
@@ -87,12 +93,15 @@ public class SCODataManager implements IDataManager {
     * is to create a null Hashtable mDataModels.
     */
    public SCODataManager() {
-	   this(null, null, null, -1);
+	   this(-1, null, null, null, null, null, -1);
    }
 	
-   public SCODataManager(String courseId, String userId, String title, long attemptNumber) 
+   public SCODataManager(long contentPackageId, String courseId, String scoId, String activityId, String userId, String title, long attemptNumber) 
    {
+	   this.contentPackageId = contentPackageId;
 	   this.courseId = courseId;
+	   this.scoId = scoId;
+	   this.activityId = activityId;
 	   this.userId = userId;
 	   this.title = title;
 	   this.mDataModels = new Hashtable();
@@ -460,6 +469,14 @@ public class SCODataManager implements IDataManager {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public String getScoId() {
+		return scoId;
+	}
+
+	public void setScoId(String scoId) {
+		this.scoId = scoId;
 	}
 
 }  // SCODataManager

@@ -241,6 +241,9 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		sessionBean.setBaseUrl(manifest.getResourceId());
 		sessionBean.setObjectiveStatusSet(sequencer.getObjStatusSet(launch.getActivityId()));
 		
+		if (log.isDebugEnabled())
+			log.debug("SCO is " + launch.getSco());
+		
 		String status = launch.getLaunchStatusNoContent();
 		
 		// If its an END_SESSION, clear the active activity
@@ -248,15 +251,28 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
         		|| status.equals("_SEQABANDONALL_")) ) {
         	sequencer.clearSeqState();
         	
-        	log.warn("Status is " + status + " -- ending course!");
+        	if (log.isWarnEnabled())
+        		log.warn("Status is " + status + " -- ending course!");
         	if (!sessionBean.isRestart())
         		sessionBean.setEnded(true);
         	else
         		sessionBean.setRestart(false);
         } 
         
-        seqActivityTreeDao().save(sessionBean.getTree());
+        ISeqActivityTree tree = sessionBean.getTree();
+        
+        if (tree != null) {
+	        ISeqActivity activity = tree.getActivity(sessionBean.getActivityId());
+	        
+	        if (activity != null)
+	        	sessionBean.setActivityTitle(activity.getTitle());
+	        else 
+	        	log.warn("Activity is null!!!");
+	        
+	        seqActivityTreeDao().save(tree);
+        } else {
+        	log.warn("Seq activity tree is null!!!");
+        }
 	}
-	
 	
 }

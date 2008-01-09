@@ -83,7 +83,8 @@ public class ContentPackageResourceRequestTarget implements IRequestTarget {
 	}
 	
 	private Resource getResource(ScormTool application) {
-		log.info("Looking up resource by " + resourceId + " and " + path);
+		if (log.isDebugEnabled())
+			log.debug("Looking up resource by " + resourceId + " and " + path);
 		
 		ContentPackageResource resource = application.getResourceService().getResource(resourceId, path);
 

@@ -20,12 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.player.pages;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,28 +30,25 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
-import org.apache.wicket.Resource;
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.DynamicWebResource;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.request.IRequestCodingStrategy;
 import org.apache.wicket.request.target.component.BookmarkablePageRequestTarget;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.file.File;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.navigation.INavigable;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.ResourceNavigator;
+import org.sakaiproject.scorm.ui.console.pages.PackageListPage;
 import org.sakaiproject.scorm.ui.player.behaviors.ActivityAjaxEventBehavior;
 import org.sakaiproject.scorm.ui.player.behaviors.CloseWindowBehavior;
 import org.sakaiproject.scorm.ui.player.components.ButtonForm;
@@ -68,23 +59,29 @@ import org.sakaiproject.scorm.ui.player.components.LazyLoadPanel;
 
 
 public class PlayerPage extends BaseToolPage {
+	
+	//protected static final String HEADSCRIPTS = "/library/js/headscripts.js";
+	//protected static final String BODY_ONLOAD_ADDTL="setMainFrameHeight( window.name )";
 	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(PlayerPage.class);
 	
 	@SpringBean
-	ScormApplicationService api;
+	transient LearningManagementSystem lms;
 	@SpringBean
-	ScormContentService contentService;
+	transient ScormApplicationService api;
 	@SpringBean
-	ScormResourceService resourceService;
+	transient ScormContentService contentService;
 	@SpringBean
-	ScormResultService resultService;
+	transient ScormResourceService resourceService;
 	@SpringBean
-	ScormSequencingService sequencingService;
+	transient ScormResultService resultService;
+	@SpringBean
+	transient ScormSequencingService sequencingService;
 	
 	
 	private SessionBean sessionBean;
 
+	// Components
 	private LaunchPanel launchPanel;
 	private ActivityAjaxEventBehavior closeWindowBehavior;
 	private ButtonForm buttonForm;
@@ -119,6 +116,7 @@ public class PlayerPage extends BaseToolPage {
 		
 		closeWindowBehavior = new CloseWindowBehavior(sessionBean);
 		add(closeWindowBehavior);
+		
 	}
 	
 	
@@ -128,7 +126,13 @@ public class PlayerPage extends BaseToolPage {
 		WebRequest webRequest = (WebRequest)getRequest();
 		HttpServletRequest servletRequest = webRequest.getHttpServletRequest();
 		String toolUrl = servletRequest.getContextPath();
-		CharSequence completionUrl = encoder.encode(cycle, new BookmarkablePageRequestTarget(CompletionPage.class, new PageParameters()));
+		
+		Class<?> pageClass = PackageListPage.class;
+		
+		if (lms.canLaunchNewWindow())
+			pageClass = CompletionPage.class;
+			
+		CharSequence completionUrl = encoder.encode(cycle, new BookmarkablePageRequestTarget(pageClass, new PageParameters()));
 		AppendingStringBuffer url = new AppendingStringBuffer();
 		url.append(toolUrl).append("/").append(completionUrl);
 		
@@ -199,13 +203,13 @@ public class PlayerPage extends BaseToolPage {
 			if (result == null || result.contains("_TOC_")) {
 				launchPanel = new LaunchPanel(lazyId, sessionBean, PlayerPage.this);
 				
-				
+				log.info("PlayerPage sco is " + sessionBean.getScoId());
 				ScoBean scoBean = api.produceScoBean(sessionBean.getScoId(), sessionBean);
 				scoBean.clearState();
 				PlayerPage.this.synchronizeState(sessionBean, target);
 				
-				if (launchPanel.getTreePanel().getActivityTree().isEmpty()) {
-					launchPanel.getTreePanel().setVisible(false);
+				if (launchPanel.getTree().isEmpty()) {
+					launchPanel.getTree().setVisible(false);
 				}
 				
 				navigator.displayResource(sessionBean, target);
@@ -229,19 +233,17 @@ public class PlayerPage extends BaseToolPage {
 		buttonForm.synchronizeState(sessionBean, target);
 	}
 	
-		
-	/**
-	 * No need for versioning this frame.
-	 * 
-	 * @see org.apache.wicket.Component#isVersioned()
-	 */
+	
 	public boolean isVersioned()
 	{
-		return false;
+		return true;
 	}
 	
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
+		
+		//response.renderJavascriptReference(HEADSCRIPTS);
+		//response.renderOnLoadJavascript(BODY_ONLOAD_ADDTL);
 		
 		response.renderOnEventJavacript("window", "beforeunload", closeWindowBehavior.getCall());
 	}

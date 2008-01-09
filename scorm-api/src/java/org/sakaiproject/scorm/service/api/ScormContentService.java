@@ -32,7 +32,7 @@ import org.w3c.dom.Document;
 
 public interface ScormContentService extends ScormConstants {
 	
-	public String addContentPackage(File contentPackage, IValidator validator, IValidatorOutcome outcome) throws Exception;
+	//public String addContentPackage(File contentPackage, IValidator validator, IValidatorOutcome outcome) throws Exception;
 	
 	public ContentPackage getContentPackage(long contentPackageId);
 	
@@ -48,8 +48,8 @@ public interface ScormContentService extends ScormConstants {
 	
 	public void updateContentPackage(ContentPackage contentPackage);
 	
-	public void validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema) throws Exception;
+	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema);
 	
-	public IValidator validate(File contentPackage, boolean iManifestOnly, boolean iValidateToSchema);
+	//public IValidator validate(File contentPackage, boolean iManifestOnly, boolean iValidateToSchema);
 	
 }

@@ -25,12 +25,12 @@ package org.adl.parsers.dom;
 
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Attr;
 import org.w3c.dom.NamedNodeMap;
-
-import java.util.logging.Logger;
 
 /**
  * <strong>Filename:</strong> DOMTreeUtility.java<br><br>
@@ -100,6 +100,9 @@ public class DOMTreeUtility
     */
    public static final String IMSSSP_NAMESPACE = "http://www.imsglobal.org/xsd/imsssp";
 
+   
+   private static Log log = LogFactory.getLog(DOMTreeUtility.class);
+   
    /**
     * This method returns the desired node which is determined by the
     * provided node name and namespace.
@@ -111,9 +114,9 @@ public class DOMTreeUtility
     */
    public static Node getNode( Node iNode, String iNodeName )
    {
-      Logger.getLogger("org.adl.util.debug.validator").entering("DOMTreeUtility","getNode()");
-      Logger.getLogger("org.adl.util.debug.validator").info("Parent Node: " + iNode.getLocalName());
-      Logger.getLogger("org.adl.util.debug.validator").info("Node being searched for: " + iNodeName);
+      log.debug("DOMTreeUtility getNode()");
+      log.debug("Parent Node: " + iNode.getLocalName());
+      log.debug("Node being searched for: " + iNodeName);
 
       Node result = null;
 
@@ -133,7 +136,7 @@ public class DOMTreeUtility
 
                // Get the current child node's local name
                String currentChildName = currentChild.getLocalName();
-               Logger.getLogger("org.adl.util.debug.validator").info("Child #" + i + ": " + currentChildName);
+               log.debug("Child #" + i + ": " + currentChildName);
 
                if ( currentChildName != null )
                {
@@ -166,9 +169,9 @@ public class DOMTreeUtility
    public static Vector getNodes( Node iNode,
                                   String iNodeName )
    {
-      Logger.getLogger("org.adl.util.debug.validator").entering("DOMTreeUtility","getNodes()");
-      Logger.getLogger("org.adl.util.debug.validator").info("Parent Node: " + iNode.getLocalName());
-      Logger.getLogger("org.adl.util.debug.validator").info("Node being searched for: " + iNodeName);
+      log.debug("DOMTreeUtility getNodes()");
+      log.debug("Parent Node: " + iNode.getLocalName());
+      log.debug("Node being searched for: " + iNodeName);
       // Create a vector to hold the results of the method
       Vector result = new Vector();
 
@@ -259,9 +262,9 @@ public class DOMTreeUtility
    public static Attr getAttribute( Node iNode,
                                     String iAttributeName )
    {
-      Logger.getLogger("org.adl.util.debug.validator").entering("DOMTreeUtility","getAttribute()");
-      Logger.getLogger("org.adl.util.debug.validator").info("Parent Node: " + iNode.getLocalName());
-      Logger.getLogger("org.adl.util.debug.validator").info("Node being searched for: " + iAttributeName);
+      log.debug("DOMTreeUtility getAttribute()");
+      log.debug("Parent Node: " + iNode.getLocalName());
+      log.debug("Node being searched for: " + iAttributeName);
       Attr result = null;
 
       // Determine if the node is null
@@ -328,9 +331,9 @@ public class DOMTreeUtility
    public static String getAttributeValue( Node iNode,
                                            String iAttributeName )
    {
-      Logger.getLogger("org.adl.util.debug.validator").entering("DOMTreeUtility","getAttributeValue()");
-      Logger.getLogger("org.adl.util.debug.validator").info("Parent Node: " + iNode.getLocalName());
-      Logger.getLogger("org.adl.util.debug.validator").info("Node being searched for: " + iAttributeName);
+      log.debug("DOMTreeUtility getAttributeValue()");
+      log.debug("Parent Node: " + iNode.getLocalName());
+      log.debug("Node being searched for: " + iAttributeName);
       String result = "";
       // Get the attribute from the node matching the attribute name
       // and namespace
@@ -364,10 +367,10 @@ public class DOMTreeUtility
                                               String iNodeName,
                                               String iNamespace)
    {
-      Logger.getLogger("org.adl.util.debug.validator").entering("DOMTreeUtility","isAppropriateElement()");
-      Logger.getLogger("org.adl.util.debug.validator").finest("Input Parent Node: " + iNode.getLocalName());
-      Logger.getLogger("org.adl.util.debug.validator").finest("Input Node being searched for: " + iNodeName);
-      Logger.getLogger("org.adl.util.debug.validator").finest("Input Namespace of node being searched for: " + iNamespace);
+      log.debug("DOMTreeUtility isAppropriateElement()");
+      log.debug("Input Parent Node: " + iNode.getLocalName());
+      log.debug("Input Node being searched for: " + iNodeName);
+      log.debug("Input Namespace of node being searched for: " + iNamespace);
 
       boolean result = false;
 
@@ -415,9 +418,9 @@ public class DOMTreeUtility
    public static boolean isSCORMAppProfileNode(Node iCurrentNode,
                                                Node iParentNode)
    {
-      Logger.getLogger("org.adl.util.debug.validator").entering("DOMTreeUtility","isSCORMAppProfileNode");
-      Logger.getLogger("org.adl.util.debug.validator").finest("Input Current Node: " + iCurrentNode.getLocalName());
-      Logger.getLogger("org.adl.util.debug.validator").finest("Input Parent Node: " + iParentNode.getLocalName());
+      log.debug("DOMTreeUtility isSCORMAppProfileNode");
+      log.debug("Input Current Node: " + iCurrentNode.getLocalName());
+      log.debug("Input Parent Node: " + iParentNode.getLocalName());
 
       boolean result = false;
 

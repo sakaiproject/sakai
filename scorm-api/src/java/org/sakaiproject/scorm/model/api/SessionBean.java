@@ -23,6 +23,8 @@ public class SessionBean implements Serializable {
 	
 	private ISeqActivityTree tree;
 	
+	private String activityTitle;
+	
 	private String activityId;
 	private String scoId;
 	private IValidRequests navigationState;
@@ -42,7 +44,7 @@ public class SessionBean implements Serializable {
 	private boolean closeOnNextTerminate = false;
 	private boolean isRestart = false;
 	
-	private IDataManager dataManager;
+	//private IDataManager dataManager;
 	private IErrorManager errorManager;
 	
 	private Attempt attempt;
@@ -222,13 +224,13 @@ public class SessionBean implements Serializable {
 		this.errorManager = errorManager;
 	}
 
-	public IDataManager getDataManager() {
+	/*public IDataManager getDataManager() {
 		return dataManager;
 	}
 
 	public void setDataManager(IDataManager dataManager) {
 		this.dataManager = dataManager;
-	}
+	}*/
 
 	public String getTitle() {
 		return title;
@@ -268,6 +270,14 @@ public class SessionBean implements Serializable {
 
 	public void setContentPackageId(long contentPackageId) {
 		this.contentPackageId = contentPackageId;
+	}
+
+	public String getActivityTitle() {
+		return activityTitle;
+	}
+
+	public void setActivityTitle(String activityTitle) {
+		this.activityTitle = activityTitle;
 	}
 
 	

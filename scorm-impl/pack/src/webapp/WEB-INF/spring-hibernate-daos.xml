@@ -28,6 +28,13 @@
 		</property>
 	</bean>
 	
+	<bean id="scorm.SeqActivityDaoTarget"
+		class="org.sakaiproject.scorm.dao.hibernate.SeqActivityDaoImpl">
+		<property name="sessionFactory">
+				<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		</property>
+	</bean>
+	
 	<bean id="scorm.SeqActivityTreeDaoTarget"
 		class="org.sakaiproject.scorm.dao.hibernate.SeqActivityTreeDaoImpl">
 		<property name="sessionFactory">
@@ -68,6 +75,19 @@
 			ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 		<property name="target" 
 			ref="scorm.DataManagerDaoTarget" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityDao"
+			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" 
+			ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" 
+			ref="scorm.SeqActivityDaoTarget" />
 		<property name="transactionAttributes">
 			<props>
 				<prop key="*">PROPAGATION_REQUIRED</prop>

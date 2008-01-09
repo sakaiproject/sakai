@@ -7,10 +7,9 @@ body {
 div.my-tree div.wicket-tree {
 	height: auto;
 	width: 100%;
-	border: 0px;
 	margin-top: 0px;
 	padding-top: 0px;
-	/*overflow-y: hidden;*/
+	padding-right: 10px;
 }
 
 .smalltext {
@@ -19,14 +18,12 @@ div.my-tree div.wicket-tree {
 }
 
 .scormPlayerPanel {
-	height: 80%;	
+
 }
 
 .scormNavPanel {
-	float: left;
-	height: 75%;
-	width: 300px;
-	border-right: 0px solid black;
+	height: 600px;
+	width: 100%;
 	margin: 0px;
 	padding: 0px;
 	padding-right: 10px;
@@ -40,8 +37,8 @@ div.my-tree div.wicket-tree {
 }
 
 .scormContentPanel {
-	margin: 0px;
-	padding: 0px;
+	margin-left: 10px;
+	padding-left: 5px;
 }
 
 .scormButtonPanel {

@@ -4,12 +4,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -23,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.scorm.exceptions.ValidationException;
+import org.sakaiproject.scorm.model.api.Archive;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.model.api.SessionBean;
@@ -37,7 +41,68 @@ public abstract class StandaloneResourceService implements ScormResourceService 
 	protected abstract IdManager idManager();
 	
 	public void convertArchive(String resourceId, String manifestResourceId) {
+		File dir = getContentPackageDirectory(resourceId);
+		unzip(dir, new ZipInputStream(getArchiveStream(resourceId)));
+	}
+	
+	public Archive getArchive(String resourceId) {
+		File dir = getContentPackageDirectory(resourceId);
 		
+		FilenameFilter zipFilter = new FilenameFilter() {
+
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".zip");
+			}
+		};
+		
+		FilenameFilter imsmanifestFilter = new FilenameFilter() {
+
+			public boolean accept(File dir, String name) {
+				return name.equals("imsmanifest.xml");
+			}
+		};
+		
+		File[] files = dir.listFiles(zipFilter);
+		
+		File[] imsmanifests = dir.listFiles(imsmanifestFilter);
+		
+		if (files.length >= 1) {
+			Archive archive = new Archive(resourceId, files[0].getName());
+			
+			if (imsmanifests.length >= 1)
+				archive.setValidated(true);
+			else
+				archive.setValidated(false);
+			
+			return archive;
+		}
+			
+		return null;
+	}
+
+	public InputStream getArchiveStream(String resourceId) {
+		File dir = getContentPackageDirectory(resourceId);
+		
+		FilenameFilter filter = new FilenameFilter() {
+
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".zip");
+			}
+		};
+		
+		File[] files = dir.listFiles(filter);
+		
+		if (files.length >= 1) {
+			try {
+				FileInputStream fis = new FileInputStream(files[0]);
+				
+				return fis;
+			} catch (FileNotFoundException e) {
+				log.error("Unable to create stream for zip file for resourceId: " + resourceId);
+			}
+		}
+			
+		return null;
 	}
 	
 	public ContentPackageManifest getManifest(String resourceId, String manifestResourceId) { 
@@ -73,6 +138,8 @@ public abstract class StandaloneResourceService implements ScormResourceService 
 	public ContentPackageResource getResource(String resourceId, String path) {
 		
 		String cleanPath = path;
+		
+		log.info("Looking up resource from " + resourceId + " with path " + path);
 		
 		try {
 			cleanPath = (null == path) ? "" : URLDecoder.decode(path, "UTF-8");
@@ -112,11 +179,28 @@ public abstract class StandaloneResourceService implements ScormResourceService 
 	}
 	
 	
-	public String putArchive(InputStream stream, String name, String mimeType) {
+	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden) {
 		String uuid = idManager().createUuid();
-		File dir = getContentPackageDirectory(uuid);
 		
-		unzip(dir, new ZipInputStream(stream));
+		String fileName = new StringBuilder(name).toString();
+		File archiveFile = new File(getContentPackageDirectory(uuid), fileName);
+		
+		try {
+			FileOutputStream fileStream = new FileOutputStream(archiveFile);
+			
+			byte[] buffer = new byte[1024];
+			int length;
+			
+			while ((length = stream.read(buffer)) > 0) {  
+				fileStream.write(buffer, 0, length);
+            }
+    		
+			if (null != fileStream)
+				fileStream.close();
+			
+		} catch (Exception e) {
+			log.error("Unable to write archive to disk " + fileName, e);
+		}
 		
 		return uuid;
 	}
@@ -200,6 +284,14 @@ public abstract class StandaloneResourceService implements ScormResourceService 
 			}
 		}
 	}
-	
+
+
+	public int getMaximumUploadFileSize() {
+		return 2000;
+	}
+
+	public List<Archive> getUnvalidatedArchives() {
+		return new LinkedList<Archive>();
+	}
 
 }

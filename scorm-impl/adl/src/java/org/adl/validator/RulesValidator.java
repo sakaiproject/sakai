@@ -26,6 +26,9 @@ package org.adl.validator;
 import java.io.Serializable;
 import java.util.Vector;
 import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Attr;
@@ -73,7 +76,7 @@ public class RulesValidator implements Serializable
    /**
     * Logger object used for debug logging.<br>
     */
-   private transient Logger mLogger = Logger.getLogger("org.adl.util.debug.validator");
+   private static Log log = LogFactory.getLog(RulesValidator.class);
 
 
    /**
@@ -90,13 +93,13 @@ public class RulesValidator implements Serializable
    {
       //mLogger = Logger.getLogger("org.adl.util.debug.validator");
 
-      mLogger.entering( "RulesValidator",
+      log.debug(
                         "RulesValidator()" );
 
       mRulesDocument = null;
       mValidatorType = iValidatorType;
 
-      mLogger.exiting( "RulesValidator",
+      log.debug(
                        "RulesValidator()" );
    }
 
@@ -118,8 +121,8 @@ public class RulesValidator implements Serializable
     */
    public boolean readInRules( String iApplicationProfileType )
    {
-     mLogger.entering( "RulesValidator", "readInRules()" );
-     mLogger.finest( "      iApplicationProfileType coming in is " +
+     log.debug( "readInRules()" );
+     log.debug( "      iApplicationProfileType coming in is " +
                             iApplicationProfileType );
 
      boolean result = true;
@@ -133,15 +136,15 @@ public class RulesValidator implements Serializable
      if ( rules != null )
      {
         mRulesDocument = rules;
-        mLogger.finest( "root element mRulesDoc = " +
+        log.debug( "root element mRulesDoc = " +
                      ((Node)mRulesDocument.getDocumentElement()).getNodeName());
      }
      else
      {
-        mLogger.severe( "Problem parsing XML rules" );
+        log.error( "Problem parsing XML rules" );
         result = false;
      }
-     mLogger.exiting( "RulesValidator", "readInRules()" );
+     log.debug( "readInRules()" );
      return result;
    }
 
@@ -173,11 +176,11 @@ public class RulesValidator implements Serializable
                                String iRuleName,
                                String iAttribAttribName )
    {
-      mLogger.entering( "RulesValidator", "getRuleValue()" );
-      mLogger.finest( "    iElementName coming in is " + iElementName );
-      mLogger.finest( "    iPath coming in is " + iPath );
-      mLogger.finest( "    iRuleName coming in is " + iRuleName );
-      mLogger.finest( "    iAttribAttribName coming in is " + 
+      log.debug( "getRuleValue()" );
+      log.debug( "    iElementName coming in is " + iElementName );
+      log.debug( "    iPath coming in is " + iPath );
+      log.debug( "    iRuleName coming in is " + iRuleName );
+      log.debug( "    iAttribAttribName coming in is " + 
                       iAttribAttribName );
 
       String stringResult = new String("-1");
@@ -185,7 +188,7 @@ public class RulesValidator implements Serializable
 
       if ( mRulesDocument != null )
       {
-         mLogger.finest( "mRulesDocument != null" );
+         log.debug( "mRulesDocument != null" );
 
          ruleNode = retrieveAttribRuleElement( iElementName, iPath, iRuleName,
                                                iAttribAttribName );
@@ -193,21 +196,21 @@ public class RulesValidator implements Serializable
          if (ruleNode != null )
          {
             // retrieve value and return
-            mLogger.finest( "rule found, retrieving value" );
+            log.debug( "rule found, retrieving value" );
 
             stringResult = getTaggedData( ruleNode );
          }
          else
          {
-            mLogger.finest( "ruleNode is null - rull was not found" );
+            log.debug( "ruleNode is null - rull was not found" );
          }
       }
       else
       {
-         mLogger.severe("Can not continue validation of rules, doc is null");
+         log.error("Can not continue validation of rules, doc is null");
       }
-         mLogger.finest( "Returning the following value " + stringResult );
-         mLogger.exiting( "RulesValidator", "getRuleValue()" );
+         log.debug( "Returning the following value " + stringResult );
+         log.debug( "getRuleValue()" );
 
       return stringResult;
    }
@@ -236,38 +239,38 @@ public class RulesValidator implements Serializable
                                String iPath,
                                String iRuleName )
    {
-      mLogger.entering( "RulesValidator", "getRuleValue()" );
+      log.debug( "getRuleValue()" );
 
-      mLogger.finest( "    iElementName coming in is " + iElementName );
-      mLogger.finest( "    iPath coming in is " + iPath );
-      mLogger.finest( "    iRuleName coming in is " + iRuleName );
+      log.debug( "    iElementName coming in is " + iElementName );
+      log.debug( "    iPath coming in is " + iPath );
+      log.debug( "    iRuleName coming in is " + iRuleName );
 
       String stringResult = new String("-1");
       Node ruleNode;
 
       if ( mRulesDocument != null )
       {
-         mLogger.finest( "mRulesDocument != null" );
+         log.debug( "mRulesDocument != null" );
 
          ruleNode = retrieveRuleElement( iElementName, iPath, iRuleName );
          if (ruleNode != null )
          {
             // retrieve value and return
-            mLogger.finest( "rule found, retrieving value" );
+            log.debug( "rule found, retrieving value" );
 
             stringResult = getTaggedData( ruleNode );
          }
          else
          {
-            mLogger.finest( "ruleNode is null - rull was not found" );
+            log.debug( "ruleNode is null - rull was not found" );
          }
       }
       else
       {
-         mLogger.severe("Can not continue validation of rules, doc is null");
+         log.error("Can not continue validation of rules, doc is null");
       }
-         mLogger.finest( "Returning the following value " + stringResult );
-         mLogger.exiting( "RulesValidator", "getRuleValue()" );
+         log.debug( "Returning the following value " + stringResult );
+         log.debug( "getRuleValue()" );
 
       return stringResult;
    }
@@ -289,17 +292,17 @@ public class RulesValidator implements Serializable
    public Vector getVocabRuleValues( String iElementName,
                                      String iPath )
    {
-      mLogger.entering( "RulesValidator", "getVocabRuleValues()" );
+      log.debug( "getVocabRuleValues()" );
 
-      mLogger.finest( "    iElementName coming in is " + iElementName );
-      mLogger.finest( "    iPath coming in is " + iPath );
+      log.debug( "    iElementName coming in is " + iElementName );
+      log.debug( "    iPath coming in is " + iPath );
 
       Vector ruleNodeVector = new Vector();
       Vector vocabVector = new Vector();
 
       if ( mRulesDocument != null )
       {
-         mLogger.finest( "mRulesDocument != null" );
+         log.debug( "mRulesDocument != null" );
 
          ruleNodeVector = retrieveVocabRuleElements( iElementName, iPath,
                                                      "vocab" );
@@ -318,14 +321,14 @@ public class RulesValidator implements Serializable
          }
          else
          {
-            mLogger.finest( "ruleNode is null - rules not found" );
+            log.debug( "ruleNode is null - rules not found" );
          }
       }
       else
       {
-         mLogger.severe("Can not continue validation of rules, doc is null");
+         log.error("Can not continue validation of rules, doc is null");
       }
-        mLogger.exiting( "RulesValidator", "getVocabRuleValues()" );
+        log.debug( "getVocabRuleValues()" );
 
      return vocabVector;
    }
@@ -349,17 +352,17 @@ public class RulesValidator implements Serializable
                                            String iPath,
                                            String iAttribName )
    {
-      mLogger.entering( "RulesValidator", "getAttribVocabRuleValues()" );
-      mLogger.finest( "    iElementName coming in is " + iElementName );
-      mLogger.finest( "    iPath coming in is " + iPath );
-      mLogger.finest( "    iAttribName coming in is " + iAttribName );
+      log.debug( "getAttribVocabRuleValues()" );
+      log.debug( "    iElementName coming in is " + iElementName );
+      log.debug( "    iPath coming in is " + iPath );
+      log.debug( "    iAttribName coming in is " + iAttribName );
 
       Vector ruleNodeVector;
       Vector vocabVector = new Vector();
 
       if ( mRulesDocument != null )
       {
-         mLogger.finest( "mRulesDocument != null" );
+         log.debug( "mRulesDocument != null" );
 
          ruleNodeVector = retrieveAttribVocabRuleElements( iElementName,
                                                           iPath,
@@ -379,14 +382,14 @@ public class RulesValidator implements Serializable
          }
          else
          {
-            mLogger.finest( "ruleNode is null - rules not found" );
+            log.debug( "ruleNode is null - rules not found" );
          }
       }
       else
       {
-         mLogger.severe("Can not continue validation of rules, doc is null");
+         log.error("Can not continue validation of rules, doc is null");
       }
-      mLogger.exiting( "RulesValidator", "getAttribVocabRuleValues()" );
+      log.debug( "getAttribVocabRuleValues()" );
 
      return vocabVector;
    }
@@ -409,7 +412,7 @@ public class RulesValidator implements Serializable
                                            String iRuleName,
                                            String iAttribName )
    {
-      mLogger.entering( "RulesValidator", "retrieveAttribRuleElement()" );
+      log.debug( "retrieveAttribRuleElement()" );
       Node resultNode = null;
 
       Node rootRulesNode = mRulesDocument.getDocumentElement();
@@ -426,10 +429,10 @@ public class RulesValidator implements Serializable
          // name and path attribute value
          currentElementNode = kids.item(i);
          nodeName = getAttribute( currentElementNode, "name" );
-         mLogger.finest( "currentElementNode's name is " + nodeName );
+         log.debug( "currentElementNode's name is " + nodeName );
 
          path = getAttribute( currentElementNode, "path" );
-         mLogger.finest( "currentElementNode's path is " + path );
+         log.debug( "currentElementNode's path is " + path );
 
          if ( nodeName.equals( iElementName ) && path.equals( iPath ) )
          {
@@ -438,7 +441,7 @@ public class RulesValidator implements Serializable
             NodeList currentElementNodeKids = 
                currentElementNode.getChildNodes();
             int numCurrentNodeKids = currentElementNodeKids.getLength();
-            mLogger.finest( "numCurrentNodeKids is " + numCurrentNodeKids );
+            log.debug( "numCurrentNodeKids is " + numCurrentNodeKids );
 
             Node attributeNode;
             String attributeNodeName;
@@ -448,7 +451,7 @@ public class RulesValidator implements Serializable
                // the name that we want
                attributeNode = currentElementNodeKids.item(j);
                attributeNodeName = attributeNode.getNodeName();
-               mLogger.finest( "attributeNodeName is " + attributeNodeName );
+               log.debug( "attributeNodeName is " + attributeNodeName );
 
                if ( attributeNodeName.equals( "attrib" ) )
                {
@@ -456,7 +459,7 @@ public class RulesValidator implements Serializable
 
                   if ( attributeName.equals(iAttribName) )
                   {
-                     mLogger.finest("Attribute rule found for " + 
+                     log.debug("Attribute rule found for " + 
                         attributeName);
 
                      // traverse the children of the specified attribute and
@@ -471,12 +474,12 @@ public class RulesValidator implements Serializable
                      {
                         ruleNode = attributeNodeKids.item(k);
                         ruleNodeName = ruleNode.getNodeName();
-                        mLogger.finest( "Found the " + ruleNodeName +
+                        log.debug( "Found the " + ruleNodeName +
                                         " attribute");
 
                         if ( ruleNodeName.equals(iRuleName) )
                         {
-                           mLogger.finest( "Found the " + iRuleName + " rule");
+                           log.debug( "Found the " + iRuleName + " rule");
                            resultNode = ruleNode;
                            break;
                         }
@@ -490,7 +493,7 @@ public class RulesValidator implements Serializable
             break;
          }
       }
-      mLogger.exiting( "RulesValidator", "retrieveAttribRuleElement()" );
+      log.debug( "retrieveAttribRuleElement()" );
 
       return resultNode;
    }
@@ -516,7 +519,7 @@ public class RulesValidator implements Serializable
                                                    String iRuleName,
                                                    String iAttribName )
    {
-      mLogger.entering( "RulesValidator", "retrieveAttribVocabRuleElements()" );
+      log.debug( "retrieveAttribVocabRuleElements()" );
 
       Vector resultVector = new Vector();
 
@@ -534,10 +537,10 @@ public class RulesValidator implements Serializable
          // name and path attribute value
          currentElementNode = kids.item(i);
          nodeName = getAttribute( currentElementNode, "name" );
-         mLogger.finest( "currentElementNode's name is " + nodeName );
+         log.debug( "currentElementNode's name is " + nodeName );
 
          path = getAttribute( currentElementNode, "path" );
-         mLogger.finest( "currentElementNode's path is " + path );
+         log.debug( "currentElementNode's path is " + path );
 
          if ( nodeName.equals( iElementName ) && path.equals( iPath ) )
          {
@@ -546,7 +549,7 @@ public class RulesValidator implements Serializable
             NodeList currentElementNodeKids = 
                currentElementNode.getChildNodes();
             int numCurrentNodeKids = currentElementNodeKids.getLength();
-            mLogger.finest( "numCurrentNodeKids is " + numCurrentNodeKids );
+            log.debug( "numCurrentNodeKids is " + numCurrentNodeKids );
 
             Node attributeNode;
             String attributeNodeName;
@@ -556,7 +559,7 @@ public class RulesValidator implements Serializable
                // the name that we want
                attributeNode = currentElementNodeKids.item(j);
                attributeNodeName = attributeNode.getNodeName();
-               mLogger.info( "attributeNodeName is " + attributeNodeName );
+               log.debug( "attributeNodeName is " + attributeNodeName );
 
                if ( attributeNodeName.equals("attrib") )
                {
@@ -564,7 +567,7 @@ public class RulesValidator implements Serializable
 
                   if ( attributeName.equals(iAttribName) )
                   {
-                     mLogger.finest( "Attribute rule found for "
+                     log.debug( "Attribute rule found for "
                                      + attributeName );
 
                      // traverse the children of the specified attribute and
@@ -579,13 +582,13 @@ public class RulesValidator implements Serializable
                      {
                         ruleNode = attributeNodeKids.item(k);
                         ruleNodeName = ruleNode.getNodeName();
-                        mLogger.finest( "Found the " + ruleNodeName +
+                        log.debug( "Found the " + ruleNodeName +
                                         " attribute" );
 
                         if ( ruleNodeName.equals(iRuleName) &&
                              iRuleName.equals( "vocab" ) )
                         {
-                           mLogger.finest( "Found the " + iRuleName + " rule" );
+                           log.debug( "Found the " + iRuleName + " rule" );
                            resultVector.add( ruleNode );
                         }
                      }
@@ -598,7 +601,7 @@ public class RulesValidator implements Serializable
             break;
          }
       }
-      mLogger.exiting( "RulesValidator", "retrieveAttribVocabRuleElements()" );
+      log.debug( "retrieveAttribVocabRuleElements()" );
 
       return resultVector;
    }
@@ -618,7 +621,7 @@ public class RulesValidator implements Serializable
                                      String iPath,
                                      String iRuleName )
    {
-      mLogger.entering( "RulesValidator", "retrieveRuleElement()" );
+      log.debug( "retrieveRuleElement()" );
 
       Node resultNode = null;
 
@@ -636,10 +639,10 @@ public class RulesValidator implements Serializable
          // name and path attribute value
          currentElementNode = kids.item(i);
          nodeName = getAttribute( currentElementNode, "name" );
-         mLogger.finest( "currentElementNode's name is " + nodeName );
+         log.debug( "currentElementNode's name is " + nodeName );
 
          path = getAttribute( currentElementNode, "path" );
-         mLogger.finest( "currentElementNode's path is " + path );
+         log.debug( "currentElementNode's path is " + path );
 
          if ( nodeName.equals( iElementName ) && path.equals( iPath ) )
          {
@@ -648,7 +651,7 @@ public class RulesValidator implements Serializable
             NodeList currentElementNodeKids = 
                currentElementNode.getChildNodes();
             int numCurrentNodeKids = currentElementNodeKids.getLength();
-            mLogger.finest( "numCurrentNodeKids is " + numCurrentNodeKids );
+            log.debug( "numCurrentNodeKids is " + numCurrentNodeKids );
 
             Node ruleNode;
             String ruleNodeName;
@@ -658,7 +661,7 @@ public class RulesValidator implements Serializable
                // the name that we want
                ruleNode = currentElementNodeKids.item(j);
                ruleNodeName = ruleNode.getNodeName();
-               mLogger.finest( "ruleNodeName is " + ruleNodeName );
+               log.debug( "ruleNodeName is " + ruleNodeName );
 
                if ( iRuleName.equals( "min" ) || iRuleName.equals( "max" ) ||
                     iRuleName.equals( "spm" ) || iRuleName.equals( "datatype" ))
@@ -671,13 +674,13 @@ public class RulesValidator implements Serializable
                }
                else
                {
-                  mLogger.severe("The rule searched for is not available");
+                  log.error("The rule searched for is not available");
                }
             }
             break;
          }
       }
-      mLogger.exiting( "RulesValidator", "retrieveRuleElement()" );
+      log.debug( "retrieveRuleElement()" );
 
       return resultNode;
    }
@@ -698,7 +701,7 @@ public class RulesValidator implements Serializable
                                              String iPath,
                                              String iRuleName )
    {
-      mLogger.entering( "RulesValidator", "retrieveVocabRuleElements()" );
+      log.debug( "retrieveVocabRuleElements()" );
 
       Vector resultVector = new Vector();
 
@@ -716,10 +719,10 @@ public class RulesValidator implements Serializable
          // name and path attribute value
          currentElementNode = kids.item(i);
          nodeName = getAttribute( currentElementNode, "name" );
-         mLogger.finer( "currentElementNode's name is " + nodeName );
+         log.debug( "currentElementNode's name is " + nodeName );
 
          path = getAttribute( currentElementNode, "path" );
-         mLogger.finer( "currentElementNode's path is " + path );
+         log.debug( "currentElementNode's path is " + path );
 
          if ( nodeName.equals( iElementName ) && path.equals( iPath ) )
          {
@@ -728,7 +731,7 @@ public class RulesValidator implements Serializable
             NodeList currentElementNodeKids = 
                currentElementNode.getChildNodes();
             int numCurrentNodeKids = currentElementNodeKids.getLength();
-            mLogger.finer( "numCurrentNodeKids is " + numCurrentNodeKids );
+            log.debug( "numCurrentNodeKids is " + numCurrentNodeKids );
 
             Node ruleNode;
             String ruleNodeName;
@@ -738,7 +741,7 @@ public class RulesValidator implements Serializable
                // the name that we want
                ruleNode = currentElementNodeKids.item(j);
                ruleNodeName = ruleNode.getNodeName();
-               mLogger.finer( "ruleNodeName is " + ruleNodeName );
+               log.debug( "ruleNodeName is " + ruleNodeName );
 
                if ( iRuleName.equals("vocab") )
                {
@@ -751,7 +754,7 @@ public class RulesValidator implements Serializable
             break;
          }
       }
-      mLogger.exiting( "RulesValidator", "retrieveVocabRuleElements()" );
+      log.debug( "retrieveVocabRuleElements()" );
 
       return resultVector;
    }
@@ -837,7 +840,7 @@ public class RulesValidator implements Serializable
     */
    public String getTaggedData( Node iNode )
    {
-      mLogger.entering( "RulesValidator", "getTaggedData()" );
+      log.debug( "getTaggedData()" );
 
       String value= new String();
       NodeList kids = iNode.getChildNodes();
@@ -856,10 +859,10 @@ public class RulesValidator implements Serializable
          }
       } else
       {
-            mLogger.finest( "%%% no kids for value %%%" );
+            log.debug( "%%% no kids for value %%%" );
 
       }
-      mLogger.exiting( "RulesValidator", "getTaggedData()" );
+      log.debug( "getTaggedData()" );
 
       return value;
    }

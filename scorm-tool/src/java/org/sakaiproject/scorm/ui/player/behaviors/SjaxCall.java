@@ -40,6 +40,7 @@ import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
@@ -86,6 +87,9 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 		this.numArgs = numArgs;
 	}
 
+	
+	protected abstract LearningManagementSystem lms();
+	
 	/**
 	 * Since Wicket only injects Spring annotations for classes that extend Component, we can't use
 	 * it inside the SjaxCall itself, therefore, we abstract the getter here to avoid having to 
@@ -100,7 +104,7 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	 * it inside the SjaxCall itself, therefore, we abstract the getter here to avoid having to 
 	 * create a member variable that would then be serialized.
 	 * 
-	 * @return API Service dependency injected at the Component level
+	 * @return Resource Service dependency injected at the Component level
 	 */
 	protected abstract ScormResourceService resourceService();
 	
@@ -282,12 +286,14 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 		
 		rli = IBehaviorListener.INTERFACE;
 		
-		WebRequest webRequest = (WebRequest)getComponent().getRequest();
-		HttpServletRequest servletRequest = webRequest.getHttpServletRequest();
-		String toolUrl = servletRequest.getContextPath();
-		
 		AppendingStringBuffer url = new AppendingStringBuffer();
-		url.append(toolUrl).append("/");
+		
+		if (!lms().canUseRelativeUrls()) {
+			WebRequest webRequest = (WebRequest)getComponent().getRequest();
+			HttpServletRequest servletRequest = webRequest.getHttpServletRequest();
+			url.append(servletRequest.getContextPath()).append("/");
+		}
+			
 		url.append(getComponent().urlFor(this, rli));
 		
 		return url;

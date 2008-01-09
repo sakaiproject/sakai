@@ -23,9 +23,10 @@
 ******************************************************************************/
 package org.adl.validator;
 
-import java.util.logging.Logger;
-import org.w3c.dom.Document;
 import org.adl.parsers.dom.ADLDOMParser;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
 
 /**
  *
@@ -87,7 +88,7 @@ public class DOMRulesCreator
    /**
     * Logger object used for debug logging.
     */
-   private Logger mLogger;
+   private static Log log = LogFactory.getLog(DOMRulesCreator.class);
 
    /**
     *
@@ -102,18 +103,16 @@ public class DOMRulesCreator
    public DOMRulesCreator( String iApplicationProfileType,
                            String iValidatorType )
    {
-      mLogger = Logger.getLogger("org.adl.util.debug.validator");
-
-      mLogger.entering( "DOMRulesCreator", "DOMRulesCreator()" );
-      mLogger.info("      iApplicationProfileType coming in is " +
+      log.debug( "DOMRulesCreator()" );
+      log.debug("      iApplicationProfileType coming in is " +
                            iApplicationProfileType );
-      mLogger.info("      iValidatorType coming in is " +
+      log.debug("      iValidatorType coming in is " +
                            iValidatorType );
 
       mApplicationProfileType = iApplicationProfileType;
       mValidatorType = iValidatorType;
 
-      mLogger.exiting( "DOMRulesCreator", "DOMRulesCreator()" );
+      log.debug( "DOMRulesCreator()" );
    }
 
    /**
@@ -124,7 +123,7 @@ public class DOMRulesCreator
     */
    public Document provideRules()
    {
-      mLogger.entering( "DOMRulesCreator", "provideRules()" );
+      log.debug( "provideRules()" );
 
       // create an ADLDOMParser object to parse the rules and provide a dom
       ADLDOMParser mParser = new ADLDOMParser();
@@ -140,7 +139,7 @@ public class DOMRulesCreator
             DOMRulesCreator.class.
             getResource("metadata/rules/md_adlregRules.xml");
       
-          mLogger.info( "adlreg fileLocation is" + urlLocation );
+          log.debug( "adlreg fileLocation is" + urlLocation );
       }      
       else if ( mValidatorType.equals("contentpackage") &&
                 mApplicationProfileType.equals("resource") )
@@ -149,7 +148,7 @@ public class DOMRulesCreator
             DOMRulesCreator.class.
                getResource("contentpackage/rules/cp_resourceRules.xml");
 
-         mLogger.info( "resource fileLocation is" + urlLocation );
+         log.debug( "resource fileLocation is" + urlLocation );
       }
       else if ( mValidatorType.equals("contentpackage") &&
                 mApplicationProfileType.equals("contentaggregation") )
@@ -158,7 +157,7 @@ public class DOMRulesCreator
             DOMRulesCreator.class.
              getResource("contentpackage/rules/cp_contentaggregationRules.xml");
 
-         mLogger.info( "contentaggregation fileLocation is" + urlLocation );
+         log.debug( "contentaggregation fileLocation is" + urlLocation );
       }
       else if ( mValidatorType.equals("sequence") &&
                 mApplicationProfileType.equals("sequence") )
@@ -167,11 +166,11 @@ public class DOMRulesCreator
             DOMRulesCreator.class.
                getResource("sequence/rules/sequenceRules.xml");
 
-         mLogger.info( "sequence fileLocation is" + urlLocation );
+         log.debug( "sequence fileLocation is" + urlLocation );
       }
       else
       {
-         mLogger.severe( "Error, ApplicationProfile and/or ValidatorType DNE" );
+         log.error( "Error, ApplicationProfile and/or ValidatorType DNE" );
       }
 
       if ( urlLocation != null )
@@ -184,7 +183,7 @@ public class DOMRulesCreator
             doc = mParser.getDocument();
          }
       }
-      mLogger.exiting( "DOMRulesCreator", "provideRules()" );
+      log.debug( "provideRules()" );
 
       return doc;
     }

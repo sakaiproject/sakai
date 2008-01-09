@@ -9,6 +9,7 @@
 		singleton="true">
 		
 		<!-- Sakai API Service -->
+		<lookup-method name="configurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
 		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
 		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
 		

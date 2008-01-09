@@ -25,7 +25,6 @@ package org.adl.validator.contentpackage;
 
 // native java imports
 import java.util.Vector;
-import java.util.logging.Logger;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -35,6 +34,8 @@ import org.adl.util.LogMessage;
 import org.adl.util.MessageType;
 import org.adl.logging.DetailedLogMessageCollection;
 import org.adl.util.Messages;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -52,8 +53,8 @@ public class ManifestMap implements IManifestMap
    /**
     * Logger object used for debug logging.
     */
-   private transient Logger mLogger = Logger.getLogger("org.adl.util.debug.validator");
-
+	private static Log log = LogFactory.getLog(ManifestMap.class);
+			
    /**
     * The identifier attribute of the &lt;manifest&gt; element.
     */
@@ -261,7 +262,7 @@ public class ManifestMap implements IManifestMap
    public boolean populateManifestMap( Node iNode )
    {
       // looks exactly like prunetree as we walk down the tree
-      mLogger.entering( "ManifestMap", "populateManifestMap" );  
+      log.debug("populateManifestMap" );  
 
       boolean result = true;
 
@@ -300,7 +301,7 @@ public class ManifestMap implements IManifestMap
                   DOMTreeUtility.getAttributeValue( iNode,
                                                     "identifier" ); 
 
-               mLogger.finest( "ManifestMap:populateManifestMap, " + 
+               log.debug( "ManifestMap:populateManifestMap, " + 
                                "Just stored a Manifest Id value of " + 
                                 mManifestId );
 
@@ -314,7 +315,7 @@ public class ManifestMap implements IManifestMap
                {
                   Vector orgElems = DOMTreeUtility.getNodes( orgsNode, "organization" ); 
 
-                  mLogger.finest( "ManifestMap:populateManifestMap, " + 
+                  log.debug( "ManifestMap:populateManifestMap, " + 
                                   "Number of <organization> elements: " + 
                                    orgElems.size() );
 
@@ -326,7 +327,7 @@ public class ManifestMap implements IManifestMap
                         Vector itemElems = DOMTreeUtility.getNodes(
                                             (Node)orgElems.elementAt(i), "item" ); 
 
-                        mLogger.finest( "ManifestMap:populateManifestMap, " + 
+                        log.debug( "ManifestMap:populateManifestMap, " + 
                                         "Number of <item> elements: " + 
                                          itemElems.size() );
 
@@ -352,7 +353,7 @@ public class ManifestMap implements IManifestMap
                   Vector resourceElems = DOMTreeUtility.getNodes(
                                                   resourcesNode, "resource" ); 
 
-                  mLogger.finest( "ManifestMap:populateManifestMap, " + 
+                  log.debug( "ManifestMap:populateManifestMap, " + 
                                "Number of <resource> elements: " + 
                                 resourceElems.size() );
 
@@ -371,7 +372,7 @@ public class ManifestMap implements IManifestMap
                Vector subManifests =
                                    DOMTreeUtility.getNodes( iNode, "manifest" ); 
 
-               mLogger.finest( "ManifestMap:populateManifestMap, " + 
+               log.debug( "ManifestMap:populateManifestMap, " + 
                                "Number of (Sub) manifest elements: " + 
                                 subManifests.size() );
 
@@ -397,7 +398,7 @@ public class ManifestMap implements IManifestMap
                
                mItemIds.add( itemId );
 
-               mLogger.finest( "ManifestMap:populateManifestMap, " + 
+               log.debug( "ManifestMap:populateManifestMap, " + 
                                   "Just stored an Item Id value of " + 
                                    itemId );
 
@@ -407,7 +408,7 @@ public class ManifestMap implements IManifestMap
                
                mItemIdrefs.add( itemIdref );
 
-               mLogger.finest( "ManifestMap:populateManifestMap, " + 
+               log.debug( "ManifestMap:populateManifestMap, " + 
                                   "Just stored an Item Idref value of " + 
                                    itemIdref );
 
@@ -432,7 +433,7 @@ public class ManifestMap implements IManifestMap
                
                mResourceIds.add( resourceId  );
 
-               mLogger.finest( "ManifestMap:populateManifestMap, " + 
+               log.debug( "ManifestMap:populateManifestMap, " + 
                                   "Just stored a Resource Id value of " + 
                                    resourceId );
 
@@ -454,7 +455,7 @@ public class ManifestMap implements IManifestMap
                   
                   mDependencyIdrefs.add( dependencyIdref );
 
-                  mLogger.finest( "ManifestMap:populateManifestMap, " + 
+                  log.debug( "ManifestMap:populateManifestMap, " + 
                                      "Just stored a Dependency Idref value of " + 
                                       mDependencyIdrefs );
                }
@@ -485,7 +486,7 @@ public class ManifestMap implements IManifestMap
          }
       }
 
-      mLogger.exiting( "ManifestMap", "populateManifestMap" );  
+      log.debug("populateManifestMap" );  
 
       return result;
    }
@@ -516,7 +517,7 @@ public class ManifestMap implements IManifestMap
            if ( !idrefValue.equals("") ) 
            {
               msgText = Messages.getString("ManifestMap.40", idrefValue ); 
-              mLogger.info( "INFO: " + msgText ); 
+              log.debug( "INFO: " + msgText ); 
               DetailedLogMessageCollection.getInstance().addMessage( 
                                     new LogMessage( MessageType.INFO, msgText ) );
 
@@ -527,7 +528,7 @@ public class ManifestMap implements IManifestMap
               if ( !iItemdrefResult )
               {
                  msgText = Messages.getString("ManifestMap.43", idrefValue ); 
-                 mLogger.info( "FAILED: " + msgText ); 
+                 log.debug( "FAILED: " + msgText ); 
                  DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                     MessageType.FAILED, msgText ) );
 
@@ -547,7 +548,7 @@ public class ManifestMap implements IManifestMap
            if ( !idrefValue.equals("") ) 
            {
               msgText = Messages.getString("ManifestMap.40", idrefValue ); 
-              mLogger.info( "INFO: " + msgText ); 
+              log.debug( "INFO: " + msgText ); 
               DetailedLogMessageCollection.getInstance().addMessage( new LogMessage( MessageType.INFO,
                                                               msgText ) );
               
@@ -558,7 +559,7 @@ public class ManifestMap implements IManifestMap
               if ( !iDependencydrefResult )
               {
                  msgText = Messages.getString("ManifestMap.43", idrefValue ); 
-                 mLogger.info( "FAILED: " + msgText ); 
+                 log.debug( "FAILED: " + msgText ); 
                  DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                     MessageType.FAILED, msgText ) );
 
@@ -598,14 +599,14 @@ public class ManifestMap implements IManifestMap
          {
             String resourceId = (String)mResourceIds.elementAt(i);
             msgText = "Comparing " + iIdref + " to " + resourceId;
-            mLogger.info( msgText );
+            log.debug( msgText );
 
             if ( iIdref.equals( resourceId ) )
             {
                result = true;
 
                msgText = Messages.getString("ManifestMap.55", iIdref);
-               mLogger.info( "PASSED: " + msgText ); 
+               log.debug( "PASSED: " + msgText ); 
                DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                             MessageType.PASSED,
                                                             msgText ) );
@@ -627,7 +628,7 @@ public class ManifestMap implements IManifestMap
                msgText = "IDRef " + iIdref + " points to a resource " +  
                           resourceId + " , app profile is " + 
                           getApplicationProfile() + " for " + getManifestId(); 
-               mLogger.info(msgText);
+               log.debug(msgText);
 
                break;
             }
@@ -640,7 +641,7 @@ public class ManifestMap implements IManifestMap
       {
          msgText = iIdref + " did not match the resourceIds, " + 
                     " now checking ManifestMaps"; 
-          mLogger.info( msgText );
+          log.debug( msgText );
         
           if ( !mManifestMaps.isEmpty() )
           {
@@ -656,7 +657,7 @@ public class ManifestMap implements IManifestMap
                    result = true;
         
                    msgText = Messages.getString("ManifestMap.67", iIdref);
-                   mLogger.info( "PASSED: " + msgText ); 
+                   log.debug( "PASSED: " + msgText ); 
                    DetailedLogMessageCollection.getInstance().addMessage( new LogMessage(
                                                                  MessageType.PASSED,
                                                                  msgText ) );
@@ -669,7 +670,7 @@ public class ManifestMap implements IManifestMap
                                   mapManifestId + " app profile is " + 
                                   map.getApplicationProfile() + " for " + 
                                   map.getManifestId();
-                   mLogger.info( msgText );
+                   log.debug( msgText );
         
                    mSubManifestIDrefs.add( iIdref );
     
@@ -698,7 +699,7 @@ public class ManifestMap implements IManifestMap
       }
 
       msgText = "Returning " + result + "from checkIdReference";
-      mLogger.info( msgText );
+      log.debug( msgText );
 
       return result;
    }

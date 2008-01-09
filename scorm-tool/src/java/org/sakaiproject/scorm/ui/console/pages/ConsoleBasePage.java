@@ -22,16 +22,19 @@ package org.sakaiproject.scorm.ui.console.pages;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.scorm.ui.upload.pages.UploadPage;
+import org.sakaiproject.scorm.ui.validation.pages.ValidationPage;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
 import org.sakaiproject.wicket.markup.html.link.NavIntraLink;
 
 public class ConsoleBasePage extends SakaiPortletWebPage {
 
 	private static final long serialVersionUID = 1L;
+	
+	// The feedback panel component displays dynamic messages to the user
+	private FeedbackPanel feedback;
 	
 	public ConsoleBasePage() {
 		this(null);
@@ -40,13 +43,20 @@ public class ConsoleBasePage extends SakaiPortletWebPage {
 	public ConsoleBasePage(PageParameters params) {
 		add(newPageTitleLabel(params));
 		add(new NavIntraLink("listLink", new ResourceModel("link.list"), PackageListPage.class));
-		add(new NavIntraLink("uploadLink", new ResourceModel("link.upload"), PackageUploadPage.class));
+		add(new NavIntraLink("uploadLink", new ResourceModel("link.upload"), UploadPage.class));
 		add(new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class));
-	}	
+		add(feedback = new FeedbackPanel("feedback"));
+	}
 	
 	protected Label newPageTitleLabel(PageParameters params) {
 		return new Label("page.title", new ResourceModel("page.title"));
 	}
 	
+	@Override
+	protected void onBeforeRender() {
+		super.onBeforeRender();
+		// If a feedback message exists, then make the feedback panel visible, otherwise, hide it.
+		feedback.setVisible(hasFeedbackMessage());
+	}
 	
 }
