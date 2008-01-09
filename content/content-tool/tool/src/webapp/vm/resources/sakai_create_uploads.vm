@@ -39,7 +39,7 @@
 					</p>
 					<p class="shorttext" style="border:none"> 
 						<label for="displayName${DOT}$i">$tlang.getString("label.display")</label> 
-						<input type="text" id="displayName${DOT}$i" name="displayName${DOT}$i" /> 
+						<input type="text" id="displayName${DOT}$i" name="displayName${DOT}$i" style="width:17em"/> 
 						<a class="indnt2" href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
 						<a class="indnt2" href="#" id="removeTrigger${DOT}$i" >
 							<img src="#imageLink("sakai/cross.png")" title="$tlang.getString("edit.remove")" />

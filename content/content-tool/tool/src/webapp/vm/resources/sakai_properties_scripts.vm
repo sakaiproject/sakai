@@ -742,12 +742,10 @@
 			{
 				newElement.className = oldElement.className;
 			}
-			#*
-			if(oldElement.style)
+			if(oldElement.style.width)
 			{
-				newElement.style = oldElement.style;
+				newElement.style.width = oldElement.style.width;
 			}
-			*#
 			if(oldElement.title)
 			{
 				newElement.title = oldElement.title;
