@@ -120,9 +120,11 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         	
         	UIOutput.make(form, "category_li");
         
-	        String[] category_labels = new String[categories.size()];
-	        String[] category_values = new String[categories.size()];
-	        int i =0;
+	        String[] category_labels = new String[categories.size() + 1];
+	        String[] category_values = new String[categories.size() + 1];
+	        category_labels[0] = messageLocator.getMessage("gradebook.add-gradebook-item.category_unassigned");
+	        category_values[0] = ""; 
+	        int i =1;
 	        for (Iterator catIter = categories.iterator(); catIter.hasNext();){
 	        	Category cat = (Category) catIter.next();
 				category_labels[i] = cat.getName();

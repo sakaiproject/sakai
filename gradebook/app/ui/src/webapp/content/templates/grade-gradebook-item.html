@@ -30,36 +30,19 @@
 	<p rsf:id="instructions" class="instruction"><span class="reqStar">*</span> Indicates required information.</p>
 
 	<form rsf:id="form">
-	
-	<h4 rsf:id="msg=gradebook.grade-gradebook-item.gradebook_item_details">Gradebook Item Details</h4>
-	<table class="itemSummary" cellspacing="0" summary="Gradebook Item Details">
-		<tr>
-			<th rsf:id="msg=gradebook.grade-gradebook-item.student_name">Student Name:</th>
-			<td rsf:id="student_name">Name</td>
-		</tr>
-		<tr>
-			<th rsf:id="msg=gradebook.grade-gradebook-item.gb_name">Name:</th>
-			<td rsf:id="name">Assignment Name</td>
-		</tr>
-		<tr>
-			<th rsf:id="msg=gradebook.grade-gradebook-item.gb_point_value">Point Value:</th>
-			<td rsf:id="point_value">Assignment Point Value</td>
-		</tr>
-		<tr>
-			<th rsf:id="msg=gradebook.grade-gradebook-item.gb_entry_type">Gradebook Entry Type:</th>
-			<td rsf:id="entry_type">Assignment Point Value</td>
-		</tr>
-	</table>
 	<fieldset>
 		<legend rsf:id="msg=gradebook.grade-gradebook-item.gradebook_item_legend">Grading Details</legend>
 		<ol>
 			<li>
-				<label rsf:id="points_label"><span class="reqStar">*</span> Points</label> <input rsf:id="score" type="text" size="30" maxlength="100"/> <span rsf:id="percent_sign">%</span>
+				<label rsf:id="points_label"><span class="reqStar">*</span> Points</label>
+					<input rsf:id="score" type="text" size="10" maxlength="100"/> 
+					<span rsf:id="percent_sign">%</span>
+					<span rsf:id="points_out_of"></span>
 			</li>
 			<li>
 				<label rsf:id="msg=gradebook.grade-gradebook-item.instructor_comments">Instructor Comments</label>
+				<textarea rsf:id="comments" cols="80" rows="50" wrap="virtual"></textarea>
 				<p class="msg=gradebook.grade-gradebook-item.comment_instruction">Use the box below to enter additional summary comments about this submission.</p>
-				<textarea rsf:id="comments" cols="80" rows="10" wrap="virtual"></textarea>
 			</li>
 		</ol>
 	</fieldset>

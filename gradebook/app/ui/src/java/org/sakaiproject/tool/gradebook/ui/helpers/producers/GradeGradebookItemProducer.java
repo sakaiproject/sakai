@@ -86,8 +86,16 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	if (comments != null && comments.size() > 0){
     		comment = (Comment)comments.get(0);
     	}
+        String student_name = "";
+        try{
+            User user = userDirectoryService.getUser(userId);
+            student_name = user.getDisplayName();
+        } catch(UserNotDefinedException ex) {
+            	return;
+        }
+            
     	
-    	UIMessage.make(tofill, "heading", "gradebook.grade-gradebook-item.heading", new Object[]{ assignment.getName()} );
+    	UIMessage.make(tofill, "heading", "gradebook.grade-gradebook-item.heading", new Object[]{ assignment.getName(), student_name } );
     	
     	//OTP
     	String agrOTP = "AssignmentGradeRecord.";
@@ -108,39 +116,24 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	}
     	commentOTP += commentOTPKey;
     	
-   
         UIVerbatim.make(tofill, "instructions", messageLocator.getMessage("gradebook.grade-gradebook-item.instructions",
         		new Object[]{ reqStar }));
         
         //Start Form
         UIForm form = UIForm.make(tofill, "form");
-        String student_name = "";
-        
-        try{
-        User user = userDirectoryService.getUser(userId);
-        student_name = user.getDisplayName();
-        } catch(UserNotDefinedException ex) {
-        	return;
-        }
-        
-        UIOutput.make(form, "student_name", student_name);
-        UIOutput.make(form, "name", assignment.getName());
-        UIOutput.make(form, "point_value", (assignment.getPointsPossible() != null ? assignment.getPointsPossible().toString() : ""));
         
         if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS){
-        	UIMessage.make(form, "entry_type", "gradebook.grade-gradebook-item.entry_type_points");
         	UIVerbatim.make(form, "points_label", messageLocator.getMessage("gradebook.grade-gradebook-item.points_label",
         		new Object[]{ reqStar }));
         	UIInput.make(form, "score", agrOTP + ".pointsEarned");
+        	UIMessage.make(form, "points_out_of", "gradebook.grade-gradebook-item.points_out_of", new Object[]{ assignment.getPointsPossible()});
         } else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE){
-        	UIMessage.make(form, "entry_type", "gradebook.grade-gradebook-item.entry_type_percentage");
         	UIVerbatim.make(form, "points_label", messageLocator.getMessage("gradebook.grade-gradebook-item.percentage_label",
             		new Object[]{ reqStar }));
         	//show percent sign
         	UIMessage.make(form, "percent_sign", "gradebook.grade-gradebook-item.percent_sign");
         	UIInput.make(form, "score", agrOTP + ".percentEarned");
         } else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER){
-        	UIMessage.make(form, "entry_type", "gradebook.grade-gradebook-item.entry_type_letter");
         	UIVerbatim.make(form, "points_label", messageLocator.getMessage("gradebook.grade-gradebook-item.letter_label",
             		new Object[]{ reqStar }));
         	UIInput.make(form, "score", agrOTP + ".letterEarned");
