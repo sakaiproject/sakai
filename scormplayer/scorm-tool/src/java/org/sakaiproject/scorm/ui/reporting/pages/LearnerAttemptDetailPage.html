@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.sourceforge.net/" xml:lang="en" lang="en">
+<head>
+	<wicket:head>
+		<title><wicket:message key="page.title"/></title>
+	</wicket:head>
+</head>
+<body>
+	<wicket:extend>
+
+		<p class="shorttext">
+			<label for="content.package.name">
+				<wicket:message key="cp.name.label"></wicket:message>
+			</label>					
+			
+			<span wicket:id="content.package.name"></span>			
+		</p>
+		
+		<p class="shorttext">
+			<label for="learner.name">
+				<wicket:message key="learner.name.label"></wicket:message>
+			</label>					
+			
+			<span wicket:id="learner.name"></span>			
+		</p>	
+		
+		<br/>
+		
+		<div class="navIntraTool">
+			<wicket:message key="attempt.title.label"/> 
+			<div wicket:id="attemptNumberLinks">
+				<a wicket:id="attemptNumberLink"></a>
+			</div>
+		</div>
+
+		<div wicket:id="activityReportPanels">
+			
+			<div wicket:id="activityReport" style="margin: 10px"/>
+
+		</div>
+		
+		
+	</wicket:extend>
+</body>
+</html>

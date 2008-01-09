@@ -1,5 +1,6 @@
 package org.sakaiproject.scorm.dao.sakai;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +88,7 @@ public abstract class LearnerDaoImpl implements LearnerDao {
 			log.warn(this + "  IdUnusedException " + realmId);
 		}
 		
-		return (List<Learner>)learnerMap.values();
+		return new ArrayList<Learner>(learnerMap.values());
 	}
 
 	public Learner load(String id) throws LearnerNotDefinedException {

@@ -40,42 +40,4 @@ public abstract class ResourceNavigator implements INavigable, Serializable {
 		((AjaxRequestTarget)target).appendJavascript("parent.scormContent.location.href='" + url + "'");
 	}
 
-	private byte[] streamBytes(InputStream inputStream) {
-		int len = 0;
-		byte[] buf = new byte[1024];
-		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-		
-		try {
-			while ((len = inputStream.read(buf)) > 0) {
-				byteOut.write(buf,0,len);
-			}
-			
-			inputStream.close();
-		} catch (IOException ioe) {
-			log.error("Caught an io exception trying to write file into byte array!", ioe);
-		}
-		
-		return byteOut.toByteArray();
-	}
-	
-	
-	private byte[] getFileAsBytes(File file) {
-		int len = 0;
-		byte[] buf = new byte[1024];
-		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-		
-		try {
-			FileInputStream fileIn = new FileInputStream(file);
-			while ((len = fileIn.read(buf)) > 0) {
-				byteOut.write(buf,0,len);
-			}
-			
-			fileIn.close();
-		} catch (IOException ioe) {
-			log.error("Caught an io exception trying to write file into byte array!", ioe);
-		}
-		
-		return byteOut.toByteArray();
-	}
-
 }

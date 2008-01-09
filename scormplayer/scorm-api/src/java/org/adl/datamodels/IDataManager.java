@@ -35,9 +35,13 @@ public interface IDataManager extends Serializable {
 	
 	public String getUserId();
 	
+	public String getScoId();
+	
 	public void setCourseId(String courseId);
 	
 	public void setUserId(String userId);
+	
+	public void setScoId(String scoId);
 	
 	public String getTitle();
 	

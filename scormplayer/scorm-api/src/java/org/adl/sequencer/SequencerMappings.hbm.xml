@@ -513,6 +513,22 @@
 		
 	</class>
 	
+	<class name="org.sakaiproject.scorm.model.api.SeqActivitySnapshot" table="SCORM_ADL_SEQ_ACTIVITY_T">
+	
+		<id name="id" column="ACTIVITY_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+		
+		<property name="activityId" column="ACTIVITY_REF" />
+		
+		<property name="resourceId" column="ASSOC_RESOURCES_REF" />
+		
+		<property name="scoId" column="ASSOC_STATE_REF" />
+		
+	</class>
+	
 	
 	<class name="org.sakaiproject.scorm.model.api.SeqActivityTreeSnapshot" table="SCORM_ADL_SEQ_ACTIVITY_TREE_T">
 	

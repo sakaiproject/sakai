@@ -4,7 +4,7 @@
 <beans>
 
 	<!-- Grab the learner information from Sakai -->
-	<bean id="org.sakaiproject.scorm.dao.api.LearnerDao"
+	<bean id="org.sakaiproject.scorm.dao.LearnerDao"
 		class="org.sakaiproject.scorm.dao.sakai.LearnerDaoImpl"
 		singleton="true">
 

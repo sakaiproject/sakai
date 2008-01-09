@@ -16,13 +16,14 @@
 	
 	<!-- Bring in the sakai content hosting handler beans -->
 	<!-- // Comment this out if you want to use 'standalone' content storage in place of Sakai's standard repository -->
+
 	<import resource="spring-sakai-chh.xml" />
-	
+
 	
 	<!-- Bring in the standalone webapp beans -->
 	<!-- // To store your content in tomcat's file system, uncomment this and comment
                         out the spring-sakai-chh.xml import above -->
-    <!--
+	<!--                        
 	<import resource="spring-standalone-webapp.xml" />
 	-->
 	
@@ -49,7 +50,7 @@
 		<lookup-method name="scormSequencingService" bean="org.sakaiproject.scorm.service.api.ScormSequencingService" />
 		
 		<!-- Local utility bean -->
-		<lookup-method name="adlManager" bean="org.sakaiproject.scorm.service.api.ADLManager" />
+		<lookup-method name="adlManager" bean="org.sakaiproject.scorm.adl.ADLConsultant" />
 		
 		<!-- Data Access Objects -->
 		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />	  
@@ -64,7 +65,6 @@
 		
 		<!-- Service beans -->
 		<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem"/>
-		<lookup-method name="permissionService" bean="org.sakaiproject.scorm.service.api.ScormPermissionService" />
 		<lookup-method name="resourceService" bean="org.sakaiproject.scorm.service.api.ScormResourceService" />
 		
 		<!-- Data Access Objects -->
@@ -75,28 +75,19 @@
 
 	</bean>	
 	
-	<!-- THE SAKAI STUFF IN THIS NEEDS TO BE ABSTRACTED -->
-	<bean id="org.sakaiproject.scorm.service.api.ScormPermissionService"
-		class="org.sakaiproject.scorm.service.impl.ScormPermissionServiceImpl"
-		singleton="true">
-		
-		<!-- Sakai API Services -->
-		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
-		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
-		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
-		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
-		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />	  
-		
-	</bean>
-	
-	
 	<bean id="org.sakaiproject.scorm.service.api.ScormResultService"
 		class="org.sakaiproject.scorm.service.impl.ScormResultServiceImpl"
 		singleton="true">
 		
+		<!-- Service beans -->
+		<lookup-method name="lms" bean="org.sakaiproject.scorm.service.api.LearningManagementSystem"/>
+		
 		<!-- Data Access Objects -->
 		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
+		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
+		<lookup-method name="seqActivityDao" bean="org.sakaiproject.scorm.dao.api.SeqActivityDao" />
+		
 	</bean>
 	
 	<bean id="org.sakaiproject.scorm.service.api.ScormSequencingService"

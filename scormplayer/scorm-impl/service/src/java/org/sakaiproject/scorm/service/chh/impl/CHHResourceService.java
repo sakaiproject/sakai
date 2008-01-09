@@ -1,18 +1,16 @@
 package org.sakaiproject.scorm.service.chh.impl;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.adl.validator.IValidator;
-import org.adl.validator.IValidatorOutcome;
-import org.adl.validator.contentpackage.CPValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -22,8 +20,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.scorm.content.impl.ScormCHH;
-import org.sakaiproject.scorm.exceptions.ValidationException;
-import org.sakaiproject.scorm.model.api.ContentPackage;
+import org.sakaiproject.scorm.model.api.Archive;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.model.api.SessionBean;
@@ -37,16 +34,17 @@ public abstract class CHHResourceService extends SakaiResourceService {
 
 	private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
 	private static final String MANIFEST_RESOURCE_ID_PROPERTY = "manifest_resource_id";
+	private static final String FILE_UPLOAD_MAX_SIZE_CONFIG_KEY = "content.upload.max";
 	
 	protected abstract ContentHostingService contentService();
 	protected abstract ToolManager toolManager();
 	protected abstract ScormCHH scormCHH();
-	
+	protected abstract ServerConfigurationService configurationService();
 	
 	public void convertArchive(String resourceId, String manifestResourceId) {
 		try {
 			ContentResourceEdit modify = contentService().editResource(resourceId);
-	
+			
 			modify.setContentHandler(scormCHH());
 			modify.setResourceType("org.sakaiproject.content.types.scormContentPackage");
 	        
@@ -60,6 +58,39 @@ public abstract class CHHResourceService extends SakaiResourceService {
 		} catch (Exception e) {
 			log.error("Unable to convert archive to a Scorm content package", e);
 		}
+	}
+	
+	public Archive getArchive(String resourceId) {
+		Archive archive = null;
+		try {
+			ContentResource resource = contentService().getResource(resourceId);
+
+			ResourceProperties props = resource.getProperties();
+		
+			String title = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+					
+			archive = new Archive(resourceId, title);
+
+			archive.setHidden(resource.isHidden());
+			
+		} catch (Exception e) {
+			log.error("Failed to retrieve resource from content hosting ", e);
+		}
+	
+		return archive;
+	}
+	
+	public InputStream getArchiveStream(String resourceId) {
+		try {
+			ContentResource resource = contentService().getResource(resourceId);
+		
+			return resource.streamContent();
+		
+		} catch (Exception e) {
+			log.error("Failed to retrieve resource from content hosting ", e);
+		}
+	
+		return null;
 	}
 	
 	public ContentPackageManifest getManifest(String resourceId, String manifestResourceId) {
@@ -89,6 +120,22 @@ public abstract class CHHResourceService extends SakaiResourceService {
 		return manifest;
 	}
 	
+	public int getMaximumUploadFileSize() {
+		String maxSize = null;
+		int megaBytes = 1;
+		try {
+			maxSize = configurationService().getString(FILE_UPLOAD_MAX_SIZE_CONFIG_KEY, "1");
+			if (null == maxSize)
+				log.warn("The sakai property '" + FILE_UPLOAD_MAX_SIZE_CONFIG_KEY + "' is not set!");
+			else
+				megaBytes = Integer.parseInt(maxSize);
+		} catch(NumberFormatException nfe) {
+			log.error("Failed to parse " + maxSize + " as an integer ", nfe);
+		}
+		
+		return megaBytes;
+	}
+	
 	public ContentPackageResource getResource(String resourceId, String path) {
 		String fullResourceId = new StringBuilder(resourceId).append("/").append(path).toString();
 		
@@ -106,6 +153,13 @@ public abstract class CHHResourceService extends SakaiResourceService {
 		return null;
 	}
 	
+	public List<Archive> getUnvalidatedArchives() {
+		String siteId = toolManager().getCurrentPlacement().getContext();
+		String siteCollectionId = contentService().getSiteCollection(siteId);
+		
+		return findUnvalidatedArchives(siteCollectionId);
+	}
+		
 	public String getUrl(SessionBean sessionBean) {
 		if (null != sessionBean.getLaunchData()) {
 			String launchLine = sessionBean.getLaunchData().getLaunchLine();
@@ -122,7 +176,7 @@ public abstract class CHHResourceService extends SakaiResourceService {
 		return null;
 	}
 
-	public String putArchive(InputStream stream, String name, String mimeType) {
+	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden) {
 		String siteId = toolManager().getCurrentPlacement().getContext();
 		String collectionId = contentService().getSiteCollection(siteId);
 		
@@ -137,7 +191,10 @@ public abstract class CHHResourceService extends SakaiResourceService {
 				
 			edit.setContent(stream);
 			edit.setContentType(mimeType);
-        
+			
+			if (isHidden)
+				edit.setHidden();
+			
 			ResourcePropertiesEdit props = edit.getPropertiesEdit();
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
 	        		
@@ -188,6 +245,33 @@ public abstract class CHHResourceService extends SakaiResourceService {
 	
 	
 	
+	
+	private List<Archive> findUnvalidatedArchives(String collectionId) {
+		List<Archive> archives = new LinkedList<Archive>();
+		try {
+			ContentCollection collection = contentService().getCollection(collectionId);
+			List<ContentEntity> members = collection.getMemberResources();
+			
+			for (ContentEntity member : members) {
+				if (member.isResource()) {
+					String mimeType = ((ContentResource)member).getContentType();
+					if (mimeType != null && mimeType.equals("application/zip")) {
+						ResourceProperties props = member.getProperties();
+						String title = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+						
+						archives.add(new Archive(member.getId(), title));
+					}
+				} else if (member.isCollection() && member.getVirtualContentEntity() == null &&
+						member.getContentHandler() == null)
+					archives.addAll(findUnvalidatedArchives(member.getId()));
+			}
+		
+		} catch (Exception e) {
+			log.error("Caught an exception looking for content packages", e);
+		}
+		
+		return archives;
+	}
 	
 
 	

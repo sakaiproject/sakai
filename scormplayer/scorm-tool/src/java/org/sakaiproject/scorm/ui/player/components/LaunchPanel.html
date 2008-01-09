@@ -1,15 +1,25 @@
 <wicket:panel>
-	<div class="scormNavPanel" wicket:id="navPanel"/>
+	<table border="0" width="100%">
+	<tr>
+		<td width="300px" valign="top">
+			<div class="scormNavPanel">
+				<div wicket:id="tree" class="my-tree"></div>
+			</div>
+		</td>
+		<td width="*" valign="top">
 	<iframe	name="scormContent" 
 			id="scormContent"
 			class="scormContentPanel"
 			title="Scorm Content Panel"
 			height="100%"
-			width="70%"
+			width="100%"
 			frameborder="0"
 			marginwidth="0"
 			marginheight="0"
 			scrolling="auto"
 			src=""></iframe>
 	<div wicket:id="comPanel"/>
+		</td>
+	</tr>
+	</table>
 </wicket:panel>

@@ -35,7 +35,6 @@ public class ScormTool extends SakaiWebApplication {
 		super.init();
 
 		this.mount(new ContentPackageResourceMountStrategy("contentPackages"));
-		
 	}
 	
 	@Override

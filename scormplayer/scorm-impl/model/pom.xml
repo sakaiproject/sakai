@@ -85,6 +85,13 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>${sakai.hibernate.groupId}</groupId>
+			<artifactId>${sakai.hibernate.artifactId}</artifactId>
+  	        <version>${sakai.hibernate.version}</version>
+  	        <scope>provided</scope>
+		</dependency>
+		
+		<dependency>
 			<groupId>${sakai.spring.groupId}</groupId>
 			<artifactId>${sakai.spring.artifactId}</artifactId>
 			<version>${sakai.spring.version}</version>

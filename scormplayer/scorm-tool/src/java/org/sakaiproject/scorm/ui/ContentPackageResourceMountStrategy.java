@@ -41,8 +41,11 @@
 package org.sakaiproject.scorm.ui;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.request.RequestParameters;
 import org.apache.wicket.request.target.coding.AbstractRequestTargetUrlCodingStrategy;
@@ -51,16 +54,22 @@ import org.apache.wicket.util.value.ValueMap;
 
 public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUrlCodingStrategy {
 
+	private static Log log = LogFactory.getLog(ContentPackageResourceMountStrategy.class);
+	
 	public ContentPackageResourceMountStrategy(String mountPath) {
 		super(mountPath);
 	}
 
 	public IRequestTarget decode(RequestParameters requestParameters) {
-		final String parametersFragment = requestParameters.getPath().substring(
-				getMountPath().length());
+		final String pathFragment = requestParameters.getPath().substring(getMountPath().length());
+		int lastResourceIndex = pathFragment.lastIndexOf("/resourceId");
+		final String parametersFragment = pathFragment.substring(lastResourceIndex);
 		final ValueMap parameters = decodeParameters(parametersFragment, requestParameters
 				.getParameters());
 
+		if (log.isDebugEnabled())
+			log.debug("decode -------------> PARAM FRAGMENT: " + parametersFragment);
+		
 		requestParameters.setParameters(parameters);
 		return new ContentPackageResourceRequestTarget(requestParameters);
 	}
@@ -77,6 +86,10 @@ public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUr
 
 		RequestParameters requestParameters = target.getRequestParameters();
 		appendParameters(url, requestParameters.getParameters());
+		
+		if (log.isDebugEnabled())
+			log.debug("encode -----------> URL: " + url); 
+		
 		return url;
 	}
 
@@ -134,6 +147,16 @@ public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUr
 
 		if (urlParameters != null)
 		{
+			if (log.isDebugEnabled()) {
+				for (Iterator keyIterator = urlParameters.keySet().iterator();keyIterator.hasNext();) {
+					String key = (String)keyIterator.next();
+					String value = (String)urlParameters.get(key);
+					
+					log.debug("URL PARAMS KEY: " + key + " VALUE: " + value);
+				}
+			}
+			
+			
 			parameters.putAll(urlParameters);
 		}
 

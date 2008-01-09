@@ -43,7 +43,7 @@ public class ButtonForm extends Form {
 	private PlayerPage view;
 	
 	@SpringBean
-	ScormSequencingService sequencingService;
+	transient ScormSequencingService sequencingService;
 	
 	public ButtonForm(String id, final SessionBean sessionBean, PlayerPage view) {
 		super(id);
@@ -72,7 +72,7 @@ public class ButtonForm extends Form {
 		boolean isStartEnabled = sequencingService.isStartEnabled(sessionBean);
 		boolean isSuspendEnabled = sequencingService.isSuspendEnabled(sessionBean);
 		
-		setNextButtonVisible(isContinueEnabled || isContinueExitEnabled, target);
+		setNextButtonVisible(isContinueEnabled, target);
 		setPrevButtonVisible(isPreviousEnabled, target);
 		setStartButtonVisible(isStartEnabled, target);
 		setSuspendButtonVisible(isSuspendEnabled, target);

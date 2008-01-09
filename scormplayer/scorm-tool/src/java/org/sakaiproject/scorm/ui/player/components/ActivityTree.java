@@ -37,6 +37,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.CancelEventIfNoAjaxDecorator;
@@ -48,40 +49,49 @@ import org.apache.wicket.markup.html.tree.LinkIconPanel;
 import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.scorm.model.api.SessionBean;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.ResourceNavigator;
+import org.sakaiproject.scorm.ui.UISynchronizer;
 import org.sakaiproject.scorm.ui.player.behaviors.ActivityAjaxEventBehavior;
 
-public abstract class ActivityTree extends LinkTree {	
+public class ActivityTree extends LinkTree {	
 	private static Log log = LogFactory.getLog(ActivityTree.class);
 	
 	private static final long serialVersionUID = 1L;
 	private static final String ARIA_TREE_ROLE = "wairole:tree";
 	
-	private SessionBean sessionBean;
-	private TreePanel treePanel;
+	protected SessionBean sessionBean;
+	protected UISynchronizer synchronizer;
 	
-	private boolean wasEmpty = false;
-	private boolean isEmpty = true;
-		
-	public ActivityTree(String id, SessionBean sessionBean, TreePanel parent) {
+	protected boolean wasEmpty = false;
+	protected boolean isEmpty = true;
+	
+	@SpringBean
+	transient LearningManagementSystem lms;
+	@SpringBean
+	transient ScormResourceService resourceService;
+	@SpringBean
+	transient ScormSequencingService sequencingService;
+	
+	
+	public ActivityTree(String id, SessionBean sessionBean, UISynchronizer synchronizer) {
 		super(id);
-		this.treePanel = parent;
+		this.synchronizer = synchronizer;
 		this.sessionBean = sessionBean;
 		
 		bindModel(sessionBean);
-		treePanel.getLaunchPanel().synchronizeState(sessionBean, null);
+		if (synchronizer != null)
+			synchronizer.synchronizeState(sessionBean, null);
 		add(new AttributeModifier("role", new Model(ARIA_TREE_ROLE)));
 	}
 		
-	protected abstract ScormSequencingService sequencingService();
-	protected abstract ScormResourceService resourceService();
-	
-	private void bindModel(SessionBean sessionBean) {
-		TreeModel treeModel = sequencingService().getTreeModel(sessionBean);
+	protected void bindModel(SessionBean sessionBean) {
+		TreeModel treeModel = sequencingService.getTreeModel(sessionBean);
 		
 		if (null != treeModel) {
 			setModel(new Model((Serializable)treeModel));
@@ -128,32 +138,35 @@ public abstract class ActivityTree extends LinkTree {
 	}
 	
 	public boolean isChoice() {
-		return sequencingService().isControlModeChoice(sessionBean);
+		return sequencingService.isControlModeChoice(sessionBean);
 	}
 	
 	public boolean isFlow() {
-		return sequencingService().isControlModeFlow(sessionBean);
+		return sequencingService.isControlModeFlow(sessionBean);
 	}
 	
 	protected void onNodeLinkClicked(TreeNode node, BaseTree tree, AjaxRequestTarget target)
 	{		
-		log.info("onNodeLinkClicked");
+		log.debug("onNodeLinkClicked");
 
 		ISeqActivity activity = (ISeqActivity)((DefaultMutableTreeNode)node).getUserObject();
 		
-		log.info("ID: " + activity.getID() + " State ID: " + activity.getStateID());
+		if (log.isDebugEnabled())
+			log.debug("ID: " + activity.getID() + " State ID: " + activity.getStateID());
 
-		sequencingService().navigateToActivity(activity.getID(), sessionBean, new LocalResourceNavigator(), target);
+		sequencingService.navigateToActivity(activity.getID(), sessionBean, new LocalResourceNavigator(), target);
 		
-		treePanel.getLaunchPanel().synchronizeState(sessionBean, target);
+		if (synchronizer != null)
+			synchronizer.synchronizeState(sessionBean, target);
 		
 		// FIXME: Turning this off to see if its necessary -- probably needs some more intricate solution
 		// FIXME: Turning back on for the moment.
 		ActivityTree.this.bindModel(sessionBean);
 		
 		if (isEmpty() && !wasEmpty) {
-			treePanel.setVisible(false);
-			target.addComponent(treePanel.getLaunchPanel());
+			ActivityTree.this.setVisible(false);
+			if (synchronizer != null)
+				target.addComponent((Component)synchronizer);
 			wasEmpty = true;
 		}
 	}
@@ -213,31 +226,62 @@ public abstract class ActivityTree extends LinkTree {
 		public ActivityAjaxLink(final String id, final IModel model)
 		{
 			super(id, model);
-
-			add(new ActivityAjaxEventBehavior("onclick")
-			{
-				private static final long serialVersionUID = 1L;
-
-				protected void onEvent(AjaxRequestTarget target)
+			
+			
+			if (lms.canUseRelativeUrls()) {
+				
+				add(new AjaxEventBehavior("onclick")
 				{
-					onClick(target);
-				}
-
-				protected IAjaxCallDecorator getAjaxCallDecorator()
-				{
-					return new CancelEventIfNoAjaxDecorator(ActivityAjaxLink.this.getAjaxCallDecorator());
-				}
-
-				protected void onComponentTag(ComponentTag tag)
-				{
-					// add the onclick handler only if link is enabled 
-					if (isLinkEnabled())
+					private static final long serialVersionUID = 1L;
+	
+					protected void onEvent(AjaxRequestTarget target)
 					{
-						super.onComponentTag(tag);
+						onClick(target);
 					}
-				}
-								
-			}.setThrottleDelay(Duration.ONE_SECOND));
+	
+					protected IAjaxCallDecorator getAjaxCallDecorator()
+					{
+						return new CancelEventIfNoAjaxDecorator(ActivityAjaxLink.this.getAjaxCallDecorator());
+					}
+	
+					protected void onComponentTag(ComponentTag tag)
+					{
+						// add the onclick handler only if link is enabled 
+						if (isLinkEnabled())
+						{
+							super.onComponentTag(tag);
+						}
+					}
+									
+				}.setThrottleDelay(Duration.ONE_SECOND));
+				
+			} else {
+			
+				add(new ActivityAjaxEventBehavior("onclick")
+				{
+					private static final long serialVersionUID = 1L;
+	
+					protected void onEvent(AjaxRequestTarget target)
+					{
+						onClick(target);
+					}
+	
+					protected IAjaxCallDecorator getAjaxCallDecorator()
+					{
+						return new CancelEventIfNoAjaxDecorator(ActivityAjaxLink.this.getAjaxCallDecorator());
+					}
+	
+					protected void onComponentTag(ComponentTag tag)
+					{
+						// add the onclick handler only if link is enabled 
+						if (isLinkEnabled())
+						{
+							super.onComponentTag(tag);
+						}
+					}
+									
+				}.setThrottleDelay(Duration.ONE_SECOND));
+			}
 			
 			add(new AttributeModifier("role", new Model(ARIA_TREEITEM_ROLE)));
 		}
@@ -318,7 +362,7 @@ public abstract class ActivityTree extends LinkTree {
 
 		@Override
 		protected ScormResourceService resourceService() {
-			return ActivityTree.this.resourceService();
+			return ActivityTree.this.resourceService;
 		}
 		
 	}

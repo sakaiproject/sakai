@@ -13,8 +13,10 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.AppendingStringBuffer;
+import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.scorm.model.api.SessionBean;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.ResourceNavigator;
@@ -40,9 +42,11 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 	private String rootSrc;
 	
 	@SpringBean
-	ScormResourceService resourceService;
+	transient LearningManagementSystem lms;
 	@SpringBean
-	ScormSequencingService sequencingService;
+	transient ScormResourceService resourceService;
+	@SpringBean
+	transient ScormSequencingService sequencingService;
 	
 	public ActivityAjaxButton(final ButtonForm form, SessionBean sessionBean, String id, int seqRequest, String rootSrc) {
 		super(id, form);
@@ -50,6 +54,8 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 		this.sessionBean = sessionBean;
 		this.seqRequest = seqRequest;
 		this.rootSrc = rootSrc;
+		
+		final boolean useRelativeUrls = lms.canUseRelativeUrls();
 		
 		add(new AjaxFormSubmitBehavior(form, "onclick")
 		{
@@ -67,17 +73,26 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 
 			protected CharSequence getEventHandler()
 			{
+				if (useRelativeUrls)
+					return super.getEventHandler();
+				
 				// TODO: May want to stick this back in: ("tb_showLoader();").append(
 				return new AppendingStringBuffer(super.getEventHandler()).append("; return false;");
 			}
 
 			protected IAjaxCallDecorator getAjaxCallDecorator()
 			{
+				if (useRelativeUrls)
+					return super.getAjaxCallDecorator();
+				
 				return ActivityAjaxButton.this.getAjaxCallDecorator();
 			}
 			
 			public CharSequence getCallbackUrl()
 			{
+				if (useRelativeUrls)
+					return super.getCallbackUrl();
+				
 				if (getComponent() == null)
 				{
 					throw new IllegalArgumentException(
@@ -94,13 +109,14 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 				String toolUrl = servletRequest.getContextPath();
 				
 				AppendingStringBuffer url = new AppendingStringBuffer();
-				url.append(toolUrl).append("/");
+				if (!lms.canUseRelativeUrls())
+					url.append(toolUrl).append("/");
 				url.append(getComponent().urlFor(this, rli));
 
 				return url;
 			}
 		
-		});
+		}.setThrottleDelay(Duration.ONE_SECOND));
 			
 	}
 	
@@ -118,12 +134,13 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 		
 		if (form.getLaunchPanel() != null) {		
 			form.getLaunchPanel().synchronizeState(sessionBean, target);
-			form.getLaunchPanel().getTreePanel().getActivityTree().selectNode();
-			form.getLaunchPanel().getCommunicationPanel().updatePageSco(sessionBean.getScoId(), target);
+			form.getLaunchPanel().getTree().selectNode(); 
+			// FIXME: Commentted this out b/c I don't think we want to do it -- need to make sure JLR 1/2/2008
+			//form.getLaunchPanel().getCommunicationPanel().updatePageSco(sessionBean.getScoId(), target);
 		}
 	}
 	
-	public void displayContent(SessionBean sessionBean, Object target) {
+	/*public void displayContent(SessionBean sessionBean, Object target) {
 		if (null == target)
 			return;
 		
@@ -156,7 +173,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 			return fullPath.toString();
 		}
 		return null;
-	}
+	}*/
 	
 	protected void onSubmit(AjaxRequestTarget target, Form form) {
 		doNavigate(sessionBean, seqRequest, target);

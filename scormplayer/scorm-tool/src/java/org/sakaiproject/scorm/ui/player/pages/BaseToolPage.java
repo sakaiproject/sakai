@@ -20,9 +20,6 @@ public class BaseToolPage extends WebPage implements IHeaderContributor {
 		response.renderCSSReference(TOOLBASE_CSS);
 		response.renderCSSReference(TOOL_CSS);
 		response.renderCSSReference(SCORM_CSS);
-		//response.renderCSSReference(THICKBOX_CSS);
-		//response.renderJavascriptReference(JQUERY_JS);
-		//response.renderJavascriptReference(THICKBOX_JS);
 	}
 
 }

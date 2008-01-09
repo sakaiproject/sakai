@@ -1,10 +1,8 @@
 package org.sakaiproject.scorm.ui.player.behaviors;
 
 import org.adl.api.ecmascript.SCORM13APIInterface;
-import org.adl.sequencer.SeqNavRequests;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;

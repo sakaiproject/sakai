@@ -22,6 +22,8 @@ package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
 
+import org.adl.datamodels.IDataManager;
+
 public interface ScoBean extends Serializable {
 
 	public static final int SCO_VERSION_2 = 2;
@@ -44,6 +46,10 @@ public interface ScoBean extends Serializable {
 	public abstract void setTerminated(boolean isTerminated);
 	
 	public abstract void setVersion(int version);
+	
+	public abstract IDataManager getDataManager();
+	
+	public abstract void setDataManager(IDataManager dataManager);
 	
 	/*public abstract String Commit(String parameter);
 

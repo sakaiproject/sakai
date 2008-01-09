@@ -38,28 +38,17 @@ import org.adl.validator.IValidatorOutcome;
 import org.adl.validator.contentpackage.CPValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.scorm.api.ScormConstants;
-import org.sakaiproject.scorm.content.impl.ScormCHH;
 import org.sakaiproject.scorm.dao.LearnerDao;
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
-import org.sakaiproject.scorm.exceptions.ValidationException;
 import org.sakaiproject.scorm.model.ContentPackageManifestImpl;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
-import org.sakaiproject.scorm.model.api.UnvalidatedResource;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
-import org.sakaiproject.scorm.service.api.ScormPermissionService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -68,7 +57,6 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	private static Log log = LogFactory.getLog(ScormContentServiceImpl.class);
 		
 	// Dependency injected lookup methods
-	protected abstract ScormPermissionService permissionService();
 	protected abstract ScormResourceService resourceService();
 	
 	protected abstract LearningManagementSystem lms();
@@ -80,7 +68,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	protected abstract SeqActivityTreeDao seqActivityTreeDao();
 	
 	
-	public String addContentPackage(File contentPackage, IValidator validator, IValidatorOutcome outcome) throws Exception {
+	/*public String addContentPackage(File contentPackage, IValidator validator, IValidatorOutcome outcome) throws Exception {
 		FileInputStream inputStream = new FileInputStream(contentPackage);
 		
 		//String resourceId = storeFile(contentPackage, "application/zip");
@@ -88,7 +76,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		convertToContentPackage(resourceId, validator, outcome);
 	
 		return resourceId;
-	}
+	}*/
 	
 	public ContentPackage getContentPackage(long contentPackageId) {
 		return contentPackageDao().load(contentPackageId);
@@ -100,7 +88,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		List<ContentPackage> allPackages = contentPackageDao().find(context);
 		List<ContentPackage> releasedPackages = new LinkedList<ContentPackage>();
 		
-		if (permissionService().canModify())
+		if (lms().canModify(context))
 			return allPackages;
 		
 		for (ContentPackage cp : allPackages) {
@@ -132,24 +120,30 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	}
 	
 	public String getContentPackageTitle(Document document) {
-		Node orgRoot = document.getElementsByTagName("organizations").item(0);
-		String defaultId = DOMTreeUtility.getAttributeValue(orgRoot, "default");
-		
-		NodeList orgs = document.getElementsByTagName("organization");
-
-		Node defaultNode = null;
-		for (int i = 0; i < orgs.getLength(); ++i) {
-			if (DOMTreeUtility.getAttributeValue(orgs.item(i), "identifier")
-					.equalsIgnoreCase(defaultId)) {
-				defaultNode = orgs.item(i);
-				break;
-			}
-		}
-		List<Node> titleNodes = DOMTreeUtility.getNodes(defaultNode, "title");
-		
 		String title = null;
-		if (!titleNodes.isEmpty())
-			title = DOMTreeUtility.getNodeValue(titleNodes.get(0));
+		try {
+			Node orgRoot = document.getElementsByTagName("organizations").item(0);
+			String defaultId = DOMTreeUtility.getAttributeValue(orgRoot, "default");
+			
+			NodeList orgs = document.getElementsByTagName("organization");
+	
+			Node defaultNode = null;
+			for (int i = 0; i < orgs.getLength(); ++i) {
+				if (DOMTreeUtility.getAttributeValue(orgs.item(i), "identifier")
+						.equalsIgnoreCase(defaultId)) {
+					defaultNode = orgs.item(i);
+					break;
+				}
+			}
+			List<Node> titleNodes = DOMTreeUtility.getNodes(defaultNode, "title");
+			
+			
+			if (!titleNodes.isEmpty())
+				title = DOMTreeUtility.getNodeValue(titleNodes.get(0));
+		
+		} catch (Exception e) {
+			log.warn("Caught an exception looking for content package title");
+		}
 		
 		if (null == title) 
 			title = "Unknown";
@@ -162,7 +156,31 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		String siteCollectionId = contentService().getSiteCollection(siteId);
 		
 		return findPotentialContentPackages(siteCollectionId);
-	}*/
+	}
+	
+	private List<ContentResource> findPotentialContentPackages(String collectionId) {
+		List<ContentResource> zipFiles = new LinkedList<ContentResource>();
+		try {
+			ContentCollection collection = contentService().getCollection(collectionId);
+			List<ContentEntity> members = collection.getMemberResources();
+			
+			for (ContentEntity member : members) {
+				if (member.isResource()) {
+					String mimeType = ((ContentResource)member).getContentType();
+					if (mimeType != null && mimeType.equals("application/zip")) 
+						zipFiles.add((ContentResource)member);	
+				} else if (member.isCollection() && member.getVirtualContentEntity() == null &&
+						member.getContentHandler() == null)
+					zipFiles.addAll(findPotentialContentPackages(member.getId()));
+			}
+		
+		} catch (Exception e) {
+			log.error("Caught an exception looking for content packages", e);
+		}
+		
+		return zipFiles;
+	}
+	*/
 	
 	public void removeContentPackage(long contentPackageId) {
 
@@ -187,49 +205,52 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		contentPackageDao().save(contentPackage);
 	}
 	
-	public void validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema) throws Exception {
-		//ContentResource resource = contentService().getResource(resourceId);
+	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema) {
+		File file = createFile(resourceService().getArchiveStream(resourceId));
 		
-		UnvalidatedResource resource = resourceService().getUnvalidatedResource(resourceId);
-		
-		File file = createFile(resource.getContentStream());
+		int result = VALIDATION_SUCCESS;
 		
 		if (!file.exists()) {
-			throw new ValidationException("noFile");
+			return VALIDATION_NOFILE;
 		}
 		
 		IValidator validator = validate(file, isManifestOnly, isValidateToSchema);		
 		IValidatorOutcome validatorOutcome = validator.getADLValidatorOutcome();
 
 		if (!validatorOutcome.getDoesIMSManifestExist()) {
-			throw new ValidationException("noManifest");
+			return VALIDATION_NOMANIFEST;
 		}
 		
 		if (!validatorOutcome.getIsWellformed()) {
-			throw new ValidationException("notWellFormed");
+			result = VALIDATION_NOTWELLFORMED;
 		}
 		
 		if (!validatorOutcome.getIsValidRoot()) {
-			throw new ValidationException("notValidRoot");
+			result = VALIDATION_NOTVALIDROOT;
 		}
 		
 		if (isValidateToSchema) {
 			if (!validatorOutcome.getIsValidToSchema()) {
-				throw new ValidationException("notValidSchema");
+				result = VALIDATION_NOTVALIDSCHEMA;
 			}
 			
 			if (!validatorOutcome.getIsValidToApplicationProfile()) {
-				throw new ValidationException("notValidApplicationProfile");
+				result = VALIDATION_NOTVALIDPROFILE;
 			}
 			
 			if (!validatorOutcome.getDoRequiredCPFilesExist()) {
-				throw new ValidationException("notExistingRequiredFiles");
+				result = VALIDATION_MISSINGREQUIREDFILES;
 			}
 		}
 		
-		
-		convertToContentPackage(resourceId, validator, validatorOutcome);
-		
+		try {
+			convertToContentPackage(resourceId, validator, validatorOutcome);
+		} catch (Exception e) {
+			log.error("Failed to convert content package for resourceId: " + resourceId, e);
+			return VALIDATION_CONVERTFAILED;
+		}
+			
+		return result;	
 	}
 	
 	public IValidator validate(File contentPackage, boolean iManifestOnly, boolean iValidateToSchema) {
@@ -373,8 +394,25 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	
 	
 	private File createFile(InputStream inputStream) {
-		log.error("NOT IMPLEMENTED - createFile!!!");
-		return null;
+		File tempFile = null;
+		try {
+			tempFile = File.createTempFile("scorm", ".zip");
+			
+			FileOutputStream fileOut = new FileOutputStream(tempFile);
+			
+			int len = 0;
+			byte[] buf = new byte[1024];
+			while ((len = inputStream.read(buf)) > 0) {
+				fileOut.write(buf,0,len);
+			}
+			
+			fileOut.close();
+			inputStream.close();
+		} catch (IOException ioe) {
+			log.error("Caught an io exception trying to write byte array into temp file");
+		}
+		
+		return tempFile;
 	}
 	
 	private File createFile(byte[] bytes) {

@@ -2,7 +2,6 @@ package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Properties;
 
 public class Attempt implements Serializable {
 
@@ -17,7 +16,7 @@ public class Attempt implements Serializable {
 	private Date beginDate;
 	private Date lastModifiedDate;
 	
-	private long dataManagerId = -1;
+	//private long dataManagerId = -1;
 	
 	private boolean isNotExited = true;
 	private boolean isSuspended = false;
@@ -86,14 +85,14 @@ public class Attempt implements Serializable {
 	}
 
 
-	public long getDataManagerId() {
+	/*public long getDataManagerId() {
 		return dataManagerId;
 	}
 
 
 	public void setDataManagerId(long dataManagerId) {
 		this.dataManagerId = dataManagerId;
-	}
+	}*/
 
 
 	public long getId() {
@@ -110,6 +109,9 @@ public class Attempt implements Serializable {
 		return isSuspended;
 	}
 
+	public boolean getSuspended() {
+		return isSuspended;
+	}
 
 	public void setSuspended(boolean isSuspended) {
 		this.isSuspended = isSuspended;
@@ -120,6 +122,9 @@ public class Attempt implements Serializable {
 		return isNotExited;
 	}
 
+	public boolean getNotExited() {
+		return isNotExited;
+	}
 
 	public void setNotExited(boolean isNotExited) {
 		this.isNotExited = isNotExited;

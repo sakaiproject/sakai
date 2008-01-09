@@ -47,13 +47,13 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 		return r;
 	}
 	
-	public IDataManager find(String courseId, String userId, long attemptNumber) {
+	public IDataManager find(String courseId, String scoId, String userId, long attemptNumber) {
 				
-		return find(courseId, userId, true, attemptNumber);
+		return find(courseId, scoId, userId, true, attemptNumber);
 	}
 	
 	
-	public IDataManager find(String courseId, String userId, boolean fetchAll, long attemptNumber) {
+	public IDataManager find(String courseId, String scoId, String userId, boolean fetchAll, long attemptNumber) {
 		StringBuilder buffer = new StringBuilder();
 		
 		buffer.append("from ").append(SCODataManager.class.getName());
@@ -61,11 +61,11 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 		if (fetchAll) 
 			buffer.append(" fetch all properties ");
 		
-		buffer.append(" where courseId=? and userId=? and attemptNumber=? ");
+		buffer.append(" where courseId=? and scoId=? and userId=? and attemptNumber=? ");
 		
 		
 		List r = getHibernateTemplate().find(buffer.toString(), 
-						new Object[]{ courseId, userId, attemptNumber });
+						new Object[]{ courseId, scoId, userId, attemptNumber });
 		
 		if (log.isDebugEnabled())
 			log.debug("DataManagerDaoImpl::find: records: " + r.size());	
@@ -78,8 +78,36 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 		return dm;
 	}
 	
+	public List<IDataManager> find(long contentPackageId, String learnerId, long attemptNumber) {
+		StringBuilder buffer = new StringBuilder();
+		
+		buffer.append("from ").append(SCODataManager.class.getName())
+			.append(" where contentPackageId=? and userId=? and attemptNumber=? ");
 	
+		return getHibernateTemplate().find(buffer.toString(), 
+				new Object[]{ contentPackageId, learnerId, attemptNumber });
+	}
 	
+	public IDataManager findByActivityId(long contentPackageId, String activityId, String userId, long attemptNumber) {
+		StringBuilder buffer = new StringBuilder();
+		
+		buffer.append("from ").append(SCODataManager.class.getName());
+		buffer.append(" where contentPackageId=? and activityId=? and userId=? and attemptNumber=? ");
+		
+		
+		List r = getHibernateTemplate().find(buffer.toString(), 
+						new Object[]{ contentPackageId, activityId, userId, attemptNumber });
+		
+		if (log.isDebugEnabled())
+			log.debug("DataManagerDaoImpl::findByActivityId: records: " + r.size());	
+		
+		if (r.size() == 0)
+			return null;
+			
+		SCODataManager dm = (SCODataManager)r.get(r.size() - 1);
+		
+		return dm;
+	}
 
 	public void save(IDataManager dataManager) {
 		dataManager.setLastModifiedDate(new Date());

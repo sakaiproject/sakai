@@ -21,23 +21,19 @@
 package org.sakaiproject.scorm.ui.player.pages;
 
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.resources.CompressedResourceReference;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 
 public class CompletionPage extends NotificationPage {
-	//private static final ResourceReference JQUERY_JS = new CompressedResourceReference(CompletionPage.class, "res/jquery-latest.pack.js");
-	//private static final ResourceReference THICKBOX_JS = new CompressedResourceReference(CompletionPage.class, "res/thickbox-compressed.js");
-	//private static final ResourceReference THICKBOX_CSS = new CompressedResourceReference(CompletionPage.class, "res/thickbox.css");
-
-	//private static final String ONLOAD_JS = "tb_show('Google', 'http://www.google.com', null);";
-	//private static final String UNLOAD_JS = "tb_remove();";
 	
 	private static final String CLOSE_ON_LOAD = "setTimeout('window.close()', 5000);";
 	
 	private static final long serialVersionUID = 1L;
 
+	@SpringBean
+	LearningManagementSystem lms;
+	
 	public CompletionPage() {
 		this(new PageParameters());
 	}
@@ -51,12 +47,7 @@ public class CompletionPage extends NotificationPage {
 		super.renderHead(response);
 		
 		response.renderOnDomReadyJavascript(CLOSE_ON_LOAD);
-		
-		//response.renderCSSReference(THICKBOX_CSS);
-		//response.renderJavascriptReference(JQUERY_JS);
-		//response.renderJavascriptReference(THICKBOX_JS);
-		//response.renderOnLoadJavascript(ONLOAD_JS);
-		//response.renderOnBeforeUnloadJavascript(UNLOAD_JS);
+
 	}
 	
 	

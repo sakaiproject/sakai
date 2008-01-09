@@ -41,6 +41,8 @@ import java.util.ArrayList;
 
 import java.net.URL;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -152,7 +154,7 @@ public class ADLDOMParser implements ErrorHandler
    /**
     * Logger object used for debug logging.
     */
-   private Logger mLogger;
+   private static Log log = LogFactory.getLog(ADLDOMParser.class);
    
    /**
     * Indicates if the xsi:schemaLocation was declared in the XML instance. The
@@ -175,8 +177,6 @@ public class ADLDOMParser implements ErrorHandler
     */
    public ADLDOMParser()
    {
-      mLogger = Logger.getLogger("org.adl.util.debug.validator"); 
-
       mParser = null;
       mDocument = null;
       mIsXMLWellformed = false;
@@ -304,7 +304,7 @@ public class ADLDOMParser implements ErrorHandler
     */
    public void warning( SAXParseException iSPE )
    {
-      mLogger.entering( "ADLDOMParser", "warning()" );  
+      log.debug("warning()" );  
 
       // determine what state we are in to set the appropriate flags
       if ( mStateIsValidating )
@@ -320,12 +320,12 @@ public class ADLDOMParser implements ErrorHandler
                        iSPE.getLineNumber() + ", col: " + 
                        iSPE.getColumnNumber();
 
-      mLogger.info( "FAILED: " + msgText ); 
+      log.debug( "FAILED: " + msgText ); 
 
       DetailedLogMessageCollection.getInstance().addMessage( new LogMessage( MessageType.FAILED,
                                                         msgText ) );
 
-      mLogger.exiting( "ADLDOMParser", "warning(SAXParseException)" );  
+      log.debug("warning(SAXParseException)" );  
    }
 
    /**
@@ -337,7 +337,7 @@ public class ADLDOMParser implements ErrorHandler
     */
    public void  error( SAXParseException iSPE )
    {
-      mLogger.entering( "ADLDOMParser", "error()" );  
+      log.debug("error()" );  
 
       // determine what state we are in to set the appropriate flags
       if ( mStateIsValidating )
@@ -353,12 +353,12 @@ public class ADLDOMParser implements ErrorHandler
                        iSPE.getLineNumber() + ", col: " + 
                        iSPE.getColumnNumber();
 
-      mLogger.info( "FAILED: " + msgText ); 
+      log.debug( "FAILED: " + msgText ); 
 
       DetailedLogMessageCollection.getInstance().addMessage( new LogMessage( MessageType.FAILED,
                                                         msgText ) );
 
-      mLogger.exiting( "ADLDOMParser", "error()" );  
+      log.debug("error()" );  
    }
 
    /**
@@ -370,7 +370,7 @@ public class ADLDOMParser implements ErrorHandler
     */
    public void fatalError( SAXParseException iSPE )
    {
-      mLogger.entering( "ADLDOMParser", "fatalError()" );  
+      log.debug("fatalError()" );  
 
       // determine what state we are in to set the appropriate flags
       if ( mStateIsValidating )
@@ -386,12 +386,12 @@ public class ADLDOMParser implements ErrorHandler
                        iSPE.getLineNumber() + ", col: " + 
                        iSPE.getColumnNumber() ;
 
-      mLogger.info( "FAILED: " + msgText ); 
+      log.debug( "FAILED: " + msgText ); 
 
       DetailedLogMessageCollection.getInstance().addMessage( new LogMessage ( MessageType.FAILED,
                                                          msgText ) );
 
-      mLogger.exiting( "ADLDOMParser", "fatalError()" );  
+      log.debug("fatalError()" );  
    }
 
    /**
@@ -403,7 +403,7 @@ public class ADLDOMParser implements ErrorHandler
     */
    private void configureParser()
    {
-     mLogger.entering( "ADLDOMParser", "configureParser()" );  
+     log.debug("configureParser()" );  
 
      // instantiate the Xerces DOMParser object to use the default
      // configuration
@@ -434,7 +434,7 @@ public class ADLDOMParser implements ErrorHandler
                      "http://apache.org/xml/features/continue-after-fatal-error", 
                       false );
 
-                 mLogger.finest( "setting schemas to - " + mSchemaLocation ); 
+                 log.debug( "setting schemas to - " + mSchemaLocation ); 
 
                  mParser.setProperty(
                   "http://apache.org/xml/properties/schema/external-schemaLocation", 
@@ -446,7 +446,7 @@ public class ADLDOMParser implements ErrorHandler
               catch ( SAXException se )
               {
                  String msgText = Messages.getString("ADLDOMParser.30"); 
-                 mLogger.severe( msgText );
+                 log.error( msgText );
                  DetailedLogMessageCollection.getInstance().addMessage( new LogMessage (
                                                        MessageType.TERMINATE,
                                                        msgText ) );
@@ -455,7 +455,7 @@ public class ADLDOMParser implements ErrorHandler
            else
            {
               String msgText = "Schema Location(s) not set"; 
-              mLogger.severe( "SEVERE: " + msgText ); 
+              log.error( "SEVERE: " + msgText ); 
 
               mValidFlag = false;
            }
@@ -478,7 +478,7 @@ public class ADLDOMParser implements ErrorHandler
            {
               String msgText = Messages.getString("ADLDOMParser.36"); 
 
-              mLogger.severe("TERMINATE: " + msgText ); 
+              log.error("TERMINATE: " + msgText ); 
               DetailedLogMessageCollection.getInstance().addMessage( new LogMessage (
                                                           MessageType.TERMINATE,
                                                           msgText ) );
@@ -488,11 +488,11 @@ public class ADLDOMParser implements ErrorHandler
      else
      {
         String msgText = Messages.getString("ADLDOMParser.38"); 
-        mLogger.severe( "TERMINATE: " + msgText ); 
+        log.error( "TERMINATE: " + msgText ); 
         DetailedLogMessageCollection.getInstance().addMessage( new LogMessage ( MessageType.TERMINATE,
                                                            msgText ) );
      }
-     mLogger.exiting( "ADLDOMParser", "configureParser()" );  
+     log.debug("configureParser()" );  
    }
 
 
@@ -517,9 +517,9 @@ public class ADLDOMParser implements ErrorHandler
                                        boolean iLogRelated,
                                        boolean iControllingDocRelated )
    {
-      mLogger.entering( "ADLDOMParser", "parseForWellformedness()" );  
-      mLogger.finest( "   iXMLFileName coming in is " + iXMLFileName ); 
-      mLogger.finest( "   iLogRelated coming in is " + iLogRelated ); 
+      log.debug("parseForWellformedness()" );  
+      log.debug( "   iXMLFileName coming in is " + iXMLFileName ); 
+      log.debug( "   iLogRelated coming in is " + iLogRelated ); 
 
       configureParser();
 
@@ -541,7 +541,7 @@ public class ADLDOMParser implements ErrorHandler
             try
             {
                msgText = Messages.getString("ADLDOMParser.52"); 
-               mLogger.info( msgText );
+               log.debug( msgText );
 
                if ( iLogRelated )
                {
@@ -552,7 +552,7 @@ public class ADLDOMParser implements ErrorHandler
 
                mParser.parse( setUpInputSource( fileName ) );
                msgText = Messages.getString("ADLDOMParser.53"); 
-               mLogger.info( msgText );
+               log.debug( msgText );
 
                if ( iLogRelated )
                {
@@ -570,12 +570,12 @@ public class ADLDOMParser implements ErrorHandler
             catch ( SAXException se )
             {
                msgText = "SAXException thrown during non-validating parse"; 
-               mLogger.severe( msgText );
+               log.error( msgText );
             }
             catch ( IOException ioe )
             {
                msgText = "IOException thrown during non-validating parse"; 
-               mLogger.severe( msgText );
+               log.error( msgText );
 
             }
          }
@@ -584,9 +584,9 @@ public class ADLDOMParser implements ErrorHandler
       setDocumentAttribute( wellformednessDocument, iLogRelated, iXMLFileName,
                             iControllingDocRelated );
 
-      mLogger.finest("FINAL SCHEMA LOCATION:  " + mSchemaLocation); 
-      mLogger.finest( "wellformed = " + getIsWellformed() ); 
-      mLogger.exiting( "ADLDOMParser", "parseForWellformedness()" );  
+      log.debug("FINAL SCHEMA LOCATION:  " + mSchemaLocation); 
+      log.debug( "wellformed = " + getIsWellformed() ); 
+      log.debug("parseForWellformedness()" );  
    }
 
    /**
@@ -609,9 +609,9 @@ public class ADLDOMParser implements ErrorHandler
                                        boolean iLogRelated,
                                        boolean iControllingDocRelated )
    {
-      mLogger.entering( "ADLDOMParser", "parseForWellformedness()" );  
-      mLogger.finest( "   iXMLFileName coming in is " + iXMLFileName ); 
-      mLogger.finest( "   iLogRelated coming in is " + iLogRelated ); 
+      log.debug("parseForWellformedness()" );  
+      log.debug( "   iXMLFileName coming in is " + iXMLFileName ); 
+      log.debug( "   iLogRelated coming in is " + iLogRelated ); 
 
       configureParser();
 
@@ -623,7 +623,7 @@ public class ADLDOMParser implements ErrorHandler
          try
          {
             msgText = "Validating for Well-Formedness"; 
-            mLogger.info( msgText );
+            log.debug( msgText );
 
             if ( iLogRelated )
             {
@@ -636,7 +636,7 @@ public class ADLDOMParser implements ErrorHandler
             mParser.parse(new InputSource( iXMLFileName.openStream()));
 
             msgText = "The XML is Well-formed"; 
-            mLogger.info( msgText );
+            log.debug( msgText );
 
             if ( iLogRelated )
             {
@@ -656,12 +656,12 @@ public class ADLDOMParser implements ErrorHandler
          catch ( SAXException se )
          {
             msgText = "SAXException thrown during non-validating parse"; 
-            mLogger.severe( msgText );
+            log.error( msgText );
          }
          catch ( IOException ioe )
          {
             msgText = "IOException thrown during non-validating parse"; 
-            mLogger.severe( msgText );
+            log.error( msgText );
          }
       }
       else
@@ -674,9 +674,9 @@ public class ADLDOMParser implements ErrorHandler
       setDocumentAttribute( wellformednessDocument, iLogRelated,
                             iXMLFileName.toString(), iControllingDocRelated );
 
-      mLogger.finest( "wellformed = " + getIsWellformed() ); 
+      log.debug( "wellformed = " + getIsWellformed() ); 
 
-      mLogger.exiting( "ADLDOMParser", "parseForWellformedness()" );  
+      log.debug("parseForWellformedness()" );  
    }
 
    /**
@@ -688,8 +688,8 @@ public class ADLDOMParser implements ErrorHandler
     */
    public void parseForValidation( String iXMLFileName )
    {
-      mLogger.entering( "ADLDOMParser", "parseForValidation()" );  
-      mLogger.finest( "   iXMLFileName coming in is " + iXMLFileName ); 
+      log.debug("parseForValidation()" );  
+      log.debug( "   iXMLFileName coming in is " + iXMLFileName ); 
 
       configureParser();
 
@@ -705,7 +705,7 @@ public class ADLDOMParser implements ErrorHandler
             try
             {
                msgText = "Parsing for Well-Formedness first to obtain document"; 
-               mLogger.info( msgText );
+               log.debug( msgText );
 
                mParser.parse( setUpInputSource( fileName ) );
                wellformednessDocument = mParser.getDocument();
@@ -718,19 +718,19 @@ public class ADLDOMParser implements ErrorHandler
             catch ( SAXException se )
             {
                msgText = "SAXException thrown during non-validating parse"; 
-               mLogger.severe( msgText );
+               log.error( msgText );
             }
             catch ( IOException ioe )
             {
                msgText = "IOException thrown during non-validating parse"; 
-               mLogger.severe( msgText );
+               log.error( msgText );
 
             }
             catch ( NullPointerException npe )
             {
                msgText = "NullPointerException thrown during non-validating " + 
                          "parse"; 
-               mLogger.severe( msgText );
+               log.error( msgText );
 
             }
             if ( mIsXMLWellformed )
@@ -743,7 +743,7 @@ public class ADLDOMParser implements ErrorHandler
                if ( mParser != null )
                {
                   msgText = Messages.getString("ADLDOMParser.81"); 
-                  mLogger.info( msgText );
+                  log.debug( msgText );
                   DetailedLogMessageCollection.getInstance().addMessage( new LogMessage (
                                                                MessageType.INFO,
                                                                msgText ) );
@@ -764,19 +764,19 @@ public class ADLDOMParser implements ErrorHandler
                      {
                         msgText = "SAXException thrown during validating" + 
                                   " parse"; 
-                        mLogger.severe( msgText );
+                        log.error( msgText );
                      }
                      catch ( IOException ioe )
                      {
                         msgText = "IOException thrown during" + 
                                   " validating parse"; 
-                        mLogger.severe( msgText );
+                        log.error( msgText );
                      }
                      catch ( NullPointerException npe )
                      {
                         msgText = "NullPointerException thrown during " + 
                            "non-validating parse";
-                        mLogger.severe( msgText );
+                        log.error( msgText );
 
                      }
                   }
@@ -791,7 +791,7 @@ public class ADLDOMParser implements ErrorHandler
                //instance is not well-formed, therefore, validity not checked
                //ensure that the mValidFlag is set to false;
                msgText = "The XML is not wellformed, cannot continue with validation against the Controlling Documents";
-               mLogger.finest( msgText );
+               log.debug( msgText );
 
                mValidFlag = false;
             }
@@ -811,17 +811,17 @@ public class ADLDOMParser implements ErrorHandler
      // assign the apporopriate value to the mIsXMLValidToSchema attribute
      setValidXMLToSchemaAttribute();
 
-     mLogger.finest( "valid = " + getIsValidToSchema() ); 
+     log.debug( "valid = " + getIsValidToSchema() ); 
 
      if ( getIsValidToSchema() )
      {
         msgText = Messages.getString("ADLDOMParser.91"); 
-        mLogger.info( msgText );
+        log.debug( msgText );
         DetailedLogMessageCollection.getInstance().addMessage( new LogMessage ( 
                                             MessageType.PASSED, msgText ) );
      }
 
-     mLogger.exiting( "ADLDOMParser", "parseForValidation()" ); 
+     log.debug("parseForValidation()" ); 
    }
 
 
@@ -858,10 +858,10 @@ public class ADLDOMParser implements ErrorHandler
           }
           case Node.ELEMENT_NODE:
           {
-             mLogger.finest("Processing Element Node: [" +  
+             log.debug("Processing Element Node: [" +  
                             iNode.getLocalName() + "]"); 
-             mLogger.finest("************************************************"); 
-             mLogger.finest("Processing Element Node: [" +  
+             log.debug("************************************************"); 
+             log.debug("Processing Element Node: [" +  
                             iNode.getLocalName() + "]"); 
 
              checkForSchemaLocations(iNode, iXMLFileName);
@@ -871,7 +871,7 @@ public class ADLDOMParser implements ErrorHandler
 
              // Loop over the attributes for this element, remove any attributes
              // that are extensions
-             mLogger.finest("Processing " + attrList.getLength() + " attributes" ); 
+             log.debug("Processing " + attrList.getLength() + " attributes" ); 
              for ( int i = 0; i < attrList.getLength(); i++ )
              {
                 Attr currentAttribute = (Attr)attrList.item(i);
@@ -879,7 +879,7 @@ public class ADLDOMParser implements ErrorHandler
                 if ( !(DOMTreeUtility.isSCORMAppProfileNode( currentAttribute,
                                                             iNode ) ) )
                 {
-                    mLogger.finest("Extension attribute, removing: [" + 
+                    log.debug("Extension attribute, removing: [" + 
                                  currentAttribute.getNamespaceURI() + "] " + 
                                  currentAttribute.getLocalName() +
                                  " from the its parent node [" + 
@@ -894,23 +894,23 @@ public class ADLDOMParser implements ErrorHandler
                 }
                 else
                 {
-                    mLogger.finest( "Valid SCORM attribute, keeping attribute: [" + 
+                    log.debug( "Valid SCORM attribute, keeping attribute: [" + 
                                   currentAttribute.getNamespaceURI() + "] " + 
                                   currentAttribute.getLocalName());
                 }
              } 
 
-             mLogger.finest( "Done processing attributes for node: [" + 
+             log.debug( "Done processing attributes for node: [" + 
                              iNode.getNamespaceURI() + "] " +  
                              iNode.getLocalName() );
-             mLogger.finest("************************************************"); 
+             log.debug("************************************************"); 
 
              // Done looping over the attributes for this element, now loop over
              // the set of children nodes.
 
-             mLogger.finest(""); 
-             mLogger.finest("************************************************"); 
-             mLogger.finest( "Processing direct-descendances for node: [" + 
+             log.debug(""); 
+             log.debug("************************************************"); 
+             log.debug( "Processing direct-descendances for node: [" + 
                             iNode.getNamespaceURI() + "] " + 
                             iNode.getLocalName() );
 
@@ -919,7 +919,7 @@ public class ADLDOMParser implements ErrorHandler
              {
                 // Loop over set of children elements for this element, remove
                 // any elements that are extensions
-                mLogger.finest("Processing " + children.getLength() +  
+                log.debug("Processing " + children.getLength() +  
                    " elements" ); 
                 for ( int z = 0; z < children.getLength(); z++ )
                 {
@@ -927,12 +927,12 @@ public class ADLDOMParser implements ErrorHandler
 
                    if (childNode.getNodeType() == Node.ELEMENT_NODE)
                    {
-                      mLogger.finest( "Processing element: [" + childNode + "]"); 
-                      mLogger.finest( "Elements Namespace: [" + 
+                      log.debug( "Processing element: [" + childNode + "]"); 
+                      log.debug( "Elements Namespace: [" + 
                                     childNode.getNamespaceURI() + "]"); 
-                      mLogger.finest( "Elements Parent Node: [" + 
+                      log.debug( "Elements Parent Node: [" + 
                                     iNode.getLocalName() + "]"); 
-                      mLogger.finest( "Parent Nodes Namespace: [" + 
+                      log.debug( "Parent Nodes Namespace: [" + 
                                     iNode.getNamespaceURI() + "]"); 
 
                       if ( !(DOMTreeUtility.isSCORMAppProfileNode(
@@ -944,7 +944,7 @@ public class ADLDOMParser implements ErrorHandler
                          // parsing
                           checkForSchemaLocations(childNode,iXMLFileName);
 
-                         mLogger.finest("Extension Element Found, removing from DOM Tree " );
+                         log.debug("Extension Element Found, removing from DOM Tree " );
 
                          // Remove the Element Node from the DOM
                          children.item(z).getParentNode().removeChild(children.item(z));
@@ -953,7 +953,7 @@ public class ADLDOMParser implements ErrorHandler
                       }
                       else
                       {
-                         mLogger.finest("ADL SCORM Element Found, leaving " + 
+                         log.debug("ADL SCORM Element Found, leaving " + 
                               "element in DOM Tree"); 
                          pruneTree(children.item(z), iXMLFileName);
                       }
@@ -982,10 +982,10 @@ public class ADLDOMParser implements ErrorHandler
              } // end looping over children nodes
           } // end if there are children
 
-          mLogger.finest( "Done processing direct-descendants for node: [" + 
+          log.debug( "Done processing direct-descendants for node: [" + 
                           iNode.getNamespaceURI() + "] " + 
                           iNode.getLocalName() );
-          mLogger.finest("**************************************************"); 
+          log.debug("**************************************************"); 
 
           break;
 
@@ -1037,8 +1037,8 @@ public class ADLDOMParser implements ErrorHandler
     public void addSchemaLocationToList( String iSchemaLocation,
                                          String iXMLFileName )
     {
-      mLogger.entering("ADLDOMParser","addSchemaLocationToList()"); 
-      mLogger.finest("Schema Location: " + iSchemaLocation); 
+      log.debug("addSchemaLocationToList()"); 
+      log.debug("Schema Location: " + iSchemaLocation); 
 
       String fileName = searchFile( iXMLFileName, "xml" ); 
 
@@ -1157,7 +1157,7 @@ public class ADLDOMParser implements ErrorHandler
          nodeValue.append( " " ); 
       }
 
-         mLogger.finest( typeStr + sp + nodeType + sp +
+         log.debug( typeStr + sp + nodeType + sp +
                              nodeName + sp + nodeValue );
 
    }
@@ -1182,7 +1182,7 @@ public class ADLDOMParser implements ErrorHandler
                                        String iXMLFileName,
                                        boolean iControllingDocRelated )
     {
-       mLogger.entering( "ADLDOMParser", "setDocumentAttribute()" ); 
+       log.debug("setDocumentAttribute()" ); 
 
        if ( mIsXMLWellformed )
        {
@@ -1195,7 +1195,7 @@ public class ADLDOMParser implements ErrorHandler
        }
 
        //else mDocument shall remain = null
-       mLogger.exiting( "ADLDOMParser", "setDocumentAttribute()" ); 
+       log.debug("setDocumentAttribute()" ); 
     }
 
    /**
@@ -1205,11 +1205,11 @@ public class ADLDOMParser implements ErrorHandler
     */
    private void setValidXMLToSchemaAttribute()
    {
-      mLogger.entering( "ADLDOMParser", "setValidXMLSchemaAttribute()" ); 
+      log.debug("setValidXMLSchemaAttribute()" ); 
 
       mIsXMLValidToSchema = mValidFlag;
 
-      mLogger.exiting( "ADLDOMParser", "setValidXMLSchemaAttribute()" ); 
+      log.debug("setValidXMLSchemaAttribute()" ); 
    }
 
 
@@ -1223,11 +1223,11 @@ public class ADLDOMParser implements ErrorHandler
     */
    private InputSource setUpInputSource( String iFileName )
    {
-      mLogger.entering( "ADLDOMParser", "setUpInputSource()" ); 
+      log.debug("setUpInputSource()" ); 
       InputSource is = new InputSource();
       is = setupFileSource(iFileName);
 
-      mLogger.exiting( "ADLDOMParser", "setUpInputSource()" );
+      log.debug("setUpInputSource()" );
       return is;
    }
 
@@ -1240,7 +1240,7 @@ public class ADLDOMParser implements ErrorHandler
     */
    private InputSource setupFileSource( String iFileName)
    {
-      mLogger.entering( "ADLDOMParser", "setupFileSource()" ); 
+      log.debug("setupFileSource()" ); 
       String msgText;
       boolean defaultEncoding = true;
       String encoding = null;
@@ -1250,7 +1250,7 @@ public class ADLDOMParser implements ErrorHandler
       try
       {
          File xmlFile = new File( iFileName );
-         mLogger.info( xmlFile.getAbsolutePath() );
+         log.debug( xmlFile.getAbsolutePath() );
 
          if ( xmlFile.isFile() )
          {
@@ -1344,31 +1344,31 @@ public class ADLDOMParser implements ErrorHandler
          else
          {
             msgText = "XML File: " + iFileName + " is not a file or URL"; 
-            mLogger.severe( msgText );
+            log.error( msgText );
          }
       }
       catch ( NullPointerException  npe )
       {
          msgText = "Null pointer exception" + npe; 
-         mLogger.severe( msgText );
+         log.error( msgText );
       }
       catch ( SecurityException se )
       {
          msgText = "Security Exception" + se; 
-         mLogger.severe( msgText );
+         log.error( msgText );
       }
       catch ( FileNotFoundException fnfe )
       {
          msgText = "File Not Found Exception" + fnfe; 
-         mLogger.severe( msgText );
+         log.error( msgText );
       }
       catch ( Exception e )
       {
          msgText = "General Exception" + e; 
-         mLogger.severe( msgText );
+         log.error( msgText );
       }
 
-      mLogger.exiting( "ADLDOMParser", "setUpFileSource()" ); 
+      log.debug("setUpFileSource()" ); 
 
       return new InputSource();
    }
@@ -1385,9 +1385,9 @@ public class ADLDOMParser implements ErrorHandler
    private String searchFile( String iFileName,
                               String iFileType )
    {
-      mLogger.entering( "ADLDOMParser", "searchFile()" ); 
-      mLogger.finest( "   iFileName coming in is: " + iFileName ); 
-      mLogger.finest( "   iFileType coming in is: " + iFileType ); 
+      log.debug("searchFile()" ); 
+      log.debug( "   iFileName coming in is: " + iFileName ); 
+      log.debug( "   iFileType coming in is: " + iFileType ); 
 
       boolean fileFound = false;
       String outFileName = new String(""); 
@@ -1414,21 +1414,21 @@ public class ADLDOMParser implements ErrorHandler
             else
             {
                String msgText = "File Not A Normal File"; 
-               mLogger.severe( msgText );
+               log.error( msgText );
             }
          }
       }
       catch ( NullPointerException npe )
       {
          String msgText = "File is Empty"; 
-         mLogger.severe( msgText );
+         log.error( msgText );
       }
       catch ( SecurityException se )
       {
          String msgText = "File Not Accessible"; 
-         mLogger.severe( msgText );
+         log.error( msgText );
       }
-      mLogger.exiting( "ADLDOMParser", "searchFile()" ); 
+      log.debug("searchFile()" ); 
 
       return outFileName;
    }
@@ -1443,9 +1443,9 @@ public class ADLDOMParser implements ErrorHandler
     */
    private void checkForSchemaLocations( Node iNode, String iXMLFileName )
    {
-      mLogger.entering("ADLDOMParser","checkForSchemaLocations()"); 
-      mLogger.finest("Processing Node: [" + iNode.getLocalName() + "]"); 
-      mLogger.finest("Processing Nodes Namespace: [" + iNode.getNamespaceURI() + 
+      log.debug("checkForSchemaLocations()"); 
+      log.debug("Processing Node: [" + iNode.getLocalName() + "]"); 
+      log.debug("Processing Nodes Namespace: [" + iNode.getNamespaceURI() + 
                       "]"); 
 
       // Get the list of attributes of the element
@@ -1453,25 +1453,25 @@ public class ADLDOMParser implements ErrorHandler
 
       // Loop over the attributes for this element, remove any attributes
       // that are extensions
-      mLogger.finest("Processing " + attrList.getLength() + " attributes" ); 
+      log.debug("Processing " + attrList.getLength() + " attributes" ); 
       for ( int i = 0; i < attrList.getLength(); i++ )
       {
          Attr currentAttribute = (Attr)attrList.item(i);
          String parentNamespace = iNode.getNamespaceURI();
          String attributeNamespace = currentAttribute.getNamespaceURI();
 
-         mLogger.finest( "Processing attribute [" + i + "]: [" + 
+         log.debug( "Processing attribute [" + i + "]: [" + 
                                 currentAttribute.getLocalName() + "]"); 
-         mLogger.finest( "Attributes Namespace [" + i + "]: [" + 
+         log.debug( "Attributes Namespace [" + i + "]: [" + 
                                attributeNamespace + "]");
          if (!mDeclaredNamespaces.contains(attributeNamespace) && (attributeNamespace != null))
          {
             mDeclaredNamespaces.add(attributeNamespace);
          }
          
-         mLogger.finest( "Attributes Parent Node [" + i + "]: [" + 
+         log.debug( "Attributes Parent Node [" + i + "]: [" + 
                                iNode.getLocalName() + "]"); 
-         mLogger.finest( "Parent Nodes Namespace [" + i + 
+         log.debug( "Parent Nodes Namespace [" + i + 
                                "]: [" + parentNamespace + "]");
          
          if (!mDeclaredNamespaces.contains(attributeNamespace) && (parentNamespace != null))
@@ -1501,7 +1501,7 @@ public class ADLDOMParser implements ErrorHandler
          }
       } // end looping over attributes
 
-      mLogger.exiting( "ADLDOMParser", "checkForSchemaLocations()" );
+      log.debug("checkForSchemaLocations()" );
    }
 
    /**

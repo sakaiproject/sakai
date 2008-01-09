@@ -26,7 +26,6 @@ import org.adl.sequencer.SeqObjective;
 import org.adl.validator.contentpackage.ILaunchData;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.scorm.adl.ADLConsultant;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.dao.LearnerDao;
@@ -43,9 +42,6 @@ import org.sakaiproject.scorm.navigation.INavigationEvent;
 import org.sakaiproject.scorm.navigation.impl.NavigationEvent;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
 public abstract class ScormApplicationServiceImpl implements ScormApplicationService, ScormConstants {
 
@@ -66,11 +62,14 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	public ScoBean produceScoBean(String scoId, SessionBean sessionBean) {
 		ScoBean scoBean = null;
 		
-		if (null == scoId) {
+		if (null == scoId || scoId.equals("undefined") || scoId.trim().length() == 0) {
 			// If no sco id is passed then we simply grab it from the sessionBean 
 			scoId = sessionBean.getScoId();
 			if (log.isDebugEnabled())
 				log.debug("Null sco id -- grabbing current sco id " + scoId);
+		
+			//log.error("NULL sco id -- can't create a sco bean!");
+			//return null;
 		}
 		
 		Map<String, ScoBean> scoBeans = sessionBean.getScoBeans();
@@ -235,7 +234,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	        DMProcessingInfo dmInfo = new DMProcessingInfo();
 		        
 	        int dmErrorCode = 0;
-	        dmErrorCode = DMInterface.processGetValue(parameter, false, sessionBean.getDataManager(), dmInfo);
+	        dmErrorCode = DMInterface.processGetValue(parameter, false, scoBean.getDataManager(), dmInfo);
 	
 	        // Set the LMS Error Manager from the Data Model Error Manager
 		    errorManager.setCurrentErrorCode(dmErrorCode);
@@ -281,10 +280,10 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		else {
 			sessionBean.setSuspended(false);
 			
-			IDataManager dm = initialize(sessionBean);
+			IDataManager dm = initialize(sessionBean, scoBean);
 	
 			if (dm != null) {
-				sessionBean.setDataManager(dm);
+				scoBean.setDataManager(dm);
 				
 				scoBean.setInitialized(true);
 				
@@ -339,7 +338,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				
 		// Process 'SET'
 		int dmErrorCode = 0;
-		dmErrorCode = DMInterface.processSetValue(dataModelElement, setValue, false, sessionBean.getDataManager());
+		dmErrorCode = DMInterface.processSetValue(dataModelElement, setValue, false, scoBean.getDataManager());
 
 		// Set the LMS Error Manager from the DataModel Manager
 		errorManager.setCurrentErrorCode(dmErrorCode);
@@ -375,7 +374,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			return isSuccessful;
 		}
 
-		IDataManager dataManager = sessionBean.getDataManager();
+		IDataManager dataManager = scoBean.getDataManager();
 		
 		// Make sure param is empty string "" - as per the API spec
 		// Check for "null" is a workaround described in "Known Problems"
@@ -507,16 +506,18 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	}
 	
 	
-	private IDataManager initialize(SessionBean sessionBean) {
+	private IDataManager initialize(SessionBean sessionBean, ScoBean scoBean) {
 		log.debug("Service - Initialize");
 
 		boolean isNewDataManager = false;
         IDataManager dm = null;
         
+        long contentPackageId = sessionBean.getContentPackageId();
+        String activityId = sessionBean.getActivityId();
         String courseId = sessionBean.getCourseId();
-		String scoId = sessionBean.getScoId();
+		String scoId = scoBean.getScoId();
 		String learnerId = sessionBean.getLearnerId();
-		String title = sessionBean.getTitle();
+		String title = sessionBean.getActivityTitle();
 		
 		ILaunchData launchData = sessionBean.getLaunchData();
 		IValidRequests validRequests = sessionBean.getNavigationState();
@@ -524,17 +525,18 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
         
 		Attempt attempt = getAttempt(sessionBean);
 		
-		long dataManagerId = attempt.getDataManagerId();
+		//long dataManagerId = attempt.getDataManagerId();
 		
         // FIXME : We need to look in the db first -- but currently it doesn't seem that data is getting saved correctly
         // First, check to see if we have a ScoDataManager persisted
-        if (dataManagerId != -1)
-        	dm = dataManagerDao().load(dataManagerId);
-        	//dataManagerDao.find(courseId, userId, attemptNumber);
+        //if (dataManagerId != -1)
+        	//dm = dataManagerDao().load(dataManagerId);
+        
+		dm = dataManagerDao().find(courseId, scoId, learnerId, sessionBean.getAttemptNumber());
 
         if (dm == null) {
 	        // If not, create one, which means this is the 
-	        dm = new SCODataManager(courseId, learnerId, title, sessionBean.getAttemptNumber());
+	        dm = new SCODataManager(contentPackageId, courseId, scoId, activityId, learnerId, title, sessionBean.getAttemptNumber());
 	        dm.setValidatorFactory(new ValidatorFactory());
 
 	        //  Add a SCORM 2004 Data Model
@@ -676,7 +678,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
         
         persistDataManager(validRequests, dm);
         
-        attempt.setDataManagerId(dm.getId());
+        //attempt.setDataManagerId(dm.getId());
         attemptDao().save(attempt);
         
         return dm;
@@ -1107,7 +1109,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		ISeqActivity act = tree.getActivity(activityId);
 		
 		// Only modify the TM if the activity is tracked
-		if (act.getIsTracked()) {
+		if (act != null && act.getIsTracked()) {
 
 			// Update the activity's status
 			if (log.isDebugEnabled()) {
