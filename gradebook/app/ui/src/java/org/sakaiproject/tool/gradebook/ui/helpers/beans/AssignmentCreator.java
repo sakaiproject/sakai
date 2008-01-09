@@ -9,6 +9,7 @@ public class AssignmentCreator {
 		Assignment togo = new Assignment();
 		togo.setCounted(true);
 		togo.setReleased(true);
+		togo.setDueDate(new Date());
 		return togo;
 	}
 	
