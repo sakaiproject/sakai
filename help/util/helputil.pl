@@ -32,17 +32,16 @@ sub transform($$$)
 
 sub update_svn_collection ($$) 
 {
- my $svnrepo = $1;
- my $docrepo = $1;
+ my $svnrepo = shift;
+ my $docrepo = shift;
 
  # Match the pattern */src/*/*.html
 
  my @filelist = glob("$svnrepo/*/src/*/*.html");
-
  foreach my $helpfile (@filelist) {
     if ($helpfile =~ /\/([a-z]{4})\.html/) {
         my $fileid = $1;
-        if (-s "$DocRepo/$fileid.html") {
+        if (-s "$docrepo/$fileid.html") {
                 copy("$docrepo/$fileid.html", $helpfile);
         }
     }

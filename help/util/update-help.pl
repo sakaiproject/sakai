@@ -16,11 +16,21 @@ require '/usr/local/sakaihelp/helputil.pl';
 (my $username, my $password) = getKbAuth();
 
 my $KbBaseUrl = "http://remote.kb.iu.edu/REST/v0.2";
-my $docrepo = "/usr/local/sakaihelp/docs";
 
 my $xsl = "/usr/local/sakaihelp/util/kb-to-help.xsl";
 
-my $svnrepo = "/usr/local/sakaihelp/help_trunk";
+my $docrepo = $ARGV[0];
+my $svnrepo = $ARGV[1];
+my $preview = $ARGV[2];
+
+#my $docrepo = "/usr/local/sakaihelp/docs";
+#my $svnrepo = "/usr/local/sakaihelp/help_trunk";
+#my $preview = "sakai25";
+
+print "\nUsing documents in [$docrepo], svn repo [$svnrepo], preview [$preview]\n";
+
+die "Please specify document path." if $docrepo eq "";
+die "Please specify svn path." if $svnrepo eq "";
 
 my $svn_comment = "NOJIRA Update help docs (synchronize with IU KB)";
 my $svn_user = "stephen.marquard\@uct.ac.za";
@@ -43,8 +53,6 @@ my $docs_kb = $xml->XMLin("$docrepo/docs_kb.xml");
 
 my $newdocs_local = $xml->XMLin("$docrepo/newdocs.xml");
 my $newdocs_kb = $xml->XMLin("$docrepo/newdocs_kb.xml");
-
-my $check_preview = 0;
 
 # Fetch any update documents from docs or newdocs collections
 # - timestamp is newer, or file doesn't exist locally
@@ -88,9 +96,7 @@ foreach my $docid (keys %{$newdocs_kb->{document}})
 # Check every doc in docs to see if there's a preview version available
 # Slow but no more efficient way to do this
 
-my $preview = "sakai25";
-
-if ($check_preview) {
+if ($preview ne "") {
 
  foreach my $docid (keys %{$docs_kb->{document}})
    {
@@ -121,7 +127,7 @@ rename("$docrepo/newdocs_kb.xml","$docrepo/newdocs.xml");
 
 #### ----- Update the svn collection
 
-print "Updating svn collection: $svnrepo\n";
+print "Updating svn collection: $svnrepo from $docrepo\n";
 
 update_svn_collection($svnrepo, $docrepo);
 
