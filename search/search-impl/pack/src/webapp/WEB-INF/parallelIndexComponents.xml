@@ -439,6 +439,7 @@
     	destroy-method="destroy" >
 			<property name="journaledObject"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.journaledFSIndexStorage" /></property>
 			<property name="mergeUpdateManager"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.mergeUpdateManager" /></property>
+			<property name="optimizeUpdateManager" ><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.optimizeIndexManager" /></property>
     </bean>
     <!--
     local optimizer
