@@ -23,7 +23,9 @@ package org.sakaiproject.search.optimize.shared.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -119,6 +121,27 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 	 */
 	public void prepare(IndexTransaction transaction) throws IndexTransactionException
 	{
+		/* 
+		 * Merge Method 1
+		 * The merge operation takes a list of segments and merges from the oldest one to the newest one
+		 * into a temporary segment. Sweeping up all deleted documents allong the way.
+		 * 
+		 *  SAK-12668, discovered that this was inefficient, since the oldest segment is the largest segment
+		 *  It will be more efficient to start at the target and sweep backwards collecting the deleted 
+		 *  elements as we go, that way only the final merge will be expensive and should scale a little 
+		 *  better.
+		 *  
+		 *  The fix for SAK-12668 is to reverse the order of merge so we have to deal with a number of smaller
+		 *  segments and finally a single large merge operation.
+		 *  
+		 *  We may consider not merging if the segments are too big. 
+		 *  All we are trying to do is reduce the restart load, and not necessarilly the number of big 
+		 *  segments in the journal.
+		 * 
+		 *  I have checked the local index optimize which performs the operaiton in this way, except it
+		 *  does not need to perform the delete operations which have already been performed during the merge.
+		 * 
+		 */
 		IndexReader reader = null;
 		IndexWriter indexWriter = null;
 		try
@@ -147,28 +170,35 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 			indexWriter.setMergeFactor(50);
 			indexWriter.close();
 
-			for (File f : optimizableSegments)
+			Map<String, String> deleteReferences = new HashMap<String, String>();
+			
+			for ( int i = optimizableSegments.size()-1; i >= 0; i-- )
 			{
-				
-				// apply the deletes to everything that went before.
-				long start = System.currentTimeMillis();
-				reader = IndexReader.open(workingDirectory);
-				List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
-						.loadTransactionList(f);
+				File f = optimizableSegments.get(i);
+				Directory d = FSDirectory.getDirectory(f, false);
 
+				long start = System.currentTimeMillis();
+
+				// apply all the deletes from the later (already merged) segments to this segment
+				reader = IndexReader.open(d);
+				for ( String name : deleteReferences.values()) {
+					reader.deleteDocuments(new Term(SearchService.FIELD_REFERENCE, name ));
+				}
+				reader.close();
+				
+				// collect additional delete references
+				List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
+				.loadTransactionList(f);
 				for (SearchBuilderItem sbi : deleteDocuments)
 				{
 					if (SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()) ||
 							SearchBuilderItem.ACTION_ADD.equals(sbi.getSearchaction()))
 					{
-						reader.deleteDocuments(new Term(SearchService.FIELD_REFERENCE, sbi
-								.getName()));
+						deleteReferences.put(sbi.getName(), sbi.getName());
 					}
 				}
-				 
-				reader.close();
 
-				
+				// merge the next index into temporary space
 				indexWriter = new IndexWriter(workingDirectory, jtransaction.getAnalyzer(),
 						false);
 				indexWriter.setUseCompoundFile(true);
@@ -176,7 +206,6 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 				indexWriter.setMaxMergeDocs(50);
 				indexWriter.setMergeFactor(50);
 				
-				Directory d = FSDirectory.getDirectory(f, false);
 				indexWriter.addIndexes(new Directory[] { d });
 				
 				indexWriter.optimize();
@@ -185,37 +214,6 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 				long end = System.currentTimeMillis();
 				log.info("Merged SavePoint in "+(end-start)+" ms "+f.getPath());
 			}
-			
-			// apply the deletes to everything that went before
-			reader = IndexReader.open(workingDirectory);
-			List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
-					.loadTransactionList(targetSegment);
-
-			for (SearchBuilderItem sbi : deleteDocuments)
-			{
-				if (SearchBuilderItem.ACTION_DELETE.equals(sbi.getSearchaction()) ||
-						SearchBuilderItem.ACTION_ADD.equals(sbi.getSearchaction()))
-				{
-					reader.deleteDocuments(new Term(SearchService.FIELD_REFERENCE, sbi
-							.getName()));
-				}
-			}
-			reader.close();
-			
-			
-			indexWriter = new IndexWriter(workingDirectory, jtransaction.getAnalyzer(),
-					false);
-			indexWriter.setUseCompoundFile(true);
-			// indexWriter.setInfoStream(System.out);
-			indexWriter.setMaxMergeDocs(50);
-			indexWriter.setMergeFactor(50);
-			Directory d = FSDirectory.getDirectory(targetSegment, false);
-			reader = IndexReader.open(d);
-			indexWriter.addIndexes(new IndexReader[] { reader });
-			indexWriter.optimize();
-			indexWriter.close();
-			reader.close();
-
 		}
 		catch (IOException e)
 		{

@@ -65,9 +65,9 @@ public class JournalOptimizationTransactionListener implements
 		
 		jtransaction.setState(jms);
 
-		// set the last item to the target and the rest to the merge list
+		// set the last item to the target
+		// set the merge list to all the segments, the merge list is processed in reverse order
 		jtransaction.setTargetSavePoint(jms.mergeList.get(jms.mergeList.size() - 1));
-		jms.mergeList.remove(jms.mergeList.size() - 1);
 		jtransaction.setMergeList(jms.mergeList);
 
 	}
