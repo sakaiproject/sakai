@@ -54,6 +54,10 @@ public interface JournaledIndex extends JournaledObject
 
 	/**
 	 * get an index reader suitable for processing deletes
+	 * The underlying reader will be bound to the thread, and must be closed, but if closed
+	 * and annother thread is using it, it will not be closed immediately.
+	 * Although this is implementation specific the implementation should be thread safe.
+	 *
 	 * 
 	 * @return
 	 * @throws IOException
@@ -95,7 +99,7 @@ public interface JournaledIndex extends JournaledObject
 	void saveSegmentList() throws IOException;
 
 	/**
-	 * load the shared index reader
+	 * load the shared index reader, but dont return it or bind it to the current thread
 	 * 
 	 * @throws IOException
 	 */

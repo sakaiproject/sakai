@@ -223,11 +223,15 @@ public class JournaledFSIndexStorageUpdateTransactionListener implements
 			if (deleteIndexReader != null)
 			{
 				deleteIndexReader.close();
+			} else {
+				log.warn("No Delete Index Reader Found, possible open index leak ");
 			}
 			journaledIndex.setJournalIndexEntry(journalEntry);
 			journaledIndex.saveSegmentList();
-
-			journaledIndex.loadIndexReader();
+			// this will open the index but not bind it to the thread, hence if re-opened
+			// it will close imediately
+			journaledIndex.loadIndexReader(); 
+			
 		}
 		catch (IOException e)
 		{

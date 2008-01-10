@@ -39,6 +39,7 @@ import org.sakaiproject.search.indexer.impl.SearchBuilderQueueManager;
 import org.sakaiproject.search.indexer.impl.TransactionIndexManagerImpl;
 import org.sakaiproject.search.indexer.impl.TransactionalIndexWorker;
 import org.sakaiproject.search.journal.impl.DbJournalManager;
+import org.sakaiproject.search.journal.impl.IndexListenerCloser;
 import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorage;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorageUpdateTransactionListener;
@@ -49,6 +50,11 @@ import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
 import org.sakaiproject.search.mock.MockThreadLocalManager;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.search.optimize.api.OptimizableIndex;
+import org.sakaiproject.search.optimize.impl.OptimizableIndexImpl;
+import org.sakaiproject.search.optimize.impl.OptimizeIndexManager;
+import org.sakaiproject.search.optimize.impl.OptimizeTransactionListenerImpl;
+import org.sakaiproject.search.transaction.impl.LocalTransactionSequenceImpl;
 import org.sakaiproject.search.transaction.impl.TransactionSequenceImpl;
 import org.sakaiproject.search.util.FileUtils;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -79,6 +85,10 @@ public class MergeUpdateOperationTest extends TestCase
 
 	private ThreadLocalManager threadLocalManager;
 
+	private IndexListenerCloser indexListenerCloser;
+
+	private File localIndexHolder;
+
 	/**
 	 * @param name
 	 */
@@ -97,8 +107,9 @@ public class MergeUpdateOperationTest extends TestCase
 		super.setUp();
 		testBase = new File("target");
 		testBase = new File(testBase, "MergeUpdateOperationTest");
+		localIndexHolder = new File(testBase,"localindexholder");
 
-		String localIndexBase = new File(testBase,"local").getAbsolutePath();
+		String localIndexBase = new File(localIndexHolder,"local").getAbsolutePath();
 		String sharedJournalBase = new File(testBase,"shared").getAbsolutePath();
 
 		threadLocalManager = new MockThreadLocalManager();
@@ -153,8 +164,27 @@ public class MergeUpdateOperationTest extends TestCase
 		journaledFSIndexStorage.setRecoverCorruptedIndex(false);
 		journaledFSIndexStorage.setJournalSettings(journalSettings);
 		journaledFSIndexStorage.setServerConfigurationService(serverConfigurationService);
+		indexListenerCloser = new IndexListenerCloser();
+		journaledFSIndexStorage.addIndexListener(indexListenerCloser);
 		mu.setJournaledObject(journaledFSIndexStorage);
 		mu.setMergeUpdateManager(mergeUpdateManager);
+		
+		OptimizableIndexImpl optimizableIndex = new OptimizableIndexImpl();
+		optimizableIndex.setJournaledIndex(journaledFSIndexStorage);
+
+		
+		OptimizeTransactionListenerImpl otli = new OptimizeTransactionListenerImpl();
+		otli.setJournalSettings(journalSettings);
+		otli.setOptimizableIndex(optimizableIndex);
+
+		OptimizeIndexManager optimizeUpdateManager = new OptimizeIndexManager();
+		optimizeUpdateManager.setAnalyzerFactory(analyzerFactory);
+		optimizeUpdateManager.setJournalSettings(journalSettings);
+		optimizeUpdateManager.addTransactionListener(otli);
+		optimizeUpdateManager.setSequence(new LocalTransactionSequenceImpl());
+
+		
+		mu.setOptimizeUpdateManager(optimizeUpdateManager);
 
 		// index updater
 
@@ -223,19 +253,7 @@ public class MergeUpdateOperationTest extends TestCase
 	{
 		log.info("================================== " + this.getClass().getName()
 				+ ".testRunOnce");
-
-		List<SearchBuilderItem> items = tds.populateDocuments(1000,"mergeupdate");
-		int i = 0;
-		int n = 0;
-		while ((n = tiw.process(10)) > 0)
-		{
-			log.info("Processing " + i + " gave " + n);
-			assertEquals(
-					"Runaway Cyclic Indexing, should have completed processing by now ",
-					true, i < 500);
-			i++;
-		}
-		log.info("Indexing Complete at " + i + " with " + n);
+		List<SearchBuilderItem> items = populate(1000,100);
 
 		// need to populate the index with some data first.
 		mu.runOnce();
@@ -249,6 +267,56 @@ public class MergeUpdateOperationTest extends TestCase
 		log.info("==PASSED========================== " + this.getClass().getName()
 				+ ".testRunOnce");
 
+	}
+	
+	private List<SearchBuilderItem> populate(int nitems, int step) throws Exception {
+		List<SearchBuilderItem> items = tds.populateDocuments(nitems,"mergeupdate");
+		int i = 0;
+		int n = 0;
+		while ((n = tiw.process(step)) > 0)
+		{
+			log.info("Processing " + i + " gave " + n);
+			assertEquals(
+					"Runaway Cyclic Indexing, should have completed processing by now ",
+					true, i < 500);
+			i++;
+		}
+		log.info("Indexing Complete at " + i + " with " + n);
+		return items;
+		
+	}
+	
+	public void disableRecoveryMergeOperation() throws Exception  {
+		log.info("================================== " + this.getClass().getName()
+				+ ".testRevoceryMergeOperation");
+		List<SearchBuilderItem> items = populate(10000,2);
+		checkForOpenIndexes();
+		mu.runOnce();
+		checkForOpenIndexes();
+		// bin the local index storage space
+		FileUtils.deleteAll(localIndexHolder);
+		// bring up the merge operation and add some more items
+		mu.runOnce();
+		checkForOpenIndexes();
+		IndexSearcher indexSearcher = journaledFSIndexStorage.getIndexSearcher();
+		checkForOpenIndexes();
+		assertEquals("There were errors validating the index, check log ", 0,tds.checkIndexContents(items,indexSearcher));
+		log.info("==PASSED========================== " + this.getClass().getName()
+				+ ".testRevoceryMergeOperation");
+	}
+
+	/**
+	 * 
+	 */
+	private void checkForOpenIndexes()
+	{
+		int opened = indexListenerCloser.size();
+		if ( opened > 0 ) {
+			for ( String s : indexListenerCloser.getOpenIndexNames() ) {
+				log.info("Found Open index "+s);
+			}
+			fail("Leaking Open Indexes "+opened);
+		}
 	}
 
 }

@@ -170,7 +170,29 @@ public class OptimizeOperationTest extends TestCase
 		journaledFSIndexStorage.setJournalSettings(journalSettings);
 		journaledFSIndexStorage.setServerConfigurationService(serverConfigurationService);
 		mu.setJournaledObject(journaledFSIndexStorage);
+		
+		
+		
+		optimizableIndex = new OptimizableIndexImpl();
+		optimizableIndex.setJournaledIndex(journaledFSIndexStorage);
+
+		OptimizeTransactionListenerImpl otli = new OptimizeTransactionListenerImpl();
+		otli.setJournalSettings(journalSettings);
+		otli.setOptimizableIndex(optimizableIndex);
+
+		OptimizeIndexManager oum = new OptimizeIndexManager();
+		oum.setAnalyzerFactory(analyzerFactory);
+		oum.setJournalSettings(journalSettings);
+		oum.addTransactionListener(otli);
+		oum.setSequence(new LocalTransactionSequenceImpl());
+
+		oo = new OptimizeIndexOperation();
+		oo.setJournaledObject(journaledFSIndexStorage);
+		oo.setOptimizeUpdateManager(oum);
+		
 		mu.setMergeUpdateManager(mergeUpdateManager);
+		mu.setOptimizeUpdateManager(oum);
+		
 
 		journaledFSIndexStorage.addIndexListener(new IndexListenerCloser());
 		
@@ -214,22 +236,6 @@ public class OptimizeOperationTest extends TestCase
 
 		tiw.init();
 
-		optimizableIndex = new OptimizableIndexImpl();
-		optimizableIndex.setJournaledIndex(journaledFSIndexStorage);
-
-		OptimizeTransactionListenerImpl otli = new OptimizeTransactionListenerImpl();
-		otli.setJournalSettings(journalSettings);
-		otli.setOptimizableIndex(optimizableIndex);
-
-		OptimizeIndexManager oum = new OptimizeIndexManager();
-		oum.setAnalyzerFactory(analyzerFactory);
-		oum.setJournalSettings(journalSettings);
-		oum.addTransactionListener(otli);
-		oum.setSequence(new LocalTransactionSequenceImpl());
-
-		oo = new OptimizeIndexOperation();
-		oo.setJournaledObject(journaledFSIndexStorage);
-		oo.setOptimizeUpdateManager(oum);
 
 		oo.init();
 

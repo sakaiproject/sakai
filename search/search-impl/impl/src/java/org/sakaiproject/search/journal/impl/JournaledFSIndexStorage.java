@@ -67,16 +67,16 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
  * <pre>
- *                This is a Journaled savePoint of the local FSIndexStorage. It will merge in new
- *                savePoints from the jorunal. This is going to be performed in a non
- *                transactional way for the moment. 
- *                
- *                The index reader must maintain a single
- *                index reader for the JVM. When performing a read update, the single index
- *                reader must be used, but each time the index reader is provided we should
- *                check that the index reader has not been updated.
- *                
- *                If the reader is being updated, then it is not safe to reload it.
+ *                 This is a Journaled savePoint of the local FSIndexStorage. It will merge in new
+ *                 savePoints from the jorunal. This is going to be performed in a non
+ *                 transactional way for the moment. 
+ *                 
+ *                 The index reader must maintain a single
+ *                 index reader for the JVM. When performing a read update, the single index
+ *                 reader must be used, but each time the index reader is provided we should
+ *                 check that the index reader has not been updated.
+ *                 
+ *                 If the reader is being updated, then it is not safe to reload it.
  * </pre>
  * 
  * @author ieb
@@ -87,7 +87,6 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	private static final Log log = LogFactory.getLog(JournaledFSIndexStorage.class);
 
 	private static final String SEGMENT_LIST_NAME = "local-segments";
-
 
 	/**
 	 * Sakai config service
@@ -206,29 +205,30 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		else
 		{
 			log.info("No Segment List File Exists");
-			
-			
-			// If no segments list exists, we have to assume that this a clean node.
-			// we must, clean the index if it exists and delete the db record that records
-			// where this node is. 
-			
-			
+
+			// If no segments list exists, we have to assume that this a clean
+			// node.
+			// we must, clean the index if it exists and delete the db record
+			// that records
+			// where this node is.
+
 			File searchDirectory = new File(journalSettings.getSearchIndexDirectory());
-			if ( searchDirectory.exists() ) {
-				log.warn("Found Existing Search Directory with no local segment list, I will delete "+searchDirectory.getAbsolutePath());
+			if (searchDirectory.exists())
+			{
+				log
+						.warn("Found Existing Search Directory with no local segment list, I will delete "
+								+ searchDirectory.getAbsolutePath());
 				try
 				{
 					FileUtils.deleteAll(searchDirectory);
 				}
 				catch (IOException e)
 				{
-					log.warn("Unable to remove Existing Search Directory ",e);
+					log.warn("Unable to remove Existing Search Directory ", e);
 				}
 			}
 			deleteJournalSavePoint();
-			
-			
-			
+
 		}
 		// ensure that the index is closed to avoid stale locks
 		Runtime.getRuntime().addShutdownHook(new Thread()
@@ -259,42 +259,45 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	{
 		Connection connection = null;
 		PreparedStatement deleteJournalSavePointPst = null;
-		try
-		{
-			connection = datasource.getConnection();
-			deleteJournalSavePointPst = connection
-					.prepareStatement("delete from search_node_status where serverid = ? ");
-			deleteJournalSavePointPst.clearParameters();
-			deleteJournalSavePointPst.setString(1, serverId);
-			deleteJournalSavePointPst.executeUpdate();
-		}
-		catch (Exception ex)
-		{
-			log.warn("Unable to delete Search Jorunal SavePoint ", ex);
-		}
-		finally
+		if (datasource != null)
 		{
 			try
 			{
-				deleteJournalSavePointPst.close();
+				connection = datasource.getConnection();
+				deleteJournalSavePointPst = connection
+						.prepareStatement("delete from search_node_status where serverid = ? ");
+				deleteJournalSavePointPst.clearParameters();
+				deleteJournalSavePointPst.setString(1, serverId);
+				deleteJournalSavePointPst.executeUpdate();
 			}
 			catch (Exception ex)
 			{
+				log.warn("Unable to delete Search Jorunal SavePoint ", ex);
 			}
-			try
+			finally
 			{
-				connection.close();
-			}
-			catch (Exception ex)
-			{
+				try
+				{
+					deleteJournalSavePointPst.close();
+				}
+				catch (Exception ex)
+				{
+				}
+				try
+				{
+					connection.close();
+				}
+				catch (Exception ex)
+				{
+				}
 			}
 		}
 	}
 
 	/**
 	 * Since this is a singleton, we can cache the savePoint only updating on
-	 * change.
-	 * The Save Point is the number of the journal entry that this node has merged upto and including
+	 * change. The Save Point is the number of the journal entry that this node
+	 * has merged upto and including
 	 * 
 	 * @see org.sakaiproject.search.maintanence.impl.JournaledObject#getJounalSavePoint()
 	 */
@@ -459,8 +462,9 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		{
 			loadIndexSearcherInternal();
 		}
-		if ( indexSearcher instanceof ThreadBinder ) {
-			((ThreadBinder)indexSearcher).bind(threadLocalManager);
+		if (indexSearcher instanceof ThreadBinder)
+		{
+			((ThreadBinder) indexSearcher).bind(threadLocalManager);
 		}
 
 		return indexSearcher;
@@ -476,9 +480,8 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		if (tmpIndexReader != ir || indexSearcher == null)
 		{
 			long start = System.currentTimeMillis();
-			
-			
-			RefCountIndexSearcher newIndexSearcher = new RefCountIndexSearcher(ir,this);
+
+			RefCountIndexSearcher newIndexSearcher = new RefCountIndexSearcher(ir, this);
 			if (indexSearcher != null)
 			{
 				indexSearcher.close(); // this will be postponed
@@ -678,7 +681,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 						}
 						f3 = System.currentTimeMillis();
 					}
-				} 
+				}
 			}
 			else
 			{
@@ -697,8 +700,9 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 			log.info("Index Load aquire " + (r2 - r1) + " ms");
 			log.info("Read Lock Release " + (f3 - f3) + " ms");
 		}
-		if ( multiReader instanceof ThreadBinder ) {
-			((ThreadBinder)multiReader).bind(threadLocalManager);
+		if (multiReader instanceof ThreadBinder)
+		{
+			((ThreadBinder) multiReader).bind(threadLocalManager);
 		}
 		return multiReader;
 	}
@@ -764,7 +768,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 			i++;
 		}
 		RefCountMultiReader newMultiReader = new RefCountMultiReader(indexReaders, this);
-		
+
 		if (multiReader != null)
 		{
 			multiReader.close(); // this will postpone due to the override
@@ -1099,10 +1103,11 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	 */
 	protected void fireIndexReaderClose(IndexReader oldMultiReader) throws IOException
 	{
-		if ( oldMultiReader == multiReader ) {
+		if (oldMultiReader == multiReader)
+		{
 			multiReader = null;
 		}
-		
+
 		File[] f = toRemove.toArray(new File[toRemove.size()]);
 		for (Iterator<IndexListener> itl = getIndexListeners().iterator(); itl.hasNext();)
 		{
@@ -1386,10 +1391,12 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	{
 		this.journalSettings = journalSettings;
 	}
-	
-	public void markModified() throws IOException {
+
+	public void markModified() throws IOException
+	{
 		modified = true;
-		if ( multiReader != null ) {
+		if (multiReader != null)
+		{
 			multiReader.close();
 			multiReader = null;
 		}
@@ -1404,7 +1411,8 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	}
 
 	/**
-	 * @param threadLocalManager the threadLocalManager to set
+	 * @param threadLocalManager
+	 *        the threadLocalManager to set
 	 */
 	public void setThreadLocalManager(ThreadLocalManager threadLocalManager)
 	{
