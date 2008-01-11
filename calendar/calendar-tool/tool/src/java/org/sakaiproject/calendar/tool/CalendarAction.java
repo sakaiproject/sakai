@@ -5385,16 +5385,12 @@ extends VelocityPortletStateAction
 			// Add the desired alias (if changed)
 			if ( alias != null && (oldAlias == null || !oldAlias.equals(alias)) )
 			{
+				// first, clear any alias set to this calendar
+				AliasService.removeTargetAliases(calendarObj.getReference());
+				
             alias += ".ics";
 				AliasService.setAlias(alias, calendarObj.getReference());
-				if ( oldAlias != null )
-					AliasService.removeAlias(oldAlias+".ics");
 			}
-		}
-		catch (InUseException iue)
-		{
-			M_log.debug(".doIcalExport(): " + iue);
-			// just log and contine if alias can't be deleted
 		}
 		catch (IdUnusedException ie)
 		{
