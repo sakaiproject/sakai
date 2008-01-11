@@ -264,11 +264,55 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 			try
 			{
 				connection = datasource.getConnection();
-				deleteJournalSavePointPst = connection
-						.prepareStatement("delete from search_node_status where serverid = ? ");
-				deleteJournalSavePointPst.clearParameters();
-				deleteJournalSavePointPst.setString(1, serverId);
-				deleteJournalSavePointPst.executeUpdate();
+				boolean tableExists = false;
+				PreparedStatement checkJournalSavePoint = null;
+				ResultSet rs = null;
+				try
+				{
+					checkJournalSavePoint = connection
+							.prepareStatement("select count(*) from search_node_status ");
+					rs = checkJournalSavePoint.executeQuery();
+					if (rs.next())
+					{
+						tableExists = true;
+					}
+				}
+				catch (Exception ex)
+				{
+					if (log.isDebugEnabled())
+					{
+						log
+								.debug(
+										"Failed to check for existance of table, this is Ok on first start ",
+										ex);
+					}
+				}
+				finally
+				{
+					try
+					{
+						rs.close();
+					}
+					catch (Exception ex)
+					{
+
+					}
+					try
+					{
+						checkJournalSavePoint.close();
+					}
+					catch (Exception ex)
+					{
+					}
+				}
+				if (tableExists)
+				{
+					deleteJournalSavePointPst = connection
+							.prepareStatement("delete from search_node_status where serverid = ? ");
+					deleteJournalSavePointPst.clearParameters();
+					deleteJournalSavePointPst.setString(1, serverId);
+					deleteJournalSavePointPst.executeUpdate();
+				}
 			}
 			catch (Exception ex)
 			{
