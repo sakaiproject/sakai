@@ -46,6 +46,9 @@ public class SegmentListWriter
 	public void write(List<File> segments) throws IOException
 	{
 		
+		if ( ! out.exists() && !out.getParentFile().exists() ) {
+			out.getParentFile().mkdirs();
+		}
 		FileOutputStream fout = new FileOutputStream(out);
 		DataOutputStream dout = new DataOutputStream(fout);
 		dout.write(SegmentListStore.SEGMENT_LIST_SIGNATURE);

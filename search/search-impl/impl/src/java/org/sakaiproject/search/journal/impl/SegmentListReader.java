@@ -32,6 +32,7 @@ import java.util.List;
  * @author ieb
  *
  */
+
 public class SegmentListReader
 {
 	private File in;
@@ -41,6 +42,9 @@ public class SegmentListReader
 	public List<File> read() throws IOException
 	{
 		List<File> segments = new ArrayList<File>();
+		if ( !in.exists() ) {
+			return segments;
+		}
 		FileInputStream fout = new FileInputStream(in);
 		DataInputStream din = new DataInputStream(fout);
 		byte[] sig = new byte[SegmentListStore.SEGMENT_LIST_SIGNATURE.length];
