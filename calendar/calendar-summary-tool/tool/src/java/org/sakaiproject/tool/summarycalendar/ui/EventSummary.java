@@ -157,6 +157,7 @@ public class EventSummary implements Serializable {
 	}
 
 	private String getTruncated(String str) {
+		if(str == null) return "";
 		if(str.length() < MAX_TEXT_SIZE) return str;
 		return str.substring(0, MAX_TEXT_SIZE).concat("...");
 	}
@@ -182,9 +183,13 @@ public class EventSummary implements Serializable {
 	}
 
 	public void setAttachments(List attachments) {
-		setHasAttachments(attachments.size() > 0); 
-		this.attachments = attachments;
+		setHasAttachments(attachments != null || attachments.size() > 0); 
 		this.attachmentsWrp = new ArrayList();
+		if(attachments == null){
+			attachments		= new ArrayList();
+			return;
+		}
+		this.attachments = attachments;
 		Iterator it = attachments.iterator();
 		while(it.hasNext()){
 			Reference ref = (Reference) it.next();
