@@ -97,9 +97,7 @@
 		
 		<h4>
 			$tlang.getString("custom.rss_option") 
-			#if ($displayOptions.isRssEnable())
-			<a href="$!rssUrl" target="_new_">$rssUrl</a>
-			#end
+			<i>$tlang.getString("custom.rss_public")</i>
 		</h4>
 		<p class="shorttext indnt2">
 			<label for ="rssAlias">
@@ -109,14 +107,12 @@
 		</p>
 		
 		<p class="shorttext indnt2">
-			<label for ="$displayOptions.getVarNameRssEnable()">
-				$tlang.getString("custom.rss_enable")
+			<label>
+				$tlang.getString("custom.rss_url")
 			</label>
-			<input type="checkbox" value="true"
-					name="$displayOptions.getVarNameRssEnable()" id="$displayOptions.getVarNameRssEnable()" 
-					#if ($displayOptions.isRssEnable()) checked #end />
+			<a target="_blank" href="$!rssUrl" target="_new_">$rssUrl</a>
 		</p>
-		 
+		
 	<!-- end of announcement options -->
 
 	#else

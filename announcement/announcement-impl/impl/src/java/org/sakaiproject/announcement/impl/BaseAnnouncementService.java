@@ -21,6 +21,8 @@
 
 package org.sakaiproject.announcement.impl;
 
+import java.io.Writer;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.util.Collection;
@@ -29,6 +31,8 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Date;
+import java.text.DateFormat;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -72,6 +76,7 @@ import org.sakaiproject.message.api.MessageChannel;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.message.api.MessageHeaderEdit;
 import org.sakaiproject.message.impl.BaseMessageService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -82,8 +87,22 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * <p>
@@ -98,6 +117,10 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 
 	/** Messages, for the http access. */
 	protected static ResourceLoader rb = new ResourceLoader("annc-access");
+	
+	// XML DocumentBuilder and Transformer for RSS Feed
+	private DocumentBuilder docBuilder = null;
+	private Transformer docTransformer = null;
 	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -160,6 +183,16 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			// entity producer registration
 			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
+			// create DocumentBuilder for RSS Feed
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setIgnoringComments(true);  // ignore comments
+			factory.setNamespaceAware(true);		// namespace aware should be true
+			factory.setValidating(false);		   // we're not validating
+			docBuilder = factory.newDocumentBuilder();
+			
+			TransformerFactory tFactory = TransformerFactory.newInstance();
+			docTransformer = tFactory.newTransformer();
+			
 			M_log.info("init()");
 		}
 		catch (Throwable t)
@@ -525,6 +558,36 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 					M_log.warn("parse(): unknown message subtype: " + subType + " in ref: " + reference);
 			}
 
+			// Translate context alias into site id if necessary
+			if ((context != null) && (context.length() > 0))
+			{
+				if (!m_siteService.siteExists(context))
+				{
+					try
+					{
+						String aliasTarget = AliasService.getTarget(context);
+						if (aliasTarget.startsWith(REFERENCE_ROOT)) // only support announcement aliases
+						{
+							parts = StringUtil.split(aliasTarget, Entity.SEPARATOR);
+							if (parts.length > 3)
+								context = parts[3];
+						}
+					}
+					catch (Exception e)
+					{
+						M_log.debug(this+".parseEntityReference(): "+e.toString());
+						return false;
+					}
+				}
+			}
+
+         // if context still isn't valid, then no valid alias or site was specified
+			if (!m_siteService.siteExists(context))
+			{
+				M_log.warn(this+".parseEntityReference() no valid site or alias: " + context);
+				return false;
+			}
+
 			ref.set(APPLICATION_ID, subType, id, container, context);
 
 			return true;
@@ -607,16 +670,119 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 		return toolIds;
 	}
 	
+	
 	/**
-	 **
+	 ** Generate RSS Item element for specified assignment
 	 **/
-	protected void printAnnouncementRss( PrintWriter out, Reference ref)
+	protected Element generateItemElement( Document doc, AnnouncementMessage msg, Reference msgRef )
 	{
-	   out.print("<html><body><h1>This could be an RSS feed<h1></body></html>");
+			Element item = doc.createElement("item");
+			
+			Element el = doc.createElement("title");
+			el.appendChild(doc.createTextNode( msg.getAnnouncementHeader().getSubject() ));
+			item.appendChild(el);
+						
+			el = doc.createElement("author");
+			el.appendChild(doc.createTextNode( msg.getHeader().getFrom().getEmail() ));
+			item.appendChild(el);
+			
+			el = doc.createElement("link");
+			el.appendChild(doc.createTextNode( msgRef.getUrl() )); 
+			item.appendChild(el);
+			
+			el = doc.createElement("description");
+			el.appendChild(doc.createTextNode( msg.getBody()) );
+			item.appendChild(el);
+			
+			el = doc.createElement("pubDate");
+			el.appendChild(doc.createTextNode( msg.getHeader().getDate().toStringLocalFullZ() ));
+			item.appendChild(el);
+			
+			// attachments
+			List attachments = msg.getAnnouncementHeader().getAttachments();
+			if (attachments.size() > 0)
+			{
+				for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
+				{
+					Reference attachment = (Reference) iAttachments.next();
+					el = doc.createElement("enclosure");
+					el.setAttribute("url",attachment.getUrl());
+					el.setAttribute("type",attachment.getType());
+					item.appendChild(el);
+				}
+			}
+			
+			return item;
+	}
+	
+	/**
+	 ** Print all Announcements as RSS Feed
+	 **/
+	protected void printAnnouncementRss( OutputStream out, Reference rssRef )
+	{
+		try
+		{
+			Site site = m_siteService.getSite(rssRef.getContext());
+			Document doc = docBuilder.newDocument();
+			
+			Element root = doc.createElement("rss");
+			root.setAttribute("version","2.0");
+			doc.appendChild(root);
+			
+			Element channel = doc.createElement("channel");
+			root.appendChild(channel);
+			
+			// add title
+			Element el = doc.createElement("title");
+			el.appendChild(doc.createTextNode("Announcements for "+site.getTitle()));
+			channel.appendChild(el);
+			
+			// add description
+			el = doc.createElement("description");
+			String desc = (site.getDescription()!=null)?site.getDescription():site.getTitle();
+			el.appendChild(doc.createTextNode(desc));
+			channel.appendChild(el);
+			
+			// add link
+			el = doc.createElement("link");
+			String siteUrl = m_serverConfigurationService.getPortalUrl() + site.getReference();
+			el.appendChild(doc.createTextNode(siteUrl)); 
+			channel.appendChild(el);
+			
+			// add lastBuildDate
+			el = doc.createElement("lastBuildDate");
+			String now = DateFormat.getDateInstance(DateFormat.FULL).format( new Date() );
+			el.appendChild(doc.createTextNode( now )); 
+			channel.appendChild(el);
+			
+			// add generator
+			el = doc.createElement("generator");
+			el.appendChild(doc.createTextNode("Sakai Announcements RSS Generator")); 
+			channel.appendChild(el);
+			
+			// get list of public announcements
+			AnnouncementChannel anncChan = (AnnouncementChannel)getChannelPublic( channelReference(rssRef.getContext(), SiteService.MAIN_CONTAINER) );
+			List anncList = anncChan.getMessagesPublic(null,false);
+			
+			for ( Iterator it=anncList.iterator(); it.hasNext(); )
+			{
+				AnnouncementMessage msg = (AnnouncementMessage)it.next();
+				Reference msgRef = m_entityManager.newReference( msg.getReference() );
+				
+				Element item = generateItemElement( doc, msg, msgRef );
+				channel.appendChild(item);
+			}
+			
+			docTransformer.transform( new DOMSource(doc), new StreamResult(out) );
+		}
+		catch (Exception e)
+		{
+			M_log.warn(this+"printAnnouncementRss ", e);
+		}
 	}
 
 	/**
-	 **
+	 ** Print specified Announcement as HTML Page
 	 **/
 	protected void printAnnouncementHtml( PrintWriter out, Reference ref )
 		throws EntityPermissionException, EntityNotDefinedException
@@ -690,17 +856,16 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 						
 				try
 				{
-					PrintWriter out = res.getWriter();
 					if ( REF_TYPE_MESSAGE.equals(ref.getSubType()) )
 					{
 						res.setContentType("text/html; charset=UTF-8");
-						printAnnouncementHtml( out, ref );
+						printAnnouncementHtml( res.getWriter(), ref );
 					}
 					else
 					{
-						// tbd
-						res.setContentType("text/html; charset=UTF-8");
-						printAnnouncementRss( out, ref );
+						res.setContentType("application/xml"); 
+						res.setCharacterEncoding("UTF-8");
+						printAnnouncementRss( res.getOutputStream(), ref );
 					}
 				}
 				catch ( IOException e )
@@ -1056,7 +1221,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			return super.getMessages(filter, ascending);
 
 		} // getMessages
-
+		
 		/**
 		 * A (AnnouncementMessageEdit) cover for editMessage. Return a specific channel message, as specified by message name, locked for update. Must commitEdit() to make official, or cancelEdit() when done!
 		 * 

@@ -4203,16 +4203,12 @@ public class AnnouncementAction extends PagedResourceActionII
 			// Add the desired alias (if changed)
 			if ( alias != null && (oldAlias == null || !oldAlias.equals(alias)) )
 			{
+				// first, clear any alias set to this channel
+				AliasService.removeTargetAliases(anncRef.getReference());
+					
             alias += ".rss";
 				AliasService.setAlias(alias, anncRef.getReference());
-				if ( oldAlias != null )
-					AliasService.removeAlias(oldAlias+".rss");
 			}
-		}
-		catch (InUseException iue)
-		{
-			M_log.debug(this+".doOptionsUpdate  " + iue);
-			// just log and contine if alias can't be deleted
 		}
 		catch (IdUsedException ue)
 		{
