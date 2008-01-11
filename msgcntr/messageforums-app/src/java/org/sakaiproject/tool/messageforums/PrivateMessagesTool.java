@@ -464,12 +464,10 @@ public class PrivateMessagesTool
   }
   
   public Boolean getPvtSendEmailOut() {
-	  if(area != null) {
-		  return area.getSendEmailOut();
+	  if(area == null) {
+		  initializePrivateMessageArea();
 	  }
-	  else {
-		  return Boolean.TRUE;
-	  }
+	  return area.getSendEmailOut();
   }
   
   //Return decorated Forum
