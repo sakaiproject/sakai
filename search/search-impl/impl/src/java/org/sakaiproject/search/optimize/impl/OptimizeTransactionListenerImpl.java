@@ -129,7 +129,7 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 	public void open(IndexTransaction transaction) throws IndexTransactionException
 	{
 		File[] optimzableSegments = optimizableIndex.getOptimizableSegments();
-		if (optimzableSegments.length < journalSettings.getOptimizMergeSize())
+		if (optimzableSegments.length < journalSettings.getOptimizeMergeSize())
 		{
 			throw new NoOptimizationRequiredException();
 		}

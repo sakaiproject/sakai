@@ -109,7 +109,7 @@ public class TransactionalIndexWorkerTest extends TestCase
 		journalSettings.setLocalIndexBase(localIndexBase);
 		journalSettings.setSharedJournalBase(sharedJournalBase);
 		journalSettings.setMinimumOptimizeSavePoints(5);
-		journalSettings.setOptimizMergeSize(5);
+		journalSettings.setOptimizeMergeSize(5);
 		journalSettings.setSoakTest(true);
 
 

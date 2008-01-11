@@ -139,7 +139,7 @@ public class SearchIndexerNode
 		journalSettings.setLocalIndexBase(localIndexBase);
 		journalSettings.setSharedJournalBase(sharedJournalBase);
 		journalSettings.setMinimumOptimizeSavePoints(20);
-		journalSettings.setOptimizMergeSize(1000);
+		journalSettings.setOptimizeMergeSize(1000);
 		journalSettings.setSoakTest(true);
 
 		tds = new SharedTestDataSource(base, 10, false, driver, url, userame, password);

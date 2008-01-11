@@ -36,7 +36,7 @@ public class JournalSettings
 
 	private String sharedOptimizeWorkingSpace;
 
-	private int optimizMergeSize;
+	private int optimizeMergeSize;
 
 	private String optimizerWorkingDirectory;
 
@@ -157,9 +157,9 @@ public class JournalSettings
 	/**
 	 * @return
 	 */
-	public int getOptimizMergeSize()
+	public int getOptimizeMergeSize()
 	{
-		return optimizMergeSize;
+		return optimizeMergeSize;
 	}
 
 	/**
@@ -191,9 +191,9 @@ public class JournalSettings
 	 * @param optimizMergeSize
 	 *        the optimizMergeSize to set
 	 */
-	public void setOptimizMergeSize(int optimizMergeSize)
+	public void setOptimizeMergeSize(int optimizeMergeSize)
 	{
-		this.optimizMergeSize = optimizMergeSize;
+		this.optimizeMergeSize = optimizeMergeSize;
 	}
 
 	/**

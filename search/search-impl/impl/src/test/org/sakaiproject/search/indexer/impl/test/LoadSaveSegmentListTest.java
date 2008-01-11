@@ -83,7 +83,7 @@ public class LoadSaveSegmentListTest extends TestCase
 		journalSettings.setLocalIndexBase(localIndexBase.getAbsolutePath());
 		journalSettings.setSharedJournalBase(sharedJournalBase.getAbsolutePath());
 		journalSettings.setMinimumOptimizeSavePoints(5);
-		journalSettings.setOptimizMergeSize(5);
+		journalSettings.setOptimizeMergeSize(5);
 		journalSettings.setSoakTest(true);
 
 		

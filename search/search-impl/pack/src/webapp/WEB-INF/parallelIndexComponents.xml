@@ -32,7 +32,7 @@
 		<property name="localIndexBase" ><value>${sakai.home}indexwork</value></property>
 		<property name="sharedJournalBase" ><value>${sakai.home}searchjournal</value></property>
 		<property name="minimumOptimizeSavePoints" ><value>10</value></property>
-		<property name="optimizMergeSize" ><value>5</value></property>
+		<property name="optimizeMergeSize" ><value>5</value></property>
 		<property name="soakTest" ><value>false</value></property>		
 	</bean>
 	
