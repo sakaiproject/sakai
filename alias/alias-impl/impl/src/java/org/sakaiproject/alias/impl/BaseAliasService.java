@@ -210,6 +210,13 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			return siteService().allowUpdateSite(ref.getContext());
 		}
 
+		// TODO: fake this dependency (AnnouncementService.APPLICATION_ID) to keep the announcement dependencies away 
+		else if (ref.getType().equals("sakai:announcement"))
+		{
+			// base this on site update, too
+			return siteService().allowUpdateSite(ref.getContext());
+		}
+
 		return false;
 
 	} // unlockTargetCheck
