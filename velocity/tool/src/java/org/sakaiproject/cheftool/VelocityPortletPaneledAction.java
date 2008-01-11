@@ -602,7 +602,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 			{
 				String xtra = "";
 				if (e2.getCause() != null) xtra = " (Caused by " + e2.getCause() + ")";
-				M_log.warn("Exception calling method " + methodName + " " + e2 + xtra);
+				M_log.warn("Exception calling method " + methodName + " " + e2 + xtra, e2);
 
 			}
 		}
@@ -614,7 +614,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		{
 			String xtra = "";
 			if (e.getCause() != null) xtra = " (Caused by " + e.getCause() + ")";
-			M_log.warn("Exception calling method " + methodName + " " + e + xtra);
+			M_log.warn("Exception calling method " + methodName + " " + e + xtra, e);
 		}
 
 	} // actionDispatch
