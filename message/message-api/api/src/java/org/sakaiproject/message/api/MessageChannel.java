@@ -135,6 +135,19 @@ public interface MessageChannel extends Entity
 	List getMessages(Filter filter, boolean ascending) throws PermissionException;
 
 	/**
+	 * Return a list of all public messages in the channel. 
+	 * The order in which the messages will be found in the iteration is by date, 
+	 * oldest first if ascending is true, newest first if ascending is false.
+	 * 
+	 * @param filter
+	 *        Optional additional filtering object to accept messages, or null
+	 * @param ascending
+	 *        Order of messages, ascending if true, descending if false
+	 * @return a list of channel Message objects or specializations of Message objects (may be empty).
+	 */
+	List getMessagesPublic(Filter filter, boolean ascending);
+
+	/**
 	 * Return a specific channel message, as specified by message name.
 	 * 
 	 * @param messageId

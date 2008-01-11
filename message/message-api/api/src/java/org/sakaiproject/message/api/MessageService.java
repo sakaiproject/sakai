@@ -107,6 +107,17 @@ public interface MessageService extends EntityProducer, EntitySummary
 	public MessageChannel getChannel(String ref) throws IdUnusedException, PermissionException;
 
 	/**
+	 * Find the channel, in cache or info store - cache it if newly found.
+	 * 
+	 * Warning: No check is made on channel permissions -- caller should filter for public messages
+	 * 
+	 * @param ref
+	 *        The channel reference.
+	 * @return The channel, if found.
+	 */
+	public MessageChannel getChannelPublic(String ref);
+	
+	/**
 	 * check permissions for addChannel().
 	 * 
 	 * @param ref

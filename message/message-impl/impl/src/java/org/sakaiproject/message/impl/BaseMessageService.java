@@ -762,6 +762,20 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	} // getChannel
 
 	/**
+	 * Return a specific channel
+	 * 
+	 * Warning: No check is made on channel permissions -- caller should filter for public messages
+	 * 
+	 * @param ref
+	 *        The channel reference.
+	 * @return The channel, if found.
+	 */
+	public MessageChannel getChannelPublic(String ref)
+	{
+		return findChannel(ref);
+	}
+	
+	/**
 	 * Find the channel, in cache or info store - cache it if newly found.
 	 * 
 	 * @param ref
@@ -1558,7 +1572,10 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// otherwise a message
 			else if (REF_TYPE_MESSAGE.equals(ref.getSubType()))
 			{
-				Message message = getMessage(ref);
+				MessageChannel c = findChannel(channelReference(ref.getContext(), ref.getContainer()));
+				if (c == null)
+					throw new IdUnusedException(ref.getContainer());
+				Message message = ((BaseMessageChannelEdit) c).findMessage(ref.getId());
 				url = message.getUrl();
 			}
 
@@ -2432,6 +2449,24 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			return findFilterMessages(filter, ascending);
 
 		} // getMessages
+
+		/**
+		 * Return a list of all public messages in the channel. 
+		 * The order in which the messages will be found in the iteration is by date, 
+		 * oldest first if ascending is true, newest first if ascending is false.
+		 * 
+		 * @param filter
+		 *        Optional additional filtering object to accept messages, or null
+		 * @param ascending
+		 *        Order of messages, ascending if true, descending if false
+		 * @return a list of channel Message objects or specializations of Message objects (may be empty).
+		 */
+		public List getMessagesPublic(Filter filter, boolean ascending)
+		{
+			return findFilterMessages(new PublicFilter(filter), ascending);
+
+		} // getMessagesPublic
+
 
 		/**
 		 * Return a specific channel message, as specified by message name.
@@ -4647,5 +4682,50 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
     	}
 
 
+	/**
+	 * A filter that will reject messages which are not public 
+	 */
+	protected class PublicFilter implements Filter
+	{
+		/** The other filter to check with. May be null. */
+		protected Filter m_filter = null;
+
+		/**
+		 * Constructor
+		 * 
+		 * @param filter
+		 *        The other filter we check with.
+		 */
+		public PublicFilter(Filter filter)
+		{
+			m_filter = filter;
+
+		} // PublicFilter
+
+		/**
+		 * Does this object satisfy the criteria of the filter?
+		 * 
+		 * @return true if the object is accepted by the filter, false if not.
+		 */
+		public boolean accept(Object o)
+		{
+			// reject if not a public message
+			if (o instanceof Message)
+			{
+				Message msg = (Message) o;
+				if (msg.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null ||
+					 !msg.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
+					return false;
+			}
+				
+			// next, use the specified filter, if present
+			if (m_filter != null) 
+				return m_filter.accept(o);
+
+			return true;
+
+		} // accept
+
+	} // PublicFilter
 
 }
