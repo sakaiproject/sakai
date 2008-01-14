@@ -22,6 +22,7 @@
 
 		<category name="course" />
 		<category name="project" />
+		<category name="portfolio" />
 
 		<!-- It would be good to separate "site.visit" and "site.read" so site.visit controls
 		     visiting the site and site.read controls the right to read site information.
