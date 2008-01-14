@@ -233,7 +233,11 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 										topic_data.setAttribute(DRAFT, topic.getDraft().toString());
 										topic_data.setAttribute(LOCKED, topic.getLocked().toString());
 										topic_data.setAttribute(MODERATED, topic.getModerated().toString());
-
+										if (topic.getSortIndex() != null) {
+											topic_data.setAttribute(SORT_INDEX, topic.getSortIndex().toString());
+										} else {
+											topic_data.setAttribute(SORT_INDEX, "");
+										}
 										Element topic_properties = doc.createElement(PROPERTIES);
 										Element topic_short_desc = doc.createElement(PROPERTY);
 
@@ -498,6 +502,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 							newTopic.setLocked(fromTopic.getLocked());
 							newTopic.setDraft(fromTopic.getDraft());
 							newTopic.setModerated(fromTopic.getModerated());
+							newTopic.setSortIndex(fromTopic.getSortIndex());
 
 							// Get/set the topic's permissions
 							Set topicMembershipItemSet = fromTopic.getMembershipItemSet();
@@ -716,6 +721,16 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 														dfTopic.setModerated(new Boolean(topicModerated));
 													else
 														dfTopic.setModerated(Boolean.FALSE);
+													
+													String sortIndex = forumChildElement.getAttribute(SORT_INDEX);
+													if (sortIndex != null) {
+														try {
+															Integer sortIndexAsInt = new Integer(sortIndex);
+															dfTopic.setSortIndex(sortIndexAsInt);
+														} catch (NumberFormatException nfe) {
+															dfTopic.setSortIndex(null);
+														}
+													}
 
 													NodeList topicPropertiesNodes = forumChildElement.getChildNodes();
 													for(int m=0; m<topicPropertiesNodes.getLength(); m++)
