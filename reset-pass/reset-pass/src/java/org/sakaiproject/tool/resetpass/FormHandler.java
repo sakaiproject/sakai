@@ -100,7 +100,9 @@ public class FormHandler {
 			buff.append(messageLocator.getMessage("mailBody1",new Object[]{productionSiteName, serverConfigurationService.getPortalUrl()})+ "\n\n");
 			buff.append(messageLocator.getMessage("mailBody2",new Object[]{userE.getEid()})+ "\n");
 			buff.append(messageLocator.getMessage("mailBody3",new Object[]{pass})+ "\n\n");
-			buff.append(messageLocator.getMessage("mailBody4",new Object[]{serverConfigurationService.getString("support.email")}) + "\n\n");
+			
+			if (serverConfigurationService.getString("support.email", null) != null )
+				buff.append(messageLocator.getMessage("mailBody4",new Object[]{serverConfigurationService.getString("support.email")}) + "\n\n");
 			
 			m_log.debug(messageLocator.getMessage("mailBody1",new Object[]{productionSiteName}));
 			buff.append(messageLocator.getMessage("mailBodySalut")+"\n");
@@ -109,10 +111,8 @@ public class FormHandler {
 			String body = buff.toString();
 			m_log.debug("body: " + body);
 			
-			Collection vals = new ArrayList();
-			vals.add(serverConfigurationService.getString("ui.service", "Sakai Bassed Service"));
-			emailService.send(from,userBean.getUser().getEmail(),messageLocator.getMessage("mailSubject", vals),body,
-					userBean.getUser().getEmail(),userBean.getUser().getEmail(),null);
+			emailService.send(from,userBean.getUser().getEmail(),messageLocator.getMessage("mailSubject", new Object[]{productionSiteName}),body,
+					userBean.getUser().getEmail(), null, null);
           
 			m_log.info("New password emailed to: " + userE.getEid() + " (" + userE.getId() + ")");
 			eventService.post(eventService.newEvent("user.resetpass", userE.getReference() , true));
