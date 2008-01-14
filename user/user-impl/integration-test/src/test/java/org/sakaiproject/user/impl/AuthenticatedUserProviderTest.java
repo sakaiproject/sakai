@@ -34,7 +34,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.test.SakaiTestBase;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.user.api.AuthenticatedUserProvider;
@@ -57,7 +56,6 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 	// These services are only used to clear out various caches to make sure
 	// we're fetching from the DB.
 	private ThreadLocalManager threadLocalManager;
-	private MemoryService memoryService;
 	
 	/**
 	 * A complete integration test run is a lot of overhead to take on for
@@ -105,7 +103,6 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 		log.debug("Setting up UserDirectoryServiceIntegrationTest");		
 		userDirectoryService = (UserDirectoryService)getService(UserDirectoryService.class.getName());
 		threadLocalManager = (ThreadLocalManager)getService(ThreadLocalManager.class.getName());
-		memoryService = (MemoryService)getService(MemoryService.class.getName());
 	}
 	
 	public void testLocalUserFallThrough() throws Exception {
@@ -263,10 +260,10 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 					user = userDirectoryService.editUser(user.getId());
 					user.setLastName("Last Name, Jr.");
 					userDirectoryService.commitEdit(user);
-					securityService.clearAdvisors();
 				} catch (Exception e) {
 					log.warn(e);
-					return null;
+				} finally {
+					securityService.clearAdvisors();
 				}
 			} catch (UserNotDefinedException e) {
 				try {
@@ -280,10 +277,10 @@ public class AuthenticatedUserProviderTest extends SakaiTestBase {
 						}
 					});
 					user = (UserEdit)userDirectoryService.addUser(null, eid, "First", "Last Name, Sr.", "eid@somewhere.edu", password, "Student", null);
-					securityService.clearAdvisors();
 				} catch (Exception e1) {
 					log.warn(e1);
-					return null;
+				} finally {
+					securityService.clearAdvisors();
 				}
 			}
 			return user;			
