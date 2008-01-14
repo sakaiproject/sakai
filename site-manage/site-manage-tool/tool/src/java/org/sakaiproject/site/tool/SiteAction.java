@@ -521,6 +521,9 @@ public class SiteAction extends PagedResourceActionII {
 
 	public static final String SITE_CREATE_CURRENT_STEP = "site_create_current_step";
 
+	// types of site whose title can be editable
+	public static final String TITLE_EDITABLE_SITE_TYPE = "title_editable_site_type";
+
 	// types of site where site view roster permission is editable
 	public static final String EDIT_VIEW_ROSTER_SITE_TYPE = "edit_view_roster_site_type";
 
@@ -690,6 +693,14 @@ public class SiteAction extends PagedResourceActionII {
 								.getStrings("gradToolsSiteType")));
 			}
 			state.setAttribute(GRADTOOLS_SITE_TYPES, gradToolsSiteTypes);
+		}
+		
+		if (ServerConfigurationService.getStrings("titleEditableSiteType") != null) {
+			state.setAttribute(TITLE_EDITABLE_SITE_TYPE, new ArrayList(Arrays
+					.asList(ServerConfigurationService
+							.getStrings("titleEditableSiteType"))));
+		} else {
+			state.setAttribute(TITLE_EDITABLE_SITE_TYPE, new Vector());
 		}
 
 		if (state.getAttribute(EDIT_VIEW_ROSTER_SITE_TYPE) == null) {
@@ -1120,7 +1131,6 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			context.put("siteTypes", state.getAttribute(STATE_SITE_TYPES));
 			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-
 			context.put("type", siteType);
 
 			if (siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
@@ -1815,7 +1825,7 @@ public class SiteAction extends PagedResourceActionII {
 			siteProperties = site.getProperties();
 
 			context.put("title", state.getAttribute(FORM_SITEINFO_TITLE));
-
+			context.put("titleEditableSiteType", state.getAttribute(TITLE_EDITABLE_SITE_TYPE));
 			context.put("type", site.getType());
 
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
