@@ -27,7 +27,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -85,10 +87,15 @@ public class DbJournalOptimizationManager implements JournalManager
 		OptimizeJournalManagerStateImpl ojms = (OptimizeJournalManagerStateImpl) jms;
 		PreparedStatement success = null;
 		PreparedStatement updateTarget = null;
+		Connection connection = null;
 		try
 		{
+			connection = datasource.getConnection();
 			// set the target to committed and then delete the rest
-			updateTarget = ojms.connection
+			// so the final segment becomes commtted with a writer id of
+			// this+txiD,
+			// and all merging-prepare states in this transaction are removed.
+			updateTarget = connection
 					.prepareStatement("update search_journal set status = 'commited', txts = ? where txid = ?  ");
 			updateTarget.clearParameters();
 			updateTarget.setLong(1, System.currentTimeMillis());
@@ -96,18 +103,19 @@ public class DbJournalOptimizationManager implements JournalManager
 			int i = updateTarget.executeUpdate();
 
 			// clear out all others
-			success = ojms.connection
+			success = connection
 					.prepareStatement("delete from search_journal where indexwriter = ? and status = 'merging-prepare'  ");
 			success.clearParameters();
 			success.setString(1, ojms.indexWriter);
 			success.executeUpdate();
-			ojms.connection.commit();
+			connection.commit();
+			log.info("Shared Journal Mege Committed into SavePoint "+ojms.oldestSavePoint);
 		}
 		catch (Exception ex)
 		{
 			try
 			{
-				ojms.connection.rollback();
+				connection.rollback();
 			}
 			catch (Exception ex2)
 			{
@@ -132,8 +140,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			try
 			{
-				ojms.connection.close();
-				ojms.connection = null;
+				connection.close();
 			}
 			catch (Exception ex)
 			{
@@ -151,7 +158,7 @@ public class DbJournalOptimizationManager implements JournalManager
 	}
 
 	/**
-	 * @throws LockTimeoutException 
+	 * @throws LockTimeoutException
 	 * @see org.sakaiproject.search.journal.api.JournalManager#prepareSave(long)
 	 */
 	public JournalManagerState prepareSave(long transactionId)
@@ -163,11 +170,12 @@ public class DbJournalOptimizationManager implements JournalManager
 		PreparedStatement listJournal = null;
 		OptimizeJournalManagerStateImpl jms = new OptimizeJournalManagerStateImpl();
 		ResultSet rs = null;
+		Connection connection = null;
 		try
 		{
 
-			jms.connection = datasource.getConnection();
-			getJournalSavePointPst = jms.connection
+			connection = datasource.getConnection();
+			getJournalSavePointPst = connection
 					.prepareStatement("select serverid, jid from search_node_status order by jid asc ");
 
 			jms.indexWriter = serverId + ":" + transactionId;
@@ -205,23 +213,6 @@ public class DbJournalOptimizationManager implements JournalManager
 			jms.oldestSavePoint--;
 			if (jms.oldestSavePoint <= 0)
 			{
-				try
-				{
-					jms.connection.rollback();
-				}
-				catch (Exception ex)
-				{
-
-				}
-				try
-				{
-					jms.connection.close();
-				}
-				catch (Exception ex)
-				{
-
-				}
-				jms.connection = null;
 				throw new NoOptimizationRequiredException("Oldest savePoint is 0");
 			}
 			rs.close();
@@ -231,7 +222,7 @@ public class DbJournalOptimizationManager implements JournalManager
 
 			// this requires read committed transaction issolation and WILL NOT
 			// work on HSQL
-			lockEarlierSavePoints = jms.connection
+			lockEarlierSavePoints = connection
 					.prepareStatement("update search_journal set indexwriter = ?, status = 'merging-prepare', txts = ? where txid <= ? and  status = 'commited' ");
 			lockEarlierSavePoints.clearParameters();
 			lockEarlierSavePoints.setString(1, jms.indexWriter);
@@ -244,11 +235,10 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (SQLException lockTimepout)
 			{
-				throw new LockTimeoutException(lockTimepout.getMessage(),
-						lockTimepout);
+				throw new LockTimeoutException(lockTimepout.getMessage(), lockTimepout);
 			}
-			listJournal = jms.connection
-			.prepareStatement("select txid, indexwriter, status, txts  from search_journal");
+			listJournal = connection
+					.prepareStatement("select txid, indexwriter, status, txts  from search_journal");
 
 			if (log.isDebugEnabled())
 			{
@@ -265,23 +255,6 @@ public class DbJournalOptimizationManager implements JournalManager
 
 			if (i < journalSettings.getMinimumOptimizeSavePoints())
 			{
-				try
-				{
-					jms.connection.rollback();
-				}
-				catch (Exception ex)
-				{
-
-				}
-				try
-				{
-					jms.connection.close();
-				}
-				catch (Exception ex)
-				{
-
-				}
-				jms.connection = null;
 				throw new NoOptimizationRequiredException(
 						"Insuficient Journal Entries prior to savepoint "
 								+ jms.oldestSavePoint + " to optimize, found " + i);
@@ -300,7 +273,7 @@ public class DbJournalOptimizationManager implements JournalManager
 
 			jms.mergeList = new ArrayList<Long>();
 
-			listMergeSet = jms.connection
+			listMergeSet = connection
 					.prepareStatement("select txid from search_journal where indexwriter = ?  order by txid asc ");
 			listMergeSet.clearParameters();
 			listMergeSet.setString(1, jms.indexWriter);
@@ -310,12 +283,15 @@ public class DbJournalOptimizationManager implements JournalManager
 				jms.mergeList.add(rs.getLong(1));
 			}
 			log.info("Retrieved " + jms.mergeList.size() + " locked savePoints ");
+
+			connection.commit();
+
 		}
 		catch (IndexJournalException ijex)
 		{
 			try
 			{
-				jms.connection.rollback();
+				connection.rollback();
 			}
 			catch (Exception ex2)
 			{
@@ -326,23 +302,19 @@ public class DbJournalOptimizationManager implements JournalManager
 		{
 			try
 			{
-				jms.connection.rollback();
+				connection.rollback();
 			}
 			catch (Exception ex2)
 			{
 			}
-			try
+			if (ex instanceof LockTimeoutException)
 			{
-				jms.connection.close();
+				throw (LockTimeoutException) ex;
 			}
-			catch (Exception ex2)
+			else
 			{
-			}
-			jms.connection = null;
-			if ( ex instanceof LockTimeoutException ) {
-				throw (LockTimeoutException)ex;
-			} else {
-				throw new IndexJournalException("Failed to lock savePoints to this node ", ex);
+				throw new IndexJournalException(
+						"Failed to lock savePoints to this node ", ex);
 			}
 		}
 		finally
@@ -382,6 +354,13 @@ public class DbJournalOptimizationManager implements JournalManager
 			catch (Exception ex)
 			{
 			}
+			try
+			{
+				connection.close();
+			}
+			catch (Exception ex2)
+			{
+			}
 		}
 		return jms;
 	}
@@ -391,41 +370,6 @@ public class DbJournalOptimizationManager implements JournalManager
 	 */
 	public void rollbackSave(JournalManagerState jms)
 	{
-		if (jms != null)
-		{
-			OptimizeJournalManagerStateImpl ojms = (OptimizeJournalManagerStateImpl) jms;
-
-			try
-			{
-
-				if (ojms.connection != null)
-				{
-					try
-					{
-						ojms.connection.rollback();
-					}
-					catch (Exception ex)
-					{
-						log.error("Failed to Rollback");
-					}
-					try
-					{
-						ojms.connection.close();
-					}
-					catch (Exception ex)
-					{
-						log.error("Failed to Close");
-					}
-					ojms.connection = null;
-
-				}
-
-			}
-			catch (Exception ex)
-			{
-				log.error("Failed to Rollback");
-			}
-		}
 
 	}
 
@@ -445,15 +389,29 @@ public class DbJournalOptimizationManager implements JournalManager
 
 			connection = datasource.getConnection();
 			countJournals = connection.createStatement();
+			
 			long nSavePoints = 0;
+			Map<String,String> mergingMap = new HashMap<String, String>();
+			long transactionId = transaction.getTransactionId();
+			String thisWriter = serverId + ":" + transactionId;
 			try
 			{
 				rs = countJournals
-						.executeQuery("select count(*) from  search_journal where  status = 'commited' ");
-				if (rs.next())
+						.executeQuery("select txid, indexwriter, status, txts  from search_journal");
+				while (rs.next())
 				{
-					nSavePoints = rs.getLong(1);
+					long txid = rs.getLong(1);
+					String indexwriter = rs.getString(2);
+					String status = rs.getString(3);
+					long ts = rs.getLong(4);
+					if ( "merging-prepare".equals(status) ) {
+						mergingMap.put(indexwriter, indexwriter);						
+					} else if ( "commited".equals(status) ) {
+						nSavePoints++;
+					}
 				}
+				
+				
 				rs.close();
 			}
 			catch (Exception ex)
@@ -461,7 +419,51 @@ public class DbJournalOptimizationManager implements JournalManager
 				log
 						.info("Optimzation of central journal is in progress on annother node, no optimization possible on this node ");
 			}
-			if (nSavePoints < journalSettings.getMinimumOptimizeSavePoints())
+			if ( mergingMap.size() > 1 ) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("\tMore than One shares segments merge appears to be active in the \n");
+				sb.append("\tcluster, you Must investigate the search_journal table\n");
+				sb.append("\tA list of index Writers Follows\n\t===================\n");
+				for( String iw : mergingMap.values() ) {
+					sb.append("\t").append(iw);
+					if ( iw.equals(thisWriter) ) {
+						sb.append("\tThis node is currently optimizing the shared segments,");
+						sb.append("\tThis is an error as only one copy of this node should be ");
+						sb.append("\tActive in the cluster");				
+					} else if ( iw.startsWith(serverId) ) {
+						sb.append("\tThis node is currently optimizing the shared segments,");
+						sb.append("\tThis is an error as only one copy of this node should be ");
+						sb.append("\tActive in the cluster");											
+					}
+				}
+				sb.append("\t==========================\n");
+				log.error(sb.toString());
+				throw new NoOptimizationRequiredException("Merge already in progress, possible error");					
+			} else if ( mergingMap.size() == 1) {
+				StringBuilder sb = new StringBuilder();
+				for( String iw : mergingMap.values() ) {
+					if ( iw.equals(thisWriter) ) {
+						sb.append("This node already merging shared segments, index writer "+iw);
+						sb.append("\tThis node is currently optimizing the shared segments,");
+						sb.append("\tThis is an error as only one copy of this node should be ");
+						sb.append("\tActive in the cluster");				
+					} else if ( iw.startsWith(serverId) ) {
+						sb.append("This node already merging shared segments, index writer "+iw);
+						sb.append("\tThis node is currently optimizing the shared segments,");
+						sb.append("\tThis is an error as only one copy of this node should be ");
+						sb.append("\tActive in the cluster");											
+					}
+				}
+				if ( sb.length() == 0 ) {
+					log.info("There is annother node performing shared index merge, this node will continue with other operations ");
+					throw new NoOptimizationRequiredException("Merge already in progress, normal");					
+				} else {
+					log.error(sb.toString());
+					throw new NoOptimizationRequiredException("Merge already in progress, possible error");					
+				}
+				
+			} 
+			else if (nSavePoints < journalSettings.getMinimumOptimizeSavePoints())
 			{
 				throw new NoOptimizationRequiredException("Insufficient items to optimze");
 			}

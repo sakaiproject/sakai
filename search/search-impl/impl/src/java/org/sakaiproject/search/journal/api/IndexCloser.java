@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.journal.api;
 
-import org.sakaiproject.search.journal.impl.RefCountIndexSearcher;
 
 
 /**

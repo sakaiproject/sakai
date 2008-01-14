@@ -131,7 +131,8 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 		File[] optimzableSegments = optimizableIndex.getOptimizableSegments();
 		if (optimzableSegments.length < journalSettings.getOptimizeMergeSize())
 		{
-			throw new NoOptimizationRequiredException();
+			log.debug("LocalOptimze: Not enough segments to optimize "+optimzableSegments.length+" < "+journalSettings.getOptimizeMergeSize());
+			throw new NoOptimizationRequiredException("LocalOptimze: Not enough segments to optimize "+optimzableSegments.length+" < "+journalSettings.getOptimizeMergeSize());
 		}
 		((IndexOptimizeTransaction) transaction)
 				.setOptimizableSegments(optimzableSegments);
@@ -165,6 +166,7 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 			}
 			iw.addIndexes(directories);
 			iw.optimize();
+			log.info("LocalOptimize: Optimized "+optimzableSegments.length+" segments in to local master ");
 
 		}
 		catch (IOException e)

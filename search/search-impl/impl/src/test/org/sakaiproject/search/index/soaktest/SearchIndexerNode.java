@@ -46,6 +46,7 @@ import org.sakaiproject.search.indexer.impl.TransactionalIndexWorker;
 import org.sakaiproject.search.journal.api.ManagementOperation;
 import org.sakaiproject.search.journal.impl.ConcurrentIndexManager;
 import org.sakaiproject.search.journal.impl.DbJournalManager;
+import org.sakaiproject.search.journal.impl.IndexListenerCloser;
 import org.sakaiproject.search.journal.impl.IndexManagementTimerTask;
 import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.journal.impl.JournaledFSIndexStorage;
@@ -53,6 +54,7 @@ import org.sakaiproject.search.journal.impl.JournaledFSIndexStorageUpdateTransac
 import org.sakaiproject.search.journal.impl.MergeUpdateManager;
 import org.sakaiproject.search.journal.impl.MergeUpdateOperation;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
+import org.sakaiproject.search.mbeans.SearchServiceManagement;
 import org.sakaiproject.search.mock.MockClusterService;
 import org.sakaiproject.search.mock.MockComponentManager;
 import org.sakaiproject.search.mock.MockEventTrackingService;
@@ -139,7 +141,7 @@ public class SearchIndexerNode
 		journalSettings.setLocalIndexBase(localIndexBase);
 		journalSettings.setSharedJournalBase(sharedJournalBase);
 		journalSettings.setMinimumOptimizeSavePoints(20);
-		journalSettings.setOptimizeMergeSize(1000);
+		journalSettings.setOptimizeMergeSize(20);
 		journalSettings.setSoakTest(true);
 
 		tds = new SharedTestDataSource(base, 10, false, driver, url, userame, password);
@@ -187,6 +189,23 @@ public class SearchIndexerNode
 		journaledFSIndexStorage.setServerConfigurationService(serverConfigurationService);
 		mu.setJournaledObject(journaledFSIndexStorage);
 		mu.setMergeUpdateManager(mergeUpdateManager);
+		
+		OptimizableIndexImpl optimizableIndex = new OptimizableIndexImpl();
+		optimizableIndex.setJournaledIndex(journaledFSIndexStorage);
+
+		OptimizeTransactionListenerImpl otli = new OptimizeTransactionListenerImpl();
+		otli.setJournalSettings(journalSettings);
+		otli.setOptimizableIndex(optimizableIndex);
+
+		OptimizeIndexManager optimizeUpdateManager = new OptimizeIndexManager();
+		optimizeUpdateManager.setAnalyzerFactory(analyzerFactory);
+		optimizeUpdateManager.setJournalSettings(journalSettings);
+		optimizeUpdateManager.addTransactionListener(otli);
+		optimizeUpdateManager.setSequence(new LocalTransactionSequenceImpl());
+
+		
+		mu.setOptimizeUpdateManager(optimizeUpdateManager);
+
 
 		JournalManagerUpdateTransaction journalManagerUpdateTransaction = new JournalManagerUpdateTransaction();
 		MockSearchIndexBuilder mockSearchIndexBuilder = new MockSearchIndexBuilder();
@@ -231,22 +250,10 @@ public class SearchIndexerNode
 
 		tiw.init();
 
-		OptimizableIndexImpl optimizableIndex = new OptimizableIndexImpl();
-		optimizableIndex.setJournaledIndex(journaledFSIndexStorage);
-
-		OptimizeTransactionListenerImpl otli = new OptimizeTransactionListenerImpl();
-		otli.setJournalSettings(journalSettings);
-		otli.setOptimizableIndex(optimizableIndex);
-
-		OptimizeIndexManager oum = new OptimizeIndexManager();
-		oum.setAnalyzerFactory(analyzerFactory);
-		oum.setJournalSettings(journalSettings);
-		oum.addTransactionListener(otli);
-		oum.setSequence(new LocalTransactionSequenceImpl());
 
 		OptimizeIndexOperation oo = new OptimizeIndexOperation();
 		oo.setJournaledObject(journaledFSIndexStorage);
-		oo.setOptimizeUpdateManager(oum);
+		oo.setOptimizeUpdateManager(optimizeUpdateManager);
 
 		oo.init();
 
@@ -313,6 +320,9 @@ public class SearchIndexerNode
 		taskList.add(docloader);
 
 		journaledFSIndexStorage.addIndexListener(cim);
+		IndexListenerCloser indexCloser = new IndexListenerCloser();
+		journaledFSIndexStorage.addIndexListener(indexCloser);
+
 
 		// Journal Optimization
 
@@ -378,6 +388,17 @@ public class SearchIndexerNode
 		journalOptimizer.setPeriod(1000);
 		taskList.add(journalOptimizer);
 
+		
+		SearchServiceManagement mbean = new SearchServiceManagement(instanceName);
+		mbean.setIndexStorageProvider(journaledFSIndexStorage);
+		mbean.setSearchService(searchService);
+
+		mbean.setIndexListenerCloser(indexCloser);
+		mbean.setIndexWorker(tiw);
+		mbean.setThreadLocalManager(threadLocalManager);
+		
+		mbean.init();
+		
 		cim.setSearchService(searchService);
 		cim.setTasks(taskList);
 		cim.init();
@@ -414,7 +435,7 @@ public class SearchIndexerNode
 			long start = System.currentTimeMillis();
 			Hits h = is.search(tq);
 			long end = System.currentTimeMillis();
-			log.info("Got " + h.length() + " hits from " + is.getIndexReader().numDocs()
+			log.debug("Got " + h.length() + " hits from " + is.getIndexReader().numDocs()
 					+ " for node " + instanceName + " in " + (end - start) + ":"
 					+ (start - start1) + " ms");
 		}

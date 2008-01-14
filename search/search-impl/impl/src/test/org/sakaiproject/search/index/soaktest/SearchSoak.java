@@ -128,7 +128,11 @@ public class SearchSoak extends TestCase
 				node[i].testSearch();
 			}
 			Thread.sleep(1000);
-			 timeLeft = endTime - System.currentTimeMillis();
+			for (int i = 0; i < 4; i++)
+			{
+				node[i].getThreadLocalManager().clear();
+			}
+			timeLeft = endTime - System.currentTimeMillis();
 		}
 		
 		for (int i = 0; i < 4; i++)

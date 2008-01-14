@@ -68,8 +68,19 @@ public class SearchServiceManagement extends NotificationBroadcasterSupport impl
 
 	private ThreadLocalManager threadLocalManager;
 
+	private String name;
+
 	public SearchServiceManagement()
 	{
+		name = "";
+	}
+
+	/**
+	 * @param instanceName
+	 */
+	public SearchServiceManagement(String instanceName)
+	{
+		name = ",instance="+instanceName;
 	}
 
 	/**
@@ -82,7 +93,7 @@ public class SearchServiceManagement extends NotificationBroadcasterSupport impl
 
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 
-			final ObjectName searchServiceON = new ObjectName(MBEAN_COMPONENT_BASE);
+			final ObjectName searchServiceON = new ObjectName(MBEAN_COMPONENT_BASE+name);
 			mbs.registerMBean(this, searchServiceON);
 
 			indexStorageProvider.addIndexListener(new IndexListener()
