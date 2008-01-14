@@ -35,6 +35,7 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.tool.params.OptionViewParameters;
+import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
 
 import uk.org.ponder.beanutil.entity.EntityID;
@@ -179,27 +180,22 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	    User currentuser = userDirectoryService.getCurrentUser();
 	    String currentuserid = currentuser.getId();
 		   
-	    EntityCentredViewParameters ecvp = (EntityCentredViewParameters) viewparams;
+	    PollViewParameters ecvp = (PollViewParameters) viewparams;
 	    Poll poll = null;
 	    boolean isNew = true;
 	    
 	    UIForm newPoll = UIForm.make(tofill, "add-poll-form");
-	    if (voteBean.getPoll() != null) { 
-	    	poll = voteBean.getPoll();
-	    	UIOutput.make(tofill,"new_poll_title",messageLocator.getMessage("new_poll_title"));
-	    	isNew = false;
-	    	newPoll.parameters.add(new UIELBinding("#{poll.pollId}",
-			           poll.getPollId()));
-	    	
-	    } else if (ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW)) {
+	    
+	    m_log.debug("Poll of id: " + ecvp.id);
+	    if (ecvp.id == null || ecvp.id.equals("New 0")) {
 			UIMessage.make(tofill,"new_poll_title","new_poll_title");
 			//build an empty poll 
 			m_log.debug("this is a new poll");
 			poll = new Poll();
 	    } else { 
 	    	UIMessage.make(tofill,"new_poll_title","new_poll_title_edit");  
-			//	hack but this needs to work
-			String strId = ecvp.getELPath().substring(ecvp.getELPath().indexOf(".") + 1);
+			
+			String strId = ecvp.id;
 			m_log.debug("got id of " + strId);
 			poll = pollListManager.getPollById(new Long(strId));
 			voteBean.setPoll(poll);
@@ -217,10 +213,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	    	UIMessage.make(actionBlock,"options-title","new_poll_option_title");
 			UIInternalLink.make(actionBlock,"option-add",UIMessage.make("new_poll_option_add"),
 					new OptionViewParameters(PollOptionProducer.VIEW_ID, null, poll.getPollId().toString()));
-		/*
-		 * new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
-		                      new EntityID("Poll", "Poll_" + poll.getPollId().toString()),EntityCentredViewParameters.MODE_NEW)
-		 */
+
 			List votes = pollVoteManager.getAllVotesForPoll(poll);
 			if (votes != null && votes.size() > 0 ) {
 				m_log.debug("Poll has " + votes.size() + " votes");
@@ -338,7 +331,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		    String siteId = toolManager.getCurrentPlacement().getContext();
 		    newPoll.parameters.add(new UIELBinding("#{poll.siteId}",siteId));
 		  
-		    if (ecvp.mode!= null && ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW))	 {
+		    if (isNew)	 {
 		    	UICommand.make(newPoll, "submit-new-poll", UIMessage.make("new_poll_saveoption"),
 		    	"#{pollToolBean.processActionAdd}");
 		    } else {
@@ -362,7 +355,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		  }
 	  
 	  public ViewParameters getViewParameters() {
-		    return new EntityCentredViewParameters(VIEW_ID, new EntityID("Poll", null));
+		    return new PollViewParameters();
 
 	  }
 }

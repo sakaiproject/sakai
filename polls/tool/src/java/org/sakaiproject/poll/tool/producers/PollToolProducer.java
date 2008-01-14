@@ -32,6 +32,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Poll;
+import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -151,8 +152,7 @@ DefaultView,NavigationCaseReporter {
 				//UIOutput.make(tofill, "poll-add", messageLocator
 				//       .getMessage("action_add_poll"));
 				UIInternalLink.make(actions,NAVIGATE_ADD,UIMessage.make("action_add_poll"),
-						new EntityCentredViewParameters(AddPollProducer.VIEW_ID, new EntityID("Poll", "0"),
-								EntityCentredViewParameters.MODE_NEW));
+						new PollViewParameters(AddPollProducer.VIEW_ID, "New 0"));
 			} 
 			if (this.isSiteOwner()) {
 				UIInternalLink.make(actions, NAVIGATE_PERMISSIONS, UIMessage.make("action_set_permissions"),new SimpleViewParameters(PermissionsProducer.VIEW_ID));
@@ -238,8 +238,7 @@ DefaultView,NavigationCaseReporter {
 
 			if (isAllowedViewResults(poll)) {
 				UIInternalLink resultsLink =  UIInternalLink.make(pollrow, "poll-results", messageLocator.getMessage("action_view_results"),
-						new EntityCentredViewParameters(ResultsProducer.VIEW_ID, 
-								new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
+						new PollViewParameters(ResultsProducer.VIEW_ID, poll.getPollId().toString()));
 				resultsLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("action_view_results")+ ":" + poll.getText()));
 
 			}
@@ -256,8 +255,7 @@ DefaultView,NavigationCaseReporter {
 
 			if (pollCanEdit(poll)) {
 				UIInternalLink editLink = UIInternalLink.make(pollrow,"poll-revise",messageLocator.getMessage("action_revise_poll"),  
-						new EntityCentredViewParameters(AddPollProducer.VIEW_ID, 
-								new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
+						new PollViewParameters(AddPollProducer.VIEW_ID,poll.getPollId().toString()));
 				editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("action_revise_poll")+ ":" + poll.getText()));
 
 			}

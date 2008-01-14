@@ -29,6 +29,7 @@ import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 import uk.org.ponder.beanutil.entity.EntityID;
@@ -121,14 +122,14 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 			ComponentChecker checker) {
 		
-		EntityCentredViewParameters ecvp = (EntityCentredViewParameters) viewparams;
+		PollViewParameters ecvp = (PollViewParameters) viewparams;
 		 
 		 //m_log.info(ecvp.toPathInfo());
 		 
 		 //m_log.info(ecvp.getELPath());
 		 
 		 //hack but this needs to work
-		 String strId = ecvp.getELPath().substring(ecvp.getELPath().indexOf(".") + 1);
+		 String strId = ecvp.id;
 		 m_log.debug("got id of " + strId);
 		 Poll poll = pollListManager.getPollById(new Long(strId));
 		 
@@ -219,7 +220,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		    return togo;
 		  }	
 	  public ViewParameters getViewParameters() {
-		    return new EntityCentredViewParameters(VIEW_ID, new EntityID("Poll", null));
+		    return new PollViewParameters();
 
 		  }
 	  
