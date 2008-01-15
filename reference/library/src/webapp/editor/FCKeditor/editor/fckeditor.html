@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -21,11 +21,11 @@
  *
  * Main page that holds the editor.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head>
 	<title>FCKeditor</title>
-	<meta name="robots" content="noindex, nofollow" />
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="robots" content="noindex, nofollow">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta http-equiv="Cache-Control" content="public" />
 	<script type="text/javascript">
 
@@ -36,16 +36,16 @@
 
 function LoadScript( url )
 {
-	document.write( '<scr' + 'ipt type="text/javascript" src="' + url + '" onerror="alert(\'Error loading \' + this.src);"><\/scr' + 'ipt>' ) ;
+	document.write( '<scr' + 'ipt type="text/javascript" src="' + url + '"><\/scr' + 'ipt>' ) ;
 }
 
 function LoadCss( url )
 {
-	document.write( '<link href="' + url + '" type="text/css" rel="stylesheet" onerror="alert(\'Error loading \' + this.src);" />' ) ;
+	document.write( '<link href="' + url + '" type="text/css" rel="stylesheet" />' ) ;
 }
 
 // Main editor scripts.
-var sSuffix = /msie/.test( navigator.userAgent.toLowerCase() ) ? 'ie' : 'gecko' ;
+var sSuffix = ( /*@cc_on!@*/false ) ? 'ie' : 'gecko' ;
 
 LoadScript( 'js/fckeditorcode_' + sSuffix + '.js' ) ;
 
@@ -73,6 +73,11 @@ if ( FCKBrowserInfo.IsIE )
 	FCK.IECleanup.AddItem( FCKTempBin, FCKTempBin.Reset ) ;
 	FCK.IECleanup.AddItem( FCK, FCK_Cleanup ) ;
 }
+
+// The first function to be called on selection change must the the styles
+// change checker, because the result of its processing may be used by another
+// functions listening to the same event.
+FCK.Events.AttachEvent( 'OnSelectionChange', function() { FCKStyles.CheckSelectionChanges() ; } ) ;
 
 // The config hidden field is processed immediately, because
 // CustomConfigurationsPath may be set in the page.
@@ -110,10 +115,6 @@ FCKPlugins.Load() ;
 
 // Set the editor interface direction.
 window.document.dir = FCKLang.Dir ;
-
-// Activate pasting operations.
-if ( FCKConfig.ForcePasteAsPlainText || FCKConfig.AutoDetectPasteFromWord )
-	FCK.Events.AttachEvent( 'OnPaste', FCK.Paste ) ;
 
 	</script>
 	<script type="text/javascript">

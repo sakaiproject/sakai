@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 header('Content-type: text/html; charset=utf-8');
 
 // The following variables values must reflect your installation needs.
@@ -7,7 +7,7 @@ $aspell_prog	= '"C:\Program Files\Aspell\bin\aspell.exe"';	// by FredCK (for Win
 //$aspell_prog	= 'aspell';										// by FredCK (for Linux)
 
 $lang			= 'en_US';
-$aspell_opts	= "-a --lang=$lang --encoding=utf-8 -H";		// by FredCK
+$aspell_opts	= "-a --lang=$lang --encoding=utf-8 -H --rem-sgml-check=alt";		// by FredCK
 
 $tempfiledir	= "./";
 
@@ -82,6 +82,10 @@ function print_checker_results() {
 	if( $fh = fopen( $tempfile, 'w' )) {
 		for( $i = 0; $i < count( $textinputs ); $i++ ) {
 			$text = urldecode( $textinputs[$i] );
+
+			// Strip all tags for the text. (by FredCK - #339 / #681)
+			$text = preg_replace( "/<[^>]+>/", " ", $text ) ;
+
 			$lines = explode( "\n", $text );
 			fwrite ( $fh, "%\n" ); # exit terse mode
 			fwrite ( $fh, "^$input_separator\n" );
@@ -193,4 +197,5 @@ wordWindowObj.writeBody();
 
 </body>
 </html>
+
 

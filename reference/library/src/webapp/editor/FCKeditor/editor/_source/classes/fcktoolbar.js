@@ -25,9 +25,6 @@
 var FCKToolbar = function()
 {
 	this.Items = new Array() ;
-
-	if ( FCK.IECleanup )
-		FCK.IECleanup.AddItem( this, FCKToolbar_Cleanup ) ;
 }
 
 FCKToolbar.prototype.AddItem = function( item )
@@ -62,53 +59,39 @@ FCKToolbar.prototype.AddSeparator = function()
 
 FCKToolbar.prototype.Create = function( parentElement )
 {
-	if ( this.MainElement )
-	{
-//		this._Cleanup() ;
-		if ( this.MainElement.parentNode )
-			this.MainElement.parentNode.removeChild( this.MainElement ) ;
-		this.MainElement = null ;
-	}
-
 	var oDoc = FCKTools.GetElementDocument( parentElement ) ;
 
-	var e = this.MainElement = oDoc.createElement( 'table' ) ;
+	var e = oDoc.createElement( 'table' ) ;
 	e.className = 'TB_Toolbar' ;
 	e.style.styleFloat = e.style.cssFloat = ( FCKLang.Dir == 'ltr' ? 'left' : 'right' ) ;
 	e.dir = FCKLang.Dir ;
 	e.cellPadding = 0 ;
 	e.cellSpacing = 0 ;
 
-	this.RowElement = e.insertRow(-1) ;
+	var targetRow = e.insertRow(-1) ;
 
 	// Insert the start cell.
 	var eCell ;
 
 	if ( !this.HideStart )
 	{
-		eCell = this.RowElement.insertCell(-1) ;
+		eCell = targetRow.insertCell(-1) ;
 		eCell.appendChild( oDoc.createElement( 'div' ) ).className = 'TB_Start' ;
 	}
 
 	for ( var i = 0 ; i < this.Items.length ; i++ )
 	{
-		this.Items[i].Create( this.RowElement.insertCell(-1) ) ;
+		this.Items[i].Create( targetRow.insertCell(-1) ) ;
 	}
 
 	// Insert the ending cell.
 	if ( !this.HideEnd )
 	{
-		eCell = this.RowElement.insertCell(-1) ;
+		eCell = targetRow.insertCell(-1) ;
 		eCell.appendChild( oDoc.createElement( 'div' ) ).className = 'TB_End' ;
 	}
 
 	parentElement.appendChild( e ) ;
-}
-
-function FCKToolbar_Cleanup()
-{
-	this.MainElement = null ;
-	this.RowElement = null ;
 }
 
 var FCKToolbarSeparator = function()

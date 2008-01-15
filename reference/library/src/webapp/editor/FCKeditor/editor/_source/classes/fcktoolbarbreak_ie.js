@@ -19,7 +19,7 @@
  * == END LICENSE ==
  *
  * FCKToolbarBreak Class: breaks the toolbars.
- * It makes it possible to force the toolbar to brak to a new line.
+ * It makes it possible to force the toolbar to break to a new line.
  * This is the IE specific implementation.
  */
 

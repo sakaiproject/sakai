@@ -45,7 +45,7 @@
 			%>
 			<tr>
 				<td valign="top" nowrap><b><%=sForm%></b></td>
-				<td width="100%"><%=Server.HTMLEncode( Request.Form(sForm) )%></td>
+				<td width="100%" style="white-space:pre"><%=Server.HTMLEncode( Request.Form(sForm) )%></td>
 			</tr>
 			<% Next %>
 		</table>

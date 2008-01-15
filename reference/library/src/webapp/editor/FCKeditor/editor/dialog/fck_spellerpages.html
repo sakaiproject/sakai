@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -51,7 +51,7 @@ function OnSpellerControlsLoad( controlsWindow )
 function oSpeller_OnFinished( numberOCorrections )
 {
 	if ( numberOCorrections > 0 )
-		oEditor.FCK.SetHTML( document.getElementById('txtHtml').value ) ;
+		oEditor.FCK.SetData( document.getElementById('txtHtml').value ) ;
 	window.parent.Cancel() ;
 }
 

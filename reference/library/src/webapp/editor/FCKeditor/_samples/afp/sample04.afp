@@ -82,7 +82,7 @@
 				oFCKeditor.aconfig[1,2]="/fckeditor/editor/skins/"+lcSkin+"/"	&& <-- Change this to your local path
 			ENDIF
 
-			lcText=[This is some <strong>sample text</strong>. You are using ]
+			lcText=[<p>This is some <strong>sample text</strong>. You are using ]
 			lcText=lcText+[<a href='http://www.fckeditor.net/'>FCKeditor</a>.]
 
 			oFCKeditor.BasePath	= sBasePath

@@ -46,15 +46,25 @@ FCKXHtml._AppendAttributes = function( xmlNode, htmlNode, node, nodeName )
 			// The following must be done because of a bug on IE regarding the style
 			// attribute. It returns "null" for the nodeValue.
 			else if ( sAttName == 'style' )
+			{
+				var data = FCKTools.ProtectFormStyles( htmlNode ) ;
 				sAttValue = htmlNode.style.cssText.replace( FCKRegexLib.StyleProperties, FCKTools.ToLowerCase ) ;
+				FCKTools.RestoreFormStyles( htmlNode, data ) ;
+			}
 			// There are two cases when the oAttribute.nodeValue must be used:
 			//		- for the "class" attribute
 			//		- for events attributes (on IE only).
-			else if ( sAttName == 'class' || sAttName.indexOf('on') == 0 )
+			else if ( sAttName == 'class' )
+			{
+				sAttValue = oAttribute.nodeValue.replace( FCKRegexLib.FCK_Class, '' ) ;
+				if ( sAttValue.length == 0 )
+					continue ;
+			}
+			else if ( sAttName.indexOf('on') == 0 )
 				sAttValue = oAttribute.nodeValue ;
 			else if ( nodeName == 'body' && sAttName == 'contenteditable' )
 				continue ;
-			// XHTML doens't support attribute minimization like "CHECKED". It must be trasformed to cheched="checked".
+			// XHTML doens't support attribute minimization like "CHECKED". It must be transformed to checked="checked".
 			else if ( oAttribute.nodeValue === true )
 				sAttValue = sAttName ;
 			else
@@ -70,6 +80,85 @@ FCKXHtml._AppendAttributes = function( xmlNode, htmlNode, node, nodeName )
 			this._AppendAttribute( node, sAttName, sAttValue || oAttribute.nodeValue ) ;
 		}
 	}
+}
+
+// On very rare cases, IE is loosing the "align" attribute for DIV. (right align and apply bulleted list)
+FCKXHtml.TagProcessors['div'] = function( node, htmlNode )
+{
+	if ( htmlNode.align.length > 0 )
+		FCKXHtml._AppendAttribute( node, 'align', htmlNode.align ) ;
+
+	node = FCKXHtml._AppendChildNodes( node, htmlNode, true ) ;
+
+	return node ;
+}
+
+// IE automatically changes <FONT> tags to <FONT size=+0>.
+FCKXHtml.TagProcessors['font'] = function( node, htmlNode )
+{
+	if ( node.attributes.length == 0 )
+		node = FCKXHtml.XML.createDocumentFragment() ;
+
+	node = FCKXHtml._AppendChildNodes( node, htmlNode ) ;
+
+	return node ;
+}
+
+FCKXHtml.TagProcessors['form'] = function( node, htmlNode )
+{
+	if ( htmlNode.acceptCharset && htmlNode.acceptCharset.length > 0 && htmlNode.acceptCharset != 'UNKNOWN' )
+		FCKXHtml._AppendAttribute( node, 'accept-charset', htmlNode.acceptCharset ) ;
+
+	// IE has a bug and htmlNode.attributes['name'].specified=false if there is
+	// no element with id="name" inside the form (#360 and SF-BUG-1155726).
+	var nameAtt = htmlNode.attributes['name'] ;
+
+	if ( nameAtt && nameAtt.value.length > 0 )
+		FCKXHtml._AppendAttribute( node, 'name', nameAtt.value ) ;
+
+	node = FCKXHtml._AppendChildNodes( node, htmlNode, true ) ;
+
+	return node ;
+}
+
+// IE doens't see the value attribute as an attribute for the <INPUT> tag.
+FCKXHtml.TagProcessors['input'] = function( node, htmlNode )
+{
+	if ( htmlNode.name )
+		FCKXHtml._AppendAttribute( node, 'name', htmlNode.name ) ;
+
+	if ( htmlNode.value && !node.attributes.getNamedItem( 'value' ) )
+		FCKXHtml._AppendAttribute( node, 'value', htmlNode.value ) ;
+
+	if ( !node.attributes.getNamedItem( 'type' ) )
+		FCKXHtml._AppendAttribute( node, 'type', 'text' ) ;
+
+	return node ;
+}
+
+FCKXHtml.TagProcessors['label'] = function( node, htmlNode )
+{
+	if ( htmlNode.htmlFor.length > 0 )
+		FCKXHtml._AppendAttribute( node, 'for', htmlNode.htmlFor ) ;
+
+	node = FCKXHtml._AppendChildNodes( node, htmlNode ) ;
+
+	return node ;
+}
+
+// Fix behavior for IE, it doesn't read back the .name on newly created maps 
+FCKXHtml.TagProcessors['map'] = function( node, htmlNode )
+{
+	if ( ! node.attributes.getNamedItem( 'name' ) )
+	{
+		var name = htmlNode.name ;
+		if ( name )
+			FCKXHtml._AppendAttribute( node, 'name', name ) ;
+	}
+
+	node = FCKXHtml._AppendChildNodes( node, htmlNode, true ) ;
+
+	return node ;
 }
 
 FCKXHtml.TagProcessors['meta'] = function( node, htmlNode )
@@ -91,80 +180,11 @@ FCKXHtml.TagProcessors['meta'] = function( node, htmlNode )
 	return node ;
 }
 
-// IE automaticaly changes <FONT> tags to <FONT size=+0>.
-FCKXHtml.TagProcessors['font'] = function( node, htmlNode )
-{
-	if ( node.attributes.length == 0 )
-		node = FCKXHtml.XML.createDocumentFragment() ;
-
-	node = FCKXHtml._AppendChildNodes( node, htmlNode ) ;
-
-	return node ;
-}
-
-// IE doens't see the value attribute as an attribute for the <INPUT> tag.
-FCKXHtml.TagProcessors['input'] = function( node, htmlNode )
-{
-	if ( htmlNode.name )
-		FCKXHtml._AppendAttribute( node, 'name', htmlNode.name ) ;
-
-	if ( htmlNode.value && !node.attributes.getNamedItem( 'value' ) )
-		FCKXHtml._AppendAttribute( node, 'value', htmlNode.value ) ;
-
-	if ( !node.attributes.getNamedItem( 'type' ) )
-		FCKXHtml._AppendAttribute( node, 'type', 'text' ) ;
-
-	return node ;
-}
-
 // IE ignores the "SELECTED" attribute so we must add it manually.
 FCKXHtml.TagProcessors['option'] = function( node, htmlNode )
 {
 	if ( htmlNode.selected && !node.attributes.getNamedItem( 'selected' ) )
 		FCKXHtml._AppendAttribute( node, 'selected', 'selected' ) ;
-
-	node = FCKXHtml._AppendChildNodes( node, htmlNode ) ;
-
-	return node ;
-}
-
-// IE ignores the "COORDS" and "SHAPE" attribute so we must add it manually.
-FCKXHtml.TagProcessors['area'] = function( node, htmlNode )
-{
-	if ( ! node.attributes.getNamedItem( 'coords' ) )
-	{
-		var sCoords = htmlNode.getAttribute( 'coords', 2 ) ;
-		if ( sCoords && sCoords != '0,0,0' )
-			FCKXHtml._AppendAttribute( node, 'coords', sCoords ) ;
-	}
-
-	if ( ! node.attributes.getNamedItem( 'shape' ) )
-	{
-		var sShape = htmlNode.getAttribute( 'shape', 2 ) ;
-		if ( sShape && sShape.length > 0 )
-			FCKXHtml._AppendAttribute( node, 'shape', sShape ) ;
-	}
-
-	return node ;
-}
-
-FCKXHtml.TagProcessors['label'] = function( node, htmlNode )
-{
-	if ( htmlNode.htmlFor.length > 0 )
-		FCKXHtml._AppendAttribute( node, 'for', htmlNode.htmlFor ) ;
-
-	node = FCKXHtml._AppendChildNodes( node, htmlNode ) ;
-
-	return node ;
-}
-
-FCKXHtml.TagProcessors['form'] = function( node, htmlNode )
-{
-	if ( htmlNode.acceptCharset && htmlNode.acceptCharset.length > 0 && htmlNode.acceptCharset != 'UNKNOWN' )
-		FCKXHtml._AppendAttribute( node, 'accept-charset', htmlNode.acceptCharset ) ;
-
-	if ( htmlNode.name )
-		FCKXHtml._AppendAttribute( node, 'name', htmlNode.name ) ;
 
 	node = FCKXHtml._AppendChildNodes( node, htmlNode ) ;
 
@@ -178,17 +198,6 @@ FCKXHtml.TagProcessors['textarea'] = FCKXHtml.TagProcessors['select'] = function
 		FCKXHtml._AppendAttribute( node, 'name', htmlNode.name ) ;
 
 	node = FCKXHtml._AppendChildNodes( node, htmlNode ) ;
-
-	return node ;
-}
-
-// On very rare cases, IE is loosing the "align" attribute for DIV. (right align and apply bulleted list)
-FCKXHtml.TagProcessors['div'] = function( node, htmlNode )
-{
-	if ( htmlNode.align.length > 0 )
-		FCKXHtml._AppendAttribute( node, 'align', htmlNode.align ) ;
-
-	node = FCKXHtml._AppendChildNodes( node, htmlNode, true ) ;
 
 	return node ;
 }

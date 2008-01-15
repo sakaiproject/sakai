@@ -23,7 +23,7 @@
 
 var	FCKIECleanup = function( attachWindow )
 {
-	// If the attachWindow already have a cleanup object, jusgt use that one.
+	// If the attachWindow already have a cleanup object, just use that one.
 	if ( attachWindow._FCKCleanupObj )
 		this.Items = attachWindow._FCKCleanupObj.Items ;
 	else
@@ -43,7 +43,7 @@ FCKIECleanup.prototype.AddItem = function( dirtyItem, cleanupFunction )
 
 function FCKIECleanup_Cleanup()
 {
-	if ( !this._FCKCleanupObj )
+	if ( !this._FCKCleanupObj || !window.FCKUnloadFlag )
 		return ;
 
 	var aItems = this._FCKCleanupObj.Items ;

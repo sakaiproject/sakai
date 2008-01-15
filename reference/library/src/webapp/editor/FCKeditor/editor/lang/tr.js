@@ -45,6 +45,7 @@ InsertLinkLbl		: "Köprü",
 InsertLink			: "Köprü Ekle/Düzenle",
 RemoveLink			: "Köprü Kaldır",
 Anchor				: "Çapa Ekle/Düzenle",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Resim",
 InsertImage			: "Resim Ekle/Düzenle",
 InsertFlashLbl		: "Flash",
@@ -70,6 +71,7 @@ RightJustify		: "Sağa Dayalı",
 BlockJustify		: "İki Kenara Yaslanmış",
 DecreaseIndent		: "Sekme Azalt",
 IncreaseIndent		: "Sekme Arttır",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Geri Al",
 Redo				: "Tekrarla",
 NumberedListLbl		: "Numaralı Liste",
@@ -103,20 +105,27 @@ SelectionField	: "Seçim Menüsü",
 ImageButton		: "Resimli Düğme",
 
 FitWindow		: "Düzenleyici boyutunu büyüt",
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Köprü Düzenle",
 CellCM				: "Hücre",
 RowCM				: "Satır",
 ColumnCM			: "Sütun",
-InsertRow			: "Satır Ekle",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Satır Sil",
-InsertColumn		: "Sütun Ekle",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Sütun Sil",
-InsertCell			: "Hücre Ekle",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Hücre Sil",
 MergeCells			: "Hücreleri Birleştir",
-SplitCell			: "Hücre Böl",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Tabloyu Sil",
 CellProperties		: "Hücre Özellikleri",
 TableProperties		: "Tablo Özellikleri",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Seçim Menüsü Özellikleri",
 TextareaProp		: "Çok Satırlı Metin Özellikleri",
 FormProp			: "Form Özellikleri",
 
-FontFormats			: "Normal;Biçimli;Adres;Başlık 1;Başlık 2;Başlık 3;Başlık 4;Başlık 5;Başlık 6;Paragraf (DIV)",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normal;Biçimli;Adres;Başlık 1;Başlık 2;Başlık 3;Başlık 4;Başlık 5;Başlık 6;Paragraf (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "XHTML işleniyor. Lütfen bekleyin...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Çapa Seç",
 DlgLnkAnchorByName	: "Çapa Adı ile",
 DlgLnkAnchorById	: "Eleman Kimlik Numarası ile",
-DlgLnkNoAnchors		: "<Bu belgede hiç çapa yok>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Bu belgede hiç çapa yok)",
 DlgLnkEMail			: "E-Posta Adresi",
 DlgLnkEMailSubject	: "İleti Konusu",
 DlgLnkEMailBody		: "İleti Gövdesi",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Sütun Kapla",
 DlgCellBackColor	: "Arka Plan Rengi",
 DlgCellBorderColor	: "Kenar Rengi",
 DlgCellBtnSelect	: "Seç...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Bul",

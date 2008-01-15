@@ -38,7 +38,7 @@
 
 			sBasePath="../../../fckeditor/"		&& Change this to your local path
 
-			lcText=[This is some <strong>sample text</strong>. You are using ]
+			lcText=[<p>This is some <strong>sample text</strong>. You are using ]
 			lcText=lcText+[<a href='http://www.fckeditor.net/'>FCKeditor</a>.]
 
 			oFCKeditor = CREATEOBJECT("FCKeditor")

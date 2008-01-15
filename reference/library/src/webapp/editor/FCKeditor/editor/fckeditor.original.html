@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -21,11 +21,11 @@
  *
  * Main page that holds the editor.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head>
 	<title>FCKeditor</title>
-	<meta name="robots" content="noindex, nofollow" />
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="robots" content="noindex, nofollow">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<!-- @Packager.RemoveLine
 	<meta http-equiv="Cache-Control" content="public" />
 	@Packager.RemoveLine -->
@@ -38,16 +38,16 @@
 
 function LoadScript( url )
 {
-	document.write( '<scr' + 'ipt type="text/javascript" src="' + url + '" onerror="alert(\'Error loading \' + this.src);"><\/scr' + 'ipt>' ) ;
+	document.write( '<scr' + 'ipt type="text/javascript" src="' + url + '"><\/scr' + 'ipt>' ) ;
 }
 
 function LoadCss( url )
 {
-	document.write( '<link href="' + url + '" type="text/css" rel="stylesheet" onerror="alert(\'Error loading \' + this.src);" />' ) ;
+	document.write( '<link href="' + url + '" type="text/css" rel="stylesheet" />' ) ;
 }
 
 // Main editor scripts.
-var sSuffix = /msie/.test( navigator.userAgent.toLowerCase() ) ? 'ie' : 'gecko' ;
+var sSuffix = ( /*@cc_on!@*/false ) ? 'ie' : 'gecko' ;
 
 /* @Packager.RemoveLine
 LoadScript( 'js/fckeditorcode_' + sSuffix + '.js' ) ;
@@ -63,6 +63,7 @@ if ( sSuffix == 'ie' )
 LoadScript( '_source/internals/fckbrowserinfo.js' ) ;
 LoadScript( '_source/internals/fckurlparams.js' ) ;
 LoadScript( '_source/classes/fckevents.js' ) ;
+LoadScript( '_source/classes/fckdataprocessor.js' ) ;
 LoadScript( '_source/internals/fck.js' ) ;
 LoadScript( '_source/internals/fck_' + sSuffix + '.js' ) ;
 LoadScript( '_source/internals/fckconfig.js' ) ;
@@ -80,9 +81,13 @@ LoadScript( '_source/internals/fckxhtmlentities.js' ) ;
 LoadScript( '_source/internals/fckxhtml.js' ) ;
 LoadScript( '_source/internals/fckxhtml_' + sSuffix + '.js' ) ;
 LoadScript( '_source/internals/fckcodeformatter.js' ) ;
-LoadScript( '_source/internals/fckundo_' + sSuffix + '.js' ) ;
+LoadScript( '_source/internals/fckundo.js' ) ;
 LoadScript( '_source/classes/fckeditingarea.js' ) ;
 LoadScript( '_source/classes/fckkeystrokehandler.js' ) ;
+
+LoadScript( 'dtd/fck_xhtml10transitional.js' ) ;
+LoadScript( '_source/classes/fckstyle.js' ) ;
+LoadScript( '_source/internals/fckstyles.js' ) ;
 
 LoadScript( '_source/internals/fcklisthandler.js' ) ;
 LoadScript( '_source/classes/fckelementpath.js' ) ;
@@ -90,6 +95,7 @@ LoadScript( '_source/classes/fckdomrange.js' ) ;
 LoadScript( '_source/classes/fckdocumentfragment_' + sSuffix + '.js' ) ;
 LoadScript( '_source/classes/fckw3crange.js' ) ;
 LoadScript( '_source/classes/fckdomrange_' + sSuffix + '.js' ) ;
+LoadScript( '_source/classes/fckdomrangeiterator.js' ) ;
 LoadScript( '_source/classes/fckenterkey.js' ) ;
 
 LoadScript( '_source/internals/fckdocumentprocessor.js' ) ;
@@ -98,20 +104,25 @@ LoadScript( '_source/internals/fckselection_' + sSuffix + '.js' ) ;
 
 LoadScript( '_source/internals/fcktablehandler.js' ) ;
 LoadScript( '_source/internals/fcktablehandler_' + sSuffix + '.js' ) ;
+LoadScript( '_source/classes/fckxml.js' ) ;
 LoadScript( '_source/classes/fckxml_' + sSuffix + '.js' ) ;
-LoadScript( '_source/classes/fckstyledef.js' ) ;
-LoadScript( '_source/classes/fckstyledef_' + sSuffix + '.js' ) ;
-LoadScript( '_source/classes/fckstylesloader.js' ) ;
 
 LoadScript( '_source/commandclasses/fcknamedcommand.js' ) ;
+LoadScript( '_source/commandclasses/fckstylecommand.js' ) ;
 LoadScript( '_source/commandclasses/fck_othercommands.js' ) ;
+LoadScript( '_source/commandclasses/fckshowblocks.js' ) ;
 LoadScript( '_source/commandclasses/fckspellcheckcommand_' + sSuffix + '.js' ) ;
 LoadScript( '_source/commandclasses/fcktextcolorcommand.js' ) ;
 LoadScript( '_source/commandclasses/fckpasteplaintextcommand.js' ) ;
 LoadScript( '_source/commandclasses/fckpastewordcommand.js' ) ;
 LoadScript( '_source/commandclasses/fcktablecommand.js' ) ;
-LoadScript( '_source/commandclasses/fckstylecommand.js' ) ;
 LoadScript( '_source/commandclasses/fckfitwindow.js' ) ;
+LoadScript( '_source/commandclasses/fcklistcommands.js' ) ;
+LoadScript( '_source/commandclasses/fckjustifycommands.js' ) ;
+LoadScript( '_source/commandclasses/fckindentcommands.js' ) ;
+LoadScript( '_source/commandclasses/fckblockquotecommand.js' ) ;
+LoadScript( '_source/commandclasses/fckcorestylecommand.js' ) ;
+LoadScript( '_source/commandclasses/fckremoveformatcommand.js' ) ;
 LoadScript( '_source/internals/fckcommands.js' ) ;
 
 LoadScript( '_source/classes/fckpanel.js' ) ;
@@ -120,10 +131,10 @@ LoadScript( '_source/classes/fcktoolbarbuttonui.js' ) ;
 LoadScript( '_source/classes/fcktoolbarbutton.js' ) ;
 LoadScript( '_source/classes/fckspecialcombo.js' ) ;
 LoadScript( '_source/classes/fcktoolbarspecialcombo.js' ) ;
+LoadScript( '_source/classes/fcktoolbarstylecombo.js' ) ;
+LoadScript( '_source/classes/fcktoolbarfontformatcombo.js' ) ;
 LoadScript( '_source/classes/fcktoolbarfontscombo.js' ) ;
 LoadScript( '_source/classes/fcktoolbarfontsizecombo.js' ) ;
-LoadScript( '_source/classes/fcktoolbarfontformatcombo.js' ) ;
-LoadScript( '_source/classes/fcktoolbarstylecombo.js' ) ;
 LoadScript( '_source/classes/fcktoolbarpanelbutton.js' ) ;
 LoadScript( '_source/internals/fcktoolbaritems.js' ) ;
 LoadScript( '_source/classes/fcktoolbar.js' ) ;
@@ -166,6 +177,11 @@ if ( FCKBrowserInfo.IsIE )
 	FCK.IECleanup.AddItem( FCK, FCK_Cleanup ) ;
 }
 
+// The first function to be called on selection change must the the styles
+// change checker, because the result of its processing may be used by another
+// functions listening to the same event.
+FCK.Events.AttachEvent( 'OnSelectionChange', function() { FCKStyles.CheckSelectionChanges() ; } ) ;
+
 // The config hidden field is processed immediately, because
 // CustomConfigurationsPath may be set in the page.
 FCKConfig.ProcessHiddenField() ;
@@ -202,10 +218,6 @@ FCKPlugins.Load() ;
 
 // Set the editor interface direction.
 window.document.dir = FCKLang.Dir ;
-
-// Activate pasting operations.
-if ( FCKConfig.ForcePasteAsPlainText || FCKConfig.AutoDetectPasteFromWord )
-	FCK.Events.AttachEvent( 'OnPaste', FCK.Paste ) ;
 
 	</script>
 	<script type="text/javascript">

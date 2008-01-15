@@ -56,6 +56,7 @@ FCKToolbarPanelButton.prototype.Create = function( parentElement )
 
 	var eLine = this.LineImg = eLineDiv.appendChild( oPanel.Document.createElement( 'IMG' ) ) ;
 	eLine.className = 'TB_ConnectionLine' ;
+	eLine.style.position = 'absolute' ;
 //	eLine.style.backgroundColor = 'Red' ;
 	eLine.src = FCK_SPACER_PATH ;
 

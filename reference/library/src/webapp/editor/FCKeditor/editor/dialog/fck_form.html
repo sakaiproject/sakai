@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -51,19 +51,21 @@ window.onload = function()
 		oActiveEl = null ;
 
 	window.parent.SetOkButton( true ) ;
+	window.parent.SetAutoSize( true ) ;
 }
 
 function Ok()
 {
 	if ( !oActiveEl )
 	{
-		oActiveEl = oEditor.FCK.EditorDocument.createElement( 'FORM' ) ;
-		oActiveEl = oEditor.FCK.InsertElementAndGetIt( oActiveEl ) ;
-		oActiveEl.innerHTML = '&nbsp;' ;
+		oActiveEl = oEditor.FCK.InsertElement( 'form' ) ;
+
+		if ( oEditor.FCKBrowserInfo.IsGeckoLike )
+			oEditor.FCKTools.AppendBogusBr( oActiveEl ) ;
 	}
 
 	oActiveEl.name = GetE('txtName').value ;
-	SetAttribute( oActiveEl, 'action'	, GetE('txtAction').value ) ;
+	SetAttribute( oActiveEl, 'action', GetE('txtAction').value ) ;
 	oActiveEl.method = GetE('txtMethod').value ;
 
 	return true ;

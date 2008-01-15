@@ -1,4 +1,4 @@
-﻿/*
+/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  *
@@ -36,12 +36,12 @@ function InitializeAPI()
 		// from a freed script" error).
 
 		// Note: we check the existence of oEditor.GetParentForm because some external 
-		// code (like JSON) can extend the Object protype and we get then extra oEditor 
+		// code (like JSON) can extend the Object prototype and we get then extra oEditor 
 		// objects that aren't really FCKeditor instances.
 		var sScript =
 			'var FCKeditorAPI = {' +
-				'Version : "2.4.1",' +
-				'VersionBuild : "14797",' +
+				'Version : "2.5.1",' +
+				'VersionBuild : "17566",' +
 				'__Instances : new Object(),' +
 
 				'GetInstance : function( name )' +
@@ -111,9 +111,9 @@ function InitializeAPI()
 				// following seams to work well.
 				eval.call( oParentWindow, sScript ) ;
 			}
-			else if ( FCKBrowserInfo.IsSafari )
+			else if ( FCKBrowserInfo.IsSafari || FCKBrowserInfo.IsGecko19 )
 			{
-				// oParentWindow.eval in Safari executes in the calling window
+				// oParentWindow.eval in Safari and Gran Paradiso executes in the calling window
 				// environment, instead of the parent one. The following should make it work.
 				var oParentDocument = oParentWindow.document ;
 				var eScript = oParentDocument.createElement('script') ;
@@ -156,6 +156,13 @@ function _AttachFormSubmitToAPI()
 
 function FCKeditorAPI_Cleanup()
 {
+	if ( ! window.FCKUnloadFlag )
+		return ;
 	delete FCKeditorAPI.__Instances[ FCK.Name ] ;
 }
+function FCKeditorAPI_ConfirmCleanup()
+{
+	window.FCKUnloadFlag = true ;
+}
 FCKTools.AddEventListener( window, 'unload', FCKeditorAPI_Cleanup ) ;	
+FCKTools.AddEventListener( window, 'beforeunload', FCKeditorAPI_ConfirmCleanup) ;

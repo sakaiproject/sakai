@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -87,7 +87,7 @@ function Ok()
 			aCells[i].removeAttribute( 'width', 0 ) ;
 
 		if ( GetE('selWordWrap').value == 'false' )
-			aCells[i].noWrap = true ;
+			SetAttribute( aCells[i], 'noWrap', 'nowrap' ) ;  
 		else
 			aCells[i].removeAttribute( 'noWrap' ) ;
 

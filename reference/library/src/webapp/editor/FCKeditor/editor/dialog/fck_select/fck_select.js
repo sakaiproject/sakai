@@ -61,10 +61,10 @@ function Modify()
 	var oTxtText	= document.getElementById( "txtText" ) ;
 	var oTxtValue	= document.getElementById( "txtValue" ) ;
 
-	oListText.options[ iIndex ].innerHTML	= oTxtText.value ;
+	oListText.options[ iIndex ].innerHTML	= HTMLEncode( oTxtText.value ) ;
 	oListText.options[ iIndex ].value		= oTxtText.value ;
 
-	oListValue.options[ iIndex ].innerHTML	= oTxtValue.value ;
+	oListValue.options[ iIndex ].innerHTML	= HTMLEncode( oTxtValue.value ) ;
 	oListValue.options[ iIndex ].value		= oTxtValue.value ;
 
 	oTxtText.value	= '' ;
@@ -115,7 +115,7 @@ function ChangeOptionPosition( combo, steps )
 		return ;
 
 	var oOption = combo.options[ iActualIndex ] ;
-	var sText	= oOption.innerHTML ;
+	var sText	= HTMLDecode( oOption.innerHTML ) ;
 	var sValue	= oOption.value ;
 
 	combo.remove( iActualIndex ) ;
@@ -162,8 +162,33 @@ function AddComboOption( combo, optionText, optionValue, documentObject, index )
 	else
 		combo.options.add( oOption ) ;
 
-	oOption.innerHTML = optionText.length > 0 ? optionText : '&nbsp;' ;
+	oOption.innerHTML = optionText.length > 0 ? HTMLEncode( optionText ) : '&nbsp;' ;
 	oOption.value     = optionValue ;
 
 	return oOption ;
+}
+
+function HTMLEncode( text )
+{
+	if ( !text )
+		return '' ;
+
+	text = text.replace( /&/g, '&amp;' ) ;
+	text = text.replace( /</g, '&lt;' ) ;
+	text = text.replace( />/g, '&gt;' ) ;
+
+	return text ;
+}
+
+
+function HTMLDecode( text )
+{
+	if ( !text )
+		return '' ;
+
+	text = text.replace( /&gt;/g, '>' ) ;
+	text = text.replace( /&lt;/g, '<' ) ;
+	text = text.replace( /&amp;/g, '&' ) ;
+
+	return text ;
 }

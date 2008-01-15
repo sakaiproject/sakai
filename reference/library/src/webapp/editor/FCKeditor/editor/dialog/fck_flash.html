@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -55,12 +55,12 @@
 							<TR>
 								<TD nowrap>
 									<span fckLang="DlgImgWidth">Width</span><br>
-									<input id="txtWidth" class="FCK__FieldNumeric" type="text" size="3">
+									<input id="txtWidth" onkeypress="return IsDigit(event);" type="text" size="3">
 								</TD>
 								<TD>&nbsp;</TD>
 								<TD>
 									<span fckLang="DlgImgHeight">Height</span><br>
-									<input id="txtHeight" class="FCK__FieldNumeric" type="text" size="3">
+									<input id="txtHeight" onkeypress="return IsDigit(event);" type="text" size="3">
 								</TD>
 							</TR>
 						</table>

@@ -26,7 +26,7 @@ FCKDialog.Show = function( dialogInfo, dialogName, pageUrl, dialogWidth, dialogH
 	var iTop  = (FCKConfig.ScreenHeight - dialogHeight) / 2 ;
 	var iLeft = (FCKConfig.ScreenWidth  - dialogWidth)  / 2 ;
 
-	var sOption  = "location=no,menubar=no,toolbar=no,dependent=yes,dialog=yes,minimizable=no,modal=yes,alwaysRaised=yes" +
+	var sOption  = "location=no,menubar=no,toolbar=no,dependent=yes,dialog=yes,minimizable=no,alwaysRaised=yes" +
 		",resizable="  + ( resizable ? 'yes' : 'no' ) +
 		",width="  + dialogWidth +
 		",height=" + dialogHeight +
@@ -61,7 +61,7 @@ FCKDialog.Show = function( dialogInfo, dialogName, pageUrl, dialogWidth, dialogH
 
 	this.Window = oWindow ;
 
-	// Try/Catch must be used to avoit an error when using a frameset
+	// Try/Catch must be used to avoid an error when using a frameset
 	// on a different domain:
 	// "Permission denied to get property Window.releaseEvents".
 	try
@@ -86,7 +86,7 @@ FCKDialog.CheckFocus = function()
 		FCKDialog.Window.focus() ;
 	else
 	{
-		// Try/Catch must be used to avoit an error when using a frameset
+		// Try/Catch must be used to avoid an error when using a frameset
 		// on a different domain:
 		// "Permission denied to get property Window.releaseEvents".
 		try

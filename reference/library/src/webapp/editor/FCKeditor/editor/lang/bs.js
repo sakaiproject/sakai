@@ -45,6 +45,7 @@ InsertLinkLbl		: "Link",
 InsertLink			: "Ubaci/Izmjeni link",
 RemoveLink			: "Izbriši link",
 Anchor				: "Insert/Edit Anchor",	//MISSING
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Slika",
 InsertImage			: "Ubaci/Izmjeni sliku",
 InsertFlashLbl		: "Flash",	//MISSING
@@ -70,6 +71,7 @@ RightJustify		: "Desno poravnanje",
 BlockJustify		: "Puno poravnanje",
 DecreaseIndent		: "Smanji uvod",
 IncreaseIndent		: "Poveæaj uvod",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Vrati",
 Redo				: "Ponovi",
 NumberedListLbl		: "Numerisana lista",
@@ -103,20 +105,27 @@ SelectionField	: "Selection Field",	//MISSING
 ImageButton		: "Image Button",	//MISSING
 
 FitWindow		: "Maximize the editor size",	//MISSING
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Izmjeni link",
 CellCM				: "Cell",	//MISSING
 RowCM				: "Row",	//MISSING
 ColumnCM			: "Column",	//MISSING
-InsertRow			: "Ubaci red",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Briši redove",
-InsertColumn		: "Ubaci kolonu",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Briši kolone",
-InsertCell			: "Ubaci æeliju",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Briši æelije",
 MergeCells			: "Spoji æelije",
-SplitCell			: "Razdvoji æeliju",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Delete Table",	//MISSING
 CellProperties		: "Svojstva æelije",
 TableProperties		: "Svojstva tabele",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Selection Field Properties",	//MISSING
 TextareaProp		: "Textarea Properties",	//MISSING
 FormProp			: "Form Properties",	//MISSING
 
-FontFormats			: "Normal;Formatted;Address;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normal;Formatted;Address;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6",
 
 // Alerts and Messages
 ProcessingXHTML		: "Procesiram XHTML. Molim saèekajte...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Izaberi sidro",
 DlgLnkAnchorByName	: "Po nazivu sidra",
 DlgLnkAnchorById	: "Po Id-u elementa",
-DlgLnkNoAnchors		: "<Nema dostupnih sidra na stranici>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Nema dostupnih sidra na stranici)",
 DlgLnkEMail			: "E-Mail Adresa",
 DlgLnkEMailSubject	: "Subjekt poruke",
 DlgLnkEMailBody		: "Poruka",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Spajanje kolona",
 DlgCellBackColor	: "Boja pozadine",
 DlgCellBorderColor	: "Boja okvira",
 DlgCellBtnSelect	: "Selektuj...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Naði",

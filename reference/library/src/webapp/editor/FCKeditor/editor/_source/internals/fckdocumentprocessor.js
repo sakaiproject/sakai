@@ -64,7 +64,7 @@ if ( FCKBrowserInfo.IsIE || FCKBrowserInfo.IsOpera )
 			if ( oLink.name.length > 0 )
 			{
 				//if the anchor has some content then we just add a temporary class
-				if ( oLink.innerHTML != '' )
+				if ( oLink.innerHTML !== '' )
 				{
 					if ( FCKBrowserInfo.IsIE )
 						oLink.className += ' FCK__AnchorC' ;
@@ -127,6 +127,8 @@ FCKFlashProcessor.ProcessDocument = function( document )
 	This is some <embed src="/UserFiles/Flash/Yellow_Runners.swf"></embed><strong>sample text</strong>. You are&nbsp;<a name="fred"></a> using <a href="http://www.fckeditor.net/">FCKeditor</a>.
 	*/
 
+	var bIsDirty = FCK.IsDirty() ;
+
 	var aEmbeds = document.getElementsByTagName( 'EMBED' ) ;
 
 	var oEmbed ;
@@ -143,20 +145,6 @@ FCKFlashProcessor.ProcessDocument = function( document )
 		{
 			var oCloned = oEmbed.cloneNode( true ) ;
 
-			// On IE, some properties are not getting clonned properly, so we
-			// must fix it. Thanks to Alfonso Martinez.
-			if ( FCKBrowserInfo.IsIE )
-			{
-				var aAttributes = [ 'scale', 'play', 'loop', 'menu', 'wmode', 'quality' ] ;
-				for ( var iAtt = 0 ; iAtt < aAttributes.length ; iAtt++ )
-				{
-					var oAtt = oEmbed.getAttribute( aAttributes[iAtt] ) ;
-					if ( oAtt ) oCloned.setAttribute( aAttributes[iAtt], oAtt ) ;
-				}
-				// It magically gets lost after reading it in oType
-				oCloned.setAttribute( 'type', oType.nodeValue ) ;
-			}
-
 			var oImg = FCKDocumentProcessor_CreateFakeImage( 'FCK__Flash', oCloned ) ;
 			oImg.setAttribute( '_fckflash', 'true', 0 ) ;
 
@@ -164,21 +152,21 @@ FCKFlashProcessor.ProcessDocument = function( document )
 
 			oEmbed.parentNode.insertBefore( oImg, oEmbed ) ;
 			oEmbed.parentNode.removeChild( oEmbed ) ;
-
-//			oEmbed.setAttribute( '_fcktemp', 'true', 0) ;
-//			oEmbed.style.display = 'none' ;
-//			oEmbed.hidden = true ;
 		}
 	}
+
+	// Fix the IsDirty state (#1406).
+	if ( !bIsDirty )
+		FCK.ResetIsDirty() ;
 }
 
-FCKFlashProcessor.RefreshView = function( placholderImage, originalEmbed )
+FCKFlashProcessor.RefreshView = function( placeHolderImage, originalEmbed )
 {
-	if ( originalEmbed.width > 0 )
-		placholderImage.style.width = FCKTools.ConvertHtmlSizeToStyle( originalEmbed.width ) ;
+	if ( originalEmbed.getAttribute( 'width' ) > 0 )
+		placeHolderImage.style.width = FCKTools.ConvertHtmlSizeToStyle( originalEmbed.getAttribute( 'width' ) ) ;
 
-	if ( originalEmbed.height > 0 )
-		placholderImage.style.height = FCKTools.ConvertHtmlSizeToStyle( originalEmbed.height ) ;
+	if ( originalEmbed.getAttribute( 'height' ) > 0 )
+		placeHolderImage.style.height = FCKTools.ConvertHtmlSizeToStyle( originalEmbed.getAttribute( 'height' ) ) ;
 }
 
 FCK.GetRealElement = function( fakeElement )

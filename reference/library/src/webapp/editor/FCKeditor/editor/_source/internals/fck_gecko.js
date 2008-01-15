@@ -27,7 +27,7 @@ FCK.Description = "FCKeditor for Gecko Browsers" ;
 
 FCK.InitializeBehaviors = function()
 {
-	// When calling "SetHTML", the editing area IFRAME gets a fixed height. So we must recaulculate it.
+	// When calling "SetData", the editing area IFRAME gets a fixed height. So we must recalculate it.
 	if ( FCKBrowserInfo.IsGecko )		// Not for Safari/Opera.
 		Window_OnResize() ;
 
@@ -36,6 +36,166 @@ FCK.InitializeBehaviors = function()
 	this.ExecOnSelectionChange = function()
 	{
 		FCK.Events.FireEvent( "OnSelectionChange" ) ;
+	}
+
+	this._ExecDrop = function( evt )
+	{
+		if ( FCK.MouseDownFlag )
+		{
+			FCK.MouseDownFlag = false ;
+			return ;
+		}
+		if ( FCKConfig.ForcePasteAsPlainText )
+		{
+			if ( evt.dataTransfer )
+			{
+				var text = evt.dataTransfer.getData( 'Text' ) ;
+				text = FCKTools.HTMLEncode( text ) ;
+				text = FCKTools.ProcessLineBreaks( window, FCKConfig, text ) ;
+				FCK.InsertHtml( text ) ;
+			}
+			else if ( FCKConfig.ShowDropDialog )
+				FCK.PasteAsPlainText() ;
+		}
+		else if ( FCKConfig.ShowDropDialog )
+			FCKDialog.OpenDialog( 'FCKDialog_Paste', FCKLang.Paste, 'dialog/fck_paste.html', 400, 330, 'Security' ) ;
+		evt.preventDefault() ;
+		evt.stopPropagation() ;
+	}
+
+	this._ExecCheckCaret = function( evt )
+	{
+		if ( FCK.EditMode != FCK_EDITMODE_WYSIWYG )
+			return ;
+
+		if ( evt.type == 'keypress' )
+		{
+			var keyCode = evt.keyCode ;
+			// ignore if positioning key is not pressed.
+			// left or up arrow keys need to be processed as well, since <a> links can be expanded in Gecko's editor
+			// when the caret moved left or up from another block element below.
+			if ( keyCode < 33 || keyCode > 40 )
+				return ;
+		}
+
+		var blockEmptyStop = function( node )
+		{
+			if ( node.nodeType != 1 )
+				return false ;
+			var tag = node.tagName.toLowerCase() ;
+			return ( FCKListsLib.BlockElements[tag] || FCKListsLib.EmptyElements[tag] ) ;
+		}
+
+		var moveCursor = function()
+		{
+			var selection = FCK.EditorWindow.getSelection() ;
+			var range = selection.getRangeAt(0) ;
+			if ( ! range || ! range.collapsed )
+				return ;
+
+			var node = range.endContainer ;
+
+			// only perform the patched behavior if we're at the end of a text node.
+			if ( node.nodeType != 3 )
+				return ;
+
+			if ( node.nodeValue.length != range.endOffset )
+				return ;
+
+			// only perform the patched behavior if we're in an <a> tag, or the End key is pressed.
+			var parentTag = node.parentNode.tagName.toLowerCase() ;
+			if ( ! (  parentTag == 'a' ||
+					( ! ( FCKListsLib.BlockElements[parentTag] || FCKListsLib.NonEmptyBlockElements[parentTag] )
+					  && keyCode == 35 ) ) )
+				return ;
+
+			// our caret has moved to just after the last character of a text node under an unknown tag, how to proceed?
+			// first, see if there are other text nodes by DFS walking from this text node.
+			// 	- if the DFS has scanned all nodes under my parent, then go the next step.
+			//	- if there is a text node after me but still under my parent, then do nothing and return.
+			var nextTextNode = FCKTools.GetNextTextNode( node, node.parentNode, blockEmptyStop ) ;
+			if ( nextTextNode )
+				return ;
+
+			// we're pretty sure we need to move the caret forcefully from here.
+			range = FCK.EditorDocument.createRange() ;
+
+			nextTextNode = FCKTools.GetNextTextNode( node, node.parentNode.parentNode, blockEmptyStop ) ;
+			if ( nextTextNode )
+			{
+				// Opera thinks the dummy empty text node we append beyond the end of <a> nodes occupies a caret
+				// position. So if the user presses the left key and we reset the caret position here, the user
+				// wouldn't be able to go back.
+				if ( FCKBrowserInfo.IsOpera && keyCode == 37 )
+					return ;
+
+				// now we want to get out of our current parent node, adopt the next parent, and move the caret to
+				// the appropriate text node under our new parent.
+				// our new parent might be our current parent's siblings if we are lucky.
+				range.setStart( nextTextNode, 0 ) ;
+				range.setEnd( nextTextNode, 0 ) ;
+			}
+			else
+			{
+				// no suitable next siblings under our grandparent! what to do next?
+				while ( node.parentNode
+					&& node.parentNode != FCK.EditorDocument.body
+					&& node.parentNode != FCK.EditorDocument.documentElement
+					&& node == node.parentNode.lastChild
+					&& ( ! FCKListsLib.BlockElements[node.parentNode.tagName.toLowerCase()]
+					  && ! FCKListsLib.NonEmptyBlockElements[node.parentNode.tagName.toLowerCase()] ) )
+					node = node.parentNode ;
+
+
+				if ( FCKListsLib.BlockElements[ parentTag ]
+						|| FCKListsLib.EmptyElements[ parentTag ]
+						|| node == FCK.EditorDocument.body )
+				{
+					// if our parent is a block node, move to the end of our parent.
+					range.setStart( node, node.childNodes.length ) ;
+					range.setEnd( node, node.childNodes.length ) ;
+				}
+				else
+				{
+					// things are a little bit more interesting if our parent is not a block node
+					// due to the weired ways how Gecko's caret acts...
+					var stopNode = node.nextSibling ;
+
+					// find out the next block/empty element at our grandparent, we'll
+					// move the caret just before it.
+					while ( stopNode )
+					{
+						if ( stopNode.nodeType != 1 )
+						{
+							stopNode = stopNode.nextSibling ;
+							continue ;
+						}
+
+						var stopTag = stopNode.tagName.toLowerCase() ;
+						if ( FCKListsLib.BlockElements[stopTag] || FCKListsLib.EmptyElements[stopTag] 
+							|| FCKListsLib.NonEmptyBlockElements[stopTag] )
+							break ;
+						stopNode = stopNode.nextSibling ;
+					}
+
+					// note that the dummy marker below is NEEDED, otherwise the caret's behavior will
+					// be broken in Gecko.
+					var marker = FCK.EditorDocument.createTextNode( '' ) ;
+					if ( stopNode )
+						node.parentNode.insertBefore( marker, stopNode ) ;
+					else
+						node.parentNode.appendChild( marker ) ;
+					range.setStart( marker, 0 ) ;
+					range.setEnd( marker, 0 ) ;
+				}
+			}
+
+			selection.removeAllRanges() ;
+			selection.addRange( range ) ;
+			FCK.Events.FireEvent( "OnSelectionChange" ) ;
+		}
+
+		setTimeout( moveCursor, 1 ) ;
 	}
 
 	this.ExecOnSelectionChangeTimer = function()
@@ -49,7 +209,7 @@ FCK.InitializeBehaviors = function()
 	this.EditorDocument.addEventListener( 'mouseup', this.ExecOnSelectionChange, false ) ;
 
 	// On Gecko, firing the "OnSelectionChange" event on every key press started to be too much
-	// slow. So, a timer has been implemented to solve performance issues when tipying to quickly.
+	// slow. So, a timer has been implemented to solve performance issues when typing to quickly.
 	this.EditorDocument.addEventListener( 'keyup', this.ExecOnSelectionChangeTimer, false ) ;
 
 	this._DblClickListener = function( e )
@@ -58,6 +218,53 @@ FCK.InitializeBehaviors = function()
 		e.stopPropagation() ;
 	}
 	this.EditorDocument.addEventListener( 'dblclick', this._DblClickListener, true ) ;
+
+	// Record changes for the undo system when there are key down events.
+	this.EditorDocument.addEventListener( 'keydown', this._KeyDownListener, false ) ;
+
+	// Hooks for data object drops
+	if ( FCKBrowserInfo.IsGecko )
+	{
+		this.EditorWindow.addEventListener( 'dragdrop', this._ExecDrop, true ) ;
+	}
+	else if ( FCKBrowserInfo.IsSafari )
+	{
+		var cancelHandler = function( evt ){ if ( ! FCK.MouseDownFlag ) evt.returnValue = false ; }
+		this.EditorDocument.addEventListener( 'dragenter', cancelHandler, true ) ;
+		this.EditorDocument.addEventListener( 'dragover', cancelHandler, true ) ;
+		this.EditorDocument.addEventListener( 'drop', this._ExecDrop, true ) ;
+		this.EditorDocument.addEventListener( 'mousedown',
+			function( ev )
+			{
+				var element = ev.srcElement ;
+
+				if ( element.nodeName.IEquals( 'IMG', 'HR', 'INPUT', 'TEXTAREA', 'SELECT' ) )
+				{
+					FCKSelection.SelectNode( element ) ;
+				}
+			}, true ) ;
+
+		this.EditorDocument.addEventListener( 'mouseup',
+			function( ev )
+			{
+				if ( ev.srcElement.nodeName.IEquals( 'INPUT', 'TEXTAREA', 'SELECT' ) )
+					ev.preventDefault()
+			}, true ) ;
+
+		this.EditorDocument.addEventListener( 'click',
+			function( ev )
+			{
+				if ( ev.srcElement.nodeName.IEquals( 'INPUT', 'TEXTAREA', 'SELECT' ) )
+					ev.preventDefault()
+			}, true ) ;
+	}
+
+	// Kludge for buggy Gecko caret positioning logic (Bug #393 and #1056)
+	if ( FCKBrowserInfo.IsGecko || FCKBrowserInfo.IsOpera )
+	{
+		this.EditorDocument.addEventListener( 'keypress', this._ExecCheckCaret, false ) ;
+		this.EditorDocument.addEventListener( 'click', this._ExecCheckCaret, false ) ;
+	}
 
 	// Reset the context menu.
 	FCK.ContextMenu._InnerContextMenu.SetMouseClickWindow( FCK.EditorWindow ) ;
@@ -95,7 +302,8 @@ FCK.RedirectNamedCommands =
 {
 	Print	: true,
 	Paste	: true,
-	Cut		: true,
+
+	Cut	: true,
 	Copy	: true
 } ;
 
@@ -108,7 +316,15 @@ FCK.ExecuteRedirectedNamedCommand = function( commandName, commandParameter )
 			FCK.EditorWindow.print() ;
 			break ;
 		case 'Paste' :
-			try			{ if ( FCK.Paste() ) FCK.ExecuteNamedCommand( 'Paste', null, true ) ; }
+			try
+			{
+				// Force the paste dialog for Safari (#50).
+				if ( FCKBrowserInfo.IsSafari )
+					throw '' ;
+
+				if ( FCK.Paste() )
+					FCK.ExecuteNamedCommand( 'Paste', null, true ) ;
+			}
 			catch (e)	{ FCKDialog.OpenDialog( 'FCKDialog_Paste', FCKLang.Paste, 'dialog/fck_paste.html', 400, 330, 'Security' ) ; }
 			break ;
 		case 'Cut' :
@@ -124,13 +340,11 @@ FCK.ExecuteRedirectedNamedCommand = function( commandName, commandParameter )
 	}
 }
 
-FCK.AttachToOnSelectionChange = function( functionPointer )
+FCK._ExecPaste = function()
 {
-	this.Events.AttachEvent( 'OnSelectionChange', functionPointer ) ;
-}
+	// Save a snapshot for undo before actually paste the text
+	FCKUndo.SaveUndoStep() ;
 
-FCK.Paste = function()
-{
 	if ( FCKConfig.ForcePasteAsPlainText )
 	{
 		FCK.PasteAsPlainText() ;
@@ -138,7 +352,6 @@ FCK.Paste = function()
 	}
 
 	/* For now, the AutoDetectPasteFromWord feature is IE only. */
-
 	return true ;
 }
 
@@ -152,58 +365,22 @@ FCK.InsertHtml = function( html )
 	html = FCK.ProtectUrls( html ) ;
 	html = FCK.ProtectTags( html ) ;
 
-	// Firefox can't handle correctly the editing of the STRONG and EM tags.
-	// We must replace them with B and I.
-		html = html.replace( FCKRegexLib.StrongOpener, '<b$1' ) ;
-		html = html.replace( FCKRegexLib.StrongCloser, '<\/b>' ) ;
-		html = html.replace( FCKRegexLib.EmOpener, '<i$1' ) ;
-		html = html.replace( FCKRegexLib.EmCloser, '<\/i>' ) ;
+	// Save an undo snapshot first.
+	FCKUndo.SaveUndoStep() ;
 
-	// Delete the actual selection.
-	var oSel = FCKSelection.Delete() ;
-
-	// Get the first available range.
-	var oRange = oSel.getRangeAt(0) ;
-
-	// Create a fragment with the input HTML.
-	var oFragment = oRange.createContextualFragment( html ) ;
-
-	// Get the last available node.
-	var oLastNode = oFragment.lastChild ;
-
-	// Insert the fragment in the range.
-	oRange.insertNode(oFragment) ;
-
-	// Set the cursor after the inserted fragment.
-	FCKSelection.SelectNode( oLastNode ) ;
-	FCKSelection.Collapse( false ) ;
-
+	// Insert the HTML code.
+	this.EditorDocument.execCommand( 'inserthtml', false, html ) ;
 	this.Focus() ;
-}
 
-FCK.InsertElement = function( element )
-{
-	// Deletes the actual selection.
-	var oSel = FCKSelection.Delete() ;
-
-	// Gets the first available range.
-	var oRange = oSel.getRangeAt(0) ;
-
-	// Inserts the element in the range.
-	oRange.insertNode( element ) ;
-
-	// Set the cursor after the inserted fragment.
-	FCKSelection.SelectNode( element ) ;
-	FCKSelection.Collapse( false ) ;
-
-	this.Focus() ;
+	// For some strange reason the SaveUndoStep() call doesn't activate the undo button at the first InsertHtml() call.
+	this.Events.FireEvent( "OnSelectionChange" ) ;
 }
 
 FCK.PasteAsPlainText = function()
 {
 	// TODO: Implement the "Paste as Plain Text" code.
 
-	// If the function is called inmediately Firefox 2 does automatically paste the contents as soon as the new dialog is created
+	// If the function is called immediately Firefox 2 does automatically paste the contents as soon as the new dialog is created
 	// so we run it in a Timeout and the paste event can be cancelled
 	FCKTools.RunFunction( FCKDialog.OpenDialog, FCKDialog, ['FCKDialog_Paste', FCKLang.PasteAsText, 'dialog/fck_paste.html', 400, 330, 'PlainText'] ) ;
 
@@ -228,9 +405,12 @@ FCK.GetClipboardHTML = function()
 	return '' ;
 }
 
-FCK.CreateLink = function( url )
+FCK.CreateLink = function( url, noUndo )
 {
-	FCK.ExecuteNamedCommand( 'Unlink' ) ;
+	// Creates the array that will be returned. It contains one or more created links (see #220).
+	var aCreatedLinks = new Array() ;
+
+	FCK.ExecuteNamedCommand( 'Unlink', null, false, !!noUndo ) ;
 
 	if ( url.length > 0 )
 	{
@@ -238,17 +418,48 @@ FCK.CreateLink = function( url )
 		var sTempUrl = 'javascript:void(0);/*' + ( new Date().getTime() ) + '*/' ;
 
 		// Use the internal "CreateLink" command to create the link.
-		FCK.ExecuteNamedCommand( 'CreateLink', sTempUrl ) ;
+		FCK.ExecuteNamedCommand( 'CreateLink', sTempUrl, false, !!noUndo ) ;
 
-		// Retrieve the just created link using XPath.
-		var oLink = this.EditorDocument.evaluate("//a[@href='" + sTempUrl + "']", this.EditorDocument.body, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue ;
+		// Retrieve the just created links using XPath.
+		var oLinksInteractor = this.EditorDocument.evaluate("//a[@href='" + sTempUrl + "']", this.EditorDocument.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null) ;
 
-		if ( oLink )
+		// Add all links to the returning array.
+		for ( var i = 0 ; i < oLinksInteractor.snapshotLength ; i++ )
 		{
+			var oLink = oLinksInteractor.snapshotItem( i ) ;
 			oLink.href = url ;
-			return oLink ;
+
+			// It may happen that the browser (aka Safari) decides to use the
+			// URL as the link content to not leave it empty. In this case,
+			// let's reset it.
+			if ( sTempUrl == oLink.innerHTML )
+				oLink.innerHTML = '' ;
+
+			aCreatedLinks.push( oLink ) ;
 		}
 	}
 
-	return null ;
+	return aCreatedLinks ;
+}
+
+FCK._FillEmptyBlock = function( emptyBlockNode )
+{
+	if ( ! emptyBlockNode || emptyBlockNode.nodeType != 1 )
+		return ;
+	var nodeTag = emptyBlockNode.tagName.toLowerCase() ;
+	if ( nodeTag != 'p' && nodeTag != 'div' )
+		return ;
+	if ( emptyBlockNode.firstChild )
+		return ;
+	FCKTools.AppendBogusBr( emptyBlockNode ) ;
+}
+
+FCK._ExecCheckEmptyBlock = function()
+{
+	FCK._FillEmptyBlock( FCK.EditorDocument.body.firstChild ) ;
+	var sel = FCK.EditorWindow.getSelection() ;
+	if ( !sel || sel.rangeCount < 1 )
+		return ;
+	var range = sel.getRangeAt( 0 );
+	FCK._FillEmptyBlock( range.startContainer ) ;
 }

@@ -61,18 +61,17 @@ FCKXml.prototype.LoadUrl = function( urlToCall, asyncFunctionPointer )
 		{
 			if ( oXmlHttp.readyState == 4 )
 			{
-				if ( oXmlHttp.responseXML == null || oXmlHttp.responseXML.firstChild == null)
+				if ( ( oXmlHttp.status != 200 && oXmlHttp.status != 304 ) || oXmlHttp.responseXML == null || oXmlHttp.responseXML.firstChild == null )
 				{
-					alert( 'The server didn\'t send back a proper XML response.\r\n\r\n' +
-							'Requested URL: ' + urlToCall + '\r\n' +
-							'Response text:\r\n' + oXmlHttp.responseText ) ;
+					alert( 'The server didn\'t send back a proper XML response. Please contact your system administrator.\n\n' +
+							'XML request error: ' + oXmlHttp.statusText + ' (' + oXmlHttp.status + ')\n\n' +
+							'Requested URL:\n' + urlToCall + '\n\n' +
+							'Response text:\n' + oXmlHttp.responseText ) ;
 					return ;
 				}
+
 				oFCKXml.DOMDocument = oXmlHttp.responseXML ;
-				if ( oXmlHttp.status == 200 || oXmlHttp.status == 304 )
-					asyncFunctionPointer( oFCKXml ) ;
-				else
-					alert( 'XML request error: ' + oXmlHttp.statusText + ' (' + oXmlHttp.status + ')' ) ;
+				asyncFunctionPointer( oFCKXml ) ;
 			}
 		}
 	}

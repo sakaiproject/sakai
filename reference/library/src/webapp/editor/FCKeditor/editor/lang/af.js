@@ -45,6 +45,7 @@ InsertLinkLbl		: "Skakel",
 InsertLink			: "Skakel byvoeg/verander",
 RemoveLink			: "Skakel verweider",
 Anchor				: "Plekhouer byvoeg/verander",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Beeld",
 InsertImage			: "Beeld byvoeg/verander",
 InsertFlashLbl		: "Flash",
@@ -70,6 +71,7 @@ RightJustify		: "Regs rig",
 BlockJustify		: "Blok paradeer",
 DecreaseIndent		: "Paradeering verkort",
 IncreaseIndent		: "Paradeering verleng",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Ont-skep",
 Redo				: "Her-skep",
 NumberedListLbl		: "Genommerde lys",
@@ -103,20 +105,27 @@ SelectionField	: "Opklapbare keuse strook",
 ImageButton		: "Beeld knop",
 
 FitWindow		: "Maksimaliseer venster grote",
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Verander skakel",
 CellCM				: "Cell",
 RowCM				: "Ry",
 ColumnCM			: "Kolom",
-InsertRow			: "Ry byvoeg",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Ry verweider",
-InsertColumn		: "Kolom byvoeg",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Kolom verweider",
-InsertCell			: "Cell byvoeg",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Cell verweider",
 MergeCells			: "Cell verenig",
-SplitCell			: "Cell verdeel",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Tabel verweider",
 CellProperties		: "Cell eienskappe",
 TableProperties		: "Tabel eienskappe",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Opklapbare keuse strook eienskappe",
 TextareaProp		: "Karakter area eienskappe",
 FormProp			: "Form eienskappe",
 
-FontFormats			: "Normaal;Geformateerd;Adres;Opskrif 1;Opskrif 2;Opskrif 3;Opskrif 4;Opskrif 5;Opskrif 6;Normaal (DIV)",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normaal;Geformateerd;Adres;Opskrif 1;Opskrif 2;Opskrif 3;Opskrif 4;Opskrif 5;Opskrif 6;Normaal (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "XHTML word verarbeit. U geduld asseblief...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Kies 'n plekhouer",
 DlgLnkAnchorByName	: "Volgens plekhouer naam",
 DlgLnkAnchorById	: "Volgens element Id",
-DlgLnkNoAnchors		: "<Geen plekhouers beskikbaar in dokument>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Geen plekhouers beskikbaar in dokument}",
 DlgLnkEMail			: "E-Mail Adres",
 DlgLnkEMailSubject	: "Boodskap Opskrif",
 DlgLnkEMailBody		: "Boodskap Inhoud",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Kolom strekking",
 DlgCellBackColor	: "Agtergrond Kleur",
 DlgCellBorderColor	: "Kant Kleur",
 DlgCellBtnSelect	: "Keuse...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Vind",

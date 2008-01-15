@@ -39,12 +39,13 @@ Paste				: "Lim inn",
 PasteText			: "Lim inn som ren tekst",
 PasteWord			: "Lim inn fra Word",
 Print				: "Skriv ut",
-SelectAll			: "Velg alle",
+SelectAll			: "Merk alt",
 RemoveFormat		: "Fjern format",
 InsertLinkLbl		: "Lenke",
 InsertLink			: "Sett inn/Rediger lenke",
 RemoveLink			: "Fjern lenke",
 Anchor				: "Sett inn/Rediger anker",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Bilde",
 InsertImage			: "Sett inn/Rediger bilde",
 InsertFlashLbl		: "Flash",
@@ -70,6 +71,7 @@ RightJustify		: "Høyrejuster",
 BlockJustify		: "Blokkjuster",
 DecreaseIndent		: "Senk nivå",
 IncreaseIndent		: "Øk nivå",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Angre",
 Redo				: "Gjør om",
 NumberedListLbl		: "Numrert liste",
@@ -103,20 +105,27 @@ SelectionField	: "Dropdown meny",
 ImageButton		: "Bildeknapp",
 
 FitWindow		: "Maksimer størrelsen på redigeringsverktøyet",
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Rediger lenke",
 CellCM				: "Celle",
 RowCM				: "Rader",
 ColumnCM			: "Kolonne",
-InsertRow			: "Sett inn rad",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Slett rader",
-InsertColumn		: "Sett inn kolonne",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Slett kolonner",
-InsertCell			: "Sett inn celle",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Slett celler",
 MergeCells			: "Slå sammen celler",
-SplitCell			: "Splitt celler",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Slett tabell",
 CellProperties		: "Celleegenskaper",
 TableProperties		: "Tabellegenskaper",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Dropdown menyegenskaper",
 TextareaProp		: "Tekstfeltegenskaper",
 FormProp			: "Skjemaegenskaper",
 
-FontFormats			: "Normal;Formatert;Adresse;Tittel 1;Tittel 2;Tittel 3;Tittel 4;Tittel 5;Tittel 6",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normal;Formatert;Adresse;Tittel 1;Tittel 2;Tittel 3;Tittel 4;Tittel 5;Tittel 6;Normal (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "Lager XHTML. Vennligst vent...",
@@ -221,16 +230,16 @@ DlgLnkTargetTab		: "Mål",
 
 DlgLnkType			: "Lenketype",
 DlgLnkTypeURL		: "URL",
-DlgLnkTypeAnchor	: "Lenke til bokmerke i teksten",
-DlgLnkTypeEMail		: "E-Post",
+DlgLnkTypeAnchor	: "Lenke til anker i teksten",
+DlgLnkTypeEMail		: "E-post",
 DlgLnkProto			: "Protokoll",
 DlgLnkProtoOther	: "<annet>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Velg ett anker",
 DlgLnkAnchorByName	: "Anker etter navn",
 DlgLnkAnchorById	: "Element etter ID",
-DlgLnkNoAnchors		: "<Ingen anker i dokumentet>",		//REVIEW : Change < and > with ( and )
-DlgLnkEMail			: "E-Post Addresse",
+DlgLnkNoAnchors		: "(Ingen anker i dokumentet)",
+DlgLnkEMail			: "E-postadresse",
 DlgLnkEMailSubject	: "Meldingsemne",
 DlgLnkEMailBody		: "Melding",
 DlgLnkUpload		: "Last opp",
@@ -287,7 +296,7 @@ DlgTableAlignLeft	: "Venstre",
 DlgTableAlignCenter	: "Midtjuster",
 DlgTableAlignRight	: "Høyre",
 DlgTableWidth		: "Bredde",
-DlgTableWidthPx		: "pixler",
+DlgTableWidthPx		: "piksler",
 DlgTableWidthPc		: "prosent",
 DlgTableHeight		: "Høyde",
 DlgTableCellSpace	: "Celle marg",
@@ -296,9 +305,9 @@ DlgTableCaption		: "Tittel",
 DlgTableSummary		: "Sammendrag",
 
 // Table Cell Dialog
-DlgCellTitle		: "Celle egenskaper",
+DlgCellTitle		: "Celleegenskaper",
 DlgCellWidth		: "Bredde",
-DlgCellWidthPx		: "pixeler",
+DlgCellWidthPx		: "piksler",
 DlgCellWidthPc		: "prosent",
 DlgCellHeight		: "Høyde",
 DlgCellWordWrap		: "Tekstbrytning",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Kolonnespenn",
 DlgCellBackColor	: "Bakgrunnsfarge",
 DlgCellBorderColor	: "Rammefarge",
 DlgCellBtnSelect	: "Velg...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Finn",

@@ -45,6 +45,7 @@ InsertLinkLbl		: "Hipersaite",
 InsertLink			: "Ievietot/Labot hipersaiti",
 RemoveLink			: "Noņemt hipersaiti",
 Anchor				: "Ievietot/Labot iezīmi",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Attēls",
 InsertImage			: "Ievietot/Labot Attēlu",
 InsertFlashLbl		: "Flash",
@@ -70,6 +71,7 @@ RightJustify		: "Izlīdzināt pa labi",
 BlockJustify		: "Izlīdzināt malas",
 DecreaseIndent		: "Samazināt atkāpi",
 IncreaseIndent		: "Palielināt atkāpi",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Atcelt",
 Redo				: "Atkārtot",
 NumberedListLbl		: "Numurēts saraksts",
@@ -103,20 +105,27 @@ SelectionField	: "Iezīmēšanas lauks",
 ImageButton		: "Attēlpoga",
 
 FitWindow		: "Maksimizēt redaktora izmēru",
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Labot hipersaiti",
 CellCM				: "Šūna",
 RowCM				: "Rinda",
 ColumnCM			: "Kolonna",
-InsertRow			: "Ievietot rindu",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Dzēst rindas",
-InsertColumn		: "Ievietot kolonnu",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Dzēst kolonnas",
-InsertCell			: "Ievietot rūtiņu",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Dzēst rūtiņas",
 MergeCells			: "Apvienot rūtiņas",
-SplitCell			: "Sadalīt rūtiņu",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Dzēst tabulu",
 CellProperties		: "Rūtiņas īpašības",
 TableProperties		: "Tabulas īpašības",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Iezīmēšanas lauka īpašības",
 TextareaProp		: "Teksta laukuma īpašības",
 FormProp			: "Formas īpašības",
 
-FontFormats			: "Normāls teksts;Formatēts teksts;Adrese;Virsraksts 1;Virsraksts 2;Virsraksts 3;Virsraksts 4;Virsraksts 5;Virsraksts 6;Rindkopa (DIV)",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normāls teksts;Formatēts teksts;Adrese;Virsraksts 1;Virsraksts 2;Virsraksts 3;Virsraksts 4;Virsraksts 5;Virsraksts 6;Rindkopa (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "Tiek apstrādāts XHTML. Lūdzu uzgaidiet...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Izvēlēties iezīmi",
 DlgLnkAnchorByName	: "Pēc iezīmes nosaukuma",
 DlgLnkAnchorById	: "Pēc elementa ID",
-DlgLnkNoAnchors		: "<Šajā dokumentā nav iezīmju>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Šajā dokumentā nav iezīmju)",
 DlgLnkEMail			: "E-pasta adrese",
 DlgLnkEMailSubject	: "Ziņas tēma",
 DlgLnkEMailBody		: "Ziņas saturs",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Kolonnu pārnese",
 DlgCellBackColor	: "Fona krāsa",
 DlgCellBorderColor	: "Rāmja krāsa",
 DlgCellBtnSelect	: "Iezīmē...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Meklētājs",

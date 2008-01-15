@@ -34,6 +34,8 @@ var FCKToolbarButton = function( commandName, label, tooltip, style, sourceView,
 		this.IconPath = FCKConfig.SkinPath + 'toolbar/' + commandName.toLowerCase() + '.gif' ;
 	else if ( typeof( icon ) == 'number' )
 		this.IconPath = [ FCKConfig.SkinPath + 'fck_strip.gif', 16, icon ] ;
+	else
+		this.IconPath = icon ;
 }
 
 FCKToolbarButton.prototype.Create = function( targetElement )

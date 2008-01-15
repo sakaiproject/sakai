@@ -30,8 +30,11 @@ function FCKToolbarSet_Create( overhideLocation )
 	switch ( sLocation )
 	{
 		case 'In' :
-				document.getElementById( 'xToolbarRow' ).style.display = '' ;
-				oToolbarSet = new FCKToolbarSet( document ) ;
+			document.getElementById( 'xToolbarRow' ).style.display = '' ;
+			oToolbarSet = new FCKToolbarSet( document ) ;
+			break ;
+		case 'None' :
+			oToolbarSet = new FCKToolbarSet( document ) ;
 			break ;
 
 //		case 'OutTop' :
@@ -60,7 +63,7 @@ function FCKToolbarSet_Create( overhideLocation )
 			if ( !eToolbarTarget )
 			{
 				alert( 'Invalid value for "ToolbarLocation"' ) ;
-				return this._Init( 'In' ) ;
+				return arguments.callee( 'In' );
 			}
 
 			// If it is a shared toolbar, it may be already available in the target element.
@@ -70,6 +73,7 @@ function FCKToolbarSet_Create( overhideLocation )
 
 			// Create the IFRAME that will hold the toolbar inside the target element.
 			var eToolbarIFrame = FCKTools.GetElementDocument( eToolbarTarget ).createElement( 'iframe' ) ;
+			eToolbarIFrame.src = 'javascript:void(0)' ;
 			eToolbarIFrame.frameBorder = 0 ;
 			eToolbarIFrame.width = '100%' ;
 			eToolbarIFrame.height = '10' ;
@@ -78,11 +82,18 @@ function FCKToolbarSet_Create( overhideLocation )
 
 			// Write the basic HTML for the toolbar (copy from the editor main page).
 			var eTargetDocument = eToolbarIFrame.contentWindow.document ;
+
+			// Workaround for Safari 12256. Ticket #63
+			var sBase = '' ;
+			if ( FCKBrowserInfo.IsSafari )
+				sBase = '<base href="' + window.document.location + '">' ;
+
+			// Initialize the IFRAME document body.
 			eTargetDocument.open() ;
-			eTargetDocument.write( '<html><head><script type="text/javascript"> window.onload = window.onresize = function() { window.frameElement.height = document.body.scrollHeight ; } </script></head><body style="overflow: hidden">' + document.getElementById( 'xToolbarSpace' ).innerHTML + '</body></html>' ) ;
+			eTargetDocument.write( '<html><head>' + sBase + '<script type="text/javascript"> var adjust = function() { window.frameElement.height = document.body.scrollHeight ; }; window.onresize = adjust; window.onload = function () {window.setTimeout( adjust, 0 );}</script></head><body style="overflow: hidden">' + document.getElementById( 'xToolbarSpace' ).innerHTML + '</body></html>' ) ;
 			eTargetDocument.close() ;
 
-			eTargetDocument.oncontextmenu = FCKTools.CancelEvent ;
+			FCKTools.AddEventListener( eTargetDocument, 'contextmenu', FCKTools.CancelEvent ) ;
 
 			// Load external resources (must be done here, otherwise Firefox will not
 			// have the document DOM ready to be used right away.
@@ -90,7 +101,7 @@ function FCKToolbarSet_Create( overhideLocation )
 
 			oToolbarSet = eToolbarTarget.__FCKToolbarSet = new FCKToolbarSet( eTargetDocument ) ;
 			oToolbarSet._IFrame = eToolbarIFrame ;
-
+			
 			if ( FCK.IECleanup )
 				FCK.IECleanup.AddItem( eToolbarTarget, FCKToolbarSet_Target_Cleanup ) ;
 	}
@@ -150,10 +161,10 @@ var FCKToolbarSet = function( targetDocument )
 	var eCollapseHandle	= targetDocument.getElementById( 'xCollapseHandle' ) ;
 
 	eExpandHandle.title		= FCKLang.ToolbarExpand ;
-	eExpandHandle.onclick	= FCKToolbarSet_Expand_OnClick ;
+	FCKTools.AddEventListener( eExpandHandle, 'click', FCKToolbarSet_Expand_OnClick ) ;
 
 	eCollapseHandle.title	= FCKLang.ToolbarCollapse ;
-	eCollapseHandle.onclick	= FCKToolbarSet_Collapse_OnClick ;
+	FCKTools.AddEventListener( eCollapseHandle, 'click', FCKToolbarSet_Collapse_OnClick ) ;
 
 	// Set the toolbar state at startup.
 	if ( !FCKConfig.ToolbarCanCollapse || FCKConfig.ToolbarStartExpanded )
@@ -216,7 +227,7 @@ FCKToolbarSet.prototype.Load = function( toolbarSetName )
 
 	this.Items = new Array() ;
 
-	// Reset the array of toolbat items that are active only on WYSIWYG mode.
+	// Reset the array of toolbar items that are active only on WYSIWYG mode.
 	this.ItemsWysiwygOnly = new Array() ;
 
 	// Reset the array of toolbar items that are sensitive to the cursor position.
@@ -238,6 +249,11 @@ FCKToolbarSet.prototype.Load = function( toolbarSetName )
 	for ( var x = 0 ; x < ToolbarSet.length ; x++ )
 	{
 		var oToolbarItems = ToolbarSet[x] ;
+
+		// If the configuration for the toolbar is missing some element or has any extra comma
+		// this item won't be valid, so skip it and keep on processing.
+		if ( !oToolbarItems ) 
+			continue ;
 
 		var oToolbar ;
 

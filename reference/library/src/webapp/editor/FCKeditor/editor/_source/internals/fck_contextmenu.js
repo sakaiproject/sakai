@@ -34,6 +34,7 @@ FCK.ContextMenu.RegisterListener = function( listener )
 function FCK_ContextMenu_Init()
 {
 	var oInnerContextMenu = FCK.ContextMenu._InnerContextMenu = new FCKContextMenu( FCKBrowserInfo.IsIE ? window : window.parent, FCKLang.Dir ) ;
+	oInnerContextMenu.CtrlDisable	= FCKConfig.BrowserContextMenuOnCtrl ;
 	oInnerContextMenu.OnBeforeOpen	= FCK_ContextMenu_OnBeforeOpen ;
 	oInnerContextMenu.OnItemClick	= FCK_ContextMenu_OnItemClick ;
 
@@ -69,21 +70,37 @@ function FCK_ContextMenu_GetListener( listenerName )
 				{
 					menu.AddSeparator() ;
 					var oItem = menu.AddItem( 'Cell'	, FCKLang.CellCM ) ;
-					oItem.AddItem( 'TableInsertCell'	, FCKLang.InsertCell, 58 ) ;
+					oItem.AddItem( 'TableInsertCellBefore'	, FCKLang.InsertCellBefore, 69 ) ; 
+					oItem.AddItem( 'TableInsertCellAfter'	, FCKLang.InsertCellAfter, 58 ) ;
 					oItem.AddItem( 'TableDeleteCells'	, FCKLang.DeleteCells, 59 ) ;
-					oItem.AddItem( 'TableMergeCells'	, FCKLang.MergeCells, 60 ) ;
-					oItem.AddItem( 'TableSplitCell'		, FCKLang.SplitCell, 61 ) ;
+					if ( FCKBrowserInfo.IsGecko )
+						oItem.AddItem( 'TableMergeCells'	, FCKLang.MergeCells, 60,
+							FCKCommands.GetCommand( 'TableMergeCells' ).GetState() == FCK_TRISTATE_DISABLED ) ;
+					else
+					{
+						oItem.AddItem( 'TableMergeRight'	, FCKLang.MergeRight, 60, 
+							FCKCommands.GetCommand( 'TableMergeRight' ).GetState() == FCK_TRISTATE_DISABLED ) ;
+						oItem.AddItem( 'TableMergeDown'		, FCKLang.MergeDown, 60,
+							FCKCommands.GetCommand( 'TableMergeDown' ).GetState() == FCK_TRISTATE_DISABLED ) ;
+					}
+					oItem.AddItem( 'TableHorizontalSplitCell'	, FCKLang.HorizontalSplitCell, 61,
+						FCKCommands.GetCommand( 'TableHorizontalSplitCell' ).GetState() == FCK_TRISTATE_DISABLED ) ;
+					oItem.AddItem( 'TableVerticalSplitCell'	, FCKLang.VerticalSplitCell, 61,
+						FCKCommands.GetCommand( 'TableVerticalSplitCell' ).GetState() == FCK_TRISTATE_DISABLED ) ;
 					oItem.AddSeparator() ;
-					oItem.AddItem( 'TableCellProp'		, FCKLang.CellProperties, 57 ) ;
+					oItem.AddItem( 'TableCellProp'		, FCKLang.CellProperties, 57,
+						FCKCommands.GetCommand( 'TableCellProp' ).GetState() == FCK_TRISTATE_DISABLED ) ;
 
 					menu.AddSeparator() ;
 					oItem = menu.AddItem( 'Row'			, FCKLang.RowCM ) ;
-					oItem.AddItem( 'TableInsertRow'		, FCKLang.InsertRow, 62 ) ;
+					oItem.AddItem( 'TableInsertRowBefore'		, FCKLang.InsertRowBefore, 70 ) ;
+					oItem.AddItem( 'TableInsertRowAfter'		, FCKLang.InsertRowAfter, 62 ) ;
 					oItem.AddItem( 'TableDeleteRows'	, FCKLang.DeleteRows, 63 ) ;
 
 					menu.AddSeparator() ;
 					oItem = menu.AddItem( 'Column'		, FCKLang.ColumnCM ) ;
-					oItem.AddItem( 'TableInsertColumn'	, FCKLang.InsertColumn, 64 ) ;
+					oItem.AddItem( 'TableInsertColumnBefore', FCKLang.InsertColumnBefore, 71 ) ;
+					oItem.AddItem( 'TableInsertColumnAfter'	, FCKLang.InsertColumnAfter, 64 ) ;
 					oItem.AddItem( 'TableDeleteColumns'	, FCKLang.DeleteColumns, 65 ) ;
 				}
 
@@ -140,6 +157,7 @@ function FCK_ContextMenu_GetListener( listenerName )
 				{
 					menu.AddSeparator() ;
 					menu.AddItem( 'Anchor', FCKLang.AnchorProp, 36 ) ;
+					menu.AddItem( 'AnchorDelete', FCKLang.AnchorDelete ) ;
 				}
 			}} ;
 

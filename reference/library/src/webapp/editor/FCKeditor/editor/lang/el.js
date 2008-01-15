@@ -45,6 +45,7 @@ InsertLinkLbl		: "Σύνδεσμος (Link)",
 InsertLink			: "Εισαγωγή/Μεταβολή Συνδέσμου (Link)",
 RemoveLink			: "Αφαίρεση Συνδέσμου (Link)",
 Anchor				: "Εισαγωγή/επεξεργασία Anchor",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Εικόνα",
 InsertImage			: "Εισαγωγή/Μεταβολή Εικόνας",
 InsertFlashLbl		: "Εισαγωγή Flash",
@@ -70,6 +71,7 @@ RightJustify		: "Στοίχιση Δεξιά",
 BlockJustify		: "Πλήρης Στοίχιση (Block)",
 DecreaseIndent		: "Μείωση Εσοχής",
 IncreaseIndent		: "Αύξηση Εσοχής",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Αναίρεση",
 Redo				: "Επαναφορά",
 NumberedListLbl		: "Λίστα με Αριθμούς",
@@ -103,20 +105,27 @@ SelectionField	: "Πεδίο επιλογής",
 ImageButton		: "Κουμπί εικόνας",
 
 FitWindow		: "Μεγιστοποίηση προγράμματος",
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Μεταβολή Συνδέσμου (Link)",
 CellCM				: "Κελί",
 RowCM				: "Σειρά",
 ColumnCM			: "Στήλη",
-InsertRow			: "Εισαγωγή Γραμμής",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Διαγραφή Γραμμών",
-InsertColumn		: "Εισαγωγή Κολώνας",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Διαγραφή Κολωνών",
-InsertCell			: "Εισαγωγή Κελιού",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Διαγραφή Κελιών",
 MergeCells			: "Ενοποίηση Κελιών",
-SplitCell			: "Διαχωρισμός Κελιού",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Διαγραφή πίνακα",
 CellProperties		: "Ιδιότητες Κελιού",
 TableProperties		: "Ιδιότητες Πίνακα",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Ιδιότητες πεδίου επιλογής",
 TextareaProp		: "Ιδιότητες περιοχής κειμένου",
 FormProp			: "Ιδιότητες φόρμας",
 
-FontFormats			: "Κανονικό;Μορφοποιημένο;Διεύθυνση;Επικεφαλίδα 1;Επικεφαλίδα 2;Επικεφαλίδα 3;Επικεφαλίδα 4;Επικεφαλίδα 5;Επικεφαλίδα 6",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Κανονικό;Μορφοποιημένο;Διεύθυνση;Επικεφαλίδα 1;Επικεφαλίδα 2;Επικεφαλίδα 3;Επικεφαλίδα 4;Επικεφαλίδα 5;Επικεφαλίδα 6",
 
 // Alerts and Messages
 ProcessingXHTML		: "Επεξεργασία XHTML. Παρακαλώ περιμένετε...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Επιλέξτε μια άγκυρα",
 DlgLnkAnchorByName	: "Βάσει του Ονόματος (Name) της άγκυρας",
 DlgLnkAnchorById	: "Βάσει του Element Id",
-DlgLnkNoAnchors		: "<Δεν υπάρχουν άγκυρες στο κείμενο>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Δεν υπάρχουν άγκυρες στο κείμενο)",
 DlgLnkEMail			: "Διεύθυνση Ηλεκτρονικού Ταχυδρομείου",
 DlgLnkEMailSubject	: "Θέμα Μηνύματος",
 DlgLnkEMailBody		: "Κείμενο Μηνύματος",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Αριθμός Κολωνών (Columns Span)",
 DlgCellBackColor	: "Χρώμα Υποβάθρου",
 DlgCellBorderColor	: "Χρώμα Περιθωρίου",
 DlgCellBtnSelect	: "Επιλογή...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Αναζήτηση",

@@ -55,7 +55,10 @@ FCKFitWindow.prototype.Execute = function()
 		while( (eParent = eParent.parentNode) )
 		{
 			if ( eParent.nodeType == 1 )
+			{
 				eParent._fckSavedStyles = FCKTools.SaveStyles( eParent ) ;
+				eParent.style.zIndex = FCKConfig.FloatingPanelsZIndex - 1 ;
+			}
 		}
 
 		// Hide IE scrollbars (in strict mode).
@@ -102,6 +105,13 @@ FCKFitWindow.prototype.Execute = function()
 		// Scroll to top left.
 		eMainWindow.scrollTo(0, 0);
 
+		// Is the editor still not on the top left? Let's find out and fix that as well. (Bug #174)
+		var editorPos = FCKTools.GetWindowPosition( eMainWindow, eEditorFrame ) ;
+		if ( editorPos.x != 0 )
+			eEditorFrameStyle.left = ( -1 * editorPos.x ) + "px" ;
+		if ( editorPos.y != 0 )
+			eEditorFrameStyle.top = ( -1 * editorPos.y ) + "px" ;
+
 		this.IsMaximized = true ;
 	}
 	else	// Resize to original size.
@@ -145,7 +155,8 @@ FCKFitWindow.prototype.Execute = function()
 	//lost, so we must reset it. Also, the cursor position and selection are
 	//also lost, even if you comment the following line (MakeEditable).
 	// if ( FCKBrowserInfo.IsGecko10 )	// Initially I thought it was a FF 1.0 only problem.
-	FCK.EditingArea.MakeEditable() ;
+	if ( FCK.EditMode == FCK_EDITMODE_WYSIWYG ) 
+		FCK.EditingArea.MakeEditable() ;
 
 	FCK.Focus() ;
 }

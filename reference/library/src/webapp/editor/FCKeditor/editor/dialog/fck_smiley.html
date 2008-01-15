@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -41,11 +41,14 @@ window.onload = function ()
 {
 	// First of all, translate the dialog box texts
 	oEditor.FCKLanguageManager.TranslatePage(document) ;
+
+	window.parent.SetAutoSize( true ) ;
 }
 
 function InsertSmiley( url )
 {
-	var oImg = oEditor.FCK.CreateElement( 'IMG' ) ;
+	oEditor.FCKUndo.SaveUndoStep() ;
+	var oImg = oEditor.FCK.InsertElement( 'img' ) ;
 	oImg.src = url ;
 	oImg.setAttribute( '_fcksavedurl', url ) ;
 
@@ -68,7 +71,7 @@ function out(td)
 }
 	</script>
 </head>
-<body scroll="no">
+<body style="overflow: hidden">
 	<table cellpadding="2" cellspacing="2" align="center" border="0" width="100%" height="100%">
 		<script type="text/javascript">
 

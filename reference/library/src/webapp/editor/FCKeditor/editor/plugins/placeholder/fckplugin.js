@@ -37,7 +37,7 @@ var FCKPlaceholders = new Object() ;
 // Add a new placeholder at the actual selection.
 FCKPlaceholders.Add = function( name )
 {
-	var oSpan = FCK.CreateElement( 'SPAN' ) ;
+	var oSpan = FCK.InsertElement( 'span' ) ;
 	this.SetupSpan( oSpan, name ) ;
 }
 

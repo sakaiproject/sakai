@@ -1,4 +1,4 @@
-﻿[//lasso
+[//lasso
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -81,8 +81,19 @@
 		/define_tag;
 
 		define_tag('isCompatibleBrowser');
-			local('result' = true);
-			(client_browser >> 'Apple' || client_browser >> 'Opera' || client_browser >> 'KHTML') ? #result = false;
+			local('result' = false);
+			if (client_browser->Find("MSIE") && !client_browser->Find("mac") && !client_browser->Find("Opera"));    
+				#result = client_browser->Substring(client_browser->Find("MSIE")+5,3)>=5.5;
+			/if;
+			if (client_browser->Find("Gecko/"));    
+				#result = client_browser->Substring(client_browser->Find("Gecko/")+6,8)>=20030210;
+			/if;
+			if (client_browser->Find("Opera/"));
+				#result = client_browser->Substring(client_browser->Find("Opera/")+6,4)>=9.5;
+			/if;
+			if (client_browser->Find("AppleWebKit/"));
+				#result = client_browser->Substring(client_browser->Find("AppleWebKit/")+12,3)>=522;
+			/if;
 			return(#result);
 		/define_tag;
 

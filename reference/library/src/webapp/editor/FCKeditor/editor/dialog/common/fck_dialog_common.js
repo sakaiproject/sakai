@@ -21,8 +21,6 @@
  * Useful functions used by almost all dialog window pages.
  */
 
-var GECKO_BOGUS = '<br type="_moz">' ;
-
 // Gets a element by its Id. Used for shorter coding.
 function GetE( elementId )
 {
@@ -59,19 +57,32 @@ function GetAttribute( element, attName, valueIfNull )
 	return ( oValue == null ? valueIfNull : oValue ) ;
 }
 
-// Functions used by text fiels to accept numbers only.
+var KeyIdentifierMap = 
+{
+	End		: 35,
+	Home	: 36,
+	Left	: 37,
+	Right	: 39,
+	'U+00007F' : 46		// Delete
+} 
+
+// Functions used by text fields to accept numbers only.
 function IsDigit( e )
 {
 	if ( !e )
 		e = event ;
 
 	var iCode = ( e.keyCode || e.charCode ) ;
+	
+	if ( !iCode && e.keyIdentifier && ( e.keyIdentifier in KeyIdentifierMap ) ) 
+			iCode = KeyIdentifierMap[ e.keyIdentifier ] ;
 
 	return (
 			( iCode >= 48 && iCode <= 57 )		// Numbers
-			|| (iCode >= 37 && iCode <= 40)		// Arrows
+			|| (iCode >= 35 && iCode <= 40)		// Arrows, Home, End
 			|| iCode == 8						// Backspace
 			|| iCode == 46						// Delete
+			|| iCode == 9						// Tab
 	) ;
 }
 

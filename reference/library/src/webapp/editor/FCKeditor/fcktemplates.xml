@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -35,7 +35,7 @@
 			]]>
 		</Html>
 	</Template>
-	<Template title="Two Column Template" image="template2.gif">
+	<Template title="Strange Template" image="template2.gif">
 		<Description>A template that defines two colums, each one with a title, and some text.</Description>
 		<Html>
 			<![CDATA[

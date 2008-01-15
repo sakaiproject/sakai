@@ -22,78 +22,39 @@
  */
 
 var FCKStyleCommand = function()
+{}
+
+FCKStyleCommand.prototype =
 {
-	this.Name = 'Style' ;
-
-	// Load the Styles defined in the XML file.
-	this.StylesLoader = new FCKStylesLoader() ;
-	this.StylesLoader.Load( FCKConfig.StylesXmlPath ) ;
-	this.Styles = this.StylesLoader.Styles ;
-}
-
-FCKStyleCommand.prototype.Execute = function( styleName, styleComboItem )
-{
-	FCKUndo.SaveUndoStep() ;
-
-	if ( styleComboItem.Selected )
-		styleComboItem.Style.RemoveFromSelection() ;
-	else
-		styleComboItem.Style.ApplyToSelection() ;
-
-	FCKUndo.SaveUndoStep() ;
-
-	FCK.Focus() ;
-
-	FCK.Events.FireEvent( "OnSelectionChange" ) ;
-}
-
-FCKStyleCommand.prototype.GetState = function()
-{
-	if ( !FCK.EditorDocument )
-		return FCK_TRISTATE_DISABLED ;
-
-	var oSelection = FCK.EditorDocument.selection ;
-
-	if ( FCKSelection.GetType() == 'Control' )
+	Name : 'Style',
+	
+	Execute : function( styleName, styleComboItem )
 	{
-		var e = FCKSelection.GetSelectedElement() ;
-		if ( e )
-			return this.StylesLoader.StyleGroups[ e.tagName ] ? FCK_TRISTATE_OFF : FCK_TRISTATE_DISABLED ;
-	}
+		FCKUndo.SaveUndoStep() ;
 
-	return FCK_TRISTATE_OFF ;
-}
+		if ( styleComboItem.Selected )
+			FCK.Styles.RemoveStyle( styleComboItem.Style ) ;
+		else
+			FCK.Styles.ApplyStyle( styleComboItem.Style ) ;
 
-FCKStyleCommand.prototype.GetActiveStyles = function()
-{
-	var aActiveStyles = new Array() ;
+		FCKUndo.SaveUndoStep() ;
 
-	if ( FCKSelection.GetType() == 'Control' )
-		this._CheckStyle( FCKSelection.GetSelectedElement(), aActiveStyles, false ) ;
-	else
-		this._CheckStyle( FCKSelection.GetParentElement(), aActiveStyles, true ) ;
+		FCK.Focus() ;
+		FCK.Events.FireEvent( 'OnSelectionChange' ) ;
+	},
 
-	return aActiveStyles ;
-}
-
-FCKStyleCommand.prototype._CheckStyle = function( element, targetArray, checkParent )
-{
-	if ( ! element )
-		return ;
-
-	if ( element.nodeType == 1 )
+	GetState : function()
 	{
-		var aStyleGroup = this.StylesLoader.StyleGroups[ element.tagName ] ;
-		if ( aStyleGroup )
+		if ( !FCK.EditorDocument )
+			return FCK_TRISTATE_DISABLED ;
+
+		if ( FCKSelection.GetType() == 'Control' )
 		{
-			for ( var i = 0 ; i < aStyleGroup.length ; i++ )
-			{
-				if ( aStyleGroup[i].IsEqual( element ) )
-					targetArray[ targetArray.length ] = aStyleGroup[i] ;
-			}
+			var el = FCKSelection.GetSelectedElement() ;
+			if ( !el || !FCKStyles.CheckHasObjectStyle( el.nodeName.toLowerCase() ) )
+				return FCK_TRISTATE_DISABLED ;
 		}
-	}
 
-	if ( checkParent )
-		this._CheckStyle( element.parentNode, targetArray, checkParent ) ;
-}
+		return FCK_TRISTATE_OFF ;
+	}
+};

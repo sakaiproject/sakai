@@ -88,7 +88,7 @@ If Request.QueryString("Skin") <> "" Then
 	oFCKeditor.Config("SkinPath") = sBasePath + "editor/skins/" & Server.HTMLEncode( Request.QueryString("Skin") ) + "/"
 End If
 
-oFCKeditor.Value = "This is some <strong>sample text</strong>. You are using <a href=""http://www.fckeditor.net/"">FCKeditor</a>."
+oFCKeditor.Value = "<p>This is some <strong>sample text</strong>. You are using <a href=""http://www.fckeditor.net/"">FCKeditor</a>."
 oFCKeditor.Create "FCKeditor1"
 %>
 			<br>

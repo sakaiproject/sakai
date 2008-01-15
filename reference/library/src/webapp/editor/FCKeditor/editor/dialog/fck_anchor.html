@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -68,6 +68,7 @@ window.onload = function()
 		oAnchor = null ;
 
 	window.parent.SetOkButton( true ) ;
+	window.parent.SetAutoSize( true ) ;
 }
 
 function Ok()
@@ -83,7 +84,8 @@ function Ok()
 		// Remove the anchor if the user leaves the name blank
 		if ( oAnchor )
 		{
-			RemoveAnchor() ;
+			// Removes the current anchor from the document using the new command
+			FCK.Commands.GetCommand( 'AnchorDelete' ).Execute() ;
 			return true ;
 		}
 
@@ -110,72 +112,51 @@ function Ok()
 	}
 
 	// Create a new anchor preserving the current selection
-	oAnchor = oEditor.FCK.CreateLink( '#' ) ;
-	if ( !oAnchor )
+	var aNewAnchors = oEditor.FCK.CreateLink( '#' ) ;
+
+	if ( aNewAnchors.length == 0 )
 	{
 		// Nothing was selected, so now just create a normal A
-		oAnchor = oEditor.FCK.CreateElement( 'a' ) ;
+		aNewAnchors.push( oEditor.FCK.InsertElement( 'a' ) ) ;
 	}
 	else
 	{
 		// Remove the fake href
-		oAnchor.removeAttribute( 'href' ) ;
+		for ( var i = 0 ; i < aNewAnchors.length ; i++ )
+			aNewAnchors[i].removeAttribute( 'href' ) ;
 	}
-	// Set the name
-	oAnchor.name = sNewName ;
 
-	// IE does require special processing to show the Anchor's image
-	// Opera doesn't allow to select empty anchors
-	if ( FCKBrowserInfo.IsIE || FCKBrowserInfo.IsOpera )
+	// More than one anchors may have been created, so interact through all of them (see #220).
+	for ( var i = 0 ; i < aNewAnchors.length ; i++ )
 	{
-		if ( oAnchor.innerHTML != '' )
-		{
-			if ( FCKBrowserInfo.IsIE )
-				oAnchor.className += ' FCK__AnchorC' ;
-		}
-		else
-		{
-			// Create a fake image for both IE and Opera
-			var oImg = oEditor.FCKDocumentProcessor_CreateFakeImage( 'FCK__Anchor', oAnchor.cloneNode(true) ) ;
-			oImg.setAttribute( '_fckanchor', 'true', 0 ) ;
+		oAnchor = aNewAnchors[i] ;
 
-			oAnchor.parentNode.insertBefore( oImg, oAnchor ) ;
-			oAnchor.parentNode.removeChild( oAnchor ) ;
-		}
+		// Set the name
+		oAnchor.name = sNewName ;
 
+		// IE does require special processing to show the Anchor's image
+		// Opera doesn't allow to select empty anchors
+		if ( FCKBrowserInfo.IsIE || FCKBrowserInfo.IsOpera )
+		{
+			if ( oAnchor.innerHTML != '' )
+			{
+				if ( FCKBrowserInfo.IsIE )
+					oAnchor.className += ' FCK__AnchorC' ;
+			}
+			else
+			{
+				// Create a fake image for both IE and Opera
+				var oImg = oEditor.FCKDocumentProcessor_CreateFakeImage( 'FCK__Anchor', oAnchor.cloneNode(true) ) ;
+				oImg.setAttribute( '_fckanchor', 'true', 0 ) ;
+
+				oAnchor.parentNode.insertBefore( oImg, oAnchor ) ;
+				oAnchor.parentNode.removeChild( oAnchor ) ;
+			}
+
+		}
 	}
 
 	return true ;
-}
-
-// Removes the current anchor from the document
-function RemoveAnchor()
-{
-	// If it's also a link, then just remove the name and exit
-	if ( oAnchor.href.length != 0 )
-	{
-		oAnchor.removeAttribute( 'name' ) ;
-		// Remove temporary class for IE
-		if ( FCKBrowserInfo.IsIE )
-			oAnchor.className = oAnchor.className.replace( FCKRegexLib.FCK_Class, '' ) ;
-		return ;
-	}
-
-	// We need to remove the anchor
-	// If we got a fake image, then just remove it and we're done
-	if ( oFakeImage )
-	{
-		oFakeImage.parentNode.removeChild( oFakeImage ) ;
-		return ;
-	}
-	// Empty anchor, so just remove it
-	if ( oAnchor.innerHTML.length == 0 )
-	{
-		oAnchor.parentNode.removeChild( oAnchor ) ;
-		return ;
-	}
-	// Anchor with content, leave the content
-	FCKTools.RemoveOuterTags( oAnchor ) ;
 }
 
 // Checks all the links in the current page pointing to the current name and changes them to the new name
@@ -208,7 +189,7 @@ function ReadjustLinksToAnchor( sCurrent, sNew )
 
 		</script>
 	</head>
-	<body style="OVERFLOW: hidden" scroll="no">
+	<body style="overflow: hidden">
 		<table height="100%" width="100%">
 			<tr>
 				<td align="center">

@@ -46,27 +46,19 @@ FCKToolbarButtonUI.prototype._CreatePaddingElement = function( document )
 
 FCKToolbarButtonUI.prototype.Create = function( parentElement )
 {
-	var oMainElement = this.MainElement ;
-
-	if ( oMainElement )
-	{
-		FCKToolbarButtonUI_Cleanup.call(this) ;
-
-		if ( oMainElement.parentNode )
-			oMainElement.parentNode.removeChild( oMainElement ) ;
-		oMainElement = this.MainElement = null ;
-	}
-
 	var oDoc = FCKTools.GetElementDocument( parentElement ) ;
 
 	// Create the Main Element.
-	oMainElement = this.MainElement = oDoc.createElement( 'DIV' ) ;
-	oMainElement._FCKButton = this ;		// IE Memory Leak (Circular reference).
-	oMainElement.title		= this.Tooltip ;
+	var oMainElement = this.MainElement = oDoc.createElement( 'DIV' ) ;
+	oMainElement.title = this.Tooltip ;
 
 	// The following will prevent the button from catching the focus.
 	if ( FCKBrowserInfo.IsGecko )
 		 oMainElement.onmousedown	= FCKTools.CancelEvent ;
+
+	FCKTools.AddEventListenerEx( oMainElement, 'mouseover', FCKToolbarButtonUI_OnMouseOver, this ) ;
+	FCKTools.AddEventListenerEx( oMainElement, 'mouseout', FCKToolbarButtonUI_OnMouseOut, this ) ;
+	FCKTools.AddEventListenerEx( oMainElement, 'click', FCKToolbarButtonUI_OnClick, this ) ;
 
 	this.ChangeState( this.State, true ) ;
 
@@ -134,71 +126,55 @@ FCKToolbarButtonUI.prototype.ChangeState = function( newState, force )
 
 	var e = this.MainElement ;
 
+	// In IE it can happen when the page is reloaded that MainElement is null, so exit here
+	if ( !e )
+		return ;
+
 	switch ( parseInt( newState, 10 ) )
 	{
 		case FCK_TRISTATE_OFF :
 			e.className		= 'TB_Button_Off' ;
-			e.onmouseover	= FCKToolbarButton_OnMouseOverOff ;
-			e.onmouseout	= FCKToolbarButton_OnMouseOutOff ;
-			e.onclick		= FCKToolbarButton_OnClick ;
-
 			break ;
 
 		case FCK_TRISTATE_ON :
 			e.className		= 'TB_Button_On' ;
-			e.onmouseover	= FCKToolbarButton_OnMouseOverOn ;
-			e.onmouseout	= FCKToolbarButton_OnMouseOutOn ;
-			e.onclick		= FCKToolbarButton_OnClick ;
-
 			break ;
 
 		case FCK_TRISTATE_DISABLED :
 			e.className		= 'TB_Button_Disabled' ;
-			e.onmouseover	= null ;
-			e.onmouseout	= null ;
-			e.onclick		= null ;
-
 			break ;
 	}
 
 	this.State = newState ;
 }
 
+function FCKToolbarButtonUI_OnMouseOver( ev, button )
+{
+	if ( button.State == FCK_TRISTATE_OFF )
+		this.className = 'TB_Button_Off_Over' ;
+	else if ( button.State == FCK_TRISTATE_ON )
+		this.className = 'TB_Button_On_Over' ;
+}
+
+function FCKToolbarButtonUI_OnMouseOut( ev, button )
+{
+	if ( button.State == FCK_TRISTATE_OFF )
+		this.className = 'TB_Button_Off' ;
+	else if ( button.State == FCK_TRISTATE_ON )
+		this.className = 'TB_Button_On' ;
+}
+
+function FCKToolbarButtonUI_OnClick( ev, button )
+{
+	if ( button.OnClick && button.State != FCK_TRISTATE_DISABLED )
+		button.OnClick( button ) ;
+}
+
 function FCKToolbarButtonUI_Cleanup()
 {
-	if ( this.MainElement )
-	{
-		this.MainElement._FCKButton = null ;
-		this.MainElement = null ;
-	}
-}
-
-// Event Handlers.
-
-function FCKToolbarButton_OnMouseOverOn()
-{
-	this.className = 'TB_Button_On_Over' ;
-}
-
-function FCKToolbarButton_OnMouseOutOn()
-{
-	this.className = 'TB_Button_On' ;
-}
-
-function FCKToolbarButton_OnMouseOverOff()
-{
-	this.className = 'TB_Button_Off_Over' ;
-}
-
-function FCKToolbarButton_OnMouseOutOff()
-{
-	this.className = 'TB_Button_Off' ;
-}
-
-function FCKToolbarButton_OnClick( e )
-{
-	if ( this._FCKButton.OnClick )
-		this._FCKButton.OnClick( this._FCKButton ) ;
+	// This one should not cause memory leak, but just for safety, let's clean
+	// it up.
+	this.MainElement = null ;
 }
 
 /*

@@ -45,6 +45,7 @@ InsertLinkLbl		: "Tilknýti",
 InsertLink			: "Ger/broyt tilknýti",
 RemoveLink			: "Strika tilknýti",
 Anchor				: "Ger/broyt marknastein",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Myndir",
 InsertImage			: "Set inn/broyt mynd",
 InsertFlashLbl		: "Flash",
@@ -70,6 +71,7 @@ RightJustify		: "Høgrasett",
 BlockJustify		: "Javnir tekstkantar",
 DecreaseIndent		: "Minka reglubrotarinntriv",
 IncreaseIndent		: "Økja reglubrotarinntriv",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Angra",
 Redo				: "Vend aftur",
 NumberedListLbl		: "Talmerktur listi",
@@ -103,20 +105,27 @@ SelectionField	: "Valskrá",
 ImageButton		: "Myndaknøttur",
 
 FitWindow		: "Set tekstviðgera til fulla stødd",
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Broyt tilknýti",
 CellCM				: "Meski",
 RowCM				: "Rað",
 ColumnCM			: "Kolonna",
-InsertRow			: "Nýtt rað",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Strika røðir",
-InsertColumn		: "Nýggj kolonna",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Strika kolonnur",
-InsertCell			: "Nýggjur meski",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Strika meskar",
 MergeCells			: "Flætta meskar",
-SplitCell			: "Být sundur meskar",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Strika tabell",
 CellProperties		: "Meskueginleikar",
 TableProperties		: "Tabelleginleikar",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Eginleikar fyri valskrá",
 TextareaProp		: "Eginleikar fyri tekstumráði",
 FormProp			: "Eginleikar fyri Form",
 
-FontFormats			: "Vanligt;Sniðgivið;Adressa;Yvirskrift 1;Yvirskrift 2;Yvirskrift 3;Yvirskrift 4;Yvirskrift 5;Yvirskrift 6",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Vanligt;Sniðgivið;Adressa;Yvirskrift 1;Yvirskrift 2;Yvirskrift 3;Yvirskrift 4;Yvirskrift 5;Yvirskrift 6",
 
 // Alerts and Messages
 ProcessingXHTML		: "XHTML verður viðgjørt. Bíða við...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Vel ein marknastein",
 DlgLnkAnchorByName	: "Eftir navni á marknasteini",
 DlgLnkAnchorById	: "Eftir element Id",
-DlgLnkNoAnchors		: "(Eingir marknasteinar eru í hesum dokumentið)",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Eingir marknasteinar eru í hesum dokumentið)",
 DlgLnkEMail			: "Teldupost-adressa",
 DlgLnkEMailSubject	: "Evni",
 DlgLnkEMailBody		: "Breyðtekstur",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Kolonnur, meskin fevnir um",
 DlgCellBackColor	: "Bakgrundslitur",
 DlgCellBorderColor	: "Litur á borda",
 DlgCellBtnSelect	: "Vel...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Finn",

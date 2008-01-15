@@ -23,6 +23,9 @@
 
 var FCKToolbarFontFormatCombo = function( tooltip, style )
 {
+	if ( tooltip === false )
+		return ;
+
 	this.CommandName = 'FontFormat' ;
 	this.Label		= this.GetLabel() ;
 	this.Tooltip	= tooltip ? tooltip : this.Label ;
@@ -31,29 +34,21 @@ var FCKToolbarFontFormatCombo = function( tooltip, style )
 	this.NormalLabel = 'Normal' ;
 
 	this.PanelWidth = 190 ;
+	
+	this.DefaultLabel = FCKConfig.DefaultFontFormatLabel || '' ;
 }
 
 // Inherit from FCKToolbarSpecialCombo.
-FCKToolbarFontFormatCombo.prototype = new FCKToolbarSpecialCombo ;
-
+FCKToolbarFontFormatCombo.prototype = new FCKToolbarStyleCombo( false ) ;
 
 FCKToolbarFontFormatCombo.prototype.GetLabel = function()
 {
 	return FCKLang.FontFormat ;
 }
 
-FCKToolbarFontFormatCombo.prototype.CreateItems = function( targetSpecialCombo )
+FCKToolbarFontFormatCombo.prototype.GetStyles = function()
 {
-	var oTargetDoc = targetSpecialCombo._Panel.Document ;
-
-	// Add the Editor Area CSS to the panel to create a realistic preview.
-	FCKTools.AppendStyleSheet( oTargetDoc, FCKConfig.ToolbarComboPreviewCSS ) ;
-
-	// Add ID and Class to the body
-	if ( FCKConfig.BodyId && FCKConfig.BodyId.length > 0 )
-		oTargetDoc.body.id = FCKConfig.BodyId ;
-	if ( FCKConfig.BodyClass && FCKConfig.BodyClass.length > 0 )
-		oTargetDoc.body.className += ' ' + FCKConfig.BodyClass ;
+	var styles = {} ;
 
 	// Get the format names from the language file.
 	var aNames = FCKLang['FontFormats'].split(';') ;
@@ -67,48 +62,78 @@ FCKToolbarFontFormatCombo.prototype.CreateItems = function( targetSpecialCombo )
 		h4		: aNames[6],
 		h5		: aNames[7],
 		h6		: aNames[8],
-		div		: aNames[9]
+		div		: aNames[9] || ( aNames[0] + ' (DIV)')
 	} ;
-
+	
 	// Get the available formats from the configuration file.
-	var aTags = FCKConfig.FontFormats.split(';') ;
+	var elements = FCKConfig.FontFormats.split(';') ;
 
-	for ( var i = 0 ; i < aTags.length ; i++ )
+	for ( var i = 0 ; i < elements.length ; i++ )
 	{
-		// Support for DIV in Firefox has been reintroduced on version 2.2.
-//		if ( aTags[i] == 'div' && FCKBrowserInfo.IsGecko )
-//			continue ;
-
-		var sTag	= aTags[i] ;
-		var sLabel	= oNames[sTag] ;
-
-		if ( sTag == 'p' )
-			this.NormalLabel = sLabel ;
-
-		this._Combo.AddItem( sTag, '<div class="BaseFont"><' + sTag + '>' + sLabel + '</' + sTag + '></div>', sLabel ) ;
-	}
-}
-
-if ( FCKBrowserInfo.IsIE )
-{
-	FCKToolbarFontFormatCombo.prototype.RefreshActiveItems = function( combo, value )
-	{
-//		FCKDebug.Output( 'FCKToolbarFontFormatCombo Value: ' + value ) ;
-
-		// IE returns normal for DIV and P, so to avoid confusion, we will not show it if normal.
-		if ( value == this.NormalLabel )
+		var elementName = elements[ i ] ;
+		var style = FCKStyles.GetStyle( '_FCK_' + elementName ) ;
+		if ( style )
 		{
-			if ( combo.Label != '&nbsp;' )
-				combo.DeselectAll(true) ;
+			style.Label = oNames[ elementName ] ;
+			styles[ '_FCK_' + elementName ] = style ;
 		}
 		else
+			alert( "The FCKConfig.CoreStyles['" + elementName + "'] setting was not found. Please check the fckconfig.js file" ) ;
+	}
+
+	return styles ;
+}
+
+FCKToolbarFontFormatCombo.prototype.RefreshActiveItems = function( targetSpecialCombo )
+{
+	var startElement = FCK.ToolbarSet.CurrentInstance.Selection.GetBoundaryParentElement( true ) ;
+
+	if ( startElement )
+	{
+		var path = new FCKElementPath( startElement ) ;
+		var blockElement = path.Block ;
+
+		if ( blockElement )
 		{
-			if ( this._LastValue == value )
-				return ;
+			for ( var i in targetSpecialCombo.Items )
+			{
+				var item = targetSpecialCombo.Items[i] ;
+				var style = item.Style ;
 
-			combo.SelectItemByLabel( value, true ) ;
+				if ( style.CheckElementRemovable( blockElement ) )
+				{
+					targetSpecialCombo.SetLabel( style.Label ) ;
+					return ;
+				}
+			}
 		}
+	}
 
-		this._LastValue = value ;
+	targetSpecialCombo.SetLabel( this.DefaultLabel ) ;
+}
+
+FCKToolbarFontFormatCombo.prototype.StyleCombo_OnBeforeClick = function( targetSpecialCombo )
+{
+	// Clear the current selection.
+	targetSpecialCombo.DeselectAll() ;
+
+	var startElement = FCK.ToolbarSet.CurrentInstance.Selection.GetBoundaryParentElement( true ) ;
+
+	if ( startElement )
+	{
+		var path = new FCKElementPath( startElement ) ;
+		var blockElement = path.Block ;
+
+		for ( var i in targetSpecialCombo.Items )
+		{
+			var item = targetSpecialCombo.Items[i] ;
+			var style = item.Style ;
+
+			if ( style.CheckElementRemovable( blockElement ) )
+			{
+				targetSpecialCombo.SelectItem( item ) ;
+				return ;
+			}
+		}
 	}
 }

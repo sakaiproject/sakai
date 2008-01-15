@@ -45,6 +45,7 @@ InsertLinkLbl		: "Hyperlink",
 InsertLink			: "Indsæt/rediger hyperlink",
 RemoveLink			: "Fjern hyperlink",
 Anchor				: "Indsæt/rediger bogmærke",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Indsæt billede",
 InsertImage			: "Indsæt/rediger billede",
 InsertFlashLbl		: "Flash",
@@ -70,6 +71,7 @@ RightJustify		: "Højrestillet",
 BlockJustify		: "Lige margener",
 DecreaseIndent		: "Formindsk indrykning",
 IncreaseIndent		: "Forøg indrykning",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Fortryd",
 Redo				: "Annuller fortryd",
 NumberedListLbl		: "Talopstilling",
@@ -103,20 +105,27 @@ SelectionField	: "Indsæt liste",
 ImageButton		: "Indsæt billedknap",
 
 FitWindow		: "Maksimer editor vinduet",
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Rediger hyperlink",
 CellCM				: "Celle",
 RowCM				: "Række",
 ColumnCM			: "Kolonne",
-InsertRow			: "Indsæt række",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Slet række",
-InsertColumn		: "Indsæt kolonne",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Slet kolonne",
-InsertCell			: "Indsæt celle",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Slet celle",
 MergeCells			: "Flet celler",
-SplitCell			: "Opdel celle",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Slet tabel",
 CellProperties		: "Egenskaber for celle",
 TableProperties		: "Egenskaber for tabel",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Egenskaber for liste",
 TextareaProp		: "Egenskaber for tekstboks",
 FormProp			: "Egenskaber for formular",
 
-FontFormats			: "Normal;Formateret;Adresse;Overskrift 1;Overskrift 2;Overskrift 3;Overskrift 4;Overskrift 5;Overskrift 6;Normal (DIV)",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normal;Formateret;Adresse;Overskrift 1;Overskrift 2;Overskrift 3;Overskrift 4;Overskrift 5;Overskrift 6;Normal (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "Behandler XHTML...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Vælg et anker",
 DlgLnkAnchorByName	: "Efter anker navn",
 DlgLnkAnchorById	: "Efter element Id",
-DlgLnkNoAnchors		: "<Ingen bogmærker dokumentet>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Ingen bogmærker dokumentet)",
 DlgLnkEMail			: "E-mailadresse",
 DlgLnkEMailSubject	: "Emne",
 DlgLnkEMailBody		: "Brødtekst",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Bredde i antal kolonner",
 DlgCellBackColor	: "Baggrundsfarve",
 DlgCellBorderColor	: "Rammefarve",
 DlgCellBtnSelect	: "Vælg...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Find",

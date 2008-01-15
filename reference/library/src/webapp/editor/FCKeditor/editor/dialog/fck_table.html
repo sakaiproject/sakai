@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -83,7 +83,8 @@ window.onload = function()
 		document.getElementById('txtSummary').value     = GetAttribute( table, 'summary', '' ) ;
 //		document.getElementById('cmbFontStyle').value	= table.className ;
 
-		if (table.caption) document.getElementById('txtCaption').value = table.caption.innerHTML ;
+		var eCaption = oEditor.FCKDomTools.GetFirstChild( table, 'CAPTION' ) ;
+		if ( eCaption ) document.getElementById('txtCaption').value = eCaption.innerHTML ;
 
 		document.getElementById('txtRows').disabled    = true ;
 		document.getElementById('txtColumns').disabled = true ;
@@ -130,7 +131,14 @@ function Ok()
 		eCaption.innerHTML = document.getElementById('txtCaption').value ;
 	}
 	else if ( bExists && eCaption )
-		eCaption.parentNode.removeChild( eCaption ) ;
+	{
+		// TODO: It causes an IE internal error if using removeChild or
+		// table.deleteCaption() (see #505).
+		if ( oEditor.FCKBrowserInfo.IsIE )
+			eCaption.innerHTML = '' ;
+		else
+			eCaption.parentNode.removeChild( eCaption ) ;
+	}
 
 	if (! bExists)
 	{
@@ -144,8 +152,7 @@ function Ok()
 			{
 				var oCell = oRow.insertCell(-1) ;
 				if ( oEditor.FCKBrowserInfo.IsGeckoLike )
-					oCell.innerHTML = GECKO_BOGUS ;
-				//oCell.innerHTML = "&nbsp;" ;
+					oEditor.FCKTools.AppendBogusBr( oCell ) ;
 			}
 		}
 

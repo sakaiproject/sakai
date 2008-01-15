@@ -1,4 +1,4 @@
-﻿#!/usr/bin/perl
+#!/usr/bin/perl
 
 use CGI qw/ :standard /;
 use File::Temp qw/ tempfile tempdir /;
@@ -12,7 +12,7 @@ my @textinputs = param( 'textinputs[]' ); # array
 my $aspell_cmd = '"C:\Program Files\Aspell\bin\aspell.exe"';	# by FredCK (for Windows)
 my $lang = 'en_US';
 # my $aspell_opts = "-a --lang=$lang --encoding=utf-8";			# by FredCK
-my $aspell_opts = "-a --lang=$lang --encoding=utf-8 -H";		# by FredCK
+my $aspell_opts = "-a --lang=$lang --encoding=utf-8 -H --rem-sgml-check=alt";		# by FredCK
 my $input_separator = "A";
 
 # set the 'wordtext' JavaScript variable to the submitted text.
@@ -58,6 +58,8 @@ sub printCheckerResults {
 	# open temp file, add the submitted text.
 	for( my $i = 0; $i <= $#textinputs; $i++ ) {
 		$text = url_decode( $textinputs[$i] );
+		# Strip all tags for the text. (by FredCK - #339 / #681)
+		$text =~ s/<[^>]+>/ /g;
 		@lines = split( /\n/, $text );
 		print $fh "\%\n"; # exit terse mode
 		print $fh "^$input_separator\n";
@@ -177,4 +179,5 @@ wordWindowObj.writeBody();
 </body>
 </html>
 EOF
+
 

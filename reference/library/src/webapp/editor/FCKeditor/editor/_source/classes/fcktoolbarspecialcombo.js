@@ -32,9 +32,11 @@ var FCKToolbarSpecialCombo = function()
 {
 	this.SourceView			= false ;
 	this.ContextSensitive	= true ;
-	this._LastValue			= null ;
+	//this._LastValue			= null ;
 }
 
+
+FCKToolbarSpecialCombo.prototype.DefaultLabel = '' ;
 
 function FCKToolbarSpecialCombo_OnSelect( itemId, item )
 {
@@ -93,10 +95,17 @@ FCKToolbarSpecialCombo.prototype.RefreshState = function()
 				this.RefreshActiveItems( this._Combo, sValue ) ;
 			else
 			{
-				if ( this._LastValue != sValue )
+				if ( this._LastValue !== sValue)
 				{
 					this._LastValue = sValue ;
-					FCKToolbarSpecialCombo_RefreshActiveItems( this._Combo, sValue ) ;
+					
+					if ( !sValue || sValue.length == 0 )
+					{
+						this._Combo.DeselectAll() ;
+						this._Combo.SetLabel( this.DefaultLabel ) ;
+					}
+					else
+						FCKToolbarSpecialCombo_RefreshActiveItems( this._Combo, sValue ) ;
 				}
 			}
 		}

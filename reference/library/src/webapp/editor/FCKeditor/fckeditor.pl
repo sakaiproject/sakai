@@ -1,4 +1,4 @@
-﻿#####
+#####
 #  FCKeditor - The text editor for Internet - http://www.fckeditor.net
 #  Copyright (C) 2003-2007 Frederico Caldeira Knabben
 #
@@ -107,6 +107,11 @@ sub IsCompatible
 	} elsif($sAgent =~ /Gecko\//i) {
 		$iVersion = substr($sAgent,index($sAgent,'Gecko/') + 6,8);
 		return($iVersion >= 20030210) ;
+	} elsif($sAgent =~ /Opera\//i) {
+		$iVersion = substr($sAgent,index($sAgent,'Opera/') + 6,4);
+		return($iVersion >= 9.5) ;
+	} elsif($sAgent =~ /AppleWebKit\/(\d+)/i) {
+		return($1 >= 522) ;
 	} else {
 		return(0);		# 2.0 PR fix
 	}

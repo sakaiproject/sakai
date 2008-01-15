@@ -45,6 +45,7 @@ InsertLinkLbl		: "Länk",
 InsertLink			: "Infoga/Redigera länk",
 RemoveLink			: "Radera länk",
 Anchor				: "Infoga/Redigera ankarlänk",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Bild",
 InsertImage			: "Infoga/Redigera bild",
 InsertFlashLbl		: "Flash",
@@ -70,6 +71,7 @@ RightJustify		: "Högerjustera",
 BlockJustify		: "Justera till marginaler",
 DecreaseIndent		: "Minska indrag",
 IncreaseIndent		: "Öka indrag",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Ångra",
 Redo				: "Gör om",
 NumberedListLbl		: "Numrerad lista",
@@ -102,21 +104,28 @@ Button			: "Knapp",
 SelectionField	: "Flervalslista",
 ImageButton		: "Bildknapp",
 
-FitWindow		: "Maximize the editor size",	//MISSING
+FitWindow		: "Anpassa till fönstrets storlek",
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Redigera länk",
-CellCM				: "Cell",	//MISSING
-RowCM				: "Row",	//MISSING
-ColumnCM			: "Column",	//MISSING
-InsertRow			: "Infoga rad",
+CellCM				: "Cell",
+RowCM				: "Rad",
+ColumnCM			: "Kolumn",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Radera rad",
-InsertColumn		: "Infoga kolumn",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Radera kolumn",
-InsertCell			: "Infoga cell",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Radera celler",
 MergeCells			: "Sammanfoga celler",
-SplitCell			: "Separera celler",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Radera tabell",
 CellProperties		: "Cellegenskaper",
 TableProperties		: "Tabellegenskaper",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Egenskaper för flervalslista",
 TextareaProp		: "Egenskaper för textruta",
 FormProp			: "Egenskaper för formulär",
 
-FontFormats			: "Normal;Formaterad;Adress;Rubrik 1;Rubrik 2;Rubrik 3;Rubrik 4;Rubrik 5;Rubrik 6",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normal;Formaterad;Adress;Rubrik 1;Rubrik 2;Rubrik 3;Rubrik 4;Rubrik 5;Rubrik 6;Normal (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "Bearbetar XHTML. Var god vänta...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Välj ett ankare",
 DlgLnkAnchorByName	: "efter ankarnamn",
 DlgLnkAnchorById	: "efter objektid",
-DlgLnkNoAnchors		: "<Inga ankare kunde hittas>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Inga ankare kunde hittas)",
 DlgLnkEMail			: "E-postadress",
 DlgLnkEMailSubject	: "Ämne",
 DlgLnkEMailBody		: "Innehåll",
@@ -262,7 +271,7 @@ DlgLnkPopTop		: "Position från sidans topp",
 DlnLnkMsgNoUrl		: "Var god ange länkens URL",
 DlnLnkMsgNoEMail	: "Var god ange E-postadress",
 DlnLnkMsgNoAnchor	: "Var god ange ett ankare",
-DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
+DlnLnkMsgInvPopName	: "Popup-rutans namn måste börja med en alfabetisk bokstav och får inte innehålla mellanslag",
 
 // Color Dialog
 DlgColorTitle		: "Välj färg",
@@ -322,6 +331,9 @@ DlgCellBackColor	: "Bakgrundsfärg",
 DlgCellBorderColor	: "Kantfärg",
 DlgCellBtnSelect	: "Välj...",
 
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
+
 // Find Dialog
 DlgFindTitle		: "Sök",
 DlgFindFindBtn		: "Sök",
@@ -344,7 +356,7 @@ PasteAsText		: "Klistra in som vanlig text",
 PasteFromWord	: "Klistra in från Word",
 
 DlgPasteMsg2	: "Var god och klistra in Er text i rutan nedan genom att använda (<STRONG>Ctrl+V</STRONG>) klicka sen på <STRONG>OK</STRONG>.",
-DlgPasteSec		: "Because of your browser security settings, the editor is not able to access your clipboard data directly. You are required to paste it again in this window.",	//MISSING
+DlgPasteSec		: "På grund av din webläsares säkerhetsinställningar kan verktyget inte få åtkomst till urklippsdatan. Var god och använd detta fönster istället.",
 DlgPasteIgnoreFont		: "Ignorera typsnittsdefinitioner",
 DlgPasteRemoveStyles	: "Radera Stildefinitioner",
 DlgPasteCleanBox		: "Töm rutans innehåll",
@@ -381,9 +393,9 @@ IeSpellDownload			: "Stavningskontrollen är ej installerad. Vill du göra det n
 // Button Dialog
 DlgButtonText		: "Text (Värde)",
 DlgButtonType		: "Typ",
-DlgButtonTypeBtn	: "Button",	//MISSING
-DlgButtonTypeSbm	: "Submit",	//MISSING
-DlgButtonTypeRst	: "Reset",	//MISSING
+DlgButtonTypeBtn	: "Knapp",
+DlgButtonTypeSbm	: "Skicka",
+DlgButtonTypeRst	: "Återställ",
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Namn",
@@ -455,15 +467,15 @@ DlgDocLangDirLTR	: "Vänster till Höger",
 DlgDocLangDirRTL	: "Höger till Vänster",
 DlgDocLangCode		: "Språkkod",
 DlgDocCharSet		: "Teckenuppsättningar",
-DlgDocCharSetCE		: "Central European",	//MISSING
-DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
-DlgDocCharSetCR		: "Cyrillic",	//MISSING
-DlgDocCharSetGR		: "Greek",	//MISSING
-DlgDocCharSetJP		: "Japanese",	//MISSING
-DlgDocCharSetKR		: "Korean",	//MISSING
-DlgDocCharSetTR		: "Turkish",	//MISSING
-DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
-DlgDocCharSetWE		: "Western European",	//MISSING
+DlgDocCharSetCE		: "Central Europa",
+DlgDocCharSetCT		: "Traditionell Kinesisk (Big5)",
+DlgDocCharSetCR		: "Kyrillisk",
+DlgDocCharSetGR		: "Grekiska",
+DlgDocCharSetJP		: "Japanska",
+DlgDocCharSetKR		: "Koreanska",
+DlgDocCharSetTR		: "Turkiska",
+DlgDocCharSetUN		: "Unicode (UTF-8)",
+DlgDocCharSetWE		: "Väst Europa",
 DlgDocCharSetOther	: "Övriga teckenuppsättningar",
 
 DlgDocDocType		: "Sidhuvud",
@@ -493,12 +505,12 @@ DlgTemplatesTitle	: "Sidmallar",
 DlgTemplatesSelMsg	: "Var god välj en mall att använda med editorn<br>(allt nuvarande innehåll raderas):",
 DlgTemplatesLoading	: "Laddar mallar. Var god vänta...",
 DlgTemplatesNoTpl	: "(Ingen mall är vald)",
-DlgTemplatesReplace	: "Replace actual contents",	//MISSING
+DlgTemplatesReplace	: "Ersätt aktuellt innehåll",
 
 // About Dialog
 DlgAboutAboutTab	: "Om",
 DlgAboutBrowserInfoTab	: "Webläsare",
-DlgAboutLicenseTab	: "License",	//MISSING
+DlgAboutLicenseTab	: "Licens",
 DlgAboutVersion		: "version",
 DlgAboutInfo		: "För mer information se"
 };

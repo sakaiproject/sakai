@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -62,6 +62,9 @@
 		<Constant name="FCK_TOOLBARITEM_ICONTEXT" value="2" />
 		<Constant name="FCK_EDITMODE_WYSIWYG" value="0" />
 		<Constant name="FCK_EDITMODE_SOURCE" value="1" />
+		<Constant name="FCK_STYLE_BLOCK" value="0" />
+		<Constant name="FCK_STYLE_INLINE" value="1" />
+		<Constant name="FCK_STYLE_OBJECT" value="2" />
 	</Constants>
 	<PackageFile path="editor/js/fckeditorcode_ie.js">
 		<File path="editor/_source/fckconstants.js" />
@@ -70,6 +73,7 @@
 		<File path="editor/_source/internals/fckbrowserinfo.js" />
 		<File path="editor/_source/internals/fckurlparams.js" />
 		<File path="editor/_source/classes/fckevents.js" />
+		<File path="editor/_source/classes/fckdataprocessor.js" />
 		<File path="editor/_source/internals/fck.js" />
 		<File path="editor/_source/internals/fck_ie.js" />
 		<File path="editor/_source/internals/fckconfig.js" />
@@ -87,14 +91,19 @@
 		<File path="editor/_source/internals/fckxhtml.js" />
 		<File path="editor/_source/internals/fckxhtml_ie.js" />
 		<File path="editor/_source/internals/fckcodeformatter.js" />
-		<File path="editor/_source/internals/fckundo_ie.js" />
+		<File path="editor/_source/internals/fckundo.js" />
 		<File path="editor/_source/classes/fckeditingarea.js" />
 		<File path="editor/_source/classes/fckkeystrokehandler.js" />
 
+		<File path="editor/dtd/fck_xhtml10transitional.js" />
+		<File path="editor/_source/classes/fckstyle.js" />
+		<File path="editor/_source/internals/fckstyles.js" />
+			  
 		<File path="editor/_source/internals/fcklisthandler.js" />
 		<File path="editor/_source/classes/fckelementpath.js" />
 		<File path="editor/_source/classes/fckdomrange.js" />
 		<File path="editor/_source/classes/fckdomrange_ie.js" />
+		<File path="editor/_source/classes/fckdomrangeiterator.js" />
 		<File path="editor/_source/classes/fckdocumentfragment_ie.js" />
 		<File path="editor/_source/classes/fckw3crange.js" />
 		<File path="editor/_source/classes/fckenterkey.js" />
@@ -105,20 +114,25 @@
 
 		<File path="editor/_source/internals/fcktablehandler.js" />
 		<File path="editor/_source/internals/fcktablehandler_ie.js" />
+		<File path="editor/_source/classes/fckxml.js" />
 		<File path="editor/_source/classes/fckxml_ie.js" />
-		<File path="editor/_source/classes/fckstyledef.js" />
-		<File path="editor/_source/classes/fckstyledef_ie.js" />
-		<File path="editor/_source/classes/fckstylesloader.js" />
 
 		<File path="editor/_source/commandclasses/fcknamedcommand.js" />
+		<File path="editor/_source/commandclasses/fckstylecommand.js" />
 		<File path="editor/_source/commandclasses/fck_othercommands.js" />
+		<File path="editor/_source/commandclasses/fckshowblocks.js" />
 		<File path="editor/_source/commandclasses/fckspellcheckcommand_ie.js" />
 		<File path="editor/_source/commandclasses/fcktextcolorcommand.js" />
 		<File path="editor/_source/commandclasses/fckpasteplaintextcommand.js" />
 		<File path="editor/_source/commandclasses/fckpastewordcommand.js" />
 		<File path="editor/_source/commandclasses/fcktablecommand.js" />
-		<File path="editor/_source/commandclasses/fckstylecommand.js" />
 		<File path="editor/_source/commandclasses/fckfitwindow.js" />
+		<File path="editor/_source/commandclasses/fcklistcommands.js" />
+		<File path="editor/_source/commandclasses/fckjustifycommands.js" />
+		<File path="editor/_source/commandclasses/fckindentcommands.js" />
+		<File path="editor/_source/commandclasses/fckblockquotecommand.js" />
+		<File path="editor/_source/commandclasses/fckcorestylecommand.js" />
+		<File path="editor/_source/commandclasses/fckremoveformatcommand.js" />
 		<File path="editor/_source/internals/fckcommands.js" />
 
 		<File path="editor/_source/classes/fckpanel.js" />
@@ -127,10 +141,10 @@
 		<File path="editor/_source/classes/fcktoolbarbutton.js" />
 		<File path="editor/_source/classes/fckspecialcombo.js" />
 		<File path="editor/_source/classes/fcktoolbarspecialcombo.js" />
+		<File path="editor/_source/classes/fcktoolbarstylecombo.js" />
+		<File path="editor/_source/classes/fcktoolbarfontformatcombo.js" />
 		<File path="editor/_source/classes/fcktoolbarfontscombo.js" />
 		<File path="editor/_source/classes/fcktoolbarfontsizecombo.js" />
-		<File path="editor/_source/classes/fcktoolbarfontformatcombo.js" />
-		<File path="editor/_source/classes/fcktoolbarstylecombo.js" />
 		<File path="editor/_source/classes/fcktoolbarpanelbutton.js" />
 		<File path="editor/_source/internals/fcktoolbaritems.js" />
 		<File path="editor/_source/classes/fcktoolbar.js" />
@@ -155,6 +169,7 @@
 		<File path="editor/_source/internals/fckbrowserinfo.js" />
 		<File path="editor/_source/internals/fckurlparams.js" />
 		<File path="editor/_source/classes/fckevents.js" />
+		<File path="editor/_source/classes/fckdataprocessor.js" />
 		<File path="editor/_source/internals/fck.js" />
 		<File path="editor/_source/internals/fck_gecko.js" />
 		<File path="editor/_source/internals/fckconfig.js" />
@@ -172,14 +187,19 @@
 		<File path="editor/_source/internals/fckxhtml.js" />
 		<File path="editor/_source/internals/fckxhtml_gecko.js" />
 		<File path="editor/_source/internals/fckcodeformatter.js" />
-		<File path="editor/_source/internals/fckundo_gecko.js" />
+		<File path="editor/_source/internals/fckundo.js" />
 		<File path="editor/_source/classes/fckeditingarea.js" />
 		<File path="editor/_source/classes/fckkeystrokehandler.js" />
+
+		<File path="editor/dtd/fck_xhtml10transitional.js" />
+		<File path="editor/_source/classes/fckstyle.js" />
+		<File path="editor/_source/internals/fckstyles.js" />
 
 		<File path="editor/_source/internals/fcklisthandler.js" />
 		<File path="editor/_source/classes/fckelementpath.js" />
 		<File path="editor/_source/classes/fckdomrange.js" />
 		<File path="editor/_source/classes/fckdomrange_gecko.js" />
+		<File path="editor/_source/classes/fckdomrangeiterator.js" />
 		<File path="editor/_source/classes/fckdocumentfragment_gecko.js" />
 		<File path="editor/_source/classes/fckw3crange.js" />
 		<File path="editor/_source/classes/fckenterkey.js" />
@@ -190,20 +210,25 @@
 
 		<File path="editor/_source/internals/fcktablehandler.js" />
 		<File path="editor/_source/internals/fcktablehandler_gecko.js" />
+		<File path="editor/_source/classes/fckxml.js" />
 		<File path="editor/_source/classes/fckxml_gecko.js" />
-		<File path="editor/_source/classes/fckstyledef.js" />
-		<File path="editor/_source/classes/fckstyledef_gecko.js" />
-		<File path="editor/_source/classes/fckstylesloader.js" />
 
 		<File path="editor/_source/commandclasses/fcknamedcommand.js" />
+		<File path="editor/_source/commandclasses/fckstylecommand.js" />
 		<File path="editor/_source/commandclasses/fck_othercommands.js" />
+		<File path="editor/_source/commandclasses/fckshowblocks.js" />
 		<File path="editor/_source/commandclasses/fckspellcheckcommand_gecko.js" />
 		<File path="editor/_source/commandclasses/fcktextcolorcommand.js" />
 		<File path="editor/_source/commandclasses/fckpasteplaintextcommand.js" />
 		<File path="editor/_source/commandclasses/fckpastewordcommand.js" />
 		<File path="editor/_source/commandclasses/fcktablecommand.js" />
-		<File path="editor/_source/commandclasses/fckstylecommand.js" />
 		<File path="editor/_source/commandclasses/fckfitwindow.js" />
+		<File path="editor/_source/commandclasses/fcklistcommands.js" />
+		<File path="editor/_source/commandclasses/fckjustifycommands.js" />
+		<File path="editor/_source/commandclasses/fckindentcommands.js" />
+		<File path="editor/_source/commandclasses/fckblockquotecommand.js" />
+		<File path="editor/_source/commandclasses/fckcorestylecommand.js" />
+		<File path="editor/_source/commandclasses/fckremoveformatcommand.js" />
 		<File path="editor/_source/internals/fckcommands.js" />
 
 		<File path="editor/_source/classes/fckpanel.js" />
@@ -212,10 +237,10 @@
 		<File path="editor/_source/classes/fcktoolbarbutton.js" />
 		<File path="editor/_source/classes/fckspecialcombo.js" />
 		<File path="editor/_source/classes/fcktoolbarspecialcombo.js" />
+		<File path="editor/_source/classes/fcktoolbarstylecombo.js" />
+		<File path="editor/_source/classes/fcktoolbarfontformatcombo.js" />
 		<File path="editor/_source/classes/fcktoolbarfontscombo.js" />
 		<File path="editor/_source/classes/fcktoolbarfontsizecombo.js" />
-		<File path="editor/_source/classes/fcktoolbarfontformatcombo.js" />
-		<File path="editor/_source/classes/fcktoolbarstylecombo.js" />
 		<File path="editor/_source/classes/fcktoolbarpanelbutton.js" />
 		<File path="editor/_source/internals/fcktoolbaritems.js" />
 		<File path="editor/_source/classes/fcktoolbar.js" />

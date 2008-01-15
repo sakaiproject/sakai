@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -51,14 +51,16 @@ window.onload = function()
 		oActiveEl = null ;
 
 	window.parent.SetOkButton( true ) ;
+	window.parent.SetAutoSize( true ) ;
 }
 
 function Ok()
 {
+	oEditor.FCKUndo.SaveUndoStep() ;
+	
 	if ( !oActiveEl )
 	{
-		oActiveEl = oEditor.FCK.EditorDocument.createElement( 'TEXTAREA' ) ;
-		oActiveEl = oEditor.FCK.InsertElementAndGetIt( oActiveEl ) ;
+		oActiveEl = oEditor.FCK.InsertElement( 'textarea' ) ;
 	}
 
 	oActiveEl.name = GetE('txtName').value ;
@@ -70,7 +72,7 @@ function Ok()
 
 		</script>
 	</head>
-	<body style='OVERFLOW: hidden' scroll='no'>
+	<body style="overflow: hidden">
 		<table height="100%" width="100%">
 			<tr>
 				<td align="center">

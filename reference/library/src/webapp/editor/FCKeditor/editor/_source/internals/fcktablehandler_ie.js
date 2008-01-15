@@ -23,6 +23,12 @@
 
 FCKTableHandler.GetSelectedCells = function()
 {
+	if ( FCKSelection.GetType() == 'Control' )
+	{
+		var td = FCKSelection.MoveToAncestorNode( 'TD' ) ;
+		return td ? [ td ] : [] ;
+	}
+
 	var aCells = new Array() ;
 
 	var oRange = FCK.EditorDocument.selection.createRange() ;
@@ -41,7 +47,7 @@ FCKTableHandler.GetSelectedCells = function()
 			// and then add it to the selected cells collection.
 			for ( var i = 0 ; i < oParent.cells.length ; i++ )
 			{
-				var oCellRange = FCK.EditorDocument.selection.createRange() ;
+				var oCellRange = FCK.EditorDocument.body.createTextRange() ;
 				oCellRange.moveToElementText( oParent.cells[i] ) ;
 
 				if ( oRange.inRange( oCellRange )

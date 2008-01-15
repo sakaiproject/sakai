@@ -45,6 +45,7 @@ InsertLinkLbl		: "Odkaz",
 InsertLink			: "Vložit/změnit odkaz",
 RemoveLink			: "Odstranit odkaz",
 Anchor				: "Vložít/změnit záložku",
+AnchorDelete		: "Odstranit kotvu",
 InsertImageLbl		: "Obrázek",
 InsertImage			: "Vložit/změnit obrázek",
 InsertFlashLbl		: "Flash",
@@ -70,6 +71,7 @@ RightJustify		: "Zarovnat vpravo",
 BlockJustify		: "Zarovnat do bloku",
 DecreaseIndent		: "Zmenšit odsazení",
 IncreaseIndent		: "Zvětšit odsazení",
+Blockquote			: "Citace",
 Undo				: "Zpět",
 Redo				: "Znovu",
 NumberedListLbl		: "Číslování",
@@ -103,20 +105,27 @@ SelectionField	: "Seznam",
 ImageButton		: "Obrázkové tlačítko",
 
 FitWindow		: "Maximalizovat velikost editoru",
+ShowBlocks		: "Ukázat bloky",
 
 // Context Menu
 EditLink			: "Změnit odkaz",
 CellCM				: "Buňka",
 RowCM				: "Řádek",
 ColumnCM			: "Sloupec",
-InsertRow			: "Vložit řádek",
-DeleteRows			: "Smazat řádek",
-InsertColumn		: "Vložit sloupec",
+InsertRowAfter		: "Vložit řádek za",
+InsertRowBefore		: "Vložit řádek před",
+DeleteRows			: "Smazat řádky",
+InsertColumnAfter	: "Vložit sloupec za",
+InsertColumnBefore	: "Vložit sloupec před",
 DeleteColumns		: "Smazat sloupec",
-InsertCell			: "Vložit buňku",
+InsertCellAfter		: "Vložit buňku za",
+InsertCellBefore	: "Vložit buňku před",
 DeleteCells			: "Smazat buňky",
 MergeCells			: "Sloučit buňky",
-SplitCell			: "Rozdělit buňku",
+MergeRight			: "Sloučit doprava",
+MergeDown			: "Sloučit dolů",
+HorizontalSplitCell	: "Rozdělit buňky vodorovně",
+VerticalSplitCell	: "Rozdělit buňky svisle",
 TableDelete			: "Smazat tabulku",
 CellProperties		: "Vlastnosti buňky",
 TableProperties		: "Vlastnosti tabulky",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Vlastnosti seznamu",
 TextareaProp		: "Vlastnosti textové oblasti",
 FormProp			: "Vlastnosti formuláře",
 
-FontFormats			: "Normální;Formátovaný;Adresa;Nadpis 1;Nadpis 2;Nadpis 3;Nadpis 4;Nadpis 5;Nadpis 6",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normální;Naformátováno;Adresa;Nadpis 1;Nadpis 2;Nadpis 3;Nadpis 4;Nadpis 5;Nadpis 6;Normální (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "Probíhá zpracování XHTML. Prosím čekejte...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Vybrat kotvu",
 DlgLnkAnchorByName	: "Podle jména kotvy",
 DlgLnkAnchorById	: "Podle Id objektu",
-DlgLnkNoAnchors		: "<Ve stránce žádná kotva není definována>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Ve stránce není definována žádná kotva!)",
 DlgLnkEMail			: "E-Mailová adresa",
 DlgLnkEMailSubject	: "Předmět zprávy",
 DlgLnkEMailBody		: "Tělo zprávy",
@@ -262,7 +271,7 @@ DlgLnkPopTop		: "Horní okraj",
 DlnLnkMsgNoUrl		: "Zadejte prosím URL odkazu",
 DlnLnkMsgNoEMail	: "Zadejte prosím e-mailovou adresu",
 DlnLnkMsgNoAnchor	: "Vyberte prosím kotvu",
-DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
+DlnLnkMsgInvPopName	: "Název vyskakovacího okna musí začínat písmenem a nesmí obsahovat mezery",
 
 // Color Dialog
 DlgColorTitle		: "Výběr barvy",
@@ -322,6 +331,9 @@ DlgCellBackColor	: "Barva pozadí",
 DlgCellBorderColor	: "Barva ohraničení",
 DlgCellBtnSelect	: "Výběr...",
 
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Najít a nahradit",
+
 // Find Dialog
 DlgFindTitle		: "Hledat",
 DlgFindFindBtn		: "Hledat",
@@ -344,7 +356,7 @@ PasteAsText		: "Vložit jako čistý text",
 PasteFromWord	: "Vložit text z Wordu",
 
 DlgPasteMsg2	: "Do následujícího pole vložte požadovaný obsah pomocí klávesnice (<STRONG>Ctrl+V</STRONG>) a stiskněte <STRONG>OK</STRONG>.",
-DlgPasteSec		: "Because of your browser security settings, the editor is not able to access your clipboard data directly. You are required to paste it again in this window.",	//MISSING
+DlgPasteSec		: "Z důvodů nastavení bezpečnosti Vašeho prohlížeče nemůže editor přistupovat přímo do schránky. Obsah schránky prosím vložte znovu do tohoto okna.",
 DlgPasteIgnoreFont		: "Ignorovat písmo",
 DlgPasteRemoveStyles	: "Odstranit styly",
 DlgPasteCleanBox		: "Vyčistit",
@@ -381,9 +393,9 @@ IeSpellDownload			: "Kontrola pravopisu není nainstalována. Chcete ji nyní st
 // Button Dialog
 DlgButtonText		: "Popisek",
 DlgButtonType		: "Typ",
-DlgButtonTypeBtn	: "Button",	//MISSING
-DlgButtonTypeSbm	: "Submit",	//MISSING
-DlgButtonTypeRst	: "Reset",	//MISSING
+DlgButtonTypeBtn	: "Tlačítko",
+DlgButtonTypeSbm	: "Odeslat",
+DlgButtonTypeRst	: "Obnovit",
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Název",
@@ -432,7 +444,7 @@ DlgHiddenValue	: "Hodnota",
 // Bulleted List Dialog
 BulletedListProp	: "Vlastnosti odrážek",
 NumberedListProp	: "Vlastnosti číslovaného seznamu",
-DlgLstStart			: "Start",	//MISSING
+DlgLstStart			: "Začátek",
 DlgLstType			: "Typ",
 DlgLstTypeCircle	: "Kružnice",
 DlgLstTypeDisc		: "Kruh",
@@ -455,15 +467,15 @@ DlgDocLangDirLTR	: "Zleva do prava ",
 DlgDocLangDirRTL	: "Zprava doleva",
 DlgDocLangCode		: "Kód jazyku",
 DlgDocCharSet		: "Znaková sada",
-DlgDocCharSetCE		: "Central European",	//MISSING
-DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
-DlgDocCharSetCR		: "Cyrillic",	//MISSING
-DlgDocCharSetGR		: "Greek",	//MISSING
-DlgDocCharSetJP		: "Japanese",	//MISSING
-DlgDocCharSetKR		: "Korean",	//MISSING
-DlgDocCharSetTR		: "Turkish",	//MISSING
-DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
-DlgDocCharSetWE		: "Western European",	//MISSING
+DlgDocCharSetCE		: "Středoevropské jazyky",
+DlgDocCharSetCT		: "Tradiční čínština (Big5)",
+DlgDocCharSetCR		: "Cyrilice",
+DlgDocCharSetGR		: "Řečtina",
+DlgDocCharSetJP		: "Japonština",
+DlgDocCharSetKR		: "Korejština",
+DlgDocCharSetTR		: "Turečtina",
+DlgDocCharSetUN		: "Unicode (UTF-8)",
+DlgDocCharSetWE		: "Západoevropské jazyky",
 DlgDocCharSetOther	: "Další znaková sada",
 
 DlgDocDocType		: "Typ dokumentu",
@@ -493,7 +505,7 @@ DlgTemplatesTitle	: "Šablony obsahu",
 DlgTemplatesSelMsg	: "Prosím zvolte šablonu pro otevření v editoru<br>(aktuální obsah editoru bude ztracen):",
 DlgTemplatesLoading	: "Nahrávám přeheld šablon. Prosím čekejte...",
 DlgTemplatesNoTpl	: "(Není definována žádná šablona)",
-DlgTemplatesReplace	: "Replace actual contents",	//MISSING
+DlgTemplatesReplace	: "Nahradit aktuální obsah",
 
 // About Dialog
 DlgAboutAboutTab	: "O aplikaci",

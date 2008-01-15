@@ -1,4 +1,4 @@
-﻿<cfsetting enablecfoutputonly="true">
+<cfsetting enablecfoutputonly="true">
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -19,27 +19,8 @@
  *
  * == END LICENSE ==
  *
- * Sample page for ColdFusion MX.
+ * Sample page for ColdFusion MX 6.0 and above.
 --->
-
-<!--- ::
-	  * You must set the url path to the base directory for your media files (images, flash, files)
-	  * The best position for this variable is in your Application.cfm file
-	  *
-	  * Possible variable scopes are:
-	  * <cfset APPLICATION.userFilesPath = "/userfiles/">
-	  * OR:
-	  * <cfset SERVER.userFilesPath = "/userfiles/">
-	  * OR:
-	  * <cfset request.FCKeditor.userFilesPath = "/userfiles/">
-	  * OR:
-	  * <cfset application.FCKeditor.userFilesPath = "/userfiles/">
-	  * OR:
-	  * <cfset server.FCKeditor.userFilesPath = "/userfiles/">
-	  *
-	  * Note #1: Do _not_ set the physical directory on your server, only a path relative to your current webroot
-	  * Note #2: Directories will be automatically created
-	  :: --->
 
 <cfoutput>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -49,45 +30,85 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="robots" content="noindex, nofollow">
 	<link href="../sample.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript">
+
+function FCKeditor_OnComplete( editorInstance )
+{
+	var oCombo = document.getElementById( 'cmbLanguages' ) ;
+	for ( code in editorInstance.Language.AvailableLanguages )
+	{
+		AddComboOption( oCombo, editorInstance.Language.AvailableLanguages[code] + ' (' + code + ')', code ) ;
+	}
+	oCombo.value = editorInstance.Language.ActiveLanguage.Code ;
+}
+
+function AddComboOption(combo, optionText, optionValue)
+{
+	var oOption = document.createElement("OPTION") ;
+
+	combo.options.add(oOption) ;
+
+	oOption.innerHTML = optionText ;
+	oOption.value     = optionValue ;
+
+	return oOption ;
+}
+
+function ChangeLanguage( languageCode )
+{
+	window.location.href = window.location.pathname + "?Lang=" + languageCode ;
+}
+		</script>
 </head>
 <body>
 <h1>FCKeditor - ColdFusion Component (CFC) - Sample 2</h1>
-
-This sample displays a normal HTML form with a FCKeditor with full features enabled; invoked by a ColdFusion Component.
+This sample shows the editor in all its available languages.
 <hr>
-
-<form method="POST" action="#cgi.script_name#">
 </cfoutput>
-
 <cfif listFirst( server.coldFusion.productVersion ) LT 6>
 	<cfoutput><br><em style="color: red;">This sample works only with a ColdFusion MX server and higher, because it uses some advantages of this version.</em></cfoutput>
 	<cfabort>
 </cfif>
-
-<cfscript>
-	// Calculate basepath for FCKeditor. It's in the folder right above _samples
-	basePath = Left(cgi.script_name, FindNoCase('_samples', cgi.script_name)-1);
-
-	fckEditor = createObject("component", "#basePath#fckeditor");
-	fckEditor.instanceName	= "myEditor";
-	fckEditor.value			= 'This is some sample text. You are using <a href="http://fckeditor.net/" target="_blank">FCKeditor</a>.';
-	fckEditor.basePath		= basePath;
-	fckEditor.width			= "100%";
-	fckEditor.height		= 300;
-	fckEditor.create(); // create the editor.
-</cfscript>
-
 <cfoutput>
-<br />
-<input type="submit" value="Submit">
-<hr />
+<table cellpadding="0" cellspacing="0" border="0">
+	<tr>
+		<td>
+			Select a language:&nbsp;
+		</td>
+		<td>
+			<select id="cmbLanguages" onchange="ChangeLanguage(this.value);">
+			</select>
+		</td>
+	</tr>
+</table>
+<br>
+<form action="sampleposteddata.cfm" method="post" target="_blank">
 </cfoutput>
+	<cfscript>
+		// Calculate basepath for FCKeditor. It's in the folder right above _samples
+		basePath = Left( cgi.script_name, FindNoCase( '_samples', cgi.script_name ) - 1 ) ;
 
-<cfdump
-	var="#FORM#"
-	label="Dump of FORM Variables"
->
-
-<cfoutput></form></body></html></cfoutput>
-
+		fckEditor = createObject( "component", "#basePath#fckeditor" ) ;
+		fckEditor.instanceName	= "myEditor" ;
+		fckEditor.value			= '<p>This is some <strong>sample text</strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor</a>.</p>' ;
+		fckEditor.basePath		= basePath ;
+		if ( isDefined( "URL.Lang" ) )
+		{
+			fckEditor.config["AutoDetectLanguage"]		= false ;
+			fckEditor.config["DefaultLanguage"]			= HTMLEditFormat( URL.Lang ) ;
+		}
+		else
+		{
+			fckEeditor.config["AutoDetectLanguage"]		= true ;
+			fckEeditor.config["DefaultLanguage"]		= 'en' ;
+		}
+		fckEditor.create() ; // create the editor.
+	</cfscript>
+<cfoutput>
+	<br>
+	<input type="submit" value="Submit">
+	</form>
+</body>
+</html>
+</cfoutput>
 <cfsetting enablecfoutputonly="false">

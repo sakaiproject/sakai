@@ -46,6 +46,7 @@ InsertLinkLbl		: "Esteka",
 InsertLink			: "Txertatu/Editatu Esteka",
 RemoveLink			: "Kendu Esteka",
 Anchor				: "Aingura",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Irudia",
 InsertImage			: "Txertatu/Editatu Irudia",
 InsertFlashLbl		: "Flasha",
@@ -71,6 +72,7 @@ RightJustify		: "Lerrokatu Eskuman",
 BlockJustify		: "Justifikatu",
 DecreaseIndent		: "Txikitu Koska",
 IncreaseIndent		: "Handitu Koska",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Desegin",
 Redo				: "Berregin",
 NumberedListLbl		: "Zenbakidun Zerrenda",
@@ -104,20 +106,27 @@ SelectionField	: "Hautespen Eremua",
 ImageButton		: "Irudi Botoia",
 
 FitWindow		: "Maximizatu editorearen tamaina",
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Aldatu Esteka",
 CellCM				: "Gelaxka",
 RowCM				: "Errenkada",
 ColumnCM			: "Zutabea",
-InsertRow			: "Txertatu Errenkada",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Ezabatu Errenkadak",
-InsertColumn		: "Txertatu Zutabea",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Ezabatu Zutabeak",
-InsertCell			: "Txertatu Gelaxka",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Kendu Gelaxkak",
 MergeCells			: "Batu Gelaxkak",
-SplitCell			: "Zatitu Gelaxka",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Ezabatu Taula",
 CellProperties		: "Gelaxkaren Ezaugarriak",
 TableProperties		: "Taularen Ezaugarriak",
@@ -135,7 +144,7 @@ SelectionFieldProp	: "Hautespen Eremuaren Ezaugarriak",
 TextareaProp		: "Testu-arearen Ezaugarriak",
 FormProp			: "Formularioaren Ezaugarriak",
 
-FontFormats			: "Arrunta;Formateatua;Helbidea;Izenburua 1;Izenburua 2;Izenburua 3;Izenburua 4;Izenburua 5;Izenburua 6;Paragrafoa (DIV)",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Arrunta;Formateatua;Helbidea;Izenburua 1;Izenburua 2;Izenburua 3;Izenburua 4;Izenburua 5;Izenburua 6;Paragrafoa (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "XHTML Prozesatzen. Itxaron mesedez...",
@@ -230,7 +239,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Aingura bat hautatu",
 DlgLnkAnchorByName	: "Aingura izenagatik",
 DlgLnkAnchorById	: "Elementuaren ID-gatik",
-DlgLnkNoAnchors		: "<Ez daude aingurak eskuragarri dokumentuan>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Ez daude aingurak eskuragarri dokumentuan)",
 DlgLnkEMail			: "ePosta Helbidea",
 DlgLnkEMailSubject	: "Mezuaren Gaia",
 DlgLnkEMailBody		: "Mezuaren Gorputza",
@@ -322,6 +331,9 @@ DlgCellCollSpan		: "Zutabeak Hedatu",
 DlgCellBackColor	: "Atzeko Kolorea",
 DlgCellBorderColor	: "Ertzako Kolorea",
 DlgCellBtnSelect	: "Aukertau...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Bilaketa",

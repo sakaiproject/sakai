@@ -20,7 +20,7 @@
  *
  * Extensions to the JavaScript Core.
  *
- * All custom extentions functions are PascalCased to differ from the standard
+ * All custom extensions functions are PascalCased to differ from the standard
  * camelCased ones.
  */
 
@@ -73,23 +73,6 @@ String.prototype.ReplaceAll = function( searchArray, replaceArray )
 	}
 
 	return replaced ;
-}
-
-Array.prototype.AddItem = function( item )
-{
-	var i = this.length ;
-	this[ i ] = item ;
-	return i ;
-}
-
-Array.prototype.IndexOf = function( value )
-{
-	for ( var i = 0 ; i < this.length ; i++ )
-	{
-		if ( this[i] == value )
-			return i ;
-	}
-	return -1 ;
 }
 
 String.prototype.StartsWith = function( value )
@@ -149,4 +132,35 @@ String.prototype.RTrim = function()
 String.prototype.ReplaceNewLineChars = function( replacement )
 {
 	return this.replace( /\n/g, replacement ) ;
+}
+
+String.prototype.Replace = function( regExp, replacement, thisObj )
+{
+	if ( typeof replacement == 'function' )
+	{
+		return this.replace( regExp, 
+			function() 
+			{ 
+				return replacement.apply( thisObj || this, arguments ) ; 
+			} ) ;
+	}
+	else
+		return this.replace( regExp, replacement ) ;
+}
+
+Array.prototype.AddItem = function( item )
+{
+	var i = this.length ;
+	this[ i ] = item ;
+	return i ;
+}
+
+Array.prototype.IndexOf = function( value )
+{
+	for ( var i = 0 ; i < this.length ; i++ )
+	{
+		if ( this[i] == value )
+			return i ;
+	}
+	return -1 ;
 }

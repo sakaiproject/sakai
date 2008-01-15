@@ -44,14 +44,26 @@ FCKEditingArea.prototype.Start = function( html, secondCall )
 	var oTargetDocument	= FCKTools.GetElementDocument( eTargetElement ) ;
 
 	// Remove all child nodes from the target.
-	while( eTargetElement.childNodes.length > 0 )
-		eTargetElement.removeChild( eTargetElement.childNodes[0] ) ;
+	var oChild ;
+	while( ( oChild = eTargetElement.firstChild ) )		// Only one "=".
+	{
+		// Set innerHTML = '' to avoid memory leak.
+		if ( oChild.contentWindow )
+			oChild.contentWindow.document.body.innerHTML = '' ;
+
+		eTargetElement.removeChild( oChild ) ;
+	}
 
 	if ( this.Mode == FCK_EDITMODE_WYSIWYG )
 	{
 		// Create the editing area IFRAME.
 		var oIFrame = this.IFrame = oTargetDocument.createElement( 'iframe' ) ;
-		oIFrame.src = 'javascript:void(0)' ;
+		
+		// Firefox will render the tables inside the body in Quirks mode if the 
+		// source of the iframe is set to javascript. see #515
+		if ( !FCKBrowserInfo.IsGecko )
+			oIFrame.src = 'javascript:void(0)' ;
+		
 		oIFrame.frameBorder = 0 ;
 		oIFrame.width = oIFrame.height = '100%' ;
 
@@ -59,29 +71,34 @@ FCKEditingArea.prototype.Start = function( html, secondCall )
 		eTargetElement.appendChild( oIFrame ) ;
 
 		// IE has a bug with the <base> tag... it must have a </base> closer,
-		// otherwise the all sucessive tags will be set as children nodes of the <base>.
+		// otherwise the all successive tags will be set as children nodes of the <base>.
 		if ( FCKBrowserInfo.IsIE )
 			html = html.replace( /(<base[^>]*?)\s*\/?>(?!\s*<\/base>)/gi, '$1></base>' ) ;
 		else if ( !secondCall )
 		{
-			// If nothing in the body, place a BOGUS tag so the cursor will appear.
-			if ( FCKBrowserInfo.IsGecko )
-				html = html.replace( /(<body[^>]*>)\s*(<\/body>)/i, '$1' + GECKO_BOGUS + '$2' ) ;
-
 			// Gecko moves some tags out of the body to the head, so we must use
 			// innerHTML to set the body contents (SF BUG 1526154).
 
 			// Extract the BODY contents from the html.
-			var oMatch = html.match( FCKRegexLib.BodyContents ) ;
+			var oMatchBefore = html.match( FCKRegexLib.BeforeBody ) ;
+			var oMatchAfter = html.match( FCKRegexLib.AfterBody ) ;
 
-			if ( oMatch )
+			if ( oMatchBefore && oMatchAfter )
 			{
-				html =
-					oMatch[1] +					// This is the HTML until the <body...> tag, inclusive.
-					'&nbsp;' +
-					oMatch[3] ;					// This is the HTML from the </body> tag, inclusive.
+				var sBody = html.substr( oMatchBefore[1].length,
+					       html.length - oMatchBefore[1].length - oMatchAfter[1].length ) ;	// This is the BODY tag contents.
 
-				this._BodyHTML = oMatch[2] ;	// This is the BODY tag contents.
+				html =
+					oMatchBefore[1] +			// This is the HTML until the <body...> tag, inclusive.
+					'&nbsp;' +
+					oMatchAfter[1] ;			// This is the HTML from the </body> tag, inclusive.
+
+				// If nothing in the body, place a BOGUS tag so the cursor will appear.
+				if ( FCKBrowserInfo.IsGecko && ( sBody.length == 0 || FCKRegexLib.EmptyParagraph.test( sBody ) ) )
+					sBody = '<br type="_moz">' ;
+
+				this._BodyHTML = sBody ;
+
 			}
 			else
 				this._BodyHTML = html ;			// Invalid HTML input.
@@ -101,7 +118,7 @@ FCKEditingArea.prototype.Start = function( html, secondCall )
 		oDoc.close() ;
 
 		// Firefox 1.0.x is buggy... ohh yes... so let's do it two times and it
-		// will magicaly work.
+		// will magically work.
 		if ( FCKBrowserInfo.IsGecko10 && !secondCall )
 		{
 			this.Start( html, true ) ;
@@ -124,8 +141,14 @@ FCKEditingArea.prototype.Start = function( html, secondCall )
 		var eTextarea = this.Textarea = oTargetDocument.createElement( 'textarea' ) ;
 		eTextarea.className = 'SourceField' ;
 		eTextarea.dir = 'ltr' ;
-		eTextarea.style.width = eTextarea.style.height = '100%' ;
-		eTextarea.style.border = 'none' ;
+		FCKDomTools.SetElementStyles( eTextarea, 
+			{ 
+				width	: '100%', 
+				height	: '100%', 
+				border	: 'none', 
+				resize	: 'none',
+				outline	: 'none'
+			} ) ;
 		eTargetElement.appendChild( eTextarea ) ;
 
 		eTextarea.value = html  ;
@@ -138,7 +161,7 @@ FCKEditingArea.prototype.Start = function( html, secondCall )
 // "this" here is FCKEditingArea.Window
 function FCKEditingArea_CompleteStart()
 {
-	// Of Firefox, the DOM takes a little to become available. So we must wait for it in a loop.
+	// On Firefox, the DOM takes a little to become available. So we must wait for it in a loop.
 	if ( !this.document.body )
 	{
 		this.setTimeout( FCKEditingArea_CompleteStart, 50 ) ;
@@ -146,6 +169,7 @@ function FCKEditingArea_CompleteStart()
 	}
 
 	var oEditorArea = this._FCKEditingArea ;
+	
 	oEditorArea.MakeEditable() ;
 
 	// Fire the "OnLoad" event.
@@ -158,7 +182,10 @@ FCKEditingArea.prototype.MakeEditable = function()
 
 	if ( FCKBrowserInfo.IsIE )
 	{
+		// Kludge for #141 and #523
+		oDoc.body.disabled = true ;
 		oDoc.body.contentEditable = true ;
+		oDoc.body.removeAttribute( "disabled" ) ;
 
 		/* The following commands don't throw errors, but have no effect.
 		oDoc.execCommand( 'AutoDetect', false, false ) ;
@@ -180,32 +207,46 @@ FCKEditingArea.prototype.MakeEditable = function()
 
 			oDoc.designMode = 'on' ;
 
-			// Tell Gecko to use or not the <SPAN> tag for the bold, italic and underline.
-			try
-			{
-				oDoc.execCommand( 'styleWithCSS', false, FCKConfig.GeckoUseSPAN ) ;
-			}
-			catch (e)
-			{
-				// As evidenced here, useCSS is deprecated in favor of styleWithCSS:
-				// http://www.mozilla.org/editor/midas-spec.html
-				oDoc.execCommand( 'useCSS', false, !FCKConfig.GeckoUseSPAN ) ;
-			}
-
-			// Analysing Firefox 1.5 source code, it seams that there is support for a
-			// "insertBrOnReturn" command. Applying it gives no error, but it doesn't
-			// gives the same behavior that you have with IE. It works only if you are
-			// already inside a paragraph and it doesn't render correctly in the first enter.
-			// oDoc.execCommand( 'insertBrOnReturn', false, false ) ;
-
 			// Tell Gecko (Firefox 1.5+) to enable or not live resizing of objects (by Alfonso Martinez)
 			oDoc.execCommand( 'enableObjectResizing', false, !FCKConfig.DisableObjectResizing ) ;
 
 			// Disable the standard table editing features of Firefox.
 			oDoc.execCommand( 'enableInlineTableEditing', false, !FCKConfig.DisableFFTableHandles ) ;
 		}
-		catch (e) {}
+		catch (e) 
+		{
+			// In Firefox if the iframe is initially hidden it can't be set to designMode and it raises an exception
+			// So we set up a DOM Mutation event Listener on the HTML, as it will raise several events when the document is  visible again
+			FCKTools.AddEventListener( this.Window.frameElement, 'DOMAttrModified', FCKEditingArea_Document_AttributeNodeModified ) ;
+		}
+
 	}
+}
+
+// This function processes the notifications of the DOM Mutation event on the document
+// We use it to know that the document will be ready to be editable again (or we hope so)
+function FCKEditingArea_Document_AttributeNodeModified( evt )
+{
+	var editingArea = evt.currentTarget.contentWindow._FCKEditingArea ;
+	
+	// We want to run our function after the events no longer fire, so we can know that it's a stable situation
+	if ( editingArea._timer )
+		window.clearTimeout( editingArea._timer ) ;
+
+	editingArea._timer = FCKTools.SetTimeout( FCKEditingArea_MakeEditableByMutation, 1000, editingArea ) ;	
+}
+
+// This function ideally should be called after the document is visible, it does clean up of the
+// mutation tracking and tries again to make the area editable.
+function FCKEditingArea_MakeEditableByMutation()
+{
+	// Clean up
+	delete this._timer ;
+	// Now we don't want to keep on getting this event
+	FCKTools.RemoveEventListener( this.Window.frameElement, 'DOMAttrModified', FCKEditingArea_Document_AttributeNodeModified ) ;
+	// Let's try now to set the editing area editable
+	// If it fails it will set up the Mutation Listener again automatically
+	this.MakeEditable() ;
 }
 
 FCKEditingArea.prototype.Focus = function()
@@ -217,14 +258,13 @@ FCKEditingArea.prototype.Focus = function()
 			// The following check is important to avoid IE entering in a focus loop. Ref:
 			// http://sourceforge.net/tracker/index.php?func=detail&aid=1567060&group_id=75348&atid=543653
 			if ( FCKBrowserInfo.IsIE && this.Document.hasFocus() )
-				return ;
+				this._EnsureFocusIE() ;
 
-			if ( FCKBrowserInfo.IsSafari )
-				this.IFrame.focus() ;
-			else
-			{
-				this.Window.focus() ;
-			}
+			this.Window.focus() ;
+
+			// In IE it can happen that the document is in theory focused but the active element is outside it
+			if ( FCKBrowserInfo.IsIE )
+				this._EnsureFocusIE() ;
 		}
 		else
 		{
@@ -238,8 +278,39 @@ FCKEditingArea.prototype.Focus = function()
 	catch(e) {}
 }
 
+FCKEditingArea.prototype._EnsureFocusIE = function()
+{
+	// In IE it can happen that the document is in theory focused but the active element is outside it
+	this.Document.body.setActive() ;
+
+	// Kludge for #141... yet more code to workaround IE bugs
+	var range = this.Document.selection.createRange() ;
+
+	var parentNode = range.parentElement() ;
+	var parentTag = parentNode.nodeName.toLowerCase() ;
+
+	// Only apply the fix when in a block, and the block is empty.
+	if ( parentNode.childNodes.length > 0 ||
+		 !( FCKListsLib.BlockElements[parentTag] || 
+		    FCKListsLib.NonEmptyBlockElements[parentTag] ) )
+	{
+		return ;
+	}
+
+	range.moveEnd( "character", 1 ) ;
+	range.select() ;
+
+	if ( range.boundingWidth > 0 )
+	{
+		range.moveEnd( "character", -1 ) ;
+		range.select() ;
+	}
+}
+
 function FCKEditingArea_Cleanup()
 {
+	if ( this.Document )
+		this.Document.body.innerHTML = "" ;
 	this.TargetElement = null ;
 	this.IFrame = null ;
 	this.Document = null ;

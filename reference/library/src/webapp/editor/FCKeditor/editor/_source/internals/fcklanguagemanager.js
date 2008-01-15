@@ -100,7 +100,7 @@ var FCKLanguageManager = FCK.Language =
 			}
 
 			// Some language codes are set in 5 characters,
-			// like "pt-br" for Brasilian Portuguese.
+			// like "pt-br" for Brazilian Portuguese.
 			if ( sUserLang.length >= 5 )
 			{
 				sUserLang = sUserLang.substr(0,5) ;
@@ -133,7 +133,7 @@ var FCKLanguageManager = FCK.Language =
 				{
 					if ( encode )
 						s = FCKTools.HTMLEncode( s ) ;
-					eval( 'e[i].' + propertyToSet + ' = s' ) ;
+					e[i][ propertyToSet ] = s ;
 				}
 			}
 		}
@@ -145,6 +145,7 @@ var FCKLanguageManager = FCK.Language =
 		this.TranslateElements( targetDocument, 'SPAN', 'innerHTML' ) ;
 		this.TranslateElements( targetDocument, 'LABEL', 'innerHTML' ) ;
 		this.TranslateElements( targetDocument, 'OPTION', 'innerHTML', true ) ;
+		this.TranslateElements( targetDocument, 'LEGEND', 'innerHTML' ) ;
 	},
 
 	Initialize : function()

@@ -27,26 +27,50 @@ var FCKToolbarFontSizeCombo = function( tooltip, style )
 	this.Label		= this.GetLabel() ;
 	this.Tooltip	= tooltip ? tooltip : this.Label ;
 	this.Style		= style ? style : FCK_TOOLBARITEM_ICONTEXT ;
+
+	this.DefaultLabel = FCKConfig.DefaultFontSizeLabel || '' ;
+
+	this.FieldWidth = 70 ;
 }
 
 // Inherit from FCKToolbarSpecialCombo.
-FCKToolbarFontSizeCombo.prototype = new FCKToolbarSpecialCombo ;
-
+FCKToolbarFontSizeCombo.prototype = new FCKToolbarFontFormatCombo( false ) ;
 
 FCKToolbarFontSizeCombo.prototype.GetLabel = function()
 {
 	return FCKLang.FontSize ;
 }
 
-FCKToolbarFontSizeCombo.prototype.CreateItems = function( targetSpecialCombo )
+FCKToolbarFontSizeCombo.prototype.GetStyles = function()
 {
-	targetSpecialCombo.FieldWidth = 70 ;
+	var baseStyle = FCKStyles.GetStyle( '_FCK_Size' ) ;
 
-	var aSizes = FCKConfig.FontSizes.split(';') ;
-
-	for ( var i = 0 ; i < aSizes.length ; i++ )
+	if ( !baseStyle )
 	{
-		var aSizeParts = aSizes[i].split('/') ;
-		this._Combo.AddItem( aSizeParts[0], '<font size="' + aSizeParts[0] + '">' + aSizeParts[1] + '</font>', aSizeParts[1] ) ;
+		alert( "The FCKConfig.CoreStyles['FontFace'] setting was not found. Please check the fckconfig.js file" ) ;
+		return {} ;
 	}
+
+	var styles = {} ;
+
+	var fonts = FCKConfig.FontSizes.split(';') ;
+
+	for ( var i = 0 ; i < fonts.length ; i++ )
+	{
+		var fontParts = fonts[i].split('/') ;
+		var font = fontParts[0] ;
+		var caption = fontParts[1] || font ;
+
+		var style = FCKTools.CloneObject( baseStyle ) ;
+		style.SetVariable( 'Size', font ) ;
+		style.Label = caption ;
+
+		styles[ caption ] = style ;
+	}
+
+	return styles ;
 }
+
+FCKToolbarFontSizeCombo.prototype.RefreshActiveItems = FCKToolbarStyleCombo.prototype.RefreshActiveItems ;
+
+FCKToolbarFontSizeCombo.prototype.StyleCombo_OnBeforeClick = FCKToolbarFontsCombo.prototype.StyleCombo_OnBeforeClick ;

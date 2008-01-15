@@ -45,6 +45,7 @@ InsertLinkLbl		: "Линк",
 InsertLink			: "Унеси/измени линк",
 RemoveLink			: "Уклони линк",
 Anchor				: "Унеси/измени сидро",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Слика",
 InsertImage			: "Унеси/измени слику",
 InsertFlashLbl		: "Флеш елемент",
@@ -70,6 +71,7 @@ RightJustify		: "Десно равнање",
 BlockJustify		: "Обострано равнање",
 DecreaseIndent		: "Смањи леву маргину",
 IncreaseIndent		: "Увећај леву маргину",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Поништи акцију",
 Redo				: "Понови акцију",
 NumberedListLbl		: "Набројиву листу",
@@ -103,20 +105,27 @@ SelectionField	: "Изборно поље",
 ImageButton		: "Дугме са сликом",
 
 FitWindow		: "Maximize the editor size",	//MISSING
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Промени линк",
 CellCM				: "Cell",	//MISSING
 RowCM				: "Row",	//MISSING
 ColumnCM			: "Column",	//MISSING
-InsertRow			: "Унеси ред",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Обриши редове",
-InsertColumn		: "Унеси колону",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Обриши колоне",
-InsertCell			: "Унеси ћелије",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Обриши ћелије",
 MergeCells			: "Спој ћелије",
-SplitCell			: "Раздвоји ћелије",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Delete Table",	//MISSING
 CellProperties		: "Особине ћелије",
 TableProperties		: "Особине табеле",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Особине изборног поља",
 TextareaProp		: "Особине зоне текста",
 FormProp			: "Особине форме",
 
-FontFormats			: "Normal;Formatirano;Adresa;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normal;Formatirano;Adresa;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6",
 
 // Alerts and Messages
 ProcessingXHTML		: "Обрађујем XHTML. Maлo стрпљења...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "УРЛ",
 DlgLnkAnchorSel		: "Одабери сидро",
 DlgLnkAnchorByName	: "По називу сидра",
 DlgLnkAnchorById	: "Пo Ид-jу елемента",
-DlgLnkNoAnchors		: "<Нема доступних сидра>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Нема доступних сидра)",
 DlgLnkEMail			: "Адреса електронске поште",
 DlgLnkEMailSubject	: "Наслов",
 DlgLnkEMailBody		: "Садржај поруке",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Спајање колона",
 DlgCellBackColor	: "Боја позадине",
 DlgCellBorderColor	: "Боја оквира",
 DlgCellBtnSelect	: "Oдабери...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Пронађи",

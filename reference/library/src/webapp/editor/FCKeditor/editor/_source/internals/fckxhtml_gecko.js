@@ -53,8 +53,12 @@ FCKXHtml._AppendAttributes = function( xmlNode, htmlNode, node )
 			// There are one cases (on Gecko) when the oAttribute.nodeValue must be used:
 			//		- for the "class" attribute
 			else if ( sAttName == 'class' )
-				sAttValue = oAttribute.nodeValue ;
-			// XHTML doens't support attribute minimization like "CHECKED". It must be trasformed to cheched="checked".
+			{
+				sAttValue = oAttribute.nodeValue.replace( FCKRegexLib.FCK_Class, '' ) ;
+				if ( sAttValue.length == 0 )
+					continue ;
+			}
+			// XHTML doens't support attribute minimization like "CHECKED". It must be transformed to checked="checked".
 			else if ( oAttribute.nodeValue === true )
 				sAttValue = sAttName ;
 			else
@@ -62,5 +66,40 @@ FCKXHtml._AppendAttributes = function( xmlNode, htmlNode, node )
 
 			this._AppendAttribute( node, sAttName, sAttValue ) ;
 		}
+	}
+}
+
+if ( FCKBrowserInfo.IsOpera )
+{
+	// Opera moves the <FCK:meta> element outside head (#1166).
+	
+	// Save a reference to the XML <head> node, so we can use it for
+	// orphan <meta>s.
+	FCKXHtml.TagProcessors['head'] = function( node, htmlNode )
+	{
+		FCKXHtml.XML._HeadElement = node ;
+		
+		node = FCKXHtml._AppendChildNodes( node, htmlNode, true ) ;
+
+		return node ;
+	}
+
+	// Check whether a <meta> element is outside <head>, and move it to the
+	// proper place.
+	FCKXHtml.TagProcessors['meta'] = function( node, htmlNode, xmlNode )
+	{
+		if ( htmlNode.parentNode.nodeName.toLowerCase() != 'head' )
+		{
+			var headElement = FCKXHtml.XML._HeadElement ;
+			
+			if ( headElement && xmlNode != headElement )
+			{
+				delete htmlNode._fckxhtmljob ;
+				FCKXHtml._AppendNode( headElement, htmlNode ) ;
+				return null ;
+			}
+		}
+
+		return node ;
 	}
 }

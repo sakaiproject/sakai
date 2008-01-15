@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -39,7 +39,7 @@ window.onload = function ()
 {
 	// First of all, translate the dialog box texts
 	oEditor.FCKLanguageManager.TranslatePage(document) ;
-	
+
 	var sPastingType = window.parent.dialogArguments.CustomValue ;
 
 	if ( sPastingType == 'Word' || sPastingType == 'Security' )
@@ -50,10 +50,19 @@ window.onload = function ()
 		var oFrame = document.getElementById('frmData') ;
 		oFrame.style.display = '' ;
 
+		// Avoid errors if the pasted content has any script that fails: #389
+		var oDoc = oFrame.contentWindow.document ;
+		oDoc.open() ;
+		oDoc.write('<html><head><script>window.onerror = function() { return true ; };<\/script><\/head><body><\/body><\/html>') ;
+		oDoc.close() ;
+		
 		if ( oFrame.contentDocument )
 			oFrame.contentDocument.designMode = 'on' ;
 		else
 			oFrame.contentWindow.document.body.contentEditable = true ;
+
+		// Set the focus on the pasting area
+		oFrame.contentWindow.focus();
 	}
 	else
 	{
@@ -69,6 +78,9 @@ window.onload = function ()
 
 function Ok()
 {
+	// Before doing anything, save undo snapshot.
+	oEditor.FCKUndo.SaveUndoStep() ;
+
 	var sHtml ;
 
 	var sPastingType = window.parent.dialogArguments.CustomValue ;
@@ -101,7 +113,43 @@ function Ok()
 	else
 	{
 		sHtml = oEditor.FCKTools.HTMLEncode( document.getElementById('txtData').value )  ;
-		sHtml = sHtml.replace( /\n/g, '<BR>' ) ;
+		sHtml = FCKTools.ProcessLineBreaks( oEditor, FCKConfig, sHtml ) ;
+
+		// FCK.InsertHtml() does not work for us, since document fragments cannot contain node fragments. :(
+		// Use the marker method instead. It's primitive, but it works.
+		var range = new oEditor.FCKDomRange( oEditor.FCK.EditorWindow ) ;
+		var oDoc = oEditor.FCK.EditorDocument ;
+		range.MoveToSelection() ;
+		range.DeleteContents() ;
+		var marker = [] ;
+		for ( var i = 0 ; i < 5 ; i++ )
+			marker.push( parseInt(Math.random() * 100000, 10 ) ) ;
+		marker = marker.join( "" ) ;
+		range.InsertNode ( oDoc.createTextNode( marker ) ) ;
+		var bookmark = range.CreateBookmark() ;
+
+		// Now we've got a marker indicating the paste position in the editor document.
+		// Find its position in the HTML code.
+		var htmlString = oDoc.body.innerHTML ;
+		var index = htmlString.indexOf( marker ) ;
+
+		// Split it the HTML code up, add the code we generated, and put them back together.
+		var htmlList = [] ;
+		htmlList.push( htmlString.substr( 0, index ) ) ;
+		htmlList.push( sHtml ) ;
+		htmlList.push( htmlString.substr( index + marker.length ) ) ;
+		htmlString = htmlList.join( "" ) ;
+
+		if ( oEditor.FCKBrowserInfo.IsIE )
+			oEditor.FCK.SetInnerHtml( htmlString ) ;
+		else
+			oDoc.body.innerHTML = htmlString ;
+
+		range.MoveToBookmark( bookmark ) ;
+		range.Collapse( false ) ;
+		range.Select() ;
+		range.Release() ;
+		return true ;
 	}
 
 	oEditor.FCK.InsertHtml( sHtml ) ;
@@ -187,7 +235,7 @@ function CleanWord( oNode, bIgnoreFont, bRemoveStyles )
 	html = html.replace(/<\/?\w+:[^>]*>/gi, '' ) ;
 
 	// Remove comments [SF BUG-1481861].
-	html = html.replace(/<\!--.*-->/g, '' ) ;
+	html = html.replace(/<\!--.*?-->/g, '' ) ;
 
 	html = html.replace( /<(U|I|STRIKE)>&nbsp;<\/\1>/g, '&nbsp;' ) ;
 
@@ -196,14 +244,21 @@ function CleanWord( oNode, bIgnoreFont, bRemoveStyles )
 	// Remove "display:none" tags.
 	html = html.replace( /<(\w+)[^>]*\sstyle="[^"]*DISPLAY\s?:\s?none(.*?)<\/\1>/ig, '' ) ;
 
+	// Remove language tags
+	html = html.replace( /<(\w[^>]*) language=([^ |>]*)([^>]*)/gi, "<$1$3") ;
+
+	// Remove onmouseover and onmouseout events (from MS Word comments effect)
+	html = html.replace( /<(\w[^>]*) onmouseover="([^\"]*)"([^>]*)/gi, "<$1$3") ;
+	html = html.replace( /<(\w[^>]*) onmouseout="([^\"]*)"([^>]*)/gi, "<$1$3") ;
+
 	if ( FCKConfig.CleanWordKeepsStructure )
 	{
 		// The original <Hn> tag send from Word is something like this: <Hn style="margin-top:0px;margin-bottom:0px">
 		html = html.replace( /<H(\d)([^>]*)>/gi, '<h$1>' ) ;
 
 		// Word likes to insert extra <font> tags, when using MSIE. (Wierd).
-		html = html.replace( /<(H\d)><FONT[^>]*>(.*?)<\/FONT><\/\1>/gi, '<$1>$2</$1>' );
-		html = html.replace( /<(H\d)><EM>(.*?)<\/EM><\/\1>/gi, '<$1>$2</$1>' );
+		html = html.replace( /<(H\d)><FONT[^>]*>(.*?)<\/FONT><\/\1>/gi, '<$1>$2<\/$1>' );
+		html = html.replace( /<(H\d)><EM>(.*?)<\/EM><\/\1>/gi, '<$1>$2<\/$1>' );
 	}
 	else
 	{

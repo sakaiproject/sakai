@@ -22,7 +22,7 @@
  * color selection panel.
  */
 
-// FCKTextColorCommand Contructor
+// FCKTextColorCommand Constructor
 //		type: can be 'ForeColor' or 'BackColor'.
 var FCKTextColorCommand = function( type )
 {
@@ -38,7 +38,7 @@ var FCKTextColorCommand = function( type )
 	else
 		oWindow = window.parent ;
 
-	this._Panel = new FCKPanel( oWindow, true ) ;
+	this._Panel = new FCKPanel( oWindow ) ;
 	this._Panel.AppendStyleSheet( FCKConfig.SkinPath + 'fck_editor.css' ) ;
 	this._Panel.MainNode.className = 'FCK_Panel' ;
 	this._CreatePanelBody( this._Panel.Document, this._Panel.MainNode ) ;
@@ -48,32 +48,29 @@ var FCKTextColorCommand = function( type )
 
 FCKTextColorCommand.prototype.Execute = function( panelX, panelY, relElement )
 {
-	// We must "cache" the actual panel type to be used in the SetColor method.
-	FCK._ActiveColorPanelType = this.Type ;
-
 	// Show the Color Panel at the desired position.
 	this._Panel.Show( panelX, panelY, relElement ) ;
 }
 
 FCKTextColorCommand.prototype.SetColor = function( color )
 {
-	if ( FCK._ActiveColorPanelType == 'ForeColor' )
-		FCK.ExecuteNamedCommand( 'ForeColor', color ) ;
-	else if ( FCKBrowserInfo.IsGeckoLike )
-	{
-		if ( FCKBrowserInfo.IsGecko && !FCKConfig.GeckoUseSPAN )
-			FCK.EditorDocument.execCommand( 'useCSS', false, false ) ;
+	FCKUndo.SaveUndoStep() ;
 
-		FCK.ExecuteNamedCommand( 'hilitecolor', color ) ;
+	var style = FCKStyles.GetStyle( '_FCK_' +
+		( this.Type == 'ForeColor' ? 'Color' : 'BackColor' ) ) ;
 
-		if ( FCKBrowserInfo.IsGecko && !FCKConfig.GeckoUseSPAN )
-			FCK.EditorDocument.execCommand( 'useCSS', false, true ) ;
-	}
+	if ( !color || color.length == 0 )
+		FCK.Styles.RemoveStyle( style ) ;
 	else
-		FCK.ExecuteNamedCommand( 'BackColor', color ) ;
+	{
+		style.SetVariable( 'Color', color ) ;
+		FCKStyles.ApplyStyle( style ) ;
+	}
 
-	// Delete the "cached" active panel type.
-	delete FCK._ActiveColorPanelType ;
+	FCKUndo.SaveUndoStep() ;
+
+	FCK.Focus() ;
+	FCK.Events.FireEvent( 'OnSelectionChange' ) ;
 }
 
 FCKTextColorCommand.prototype.GetState = function()
@@ -81,29 +78,35 @@ FCKTextColorCommand.prototype.GetState = function()
 	return FCK_TRISTATE_OFF ;
 }
 
-function FCKTextColorCommand_OnMouseOver()	{ this.className='ColorSelected' ; }
-
-function FCKTextColorCommand_OnMouseOut()	{ this.className='ColorDeselected' ; }
-
-function FCKTextColorCommand_OnClick()
+function FCKTextColorCommand_OnMouseOver()
 {
-	this.className = 'ColorDeselected' ;
-	this.Command.SetColor( '#' + this.Color ) ;
-	this.Command._Panel.Hide() ;
+	this.className = 'ColorSelected' ;
 }
 
-function FCKTextColorCommand_AutoOnClick()
+function FCKTextColorCommand_OnMouseOut()
 {
 	this.className = 'ColorDeselected' ;
-	this.Command.SetColor( '' ) ;
-	this.Command._Panel.Hide() ;
 }
 
-function FCKTextColorCommand_MoreOnClick()
+function FCKTextColorCommand_OnClick( ev, command, color )
 {
 	this.className = 'ColorDeselected' ;
-	this.Command._Panel.Hide() ;
-	FCKDialog.OpenDialog( 'FCKDialog_Color', FCKLang.DlgColorTitle, 'dialog/fck_colorselector.html', 400, 330, this.Command.SetColor ) ;
+	command.SetColor( color ) ;
+	command._Panel.Hide() ;
+}
+
+function FCKTextColorCommand_AutoOnClick( ev, command )
+{
+	this.className = 'ColorDeselected' ;
+	command.SetColor( '' ) ;
+	command._Panel.Hide() ;
+}
+
+function FCKTextColorCommand_MoreOnClick( ev, command )
+{
+	this.className = 'ColorDeselected' ;
+	command._Panel.Hide() ;
+	FCKDialog.OpenDialog( 'FCKDialog_Color', FCKLang.DlgColorTitle, 'dialog/fck_colorselector.html', 400, 330, FCKTools.Hitch(command, 'SetColor') ) ;
 }
 
 FCKTextColorCommand.prototype._CreatePanelBody = function( targetDocument, targetDiv )
@@ -111,9 +114,9 @@ FCKTextColorCommand.prototype._CreatePanelBody = function( targetDocument, targe
 	function CreateSelectionDiv()
 	{
 		var oDiv = targetDocument.createElement( "DIV" ) ;
-		oDiv.className		= 'ColorDeselected' ;
-		oDiv.onmouseover	= FCKTextColorCommand_OnMouseOver ;
-		oDiv.onmouseout		= FCKTextColorCommand_OnMouseOut ;
+		oDiv.className = 'ColorDeselected' ;
+		FCKTools.AddEventListenerEx( oDiv, 'mouseover', FCKTextColorCommand_OnMouseOver ) ;
+		FCKTools.AddEventListenerEx( oDiv, 'mouseout', FCKTextColorCommand_OnMouseOut ) ;
 
 		return oDiv ;
 	}
@@ -140,8 +143,11 @@ FCKTextColorCommand.prototype._CreatePanelBody = function( targetDocument, targe
 			</tr>\
 		</table>' ;
 
-	oDiv.Command = this ;
-	oDiv.onclick = FCKTextColorCommand_AutoOnClick ;
+	FCKTools.AddEventListenerEx( oDiv, 'click', FCKTextColorCommand_AutoOnClick, this ) ;
+
+	// Dirty hack for Opera, Safari and Firefox 3.
+	if ( !FCKBrowserInfo.IsIE )
+		oDiv.style.width = '96%' ;
 
 	// Create an array of colors based on the configuration file.
 	var aColors = FCKConfig.FontColors.toString().split(',') ;
@@ -152,24 +158,40 @@ FCKTextColorCommand.prototype._CreatePanelBody = function( targetDocument, targe
 	{
 		var oRow = oTable.insertRow(-1) ;
 
-		for ( var i = 0 ; i < 8 && iCounter < aColors.length ; i++, iCounter++ )
+		for ( var i = 0 ; i < 8 ; i++, iCounter++ )
 		{
-			oDiv = oRow.insertCell(-1).appendChild( CreateSelectionDiv() ) ;
-			oDiv.Color = aColors[iCounter] ;
-			oDiv.innerHTML = '<div class="ColorBoxBorder"><div class="ColorBox" style="background-color: #' + aColors[iCounter] + '"></div></div>' ;
+			// The div will be created even if no more colors are available.
+			// Extra divs will be hidden later in the code. (#1597)
+			if ( iCounter < aColors.length )
+			{
+				var colorParts = aColors[iCounter].split('/') ;
+				var colorValue = '#' + colorParts[0] ;
+				var colorName = colorParts[1] || colorValue ;
+			}
 
-			oDiv.Command = this ;
-			oDiv.onclick = FCKTextColorCommand_OnClick ;
+			oDiv = oRow.insertCell(-1).appendChild( CreateSelectionDiv() ) ;
+			oDiv.innerHTML = '<div class="ColorBoxBorder"><div class="ColorBox" style="background-color: ' + colorValue + '"></div></div>' ;
+
+			if ( iCounter >= aColors.length )
+				oDiv.style.visibility = 'hidden' ;
+			else
+				FCKTools.AddEventListenerEx( oDiv, 'click', FCKTextColorCommand_OnClick, [ this, colorName ] ) ;
 		}
 	}
 
 	// Create the Row and the Cell for the "More Colors..." button.
-	oCell = oTable.insertRow(-1).insertCell(-1) ;
-	oCell.colSpan = 8 ;
+	if ( FCKConfig.EnableMoreFontColors )
+	{
+		oCell = oTable.insertRow(-1).insertCell(-1) ;
+		oCell.colSpan = 8 ;
 
-	oDiv = oCell.appendChild( CreateSelectionDiv() ) ;
-	oDiv.innerHTML = '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td nowrap align="center">' + FCKLang.ColorMoreColors + '</td></tr></table>' ;
+		oDiv = oCell.appendChild( CreateSelectionDiv() ) ;
+		oDiv.innerHTML = '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td nowrap align="center">' + FCKLang.ColorMoreColors + '</td></tr></table>' ;
 
-	oDiv.Command = this ;
-	oDiv.onclick = FCKTextColorCommand_MoreOnClick ;
+		FCKTools.AddEventListenerEx( oDiv, 'click', FCKTextColorCommand_MoreOnClick, this ) ;
+	}
+
+	// Dirty hack for Opera, Safari and Firefox 3.
+	if ( !FCKBrowserInfo.IsIE )
+		oDiv.style.width = '96%' ;
 }

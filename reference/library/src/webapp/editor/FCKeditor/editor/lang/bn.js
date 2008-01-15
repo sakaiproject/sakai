@@ -45,6 +45,7 @@ InsertLinkLbl		: "লিংকের যুক্ত করার লেবে�
 InsertLink			: "লিংক যুক্ত কর",
 RemoveLink			: "লিংক সরাও",
 Anchor				: "নোঙ্গর",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "ছবির লেবেল যুক্ত কর",
 InsertImage			: "ছবি যুক্ত কর",
 InsertFlashLbl		: "ফ্লাশ লেবেল যুক্ত কর",
@@ -70,6 +71,7 @@ RightJustify		: "ডান দিকে ঘেঁষা",
 BlockJustify		: "ব্লক জাস্টিফাই",
 DecreaseIndent		: "ইনডেন্ট কমাও",
 IncreaseIndent		: "ইনডেন্ট বাড়াও",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "আনডু",
 Redo				: "রি-ডু",
 NumberedListLbl		: "সাংখ্যিক লিস্টের লেবেল",
@@ -103,20 +105,27 @@ SelectionField	: "বাছাই ফীল্ড",
 ImageButton		: "ছবির বাটন",
 
 FitWindow		: "উইন্ডো ফিট কর",
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "লিংক সম্পাদন",
 CellCM				: "সেল",
 RowCM				: "রো",
 ColumnCM			: "কলাম",
-InsertRow			: "রো যুক্ত কর",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "রো মুছে দাও",
-InsertColumn		: "কলাম যুক্ত কর",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "কলাম মুছে দাও",
-InsertCell			: "সেল যুক্ত কর",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "সেল মুছে দাও",
 MergeCells			: "সেল জোড়া দাও",
-SplitCell			: "সেল আলাদা কর",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "টেবিল ডিলীট কর",
 CellProperties		: "সেলের প্রোপার্টিজ",
 TableProperties		: "টেবিল প্রোপার্টি",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "বাছাই ফীল্ড প্রোপার্�
 TextareaProp		: "টেক্সট এরিয়া প্রোপার্টি",
 FormProp			: "ফর্ম প্রোপার্টি",
 
-FontFormats			: "সাধারণ;ফর্মেটেড;ঠিকানা;শীর্ষক ১;শীর্ষক ২;শীর্ষক ৩;শীর্ষক ৪;শীর্ষক ৫;শীর্ষক ৬;শীর্ষক (DIV)",		//REVIEW : Check _getfontformat.html
+FontFormats			: "সাধারণ;ফর্মেটেড;ঠিকানা;শীর্ষক ১;শীর্ষক ২;শীর্ষক ৩;শীর্ষক ৪;শীর্ষক ৫;শীর্ষক ৬;শীর্ষক (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "XHTML প্রসেস করা হচ্ছে",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "নোঙর বাছাই",
 DlgLnkAnchorByName	: "নোঙরের নাম দিয়ে",
 DlgLnkAnchorById	: "নোঙরের আইডি দিয়ে",
-DlgLnkNoAnchors		: "<ডকুমেন্টে আর কোন নোঙর নেই>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(No anchors available in the document)",	//MISSING
 DlgLnkEMail			: "ইমেইল ঠিকানা",
 DlgLnkEMailSubject	: "মেসেজের বিষয়",
 DlgLnkEMailBody		: "মেসেজের দেহ",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "কলাম স্প্যান",
 DlgCellBackColor	: "ব্যাকগ্রাউন্ড রং",
 DlgCellBorderColor	: "বর্ডারের রং",
 DlgCellBtnSelect	: "বাছাই কর",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "খোঁজো",

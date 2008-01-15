@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -34,26 +34,33 @@ oListManager.Clear = function()
 	document.body.innerHTML = '' ;
 }
 
+function ProtectPath(path)
+{
+	path = path.replace( /\\/g, '\\\\') ;
+	path = path.replace( /'/g, '\\\'') ;
+	return path ;
+}
+
 oListManager.GetFolderRowHtml = function( folderName, folderPath )
 {
 	// Build the link to view the folder.
-	var sLink = '<a href="#" onclick="OpenFolder(\'' + folderPath.replace( /'/g, '\\\'') + '\');return false;">' ;
+	var sLink = '<a href="#" onclick="OpenFolder(\'' + ProtectPath( folderPath ) + '\');return false;">' ;
 
 	return '<tr>' +
 			'<td width="16">' +
 				sLink +
-				'<img alt="" src="images/Folder.gif" width="16" height="16" border="0"></a>' +
-			'</td><td nowrap colspan="2">&nbsp;' +
+				'<img alt="" src="images/Folder.gif" width="16" height="16" border="0"><\/a>' +
+			'<\/td><td nowrap colspan="2">&nbsp;' +
 				sLink +
 				folderName +
-				'</a>' +
-		'</td></tr>' ;
+				'<\/a>' +
+		'<\/td><\/tr>' ;
 }
 
 oListManager.GetFileRowHtml = function( fileName, fileUrl, fileSize )
 {
 	// Build the link to view the folder.
-	var sLink = '<a href="#" onclick="OpenFile(\'' + fileUrl.replace( /'/g, '\\\'') + '\');return false;">' ;
+	var sLink = '<a href="#" onclick="OpenFile(\'' + ProtectPath( fileUrl ) + '\');return false;">' ;
 
 	// Get the file icon.
 	var sIcon = oIcons.GetIcon( fileName ) ;
@@ -61,14 +68,15 @@ oListManager.GetFileRowHtml = function( fileName, fileUrl, fileSize )
 	return '<tr>' +
 			'<td width="16">' +
 				sLink +
-				'<img alt="" src="images/icons/' + sIcon + '.gif" width="16" height="16" border="0"></a>' +
-			'</td><td>&nbsp;' +
+				'<img alt="" src="images/icons/' + sIcon + '.gif" width="16" height="16" border="0"><\/a>' +
+			'<\/td><td>&nbsp;' +
 				sLink +
 				fileName +
-				'</a>' +
-			'</td><td align="right" nowrap>&nbsp;' +
+				'<\/a>' +
+			'<\/td><td align="right" nowrap>&nbsp;' +
 				fileSize +
-		'</td></tr>' ;
+				' KB' +
+		'<\/td><\/tr>' ;
 }
 
 function OpenFolder( folderPath )
@@ -79,7 +87,7 @@ function OpenFolder( folderPath )
 
 function OpenFile( fileUrl )
 {
-	window.top.opener.SetUrl( fileUrl ) ;
+	window.top.opener.SetUrl( encodeURI( fileUrl ) ) ;
 	window.top.close() ;
 	window.top.opener.focus() ;
 }
@@ -106,7 +114,7 @@ function GetFoldersAndFilesCallBack( fckXml )
 	var oFolderNode = fckXml.SelectSingleNode( 'Connector/CurrentFolder' ) ;
 	if ( oFolderNode == null )
 	{
-		alert( 'The server didn\'t reply with a proper XML file\r\nCheck your configuration.' ) ;
+		alert( 'The server didn\'t reply with a proper XML data. Please check your configuration.' ) ;
 		return ;
 	}
 	var sCurrentFolderPath	= oFolderNode.attributes.getNamedItem('path').value ;
@@ -154,6 +162,6 @@ window.onload = function()
 }
 	</script>
 </head>
-<body class="FileArea" bottommargin="10" leftmargin="10" topmargin="10" rightmargin="10">
+<body class="FileArea">
 </body>
 </html>

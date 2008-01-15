@@ -36,7 +36,7 @@ var FCKSpecialCombo = function( caption, fieldWidth, panelWidth, panelMaxHeight,
 
 	this.Items = new Object() ;
 
-	this._Panel = new FCKPanel( parentWindow || window, true ) ;
+	this._Panel = new FCKPanel( parentWindow || window ) ;
 	this._Panel.AppendStyleSheet( FCKConfig.SkinPath + 'fck_editor.css' ) ;
 	this._PanelBox = this._Panel.MainNode.appendChild( this._Panel.Document.createElement( 'DIV' ) ) ;
 	this._PanelBox.className = 'SC_Panel' ;
@@ -66,16 +66,26 @@ function FCKSpecialCombo_ItemOnMouseOut()
 	this.className = this.originalClass ;
 }
 
-function FCKSpecialCombo_ItemOnClick()
+function FCKSpecialCombo_ItemOnClick( ev, specialCombo, itemId )
 {
 	this.className = this.originalClass ;
 
-	this.FCKSpecialCombo._Panel.Hide() ;
+	specialCombo._Panel.Hide() ;
 
-	this.FCKSpecialCombo.SetLabel( this.FCKItemLabel ) ;
+	specialCombo.SetLabel( this.FCKItemLabel ) ;
 
-	if ( typeof( this.FCKSpecialCombo.OnSelect ) == 'function' )
-		this.FCKSpecialCombo.OnSelect( this.FCKItemID, this ) ;
+	if ( typeof( specialCombo.OnSelect ) == 'function' )
+		specialCombo.OnSelect( itemId, this ) ;
+}
+
+FCKSpecialCombo.prototype.ClearItems = function ()
+{
+	if ( this.Items )
+		this.Items = {} ;
+	
+	var itemsholder = this._ItemsHolderEl ;
+	while ( itemsholder.firstChild )
+		itemsholder.removeChild( itemsholder.firstChild ) ;
 }
 
 FCKSpecialCombo.prototype.AddItem = function( id, html, label, bgColor )
@@ -84,9 +94,7 @@ FCKSpecialCombo.prototype.AddItem = function( id, html, label, bgColor )
 	var oDiv = this._ItemsHolderEl.appendChild( this._Panel.Document.createElement( 'DIV' ) ) ;
 	oDiv.className = oDiv.originalClass = 'SC_Item' ;
 	oDiv.innerHTML = html ;
-	oDiv.FCKItemID = id ;
 	oDiv.FCKItemLabel = label || id ;
-	oDiv.FCKSpecialCombo = this ;
 	oDiv.Selected = false ;
 
 	// In IE, the width must be set so the borders are shown correctly when the content overflows.
@@ -96,24 +104,24 @@ FCKSpecialCombo.prototype.AddItem = function( id, html, label, bgColor )
 	if ( bgColor )
 		oDiv.style.backgroundColor = bgColor ;
 
-	oDiv.onmouseover	= FCKSpecialCombo_ItemOnMouseOver ;
-	oDiv.onmouseout		= FCKSpecialCombo_ItemOnMouseOut ;
-	oDiv.onclick		= FCKSpecialCombo_ItemOnClick ;
+	FCKTools.AddEventListenerEx( oDiv, 'mouseover', FCKSpecialCombo_ItemOnMouseOver ) ;
+	FCKTools.AddEventListenerEx( oDiv, 'mouseout', FCKSpecialCombo_ItemOnMouseOut ) ;
+	FCKTools.AddEventListenerEx( oDiv, 'click', FCKSpecialCombo_ItemOnClick, [ this, id ] ) ;
 
 	this.Items[ id.toString().toLowerCase() ] = oDiv ;
 
 	return oDiv ;
 }
 
-FCKSpecialCombo.prototype.SelectItem = function( itemId )
+FCKSpecialCombo.prototype.SelectItem = function( item )
 {
-	itemId = itemId ? itemId.toString().toLowerCase() : '' ;
+	if ( typeof item == 'string' )
+		item = this.Items[ item.toString().toLowerCase() ] ;
 
-	var oDiv = this.Items[ itemId ] ;
-	if ( oDiv )
+	if ( item )
 	{
-		oDiv.className = oDiv.originalClass = 'SC_ItemSelected' ;
-		oDiv.Selected = true ;
+		item.className = item.originalClass = 'SC_ItemSelected' ;
+		item.Selected = true ;
 	}
 }
 
@@ -138,6 +146,7 @@ FCKSpecialCombo.prototype.DeselectAll = function( clearLabel )
 {
 	for ( var i in this.Items )
 	{
+		if ( !this.Items[i] ) continue;
 		this.Items[i].className = this.Items[i].originalClass = 'SC_Item' ;
 		this.Items[i].Selected = false ;
 	}
@@ -156,17 +165,23 @@ FCKSpecialCombo.prototype.SetLabelById = function( id )
 
 FCKSpecialCombo.prototype.SetLabel = function( text )
 {
-	this.Label = text.length == 0 ? '&nbsp;' : text ;
+	text = ( !text || text.length == 0 ) ? '&nbsp;' : text ;
 
-	if ( this._LabelEl )
+	if ( text == this.Label )
+		return ;
+
+	this.Label = text ;
+
+	var labelEl = this._LabelEl ;
+	if ( labelEl )
 	{
-		this._LabelEl.innerHTML = this.Label ;
+		labelEl.innerHTML = text ;
 
 		// It may happen that the label is some HTML, including tags. This
 		// would be a problem because when the user click on those tags, the
 		// combo will get the selection from the editing area. So we must
 		// disable any kind of selection here.
-		FCKTools.DisableSelection( this._LabelEl ) ;
+		FCKTools.DisableSelection( labelEl ) ;
 	}
 }
 
@@ -174,7 +189,9 @@ FCKSpecialCombo.prototype.SetEnabled = function( isEnabled )
 {
 	this.Enabled = isEnabled ;
 
-	this._OuterTable.className = isEnabled ? '' : 'SC_FieldDisabled' ;
+	// In IE it can happen when the page is reloaded that _OuterTable is null, so check its existence
+	if ( this._OuterTable )
+		this._OuterTable.className = isEnabled ? '' : 'SC_FieldDisabled' ;
 }
 
 FCKSpecialCombo.prototype.Create = function( targetElement )
@@ -244,11 +261,9 @@ FCKSpecialCombo.prototype.Create = function( targetElement )
 
 	// Events Handlers
 
-	oField.SpecialCombo = this ;
-
-	oField.onmouseover	= FCKSpecialCombo_OnMouseOver ;
-	oField.onmouseout	= FCKSpecialCombo_OnMouseOut ;
-	oField.onclick		= FCKSpecialCombo_OnClick ;
+	FCKTools.AddEventListenerEx( oField, 'mouseover', FCKSpecialCombo_OnMouseOver, this ) ;
+	FCKTools.AddEventListenerEx( oField, 'mouseout', FCKSpecialCombo_OnMouseOut, this ) ;
+	FCKTools.AddEventListenerEx( oField, 'click', FCKSpecialCombo_OnClick, this ) ;
 
 	FCKTools.DisableSelection( this._Panel.Document.body ) ;
 }
@@ -267,28 +282,28 @@ function FCKSpecialCombo_Cleanup()
 	}
 }
 
-function FCKSpecialCombo_OnMouseOver()
+function FCKSpecialCombo_OnMouseOver( ev, specialCombo )
 {
-	if ( this.SpecialCombo.Enabled )
+	if ( specialCombo.Enabled )
 	{
-		switch ( this.SpecialCombo.Style )
+		switch ( specialCombo.Style )
 		{
-		case FCK_TOOLBARITEM_ONLYICON :
-			this.className = 'TB_Button_On_Over';
-			break ;
-		case FCK_TOOLBARITEM_ONLYTEXT :
-			this.className = 'TB_Button_On_Over';
-			break ;
-		case FCK_TOOLBARITEM_ICONTEXT :
-			this.className = 'SC_Field SC_FieldOver' ;
-			break ;
+			case FCK_TOOLBARITEM_ONLYICON :
+				this.className = 'TB_Button_On_Over';
+				break ;
+			case FCK_TOOLBARITEM_ONLYTEXT :
+				this.className = 'TB_Button_On_Over';
+				break ;
+			case FCK_TOOLBARITEM_ICONTEXT :
+				this.className = 'SC_Field SC_FieldOver' ;
+				break ;
 		}
 	}
 }
 
-function FCKSpecialCombo_OnMouseOut()
+function FCKSpecialCombo_OnMouseOut( ev, specialCombo )
 {
-	switch ( this.SpecialCombo.Style )
+	switch ( specialCombo.Style )
 	{
 		case FCK_TOOLBARITEM_ONLYICON :
 			this.className = 'TB_Button_Off';
@@ -302,7 +317,7 @@ function FCKSpecialCombo_OnMouseOut()
 	}
 }
 
-function FCKSpecialCombo_OnClick( e )
+function FCKSpecialCombo_OnClick( e, specialCombo )
 {
 	// For Mozilla we must stop the event propagation to avoid it hiding
 	// the panel because of a click outside of it.
@@ -312,17 +327,15 @@ function FCKSpecialCombo_OnClick( e )
 //		FCKPanelEventHandlers.OnDocumentClick( e ) ;
 //	}
 
-	var oSpecialCombo = this.SpecialCombo ;
-
-	if ( oSpecialCombo.Enabled )
+	if ( specialCombo.Enabled )
 	{
-		var oPanel			= oSpecialCombo._Panel ;
-		var oPanelBox		= oSpecialCombo._PanelBox ;
-		var oItemsHolder	= oSpecialCombo._ItemsHolderEl ;
-		var iMaxHeight		= oSpecialCombo.PanelMaxHeight ;
+		var oPanel			= specialCombo._Panel ;
+		var oPanelBox		= specialCombo._PanelBox ;
+		var oItemsHolder	= specialCombo._ItemsHolderEl ;
+		var iMaxHeight		= specialCombo.PanelMaxHeight ;
 
-		if ( oSpecialCombo.OnBeforeClick )
-			oSpecialCombo.OnBeforeClick( oSpecialCombo ) ;
+		if ( specialCombo.OnBeforeClick )
+			specialCombo.OnBeforeClick( specialCombo ) ;
 
 		// This is a tricky thing. We must call the "Load" function, otherwise
 		// it will not be possible to retrieve "oItemsHolder.offsetHeight" (IE only).
@@ -339,7 +352,7 @@ function FCKSpecialCombo_OnClick( e )
 		else
 			oPanelBox.style.height = '' ;
 
-//		oPanel.PanelDiv.style.width = oSpecialCombo.PanelWidth + 'px' ;
+//		oPanel.PanelDiv.style.width = specialCombo.PanelWidth + 'px' ;
 
 		oPanel.Show( 0, this.offsetHeight, this ) ;
 	}

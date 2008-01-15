@@ -18,10 +18,10 @@
  *
  * == END LICENSE ==
  *
- * Placholder Italian language file.
+ * Placeholder French language file.
  */
-FCKLang.PlaceholderBtn			= 'Insérer/Modifier Substitut' ;
-FCKLang.PlaceholderDlgTitle		= 'Propriétés de Substitut' ;
-FCKLang.PlaceholderDlgName		= 'Nom de Substitut' ;
-FCKLang.PlaceholderErrNoName	= 'Veuillez saisir le nom de Substitut' ;
-FCKLang.PlaceholderErrNameInUse	= 'Ce nom est déjà utilisé' ;
+FCKLang.PlaceholderBtn			= "Insérer/Modifier l'Espace réservé" ;
+FCKLang.PlaceholderDlgTitle		= "Propriétés de l'Espace réservé" ;
+FCKLang.PlaceholderDlgName		= "Nom de l'Espace réservé" ;
+FCKLang.PlaceholderErrNoName	= "Veuillez saisir le nom de l'Espace réservé" ;
+FCKLang.PlaceholderErrNameInUse	= "Ce nom est déjà utilisé" ;

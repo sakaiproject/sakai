@@ -44,8 +44,8 @@ FCKImagePreloader.prototype =
 		for ( var i = 0 ; i < aImages.length ; i++ )
 		{
 			var eImg = document.createElement( 'img' ) ;
-			eImg.onload = eImg.onerror = _FCKImagePreloader_OnImage ;
-			eImg._FCKImagePreloader = this ;
+			FCKTools.AddEventListenerEx( eImg, 'load', _FCKImagePreloader_OnImage, this ) ;
+			FCKTools.AddEventListenerEx( eImg, 'error', _FCKImagePreloader_OnImage, this ) ;
 			eImg.src = aImages[i] ;
 
 			_FCKImagePreloader_ImageCache.push( eImg ) ;
@@ -57,12 +57,8 @@ FCKImagePreloader.prototype =
 // magic will not happen.
 var _FCKImagePreloader_ImageCache = new Array() ;
 
-function _FCKImagePreloader_OnImage()
+function _FCKImagePreloader_OnImage( ev, imagePreloader )
 {
-	var oImagePreloader = this._FCKImagePreloader ;
-
-	if ( (--oImagePreloader._PreloadCount) == 0 && oImagePreloader.OnComplete )
-		oImagePreloader.OnComplete() ;
-
-	this._FCKImagePreloader = null ;
+	if ( (--imagePreloader._PreloadCount) == 0 && imagePreloader.OnComplete )
+		imagePreloader.OnComplete() ;
 }

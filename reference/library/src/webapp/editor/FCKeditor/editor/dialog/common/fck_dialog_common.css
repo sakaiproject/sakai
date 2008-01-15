@@ -1,4 +1,4 @@
-﻿/*
+/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  *
@@ -75,9 +75,4 @@
 	border: outset 1px;
 	cursor: pointer;
 	cursor: hand;
-}
-
-.FCK__FieldNumeric
-{
-	behavior: url(common/fcknumericfield.htc) ;
 }

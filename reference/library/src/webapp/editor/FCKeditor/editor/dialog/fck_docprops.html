@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -282,7 +282,7 @@ function Ok()
 		if ( sCharSet.length == 0 )
 			sCharSet = 'utf-8' ;
 
-		FCK.XmlDeclaration = '<?xml version="1.0" encoding="' + sCharSet + '"?>' ;
+		FCK.XmlDeclaration = '<' + '?xml version="1.0" encoding="' + sCharSet + '"?>' ;
 
 		SetAttribute( oHTML, 'xmlns', 'http://www.w3.org/1999/xhtml' ) ;
 	}

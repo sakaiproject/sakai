@@ -82,8 +82,6 @@ function LoadSelection()
 {
 	if ( ! oEmbed ) return ;
 
-	var sUrl = GetAttribute( oEmbed, 'src', '' ) ;
-
 	GetE('txtUrl').value    = GetAttribute( oEmbed, 'src', '' ) ;
 	GetE('txtWidth').value  = GetAttribute( oEmbed, 'width', '' ) ;
 	GetE('txtHeight').value = GetAttribute( oEmbed, 'height', '' ) ;
@@ -105,7 +103,7 @@ function LoadSelection()
 	else
 	{
 		GetE('txtAttClasses').value = oEmbed.getAttribute('class',2) || '' ;
-		GetE('txtAttStyle').value = oEmbed.getAttribute('style',2) ;
+		GetE('txtAttStyle').value = oEmbed.getAttribute('style',2) || '' ;
 	}
 
 	UpdatePreview() ;
@@ -124,6 +122,7 @@ function Ok()
 		return false ;
 	}
 
+	oEditor.FCKUndo.SaveUndoStep() ;
 	if ( !oEmbed )
 	{
 		oEmbed		= FCK.EditorDocument.createElement( 'EMBED' ) ;
@@ -135,10 +134,8 @@ function Ok()
 	{
 		oFakeImage	= oEditor.FCKDocumentProcessor_CreateFakeImage( 'FCK__Flash', oEmbed ) ;
 		oFakeImage.setAttribute( '_fckflash', 'true', 0 ) ;
-		oFakeImage	= FCK.InsertElementAndGetIt( oFakeImage ) ;
+		oFakeImage	= FCK.InsertElement( oFakeImage ) ;
 	}
-	else
-		oEditor.FCKUndo.SaveUndoStep() ;
 
 	oEditor.FCKFlashProcessor.RefreshView( oFakeImage, oEmbed ) ;
 
@@ -150,7 +147,7 @@ function UpdateEmbed( e )
 	SetAttribute( e, 'type'			, 'application/x-shockwave-flash' ) ;
 	SetAttribute( e, 'pluginspage'	, 'http://www.macromedia.com/go/getflashplayer' ) ;
 
-	e.src = GetE('txtUrl').value ;
+	SetAttribute( e, 'src', GetE('txtUrl').value ) ;
 	SetAttribute( e, "width" , GetE('txtWidth').value ) ;
 	SetAttribute( e, "height", GetE('txtHeight').value ) ;
 
@@ -202,10 +199,10 @@ function UpdatePreview()
 		var oDoc	= ePreview.ownerDocument || ePreview.document ;
 		var e		= oDoc.createElement( 'EMBED' ) ;
 
-		e.src		= GetE('txtUrl').value ;
-		e.type		= 'application/x-shockwave-flash' ;
-		e.width		= '100%' ;
-		e.height	= '100%' ;
+		SetAttribute( e, 'src', GetE('txtUrl').value ) ;
+		SetAttribute( e, 'type', 'application/x-shockwave-flash' ) ;
+		SetAttribute( e, 'width', '100%' ) ;
+		SetAttribute( e, 'height', '100%' ) ;
 
 		ePreview.appendChild( e ) ;
 	}

@@ -37,6 +37,7 @@ FCKDialog.Show = function( dialogInfo, dialogName, pageUrl, dialogWidth, dialogH
 
 	try
 	{
+		dialogInfo.DialogName = dialogName ;
 		oReturn = parentWindow.showModalDialog( pageUrl, dialogInfo, sOptions ) ;
 	}
 	catch( e ) {}

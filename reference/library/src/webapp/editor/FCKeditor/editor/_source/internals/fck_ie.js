@@ -34,7 +34,7 @@ FCK._GetBehaviorsStyle = function()
 		var sStyle ;
 
 		// The behaviors should be pointed using the FullBasePath to avoid security
-		// errors when using a differente BaseHref.
+		// errors when using a different BaseHref.
 		sStyle = '<style type="text/css" _fcktemp="true">' ;
 
 		if ( FCKConfig.ShowBorders )
@@ -73,37 +73,15 @@ function Doc_OnMouseUp()
 
 function Doc_OnPaste()
 {
-	return ( FCK.Status == FCK_STATUS_COMPLETE && FCK.Events.FireEvent( "OnPaste" ) ) ;
-}
+	var body = FCK.EditorDocument.body ;
+	
+	body.detachEvent( 'onpaste', Doc_OnPaste ) ;
 
-function Doc_OnKeyDown()
-{
-	if ( FCK.EditorWindow )
-	{
-		var e = FCK.EditorWindow.event ;
+	var ret = FCK.Paste( !FCKConfig.ForcePasteAsPlainText && !FCKConfig.AutoDetectPasteFromWord ) ;
 
-		if ( !( e.keyCode >=16 && e.keyCode <= 18 ) )
-			Doc_OnKeyDownUndo() ;
-	}
-	return true ;
-}
-
-function Doc_OnKeyDownUndo()
-{
-	if ( !FCKUndo.Typing )
-	{
-		FCKUndo.SaveUndoStep() ;
-		FCKUndo.Typing = true ;
-		FCK.Events.FireEvent( "OnSelectionChange" ) ;
-	}
-
-	FCKUndo.TypesCount++ ;
-
-	if ( FCKUndo.TypesCount > FCKUndo.MaxTypes )
-	{
-		FCKUndo.TypesCount = 0 ;
-		FCKUndo.SaveUndoStep() ;
-	}
+	body.attachEvent( 'onpaste', Doc_OnPaste ) ;
+	
+	return ret ;
 }
 
 function Doc_OnDblClick()
@@ -114,7 +92,32 @@ function Doc_OnDblClick()
 
 function Doc_OnSelectionChange()
 {
-	FCK.Events.FireEvent( "OnSelectionChange" ) ;
+	// Don't fire the event if no document is loaded.
+	if ( FCK.EditorDocument )
+		FCK.Events.FireEvent( "OnSelectionChange" ) ;
+}
+
+function Doc_OnDrop()
+{
+	if ( FCK.MouseDownFlag )
+	{
+		FCK.MouseDownFlag = false ;
+		return ;
+	}
+	var evt = FCK.EditorWindow.event ;
+	if ( FCKConfig.ForcePasteAsPlainText )
+	{
+		if ( FCK._CheckIsPastingEnabled() || FCKConfig.ShowDropDialog )
+			FCK.PasteAsPlainText( evt.dataTransfer.getData( 'Text' ) ) ;
+	}
+	else
+	{
+		if ( FCKConfig.ShowDropDialog ) 
+			FCKTools.RunFunction( FCKDialog.OpenDialog, 
+				FCKDialog, ['FCKDialog_Paste', FCKLang.Paste, 'dialog/fck_paste.html', 400, 330, 'Security'] ) ;
+	}
+	evt.returnValue = false ;
+	evt.cancelBubble = true ;
 }
 
 FCK.InitializeBehaviors = function( dontReturn )
@@ -126,20 +129,16 @@ FCK.InitializeBehaviors = function( dontReturn )
 	// Intercept pasting operations
 	this.EditorDocument.body.attachEvent( 'onpaste', Doc_OnPaste ) ;
 
+	// Intercept drop operations
+	this.EditorDocument.body.attachEvent( 'ondrop', Doc_OnDrop ) ;
+
 	// Reset the context menu.
 	FCK.ContextMenu._InnerContextMenu.AttachToElement( FCK.EditorDocument.body ) ;
 
-	// Build the "TAB" key replacement (if necessary).
-	if ( FCKConfig.TabSpaces > 0 )
-	{
-		window.FCKTabHTML = '' ;
-		for ( i = 0 ; i < FCKConfig.TabSpaces ; i++ )
-			window.FCKTabHTML += "&nbsp;" ;
-	}
-	this.EditorDocument.attachEvent("onkeydown", Doc_OnKeyDown ) ;
+	this.EditorDocument.attachEvent("onkeydown", FCK._KeyDownListener ) ;
 
 	this.EditorDocument.attachEvent("ondblclick", Doc_OnDblClick ) ;
-
+	
 	// Catch cursor selection changes.
 	this.EditorDocument.attachEvent("onselectionchange", Doc_OnSelectionChange ) ;
 }
@@ -163,16 +162,26 @@ FCK.InsertHtml = function( html )
 	if ( oSel.type.toLowerCase() == 'control' )
 		oSel.clear() ;
 
+	// Using the following trick, any comment in the beginning of the HTML will
+	// be preserved.
+	html = '<span id="__fakeFCKRemove__">&nbsp;</span>' + html ;
+
 	// Insert the HTML.
 	oSel.createRange().pasteHTML( html ) ;
 
+	// Remove the fake node
+	FCK.EditorDocument.getElementById('__fakeFCKRemove__').removeNode( true ) ;
+
 	FCKDocumentProcessor.Process( FCK.EditorDocument ) ;
+
+	// For some strange reason the SaveUndoStep() call doesn't activate the undo button at the first InsertHtml() call.
+	this.Events.FireEvent( "OnSelectionChange" ) ;
 }
 
 FCK.SetInnerHtml = function( html )		// IE Only
 {
 	var oDoc = FCK.EditorDocument ;
-	// Using the following trick, any comment in the begining of the HTML will
+	// Using the following trick, any comment in the beginning of the HTML will
 	// be preserved.
 	oDoc.body.innerHTML = '<div id="__fakeFCKRemove__">&nbsp;</div>' + html ;
 	oDoc.getElementById('__fakeFCKRemove__').removeNode( true ) ;
@@ -201,11 +210,12 @@ document.oncontextmenu = Document_OnContextMenu ;
 
 function FCK_Cleanup()
 {
+	this.LinkedField = null ;
 	this.EditorWindow = null ;
 	this.EditorDocument = null ;
 }
 
-FCK.Paste = function()
+FCK._ExecPaste = function()
 {
 	// As we call ExecuteNamedCommand('Paste'), it would enter in a loop. So, let's use a semaphore.
 	if ( FCK._PasteIsRunning )
@@ -216,7 +226,7 @@ FCK.Paste = function()
 		FCK.PasteAsPlainText() ;
 		return false ;
 	}
-	
+
 	var sHTML = FCK._CheckIsPastingEnabled( true ) ;
 
 	if ( sHTML === false )
@@ -254,44 +264,62 @@ FCK.Paste = function()
 	return false ;
 }
 
-FCK.PasteAsPlainText = function()
+FCK.PasteAsPlainText = function( forceText )
 {
 	if ( !FCK._CheckIsPastingEnabled() )
 	{
 		FCKDialog.OpenDialog( 'FCKDialog_Paste', FCKLang.PasteAsText, 'dialog/fck_paste.html', 400, 330, 'PlainText' ) ;
 		return ;
 	}
-	
+
 	// Get the data available in the clipboard in text format.
-	var sText = clipboardData.getData("Text") ;
+	var sText = null ;
+	if ( ! forceText )
+		sText = clipboardData.getData("Text") ;
+	else 
+		sText = forceText ;
 
 	if ( sText && sText.length > 0 )
 	{
 		// Replace the carriage returns with <BR>
-		sText = FCKTools.HTMLEncode( sText ).replace( /\n/g, '<BR>' ) ;
+		sText = FCKTools.HTMLEncode( sText ) ;
+		sText = FCKTools.ProcessLineBreaks( window, FCKConfig, sText ) ;
+
+		var closeTagIndex = sText.search( '</p>' ) ;
+		var startTagIndex = sText.search( '<p>' ) ;
+
+		if ( ( closeTagIndex != -1 && startTagIndex != -1 && closeTagIndex < startTagIndex ) 
+				|| ( closeTagIndex != -1 && startTagIndex == -1 ) )
+		{
+			var prefix = sText.substr( 0, closeTagIndex ) ;
+			sText = sText.substr( closeTagIndex + 4 ) ;
+			this.InsertHtml( prefix ) ;
+		}
 
 		// Insert the resulting data in the editor.
+		FCKUndo.SaveLocked = true ;
 		this.InsertHtml( sText ) ;
+		FCKUndo.SaveLocked = false ;
 	}
 }
 
 FCK._CheckIsPastingEnabled = function( returnContents )
 {
 	// The following seams to be the only reliable way to check is script
-	// pasting operations are enabled in the secutiry settings of IE6 and IE7.
+	// pasting operations are enabled in the security settings of IE6 and IE7.
 	// It adds a little bit of overhead to the check, but so far that's the
 	// only way, mainly because of IE7.
-	
+
 	FCK._PasteIsEnabled = false ;
-	
+
 	document.body.attachEvent( 'onpaste', FCK_CheckPasting_Listener ) ;
-	
+
 	// The execCommand in GetClipboardHTML will fire the "onpaste", only if the
 	// security settings are enabled.
 	var oReturn = FCK.GetClipboardHTML() ;
 
 	document.body.detachEvent( 'onpaste', FCK_CheckPasting_Listener ) ;
-	
+
 	if ( FCK._PasteIsEnabled )
 	{
 		if ( !returnContents )
@@ -308,11 +336,6 @@ FCK._CheckIsPastingEnabled = function( returnContents )
 function FCK_CheckPasting_Listener()
 {
 	FCK._PasteIsEnabled = true ;
-}
-
-FCK.InsertElement = function( element )
-{
-	FCK.InsertHtml( element.outerHTML ) ;
 }
 
 FCK.GetClipboardHTML = function()
@@ -344,23 +367,40 @@ FCK.GetClipboardHTML = function()
 	return sData ;
 }
 
-FCK.AttachToOnSelectionChange = function( functionPointer )
+FCK.CreateLink = function( url, noUndo )
 {
-	this.Events.AttachEvent( 'OnSelectionChange', functionPointer ) ;
-}
+	// Creates the array that will be returned. It contains one or more created links (see #220).
+	var aCreatedLinks = new Array() ;
 
-FCK.CreateLink = function( url )
-{
 	// Remove any existing link in the selection.
-	FCK.ExecuteNamedCommand( 'Unlink' ) ;
+	FCK.ExecuteNamedCommand( 'Unlink', null, false, !!noUndo ) ;
 
 	if ( url.length > 0 )
 	{
+		// If there are several images, and you try to link each one, all the images get inside the link:
+		// <img><img> -> <a><img></a><img> -> <a><img><img></a> due to the call to 'CreateLink' (bug in IE)
+		if (FCKSelection.GetType() == 'Control')
+		{
+			// Create a link
+			var oLink = this.EditorDocument.createElement( 'A' ) ;
+			oLink.href = url ;
+
+			// Get the selected object
+			var oControl = FCKSelection.GetSelectedElement() ;
+			// Put the link just before the object
+			oControl.parentNode.insertBefore(oLink, oControl) ;
+			// Move the object inside the link
+			oControl.parentNode.removeChild( oControl ) ;
+			oLink.appendChild( oControl ) ;
+
+			return [ oLink ] ;
+		}
+
 		// Generate a temporary name for the link.
 		var sTempUrl = 'javascript:void(0);/*' + ( new Date().getTime() ) + '*/' ;
 
 		// Use the internal "CreateLink" command to create the link.
-		FCK.ExecuteNamedCommand( 'CreateLink', sTempUrl ) ;
+		FCK.ExecuteNamedCommand( 'CreateLink', sTempUrl, false, !!noUndo ) ;
 
 		// Look for the just create link.
 		var oLinks = this.EditorDocument.links ;
@@ -369,15 +409,27 @@ FCK.CreateLink = function( url )
 		{
 			var oLink = oLinks[i] ;
 
-			if ( oLink.href == sTempUrl )
+			// Check it this a newly created link.
+			// getAttribute must be used. oLink.url may cause problems with IE7 (#555).
+			if ( oLink.getAttribute( 'href', 2 ) == sTempUrl )
 			{
 				var sInnerHtml = oLink.innerHTML ;	// Save the innerHTML (IE changes it if it is like an URL).
 				oLink.href = url ;
 				oLink.innerHTML = sInnerHtml ;		// Restore the innerHTML.
-				return oLink ;
+
+				// If the last child is a <br> move it outside the link or it
+				// will be too easy to select this link again #388.
+				var oLastChild = oLink.lastChild ;
+				if ( oLastChild && oLastChild.nodeName == 'BR' )
+				{
+					// Move the BR after the link.
+					FCKDomTools.InsertAfterNode( oLink, oLink.removeChild( oLastChild ) ) ;
+				}
+
+				aCreatedLinks.push( oLink ) ;
 			}
 		}
 	}
 
-	return null ;
+	return aCreatedLinks ;
 }

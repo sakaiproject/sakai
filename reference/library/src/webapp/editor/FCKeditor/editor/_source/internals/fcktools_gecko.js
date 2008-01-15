@@ -46,6 +46,15 @@ FCKTools._AppendStyleSheet = function( documentElement, cssFileUrl )
 	return e ;
 }
 
+// Appends a CSS style string to a document.
+FCKTools._AppendStyleString = function( documentElement, cssStyles )
+{
+	var e = documentElement.createElement( "STYLE" ) ;
+	e.appendChild( documentElement.createTextNode( cssStyles ) ) ;
+	documentElement.getElementsByTagName( "HEAD" )[0].appendChild( e ) ;
+	return e ;
+}
+
 // Removes all attributes and values from the element.
 FCKTools.ClearElementAttributes = function( element )
 {
@@ -144,6 +153,8 @@ FCKTools.GetViewPaneSize = function( win )
 
 FCKTools.SaveStyles = function( element )
 {
+	var data = FCKTools.ProtectFormStyles( element ) ;
+
 	var oSavedStyles = new Object() ;
 
 	if ( element.className.length > 0 )
@@ -160,17 +171,20 @@ FCKTools.SaveStyles = function( element )
 		element.setAttribute( 'style', '', 0 ) ;	// 0 : Case Insensitive
 	}
 
+	FCKTools.RestoreFormStyles( element, data ) ;
 	return oSavedStyles ;
 }
 
 FCKTools.RestoreStyles = function( element, savedStyles )
 {
+	var data = FCKTools.ProtectFormStyles( element ) ;
 	element.className = savedStyles.Class || '' ;
 
 	if ( savedStyles.Inline )
 		element.setAttribute( 'style', savedStyles.Inline, 0 ) ;	// 0 : Case Insensitive
 	else
 		element.removeAttribute( 'style', 0 ) ;
+	FCKTools.RestoreFormStyles( element, data ) ;
 }
 
 FCKTools.RegisterDollarFunction = function( targetWindow )
@@ -198,6 +212,7 @@ FCKTools.GetElementPosition = function( el, relativeWindow )
 
 	var oOwnerWindow = FCKTools.GetElementWindow( el ) ;
 
+	var previousElement = null ;
 	// Loop throw the offset chain.
 	while ( el )
 	{
@@ -208,9 +223,28 @@ FCKTools.GetElementPosition = function( el, relativeWindow )
 		if ( sPosition && sPosition != 'static' && el.style.zIndex != FCKConfig.FloatingPanelsZIndex )
 			break ;
 
+		/*
+		FCKDebug.Output( el.tagName + ":" + "offset=" + el.offsetLeft + "," + el.offsetTop + "  " 
+				+ "scroll=" + el.scrollLeft + "," + el.scrollTop ) ;
+		*/
+
 		c.X += el.offsetLeft - el.scrollLeft ;
 		c.Y += el.offsetTop - el.scrollTop  ;
 
+		// Backtrack due to offsetParent's calculation by the browser ignores scrollLeft and scrollTop.
+		// Backtracking is not needed for Opera
+		if ( ! FCKBrowserInfo.IsOpera )
+		{
+			var scrollElement = previousElement ;
+			while ( scrollElement && scrollElement != el )
+			{
+				c.X -= scrollElement.scrollLeft ;
+				c.Y -= scrollElement.scrollTop ;
+				scrollElement = scrollElement.parentNode ;
+			}
+		}
+
+		previousElement = el ;
 		if ( el.offsetParent )
 			el = el.offsetParent ;
 		else
@@ -218,6 +252,7 @@ FCKTools.GetElementPosition = function( el, relativeWindow )
 			if ( oOwnerWindow != oWindow )
 			{
 				el = oOwnerWindow.frameElement ;
+				previousElement = null ;
 				if ( el )
 					oOwnerWindow = FCKTools.GetElementWindow( el ) ;
 			}

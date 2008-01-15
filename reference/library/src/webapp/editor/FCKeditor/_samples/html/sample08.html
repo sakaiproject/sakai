@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -29,7 +29,7 @@
 	<link href="../sample.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="../../fckeditor.js"></script>
 	<script type="text/javascript">
-
+<!--
 // FCKeditor_OnComplete is a special function that is called when an editor
 // instance is loaded ad available to the API. It must be named exactly in
 // this way.
@@ -51,7 +51,7 @@ function InsertHTML()
 	if ( oEditor.EditMode == FCK_EDITMODE_WYSIWYG )
 	{
 		// Insert the desired HTML.
-		oEditor.InsertHtml( '- This is some <a href="/Test1.html">sample</a> HTML -' ) ;
+		oEditor.InsertHtml( '- This is some <a href="/Test1.html">sample<\/a> HTML -' ) ;
 	}
 	else
 		alert( 'You must be on WYSIWYG mode!' ) ;
@@ -63,7 +63,7 @@ function SetContents()
 	var oEditor = FCKeditorAPI.GetInstance('FCKeditor1') ;
 
 	// Set the editor contents (replace the actual one).
-	oEditor.SetHTML( 'This is the <b>new content</b> I want in the editor.' ) ;
+	oEditor.SetData( 'This is the <b>new content<\/b> I want in the editor.' ) ;
 }
 
 function GetContents()
@@ -136,7 +136,7 @@ function ResetIsDirty()
 	oEditor.ResetIsDirty() ;
 	alert( 'The "IsDirty" status has been reset' ) ;
 }
-
+-->
 	</script>
 </head>
 <body>
@@ -158,7 +158,7 @@ var sBasePath = document.location.pathname.substring(0,document.location.pathnam
 
 var oFCKeditor = new FCKeditor( 'FCKeditor1' ) ;
 oFCKeditor.BasePath	= sBasePath ;
-oFCKeditor.Value	= 'This is some <strong>sample text</strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor</a>.' ;
+oFCKeditor.Value	= '<p>This is some <strong>sample text<\/strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor<\/a>.<\/p>' ;
 oFCKeditor.Create() ;
 //-->
 		</script>

@@ -45,6 +45,7 @@ InsertLinkLbl		: "Ligilo",
 InsertLink			: "Enmeti/Ŝanĝi Ligilon",
 RemoveLink			: "Forigi Ligilon",
 Anchor				: "Enmeti/Ŝanĝi Ankron",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Bildo",
 InsertImage			: "Enmeti/Ŝanĝi Bildon",
 InsertFlashLbl		: "Flash",	//MISSING
@@ -70,6 +71,7 @@ RightJustify		: "Dekstrigi",
 BlockJustify		: "Ĝisrandigi Ambaŭflanke",
 DecreaseIndent		: "Malpligrandigi Krommarĝenon",
 IncreaseIndent		: "Pligrandigi Krommarĝenon",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Malfari",
 Redo				: "Refari",
 NumberedListLbl		: "Numera Listo",
@@ -103,20 +105,27 @@ SelectionField	: "Elekta Kampo",
 ImageButton		: "Bildbutono",
 
 FitWindow		: "Maximize the editor size",	//MISSING
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Modifier Ligilon",
 CellCM				: "Cell",	//MISSING
 RowCM				: "Row",	//MISSING
 ColumnCM			: "Column",	//MISSING
-InsertRow			: "Enmeti Linion",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Forigi Liniojn",
-InsertColumn		: "Enmeti Kolumnon",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Forigi Kolumnojn",
-InsertCell			: "Enmeti Ĉelon",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Forigi Ĉelojn",
 MergeCells			: "Kunfandi Ĉelojn",
-SplitCell			: "Dividi Ĉelojn",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Delete Table",	//MISSING
 CellProperties		: "Atributoj de Ĉelo",
 TableProperties		: "Atributoj de Tabelo",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Atributoj de Elekta Kampo",
 TextareaProp		: "Atributoj de Teksta Areo",
 FormProp			: "Formularaj Atributoj",
 
-FontFormats			: "Normala;Formatita;Adreso;Titolo 1;Titolo 2;Titolo 3;Titolo 4;Titolo 5;Titolo 6;Paragrafo (DIV)",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normala;Formatita;Adreso;Titolo 1;Titolo 2;Titolo 3;Titolo 4;Titolo 5;Titolo 6;Paragrafo (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "Traktado de XHTML. Bonvolu pacienci...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Elekti Ankron",
 DlgLnkAnchorByName	: "Per Ankronomo",
 DlgLnkAnchorById	: "Per Elementidentigilo",
-DlgLnkNoAnchors		: "<Ne disponeblas ankroj en la dokumento>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "<Ne disponeblas ankroj en la dokumento>",
 DlgLnkEMail			: "Retadreso",
 DlgLnkEMailSubject	: "Temlinio",
 DlgLnkEMailBody		: "Mesaĝa korpo",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Kolumnoj Kunfanditaj",
 DlgCellBackColor	: "Fono",
 DlgCellBorderColor	: "Bordero",
 DlgCellBtnSelect	: "Elekti...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Serĉi",

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -37,6 +37,10 @@ document.write( '<link href="' + window.dialogArguments.Editor.FCKConfig.SkinPat
 
 // Sets the language direction.
 window.document.dir = window.dialogArguments.Editor.FCKLang.Dir ;
+
+// IE does not set the window name in showModalDialog(), let's set it here.
+if ( window.dialogArguments.Editor.FCKBrowserInfo.IsIE )
+	window.name = window.dialogArguments.DialogName ;
 
 var sTitle = window.dialogArguments.Title ;
 document.write( '<title>' + sTitle + '<\/title>' ) ;
@@ -107,6 +111,18 @@ function RefreshSize()
 	}
 }
 
+// Kludge for #1316: Safari seems to have a bug with the time when RefreshSize() is executed - it thinks frmMain's innerHeight 
+// is 0 if we query the value too soon after the page is loaded in some circumstances.
+if ( window.dialogArguments.Editor.FCKBrowserInfo.IsSafari )
+{
+	window.OriginalRefreshSize = RefreshSize ;
+
+	RefreshSize = function()
+	{
+		window.setTimeout( window.OriginalRefreshSize, 1 );
+	}
+}
+
 function Ok()
 {
 	if ( window.frames["frmMain"].Ok && window.frames["frmMain"].Ok() )
@@ -115,7 +131,7 @@ function Ok()
 
 function Cancel( dontFireChange )
 {
-	if ( !dontFireChange )
+	if ( !dontFireChange && !window.dialogArguments.Editor.FCK.EditMode )
 	{
 		// All dialog windows, by default, will fire the "OnSelectionChange"
 		// event, no matter the Ok or Cancel button has been pressed.

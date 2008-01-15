@@ -26,7 +26,7 @@ FCKConfig.ToolbarSets['PluginTest'] = [
 	['SourceSimple'],
 	['My_Find','My_Replace','-','Placeholder'],
 	['StyleSimple','FontFormatSimple','FontNameSimple','FontSizeSimple'],
-	['Table','-','TableInsertRow','TableDeleteRows','TableInsertColumn','TableDeleteColumns','TableInsertCell','TableDeleteCells','TableMergeCells','TableSplitCell'],
+	['Table','-','TableInsertRowAfter','TableDeleteRows','TableInsertColumnAfter','TableDeleteColumns','TableInsertCellAfter','TableDeleteCells','TableMergeCells','TableHorizontalSplitCell','TableCellProp'],
 	['Bold','Italic','-','OrderedList','UnorderedList','-','Link','Unlink'],
 	'/',
 	['My_BigStyle','-','Smiley','-','About']

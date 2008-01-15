@@ -42,15 +42,16 @@ Print				: "Prindi",
 SelectAll			: "Vali kõik",
 RemoveFormat		: "Eemalda vorming",
 InsertLinkLbl		: "Link",
-InsertLink			: "Sisesta/Muuda link",
+InsertLink			: "Sisesta link / Muuda linki",
 RemoveLink			: "Eemalda link",
-Anchor				: "Sisesta/Muuda ankur",
+Anchor				: "Sisesta ankur / Muuda ankrut",
+AnchorDelete		: "Eemalda ankur",
 InsertImageLbl		: "Pilt",
-InsertImage			: "Sisesta/Muuda pilt",
+InsertImage			: "Sisesta pilt / Muuda pilti",
 InsertFlashLbl		: "Flash",
-InsertFlash			: "Sisesta/Muuda flash",
+InsertFlash			: "Sisesta flash / Muuda flashi",
 InsertTableLbl		: "Tabel",
-InsertTable			: "Sisesta/Muuda tabel",
+InsertTable			: "Sisesta tabel / Muuda tabelit",
 InsertLineLbl		: "Joon",
 InsertLine			: "Sisesta horisontaaljoon",
 InsertSpecialCharLbl: "Erimärgid",
@@ -58,10 +59,10 @@ InsertSpecialChar	: "Sisesta erimärk",
 InsertSmileyLbl		: "Emotikon",
 InsertSmiley		: "Sisesta emotikon",
 About				: "FCKeditor teave",
-Bold				: "Rasvane kiri",
-Italic				: "Kursiiv kiri",
-Underline			: "Allajoonitud kiri",
-StrikeThrough		: "Läbijoonitud kiri",
+Bold				: "Paks",
+Italic				: "Kursiiv",
+Underline			: "Allajoonitud",
+StrikeThrough		: "Läbijoonitud",
 Subscript			: "Allindeks",
 Superscript			: "Ülaindeks",
 LeftJustify			: "Vasakjoondus",
@@ -70,6 +71,7 @@ RightJustify		: "Paremjoondus",
 BlockJustify		: "Rööpjoondus",
 DecreaseIndent		: "Vähenda taanet",
 IncreaseIndent		: "Suurenda taanet",
+Blockquote			: "Blokktsitaat",
 Undo				: "Võta tagasi",
 Redo				: "Korda toimingut",
 NumberedListLbl		: "Nummerdatud loetelu",
@@ -90,7 +92,7 @@ Replace				: "Asenda",
 SpellCheck			: "Kontrolli õigekirja",
 UniversalKeyboard	: "Universaalne klaviatuur",
 PageBreakLbl		: "Lehepiir",
-PageBreak			: "Sisesta lehevahetus koht",
+PageBreak			: "Sisesta lehevahetuskoht",
 
 Form			: "Vorm",
 Checkbox		: "Märkeruut",
@@ -103,24 +105,31 @@ SelectionField	: "Valiklahter",
 ImageButton		: "Piltnupp",
 
 FitWindow		: "Maksimeeri redaktori mõõtmed",
+ShowBlocks		: "Näita blokke",
 
 // Context Menu
 EditLink			: "Muuda linki",
 CellCM				: "Lahter",
 RowCM				: "Rida",
 ColumnCM			: "Veerg",
-InsertRow			: "Lisa rida",
-DeleteRows			: "Eemalda ridu",
-InsertColumn		: "Lisa veerg",
+InsertRowAfter		: "Sisesta rida peale",
+InsertRowBefore		: "Sisesta rida enne",
+DeleteRows			: "Eemalda read",
+InsertColumnAfter	: "Sisesta veerg peale",
+InsertColumnBefore	: "Sisesta veerg enne",
 DeleteColumns		: "Eemalda veerud",
-InsertCell			: "Lisa lahter",
+InsertCellAfter		: "Sisesta lahter peale",
+InsertCellBefore	: "Sisesta lahter enne",
 DeleteCells			: "Eemalda lahtrid",
 MergeCells			: "Ühenda lahtrid",
-SplitCell			: "Lahuta lahtrid",
+MergeRight			: "Ühenda paremale",
+MergeDown			: "Ühenda alla",
+HorizontalSplitCell	: "Poolita lahter horisontaalselt",
+VerticalSplitCell	: "Poolita lahter vertikaalselt",
 TableDelete			: "Kustuta tabel",
 CellProperties		: "Lahtri atribuudid",
 TableProperties		: "Tabeli atribuudid",
-ImageProperties		: "Pildi  atribuudid",
+ImageProperties		: "Pildi atribuudid",
 FlashProperties		: "Flash omadused",
 
 AnchorProp			: "Ankru omadused",
@@ -134,18 +143,18 @@ SelectionFieldProp	: "Valiklahtri omadused",
 TextareaProp		: "Tekstiala omadused",
 FormProp			: "Vormi omadused",
 
-FontFormats			: "Tavaline;Vormindatud;Aadress;Pealkiri 1;Pealkiri 2;Pealkiri 3;Pealkiri 4;Pealkiri 5;Pealkiri 6",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Tavaline;Vormindatud;Aadress;Pealkiri 1;Pealkiri 2;Pealkiri 3;Pealkiri 4;Pealkiri 5;Pealkiri 6;Tavaline (DIV)",
 
 // Alerts and Messages
-ProcessingXHTML		: "Töötlen XHTML. Palun oota...",
+ProcessingXHTML		: "Töötlen XHTML'i. Palun oota...",
 Done				: "Tehtud",
-PasteWordConfirm	: "Tekst, mida soovid lisada paistab pärinevat Wordist. Kas soovid seda enne kleepimist puhastada?",
+PasteWordConfirm	: "Tekst, mida soovid lisada paistab pärinevat Word'ist. Kas soovid seda enne kleepimist puhastada?",
 NotCompatiblePaste	: "See käsk on saadaval ainult Internet Explorer versioon 5.5 või uuema puhul. Kas soovid kleepida ilma puhastamata?",
-UnknownToolbarItem	: "Tundmatu tööriistariba üksus \"%1\"",
+UnknownToolbarItem	: "Tundmatu tööriistarea üksus \"%1\"",
 UnknownCommand		: "Tundmatu käsunimi \"%1\"",
 NotImplemented		: "Käsku ei täidetud",
 UnknownToolbarSet	: "Tööriistariba \"%1\" ei eksisteeri",
-NoActiveX			: "Sinu interneti sirvija turvalisuse seaded võivad limiteerida mõningaid tekstirdaktori kasutus võimalusi. Sa peaksid võimaldama valiku \"Run ActiveX controls and plug-ins\" oma sirvija seadetes. Muidu võid sa täheldada vigu tekstiredaktori töös ja märgata puuduvaid funktsioone.",
+NoActiveX			: "Sinu veebisirvija turvalisuse seaded võivad limiteerida mõningaid tekstirdaktori kasutusvõimalusi. Sa peaksid võimaldama valiku \"Run ActiveX controls and plug-ins\" oma veebisirvija seadetes. Muidu võid sa täheldada vigu tekstiredaktori töös ja märgata puuduvaid funktsioone.",
 BrowseServerBlocked : "Ressursside sirvija avamine ebaõnnestus. Võimalda pop-up akende avanemine.",
 DialogBlocked		: "Ei olenud võimalik avada dialoogi akent. Võimalda pop-up akende avanemine.",
 
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Vali ankur",
 DlgLnkAnchorByName	: "Ankru nime järgi",
 DlgLnkAnchorById	: "Elemendi id järgi",
-DlgLnkNoAnchors		: "<Selles dokumendis ei ole ankruid>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Selles dokumendis ei ole ankruid)",
 DlgLnkEMail			: "E-posti aadress",
 DlgLnkEMailSubject	: "Sõnumi teema",
 DlgLnkEMailBody		: "Sõnumi tekst",
@@ -240,7 +249,7 @@ DlgLnkTarget		: "Sihtkoht",
 DlgLnkTargetFrame	: "<raam>",
 DlgLnkTargetPopup	: "<hüpikaken>",
 DlgLnkTargetBlank	: "Uus aken (_blank)",
-DlgLnkTargetParent	: "Vanem aken (_parent)",
+DlgLnkTargetParent	: "Esivanem aken (_parent)",
 DlgLnkTargetSelf	: "Sama aken (_self)",
 DlgLnkTargetTop		: "Pealmine aken (_top)",
 DlgLnkTargetFrameName	: "Sihtmärk raami nimi",
@@ -262,7 +271,7 @@ DlgLnkPopTop		: "Ülemine asukoht",
 DlnLnkMsgNoUrl		: "Palun kirjuta lingi URL",
 DlnLnkMsgNoEMail	: "Palun kirjuta E-Posti aadress",
 DlnLnkMsgNoAnchor	: "Palun vali ankur",
-DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
+DlnLnkMsgInvPopName	: "Hüpikakna nimi peab algama alfabeetilise tähega ja ei tohi sisaldada tühikuid",
 
 // Color Dialog
 DlgColorTitle		: "Vali värv",
@@ -322,6 +331,9 @@ DlgCellBackColor	: "Tausta värv",
 DlgCellBorderColor	: "Joone värv",
 DlgCellBtnSelect	: "Vali...",
 
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Otsi ja asenda",
+
 // Find Dialog
 DlgFindTitle		: "Otsi",
 DlgFindFindBtn		: "Otsi",
@@ -337,17 +349,17 @@ DlgReplaceReplAllBtn	: "Asenda kõik",
 DlgReplaceWordChk		: "Otsi terviklike sõnu",
 
 // Paste Operations / Dialog
-PasteErrorCut	: "Sinu interneti sirvija turvaseaded ei luba redaktoril automaatselt lõigata. Palun kasutage selleks klaviatuuri klahvikombinatsiooni (Ctrl+X).",
-PasteErrorCopy	: "Sinu interneti sirvija turvaseaded ei luba redaktoril automaatselt kopeerida. Palun kasutage selleks klaviatuuri klahvikombinatsiooni (Ctrl+C).",
+PasteErrorCut	: "Sinu veebisirvija turvaseaded ei luba redaktoril automaatselt lõigata. Palun kasutage selleks klaviatuuri klahvikombinatsiooni (Ctrl+X).",
+PasteErrorCopy	: "Sinu veebisirvija turvaseaded ei luba redaktoril automaatselt kopeerida. Palun kasutage selleks klaviatuuri klahvikombinatsiooni (Ctrl+C).",
 
 PasteAsText		: "Kleebi tavalise tekstina",
 PasteFromWord	: "Kleebi Wordist",
 
 DlgPasteMsg2	: "Palun kleebi järgnevasse kasti kasutades klaviatuuri klahvikombinatsiooni (<STRONG>Ctrl+V</STRONG>) ja vajuta seejärel <STRONG>OK</STRONG>.",
-DlgPasteSec		: "Because of your browser security settings, the editor is not able to access your clipboard data directly. You are required to paste it again in this window.",	//MISSING
+DlgPasteSec		: "Sinu veebisirvija turvaseadete tõttu, ei oma redaktor otsest ligipääsu lõikelaua andmetele. Sa pead kleepima need uuesti siia aknasse.",
 DlgPasteIgnoreFont		: "Ignoreeri kirja definitsioone",
 DlgPasteRemoveStyles	: "Eemalda stiilide definitsioonid",
-DlgPasteCleanBox		: "Puhasta ära kast",
+DlgPasteCleanBox		: "Puhasta kast",
 
 // Color Picker
 ColorAutomatic	: "Automaatne",
@@ -381,9 +393,9 @@ IeSpellDownload			: "Õigekirja kontrollija ei ole installeeritud. Soovid sa sel
 // Button Dialog
 DlgButtonText		: "Tekst (väärtus)",
 DlgButtonType		: "Tüüp",
-DlgButtonTypeBtn	: "Button",	//MISSING
-DlgButtonTypeSbm	: "Submit",	//MISSING
-DlgButtonTypeRst	: "Reset",	//MISSING
+DlgButtonTypeBtn	: "Nupp",
+DlgButtonTypeSbm	: "Saada",
+DlgButtonTypeRst	: "Lähtesta",
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Nimi",
@@ -432,7 +444,7 @@ DlgHiddenValue	: "Väärtus",
 // Bulleted List Dialog
 BulletedListProp	: "Täpitud loetelu omadused",
 NumberedListProp	: "Nummerdatud loetelu omadused",
-DlgLstStart			: "Start",	//MISSING
+DlgLstStart			: "Alusta",
 DlgLstType			: "Tüüp",
 DlgLstTypeCircle	: "Ring",
 DlgLstTypeDisc		: "Ketas",
@@ -455,15 +467,15 @@ DlgDocLangDirLTR	: "Vasakult paremale (LTR)",
 DlgDocLangDirRTL	: "Paremalt vasakule (RTL)",
 DlgDocLangCode		: "Keele kood",
 DlgDocCharSet		: "Märgistiku kodeering",
-DlgDocCharSetCE		: "Central European",	//MISSING
-DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
-DlgDocCharSetCR		: "Cyrillic",	//MISSING
-DlgDocCharSetGR		: "Greek",	//MISSING
-DlgDocCharSetJP		: "Japanese",	//MISSING
-DlgDocCharSetKR		: "Korean",	//MISSING
-DlgDocCharSetTR		: "Turkish",	//MISSING
-DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
-DlgDocCharSetWE		: "Western European",	//MISSING
+DlgDocCharSetCE		: "Kesk-Euroopa",
+DlgDocCharSetCT		: "Hiina traditsiooniline (Big5)",
+DlgDocCharSetCR		: "Kirillisa",
+DlgDocCharSetGR		: "Kreeka",
+DlgDocCharSetJP		: "Jaapani",
+DlgDocCharSetKR		: "Korea",
+DlgDocCharSetTR		: "Türgi",
+DlgDocCharSetUN		: "Unicode (UTF-8)",
+DlgDocCharSetWE		: "Lääne-Euroopa",
 DlgDocCharSetOther	: "Ülejäänud märgistike kodeeringud",
 
 DlgDocDocType		: "Dokumendi tüüppäis",
@@ -493,11 +505,11 @@ DlgTemplatesTitle	: "Sisu šabloonid",
 DlgTemplatesSelMsg	: "Palun vali šabloon, et avada see redaktoris<br />(praegune sisu läheb kaotsi):",
 DlgTemplatesLoading	: "Laen šabloonide nimekirja. Palun oota...",
 DlgTemplatesNoTpl	: "(Ühtegi šablooni ei ole defineeritud)",
-DlgTemplatesReplace	: "Replace actual contents",	//MISSING
+DlgTemplatesReplace	: "Asenda tegelik sisu",
 
 // About Dialog
 DlgAboutAboutTab	: "Teave",
-DlgAboutBrowserInfoTab	: "Interneti sirvija info",
+DlgAboutBrowserInfoTab	: "Veebisirvija info",
 DlgAboutLicenseTab	: "Litsents",
 DlgAboutVersion		: "versioon",
 DlgAboutInfo		: "Täpsema info saamiseks mine"

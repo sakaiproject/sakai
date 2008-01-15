@@ -71,7 +71,7 @@ FCKScriptLoader.Load = function( scriptName )
 
 FCKScriptLoader._LoadScript = function( scriptPathFromSource )
 {
-	document.write( '<script type="text/javascript" src="' + this.FCKeditorPath + 'editor/_source/' + scriptPathFromSource + '" onerror="alert(\'Error loading \' + scriptPathFromSource);"><\/script>' ) ;
+	document.write( '<script type="text/javascript" src="' + this.FCKeditorPath + 'editor/_source/' + scriptPathFromSource + '"><\/script>' ) ;
 }
 
 FCKScriptLoader.AddScript = function( scriptName, scriptBasePath, dependency, compatibility )
@@ -91,18 +91,32 @@ FCKScriptLoader.AddScript = function( scriptName, scriptBasePath, dependency, co
 
 FCKScriptLoader.AddScript( 'FCKConstants' ) ;
 FCKScriptLoader.AddScript( 'FCKJSCoreExtensions' ) ;
-FCKScriptLoader.AddScript( 'FCKImagePreloader'	, 'classes/' ) ;
-FCKScriptLoader.AddScript( 'FCKBrowserInfo'		, 'internals/'	, ['FCKJSCoreExtensions'] ) ;
-FCKScriptLoader.AddScript( 'FCKConfig'			, 'internals/' ) ;
-FCKScriptLoader.AddScript( 'FCKListsLib'		, 'internals/' ) ;
-FCKScriptLoader.AddScript( 'FCKDebug'			, 'internals/'	, ['FCKConfig'] ) ;
-FCKScriptLoader.AddScript( 'FCKDomTools'		, 'internals/'	, ['FCKJSCoreExtensions'], FCK_GENERIC ) ;
-FCKScriptLoader.AddScript( 'FCKTools'			, 'internals/'	, ['FCKJSCoreExtensions','FCKBrowserInfo'], FCK_GENERIC_SPECIFIC ) ;
-FCKScriptLoader.AddScript( 'FCKElementPath'		, 'classes/'	, ['FCKListsLib'], FCK_GENERIC ) ;
+
+FCKScriptLoader.AddScript( 'FCK_Xhtml10Transitional', '../dtd/' ) ;
+
+FCKScriptLoader.AddScript( 'FCKDataProcessor'	, 'classes/'	, ['FCKConfig','FCKBrowserInfo','FCKRegexLib','FCKXHtml'] ) ;
 FCKScriptLoader.AddScript( 'FCKDocumentFragment', 'classes/'	, ['FCKDomTools'], FCK_SPECIFIC ) ;
 FCKScriptLoader.AddScript( 'FCKDomRange'		, 'classes/'	, ['FCKBrowserInfo','FCKJSCoreExtensions','FCKW3CRange','FCKElementPath','FCKDomTools','FCKTools','FCKDocumentFragment'], FCK_GENERIC_SPECIFIC ) ;
+FCKScriptLoader.AddScript( 'FCKDomRangeIterator', 'classes/'	, ['FCKDomRange','FCKListsLib'], FCK_GENERIC ) ;
+FCKScriptLoader.AddScript( 'FCKElementPath'		, 'classes/'	, ['FCKListsLib'], FCK_GENERIC ) ;
 FCKScriptLoader.AddScript( 'FCKEnterKey'		, 'classes/'	, ['FCKDomRange','FCKDomTools','FCKTools','FCKKeystrokeHandler','FCKListHandler'], FCK_GENERIC ) ;
+FCKScriptLoader.AddScript( 'FCKPanel'			, 'classes/'	, ['FCKBrowserInfo','FCKConfig','FCKTools'], FCK_GENERIC ) ;
+FCKScriptLoader.AddScript( 'FCKImagePreloader'	, 'classes/' ) ;
 FCKScriptLoader.AddScript( 'FCKKeystrokeHandler', 'classes/'	, ['FCKConstants','FCKBrowserInfo','FCKTools'], FCK_GENERIC ) ;
-FCKScriptLoader.AddScript( 'FCKListHandler'		, 'internals/'	, ['FCKJSCoreExtensions','FCKDomTools','FCKTools'], FCK_GENERIC ) ;
+FCKScriptLoader.AddScript( 'FCKStyle'			, 'classes/'	, ['FCKConstants','FCKDomRange','FCKDomRangeIterator','FCKDomTools','FCKListsLib','FCK_Xhtml10Transitional'], FCK_GENERIC ) ;
 FCKScriptLoader.AddScript( 'FCKW3CRange'		, 'classes/'	, ['FCKDomTools','FCKTools','FCKDocumentFragment'], FCK_GENERIC ) ;
+
+FCKScriptLoader.AddScript( 'FCKBrowserInfo'		, 'internals/'	, ['FCKJSCoreExtensions'] ) ;
+FCKScriptLoader.AddScript( 'FCKCodeFormatter'	, 'internals/' ) ;
+FCKScriptLoader.AddScript( 'FCKConfig'			, 'internals/'	, ['FCKBrowserInfo','FCKConstants'] ) ;
+FCKScriptLoader.AddScript( 'FCKDebug'			, 'internals/'	, ['FCKConfig'] ) ;
+FCKScriptLoader.AddScript( 'FCKDomTools'		, 'internals/'	, ['FCKJSCoreExtensions','FCKBrowserInfo','FCKTools'], FCK_GENERIC ) ;
+FCKScriptLoader.AddScript( 'FCKListsLib'		, 'internals/' ) ;
+FCKScriptLoader.AddScript( 'FCKListHandler'		, 'internals/'	, ['FCKConfig', 'FCKDocumentFragment', 'FCKJSCoreExtensions','FCKDomTools'], FCK_GENERIC ) ;
+FCKScriptLoader.AddScript( 'FCKRegexLib'		, 'internals/' ) ;
+FCKScriptLoader.AddScript( 'FCKStyles'			, 'internals/'	, ['FCKConfig', 'FCKDocumentFragment', 'FCKDomRange','FCKDomTools','FCKElementPath','FCKTools'], FCK_GENERIC ) ;
+FCKScriptLoader.AddScript( 'FCKTools'			, 'internals/'	, ['FCKJSCoreExtensions','FCKBrowserInfo'], FCK_GENERIC_SPECIFIC ) ;
+FCKScriptLoader.AddScript( 'FCKXHtml'			, 'internals/'	, ['FCKBrowserInfo','FCKCodeFormatter','FCKConfig','FCKDomTools','FCKListsLib','FCKRegexLib','FCKTools','FCKXHtmlEntities'], FCK_GENERIC_SPECIFIC ) ;
+FCKScriptLoader.AddScript( 'FCKXHtmlEntities'	, 'internals/'	, ['FCKConfig'] ) ;
+
 // ####################################

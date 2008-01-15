@@ -143,6 +143,7 @@ function LoadSelection()
 		{
 			iWidth = aMatchW[1] ;
 			oImage.style.width = '' ;
+			SetAttribute( oImage, 'width' , iWidth ) ;
 		}
 	}
 
@@ -153,6 +154,7 @@ function LoadSelection()
 		{
 			iHeight = aMatchH[1] ;
 			oImage.style.height = '' ;
+			SetAttribute( oImage, 'height', iHeight ) ;
 		}
 	}
 
@@ -168,7 +170,7 @@ function LoadSelection()
 
 	if ( oEditor.FCKBrowserInfo.IsIE )
 	{
-		GetE('txtAttClasses').value = oImage.getAttribute('className') || '' ;
+		GetE('txtAttClasses').value = oImage.className || '' ;
 		GetE('txtAttStyle').value = oImage.style.cssText ;
 	}
 	else
@@ -216,19 +218,18 @@ function Ok()
 			oImage = null ;
 	}
 
+	oEditor.FCKUndo.SaveUndoStep() ;
 	if ( !bHasImage )
 	{
 		if ( bImageButton )
 		{
-			oImage = FCK.EditorDocument.createElement( 'INPUT' ) ;
+			oImage = FCK.EditorDocument.createElement( 'input' ) ;
 			oImage.type = 'image' ;
-			oImage = FCK.InsertElementAndGetIt( oImage ) ;
+			oImage = FCK.InsertElement( oImage ) ;
 		}
 		else
-			oImage = FCK.CreateElement( 'IMG' ) ;
+			oImage = FCK.InsertElement( 'img' ) ;
 	}
-	else
-		oEditor.FCKUndo.SaveUndoStep() ;
 
 	UpdateImage( oImage ) ;
 
@@ -248,7 +249,7 @@ function Ok()
 			if ( !bHasImage )
 				oEditor.FCKSelection.SelectNode( oImage ) ;
 
-			oLink = oEditor.FCK.CreateLink( sLnkUrl ) ;
+			oLink = oEditor.FCK.CreateLink( sLnkUrl )[0] ;
 
 			if ( !bHasImage )
 			{
@@ -284,13 +285,18 @@ function UpdateImage( e, skipId )
 	SetAttribute( e, 'dir'		, GetE('cmbAttLangDir').value ) ;
 	SetAttribute( e, 'lang'		, GetE('txtAttLangCode').value ) ;
 	SetAttribute( e, 'title'	, GetE('txtAttTitle').value ) ;
-	SetAttribute( e, 'class'	, GetE('txtAttClasses').value ) ;
 	SetAttribute( e, 'longDesc'	, GetE('txtLongDesc').value ) ;
 
 	if ( oEditor.FCKBrowserInfo.IsIE )
+	{
+		e.className = GetE('txtAttClasses').value ;
 		e.style.cssText = GetE('txtAttStyle').value ;
+	}
 	else
+	{
+		SetAttribute( e, 'class'	, GetE('txtAttClasses').value ) ;
 		SetAttribute( e, 'style', GetE('txtAttStyle').value ) ;
+	}
 }
 
 var eImgPreview ;
@@ -347,7 +353,7 @@ function SwitchLock( lockButton )
 // Fired when the width or height input texts change
 function OnSizeChanged( dimension, value )
 {
-	// Verifies if the aspect ration has to be mantained
+	// Verifies if the aspect ration has to be maintained
 	if ( oImageOriginal && bLockRatio )
 	{
 		var e = dimension == 'Width' ? GetE('txtHeight') : GetE('txtWidth') ;

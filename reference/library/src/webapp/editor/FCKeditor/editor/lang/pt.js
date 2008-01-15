@@ -45,6 +45,7 @@ InsertLinkLbl		: "Hiperligação",
 InsertLink			: "Inserir/Editar Hiperligação",
 RemoveLink			: "Eliminar Hiperligação",
 Anchor				: " Inserir/Editar Âncora",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Imagem",
 InsertImage			: "Inserir/Editar Imagem",
 InsertFlashLbl		: "Flash",
@@ -70,6 +71,7 @@ RightJustify		: "Alinhar à Direita",
 BlockJustify		: "Justificado",
 DecreaseIndent		: "Diminuir Avanço",
 IncreaseIndent		: "Aumentar Avanço",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Anular",
 Redo				: "Repetir",
 NumberedListLbl		: "Numeração",
@@ -103,20 +105,27 @@ SelectionField	: "Caixa de Combinação",
 ImageButton		: "Botão de Imagem",
 
 FitWindow		: "Maximizar o tamanho do editor",
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Editar Hiperligação",
 CellCM				: "Célula",
 RowCM				: "Linha",
 ColumnCM			: "Coluna",
-InsertRow			: "Inserir Linha",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Eliminar Linhas",
-InsertColumn		: "Inserir Coluna",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Eliminar Coluna",
-InsertCell			: "Inserir Célula",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Eliminar Célula",
 MergeCells			: "Unir Células",
-SplitCell			: "Dividir Célula",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Eliminar Tabela",
 CellProperties		: "Propriedades da Célula",
 TableProperties		: "Propriedades da Tabela",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Propriedades da Caixa de Combinação",
 TextareaProp		: "Propriedades da Área de Texto",
 FormProp			: "Propriedades do Formulário",
 
-FontFormats			: "Normal;Formatado;Endereço;Título 1;Título 2;Título 3;Título 4;Título 5;Título 6",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normal;Formatado;Endereço;Título 1;Título 2;Título 3;Título 4;Título 5;Título 6",
 
 // Alerts and Messages
 ProcessingXHTML		: "A Processar XHTML. Por favor, espere...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Seleccionar una referência",
 DlgLnkAnchorByName	: "Por Nome de Referência",
 DlgLnkAnchorById	: "Por ID de elemento",
-DlgLnkNoAnchors		: "<Não há referências disponíveis no documento>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Não há referências disponíveis no documento)",
 DlgLnkEMail			: "Endereço de E-Mail",
 DlgLnkEMailSubject	: "Título de Mensagem",
 DlgLnkEMailBody		: "Corpo da Mensagem",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Unir Colunas",
 DlgCellBackColor	: "Cor do Fundo",
 DlgCellBorderColor	: "Cor do Limite",
 DlgCellBtnSelect	: "Seleccione...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Procurar",

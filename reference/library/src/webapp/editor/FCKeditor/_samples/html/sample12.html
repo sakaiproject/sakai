@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -29,7 +29,7 @@
 	<link href="../sample.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="../../fckeditor.js"></script>
 	<script type="text/javascript">
-
+<!--
 // The following function is used in this samples to reload the page,
 // setting the querystring parameters for the enter mode.
 function ChangeMode()
@@ -39,7 +39,7 @@ function ChangeMode()
 
 	window.location.href = window.location.pathname + '?enter=' + sEnterMode + '&shift=' + sShiftEnterMode ;
 }
-
+-->
 	</script>
 </head>
 <body>
@@ -103,10 +103,7 @@ if ( document.location.search.length > 1 )
 // Create the FCKeditor instance.
 var oFCKeditor = new FCKeditor( 'FCKeditor1' ) ;
 oFCKeditor.BasePath	= sBasePath ;
-oFCKeditor.Value	= 'This is some <strong>sample text</strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor</a>.' ;
-
-// Enable the Enter Key Handler. This feature will not be available in the release version.
-oFCKeditor.Config["DisableEnterKeyHandler"]	= false ;
+oFCKeditor.Value	= 'This is some <strong>sample text<\/strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor<\/a>.' ;
 
 // Set the configuration options for the Enter Key mode.
 oFCKeditor.Config["EnterMode"]		= sEnterMode ;

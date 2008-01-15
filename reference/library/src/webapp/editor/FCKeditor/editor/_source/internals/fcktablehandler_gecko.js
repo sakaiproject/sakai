@@ -18,7 +18,7 @@
  *
  * == END LICENSE ==
  *
- * Manage table operations (IE specific).
+ * Manage table operations (non-IE).
  */
 
 FCKTableHandler.GetSelectedCells = function()
@@ -33,10 +33,9 @@ FCKTableHandler.GetSelectedCells = function()
 		var oParent = FCKTools.GetElementAscensor( oSelection.anchorNode, 'TD,TH' ) ;
 
 		if ( oParent )
-		{
 			aCells[0] = oParent ;
-			return aCells ;
-		}
+
+		return aCells ;
 	}
 
 	for ( var i = 0 ; i < oSelection.rangeCount ; i++ )

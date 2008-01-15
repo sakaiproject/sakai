@@ -65,7 +65,7 @@
 ' cases, no processing must be done, and the data is saved as posted.
 Function ModifyForOutput( value )
 
-	ModifyForOutput = Server.HTMLEncode( Request.Form(sForm) )
+	ModifyForOutput = Server.HTMLEncode( value )
 
 End Function
 

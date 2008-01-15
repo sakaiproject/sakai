@@ -1,4 +1,4 @@
-﻿/*
+/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  *
@@ -105,10 +105,7 @@ body, .BackColor
 	border-right: #466ca6 1px solid;
 	border-top: #466ca6 1px solid;
 	border-left: #466ca6 1px solid;
-	padding-right: 5px;
-	padding-left: 5px;
-	padding-bottom: 3px;
-	padding-top: 3px;
+	padding: 3px 5px 3px 5px;
 	color: #0e3460;
 }
 
@@ -135,4 +132,9 @@ body, .BackColor
 	background-color: #add8e6 !important;
 	cursor: pointer;
 	cursor: hand;
+}
+
+#tdBrowse 
+{
+	vertical-align: bottom;
 }

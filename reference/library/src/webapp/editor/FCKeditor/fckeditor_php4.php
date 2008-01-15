@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -35,7 +35,7 @@ class FCKeditor
 	var $Value ;
 	var $Config ;
 
-	// PHP 4 Contructor
+	// PHP 4 Constructor
 	function FCKeditor( $instanceName )
 	{
 		$this->InstanceName	= $instanceName ;
@@ -58,6 +58,11 @@ class FCKeditor
 		$HtmlValue = htmlspecialchars( $this->Value ) ;
 
 		$Html = '<div>' ;
+		
+		if ( !isset( $_GET ) ) {
+			global $HTTP_GET_VARS ;
+		    $_GET = $HTTP_GET_VARS ;
+		}
 
 		if ( $this->IsCompatible() )
 		{
@@ -102,25 +107,7 @@ class FCKeditor
 
 	function IsCompatible()
 	{
-		global $HTTP_USER_AGENT ;
-
-		if ( isset( $HTTP_USER_AGENT ) )
-			$sAgent = $HTTP_USER_AGENT ;
-		else
-			$sAgent = $_SERVER['HTTP_USER_AGENT'] ;
-
-		if ( strpos($sAgent, 'MSIE') !== false && strpos($sAgent, 'mac') === false && strpos($sAgent, 'Opera') === false )
-		{
-			$iVersion = (float)substr($sAgent, strpos($sAgent, 'MSIE') + 5, 3) ;
-			return ($iVersion >= 5.5) ;
-		}
-		else if ( strpos($sAgent, 'Gecko/') !== false )
-		{
-			$iVersion = (int)substr($sAgent, strpos($sAgent, 'Gecko/') + 6, 8) ;
-			return ($iVersion >= 20030210) ;
-		}
-		else
-			return false ;
+		return FCKeditor_IsCompatibleBrowser() ;
 	}
 
 	function GetConfigFieldString()

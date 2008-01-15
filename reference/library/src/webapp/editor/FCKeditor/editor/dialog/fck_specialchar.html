@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -41,18 +41,23 @@ var oSample ;
 
 function insertChar(charValue)
 {
+	oEditor.FCKUndo.SaveUndoStep() ;
 	oEditor.FCK.InsertHtml( charValue || "" ) ;
 	window.parent.Cancel() ;
 }
 
 function over(td)
 {
+	if ( ! oSample )
+		return ;
 	oSample.innerHTML = td.innerHTML ;
 	td.className = 'LightBackground SpecialCharsOver Hand' ;
 }
 
 function out(td)
 {
+	if ( ! oSample )
+		return ;
 	oSample.innerHTML = "&nbsp;" ;
 	td.className = 'DarkBackground SpecialCharsOut Hand' ;
 }
@@ -64,11 +69,13 @@ function setDefaults()
 
 	// First of all, translates the dialog box texts.
 	oEditor.FCKLanguageManager.TranslatePage(document) ;
+
+	window.parent.SetAutoSize( true ) ;
 }
 
 		</script>
-	</HEAD>
-	<BODY onload="setDefaults()" scroll="no">
+	</head>
+	<body onload="setDefaults()" style="overflow: hidden">
 		<table cellpadding="0" cellspacing="0" width="100%" height="100%">
 			<tr>
 				<td width="100%">
@@ -109,5 +116,5 @@ while (i < aChars.length)
 				</td>
 			</tr>
 		</table>
-	</BODY>
-</HTML>
+	</body>
+</html>

@@ -45,6 +45,7 @@ InsertLinkLbl		: "Sambungan",
 InsertLink			: "Masukkan/Sunting Sambungan",
 RemoveLink			: "Buang Sambungan",
 Anchor				: "Masukkan/Sunting Pautan",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Gambar",
 InsertImage			: "Masukkan/Sunting Gambar",
 InsertFlashLbl		: "Flash",	//MISSING
@@ -70,6 +71,7 @@ RightJustify		: "Jajaran Kanan",
 BlockJustify		: "Jajaran Blok",
 DecreaseIndent		: "Kurangkan Inden",
 IncreaseIndent		: "Tambahkan Inden",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Batalkan",
 Redo				: "Ulangkan",
 NumberedListLbl		: "Senarai bernombor",
@@ -103,20 +105,27 @@ SelectionField	: "Field Pilihan",
 ImageButton		: "Butang Bergambar",
 
 FitWindow		: "Maximize the editor size",	//MISSING
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Sunting Sambungan",
 CellCM				: "Cell",	//MISSING
 RowCM				: "Row",	//MISSING
 ColumnCM			: "Column",	//MISSING
-InsertRow			: "Masukkan Baris",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Buangkan Baris",
-InsertColumn		: "Masukkan Lajur",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Buangkan Lajur",
-InsertCell			: "Masukkan Sel",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Buangkan Sel-sel",
 MergeCells			: "Cantumkan Sel-sel",
-SplitCell			: "Bahagikan Sel",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Delete Table",	//MISSING
 CellProperties		: "Ciri-ciri Sel",
 TableProperties		: "Ciri-ciri Jadual",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Ciri-ciri Selection Field",
 TextareaProp		: "Ciri-ciri Textarea",
 FormProp			: "Ciri-ciri Borang",
 
-FontFormats			: "Normal;Telah Diformat;Alamat;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6;Perenggan (DIV)",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normal;Telah Diformat;Alamat;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6;Perenggan (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "Memproses XHTML. Sila tunggu...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Sila pilih pautan",
 DlgLnkAnchorByName	: "dengan menggunakan nama pautan",
 DlgLnkAnchorById	: "dengan menggunakan ID elemen",
-DlgLnkNoAnchors		: "<Tiada pautan terdapat dalam dokumen ini>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Tiada pautan terdapat dalam dokumen ini)",
 DlgLnkEMail			: "Alamat E-Mail",
 DlgLnkEMailSubject	: "Subjek Mesej",
 DlgLnkEMailBody		: "Isi Kandungan Mesej",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Penggunaan Lajur",
 DlgCellBackColor	: "Warna Latarbelakang",
 DlgCellBorderColor	: "Warna Border",
 DlgCellBtnSelect	: "Pilih...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Carian",

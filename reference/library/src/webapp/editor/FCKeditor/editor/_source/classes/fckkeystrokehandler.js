@@ -54,11 +54,16 @@ FCKKeystrokeHandler.prototype.SetKeystrokes = function()
 	{
 		var keyDef = arguments[i] ;
 
+		// If the configuration for the keystrokes is missing some element or has any extra comma
+		// this item won't be valid, so skip it and keep on processing.
+		if ( !keyDef ) 
+			continue ;
+		
 		if ( typeof( keyDef[0] ) == 'object' )		// It is an array with arrays defining the keystrokes.
 			this.SetKeystrokes.apply( this, keyDef ) ;
 		else
 		{
-			if ( keyDef.length == 1 )		// If it has only one element, removed the keystroke.
+			if ( keyDef.length == 1 )		// If it has only one element, remove the keystroke.
 				delete this.Keystrokes[ keyDef[0] ] ;
 			else							// Otherwise add it.
 				this.Keystrokes[ keyDef[0] ] = keyDef[1] === true ? true : keyDef ;
@@ -95,7 +100,7 @@ function _FCKKeystrokeHandler_OnKeyDown( ev, keystrokeHandler )
 	// If the keystroke is defined
 	if ( keystrokeValue )
 	{
-		// If the keystroke has been explicetly set to "true" OR calling the
+		// If the keystroke has been explicitly set to "true" OR calling the
 		// "OnKeystroke" event, it doesn't return "true", the default behavior
 		// must be preserved.
 		if ( keystrokeValue === true || !( keystrokeHandler.OnKeystroke && keystrokeHandler.OnKeystroke.apply( keystrokeHandler, keystrokeValue ) ) )

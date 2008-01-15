@@ -45,6 +45,7 @@ InsertLinkLbl		: "Линк",
 InsertLink			: "Линк Оруулах/Засварлах",
 RemoveLink			: "Линк авч хаях",
 Anchor				: "Insert/Edit Anchor",	//MISSING
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Зураг",
 InsertImage			: "Зураг Оруулах/Засварлах",
 InsertFlashLbl		: "Flash",	//MISSING
@@ -70,6 +71,7 @@ RightJustify		: "Баруун талд байрлуулах",
 BlockJustify		: "Блок хэлбэрээр байрлуулах",
 DecreaseIndent		: "Догол мөр нэмэх",
 IncreaseIndent		: "Догол мөр хасах",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Хүчингүй болгох",
 Redo				: "Өмнөх үйлдлээ сэргээх",
 NumberedListLbl		: "Дугаарлагдсан жагсаалт",
@@ -103,20 +105,27 @@ SelectionField	: "Selection Field",	//MISSING
 ImageButton		: "Image Button",	//MISSING
 
 FitWindow		: "Maximize the editor size",	//MISSING
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Холбоос засварлах",
 CellCM				: "Cell",	//MISSING
 RowCM				: "Row",	//MISSING
 ColumnCM			: "Column",	//MISSING
-InsertRow			: "Мөр оруулах",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Мөр устгах",
-InsertColumn		: "Багана оруулах",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Багана устгах",
-InsertCell			: "Нүх оруулах",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Нүх устгах",
 MergeCells			: "Нүх нэгтэх",
-SplitCell			: "Нүх тусгайрлах",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Delete Table",	//MISSING
 CellProperties		: "Хоосон зайн шинж чанар",
 TableProperties		: "Хүснэгт",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Selection Field Properties",	//MISSING
 TextareaProp		: "Textarea Properties",	//MISSING
 FormProp			: "Form Properties",	//MISSING
 
-FontFormats			: "Хэвийн;Formatted;Хаяг;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6;Paragraph (DIV)",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Хэвийн;Formatted;Хаяг;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6;Paragraph (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "XHTML үйл явц явагдаж байна. Хүлээнэ үү...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Холбоос сонгох",
 DlgLnkAnchorByName	: "Холбоосын нэрээр",
 DlgLnkAnchorById	: "Элемэнт Id-гаар",
-DlgLnkNoAnchors		: "<Баримт бичиг холбоосгүй байна>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Баримт бичиг холбоосгүй байна)",
 DlgLnkEMail			: "E-Mail Хаяг",
 DlgLnkEMailSubject	: "Message Subject",
 DlgLnkEMailBody		: "Message-ийн агуулга",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Нийт багана",
 DlgCellBackColor	: "Фонны өнгө",
 DlgCellBorderColor	: "Хүрээний өнгө",
 DlgCellBtnSelect	: "Сонго...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Хайх",

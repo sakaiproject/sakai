@@ -45,6 +45,7 @@ InsertLinkLbl		: "Nuoroda",
 InsertLink			: "Įterpti/taisyti nuorodą",
 RemoveLink			: "Panaikinti nuorodą",
 Anchor				: "Įterpti/modifikuoti žymę",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Vaizdas",
 InsertImage			: "Įterpti/taisyti vaizdą",
 InsertFlashLbl		: "Flash",
@@ -70,6 +71,7 @@ RightJustify		: "Lygiuoti dešinę",
 BlockJustify		: "Lygiuoti abi puses",
 DecreaseIndent		: "Sumažinti įtrauką",
 IncreaseIndent		: "Padidinti įtrauką",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Atšaukti",
 Redo				: "Atstatyti",
 NumberedListLbl		: "Numeruotas sąrašas",
@@ -103,20 +105,27 @@ SelectionField	: "Atrankos laukas",
 ImageButton		: "Vaizdinis mygtukas",
 
 FitWindow		: "Maximize the editor size",	//MISSING
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Taisyti nuorodą",
 CellCM				: "Cell",	//MISSING
 RowCM				: "Row",	//MISSING
 ColumnCM			: "Column",	//MISSING
-InsertRow			: "Įterpti eilutę",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Šalinti eilutes",
-InsertColumn		: "Įterpti stulpelį",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Šalinti stulpelius",
-InsertCell			: "Įterpti langelį",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Šalinti langelius",
 MergeCells			: "Sujungti langelius",
-SplitCell			: "Skaidyti langelius",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Šalinti lentelę",
 CellProperties		: "Langelio savybės",
 TableProperties		: "Lentelės savybės",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Atrankos lauko savybės",
 TextareaProp		: "Teksto srities savybės",
 FormProp			: "Formos savybės",
 
-FontFormats			: "Normalus;Formuotas;Kreipinio;Antraštinis 1;Antraštinis 2;Antraštinis 3;Antraštinis 4;Antraštinis 5;Antraštinis 6",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normalus;Formuotas;Kreipinio;Antraštinis 1;Antraštinis 2;Antraštinis 3;Antraštinis 4;Antraštinis 5;Antraštinis 6",
 
 // Alerts and Messages
 ProcessingXHTML		: "Apdorojamas XHTML. Prašome palaukti...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Pasirinkite žymę",
 DlgLnkAnchorByName	: "Pagal žymės vardą",
 DlgLnkAnchorById	: "Pagal žymės Id",
-DlgLnkNoAnchors		: "<Šiame dokumente žymių nėra>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Šiame dokumente žymių nėra)",
 DlgLnkEMail			: "El.pašto adresas",
 DlgLnkEMailSubject	: "Žinutės tema",
 DlgLnkEMailBody		: "Žinutės turinys",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Stulpelių apjungimas",
 DlgCellBackColor	: "Fono spalva",
 DlgCellBorderColor	: "Rėmelio spalva",
 DlgCellBtnSelect	: "Pažymėti...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Paieška",

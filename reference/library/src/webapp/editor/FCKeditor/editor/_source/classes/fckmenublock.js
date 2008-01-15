@@ -94,6 +94,9 @@ FCKMenuBlock.prototype.Create = function( parentElement )
 
 function FCKMenuBlock_Item_OnClick( clickedItem, menuBlock )
 {
+	if ( menuBlock.Hide )
+		menuBlock.Hide() ;
+
 	FCKTools.RunFunction( menuBlock.OnClick, menuBlock, [ clickedItem ] ) ;
 }
 
@@ -105,7 +108,14 @@ function FCKMenuBlock_Item_OnActivate( menuBlock )
 	{
 		// Set the focus to this menu block window (to fire OnBlur on opened panels).
 		if ( !FCKBrowserInfo.IsIE && oActiveItem.HasSubMenu && !this.HasSubMenu )
+		{
 			menuBlock._Window.focus() ;
+			
+			// Due to the event model provided by Opera, we need to set
+			// HasFocus here as the above focus() call will not fire the focus
+			// event in the panel immediately (#1200).
+			menuBlock.Panel.HasFocus = true ;
+		}
 
 		oActiveItem.Deactivate() ;
 	}

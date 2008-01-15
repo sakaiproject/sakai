@@ -32,6 +32,14 @@ FCKTools._AppendStyleSheet = function( documentElement, cssFileUrl )
 	return documentElement.createStyleSheet( cssFileUrl ).owningElement ;
 }
 
+// Appends a CSS style string to a document.
+FCKTools._AppendStyleString = function( documentElement, cssStyles )
+{
+	var s = documentElement.createStyleSheet( "" ) ;
+	s.cssText = cssStyles ;
+	return s ;
+}
+
 // Removes all attributes and values from the element.
 FCKTools.ClearElementAttributes = function( element )
 {
@@ -162,7 +170,7 @@ FCKTools.GetViewPaneSize = function( win )
 	if ( oDoc && oDoc.clientWidth )				// IE6 Strict Mode
 		oSizeSource = oDoc ;
 	else
-		oSizeSource = top.document.body ;		// Other IEs
+		oSizeSource = win.document.body ;		// Other IEs
 
 	if ( oSizeSource )
 		return { Width : oSizeSource.clientWidth, Height : oSizeSource.clientHeight } ;
@@ -172,6 +180,8 @@ FCKTools.GetViewPaneSize = function( win )
 
 FCKTools.SaveStyles = function( element )
 {
+	var data = FCKTools.ProtectFormStyles( element ) ;
+
 	var oSavedStyles = new Object() ;
 
 	if ( element.className.length > 0 )
@@ -188,13 +198,16 @@ FCKTools.SaveStyles = function( element )
 		element.style.cssText = '' ;
 	}
 
+	FCKTools.RestoreFormStyles( element, data ) ;
 	return oSavedStyles ;
 }
 
 FCKTools.RestoreStyles = function( element, savedStyles )
 {
+	var data = FCKTools.ProtectFormStyles( element ) ;
 	element.className		= savedStyles.Class || '' ;
 	element.style.cssText	= savedStyles.Inline || '' ;
+	FCKTools.RestoreFormStyles( element, data ) ;
 }
 
 FCKTools.RegisterDollarFunction = function( targetWindow )

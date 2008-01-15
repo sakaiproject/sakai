@@ -1,4 +1,4 @@
-﻿<cfsetting enablecfoutputonly="true" showdebugoutput="false">
+<cfsetting enablecfoutputonly="true">
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
@@ -31,57 +31,33 @@
 	<meta name="robots" content="noindex, nofollow">
 	<link href="../sample.css" rel="stylesheet" type="text/css" />
 </head>
-
 <body>
-
 <h1>FCKeditor - ColdFusion - Sample 1</h1>
 
-This sample displays a normal HTML form with a FCKeditor with full features enabled; invoked by a ColdFusion Custom Tag / Module.
+This sample displays a normal HTML form with a FCKeditor with full features enabled.
 <hr>
-<form method="POST" action="#cgi.script_name#">
+
+<form method="POST" action="sampleposteddata.cfm">
 </cfoutput>
+
+<!--- Calculate basepath for FCKeditor. It's in the folder right above _samples --->
+<cfset basePath = Left( cgi.script_name, FindNoCase( '_samples', cgi.script_name ) - 1 )>
 
 <cfmodule
 	template="../../fckeditor.cfm"
-	basePath="#Left(cgi.script_name, FindNoCase('_samples', cgi.script_name)-1)#"
+	basePath="#basePath#"
 	instanceName="myEditor"
-	value='This is some sample text. You are using <a href="http://fckeditor.net/" target="_blank">FCKeditor</a>.'
+	value='<p>This is some <strong>sample text</strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor</a>.</p>'
 	width="100%"
 	height="200"
 >
+
 <cfoutput>
 <br />
 <input type="submit" value="Submit">
-<br />
+<hr />
 </form>
-</cfoutput>
-
-<cfif isDefined( 'FORM.fieldnames' )>
-	<cfoutput>
-	<hr />
-	<style>
-	<!--
-		td, th { font: 11px Verdana, Arial, Helv, Helvetica, sans-serif; }
-	-->
-	</style>
-	<table border="1" cellspacing="0" cellpadding="2" bordercolor="darkblue" bordercolordark="darkblue" bordercolorlight="darkblue">
-	<tr>
-		<th colspan="2" bgcolor="darkblue"><font color="white"><strong>Dump of FORM Variables</strong></font></th>
-	</tr>
-	<tr>
-		<td bgcolor="lightskyblue">FieldNames</td>
-		<td>#FORM.fieldNames#</td>
-	</tr>
-	<cfloop list="#FORM.fieldnames#" index="key">
-	<tr>
-		<td valign="top" bgcolor="lightskyblue">#key#</td>
-		<td>#HTMLEditFormat(evaluate("FORM.#key#"))#</td>
-	</tr>
-	</cfloop>
-	</table>
-	</cfoutput>
-</cfif>
-
 </body>
 </html>
+</cfoutput>
 <cfsetting enablecfoutputonly="false">
