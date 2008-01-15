@@ -137,6 +137,16 @@ public class JournalOptimzationOperationTest extends TestCase
 		journalSettings.setSharedJournalBase(sharedJournalBase);
 		journalSettings.setMinimumOptimizeSavePoints(5);
 		journalSettings.setOptimizeMergeSize(5);
+		journalSettings.setLocalMaxBufferedDocs(50);
+		journalSettings.setLocalMaxMergeDocs(1000000);
+		journalSettings.setLocalMaxMergeFactor(10);
+		journalSettings.setSharedMaxBufferedDocs(50);
+		journalSettings.setSharedMaxMergeDocs(1000000);
+		journalSettings.setSharedMaxMergeFactor(10);
+		journalSettings.setCreateMaxBufferedDocs(50);
+		journalSettings.setCreateMaxMergeDocs(1000000);
+		journalSettings.setCreateMaxMergeFactor(10);
+
 		journalSettings.setSoakTest(true);
 
 		tds = new TDataSource(5, false);
@@ -267,6 +277,7 @@ public class JournalOptimzationOperationTest extends TestCase
 		SharedFilesystemLoadTransactionListener sharedFilesystemLoadTransactionListener = new SharedFilesystemLoadTransactionListener();
 		SharedFilesystemSaveTransactionListener sharedFilesystemSaveTransactionListener = new SharedFilesystemSaveTransactionListener();
 		OptimizeSharedTransactionListenerImpl optimizeSharedTransactionListener = new OptimizeSharedTransactionListenerImpl();
+		optimizeSharedTransactionListener.setJournalSettings(journalSettings);
 
 		DbJournalOptimizationManager optJournalManager = new DbJournalOptimizationManager();
 		TransactionSequenceImpl optSequence = new TransactionSequenceImpl();

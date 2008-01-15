@@ -84,6 +84,16 @@ public class LoadSaveSegmentListTest extends TestCase
 		journalSettings.setSharedJournalBase(sharedJournalBase.getAbsolutePath());
 		journalSettings.setMinimumOptimizeSavePoints(5);
 		journalSettings.setOptimizeMergeSize(5);
+		journalSettings.setLocalMaxBufferedDocs(50);
+		journalSettings.setLocalMaxMergeDocs(1000000);
+		journalSettings.setLocalMaxMergeFactor(10);
+		journalSettings.setSharedMaxBufferedDocs(50);
+		journalSettings.setSharedMaxMergeDocs(1000000);
+		journalSettings.setSharedMaxMergeFactor(10);
+		journalSettings.setCreateMaxBufferedDocs(50);
+		journalSettings.setCreateMaxMergeDocs(1000000);
+		journalSettings.setCreateMaxMergeFactor(10);
+
 		journalSettings.setSoakTest(true);
 
 		

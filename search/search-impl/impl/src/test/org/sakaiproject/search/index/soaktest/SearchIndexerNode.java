@@ -140,8 +140,17 @@ public class SearchIndexerNode
 		JournalSettings journalSettings = new JournalSettings();
 		journalSettings.setLocalIndexBase(localIndexBase);
 		journalSettings.setSharedJournalBase(sharedJournalBase);
-		journalSettings.setMinimumOptimizeSavePoints(20);
-		journalSettings.setOptimizeMergeSize(20);
+		journalSettings.setMinimumOptimizeSavePoints(100); // the number of shared save points before we attemt to merge
+		journalSettings.setOptimizeMergeSize(100); // the number of local save points before we try to merge
+		journalSettings.setLocalMaxBufferedDocs(50);
+		journalSettings.setLocalMaxMergeDocs(1000000);
+		journalSettings.setLocalMaxMergeFactor(10);
+		journalSettings.setSharedMaxBufferedDocs(50);
+		journalSettings.setSharedMaxMergeDocs(1000000);
+		journalSettings.setSharedMaxMergeFactor(10);
+		journalSettings.setCreateMaxBufferedDocs(50);
+		journalSettings.setCreateMaxMergeDocs(1000000);
+		journalSettings.setCreateMaxMergeFactor(10);
 		journalSettings.setSoakTest(true);
 
 		tds = new SharedTestDataSource(base, 10, false, driver, url, userame, password);
@@ -333,6 +342,7 @@ public class SearchIndexerNode
 		SharedFilesystemLoadTransactionListener sharedFilesystemLoadTransactionListener = new SharedFilesystemLoadTransactionListener();
 		SharedFilesystemSaveTransactionListener sharedFilesystemSaveTransactionListener = new SharedFilesystemSaveTransactionListener();
 		OptimizeSharedTransactionListenerImpl optimizeSharedTransactionListener = new OptimizeSharedTransactionListenerImpl();
+		optimizeSharedTransactionListener.setJournalSettings(journalSettings);
 
 		DbJournalOptimizationManager optimizeJournalManager = new DbJournalOptimizationManager();
 		TransactionSequenceImpl optimizeSequence = new TransactionSequenceImpl();

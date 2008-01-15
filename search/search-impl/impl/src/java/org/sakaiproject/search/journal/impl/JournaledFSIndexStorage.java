@@ -788,8 +788,9 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		{
 			IndexWriter iw = new IndexWriter(f, getAnalyzer(), true);
 			iw.setUseCompoundFile(true);
-			iw.setMaxBufferedDocs(50);
-			iw.setMaxMergeDocs(50);
+			iw.setMaxMergeDocs(journalSettings.getLocalMaxMergeDocs());
+			iw.setMaxBufferedDocs(journalSettings.getLocalMaxBufferedDocs());
+			iw.setMergeFactor(journalSettings.getLocalMaxMergeFactor());
 			Document doc = new Document();
 			doc.add(new Field("indexcreated", (new Date()).toString(), Field.Store.YES,
 					Field.Index.UN_TOKENIZED, Field.TermVector.NO));
@@ -1261,8 +1262,9 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				{
 					permanentIndexWriter = new IndexWriter(f, getAnalyzer(), true);
 					permanentIndexWriter.setUseCompoundFile(true);
-					permanentIndexWriter.setMaxBufferedDocs(50);
-					permanentIndexWriter.setMaxMergeDocs(50);
+					permanentIndexWriter.setMaxMergeDocs(journalSettings.getLocalMaxMergeDocs());
+					permanentIndexWriter.setMaxBufferedDocs(journalSettings.getLocalMaxBufferedDocs());
+					permanentIndexWriter.setMergeFactor(journalSettings.getLocalMaxMergeFactor());
 					Document doc = new Document();
 					doc.add(new Field("indexcreated", (new Date()).toString(),
 							Field.Store.YES, Field.Index.UN_TOKENIZED,
@@ -1282,8 +1284,9 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 
 						});
 				permanentIndexWriter.setUseCompoundFile(true);
+				permanentIndexWriter.setMaxMergeDocs(100000);
 				permanentIndexWriter.setMaxBufferedDocs(50);
-				permanentIndexWriter.setMaxMergeDocs(50);
+				permanentIndexWriter.setMergeFactor(50);
 			}
 			catch (IOException ioex)
 			{

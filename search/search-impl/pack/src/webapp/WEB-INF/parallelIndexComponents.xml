@@ -31,9 +31,49 @@
 		>
 		<property name="localIndexBase" ><value>${sakai.home}indexwork</value></property>
 		<property name="sharedJournalBase" ><value>${sakai.home}searchjournal</value></property>
-		<property name="minimumOptimizeSavePoints" ><value>10</value></property>
-		<property name="optimizeMergeSize" ><value>5</value></property>
+		<property name="minimumOptimizeSavePoints" ><value>50</value></property>
+		<property name="optimizeMergeSize" ><value>50</value></property>
 		<property name="soakTest" ><value>false</value></property>		
+		<!--
+		Local is the Local index used for searching,
+		Shared is the Shared Journal Save Points
+		Create is the Index creation
+		Documents, means lucene search documents, and not Sakai documents
+		MaxBufferedDocs is the number of documents stored in memory before flushing to disk
+		   more docs means faster indexing, but more memory consumption.
+		MaxMergeDocuments is the maximum number of documents in any one segments file, 
+		 this limits the file size 1,000,000 is about equivalent to 1GB.
+		MaxMergeFactor limits the number of segment sets in a single save point or lucene index.
+			10 means that there will be 10 docs per segment, and when there are 10 segments, they
+			will be merged into a single segment. Then annother 10 segments of size 10 will be created, and 
+			merged into a single segment.When ther are 10 segments with 100 docs in they will get merged 
+			into a single segment with 1000 documents and process continues, untill there are 10E6 documents
+			in a single segment, at which pint the maxMergeDoc's setting prevents any more being added.
+			This setting should be combined with the optimizeMergeSize and the minimumOptimiSavePoints to 
+			give an extimate of the maximum number of files.
+			
+			10 (mergeFactor) * 4 (average number of files per segment) * 50 = 2000 files for the worst case
+			local segment,
+			
+			The shared segment merge only ever has 2 segments open at any one time so it requires 
+			10 * 4 * 2 = 80 files.
+			
+			With the default settings the seach engine should never open more than 2080 files.
+			
+			-->
+			
+			
+			
+		<property name="LocalMaxBufferedDocs" ><value>50</value></property>
+		<property name="LocalMaxMergeDocs" ><value>1000000</value></property>
+		<property name="LocalMaxMergeFactor" ><value>10</value></property>
+		<property name="SharedMaxBufferedDocs" ><value>50</value></property>
+		<property name="SharedMaxMergeDocs" ><value>1000000</value></property>
+		<property name="SharedMaxMergeFactor" ><value>10</value></property>
+		<property name="CreateMaxBufferedDocs" ><value>50</value></property>
+		<property name="CreateMaxMergeDocs" ><value>1000000</value></property>
+		<property name="CreateMaxMergeFactor" ><value>10</value></property>
+		
 	</bean>
 	
 	
@@ -530,6 +570,7 @@
    	 	id="org.sakaiproject.search.api.SearchService.parallel.index.optimizeSharedTransactionListener"
     	init-method="init" 
     	destroy-method="destroy" >
+    	<property name="journalSettings"><ref bean="org.sakaiproject.search.api.JournalSettings" /></property>
     </bean>
 
 	<bean 

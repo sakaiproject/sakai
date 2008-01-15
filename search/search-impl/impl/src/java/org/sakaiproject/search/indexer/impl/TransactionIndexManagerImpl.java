@@ -76,7 +76,7 @@ public class TransactionIndexManagerImpl extends TransactionManagerImpl
 			throws IndexTransactionException
 	{
 
-		IndexUpdateTransaction it = new IndexUpdateTransactionImpl(this, m);
+		IndexUpdateTransaction it = new IndexUpdateTransactionImpl(this,journalSettings, m);
 		it.open();
 		return it;
 

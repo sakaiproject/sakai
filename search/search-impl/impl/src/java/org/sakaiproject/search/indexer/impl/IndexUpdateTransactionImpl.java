@@ -38,6 +38,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
 import org.sakaiproject.search.indexer.api.NoItemsToIndexException;
+import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
@@ -68,15 +69,18 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 
 	private SearchBuilderItemSerializer searchBuilderItemSerializer = new SearchBuilderItemSerializer();
 
+	private JournalSettings journalSettings;
+
 	/**
 	 * @param m
 	 * @param impl
 	 * @throws IndexTransactionException
 	 */
-	public IndexUpdateTransactionImpl(TransactionManagerImpl manager,
+	public IndexUpdateTransactionImpl(TransactionManagerImpl manager, JournalSettings journalSettings,
 			Map<String, Object> m) throws IndexTransactionException
 	{
 		super(manager, m);
+		this.journalSettings = journalSettings;
 	}
 
 	/**
@@ -190,8 +194,9 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 				}
 				indexWriter.setUseCompoundFile(true);
 				// indexWriter.setInfoStream(System.out);
-				indexWriter.setMaxMergeDocs(50);
-				indexWriter.setMergeFactor(50);
+				indexWriter.setMaxMergeDocs(journalSettings.getCreateMaxMergeDocs());
+				indexWriter.setMaxBufferedDocs(journalSettings.getCreateMaxBufferedDocs());
+				indexWriter.setMergeFactor(journalSettings.getCreateMaxMergeFactor());
 			}
 			catch (IOException ex)
 			{

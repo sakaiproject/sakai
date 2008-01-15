@@ -28,6 +28,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexWriter;
+import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.optimize.api.IndexOptimizeTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
@@ -66,15 +67,18 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 	 */
 	private File[] optimizableSegments;
 
+	private JournalSettings journalSettings;
+
 	/**
 	 * @param m
 	 * @param impl
 	 * @throws IndexTransactionException
 	 */
-	public IndexOptimizeTransactionImpl(TransactionManagerImpl manager,
+	public IndexOptimizeTransactionImpl(TransactionManagerImpl manager, JournalSettings journalSettings,
 			Map<String, Object> m) throws IndexTransactionException
 	{
 		super(manager, m);
+		this.journalSettings = journalSettings;
 	}
 
 	/**
@@ -154,8 +158,9 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 						.getAnalyzer(), true);
 				indexWriter.setUseCompoundFile(true);
 				// indexWriter.setInfoStream(System.out);
-				indexWriter.setMaxMergeDocs(50);
-				indexWriter.setMergeFactor(50);
+				indexWriter.setMaxMergeDocs(journalSettings.getLocalMaxMergeDocs());
+				indexWriter.setMaxBufferedDocs(journalSettings.getLocalMaxBufferedDocs());
+				indexWriter.setMergeFactor(journalSettings.getLocalMaxMergeFactor());
 			}
 			catch (IOException ex)
 			{

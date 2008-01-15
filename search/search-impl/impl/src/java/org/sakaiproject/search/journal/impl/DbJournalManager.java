@@ -278,27 +278,30 @@ public class DbJournalManager implements JournalManager
 	 */
 	public void rollbackSave(JournalManagerState jms)
 	{
-		Connection connection = ((JournalManagerStateImpl) jms).connection;
-		try
+		if (jms != null)
 		{
-
-			connection.rollback();
-
-		}
-		catch (Exception ex)
-		{
-			log.error("Failed to Rollback");
-		}
-		finally
-		{
+			Connection connection = ((JournalManagerStateImpl) jms).connection;
 			try
 			{
-				connection.close();
+
+				connection.rollback();
+
 			}
 			catch (Exception ex)
 			{
+				log.error("Failed to Rollback");
 			}
+			finally
+			{
+				try
+				{
+					connection.close();
+				}
+				catch (Exception ex)
+				{
+				}
 
+			}
 		}
 	}
 

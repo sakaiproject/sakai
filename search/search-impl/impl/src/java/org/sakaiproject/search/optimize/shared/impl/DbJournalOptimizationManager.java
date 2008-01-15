@@ -183,6 +183,12 @@ public class DbJournalOptimizationManager implements JournalManager
 			jms.oldestSavePoint = 0;
 
 			List<String> servers = clusterService.getServers();
+			
+			// workout the oldest SavePoint that has not yet been merged
+			// by any running cluster node.
+			// this assumes that all the cluster nodes are running. 
+			// Any that are not running will have to be restarted in a clean state
+			// so that they update from scratch.
 
 			getJournalSavePointPst.clearParameters();
 			rs = getJournalSavePointPst.executeQuery();

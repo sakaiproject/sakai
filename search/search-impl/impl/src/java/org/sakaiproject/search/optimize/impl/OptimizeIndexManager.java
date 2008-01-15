@@ -71,7 +71,7 @@ public class OptimizeIndexManager extends TransactionManagerImpl
 	public IndexTransaction openTransaction(Map<String, Object> m)
 			throws IndexTransactionException
 	{
-		IndexTransaction it = new IndexOptimizeTransactionImpl(this, m);
+		IndexTransaction it = new IndexOptimizeTransactionImpl(this, journalSettings, m);
 		it.open();
 		return it;
 	}

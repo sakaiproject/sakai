@@ -52,6 +52,24 @@ public class JournalSettings
 
 	private String sharedOptimizeCreateIndexWorkingSpace;
 
+	private int sharedMaxMergeFactor;
+
+	private int sharedMaxBufferedDocs;
+
+	private int sharedMaxMergeDocs;
+
+	private int localMaxBufferedDocs;
+
+	private int localMaxMergeFactor;
+
+	private int localMaxMergeDocs;
+
+	private int createMaxMergeDocs;
+
+	private int createMaxBufferedDocs;
+
+	private int createMaxMergeFactor;
+
 	public void init()
 	{
 
@@ -203,6 +221,150 @@ public class JournalSettings
 	public void setSoakTest(boolean soakTest)
 	{
 		this.soakTest = soakTest;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getLocalMaxMergeDocs()
+	{
+		return localMaxMergeDocs;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getLocalMaxMergeFactor()
+	{
+		return localMaxMergeFactor;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getLocalMaxBufferedDocs()
+	{
+		return localMaxBufferedDocs;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSharedMaxMergeDocs()
+	{
+		return sharedMaxMergeDocs;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSharedMaxBufferedDocs()
+	{
+		return sharedMaxBufferedDocs;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSharedMaxMergeFactor()
+	{
+		return sharedMaxMergeFactor;
+	}
+
+	/**
+	 * @param localMaxBufferedDocs the localMaxBufferedDocs to set
+	 */
+	public void setLocalMaxBufferedDocs(int localMaxBufferedDocs)
+	{
+		this.localMaxBufferedDocs = localMaxBufferedDocs;
+	}
+
+	/**
+	 * @param localMaxMergeDocs the localMaxMergeDocs to set
+	 */
+	public void setLocalMaxMergeDocs(int localMaxMergeDocs)
+	{
+		this.localMaxMergeDocs = localMaxMergeDocs;
+	}
+
+	/**
+	 * @param localMaxMergeFactor the localMaxMergeFactor to set
+	 */
+	public void setLocalMaxMergeFactor(int localMaxMergeFactor)
+	{
+		this.localMaxMergeFactor = localMaxMergeFactor;
+	}
+
+	/**
+	 * @param sharedMaxBufferedDocs the sharedMaxBufferedDocs to set
+	 */
+	public void setSharedMaxBufferedDocs(int sharedMaxBufferedDocs)
+	{
+		this.sharedMaxBufferedDocs = sharedMaxBufferedDocs;
+	}
+
+	/**
+	 * @param sharedMaxMergeDocs the sharedMaxMergeDocs to set
+	 */
+	public void setSharedMaxMergeDocs(int sharedMaxMergeDocs)
+	{
+		this.sharedMaxMergeDocs = sharedMaxMergeDocs;
+	}
+
+	/**
+	 * @param sharedMaxMergeFactor the sharedMaxMergeFactor to set
+	 */
+	public void setSharedMaxMergeFactor(int sharedMaxMergeFactor)
+	{
+		this.sharedMaxMergeFactor = sharedMaxMergeFactor;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getCreateMaxMergeDocs()
+	{
+		return createMaxMergeDocs;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getCreateMaxBufferedDocs()
+	{
+		return createMaxBufferedDocs;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getCreateMaxMergeFactor()
+	{
+		return createMaxMergeFactor;
+	}
+
+	/**
+	 * @param createMaxBufferedDocs the createMaxBufferedDocs to set
+	 */
+	public void setCreateMaxBufferedDocs(int createMaxBufferedDocs)
+	{
+		this.createMaxBufferedDocs = createMaxBufferedDocs;
+	}
+
+	/**
+	 * @param createMaxMergeDocs the createMaxMergeDocs to set
+	 */
+	public void setCreateMaxMergeDocs(int createMaxMergeDocs)
+	{
+		this.createMaxMergeDocs = createMaxMergeDocs;
+	}
+
+	/**
+	 * @param createMaxMergeFactor the createMaxMergeFactor to set
+	 */
+	public void setCreateMaxMergeFactor(int createMaxMergeFactor)
+	{
+		this.createMaxMergeFactor = createMaxMergeFactor;
 	}
 
 
