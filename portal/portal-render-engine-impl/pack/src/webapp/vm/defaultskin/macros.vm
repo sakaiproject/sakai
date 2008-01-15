@@ -46,7 +46,7 @@ ${tool.toolRenderResult.getTitle()}
 #else 
     <title>${pageTitle}</title>
      <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
-     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery-1.1.2.js"></script>
+     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery.js"></script>
 #end
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
 
