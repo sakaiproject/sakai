@@ -5889,6 +5889,9 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(DELETE_ASSIGNMENT_IDS, new Vector());
 
 			state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+			
+			// reset paging information after the assignment been deleted
+			resetPaging(state);
 		}
 
 	} // doDelete_Assignment
