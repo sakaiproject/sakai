@@ -24,7 +24,6 @@ package org.sakaiproject.search.util.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Random;
@@ -166,7 +165,31 @@ public class FileUtilsTest extends TestCase
 		String replacePath = "somethingelse/";
 		
 		FileOutputStream fout = new FileOutputStream(zipFile);
-		FileUtils.pack(target, basePath, replacePath, fout);
+		FileUtils.pack(target, basePath, replacePath, fout, true);
+		fout.close();
+		
+		assertEquals("Packed File Does not exist",true, zipFile.exists());
+		assertEquals("File Size == 0 ",true,zipFile.length() > 0);
+		//FileUtils.deleteAll(target);
+		//FileUtils.deleteAll(zipFile);
+		//assertEquals("Delete Failed of source tree ",false,target.exists());
+		//assertEquals("Delete Failed of zip file ",false,zipFile.exists());
+		log.info("Test Pack Ok  ");
+	}
+	public final void testPackUncompressed() throws Exception
+	{
+		File target = new File(testSpace,"testPack");
+		File zipFile = new File(target.getParentFile(),"testPack.zip");
+		FileUtils.deleteAll(target);
+		FileUtils.deleteAll(zipFile);
+		createFiles(target);
+		log.info("Packing From "+target.getAbsolutePath());
+		log.info("Packing Into "+zipFile.getAbsolutePath());
+		String basePath = target.getPath();
+		String replacePath = "somethingelse/";
+		
+		FileOutputStream fout = new FileOutputStream(zipFile);
+		FileUtils.pack(target, basePath, replacePath, fout, false);
 		fout.close();
 		
 		assertEquals("Packed File Does not exist",true, zipFile.exists());
@@ -190,7 +213,31 @@ public class FileUtilsTest extends TestCase
 		String replacePath = "somethingelse";
 		
 		FileOutputStream fout = new FileOutputStream(zipFile);
-		FileUtils.pack(target, basePath, replacePath, fout);
+		FileUtils.pack(target, basePath, replacePath, fout, true);
+		fout.close();
+		
+		assertEquals("Packed File Does not exist",true, zipFile.exists());
+		assertEquals("File Size == 0 ",true,zipFile.length() > 0);
+		//FileUtils.deleteAll(target);
+		//FileUtils.deleteAll(zipFile);
+		//assertEquals("Delete Failed of source tree ",false,target.exists());
+		//assertEquals("Delete Failed of zip file ",false,zipFile.exists());
+		log.info("Test Pack Ok  ");
+	}
+	public final void testPackFlatUncompressed() throws Exception
+	{
+		File target = new File(testSpace,"testPackFlat");
+		File zipFile = new File(target.getParentFile(),"testPackFlat.zip");
+		FileUtils.deleteAll(target);
+		FileUtils.deleteAll(zipFile);
+		createFlatFiles(target);
+		log.info("Packing From "+target.getAbsolutePath());
+		log.info("Packing Into "+zipFile.getAbsolutePath());
+		String basePath = target.getPath();
+		String replacePath = "somethingelse";
+		
+		FileOutputStream fout = new FileOutputStream(zipFile);
+		FileUtils.pack(target, basePath, replacePath, fout, false);
 		fout.close();
 		
 		assertEquals("Packed File Does not exist",true, zipFile.exists());
@@ -218,7 +265,40 @@ public class FileUtilsTest extends TestCase
 		String replacePath = "somethingelse";
 		
 		FileOutputStream fout = new FileOutputStream(zipFile);
-		FileUtils.pack(target, basePath, replacePath, fout);
+		FileUtils.pack(target, basePath, replacePath, fout,true);
+		fout.close();
+		
+		assertEquals("Packed File Does not exist",true, zipFile.exists());
+		assertEquals("File Size == 0 ",true,zipFile.length() > 0);
+		
+		FileInputStream fin = new FileInputStream(zipFile);
+		log.info("UnPacking From "+zipFile.getAbsolutePath());
+		log.info("UnPacking Into "+outtarget.getAbsolutePath());
+		FileUtils.unpack(fin, outtarget);
+		fin.close();
+		assertEquals("unpack the tree ok ",true,outtarget.exists());
+	
+		FileUtils.deleteAll(target);
+		FileUtils.deleteAll(outtarget);
+		FileUtils.deleteAll(zipFile);
+		assertEquals("Delete Failed of source tree ",false,target.exists());
+		assertEquals("Delete Failed of unpacked tree ",false,outtarget.exists());
+		assertEquals("Delete Failed of zip file ",false,zipFile.exists());
+		log.info("Test UnPack Ok  ");
+	}
+	public final void testUnpackUncompressed() throws Exception
+	{
+		File target = new File(testSpace,"testUnpack");
+		File outtarget = new File(testSpace,"testUnpackOut");
+		File zipFile = new File(target.getParentFile(),"testUnpack.zip");
+		createFiles(target);
+		log.info("Packing From "+target.getAbsolutePath());
+		log.info("Packing Into "+zipFile.getAbsolutePath());
+		String basePath = target.getPath();
+		String replacePath = "somethingelse";
+		
+		FileOutputStream fout = new FileOutputStream(zipFile);
+		FileUtils.pack(target, basePath, replacePath, fout,false);
 		fout.close();
 		
 		assertEquals("Packed File Does not exist",true, zipFile.exists());

@@ -34,6 +34,7 @@
 		<property name="minimumOptimizeSavePoints" ><value>50</value></property>
 		<property name="optimizeMergeSize" ><value>50</value></property>
 		<property name="soakTest" ><value>false</value></property>		
+		<property name="compressShared" ><value>false</value></property>		
 		<!--
 		Local is the Local index used for searching,
 		Shared is the Shared Journal Save Points

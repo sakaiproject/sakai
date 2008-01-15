@@ -152,15 +152,21 @@ public class FileUtils
 
 	/**
 	 * pack a segment into the zip
+	 * @param compress 
 	 * 
 	 * @param addsi
 	 * @return
 	 * @throws IOException
 	 */
-	public static void pack(File source,final String basePath, final String replacePath, OutputStream output) throws IOException
+	public static void pack(File source,final String basePath, final String replacePath, OutputStream output, boolean compress) throws IOException
 	{
 		log.debug("Packing "+source+" repacing "+basePath+" with "+replacePath);
 		final ZipOutputStream zout = new ZipOutputStream(output);
+		if ( compress ) {
+			zout.setLevel(ZipOutputStream.DEFLATED);
+		} else {
+			zout.setLevel(ZipOutputStream.STORED);
+		}
 		final byte[] buffer = new byte[1024 * 100];
 		FileInputStream fin = null;
 		try

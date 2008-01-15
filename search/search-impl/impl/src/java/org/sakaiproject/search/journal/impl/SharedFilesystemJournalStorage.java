@@ -104,7 +104,7 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 		String replacePath = String.valueOf(transactionId);
 
 		FileOutputStream zout = new FileOutputStream(tmpZip);
-		FileUtils.pack(indexLocation, basePath, replacePath, zout);
+		FileUtils.pack(indexLocation, basePath, replacePath, zout, journalSettings.getCompressShared());
 		zout.close();
 
 		File journalZip = getTransactionFile(transactionId);

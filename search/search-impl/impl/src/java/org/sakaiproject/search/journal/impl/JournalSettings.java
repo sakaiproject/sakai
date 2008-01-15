@@ -70,6 +70,8 @@ public class JournalSettings
 
 	private int createMaxMergeFactor;
 
+	private boolean compressShared = false;
+
 	public void init()
 	{
 
@@ -366,6 +368,24 @@ public class JournalSettings
 	{
 		this.createMaxMergeFactor = createMaxMergeFactor;
 	}
+
+	/**
+	 * @return
+	 */
+	public boolean getCompressShared()
+	{
+		return compressShared;
+	}
+
+	/**
+	 * @param compressShared the compressShared to set
+	 */
+	public void setCompressShared(boolean compressShared)
+	{
+		this.compressShared = compressShared;
+	}
+	
+	
 
 
 }
