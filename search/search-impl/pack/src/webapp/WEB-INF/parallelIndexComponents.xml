@@ -64,15 +64,15 @@
 			
 			
 			
-		<property name="LocalMaxBufferedDocs" ><value>50</value></property>
-		<property name="LocalMaxMergeDocs" ><value>1000000</value></property>
-		<property name="LocalMaxMergeFactor" ><value>10</value></property>
-		<property name="SharedMaxBufferedDocs" ><value>50</value></property>
-		<property name="SharedMaxMergeDocs" ><value>1000000</value></property>
-		<property name="SharedMaxMergeFactor" ><value>10</value></property>
-		<property name="CreateMaxBufferedDocs" ><value>50</value></property>
-		<property name="CreateMaxMergeDocs" ><value>1000000</value></property>
-		<property name="CreateMaxMergeFactor" ><value>10</value></property>
+		<property name="localMaxBufferedDocs" ><value>50</value></property>
+		<property name="localMaxMergeDocs" ><value>1000000</value></property>
+		<property name="localMaxMergeFactor" ><value>10</value></property>
+		<property name="sharedMaxBufferedDocs" ><value>50</value></property>
+		<property name="sharedMaxMergeDocs" ><value>1000000</value></property>
+		<property name="sharedMaxMergeFactor" ><value>10</value></property>
+		<property name="createMaxBufferedDocs" ><value>50</value></property>
+		<property name="createMaxMergeDocs" ><value>1000000</value></property>
+		<property name="createMaxMergeFactor" ><value>10</value></property>
 		
 	</bean>
 	

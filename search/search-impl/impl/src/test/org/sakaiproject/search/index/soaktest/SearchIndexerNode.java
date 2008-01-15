@@ -140,8 +140,8 @@ public class SearchIndexerNode
 		JournalSettings journalSettings = new JournalSettings();
 		journalSettings.setLocalIndexBase(localIndexBase);
 		journalSettings.setSharedJournalBase(sharedJournalBase);
-		journalSettings.setMinimumOptimizeSavePoints(100); // the number of shared save points before we attemt to merge
-		journalSettings.setOptimizeMergeSize(100); // the number of local save points before we try to merge
+		journalSettings.setMinimumOptimizeSavePoints(50); // the number of shared save points before we attemt to merge
+		journalSettings.setOptimizeMergeSize(50); // the number of local save points before we try to merge
 		journalSettings.setLocalMaxBufferedDocs(50);
 		journalSettings.setLocalMaxMergeDocs(1000000);
 		journalSettings.setLocalMaxMergeFactor(10);
