@@ -26,68 +26,71 @@
 #end
 ## Always assume small display
 #set ( $wurflSmallDisplay = 1 )
-<div class="portlet">
-  <div id="pda-portlet-menu">
-  <a href="${portalTopUrl}" title="Back to Site List">Sites</a> 
+<div class="portletpda">
+  <ul id="pda-portlet-menu">
+	  ## be nice to render here the UI string from instance - so like "CTools" or "CamTools" for context. See next line
+		<li class="instanceNote"><span>PDA Portal: </span></li>
+		## need to get string from bundle
+  	<li class="sitesLink"><span><a href="${portalTopUrl}" title="Back to Site List">Sites</a></span></li>
+ #set ($currentSiteChildren=0) 			 
 #if ($currentSite)
   #if ( $currentSite.isChild )
-    #foreach ( $site in $currentSite.pwd ) 
- 	> <a href="${site.siteUrl}" title="${site.siteTitle}">
-	<span>${site.siteTitle}</span>
-	</a>
+  	## would be better to examine for each site if it has children, then reflect this in a nested list structure.
+    #foreach ( $site in $currentSite.pwd )
+		#set ($currentSiteChildren=$currentSiteChildren + 1)
+ 		<li class="#if ($currentSiteChildren==1) currentSiteParentLink #else currentSiteChildLink #end"><span><a href="${site.siteUrl}" title="${site.siteTitle}">${site.siteTitle}</a></span></li>		
     #end
   #else
-    > <a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">
-    <span>${currentSite.siteTitle}</span>
-    </a>
+    <li class="currentSiteLink"><span><a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">${currentSite.siteTitle}</a></span></li>
   #end
 #end
 #if ($currentPlacement)
   #if ( ${bufferedResponse} && ${responseBody} ) 
-    > ${currentPlacement.toolTitle}
+    <li class="currentToolTitle"><span>${currentPlacement.toolTitle}</span></li>
   #else
-    > <a href="${currentPlacement.toolResetActionUrl}" target="${currentPlacement.toolPlacementIDJS}" 
-    >${currentPlacement.toolTitle}</a>
+  	## what is this for?
+  	<li class="toolLink"><span><a href="${currentPlacement.toolResetActionUrl}" target="${currentPlacement.toolPlacementIDJS}">${currentPlacement.toolTitle}</a></span></li>	
   #end
 #end
 #if (${currentPlacement.toolShowHelpButton})
   #if (${currentPlacement.toolJSR168Help} )
-    &nbsp;(<a accesskey="h" href="${currentPlacement.toolJSR168Help}" title="${rloader.sit_help}">?</a>)
+		## need to get string from bundle
+    <li class="helpLink"><span><a accesskey="h" href="${currentPlacement.toolJSR168Help}" title="${rloader.sit_help}">?</a></span></li>		
   #else
-    &nbsp;(<a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${rloader.sit_help}"
-      target="_blank" onclick="openWindow('${currentPlacement.toolHelpActionUrl}', 'Help',
-      'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">?</a>)
+		## need to get string from bundle
+    <li class="helpLink"><span><a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" target="_blank" onclick="openWindow('${currentPlacement.toolHelpActionUrl}', 'Help','resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">?</a></span></li>
   #end
 #end
 #if (${currentPlacement.toolJSR168Edit} )
-  &nbsp;(<a accesskey="e" href="${currentPlacement.toolJSR168Edit}" title="${rloader.sit_edit}">*</a>)
+	<li class="jsreditLink"><span><a accesskey="e" href="${currentPlacement.toolJSR168Edit}" title="${rloader.sit_edit}">*</a></span></li>
 #end
 #if ( ${wurflSmallDisplay} ) 
   <!-- WURFL Small Display -->
-  &nbsp; | &nbsp;
   #if ( $loggedIn ) 
-    <a href="${portalTopUrl}?force.logout=yes">Log Out</a>
+    <li class="logoutLink"><span><a href="${portalTopUrl}?force.logout=yes">Log Out</a></span></li>
   #else
-    <a href="${portalTopUrl}?force.login=yes">Log In</a>
+    <li class="loginLink"><span><a href="${portalTopUrl}?force.login=yes">Log In</a></span></li>
   #end
   <!-- End WURFL Small Display -->
 #else
-  <div class="portletpresencebutton" >
-  #if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
-    #if ($currentSite)
-      #if ( ! $currentSite.isMyWorkspace )
-        <a href="#" onclick="hidePresence();" onmouseover="showPresence();" onmouseout="hidePresence();">Users Present</a> | 
-      #end
-    #end
-  #end
-  #if ( $loggedIn ) 
-    <a href="${portalTopUrl}?force.logout=yes">Log Out</a>
-  #else
-    <a href="${portalTopUrl}?force.login=yes">Log In</a>
-  #end
-  </div>
+  <li class="portletpresencebutton" >
+	  #if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
+	    #if ($currentSite)
+	      #if ( ! $currentSite.isMyWorkspace )
+	        <a href="#" onclick="hidePresence();" onmouseover="showPresence();" onmouseout="hidePresence();">Users Present</a> | 
+	      #end
+	    #end
+	  #end
+	  #if ( $loggedIn ) 
+			## need to get string from bundle
+	    <a href="${portalTopUrl}?force.logout=yes">Log Out</a>
+	  #else
+			## need to get string from bundle
+	    <a href="${portalTopUrl}?force.login=yes">Log In</a>
+	  #end
+  </li>
 #end
-</div> <!--end of menu bar -->
+</ul> <!--end of menu bar -->
 #if ($currentPlacement)
   #if ( ${bufferedResponse} && ${responseBody} ) 
 <!-- Buffered Body Tool Content -->
@@ -103,41 +106,53 @@ ${responseBody}
       #if ($page.isPage)
         ## This must be a popup - so we treat it as a popup
         <li>
-          <a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
-            ${page.pageTitle}
-        </a>
+        	<span>
+				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+    	        	${page.pageTitle}
+        		</a>
+        	</span>
         </li>
       #else
         <li>
-          <a href="${page.toolrefUrl}" title="${page.toolTitle}">${page.toolTitle}</a>
+          <span><a href="${page.toolrefUrl}" title="${page.toolTitle}">${page.toolTitle}</a></span>
         </li>
       #end
     #end
-    #if ( $subSites ) 
-    	#foreach ( $site in $subSites ) 
-          <li>
-             <a href="${site.siteUrl}" title="${site.siteTitle}">
-             <span>${site.siteTitle}</span>
-             </a>
-         </li>
-       #end
+    #if ( $subSites )
+    	<li class="subSites">
+	    	<ul> 
+		    	#foreach ( $site in $subSites ) 
+		          <li>
+		             <a href="${site.siteUrl}" title="${site.siteTitle}">
+		             <span>${site.siteTitle}</span>
+		             </a>
+		         </li>
+		       #end
+	       </ul>
+       </li>
     #end
     </ul>
   #else
-    <ul id="pda-portlet-site-menu"> 
-    #foreach ( $site in $allSites ) 
-      <li>
-      #if ( $site.isChild ) 
-	#foreach ($i in [0..$site.depth] )
-        	&nbsp;
-	#end
-      #end
-        <a href="${site.siteUrl}" title="${site.siteTitle}">
-          <span>${site.siteTitle}</span>
-        </a>
-      </li>
-    #end 
+    <ul id="pda-portlet-site-menu">
+	    #foreach ( $site in $allSites ) 
+	      <li>
+					## rather than checking to see if this is a child, better to check to see if it has children
+					## then you can do interesting things with the markup (nested lists, for exmaple) as well as with
+					## behaviours (toggle hierarchies for a tree navigation, for example).
+		      #if ( $site.isChild ) 
+						#foreach ($i in [0..$site.depth] )
+				        	 &nbsp;
+						#end
+		      #end
+	        <span> 
+		        <a href="${site.siteUrl}" title="${site.siteTitle}">
+		          ${site.siteTitle}
+		        </a>
+	        </span>
+	      </li>
+	    #end 
     </ul>
+
   #end
 #end
 #if ($currentSite )
