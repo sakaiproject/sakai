@@ -1642,7 +1642,7 @@ private   int   getNum(char letter,   String   a)
 	    else if(n>=1)	    	
 	    { numberofAuther=n+1;}//add the end ";"
 	    String[] ccSS = new String[numberofAuther];
-	    ccSS=msgCClistStringwithoutAuthor.split("; ");
+	    ccSS=msgCClistStringwithoutAuthor.split(";");
 	  
 	    String tmpCC=new String();
 	    
@@ -1653,10 +1653,24 @@ private   int   getNum(char letter,   String   a)
 						    {
 						    	
 						    	
-						    	if(!ccSS[indexCC].equals(currentUserasAuther)&&(!ccSS[indexCC].equals(msgautherString)))//not equal current auther and not equal old auther
-						    	{						    		
-						    		tmpCC=tmpCC+ccSS[indexCC];
-						    		tmpCC=tmpCC+";";
+						    	if(!currentUserasAuther.replaceAll(" ", ", ").equals(msgautherString)){
+						    		
+							    	if(!ccSS[indexCC].trim().equals(currentUserasAuther.replaceAll(" ", ", "))&&(!ccSS[indexCC].trim().equals(msgautherString)))//not equal current auther and not equal old auther
+							    	{						    		
+							    		tmpCC=tmpCC+ccSS[indexCC].trim();
+							    		tmpCC=tmpCC+";";
+							    		
+							    	}
+						    	}
+						    	
+						    	else if(currentUserasAuther.replaceAll(" ", ", ").equals(msgautherString)){
+						    		
+						    		if(!ccSS[indexCC].trim().equals(currentUserasAuther.replaceAll(" ", ", "))||(!ccSS[indexCC].trim().equals(msgautherString)))//not equal current auther and not equal old auther
+							    	{						    		
+							    		tmpCC=tmpCC+ccSS[indexCC].trim();
+							    		tmpCC=tmpCC+";";
+							    		
+							    	}
 						    		
 						    	}
 						    	
