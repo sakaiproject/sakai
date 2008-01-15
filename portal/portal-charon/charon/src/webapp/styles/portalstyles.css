@@ -2,43 +2,84 @@
 	overflow:visible;
  }
 
+/*pda portal*/
+/*the menu*/
 #pda-portlet-menu{
-	background-color:#698199;
-	color:#ffffff;
-	font-size:100%;
+	background:#fff url(images/pda-menu-back.gif) top left repeat-x;
+	list-style: none;
 	font-family: Helvetica, Arial, sans-serif;
-	font-size: 14pt;
-	padding:3px;
+	font-size: 1.1em;
+	font-weight: bold;
+	color:#fff;
+	margin:0;
+	clear: both;
+	height: 120%;
+	overflow: hidden;
+	padding: 2px 0;
+	line-height: 1.2em;
 }
-#pda-portlet-menu a{
-	color:#ffffff;
-	text-decoration:none;
-}	
-#pda-portlet-menu a:hover{
-	color:#ff0;
+#pda-portlet-menu li {
+	margin-left: 0;
+	padding: 3px 3px 3px 15px;
+	list-style: none;
+	float: left;
+	display: inline;
+	background: transparent  url(images/pda-menu-arrow.gif) top left no-repeat;
+	float:left
 }
-#pda-portlet-menu a:hover{
-	color:#ff0;
+/*the first item in the menu - may contain an instance string "CamTools" or "OnCourse"*/
+#pda-portlet-menu li.instanceNote  {
+	background: none;
+	padding: 3px;
+}
+#pda-portlet-menu li.sitesLink  {
+	background: none;
+	padding: 3px;
+}
+/*put non site links to the right*/
+#pda-portlet-menu li.loginLink, #pda-portlet-menu li.logoutLink, #pda-portlet-menu li.helpLink  {
+	background: none;
+	float:right;
+}
+#pda-portlet-menu li span a{
+	color:#fff;
+	text-decoration:none !important;
 }	
-#pda-portlet-site-menu, #pda-portlet-page-menu{
-	font-size:100%;
-	margin:1em;
-	padding:1em;	
+#pda-portlet-menu li span a:hover{
+	text-decoration: underline !important;
+}
+/*all types of links in the breadcrumb are addressed in the markup and can be styled here*/
+.currentSiteParentLink{}
+.currentSiteChildLink{}
+.currentSiteChildLink{}
+.currentToolTitle{}
+.helpLink{}
+.logoutLink{}
+.loginLink{}
+/*the list menu (gateway sites, site lists, tool lists, may want to differentiate between them, if so can*/
+#pda-portlet-page-menu, #pda-portlet-site-menu{
+	font-size:1.2em;
+	margin:.5em;
+	padding:0;	
 	list-style:none;
-	line-height:1.5em;
+	line-height:1.3em;
 	font-family: Helvetica, Arial, sans-serif;
-	font-size: 14pt;
 }
 
 #pda-portlet-site-menu a, #pda-portlet-page-menu a{
-	color:#698199;
+	color:#07b;
 	text-decoration:none;
 }	
 
 #pda-portlet-site-menu a:hover, #pda-portlet-page-menu a:hover{
-	text-decoration:underline;
+	text-decoration:none;
 }
-
+/*sub site listings in a ite list*/
+#pda-portlet-page-menu li.subSites ul li{
+	margin:0;
+	padding-left:0;
+	list-style: url(images/pda-list-arrow.gif);
+}
 div.skinselection {
     position: absolute;
     top: 400px;
