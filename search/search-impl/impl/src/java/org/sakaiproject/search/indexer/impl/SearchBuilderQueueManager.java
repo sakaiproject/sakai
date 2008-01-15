@@ -250,45 +250,71 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			log.debug("TXFind pending with " + connection); //$NON-NLS-1$
 
 			SearchBuilderItem masterItem = getMasterItem(connection);
-			Integer masterAction = getMasterAction(masterItem);
-			log.debug(" Master Item is " + masterItem.getName() + ":" //$NON-NLS-1$ //$NON-NLS-2$
-					+ masterItem.getSearchaction() + ":" //$NON-NLS-1$
-					+ masterItem.getSearchstate() + "::" //$NON-NLS-1$
-					+ masterItem.getVersion());
-			if (SearchBuilderItem.ACTION_REFRESH.equals(masterAction))
+			try
 			{
-				log.debug(" Master Action is " + masterAction); //$NON-NLS-1$
-				log.debug("  REFRESH = " + SearchBuilderItem.ACTION_REFRESH); //$NON-NLS-1$
-				log.debug("  RELOAD = " + SearchBuilderItem.ACTION_REBUILD); //$NON-NLS-1$
-				// get a complete list of all items, before the master
-				// action version
-				// if there are none, update the master action action to
-				// completed
-				// and return a blank list
-
-				refreshIndex(connection, masterItem);
-
-			}
-			else if (SearchBuilderItem.ACTION_REBUILD.equals(masterAction))
-			{
-				rebuildIndex(connection, masterItem);
-			}
-			else
-			{
-				// get all site masters and perform the required action.
-				List siteMasters = getSiteMasterItems(connection);
-				for (Iterator i = siteMasters.iterator(); i.hasNext();)
+				
+				Integer masterAction = getMasterAction(masterItem);
+				log.debug(" Master Item is " + masterItem.getName() + ":" //$NON-NLS-1$ //$NON-NLS-2$
+						+ masterItem.getSearchaction() + ":" //$NON-NLS-1$
+						+ masterItem.getSearchstate() + "::" //$NON-NLS-1$
+						+ masterItem.getVersion());
+				if (SearchBuilderItem.ACTION_REFRESH.equals(masterAction))
 				{
-					SearchBuilderItem siteMaster = (SearchBuilderItem) i.next();
-					Integer action = getSiteMasterAction(siteMaster);
-					if (SearchBuilderItem.ACTION_REBUILD.equals(action))
+					log.debug(" Master Action is " + masterAction); //$NON-NLS-1$
+					log.debug("  REFRESH = " + SearchBuilderItem.ACTION_REFRESH); //$NON-NLS-1$
+					log.debug("  RELOAD = " + SearchBuilderItem.ACTION_REBUILD); //$NON-NLS-1$
+					// get a complete list of all items, before the master
+					// action version
+					// if there are none, update the master action action to
+					// completed
+					// and return a blank list
+
+					refreshIndex(connection, masterItem);
+
+				}
+				else if (SearchBuilderItem.ACTION_REBUILD.equals(masterAction))
+				{
+					rebuildIndex(connection, masterItem);
+				}
+				else
+				{
+					// get all site masters and perform the required action.
+					List siteMasters = getSiteMasterItems(connection);
+					for (Iterator i = siteMasters.iterator(); i.hasNext();)
 					{
-						rebuildIndex(connection, siteMaster);
+						SearchBuilderItem siteMaster = (SearchBuilderItem) i.next();
+						try
+						{
+							Integer action = getSiteMasterAction(siteMaster);
+							if (SearchBuilderItem.ACTION_REBUILD.equals(action))
+							{
+								rebuildIndex(connection, siteMaster);
+							}
+							else if (SearchBuilderItem.ACTION_REFRESH.equals(action))
+							{
+								refreshIndex(connection, siteMaster);
+							}
+						}
+						finally
+						{
+							if (SearchBuilderItem.STATE_LOCKED.equals(siteMaster
+									.getSearchstate()))
+							{
+								List<SearchBuilderItem> l = new ArrayList<SearchBuilderItem>();
+								l.add(siteMaster);
+								commitPendingAndUnLock(l, connection);
+							}
+						}
 					}
-					else if (SearchBuilderItem.ACTION_REFRESH.equals(action))
-					{
-						refreshIndex(connection, siteMaster);
-					}
+				}
+			}
+			finally
+			{
+				if (SearchBuilderItem.STATE_LOCKED.equals(masterItem.getSearchstate()))
+				{
+					List<SearchBuilderItem> l = new ArrayList<SearchBuilderItem>();
+					l.add(masterItem);
+					commitPendingAndUnLock(l, connection);
 				}
 			}
 			PreparedStatement pst = null;
@@ -395,6 +421,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 						log.debug("Delete " + sbi.getName() + "  ");
 
 					}
+					connection.commit();
 				}
 				else
 				{
@@ -499,22 +526,40 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		log.debug("get Master Items with " + connection); //$NON-NLS-1$
 
 		PreparedStatement pst = null;
+		PreparedStatement lockMaster = null;
 		ResultSet rst = null;
 		try
 		{
-			pst = connection.prepareStatement("select " //$NON-NLS-1$
-					+ SEARCH_BUILDER_ITEM_FIELDS + " from " //$NON-NLS-1$
-					+ SEARCH_BUILDER_ITEM_T + " where itemscope = ? "); //$NON-NLS-1$
+
+			lockMaster = connection.prepareStatement("update " + SEARCH_BUILDER_ITEM_T
+					+ " set searchstate = ? where itemscope = ? and searchstate = ? ");
+			lockMaster.clearParameters();
+			lockMaster.setInt(1, SearchBuilderItem.STATE_LOCKED.intValue());
+			lockMaster.setInt(2, SearchBuilderItem.ITEM_GLOBAL_MASTER.intValue());
+			lockMaster.setInt(3, SearchBuilderItem.STATE_PENDING.intValue());
+			lockMaster.executeUpdate();
+
+			pst = connection
+					.prepareStatement("select " //$NON-NLS-1$
+							+ SEARCH_BUILDER_ITEM_FIELDS
+							+ " from " //$NON-NLS-1$
+							+ SEARCH_BUILDER_ITEM_T
+							+ " where itemscope = ? and searchstate = ? "); //$NON-NLS-1$
 			pst.clearParameters();
 			pst.setInt(1, SearchBuilderItem.ITEM_GLOBAL_MASTER.intValue());
+			pst.setInt(2, SearchBuilderItem.STATE_LOCKED.intValue());
 			rst = pst.executeQuery();
 			SearchBuilderItemImpl sbi = new SearchBuilderItemImpl();
 			if (rst.next())
 			{
 				populateSearchBuilderItem(rst, sbi);
+				rst.close();
+				connection.commit();
 			}
 			else
 			{
+				rst.close();
+				connection.rollback();
 				sbi.setName(SearchBuilderItem.INDEX_MASTER);
 				sbi.setContext(SearchBuilderItem.GLOBAL_CONTEXT);
 				sbi.setSearchaction(SearchBuilderItem.ACTION_UNKNOWN);
@@ -539,6 +584,13 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			catch (Exception ex)
 			{
 			}
+			try
+			{
+				lockMaster.close();
+			}
+			catch (Exception ex)
+			{
+			}
 		}
 	}
 
@@ -546,14 +598,28 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			throws SQLException
 	{
 		PreparedStatement pst = null;
+		PreparedStatement lockMaster = null;
+
 		ResultSet rst = null;
 		try
 		{
+
+			lockMaster = connection.prepareStatement("update " + SEARCH_BUILDER_ITEM_T
+					+ " set searchstate = ? where itemscope = ? and searchstate = ? ");
+			lockMaster.clearParameters();
+			lockMaster.setInt(1, SearchBuilderItem.STATE_LOCKED.intValue());
+			lockMaster.setInt(2, SearchBuilderItem.ITEM_SITE_MASTER.intValue());
+			lockMaster.setInt(3, SearchBuilderItem.STATE_PENDING.intValue());
+			lockMaster.executeUpdate();
+
 			pst = connection.prepareStatement("select " //$NON-NLS-1$
-					+ SEARCH_BUILDER_ITEM_FIELDS + " from " //$NON-NLS-1$
-					+ SEARCH_BUILDER_ITEM_T + " where itemscope =   ?  "); //$NON-NLS-1$
+					+ SEARCH_BUILDER_ITEM_FIELDS
+					+ " from " //$NON-NLS-1$
+					+ SEARCH_BUILDER_ITEM_T
+					+ " where itemscope =   ? and searchstate = ?  "); //$NON-NLS-1$
 			pst.clearParameters();
 			pst.setInt(1, SearchBuilderItem.ITEM_SITE_MASTER.intValue());
+			pst.setInt(2, SearchBuilderItem.STATE_LOCKED.intValue());
 			rst = pst.executeQuery();
 			List<SearchBuilderItem> a = new ArrayList<SearchBuilderItem>();
 			while (rst.next())
@@ -561,6 +627,14 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 				SearchBuilderItemImpl sbi = new SearchBuilderItemImpl();
 				populateSearchBuilderItem(rst, sbi);
 				a.add(sbi);
+			}
+			if (a.size() > 0)
+			{
+				connection.commit();
+			}
+			else
+			{
+				connection.rollback();
 			}
 			return a;
 		}
@@ -576,6 +650,13 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			try
 			{
 				pst.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				lockMaster.close();
 			}
 			catch (Exception ex)
 			{
@@ -598,7 +679,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 	{
 		if (master.getName().equals(SearchBuilderItem.GLOBAL_MASTER))
 		{
-			if (SearchBuilderItem.STATE_PENDING.equals(master.getSearchstate()))
+			if (SearchBuilderItem.STATE_LOCKED.equals(master.getSearchstate()))
 			{
 				return master.getSearchaction();
 			}
@@ -617,7 +698,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		if (siteMaster.getName().startsWith(SearchBuilderItem.INDEX_MASTER)
 				&& !SearchBuilderItem.GLOBAL_CONTEXT.equals(siteMaster.getContext()))
 		{
-			if (SearchBuilderItem.STATE_PENDING.equals(siteMaster.getSearchstate()))
+			if (SearchBuilderItem.STATE_LOCKED.equals(siteMaster.getSearchstate()))
 			{
 				return siteMaster.getSearchaction();
 			}
