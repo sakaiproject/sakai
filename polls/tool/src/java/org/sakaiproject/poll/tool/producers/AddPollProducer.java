@@ -21,66 +21,57 @@
 
 package org.sakaiproject.poll.tool.producers;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.text.ParseException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.Poll;
+
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
+import org.sakaiproject.poll.model.Option;
+import org.sakaiproject.poll.model.Poll;
+import org.sakaiproject.poll.tool.locators.PollBeanLocator;
 import org.sakaiproject.poll.tool.params.OptionViewParameters;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
-
-import uk.org.ponder.beanutil.entity.EntityID;
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.messageutil.TargettedMessageList;
-import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.view.ComponentChecker;
-import uk.org.ponder.rsf.view.ViewComponentProducer;
-import uk.org.ponder.rsf.viewstate.EntityCentredViewParameters;
-import uk.org.ponder.rsf.viewstate.ViewParameters;
-import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
-import uk.org.ponder.localeutil.LocaleGetter;
-import uk.org.ponder.rsf.components.UIForm;
-import uk.org.ponder.rsf.components.UIInput;
-import uk.org.ponder.rsf.components.UIInternalLink;
-import uk.org.ponder.rsf.components.UICommand;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
-import uk.org.ponder.rsf.components.UIELBinding;
-import uk.org.ponder.rsf.components.UIMessage;
-import uk.org.ponder.rsf.components.UISelect;
-import uk.org.ponder.rsf.components.UISelectChoice;
-import uk.org.ponder.rsf.components.UISelectLabel;
-import uk.org.ponder.rsf.components.UIOutputMany;
-import uk.org.ponder.rsf.components.UIBranchContainer;
-import uk.org.ponder.rsf.components.UIVerbatim;
-import uk.org.ponder.rsf.components.decorators.DecoratorList;
-import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
-import uk.org.ponder.rsf.components.decorators.UITextDimensionsDecorator;
-import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
-import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
-import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
-import uk.org.ponder.rsf.evolvers.TextInputEvolver;
-//import uk.org.ponder.rsf.components.decorators.UITextDimensionsDecorator;
-//import uk.org.ponder.rsf.components.decorators.DecoratorList;
-
-
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.entity.api.Entity;
 
-public class AddPollProducer implements ViewComponentProducer,NavigationCaseReporter,ViewParamsReporter {
+import uk.org.ponder.localeutil.LocaleGetter;
+import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.messageutil.TargettedMessageList;
+import uk.org.ponder.rsf.components.UIBranchContainer;
+import uk.org.ponder.rsf.components.UICommand;
+import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIELBinding;
+import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIInput;
+import uk.org.ponder.rsf.components.UIInternalLink;
+import uk.org.ponder.rsf.components.UIMessage;
+import uk.org.ponder.rsf.components.UIOutputMany;
+import uk.org.ponder.rsf.components.UISelect;
+import uk.org.ponder.rsf.components.UISelectChoice;
+import uk.org.ponder.rsf.components.UISelectLabel;
+import uk.org.ponder.rsf.components.UIVerbatim;
+import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
+import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
+import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
+import uk.org.ponder.rsf.evolvers.TextInputEvolver;
+import uk.org.ponder.rsf.flow.ARIResult;
+import uk.org.ponder.rsf.flow.ActionResultInterceptor;
+import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
+import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
+import uk.org.ponder.rsf.view.ComponentChecker;
+import uk.org.ponder.rsf.view.ViewComponentProducer;
+import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
+
+public class AddPollProducer implements ViewComponentProducer,NavigationCaseReporter, ViewParamsReporter {
 	 public static final String VIEW_ID = "voteAdd";
 	  private UserDirectoryService userDirectoryService;
 	  private PollListManager pollListManager;
@@ -137,6 +128,11 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	  
 	  
 	  private PollVoteManager pollVoteManager;
+	  
+	  private PollBeanLocator pollBeanLocator;
+	  public void setPollBeanLocator(PollBeanLocator templateBeanLocator) {
+	    this.pollBeanLocator = templateBeanLocator;
+	    }
 		
 	public void setPollVoteManager(PollVoteManager pvm){
 		this.pollVoteManager = pvm;
@@ -358,6 +354,8 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		    return new PollViewParameters();
 
 	  }
+	  
+
 }
 	  
 	  

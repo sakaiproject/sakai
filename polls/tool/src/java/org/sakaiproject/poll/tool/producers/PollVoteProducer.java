@@ -21,8 +21,7 @@
 
 package org.sakaiproject.poll.tool.producers;
 
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.api.UserDirectoryService;
+
 
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
@@ -34,21 +33,19 @@ import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UICommand;
-import uk.org.ponder.rsf.components.UIInternalLink;
+
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
-import uk.org.ponder.localeutil.LocaleGetter;
-import uk.org.ponder.rsf.viewstate.EntityCentredViewParameters;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.beanutil.BeanGetter;
 import uk.org.ponder.beanutil.entity.EntityID;
 import uk.org.ponder.rsf.components.UIELBinding;
-import uk.org.ponder.rsf.components.UIMessage;
+
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
-import uk.org.ponder.rsf.components.UISelectLabel;
+
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIOutputMany;
@@ -56,7 +53,7 @@ import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.messageutil.TargettedMessageList;
-import java.text.MessageFormat;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,12 +65,9 @@ import org.apache.commons.logging.LogFactory;
 public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporter,NavigationCaseReporter {
 
 	public static final String VIEW_ID = "voteQuestion";
-	private BeanGetter rbg;
-	private UserDirectoryService userDirectoryService;
+
 	private PollListManager pollListManager;
-	private ToolManager toolManager;
 	private MessageLocator messageLocator;
-	private LocaleGetter localegetter;
 	private TargettedMessageList tml;
 	private PollVoteManager pollVoteManager;
 
@@ -94,21 +88,13 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 		this.messageLocator = messageLocator;
 	}
 
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
+
 
 	public void setPollListManager(PollListManager pollListManager) {
 		this.pollListManager = pollListManager;
 	}
 
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
 
-	public void setLocaleGetter(LocaleGetter localegetter) {
-		this.localegetter = localegetter;
-	}
 
 	public void setTargettedMessageList(TargettedMessageList tml) {
 		this.tml = tml;
@@ -236,9 +222,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			e.printStackTrace();
 		}
 	}
-	public void setELEvaluator(BeanGetter rbg) {
-		this.rbg = rbg;
-	}
+	
 	public ViewParameters getViewParameters() {
 		return new PollViewParameters();
 
