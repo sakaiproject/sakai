@@ -1408,26 +1408,32 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 		else
 		{
-			// The old authenticateUser interface is ambiguous due to the lack of a
-			// distinct "AuthenticationProvider":
+			// The pre-2.5 authenticateUser method was ambiguous due to the lack of a
+			// distinct "AuthenticationProvider" and the inability to indicate "emptiness"
+			// in a UserEdit record. Here are the revised options:
 			//
-			// 1) If the provider is basically authentication-only, then we should fill
-			// in a (possibly local) user record before passing it on.
+			// 1) If the provider is basically authentication-only, then this logic will find
+			// the locally stored user record and pass it on.
 			//
 			// 2) If the provider handles both data provision and authentication, then
-			// we'll be handing it a blank record to fill in.
+			// this logic will find the provided user data and pass it on.
 			//
-			// Because of this ambiguity, we may end up making two calls to the
-			// provider instead of one.
+			// 3) If the provider needs to authenticate a user using a login ID
+			// that does not match the EID of an already locally stored user record or a
+			// provided user, then the provider should be changed to implement the
+			// AuthenticatedUserProvider interface.
 			//
-			// Note that this interface does not allow EIDs and login IDs to differ.
+			// Note that this legacy interface does not allow EIDs and login IDs to differ,
+			// and this logic will therefore not attempt to authenticate a user unless
+			// "getUserByEid(loginId)" returns success. This preserves backwards
+			// compatibility for legacy providers that perform authentication only for
+			// locally stored users.
 			try
 			{
 				user = (UserEdit)getUserByEid(loginId);
 			} catch (UserNotDefinedException e)
 			{
-				String eid = cleanEid(loginId);
-				user = new BaseUserEdit(null, eid);
+				return null;
 			}
 			boolean authenticated = m_provider.authenticateUser(loginId, user, password);
 			if (!authenticated) user = null;

@@ -46,12 +46,10 @@ import org.sakaiproject.user.api.UserEdit;
  * want to provide user data externally; they only want control over authentication.)
  * 
  * For 2.5.* development, the best way to do this is with the AuthenticatedUserProvider
- * interface.
+ * interface. This test code confirms backwards compatibility for legacy UserDirectoryProvider
+ * implementations which build this capability on the legacy 
+ * authenticateUser(loginId, userEdit, password) method instead.
  * 
- * Legacy UserDirectoryProvider implementations which try to build this
- * capability on the legacy authenticateUser(loginId, userEdit, password) method
- * may not work the same way between 2.4.*  and 2.5.*. This test shows how legacy
- * logic might be updated.
  */
 public class RequireLocalAccountLegacyAuthenticationTest extends SakaiTestBase {
 	private static Log log = LogFactory.getLog(RequireLocalAccountLegacyAuthenticationTest.class);
@@ -163,11 +161,7 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiTestBase {
 		private boolean requireLocalAccount = false;
 
 		public boolean authenticateUser(String eid, UserEdit user, String password) {
-			if (requireLocalAccount && (user.getId() == null)) {
-				return false;
-			} else {
-				return (password.equals(eid + "-pwd"));
-			}
+			return (password.equals(eid + "-pwd"));
 		}
 
 		public boolean authenticateWithProviderFirst(String loginId) {
