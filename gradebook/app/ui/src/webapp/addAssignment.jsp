@@ -45,15 +45,10 @@
 			<%@include file="/inc/bulkNewItems.jspf" %>
 		</t:aliasBean>
 
-		</div>
-		
-
 		<%-- Calls a javascript function to add another Add Gradebook Item Pane --%>
-		<p class="act">
-			<h:outputLink id="addSecond" value="#" styleClass="addSecond" >
-				<h:outputText value="#{msgs.add_assignment_add_pane}" />
-			</h:outputLink>
-		</p>
+		<h:outputLink id="addSecond" value="#" styleClass="addSecond act" >
+			<h:outputText value="#{msgs.add_assignment_add_pane}" />
+		</h:outputLink>
 
 		<%-- Keeps track of how many panes are displayed --%>
 		<h:inputHidden id="numTotalItems" value="#{addAssignmentBean.numTotalItems}" />
@@ -79,9 +74,6 @@
 					addItemScreen();
 		
 					adjustNumBulkItems(1);
-
-					// since DOM changed, resize
-					setMainFrameHeightNow(thisId, 'grow');
 				}
 			);
 
@@ -102,7 +94,7 @@
 		 	if (getNumTotalItem() >= 2) {
  				addDelX();
 		 	}
- 			
+ 			    
 		    setMainFrameHeight('<%= thisId %>');
   		</script>
   	</h:form>

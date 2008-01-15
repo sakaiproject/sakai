@@ -96,7 +96,7 @@ function addItemScreen()
 
 	var trEls = document.getElementsByClassName("hide");
 	trEls[0].className = "show" + trEls[0].className.substring(4);
-	trEls[0].style.display = "block";
+	trEls[0].style.display = "";
 
 	// set hiddenAdd property to TRUE so if submitted and an
 	// error, this will be displayed
@@ -107,9 +107,11 @@ function addItemScreen()
 	if (numBulkItems == 1) {
 		addDelX();
 	}
-	
+
 	if (numBulkItems == MAX_NEW_ITEMS - 1)
 		$("gbForm:addSecond").style.display = "none";
+
+	setMainFrameHeight(thisId, 'shrink');
 }
 
 //*********************************************************************
@@ -142,7 +144,7 @@ function addMultipleItems(itemSelect)
 		}
 		
 		// since DOM changed, resize
-		setMainFrameHeightNow(thisId, 'grow');
+		setMainFrameHeight(thisId, 'grow');
 
 		itemSelect.selectedIndex = 0;
 	}
@@ -285,9 +287,7 @@ function eraseAndHide(idPrefix, rowIndex) {
 	var element = document.getElementById(tbodyPrefix + ':tbody_element').rows[rowIndex];
   	element.className = "hide" + element.className.substring(4);
    	element.style.display = "none";
-   	
-	setMainFrameHeightNow(thisId, 'shrink');
-}
+ }
 
 //*********************************************************************
 // removeItem
@@ -299,7 +299,6 @@ function eraseAndHide(idPrefix, rowIndex) {
 function removeItem(event, idPrefix, rowIndex) {
 	var element = Event.element(event);
 	var numBulkItems = getNumTotalItem();
-	var candidatePaneEl = element;
 	
     for (i = rowIndex; i < (MAX_NEW_ITEMS-1); i++) {
     	if (getEl(idPrefix + (i+1) + ':hiddenAdd').value == "false") {
@@ -319,12 +318,12 @@ function removeItem(event, idPrefix, rowIndex) {
 		// there will only be one item
 		var firstDelEl = document.getElementsByClassName('firstDel');
 		firstDelEl[0].className = "hideRemove" + firstDelEl[0].className.substring(8);
-		firstDelEl[0].style.display='none';		
-	}
-	
-    adjustNumBulkItems(-1);
+		firstDelEl[0].style.display='none';	
 
-	setMainFrameHeightNow(thisId, 'shrink');
+	}
+
+    adjustNumBulkItems(-1);
+	setMainFrameHeight(thisId, 'shrink');
 }
 
 //*********************************************************************
