@@ -205,16 +205,6 @@ public interface SerializableSubmissionAccess
 	public void setReviewStatus(String reviewStatus);
 
 	/**
-	 * @return the scaled_grade
-	 */
-	public String getScaled_grade();
-
-	/**
-	 * @param scaled_grade the scaled_grade to set
-	 */
-	public void setScaled_grade(String scaled_grade);
-
-	/**
 	 * @return the submitted
 	 */
 	public String getSubmitted();

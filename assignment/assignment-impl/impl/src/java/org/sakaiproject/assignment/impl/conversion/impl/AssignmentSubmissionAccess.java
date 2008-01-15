@@ -63,7 +63,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 			.getLog(AssignmentSubmissionAccess.class);
 
 	private SAXParserFactory parserFactory;
-	private SAXSerializablePropertiesAccess saxSerializableProperties = new SAXSerializablePropertiesAccess();
+	protected SAXSerializablePropertiesAccess saxSerializableProperties = new SAXSerializablePropertiesAccess();
 
 	protected String id = null;
 
@@ -103,8 +103,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 
 	protected String reviewStatus = null;
 
-	protected String scaled_grade = null;
-
 	protected String submitted = null;
 
 	protected List<String> submittedattachments = new ArrayList<String>();
@@ -142,7 +140,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		
 		submission.setAttribute("id", this.id);
 		submission.setAttribute("context", this.context);
-		submission.setAttribute("scaled_grade", this.scaled_grade);
+		submission.setAttribute("scaled_grade", this.grade);
 		submission.setAttribute("assignment", this.assignment);
 		submission.setAttribute("datesubmitted", this.datesubmitted);
 		submission.setAttribute("datereturned", this.datereturned);
@@ -351,9 +349,46 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					setDatereturned(StringUtil.trimToNull(attributes.getValue("datereturned")));
 					setDatesubmitted(StringUtil.trimToNull(attributes.getValue("datesubmitted")));
 					setFeedbackcomment(StringUtil.trimToNull(attributes.getValue("feedbackcomment")));
-					setFeedbackcomment_html(StringUtil.trimToNull(attributes.getValue("feedbackcomment-html")));
+					if (StringUtil.trimToNull(attributes.getValue("feedbackcomment-html"))  != null)
+					{
+						setFeedbackcomment_html(StringUtil.trimToNull(attributes.getValue("feedbackcomment-html")));
+					}
+					else if (StringUtil.trimToNull(attributes.getValue("feedbackcomment-formatted"))  != null)
+					{
+						setFeedbackcomment_html(StringUtil.trimToNull(attributes.getValue("feedbackcomment-formatted")));
+					}
 					setFeedbacktext(StringUtil.trimToNull(attributes.getValue("feedbacktext")));
-					setFeedbacktext_html(StringUtil.trimToNull(attributes.getValue("feedbacktext-html")));
+					
+					if (StringUtil.trimToNull(attributes.getValue("feedbacktext-html")) != null)
+					{
+						setFeedbacktext_html(StringUtil.trimToNull(attributes.getValue("feedbacktext-html")));
+					}
+					else if (StringUtil.trimToNull(attributes.getValue("feedbacktext-formatted")) != null)
+					{
+						setFeedbacktext_html(StringUtil.trimToNull(attributes.getValue("feedbacktext-formatted")));
+					}
+						
+					
+					// get grade
+					String grade = StringUtil.trimToNull(attributes.getValue("scaled_grade"));
+					if (grade == null)
+					{
+						grade = StringUtil.trimToNull(attributes.getValue("grade"));
+						if (grade != null)
+						{
+							try
+							{
+								Integer.parseInt(grade);
+								// for the grades in points, multiple those by 10
+								grade = grade + "0";
+							}
+							catch (Exception e)
+							{
+							}
+						}
+					}
+					setGrade(grade);
+					
 					setGraded(StringUtil.trimToNull(attributes.getValue("graded")));
 					setGradereleased(StringUtil.trimToNull(attributes.getValue("gradereleased")));
 					setLastmod(StringUtil.trimToNull(attributes.getValue("lastmod")));
@@ -398,7 +433,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					setReviewReport(StringUtil.trimToNull(attributes.getValue("reviewReport")));
 					setReviewScore(StringUtil.trimToNull(attributes.getValue("reviewScore")));
 					setReviewStatus(StringUtil.trimToNull(attributes.getValue("reviewStatus")));
-					setScaled_grade(StringUtil.trimToNull(attributes.getValue("scaled_grade")));
 					setSubmitted(StringUtil.trimToNull(attributes.getValue("submitted")));
 					
 					// submittedtext and submittedtext_html are base-64
@@ -743,25 +777,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		this.reviewStatus = reviewStatus;
 	}
 
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getScaled_grade()
-	 */
-	public String getScaled_grade() 
-	{
-		return scaled_grade;
-	}
-
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setScaled_grade(java.lang.String)
-	 */
-	public void setScaled_grade(String scaled_grade) 
-	{
-		this.scaled_grade = scaled_grade;
-	}
-
-
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getSubmitted()
 	 */
@@ -894,3 +909,4 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	}
 
 }
+

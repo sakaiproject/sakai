@@ -28,7 +28,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.util.conversion.SchemaConversionHandler;
+import org.sakaiproject.assignment.impl.conversion.api.SchemaConversionHandler;
 
 /**
  * Performs just the file size conversion for quota calculations
@@ -41,6 +41,24 @@ public class SubmitterIdAssignmentsConversionHandler implements SchemaConversion
 	private static final Log log = LogFactory
 			.getLog(SubmitterIdAssignmentsConversionHandler.class);
 
+	// db driver
+	private String m_dbDriver = null;
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getDbDriver()
+	{
+		return m_dbDriver;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setDbDriver(String dbDriver)
+	{
+		m_dbDriver = dbDriver;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -49,7 +67,7 @@ public class SubmitterIdAssignmentsConversionHandler implements SchemaConversion
 	 */
 	public Object getSource(String id, ResultSet rs) throws SQLException
 	{
-		return rs.getString(1);
+		return rs.next()?rs.getString(1):null;
 	}
 
 	/*
