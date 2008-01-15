@@ -66,198 +66,193 @@ import org.apache.commons.logging.LogFactory;
 public class ResultsProducer implements ViewComponentProducer,NavigationCaseReporter,ViewParamsReporter {
 
 	public static final String VIEW_ID = "voteResults";
-	
-	  private UserDirectoryService userDirectoryService;
-	  private PollListManager pollListManager;
-	  private PollVoteManager pollVoteManager;
-	  private MessageLocator messageLocator;
-	  private LocaleGetter localegetter;
-	  private ToolManager toolManager;	  
-	  
-	  private static Log m_log  = LogFactory.getLog(ResultsProducer.class);
-	  
+
+	private UserDirectoryService userDirectoryService;
+	private PollListManager pollListManager;
+	private PollVoteManager pollVoteManager;
+	private MessageLocator messageLocator;
+	private LocaleGetter localegetter;
+	private ToolManager toolManager;	  
+
+	private static Log m_log  = LogFactory.getLog(ResultsProducer.class);
 
 
-	  
+
+
 	public String getViewID() {
 		// TODO Auto-generated method stub
 		return VIEW_ID;
 	}
-	
-	
 
 
-	  
+
+
+
 	public void setMessageLocator(MessageLocator messageLocator) {
-		  
-	    this.messageLocator = messageLocator;
-	  }
 
-	  public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-	    this.userDirectoryService = userDirectoryService;
-	  }
+		this.messageLocator = messageLocator;
+	}
 
-	  public void setPollListManager(PollListManager pollListManager) {
-	    this.pollListManager = pollListManager;
-	  }
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
 
-	  public void setToolManager(ToolManager toolManager) {
-	    this.toolManager = toolManager;
-	  }
+	public void setPollListManager(PollListManager pollListManager) {
+		this.pollListManager = pollListManager;
+	}
 
-	  public void setLocaleGetter(LocaleGetter localegetter) {
-	    this.localegetter = localegetter;
-	  }
-		public void setPollVoteManager(PollVoteManager pvm){
-			this.pollVoteManager = pvm;
-		}
-		
-		
-		
-		private EventTrackingService eventTrackingService;
-		public void setEventTrackingService(EventTrackingService ets) {
-			eventTrackingService = ets;
-		}
-		
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
+
+	public void setLocaleGetter(LocaleGetter localegetter) {
+		this.localegetter = localegetter;
+	}
+	public void setPollVoteManager(PollVoteManager pvm){
+		this.pollVoteManager = pvm;
+	}
+
+
+
+	private EventTrackingService eventTrackingService;
+	public void setEventTrackingService(EventTrackingService ets) {
+		eventTrackingService = ets;
+	}
+
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 			ComponentChecker checker) {
-		
+
 		PollViewParameters ecvp = (PollViewParameters) viewparams;
-		 
-		 //m_log.info(ecvp.toPathInfo());
-		 
-		 //m_log.info(ecvp.getELPath());
-		 
-		 //hack but this needs to work
-		 String strId = ecvp.id;
-		 m_log.debug("got id of " + strId);
-		 Poll poll = pollListManager.getPollById(new Long(strId));
-		 
-		 
-		 //get the number of votes
-		 int voters = pollVoteManager.getDisctinctVotersForPoll(poll);
-		 //Object[] args = new Object[] { new Integer(voters).toString()};
-		 if (poll.getMaxOptions()>1)
-			 UIOutput.make(tofill,"poll-size",messageLocator.getMessage("results_poll_size",new Integer(voters).toString()));
-		 
-		 m_log.debug(voters + " have voted on this poll");
-		 
-		 UIOutput.make(tofill,"question",poll.getText());
-		 m_log.debug("got poll " + poll.getText());
-		 List pollOptions = poll.getPollOptions();
-		 
-		 m_log.debug("got a list of " + pollOptions.size() + " options");
-		 //appeng an option for no votes
-		 if (poll.getMinOptions()==0) {
-			 Option noVote = new Option(new Long(0));
-			 noVote.setOptionText(messageLocator.getMessage("result_novote"));
-			 noVote.setPollId(poll.getPollId());
-			 pollOptions.add(noVote);
+
+		String strId = ecvp.id;
+		m_log.debug("got id of " + strId);
+		Poll poll = pollListManager.getPollById(new Long(strId));
+
+
+		//get the number of votes
+		int voters = pollVoteManager.getDisctinctVotersForPoll(poll);
+		//Object[] args = new Object[] { new Integer(voters).toString()};
+		if (poll.getMaxOptions()>1)
+			UIOutput.make(tofill,"poll-size",messageLocator.getMessage("results_poll_size",new Integer(voters).toString()));
+
+		m_log.debug(voters + " have voted on this poll");
+
+		UIOutput.make(tofill,"question",poll.getText());
+		m_log.debug("got poll " + poll.getText());
+		List pollOptions = poll.getPollOptions();
+
+		m_log.debug("got a list of " + pollOptions.size() + " options");
+		//appeng an option for no votes
+		if (poll.getMinOptions()==0) {
+			Option noVote = new Option(new Long(0));
+			noVote.setOptionText(messageLocator.getMessage("result_novote"));
+			noVote.setPollId(poll.getPollId());
+			pollOptions.add(noVote);
 		}
-		 
-		 List votes = pollVoteManager.getAllVotesForPoll(poll);
-		 int totalVotes= votes.size();
-		 m_log.debug("got " + totalVotes + " votes");
-		 List collation = new ArrayList();
-		 
-		 for (int i=0; i <pollOptions.size(); i++ ) {
-			 CollatedVote collatedVote = new CollatedVote();
-			 Option option = (Option) pollOptions.get(i);
-			 m_log.debug("collating option " + option.getOptionId());
-			 collatedVote.setoptionId(option.getOptionId());
-			 collatedVote.setOptionText(option.getOptionText());
-			 for (int q=0; q <votes.size(); q++ ) {
-				 Vote vote = (Vote)votes.get(q);
-				 if (vote.getPollOption().equals(option.getOptionId())){
-					 m_log.debug("got a vote for option " + option.getOptionId());
-					 collatedVote.incrementVotes();
-					 
-				 }
-				 
-			 }
-			 collation.add(collatedVote);
-			 
-		 }
-		 
-		 UIOutput.make(tofill,"answers-title",messageLocator.getMessage("results_answers_title"));
-		 
-	 
-		 for (int i=0; i <collation.size(); i++ ) {
-			 CollatedVote cv = (CollatedVote)collation.get(i);
-			 UIBranchContainer resultRow = UIBranchContainer.make(tofill,"answer-row:",cv.getoptionId().toString());
-			 UIVerbatim.make(resultRow,"answer-option",cv.getOptionText());
-			 UIOutput.make(resultRow,"answer-numVotes",new Long(cv.getVotes()).toString());
-			 m_log.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
-			 double percent = (double)0;
-			 if (totalVotes>0  && poll.getMaxOptions() == 1)
-				 percent = ((double)cv.getVotes()/(double)totalVotes); //*(double)100;
-			 else if (totalVotes>0  && poll.getMaxOptions() > 1)
-				 percent = ((double)cv.getVotes()/(double)voters); //*(double)100;
-			 else
-				 percent = (double) 0;
-			 
-			 
-			 m_log.debug("result is "+ percent);
-			 NumberFormat nf = NumberFormat.getPercentInstance(localegetter.get());
-			 UIOutput.make(resultRow,"answer-percVotes", nf.format(percent));
-			 
-		 }
+
+		List votes = pollVoteManager.getAllVotesForPoll(poll);
+		int totalVotes= votes.size();
+		m_log.debug("got " + totalVotes + " votes");
+		List collation = new ArrayList();
+
+		for (int i=0; i <pollOptions.size(); i++ ) {
+			CollatedVote collatedVote = new CollatedVote();
+			Option option = (Option) pollOptions.get(i);
+			m_log.debug("collating option " + option.getOptionId());
+			collatedVote.setoptionId(option.getOptionId());
+			collatedVote.setOptionText(option.getOptionText());
+			for (int q=0; q <votes.size(); q++ ) {
+				Vote vote = (Vote)votes.get(q);
+				if (vote.getPollOption().equals(option.getOptionId())){
+					m_log.debug("got a vote for option " + option.getOptionId());
+					collatedVote.incrementVotes();
+
+				}
+
+			}
+			collation.add(collatedVote);
+
+		}
+
+		UIOutput.make(tofill,"answers-title",messageLocator.getMessage("results_answers_title"));
+
+
+		for (int i=0; i <collation.size(); i++ ) {
+			CollatedVote cv = (CollatedVote)collation.get(i);
+			UIBranchContainer resultRow = UIBranchContainer.make(tofill,"answer-row:",cv.getoptionId().toString());
+			UIVerbatim.make(resultRow,"answer-option",cv.getOptionText());
+			UIOutput.make(resultRow,"answer-numVotes",new Long(cv.getVotes()).toString());
+			m_log.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
+			double percent = (double)0;
+			if (totalVotes>0  && poll.getMaxOptions() == 1)
+				percent = ((double)cv.getVotes()/(double)totalVotes); //*(double)100;
+			else if (totalVotes>0  && poll.getMaxOptions() > 1)
+				percent = ((double)cv.getVotes()/(double)voters); //*(double)100;
+			else
+				percent = (double) 0;
+
+
+			m_log.debug("result is "+ percent);
+			NumberFormat nf = NumberFormat.getPercentInstance(localegetter.get());
+			UIOutput.make(resultRow,"answer-percVotes", nf.format(percent));
+
+		}
 		UIOutput.make(tofill,"votes-total",new Integer(totalVotes).toString());
 		if (totalVotes > 0 && poll.getMaxOptions() == 1)
 			UIOutput.make(tofill,"total-percent","100%");
-		
-		 //the cancel button
-		 UIForm form = UIForm.make(tofill,"actform");
-		 UICommand.make(form,"cancel",messageLocator.getMessage("results_cancel"),"#{pollToolBean.cancel}"); 
-		 eventTrackingService.post(eventTrackingService.newEvent("poll.viewResult", "poll/site/" + toolManager.getCurrentPlacement().getContext() +"/poll/" +  poll.getPollId(), false));
-		 
-	}
-	
-	  public List reportNavigationCases() {
-		    List togo = new ArrayList(); // Always navigate back to this view.
-		    togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
-		    togo.add(new NavigationCase("cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
-		    return togo;
-		  }	
-	  public ViewParameters getViewParameters() {
-		    return new PollViewParameters();
 
-		  }
-	  
-	  
-	  
-	  private class CollatedVote {
-		  private Long optionId ;
-		  private String optionText;
-		  private int votes;
-		  
-		  public CollatedVote() {
-			  this.votes=0;
-		  }
-		 public void setoptionId(Long val){
-			 this.optionId = val;
-		 }
-		  
-		 public Long getoptionId(){
-			 return this.optionId;
-		 }
-		 
-		 public void setOptionText(String t){
-			 this.optionText = t;
-		 }
-		 public String getOptionText(){
-			 return this.optionText;
-		 }
-		 
-		 public void setVotes(int i){
-			 this.votes = i;
-		 }
-		 public int getVotes(){
-			 return this.votes;
-		 }
-		 public void incrementVotes(){
-			 this.votes++;
-		 }
-		 
-	  }
+		//the cancel button
+		UIForm form = UIForm.make(tofill,"actform");
+		UICommand.make(form,"cancel",messageLocator.getMessage("results_cancel"),"#{pollToolBean.cancel}"); 
+		eventTrackingService.post(eventTrackingService.newEvent("poll.viewResult", "poll/site/" + toolManager.getCurrentPlacement().getContext() +"/poll/" +  poll.getPollId(), false));
+
+	}
+
+	public List reportNavigationCases() {
+		List togo = new ArrayList(); // Always navigate back to this view.
+		togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
+		togo.add(new NavigationCase("cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
+		return togo;
+	}	
+	public ViewParameters getViewParameters() {
+		return new PollViewParameters();
+
+	}
+
+
+
+	private class CollatedVote {
+		private Long optionId ;
+		private String optionText;
+		private int votes;
+
+		public CollatedVote() {
+			this.votes=0;
+		}
+		public void setoptionId(Long val){
+			this.optionId = val;
+		}
+
+		public Long getoptionId(){
+			return this.optionId;
+		}
+
+		public void setOptionText(String t){
+			this.optionText = t;
+		}
+		public String getOptionText(){
+			return this.optionText;
+		}
+
+		public void setVotes(int i){
+			this.votes = i;
+		}
+		public int getVotes(){
+			return this.votes;
+		}
+		public void incrementVotes(){
+			this.votes++;
+		}
+
+	}
 }

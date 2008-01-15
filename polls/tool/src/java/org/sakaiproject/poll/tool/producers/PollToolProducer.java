@@ -65,7 +65,7 @@ import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
-import uk.org.ponder.rsf.viewstate.EntityCentredViewParameters;
+//import uk.org.ponder.rsf.viewstate.EntityCentredViewParameters;
 import uk.org.ponder.beanutil.entity.EntityID;
 
 import org.apache.commons.logging.LogFactory;
@@ -221,8 +221,7 @@ DefaultView,NavigationCaseReporter {
 
 			if (canVote) {
 				UIInternalLink voteLink = UIInternalLink.make(pollrow, NAVIGATE_VOTE, poll.getText(),
-						new EntityCentredViewParameters(PollVoteProducer.VIEW_ID, 
-								new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
+						new PollViewParameters(PollVoteProducer.VIEW_ID, poll.getPollId().toString()));
 				//we need to add a decorator for the alt text
 				voteLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_vote_title") +":" + poll.getText()));
 
