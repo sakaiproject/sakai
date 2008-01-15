@@ -107,6 +107,9 @@ public class SearchUtils
 	 * @param sb
 	 */
 	public static StringBuilder appendCleanString(String string, StringBuilder sb) {
+		if ( string == null ) {
+			return sb;
+		}
 		return appendCleanString(string.toCharArray(),sb);
 	}
 	public static StringBuilder appendCleanString(char[] content, StringBuilder sb)
