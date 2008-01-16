@@ -72,7 +72,7 @@ public class ReportingActivityTree extends ActivityTree {
 	
 		PageParameters params = new PageParameters();
 		
-		params.put("contentPackageId", sessionBean.getContentPackageId());
+		params.put("contentPackageId", sessionBean.getContentPackage().getId());
 		params.put("learnerId", sessionBean.getLearnerId());
 		params.put("activityId", activityId);
 		params.put("attemptNumber", sessionBean.getAttemptNumber());

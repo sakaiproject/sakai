@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.wicket.Application;
 import org.apache.wicket.RequestListenerInterface;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
@@ -228,10 +229,15 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 	public class LocalResourceNavigator extends ResourceNavigator {
 
 		private static final long serialVersionUID = 1L;
-
+		
 		@Override
 		protected ScormResourceService resourceService() {
 			return ActivityAjaxButton.this.resourceService;
+		}
+
+		@Override
+		public Object getApplication() {
+			return this.getApplication();
 		}
 		
 	}

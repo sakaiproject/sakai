@@ -13,4 +13,10 @@
 		
 	</bean>
 	
+	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
+		class="org.sakaiproject.scorm.dao.standalone.StandaloneActivityTreeDaoImpl"
+		singleton="true">
+		
+	</bean>
+	
 </beans>

@@ -34,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.adl.ADLConsultant;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
+import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
@@ -62,8 +63,8 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		if (log.isDebugEnabled()) {
 			log.debug("navigate (" + request + ")");
 		
-			if (sessionBean.getCourseId() == null || sessionBean.getLearnerId() == null)
-				log.error("Session bean should be populated with course id and learner id");
+			if (sessionBean.getContentPackage() == null || sessionBean.getLearnerId() == null)
+				log.error("Session bean should be populated with content package and learner id");
 		}
 			
 		
@@ -132,16 +133,17 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 			agent.displayResource(sessionBean, target);
 	}
 	
-	public SessionBean newSessionBean(String courseId, long contentPackageId) {
+	public SessionBean newSessionBean(ContentPackage contentPackage) {
 		String learnerId = lms().currentLearnerId();
-		SessionBean sessionBean = new SessionBean(courseId, learnerId, contentPackageId);
+		SessionBean sessionBean = new SessionBean(learnerId, contentPackage);
 		
-		ContentPackageManifest manifest = adlManager().getManifest(sessionBean);
+		//ContentPackageManifest manifest = adlManager().getManifest(sessionBean);
 		
-		if (manifest != null)
+		/*if (manifest != null)
 			sessionBean.setTitle(manifest.getTitle());
 		else 
 			log.error("Could not retrieve manifest for this Scorm Package: " + courseId);
+		*/
 		
 		IErrorManager errorManager = new APIErrorManager(IErrorManager.SCORM_2004_API);
 		sessionBean.setErrorManager(errorManager);
@@ -152,19 +154,19 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	public boolean isContinueEnabled(SessionBean sessionBean) {
 		IValidRequests state = sessionBean.getNavigationState();
 		
-		return null != state && state.isContinueEnabled();
+		return null != state && state.isContinueEnabled() && isControlModeFlow(sessionBean);
 	}
 	
 	public boolean isContinueExitEnabled(SessionBean sessionBean) {
 		IValidRequests state = sessionBean.getNavigationState();
 		
-		return null != state && state.isContinueExitEnabled();
+		return null != state && state.isContinueExitEnabled() && isControlModeFlow(sessionBean);
 	}
 	
 	public boolean isPreviousEnabled(SessionBean sessionBean) {
 		IValidRequests state = sessionBean.getNavigationState();
 		
-		return null != state && state.isPreviousEnabled();
+		return null != state && state.isPreviousEnabled() && !isControlForwardOnly(sessionBean) && isControlModeFlow(sessionBean);
 	}
 
 	public boolean isResumeEnabled(SessionBean sessionBean) {
@@ -186,23 +188,45 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	}
 	
 	public boolean isControlModeFlow(SessionBean sessionBean) {
-		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
-		String activityId = sessionBean.getActivityId();
+		ISeqActivity activity = getActivity(sessionBean);
 		
-		ISeqActivity activity = tree.getActivity(activityId);
+		// Default value from spec
+		if (activity == null)
+			return false;
 		
-		return null != activity && activity.getControlModeFlow();
+		return activity.getControlModeFlow();
 	}
 	
 	public boolean isControlModeChoice(SessionBean sessionBean) {
-		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
-		String activityId = sessionBean.getActivityId();
+		ISeqActivity activity = getActivity(sessionBean);
 		
-		ISeqActivity activity = tree.getActivity(activityId);
+		// Default value from spec
+		if (activity == null)
+			return true;
 		
-		return null != activity && activity.getControlModeChoice();
+		return activity.getControlModeChoice();
 	}
-
+	
+	public boolean isControlModeChoiceExit(SessionBean sessionBean) {
+		ISeqActivity activity = getActivity(sessionBean);
+		
+		// Default value from spec
+		if (activity == null)
+			return true;
+		
+		return activity.getControlModeChoiceExit();
+	}
+	
+	public boolean isControlForwardOnly(SessionBean sessionBean) {
+		ISeqActivity activity = getActivity(sessionBean);
+		
+		// Default value from spec
+		if (activity == null)
+			return false;
+		
+		return activity.getControlForwardOnly();
+	}
+	
 	
 	/*public String getCurrentUrl(SessionBean sessionBean) {
 		log.warn("THIS IS BROKEN -- sessionBean.getBaseUrl will return NULL");
@@ -231,6 +255,18 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		return null;
 	}
 	
+	private ISeqActivity getActivity(SessionBean sessionBean) {
+		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
+		
+		if (tree != null) {
+			String activityId = sessionBean.getActivityId();
+			
+			if (activityId != null)
+				return tree.getActivity(activityId);
+		}
+		
+		return null;
+	}
 	
 	
 	private void update(SessionBean sessionBean, ISequencer sequencer, ILaunch launch, ContentPackageManifest manifest) {
@@ -238,7 +274,8 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		sessionBean.setScoId(launch.getSco());
 		sessionBean.setNavigationState(launch.getNavState());
 		sessionBean.setLaunchData(manifest.getLaunchData(sessionBean.getScoId()));
-		sessionBean.setBaseUrl(manifest.getResourceId());
+		// FIXME: Currently, not setting this will break the CHH implementation
+		//sessionBean.setBaseUrl(manifest.getResourceId());
 		sessionBean.setObjectiveStatusSet(sequencer.getObjStatusSet(launch.getActivityId()));
 		
 		if (log.isDebugEnabled())

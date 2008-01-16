@@ -6,4 +6,6 @@ public interface INavigable {
 
 	public void displayResource(SessionBean sessionBean, Object target);
 	
+	public Object getApplication();
+	
 }

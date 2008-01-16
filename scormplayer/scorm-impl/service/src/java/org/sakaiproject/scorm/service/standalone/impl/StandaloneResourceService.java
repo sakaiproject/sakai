@@ -1,3 +1,23 @@
+/**********************************************************************************
+ * $URL:  $
+ * $Id:  $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2007 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 package org.sakaiproject.scorm.service.standalone.impl;
 
 import java.io.File;
@@ -18,32 +38,24 @@ import java.util.zip.ZipInputStream;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import org.adl.validator.IValidator;
-import org.adl.validator.IValidatorOutcome;
-import org.adl.validator.contentpackage.CPValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.scorm.exceptions.ValidationException;
+import org.sakaiproject.scorm.exceptions.ResourceNotFoundException;
 import org.sakaiproject.scorm.model.api.Archive;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
+import org.sakaiproject.scorm.service.impl.AbstractResourceService;
 
-public abstract class StandaloneResourceService implements ScormResourceService {
+public abstract class StandaloneResourceService extends AbstractResourceService {
 
 	private final String storagePath = "contentPackages";
 	
 	private static Log log = LogFactory.getLog(StandaloneResourceService.class);
 	
 	protected abstract IdManager idManager();
-	
-	public void convertArchive(String resourceId, String manifestResourceId) {
-		File dir = getContentPackageDirectory(resourceId);
-		unzip(dir, new ZipInputStream(getArchiveStream(resourceId)));
-	}
 	
 	public Archive getArchive(String resourceId) {
 		File dir = getContentPackageDirectory(resourceId);
@@ -73,6 +85,9 @@ public abstract class StandaloneResourceService implements ScormResourceService 
 				archive.setValidated(true);
 			else
 				archive.setValidated(false);
+			
+			archive.setMimeType("application/zip");
+			archive.setPath(dir.getAbsolutePath());
 			
 			return archive;
 		}
@@ -105,31 +120,29 @@ public abstract class StandaloneResourceService implements ScormResourceService 
 		return null;
 	}
 	
-	public ContentPackageManifest getManifest(String resourceId, String manifestResourceId) { 
-		File manifestFile = null;
-		if (manifestResourceId == null) {
-			manifestFile = new File(getContentPackageDirectory(resourceId), "manifest.obj");
-		} else {
-			manifestFile = new File(manifestResourceId);
-		}
+	public ContentPackageManifest getManifest(String manifestResourceId) { 
+		File manifestFile = new File(manifestResourceId);
+		
+		ObjectInputStream ois = null;
+		ContentPackageManifest manifest = null;
 		
 		try {
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(manifestFile));
-		
-			ContentPackageManifest manifest = (ContentPackageManifest)ois.readObject();
-		
-			return manifest;
+			ois = new ObjectInputStream(new FileInputStream(manifestFile));		
+			manifest = (ContentPackageManifest)ois.readObject();
 		} catch (Exception e) {
-			log.error("Unable to unserialize the manifest object for " + resourceId, e);
+			log.error("Unable to unserialize the manifest object located at " + manifestResourceId, e);
+		} finally {
+			if (ois != null)
+				try { ois.close(); } catch (IOException ioe) { log.error(ioe); }
 		}
 		
-		return null;
+		return manifest;
 	}
 	
 	public ContentPackageResource getResource(SessionBean sessionBean) {
 		
 		if (null != sessionBean.getLaunchData()) {
-			return getResource(sessionBean.getCourseId(), sessionBean.getLaunchData().getLaunchLine());		
+			return getResource(sessionBean.getContentPackage().getResourceId(), sessionBean.getLaunchData().getLaunchLine());		
 		}
 		
 		return null;
@@ -148,35 +161,25 @@ public abstract class StandaloneResourceService implements ScormResourceService 
 		}
 		
 		File file = new File(getContentPackageDirectory(resourceId), cleanPath);
-		
-		InputStream inputStream = null;
-		
-		try {
-			inputStream = new FileInputStream(file);
-		} catch (FileNotFoundException e) {
-			log.error("Failed to retrieve file at " + file, e);
-		}
-		
-		String mimeType = new MimetypesFileTypeMap().getContentType(file);
-		
-		if (file.getName().endsWith(".css"))
-			mimeType = "text/css";
-		else if (file.getName().endsWith(".swf"))
-			mimeType = "application/x-Shockwave-Flash";
-		
-		log.info("Returning resource from " + file.getAbsolutePath() + " with mime type " + mimeType);
-		
-		return new ContentPackageResource(inputStream, mimeType);
+
+		return new ContentPackageFile(resourceId, path, file);
 	}
 	
-	public String getUrl(SessionBean sessionBean) {
+	public List<ContentPackageResource> getResources(String archiveResourceId) {
+		File dir = getContentPackageDirectory(archiveResourceId);
+		
+		return getContentPackageFilesRecursive(archiveResourceId, dir, "");
+	}
+	
+	
+	/*public String getUrl(SessionBean sessionBean) {
 		if (sessionBean == null || sessionBean.getLaunchData() == null)
 			return null;
 		
 		String path = sessionBean.getLaunchData().getLaunchLine();
 		
 		return "contentPackages/resourceId/" + sessionBean.getCourseId() + "/path/" + path;
-	}
+	}*/
 	
 	
 	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden) {
@@ -236,8 +239,6 @@ public abstract class StandaloneResourceService implements ScormResourceService 
 		// as the unpacked archive.
 	}
 	
-	
-
 	private File getContentPackageDirectory(String uuid) {
 		File storageDir = new File(storagePath, uuid);
 		// Ensure that this directory exists
@@ -250,6 +251,39 @@ public abstract class StandaloneResourceService implements ScormResourceService 
 		log.warn("Removing all files under the directory " + dir.getAbsolutePath());
 	}
 	
+	
+	protected String newFolder(String parentPath, ZipEntry entry) {
+		File file = new File(parentPath, entry.getName());
+		file.mkdir();
+		
+		return file.getAbsolutePath();
+	}
+	
+	protected String newItem(String parentPath, ZipInputStream zipStream, ZipEntry entry) {
+		File file = new File(parentPath, entry.getName());
+		
+		FileOutputStream fileStream = null;
+		try {
+			fileStream = new FileOutputStream(file);
+			byte[] buffer = new byte[1024];
+			int length;
+			
+			while ((length = zipStream.read(buffer)) > 0) {  
+				fileStream.write(buffer, 0, length);
+            }
+		} catch (FileNotFoundException fnfe) {
+			log.error("Could not write to file " + file.getAbsolutePath(), fnfe);
+		} catch (IOException ioe) {
+			log.error("Could not read from zip stream ", ioe);
+		} finally {
+			if (null != fileStream)
+				try { fileStream.close(); } catch (IOException e) { log.error(e); }
+		}
+		
+		return file.getAbsolutePath();
+	}
+	
+	/*
 	private void unzip(File rootDir, ZipInputStream zipStream) {
 		ZipEntry entry;
 		byte[] buffer = new byte[1024];
@@ -283,7 +317,7 @@ public abstract class StandaloneResourceService implements ScormResourceService 
 				log.info("Caught an io exception closing streams!");
 			}
 		}
-	}
+	}*/
 
 
 	public int getMaximumUploadFileSize() {
@@ -293,5 +327,23 @@ public abstract class StandaloneResourceService implements ScormResourceService 
 	public List<Archive> getUnvalidatedArchives() {
 		return new LinkedList<Archive>();
 	}
-
+	
+	private List<ContentPackageResource> getContentPackageFilesRecursive(String archiveResourceId, File directory, String path) {
+		List<ContentPackageResource> files = new LinkedList<ContentPackageResource>();
+		
+		File[] filesInDirectory = directory.listFiles();
+		
+		for (File file : filesInDirectory) {
+			String filePath = new StringBuilder(path).append(File.separatorChar)
+				.append(file.getName()).toString();
+			
+			if (file.isDirectory()) 
+				files.addAll(getContentPackageFilesRecursive(archiveResourceId, file, filePath));
+			else 
+				files.add(new ContentPackageFile(archiveResourceId, filePath, file));
+		}
+		
+		return files;
+	}
+		
 }

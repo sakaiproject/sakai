@@ -35,6 +35,11 @@ public interface ISeqActivityTree {
 	 */
 	public String getCourseID();
 
+	
+	public long getContentPackageId();
+
+	public void setContentPackageId(long contentPackageId);
+	
 	/**
 	 * Sets the scope of the global objectives managed by this activity tree.
 	 * 

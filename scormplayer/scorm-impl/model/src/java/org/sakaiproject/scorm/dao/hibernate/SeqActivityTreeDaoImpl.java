@@ -33,11 +33,11 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class SeqActivityTreeDaoImpl extends HibernateDaoSupport implements SeqActivityTreeDao {
 	private static Log log = LogFactory.getLog(SeqActivityTreeDaoImpl.class);
 			
-	public ISeqActivityTree find(String courseId, String userId) {
+	public ISeqActivityTree find(long contentPackageId, String userId) {
 		List r = getHibernateTemplate().find(
 				"from " + SeqActivityTree.class.getName()
-						+ " where mCourseID=? and mLearnerID=?", 
-						new Object[]{ courseId, userId });
+						+ " where contentPackageId=? and mLearnerID=?", 
+						new Object[]{ contentPackageId, userId });
 		
 		
 		if (log.isInfoEnabled())

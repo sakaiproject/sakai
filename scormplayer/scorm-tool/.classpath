@@ -33,12 +33,13 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/component-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sakai-scorm-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/entity-broker"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/wicket/wicket/1.3.0-rc1/wicket-1.3.0-rc1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/wicket/wicket/1.3.0/wicket-1.3.0.jar" sourcepath="/WICKET_TRUNK/wicket/src/main/java"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/wicket/wicket-extensions/1.3.0-rc1/wicket-extensions-1.3.0-rc1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/wicket/wicket-spring-annot/1.3.0-rc1/wicket-spring-annot-1.3.0-rc1.jar"/>
 	<classpathentry kind="src" path="/sakai-wicket"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/wicket/wicket-datetime/1.3.0-rc1/wicket-datetime-1.3.0-rc1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/wicket/wicket-ioc/1.3.0-rc1/wicket-ioc-1.3.0-rc1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/wicket/wicket-spring/1.3.0-rc1/wicket-spring-1.3.0-rc1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/activation/activation/1.0.2/activation-1.0.2.jar"/>
 	<classpathentry kind="output" path="m2-target/classes"/>
 </classpath>

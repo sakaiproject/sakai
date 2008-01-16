@@ -18,11 +18,12 @@ public class Attempt implements Serializable {
 	
 	//private long dataManagerId = -1;
 	
-	private boolean isNotExited = true;
-	private boolean isSuspended = false;
-	
+	private boolean isNotExited;
+	private boolean isSuspended;
 	
 	public Attempt() {
+		this.isNotExited = true;
+		this.isSuspended = false;
 	}
 	
 	public String getLearnerId() {

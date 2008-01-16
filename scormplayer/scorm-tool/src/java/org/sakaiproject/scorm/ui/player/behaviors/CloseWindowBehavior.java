@@ -28,9 +28,9 @@ public class CloseWindowBehavior extends ActivityAjaxEventBehavior {
 		}
 	}
 	
-	@Override
+	/*@Override
 	protected void onComponentTag(final ComponentTag tag) {
 		// Do nothing -- we don't want to add the javascript to the component.
-	}
+	}*/
 
 }

@@ -10,13 +10,13 @@ import org.sakaiproject.scorm.model.api.SessionBean;
 
 public interface ScormResourceService {
 
-	public void convertArchive(String resourceId, String manifestResourceId);
+	public String convertArchive(String resourceId);
 	
 	public Archive getArchive(String resourceId);
 	
 	public InputStream getArchiveStream(String resourceId);
 	
-	public ContentPackageManifest getManifest(String resourceId, String manifestResourceId);
+	public ContentPackageManifest getManifest(String manifestResourceId);
 	
 	public int getMaximumUploadFileSize();
 	
@@ -24,8 +24,8 @@ public interface ScormResourceService {
 	
 	public ContentPackageResource getResource(String resourceId, String path);
 	
-	public String getUrl(SessionBean sessionBean);
-	
+	public List<ContentPackageResource> getResources(String archiveResourceId);
+		
 	public List<Archive> getUnvalidatedArchives();
 	
 	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden);
