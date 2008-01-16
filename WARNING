@@ -1,0 +1,9 @@
+WARNING 
+
+This commit -- as of January 15, 2008 -- will require a rebuild of your database tables due to several changes to the DDL.
+
+It will also invalidate any content packages you may have uploaded previously (either into the Sakai content repository or into your
+local webapp directory). 
+
+To clear out all the SCORM tables, run scorm-impl/sql/drop_tables.sql
+
