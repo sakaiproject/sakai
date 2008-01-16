@@ -473,7 +473,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		Attempt attempt = sessionBean.getAttempt();
 		
 		if (attempt == null) {
-			String courseId = sessionBean.getCourseId();
+			String courseId = sessionBean.getContentPackage().getResourceId();
 			String learnerId = sessionBean.getLearnerId();
 			
 			long attemptNumber = sessionBean.getAttemptNumber();
@@ -483,7 +483,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			if (attempt == null) {
 				attempt = new Attempt();
 				
-				attempt.setContentPackageId(sessionBean.getContentPackageId());
+				attempt.setContentPackageId(sessionBean.getContentPackage().getId());
 				attempt.setCourseId(courseId);
 				attempt.setLearnerId(learnerId);
 				attempt.setAttemptNumber(attemptNumber);
@@ -512,9 +512,9 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		boolean isNewDataManager = false;
         IDataManager dm = null;
         
-        long contentPackageId = sessionBean.getContentPackageId();
+        long contentPackageId = sessionBean.getContentPackage().getId();
         String activityId = sessionBean.getActivityId();
-        String courseId = sessionBean.getCourseId();
+        String courseId = sessionBean.getContentPackage().getResourceId();
 		String scoId = scoBean.getScoId();
 		String learnerId = sessionBean.getLearnerId();
 		String title = sessionBean.getActivityTitle();

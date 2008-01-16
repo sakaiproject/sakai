@@ -15,7 +15,7 @@
 	
 		<property name="mDepth" column="DEPTH" />
 	
-		<property name="mCount" column="COUNT" />
+		<property name="mCount" column="ADLTOC_COUNT" />
 		
 		<property name="mLeaf" column="IS_LEAF" />
 		
@@ -350,7 +350,7 @@
 		
 		<property name="mDepth" column="DEPTH" />
 		
-		<property name="mCount" column="COUNT" />
+		<property name="mCount" column="ACTIVITY_COUNT" />
 		
 		<property name="mLearnerID" column="LEARNER_ID" />
 		
@@ -565,6 +565,8 @@
 		<property name="mScopeID" column="SCOPE_ID" />
 		
 		<property name="mCourseID" column="COURSE_ID" />
+		
+		<property name="contentPackageId" column="CONTENT_PACKAGE_ID" />
 		
 		<property name="mLearnerID" column="LEARNER_ID" />
 	

@@ -57,8 +57,10 @@ import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.markup.html.DynamicWebResource;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.request.RequestParameters;
+import org.sakaiproject.scorm.exceptions.ResourceNotFoundException;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.ui.player.ScormTool;
+import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 
 public class ContentPackageResourceRequestTarget implements IRequestTarget {
 
@@ -66,16 +68,14 @@ public class ContentPackageResourceRequestTarget implements IRequestTarget {
 	
 	private final RequestParameters requestParameters;
 	
-	private final String resourceId;
-	private final String path;
+	private final String resourceName;
 	
 	public ContentPackageResourceRequestTarget(RequestParameters requestParameters) {
 		this.requestParameters = requestParameters;
 		
 		Map parameters = requestParameters.getParameters();
 		
-		this.resourceId = (String)parameters.get("resourceId");
-		this.path = (String)parameters.get("path");
+		this.resourceName = (String)parameters.get("resourceName");
 	}
 	
 	public void detach(RequestCycle arg0) {
@@ -84,46 +84,55 @@ public class ContentPackageResourceRequestTarget implements IRequestTarget {
 	
 	private Resource getResource(ScormTool application) {
 		if (log.isDebugEnabled())
-			log.debug("Looking up resource by " + resourceId + " and " + path);
+			log.debug("Looking up resource by " + resourceName);
+
+		return application.getSharedResources().get(PlayerPage.class, resourceName, null, null, false);
 		
-		ContentPackageResource resource = application.getResourceService().getResource(resourceId, path);
+		/*ContentPackageResource resource = application.getResourceService().getResource(resourceId, path);
 
-		if (resource == null || resource.getInputStream() == null)
-			return null;
-
-		final String mimeType = resource.getMimeType();
-		final byte[] data = streamBytes(resource.getInputStream());
+		try {
+			if (resource == null || resource.getInputStream() == null)
+				return null;
 		
 		
-		final DynamicWebResource fileResource = new DynamicWebResource() {
-				
-			private static final long serialVersionUID = 1L;
-
-			protected ResourceState getResourceState() {
-				return new ResourceState() {
-
-					@Override
-					public String getContentType() {
-						return mimeType;
-					}
-
-					@Override
-					public byte[] getData() {						
-						return data;
-					}
-						
-				};
-			}				
-		};
+			final String mimeType = resource.getMimeType();
+			final byte[] data = streamBytes(resource.getInputStream());
 			
-		return fileResource;
+			
+			final DynamicWebResource fileResource = new DynamicWebResource() {
+					
+				private static final long serialVersionUID = 1L;
+	
+				protected ResourceState getResourceState() {
+					return new ResourceState() {
+	
+						@Override
+						public String getContentType() {
+							return mimeType;
+						}
+	
+						@Override
+						public byte[] getData() {						
+							return data;
+						}
+							
+					};
+				}				
+			};
+		
+			return fileResource;
+			
+		} catch (ResourceNotFoundException rnfe) {
+			log.error("Could not find resource ", rnfe);
+		}
+		
+		return null;*/
 	}
 	
 	public int hashCode()
 	{
 		int result = "ContentPackageResourceRequestTarget".hashCode();
-		result += resourceId.hashCode();
-		result += path.hashCode();
+		result += resourceName.hashCode();
 		return 17 * result;
 	}
 	
@@ -139,12 +148,12 @@ public class ContentPackageResourceRequestTarget implements IRequestTarget {
 			{
 				((WebResponse)response).getHttpServletResponse().setStatus(
 						HttpServletResponse.SC_NOT_FOUND);
-				log.error("Content Package resource not found with resourceId: " + resourceId + ", path:" + path);
+				log.error("Content Package resource not found with resourceName: " + resourceName);
 				return;
 			}
 			else
 			{
-				throw new WicketRuntimeException("Content Package resource not found with resourceId: " + resourceId + ", path:" + path);
+				throw new WicketRuntimeException("Content Package resource not found with resourceName: " + resourceName);
 			}
 		}
 		
@@ -180,18 +189,15 @@ public class ContentPackageResourceRequestTarget implements IRequestTarget {
 		return requestParameters;
 	}
 
-	public String getResourceId() {
-		return resourceId;
-	}
-
-	public String getPath() {
-		return path;
-	}
 	
 	public String toString()
 	{
-		return new StringBuilder("[ContentPackageResourceRequestTarget@").append(hashCode()).append(", resourceId=")
-			.append(getResourceId()).append(", path=").append(getPath()).append("]").toString();
+		return new StringBuilder("[ContentPackageResourceRequestTarget@").append(hashCode()).append(", resourceName=")
+			.append(getResourceName()).append("]").toString();
+	}
+
+	public String getResourceName() {
+		return resourceName;
 	}
 
 }

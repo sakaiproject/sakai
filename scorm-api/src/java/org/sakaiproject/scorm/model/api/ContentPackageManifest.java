@@ -26,17 +26,16 @@ import java.util.Map;
 
 import org.adl.sequencer.ISeqActivityTree;
 import org.adl.validator.contentpackage.ILaunchData;
-import org.w3c.dom.Document;
 
 public interface ContentPackageManifest extends Serializable {
 	
-	public String getTitle();
+	//public String getTitle();
 
-	public void setTitle(String title);
+	//public void setTitle(String title);
 
-	public Document getDocument();
+	//public Document getDocument();
 
-	public void setDocument(Document manifest);
+	//public void setDocument(Document manifest);
 
 	public void setLaunchData(List l);
 
@@ -59,11 +58,11 @@ public interface ContentPackageManifest extends Serializable {
 
 	public void setActTreePrototype(ISeqActivityTree actTreePrototype);
 
-	public String getControlMode();
+	//public String getControlMode();
 
-	public void setControlMode(String mode);
+	//public void setControlMode(String mode);
 	
-	public String getResourceId();
+	//public String getResourceId();
 	
-	public void setResourceId(String id);
+	//public void setResourceId(String id);
 }

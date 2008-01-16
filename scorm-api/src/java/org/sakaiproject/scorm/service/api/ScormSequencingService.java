@@ -22,6 +22,7 @@ package org.sakaiproject.scorm.service.api;
 
 import javax.swing.tree.TreeModel;
 
+import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
 
@@ -48,7 +49,7 @@ public interface ScormSequencingService {
 	 * This method is called once at the beginning of each user session to provide the bean
 	 * where all state information will be stored
 	 */
-	public SessionBean newSessionBean(String courseId, long contentPackageId);
+	public SessionBean newSessionBean(ContentPackage contentPackage);
 	
 	/**
 	 * Called to get the destination url for the selected sco
@@ -92,13 +93,27 @@ public interface ScormSequencingService {
 	public boolean isSuspendEnabled(SessionBean sessionBean);
 	
 	/**
-	 * Indicates if the user is currently in 'flow' mode
+	 * Indicates that a Choice navigation request is permitted (True or False) to target the
+	 * children of the activity.
+	 */
+	public boolean isControlModeChoice(SessionBean sessionBean);
+	
+	/** 
+	 * Indicates whether the activity is permitted to terminate (True or False) if a Choice
+	 * navigation request is processed.
+	 */
+	public boolean isControlModeChoiceExit(SessionBean sessionBean);
+	
+	/**
+	 * Indicates the Flow Subprocess may be applied (True or False) to the children of this
+	 * activity.
 	 */
 	public boolean isControlModeFlow(SessionBean sessionBean);
 	
 	/**
-	 * Indicates if the user is currently in 'choice' mode
+	 * Indicates that backward targets (in terms of Activity Tree traversal) are not permitted
+	 * (True or False) from the children of this
+	 * activity.
 	 */
-	public boolean isControlModeChoice(SessionBean sessionBean);
-	
+	public boolean isControlForwardOnly(SessionBean sessionBean);
 }

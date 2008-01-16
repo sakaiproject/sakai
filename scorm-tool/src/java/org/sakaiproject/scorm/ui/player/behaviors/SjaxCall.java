@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.wicket.Application;
 import org.apache.wicket.RequestListenerInterface;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -300,10 +301,10 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	}
 	
 	
-	@Override
+	/*@Override
 	protected void onComponentTag(final ComponentTag tag) {
 		// Do nothing -- we don't want to add the javascript to the component.
-	}
+	}*/
 	
 	@Override
 	public void renderHead(IHeaderResponse response) {
@@ -336,6 +337,11 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 
 		private static final long serialVersionUID = 1L;
 
+		@Override
+		public Object getApplication() {
+			return this.getApplication();
+		}
+		
 		@Override
 		protected ScormResourceService resourceService() {
 			return SjaxCall.this.resourceService();

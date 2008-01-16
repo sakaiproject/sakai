@@ -10,6 +10,8 @@ public class Archive implements Serializable {
 	private String title;
 	private boolean isHidden;
 	private boolean isValidated;
+	private String mimeType;
+	private String path;
 	
 	public Archive(String resourceId, String title) {
 		this.resourceId = resourceId;
@@ -46,6 +48,22 @@ public class Archive implements Serializable {
 
 	public void setValidated(boolean isValidated) {
 		this.isValidated = isValidated;
+	}
+
+	public String getMimeType() {
+		return mimeType;
+	}
+
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
 	}
 	
 }

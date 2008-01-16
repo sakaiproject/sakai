@@ -33,6 +33,7 @@ public class ContentPackage implements Serializable {
 	private String context;
 	private String title;
 	private String resourceId;
+	private String manifestResourceId;
 	private String url;
 	private Date releaseOn;
 	private Date dueOn;
@@ -173,6 +174,14 @@ public class ContentPackage implements Serializable {
 
 	public void setContext(String context) {
 		this.context = context;
+	}
+
+	public String getManifestResourceId() {
+		return manifestResourceId;
+	}
+
+	public void setManifestResourceId(String manifestResourceId) {
+		this.manifestResourceId = manifestResourceId;
 	}
 
 }

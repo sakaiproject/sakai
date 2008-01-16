@@ -16,6 +16,12 @@
 		<lookup-method name="scormCHH" bean="org.sakaiproject.scorm.content.api.ScormCHH" />
 	</bean>
 	
+	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
+		class="org.sakaiproject.scorm.dao.standalone.StandaloneActivityTreeDaoImpl"
+		singleton="true">
+		
+	</bean>
+	
 	<!-- This is just an ehcache for the content hosting handler below -->
 	<bean id="org.sakaiproject.scorm.content.api.ZipCHH.cache" 
 		class="org.springframework.cache.ehcache.EhCacheFactoryBean">

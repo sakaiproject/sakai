@@ -88,6 +88,8 @@ public class ActivityTree extends LinkTree {
 		if (synchronizer != null)
 			synchronizer.synchronizeState(sessionBean, null);
 		add(new AttributeModifier("role", new Model(ARIA_TREE_ROLE)));
+		
+		getTreeState().expandAll();
 	}
 		
 	protected void bindModel(SessionBean sessionBean) {
@@ -118,12 +120,21 @@ public class ActivityTree extends LinkTree {
 		
 		Model model = (Model)this.getModel();
 		DefaultTreeModel treeModel = (DefaultTreeModel)model.getObject();
-		
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode)treeModel.getRoot();
 		
 		for (Enumeration<DefaultMutableTreeNode> e = root.breadthFirstEnumeration();e.hasMoreElements();) {
 			DefaultMutableTreeNode node = e.nextElement();
 			SeqActivity activity = (SeqActivity)node.getUserObject();
+			
+			if (log.isDebugEnabled()) {
+				log.debug("Activity: " + activity.getID());
+				log.debug("Title: " + activity.getTitle());
+				log.debug("Is Constrain Choice: " + activity.getConstrainChoice());
+				log.debug("Is Control Forward Only: " + activity.getControlForwardOnly());
+				log.debug("Is Control Mode Choice: " + activity.getControlModeChoice());
+				log.debug("Is Control Mode Choice Exit: " + activity.getControlModeChoiceExit());
+				log.debug("Is Control Mode Flow: " + activity.getControlModeFlow());
+			}
 			
 			String id = activity == null ? null : activity.getID();
 			
@@ -360,6 +371,11 @@ public class ActivityTree extends LinkTree {
 
 		private static final long serialVersionUID = 1L;
 
+		@Override
+		public Object getApplication() {
+			return this.getApplication();
+		}
+		
 		@Override
 		protected ScormResourceService resourceService() {
 			return ActivityTree.this.resourceService;

@@ -15,11 +15,13 @@ public class SessionBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	private long contentPackageId;
-	private String courseId;
+	//private long contentPackageId;
+	//private String courseId;
 	private String learnerId;
-	private String title;
+	//private String title;
 	private long attemptNumber;
+	
+	private ContentPackage contentPackage;
 	
 	private ISeqActivityTree tree;
 	
@@ -53,22 +55,21 @@ public class SessionBean implements Serializable {
 		this.scoBeans = new ConcurrentHashMap<String, ScoBean>();
 	}
 	
-	public SessionBean(String courseId, String learnerId, long contentPackageId) {
+	public SessionBean(String learnerId, ContentPackage contentPackage) {
 		this();
-		this.courseId = courseId;
 		this.learnerId = learnerId;
-		this.contentPackageId = contentPackageId;
+		this.contentPackage = contentPackage;
 	}
 
 
-	public String getCourseId() {
+	/*public String getCourseId() {
 		return courseId;
 	}
 
 
 	public void setCourseId(String courseId) {
 		this.courseId = courseId;
-	}
+	}*/
 
 
 	public String getLearnerId() {
@@ -232,13 +233,13 @@ public class SessionBean implements Serializable {
 		this.dataManager = dataManager;
 	}*/
 
-	public String getTitle() {
+	/*public String getTitle() {
 		return title;
 	}
 
 	public void setTitle(String title) {
 		this.title = title;
-	}
+	}*/
 
 	public Attempt getAttempt() {
 		return attempt;
@@ -264,13 +265,13 @@ public class SessionBean implements Serializable {
 		this.isRestart = isRestart;
 	}
 
-	public long getContentPackageId() {
+	/*public long getContentPackageId() {
 		return contentPackageId;
 	}
 
 	public void setContentPackageId(long contentPackageId) {
 		this.contentPackageId = contentPackageId;
-	}
+	}*/
 
 	public String getActivityTitle() {
 		return activityTitle;
@@ -278,6 +279,14 @@ public class SessionBean implements Serializable {
 
 	public void setActivityTitle(String activityTitle) {
 		this.activityTitle = activityTitle;
+	}
+
+	public ContentPackage getContentPackage() {
+		return contentPackage;
+	}
+
+	public void setContentPackage(ContentPackage contentPackage) {
+		this.contentPackage = contentPackage;
 	}
 
 	

@@ -13,6 +13,7 @@
 	
 		<property name="title" column="TITLE" />
 		<property name="resourceId" column="RESOURCE_ID" />
+		<property name="manifestResourceId" column="MANIFEST_RESOURCE_ID" />
 		<property name="context" column="CONTEXT" />
 		<property name="url" column="URL" />
 		<property name="releaseOn" column="RELEASE_ON" />

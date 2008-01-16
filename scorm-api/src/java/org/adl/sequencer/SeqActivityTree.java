@@ -108,6 +108,8 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree
     * This is the course identifier for the current activity tree
     */
    private String mCourseID = null; 
+   
+   private long contentPackageId;
 
    /**
     * This is the student identifier for the student utilizing this activity
@@ -1391,6 +1393,14 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree
                             "scanObjectives");
       }
    }
+
+	public long getContentPackageId() {
+		return contentPackageId;
+	}
+	
+	public void setContentPackageId(long contentPackageId) {
+		this.contentPackageId = contentPackageId;
+	}
 
    /*public void addTreeModelListener(TreeModelListener l) {
        listenerList.add(TreeModelListener.class, l);

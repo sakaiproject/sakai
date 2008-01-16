@@ -62,7 +62,7 @@ public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUr
 
 	public IRequestTarget decode(RequestParameters requestParameters) {
 		final String pathFragment = requestParameters.getPath().substring(getMountPath().length());
-		int lastResourceIndex = pathFragment.lastIndexOf("/resourceId");
+		int lastResourceIndex = pathFragment.lastIndexOf("/resourceName");
 		final String parametersFragment = pathFragment.substring(lastResourceIndex);
 		final ValueMap parameters = decodeParameters(parametersFragment, requestParameters
 				.getParameters());
@@ -126,23 +126,11 @@ public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUr
 		ValueMap parameters = new ValueMap();
 		
 		// Grab resourceId 
-		if (urlFragment.startsWith("resourceId")) {
-			int resourceIdStart = urlFragment.indexOf('/');
-			int resourceIdEnd = urlFragment.indexOf('/', resourceIdStart + 1);
-			String resourceIdFragment = urlFragment.substring(resourceIdStart + 1, resourceIdEnd);
+		if (urlFragment.startsWith("resourceName")) {
+			int resourceNameStart = urlFragment.indexOf('/');
+			String resourceIdFragment = urlFragment.substring(resourceNameStart);
 			
-			parameters.add("resourceId", urlDecode(resourceIdFragment));
-			
-			String pathFragment = urlFragment.substring(resourceIdEnd + 1);
-			if (pathFragment.startsWith("/"))
-				pathFragment = pathFragment.substring(1);
-			
-			if (pathFragment.startsWith("path/")) {
-				int pathStart = pathFragment.indexOf('/');
-				String path = pathFragment.substring(pathStart + 1);
-				
-				parameters.add("path", urlDecode(path));
-			}
+			parameters.add("resourceName", resourceIdFragment);
 		}
 
 		if (urlParameters != null)

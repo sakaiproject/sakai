@@ -10,8 +10,32 @@ as per the normal Sakai directions for building)
 (3) mvn clean install sakai:deploy
 
 
+SECOND STEP: Install sakai-wicket
 
-SECOND STEP: Activate 'Content Hosting Handler Resolver'
+(1) In your sakai base directory (e.g. sakai/), svn co https://source.sakaiproject.org/contrib/wicket/sakai-wicket/trunk/ sakai-wicket 
+
+(2) Modify the pom.xml at the base directory (e.g. sakai/pom.xml) to include a module "sakai-wicket" (and "scorm", as directed below)
+
+(3) cd sakai-wicket/
+
+(4) mvn clean install sakai:deploy
+
+
+THIRD STEP: Install the scorm component (api, impl, and tool) -- you may already have done this, if you're reading this file.
+
+(1) In your sakai base directory (e.g. sakai/), svn co https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk/ scorm
+
+(2) Modify the pom.xml at the base directory (e.g. sakai/pom.xml) to include a module "scorm"
+
+(3) cd scorm/
+
+(4) mvn clean install sakai:deploy
+
+
+
+OPTIONAL FOURTH STEP: Activate 'Content Hosting Handler Resolver' (If you want to use the chh build as opposed to unzipping content packages)
+
+Note!!!! This is currently broken functionality (1/15/2008) -- and may no longer be necessary. 
 
 It's important that you enable the Content Hosting Handler resolver in order to be able to correctly make use of the Scorm Player.
 
@@ -35,29 +59,7 @@ To do this,
 	(b) mvn clean install sakai:deploy
 
 
-THIRD STEP: Install sakai-wicket
-
-(1) In your sakai base directory (e.g. sakai/), svn co https://source.sakaiproject.org/contrib/wicket/sakai-wicket/trunk/ sakai-wicket 
-
-(2) Modify the pom.xml at the base directory (e.g. sakai/pom.xml) to include a module "sakai-wicket" (and "scorm", as directed below)
-
-(3) cd sakai-wicket/
-
-(4) mvn clean install sakai:deploy
-
-
-FOURTH STEP: Install the scorm component (api, impl, and tool) -- you may already have done this, if you're reading this file.
-
-(1) In your sakai base directory (e.g. sakai/), svn co https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk/ scorm
-
-(2) Modify the pom.xml at the base directory (e.g. sakai/pom.xml) to include a module "scorm"
-
-(3) cd scorm/
-
-(4) mvn clean install sakai:deploy
-
-
-FIFTH STEP: Start up tomcat.
+FOURTH (OR FIFTH) STEP: Start up tomcat.
 
 
 

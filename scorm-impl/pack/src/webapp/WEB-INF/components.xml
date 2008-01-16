@@ -15,18 +15,20 @@
 	<import resource="spring-sakai-service.xml" />
 	
 	<!-- Bring in the sakai content hosting handler beans -->
+	<import resource="spring-sakai-content.xml" />
+	
+	
 	<!-- // Comment this out if you want to use 'standalone' content storage in place of Sakai's standard repository -->
-
+	<!--
 	<import resource="spring-sakai-chh.xml" />
-
+	-->
 	
 	<!-- Bring in the standalone webapp beans -->
 	<!-- // To store your content in tomcat's file system, uncomment this and comment
-                        out the spring-sakai-chh.xml import above -->
-	<!--                        
+                        out the spring-sakai-chh.xml import above -->                      
+	<!--
 	<import resource="spring-standalone-webapp.xml" />
 	-->
-	
 		
 	<bean id="org.sakaiproject.scorm.adl.ADLConsultant"
 		class="org.sakaiproject.scorm.adl.impl.ADLConsultantImpl"

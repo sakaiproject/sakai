@@ -20,18 +20,17 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.dao.api;
 
-import java.util.List;
-
 import org.adl.sequencer.ISeqActivityTree;
-import org.sakaiproject.scorm.model.api.SeqActivityTreeSnapshot;
 
 public interface SeqActivityTreeDao {
 
-	public ISeqActivityTree find(String courseId, String userId);
+	public ISeqActivityTree find(long contentPackageId, String learnerId);
 	
-	public SeqActivityTreeSnapshot findSnapshot(String courseId, String userId);
+	//public ISeqActivityTree find(String courseId, String userId);
 	
-	public List<SeqActivityTreeSnapshot> findUserSnapshots(String userId);
+	//public SeqActivityTreeSnapshot findSnapshot(String courseId, String userId);
+	
+	//public List<SeqActivityTreeSnapshot> findUserSnapshots(String userId);
 	
 	public void save(ISeqActivityTree tree);
 	

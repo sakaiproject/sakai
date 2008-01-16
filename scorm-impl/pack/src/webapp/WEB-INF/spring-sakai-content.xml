@@ -8,9 +8,16 @@
 		class="org.sakaiproject.scorm.service.sakai.impl.SakaiResourceService"
 		singleton="true">
 		
+		<lookup-method name="configurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
 		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
 		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
+		
 	</bean>
 
+	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
+		class="org.sakaiproject.scorm.dao.standalone.StandaloneActivityTreeDaoImpl"
+		singleton="true">
+		
+	</bean>
 
 </beans>

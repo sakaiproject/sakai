@@ -95,6 +95,7 @@
 		</property>
 	</bean>
 	
+	<!-- COMMENTED THIS OUT TO USE THE SAKAI VERSION THAT SERIALIZES TO CONTENT REPOSITORY
 	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
 			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager" 
@@ -107,4 +108,5 @@
 			</props>
 		</property>
 	</bean>
+	-->
 </beans>

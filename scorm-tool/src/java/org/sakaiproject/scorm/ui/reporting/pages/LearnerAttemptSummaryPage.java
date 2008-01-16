@@ -105,7 +105,7 @@ public class LearnerAttemptSummaryPage extends ConsoleBasePage {
 		this.attemptNumberLinks = new RepeatingView("attemptNumberLinks");
 		add(attemptNumberLinks);
 		
-		for (long i=numberOfAttempts;i>=1;i--) {
+		for (long i=1;i<=numberOfAttempts;i++) {
 			this.addAttemptNumberLink(i, pageParams, attemptNumberLinks, attemptNumber);
 		}
 
@@ -175,6 +175,9 @@ public class LearnerAttemptSummaryPage extends ConsoleBasePage {
 			
 			String percentage = "" + p + " %";
 			
+			if (d < 0.0)
+				percentage = "Not available";
+			
 			return percentage;
 		}
 	}	
@@ -189,11 +192,12 @@ public class LearnerAttemptSummaryPage extends ConsoleBasePage {
 		params.put("attemptNumber", i);
 		
 		BookmarkablePageLabeledLink link = new BookmarkablePageLabeledLink("attemptNumberLink", new Model("" + i), LearnerAttemptSummaryPage.class, params);
-		link.add(new AttributeModifier("style", new Model("margin-right:1em")));
- 
-		if (i == current)
-			link.setEnabled(false);
+		//link.add(new AttributeModifier("style", new Model("margin-right: 1em")));
 		
+		if (i == current) {
+			link.setEnabled(false);
+		}
+			
 		WebMarkupContainer item = new WebMarkupContainer(container.newChildId());
 		item.setRenderBodyOnly(true);
 		item.add(link);

@@ -86,7 +86,7 @@ public class LearnerExperienceDetailPage extends ConsoleBasePage {
 		if (attemptNumber == 0)
 			attemptNumber = numberOfAttempts;
 		
-		SessionBean sessionBean = sequencingService.newSessionBean(contentPackage.getResourceId(), contentPackageId);
+		SessionBean sessionBean = sequencingService.newSessionBean(contentPackage);
 		sessionBean.setCompletionUrl(getCompletionUrl());
 		sessionBean.setAttemptNumber(attemptNumber);
 		sequencingService.navigate(SeqNavRequests.NAV_NONE, sessionBean, null, null);
