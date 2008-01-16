@@ -183,7 +183,7 @@ public class EventSummary implements Serializable {
 	}
 
 	public void setAttachments(List attachments) {
-		setHasAttachments(attachments != null || attachments.size() > 0); 
+		setHasAttachments(attachments != null && attachments.size() > 0); 
 		this.attachmentsWrp = new ArrayList();
 		if(attachments == null){
 			attachments		= new ArrayList();
