@@ -98,10 +98,9 @@
 					$tlang.getString("gen.gra3")
 				</th>
 				<td>
-					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
-					$gradeScale
-					#if ($gradeScale == "Points")
-						(max $assignment.getContent().getMaxGradePointDisplay())
+					$gradeTypeTable.get($assignment.getContent().getTypeOfGrade())
+					#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
+						($!tlang.getString("stupresub.max") $assignment.getContent().getMaxGradePointDisplay())
 					#end
 				</td>
 			</tr>
@@ -255,14 +254,13 @@
 					</tr>
 					<tr>
 						<th>
-							Grade Scale:
+							$tlang.getString("gen.grasca")
 						</th>
 						<td>
-							#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
-							$gradeScale
-							#if ($gradeScale == "Points")
-								(max $assignment.getContent().getMaxGradePointDisplay())
-							#end
+							$gradeTypeTable.get($assignment.getContent().getTypeOfGrade())
+									#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
+										($!tlang.getString("stupresub.max") $assignment.getContent().getMaxGradePointDisplay())
+									#end
 						</td>
 					</tr>
 					##show alert when assignment is modified and the modified date is after its open date

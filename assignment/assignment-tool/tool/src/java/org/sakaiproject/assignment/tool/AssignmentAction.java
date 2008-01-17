@@ -701,6 +701,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// grading option
 		context.put("withGrade", state.getAttribute(WITH_GRADES));
+		
+		// the grade type table
+		context.put("gradeTypeTable", gradeTypeTable());
 
 		String mode = (String) state.getAttribute(STATE_MODE);
 
@@ -1048,7 +1051,6 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
-		context.put("gradeTypeTable", gradeTypeTable());
 		context.put("userDirectoryService", UserDirectoryService.getInstance());
 
 		String template = (String) getContext(data).get("template");
@@ -1082,7 +1084,6 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
 		context.put("honor_pledge_yes", state.getAttribute(PREVIEW_SUBMISSION_HONOR_PLEDGE_YES));
 		context.put("attachments", state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS));
-		
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 
 		String template = (String) getContext(data).get("template");
@@ -1485,7 +1486,6 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		context.put("monthTable", monthTable());
-		context.put("gradeTypeTable", gradeTypeTable());
 		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("hide_assignment_option_flag", state.getAttribute(NEW_ASSIGNMENT_HIDE_OPTION_FLAG));
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
@@ -1640,7 +1640,6 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		context.put("monthTable", monthTable());
-		context.put("gradeTypeTable", gradeTypeTable());
 		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("hide_assignment_option_flag", state.getAttribute(NEW_ASSIGNMENT_HIDE_OPTION_FLAG));
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
@@ -1823,7 +1822,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("user", state.getAttribute(STATE_USER));
 		context.put("submissionTypeTable", submissionTypeTable());
-		context.put("gradeTypeTable", gradeTypeTable());
 		context.put("instructorAttachments", state.getAttribute(ATTACHMENTS));
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		context.put("service", AssignmentService.getInstance());
@@ -1984,7 +1982,6 @@ public class AssignmentAction extends PagedResourceActionII
 		User user = (User) state.getAttribute(STATE_USER);
 		context.put("user", user);
 		context.put("submissionTypeTable", submissionTypeTable());
-		context.put("gradeTypeTable", gradeTypeTable());
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		context.put("service", AssignmentService.getInstance());
 
@@ -2150,7 +2147,6 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		context.put("submissionTypeTable", submissionTypeTable());
-		context.put("gradeTypeTable", gradeTypeTable());
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
 		
 		
@@ -2237,11 +2233,10 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("currentTime", TimeService.newTime());
 		context.put("submissionTypeTable", submissionTypeTable());
-		context.put("gradeTypeTable", gradeTypeTable());
 		context.put("hideAssignmentFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_ASSIGNMENT_FLAG));
 		context.put("hideStudentViewFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_STUDENT_VIEW_FLAG));
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
-
+		
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_VIEW_ASSIGNMENT;
 
@@ -2276,7 +2271,6 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
-		context.put("gradeTypeTable", gradeTypeTable());
 		context.put("userDirectoryService", UserDirectoryService.getInstance());
 	
 		String template = (String) getContext(data).get("template");
