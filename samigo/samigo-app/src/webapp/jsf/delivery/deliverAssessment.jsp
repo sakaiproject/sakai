@@ -258,7 +258,7 @@ function saveTime()
   <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
     action="#{delivery.submitForGrade}"  id="submitForm1" styleClass="active"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.continue}"
-    onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'"/>
+    onclick="pauseTiming='false'; disableSubmit1();" onkeypress="pauseTiming='false'"/>
 
   <%-- PREVIOUS --%>
   <h:commandButton id="previous" type="submit" value="#{deliveryMessages.previous}"
