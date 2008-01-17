@@ -1082,12 +1082,6 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			throw new IdUnusedException(ref.getReference());
 		}
 
-		// check security on the message
-		if (!allowGetMessage(channelReference(ref.getContext(), ref.getContainer()), ref.getReference()))
-		{
-			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_READ), ref.getReference());
-		}
-
 		// get the channel, no security check
 		MessageChannel c = findChannel(channelReference(ref.getContext(), ref.getContainer()));
 		if (c == null)
@@ -1097,6 +1091,16 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 		// get the message from the channel
 		Message m = ((BaseMessageChannelEdit) c).findMessage(ref.getId());
+
+		// check security on the message, if not public
+		if (m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null ||
+			 !m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
+		{
+			if (!allowGetMessage(channelReference(ref.getContext(), ref.getContainer()), ref.getReference()))
+			{
+				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_READ), ref.getReference());
+			}
+		}
 
 		return m;
 
@@ -1572,10 +1576,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// otherwise a message
 			else if (REF_TYPE_MESSAGE.equals(ref.getSubType()))
 			{
-				MessageChannel c = findChannel(channelReference(ref.getContext(), ref.getContainer()));
-				if (c == null)
-					throw new IdUnusedException(ref.getContainer());
-				Message message = ((BaseMessageChannelEdit) c).findMessage(ref.getId());
+				Message message = getMessage(ref);
 				url = message.getUrl();
 			}
 
@@ -4683,7 +4684,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 
 	/**
-	 * A filter that will reject messages which are not public 
+	 * A filter that will reject messages which are draft or not public
 	 */
 	protected class PublicFilter implements Filter
 	{
@@ -4715,6 +4716,8 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 				Message msg = (Message) o;
 				if (msg.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null ||
 					 !msg.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
+					return false;
+				else if (msg.getHeader().getDraft())
 					return false;
 			}
 				
