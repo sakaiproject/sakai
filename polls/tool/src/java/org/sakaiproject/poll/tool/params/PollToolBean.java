@@ -39,6 +39,9 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.model.VoteCollection;
 import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.tool.producers.AddPollProducer;
+import org.sakaiproject.poll.tool.producers.PollOptionProducer;
+import org.sakaiproject.poll.tool.producers.PollToolProducer;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.util.FormattedText;
@@ -286,13 +289,13 @@ public class PollToolBean {
  	manager.saveOption(option);
  	m_log.debug("Succesuly save option with id" + option.getId());
 	
-	voteBean.poll = manager.getPollById(option.getPollId());
+	//voteBean.poll = manager.getPollById(option.getPollId());
 	
 	 
 	if (submissionStatus.equals("option"))
 	 return "option";
 	else 
-	 return "save";
+	 return "Saved";
 	  
 		 
   }

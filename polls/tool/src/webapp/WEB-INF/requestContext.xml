@@ -117,6 +117,7 @@
 		<property name="dateEvolver" ref="fieldDateInputEvolver" />
 		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
+		<property name="pollBeanLocator" ref="pollBeanLocator"/>
 	</bean>
 
 
@@ -124,11 +125,6 @@
 		class="org.sakaiproject.poll.tool.producers.PollVoteProducer">
 		<property name="pollListManager"
 			ref="org.sakaiproject.tool.poll.api.PollListManager" />
-		<property name="toolManager"
-			ref="org.sakaiproject.tool.api.ToolManager" />
-		<property name="userDirectoryService"
-			ref="org.sakaiproject.user.api.UserDirectoryService" />
-		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
@@ -168,6 +164,12 @@
 		</property>
 	</bean>
 
+<!-- pollBean Locator -->
+	<bean id="pollBeanLocator"
+		class="org.sakaiproject.poll.tool.locators.PollBeanLocator">
+		<property name="pollListManager"
+			ref="org.sakaiproject.tool.poll.api.PollListManager" />
+	</bean>
 
 </beans>
 
