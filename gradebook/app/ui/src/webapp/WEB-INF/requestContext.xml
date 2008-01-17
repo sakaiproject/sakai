@@ -4,7 +4,7 @@
 
 <beans>
 
-	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.AddGradebookItemProducer" >
+	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.GradebookItemProducer" >
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="dateEvolver" ref="fieldDateInputEvolver" />

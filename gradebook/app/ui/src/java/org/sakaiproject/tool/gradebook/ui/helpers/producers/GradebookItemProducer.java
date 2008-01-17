@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
-import org.sakaiproject.tool.gradebook.ui.helpers.params.AddGradebookItemViewParams;
+import org.sakaiproject.tool.gradebook.ui.helpers.params.GradebookItemViewParams;
 import org.sakaiproject.tool.gradebook.ui.helpers.params.FinishedHelperViewParams;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.site.api.SiteService;
@@ -37,10 +37,10 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-public class AddGradebookItemProducer implements DynamicNavigationCaseReporter, 
+public class GradebookItemProducer implements DynamicNavigationCaseReporter, 
 ViewComponentProducer, ViewParamsReporter, DefaultView {
 
-    public static final String VIEW_ID = "add-gradebook-item";
+    public static final String VIEW_ID = "gradebookItem";
     public String getViewID() {
         return VIEW_ID;
     }
@@ -73,7 +73,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     
     
     public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
-    	AddGradebookItemViewParams params = (AddGradebookItemViewParams) viewparams;
+    	GradebookItemViewParams params = (GradebookItemViewParams) viewparams;
 
     	//Gradebook Info
     	Long gradebookId = gradebookManager.getGradebook(params.contextId).getId();
@@ -82,13 +82,13 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	
     	//OTP
     	String assignmentOTP = "Assignment.";
-    	if (params.gradebookItemId != null) {
-    		assignmentOTP += params.gradebookItemId.toString();
+    	if (params.assignmentId != null) {
+    		assignmentOTP += params.assignmentId.toString();
     	} else {
     		assignmentOTP += EntityBeanLocator.NEW_PREFIX + "1";
     	}
     	
-    	Boolean add = (params.gradebookItemId == null);
+    	Boolean add = (params.assignmentId == null);
     	
         //set dateEvolver
         dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);
@@ -153,7 +153,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     }
 
     public ViewParameters getViewParameters() {
-        return new AddGradebookItemViewParams();
+        return new GradebookItemViewParams();
     }
     
     public void setMessageLocator(MessageLocator messageLocator) {

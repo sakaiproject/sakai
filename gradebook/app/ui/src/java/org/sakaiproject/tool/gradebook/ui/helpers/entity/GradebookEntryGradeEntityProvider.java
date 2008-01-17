@@ -21,7 +21,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
  */
 public class GradebookEntryGradeEntityProvider implements EntityProvider, CoreEntityProvider,
 EntityViewParamsInferrer {
-    private Log log = LogFactory.getLog(GradebookEntryEntityProvider.class);
+    private Log log = LogFactory.getLog(GradebookEntryGradeEntityProvider.class);
     public final static String ENTITY_PREFIX = "grade-entry-grade";
     private EntityProviderManager entityProviderManager;
     
