@@ -1658,7 +1658,7 @@ private   int   getNum(char letter,   String   a)
 							    	if(!ccSS[indexCC].trim().equals(currentUserasAuther.replaceAll(" ", ", "))&&(!ccSS[indexCC].trim().equals(msgautherString)))//not equal current auther and not equal old auther
 							    	{						    		
 							    		tmpCC=tmpCC+ccSS[indexCC].trim();
-							    		tmpCC=tmpCC+";";
+							    		tmpCC=tmpCC+"; ";
 							    		
 							    	}
 						    	}
@@ -1668,7 +1668,7 @@ private   int   getNum(char letter,   String   a)
 						    		if(!ccSS[indexCC].trim().equals(currentUserasAuther.replaceAll(" ", ", "))||(!ccSS[indexCC].trim().equals(msgautherString)))//not equal current auther and not equal old auther
 							    	{						    		
 							    		tmpCC=tmpCC+ccSS[indexCC].trim();
-							    		tmpCC=tmpCC+";";
+							    		tmpCC=tmpCC+"; ";
 							    		
 							    	}
 						    		
@@ -1691,7 +1691,7 @@ private   int   getNum(char letter,   String   a)
 						    }
 						    if(tmpCC.length()>1)
 						    {
-							    	tmpCC=tmpCC.substring(0,tmpCC.length()-1);//remove the ";"
+							    	tmpCC=tmpCC.substring(0,tmpCC.length()-2);//remove the ";"
 							}
 						 
 						    getDetailMsg().setSendToStringDecorated(tmpCC);
