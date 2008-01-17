@@ -16,4 +16,8 @@ public class GradeGradebookItemViewParams extends SimpleViewParameters {
 		this.contextId = contextId;
 		this.userId = userId;
 	}
+	
+	public String getParseSpec() {
+		return super.getParseSpec() + ",@1:contextId,@2:assignmentId,@3:userId";
+	}
 }

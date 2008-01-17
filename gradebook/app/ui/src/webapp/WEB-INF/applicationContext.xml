@@ -18,7 +18,7 @@
       <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
     </bean>
     
-    <bean id="GradebookEntryGradeEntityProvider" class="org.sakaiproject.tool.gradebook.ui.helpers.entity.GradebookEntryGradeEntityProvider"
+    <bean id="GradebookEntryGradeEntityProvider" class="org.sakaiproject.tool.gradebook.ui.helpers.entity.GradeGradebookItemEntityProvider"
       init-method="init" destroy-method="destroy">
       <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
       <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />

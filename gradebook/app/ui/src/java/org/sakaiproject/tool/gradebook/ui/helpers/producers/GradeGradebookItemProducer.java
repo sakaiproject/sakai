@@ -48,7 +48,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 public class GradeGradebookItemProducer implements DynamicNavigationCaseReporter, 
 ViewComponentProducer, ViewParamsReporter, DefaultView {
 
-    public static final String VIEW_ID = "grade-gradebook-item";
+    public static final String VIEW_ID = "gradeGradebookItem";
     public String getViewID() {
         return VIEW_ID;
     }

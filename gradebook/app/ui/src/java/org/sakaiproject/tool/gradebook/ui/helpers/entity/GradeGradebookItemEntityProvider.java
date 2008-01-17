@@ -19,10 +19,10 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 /*
  * This is a provider for looking up and adding/editing Gradebook Items.
  */
-public class GradebookEntryGradeEntityProvider implements EntityProvider, CoreEntityProvider,
+public class GradeGradebookItemEntityProvider implements EntityProvider, CoreEntityProvider,
 EntityViewParamsInferrer {
-    private Log log = LogFactory.getLog(GradebookEntryGradeEntityProvider.class);
-    public final static String ENTITY_PREFIX = "grade-entry-grade";
+    private Log log = LogFactory.getLog(GradeGradebookItemEntityProvider.class);
+    public final static String ENTITY_PREFIX = "grade-gradebook-item";
     private EntityProviderManager entityProviderManager;
     
     private GradebookService gradebookService;
