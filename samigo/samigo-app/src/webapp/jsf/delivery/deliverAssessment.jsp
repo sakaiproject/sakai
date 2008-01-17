@@ -246,7 +246,7 @@ function saveTime()
     onclick="disableNext()" onkeypress="" />
 
   <%-- SUBMIT FOR GRADE --%>
-  <h:commandButton id="submitforGrade" type="submit" value="#{deliveryMessages.button_submit_grading}"
+  <h:commandButton id="submitForGrade" type="submit" value="#{deliveryMessages.button_submit_grading}"
     action="#{delivery.submitForGrade}" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='previewAssessment') 
              && delivery.navigation ne '1' 
