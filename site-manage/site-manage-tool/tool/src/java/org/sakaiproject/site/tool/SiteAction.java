@@ -7562,11 +7562,11 @@ public class SiteAction extends PagedResourceActionII {
 			Set grants = realm.getMembers();
 			for (Iterator i = grants.iterator(); i.hasNext();) {
 				Member g = (Member) i.next();
-				if (!g.isProvided())
-				{
-					try {
-						User user = UserDirectoryService.getUserByEid(g.getUserEid());
-						String userId = user.getId();
+				try {
+					User user = UserDirectoryService.getUserByEid(g.getUserEid());
+					String userId = user.getId();
+					if (!participantsMap.containsKey(userId))
+					{
 						Participant participant;
 						if (participantsMap.containsKey(userId))
 						{
@@ -7581,11 +7581,11 @@ public class SiteAction extends PagedResourceActionII {
 						participant.role = g.getRole()!=null?g.getRole().getId():"";
 						participant.removeable = true;
 						participantsMap.put(userId, participant);
-					} catch (UserNotDefinedException e) {
-						// deal with missing user quietly without throwing a
-						// warning message
-						M_log.warn(e.getMessage());
 					}
+				} catch (UserNotDefinedException e) {
+					// deal with missing user quietly without throwing a
+					// warning message
+					M_log.warn(e.getMessage());
 				}
 			}
 
