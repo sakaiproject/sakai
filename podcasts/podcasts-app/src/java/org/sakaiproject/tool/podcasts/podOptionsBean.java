@@ -22,13 +22,13 @@
 package org.sakaiproject.tool.podcasts;
 
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.sakaiproject.api.app.podcasts.PodcastService;
+import org.sakaiproject.util.ResourceLoader;
 
 public class podOptionsBean {
   private int podOption;
@@ -37,7 +37,7 @@ public class podOptionsBean {
   private PodcastService podcastService;
   
   /** Used to access message bundle */
-  private final String MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
+  private static ResourceLoader rb;
 
   private static final int PUBLIC = 0;
   private static final int SITE = 1;
@@ -104,9 +104,11 @@ public class podOptionsBean {
 	 * 			The string that is the value of the message
 	 */
 	private String getMessageString(String key) {
-		ResourceBundle rb = ResourceBundle.getBundle(MESSAGE_BUNDLE);
+		if (rb == null) {
+	          String bundle = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+	          rb = new ResourceLoader(bundle);
+		}
 		return rb.getString(key);
-
 	}
 
 	/**

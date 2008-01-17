@@ -73,6 +73,7 @@ import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
 public class PodcastServiceImpl implements PodcastService {
@@ -89,6 +90,8 @@ public class PodcastServiceImpl implements PodcastService {
 	
 	/** Used to pull message bundle */
 	private final String PODFEED_MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
+//	private ResourceBundle resbud = ResourceBundle.getBundle(PODFEED_MESSAGE_BUNDLE);
+	private ResourceLoader resbud = new ResourceLoader(PODFEED_MESSAGE_BUNDLE);
 
 	/** Used for event tracking of podcasts - adding a podcast **/
 	private final String EVENT_ADD_PODCAST = "podcast.add";
@@ -104,7 +107,6 @@ public class PodcastServiceImpl implements PodcastService {
 	private final int SITE = 1;
 
 	private Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
-	private ResourceBundle resbud = ResourceBundle.getBundle(PODFEED_MESSAGE_BUNDLE);
 	
 	private Reference siteRef;
 

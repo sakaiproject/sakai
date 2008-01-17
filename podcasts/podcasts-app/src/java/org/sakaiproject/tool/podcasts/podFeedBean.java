@@ -22,13 +22,11 @@
 
 package org.sakaiproject.tool.podcasts;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
 import org.sakaiproject.api.app.podcasts.PodfeedService;
+import org.sakaiproject.util.ResourceLoader;
 
 public class podFeedBean {
 
@@ -38,7 +36,8 @@ public class podFeedBean {
 	public static final String PODFEED_DESC2 = "feed_desc2";
 	public static final String NO_TITLE_ALERT = "notitle";
 
-	private final String MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
+	/** the resource bundle */
+	private static ResourceLoader rb = new ResourceLoader("podcasts");
 
 	// inject podfeedService into here to use
 	private PodfeedService podfeedService;
@@ -183,7 +182,6 @@ public class podFeedBean {
 	 * 			The string that is the value of the message
 	 */
 	private String getErrorMessageString(String key) {
-		ResourceBundle rb = ResourceBundle.getBundle(MESSAGE_BUNDLE);
 		return rb.getString(key);
 
 	}

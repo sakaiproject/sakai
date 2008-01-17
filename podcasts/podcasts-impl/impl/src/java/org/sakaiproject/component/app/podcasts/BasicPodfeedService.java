@@ -52,7 +52,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
-//import javax.faces.context.FacesContext;
 
 import com.sun.syndication.feed.WireFeed;
 import com.sun.syndication.feed.module.DCModuleImpl;
@@ -108,6 +107,7 @@ public class BasicPodfeedService implements PodfeedService {
 	
 	/** Used to pull message bundle */
 	private final String PODFEED_MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
+	private ResourceLoader resbud = new ResourceLoader(PODFEED_MESSAGE_BUNDLE);
 
 	private static final Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
 
@@ -901,9 +901,6 @@ public class BasicPodfeedService implements PodfeedService {
 	 * 			The string that is the value of the message
 	 */
 	private String getMessageBundleString(String key) {
-		
-		final ResourceBundle resbud = ResourceBundle.getBundle(PODFEED_MESSAGE_BUNDLE);
-		
 		return resbud.getString(key);
 	}
 }

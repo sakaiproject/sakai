@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.TimeZone;
 
 import javax.faces.application.FacesMessage;
@@ -78,10 +77,10 @@ import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
 public class podHomeBean {
-
 	// Message Bundle handles
 	private static final String QUOTA_ALERT = "quota_alert";
 	private static final String LENGTH_ALERT = "length_alert";
@@ -378,7 +377,9 @@ public class podHomeBean {
 	private String RESOURCE_TOOL_ID = ServerConfigurationService.getString("podcasts.toolid", "sakai.resources");
 
 	/** Used to pull message bundle */
-	private final String MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
+//        String bundle = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+ //       toolBundle = new ResourceLoader(bundle);
+	private ResourceLoader rb;
 
 	// inject the services needed
 	private PodcastService podcastService;
@@ -1748,9 +1749,11 @@ public class podHomeBean {
 	 * 			The string that is the value of the message
 	 */
 	private String getErrorMessageString(String key) {
-		ResourceBundle rb = ResourceBundle.getBundle(MESSAGE_BUNDLE);
+		if (rb == null) {
+	          String bundle = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+	          rb = new ResourceLoader(bundle);
+		}
 		return rb.getString(key);
-
 	}
 
 	/**

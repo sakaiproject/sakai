@@ -3,7 +3,9 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
 
-<f:loadBundle basename="org.sakaiproject.api.podcasts.bundle.Messages" var="msgs"/>
+<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+	<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.podcasts.bundle.Messages"/>
+</jsp:useBean>
 
 <f:view> 
 	<sakai:view title="#{msgs.podcast_home_title}" toolCssHref="css/podcaster.css"> 
