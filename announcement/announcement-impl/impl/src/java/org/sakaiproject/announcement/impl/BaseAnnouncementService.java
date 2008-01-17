@@ -558,8 +558,8 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 					M_log.warn("parse(): unknown message subtype: " + subType + " in ref: " + reference);
 			}
 
-			// Translate context alias into site id if necessary
-			if ((context != null) && (context.length() > 0))
+			// Translate context alias into site id (only for rss) if necessary
+			if (REF_TYPE_ANNOUNCEMENT_RSS.equals(subType) &&(context != null) && (context.length() > 0))
 			{
 				if (!m_siteService.siteExists(context))
 				{
@@ -579,13 +579,13 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 						return false;
 					}
 				}
-			}
 
-         // if context still isn't valid, then no valid alias or site was specified
-			if (!m_siteService.siteExists(context))
-			{
-				M_log.warn(this+".parseEntityReference() no valid site or alias: " + context);
-				return false;
+				// if context still isn't valid, then no valid alias or site was specified
+				if (!m_siteService.siteExists(context))
+				{
+					M_log.warn(this+".parseEntityReference() no valid site or alias: " + context);
+					return false;
+				}
 			}
 
 			ref.set(APPLICATION_ID, subType, id, container, context);
