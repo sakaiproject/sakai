@@ -23,6 +23,7 @@ package org.sakaiproject.announcement.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.announcement.api.AnnouncementMessage;
 
 /**
  * <p>
@@ -34,6 +35,9 @@ import org.sakaiproject.entity.api.Reference;
  */
 public class AnnouncementService
 {
+	public static final String RELEASE_DATE = org.sakaiproject.announcement.api.AnnouncementService.RELEASE_DATE;
+	public static final String RETRACT_DATE = org.sakaiproject.announcement.api.AnnouncementService.RETRACT_DATE;
+	
 	/**
 	 * Access the component instance: special cover only method.
 	 * 
@@ -316,5 +320,13 @@ public class AnnouncementService
 		if (service == null) return null;
 
 		return service.getRssUrl(param0);
+	}
+	
+	public static boolean isMessageViewable(AnnouncementMessage param0) 
+	{
+		org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
+		if (service == null) return false;
+
+		return service.isMessageViewable(param0);
 	}
 }

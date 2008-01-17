@@ -640,6 +640,45 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	/**
 	 * {@inheritDoc}
 	 */
+	public boolean isMessageViewable(AnnouncementMessage message) 
+	{
+		final ResourceProperties messageProps = message.getProperties();
+
+		final Time now = TimeService.newTime();
+		try 
+		{
+			final Time releaseDate = message.getProperties().getTimeProperty(RELEASE_DATE);
+
+			if (now.before(releaseDate)) 
+			{
+				return false;
+			}
+		}
+		catch (Exception e) 
+		{
+			// Just not using/set Release Date
+		} 
+
+		try 
+		{
+			final Time retractDate = message.getProperties().getTimeProperty(RETRACT_DATE);
+			
+			if (now.after(retractDate)) 
+			{
+				return false;
+			}
+		}
+		catch (Exception e) 
+		{
+			// Just not using/set Retract Date
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void contextCreated(String context, boolean toolPlacement)
 	{
 		if (toolPlacement) enableMessageChannel(context);
@@ -767,10 +806,12 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			for ( Iterator it=anncList.iterator(); it.hasNext(); )
 			{
 				AnnouncementMessage msg = (AnnouncementMessage)it.next();
-				Reference msgRef = m_entityManager.newReference( msg.getReference() );
-				
-				Element item = generateItemElement( doc, msg, msgRef );
-				channel.appendChild(item);
+				if ( isMessageViewable(msg) )
+				{
+					Reference msgRef = m_entityManager.newReference( msg.getReference() );
+					Element item = generateItemElement( doc, msg, msgRef );
+					channel.appendChild(item);
+				}
 			}
 			
 			docTransformer.transform( new DOMSource(doc), new StreamResult(out) );
@@ -789,8 +830,12 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	{
 		try
 		{
-			// check security on the message (throws if not permitted)
-			unlock(SECURE_READ, ref.getReference());
+			// check security on the message, if not a public message (throws if not permitted)
+			if ( ref.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null ||
+				  !ref.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()) )
+			{
+				unlock(SECURE_READ, ref.getReference());
+			}
 			
 			AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
 			AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();

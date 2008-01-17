@@ -206,8 +206,6 @@ public class AnnouncementAction extends PagedResourceActionII
    private static final long MILLISECONDS_IN_DAY = (24 * 60 * 60 * 1000);
    private static final long FUTURE_DAYS = 30;
    
-   private static final String RELEASE_DATE = "releaseDate";
-   private static final String RETRACT_DATE = "retractDate";
    private static final String HIDDEN = "hidden";
    private static final String SPECIFY_DATES  = "specify";
    
@@ -1498,7 +1496,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			// only display if not hidden AND
 			// between release and retract dates (if set)
 			if (isSynopticTool() || isOnWorkspaceTab()) {
-				if (!isHidden(message) && isViewable(message)) {
+				if (!isHidden(message) && AnnouncementService.isMessageViewable(message)) {
 					filteredMessages.add(message);
 				}
 			}
@@ -1511,7 +1509,7 @@ public class AnnouncementAction extends PagedResourceActionII
 						filteredMessages.add(message);
 					}
 				}
-				else if (isViewable(message)) {
+				else if (AnnouncementService.isMessageViewable(message)) {
 					filteredMessages.add(message);
 				}
 				else if (canViewHidden(message, siteId)) {
@@ -1560,60 +1558,8 @@ public class AnnouncementAction extends PagedResourceActionII
 	private boolean isHidden(AnnouncementMessage message) 
 	{
 		return 	message.getHeader().getDraft();
-/*		final ResourceProperties messageProps = message.getProperties();
-		
-		boolean hidden = false;
-		try 
-		{	hidden = messageProps.getBooleanProperty(HIDDEN);
-		} 
-		catch (Exception e) 
-		{
-			// Just means property not set, so continue
-		} 
-		
-		return hidden;
-*/		
 	}
 
-	/**
-	 * Determine if message viewable based on release/retract dates (if set)
-	 */
-	private boolean isViewable(AnnouncementMessage message) 
-	{
-		final ResourceProperties messageProps = message.getProperties();
-
-		final Time now = TimeService.newTime();
-		try 
-		{
-			final Time releaseDate = message.getProperties().getTimeProperty(RELEASE_DATE);
-
-			if (now.before(releaseDate)) 
-			{
-				return false;
-			}
-		}
-		catch (Exception e) 
-		{
-			// Just not using/set Release Date
-		} 
-
-		try 
-		{
-			final Time retractDate = message.getProperties().getTimeProperty(RETRACT_DATE);
-			
-			if (now.after(retractDate)) 
-			{
-				return false;
-			}
-		}
-		catch (Exception e) 
-		{
-			// Just not using/set Retract Date
-		}
-		
-		return true;
-	}
-	
 	/**
 	 * Build the context for preview an attachment
 	 */
@@ -1643,7 +1589,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			Time releaseDate = null;
 			try {
-				releaseDate = edit.getProperties().getTimeProperty(RELEASE_DATE);
+				releaseDate = edit.getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
 				context.put("date", releaseDate);
 			} 
 			catch (Exception e) {
@@ -1745,7 +1691,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				Time releaseDate = null;
 				try 
 				{
-					releaseDate = edit.getProperties().getTimeProperty(RELEASE_DATE);					
+					releaseDate = edit.getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);					
 					context.put("useReleaseDate", Boolean.valueOf(true));
 				} 
 				catch (Exception e) 
@@ -1754,13 +1700,13 @@ public class AnnouncementAction extends PagedResourceActionII
 					releaseDate = edit.getHeader().getDate();
 				} 
 
-				context.put(RELEASE_DATE, releaseDate);
+				context.put(AnnouncementService.RELEASE_DATE, releaseDate);
 
 				// Get/set retract information
 				Time retractDate = null;
 				try 
 				{
-					retractDate = edit.getProperties().getTimeProperty(RETRACT_DATE);
+					retractDate = edit.getProperties().getTimeProperty(AnnouncementService.RETRACT_DATE);
 					context.put("useRetractDate", Boolean.valueOf(true));
 				} 
 				catch (Exception e) 
@@ -1770,7 +1716,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					retractDate = TimeService.newTime(futureTimeLong);
 				}
 
-				context.put(RETRACT_DATE, retractDate);
+				context.put(AnnouncementService.RETRACT_DATE, retractDate);
 
 				// group list which user can remove message from
 				// TODO: this is almost right (see chef_announcements-revise.vm)... ideally, we would let the check groups that they can add to,
@@ -1843,13 +1789,13 @@ public class AnnouncementAction extends PagedResourceActionII
 
 			// Set inital release date to today
 			final Time currentTime = TimeService.newTime();
-			context.put(RELEASE_DATE, currentTime);
+			context.put(AnnouncementService.RELEASE_DATE, currentTime);
 			
 			// Set inital retract date to 60 days from now
 			final long futureTimeLong = currentTime.getTime() + MILLISECONDS_IN_DAY * FUTURE_DAYS;			
 			final Time futureTime = TimeService.newTime(futureTimeLong);
 
-			context.put(RETRACT_DATE, futureTime);
+			context.put(AnnouncementService.RETRACT_DATE, futureTime);
 			
 			// output the notification options
 			String notification = (String) sstate.getAttribute(SSTATE_NOTI_VALUE);
@@ -1880,7 +1826,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			// Get/set release information
 			Time releaseDate = null;
 			try {
-				releaseDate = edit.getProperties().getTimeProperty(RELEASE_DATE);
+				releaseDate = edit.getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
 				
 				context.put("useReleaseDate", Boolean.valueOf(true));
 				specify = true;
@@ -1891,13 +1837,13 @@ public class AnnouncementAction extends PagedResourceActionII
 				releaseDate = edit.getHeader().getDate();
 			} 
 
-			context.put(RELEASE_DATE, releaseDate);
+			context.put(AnnouncementService.RELEASE_DATE, releaseDate);
 
 			// Get/set retract information
 			Time retractDate = null;
 			try 
 			{
-				retractDate = edit.getProperties().getTimeProperty(RETRACT_DATE);
+				retractDate = edit.getProperties().getTimeProperty(AnnouncementService.RETRACT_DATE);
 				
 				context.put("useRetractDate", Boolean.valueOf(true));
 				specify = true;
@@ -1909,7 +1855,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				retractDate = TimeService.newTime(futureTimeLong);
 			}
 
-			context.put(RETRACT_DATE, retractDate);
+			context.put(AnnouncementService.RETRACT_DATE, retractDate);
 
 			context.put(SPECIFY_DATES, specify);
 			context.put(HIDDEN, edit.getHeader().getDraft());
@@ -1972,7 +1918,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 			// put release date into context if set. otherwise, put current date
 			try {
-				Time releaseDate = message.getProperties().getTimeProperty(RELEASE_DATE);
+				Time releaseDate = message.getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
 				
 				context.put("date", releaseDate);
 			} 
@@ -2636,22 +2582,22 @@ public class AnnouncementAction extends PagedResourceActionII
 
 					// in addition to setting release date property, also set Date to release
 					// date so properly sorted
-					msg.getPropertiesEdit().addProperty(RELEASE_DATE, releaseDate.toString());
+					msg.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, releaseDate.toString());
 					header.setDate(releaseDate);
 				}
 				else if (tempReleaseDate != null) // saving from Preview page
 				{
 					// in addition to setting release date property, also set Date to release
 					// date so properly sorted
-					msg.getPropertiesEdit().addProperty(RELEASE_DATE, tempReleaseDate.toString());
+					msg.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, tempReleaseDate.toString());
 					header.setDate(tempReleaseDate);					
 				}
 				else
 				{
 					// they are not using release date so remove
-					if (msg.getProperties().getProperty(RELEASE_DATE) != null) 
+					if (msg.getProperties().getProperty(AnnouncementService.RELEASE_DATE) != null) 
 					{
-							msg.getPropertiesEdit().removeProperty(RELEASE_DATE);
+							msg.getPropertiesEdit().removeProperty(AnnouncementService.RELEASE_DATE);
 					}
 
 					// since revised, set Date to current date
@@ -2680,14 +2626,14 @@ public class AnnouncementAction extends PagedResourceActionII
 				}
 				else if (tempRetractDate != null)
 				{
-					msg.getPropertiesEdit().addProperty(RETRACT_DATE, tempRetractDate.toString());
+					msg.getPropertiesEdit().addProperty(AnnouncementService.RETRACT_DATE, tempRetractDate.toString());
 				}
 				else 
 				{
 					// they are not using release date so remove
-					if (msg.getProperties().getProperty(RETRACT_DATE) != null) 
+					if (msg.getProperties().getProperty(AnnouncementService.RETRACT_DATE) != null) 
 					{
-							msg.getPropertiesEdit().removeProperty(RETRACT_DATE);
+							msg.getPropertiesEdit().removeProperty(AnnouncementService.RETRACT_DATE);
 					}
 				}
 				
@@ -3583,7 +3529,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				
 				try
 				{
-					o1releaseDate = ((AnnouncementMessage) o1).getProperties().getTimeProperty(RELEASE_DATE);
+					o1releaseDate = ((AnnouncementMessage) o1).getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
 				}
 				catch (Exception e) 
 				{
@@ -3592,7 +3538,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 				try 
 				{
-					o2releaseDate = ((AnnouncementMessage) o2).getProperties().getTimeProperty(RELEASE_DATE);
+					o2releaseDate = ((AnnouncementMessage) o2).getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
 				}
 				catch (Exception e) 
 				{
@@ -3627,7 +3573,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				
 				try
 				{
-					o1retractDate = ((AnnouncementMessage) o1).getProperties().getTimeProperty(RETRACT_DATE);
+					o1retractDate = ((AnnouncementMessage) o1).getProperties().getTimeProperty(AnnouncementService.RETRACT_DATE);
 				}
 				catch (Exception e) 
 				{
@@ -3636,7 +3582,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 				try 
 				{
-					o2retractDate = ((AnnouncementMessage) o2).getProperties().getTimeProperty(RETRACT_DATE);
+					o2retractDate = ((AnnouncementMessage) o2).getProperties().getTimeProperty(AnnouncementService.RETRACT_DATE);
 				}
 				catch (Exception e) 
 				{
