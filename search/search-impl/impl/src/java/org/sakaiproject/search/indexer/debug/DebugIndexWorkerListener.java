@@ -52,7 +52,7 @@ public class DebugIndexWorkerListener implements IndexWorkerListener
 	 */
 	public void indexWorkerEnd(IndexWorker worker)
 	{
-		log.info("Worker [" + worker + "] Index End ");
+		log.debug("Worker [" + worker + "] Index End ");
 
 	}
 
@@ -61,7 +61,7 @@ public class DebugIndexWorkerListener implements IndexWorkerListener
 	 */
 	public void indexWorkerStart(IndexWorker worker)
 	{
-		log.info("Worker [" + worker + "] Index Start ");
+		log.debug("Worker [" + worker + "] Index Start ");
 	}
 
 }

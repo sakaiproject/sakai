@@ -108,7 +108,6 @@ public class OptimizableIndexImpl implements OptimizableIndex
 		}
 		log.info("Keeping " + keep.size() + " removing " + remove.size() + " segments");
 		journaledIndex.setSegments(keep);
-		journaledIndex.removeSegments(remove);
 		journaledIndex.saveSegmentList();
 
 	}

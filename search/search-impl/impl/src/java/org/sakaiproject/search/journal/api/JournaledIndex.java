@@ -39,6 +39,12 @@ public interface JournaledIndex extends JournaledObject
 {
 
 	/**
+	 * A file name that is used to mark if a index should be deleted when its closed.
+	 * This MUST only be used on local files to the JVM.
+	 */
+	String DELETE_ON_CLOSE_FILE = "deleteOnClose";
+
+	/**
 	 * The workign space associated with the index
 	 * 
 	 * @return
@@ -85,13 +91,6 @@ public interface JournaledIndex extends JournaledObject
 	 * @param keep
 	 */
 	void setSegments(List<File> keep);
-
-	/**
-	 * add a list of segments to be removed after the next close
-	 * 
-	 * @param remove
-	 */
-	void removeSegments(List<File> remove);
 
 	/**
 	 * @throws IOException

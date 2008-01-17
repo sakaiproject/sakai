@@ -376,6 +376,54 @@ public class DbJournalOptimizationManager implements JournalManager
 	 */
 	public void rollbackSave(JournalManagerState jms)
 	{
+		OptimizeJournalManagerStateImpl ojms = (OptimizeJournalManagerStateImpl) jms;
+		PreparedStatement updateTarget = null;
+		Connection connection = null;
+		try
+		{
+			connection = datasource.getConnection();
+			// set the target to committed and then delete the rest
+			// so the final segment becomes commtted with a writer id of
+			// this+txiD,
+			// and all merging-prepare states in this transaction are removed.
+			updateTarget = connection
+					.prepareStatement("update search_journal set status = 'commited', txts = ? where indexwriter = ? and status = 'merging-prepare'  ");
+			updateTarget.clearParameters();
+			updateTarget.setLong(1, System.currentTimeMillis());
+			updateTarget.setString(2, ojms.indexWriter);
+			int i = updateTarget.executeUpdate();
+
+			connection.commit();
+			log.info("Rolled Back Failed Shared Index operation a retry will happen on annother node soon ");
+		}
+		catch (Exception ex)
+		{
+			try
+			{
+				connection.rollback();
+			}
+			catch (Exception ex2)
+			{
+				log.error("Rollback Of shared Journal Merge Failed ",ex);
+			}
+		}
+		finally
+		{
+			try
+			{
+				updateTarget.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				connection.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		}
 
 	}
 

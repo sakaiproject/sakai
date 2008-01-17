@@ -79,6 +79,7 @@ public class MergeUpdateOperation implements ManagementOperation
 					+ journaledObject.getLastJournalEntry());
 			try
 			{
+				StringBuilder sb = new StringBuilder();
 				try
 				{
 					while (true)
@@ -93,9 +94,9 @@ public class MergeUpdateOperation implements ManagementOperation
 							mergeUpdateTransaction.prepare();
 							mergeUpdateTransaction.commit();
 							long timeTaken = System.currentTimeMillis() - start;
-							log.info("Merged Journal "
-									+ mergeUpdateTransaction.getJournalEntry()
-									+ " from the redolog in "+timeTaken+" ms");
+							sb.append("\n\tMerged Journal ").append(
+									mergeUpdateTransaction.getJournalEntry()).append(
+									" from the redolog in " + timeTaken + " ms");
 							count++;
 							if ((count > 10 && timeTaken > 500) || count > 50)
 							{
@@ -110,7 +111,7 @@ public class MergeUpdateOperation implements ManagementOperation
 									optimizeUpdateTransaction.prepare();
 									optimizeUpdateTransaction.commit();
 									timeTaken = System.currentTimeMillis() - start;
-									log.info("Optimize complete in  "+timeTaken+"ms");
+									sb.append("Optimize complete in  ").append(timeTaken).append("ms");
 								}
 								catch (JournalErrorException jex)
 								{
@@ -162,8 +163,7 @@ public class MergeUpdateOperation implements ManagementOperation
 
 								}
 							}
-							
-							
+
 						}
 						catch (JournalErrorException jex)
 						{
@@ -230,6 +230,7 @@ public class MergeUpdateOperation implements ManagementOperation
 						log.debug("No More Jounral Entries ", ex);
 					}
 				}
+				log.info("Local Merge Operation "+sb.toString()+"\n");
 			}
 			finally
 			{
@@ -286,7 +287,8 @@ public class MergeUpdateOperation implements ManagementOperation
 	}
 
 	/**
-	 * @param optimizeUpdateManager the optimizeUpdateManager to set
+	 * @param optimizeUpdateManager
+	 *        the optimizeUpdateManager to set
 	 */
 	public void setOptimizeUpdateManager(OptimizeIndexManager optimizeUpdateManager)
 	{

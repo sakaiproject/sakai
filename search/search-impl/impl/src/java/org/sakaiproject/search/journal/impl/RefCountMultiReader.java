@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.journal.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,9 +29,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiReader;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.search.journal.api.IndexCloser;
+import org.sakaiproject.search.journal.api.JournaledIndex;
 import org.sakaiproject.search.journal.api.ManagementOperation;
 import org.sakaiproject.search.journal.api.ThreadBinder;
+import org.sakaiproject.search.util.FileUtils;
 import org.sakaiproject.thread_local.api.ThreadBound;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
@@ -61,7 +66,7 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 
 	private Object closeMonitor = new Object();
 
-	private ManagementOperation managementOperation; 
+	private ManagementOperation managementOperation;
 
 	private static int opened = 0;
 
@@ -110,9 +115,9 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 		synchronized (closeMonitor)
 		{
 			if (closing) return true;
-			closing = true;			
+			closing = true;
 		}
-		opened --;
+		opened--;
 		if (log.isDebugEnabled()) log.debug("Closing Index " + this);
 
 		try
@@ -137,6 +142,57 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 
 			}
 		}
+
+		// can we delete any of these indexes ?
+
+		for (IndexReader ir : indexReaders)
+		{
+			try
+			{
+
+				// index closers manage their own delete operations
+				if (!(ir instanceof IndexCloser))
+				{
+					Directory d = ir.directory();
+					if (d instanceof FSDirectory)
+					{
+						FSDirectory fsd = (FSDirectory) d;
+						File f = fsd.getFile();
+						File deleteMarker = new File(f,JournaledIndex.DELETE_ON_CLOSE_FILE);
+						if (deleteMarker.exists())
+						{
+							FileUtils.deleteAll(f);
+							log.debug("Deleting Index on Close " + f);
+						}
+					}
+				}
+			}
+			catch (IOException ioex)
+			{
+
+			}
+		}
+		try
+		{
+
+			Directory d = this.directory();
+			if (d instanceof FSDirectory)
+			{
+				FSDirectory fsd = (FSDirectory) d;
+				File f = fsd.getFile();
+				File deleteMarker = new File(f,JournaledIndex.DELETE_ON_CLOSE_FILE);
+				if (deleteMarker.exists())
+				{
+					FileUtils.deleteAll(f);
+					log.debug("Deleting Index on Close " + f);
+				}
+			}
+		}
+		catch (IOException ioex)
+		{
+
+		}
+
 		return true;
 
 	}
@@ -168,7 +224,7 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 		{
 			try
 			{
-				unbindingMonitor .set("unbinding");
+				unbindingMonitor.set("unbinding");
 				if (threadLocalManager != null)
 				{
 					Object o = threadLocalManager.get(String.valueOf(this));
@@ -178,8 +234,8 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 						if (log.isDebugEnabled())
 							log.debug("Unbound " + this + " " + count);
 						threadLocalManager.set(String.valueOf(this), null); // unbind
-																			// the
-																			// dependents
+						// the
+						// dependents
 					}
 					for (IndexReader ir : indexReaders)
 					{
@@ -268,7 +324,9 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 		return opened;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.journal.api.IndexCloser#getName()
 	 */
 	public String getName()
@@ -276,7 +334,8 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 		StringBuilder sb = new StringBuilder();
 		sb.append(managementOperation).append(" ");
 		sb.append(toString()).append(" RefCount:").append(count);
-		for ( IndexReader ir : indexReaders ) {
+		for (IndexReader ir : indexReaders)
+		{
 			sb.append("[").append(ir.directory().toString()).append("]");
 		}
 		return sb.toString();

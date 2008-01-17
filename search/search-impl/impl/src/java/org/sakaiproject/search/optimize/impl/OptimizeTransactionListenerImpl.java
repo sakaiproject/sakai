@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.sakaiproject.search.journal.api.JournaledIndex;
 import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.optimize.api.IndexOptimizeTransaction;
 import org.sakaiproject.search.optimize.api.NoOptimizationRequiredException;
@@ -37,6 +38,7 @@ import org.sakaiproject.search.optimize.api.OptimizeTransactionListener;
 import org.sakaiproject.search.optimize.api.OptimizedFailedIndexTransactionException;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
+import org.sakaiproject.search.util.FileUtils;
 
 /**
  * An OptimizationTransactionListener that optimizes the index. It first
@@ -162,12 +164,20 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 			int i = 0;
 			for (File f : optimzableSegments)
 			{
+				
 				directories[i++] = FSDirectory.getDirectory(f, false);
 			}
 			iw.addIndexes(directories);
 			iw.optimize();
 			log.info("LocalOptimize: Optimized "+optimzableSegments.length+" segments in to local master ");
-
+			for ( Directory d : directories ) {
+				if ( d instanceof FSDirectory ) {
+					FSDirectory fsd = (FSDirectory) d;
+					File f = fsd.getFile();
+					File deleteMarker = new File(f,JournaledIndex.DELETE_ON_CLOSE_FILE);
+					FileUtils.createMarkerFile(deleteMarker);
+				}
+			}
 		}
 		catch (IOException e)
 		{

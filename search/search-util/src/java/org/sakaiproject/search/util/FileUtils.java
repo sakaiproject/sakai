@@ -24,11 +24,13 @@ package org.sakaiproject.search.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
+import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -412,6 +414,18 @@ public class FileUtils
 		});
 		// TODO Auto-generated method stub
 
+	}
+
+	/**
+	 * @param file
+	 * @throws IOException 
+	 */
+	public static void createMarkerFile(File file) throws IOException
+	{
+		FileWriter fw = new FileWriter(file);
+		fw.write("File Touched at "+(new Date()));
+		fw.close();
+		
 	}
 
 }

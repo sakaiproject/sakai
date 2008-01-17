@@ -152,11 +152,6 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	private boolean modified = false;
 
 	/**
-	 * A list of segments to be removed. This is passed to the index listeners
-	 */
-	private List<File> toRemove = new ArrayList<File>();
-
-	/**
 	 * A permanent indexWriter. To get the permanent Index Writer a write lock
 	 * must be taken on the index. This will not prevent access to the
 	 * multReader, but it will prevent it from being reloaded
@@ -534,7 +529,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 			long end = System.currentTimeMillis();
 			lastLoad = end;
 			lastLoadTime = end - start;
-			log.info("Opened index Searcher in " + (end - start) + " ms");
+			log.debug("Opened index Searcher in " + (end - start) + " ms");
 			fireIndexSearcherOpen(indexSearcher);
 		}
 	}
@@ -822,7 +817,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		multiReader = newMultiReader;
 		lastUpdate = System.currentTimeMillis();
 
-		log.info("Reopened Index Reader in " + (lastUpdate - start) + " ms");
+		log.debug("Reopened Index Reader in " + (lastUpdate - start) + " ms");
 		// notify anything that wants to listen to the index open and close
 		// events
 		fireIndexReaderOpen(newMultiReader);
@@ -1152,14 +1147,11 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		{
 			multiReader = null;
 		}
-
-		File[] f = toRemove.toArray(new File[toRemove.size()]);
 		for (Iterator<IndexListener> itl = getIndexListeners().iterator(); itl.hasNext();)
 		{
 			IndexListener tl = itl.next();
 			tl.doIndexReaderClose(oldMultiReader);
 		}
-		toRemove.clear();
 	}
 
 	/**
@@ -1302,14 +1294,6 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	public File[] getSegments()
 	{
 		return segments.toArray(new File[0]);
-	}
-
-	/**
-	 * @see org.sakaiproject.search.journal.api.JournaledIndex#removeSegments(java.util.List)
-	 */
-	public void removeSegments(List<File> remove)
-	{
-		toRemove.addAll(remove);
 	}
 
 	/**
