@@ -2365,17 +2365,8 @@ public class AnnouncementAction extends PagedResourceActionII
 			int begin_year = params.getInt("release_year");
 			int begin_month = params.getInt("release_month");
 			int begin_day = params.getInt("release_day");
-			int begin_hour = params.getInt("release_hour");
+			int begin_hour = hourAmPmConvert(params, "release_hour", "release_ampm");
 			int begin_min = params.getInt("release_min");
-			String release_ampm = params.getString("release_ampm");
-			if("pm".equals(release_ampm))
-			{
-				begin_hour += 12;
-			}
-			else if(begin_hour == 12)
-			{
-				begin_hour = 0;
-			}
 			releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
 
 			state.setTempReleaseDate(releaseDate);
@@ -2390,17 +2381,8 @@ public class AnnouncementAction extends PagedResourceActionII
 			int end_year = params.getInt("retract_year");
 			int end_month = params.getInt("retract_month");
 			int end_day = params.getInt("retract_day");
-			int end_hour = params.getInt("retract_hour");
+			int end_hour = hourAmPmConvert(params, "retract_hour", "retract_ampm");
 			int end_min = params.getInt("retract_min");
-			String retract_ampm = params.getString("retract_ampm");
-			if("pm".equals(retract_ampm))
-			{
-				end_hour += 12;
-			}
-			else if(end_hour == 12)
-			{
-				end_hour = 0;
-			}
 			retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
 
 			state.setTempRetractDate(retractDate);
@@ -2455,6 +2437,20 @@ public class AnnouncementAction extends PagedResourceActionII
 		sstate.setAttribute(AnnouncementAction.SSTATE_NOTI_VALUE, notification);
 
 	} // readAnnouncementForm
+
+	/**
+	 * convert the am pm hour into 24-hour format
+	 * @param params
+	 * @param hour
+	 * @return
+	 */
+	private int hourAmPmConvert(final ParameterParser params, String param_hour_name, String param_ampm_name) 
+	{
+		int hour = params.getInt(param_hour_name);
+		hour %= 12;
+		if ("pm".equals(params.getString(param_ampm_name))) hour += 12;
+		return hour;
+	}
 
 	/**
 	 * Action is to use when doPost requested, corresponding to chef_announcements-revise or -preview "eventSubmit_doPost"
@@ -2559,24 +2555,8 @@ public class AnnouncementAction extends PagedResourceActionII
 					int begin_year = params.getInt("release_year");
 					int begin_month = params.getInt("release_month");
 					int begin_day = params.getInt("release_day");
-					int begin_hour = params.getInt("release_hour");
+					int begin_hour = hourAmPmConvert(params, "release_hour", "release_ampm");
 					int begin_min = params.getInt("release_minute");
-					String release_ampm = params.getString("release_ampm");
-					if("pm".equals(release_ampm))
-					{
-						if (begin_hour < 12) 
-						{ 
-							begin_hour += 12;
-						}
-						else
-						{
-							// its noon, no change needed
-						}
-					}
-					else if(begin_hour == 12)
-					{
-						begin_hour = 0;
-					}
 					
 					releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
 
@@ -2609,17 +2589,8 @@ public class AnnouncementAction extends PagedResourceActionII
 					int end_year = params.getInt("retract_year");
 					int end_month = params.getInt("retract_month");
 					int end_day = params.getInt("retract_day");
-					int end_hour = params.getInt("retract_hour");
+					int end_hour = hourAmPmConvert(params, "retract_hour", "retract_ampm");
 					int end_min = params.getInt("retract_minute");
-					String retract_ampm = params.getString("retract_ampm");
-					if("pm".equals(retract_ampm))
-					{
-						end_hour += 12;
-					}
-					else if(end_hour == 12)
-					{
-						end_hour = 0;
-					}
 					retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
 
 					msg.getPropertiesEdit().addProperty("retractDate", retractDate.toString());

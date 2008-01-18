@@ -66,7 +66,6 @@
 			#set($time = $current_value.toStringLocalFull())
 			#set($hour = $current_value.breakdownLocal().hour)
 			#set($minute = $current_value.breakdownLocal().min)
-			
 			## TODO: need to add check to determine if am/pm is needed
 			#if($hour > 12)
 				#set($hour = $hour - 12)
@@ -74,6 +73,8 @@
 			#elseif ($hour == 0)
 				#set($hour = 12)
 				#set($timeType = "am")
+			#elseif($hour == 12)
+				#set($timeType = "pm")
 			#end
 			
 			<select name="${prefix}_hour" id="${prefix}_hour" onchange="hourChange('${prefix}_hour'); $!onChangeAction return false;">
