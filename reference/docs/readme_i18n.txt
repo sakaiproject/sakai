@@ -43,10 +43,10 @@ languages, as follows:
    Local ID: iw_IL
 
 7) Brazilian Portuguese 
-   Status: inquiry December 2007
-   Translated by: n/a
-	Contact: Alessandro Oliveira			  aro1976@gmail.com
-				Eduardo Hideki Tanaka		  etanaka@ic.unicamp.br
+   Status: released 2.5
+   Translated by: Eduardo Hideki Tanaka		  etanaka@ic.unicamp.br
+	Contact: Eduardo Hideki Tanaka		  etanaka@ic.unicamp.br
+				Alessandro Oliveira			  aro1976@gmail.com
 				Nilton Lessa		  nlessa@moleque.com.br
    Local ID: pt_BR
    
