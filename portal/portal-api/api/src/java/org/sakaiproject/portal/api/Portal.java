@@ -78,9 +78,19 @@ public interface Portal
 	public static final String ATTR_SITE_PAGE = "sakai.portal.site.";
 
 	/**
+	 * Session variable passing a maximized URL between a portlet and the portal
+	 */
+	public static final String ATTR_MAXIMIZED_URL = "sakai:maximized-url";
+
+	/**
 	 * The default portal name is none is specified.
 	 */
 	public static final String DEFAULT_PORTAL_CONTEXT = "charon";
+
+	/**
+	 * Configuration option indicaing support for frame set mode.
+	 */
+	public static final String FRAMESET_SUPPORT = "portal.frameset";
 
 	/**
 	 * Configuration option to enable/disable state reset on navigation change
@@ -104,7 +114,17 @@ public interface Portal
 
 	public static final String TOOLCONFIG_HELP_DOCUMENT_URL = "help.url";
 
+	/**
+	 * Tool property used to indicate if JSR_168 tools are to be pre-rendered
+	 * as they are being placed in the context.
+	 */
+	public static final String JSR_168_PRE_RENDER = "sakai:portlet-pre-render";
 
+	/**
+	 * Tool property used to indicate if a tool prefers a maximized view
+	 * with minimal portal navigation.
+	 */
+	public static final String PREFER_MAXIMIZE = "sakai:prefer-maximize";
 	/**
 	 * prepare the response and send it to the render engine
 	 * 

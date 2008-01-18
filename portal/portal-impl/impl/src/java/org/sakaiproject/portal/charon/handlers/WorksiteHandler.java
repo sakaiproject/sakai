@@ -185,7 +185,7 @@ public class WorksiteHandler extends PageHandler
 			}
 
 			// add the page
-			includePage(rcontext, res, req, page, toolContextPath, "content");
+			includePage(rcontext, res, req, session, page, toolContextPath, "content");
 		}
 
 	}
