@@ -16,7 +16,7 @@
 	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
 	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
 	    ##  $homeBean $viewBean $resourceLoaderBean )
-	  	 #commandlinks(true true false "View"	false  false true false false	${homeBean} ${historyBean} ${rlb} ) 
+	  	 #commandlinks(true true false ${rlb.jsp_view}	false  false true false false	${homeBean} ${historyBean} ${rlb} ) 
 	  </form>
 	</div>
 	
