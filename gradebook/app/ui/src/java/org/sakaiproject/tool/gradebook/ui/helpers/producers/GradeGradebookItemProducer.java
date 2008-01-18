@@ -1,17 +1,12 @@
 package org.sakaiproject.tool.gradebook.ui.helpers.producers;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
-import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
-import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.ui.helpers.params.FinishedHelperViewParams;
 import org.sakaiproject.tool.gradebook.ui.helpers.params.GradeGradebookItemViewParams;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -159,13 +154,13 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     }
     
     public List reportNavigationCases() {
-        List togo = new ArrayList();
-        togo.add(new NavigationCase("cancel", new SimpleViewParameters(FinishedHelperProducer.VIEWID)));
-        togo.add(new NavigationCase("submit", 
-                new FinishedHelperViewParams(FinishedHelperProducer.VIEWID, null, null)));
+        //List togo = new ArrayList();
+        //togo.add(new NavigationCase("cancel", new SimpleViewParameters(FinishedHelperProducer.VIEWID)));
+        //togo.add(new NavigationCase("submit", 
+        //        new FinishedHelperViewParams(FinishedHelperProducer.VIEWID, null, null)));
         
-
-        return togo;
+    	return new ArrayList();
+        //return togo;
     }
 
     public void setGradebookManager(GradebookManager gradebookManager) {

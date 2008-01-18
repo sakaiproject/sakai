@@ -12,8 +12,6 @@
 		<property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />
 	</bean>
 	
-	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.FinishedHelperProducer" />
-	
 	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.GradeGradebookItemProducer" >
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />

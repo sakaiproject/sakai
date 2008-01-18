@@ -1,14 +1,10 @@
 package org.sakaiproject.tool.gradebook.ui.helpers.producers;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import org.sakaiproject.tool.gradebook.Category;
-import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.ui.helpers.params.GradebookItemViewParams;
-import org.sakaiproject.tool.gradebook.ui.helpers.params.FinishedHelperViewParams;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -27,17 +23,16 @@ import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
-import uk.org.ponder.rsf.flow.jsfnav.DynamicNavigationCaseReporter;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
-import uk.org.ponder.rsf.util.RSFUtil;
+import uk.org.ponder.rsf.flow.ARIResult;
+import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.DefaultView;
-import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
+import uk.org.ponder.rsf.viewstate.RawViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-public class GradebookItemProducer implements DynamicNavigationCaseReporter, 
+public class GradebookItemProducer implements ActionResultInterceptor,
 ViewComponentProducer, ViewParamsReporter, DefaultView {
 
     public static final String VIEW_ID = "gradebookItem";
@@ -51,7 +46,6 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     private ToolManager toolManager;
     private SessionManager sessionManager;
     private GradebookManager gradebookManager;
-    
     
 	/*
 	 * You can change the date input to accept time as well by uncommenting the lines like this:
@@ -71,14 +65,11 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         this.siteService = siteService;
     }
     
-    
     public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
     	GradebookItemViewParams params = (GradebookItemViewParams) viewparams;
-
     	//Gradebook Info
     	Long gradebookId = gradebookManager.getGradebook(params.contextId).getId();
     	List categories = gradebookManager.getCategories(gradebookId);
-    	
     	
     	//OTP
     	String assignmentOTP = "Assignment.";
@@ -159,17 +150,6 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     public void setMessageLocator(MessageLocator messageLocator) {
         this.messageLocator = messageLocator;
     }
-    
-    public List reportNavigationCases() {
-        List togo = new ArrayList();
-        togo.add(new NavigationCase("cancel", new SimpleViewParameters(FinishedHelperProducer.VIEWID)));
-        togo.add(new NavigationCase("submit", 
-                new FinishedHelperViewParams(FinishedHelperProducer.VIEWID, null, null)));
-        
-
-        return togo;
-    }
-
 
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
@@ -183,5 +163,17 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     public void setGradebookManager(GradebookManager gradebookManager) {
     	this.gradebookManager = gradebookManager;
     }
-    
+
+	public void interceptActionResult(ARIResult result,
+			ViewParameters incoming, Object actionReturn) {
+		if (incoming instanceof GradebookItemViewParams) {
+			GradebookItemViewParams params = (GradebookItemViewParams) incoming;
+			if (params.finishURL != null && actionReturn.equals("cancel")) {
+				result.resultingView = new RawViewParameters(params.finishURL);
+			}
+			else if (params.finishURL != null && actionReturn.equals("submit")) {
+				result.resultingView = new RawViewParameters(params.finishURL);
+			}
+		}
+	}
 }
