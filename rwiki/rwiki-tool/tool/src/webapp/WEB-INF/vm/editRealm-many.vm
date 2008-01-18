@@ -38,13 +38,13 @@
                            #end
                         #end
                         </select>
-                        <input type="submit" name="save" value="${rlb.jsp_add_realm}" />   
+                        <input type="submit" name="command_add_realm" value="${rlb.jsp_add_realm}" />   
                   </td>
                 </tr>
                 <tr> 
               	 	<th colspan="7" >
               	 		<label>${rlb.jsp_realm}: ${util.escapeHtml($authZGroupBean.RealmId)}</label>
-              	 		<input type="submit" name="save" value="${rlb.jsp_remove_realm}"/>
+              	 		<input type="submit" name="command_remove_realm" value="${rlb.jsp_remove_realm}"/>
               	 	</th>
               	 </tr>
               	 <tr>
@@ -101,7 +101,7 @@
               	 	<tr>
               	 		<td colspan="7" >
               	 				<input type="test" name="{3}" />
-              	 				<input type="submit" name="save" value="${rlb.jsp_add_role}"/>
+              	 				<input type="submit" name="command_add_role" value="${rlb.jsp_add_role}"/>
               	 		</td>
               	 </tr>
 	 
@@ -111,8 +111,8 @@
                         <input type="hidden" name="pageName" value="${multiRealmEditBean.pageName}" />
                         <input type="hidden" name="panel" value="Main"/>
                         <input type="hidden" name="action" value="editRealmMany"/>
-                        <input type="submit" name="save" value="${rlb.jsp_button_save}"/>
-                        <input type="submit" name="save" value="${rlb.jsp_button_cancel}"/>
+                        <input type="submit" name="command_save" value="${rlb.jsp_button_save}"/>
+                        <input type="submit" name="command_cancel" value="${rlb.jsp_button_cancel}"/>
                         <input type="hidden" name="realm" value="${multiRealmEditBean.localSpace}"/>
                   </td>
                 </tr>

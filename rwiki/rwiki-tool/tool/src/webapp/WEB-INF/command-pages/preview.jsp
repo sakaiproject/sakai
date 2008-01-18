@@ -111,7 +111,7 @@
 		<jsp:attribute name="name">content</jsp:attribute>
 		<jsp:attribute name="value"><c:out value="${nameHelperBean.content}"/></jsp:attribute>
 	      </jsp:element>
-	      <input type="hidden" name="save" value="preview"/>
+	      <input type="hidden" name="command_preview" value="preview"/>
 
 	      <p class="act">
 		<input type="hidden" name="action" value="edit" />

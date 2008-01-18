@@ -231,7 +231,7 @@
 					  		<c:if test="${requestScope.rsacMap.withnotification}" >
 					  			<input type="checkbox" name="smallchange" value="smallchange" /> <c:out value="${rlb.jsp_minor_change}"/> <br />
 					  		</c:if>
-					 		<input id="saveButton" type="submit" name="save" value="Save"  /><c:out value=" "/>
+					 		<input id="saveButton" type="submit" name="command_save" value="Save"  /><c:out value=" "/>
 					  		<c:if test="${((editBean.saveType eq 'preview' or fn:startsWith(editBean.saveType, 'attach')) and nameHelperBean.submittedContent != null) or (editBean.saveType ne null and editBean.saveType ne 'preview' and not(fn:startsWith(editBean.saveType, 'attach')))}">
 					    		<jsp:element name="input">
 									<jsp:attribute name="id">saveButton</jsp:attribute> 

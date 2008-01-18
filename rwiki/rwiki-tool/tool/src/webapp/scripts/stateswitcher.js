@@ -494,7 +494,7 @@ function previewContent(contentId,previewId,pageVersionId,realmId,pageNameId,url
 	 	formContent[1] = contentValue;
 	 	formContent[2] = "pageName";
 	 	formContent[3] = pageName.value;
-	 	formContent[4] = "save";
+	 	formContent[4] = "command_render";
 	 	formContent[5] = "render";
 	 	formContent[6] = "action";
 	 	formContent[7] = "fragmentpreview";

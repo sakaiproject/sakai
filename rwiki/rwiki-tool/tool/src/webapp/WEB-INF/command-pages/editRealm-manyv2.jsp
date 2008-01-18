@@ -67,7 +67,7 @@
                         <select name="add_realm" >
                         	<%= multiRealmEditBean.getAvailableRealms(addRealmOptionFormat) %>
                         </select>
-                        <input type="submit" name="save" value="<%= rlb.getString("jsp_add_realm") %>"/>   
+                        <input type="submit" name="command_add_realm" value="<%= rlb.getString("jsp_add_realm") %>"/>   
                   </td>
                 </tr>
                 <%= multiRealmEditBean.getPermissionsGroupRoles(permissionsRealmWrapper,permissionNames,permissionsGroupRoleWrapper,permissionEditOn,permissionEditOff) %>
@@ -76,8 +76,8 @@
                         <input type="hidden" name="pageName" value="<%= multiRealmEditBean.getPageName() %>" />
                         <input type="hidden" name="panel" value="Main"/>
                         <input type="hidden" name="action" value="editRealmMany"/>
-                        <input type="submit" name="save" value="<%= rlb.getString("jsp_button_save") %>"/>
-                        <input type="submit" name="save" value="<%= rlb.getString("jsp_button_cancel") %>"/>
+                        <input type="submit" name="command_save" value="<%= rlb.getString("jsp_button_save") %>"/>
+                        <input type="submit" name="command_cancel" value="<%= rlb.getString("jsp_button_cancel") %>"/>
                         <input type="hidden" name="realm" value="<%= multiRealmEditBean.getLocalSpace() %>"/>
                   </td>
                 </tr>

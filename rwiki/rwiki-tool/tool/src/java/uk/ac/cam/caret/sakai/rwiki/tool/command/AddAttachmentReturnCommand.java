@@ -141,8 +141,7 @@ public class AddAttachmentReturnCommand implements HttpCommand
 		vphb.setGlobalName(pageName);
 		vphb.setLocalSpace(retrieveString(storedParameters
 				.get(SearchBean.REALM_PARAM)));
-		vphb.setSaveType(retrieveString(storedParameters
-				.get(EditBean.SAVE_PARAM)));
+		vphb.setSaveType(vphb.getSaveTypeFromParameters(storedParameters));
 		vphb.setWithBreadcrumbs(retrieveString(storedParameters
 				.get(ViewBean.PARAM_BREADCRUMB_NAME)));
 		vphb.setSubmittedVersion(retrieveString(storedParameters

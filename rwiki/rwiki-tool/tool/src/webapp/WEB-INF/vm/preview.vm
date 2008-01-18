@@ -55,7 +55,7 @@
 	     <input type="hidden" name="pageName" value="${util.escapeHtml($viewBean.pageName)}" />
 	     <input type="hidden" name="panel" value="Main"/>
 	     <input type="hidden" name="content" value="${util.escapeHtml($nameHelperBean.content)}" />
-  	   <input type="hidden" name="save" value="preview"/>
+  	   <input type="hidden" name="command_preview" value="preview"/>
 
   	   <p class="act">
 	  	    <input type="hidden" name="action" value="edit" />

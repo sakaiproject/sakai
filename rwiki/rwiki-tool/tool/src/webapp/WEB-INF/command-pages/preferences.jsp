@@ -113,8 +113,8 @@
 		  <c:otherwise><input type="radio" name="notificationLevel" value="nopreference" id="notificationNoPreference"/></c:otherwise>
 		</c:choose><label for="notificationNoPreference"><c:out value="${rlb.jsp_notify_no_preference}"/></label>
 	      </p>
-	      <input type="submit" name="save" value="${rlb.jsp_button_save}"/>
-	      <input type="submit" name="save" value="${rlb.jsp_button_cancel}"/>
+	      <input type="submit" name="command_save" value="${rlb.jsp_button_save}"/>
+	      <input type="submit" name="command_cancel" value="${rlb.jsp_button_cancel}"/>
 	      <input type="hidden" name="action" value="updatePreferences"/>
 	      <input type="hidden" name="pageName" value="${viewBean.pageName}"/>
 	    </form>
