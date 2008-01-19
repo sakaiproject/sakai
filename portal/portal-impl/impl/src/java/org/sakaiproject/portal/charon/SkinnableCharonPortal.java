@@ -532,7 +532,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		siteView.setPrefix(prefix);
 		siteView.setResetTools(resetTools);
 		siteView.setToolContextPath(toolContextPath);
-		
+		siteView.setIncludeSummary(includeSummary);
+		siteView.setDoPages(doPages);
+		siteView.setExpandSite(expandSite);
 		
 		rcontext.put("allSites", siteView.getRenderContextObject());
 

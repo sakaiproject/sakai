@@ -72,6 +72,12 @@ public abstract class AbstractSiteViewImpl implements SiteView
 
 	protected boolean resetTools = false;
 
+	protected boolean doPages = false;
+
+	protected boolean includeSummary = false;
+
+	protected boolean expandSite = false;
+
 	public AbstractSiteViewImpl(PortalSiteHelperImpl siteHelper, SiteNeighbourhoodService siteNeighbourhoodService, 
 			HttpServletRequest request, Session session, String currentSiteId, SiteService siteService,
 			ServerConfigurationService serverConfigurationService, PreferencesService preferencesService)
@@ -146,6 +152,7 @@ public abstract class AbstractSiteViewImpl implements SiteView
 	 */
 	public void setDoPages(boolean doPages)
 	{
+		this.doPages = doPages;
 	}
 
 	/* (non-Javadoc)
@@ -153,6 +160,15 @@ public abstract class AbstractSiteViewImpl implements SiteView
 	 */
 	public void setIncludeSummary(boolean includeSummary)
 	{
+		this.includeSummary = includeSummary;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.api.SiteView#setExpandSite(boolean)
+	 */
+	public void setExpandSite(boolean expandSite)
+	{
+		this.expandSite = expandSite;
 	}
 
 

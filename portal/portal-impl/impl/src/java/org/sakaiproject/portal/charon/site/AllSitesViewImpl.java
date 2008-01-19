@@ -29,6 +29,8 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.PreferencesService;
 
+import java.util.List;
+
 /**
  * @author ieb
  *
@@ -49,10 +51,10 @@ public class AllSitesViewImpl extends AbstractSiteViewImpl
 	 */
 	public Object getRenderContextObject()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		List l = siteHelper.convertSitesToMaps(request, mySites, prefix, currentSiteId, myWorkspaceSiteId,
+			includeSummary, expandSite, resetTools, doPages, toolContextPath,
+			loggedIn);
+		return l;
 	}
-
-
 
 }

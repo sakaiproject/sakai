@@ -900,6 +900,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	{
 		switch (view)
 		{
+			case CURRENT_SITE_VIEW:
+				return new CurrentSiteViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
+						.getInstance(), ServerConfigurationService.getInstance(),
+						PreferencesService.getInstance());
 			case ALL_SITES_VIEW:
 				return new AllSitesViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),

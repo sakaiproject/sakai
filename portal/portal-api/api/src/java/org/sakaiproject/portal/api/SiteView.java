@@ -85,6 +85,10 @@ public interface SiteView
 	 */
 	void setDoPages(boolean doPages);
 
+	/**
+	 * @param expandSite
+	 */
+	void setExpandSite(boolean expandSite);
 
 
 }

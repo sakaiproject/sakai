@@ -27,6 +27,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.SiteView;
+import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -35,7 +36,7 @@ import org.sakaiproject.user.api.PreferencesService;
 /**
  * @author ieb
  */
-public class CurrentSiteVIewImpl implements SiteView
+public class CurrentSiteViewImpl implements SiteView
 {
 
 	protected PortalSiteHelperImpl siteHelper;
@@ -64,7 +65,10 @@ public class CurrentSiteVIewImpl implements SiteView
 
 	private boolean doPages;
 
-	public CurrentSiteVIewImpl(PortalSiteHelperImpl siteHelper,
+	private boolean expandSite;
+
+	public CurrentSiteViewImpl(PortalSiteHelperImpl siteHelper,
+			SiteNeighbourhoodService siteNeighbourhoodService,
 			HttpServletRequest request, Session session, String currentSiteId,
 			SiteService siteService,
 			ServerConfigurationService serverConfigurationService,
@@ -183,4 +187,11 @@ public class CurrentSiteVIewImpl implements SiteView
 
 	}
 
+        /* (non-Javadoc)
+         * @see org.sakaiproject.portal.api.SiteView#setExpandSite(boolean)
+         */
+        public void setExpandSite(boolean expandSite)
+        {
+                this.expandSite = expandSite;
+        }
 }
