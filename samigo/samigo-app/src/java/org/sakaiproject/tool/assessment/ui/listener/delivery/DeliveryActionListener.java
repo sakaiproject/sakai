@@ -55,7 +55,6 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-//import org.sakaiproject.tool.assessment.integration.delivery.SessionUtil;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ContentsDeliveryBean;
@@ -70,9 +69,9 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SelectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
-import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
+import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
+import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.util.ResourceLoader;
 
 /**

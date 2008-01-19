@@ -24,20 +24,20 @@ package org.sakaiproject.tool.assessment.services;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ItemFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.PublishedSectionFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.SectionFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
-import org.sakaiproject.section.api.SectionAwareness;
-import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * @author jlannan
@@ -54,6 +54,8 @@ public class PersistenceService{
 	private ItemFacadeQueriesAPI itemFacadeQueries;
 	private AssessmentFacadeQueriesAPI assessmentFacadeQueries;
 	private PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
+	private PublishedSectionFacadeQueriesAPI publishedSectionFacadeQueries;
+	private PublishedItemFacadeQueriesAPI publishedItemFacadeQueries;
 	private AssessmentGradingFacadeQueriesAPI assessmentGradingFacadeQueries;
         private AuthorizationFacadeQueriesAPI authorizationFacadeQueries;
         private PagingUtilQueriesAPI pagingUtilQueries;
@@ -120,7 +122,7 @@ public class PersistenceService{
 	public void setSectionFacadeQueries(SectionFacadeQueriesAPI sectionFacadeQueries){
 	    this.sectionFacadeQueries = sectionFacadeQueries;
 	}
-
+	
 	public ItemFacadeQueriesAPI getItemFacadeQueries(){
 		return itemFacadeQueries;
 	}
@@ -146,6 +148,23 @@ public class PersistenceService{
 	    this.publishedAssessmentFacadeQueries = publishedAssessmentFacadeQueries;
 	}
 
+
+	public void setPublishedSectionFacadeQueries(PublishedSectionFacadeQueriesAPI publishedSectionFacadeQueries){
+	    this.publishedSectionFacadeQueries = publishedSectionFacadeQueries;
+	}
+
+	public PublishedSectionFacadeQueriesAPI getPublishedSectionFacadeQueries(){
+		return publishedSectionFacadeQueries;
+	}
+	
+
+	public void setPublishedItemFacadeQueries(PublishedItemFacadeQueriesAPI publishedItemFacadeQueries){
+	    this.publishedItemFacadeQueries = publishedItemFacadeQueries;
+	}
+
+	public PublishedItemFacadeQueriesAPI getPublishedItemFacadeQueries(){
+		return publishedItemFacadeQueries;
+	}
 	public AssessmentGradingFacadeQueriesAPI getAssessmentGradingFacadeQueries(){
 		return assessmentGradingFacadeQueries;
 	}

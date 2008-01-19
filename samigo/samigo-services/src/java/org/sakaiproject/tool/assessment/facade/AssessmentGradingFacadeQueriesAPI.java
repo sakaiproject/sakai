@@ -45,6 +45,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   public List getTotalScores(String publishedId, String which);
 
   public List getAllSubmissions(String publishedId);
+  
+  public List getAllAssessmentGradingData(Long publishedId);
 
   public HashMap getItemScores(Long publishedId, Long itemId, String which);
 
@@ -194,4 +196,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage);
 
   public void removeUnsubmittedAssessmentGradingData(AssessmentGradingIfc data);
+  
+  public boolean getHasGradingData(Long publishedAssessmentId);
+    
+  public ArrayList getHasGradingDataAndHasSubmission(Long publishedAssessmentId);
 }

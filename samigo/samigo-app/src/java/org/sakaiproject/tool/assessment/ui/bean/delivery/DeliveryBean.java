@@ -29,27 +29,32 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -59,28 +64,19 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
-import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
-import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
-import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
-import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
-
-//cwen
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.api.Placement; 
-// note: we should wrap above dependency in a backend service--esmiley
-
-import java.text.SimpleDateFormat;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
+import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
+import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
+import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.exception.IdUnusedException;
-
 
 /**
  *
@@ -1281,7 +1277,7 @@ public class DeliveryBean
 	if (this.actionMode == PREVIEW_ASSESSMENT) {
 	  return "editAssessment";
 	}	  
-    String nextAction = checkBeforeProceed();
+    String nextAction = checkBeforeProceed(true);
     log.debug("***** next Action="+nextAction);
     if (!("safeToProceed").equals(nextAction)){
       return nextAction;
@@ -2475,7 +2471,7 @@ public class DeliveryBean
 	  this.noQuestions = noQuestions;
   }
 
-  public String checkBeforeProceed(){
+  public String checkBeforeProceed(boolean isSubmitForGrade){
     // public method, who know if publishedAssessment is set, so check
     // to be sure
     if (getPublishedAssessment() == null){
@@ -2562,7 +2558,7 @@ public class DeliveryBean
 
     log.debug("check 6");
     // check 6: is it still available?
-    if (isRetracted()){
+    if (isRetracted(isSubmitForGrade)){
      return "isRetracted";
     }
 
@@ -2572,6 +2568,10 @@ public class DeliveryBean
       return "timeExpired";
     }
     else return "safeToProceed";
+  }
+  
+  public String checkBeforeProceed(){
+	  return checkBeforeProceed(false);
   }
 
   private boolean getHasSubmissionLeft(int totalSubmitted, int numberRetake){
@@ -2608,10 +2608,18 @@ public class DeliveryBean
     return pastDue;
   }
 
-  private boolean isRetracted(){
+  private boolean isRetracted(boolean isSubmitForGrade){
     boolean isRetracted = true;
     Date currentDate = new Date();
-    Date retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
+    Date retractDate = null;
+    if (isSubmitForGrade) {
+    	PublishedAssessmentService pubService = new PublishedAssessmentService();
+    	PublishedAssessmentData publishedAssessmentData = pubService.getBasicInfoOfPublishedAssessment(getPublishedAssessment().getPublishedAssessmentId().toString());
+    	retractDate = publishedAssessmentData.getRetractDate();
+    }
+    else {
+    	retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
+    }
     if (retractDate == null || retractDate.after(currentDate)){
         isRetracted = false;
     }

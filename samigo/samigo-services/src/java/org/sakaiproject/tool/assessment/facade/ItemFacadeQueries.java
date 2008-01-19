@@ -25,16 +25,15 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
-import java.util.List;
 import java.util.Iterator;
-
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
@@ -428,7 +427,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     log.debug("**Objective not lazy = " +
                        item.getItemMetaDataByLabel("ITEM_OBJECTIVE"));
   }
-
+  
   public Long facadeAdd() throws DataFacadeException {
     ItemFacade item = new ItemFacade();
       item.setInstruction("Matching game");
@@ -456,6 +455,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       getHibernateTemplate().save(item.getData());
     return item.getData().getItemId();
   }
+  
 
   public void ifcShow(Long itemId) {
       ItemDataIfc itemData = (ItemDataIfc) getHibernateTemplate().load(ItemData.class, itemId);
@@ -469,7 +469,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
  public ItemFacade saveItem(ItemFacade item) throws DataFacadeException {
     try{
-      ItemData itemdata = (ItemData) item.getData();
+      ItemDataIfc itemdata = (ItemDataIfc) item.getData();
       itemdata.setLastModifiedDate(new Date());
       itemdata.setLastModifiedBy(AgentFacade.getAgentString());
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
@@ -659,4 +659,23 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 	    return itemTextId;
   }
 
+  public void deleteSet(Set s) {
+		int retryCount = PersistenceService.getInstance().getRetryCount()
+				.intValue();
+		while (retryCount > 0) {
+			try {
+				if (s != null) { // need to dissociate with item before deleting in Hibernate 3
+					getHibernateTemplate().deleteAll(s);
+					retryCount = 0;
+				} else {
+					retryCount = 0;
+				}
+			} catch (Exception e) {
+				log.warn("problem deleteSet: " + e.getMessage());
+				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+						retryCount);
+			}
+		}
+	}
+	  
 }

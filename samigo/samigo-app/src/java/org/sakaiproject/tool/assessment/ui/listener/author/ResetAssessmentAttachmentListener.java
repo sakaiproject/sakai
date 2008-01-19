@@ -38,6 +38,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.exception.IdUnusedException;
@@ -76,6 +77,10 @@ public class ResetAssessmentAttachmentListener
     else{
 	resetAssessmentAttachment(bean.getResourceHash(), new ArrayList());
     }
+    
+    //  Set the outcome once Save button is clicked
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+    bean.setOutcomeCancel(author.getFromPage());
   }
 
   public void resetAssessmentAttachment(HashMap resourceHash, List attachmentList){

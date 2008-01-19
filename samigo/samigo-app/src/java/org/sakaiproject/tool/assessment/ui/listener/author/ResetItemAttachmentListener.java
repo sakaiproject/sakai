@@ -24,9 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -34,19 +32,19 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.ItemService;
-import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.services.PublishedItemService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Title: Samigo</p>
@@ -66,8 +64,17 @@ public class ResetItemAttachmentListener
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException {
+	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+	boolean isEditPendingAssessmentFlow =  author.getIsEditPendingAssessmentFlow();
+	ItemService service = null;
+	if (isEditPendingAssessmentFlow) {
+		service = new ItemService();
+	}
+	else {
+		service = new PublishedItemService();
+	}
+
     ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
-    ItemService service = new ItemService();
     String itemId = itemauthorBean.getItemId();
     if (itemId !=null && !("").equals(itemId)){
       ItemDataIfc item = service.getItem(itemId);

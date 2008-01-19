@@ -26,8 +26,6 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-//import java.util.Map;
-
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -38,23 +36,22 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
-import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
-import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
-import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Title: Samigo</p>2
@@ -154,53 +151,8 @@ public class ConfirmPublishAssessmentListener
       context.addMessage(null,new FacesMessage(time_err));
       error=true;
     }
-    //Remove checkbox check for username and password and IP address
-    // check username not empty if Secondary ID and Password is checked
-    //  Object userName=assessmentSettings.getValueMap().get("hasUsernamePassword");
-    // boolean hasUserName=false;
-    // try
-    // {
-    //  if (userName != null)
-    //  {
-    //	  hasUserName = ( (Boolean) userName).booleanValue();
-    //  }
-    //  }
-    //   catch (Exception ex)
-    //   {
-      // keep default
-    //   log.warn("Expecting Boolean hasUswerNamePassword, got: " + userName);
-
-    //  }
-
-    // if((hasUserName) &&((assessmentSettings.getUsername().trim()).equals(""))){
-    //	String userName_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","userName_error");
-    //	context.addMessage(null,new FacesMessage(userName_err));
-    //    error=true;
-
-    //  }
-
-  // check ip address not empty if allow specific IP addresses
-  //  Object ip=assessmentSettings.getValueMap().get("hasSpecificIP");
-    //   boolean hasIp=false;
-    //   try
-    //   {
-    //    if (ip != null)
-    //    {
-    //	  hasIp = ( (Boolean) ip).booleanValue();
-    //  }
-    //  }
-    //  catch (Exception ex)
-    //   {
-      // keep default
-    //    log.warn("Expecting Boolean hasSpecificIP, got: " + ip);
-    //  }
-
         boolean ipErr=false;
         String ipString = assessmentSettings.getIpAddresses().trim(); 
-	//	if(hasIp){
-	//  if(ipString.equals(""))
-	//  ipErr=true;
-	//	}
         String[]arraysIp=(ipString.split("\n"));
         //System.out.println("arraysIp.length: "+arraysIp.length);
         for(int a=0;a<arraysIp.length;a++){
@@ -290,8 +242,7 @@ public class ConfirmPublishAssessmentListener
 	ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(author.getCoreAssessmentOrderBy(),author.isCoreAscending());
 	// get the managed bean, author and set the list
 	author.setAssessments(assessmentList);
-	
-    assessmentSettings.setOutcomePublish("saveSettingsAndConfirmPublish"); // finally goto confirm
+	assessmentSettings.setOutcomePublish("saveSettingsAndConfirmPublish"); // finally goto confirm
   }
 
   public boolean passAuthz(FacesContext context, String ownerId){

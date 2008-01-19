@@ -272,7 +272,7 @@ private Long assessmentGradingId;
 	  }
   }
   public String getAnswer() {
-    return Validator.check(answer, "N/A");
+    return Validator.check(answer, "");
   }
   public void setAnswer(String answer) {
     this.answer = answer;

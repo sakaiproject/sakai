@@ -90,7 +90,17 @@ public class AssessmentService {
 		try {
 			return PersistenceService.getInstance()
 					.getAssessmentFacadeQueries().getAssessment(
-							new Long(assessmentId));
+							Long.valueOf(assessmentId));
+		} catch (Exception e) {
+			log.error(e);
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public AssessmentIfc getAssessment(Long assessmentId) {
+		try {
+			return PersistenceService.getInstance()
+					.getAssessmentFacadeQueries().getAssessment(assessmentId);
 		} catch (Exception e) {
 			log.error(e);
 			throw new RuntimeException(e);
@@ -401,18 +411,24 @@ public class AssessmentService {
 
 	public ItemAttachmentIfc createItemAttachment(ItemDataIfc item,
 			String resourceId, String filename, String protocol) {
+		return createItemAttachment(item, resourceId,
+					filename, protocol, true);
+	}
+
+	public ItemAttachmentIfc createItemAttachment(ItemDataIfc item,
+			String resourceId, String filename, String protocol, boolean isEditPendingAssessmentFlow) {
 		ItemAttachmentIfc attachment = null;
 		try {
 			AssessmentFacadeQueriesAPI queries = PersistenceService
 					.getInstance().getAssessmentFacadeQueries();
 			attachment = queries.createItemAttachment(item, resourceId,
-					filename, protocol);
+					filename, protocol, isEditPendingAssessmentFlow);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return attachment;
 	}
-
+	
 	public void removeItemAttachment(String attachmentId) {
 		PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.removeItemAttachment(new Long(attachmentId));

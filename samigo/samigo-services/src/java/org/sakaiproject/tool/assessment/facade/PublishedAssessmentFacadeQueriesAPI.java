@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 
 public interface PublishedAssessmentFacadeQueriesAPI
 {
@@ -237,8 +238,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public PublishedItemText loadPublishedItemText(Long itemTextId);
 
   // added by daisy - please check the logic - I based this on the getBasicInfoOfAllActiveAssessment
-  public ArrayList getBasicInfoOfAllPublishedAssessments(String orderBy,
-							 boolean ascending, Integer status, String siteId);
+  public ArrayList getBasicInfoOfAllPublishedAssessments(String orderBy, boolean ascending, String siteId);
 
   /**
    * return an array list of the last AssessmentGradingFacade per assessment that
@@ -315,4 +315,19 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public Integer getPublishedItemCount(Long publishedAssessmentId);
   
   public PublishedAttachmentData getPublishedAttachmentData(Long attachmentId);
+
+  public void updateAssessmentLastModifiedInfo(PublishedAssessmentFacade publishedAssessmentFacade);
+
+  public void saveOrUpdateSection(SectionFacade section);
+  
+  public void removeItemAttachment(Long itemAttachmentId);
+  
+  public PublishedSectionFacade addSection(Long publishedAssessmentId);
+
+  public PublishedSectionFacade getSection(Long sectionId);
+
+  public AssessmentAccessControlIfc loadPublishedAccessControl(Long publishedAssessmentId);
+  
+  public void saveOrUpdatePublishedAccessControl(AssessmentAccessControlIfc publishedAccessControl);
+
 }

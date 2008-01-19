@@ -52,8 +52,10 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -1077,7 +1079,15 @@ public class ItemAuthorBean
 
   /* called by SamigoJsfTool.java on exit from file picker */
   public void setItemAttachment(){
-    ItemService service = new ItemService();
+	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+	boolean isEditPendingAssessmentFlow =  author.getIsEditPendingAssessmentFlow();
+	ItemService service = null;
+	if (isEditPendingAssessmentFlow) {
+		service = new ItemService();
+	}
+	else {
+		service = new PublishedItemService();
+	}
     ItemDataIfc itemData = null;
     // itemId == null => new questiion
     if (this.itemId!=null){
@@ -1092,7 +1102,7 @@ public class ItemAuthorBean
     // list returns contains modified list of attachments, i.e. new 
     // and old attachments. This list will be 
     // persisted to DB if user hit Save on the Item Modifying page.
-    List list = prepareItemAttachment(itemData);
+    List list = prepareItemAttachment(itemData, isEditPendingAssessmentFlow);
     setAttachmentList(list);
   }
 
@@ -1132,7 +1142,7 @@ public class ItemAuthorBean
     return list;
   }
 
-  private List prepareItemAttachment(ItemDataIfc item){
+  private List prepareItemAttachment(ItemDataIfc item, boolean isEditPendingAssessmentFlow){
     ToolSession session = SessionManager.getCurrentToolSession();
     if (session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
 
@@ -1142,7 +1152,7 @@ public class ItemAuthorBean
       }
       HashMap map = getResourceIdHash(attachmentSet);
       ArrayList newAttachmentList = new ArrayList();
-
+      
       AssessmentService assessmentService = new AssessmentService();
       String protocol = ContextUtil.getProtocol();
 
@@ -1162,7 +1172,7 @@ public class ItemAuthorBean
                                           item,
                                           ref.getId(), ref.getProperties().getProperty(
                                                        ref.getProperties().getNamePropDisplayName()),
-                                        protocol);
+                                        protocol, isEditPendingAssessmentFlow);
             newAttachmentList.add(newAttach);
           }
           else{ 

@@ -41,10 +41,13 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
@@ -115,8 +118,16 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 			AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
 					.lookupBeanFromExternalServlet("assessmentBean", req, res);
 			if (assessmentBean != null && assessmentBean.getAssessmentId() != null) {
-				AssessmentService assessmentService = new AssessmentService();
-				AssessmentFacade assessment = assessmentService.getAssessment(assessmentBean.getAssessmentId());
+				AssessmentIfc assessment;
+				AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+				AssessmentService assessmentService;
+				if (author.getIsEditPendingAssessmentFlow()) {
+					assessmentService = new AssessmentService();
+	        	}
+	        	else {
+	        		assessmentService = new PublishedAssessmentService();
+	        	}
+        		assessment = assessmentService.getAssessment(Long.valueOf(assessmentBean.getAssessmentId()));
 				assessmentBean.setAssessment(assessment);
 			}
 			target = target.replaceFirst(RESET_ASSESSMENT_BEAN, "");

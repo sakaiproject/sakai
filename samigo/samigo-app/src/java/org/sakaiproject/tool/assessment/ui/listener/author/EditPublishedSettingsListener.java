@@ -23,15 +23,21 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.util.Date;
+
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
@@ -49,7 +55,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class EditPublishedSettingsListener
     implements ActionListener
 {
-  //private static Log log = LogFactory.getLog(EditPublishedSettingsListener.class);
+  private static Log log = LogFactory.getLog(EditPublishedSettingsListener.class);
 
   public EditPublishedSettingsListener()
   {
@@ -64,6 +70,8 @@ public class EditPublishedSettingsListener
 
     PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean(
                                           "publishedSettings");
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+    
     // #1a - load the assessment
     String assessmentId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("publishedAssessmentId");
@@ -72,16 +80,33 @@ public class EditPublishedSettingsListener
         assessmentId);
 
     //## - permission checking before proceeding - daisyf
-    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-    author.setOutcome("editPublishedAssessmentSettings");
     if (!passAuthz(context, assessment.getCreatedBy())){
       author.setOutcome("author");
       return;
     }
+    author.setOutcome("editPublishedAssessmentSettings");
+    author.setIsEditPendingAssessmentFlow(false);
     assessmentSettings.setAssessment(assessment);
-    assessmentSettings.setDisplayFormat(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec"));
-    assessmentSettings.resetIsValidDate();
-    assessmentSettings.resetOriginalDateString();
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+    assessmentBean.setAssessmentId(assessmentId);
+    
+	String actionCommand = ae.getComponent().getId();
+	if ("editPublishedAssessmentSettings_author".equals(actionCommand)) {
+		log.debug("editPublishedAssessmentSettings_author");
+		author.setFromPage("author");
+	}
+	else if ("editPublishedAssessmentSettings_editAssessment".equals(actionCommand)) {
+		log.debug("editPublishedAssessmentSettings_editAssessment");
+		author.setFromPage("editAssessment");
+	}
+	else if ("editPublishedAssessmentSettings_saveSettingsAndConfirmPublish".equals(actionCommand)) {
+		log.debug("editPublishedAssessmentSettings_saveSettingsAndConfirmPublish");
+		author.setFromPage("saveSettingsAndConfirmPublish");
+	}
+	
+	boolean isRetractedForEdit = isRetractedForEdit(assessment);
+	log.debug("isRetractedForEdit = " + isRetractedForEdit);
+	author.setIsRetractedForEdit(isRetractedForEdit);
   }
 
   public boolean passAuthz(FacesContext context, String ownerId){
@@ -104,5 +129,11 @@ public class EditPublishedSettingsListener
     isOwner = agentId.equals(ownerId);
     return isOwner;
   }
-
+  
+  private boolean isRetractedForEdit(PublishedAssessmentFacade publishedAssessmentFacade) {
+	if (AssessmentBaseIfc.RETRACT_FOR_EDIT_STATUS.equals(publishedAssessmentFacade.getStatus())) {
+		return true;
+	}
+	return false;
+  }
 }

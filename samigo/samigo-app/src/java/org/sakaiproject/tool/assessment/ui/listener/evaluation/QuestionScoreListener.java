@@ -547,7 +547,12 @@ public class QuestionScoreListener implements ActionListener,
 						// upload, Audio, FIB, Fill in Numeric
 						// These question type use itemGrading.answetText to
 						// store information about their answer
-						answerText = gdata.getAnswerText();
+						if ((bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) && gdataAnswer == null) {
+							answerText = "";
+						}
+						else {
+							answerText = gdata.getAnswerText();
+						}
 					}
 
 					if (bean.getTypeId().equals("4")) {
@@ -563,12 +568,18 @@ public class QuestionScoreListener implements ActionListener,
 					}
 					
 					if (bean.getTypeId().equals("9")) {
-						answerText = gdataPubItemText.getSequence() + ":"
+						if (gdataPubItemText == null) {
+							// the matching pair is deleted
+							answerText = "";
+						}
+						else {
+							answerText = gdataPubItemText.getSequence() + ":"
 								+ answerText;
+						}
 					}
 
 					if (bean.getTypeId().equals("8")) {
-						if (gdataAnswer != null) {
+						if (gdataAnswer != null && gdataAnswer.getSequence() != null) {
 							answerText = gdataAnswer.getSequence() + ":"
 									+ answerText;
 						}

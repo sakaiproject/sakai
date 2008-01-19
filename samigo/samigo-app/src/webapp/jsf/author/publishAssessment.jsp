@@ -46,10 +46,14 @@
   <!-- Error publishing assessment -->
   <h:messages globalOnly="true" styleClass="validation" />
   <div class="validation">
-       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message}" />
+       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_1}" />
+	   <br/>
+       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_2}" />
+	   <br/>
+       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_3}" />
    </div>
 
-<h:panelGrid columns="2" rowClasses="shorttext">
+<h:panelGrid columns="2" rowClasses="shorttext" rendered="#{author.isEditPendingAssessmentFlow}">
 
      <h:outputLabel value="#{assessmentSettingsMessages.assessment_title}" rendered="#{assessmentSettings.title ne null}" />
      <h:outputText value="#{assessmentSettings.title}" rendered="#{assessmentSettings.title ne null}" />
@@ -85,15 +89,6 @@
           value="#{assessmentSettingsMessages.no_time_limit}" />
      </h:panelGroup>
 
-<%-- SAK-3578: auto submit will always be ON for timed assessment,
-     so no need to have this option
-     <h:outputLabel value="#{assessmentSettingsMessages.auto_submit}" />
-     <h:panelGroup>
-       <h:outputText value="On" rendered="#{assessmentSettings.autoSubmit}" />
-       <h:outputText value="Off" rendered="#{!assessmentSettings.autoSubmit}" />
-     </h:panelGroup>
---%>
-
      <h:outputLabel value="#{assessmentSettingsMessages.submissions}" />
      <h:panelGroup>
        <h:outputText value="#{assessmentSettingsMessages.unlimited_submission}" rendered="#{assessmentSettings.unlimitedSubmissions eq '1'}" />
@@ -118,6 +113,93 @@
 
      <h:outputLabel rendered="#{assessmentSettings.publishedUrl ne null}" value="#{assessmentSettingsMessages.published_assessment_url}" />
      <h:outputText value="#{assessmentSettings.publishedUrl}" />
+
+	 <f:facet name="footer">
+	   <h:panelGroup>
+	     <h:outputText value="#{assessmentSettingsMessages.open_new_browser_for_publishedUrl}" />
+	   </h:panelGroup>
+     </f:facet>
+
+</h:panelGrid>
+
+<h:panelGrid columns="2" rowClasses="shorttext" rendered="#{!author.isEditPendingAssessmentFlow}" border="0">
+
+     <h:outputLabel value="#{assessmentSettingsMessages.assessment_title}" rendered="#{publishedSettings.title ne null}" />
+     <h:outputText value="#{publishedSettings.title}" rendered="#{publishedSettings.title ne null}" />
+
+     <h:outputLabel value="#{assessmentSettingsMessages.assessment_available_date}" />
+     <h:panelGroup>
+       <h:outputText rendered="#{publishedSettings.startDate ne null}" value="#{publishedSettings.startDate}" >
+          <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
+       </h:outputText>
+       <h:outputText rendered="#{publishedSettings.startDate eq null}" value="Immediate" />
+     </h:panelGroup>
+
+     <h:outputLabel rendered="#{publishedSettings.dueDate ne null}" 
+        value="#{assessmentSettingsMessages.assessment_due_date}" />
+     <h:outputText value="#{publishedSettings.dueDate}" 
+        rendered="#{publishedSettings.dueDate ne null}" >
+       <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
+     </h:outputText>
+
+     <h:outputLabel rendered="#{publishedSettings.retractDate ne null}" value="#{assessmentSettingsMessages.assessment_retract_date}" />
+     <h:outputText value="#{publishedSettings.retractDate}" rendered="#{publishedSettings.retractDate ne null}">
+       <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
+     </h:outputText>
+
+     <h:outputLabel value="#{assessmentSettingsMessages.time_limit}" />
+     <h:panelGroup>
+       <h:outputText rendered="#{publishedSettings.valueMap.hasTimeAssessment eq 'true'}"
+          value="#{publishedSettings.timedHours} hour,
+          #{assessmentSettings.timedMinutes} minutes, #{publishedSettings.timedSeconds} seconds. " />
+       <h:outputText rendered="#{publishedSettings.valueMap.hasTimeAssessment eq 'true'}"
+          value="#{assessmentSettingsMessages.auto_submit_description}" />
+       <h:outputText rendered="#{publishedSettings.valueMap.hasTimeAssessment ne 'true'}"
+          value="#{assessmentSettingsMessages.no_time_limit}" />
+     </h:panelGroup>
+
+     <h:outputLabel value="#{assessmentSettingsMessages.submissions}" />
+     <h:panelGroup>
+       <h:outputText value="#{assessmentSettingsMessages.unlimited_submission}" rendered="#{publishedSettings.unlimitedSubmissions eq '1'}" />
+       <h:outputText value="#{publishedSettings.submissionsAllowed}"
+         rendered="#{publishedSettings.unlimitedSubmissions eq '0'}" />
+     </h:panelGroup>
+
+
+     <h:outputLabel value="#{assessmentSettingsMessages.feedback_type}" />
+     <h:panelGroup>
+       <h:outputText value="#{assessmentSettingsMessages.immediate}" rendered="#{publishedSettings.feedbackDelivery eq '1'}" />
+       <h:outputText value="#{assessmentSettingsMessages.no_feedback_short}" rendered="#{publishedSettings.feedbackDelivery eq '3'}" />
+       <h:outputText value="#{assessmentSettingsMessages.available_on} #{publishedSettings.feedbackDate}"
+          rendered="#{publishedSettings.feedbackDelivery eq '2'}" >
+         <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
+       </h:outputText>
+     </h:panelGroup>
+
+     <h:outputLabel value="#{assessmentSettingsMessages.released_to_2}" />
+     <h:outputText value="#{publishedSettings.releaseTo}" />
+
+     <h:outputLabel rendered="#{publishedSettings.publishedUrl ne null}" value="#{assessmentSettingsMessages.published_assessment_url}" />
+     <h:outputText value="#{publishedSettings.publishedUrl}" />
+     
+	 <f:facet name="footer">
+	   <h:panelGroup>
+	     <h:outputText value="#{assessmentSettingsMessages.open_new_browser_for_publishedUrl}" />
+	   </h:panelGroup>
+     </f:facet>
+</h:panelGrid>
+
+<f:verbatim><p></p></f:verbatim>
+
+<h:panelGrid>
+	<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}">
+		<h:commandLink id="editPublishedAssessmentSettings_saveSettingsAndConfirmPublish" immediate="true" action="#{author.getOutcome}" >
+		  <h:outputText value="#{assessmentSettingsMessages.edit_these_settings}" />
+          <f:param name="publishedAssessmentId" value="#{assessmentBean.assessmentId}"/>
+		  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
+		</h:commandLink>
+	    <h:outputText value=" #{assessmentSettingsMessages.before_publishing}" />
+	</h:panelGroup>
 </h:panelGrid>
 
 <script language="javascript" type="text/JavaScript">
@@ -133,18 +215,38 @@ function toggle(){
 }
 //-->
 </script>
+  <h:panelGrid rendered="#{publishedSettings.itemNavigation eq '2' && !author.isEditPendingAssessmentFlow && assessmentBean.hasSubmission}" border="0" styleClass="validation">
+       <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_tip}" />
+	   <h:panelGroup>
+         <h:selectBooleanCheckbox id="updateMostCurrentSubmissionCheckbox" value="#{publishedSettings.updateMostCurrentSubmission}"/>
+         <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_checkbox}" />
+       </h:panelGroup>
+  </h:panelGrid>
 
 <f:verbatim><p></p></f:verbatim>
-     <h:outputText value="#{assessmentSettingsMessages.open_new_browser_for_publishedUrl}" />
 
      <p class="act">
+       <!-- Publish, Republishe and Regrade, or Republish button -->
        <h:commandButton id="publish" value="#{assessmentSettingsMessages.button_save_and_publish}" type="submit"
-         styleClass="active" action="publishAssessment" onclick="toggle()" onkeypress="toggle()">
+         styleClass="active" action="publishAssessment" onclick="toggle()" onkeypress="toggle()" rendered="#{author.isEditPendingAssessmentFlow}">
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
        </h:commandButton>
-       <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit"
-         action="author" />
+	
+		<h:commandButton  value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}" action="publishAssessment">
+			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RepublishAssessmentListener" />
+		</h:commandButton>
+
+		<h:commandButton  value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && !assessmentBean.hasGradingData}" action="publishAssessment">
+			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RepublishAssessmentListener" />
+		</h:commandButton>
+
+       <!-- Cancel button -->
+       <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="#{author.getOutcome}" rendered="#{author.isEditPendingAssessmentFlow}"/>
+	   <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="#{author.getOutcome}" rendered="#{!author.isEditPendingAssessmentFlow}">
+		  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+	   </h:commandButton>
+
 </p>
 
  </h:form>

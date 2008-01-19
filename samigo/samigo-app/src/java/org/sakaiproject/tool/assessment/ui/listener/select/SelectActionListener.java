@@ -457,10 +457,15 @@ public class SelectActionListener
   public boolean isAvailable(PublishedAssessmentFacade f, HashMap h, HashMap numberRetakeHash, HashMap actualNumberRetakeHash) {
     boolean returnValue = false;
     //1. prepare our significant parameters
+    Integer status = f.getStatus();
     Date currentDate = new Date();
     Date startDate = f.getStartDate();
     Date retractDate = f.getRetractDate();
     Date dueDate = f.getDueDate();
+    
+    if (!Integer.valueOf(1).equals(status)) {
+    	return false;
+    }
     boolean acceptLateSubmission = AssessmentAccessControlIfc.
         ACCEPT_LATE_SUBMISSION.equals(
         f.getLateHandling());

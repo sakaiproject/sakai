@@ -60,4 +60,5 @@ public interface AssessmentIfc
 
   List getAssessmentAttachmentList();
 
+  String getHasMetaDataForQuestions();
 }

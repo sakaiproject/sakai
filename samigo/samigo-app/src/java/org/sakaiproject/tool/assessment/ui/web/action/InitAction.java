@@ -32,6 +32,8 @@ import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueriesAPI
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ItemFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.PublishedSectionFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.SectionFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
@@ -88,6 +90,14 @@ private static Log log = LogFactory.getLog(InitAction.class);
     // published assessment facade
     PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries();
     log.debug("*****#7  InitAction: publishedAssessmentFacadeQueries ="+publishedAssessmentFacadeQueries);
+
+    // published item facade
+    PublishedItemFacadeQueriesAPI publishedItemFacadeQueries = PersistenceService.getInstance().getPublishedItemFacadeQueries();
+    log.debug("*****#5  InitAction: publishedItemFacadeQueries ="+publishedItemFacadeQueries);
+
+    // published section facade
+    PublishedSectionFacadeQueriesAPI publishedSectionFacadeQueries = PersistenceService.getInstance().getPublishedSectionFacadeQueries();
+    log.debug("*****#6  InitAction: publishedSectionFacadeQueries ="+publishedSectionFacadeQueries);
 
     // assessment grading facade
     AssessmentGradingFacadeQueriesAPI assessmentGradingFacadeQueries = PersistenceService.getInstance().getAssessmentGradingFacadeQueries();

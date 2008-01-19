@@ -32,14 +32,14 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{deliveryMessages.time_expired_title}"/></title>
+      <title><h:outputText value="#{deliveryMessages.is_retracted_title}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
   <!-- content... -->
   <h3><h:outputText value="#{deliveryMessages.is_retracted_title}"/></h3>
-  <h:outputText value="#{deliveryMessages.isRetracted}"/>
+  <h:outputText value="#{deliveryMessages.is_retracted}"/>
   <p></p> 
   <h:panelGroup  rendered="#{delivery.publishedAssessment.assessmentAccessControl.retractDate!=null}">
     <h:outputLabel value="#{deliveryMessages.retract_date}:" />

@@ -103,7 +103,7 @@
 	<!-- CORE ASSESSMENTS-->
 
   <h:outputText escape="false" rendered="#{authorization.adminCoreAssessment}" value="<h4>"/>
-<h:outputText value="#{authorFrontDoorMessages.assessment_core}" rendered="#{authorization.adminCoreAssessment}"/>
+<h:outputText value="#{authorFrontDoorMessages.assessment_pending}" rendered="#{authorization.adminCoreAssessment}"/>
  <h:outputText escape="false" rendered="#{authorization.adminCoreAssessment}" value="</h4>"/>
 <div class="tier2">
   <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="coreAssessments" value="#{author.assessments}" var="coreAssessment" rendered="#{authorization.adminCoreAssessment}" summary="#{authorFrontDoorMessages.sum_coreAssessment}">
@@ -136,6 +136,7 @@
       <h:commandLink title="#{authorFrontDoorMessages.t_editAssessment}" id="editAssessment" immediate="true" action="#{author.getOutcome}"
         rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}" >
         <h:outputText id="assessmentTitle" value="#{coreAssessment.title}" styleClass="currentSort" />
+        <f:param name="editType" value="pendingAssessment" />
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
       </h:commandLink>
@@ -146,7 +147,7 @@
       <!-- AuthorBean.editAssessmentSettings() prepare the edit page -->
       <!-- action=editAssessmentSettings if pass authz -->
       <span class="itemAction">
-      <h:commandLink title="#{authorFrontDoorMessages.t_editSettings}" id="editAssessmentSettings" immediate="true" action="#{author.getOutcome}"
+      <h:commandLink title="#{authorFrontDoorMessages.t_editSettings}" id="editAssessmentSettings_author" immediate="true" action="#{author.getOutcome}"
          rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}">
         <h:outputText id="linkSettings" value="#{authorFrontDoorMessages.link_settings}"/>
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
@@ -239,7 +240,7 @@
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
         </h:commandLink>
 
- <h:commandLink title="#{authorFrontDoorMessages.t_sortTitle}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='title' && author.publishedAscending }">
+        <h:commandLink title="#{authorFrontDoorMessages.t_sortTitle}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='title' && author.publishedAscending }">
          <h:outputText  value="#{authorFrontDoorMessages.assessment_title} " styleClass="currentSort" />
          
            <f:param name="publishedAscending" value="false" />
@@ -254,12 +255,23 @@
           </h:commandLink>
          </h:panelGroup>
       </f:facet>
-      <h:outputText escape="false" id="publishedAssessmentTitle" value="#{publishedAssessment.title} <br />" />
+	  
+	  <!-- action=editAssessment if pass authz -->
+      <h:commandLink title="#{authorFrontDoorMessages.t_editPublishedAssessment}" id="editPublishedAssessment" immediate="true" action="confirmEditPublishedAssessment"
+        rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}" >
+        <h:outputText id="publishedAssessmentTitle" value="#{publishedAssessment.title}" styleClass="currentSort" />
+        <f:param name="publishedAssessmentId" value="#{publishedAssessment.publishedAssessmentId}"/>
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmEditPublishedAssessmentListener" />
+      </h:commandLink>
+
+      <h:outputText id="publishedAssessmentTitle2" value="#{publishedAssessment.title}" 
+        rendered="#{!authorization.editAnyAssessment and !authorization.editOwnAssessment}" />
+      <h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="<br />"/>
 
  <span class="itemAction">
       <!-- if passAuth, action=editPublishedAssessmentSettings -->
-      <h:commandLink title="#{authorFrontDoorMessages.t_editSettings}" id="editPublishedAssessmentSettings" immediate="true"
-          rendered="#{authorization.publishAnyAssessment or authorization.publishOwnAssessment}"
+      <h:commandLink title="#{authorFrontDoorMessages.t_editSettings}" id="editPublishedAssessmentSettings_author" immediate="true"
+          rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}"
           action="#{author.getOutcome}">
         <h:outputText  value="#{authorFrontDoorMessages.link_settings}" />
         <f:param name="publishedAssessmentId" value="#{publishedAssessment.publishedAssessmentId}"/>
@@ -277,7 +289,7 @@
       </h:commandLink>
 
       <h:outputText value=" #{authorFrontDoorMessages.separator} " 
-         rendered="#{publishedAssessment.submissionSize >0 and (authorization.publishAnyAssessment or authorization.publishOwnAssessment)}"/>
+         rendered="#{publishedAssessment.submissionSize >0 and (authorization.editAnyAssessment or authorization.editOwnAssessment)}"/>
       <h:commandLink title="#{authorFrontDoorMessages.t_score}" action="#{author.getOutcome}" immediate="true" id="authorIndexToScore1" 
          rendered="#{publishedAssessment.submissionSize >0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
 
@@ -426,12 +438,21 @@
           </h:commandLink>
          </h:panelGroup>
       </f:facet>
-      <h:outputText escape="false" id="inactivePublishedAssessmentTitle" value="#{inactivePublishedAssessment.title} <br />" />
-     
+  	  <!-- action=editAssessment if pass authz -->
+      <h:commandLink title="#{authorFrontDoorMessages.t_editInactivePublishedAssessment}" id="editInactivePublishedAssessment" immediate="true" action="confirmEditPublishedAssessment"
+        rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}" >
+        <h:outputText id="inactivePublishedAssessmentTitle" value="#{inactivePublishedAssessment.title}" styleClass="currentSort" />
+        <f:param name="publishedAssessmentId" value="#{inactivePublishedAssessment.publishedAssessmentId}"/>
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmEditPublishedAssessmentListener" />
+      </h:commandLink>
+      <h:outputText id="inactivePublishedAssessmentTitle2" value="#{inactivePublishedAssessment.title}" 
+        rendered="#{!authorization.editAnyAssessment and !authorization.editOwnAssessment}" />
+      <h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="<br />"/>
+
         <span class="itemAction"> 
       <!-- if passAuth, action=editPublishedAssessmentSettings -->
-      <h:commandLink title="#{authorFrontDoorMessages.t_editSettings}" id="editPublishedAssessmentSettings" immediate="true"
-          rendered="#{authorization.publishAnyAssessment or authorization.publishOwnAssessment}"
+      <h:commandLink title="#{authorFrontDoorMessages.t_editSettings}" id="editPublishedAssessmentSettings_author" immediate="true"
+          rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}"
           action="#{author.getOutcome}">
         <h:outputText  value="#{authorFrontDoorMessages.link_settings}" />
         <f:param name="publishedAssessmentId" value="#{inactivePublishedAssessment.publishedAssessmentId}"/>
@@ -449,7 +470,7 @@
       </h:commandLink>
 
       <h:outputText value=" #{authorFrontDoorMessages.separator} "
-          rendered="#{inactivePublishedAssessment.submissionSize >0 and (authorization.publishAnyAssessment or authorization.publishOwnAssessment)}"
+          rendered="#{inactivePublishedAssessment.submissionSize >0 and (authorization.editAnyAssessment or authorization.editOwnAssessment)}"
       />
       <h:commandLink title="#{authorFrontDoorMessages.t_score}" action="#{author.getOutcome}" immediate="true" id="authorIndexToScore2" 
          rendered="#{inactivePublishedAssessment.submissionSize >0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">

@@ -177,7 +177,7 @@ public interface AssessmentFacadeQueriesAPI {
 	public void deleteAllMetaData(AssessmentBaseIfc assessment);
 
 	public ItemAttachmentIfc createItemAttachment(ItemDataIfc item,
-			String resourceId, String filename, String protocol);
+			String resourceId, String filename, String protocolboolean, boolean isEditPendingAssessmentFlow);
 
 	public void removeItemAttachment(Long itemAttachmentId);
 

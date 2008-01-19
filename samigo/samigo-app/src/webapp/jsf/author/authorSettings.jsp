@@ -760,6 +760,8 @@ function uncheckOther(field){
  </h:panelGroup>
 </div>
  <p class="act">
+
+ <!-- save & publish -->
   <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
       action="#{assessmentSettings.getOutcomePublish}" disabled="#{not assessmentSettings.hasQuestions}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
@@ -771,6 +773,7 @@ function uncheckOther(field){
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
   </h:commandButton>
 
+<!-- save -->
 <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{assessmentSettings.getOutcomeSave}" rendered="#{not assessmentSettings.hasQuestions}" styleClass="active">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener" />
@@ -780,11 +783,17 @@ function uncheckOther(field){
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener" />
   </h:commandButton>
-  <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="editAssessment" immediate="true">
+
+  <!-- cancel -->
+  <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="editAssessment" rendered="#{author.fromPage == 'editAssessment'}">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetAssessmentAttachmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
   </h:commandButton>
+
+    <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="#{author.getFromPage}" rendered="#{author.fromPage != 'editAssessment'}">
+  </h:commandButton>
+
 </p>
 </h:form>
 <!-- end content -->

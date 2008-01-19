@@ -116,7 +116,7 @@
 
   <!-- 6 POOL -->
 <div class="longtext">
-  <h:panelGrid rendered="#{itemauthor.target == 'assessment'}" columnClasses="shorttext">
+  <h:panelGrid rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}" columnClasses="shorttext">
   <h:panelGroup>
      <f:verbatim></f:verbatim>
   <h:outputLabel value="#{authorMessages.assign_to_question_p}" />

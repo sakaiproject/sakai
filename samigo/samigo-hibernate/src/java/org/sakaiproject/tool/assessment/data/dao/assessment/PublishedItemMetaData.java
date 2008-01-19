@@ -40,7 +40,7 @@ public class PublishedItemMetaData
 
   public PublishedItemMetaData() {}
 
-  public PublishedItemMetaData(PublishedItemData item, String label, String entry) {
+  public PublishedItemMetaData(ItemDataIfc item, String label, String entry) {
     this.item = item;
     this.label = label;
     this.entry = entry;

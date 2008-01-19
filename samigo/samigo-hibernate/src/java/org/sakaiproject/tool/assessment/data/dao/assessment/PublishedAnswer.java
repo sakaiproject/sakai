@@ -50,6 +50,7 @@ public class PublishedAnswer
   private Float score;
   private Set answerFeedbackSet;
   private HashMap answerFeedbackMap;
+  private PublishedItemData publishedItemData = new PublishedItemData();
 
   public PublishedAnswer() {}
 
@@ -216,4 +217,19 @@ public class PublishedAnswer
       return sequence.compareTo(a.sequence);
   }
 
+  	public boolean getGeneralAnswerFbIsNotEmpty() {
+		return publishedItemData.isNotEmpty(getGeneralAnswerFeedback());
+	}
+
+	public boolean getCorrectAnswerFbIsNotEmpty() {
+		return publishedItemData.isNotEmpty(getCorrectAnswerFeedback());
+	}
+
+	public boolean getIncorrectAnswerFbIsNotEmpty() {
+		return publishedItemData.isNotEmpty(getInCorrectAnswerFeedback());
+	}
+
+	public boolean getTextIsNotEmpty() {
+		return publishedItemData.isNotEmpty(getText());
+	}
 }

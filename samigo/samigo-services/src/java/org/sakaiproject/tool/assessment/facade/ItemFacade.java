@@ -57,46 +57,41 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   private static Log log = LogFactory.getLog(ItemFacade.class);
 
   private static final long serialVersionUID = 7526471155622776147L;
-
-  public static final Integer ACTIVE_STATUS = new Integer(1);
-  public static final Integer INACTIVE_STATUS = new Integer(0);
-
-
-  private org.osid.assessment.Item item;
+  protected org.osid.assessment.Item item;
   // We have 2 sets of properties:
   // #1) properties according to org.osid.assessment.Item. However, we will
   // not have property "displayName" because I am not sure what it is.
   // Properties "description" will be persisted through data - daisyf 07/28/04
-  private org.osid.shared.Id id;
-  private String description;
-  private ItemDataIfc data;
-  private org.osid.shared.Type itemType;
+  protected org.osid.shared.Id id;
+  protected String description;
+  protected ItemDataIfc data;
+  protected org.osid.shared.Type itemType;
   // #2) properties according to ItemDataIfc
-  private Long itemId;
-  private String itemIdString;
+  protected Long itemId;
+  protected String itemIdString;
   private SectionFacade section;
-  private Integer sequence;
-  private Integer duration;
-  private Integer triesAllowed;
-  private String instruction;
-  private Long typeId;
-  private String grade;
-  private Float score;
-  private String hint;
-  private Boolean hasRationale;
-  private Integer status;
-  private String createdBy;
-  private Date createdDate;
-  private String lastModifiedBy;
-  private Date lastModifiedDate;
-  private Set itemTextSet;
-  private Set itemMetaDataSet;
-  private Set itemFeedbackSet;
-  private HashMap itemMetaDataMap = new HashMap();
-  private HashMap itemFeedbackMap = new HashMap();
-  private TypeFacade itemTypeFacade;
-  private Set itemAttachmentSet;
-  private String itemAttachmentMetaData;
+  protected Integer sequence;
+  protected Integer duration;
+  protected Integer triesAllowed;
+  protected String instruction;
+  protected Long typeId;
+  protected String grade;
+  protected Float score;
+  protected String hint;
+  protected Boolean hasRationale;
+  protected Integer status;
+  protected String createdBy;
+  protected Date createdDate;
+  protected String lastModifiedBy;
+  protected Date lastModifiedDate;
+  protected Set itemTextSet;
+  protected Set itemMetaDataSet;
+  protected Set itemFeedbackSet;
+  protected HashMap itemMetaDataMap = new HashMap();
+  protected HashMap itemFeedbackMap = new HashMap();
+  protected TypeFacade itemTypeFacade;
+  protected Set itemAttachmentSet;
+  protected String itemAttachmentMetaData;
   
   /** ItemFacade is the class that is exposed to developer
    *  It contains some of the useful methods specified in
@@ -675,7 +670,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
     HashMap itemMetaDataMap = new HashMap();
     if (itemMetaDataSet !=null){
       for (Iterator i = itemMetaDataSet.iterator(); i.hasNext(); ) {
-        ItemMetaData itemMetaData = (ItemMetaData) i.next();
+        ItemMetaDataIfc itemMetaData = (ItemMetaDataIfc) i.next();
         itemMetaDataMap.put(itemMetaData.getLabel(), itemMetaData.getEntry());
       }
     }
@@ -716,7 +711,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
     HashMap itemFeedbackMap = new HashMap();
     if (itemFeedbackSet != null){
       for (Iterator i = itemFeedbackSet.iterator(); i.hasNext(); ) {
-        ItemFeedback itemFeedback = (ItemFeedback) i.next();
+        ItemFeedbackIfc itemFeedback = (ItemFeedbackIfc) i.next();
         itemFeedbackMap.put(itemFeedback.getTypeId(), itemFeedback.getText());
       }
     }
@@ -870,12 +865,15 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   public void removeFeedbackByType(String feedbackTypeId) {
     this.itemFeedbackSet = this.data.getItemFeedbackSet();
     if (this.itemFeedbackSet != null) {
+      HashSet toBeRemovedSet = new HashSet();
       for (Iterator i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
-        ItemFeedback itemFeedback = (ItemFeedback) i.next();
+        ItemFeedbackIfc itemFeedback = (ItemFeedbackIfc) i.next();
         if (itemFeedback.getTypeId().equals(feedbackTypeId)) {
-          this.itemFeedbackSet.remove(itemFeedback);
+        	toBeRemovedSet.add(itemFeedback);
+          //this.itemFeedbackSet.remove(itemFeedback);
         }
       }
+      this.itemFeedbackSet.removeAll(toBeRemovedSet);
     }
   }
 

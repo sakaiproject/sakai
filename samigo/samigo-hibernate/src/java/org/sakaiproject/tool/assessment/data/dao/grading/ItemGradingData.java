@@ -21,14 +21,12 @@
 
 package org.sakaiproject.tool.assessment.data.dao.grading;
 
+import java.util.ArrayList;
+import java.util.Date;
+
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
-import java.util.Date;
-import java.util.ArrayList;
-import java.lang.Float;
 
 /**
  * <p>Title: </p>

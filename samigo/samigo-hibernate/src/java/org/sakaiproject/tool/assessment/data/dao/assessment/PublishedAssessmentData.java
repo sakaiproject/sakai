@@ -26,23 +26,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Category;
-
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
-//import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-//import org.sakaiproject.tool.assessment.facade.AgentFacade;
-//import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
-//import org.sakaiproject.tool.assessment.services.PersistenceService;
-//import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 public class PublishedAssessmentData
     implements java.io.Serializable,
@@ -158,7 +152,17 @@ public class PublishedAssessmentData
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null);
+			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null);
+  }
+  
+  public PublishedAssessmentData(Long id, String title, String releaseTo,
+          Date startDate, Date dueDate, Date retractDate,
+          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackAuthoring,
+          Integer lateHandling,
+          Boolean unlimitedSubmissions,
+          Integer submissionsAllowed, Integer scoringType) {
+	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
+			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null);
   }
 
   public PublishedAssessmentData(Long id, String title, String releaseTo,
@@ -166,7 +170,7 @@ public class PublishedAssessmentData
                                  Date feedbackDate, Integer feedbackDelivery,  Integer feedbackAuthoring,
                                  Integer lateHandling,
                                  Boolean unlimitedSubmissions,
-                                 Integer submissionsAllowed, Integer scoringType) {
+                                 Integer submissionsAllowed, Integer scoringType, Integer status) {
     this.assessmentBaseId = id;
     this.title = title;
     this.releaseTo = releaseTo;
@@ -186,6 +190,7 @@ public class PublishedAssessmentData
     else
       this.submissionsAllowed = submissionsAllowed;
     this.scoringType = scoringType;
+    this.status = status;
   }
 
   public PublishedAssessmentData(Long id, int submissionSize) {
@@ -627,5 +632,10 @@ public class PublishedAssessmentData
     }
     return list;
   }
-
+  
+  // Not used. But have to implement this API because this class 
+  // implement AssessmentIfc
+  public String getHasMetaDataForQuestions() {
+		return "false";
+  }
 }

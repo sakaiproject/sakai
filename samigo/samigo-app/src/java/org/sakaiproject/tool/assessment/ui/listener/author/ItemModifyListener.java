@@ -34,20 +34,21 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AnswerBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
@@ -61,7 +62,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class ItemModifyListener implements ActionListener
 {
-  //private static Log log = LogFactory.getLog(ItemModifyListener.class);
+  private static Log log = LogFactory.getLog(ItemModifyListener.class);
   //private String scalename;  // used for multiple choice Survey
 
   /**
@@ -71,7 +72,7 @@ public class ItemModifyListener implements ActionListener
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    //log.info("ItemModify LISTENER.");
+    log.debug("ItemModify LISTENER.");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
     String itemId= ContextUtil.lookupParam("itemid");
@@ -105,16 +106,24 @@ public class ItemModifyListener implements ActionListener
 
 
   public boolean populateItemBean(ItemAuthorBean itemauthorbean, String itemId) {
-        String nextpage= null;
+      String nextpage= null;
       ItemBean bean = new ItemBean();
-
+      AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+      boolean isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
+      log.debug("**** isEditPendingAssessmentFlow : " + isEditPendingAssessmentFlow);
+      ItemService delegate = null;
+      AssessmentService assessdelegate= null;
+      if (isEditPendingAssessmentFlow) {
+    	  delegate = new ItemService();
+    	  assessdelegate = new AssessmentService();
+      }
+      else {
+    	  delegate = new PublishedItemService();
+    	  assessdelegate = new PublishedAssessmentService();
+      }
     try{
-      // need to update indivdiual pool properties
-
-      ItemService delegate = new ItemService();
-      ItemFacade itemfacade =  delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
-
-
+      ItemFacade itemfacade = delegate.getItem(new Long(itemId), AgentFacade
+				.getAgentString());
       bean.setItemId(itemfacade.getItemId().toString());
       bean.setItemType(itemfacade.getTypeId().toString());
       itemauthorbean.setItemType(itemfacade.getTypeId().toString());
@@ -233,9 +242,8 @@ public class ItemModifyListener implements ActionListener
 
     if ("assessment".equals(itemauthorbean.getTarget())) {
 // check for metadata settings
-      AssessmentService assessdelegate = new AssessmentService();
       AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
-      AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
+      AssessmentIfc assessment = assessdelegate.getAssessment(Long.valueOf(assessmentBean.getAssessmentId()));
       itemauthorbean.setShowMetadata(assessment.getHasMetaDataForQuestions());
     }
     else {
@@ -252,13 +260,12 @@ public class ItemModifyListener implements ActionListener
 	return true;
   }
 
-
   private void populateItemText(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean)  {
 
     Set itemtextSet = itemfacade.getItemTextSet();
     Iterator iter = itemtextSet.iterator();
     while (iter.hasNext()){
-       ItemText  itemText = (ItemText) iter.next();
+       ItemTextIfc  itemText = (ItemTextIfc) iter.next();
        bean.setItemText(itemText.getText());
 
 /////////////////////////////////////////////////////////////
@@ -274,7 +281,7 @@ public class ItemModifyListener implements ActionListener
 
        // should only be one element in the Set, except for Matching
 
-         Answer answer = (Answer) iter1.next();
+    	   AnswerIfc answer = (AnswerIfc) iter1.next();
          if (answer.getIsCorrect() != null &&
              answer.getIsCorrect().booleanValue()){
 	   bean.setCorrAnswer(answer.getText());
@@ -290,13 +297,13 @@ public class ItemModifyListener implements ActionListener
 
        // should only be one element in the Set, except for Matching
 
-         Answer answer = (Answer) iter1.next();
+    	   AnswerIfc answer = (AnswerIfc) iter1.next();
          bean.setCorrAnswer(answer.getText());
 	// get answerfeedback
          Set feedbackSet=  answer.getAnswerFeedbackSet();
          Iterator iter2 = feedbackSet.iterator();
          while (iter2.hasNext()){
-		bean.setCorrFeedback(((AnswerFeedback)iter2.next()).getText() );
+		bean.setCorrFeedback(((AnswerFeedbackIfc)iter2.next()).getText() );
  	 }
 
        }
@@ -316,7 +323,7 @@ public class ItemModifyListener implements ActionListener
        int count = answerSet.size();
        String[] answerArray = new String[count];
        while (iter1.hasNext()){
-	 Answer answerobj = (Answer) iter1.next();
+    	   AnswerIfc answerobj = (AnswerIfc) iter1.next();
          String answer = answerobj.getText();
          Long seq = answerobj.getSequence();
          if ( (answerArray[seq.intValue()-1] == null ) || (answerArray[seq.intValue()-1].equals("")) ) {
@@ -349,7 +356,7 @@ public class ItemModifyListener implements ActionListener
     	       int count = answerSet.size();
     	       String[] answerArray = new String[count];
     	       while (iter1.hasNext()){
-    		 Answer answerobj = (Answer) iter1.next();
+    	    	   AnswerIfc answerobj = (AnswerIfc) iter1.next();
     	         String answer = answerobj.getText();
     	         Long seq = answerobj.getSequence();
     	         if ( (answerArray[seq.intValue()-1] == null ) || (answerArray[seq.intValue()-1].equals("")) ) {
@@ -381,10 +388,10 @@ public class ItemModifyListener implements ActionListener
 	 ArrayList correctlist = new ArrayList();
        //need to check sequence no, since this answerSet returns answers in random order
          int count = answerobjlist.size();
-         Answer[] answerArray = new Answer[count];
+         AnswerIfc[] answerArray = new AnswerIfc[count];
          while(iter1.hasNext())
          {
-           Answer answerobj = (Answer) iter1.next();
+           AnswerIfc answerobj = (AnswerIfc) iter1.next();
            Long seq = answerobj.getSequence();
            answerArray[seq.intValue()-1] = answerobj;
          }
@@ -392,7 +399,7 @@ public class ItemModifyListener implements ActionListener
            Set feedbackSet = answerArray[i].getAnswerFeedbackSet();
 	   // contains only one element in the Set
 	   if (feedbackSet.size() == 1) {
-	     AnswerFeedback afbobj=(AnswerFeedback) feedbackSet.iterator().next();
+	     AnswerFeedbackIfc afbobj=(AnswerFeedbackIfc) feedbackSet.iterator().next();
              afeedback = afbobj.getText();
            }
 	   AnswerBean answerbean = new AnswerBean();
@@ -457,14 +464,14 @@ public class ItemModifyListener implements ActionListener
 
 
     while (iter.hasNext()){
-       ItemText  itemText = (ItemText) iter.next();
+       ItemTextIfc  itemText = (ItemTextIfc) iter.next();
        MatchItemBean choicebean =  new MatchItemBean();
        choicebean.setChoice(itemText.getText());
 
        Set answerSet = itemText.getAnswerSet();
        Iterator iter1 = answerSet.iterator();
        while (iter1.hasNext()){
-         Answer answer = (Answer) iter1.next();
+    	 AnswerIfc answer = (AnswerIfc) iter1.next();
          if (answer.getIsCorrect() != null &&
              answer.getIsCorrect().booleanValue()){
            choicebean.setMatch(answer.getText());
@@ -474,7 +481,7 @@ public class ItemModifyListener implements ActionListener
            Iterator iter2 = feedbackSet.iterator();
            while (iter2.hasNext()){
 
-             AnswerFeedback feedback =(AnswerFeedback) iter2.next();
+        	   AnswerFeedbackIfc feedback =(AnswerFeedbackIfc) iter2.next();
              if (feedback.getTypeId().equals(AnswerFeedbackIfc.CORRECT_FEEDBACK)) {
                choicebean.setCorrMatchFeedback(feedback.getText());
              }
@@ -499,7 +506,7 @@ public class ItemModifyListener implements ActionListener
     Set itemtextSet = itemfacade.getItemMetaDataSet();
     Iterator iter = itemtextSet.iterator();
     while (iter.hasNext()){
-       ItemMetaData meta= (ItemMetaData) iter.next();
+    	ItemMetaDataIfc meta= (ItemMetaDataIfc) iter.next();
        if (meta.getLabel().equals(ItemMetaDataIfc.OBJECTIVE)){
 	 bean.setObjective(meta.getEntry());
        }
@@ -552,8 +559,12 @@ public class ItemModifyListener implements ActionListener
 
 	// get part id for the item
        if (meta.getLabel().equals(ItemMetaDataIfc.PARTID)){
-	 bean.setSelectedSection(meta.getEntry());
-	 bean.setOrigSection(meta.getEntry());
+    	   // Because the PARTID in sam_publisheditemmetadata_t is not correct,
+    	   // get it from itemfacade instead
+    	   //bean.setSelectedSection(meta.getEntry());
+    	   //bean.setOrigSection(meta.getEntry());
+    	   bean.setSelectedSection(itemfacade.getData().getSection().getSectionId().toString());
+    	   bean.setOrigSection(itemfacade.getData().getSection().getSectionId().toString());
        }
 
 	// get pool id for the item

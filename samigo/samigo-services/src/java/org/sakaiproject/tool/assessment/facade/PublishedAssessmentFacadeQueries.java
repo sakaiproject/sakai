@@ -49,7 +49,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAttachment
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
@@ -80,8 +79,12 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
@@ -430,6 +433,13 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		Iterator n = itemMetaDataSet.iterator();
 		while (n.hasNext()) {
 			ItemMetaData itemMetaData = (ItemMetaData) n.next();
+			// The itemMetaData.getEntry() is actually the pending/core part id. 
+			// What should be used is the published part id.
+			// However, the published part id has not been created at this point.
+			// Therefore, we have to update it later.
+			// I really don't think this is good. I would like to remove PARTID
+			// from the ItemMetaData. However, there are lots of changes involved and
+			// I don't have time for this now. Will do it in later release. 
 			PublishedItemMetaData publishedItemMetaData = new PublishedItemMetaData(
 					publishedItem, itemMetaData.getLabel(), itemMetaData
 							.getEntry());
@@ -637,6 +647,30 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			throw e;
 		}
 
+		// reset PARTID in ItemMetaData to the section of the newly created section
+		// I really don't think PARTID should be in ItemMetaData. However, there will
+		// be lots of changes invloved if I remove PARTID from ItemMetaData. I need
+		// to spend time to evaulate and make the changes - not able to do this at
+		// this point.
+		Set sectionSet = publishedAssessment.getSectionSet();
+		Iterator sectionIter = sectionSet.iterator();
+		while (sectionIter.hasNext()) {
+			PublishedSectionData section = (PublishedSectionData) sectionIter.next();
+			Set itemSet = section.getItemSet();
+			Iterator itemIter = itemSet.iterator();
+			while (itemIter.hasNext()) {
+				PublishedItemData item = (PublishedItemData) itemIter.next();
+				Set itemMetaDataSet = item.getItemMetaDataSet();
+				Iterator itemMetaDataIter = itemMetaDataSet.iterator();
+				while (itemMetaDataIter.hasNext()) {
+					PublishedItemMetaData itemMetaData = (PublishedItemMetaData) itemMetaDataIter.next();
+					if (itemMetaData.getLabel() != null && itemMetaData.getLabel().equals(ItemMetaDataIfc.PARTID)) {
+						log.debug("sectionId = " + section.getSectionId());
+						itemMetaData.setEntry(section.getSectionId().toString());
+					}
+				}
+			}
+		}
 		// add to gradebook
 		if (publishedAssessment.getEvaluationModel() != null) {
 			String toGradebook = publishedAssessment.getEvaluationModel()
@@ -1084,7 +1118,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title,"
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) from PublishedAssessmentData p,"
 				+ " PublishedAccessControl c, AuthorizationData z  "
-				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId and p.status=? and (c.dueDate<= ? or  c.retractDate<= ?)"
+				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId " 
+				+ " and ((p.status=? and (c.dueDate<= ? or  c.retractDate<= ?)) or p.status=?) " 
 				+ " and p.publishedAssessmentId=z.qualifierId and z.functionId=? "
 				+ " and z.agentIdString= ? order by p." + orderBy;
 
@@ -1101,8 +1136,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				q.setInteger(0, 1);
 				q.setTimestamp(1, new Date());
 				q.setTimestamp(2, new Date());
-				q.setString(3, "OWN_PUBLISHED_ASSESSMENT");
-				q.setString(4, siteAgentId);
+				q.setInteger(3, 3);
+				q.setString(4, "OWN_PUBLISHED_ASSESSMENT");
+				q.setString(5, siteAgentId);
 				return q.list();
 			};
 		};
@@ -1172,18 +1208,18 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	// added by daisy - please check the logic - I based this on the
 	// getBasicInfoOfAllActiveAssessment
 	public ArrayList getBasicInfoOfAllPublishedAssessments(String orderBy,
-			boolean ascending, final Integer status, final String siteId) {
+			boolean ascending, final String siteId) {
 
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
 				+ " c.feedbackDate, f.feedbackDelivery,  f.feedbackAuthoring, c.lateHandling, "
-				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType) "
+				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
 				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
 				+ " and p.publishedAssessmentId = f.assessment.publishedAssessmentId "
 				+ " and p.publishedAssessmentId = em.assessment.publishedAssessmentId "
-				+ " and p.status=? and az.agentIdString=? "
+				+ " and (p.status=? or p.status=?) and az.agentIdString=? "
 				+ " and az.functionId=? and az.qualifierId=p.publishedAssessmentId"
 				+ " order by ";
 
@@ -1207,9 +1243,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(hql);
-				q.setInteger(0, status.intValue());
-				q.setString(1, siteId);
-				q.setString(2, "TAKE_PUBLISHED_ASSESSMENT");
+				q.setInteger(0, 1);
+				q.setInteger(1, 3);
+				q.setString(2, siteId);
+				q.setString(3, "TAKE_PUBLISHED_ASSESSMENT");
 				return q.list();
 			};
 		};
@@ -1223,7 +1260,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 							.getRetractDate(), p.getFeedbackDate(), p
 							.getFeedbackDelivery(), p.getFeedbackAuthoring(), p
 							.getLateHandling(), p.getUnlimitedSubmissions(), p
-							.getSubmissionsAllowed(), p.getScoringType());
+							.getSubmissionsAllowed(), p.getScoringType(), p.getStatus());
 			pubList.add(f);
 		}
 		return pubList;
@@ -2059,4 +2096,139 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		} else
 			return null;
 	}
+
+	  public void updateAssessmentLastModifiedInfo(
+				PublishedAssessmentFacade publishedAssessmentFacade) {
+			int retryCount = PersistenceService.getInstance().getRetryCount()
+					.intValue();
+			AssessmentBaseIfc data = publishedAssessmentFacade.getData();
+			data.setLastModifiedBy(AgentFacade.getAgentString());
+			data.setLastModifiedDate(new Date());
+			retryCount = PersistenceService.getInstance().getRetryCount()
+					.intValue();
+			while (retryCount > 0) {
+				try {
+					getHibernateTemplate().update(data);
+					retryCount = 0;
+				} catch (Exception e) {
+					log.warn("problem update assessment: " + e.getMessage());
+					retryCount = PersistenceService.getInstance().retryDeadlock(e,
+							retryCount);
+				}
+			}
+		}
+	  
+	  public void saveOrUpdateSection(SectionFacade section) {
+			int retryCount = PersistenceService.getInstance().getRetryCount()
+					.intValue();
+			while (retryCount > 0) {
+				try {
+					getHibernateTemplate().saveOrUpdate(section.getData());
+					retryCount = 0;
+				} catch (Exception e) {
+					log.warn("problem save or update section: " + e.getMessage());
+					retryCount = PersistenceService.getInstance().retryDeadlock(e,
+							retryCount);
+				}
+			}
+		}
+	  
+		public void removeItemAttachment(Long itemAttachmentId) {
+			PublishedItemAttachment itemAttachment = (PublishedItemAttachment) getHibernateTemplate()
+					.load(PublishedItemAttachment.class, itemAttachmentId);
+			ItemDataIfc item = itemAttachment.getItem();
+			int retryCount = PersistenceService.getInstance().getRetryCount()
+					.intValue();
+			while (retryCount > 0) {
+				try {
+					if (item != null) { // need to dissociate with item before
+						// deleting in Hibernate 3
+						Set set = item.getItemAttachmentSet();
+						set.remove(itemAttachment);
+						getHibernateTemplate().delete(itemAttachment);
+						retryCount = 0;
+					}
+				} catch (Exception e) {
+					log.warn("problem delete itemAttachment: " + e.getMessage());
+					retryCount = PersistenceService.getInstance().retryDeadlock(e,
+							retryCount);
+				}
+			}
+		}
+		
+		public PublishedSectionFacade addSection(Long publishedAssessmentId) {
+			// #1 - get the assessment and attach teh new section to it
+			// we are working with Data instead of Facade in this method but should
+			// return
+			// SectionFacade at the end
+			PublishedAssessmentData assessment = loadPublishedAssessment(publishedAssessmentId);
+			// lazy loading on sectionSet, so need to initialize it
+			Set sectionSet = getSectionSetForAssessment(publishedAssessmentId);
+			assessment.setSectionSet(sectionSet);
+
+			// #2 - will called the section "Section d" here d is the total no. of
+			// section in this assessment
+			// #2 section has no default name - per Marc's new mockup
+			PublishedSectionData section = new PublishedSectionData(null,
+					new Integer(sectionSet.size() + 1), // NEXT section
+					"", "", TypeD.DEFAULT_SECTION, SectionData.ACTIVE_STATUS,
+					AgentFacade.getAgentString(), new Date(), AgentFacade
+							.getAgentString(), new Date());
+			section.setAssessment(assessment);
+			section.setAssessmentId(assessment.getAssessmentId());
+
+			// add default part type, and question Ordering
+			section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE,
+					SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString());
+			section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING,
+					SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString());
+
+			sectionSet.add(section);
+			int retryCount = PersistenceService.getInstance().getRetryCount()
+					.intValue();
+			while (retryCount > 0) {
+				try {
+					getHibernateTemplate().saveOrUpdate(section);
+					retryCount = 0;
+				} catch (Exception e) {
+					log
+							.warn("problem save or update assessment: "
+									+ e.getMessage());
+					retryCount = PersistenceService.getInstance().retryDeadlock(e,
+							retryCount);
+				}
+			}
+			return new PublishedSectionFacade(section);
+		}
+		
+		public PublishedSectionFacade getSection(Long sectionId) {
+			PublishedSectionData publishedSection = (PublishedSectionData) getHibernateTemplate().load(
+					PublishedSectionData.class, sectionId);
+			return new PublishedSectionFacade(publishedSection);
+		}
+		
+		public AssessmentAccessControlIfc loadPublishedAccessControl(Long publishedAssessmentId) {
+			List list = getHibernateTemplate().find(
+					"select c from PublishedAssessmentData as p, PublishedAccessControl as c " +
+					" where c.assessment.publishedAssessmentId=p.publishedAssessmentId " +
+					" and p.publishedAssessmentId = ?", publishedAssessmentId);
+							
+			return (PublishedAccessControl) list.get(0);
+		}
+		
+		public void saveOrUpdatePublishedAccessControl(AssessmentAccessControlIfc publishedAccessControl) {
+			int retryCount = PersistenceService.getInstance().getRetryCount()
+					.intValue();
+			while (retryCount > 0) {
+				try {
+					getHibernateTemplate().saveOrUpdate(publishedAccessControl);
+					retryCount = 0;
+				} catch (Exception e) {
+					log.warn("problem save or update publishedAccessControl data: " + e.getMessage());
+					retryCount = PersistenceService.getInstance().retryDeadlock(e,
+							retryCount);
+				}
+			}
+		}
+
 }

@@ -168,5 +168,9 @@ public class AssessmentData extends org.sakaiproject.tool.assessment.data.dao.as
     }
     return list;
   }
-
+  // Not used. But have to implement this API because this class 
+  // implement AssessmentIfc
+  public String getHasMetaDataForQuestions() {
+	return "false";
+  }
 }

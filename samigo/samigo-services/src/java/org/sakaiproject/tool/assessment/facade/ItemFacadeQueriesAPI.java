@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.facade;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 
@@ -95,4 +96,6 @@ public interface ItemFacadeQueriesAPI
   public HashMap getItemsByKeyword(String keyword);
 
   public Long getItemTextId(Long publishedItemId);
+  
+  public void deleteSet(Set s);
 }

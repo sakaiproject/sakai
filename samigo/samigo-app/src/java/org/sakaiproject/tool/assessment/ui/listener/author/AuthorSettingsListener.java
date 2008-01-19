@@ -53,8 +53,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class AuthorSettingsListener implements ActionListener
 {
-  //private static Log log = LogFactory.getLog(AuthorSettingsListener.class);
-  //private static ContextUtil cu;
+  private static Log log = LogFactory.getLog(AuthorSettingsListener.class);
 
   public AuthorSettingsListener()
   {
@@ -89,6 +88,7 @@ public class AuthorSettingsListener implements ActionListener
     }
 
     // pass authz, move on
+    author.setIsEditPendingAssessmentFlow(true);
     //if not duplicate name
     assessmentSettings.setAssessment(assessment);
     assessmentSettings.setAssessmentId(assessment.getAssessmentId());
@@ -106,6 +106,15 @@ public class AuthorSettingsListener implements ActionListener
     else
       assessmentSettings.setHasQuestions(false);
 
+    String actionCommand = ae.getComponent().getId();
+	if ("editAssessmentSettings_author".equals(actionCommand)) {
+		log.debug("editAssessmentSettings_author");
+		author.setFromPage("author");
+	}
+	else if ("editAssessmentSettings_editAssessment".equals(actionCommand)) {
+		log.debug("editAssessmentSettings_editAssessment");
+		author.setFromPage("editAssessment");
+	}   
   }
 
   public boolean passAuthz(FacesContext context, String ownerId){

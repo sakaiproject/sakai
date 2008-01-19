@@ -57,7 +57,8 @@ private Long itemGradingId;
   private String gradedBy;
   private Date gradedDate;
   private Boolean review;
-
+  private Integer attemptsRemaining;
+  
   public ItemGradingFacade() {
   }
   public Long getItemGradingId() {
@@ -175,5 +176,13 @@ private Long itemGradingId;
 
   public void setReview(Boolean newReview) {
    review = newReview;
+  }
+  
+  public Integer getAttemptsRemaining() {
+	    return attemptsRemaining;
+  }
+
+  public void setAttemptsRemaining(Integer attemptsRemaining) {
+	    this.attemptsRemaining = attemptsRemaining;
   }
 }

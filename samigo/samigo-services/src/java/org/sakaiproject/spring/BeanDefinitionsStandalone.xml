@@ -24,6 +24,12 @@
     <property name="publishedAssessmentFacadeQueries" >
       <ref bean="PublishedAssessmentFacadeQueries"/>
     </property>
+    <property name="publishedSectionFacadeQueries" >
+      <ref bean="PublishedSectionFacadeQueries"/>
+    </property>
+    <property name="publishedItemFacadeQueries" >
+      <ref bean="PublishedItemFacadeQueries"/>
+    </property>
     <property name="assessmentGradingFacadeQueries" >
       <ref bean="AssessmentGradingFacadeQueries"/>
     </property>
@@ -73,6 +79,18 @@
   </bean>
 
   <bean id="PublishedAssessmentFacadeQueries" class="org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries">
+    <property name="sessionFactory" >
+      <ref bean="sessionFactory"/>
+    </property>
+  </bean>
+
+  <bean id="PublishedSectionFacadeQueries" class="org.sakaiproject.tool.assessment.facade.PublishedSectionFacadeQueries">
+    <property name="sessionFactory" >
+      <ref bean="sessionFactory"/>
+    </property>
+  </bean>
+
+  <bean id="PublishedItemFacadeQueries" class="org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueries">
     <property name="sessionFactory" >
       <ref bean="sessionFactory"/>
     </property>

@@ -139,6 +139,7 @@ AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil
     author.setAssessmentDescription("");
     author.setAssessmentTypeId("");
     author.setAssessmentTemplateId(AssessmentTemplateFacade.DEFAULTTEMPLATE.toString());
+    author.setIsEditPendingAssessmentFlow(true);
 
     // #3c - update core AssessmentList
     ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(AssessmentFacadeQueries.TITLE,true);

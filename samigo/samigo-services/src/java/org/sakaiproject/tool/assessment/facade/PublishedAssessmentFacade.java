@@ -34,13 +34,13 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
@@ -114,14 +114,24 @@ public class PublishedAssessmentFacade
                                  Integer submissionsAllowed){
     
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null);  
+			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null);  
+  }
+  
+  public PublishedAssessmentFacade(Long id, String title, String releaseTo,
+          Date startDate, Date dueDate, Date retractDate,
+          Date feedbackDate, Integer feedbackDelivery, Integer feedbackAuthoring,
+          Integer lateHandling, Boolean unlimitedSubmissions,
+          Integer submissionsAllowed, Integer scoringType){
+
+	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
+			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null);  
   }
   
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 			Date startDate, Date dueDate, Date retractDate, Date feedbackDate,
 			Integer feedbackDelivery, Integer feedbackAuthoring,
 			Integer lateHandling, Boolean unlimitedSubmissions,
-			Integer submissionsAllowed, Integer scoringType) {
+			Integer submissionsAllowed, Integer scoringType, Integer status) {
 		this.publishedAssessmentId = id;
 		this.title = title;
 		this.releaseTo = releaseTo;
@@ -141,6 +151,7 @@ public class PublishedAssessmentFacade
 		else
 			this.submissionsAllowed = submissionsAllowed;
 		this.scoringType = scoringType;
+		this.status = status;
 	}
 
 
@@ -651,5 +662,7 @@ public class PublishedAssessmentFacade
     return list;
   }
 
-
+  public String getHasMetaDataForQuestions() {
+	    return (String)this.publishedMetaDataMap.get(HASMETADATAFORQUESTIONS);
+  }
 }

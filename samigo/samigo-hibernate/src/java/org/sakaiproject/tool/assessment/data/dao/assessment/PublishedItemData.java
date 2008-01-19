@@ -537,44 +537,61 @@ public class PublishedItemData
     * e.g. A:2, B:3, C:1, D:4 (where A, B & C is the answer label and 1,2 &3
     * are the itemText sequence
     */
-   public String getAnswerKey(){
-    String answerKey="";
-    ArrayList itemTextArray = getItemTextArraySorted();
-    if (itemTextArray.size()==0)
-      return answerKey;
+   public String getAnswerKey() {
+		String answerKey = "";
+		ArrayList itemTextArray = getItemTextArraySorted();
+		if (itemTextArray.size() == 0)
+			return answerKey;
 
-    ArrayList answerArray = ((ItemTextIfc)itemTextArray.get(0)).getAnswerArraySorted();
-    HashMap h = new HashMap();
-    for (int i=0; i<itemTextArray.size();i++){
-      ItemTextIfc text = (ItemTextIfc)itemTextArray.get(i);
-      ArrayList answers = text.getAnswerArraySorted();
-      for (int j=0; j<answers.size();j++){
-        AnswerIfc a = (AnswerIfc)answers.get(j);
-        if ((Boolean.TRUE).equals(a.getIsCorrect())){
-          String pair = (String)h.get(a.getLabel());
-          if (pair==null){
-            String s = a.getLabel() + ":" + text.getSequence();
-            h.put(a.getLabel(), s);
-          }
-          else
-            h.put(a.getLabel(), pair+" "+text.getSequence());
-        }
-      }
-    }
-    for (int k=0; k<answerArray.size();k++){
-      AnswerIfc a = (AnswerIfc)answerArray.get(k);
-      String pair = (String)h.get(a.getLabel());
-      //if answer is not a match to any text, just print answer label
-      if (pair == null)
-        pair = a.getLabel()+": ";
+		ArrayList answerArray = ((ItemTextIfc) itemTextArray.get(0))
+				.getAnswerArraySorted();
+		HashMap h = new HashMap();
+		for (int i = 0; i < itemTextArray.size(); i++) {
+			ItemTextIfc text = (ItemTextIfc) itemTextArray.get(i);
+			ArrayList answers = text.getAnswerArraySorted();
+			for (int j = 0; j < answers.size(); j++) {
+				AnswerIfc a = (AnswerIfc) answers.get(j);
+				if ((Boolean.TRUE).equals(a.getIsCorrect())) {
+					String pair = (String) h.get(a.getLabel());
+					if (!this.getTypeId().equals(TypeD.MATCHING)) {
+						if (this.getTypeId().equals(TypeD.TRUE_FALSE)) {
+							answerKey = a.getText();
+						} else {
+							if (("").equals(answerKey)) {
+								answerKey = a.getLabel();
+							} else {
+								answerKey += "," + a.getLabel();
+							}
+						}
+					} else {
+						if (pair == null) {
+							String s = a.getLabel() + ":" + text.getSequence();
+							h.put(a.getLabel(), s);
+						} else {
+							h.put(a.getLabel(), pair + " " + text.getSequence());
+						}
+					}
+				}
+			}
+			if (this.getTypeId().equals(TypeD.MATCHING)) {
+				for (int k = 0; k < answerArray.size(); k++) {
+					AnswerIfc a = (AnswerIfc) answerArray.get(k);
+					String pair = (String) h.get(a.getLabel());
+					// if answer is not a match to any text, just print answer
+					// label
+					if (pair == null)
+						pair = a.getLabel() + ": ";
 
-      if (k!=0)
-        answerKey = answerKey+",  "+pair;
-      else
-        answerKey = pair;
-    }
-    return answerKey;
-   }
+					if (k != 0)
+						answerKey = answerKey + ",  " + pair;
+					else
+						answerKey = pair;
+				}
+			}
+		}
+
+		return answerKey;
+	}
 
   public int compareTo(Object o) {
       PublishedItemData a = (PublishedItemData)o;
@@ -597,6 +614,33 @@ public class PublishedItemData
   }
     */
 
+    public boolean getGeneralItemFbIsNotEmpty() {
+		return isNotEmpty(getGeneralItemFeedback());
+	}
+
+	public boolean getCorrectItemFbIsNotEmpty() {
+		return isNotEmpty(getCorrectItemFeedback());
+	}
+
+	public boolean getIncorrectItemFbIsNotEmpty() {
+		return isNotEmpty(getInCorrectItemFeedback());
+	}
+
+	public boolean isNotEmpty(String wyzText) {
+
+		if (wyzText != null) {
+			int index = 0;
+			String t = (wyzText.replaceAll("<.*?>", " ")).trim();
+			while (index < t.length()) {
+				char c = t.charAt(index);
+				if (Character.isLetterOrDigit(c)) {
+					return true;
+				}
+				index++;
+			}
+		}
+		return false;
+	}
 
   public Set getItemAttachmentSet() {
     return itemAttachmentSet;

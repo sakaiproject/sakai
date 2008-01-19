@@ -42,6 +42,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.osid.assessment.impl.SectionImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -51,33 +52,33 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
 
   private static final long serialVersionUID = 7526471155622776147L;
 
-  private org.osid.assessment.Section section;
+  protected org.osid.assessment.Section section;
   // We have 2 sets of properties:
   // #1) properties according to org.osid.assessment.Section. However, we will
   // not have property "displayName" because I am not sure what it is.
   // Properties "description" will be persisted through data - daisyf 07/28/04
-  private org.osid.shared.Id id;
-  private String description;
-  private SectionDataIfc data;
-  private org.osid.shared.Type sectionType;
+  protected org.osid.shared.Id id;
+  protected String description;
+  protected SectionDataIfc data;
+  protected org.osid.shared.Type sectionType;
   // #2) properties according to SectionDataIfc
-  private Long sectionId;
-  private Long assessmentId;
-  private AssessmentFacade assessment;
-  private Integer duration;
-  private Integer sequence;
-  private String title;
-  private Long typeId;
-  private Integer status;
-  private String createdBy;
-  private Date createdDate;
-  private String lastModifiedBy;
-  private Date lastModifiedDate;
-  private Set itemSet;
-  private Set metaDataSet= new HashSet();
-  private HashMap metaDataMap= new HashMap();
-  private Set itemFacadeSet;
-  private Set sectionAttachmentSet;
+  protected Long sectionId;
+  protected Long assessmentId;
+  protected AssessmentFacade assessment;
+  protected Integer duration;
+  protected Integer sequence;
+  protected String title;
+  protected Long typeId;
+  protected Integer status;
+  protected String createdBy;
+  protected Date createdDate;
+  protected String lastModifiedBy;
+  protected Date lastModifiedDate;
+  protected Set itemSet;
+  protected Set metaDataSet= new HashSet();
+  protected HashMap metaDataMap= new HashMap();
+  protected Set itemFacadeSet;
+  protected Set sectionAttachmentSet;
 
   /** SectionFacade is the class that is exposed to developer
    *  It contains some of the useful methods specified in
@@ -136,7 +137,6 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
     this.metaDataSet = getSectionMetaDataSet();
     this.metaDataMap = getSectionMetaDataMap(this.metaDataSet);
     this.sectionAttachmentSet = getSectionAttachmentSet(); 
-    // *TODO* will work on returning itemFacade later, sorry! daisyf 11/22/04
   }
 
   // the following method's signature has a one to one relationship to
@@ -157,12 +157,6 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
 
     SectionFacadeQueriesAPI sectionFacadeQueries = PersistenceService.getInstance().getSectionFacadeQueries();
     return sectionFacadeQueries.getId(this.data.getSectionId());
-    /**
-    SectionFacadeQueries sectionFacadeQueries = new SectionFacadeQueries();
-    return sectionFacadeQueries.getSectionId(this.data.getSectionId());
-    ItemFacadeQueriesAPI itemFacadeQueries = new ItemFacadeQueries();
-    return itemFacadeQueries.getItemId(this.data.getSectionId());
-    */
   }
 
   /**
@@ -546,7 +540,7 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
     HashMap metaDataMap = new HashMap();
     if (metaDataSet !=null){
       for (Iterator i = metaDataSet.iterator(); i.hasNext(); ) {
-        SectionMetaData sectionMetaData = (SectionMetaData) i.next();
+    	SectionMetaDataIfc sectionMetaData = (SectionMetaDataIfc) i.next();
         metaDataMap.put(sectionMetaData.getLabel(), sectionMetaData.getEntry());
       }
     }
@@ -569,7 +563,7 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
     return (String)this.metaDataMap.get(label);
   }
 
- /**
+  /**
    * Add a Meta Data to SectionFacade
    * @param label
    * @param entry
@@ -584,22 +578,17 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
       // just update
       Iterator iter = this.metaDataSet.iterator();
       while (iter.hasNext()){
-        SectionMetaData metadata = (SectionMetaData) iter.next();
+    	  SectionMetaDataIfc metadata = (SectionMetaDataIfc) iter.next();
         if (metadata.getLabel().equals(label))
           metadata.setEntry(entry);
       }
     }
     else {
-
       this.metaDataMap.put(label, entry);
-      this.data.getSectionMetaDataSet().add(new SectionMetaData((SectionData)this.data, label, entry));
+      this.data.getSectionMetaDataSet().add(new SectionMetaData((SectionDataIfc)this.data, label, entry));
       this.metaDataSet = this.data.getSectionMetaDataSet();
-
     }
-
-
   }
-
 
   public TypeIfc getType() {
     return getSectionTypeFacade();

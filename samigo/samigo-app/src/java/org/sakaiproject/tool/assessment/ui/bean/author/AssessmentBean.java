@@ -25,15 +25,16 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.faces.context.FacesContext;
+
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.shared.TypeService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
@@ -51,7 +52,7 @@ public class AssessmentBean  implements Serializable {
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
-  private AssessmentFacade assessment;
+  private AssessmentIfc assessment;
   private String assessmentId;
   private String title;
   // ArrayList of SectionContentsBean
@@ -65,6 +66,8 @@ public class AssessmentBean  implements Serializable {
   private String firstSectionId;
   private boolean hasRandomDrawPart;
   private boolean showPrintLink;
+  private boolean hasGradingData = false;
+  private boolean hasSubmission = false;
 
   /*
    * Creates a new AssessmentBean object.
@@ -72,14 +75,19 @@ public class AssessmentBean  implements Serializable {
   public AssessmentBean() {
   }
 
-  public AssessmentFacade getAssessment() {
+  public AssessmentIfc getAssessment() {
     return assessment;
   }
 
-  public void setAssessment(AssessmentFacade assessment) {
+  public void setAssessment(AssessmentIfc assessment) {
     try {
       this.assessment = assessment;
-      this.assessmentId = assessment.getAssessmentId().toString();
+      if (assessment instanceof AssessmentFacade) {
+    	  this.assessmentId = assessment.getAssessmentId().toString();
+      }
+      else if (assessment instanceof PublishedAssessmentFacade) {
+    	  this.assessmentId = ((PublishedAssessmentFacade) assessment).getPublishedAssessmentId().toString();
+      }
       this.title = assessment.getTitle();
 
       // work out the question side & total point
@@ -257,13 +265,28 @@ public class AssessmentBean  implements Serializable {
   public void setHasRandomDrawPart(boolean param) {
     this.hasRandomDrawPart= param;
   }
-  
+
   public boolean getShowPrintLink() {
 	return this.showPrintLink;
   }
-
+  
   public void setShowPrintLink(boolean showPrintLink) {
 	this.showPrintLink= showPrintLink;
   }
+  
+  public boolean getHasGradingData() {
+		return this.hasGradingData;
+  }
 
+  public void setHasGradingData(boolean hasGradingData) {
+		this.hasGradingData = hasGradingData;
+  }
+  
+  public boolean getHasSubmission() {
+		return this.hasSubmission;
+	}
+
+  public void setHasSubmission(boolean hasSubmission) {
+		this.hasSubmission = hasSubmission;
+  }
 }

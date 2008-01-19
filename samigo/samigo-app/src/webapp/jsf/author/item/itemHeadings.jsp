@@ -109,7 +109,7 @@ document.links[newindex].onclick();
 </h3>
 <!-- CHANGE TYPE -->
 <div class="tier1">
-<div class=" shorttext"><h:outputLabel value="#{authorMessages.change_q_type}"/>
+<div class=" shorttext"><h:outputLabel value="#{authorMessages.change_q_type}" rendered="#{author.isEditPendingAssessmentFlow}"/>
 <%-- todo:
 listener set selectFromQuestionPool, eliminating the rendered attribute
 --%>
@@ -124,7 +124,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
 </h:selectOneMenu>
 
 <%-- not from qpool , show the last option: copy from question pool --%>
-<h:selectOneMenu onchange="changeTypeLink(this);" rendered="#{itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'false'}"
+<h:selectOneMenu onchange="changeTypeLink(this);" rendered="#{author.isEditPendingAssessmentFlow && itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'false'}"
   value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType2">
   <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
@@ -171,7 +171,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
 
   <h:outputText rendered="#{itemauthor.currentItem.itemId != null}" value=" #{authorMessages.separator} " />
 --%>
-  <h:commandLink title="#{authorMessages.t_removeQ}" rendered="#{itemauthor.currentItem.itemId != null}" styleClass="navList" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
+  <h:commandLink title="#{authorMessages.t_removeQ}" rendered="#{author.isEditPendingAssessmentFlow && itemauthor.currentItem.itemId != null}" styleClass="navList" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
                 <h:outputText value="#{authorMessages.button_remove}" />
                 <f:param name="itemid" value="#{itemauthor.currentItem.itemId}"/>
               </h:commandLink>

@@ -25,13 +25,11 @@ package org.sakaiproject.tool.assessment.services;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
@@ -39,11 +37,9 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
-
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.content.api.ContentResource;
-
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
 /**
@@ -340,4 +336,16 @@ public class ItemService
     return h;
   }
 
+  public void deleteSet(Set s)
+  {
+    try
+    {
+      PersistenceService.getInstance().getItemFacadeQueries().
+      deleteSet(s);
+    }
+    catch(Exception e)
+    {
+      log.error(e); throw new RuntimeException(e);
+    }
+  }
 }

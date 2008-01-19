@@ -34,6 +34,7 @@ public interface AssessmentBaseIfc
   public static Integer ACTIVE_STATUS = new Integer(1);
   public static Integer INACTIVE_STATUS = new Integer(0);
   public static Integer DEAD_STATUS = new Integer(2);
+  public static Integer RETRACT_FOR_EDIT_STATUS = new Integer(3);
   public static String METADATAQUESTIONS_ISINSTRUCTOREDITABLE = "metadataQuestions_isInstructorEditable";
   public static String HASMETADATAFORQUESTIONS= "hasMetaDataForQuestions";
   public static String SHOWFEEDBACKAUTHORING= "showFeedbackAuthoring";
@@ -129,5 +130,4 @@ public interface AssessmentBaseIfc
   void updateAssessmentMetaData(String label, String entry);
 
   TypeIfc getType();
-
 }

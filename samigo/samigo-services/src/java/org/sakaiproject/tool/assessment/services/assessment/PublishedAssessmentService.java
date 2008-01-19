@@ -29,12 +29,15 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -42,6 +45,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
+import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 /**
@@ -49,7 +54,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  * manager on the back end.
  * @author Rachel Gollub <rgollub@stanford.edu>
  */
-public class PublishedAssessmentService {
+public class PublishedAssessmentService extends AssessmentService{
   private static Log log = LogFactory.getLog(PublishedAssessmentService.class);
 
   /**
@@ -71,9 +76,7 @@ public class PublishedAssessmentService {
     // 2. get all takeable assessment available
     return PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().
-        getBasicInfoOfAllPublishedAssessments(orderBy, ascending,
-                                             PublishedAssessmentFacade.
-					      ACTIVE_STATUS, siteId);
+        getBasicInfoOfAllPublishedAssessments(orderBy, ascending, siteId);
   }
 
 /**
@@ -169,12 +172,22 @@ public class PublishedAssessmentService {
     try {
       return PersistenceService.getInstance().
           getPublishedAssessmentFacadeQueries().
-          getPublishedAssessment(new Long(assessmentId));
+          getPublishedAssessment(Long.valueOf(assessmentId));
     }
     catch (Exception e) {
       log.error(e);
       throw new RuntimeException(e);
     }
+  }
+  
+  public AssessmentIfc getAssessment(Long assessmentId) {
+		try {
+			return PersistenceService.getInstance()
+					.getPublishedAssessmentFacadeQueries().getPublishedAssessment(assessmentId);
+		} catch (Exception e) {
+			log.error(e);
+			throw new RuntimeException(e);
+		}
   }
 
   public Long getPublishedAssessmentId(String assessmentId) {
@@ -478,6 +491,11 @@ public class PublishedAssessmentService {
 	    getSectionSetForAssessment(publishedAssessmentId);
   }
   
+  public HashSet getSectionSetForAssessment(PublishedAssessmentIfc assessment){
+	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+	    getSectionSetForAssessment(assessment);
+}
+  
   public boolean isRandomDrawPart(Long publishedAssessmentId, Long publishedSectionId){
 	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
 	    isRandomDrawPart(publishedAssessmentId, publishedSectionId);
@@ -509,7 +527,7 @@ public class PublishedAssessmentService {
        getPublishedAssessmentFacadeQueries().
        getPublishedAssessmentSiteId(publishedAssessmentId);
   }
-   
+
    public Integer getPublishedItemCount(Long publishedAssessmentId) {
 	    return PersistenceService.getInstance().
       getPublishedAssessmentFacadeQueries().
@@ -520,4 +538,35 @@ public class PublishedAssessmentService {
 	    return PersistenceService.getInstance().
      getPublishedAssessmentFacadeQueries().getPublishedAttachmentData(attachmentId);
    }
+   
+   public void updateAssessmentLastModifiedInfo(PublishedAssessmentFacade publishedAssessmentFacade) {
+	  PersistenceService.getInstance().
+      getPublishedAssessmentFacadeQueries().
+      updateAssessmentLastModifiedInfo(publishedAssessmentFacade);
+   }
+   
+   public void saveOrUpdateSection(SectionFacade section) {
+	   PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().saveOrUpdateSection(section);
+	}
+   
+   public void removeItemAttachment(String itemAttachmentId) {
+	   PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().removeItemAttachment(Long.valueOf(itemAttachmentId));
+	}
+
+   public PublishedSectionFacade addSection(Long publishedAssessmentId) {
+	   return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().addSection(publishedAssessmentId);
+	}
+   
+   public SectionFacade getSection(String publishedsectionId) {
+	   return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getSection(Long.valueOf(publishedsectionId));
+   }  
+   
+   public AssessmentAccessControlIfc loadPublishedAccessControl(Long publishedAssessmentId) {
+	   return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().loadPublishedAccessControl(publishedAssessmentId);
+   }
+   
+   public void saveOrUpdatePublishedAccessControl(AssessmentAccessControlIfc publishedAccessControl) {
+	   PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().saveOrUpdatePublishedAccessControl(publishedAccessControl);
+   }
+
 }

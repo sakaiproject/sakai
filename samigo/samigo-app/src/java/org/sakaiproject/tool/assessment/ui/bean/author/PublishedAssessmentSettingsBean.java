@@ -33,22 +33,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
@@ -165,6 +162,7 @@ public class PublishedAssessmentSettingsBean
   private String originalDueDateString;
   private String originalRetractDateString;
   private String originalFeedbackDateString;
+  private boolean updateMostCurrentSubmission = false;
   
   /*
    * Creates a new AssessmentBean object.
@@ -199,6 +197,10 @@ public class PublishedAssessmentSettingsBean
       this.bgImage = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
           BGIMAGE);
 
+      setDisplayFormat(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec"));
+      resetIsValidDate();
+      resetOriginalDateString();
+      
       // these are properties in AssessmentAccessControl
       AssessmentAccessControlIfc accessControl = null;
       accessControl = assessment.getAssessmentAccessControl();
@@ -1247,6 +1249,20 @@ public class PublishedAssessmentSettingsBean
 		this.originalRetractDateString = "";
 		this.originalFeedbackDateString = "";
 	 }
+	
+	public boolean getupdateMostCurrentSubmission() {
+		return this.updateMostCurrentSubmission;
+	}
+
+	public void setUpdateMostCurrentSubmission(boolean updateMostCurrentSubmission) {
+	    this.updateMostCurrentSubmission = updateMostCurrentSubmission;
+	}
+	
+	public String editSettingBeforePublish() {
+		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+		author.setFromPage("saveSettingsAndConfirmPublish");
+		return "editPublishedAssessmentSettings";
+	}
 }
 
 

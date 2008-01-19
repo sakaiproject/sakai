@@ -148,7 +148,7 @@ public class ImportQuestionsToAuthoring implements ActionListener
                 String insertPos = itemauthor.getInsertPosition();
                 ItemAddListener itemAddListener = new ItemAddListener();
                 int insertPosIntvalue = new Integer(insertPos).intValue() + itempos;
-                itemAddListener.shiftSequences(section, new Integer(insertPosIntvalue));
+                itemAddListener.shiftSequences(delegate, section, new Integer(insertPosIntvalue));
                 int insertPosInt= insertPosIntvalue + 1 ;
                 itemfacade.setSequence(new Integer(insertPosInt));
            }

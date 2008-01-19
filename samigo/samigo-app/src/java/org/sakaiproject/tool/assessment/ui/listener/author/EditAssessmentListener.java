@@ -23,6 +23,8 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.util.Date;
+
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -32,22 +34,21 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
-import java.util.List;
-import java.util.Set;
-import java.util.Iterator;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.cover.ToolManager;
 
 /**
@@ -70,64 +71,132 @@ public class EditAssessmentListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    FacesContext context = FacesContext.getCurrentInstance();
-
-    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
-                                          "assessmentBean");
-   
-
-    ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean(
-                                          "itemauthor");
-
     // #1a - come from authorIndex.jsp, load the assessment
     // goto editAssessment.jsp if successful
-    String assessmentId = (String) FacesContext.getCurrentInstance().
-        getExternalContext().getRequestParameterMap().get("assessmentId");
-    AssessmentService assessmentService = new AssessmentService();
-    AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.
-	    lookupBean("assessmentSettings");
-
-    if (assessmentId == null){
-      assessmentId = assessmentSettings.getAssessmentId().toString();
+	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+    String editType = ContextUtil.lookupParam("editType");
+    if (editType != null) {
+    	if (editType.equals("pendingAssessment")) {
+    		setPropertiesForAssessment(author);
+    	}
+    	else if (editType.equals("publishedAssessment")) {
+    		setPropertiesForPublishedAssessment(author);
+    	}
+    	else {
+        	log.debug("editType is not set - get from authorBean");
+        	if (author.getIsEditPendingAssessmentFlow()) {
+        		setPropertiesForAssessment(author);
+        	}
+        	else {
+        		setPropertiesForPublishedAssessment(author);
+        	}
+        }
     }
-    AssessmentFacade assessment = assessmentService.getAssessment(
-        assessmentId);
-    assessmentSettings.setAssessment(assessment);
-
-    // testing
-    Set sectionSet = assessment.getSectionSet();
-    Iterator iter_s = sectionSet.iterator();
-    while (iter_s.hasNext()){
-      SectionDataIfc s = (SectionDataIfc) iter_s.next();
-      Iterator iter = s.getItemSet().iterator();
-      while (iter.hasNext()){
-        ItemDataIfc item = (ItemDataIfc)iter.next();
-        List attachSet = item.getItemAttachmentList();
-        Iterator iter_a = attachSet.iterator();
-        while (iter_a.hasNext()){
-          ItemAttachmentIfc a = (ItemAttachmentIfc) iter_a.next();
-	}
-      }
-    } 
-
-    //#1b - permission checking before proceeding - daisyf
-    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-    author.setOutcome("editAssessment");
-    if (!passAuthz(context, assessment.getCreatedBy())){
-      author.setOutcome("author");
-      return;
+    else {
+    	log.debug("editType is null - get from authorBean");
+    	if (author.getIsEditPendingAssessmentFlow()) {
+    		setPropertiesForAssessment(author);
+    	}
+    	else {
+    		setPropertiesForPublishedAssessment(author);
+    	}
     }
-
-    // pass authz, move on
-    assessmentBean.setAssessment(assessment);
-    itemauthorBean.setTarget(ItemAuthorBean.FROM_ASSESSMENT); // save to assessment
-    // initalize the itemtype
-    itemauthorBean.setItemType("");
-    itemauthorBean.setItemTypeString("");
-    
-    showPrintLink(assessmentBean);
   }
 
+  public void setPropertiesForAssessment(AuthorBean author) {
+	    FacesContext context = FacesContext.getCurrentInstance();
+	    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
+        "assessmentBean");
+	    ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean(
+        "itemauthor");
+		AssessmentService assessmentService = new AssessmentService();
+		AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil
+				.lookupBean("assessmentSettings");
+	    String assessmentId = ContextUtil.lookupParam("assessmentId");
+		if (assessmentId == null) {
+			assessmentId = assessmentSettings.getAssessmentId().toString();
+		}
+		AssessmentFacade assessment = assessmentService
+				.getAssessment(assessmentId);
+
+		// testing
+		/*
+		Set sectionSet = assessment.getSectionSet();
+		Iterator iter_s = sectionSet.iterator();
+		while (iter_s.hasNext()) {
+			SectionDataIfc s = (SectionDataIfc) iter_s.next();
+			Iterator iter = s.getItemSet().iterator();
+			while (iter.hasNext()) {
+				ItemDataIfc item = (ItemDataIfc) iter.next();
+				List attachSet = item.getItemAttachmentList();
+				Iterator iter_a = attachSet.iterator();
+				while (iter_a.hasNext()) {
+					ItemAttachmentIfc a = (ItemAttachmentIfc) iter_a.next();
+				}
+			}
+		}
+		*/
+		// #1b - permission checking before proceeding - daisyf
+		author.setOutcome("editAssessment");
+		if (!passAuthz(context, assessment.getCreatedBy())) {
+			author.setOutcome("author");
+			return;
+		}
+
+		// pass authz, move on
+		author.setIsEditPendingAssessmentFlow(true);
+		assessmentSettings.setAssessment(assessment);
+		assessmentBean.setAssessment(assessment);
+		itemauthorBean.setTarget(ItemAuthorBean.FROM_ASSESSMENT); // save to
+																	// assessment
+		// initalize the itemtype
+		itemauthorBean.setItemType("");
+		itemauthorBean.setItemTypeString("");
+		assessmentBean.setHasGradingData(false);
+		
+	    showPrintLink(assessmentBean);
+	}
+    
+  public void setPropertiesForPublishedAssessment(AuthorBean author) {
+	    FacesContext context = FacesContext.getCurrentInstance();
+	    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
+        "assessmentBean");
+	    ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
+	    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil
+				.lookupBean("publishedSettings");
+	    String publishedAssessmentId = assessmentBean.getAssessmentId();
+		PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
+		
+		// #1b - permission checking before proceeding - daisyf
+		author.setOutcome("editAssessment");
+		if (!passAuthz(context, publishedAssessment.getCreatedBy())) {
+			author.setOutcome("author");
+			return;
+		}
+		
+		// pass authz, move on
+		author.setIsEditPendingAssessmentFlow(false);
+		// Retract the published assessment for edit by updating the retract date to now
+		//AssessmentAccessControlIfc publishedAccessControl = publishedAssessmentService.loadPublishedAccessControl(Long.valueOf(publishedAssessmentId));
+		//publishedAccessControl.setRetractDate(new Date());
+		//publishedAssessmentService.saveOrUpdatePublishedAccessControl(publishedAccessControl);
+		//Update the retract date in the assessment bean
+		//publishedAssessment.setAssessmentAccessControl(publishedAccessControl);
+		publishedAssessment.setStatus(AssessmentBaseIfc.RETRACT_FOR_EDIT_STATUS);
+		publishedAssessmentService.saveAssessment(publishedAssessment);
+		publishedAssessmentSettings.setAssessment(publishedAssessment);
+		assessmentBean.setAssessment(publishedAssessment);
+		itemauthorBean.setTarget(ItemAuthorBean.FROM_ASSESSMENT); // save to assessment
+		// initalize the itemtype
+		itemauthorBean.setItemType("");
+		itemauthorBean.setItemTypeString("");
+		
+		GradingService gradingService = new GradingService();
+		boolean hasGradingData = gradingService.getHasGradingData(Long.valueOf(publishedAssessmentId));
+		assessmentBean.setHasGradingData(hasGradingData);
+  }
+  
   public boolean passAuthz(FacesContext context, String ownerId){
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     boolean hasPrivilege_any = authzBean.getEditAnyAssessment();

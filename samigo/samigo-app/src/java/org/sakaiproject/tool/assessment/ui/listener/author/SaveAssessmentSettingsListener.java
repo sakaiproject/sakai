@@ -184,12 +184,12 @@ public class SaveAssessmentSettingsListener
       return;
     }
  
-    assessmentSettings.setOutcomeSave("author");
+    // Set the outcome once Save button is clicked
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+    assessmentSettings.setOutcomeSave(author.getFromPage());
+    
     s.save(assessmentSettings);
     // reset the core listing in case assessment title changes
-    AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
-                       "author");
- 
     ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
                       author.getCoreAssessmentOrderBy(),author.isCoreAscending());
     // get the managed bean, author and set the list
@@ -197,7 +197,7 @@ public class SaveAssessmentSettingsListener
 
     // goto Question Authoring page
     EditAssessmentListener editA= new EditAssessmentListener();
-    editA.processAction(null);
+    editA.setPropertiesForAssessment(author);
 
   }
 

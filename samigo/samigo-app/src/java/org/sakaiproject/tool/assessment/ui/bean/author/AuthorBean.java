@@ -24,12 +24,11 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 import java.io.Serializable;
 import java.util.ArrayList;
-import javax.faces.context.FacesContext;
+
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 
@@ -72,6 +71,10 @@ public class AuthorBean implements Serializable
   private boolean inactivePublishedAscending = true;
   private String outcome;
   private boolean showTemplateList;
+  private boolean isEditPendingAssessmentFlow = true;
+  private String fromPage;
+  private boolean isRetractedForEdit = false;
+  
 
   /**
    * @return the id
@@ -484,4 +487,34 @@ public class AuthorBean implements Serializable
     this.showTemplateList = showTemplateList;
   }
 
+  public boolean getIsEditPendingAssessmentFlow()
+  {
+    return isEditPendingAssessmentFlow;
+  }
+
+  public void setIsEditPendingAssessmentFlow(boolean isEditPendingAssessmentFlow)
+  {
+    this.isEditPendingAssessmentFlow = isEditPendingAssessmentFlow;
+  }
+  
+  public String getFromPage()
+  {
+    return fromPage;
+  }
+
+  public void setFromPage(String fromPage)
+  {
+    this.fromPage = fromPage;
+  }
+  
+  public boolean getIsRetractedForEdit()
+  {
+    return isRetractedForEdit;
+  }
+
+  public void setIsRetractedForEdit(boolean isRetractedForEdit)
+  {
+    this.isRetractedForEdit = isRetractedForEdit;
+  }
+  
 }

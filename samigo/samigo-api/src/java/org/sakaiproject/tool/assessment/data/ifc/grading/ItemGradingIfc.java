@@ -25,8 +25,6 @@ package org.sakaiproject.tool.assessment.data.ifc.grading;
 import java.util.Date;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 
 public interface ItemGradingIfc
     extends java.io.Serializable{
@@ -118,4 +116,8 @@ public interface ItemGradingIfc
   Boolean getReview();
 
   void setReview(Boolean review);
+  
+  public Integer getAttemptsRemaining();
+  
+  public void setAttemptsRemaining(Integer attemptsRemaining);
 }

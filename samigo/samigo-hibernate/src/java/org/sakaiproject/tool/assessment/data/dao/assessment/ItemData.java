@@ -14,6 +14,7 @@ import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -382,7 +383,7 @@ public class ItemData
     HashMap itemFeedbackMap = new HashMap();
     if (itemFeedbackSet != null){
       for (Iterator i = itemFeedbackSet.iterator(); i.hasNext(); ) {
-        ItemFeedback itemFeedback = (ItemFeedback) i.next();
+        ItemFeedbackIfc itemFeedback = (ItemFeedbackIfc) i.next();
         itemFeedbackMap.put(itemFeedback.getTypeId(), itemFeedback.getText());
       }
     }

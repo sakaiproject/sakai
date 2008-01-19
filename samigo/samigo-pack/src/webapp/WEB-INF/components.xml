@@ -36,6 +36,8 @@
      <property name="itemFacadeQueries"><ref bean="ItemFacadeQueries" /></property>
      <property name="assessmentFacadeQueries"><ref bean="AssessmentFacadeQueries" /></property>
      <property name="publishedAssessmentFacadeQueries"><ref bean="PublishedAssessmentFacadeQueries" /></property>
+     <property name="publishedSectionFacadeQueries"><ref bean="PublishedSectionFacadeQueries" /></property>
+     <property name="publishedItemFacadeQueries"><ref bean="PublishedItemFacadeQueries" /></property>
      <property name="assessmentGradingFacadeQueries"><ref bean="AssessmentGradingFacadeQueries" /></property>
      <property name="authorizationFacadeQueries"><ref bean="AuthorizationFacadeQueries" /></property>
      <property name="pagingUtilQueries"><ref bean="PagingUtilQueries" /></property>
@@ -134,6 +136,37 @@
         </props>
       </property>
     </bean>
+
+    <bean id="PublishedSectionFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.PublishedSectionFacadeQueries">
+          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+	</bean>
+      </property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+    </bean>
+
+    <bean id="PublishedItemFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueries">
+          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+	</bean>
+      </property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+    </bean>
+
 
     <bean id="AssessmentGradingFacadeQueries"
           class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">

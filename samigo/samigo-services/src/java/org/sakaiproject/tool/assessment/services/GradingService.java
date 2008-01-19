@@ -31,12 +31,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -59,7 +58,6 @@ import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-//import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 /**
  * The GradingService calls the back end to get/store grading information. 
@@ -95,6 +93,18 @@ public class GradingService
     try {
       results = PersistenceService.getInstance().
            getAssessmentGradingFacadeQueries().getAllSubmissions(publishedId);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return results;
+  }
+  
+  public List getAllAssessmentGradingData(Long publishedId)
+  {
+    List results = null;
+    try {
+      results = PersistenceService.getInstance().
+           getAssessmentGradingFacadeQueries().getAllAssessmentGradingData(publishedId);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -631,7 +641,7 @@ public class GradingService
                           HashMap publishedAnswerHash, boolean persistToDB) 
   {
 	  log.debug("storeGrades (not persistToDB) : data.getSubmittedDate()" + data.getSubmittedDate());
-	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, false);
+	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB);
   }
 
   /**
@@ -655,9 +665,10 @@ public class GradingService
       // This is for DeliveryBean.checkDataIntegrity()
       if (!regrade && persistToDB)
       {
-	data.setSubmittedDate(new Date());
+    	data.setSubmittedDate(new Date());
         setIsLate(data, pub);
       }
+      
       // note that this itemGradingSet is a partial set of answer submitted. it contains only 
       // newly submitted answers, updated answers and MCMR/FIB/FIN answers ('cos we need the old ones to
       // calculate scores for new ones)
@@ -687,36 +698,21 @@ public class GradingService
         ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
         Long itemType = item.getTypeId();
         float autoScore = (float) 0;
-        if (!regrade)
-        {
-          itemGrading.setAssessmentGradingId(data.getAssessmentGradingId());
-          //itemGrading.setSubmittedDate(new Date());
-          itemGrading.setAgentId(agent);
-          itemGrading.setOverrideScore(new Float(0));
-          // note that totalItems & fibAnswersMap would be modified by the following method
-          autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
-                                 totalItems, fibAnswersMap, publishedAnswerHash);
-          log.debug("**!regrade, autoScore="+autoScore);
-          if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
-            totalItems.put(itemId, new Float(autoScore));
-	}
-        else{
-          autoScore = itemGrading.getAutoScore().floatValue();
-          //overridescore - cwen
-          if (itemGrading.getOverrideScore() != null){
-            autoScore += itemGrading.getOverrideScore().floatValue();
-          }
 
-          if(!totalItems.containsKey(itemId) && !(TypeIfc.MULTIPLE_CORRECT).equals(itemType) ){
-            totalItems.put(itemId, new Float(autoScore));
-          }
-          else{
-            float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
-            accumelateScore += autoScore;
-            if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
-              totalItems.put(itemId, new Float(accumelateScore));
-          }
-        }
+        itemGrading.setAssessmentGradingId(data.getAssessmentGradingId());
+        //itemGrading.setSubmittedDate(new Date());
+        itemGrading.setAgentId(agent);
+        itemGrading.setOverrideScore(new Float(0));
+        // note that totalItems & fibAnswersMap would be modified by the following method
+        autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
+                               totalItems, fibAnswersMap, publishedAnswerHash);
+        log.debug("**!regrade, autoScore="+autoScore);
+        if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
+          totalItems.put(itemId, new Float(autoScore));
+        
+        if (regrade && TypeIfc.AUDIO_RECORDING.equals(itemType))
+        	itemGrading.setAttemptsRemaining(item.getTriesAllowed());
+	
         itemGrading.setAutoScore(new Float(autoScore));
       }
 
@@ -772,12 +768,11 @@ public class GradingService
     if (persistToDB) {
         data.setItemGradingSet(new HashSet());
     	saveOrUpdateAssessmentGrading(data);
+    	log.debug("****x7. "+(new Date()).getTime());	
+    	
+    	notifyGradebookByScoringType(data, pub);
     }
-    log.debug("****x7. "+(new Date()).getTime());
-
-    notifyGradebookByScoringType(data, pub);
     log.debug("****x8. "+(new Date()).getTime());
-    //log.debug("**#2 total AutoScore"+data.getTotalAutoScore());
     
     if (Boolean.TRUE.equals(data.getForGrade())) {
     	// remove the assessmentGradingData created during gradiing (by updatding total score page)
@@ -1070,19 +1065,21 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   {
     String studentanswer = "";
     boolean matchresult = false;
-
-    if (data.getPublishedAnswerId() == null) {
-    	return (float) 0;
-    }
+    float totalScore = (float) 0;
     
-    String answertext = ((AnswerIfc)publishedAnswerHash.get(data.getPublishedAnswerId())).getText();
+    if (data.getPublishedAnswerId() == null) {
+    	return totalScore;
+    }
+    AnswerIfc answerIfc = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
+    if (answerIfc == null) {
+    	return totalScore;
+    }
+    String answertext = answerIfc.getText();
     Long itemId = itemdata.getItemId();
 
     String casesensitive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB);
     String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB);
     //Set answerSet = new HashSet();
-
-    float totalScore = (float) 0;
 
     if (answertext != null)
     {
@@ -1150,10 +1147,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     boolean matchresult = false;
 
     if (data.getPublishedAnswerId() == null) {
-    	return false;
+    	return matchresult;
     }
     
-    String answertext = ((AnswerIfc)publishedAnswerHash.get(data.getPublishedAnswerId())).getText();
+    AnswerIfc answerIfc = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
+    if (answerIfc == null) {
+    	return matchresult;
+    }
+    String answertext = answerIfc.getText();
     Long itemId = itemdata.getItemId();
 
     String casesensitive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB);
@@ -1242,7 +1243,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     	return false;
     }
 
-    String answertext = ((AnswerIfc)publishedAnswerHash.get(data.getPublishedAnswerId())).getText();
+    AnswerIfc answerIfc = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
+    if (answerIfc == null) {
+    	return matchresult;
+    }
+    String answertext = answerIfc.getText();
     //Long itemId = itemdata.getItemId();
 
       //Set answerSet = new HashSet();
@@ -1641,6 +1646,28 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    }
   }
   
+  public boolean getHasGradingData(Long publishedAssessmentId) {
+	  boolean hasGradingData = false;
+	    try {
+	    	hasGradingData = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().getHasGradingData(publishedAssessmentId);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return hasGradingData;
+  }
+  
+  public ArrayList getHasGradingDataAndHasSubmission(Long publishedAssessmentId) {
+	  ArrayList al = new ArrayList();
+	    try {
+	    	al = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().getHasGradingDataAndHasSubmission(publishedAssessmentId);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return al;
+  }
+
 }
 
 

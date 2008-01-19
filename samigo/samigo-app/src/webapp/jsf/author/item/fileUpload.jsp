@@ -97,7 +97,7 @@
 
   <!-- 4 POOL -->
 
-  <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
+  <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
   <f:verbatim>&nbsp;</f:verbatim>
   <h:outputLabel value="#{authorMessages.assign_to_question_p}" />
   <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">

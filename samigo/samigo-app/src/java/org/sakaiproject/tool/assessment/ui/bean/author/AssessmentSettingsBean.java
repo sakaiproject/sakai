@@ -93,6 +93,7 @@ public class AssessmentSettingsBean
   private final static long serialVersionUID = -630950053380808339L;
     private String outcomeSave;
     private String outcomePublish;
+    private String outcomeCancel;
   private AssessmentFacade assessment;
   private AssessmentTemplateFacade template;
   private Long assessmentId;
@@ -440,8 +441,18 @@ public class AssessmentSettingsBean
     {
   this.outcomeSave=outcomeSave;
     }
-
- public String getOutcomePublish()
+    
+    public String getOutcomeCancel()
+    {
+    	return this.outcomeCancel;
+    }
+    
+    public void setOutcomeCancel(String outcomeCancel)
+    {
+    	this.outcomeCancel=outcomeCancel;
+    }
+    
+    public String getOutcomePublish()
     {
   return this.outcomePublish;
     }
