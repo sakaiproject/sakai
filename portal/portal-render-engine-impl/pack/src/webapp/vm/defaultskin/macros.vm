@@ -1,0 +1,730 @@
+#*
+
+This entire macro file is commented out as we have move all macros into the file
+
+
+##
+## emit the top of the page 
+##
+##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
+
+#macro( start_response  )
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
+<!-- this caises problems for layout nneds investihating -->
+    <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
+<!--[if gte IE 5]><![if lt IE 7]>
+    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
+<![endif]><![endif]-->
+
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+#if (! $currentPlacement && $isPDA )
+    <meta name="viewport" content="width=320, user-scalable=no" />
+#end
+#if ( ${bufferedResponse} && ${responseHead} ) 
+<!-- Head material from Tool (will include title and headscripts) -->
+${responseHead}
+<!-- End of Head material from Tool -->
+#if (  $pageColumn0Tools )
+#foreach ( $tool in $pageColumn0Tools ) 
+#if ( $tool ) 
+#if ( $tool.toolRenderResult ) 
+${tool.toolRenderResult.getTitle()}
+#end
+#end
+#end
+#end
+#if ($pageTwoColumn)
+#if (  $pageColumn1Tools )
+#foreach ( $tool in $pageColumn1Tools ) 
+#if ( $tool ) 
+#if ( $tool.toolRenderResult ) 
+${tool.toolRenderResult.getTitle()}
+#end
+#end
+#end
+#end
+#end
+#else 
+    <title>${pageTitle}</title>
+     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
+     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery.js"></script>
+#end
+<script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
+
+#if ( ${styleable} )
+<script type="text/javascript" 
+    	language="JavaScript" 
+    	src="/sakai-preferable-tool/js/styleable.js" >
+    </script>
+    
+    <script type="text/javascript" 
+            language="JavaScript">
+    window.onload = insertStyleAbleStyles;
+    </script>
+    #if ( ${styleableStyleSheet} )
+	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
+    #end
+    #if ( ${styleableJS} )
+	<script type="text/javascript" language="JavaScript">
+	${styleableJS} 
+	</script>
+    #end
+#end
+</head>
+<body class="portalBody">
+#if ( $pageTop )
+	<script type="text/javascript" language="JavaScript">
+	var sakaiPortalWindow = "";
+	</script>
+#end
+#end
+##
+## emit the bottom of the page
+##
+#macro( end_response  )
+	</body>
+</html>
+#end
+##------------------------------------------------------------------------------------------
+##
+## includeTool
+##
+##------------------------------------------------------------------------------------------
+##		toolMap.put("toolUrl", toolUrl);
+##		toolMap.put("toolPlacementIDJS", Web.escapeJavascript("Main"
+##				+ placement.getId()));
+##		toolMap.put("toolResetActionUrl", resetActionUrl);
+##		toolMap.put("toolTitle", titleString);
+##		toolMap.put("toolShowResetButton", Boolean.valueOf(showResetButton));
+##		toolMap.put("toolShowHelpButton", Boolean.valueOf(showHelpButton));
+##		toolMap.put("toolHelpActionUrl", helpActionUrl);
+##
+WARNING MACRO NOW DISABLED
+
+
+#macro( includeToolTitle $toolPlacement )
+#if (${toolPlacement.hasRenderResult})
+	<div class="portletTitleWrap">
+		<div class="portletTitle">
+			<div class="title">
+#if (${toolPlacement.toolShowResetButton})
+                <a href="${toolPlacement.toolResetActionUrl}" target="${toolPlacement.toolPlacementIDJS}" title="${rloader.sit_reset}">
+                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
+#end
+				<h2>${toolPlacement.toolRenderResult.getTitle()}</h2>
+			</div>
+			<div class="action">
+#if (${toolPlacement.toolJSR168Edit} )
+            <a accesskey="e" id="jsr-edit" href="${toolPlacement.toolJSR168Edit}" 
+                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
+                    alt="${rloader.sit_edit}" border="0"></a>
+#end 
+#if (${toolPlacement.toolShowHelpButton})
+	#if (${toolPlacement.toolJSR168Help} )
+             <a accesskey="h" href="${toolPlacement.toolJSR168Help}" title="${rloader.sit_help}">
+	#else
+		<a accesskey="h" href="${toolPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" 
+		 target="_blank" onclick="openWindow('${toolPlacement.toolHelpActionUrl}', 'Help',
+		  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+	#end
+			<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+#end
+			</div>
+		</div>
+	</div>
+#else
+	<div class="portletTitleWrap">
+		<div class="portletTitle">
+			<div class="title">
+#if (${toolPlacement.toolShowResetButton})
+                <a href="${toolPlacement.toolResetActionUrl}" target="${toolPlacement.toolPlacementIDJS}" title="${sitReset}">
+                        <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" /></a>
+#end	
+				<h2>${toolPlacement.toolTitle}</h2>
+			</div>
+			<div class="action">
+#if (${toolPlacement.toolShowHelpButton})
+		<a accesskey="h" href="${toolPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" 
+		 target="_blank" onclick="openWindow('${toolPlacement.toolHelpActionUrl}', 'Help',
+		  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+			<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+#end
+			</div>
+		</div>
+	</div>
+#end
+#end
+
+#macro( includeToolBody $toolPlacement )
+#if (${toolPlacement.hasRenderResult})
+	<div class="portletMainWrap">
+	    ${toolPlacement.toolRenderResult.getContent()}
+	</div>
+#else
+	<div class="portletMainWrap">
+		<iframe	name="${toolPlacement.toolPlacementIDJS}" id="${toolPlacement.toolPlacementIDJS}" title="${toolPlacement.toolTitle}" 
+			class ="portletMainIframe"
+			height="50"
+			width="100%"
+			frameborder="0"
+			marginwidth="0"
+			marginheight="0"
+			scrolling="auto"	
+			src="${toolPlacement.toolUrl}?panel=Main">
+		</iframe>
+	</div>
+#end
+#end
+
+#macro( includeTool $tool)
+#if (${tool.toolId.equals("sakai.privacy")})
+<div class="portlet" id="privacy_tool_popup" style="display:none">
+#else
+<div class="portlet">
+#end
+#includeToolTitle( $tool )
+#includeToolBody( $tool )
+</div>
+#end
+
+
+##------------------------------------------------------------------------------------------
+##
+## includeLogo
+##
+##------------------------------------------------------------------------------------------
+##		vcontext.put("logoSkin", skin);
+##		vcontext.put("logoSkinRepo", skinRepo);
+##		String siteType = calcSiteType(siteId);
+##		String cssClass = (siteType != null) ? siteType
+##				: "undeterminedSiteType";
+##		vcontext.put("logoSiteType", siteType);
+##		vcontext.put("logoSiteClass", cssClass);
+##
+
+WARNING MACRO NOW DISABLED
+
+#macro( includeLogo  ) 
+<div id="siteNavWrapper" class="${logoSiteClass}">
+	<div id="mastHead">
+		<div id="mastLogo">
+			<img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
+		</div>
+		<div id="mastBanner">
+			<img title="Banner" alt="Banner" src="${logoSkinRepo}/${logoSkin}/images/banner_inst.gif" />
+		</div>
+		<div id="mastLogin">
+#includeLogin()
+		</div>
+	</div>
+</div>
+#end
+##------------------------------------------------------------------------------------------
+##
+## includeLogin
+##
+##------------------------------------------------------------------------------------------	
+##			vcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
+##			vcontext.put("loginLogInOutUrl", logInOutUrl);
+##			vcontext.put("loginMessage", message);
+##			vcontext.put("loginImage1", image1);
+##			vcontext.put("loginLogInOutUrl2", logInOutUrl2);
+##			vcontext.put("loginMessage2", message2);
+##			vcontext.put("loginImage12", image2);
+##			vcontext.put("loginPortalPath", ServerConfigurationService
+##					.getString("portalPath"));
+##			vcontext.put("loginEiWording", eidWording);
+##			vcontext.put("loginPwWording", pwWording);
+##			vcontext.put("loginWording", loginWording);
+
+WARNING MACRO NOW DISABLED
+
+#macro( includeLogin  )
+#if (!${loginTopLogin})
+	<div id="loginLinks">
+#if (${loginHasImage1}) 
+		<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
+#else
+		<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" >${loginMessage}</a>
+#end
+#if (${loginHasLogInOutUrl2})
+#if (${loginHasImage2}) 
+		<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" ><img src="${loginImage2}" alt="${loginMessage2}"/></a>
+#else
+		<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" >${loginMessage2}</a>
+#end
+#end
+	</div>
+#else
+	<form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
+		<label for="eid">${loginEidWording}</label>
+		<input name="eid" id="eid" type="text" />
+		<label for="pw">${loginPwWording}</label>
+		<input name="pw" type="password" id="pw" />
+		<input name="submit" type="submit" id="submit" value="${loginWording}" />
+		<script type="text/javascript" language="JavaScript">
+			document.forms[0].eid.focus();
+		</script>
+	</form>
+#end
+#end
+##------------------------------------------------------------------------------------------
+##
+##includeTabs
+##
+##		rcontext.put("tabsCssClass",cssClass);
+##			m.put("isCurrentSite",Boolean.valueOf(s.getId().equals(siteId)));
+##			m.put("siteTitle",Web.escapeHtml(s.getTitle()));
+##			m.put("siteUrl",Web.escapeHtml(s.getTitle()));
+##		rcontext.put("tabsSites",map);		
+##		rcontext.put("tabsHasExtraTitle",Boolean.valueOf(extraTitle != null));
+##			rcontext.put("tabsExtraTitle",Web.escapeHtml(extraTitle));
+##			
+##				m.put("title",Web.escapeHtml(s.getTitle()));
+##				m.put("url",siteUrl);
+##			rcontext.put("tabsMoreSites",l);
+##
+##		rcontext.put("tabsAddLogout",Boolean.valueOf(addLogout));
+##			rcontext.put("tabsLogoutUrl",logoutUrl);
+##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
+#macro( includeTabs  )
+<!-- start includeTabs -->
+<div class="${tabsCssClass}">
+	<div id="siteNav">
+		<div id="linkNav">
+			<a id="sitetabs" class="skip" name="sitetabs"></a>
+			<h1 class="skip">${rloader.sit_worksiteshead}</h1>
+			<ul id="siteLinkList">
+#foreach ( $site in $tabsSites.tabsSites ) 
+#if (${site.isCurrentSite})
+#if (${site.isMyWorkspace})
+				<li class="selectedTab"><a href="#"><span>${rloader.sit_mywor}</span></a></li>
+#else
+				<li class="selectedTab"><a href="#"><span>${site.siteTitle}</span></a></li>
+#end
+#else
+#if (${site.isMyWorkspace})
+				<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}"><span>${rloader.sit_mywor}</span></a></li>
+#else
+				<li><a href="${site.siteUrl}" title="${site.siteTitle}"><span>${site.siteTitle}</span></a></li>
+#end
+#end
+#end
+#if ($tabsSites.tabsMoreSitesShow && $useDHTMLMore)
+				<li class="more-tab"><a href="#" onclick="return dhtml_more_tabs();" title="${rloader.sit_more}"><span class="outer"><span class="inner">${rloader.sit_more_tab}</span></span></a></li>
+#end
+			</ul>
+		</div> <!-- /linkNav -->
+
+#if ($tabsSites.tabsMoreSitesShow && !$useDHTMLMore)
+		<div id="selectNav">
+			<span class="skip">${rloader.sit_selectmessage}</span>
+			<select onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">
+				<option value="" selected="selected">${rloader.sit_more}</option>
+#foreach( $site in $tabsSites.tabsMoreSites )
+				<option title="${site.siteTitle}" value="${site.siteUrl}">${site.siteTitle}</option> 
+#end	
+			</select>
+		</div>
+#end
+
+#if ($tabsAddLogout)
+		<div class="galleryLogin">
+			<a href="$tabsLogoutUrl">${rloader.sit_log}</a>
+		</div>
+	</div> <!-- /siteNav -->
+
+#else
+	</div>
+	<div class="divColor" id="tabBottom">
+	</div>
+#end	
+
+
+#if ($useDHTMLMore)
+	<div id="selectNav" style="display:none">
+		<div>
+			<span class="skip">${rloader.sit_selectmessage}</span>
+
+			#foreach( $termKey in $tabsSites.tabsMoreSortedTermList)
+			<div class="termContainer">
+   #if ( !$termKey || $termKey == "" )
+				<h4>${rloader.sit_notermkey}</h4>
+			#else
+				<h4>$termKey</h4>
+			#end
+			<ul>
+#foreach( $site in $tabsSites.tabsMoreTerms.get($termKey))
+#if (${site.isMyWorkspace})
+				<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}">
+					<span>${rloader.sit_mywor}</span>
+				</a></li>
+#else
+				<li><a href="${site.siteUrl}" title="${site.siteTitle}">
+					<span>${site.siteTitle}</span>
+				</a></li>
+#end
+#end
+			</ul>
+			</div> <!-- /termContainer -->
+#end
+			<div id="more_tabs_instr">${rloader.sit_moretab_inst}</div>
+		</div> <!-- /  -->
+	
+	</div> <!-- /selectNav -->
+
+#end
+	
+</div> <!-- /tabsCssClass -->
+#foreach ( $site in $tabsSites.tabsSites)
+  #if (${site.isCurrentSite})
+    #if ( $site.isChild )
+      <ul id="siteHierarchy"> 
+      #set ($tabCountBread =0)
+      #foreach ( $pwd in $site.pwd )
+          #set ($tabCountBread =$tabCountBread + 1)       
+          <li>
+          #if ($tabCountBread > 1)
+                <span class="breadSeparator">${rloader.bread_separator}</span>
+          #end
+          ## note: keep all the tags in this block in the same line 
+                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
+                  </li>
+      #end
+      </ul>
+    #end
+  #end
+#end
+<!-- end includeTabs -->
+#end
+##------------------------------------------------------------------------------------------
+##
+## includeWorksite
+##
+##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
+#macro( includeWorksite  ) 
+#includePage()
+#end
+##------------------------------------------------------------------------------------------
+## -- from includePageList ( doPage=true )
+##------------------------------------------------------------------------------------------
+##
+##		rcontext.put("pageNavPublished",Boolean.valueOf(published));
+##		rcontext.put("pageNavType",type);
+##		rcontext.put("pageNavIconUrl",iconUrl);
+##                    m.put("isPage",Boolean.valueOf(true));
+##                    m.put("current", Boolean.valueOf(current));
+##                    m.put("ispopup", Boolean.valueOf(p.isPopUp()));
+##                    m.put("pagePopupUrl", pagePopupUrl);
+##                    m.put("pageTitle", Web.escapeHtml(p.getTitle()));
+##                    m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
+##                    m.put("pageId", Web.escapeUrl(p.getId()));
+##                    m.put("jsPageId", Web.escapeJavascript(p.getId()));
+##                    m.put("pageRefUrl", pageRefUrl);
+##		rcontext.put("pageNavTools",l);		
+##		rcontext.put("pageNavShowHelp",Boolean.valueOf(showHelp));
+##		rcontext.put("pageNavHelpUrl",helpUrl);
+##
+##		rcontext.put("pageNavPresenceUrk",presenceUrl);
+##		
+
+WARNING MACRO NOW DISABLED
+
+#macro( includePageNav )
+#if ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) 
+<!-- start includePageNav -->
+	<div class="divColor" id="toolMenuWrap">
+		<div id="worksiteLogo">
+#if (!${sitePages.pageNavPublished})
+			<p id="siteStatus">unpublished site</p>
+#end
+#if ($sitePages.pageNavType && $sitePages.pageNavType != "project" )
+			<p id="siteType">$sitePages.pageNavType</p>
+#end
+#if ($sitePages.pageNavIconUrl && $sitePages.pageNavIconUrl != "")
+			<img src="$sitePages.pageNavIconUrl" border="0" alt="Worksite Logo" />
+#end
+		</div>
+		<a id="totoolmenu" class="skip" name="totoolmenu"></a>
+		<h1 class="skip">${rloader.sit_toolshead}</h1>
+		<div id="toolMenu">
+			<ul>
+#foreach( $page in $sitePages.pageNavTools )
+  #if (${page.current})
+				<li class="selectedTool">
+				<span class="${page.menuClass}" >${page.pageTitle}</span>
+				</li>
+  #else
+   #if (${page.ispopup})
+				<li>
+				<a class="${page.menuClass}" href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+				<span>${page.pageTitle}</span>
+				</a>
+				</li>
+   #else
+			<li>
+			<a class="${page.menuClass}" href="${page.pageRefUrl}" ><span>${page.pageTitle}</span></a>
+			</li>
+   #end
+  #end
+#end
+    #if ( $subSites ) 
+        #foreach ( $site in $subSites ) 
+          <li>
+             <a class="${sitePages.subsiteClass}" href="${site.siteUrl}" title="${site.siteTitle}">
+             <span>${site.siteTitle}</span>
+             </a>
+         </li>
+       #end
+    #end
+#if (${sitePages.pageNavShowHelp})
+				<li>
+				<a  class="${sitePages.helpMenuClass}" accesskey="6" href="${sitePages.pageNavHelpUrl}" target="_blank" 
+					onclick="openWindow('${sitePages.pageNavHelpUrl}', 
+					'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); 
+					return false">
+					<span>${rloader.sit_help}</span>
+				</a>
+				</li>
+#end
+			</ul>
+		</div>
+#if (${sitePages.pageNavShowPresenceLoggedIn})
+		<div id="presenceWrapper">
+			<div id="presenceTitle">${rloader.sit_presencetitle}</div>
+			<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
+				frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${sitePages.pageNavPresenceUrl}" >
+			</iframe>
+		</div>
+#end
+	</div>
+	<h1 class="skip">${rloader.sit_contentshead}</h1>
+	<a id="tocontent" class="skip" name="tocontent"></a>
+<!-- end includePageNav -->
+#else
+<!-- Page Navigation Suppressed because only one tool is active -->
+#end
+#end		
+##------------------------------------------------------------------------------------------
+##
+## from Include Page
+## rcontext.put("pageWrapperClass", wrapperClass);
+## rcontext.put("pageColumnLayout", Integer.valueOf(page.getLayout()));
+## rcontext.put("pageColumn0Tools", toolList);
+## rcontext.put("pageColumn1Tools", toolList);
+##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
+#macro( includePageBody ) 	
+<!-- start includePageBody -->		
+#if ( $sitePages.pageMaxIfSingle )
+#if ( $sitePages.pageNavToolsCount > 1 ) 
+	<div id="$pageWrapperClass">
+#end
+#else
+	<div id="$pageWrapperClass">
+#end
+		<div id="$pageColumnLayout">
+#foreach ( $tool in $pageColumn0Tools ) 
+#if ( $tool ) 
+#includeTool($tool)
+#end
+#end
+		</div>
+#if ($pageTwoColumn)
+		<div id="col2of2">
+#foreach ( $tool in $pageColumn1Tools ) 
+#if ( $tool ) 
+#includeTool($tool)
+#end
+#end
+		</div>
+#end
+	</div>
+	<div>
+#includeBottom()
+#if ( $sitePages.pageMaxIfSingle )
+#if ( $sitePages.pageNavToolsCount > 1 ) 
+	</div>
+#end
+#else
+	</div>
+#end
+<!-- end includePageBody -->
+#end
+##------------------------------------------------------------------------------------------
+##
+## from Include Page
+## rcontext.put("pageWrapperClass", wrapperClass);
+## rcontext.put("pageColumnLayout", Integer.valueOf(page.getLayout()));
+## rcontext.put("pageColumn0Tools", toolList);
+## rcontext.put("pageColumn1Tools", toolList);
+##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
+#macro( includePage ) 	
+<!-- start includePage -->		
+<div id="container" $pageSiteType >
+#includePageNav()
+#includePageBody()
+</div>
+<!-- end includePage -->		
+#end
+##------------------------------------------------------------------------------------------
+##
+## includeGalleryNav
+##		rcontext.put("galleryHasAccessibilityURL", Boolean.valueOf((accessibilityURL != null && accessibilityURL != "")));
+##		rcontext.put("galleryAccessibilityURL", accessibilityURL);
+##		rcontext.put("gallaryLoggedIn", Boolean.valueOf(loggedIn));
+##
+##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
+#macro( includeGalleryNav  )
+<!-- start includeGalleryNav -->
+<div id="portalOuterContainer">
+	<div id="portalContainer">
+		<div id="skipNav">
+#if ($galleryHasAccessibilityURL)
+			<a href="$galleryAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">${rloader.sit_accessibility}</a>
+#end
+			<a href="#tocontent"  class="skip" title="${rloader.sit_jumpcontent}" accesskey="c">${rloader.sit_jumpcontent}</a>
+			<a href="#totoolmenu"  class="skip" title="${rloader.sit_jumptools}" accesskey="l">${rloader.sit_jumptools}</a>
+			<a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">${rloader.sit_jumpworksite}</a>
+		</div>
+#if (${gallaryLoggedIn})
+		<div id="headerMax">
+#includeTabs()
+		</div>
+#else
+		<div id="headerMin">
+#includeGalleryLogin()
+			<div class="divColor" id="tabBottom"><br />
+			</div>
+		</div>
+#end
+#includePage()
+	</div>
+</div>
+<!-- end includeGalleryNav -->
+#end
+##------------------------------------------------------------------------------------------
+##
+## includeGalleryLogin
+##------------------------------------------------------------------------------------------
+
+WARNING MACRO NOW DISABLED
+
+#macro( includeGalleryLogin  )
+<!-- start includeGalleryLogin -->
+<div class="siteNavBlock">	
+	<table class="mast-head" cellpadding="0" cellspacing="0" border="0" width="100%" summary="Login Box" >
+		<tr>
+			<td class="right mast-head-r right">
+#includeLogin()
+			</td>
+		</tr>
+	</table>
+</div>
+<!-- end includeGalleryLogin -->
+#end
+##------------------------------------------------------------------------------------------
+##
+## includeSiteNav
+##------------------------------------------------------------------------------------------
+##        rcontext.put("siteNavHasAccessibilityURL",Boolean.valueOf((accessibilityURL != null && accessibilityURL != "")));
+##        rcontext.put("siteNavAccessibilityURL",accessibilityURL);
+##        
+##        rcontext.put("siteNavLoggedIn",Boolean.valueOf(loggedIn));
+
+WARNING MACRO NOW DISABLED
+
+#macro( includeSiteNav  )
+<!-- start includeSiteNav -->
+<div id="portalOuterContainer">
+	<div id="portalContainer">
+		<div id="skipNav">
+#if ($siteNavHasAccessibilityURL)
+			<a href="$siteNavAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">
+				${rloader.sit_accessibility}
+			</a>
+#end
+
+			<a href="#tocontent"  class="skip" title="${rloader.sit_jumpcontent}" accesskey="c">
+			${rloader.sit_jumpcontent}
+			</a>
+			<a href="#totoolmenu"  class="skip" title="${rloader.sit_jumptools}" accesskey="l">
+				${rloader.sit_jumptools}
+			</a>
+			<a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">
+				${rloader.sit_jumpworksite}
+			</a>
+		</div>
+#if (${tabsSites})
+		<div id="headerMax">
+#includeLogo()
+#includeTabs()
+		</div>
+#else
+		<div id="headerMin">
+#includeLogo()
+			<div class="divColor" id="tabBottom">
+				<br />
+			</div>
+		</div>
+#end
+#includePage()
+	</div>
+</div>
+<!-- end includeSiteNav -->
+#end
+
+
+WARNING MACRO NOW DISABLED
+
+#macro( includeBottom )
+#if (!$pagepopup)
+<div id="footer">
+	<div class="footerExtNav" align="center">
+		|
+#foreach ( $bn in $bottomNav )
+		${bn}  | 
+#end
+	</div>
+	<div id="footerInfo">
+#foreach ( $pb in $bottomNavPoweredBy )
+		<span class="skip">${rloader.site_newwindow}</span>	
+		<a href="${pb.poweredByUrl}" target="_blank">
+				<img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" /></a>
+#end
+	</div>
+	<div class="sakaiCopyrightInfo">${bottomNavCopyright}<br />
+	${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}
+	</div>
+</div>
+#else
+<!-- dont compact -->
+#end
+#end
+
+
+End co commenting out
+
+*#

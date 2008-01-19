@@ -40,7 +40,6 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.StoredState;
-import org.sakaiproject.portal.util.PortalSiteHelper;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -62,12 +61,13 @@ public class PageHandler extends BasePortalHandler
 
 	private static final Log log = LogFactory.getLog(PageHandler.class);
 
-	protected PortalSiteHelper siteHelper = new PortalSiteHelper();
 
 	public PageHandler()
 	{
 		urlFragment = "page";
 	}
+	
+
 
 	@Override
 	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
@@ -209,7 +209,7 @@ public class PageHandler extends BasePortalHandler
 
 					if (site != null)
 					{
-						boolean thisTool = siteHelper.allowTool(site, placement);
+						boolean thisTool = portal.getSiteHelper().allowTool(site, placement);
 						// System.out.println(" Allow Tool Display -" +
 						// placement.getTitle() + " retval = " + thisTool);
 						if (!thisTool) continue; // Skip this tool if not

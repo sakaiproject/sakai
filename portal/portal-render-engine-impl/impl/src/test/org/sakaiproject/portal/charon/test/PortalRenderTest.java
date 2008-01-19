@@ -50,7 +50,7 @@ public class PortalRenderTest extends TestCase
 	public PortalRenderTest(String arg0) throws Exception
 	{
 		super(arg0);
-		baseDirectory = new File("m2-target","PortalRenderTest");
+		baseDirectory = new File("target","PortalRenderTest");
 		if ( baseDirectory.exists() ) {
 		PortalTestFileUtils.deleteAll(baseDirectory);
 		}

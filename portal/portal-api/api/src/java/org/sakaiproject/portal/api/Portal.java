@@ -22,15 +22,12 @@
 package org.sakaiproject.portal.api;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Placement;
@@ -301,47 +298,7 @@ public interface Portal
 	 */
 	String getUserEidBasedSiteId(String userId);
 
-	/**
-	 * convert sites into a map for the view tree
-	 * 
-	 * @param req
-	 * @param mySites
-	 * @param prefix
-	 * @param currentSiteId
-	 * @param myWorkspaceSiteId
-	 * @param includeSummary
-	 * @param expandSite
-	 * @param resetTools
-	 * @param doPages
-	 * @param toolContextPath
-	 * @param loggedIn
-	 * @return
-	 */
-	List<Map> convertSitesToMaps(HttpServletRequest req, List mySites, String prefix,
-			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
-			boolean expandSite, boolean resetTools, boolean doPages,
-			String toolContextPath, boolean loggedIn);
-
-	/**
-	 * convert a single site into a map
-	 * 
-	 * @param req
-	 * @param s
-	 * @param prefix
-	 * @param currentSiteId
-	 * @param myWorkspaceSiteId
-	 * @param includeSummary
-	 * @param expandSite
-	 * @param resetTools
-	 * @param doPages
-	 * @param toolContextPath
-	 * @param loggedIn
-	 * @return
-	 */
-	Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
-			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
-			boolean expandSite, boolean resetTools, boolean doPages,
-			String toolContextPath, boolean loggedIn);
+	
 
 	/**
 	 * populate the view tree for the model
@@ -402,22 +359,6 @@ public interface Portal
 	 */
  	void setupMobileDevice(HttpServletRequest req, PortalRenderContext rcontext);
 
-	/**
-	 * Iterate through the pages in a site and return information in a 
-	 * Map.
-	 * @param req
-	 * @param loggedIn
-	 * @param site
-	 * @param page
-	 * @param toolContextPath
-	 * @param portalPrefix
-	 * @param doPages
-	 * @param resetTools
-	 * @param includeSummary
-	 */
-	Map pageListToMap(HttpServletRequest req, boolean loggedIn, Site site,
-                        SitePage page, String toolContextPath, String portalPrefix, boolean doPages,
-                        boolean resetTools, boolean includeSummary);
 
 	/**
 	 * Return the sub sites below a particular site
@@ -444,4 +385,14 @@ public interface Portal
 	 *
 	 */
 	void setPageFilter(PageFilter pageFilter);
+
+	/**
+	 * @return
+	 */
+	PortalSiteHelper getSiteHelper();
+
+	/**
+	 * @return
+	 */
+	SiteNeighbourhoodService getSiteNeighbourhoodService();
 }

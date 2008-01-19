@@ -252,4 +252,9 @@ public interface PortalService
 	 */
 	void removeHandler(String portalContext, String urlFragment);
 
+	/**
+	 * @return
+	 */
+	SiteNeighbourhoodService getSiteNeighbourhoodService();
+
 }

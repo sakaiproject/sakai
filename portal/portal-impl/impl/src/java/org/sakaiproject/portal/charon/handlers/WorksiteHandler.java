@@ -22,10 +22,6 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,10 +35,8 @@ import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.util.Web;
 
 /**
  * 
@@ -115,7 +109,7 @@ public class WorksiteHandler extends PageHandler
 		Site site = null;
 		try
 		{
-			site = siteHelper.getSiteVisit(siteId);
+			site = portal.getSiteHelper().getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
@@ -138,7 +132,7 @@ public class WorksiteHandler extends PageHandler
 
 		// Lookup the page in the site - enforcing access control
 		// business rules
-		SitePage page = siteHelper.lookupSitePage(portal,pageId, site);
+		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
 		if (page == null)
 		{
 			portal.doError(req, res, session, Portal.ERROR_WORKSITE);
@@ -175,7 +169,7 @@ public class WorksiteHandler extends PageHandler
 			if (rcontext.uses(INCLUDE_PAGE_NAV))
 			{
     				boolean loggedIn = session.getUserId() != null;
-				Map pageMap = portal.pageListToMap(req, loggedIn, site, page, toolContextPath, 
+				Map pageMap = portal.getSiteHelper().pageListToMap(req, loggedIn, site, page, toolContextPath, 
 					portalPrefix, 
 					/* doPages */true,
 					/* resetTools */"true".equals(ServerConfigurationService

@@ -41,13 +41,12 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.util.ErrorReporter;
-import org.sakaiproject.portal.util.PortalSiteHelper;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -89,6 +88,8 @@ public class CharonPortal extends HttpServlet
 
 	/** messages. */
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
+	
+	
 
 	/**
 	 * Session attribute root for storing a site's last page visited - just
@@ -137,7 +138,8 @@ public class CharonPortal extends HttpServlet
 
 	private PortalService portalService;
 
-	private PortalSiteHelper siteHelper = new PortalSiteHelper();
+	private ToolHelperImpl toolHelper = new ToolHelperImpl();
+
 
 	/**
 	 * Shutdown the servlet.
@@ -2136,7 +2138,7 @@ public class CharonPortal extends HttpServlet
 
 	protected boolean allowTool(Site site, Placement placement)
 	{
-		return siteHelper.allowTool(site, placement);
+		return toolHelper.allowTool(site, placement);
 	}
 
 	protected void includePageNav(HttpServletRequest req, HttpServletResponse res,

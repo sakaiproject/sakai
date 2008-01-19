@@ -1,5 +1,1 @@
-#start_response()
-<!-- end worksite.vm -->
-#includeWorksite()
-<!-- worksite.vm -->
-#end_response()
+#parse("/vm/defaultskin/page.vm")

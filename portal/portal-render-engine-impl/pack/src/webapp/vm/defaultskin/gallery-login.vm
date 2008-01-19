@@ -74,7 +74,49 @@ ${tool.toolRenderResult.getTitle()}
 <!-- END Header -->
 
 <!-- gallery-login.vm -->
-#includeGalleryLogin()
+<!-- start includeGalleryLogin -->
+<div class="siteNavBlock">	
+	<table class="mast-head" cellpadding="0" cellspacing="0" border="0" width="100%" summary="Login Box" >
+		<tr>
+			<td class="right mast-head-r right">
+			
+			<!-- start includeLogin -->
+			
+			#if (!${loginTopLogin})
+				<div id="loginLinks">
+			#if (${loginHasImage1}) 
+					<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
+			#else
+					<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" >${loginMessage}</a>
+			#end
+			#if (${loginHasLogInOutUrl2})
+			#if (${loginHasImage2}) 
+					<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" ><img src="${loginImage2}" alt="${loginMessage2}"/></a>
+			#else
+					<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" >${loginMessage2}</a>
+			#end
+			#end
+				</div>
+			#else
+				<form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
+					<label for="eid">${loginEidWording}</label>
+					<input name="eid" id="eid" type="text" />
+					<label for="pw">${loginPwWording}</label>
+					<input name="pw" type="password" id="pw" />
+					<input name="submit" type="submit" id="submit" value="${loginWording}" />
+					<script type="text/javascript" language="JavaScript">
+						document.forms[0].eid.focus();
+					</script>
+				</form>
+			#end
+
+			<!-- end includeLogin -->
+		
+			</td>
+		</tr>
+	</table>
+</div>
+<!-- end includeGalleryLogin -->
 <!-- end gallery-login.vm -->
 	</body>
 </html>

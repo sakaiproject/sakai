@@ -112,8 +112,509 @@ ${tool.toolRenderResult.getTitle()}
 <!-- END Header -->
 
 <!-- site.vm -->
-#includeSiteNav()
-####includeWorksite()
+<!-- start includeSiteNav -->
+<div id="portalOuterContainer">
+	<div id="portalContainer">
+		<div id="skipNav">
+		#if ($siteNavHasAccessibilityURL)
+			<a href="$siteNavAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">
+				${rloader.sit_accessibility}
+			</a>
+		#end
+
+			<a href="#tocontent"  class="skip" title="${rloader.sit_jumpcontent}" accesskey="c">
+			${rloader.sit_jumpcontent}
+			</a>
+			<a href="#totoolmenu"  class="skip" title="${rloader.sit_jumptools}" accesskey="l">
+				${rloader.sit_jumptools}
+			</a>
+			<a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">
+				${rloader.sit_jumpworksite}
+			</a>
+		</div>
+		#if (${tabsSites})
+		<div id="headerMax">
+			<div id="siteNavWrapper" class="${logoSiteClass}">
+				<div id="mastHead">
+					<div id="mastLogo">
+						<img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
+					</div>
+					<div id="mastBanner">
+						<img title="Banner" alt="Banner" src="${logoSkinRepo}/${logoSkin}/images/banner_inst.gif" />
+					</div>
+					<!-- login component -->
+					<div id="mastLogin">
+					#if (!${loginTopLogin})
+						<div id="loginLinks">
+						#if (${loginHasImage1}) 
+							<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
+						#else
+							<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" >${loginMessage}</a>
+						#end
+						#if (${loginHasLogInOutUrl2})
+							#if (${loginHasImage2}) 
+							<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" ><img src="${loginImage2}" alt="${loginMessage2}"/></a>
+							#else
+							<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" >${loginMessage2}</a>
+							#end
+						#end
+						</div>
+					#else
+						<form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
+							<label for="eid">${loginEidWording}</label>
+							<input name="eid" id="eid" type="text" />
+							<label for="pw">${loginPwWording}</label>
+							<input name="pw" type="password" id="pw" />
+							<input name="submit" type="submit" id="submit" value="${loginWording}" />
+							<script type="text/javascript" language="JavaScript">
+								document.forms[0].eid.focus();
+							</script>
+						</form>
+					#end
+					</div>
+					<!-- end login component -->
+					
+				</div>
+			</div>
+			<!-- start includeTabs -->
+			<div class="${tabsCssClass}">
+				<div id="siteNav">
+					<div id="linkNav">
+						<a id="sitetabs" class="skip" name="sitetabs"></a>
+							<h1 class="skip">${rloader.sit_worksiteshead}</h1>
+							<ul id="siteLinkList">
+						#foreach ( $site in $tabsSites.tabsSites ) 
+							#if (${site.isCurrentSite})
+								#if (${site.isMyWorkspace})
+							<li class="selectedTab"><a href="#"><span>${rloader.sit_mywor}</span></a></li>
+								#else
+							<li class="selectedTab"><a href="#"><span>${site.siteTitle}</span></a></li>
+								#end
+							#else
+								#if (${site.isMyWorkspace})
+							<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}"><span>${rloader.sit_mywor}</span></a></li>
+								#else
+							<li><a href="${site.siteUrl}" title="${site.siteTitle}"><span>${site.siteTitle}</span></a></li>
+								#end
+							#end
+						#end
+						#if ($tabsSites.tabsMoreSitesShow && $useDHTMLMore)
+							<li class="more-tab"><a href="#" onclick="return dhtml_more_tabs();" title="${rloader.sit_more}"><span class="outer"><span class="inner">${rloader.sit_more_tab}</span></span></a></li>
+						#end
+						</ul>
+					</div> <!-- /linkNav -->
+
+					#if ($tabsSites.tabsMoreSitesShow && !$useDHTMLMore)
+					<div id="selectNav">
+						<span class="skip">${rloader.sit_selectmessage}</span>
+						<select onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">
+							<option value="" selected="selected">${rloader.sit_more}</option>
+						#foreach( $site in $tabsSites.tabsMoreSites )
+							<option title="${site.siteTitle}" value="${site.siteUrl}">${site.siteTitle}</option> 
+						#end	
+						</select>
+					</div>
+					#end
+
+					#if ($tabsAddLogout)
+					<div class="galleryLogin">
+						<a href="$tabsLogoutUrl">${rloader.sit_log}</a>
+					</div>
+				</div> <!-- /siteNav -->
+					#else
+				</div>
+				<div class="divColor" id="tabBottom">
+				</div>
+					#end	
+
+
+				#if ($useDHTMLMore)
+				<div id="selectNav" style="display:none">
+					<div>
+						<span class="skip">${rloader.sit_selectmessage}</span>
+
+					#foreach( $termKey in $tabsSites.tabsMoreSortedTermList)
+						<div class="termContainer">
+   						#if ( !$termKey || $termKey == "" )
+							<h4>${rloader.sit_notermkey}</h4>
+						#else
+							<h4>$termKey</h4>
+						#end
+							<ul>
+						#foreach( $site in $tabsSites.tabsMoreTerms.get($termKey))
+							#if (${site.isMyWorkspace})
+								<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}">
+									<span>${rloader.sit_mywor}</span>
+								</a></li>
+							#else
+								<li><a href="${site.siteUrl}" title="${site.siteTitle}">
+									<span>${site.siteTitle}</span>
+								</a></li>
+							#end
+						#end
+							</ul>
+						</div> <!-- /termContainer -->
+					#end
+						<div id="more_tabs_instr">${rloader.sit_moretab_inst}</div>
+					</div> <!-- /  -->
+				</div> <!-- /selectNav -->
+				#end
+	
+			</div> <!-- /tabsCssClass -->
+				#foreach ( $site in $tabsSites.tabsSites)
+ 					#if (${site.isCurrentSite})
+    					#if ( $site.isChild )
+      			<ul id="siteHierarchy"> 
+     					 	#set ($tabCountBread =0)
+      						#foreach ( $pwd in $site.pwd )
+          						#set ($tabCountBread =$tabCountBread + 1)       
+          			<li>
+          						#if ($tabCountBread > 1)
+                		<span class="breadSeparator">${rloader.bread_separator}</span>
+          						#end
+          						## note: keep all the tags in this block in the same line 
+                		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
+                  	</li>
+      						#end
+      			</ul>
+   						 #end
+  					#end
+				#end
+<!-- end includeTabs -->
+		</div>
+		#else
+		<div id="headerMin">
+			<div id="siteNavWrapper" class="${logoSiteClass}">
+				<div id="mastHead">
+					<div id="mastLogo">
+						<img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
+					</div>
+					<div id="mastBanner">
+						<img title="Banner" alt="Banner" src="${logoSkinRepo}/${logoSkin}/images/banner_inst.gif" />
+					</div>
+					<!-- login component -->
+					<div id="mastLogin">
+					#if (!${loginTopLogin})
+						<div id="loginLinks">
+					#if (${loginHasImage1}) 
+							<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
+					#else
+							<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" >${loginMessage}</a>
+					#end
+					#if (${loginHasLogInOutUrl2})
+					#if (${loginHasImage2}) 
+							<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" ><img src="${loginImage2}" alt="${loginMessage2}"/></a>
+					#else
+							<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" >${loginMessage2}</a>
+					#end
+					#end
+						</div>
+					#else
+						<form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
+							<label for="eid">${loginEidWording}</label>
+							<input name="eid" id="eid" type="text" />
+							<label for="pw">${loginPwWording}</label>
+							<input name="pw" type="password" id="pw" />
+							<input name="submit" type="submit" id="submit" value="${loginWording}" />
+							<script type="text/javascript" language="JavaScript">
+								document.forms[0].eid.focus();
+							</script>
+						</form>
+					#end
+					</div>
+					<!-- end login component -->
+				</div>
+			</div>
+			<div class="divColor" id="tabBottom">
+				<br />
+			</div>
+		</div>
+		#end
+		<!-- start includePage -->		
+		<div id="container" $pageSiteType >
+		<!-- start includePageNav -->
+		#if ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) 
+			<div class="divColor" id="toolMenuWrap">
+				<div id="worksiteLogo">
+			#if (!${sitePages.pageNavPublished})
+					<p id="siteStatus">unpublished site</p>
+			#end
+			#if ($sitePages.pageNavType && $sitePages.pageNavType != "project" )
+					<p id="siteType">$sitePages.pageNavType</p>
+			#end
+			#if ($sitePages.pageNavIconUrl && $sitePages.pageNavIconUrl != "")
+					<img src="$sitePages.pageNavIconUrl" border="0" alt="Worksite Logo" />
+			#end
+				</div>
+				<a id="totoolmenu" class="skip" name="totoolmenu"></a>
+				<h1 class="skip">${rloader.sit_toolshead}</h1>
+				<div id="toolMenu">
+					<ul>
+			#foreach( $page in $sitePages.pageNavTools )
+		  		#if (${page.current})
+						<li class="selectedTool">
+						<span class="${page.menuClass}" >${page.pageTitle}</span>
+						</li>
+		  		#else
+		  			 #if (${page.ispopup})
+						<li>
+							<a class="${page.menuClass}" href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+							<span>${page.pageTitle}</span>
+							</a>
+						</li>
+		   			#else
+						<li>
+							<a class="${page.menuClass}" href="${page.pageRefUrl}" ><span>${page.pageTitle}</span></a>
+						</li>
+		   			#end
+		  		#end
+			#end
+			
+			<!-- Add subsite lists -->
+		    #if ( $subSites ) 
+		        #foreach ( $site in $subSites ) 
+				        <li>
+				             <a class="${sitePages.subsiteClass}" href="${site.siteUrl}" title="${site.siteTitle}">
+				             <span>SubSite: ${site.siteTitle}</span>
+				             </a>
+				        </li>
+		       #end
+		    #end
+			#if (${sitePages.pageNavShowHelp})
+						 <li>
+								<a  class="${sitePages.helpMenuClass}" accesskey="6" href="${sitePages.pageNavHelpUrl}" target="_blank" 
+									onclick="openWindow('${sitePages.pageNavHelpUrl}', 
+									'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); 
+									return false">
+									<span>${rloader.sit_help}</span>
+								</a>
+						 </li>
+			#end
+					</ul>
+				</div>
+			#if (${sitePages.pageNavShowPresenceLoggedIn})
+				<div id="presenceWrapper">
+					<div id="presenceTitle">${rloader.sit_presencetitle}</div>
+					<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
+						frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${sitePages.pageNavPresenceUrl}" >
+					</iframe>
+				</div>
+			#end
+			</div>
+			<h1 class="skip">${rloader.sit_contentshead}</h1>
+			<a id="tocontent" class="skip" name="tocontent"></a>
+		<!-- end includePageNav -->
+		#else
+			<!-- Page Navigation Suppressed because only one tool is active -->
+		#end
+		<!-- end page nav -->
+		<!-- start includePageBody -->		
+		#if ( $sitePages.pageMaxIfSingle )
+			#if ( $sitePages.pageNavToolsCount > 1 ) 
+			<div id="$pageWrapperClass">
+			#end
+		#else
+			<div id="$pageWrapperClass">
+		#end
+				<div id="$pageColumnLayout">
+			#foreach ( $tool in $pageColumn0Tools ) 
+				#if ( $tool ) 
+					<!-- start Tool -->
+						#if (${tool.hasRenderResult})
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}">
+						                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
+						#end
+										<h2>${tool.toolRenderResult.getTitle()}</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolJSR168Edit} )
+						            <a accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" 
+						                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
+						                    alt="${rloader.sit_edit}" border="0"></a>
+						#end 
+						#if (${tool.toolShowHelpButton})
+							#if (${tool.toolJSR168Help} )
+						             <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
+							#else
+								<a accesskey="h" href="${tool.toolHelpActionUrl}" title="${rloader.sit_help}" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+							#end
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+						#end
+									</div>
+								</div>
+							</div>
+						#else
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}">
+						                        <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" /></a>
+						#end	
+										<h2>${tool.toolTitle}</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolShowHelpButton})
+								<a accesskey="h" href="${tool.toolHelpActionUrl}" title="${rloader.sit_help}" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+						#end
+									</div>
+								</div>
+							</div>
+						#end
+					<!-- end Tool -->
+					<!-- start Tool Body -->						
+						#if (${tool.hasRenderResult})
+							<div class="portletMainWrap">
+							    ${tool.toolRenderResult.getContent()}
+							</div>
+						#else
+							<div class="portletMainWrap">
+								<iframe	name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" 
+									class ="portletMainIframe"
+									height="50"
+									width="100%"
+									frameborder="0"
+									marginwidth="0"
+									marginheight="0"
+									scrolling="auto"	
+									src="${tool.toolUrl}?panel=Main">
+								</iframe>
+							</div>
+						#end
+					<!-- end Tool Body -->												
+				#end
+			#end
+				</div>
+			#if ($pageTwoColumn)
+				<div id="col2of2">
+				#foreach ( $tool in $pageColumn1Tools ) 
+					#if ( $tool ) 
+					<!-- start include tool -->
+					<!-- start Tool Col2 -->
+						#if (${tool.hasRenderResult})
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}">
+						                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
+						#end
+										<h2>${tool.toolRenderResult.getTitle()}</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolJSR168Edit} )
+						            <a accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" 
+						                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
+						                    alt="${rloader.sit_edit}" border="0"></a>
+						#end 
+						#if (${tool.toolShowHelpButton})
+							#if (${tool.toolJSR168Help} )
+						             <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
+							#else
+								<a accesskey="h" href="${tool.toolHelpActionUrl}" title="${rloader.sit_help}" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+							#end
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+						#end
+									</div>
+								</div>
+							</div>
+						#else
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}">
+						                        <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" /></a>
+						#end	
+										<h2>${tool.toolTitle}</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolShowHelpButton})
+								<a accesskey="h" href="${tool.toolHelpActionUrl}" title="${rloader.sit_help}" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+						#end
+									</div>
+								</div>
+							</div>
+						#end
+					<!-- end Tool Col2 -->
+					<!-- start Tool Body -->
+						#if (${tool.hasRenderResult})
+							<div class="portletMainWrap">
+							    ${tool.toolRenderResult.getContent()}
+							</div>
+						#else
+							<div class="portletMainWrap">
+								<iframe	name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" 
+									class ="portletMainIframe"
+									height="50"
+									width="100%"
+									frameborder="0"
+									marginwidth="0"
+									marginheight="0"
+									scrolling="auto"	
+									src="${tool.toolUrl}?panel=Main">
+								</iframe>
+							</div>
+						#end											
+					<!-- end Tool Body -->												
+					<!-- end include tool -->
+					#end
+				#end
+				</div>
+			#end
+			</div>
+			<div>
+			<!-- include bottom -->
+			#if (!$pagepopup)
+			<div id="footer">
+				<div class="footerExtNav" align="center">
+					|
+			#foreach ( $bn in $bottomNav )
+					${bn}  | 
+			#end
+				</div>
+				<div id="footerInfo">
+			#foreach ( $pb in $bottomNavPoweredBy )
+					<span class="skip">${rloader.site_newwindow}</span>	
+					<a href="${pb.poweredByUrl}" target="_blank">
+							<img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" /></a>
+			#end
+			<!-- end include Bottom -->
+	</div>
+	<div class="sakaiCopyrightInfo">${bottomNavCopyright}<br />
+	${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}
+	</div>
+</div>
+#else
+<!-- dont compact -->
+#end
+			#if ( $sitePages.pageMaxIfSingle )
+				#if ( $sitePages.pageNavToolsCount > 1 ) 
+			</div>
+				#end
+			#else
+			</div>
+			#end
+		<!-- end includePageBody -->
+		</div>
+		<!-- end includePage -->	
+	</div>
+</div>
+<!-- end includeSiteNav -->
 <!-- end site.vm -->
 	</body>
 </html>

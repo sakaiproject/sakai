@@ -171,7 +171,26 @@ ${tool.toolRenderResult.getTitle()}
 ${responseBody}
 <!-- End Buffered Body Tool Content -->
   #else
-    #includeToolBody ( $currentPlacement )
+    <!-- start include Tool Body -->
+	#if (${currentPlacement.hasRenderResult})
+		<div class="portletMainWrap">
+		    ${currentPlacement.toolRenderResult.getContent()}
+		</div>
+	#else
+		<div class="portletMainWrap">
+			<iframe	name="${currentPlacement.toolPlacementIDJS}" id="${currentPlacement.toolPlacementIDJS}" title="${currentPlacement.toolTitle}" 
+				class ="portletMainIframe"
+				height="50"
+				width="100%"
+				frameborder="0"
+				marginwidth="0"
+				marginheight="0"
+				scrolling="auto"	
+				src="${currentPlacement.toolUrl}?panel=Main">
+			</iframe>
+		</div>
+	#end
+    <!-- end include Tool Body -->
   #end
 #else
   #if ($currentSite)

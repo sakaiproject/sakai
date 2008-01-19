@@ -47,6 +47,7 @@ import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortletApplicationDescriptor;
 import org.sakaiproject.portal.api.PortletDescriptor;
+import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.api.StyleAbleProvider;
 import org.sakaiproject.tool.api.Session;
@@ -74,6 +75,8 @@ public class PortalServiceImpl implements PortalService
 	private Map<String, Portal> portals = new ConcurrentHashMap<String, Portal>();
 
 	private StyleAbleProvider stylableServiceProvider;
+
+	private SiteNeighbourhoodService siteNeighbourhoodService;
 
 	public void init()
 	{
@@ -486,6 +489,22 @@ public class PortalServiceImpl implements PortalService
 	public StyleAbleProvider getStylableService()
 	{
 		return stylableServiceProvider;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.api.PortalService#getSiteNeighbourhoodService()
+	 */
+	public SiteNeighbourhoodService getSiteNeighbourhoodService()
+	{
+		return siteNeighbourhoodService;
+	}
+
+	/**
+	 * @param siteNeighbourhoodService the siteNeighbourhoodService to set
+	 */
+	public void setSiteNeighbourhoodService(SiteNeighbourhoodService siteNeighbourhoodService)
+	{
+		this.siteNeighbourhoodService = siteNeighbourhoodService;
 	}
 
 }

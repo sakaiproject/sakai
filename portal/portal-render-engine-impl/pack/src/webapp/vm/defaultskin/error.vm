@@ -93,9 +93,9 @@ ${req.toString()}
 #if (${config})
 <h1>Init Parameters</h1>
 <pre>&nbsp;
-#foreach( $param in $params ) 
+	#foreach( $param in $params ) 
 	${param.name} : ${param.value}
-#end
+	#end
 </pre>
 <h1>Request information:</h1>
 <pre>

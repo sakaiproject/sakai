@@ -35,21 +35,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
+import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
-import org.sakaiproject.portal.util.PortalSiteHelper;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.alias.cover.AliasService;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.user.api.Preferences;
@@ -74,8 +73,6 @@ public class SiteHandler extends WorksiteHandler
 
 	private static final Log log = LogFactory.getLog(SiteHandler.class);
 
-	private PortalSiteHelper siteHelper = new PortalSiteHelper();
-
 	private int configuredTabsToDisplay = 5;
 
 	private boolean useDHTMLMore = false;
@@ -87,6 +84,8 @@ public class SiteHandler extends WorksiteHandler
         useDHTMLMore =  Boolean.valueOf(ServerConfigurationService.getBoolean("portal.use.dhtml.more", false));
 	}
 
+
+	
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
@@ -159,7 +158,7 @@ public class SiteHandler extends WorksiteHandler
 		Site site = null;
 		try
 		{
-			site = siteHelper.getSiteVisit(siteId);
+			site = portal.getSiteHelper().getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
@@ -192,7 +191,7 @@ public class SiteHandler extends WorksiteHandler
 					siteId = EntityManager.newReference(refString).getContainer();
 				}
 				
-				site = siteHelper.getSiteVisit(siteId);
+				site = portal.getSiteHelper().getSiteVisit(siteId);
 			}
 			catch (IdUnusedException e)
 			{
@@ -233,7 +232,7 @@ public class SiteHandler extends WorksiteHandler
 		
 		// Lookup the page in the site - enforcing access control
 		// business rules
-		SitePage page = siteHelper.lookupSitePage(portal,pageId, site);
+		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
 		if (page == null)
 		{
 			portal.doError(req, res, session, Portal.ERROR_SITE);
@@ -358,7 +357,7 @@ public class SiteHandler extends WorksiteHandler
 				else
 				{
 					includeLogo(rcontext, req, session, siteId);
-					if (siteHelper.doGatewaySiteList())
+					if (portal.getSiteHelper().doGatewaySiteList())
 						includeTabs(rcontext, req, session, siteId, "site", false);
 				}
 			}
@@ -433,13 +432,6 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			boolean loggedIn = session.getUserId() != null;
-			// Get the user's My WorkSpace and its ID
-			Site myWorkspaceSite = siteHelper.getMyWorkspace(session);
-			String myWorkspaceSiteId = null;
-			if (myWorkspaceSite != null)
-			{
-				myWorkspaceSiteId = siteHelper.getSiteEffectiveId(myWorkspaceSite);
-			}
 
             int tabsToDisplay = configuredTabsToDisplay;
 
@@ -466,240 +458,47 @@ public class SiteHandler extends WorksiteHandler
 				{
 				}
 			}
-         
-			// Get the list of sites in the right order,
-			// My WorkSpace will be the first in the list
-			List<Site> mySites = siteHelper.getAllSites(req, session, true);
-         
-			// if public workgroup/gateway site is not included, add to list
-			boolean siteFound = false;
-			for ( int i=0; i< mySites.size(); i++ )
-			{
-				if ( ((Site)mySites.get(i)).getId().equals(siteId) ) {
-					siteFound = true;
-				}
-			}
-			try
-			{
-				if (!siteFound) {
-					mySites.add( SiteService.getSite(siteId) );
-				} 
-			}
-			catch ( IdUnusedException e) {
-				
-			} // ignore
-				
-			// Note that if there are exactly one more site
-			// than tabs allowed - simply put the site on
-			// instead of a dropdown with one site
-			List<Site> moreSites = new ArrayList<Site>();
-			if (mySites.size() > (tabsToDisplay + 1))
-			{
-				// Check to see if the selected site is in the first
-				// "tabsToDisplay" tabs
-				boolean found = false;
-				for (int i = 0; i < tabsToDisplay && i < mySites.size(); i++)
-				{
-					Site site = mySites.get(i);
-					String effectiveId = siteHelper.getSiteEffectiveId(site);
-					if (site.getId().equals(siteId) || effectiveId.equals(siteId))
-						found = true;
-				}
-
-				// Save space for the current site
-				if (!found) tabsToDisplay = tabsToDisplay - 1;
-				if (tabsToDisplay < 2) tabsToDisplay = 2;
-
-				// Create the list of "additional sites"- but do not
-				// include the currently selected set in the list
-				Site currentSelectedSite = null;
-
-				int remove = mySites.size() - tabsToDisplay;
-				for (int i = 0; i < remove; i++)
-				{
-					// We add the site the the drop-down
-					// unless it it the current site in which case
-					// we retain it for later
-					Site site = mySites.get(tabsToDisplay);
-					mySites.remove(tabsToDisplay);
-
-					String effectiveId = siteHelper.getSiteEffectiveId(site);
-					if (site.getId().equals(siteId) || effectiveId.equals(siteId))
-					{
-						currentSelectedSite = site;
-					}
-					else
-					{
-						moreSites.add(site);
-					}
-				}
-
-				// check to see if we need to re-add the current site
-				if ( currentSelectedSite != null ) 
-				{
-					mySites.add(currentSelectedSite);
-				}
-			}
 			
 			
-			if (useDHTMLMore)
-			{
-				List<Site> allSites = new ArrayList<Site>();
-				allSites.addAll(mySites);
-				allSites.addAll(moreSites);
-				// get Sections
-				Map<String, List> termsToSites = new HashMap<String, List>();
-				Map<String, List> tabsMoreTerms = new HashMap<String, List>();
-				for (int i = 0; i < allSites.size(); i++)
-				{
-					Site site = allSites.get(i);
-					ResourceProperties siteProperties = site.getProperties();
-
-					String type = site.getType();
-					String term = null;
-
-					if ("course".equals(type))
-					{
-						term = siteProperties.getProperty("term");
-					}
-					else if ("project".equals(type))
-					{
-						term = "PROJECTS";
-					}
-					else if ("portfolio".equals(type))
-					{
-						term = "PORTFOLIOS";
-					}
-					else if ("admin".equals(type))
-					{
-						term = "ADMINISTRATION";
-					}
-					else
-					{
-						term = "OTHER";
-					}
-
-					List<Site> currentList = new ArrayList();
-					if (termsToSites.containsKey(term))
-					{
-						currentList = termsToSites.get(term);
-						termsToSites.remove(term);
-					}
-					currentList.add(site);
-					termsToSites.put(term, currentList);
-				}
-
-				class TitleSorter implements Comparator<Map>
-				{
-
-					public int compare(Map first, Map second)
-					{
-
-						if (first == null && second == null) return 0;
-
-						String firstTitle = (String) first.get("siteTitle");
-						String secondTitle = (String) second.get("siteTitle");
-
-						if (firstTitle != null)
-							return firstTitle.compareToIgnoreCase(secondTitle);
-
-						return 0;
-
-					}
-
-				}
-
-				Comparator<Map> titleSorter = new TitleSorter();
-
-				// now loop through each section and convert the Lists to maps
-				for (String key : termsToSites.keySet())
-				{
-					List<Site> currentList = termsToSites.get(key);
-					List<Map> temp = portal.convertSitesToMaps(req, currentList, prefix,
-							siteId, myWorkspaceSiteId,
-							/* includeSummary */false, /* expandSite */false,
-							/* resetTools */"true".equals(ServerConfigurationService
-									.getString(Portal.CONFIG_AUTO_RESET)),
-							/* doPages */true, /* toolContextPath */null, loggedIn);
-
-					Collections.sort(temp, titleSorter);
-
-					tabsMoreTerms.put(key, temp);
-
-				}
-
-				String[] termOrder = ServerConfigurationService
-						.getStrings("portal.term.order");
-				List<String> tabsMoreSortedTermList = new ArrayList<String>();
-
-				// Order term column headers according to order specified in
-				// portal.term.order
-				// Filter out terms for which user is not a member of any sites
-
-				if (termOrder != null)
-				{
-					for (int i = 0; i < termOrder.length; i++)
-					{
-
-						if (tabsMoreTerms.containsKey(termOrder[i]))
-						{
-
-							tabsMoreSortedTermList.add(termOrder[i]);
-
-						}
-
-					}
-				}
-
-				Iterator i = tabsMoreTerms.keySet().iterator();
-				while (i.hasNext())
-				{
-					String term = (String) i.next();
-					if (!tabsMoreSortedTermList.contains(term))
-					{
-						tabsMoreSortedTermList.add(term);
-
-					}
-				}
-				rcontext.put("tabsMoreTerms", tabsMoreTerms);
-				rcontext.put("tabsMoreSortedTermList", tabsMoreSortedTermList);
-			}
 			rcontext.put("useDHTMLMore", useDHTMLMore);
-		
-		
-			
-			
-			
-		
+			if ( useDHTMLMore ) {
+				SiteView siteView = portal.getSiteHelper().getSitesView(SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
+				siteView.setPrefix(prefix);
+				siteView.setToolContextPath(null);
+				rcontext.put("tabsSites", siteView.getRenderContextObject());
+			} else {
+				SiteView siteView = portal.getSiteHelper().getSitesView(SiteView.View.DEFAULT_SITE_VIEW, req, session, siteId);
+				siteView.setPrefix(prefix);
+				siteView.setToolContextPath(null);
+				rcontext.put("tabsSites", siteView.getRenderContextObject());
+			}
 
+			
 			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
 					: "siteNavWrap";
 
 			rcontext.put("tabsCssClass", cssClass);
 
-			List<Map> l = portal.convertSitesToMaps(req, mySites, prefix, siteId,
-					myWorkspaceSiteId,
-					/* includeSummary */false, /* expandSite */false,
-					/* resetTools */"true".equals(ServerConfigurationService
-							.getString(Portal.CONFIG_AUTO_RESET)),
-					/* doPages */true, /* toolContextPath */null, loggedIn);
-
-			rcontext.put("tabsSites", l);
-
-			rcontext.put("tabsMoreSitesShow", Boolean.valueOf(moreSites.size() > 0));
-
-			// more dropdown
-			if (moreSites.size() > 0)
+         
+			rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
+			if (addLogout)
 			{
-				List<Map> m = portal.convertSitesToMaps(req, moreSites, prefix, siteId,
-						myWorkspaceSiteId,
-						/* includeSummary */false, /* expandSite */false,
-						/* resetTools */"true".equals(ServerConfigurationService
-								.getString(Portal.CONFIG_AUTO_RESET)),
-						/* doPages */true, /* toolContextPath */null, loggedIn);
-
-				rcontext.put("tabsMoreSites", m);
+				String logoutUrl = Web.serverUrl(req)
+						+ ServerConfigurationService.getString("portalPath")
+						+ "/logout_gallery";
+				rcontext.put("tabsLogoutUrl", logoutUrl);
+				// rcontext.put("tabsSitLog",
+				// Web.escapeHtml(rb.getString("sit_log")));
 			}
+
+			
+		
+			
+			
+			
+		
+
+			rcontext.put("tabsCssClass", cssClass);
 
 			rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
 			if (addLogout)

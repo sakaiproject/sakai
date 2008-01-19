@@ -22,7 +22,6 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,7 +32,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
-import org.sakaiproject.portal.util.PortalSiteHelper;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
@@ -55,12 +53,11 @@ public class GalleryHandler extends SiteHandler
 
 	private static final String INCLUDE_GALLERY_LOGIN = "include-gallery-login";
 
-	private PortalSiteHelper siteHelper = new PortalSiteHelper();
-
 	public GalleryHandler()
 	{
 		urlFragment = "gallery";
 	}
+	
 
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
@@ -135,7 +132,8 @@ public class GalleryHandler extends SiteHandler
 		Site site = null;
 		try
 		{
-			site = siteHelper.getSiteVisit(siteId);
+			
+			site = portal.getSiteHelper().getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
@@ -158,7 +156,7 @@ public class GalleryHandler extends SiteHandler
 
 		// Lookup the page in the site - enforcing access control
 		// business rules
- 		SitePage page = siteHelper.lookupSitePage(portal,pageId, site);
+ 		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
 		if (page == null)
 		{
 			portal.doError(req, res, session, Portal.ERROR_GALLERY);
