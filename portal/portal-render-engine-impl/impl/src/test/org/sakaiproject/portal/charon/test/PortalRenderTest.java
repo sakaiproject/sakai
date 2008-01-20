@@ -152,6 +152,7 @@ public class PortalRenderTest extends TestCase
 			fail(ex.getMessage());
 		}
 	}
+	/* There is no longer a separate Nav login -- Chuck
 	public void testNavLogin() throws Exception
 	{
 		try
@@ -167,6 +168,8 @@ public class PortalRenderTest extends TestCase
 			fail(ex.getMessage());
 		}
 	}
+	*/
+	/* There is no longer a separate Nav login -- Chuck
 	public void testNavLoginGallery() throws Exception
 	{
 		try
@@ -182,6 +185,7 @@ public class PortalRenderTest extends TestCase
 			fail(ex.getMessage());
 		}
 	}
+	*/
 	public void testPage() throws Exception
 	{
 		try

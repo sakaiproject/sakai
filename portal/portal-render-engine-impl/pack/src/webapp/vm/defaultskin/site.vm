@@ -152,9 +152,9 @@ ${tool.toolRenderResult.getTitle()}
 			</a>
 		</div>
 		#if (${tabsSites} )
+#if ( ! $suppressHeader )
 		<div id="headerMax">
 			<div id="siteNavWrapper" class="${logoSiteClass}">
-#if ( ! $suppressHeader )
 				<div id="mastHead">
 					<div id="mastLogo">
 						<img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
@@ -196,8 +196,6 @@ ${tool.toolRenderResult.getTitle()}
 				</div>
 			</div>
 #end
-
-
 #if ( ! $suppressSiteTabs )
 			<!-- start includeTabs -->
 			<div class="${tabsCssClass}">
@@ -305,7 +303,10 @@ ${tool.toolRenderResult.getTitle()}
 				#end
 <!-- end includeTabs -->
 #end
+## end of headerMax
+#if ( ! $suppressHeader )
 		</div>
+#end
 		#else
 #if ( ! $suppressHeader )
 		<div id="headerMin">
