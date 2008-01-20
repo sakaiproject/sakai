@@ -140,6 +140,7 @@ public class MockCharonPortal extends HttpServlet
 		sendResponse(rcontext, "login");
 	}
 
+	/* NavLoginGallery is no longer used - Chuck
 	public void doNavLoginGallery() throws IOException
 	{
 		// start the response
@@ -150,6 +151,7 @@ public class MockCharonPortal extends HttpServlet
 		// end the response
 		sendResponse(rcontext, "gallery-login");
 	}
+	*/
 
 	public void doPage() throws IOException
 	{
@@ -192,6 +194,44 @@ public class MockCharonPortal extends HttpServlet
 
 		// end the response
 		sendResponse(rcontext, "site");
+	}
+
+	public void doSiteFrameTop() throws IOException
+	{
+		PortalRenderContext rcontext = startPageContext();
+
+		rcontext.put("urlFragment", "site");
+
+		rcontext.put("sakaiFrameEdit","sakaiFrameEdit");
+		rcontext.put("sakaiFrameTitle","sakaiFrameTitle");
+		rcontext.put("sakaiFrameReset","sakaiFrameReset");
+		rcontext.put("sakaiFramePortlet","sakaiFramePortlet");
+		rcontext.put("sakaiSinglePage","sakaiSinglePage");
+
+		// the 'full' top area
+		includeSiteNav(rcontext);
+
+		// end the response
+		sendResponse(rcontext, "site-frame-top");
+	}
+
+	public void doGalleryFrameTop() throws IOException
+	{
+		PortalRenderContext rcontext = startPageContext();
+
+		rcontext.put("urlFragment", "gallery");
+
+		rcontext.put("sakaiFrameEdit","sakaiFrameEdit");
+		rcontext.put("sakaiFrameTitle","sakaiFrameTitle");
+		rcontext.put("sakaiFrameReset","sakaiFrameReset");
+		rcontext.put("sakaiFramePortlet","sakaiFramePortlet");
+		rcontext.put("sakaiSinglePage","sakaiSinglePage");
+
+		// the 'full' top area
+		includeSiteNav(rcontext);
+
+		// end the response
+		sendResponse(rcontext, "site-frame-top");
 	}
 
 	public void doWorksite() throws IOException

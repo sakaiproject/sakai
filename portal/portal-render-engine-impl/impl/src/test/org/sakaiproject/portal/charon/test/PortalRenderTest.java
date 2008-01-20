@@ -152,40 +152,6 @@ public class PortalRenderTest extends TestCase
 			fail(ex.getMessage());
 		}
 	}
-	/* There is no longer a separate Nav login -- Chuck
-	public void testNavLogin() throws Exception
-	{
-		try
-		{
-			log.info("========= Testing testNavLogin");
-			mock.doNavLogin();
-			log.info("========= PASSED Testing testNavLogin");
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-			log.info("========= FAILED Testing testNavLogin");
-			fail(ex.getMessage());
-		}
-	}
-	*/
-	/* There is no longer a separate Nav login -- Chuck
-	public void testNavLoginGallery() throws Exception
-	{
-		try
-		{
-			log.info("========= Testing testNavLoginGallery");
-			mock.doNavLoginGallery();
-			log.info("========= PASSED Testing testNavLoginGallery");
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-			log.info("========= FAILED Testing testNavLoginGallery");
-			fail(ex.getMessage());
-		}
-	}
-	*/
 	public void testPage() throws Exception
 	{
 		try
@@ -231,7 +197,35 @@ public class PortalRenderTest extends TestCase
 			fail(ex.getMessage());
 		}
 	}
-
-	
+	public void testSiteFrameTop() throws Exception
+	{
+		try
+		{
+			log.info("========= Testing testSiteFrameTop");
+			mock.doSiteFrameTop();
+			log.info("========= PASSED Testing testSiteFrameTop");
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			log.info("========= FAILED Testing testSiteFrameTop");
+			fail(ex.getMessage());
+		}
+	}
+	public void testGalleryFrameTop() throws Exception
+	{
+		try
+		{
+			log.info("========= Testing testGalleryFrameTop");
+			mock.doGalleryFrameTop();
+			log.info("========= PASSED Testing testGalleryFrameTop");
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			log.info("========= FAILED Testing testGalleryFrameTop");
+			fail(ex.getMessage());
+		}
+	}
 
 }
