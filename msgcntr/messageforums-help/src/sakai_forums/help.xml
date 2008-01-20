@@ -26,6 +26,17 @@
             <value>/sakai_forums/asci.html</value>
         </property>
     </bean>
+    <bean id="mcCreateModeratedForum" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>avar</value>
+        </property>
+        <property name="name">
+            <value>Create a moderated forum</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/avar.html</value>
+        </property>
+    </bean>
     <bean id="mcChangeOrder" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
             <value>ausz</value>
@@ -132,6 +143,7 @@
                         <list>
                             <ref bean="mcOverview"/>
                             <ref bean="mcCreateForumTopic"/>
+                            <ref bean="mcCreateModeratedForum"/>
                             <ref bean="mcChangeOrder"/>
                             <ref bean="mcPermissions"/>
                             <ref bean="mcRevise"/>
