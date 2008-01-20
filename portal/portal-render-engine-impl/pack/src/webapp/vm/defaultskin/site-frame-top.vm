@@ -48,7 +48,6 @@
 	</script>
 #end
 <!-- END Header -->
-
 <!-- site.vm -->
 <!-- start includeSiteNav -->
 <div id="portalOuterContainer">
@@ -61,8 +60,8 @@
 		#end
 		</div>
 		#if (${tabsSites})
-		<div id="headerMax">
 #if ( ! $suppressHeader )
+		<div id="headerMax">
 			<div id="siteNavWrapper" class="${logoSiteClass}">
 				<div id="mastHead">
 					<div id="mastLogo">
@@ -165,7 +164,10 @@
 
 			</div> <!-- /tabsCssClass -->
                 <!-- end includeTabs -->
+## remove the end-tag for HeaderMax below
+#if ( ! $suppressHeader )
 		</div>
+#end
 		#else
 #if ( ! $suppressHeader )
 		<div id="headerMin">
