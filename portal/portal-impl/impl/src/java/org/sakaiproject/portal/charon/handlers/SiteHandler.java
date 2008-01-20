@@ -80,17 +80,15 @@ public class SiteHandler extends WorksiteHandler
 	public SiteHandler()
 	{
 		urlFragment = "site";
-        configuredTabsToDisplay  = ServerConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 5);
-        useDHTMLMore =  Boolean.valueOf(ServerConfigurationService.getBoolean("portal.use.dhtml.more", false));
+                configuredTabsToDisplay  = ServerConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 5);
+                useDHTMLMore =  Boolean.valueOf(ServerConfigurationService.getBoolean("portal.use.dhtml.more", false));
 	}
-
-
 	
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && (parts[1].equals("site")))
+		if ((parts.length >= 2) && (parts[1].equals(urlFragment)))
 		{
 			// This is part of the main portal so we simply remove the attribute
 			session.setAttribute("sakai-controlling-portal",null);
@@ -256,12 +254,12 @@ public class SiteHandler extends WorksiteHandler
 
 		if ( ! doFrameTop ) 
 		{
-			includeWorksite(rcontext, res, req, session, site, page, toolContextPath, "site");
+			includeWorksite(rcontext, res, req, session, site, page, toolContextPath, urlFragment);
 
 			// Include sub-sites if appropriate
 			// TODO: Thing through whether we want reset tools or not
 			portal.includeSubSites(rcontext, req, session,
-				siteId,  req.getContextPath() + req.getServletPath(), "site",
+				siteId,  req.getContextPath() + req.getServletPath(), urlFragment,
 				/* resetTools */ false );
 
 			portal.includeBottom(rcontext);
@@ -279,6 +277,10 @@ public class SiteHandler extends WorksiteHandler
 		String maximizedUrl = (String) session.getAttribute("sakai-maximized-url");
 		if (maximizedUrl != null ) rcontext.put("frameMaximizedUrl",maximizedUrl);
 		session.setAttribute("sakai-maximized-url",null);
+
+		// Hand the url Fragment up to Presentaton Layer - we send this all to 
+		// The site template which uses the urlFragment to determine what to show
+		rcontext.put("urlFragment", urlFragment);
 
 		// end the response
 		if ( doFrameTop ) 
@@ -352,13 +354,13 @@ public class SiteHandler extends WorksiteHandler
 				if (loggedIn)
 				{
 					includeLogo(rcontext, req, session, siteId);
-					includeTabs(rcontext, req, session, siteId, "site", false);
+					includeTabs(rcontext, req, session, siteId, urlFragment, false);
 				}
 				else
 				{
 					includeLogo(rcontext, req, session, siteId);
 					if (portal.getSiteHelper().doGatewaySiteList())
-						includeTabs(rcontext, req, session, siteId, "site", false);
+						includeTabs(rcontext, req, session, siteId, urlFragment, false);
 				}
 			}
 			catch (Exception any)

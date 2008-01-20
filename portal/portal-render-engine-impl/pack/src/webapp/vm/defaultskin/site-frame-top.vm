@@ -1,3 +1,8 @@
+#if ( $urlFragment ) 
+#if ( $urlFragment == "gallery" )
+  #set ( $suppressHeader=1 )
+#end
+#end
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
@@ -57,6 +62,7 @@
 		</div>
 		#if (${tabsSites})
 		<div id="headerMax">
+#if ( ! $suppressHeader )
 			<div id="siteNavWrapper" class="${logoSiteClass}">
 				<div id="mastHead">
 					<div id="mastLogo">
@@ -99,6 +105,7 @@
 					
 				</div>
 			</div>
+#end
 			<!-- start includeTabs -->
 			<div class="${tabsCssClass}">
 				<div id="siteNav">
@@ -160,6 +167,7 @@
                 <!-- end includeTabs -->
 		</div>
 		#else
+#if ( ! $suppressHeader )
 		<div id="headerMin">
 			<div id="siteNavWrapper" class="${logoSiteClass}">
 				<div id="mastHead">
@@ -207,6 +215,7 @@
 			</div>
 		</div>
 		#end
+#end
 	</div>
 </div>
 <!-- end includeSiteNav -->

@@ -63,7 +63,7 @@ public class GalleryHandler extends SiteHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && (parts[1].equals("gallery")))
+		if ((parts.length >= 2) && (parts[1].equals(urlFragment)))
 		{
 			// Indicate that we are the controlling portal
 			session.setAttribute("sakai-controlling-portal",urlFragment);
@@ -122,121 +122,8 @@ public class GalleryHandler extends SiteHandler
 			}
 		}
 
-		// if no page id, see if there was a last page visited for this site
-		if (pageId == null)
-		{
-			pageId = (String) session.getAttribute(Portal.ATTR_SITE_PAGE + siteId);
-		}
-
-		// find the site, for visiting
-		Site site = null;
-		try
-		{
-			
-			site = portal.getSiteHelper().getSiteVisit(siteId);
-		}
-		catch (IdUnusedException e)
-		{
-			portal.doError(req, res, session, Portal.ERROR_GALLERY);
-			return;
-		}
-		catch (PermissionException e)
-		{
-			// if not logged in, give them a chance
-			if (session.getUserId() == null)
-			{
-				portal.doLogin(req, res, session, req.getPathInfo(), false);
-			}
-			else
-			{
-				portal.doError(req, res, session, Portal.ERROR_GALLERY);
-			}
-			return;
-		}
-
-		// Lookup the page in the site - enforcing access control
-		// business rules
- 		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
-		if (page == null)
-		{
-			portal.doError(req, res, session, Portal.ERROR_GALLERY);
-			return;
-		}
-
-		// store the last page visited
-		session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
-
-		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : "
-				+ site.getTitle() + " : " + page.getTitle();
-
-		// start the response
-		String siteType = portal.calcSiteType(siteId);
-		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
-				.getSkin(), req);
-
-		// the 'little' top area
-		includeGalleryNav(rcontext, req, session, siteId, "gallery");
-
-		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
-				"gallery");
-
-		portal.includeBottom(rcontext);
-
-		portal.sendResponse(rcontext, res, "gallery", null);
+		// /Include the site materials
+		doSite(req, res, session, siteId, pageId, req.getContextPath()
+						+ req.getServletPath());
 	}
-
-	protected void includeGalleryNav(PortalRenderContext rcontext,
-			HttpServletRequest req, Session session, String siteId, String prefix)
-	{
-		if (rcontext.uses(INCLUDE_GALLERY_NAV))
-		{
-
-			boolean loggedIn = session.getUserId() != null;
-			boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
-
-			// outer blocks and jump-to links
-			String accessibilityURL = ServerConfigurationService
-					.getString("accessibility.url");
-			rcontext.put("galleryHasAccessibilityURL", Boolean
-					.valueOf((accessibilityURL != null && accessibilityURL != "")));
-
-			rcontext.put("galleryAccessibilityURL", accessibilityURL);
-			// rcontext.put("gallarySitAccessibility",
-			// Web.escapeHtml(rb.getString("sit_accessibility")));
-			// rcontext.put("gallarySitJumpcontent",
-			// Web.escapeHtml(rb.getString("sit_jumpcontent")));
-			// rcontext.put("gallarySitJumptools",
-			// Web.escapeHtml(rb.getString("sit_jumptools")));
-			// rcontext.put("gallarySitJumpworksite",
-			// Web.escapeHtml(rb.getString("sit_")));
-			rcontext.put("gallaryLoggedIn", Boolean.valueOf(loggedIn));
-
-			try
-			{
-				if (loggedIn)
-				{
-					includeTabs(rcontext, req, session, siteId, prefix, false);
-				}
-				else
-				{
-					includeGalleryLogin(rcontext, req, session, siteId);
-				}
-			}
-			catch (Exception any)
-			{
-			}
-		}
-
-	}
-
-	protected void includeGalleryLogin(PortalRenderContext rcontext,
-			HttpServletRequest req, Session session, String siteId) throws IOException
-	{
-		if (rcontext.uses(INCLUDE_GALLERY_LOGIN))
-		{
-			portal.includeLogin(rcontext, req, session);
-		}
-	}
-
 }

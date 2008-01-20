@@ -62,11 +62,8 @@ import org.sakaiproject.portal.charon.handlers.ErrorReportHandler;
 import org.sakaiproject.portal.charon.handlers.GalleryHandler;
 import org.sakaiproject.portal.charon.handlers.GalleryResetHandler;
 import org.sakaiproject.portal.charon.handlers.HelpHandler;
-import org.sakaiproject.portal.charon.handlers.LoginGalleryHandler;
 import org.sakaiproject.portal.charon.handlers.LoginHandler;
-import org.sakaiproject.portal.charon.handlers.LogoutGalleryHandler;
 import org.sakaiproject.portal.charon.handlers.LogoutHandler;
-import org.sakaiproject.portal.charon.handlers.NavLoginGalleryHandler;
 import org.sakaiproject.portal.charon.handlers.NavLoginHandler;
 import org.sakaiproject.portal.charon.handlers.OpmlHandler;
 import org.sakaiproject.portal.charon.handlers.PDAHandler;
@@ -888,24 +885,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public void doLogout(HttpServletRequest req, HttpServletResponse res,
 			Session session, String returnPath) throws ToolException
 	{
-		// where to go after
-		if (returnPath == null)
+		String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
+		if ( returnPath != null ) 
 		{
-			// if no path, use the configured logged out URL
-			String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
-			session.setAttribute(Tool.HELPER_DONE_URL, loggedOutUrl);
+			loggedOutUrl = loggedOutUrl + returnPath;
 		}
-		else
-		{
-			// if we have a path, use a return based on the request and this
-			// path
-			// Note: this is currently used only as "/gallery"
-			// - we should really add a
-			// ServerConfigurationService.getGalleryLoggedOutUrl()
-			// and change the returnPath to a normal/gallery indicator -ggolden
-			String loggedOutUrl = Web.returnUrl(req, returnPath);
-			session.setAttribute(Tool.HELPER_DONE_URL, loggedOutUrl);
-		}
+		session.setAttribute(Tool.HELPER_DONE_URL, loggedOutUrl);
 
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/logout";
@@ -1557,15 +1542,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(galleryHandler);
 		addHandler(new GalleryResetHandler());
 		addHandler(new NavLoginHandler());
-		addHandler(new NavLoginGalleryHandler());
 		addHandler(new PresenceHandler());
 		addHandler(new HelpHandler());
 		addHandler(new ReLoginHandler());
 		addHandler(new LoginHandler());
 		addHandler(new XLoginHandler());
-		addHandler(new LoginGalleryHandler());
 		addHandler(new LogoutHandler());
-		addHandler(new LogoutGalleryHandler());
 		addHandler(new ErrorDoneHandler());
 		addHandler(new ErrorReportHandler());
 		addHandler(new StaticStylesHandler());

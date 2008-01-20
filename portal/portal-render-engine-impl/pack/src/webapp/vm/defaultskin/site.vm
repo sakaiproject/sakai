@@ -1,3 +1,18 @@
+## Determine what we show and what we do not show based on what URL fragment is using this template
+#if ( $urlFragment ) 
+#if ( $urlFragment == "gallery" )
+  #set ( $suppressHeader=1 )
+#end
+#if ( $urlFragment == "worksite" )
+  #set ( $suppressHeader=1 )
+  #set ( $suppressSiteTabs=1 )
+#end
+#if ( $urlFragment == "page" )
+  #set ( $suppressHeader=1 )
+  #set ( $suppressSiteTabs=1 )
+  #set ( $suppressPageTabs=1 )
+#end
+#end
 ## Generate a frameset if it was requested and not suppressed - if there is only one page
 ## in this site - we don't suppress
 #if ( $singleToolMap && $sakaiFrameSetRequested && $tabsSites && ( ! $sakaiFrameSuppress || $sitePages.pageNavToolsCount == 1 ) )
@@ -7,7 +22,12 @@
 <head>
     <title>${pageTitle}</title>
 </head>
+<!-- Fragment $urlFragment -->
+#if ( $urlFragment && $urlFragment == "gallery" )
+<frameset rows="50, *">
+#else
 <frameset rows="140, *">
+#end
   ## TODO:  Get the height from some CSS place or a property
   #set ( $frameEditParam = "")
   #set ( $frameIsPortlet = "")
@@ -110,7 +130,6 @@ ${tool.toolRenderResult.getTitle()}
 	</script>
 #end
 <!-- END Header -->
-
 <!-- site.vm -->
 <!-- start includeSiteNav -->
 <div id="portalOuterContainer">
@@ -132,9 +151,10 @@ ${tool.toolRenderResult.getTitle()}
 				${rloader.sit_jumpworksite}
 			</a>
 		</div>
-		#if (${tabsSites})
+		#if (${tabsSites} )
 		<div id="headerMax">
 			<div id="siteNavWrapper" class="${logoSiteClass}">
+#if ( ! $suppressHeader )
 				<div id="mastHead">
 					<div id="mastLogo">
 						<img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
@@ -173,9 +193,12 @@ ${tool.toolRenderResult.getTitle()}
 					#end
 					</div>
 					<!-- end login component -->
-					
 				</div>
 			</div>
+#end
+
+
+#if ( ! $suppressSiteTabs )
 			<!-- start includeTabs -->
 			<div class="${tabsCssClass}">
 				<div id="siteNav">
@@ -281,8 +304,10 @@ ${tool.toolRenderResult.getTitle()}
   					#end
 				#end
 <!-- end includeTabs -->
+#end
 		</div>
 		#else
+#if ( ! $suppressHeader )
 		<div id="headerMin">
 			<div id="siteNavWrapper" class="${logoSiteClass}">
 				<div id="mastHead">
@@ -329,11 +354,12 @@ ${tool.toolRenderResult.getTitle()}
 				<br />
 			</div>
 		</div>
+#end
 		#end
 		<!-- start includePage -->		
 		<div id="container" $pageSiteType >
 		<!-- start includePageNav -->
-		#if ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) 
+		#if ( ! $suppressPageTabs && ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) ) 
 			<div class="divColor" id="toolMenuWrap">
 				<div id="worksiteLogo">
 			#if (!${sitePages.pageNavPublished})
@@ -405,7 +431,7 @@ ${tool.toolRenderResult.getTitle()}
 			<a id="tocontent" class="skip" name="tocontent"></a>
 		<!-- end includePageNav -->
 		#else
-			<!-- Page Navigation Suppressed because only one tool is active -->
+			<!-- Page Navigation Suppressed -->
 		#end
 		<!-- end page nav -->
 		<!-- start includePageBody -->		
@@ -579,7 +605,7 @@ ${tool.toolRenderResult.getTitle()}
 			</div>
 			<div>
 			<!-- include bottom -->
-			#if (!$pagepopup)
+			#if (! $suppressHeader && !$pagepopup)
 			<div id="footer">
 				<div class="footerExtNav" align="center">
 					|

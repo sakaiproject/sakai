@@ -80,7 +80,7 @@ public class PageHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length == 3) && (parts[1].equals("page")))
+		if ((parts.length == 3) && (parts[1].equals(urlFragment)))
 		{
 			try
 			{
@@ -162,7 +162,11 @@ public class PageHandler extends BasePortalHandler
 		
 		includePage(rcontext, res, req, session, page, toolContextPath, "contentFull");
 
-		portal.sendResponse(rcontext, res, "page", null);
+                // Hand the url Fragment up to Presentaton Layer - we send this all to 
+                // The site template which uses the urlFragment to determine what to show
+                rcontext.put("urlFragment", urlFragment);
+
+		portal.sendResponse(rcontext, res, "site", null);
 		StoredState ss = portalService.getStoredState();
 		if (ss != null && toolContextPath.equals(ss.getToolContextPath()))
 		{

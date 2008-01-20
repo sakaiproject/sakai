@@ -67,7 +67,7 @@ public class WorksiteHandler extends PageHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 3) && (parts[1].equals("worksite")))
+		if ((parts.length >= 3) && (parts[1].equals(urlFragment)))
 		{
 			// Indicate that we are the controlling portal
 			session.setAttribute("sakai-controlling-portal",urlFragment);
@@ -152,12 +152,15 @@ public class WorksiteHandler extends PageHandler
 				.getSkin(), req);
 
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
-				"worksite");
+				urlFragment);
 
 		portal.includeBottom(rcontext);
 
-		// end the response
-		portal.sendResponse(rcontext, res, "worksite", null);
+                // Hand the url Fragment up to Presentaton Layer - we send this all to 
+                // The site template which uses the urlFragment to determine what to show
+                rcontext.put("urlFragment", urlFragment);
+
+		portal.sendResponse(rcontext, res, "site", null);
 	}
 
 	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
