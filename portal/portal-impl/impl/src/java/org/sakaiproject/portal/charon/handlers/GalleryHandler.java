@@ -138,7 +138,7 @@ public class GalleryHandler extends SiteHandler
 		HttpServletResponse res, String contentType) 
 		throws IOException
 	{
-		portal.sendResponse(rcontext, res, "site-frame-set-gallery", null);
+		portal.sendResponse(rcontext, res, "gallery-frame-set", null);
 	}
 
 	/* (non-Javadoc)
@@ -149,7 +149,7 @@ public class GalleryHandler extends SiteHandler
 		HttpServletResponse res, String contentType) 
 		throws IOException
 	{
-		portal.sendResponse(rcontext, res, "site-frame-top-gallery", null);
+		portal.sendResponse(rcontext, res, "gallery-frame-top", null);
 	}
 	
 	/* (non-Javadoc)

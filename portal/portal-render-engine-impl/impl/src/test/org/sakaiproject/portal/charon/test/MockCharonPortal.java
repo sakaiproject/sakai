@@ -140,19 +140,6 @@ public class MockCharonPortal extends HttpServlet
 		sendResponse(rcontext, "login");
 	}
 
-	/* NavLoginGallery is no longer used - Chuck
-	public void doNavLoginGallery() throws IOException
-	{
-		// start the response
-
-		PortalRenderContext rcontext = startPageContext();
-
-		includeGalleryLogin(rcontext);
-		// end the response
-		sendResponse(rcontext, "gallery-login");
-	}
-	*/
-
 	public void doPage() throws IOException
 	{
 		PortalRenderContext rcontext = startPageContext();
@@ -227,7 +214,7 @@ public class MockCharonPortal extends HttpServlet
 		includeSiteNav(rcontext);
 
 		// end the response
-		sendResponse(rcontext, "site-frame-top-gallery");
+		sendResponse(rcontext, "gallery-frame-top");
 	}
 
 	public void doWorksite() throws IOException
