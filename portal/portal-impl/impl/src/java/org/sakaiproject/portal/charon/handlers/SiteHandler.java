@@ -251,16 +251,12 @@ public class SiteHandler extends WorksiteHandler
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req);
 		
-		
 		// should we consider a frameset ?
 		boolean doFrameSet = includeFrameset(rcontext, res, req, session, page);
 		
-		
-
-		// the 'full' top area
 		includeSiteNav(rcontext, req, session, siteId);
 
-		if (!doFrameTop)
+		if ( !doFrameTop && !doFrameSet )
 		{
 			includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
 					getUrlFragment());
@@ -274,23 +270,8 @@ public class SiteHandler extends WorksiteHandler
 			portal.includeBottom(rcontext);
 		}
 
-
 		rcontext.put("currentUrlPath", Web.serverUrl(req) + req.getContextPath()
 				+ req.getPathInfo());
-
-		// Indicate that no matter what - we are to suppress the use of the top
-		// frame
-		// This allows us to generate a link where we see the tool buttons -
-		// this is
-		// set on site URLs when in the frame top frame
-		rcontext.put("sakaiFrameSuppress", req.getParameter("sakai.frame.suppress"));
-
-		// TODO: Make behavior conditional on a property - Move this to
-		// includeTool
-		// Retrieve the maximized URL and clear it from the global session
-		String maximizedUrl = (String) session.getAttribute("sakai-maximized-url");
-		if (maximizedUrl != null) rcontext.put("frameMaximizedUrl", maximizedUrl);
-		session.setAttribute("sakai-maximized-url", null);
 
 		// end the response
 		if (doFrameTop)
@@ -300,7 +281,6 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("sakaiFrameTitle", req.getParameter("sakai.frame.title"));
 			rcontext.put("sakaiFrameReset", req.getParameter("sakai.frame.reset"));
 			rcontext.put("sakaiFramePortlet", req.getParameter("sakai.frame.portlet"));
-			rcontext.put("sakaiSinglePage", req.getParameter("sakai.frame.single.page"));
 			doSendFrameTop(rcontext, res, null);
 		}
 		else if (doFrameSet)
@@ -576,15 +556,6 @@ public class SiteHandler extends WorksiteHandler
 	 * @param page
 	 * @return
 	 * @throws IOException
-	 * <pre>
-	 * #if ( $singleToolMap && // handled 
-	 * $sakaiFrameSetRequested && // handled (will be failse if above 
-	 * $tabsSites && // this is true if there is a site view object 
-	 * ( ! $sakaiFrameSuppress || // 
-	 * $sitePages.pageNavToolsCount == 1 ) ) // ????? this does not make any sense. 
-	 * // it implies that we can ignore sakaiFrameSupress is pageNavToolsCount == 1,
-	 * which will be true if singleToomMap == 1 hence sakaiFrameRequested = true
-	 * </pre>
 	 */
 	protected boolean includeFrameset(PortalRenderContext rcontext,
 			HttpServletResponse res, HttpServletRequest req, Session session,
