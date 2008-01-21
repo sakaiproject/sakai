@@ -36,9 +36,11 @@ import org.sakaiproject.tool.api.Session;
  */
 public class XLoginHandler extends BasePortalHandler
 {
+	private static final String URL_FRAGMENT = "xlogin";
+
 	public XLoginHandler()
 	{
-		urlFragment = "xlogin";
+		setUrlFragment(XLoginHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -52,7 +54,7 @@ public class XLoginHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length == 2) && ((parts[1].equals("xlogin"))))
+		if ((parts.length == 2) && ((parts[1].equals(XLoginHandler.URL_FRAGMENT))))
 		{
 			try
 			{

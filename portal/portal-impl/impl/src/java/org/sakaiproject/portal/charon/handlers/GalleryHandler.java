@@ -53,9 +53,12 @@ public class GalleryHandler extends SiteHandler
 
 	private static final String INCLUDE_GALLERY_LOGIN = "include-gallery-login";
 
+	private static final String URL_FRAGMENT = "gallery";
+
+	
 	public GalleryHandler()
 	{
-		urlFragment = "gallery";
+		setUrlFragment(GalleryHandler.URL_FRAGMENT);
 	}
 	
 
@@ -63,10 +66,10 @@ public class GalleryHandler extends SiteHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && (parts[1].equals(urlFragment)))
+		if ((parts.length >= 2) && (parts[1].equals(GalleryHandler.URL_FRAGMENT)))
 		{
 			// Indicate that we are the controlling portal
-			session.setAttribute("sakai-controlling-portal",urlFragment);
+			session.setAttribute("sakai-controlling-portal",GalleryHandler.URL_FRAGMENT);
 			try
 			{
 				// recognize an optional page/pageid
@@ -125,5 +128,23 @@ public class GalleryHandler extends SiteHandler
 		// /Include the site materials
 		doSite(req, res, session, siteId, pageId, req.getContextPath()
 						+ req.getServletPath());
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.charon.handlers.SiteHandler#doSendFramedResponse(org.sakaiproject.portal.api.PortalRenderContext, javax.servlet.http.HttpServletResponse, java.lang.String)
+	 */
+	@Override
+	protected void doSendFramedResponse(PortalRenderContext rcontext, HttpServletResponse res, String contentType) throws IOException
+	{
+		portal.sendResponse(rcontext, res, "site-frame-top-gallery", null);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.charon.handlers.SiteHandler#doSendResponse(org.sakaiproject.portal.api.PortalRenderContext, javax.servlet.http.HttpServletResponse, java.lang.String)
+	 */
+	@Override
+	protected void doSendResponse(PortalRenderContext rcontext, HttpServletResponse res, String contentType) throws IOException
+	{
+		portal.sendResponse(rcontext, res, "gallery", null);
 	}
 }

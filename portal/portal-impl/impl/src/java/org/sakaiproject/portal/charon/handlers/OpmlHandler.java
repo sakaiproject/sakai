@@ -37,16 +37,18 @@ import org.sakaiproject.tool.api.Session;
  */
 public class OpmlHandler extends BasePortalHandler
 {
+	private static final String URL_FRAGMENT = "opml";
+
 	public OpmlHandler()
 	{
-		urlFragment = "opml";
+		setUrlFragment(OpmlHandler.URL_FRAGMENT);
 	}
 
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && parts[1].equals("opml"))
+		if ((parts.length >= 2) && parts[1].equals(OpmlHandler.URL_FRAGMENT))
 		{
 			try
 			{

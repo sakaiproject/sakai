@@ -1,0 +1,212 @@
+##
+## the Page part of the standard view, with no page navigation
+##
+##
+<!-- START from includePage.vm -->
+		<!-- start includePage -->		
+		<div id="container" $pageSiteType >
+		<!-- start includePageBody -->		
+		#if ( $sitePages.pageMaxIfSingle )
+			#if ( $sitePages.pageNavToolsCount > 1 ) 
+			<div id="$pageWrapperClass">
+			#end
+		#else
+			<div id="$pageWrapperClass">
+		#end
+				<div id="$pageColumnLayout">
+			#foreach ( $tool in $pageColumn0Tools ) 
+				#if ( $tool ) 
+					<!-- start Tool -->
+						#if (${tool.hasRenderResult})
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}">
+						                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
+						#end
+										<h2>${tool.toolRenderResult.getTitle()}</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolJSR168Edit} )
+						            <a accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" 
+						                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
+						                    alt="${rloader.sit_edit}" border="0"></a>
+						#end 
+						#if (${tool.toolShowHelpButton})
+							#if (${tool.toolJSR168Help} )
+						             <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
+							#else
+								<a accesskey="h" href="${tool.toolHelpActionUrl}" title="${rloader.sit_help}" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+							#end
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+						#end
+									</div>
+								</div>
+							</div>
+						#else
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}">
+						                        <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" /></a>
+						#end	
+										<h2>${tool.toolTitle}</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolShowHelpButton})
+								<a accesskey="h" href="${tool.toolHelpActionUrl}" title="${rloader.sit_help}" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+						#end
+									</div>
+								</div>
+							</div>
+						#end
+					<!-- end Tool -->
+					<!-- start Tool Body -->						
+						#if (${tool.hasRenderResult})
+							<div class="portletMainWrap">
+							    ${tool.toolRenderResult.getContent()}
+							</div>
+						#else
+							<div class="portletMainWrap">
+								<iframe	name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" 
+									class ="portletMainIframe"
+									height="50"
+									width="100%"
+									frameborder="0"
+									marginwidth="0"
+									marginheight="0"
+									scrolling="auto"	
+									src="${tool.toolUrl}?panel=Main">
+								</iframe>
+							</div>
+						#end
+					<!-- end Tool Body -->												
+				#end
+			#end
+				</div>
+			#if ($pageTwoColumn)
+				<div id="col2of2">
+				#foreach ( $tool in $pageColumn1Tools ) 
+					#if ( $tool ) 
+					<!-- start include tool -->
+					<!-- start Tool Col2 -->
+						#if (${tool.hasRenderResult})
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}">
+						                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
+						#end
+										<h2>${tool.toolRenderResult.getTitle()}</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolJSR168Edit} )
+						            <a accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" 
+						                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
+						                    alt="${rloader.sit_edit}" border="0"></a>
+						#end 
+						#if (${tool.toolShowHelpButton})
+							#if (${tool.toolJSR168Help} )
+						             <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
+							#else
+								<a accesskey="h" href="${tool.toolHelpActionUrl}" title="${rloader.sit_help}" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+							#end
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+						#end
+									</div>
+								</div>
+							</div>
+						#else
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}">
+						                        <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" /></a>
+						#end	
+										<h2>${tool.toolTitle}</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolShowHelpButton})
+								<a accesskey="h" href="${tool.toolHelpActionUrl}" title="${rloader.sit_help}" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
+						#end
+									</div>
+								</div>
+							</div>
+						#end
+					<!-- end Tool Col2 -->
+					<!-- start Tool Body -->
+						#if (${tool.hasRenderResult})
+							<div class="portletMainWrap">
+							    ${tool.toolRenderResult.getContent()}
+							</div>
+						#else
+							<div class="portletMainWrap">
+								<iframe	name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" 
+									class ="portletMainIframe"
+									height="50"
+									width="100%"
+									frameborder="0"
+									marginwidth="0"
+									marginheight="0"
+									scrolling="auto"	
+									src="${tool.toolUrl}?panel=Main">
+								</iframe>
+							</div>
+						#end											
+					<!-- end Tool Body -->												
+					<!-- end include tool -->
+					#end
+				#end
+				</div>
+			#end
+			</div>
+			<div>
+			<!-- include bottom -->
+			#if ( !$pagepopup)
+			<div id="footer">
+				<div class="footerExtNav" align="center">
+					|
+			#foreach ( $bn in $bottomNav )
+					${bn}  | 
+			#end
+				</div>
+				<div id="footerInfo">
+			#foreach ( $pb in $bottomNavPoweredBy )
+					<span class="skip">${rloader.site_newwindow}</span>	
+					<a href="${pb.poweredByUrl}" target="_blank">
+							<img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" /></a>
+			#end
+			<!-- end include Bottom -->
+				</div>
+				<div class="sakaiCopyrightInfo">${bottomNavCopyright}<br />
+					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}
+				</div>
+			</div>
+#else
+<!-- dont compact -->
+#end
+			#if ( $sitePages.pageMaxIfSingle )
+				#if ( $sitePages.pageNavToolsCount > 1 ) 
+		</div>
+				#end
+			#else
+		</div>
+			#end
+		<!-- end includePageBody -->
+	</div>
+		<!-- end includePage -->
+<!-- END from includePage.vm -->

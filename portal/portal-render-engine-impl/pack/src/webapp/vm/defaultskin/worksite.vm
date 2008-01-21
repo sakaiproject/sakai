@@ -1,3 +1,51 @@
-## For Unit tests
-#set( $urlFragment = "worksite" )
-#parse("/vm/defaultskin/site.vm")
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+## 
+## Worksite View.
+## Compared to Site View Worksite has 
+## No Header
+## No Site Tabs
+## Has Page Tabs
+##
+##
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+#parse("/vm/defaultskin/includeStandardHead.vm")
+<body class="portalBody">
+#if ( $pageTop )
+	<script type="text/javascript" language="JavaScript">
+	var sakaiPortalWindow = "";
+	</script>
+#end
+<!-- END Header -->
+<!-- site.vm -->
+
+
+<!-- start includeSiteNav -->
+<div id="portalOuterContainer">
+	<div id="portalContainer">
+		<div id="skipNav">
+		#if ($siteNavHasAccessibilityURL)
+			<a href="$siteNavAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">
+				${rloader.sit_accessibility}
+			</a>
+		#end
+
+			<a href="#tocontent"  class="skip" title="${rloader.sit_jumpcontent}" accesskey="c">
+			${rloader.sit_jumpcontent}
+			</a>
+			<a href="#totoolmenu"  class="skip" title="${rloader.sit_jumptools}" accesskey="l">
+				${rloader.sit_jumptools}
+			</a>
+			<a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">
+				${rloader.sit_jumpworksite}
+			</a>
+		</div>
+
+#parse("/vm/defaultskin/includePageWithNav.vm")
+
+	</div>
+</div>
+<!-- end includeSiteNav -->
+<!-- end site.vm -->
+	</body>
+</html>

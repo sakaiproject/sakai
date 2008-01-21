@@ -37,16 +37,18 @@ import org.sakaiproject.util.Web;
  */
 public class WorksiteResetHandler extends BasePortalHandler
 {
+	public static final String URL_FRAGMENT = "worksite-reset";
+
 	public WorksiteResetHandler()
 	{
-		urlFragment = "worksite-reset";
+		setUrlFragment(URL_FRAGMENT);
 	}
 
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length > 2) && (parts[1].equals("worksite-reset")))
+		if ((parts.length > 2) && (parts[1].equals(URL_FRAGMENT)))
 		{
 			try
 			{

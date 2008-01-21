@@ -36,9 +36,11 @@ import org.sakaiproject.tool.api.Session;
  */
 public class StaticStylesHandler extends StaticHandler
 {
+	private static final String URL_FRAGMENT = "styles";
+
 	public StaticStylesHandler()
 	{
-		urlFragment = "styles";
+		setUrlFragment(StaticStylesHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -46,7 +48,7 @@ public class StaticStylesHandler extends StaticHandler
 			Session session) throws PortalHandlerException
 	{
 
-		if ((parts.length >= 2) && parts[1].equals("styles"))
+		if ((parts.length >= 2) && parts[1].equals(StaticStylesHandler.URL_FRAGMENT))
 		{
 			try
 			{

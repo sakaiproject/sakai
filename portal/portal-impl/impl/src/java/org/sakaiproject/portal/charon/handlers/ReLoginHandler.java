@@ -36,9 +36,11 @@ import org.sakaiproject.tool.api.Session;
  */
 public class ReLoginHandler extends BasePortalHandler
 {
+	private static final String URL_FRAGMENT = "relogin";
+
 	public ReLoginHandler()
 	{
-		urlFragment = "relogin";
+		setUrlFragment(ReLoginHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -52,7 +54,7 @@ public class ReLoginHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length == 2) && (parts[1].equals("relogin")))
+		if ((parts.length == 2) && (parts[1].equals(ReLoginHandler.URL_FRAGMENT)))
 		{
 			try
 			{

@@ -51,7 +51,7 @@ public abstract class BasePortalHandler implements PortalHandler
 
 	protected Portal portal;
 
-	protected String urlFragment;
+	private String urlFragment;
 
 	protected ServletContext servletContext;
 
@@ -91,16 +91,6 @@ public abstract class BasePortalHandler implements PortalHandler
 
 	}
 
-	public String getUrlFragment()
-	{
-		return urlFragment;
-	}
-
-	public void setUrlFragment(String urlFagment)
-	{
-		this.urlFragment = urlFagment;
-	}
-
 	/**
 	 * @return the servletContext
 	 */
@@ -116,6 +106,22 @@ public abstract class BasePortalHandler implements PortalHandler
 	public void setServletContext(ServletContext servletContext)
 	{
 		this.servletContext = servletContext;
+	}
+
+	/**
+	 * @return the urlFragment
+	 */
+	public String getUrlFragment()
+	{
+		return urlFragment;
+	}
+
+	/**
+	 * @param urlFragment the urlFragment to set
+	 */
+	public void setUrlFragment(String urlFragment)
+	{
+		this.urlFragment = urlFragment;
 	}
 
 }

@@ -37,16 +37,18 @@ import org.sakaiproject.util.Web;
  */
 public class ToolResetHandler extends BasePortalHandler
 {
+	public static final String URL_FRAGMENT = "tool-reset";
+
 	public ToolResetHandler()
 	{
-		urlFragment = "tool-reset";
+		setUrlFragment(URL_FRAGMENT);
 	}
 
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length > 2) && (parts[1].equals("tool-reset")))
+		if ((parts.length > 2) && (parts[1].equals(URL_FRAGMENT)))
 		{
 			try
 			{

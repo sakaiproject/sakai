@@ -1,0 +1,75 @@
+<!-- START from includePageNav.vm -->
+		<!-- start includePageNav -->
+			<div class="divColor" id="toolMenuWrap">
+				<div id="worksiteLogo">
+			#if (!${sitePages.pageNavPublished})
+					<p id="siteStatus">unpublished site</p>
+			#end
+			#if ($sitePages.pageNavType && $sitePages.pageNavType != "project" )
+					<p id="siteType">$sitePages.pageNavType</p>
+			#end
+			#if ($sitePages.pageNavIconUrl && $sitePages.pageNavIconUrl != "")
+					<img src="$sitePages.pageNavIconUrl" border="0" alt="Worksite Logo" />
+			#end
+				</div>
+				<a id="totoolmenu" class="skip" name="totoolmenu"></a>
+				<h1 class="skip">${rloader.sit_toolshead}</h1>
+				<div id="toolMenu">
+					<ul>
+			#foreach( $page in $sitePages.pageNavTools )
+		  		#if (${page.current})
+						<li class="selectedTool">
+						<span class="${page.menuClass}" >${page.pageTitle}</span>
+						</li>
+		  		#else
+		  			 #if (${page.ispopup})
+						<li>
+							<a class="${page.menuClass}" href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+							<span>${page.pageTitle}</span>
+							</a>
+						</li>
+		   			#else
+						<li>
+							<a class="${page.menuClass}" href="${page.pageRefUrl}" ><span>${page.pageTitle}</span></a>
+						</li>
+		   			#end
+		  		#end
+			#end
+			
+			<!-- Add subsite lists -->
+		    #if ( $subSites ) 
+		        #foreach ( $site in $subSites ) 
+				        <li>
+				             <a class="${sitePages.subsiteClass}" href="${site.siteUrl}" title="${site.siteTitle}">
+				             <span>SubSite: ${site.siteTitle}</span>
+				             </a>
+				        </li>
+		       #end
+		    #end
+			#if (${sitePages.pageNavShowHelp})
+						 <li>
+								<a  class="${sitePages.helpMenuClass}" accesskey="6" href="${sitePages.pageNavHelpUrl}" target="_blank" 
+									onclick="openWindow('${sitePages.pageNavHelpUrl}', 
+									'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); 
+									return false">
+									<span>${rloader.sit_help}</span>
+								</a>
+						 </li>
+			#end
+					</ul>
+				</div>
+			#if (${sitePages.pageNavShowPresenceLoggedIn})
+				<div id="presenceWrapper">
+					<div id="presenceTitle">${rloader.sit_presencetitle}</div>
+					<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
+						frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${sitePages.pageNavPresenceUrl}" >
+					</iframe>
+				</div>
+			#end
+			</div>
+			<h1 class="skip">${rloader.sit_contentshead}</h1>
+			<a id="tocontent" class="skip" name="tocontent"></a>
+		<!-- end includePageNav -->
+		<!-- end page nav -->
+<!-- END from includePageNav.vm -->
+

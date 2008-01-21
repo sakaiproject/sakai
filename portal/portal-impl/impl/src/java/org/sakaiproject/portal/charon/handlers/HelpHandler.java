@@ -44,9 +44,11 @@ import org.sakaiproject.util.Web;
  */
 public class HelpHandler extends BasePortalHandler
 {
+	private static final String URL_FRAGMENT = "help";
+
 	public HelpHandler()
 	{
-		urlFragment = "help";
+		setUrlFragment(HelpHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -60,7 +62,7 @@ public class HelpHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && (parts[1].equals("help")))
+		if ((parts.length >= 2) && (parts[1].equals(HelpHandler.URL_FRAGMENT)))
 		{
 			try
 			{

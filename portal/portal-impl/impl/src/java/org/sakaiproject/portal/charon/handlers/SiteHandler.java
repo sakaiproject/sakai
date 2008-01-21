@@ -22,13 +22,6 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,11 +49,9 @@ import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.util.Web;
 
 /**
- * 
  * @author ieb
  * @since Sakai 2.4
  * @version $Rev$
- * 
  */
 public class SiteHandler extends WorksiteHandler
 {
@@ -73,25 +64,29 @@ public class SiteHandler extends WorksiteHandler
 
 	private static final Log log = LogFactory.getLog(SiteHandler.class);
 
+	private static final String URL_FRAGMENT = "site";
+
 	private int configuredTabsToDisplay = 5;
 
 	private boolean useDHTMLMore = false;
 
 	public SiteHandler()
 	{
-		urlFragment = "site";
-                configuredTabsToDisplay  = ServerConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 5);
-                useDHTMLMore =  Boolean.valueOf(ServerConfigurationService.getBoolean("portal.use.dhtml.more", false));
+		setUrlFragment(SiteHandler.URL_FRAGMENT);
+		configuredTabsToDisplay = ServerConfigurationService.getInt(
+				Portal.CONFIG_DEFAULT_TABS, 5);
+		useDHTMLMore = Boolean.valueOf(ServerConfigurationService.getBoolean(
+				"portal.use.dhtml.more", false));
 	}
-	
+
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && (parts[1].equals(urlFragment)))
+		if ((parts.length >= 2) && (parts[1].equals(SiteHandler.URL_FRAGMENT)))
 		{
 			// This is part of the main portal so we simply remove the attribute
-			session.setAttribute("sakai-controlling-portal",null);
+			session.setAttribute("sakai-controlling-portal", null);
 			try
 			{
 				// recognize an optional page/pageid
@@ -145,9 +140,10 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		// if no page id, see if there was a last page visited for this site
-		// if we are coming back from minimized navigation - go to the default tool
+		// if we are coming back from minimized navigation - go to the default
+		// tool
 		// Not the previous tool
-		if (pageId == null && ! doFrameSuppress )
+		if (pageId == null && !doFrameSuppress)
 		{
 			pageId = (String) session.getAttribute(Portal.ATTR_SITE_PAGE + siteId);
 		}
@@ -178,17 +174,18 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		// Now check for site alias
-		if ( site == null )
+		if (site == null)
 		{
 			try
 			{
 				// First check for site alias
-				if ( siteId!= null && !siteId.equals("") && !SiteService.siteExists(siteId) )
+				if (siteId != null && !siteId.equals("")
+						&& !SiteService.siteExists(siteId))
 				{
 					String refString = AliasService.getTarget(siteId);
 					siteId = EntityManager.newReference(refString).getContainer();
 				}
-				
+
 				site = portal.getSiteHelper().getSiteVisit(siteId);
 			}
 			catch (IdUnusedException e)
@@ -223,11 +220,12 @@ public class SiteHandler extends WorksiteHandler
 				String refString = AliasService.getTarget(pageId);
 				pageId = EntityManager.newReference(refString).getId();
 			}
-			catch (IdUnusedException e) {
-				log.debug("Alias does not resolve "+e.getMessage());
+			catch (IdUnusedException e)
+			{
+				log.debug("Alias does not resolve " + e.getMessage());
 			}
 		}
-		
+
 		// Lookup the page in the site - enforcing access control
 		// business rules
 		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
@@ -248,55 +246,77 @@ public class SiteHandler extends WorksiteHandler
 		String siteType = portal.calcSiteType(siteId);
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req);
+		
+		
+		// should we consider a frameset ?
+		boolean frameset = includeFrameset(rcontext, res, req, session, page);
+		
+		
 
 		// the 'full' top area
 		includeSiteNav(rcontext, req, session, siteId);
 
-		if ( ! doFrameTop ) 
+		if (!doFrameTop)
 		{
-			includeWorksite(rcontext, res, req, session, site, page, toolContextPath, urlFragment);
+			includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
+					getUrlFragment());
 
 			// Include sub-sites if appropriate
 			// TODO: Thing through whether we want reset tools or not
-			portal.includeSubSites(rcontext, req, session,
-				siteId,  req.getContextPath() + req.getServletPath(), urlFragment,
-				/* resetTools */ false );
+			portal.includeSubSites(rcontext, req, session, siteId, req.getContextPath()
+					+ req.getServletPath(), getUrlFragment(),
+			/* resetTools */false);
 
 			portal.includeBottom(rcontext);
 		}
 
-		rcontext.put("currentUrlPath",Web.serverUrl(req) + req.getContextPath() + req.getPathInfo());
 
-		// Indicate that no matter what - we are to suppress the use of the top frame
-		// This allows us to generate a link where we see the tool buttons - this is
+		rcontext.put("currentUrlPath", Web.serverUrl(req) + req.getContextPath()
+				+ req.getPathInfo());
+
+		// Indicate that no matter what - we are to suppress the use of the top
+		// frame
+		// This allows us to generate a link where we see the tool buttons -
+		// this is
 		// set on site URLs when in the frame top frame
-		rcontext.put("sakaiFrameSuppress",req.getParameter("sakai.frame.suppress"));
+		rcontext.put("sakaiFrameSuppress", req.getParameter("sakai.frame.suppress"));
 
-		// TODO: Make behavior conditional on a property - Move this to includeTool
+		// TODO: Make behavior conditional on a property - Move this to
+		// includeTool
 		// Retrieve the maximized URL and clear it from the global session
 		String maximizedUrl = (String) session.getAttribute("sakai-maximized-url");
-		if (maximizedUrl != null ) rcontext.put("frameMaximizedUrl",maximizedUrl);
-		session.setAttribute("sakai-maximized-url",null);
-
-		// Hand the url Fragment up to Presentaton Layer - we send this all to 
-		// The site template which uses the urlFragment to determine what to show
-		rcontext.put("urlFragment", urlFragment);
+		if (maximizedUrl != null) rcontext.put("frameMaximizedUrl", maximizedUrl);
+		session.setAttribute("sakai-maximized-url", null);
 
 		// end the response
-		if ( doFrameTop ) 
+		if (doFrameTop)
 		{
 			// Place the proper values in context for the Frame Top panel
-			rcontext.put("sakaiFrameEdit",req.getParameter("sakai.frame.edit"));
-			rcontext.put("sakaiFrameTitle",req.getParameter("sakai.frame.title"));
-			rcontext.put("sakaiFrameReset",req.getParameter("sakai.frame.reset"));
-			rcontext.put("sakaiFramePortlet",req.getParameter("sakai.frame.portlet"));
-			rcontext.put("sakaiSinglePage",req.getParameter("sakai.frame.single.page"));
+			rcontext.put("sakaiFrameEdit", req.getParameter("sakai.frame.edit"));
+			rcontext.put("sakaiFrameTitle", req.getParameter("sakai.frame.title"));
+			rcontext.put("sakaiFrameReset", req.getParameter("sakai.frame.reset"));
+			rcontext.put("sakaiFramePortlet", req.getParameter("sakai.frame.portlet"));
+			rcontext.put("sakaiSinglePage", req.getParameter("sakai.frame.single.page"));
 
-			portal.sendResponse(rcontext, res, "site-frame-top", null);
+			if (frameset)
+			{
+				doSendFrameSet(rcontext, res, null);
+			}
+			else
+			{
+				doSendFramedResponse(rcontext, res, null);
+			}
 		}
 		else
 		{
-			portal.sendResponse(rcontext, res, "site", null);
+			if (frameset)
+			{
+				doSendFrameSet(rcontext, res, null);
+			}
+			else
+			{
+				doSendResponse(rcontext, res, null);
+			}
 		}
 
 		StoredState ss = portalService.getStoredState();
@@ -305,6 +325,54 @@ public class SiteHandler extends WorksiteHandler
 			// This request is the destination of the request
 			portalService.setStoredState(null);
 		}
+	}
+
+	/**
+	 * @param rcontext
+	 * @param res
+	 * @param object
+	 * @throws IOException 
+	 */
+	private void doSendFrameSet(PortalRenderContext rcontext, HttpServletResponse res, Object object) throws IOException
+	{
+		// if we realized that we needed a frameset, we could eliminate 90% of the 
+		// view context processing. At the moment we do everything that we need for
+		// a full page.... which is a waste.
+		portal.sendResponse(rcontext, res, "siteframeset", null);
+	}
+
+	/**
+	 * Does the final framed render response, classes that extend this class
+	 * may/will want to override this method to use their own template
+	 * 
+	 * @param rcontext
+	 * @param res
+	 * @param frameset
+	 * @param object
+	 * @param b
+	 * @throws IOException
+	 */
+	protected void doSendFramedResponse(PortalRenderContext rcontext,
+			HttpServletResponse res, String contentType)
+			throws IOException
+	{
+		portal.sendResponse(rcontext, res, "site-frame-top", null);
+	}
+
+	/**
+	 * Does the final non framed render response, classes that extend this class
+	 * may/will want to override this method to use their own template
+	 * 
+	 * @param rcontext
+	 * @param res
+	 * @param object
+	 * @param b
+	 * @throws IOException
+	 */
+	protected void doSendResponse(PortalRenderContext rcontext, HttpServletResponse res,
+			String contentType) throws IOException
+	{
+		portal.sendResponse(rcontext, res, "site", null);
 	}
 
 	protected void includeSiteNav(PortalRenderContext rcontext, HttpServletRequest req,
@@ -354,13 +422,14 @@ public class SiteHandler extends WorksiteHandler
 				if (loggedIn)
 				{
 					includeLogo(rcontext, req, session, siteId);
-					includeTabs(rcontext, req, session, siteId, urlFragment, false);
+					includeTabs(rcontext, req, session, siteId, getUrlFragment(), false);
 				}
 				else
 				{
 					includeLogo(rcontext, req, session, siteId);
 					if (portal.getSiteHelper().doGatewaySiteList())
-						includeTabs(rcontext, req, session, siteId, urlFragment, false);
+						includeTabs(rcontext, req, session, siteId, getUrlFragment(),
+								false);
 				}
 			}
 			catch (Exception any)
@@ -435,13 +504,8 @@ public class SiteHandler extends WorksiteHandler
 
 			boolean loggedIn = session.getUserId() != null;
 
-            int tabsToDisplay = configuredTabsToDisplay;
+			int tabsToDisplay = configuredTabsToDisplay;
 
-			
-			
-			
-			
-			
 			if (!loggedIn)
 			{
 				tabsToDisplay = ServerConfigurationService.getInt(
@@ -460,28 +524,30 @@ public class SiteHandler extends WorksiteHandler
 				{
 				}
 			}
-			
-			
+
 			rcontext.put("useDHTMLMore", useDHTMLMore);
-			if ( useDHTMLMore ) {
-				SiteView siteView = portal.getSiteHelper().getSitesView(SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
+			if (useDHTMLMore)
+			{
+				SiteView siteView = portal.getSiteHelper().getSitesView(
+						SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
 				siteView.setPrefix(prefix);
 				siteView.setToolContextPath(null);
 				rcontext.put("tabsSites", siteView.getRenderContextObject());
-			} else {
-				SiteView siteView = portal.getSiteHelper().getSitesView(SiteView.View.DEFAULT_SITE_VIEW, req, session, siteId);
+			}
+			else
+			{
+				SiteView siteView = portal.getSiteHelper().getSitesView(
+						SiteView.View.DEFAULT_SITE_VIEW, req, session, siteId);
 				siteView.setPrefix(prefix);
 				siteView.setToolContextPath(null);
 				rcontext.put("tabsSites", siteView.getRenderContextObject());
 			}
 
-			
 			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
 					: "siteNavWrap";
 
 			rcontext.put("tabsCssClass", cssClass);
 
-         
 			rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
 			if (addLogout)
 			{
@@ -492,13 +558,6 @@ public class SiteHandler extends WorksiteHandler
 				// rcontext.put("tabsSitLog",
 				// Web.escapeHtml(rb.getString("sit_log")));
 			}
-
-			
-		
-			
-			
-			
-		
 
 			rcontext.put("tabsCssClass", cssClass);
 

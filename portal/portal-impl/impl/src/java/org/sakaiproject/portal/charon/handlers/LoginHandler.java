@@ -37,16 +37,18 @@ import org.sakaiproject.tool.api.Session;
 public class LoginHandler extends BasePortalHandler
 {
 
+	private static final String URL_FRAGMENT = "login";
+
 	public LoginHandler()
 	{
-		urlFragment = "login";
+		setUrlFragment(LoginHandler.URL_FRAGMENT);
 	}
 
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length == 2) && (parts[1].equals("login")))
+		if ((parts.length == 2) && (parts[1].equals(LoginHandler.URL_FRAGMENT)))
 		{
 			try
 			{

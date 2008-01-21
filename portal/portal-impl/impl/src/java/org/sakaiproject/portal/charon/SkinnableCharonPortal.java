@@ -1480,11 +1480,23 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 
 
+	/**
+	 * @param rcontext
+	 * @param res
+	 * @param req
+	 * @param session
+	 * @param site
+	 * @param page
+	 * @param toolContextPath
+	 * @param portalPrefix
+	 * @return
+	 * @throws IOException
+	 */
 	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
 			HttpServletRequest req, Session session, Site site, SitePage page,
 			String toolContextPath, String portalPrefix) throws IOException
 	{
-		worksiteHandler.includeWorksite(rcontext, res, req, session, site, page,
+		 worksiteHandler.includeWorksite(rcontext, res, req, session, site, page,
 				toolContextPath, portalPrefix);
 	}
 

@@ -36,9 +36,11 @@ import org.sakaiproject.tool.api.Session;
  */
 public class StaticScriptsHandler extends StaticHandler
 {
+	private static final String URL_FRAGMENT = "scripts";
+
 	public void DirectToolHandler()
 	{
-		urlFragment = "scripts";
+		setUrlFragment(StaticScriptsHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -46,7 +48,7 @@ public class StaticScriptsHandler extends StaticHandler
 			Session session) throws PortalHandlerException
 	{
 
-		if ((parts.length >= 2) && parts[1].equals("scripts"))
+		if ((parts.length >= 2) && parts[1].equals(StaticScriptsHandler.URL_FRAGMENT))
 		{
 			try
 			{

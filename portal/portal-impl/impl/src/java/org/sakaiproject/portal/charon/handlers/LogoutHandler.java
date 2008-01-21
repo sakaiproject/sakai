@@ -36,9 +36,11 @@ import org.sakaiproject.tool.api.Session;
  */
 public class LogoutHandler extends BasePortalHandler
 {
+	private static final String URL_FRAGMENT = "logout";
+
 	public LogoutHandler()
 	{
-		urlFragment = "logout";
+		setUrlFragment(LogoutHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -50,7 +52,7 @@ public class LogoutHandler extends BasePortalHandler
 		String controlPortal = (String) session.getAttribute("sakai-controlling-portal");
 		if ( controlPortal != null ) controlPortal = "/" + controlPortal;
 
-		if ((parts.length == 2) && (parts[1].equals("logout")))
+		if ((parts.length == 2) && (parts[1].equals(LogoutHandler.URL_FRAGMENT)))
 		{
 			try
 			{

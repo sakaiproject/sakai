@@ -39,16 +39,19 @@ import org.sakaiproject.tool.api.Session;
  */
 public class NavLoginHandler extends SiteHandler
 {
+	
+	private static final String URL_FRAGMENT = "nav_login";
+
 	public NavLoginHandler()
 	{
-		urlFragment = "nav_login";
+		setUrlFragment(NavLoginHandler.URL_FRAGMENT);
 	}
 
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length == 3) && (parts[1].equals("nav_login")))
+		if ((parts.length == 3) && (parts[1].equals(NavLoginHandler.URL_FRAGMENT)))
 		{
 			try
 			{

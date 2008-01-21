@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,11 +49,9 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 
 /**
- * 
  * @author ieb
  * @since Sakai 2.4
  * @version $Rev$
- * 
  */
 public class PageHandler extends BasePortalHandler
 {
@@ -61,13 +60,12 @@ public class PageHandler extends BasePortalHandler
 
 	private static final Log log = LogFactory.getLog(PageHandler.class);
 
+	private static final String URL_FRAGMENT = "page";
 
 	public PageHandler()
 	{
-		urlFragment = "page";
+		setUrlFragment(PageHandler.URL_FRAGMENT);
 	}
-	
-
 
 	@Override
 	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
@@ -80,7 +78,7 @@ public class PageHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length == 3) && (parts[1].equals(urlFragment)))
+		if ((parts.length == 3) && (parts[1].equals(PageHandler.URL_FRAGMENT)))
 		{
 			try
 			{
@@ -159,14 +157,17 @@ public class PageHandler extends BasePortalHandler
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, page
 				.getSkin(), req);
 
-		
 		includePage(rcontext, res, req, session, page, toolContextPath, "contentFull");
 
-                // Hand the url Fragment up to Presentaton Layer - we send this all to 
-                // The site template which uses the urlFragment to determine what to show
-                rcontext.put("urlFragment", urlFragment);
+		if (includeFrameset(rcontext, res, req, session, page))
+		{
+			portal.sendResponse(rcontext, res, "site-frame-top", null);
+		}
+		else
+		{
+			portal.sendResponse(rcontext, res, "page", null);
+		}
 
-		portal.sendResponse(rcontext, res, "site", null);
 		StoredState ss = portalService.getStoredState();
 		if (ss != null && toolContextPath.equals(ss.getToolContextPath()))
 		{
@@ -176,13 +177,22 @@ public class PageHandler extends BasePortalHandler
 
 	}
 
+	/**
+	 * @param rcontext
+	 * @param res
+	 * @param req
+	 * @param session
+	 * @param page
+	 * @param toolContextPath
+	 * @param wrapperClass
+	 * @return
+	 * @throws IOException
+	 */
 	public void includePage(PortalRenderContext rcontext, HttpServletResponse res,
-			HttpServletRequest req, Session session, SitePage page, 
+			HttpServletRequest req, Session session, SitePage page,
 			String toolContextPath, String wrapperClass) throws IOException
 	{
 		int toolCount = 0;
-		Map singleToolMap = null;
-		ToolConfiguration singleTool = null;
 
 		if (rcontext.uses(INCLUDE_PAGE))
 		{
@@ -213,7 +223,8 @@ public class PageHandler extends BasePortalHandler
 
 					if (site != null)
 					{
-						boolean thisTool = portal.getSiteHelper().allowTool(site, placement);
+						boolean thisTool = portal.getSiteHelper().allowTool(site,
+								placement);
 						// System.out.println(" Allow Tool Display -" +
 						// placement.getTitle() + " retval = " + thisTool);
 						if (!thisTool) continue; // Skip this tool if not
@@ -224,8 +235,6 @@ public class PageHandler extends BasePortalHandler
 					if (m != null)
 					{
 						toolCount++;
-						singleTool = placement;
-						singleToolMap = m;
 						toolList.add(m);
 					}
 				}
@@ -247,54 +256,13 @@ public class PageHandler extends BasePortalHandler
 					if (m != null)
 					{
 						toolCount++;
-						singleTool = placement;
-						singleToolMap = m;
 						toolList.add(m);
 					}
 				}
 				rcontext.put("pageColumn1Tools", toolList);
 			}
 
-			// Determine if this page can be in a frame set, if so place the 
-			// appropriate materials into the context
-			if ( toolCount == 1 )
-			{
-				boolean framesetRequested = false;
-
-				rcontext.put("singleToolMap",singleToolMap);
-				
-                        	String maximizedUrl = (String) session.getAttribute(Portal.ATTR_MAXIMIZED_URL);
-                        	session.setAttribute(Portal.ATTR_MAXIMIZED_URL,null);
-
-                        	if (maximizedUrl != null ) 
-				{
-					framesetRequested = true;
-					rcontext.put("frameMaximizedUrl",maximizedUrl);
-				}
-	
-				// If tool configuration property is set for tool - do request
-				String toolConfigMax = singleTool.getConfig().getProperty(Portal.PREFER_MAXIMIZE);
-				if ( "true".equals(toolConfigMax)) framesetRequested = true;
-	
-				// Check to see if we are configured to always request maximized view
-				// or if we are forbidden to do maximized view
-				String framesetConfig  = ServerConfigurationService
-					.getString(Portal.FRAMESET_SUPPORT);
-
-				if ( "always".equals(framesetConfig) ) framesetRequested = true;
-				if ( "never".equals(framesetConfig) ) framesetRequested = false;
-
-				// JSR-168 portlets cannot be in a frameset unless they asked for
-				// a maximized URL
-				if ( singleToolMap.get("isPortletPlacement") != null && maximizedUrl == null )
-				{
-					framesetRequested = false;
-				}
-				
-				if ( framesetRequested ) rcontext.put("sakaiFrameSetRequested",Boolean.TRUE);	
-			}
-			
-			//Add footer variables to page template context- SAK-10312
+			// Add footer variables to page template context- SAK-10312
 			rcontext.put("pagepopup", page.isPopUp());
 
 			if (!page.isPopUp())
@@ -368,8 +336,116 @@ public class PageHandler extends BasePortalHandler
 				rcontext.put("bottomNavSakaiVersion", sakaiVersion);
 				rcontext.put("bottomNavServer", server);
 			}
-			
+
 		}
+	}
+
+	/**
+	 * @param rcontext
+	 * @param res
+	 * @param req
+	 * @param session
+	 * @param page
+	 * @return
+	 * @throws IOException
+	 * <pre>
+	 * #if ( $singleToolMap && // handled 
+	 * $sakaiFrameSetRequested && // handled (will be failse if above 
+	 * $tabsSites && // this is true if there is a site view object 
+	 * ( ! $sakaiFrameSuppress || // 
+	 * $sitePages.pageNavToolsCount == 1 ) ) // ????? this does not make any sense. 
+	 * // it implies that we can ignore sakaiFrameSupress is pageNavToolsCount == 1,
+	 * which will be true if singleToomMap == 1 hence sakaiFrameRequested = true
+	 * </pre>
+	 */
+	protected boolean includeFrameset(PortalRenderContext rcontext,
+			HttpServletResponse res, HttpServletRequest req, Session session,
+			SitePage page) throws IOException
+	{
+		if ( "true".equals(req.getParameter("sakai.frame.suppress")) ) {
+			return false;
+		}
+
+		boolean framesetRequested = false;
+
+		String framesetConfig = ServerConfigurationService
+				.getString(Portal.FRAMESET_SUPPORT);
+		if (framesetConfig == null || framesetConfig.trim().length() == 0
+				|| "never".equals(framesetConfig))
+		{
+			// never do a frameset
+			return false;
+		}
+		
+		Site site = null;
+		try
+		{
+			site = SiteService.getSite(page.getSiteId());
+		}
+		catch (Exception ignoreMe)
+		{
+			// Non fatal - just assume null
+			if (log.isTraceEnabled())
+				log.trace("includePage unable to find site for page " + page.getId());
+		}
+
+		Map singleToolMap = null;
+		ToolConfiguration singleTool = null;
+		List tools = page.getTools(0);
+		for (Iterator i = tools.iterator(); i.hasNext();)
+		{
+			ToolConfiguration placement = (ToolConfiguration) i.next();
+
+			if (site != null)
+			{
+				boolean thisTool = portal.getSiteHelper().allowTool(site, placement);
+				// System.out.println(" Allow Tool Display -" +
+				// placement.getTitle() + " retval = " + thisTool);
+				if (!thisTool) continue; // Skip this tool if not
+				// allowed
+			}
+
+			singleToolMap = portal.includeTool(res, req, placement);
+			singleTool = placement;
+			break;
+		}
+
+		// Determine if this page can be in a frame set, if so place the
+		// appropriate materials into the context
+		if (singleTool != null)
+		{
+
+			rcontext.put("singleToolMap", singleToolMap);
+
+			String maximizedUrl = (String) session
+					.getAttribute(Portal.ATTR_MAXIMIZED_URL);
+			session.setAttribute(Portal.ATTR_MAXIMIZED_URL, null);
+
+			if (maximizedUrl != null)
+			{
+				framesetRequested = true;
+				rcontext.put("frameMaximizedUrl", maximizedUrl);
+			}
+
+			// If tool configuration property is set for tool - do request
+			String toolConfigMax = singleTool.getConfig().getProperty(
+					Portal.PREFER_MAXIMIZE);
+			if ("true".equals(toolConfigMax)) framesetRequested = true;
+
+			if ("always".equals(framesetConfig)) framesetRequested = true;
+			if ("never".equals(framesetConfig)) framesetRequested = false;
+
+			// JSR-168 portlets cannot be in a frameset unless they asked for
+			// a maximized URL
+			if (singleToolMap.get("isPortletPlacement") != null && maximizedUrl == null)
+			{
+				framesetRequested = false;
+			}
+
+			if (framesetRequested) rcontext.put("sakaiFrameSetRequested", Boolean.TRUE);
+		}
+		return framesetRequested;
+
 	}
 
 }

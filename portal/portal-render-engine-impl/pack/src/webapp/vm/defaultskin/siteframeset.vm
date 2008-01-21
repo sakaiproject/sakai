@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
+   "http://www.w3.org/TR/html4/frameset.dtd">
+<html>
+<head>
+    <title>${pageTitle}</title>
+</head>
+<!-- Fragment $urlFragment -->
+#if ( $urlFragment && $urlFragment == "gallery" )
+<frameset rows="50, *">
+#else
+<frameset rows="140, *">
+#end
+  ## TODO:  Get the height from some CSS place or a property
+  #set ( $frameEditParam = "")
+  #set ( $frameIsPortlet = "")
+  #set ( $frameResetParam = "")
+  #set ( $frameOnePageSite = "")
+  #if ( $sitePages.pageNavToolsCount == 1 ) 
+    #set ( $frameOnePageSite = "&sakai.frame.single.page=true")
+  #end
+  #set($frameTitle = ${singleToolMap.toolTitleEncode})
+  #if ( ! ${frameMaximizedUrl} )
+    #set($frameMaximizedUrl = "${singleToolMap.toolUrl}?panel=Main" )
+  #end 
+  #if ( ${singleToolMap.isPortletPlacement} )
+    #set($frameIsPortlet = "&sakai.frame.portlet=true" )
+  #end
+  #if( ${singleToolMap.toolShowResetButton} )
+    #set($frameResetParam = "&sakai.frame.reset=${singleToolMap.toolResetActionUrlEncode}" )
+  #end
+  #if (${singleToolMap.toolJSR168Edit} )
+    #set($frameEditParam = "&sakai.frame.edit=${singleToolMap.toolJSR168Edit}" )
+  #end
+    <frame src="${currentUrlPath}?sakai.frame.top=true&sakai.frame.title=${frameTitle}${frameIsPortlet}${frameResetParam}${frameEditParam}${frameOnePageSite}"
+             frameborder="0" scrolling="no" noresize >
+    <frame src="${frameMaximizedUrl}" frameborder="0" name="sakai-content" >
+</frameset>
+</html>

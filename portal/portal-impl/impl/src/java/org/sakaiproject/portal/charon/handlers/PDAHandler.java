@@ -70,9 +70,11 @@ public class PDAHandler extends PageHandler
 
 	private static final Log log = LogFactory.getLog(PDAHandler.class);
 
+	private static final String URL_FRAGMENT = "pda";
+
 	public PDAHandler()
 	{
-		urlFragment = "pda";
+		setUrlFragment(PDAHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -83,7 +85,7 @@ public class PDAHandler extends PageHandler
 		if ((parts.length >= 2) && (parts[1].equals("pda")))
 		{
 			// Indicate that we are the controlling portal
-			session.setAttribute("sakai-controlling-portal",urlFragment);
+			session.setAttribute("sakai-controlling-portal",PDAHandler.URL_FRAGMENT);
 			try
 			{
 

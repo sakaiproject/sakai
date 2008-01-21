@@ -51,9 +51,11 @@ public class WorksiteHandler extends PageHandler
 
 	private static final String INCLUDE_PAGE_NAV = "include-page-nav";
 
+	private static final String URL_FRAGMENT = "worksite";
+
 	public WorksiteHandler()
 	{
-		urlFragment = "worksite";
+		setUrlFragment(WorksiteHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -67,10 +69,10 @@ public class WorksiteHandler extends PageHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 3) && (parts[1].equals(urlFragment)))
+		if ((parts.length >= 3) && (parts[1].equals(WorksiteHandler.URL_FRAGMENT)))
 		{
 			// Indicate that we are the controlling portal
-			session.setAttribute("sakai-controlling-portal",urlFragment);
+			session.setAttribute("sakai-controlling-portal",WorksiteHandler.URL_FRAGMENT);
 			try
 			{
 				// recognize an optional page/pageid
@@ -152,17 +154,26 @@ public class WorksiteHandler extends PageHandler
 				.getSkin(), req);
 
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
-				urlFragment);
+				getUrlFragment());
 
 		portal.includeBottom(rcontext);
 
-                // Hand the url Fragment up to Presentaton Layer - we send this all to 
-                // The site template which uses the urlFragment to determine what to show
-                rcontext.put("urlFragment", urlFragment);
 
-		portal.sendResponse(rcontext, res, "site", null);
+		portal.sendResponse(rcontext, res, "worksite", null);
 	}
 
+	/**
+	 * @param rcontext
+	 * @param res
+	 * @param req
+	 * @param session
+	 * @param site
+	 * @param page
+	 * @param toolContextPath
+	 * @param portalPrefix
+	 * @return
+	 * @throws IOException
+	 */
 	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
 			HttpServletRequest req, Session session, Site site, SitePage page,
 			String toolContextPath, String portalPrefix) throws IOException
@@ -184,6 +195,5 @@ public class WorksiteHandler extends PageHandler
 			// add the page
 			includePage(rcontext, res, req, session, page, toolContextPath, "content");
 		}
-
 	}
 }

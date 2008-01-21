@@ -1,25 +1,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-## 
-## Page View.
-## Compared to Site View Page has 
-## No Header
-## No Site Tabs
-## No Page Tabs
-##
-##
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 #parse("/vm/defaultskin/includeStandardHead.vm")
-<body class="portalBody">
+<body class="portalBody frameTop">
 #if ( $pageTop )
 	<script type="text/javascript" language="JavaScript">
 	var sakaiPortalWindow = "";
 	</script>
 #end
 <!-- END Header -->
+
 <!-- site.vm -->
-
-
 <!-- start includeSiteNav -->
 <div id="portalOuterContainer">
 	<div id="portalContainer">
@@ -29,20 +20,12 @@
 				${rloader.sit_accessibility}
 			</a>
 		#end
-
-			<a href="#tocontent"  class="skip" title="${rloader.sit_jumpcontent}" accesskey="c">
-			${rloader.sit_jumpcontent}
-			</a>
-			<a href="#totoolmenu"  class="skip" title="${rloader.sit_jumptools}" accesskey="l">
-				${rloader.sit_jumptools}
-			</a>
-			<a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">
-				${rloader.sit_jumpworksite}
-			</a>
 		</div>
-
-#parse("/vm/defaultskin/includePage.vm")
-
+		#if (${tabsSites})
+		<div id="headerMax">
+#parse("/vm/defaultskin/includeTabsSiteFrame.vm");
+		</div>
+		#end
 	</div>
 </div>
 <!-- end includeSiteNav -->

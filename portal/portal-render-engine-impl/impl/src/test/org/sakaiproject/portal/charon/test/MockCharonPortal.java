@@ -200,8 +200,6 @@ public class MockCharonPortal extends HttpServlet
 	{
 		PortalRenderContext rcontext = startPageContext();
 
-		rcontext.put("urlFragment", "site");
-
 		rcontext.put("sakaiFrameEdit","sakaiFrameEdit");
 		rcontext.put("sakaiFrameTitle","sakaiFrameTitle");
 		rcontext.put("sakaiFrameReset","sakaiFrameReset");
@@ -219,8 +217,6 @@ public class MockCharonPortal extends HttpServlet
 	{
 		PortalRenderContext rcontext = startPageContext();
 
-		rcontext.put("urlFragment", "gallery");
-
 		rcontext.put("sakaiFrameEdit","sakaiFrameEdit");
 		rcontext.put("sakaiFrameTitle","sakaiFrameTitle");
 		rcontext.put("sakaiFrameReset","sakaiFrameReset");
@@ -231,7 +227,7 @@ public class MockCharonPortal extends HttpServlet
 		includeSiteNav(rcontext);
 
 		// end the response
-		sendResponse(rcontext, "site-frame-top");
+		sendResponse(rcontext, "site-frame-top-gallery");
 	}
 
 	public void doWorksite() throws IOException

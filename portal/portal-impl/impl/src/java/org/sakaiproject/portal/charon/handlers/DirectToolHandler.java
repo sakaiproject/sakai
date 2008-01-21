@@ -53,9 +53,11 @@ import org.sakaiproject.util.Web;
  */
 public class DirectToolHandler extends BasePortalHandler
 {
+	public static final String URL_FRAGMENT = "directtool";
+
 	public DirectToolHandler()
 	{
-		urlFragment = "directtool";
+		setUrlFragment(DirectToolHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -70,7 +72,7 @@ public class DirectToolHandler extends BasePortalHandler
 			Session session) throws PortalHandlerException
 	{
 		if (portalService.isEnableDirect() && (parts.length > 2)
-				&& (parts[1].equals("directtool")))
+				&& (parts[1].equals(DirectToolHandler.URL_FRAGMENT)))
 		{
 			try
 			{
