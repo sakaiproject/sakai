@@ -159,14 +159,7 @@ public class PageHandler extends BasePortalHandler
 
 		includePage(rcontext, res, req, session, page, toolContextPath, "contentFull");
 
-		if (includeFrameset(rcontext, res, req, session, page))
-		{
-			portal.sendResponse(rcontext, res, "site-frame-top", null);
-		}
-		else
-		{
-			portal.sendResponse(rcontext, res, "page", null);
-		}
+		portal.sendResponse(rcontext, res, "page", null);
 
 		StoredState ss = portalService.getStoredState();
 		if (ss != null && toolContextPath.equals(ss.getToolContextPath()))
@@ -340,112 +333,5 @@ public class PageHandler extends BasePortalHandler
 		}
 	}
 
-	/**
-	 * @param rcontext
-	 * @param res
-	 * @param req
-	 * @param session
-	 * @param page
-	 * @return
-	 * @throws IOException
-	 * <pre>
-	 * #if ( $singleToolMap && // handled 
-	 * $sakaiFrameSetRequested && // handled (will be failse if above 
-	 * $tabsSites && // this is true if there is a site view object 
-	 * ( ! $sakaiFrameSuppress || // 
-	 * $sitePages.pageNavToolsCount == 1 ) ) // ????? this does not make any sense. 
-	 * // it implies that we can ignore sakaiFrameSupress is pageNavToolsCount == 1,
-	 * which will be true if singleToomMap == 1 hence sakaiFrameRequested = true
-	 * </pre>
-	 */
-	protected boolean includeFrameset(PortalRenderContext rcontext,
-			HttpServletResponse res, HttpServletRequest req, Session session,
-			SitePage page) throws IOException
-	{
-		if ( "true".equals(req.getParameter("sakai.frame.suppress")) ) {
-			return false;
-		}
-
-		boolean framesetRequested = false;
-
-		String framesetConfig = ServerConfigurationService
-				.getString(Portal.FRAMESET_SUPPORT);
-		if (framesetConfig == null || framesetConfig.trim().length() == 0
-				|| "never".equals(framesetConfig))
-		{
-			// never do a frameset
-			return false;
-		}
-		
-		Site site = null;
-		try
-		{
-			site = SiteService.getSite(page.getSiteId());
-		}
-		catch (Exception ignoreMe)
-		{
-			// Non fatal - just assume null
-			if (log.isTraceEnabled())
-				log.trace("includePage unable to find site for page " + page.getId());
-		}
-
-		Map singleToolMap = null;
-		ToolConfiguration singleTool = null;
-		List tools = page.getTools(0);
-		for (Iterator i = tools.iterator(); i.hasNext();)
-		{
-			ToolConfiguration placement = (ToolConfiguration) i.next();
-
-			if (site != null)
-			{
-				boolean thisTool = portal.getSiteHelper().allowTool(site, placement);
-				// System.out.println(" Allow Tool Display -" +
-				// placement.getTitle() + " retval = " + thisTool);
-				if (!thisTool) continue; // Skip this tool if not
-				// allowed
-			}
-
-			singleToolMap = portal.includeTool(res, req, placement);
-			singleTool = placement;
-			break;
-		}
-
-		// Determine if this page can be in a frame set, if so place the
-		// appropriate materials into the context
-		if (singleTool != null)
-		{
-
-			rcontext.put("singleToolMap", singleToolMap);
-
-			String maximizedUrl = (String) session
-					.getAttribute(Portal.ATTR_MAXIMIZED_URL);
-			session.setAttribute(Portal.ATTR_MAXIMIZED_URL, null);
-
-			if (maximizedUrl != null)
-			{
-				framesetRequested = true;
-				rcontext.put("frameMaximizedUrl", maximizedUrl);
-			}
-
-			// If tool configuration property is set for tool - do request
-			String toolConfigMax = singleTool.getConfig().getProperty(
-					Portal.PREFER_MAXIMIZE);
-			if ("true".equals(toolConfigMax)) framesetRequested = true;
-
-			if ("always".equals(framesetConfig)) framesetRequested = true;
-			if ("never".equals(framesetConfig)) framesetRequested = false;
-
-			// JSR-168 portlets cannot be in a frameset unless they asked for
-			// a maximized URL
-			if (singleToolMap.get("isPortletPlacement") != null && maximizedUrl == null)
-			{
-				framesetRequested = false;
-			}
-
-			if (framesetRequested) rcontext.put("sakaiFrameSetRequested", Boolean.TRUE);
-		}
-		return framesetRequested;
-
-	}
 
 }

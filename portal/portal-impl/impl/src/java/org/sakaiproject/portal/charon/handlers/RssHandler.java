@@ -41,14 +41,14 @@ public class RssHandler extends BasePortalHandler
 
 	public RssHandler()
 	{
-		setUrlFragment(URL_FRAGMENT);
+		setUrlFragment(RssHandler.URL_FRAGMENT);
 	}
 
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length >= 2) && (parts[1].equals(URL_FRAGMENT)))
+		if ((parts.length >= 2) && (parts[1].equals(RssHandler.URL_FRAGMENT)))
 		{
 			try
 			{

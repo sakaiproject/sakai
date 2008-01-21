@@ -48,11 +48,11 @@ import org.sakaiproject.util.Web;
  */
 public class PresenceHandler extends BasePortalHandler
 {
-	public static final String URL_FRAGMENT = "presence";
+	private static final String URL_FRAGMENT = "presence";
 
 	public PresenceHandler()
 	{
-		setUrlFragment(URL_FRAGMENT);
+		setUrlFragment(PresenceHandler.URL_FRAGMENT);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class PresenceHandler extends BasePortalHandler
 			Session session) throws PortalHandlerException
 	{
 
-		if ((parts.length >= 3) && (parts[1].equals(URL_FRAGMENT)))
+		if ((parts.length >= 3) && (parts[1].equals(PresenceHandler.URL_FRAGMENT)))
 		{
 			try
 			{
