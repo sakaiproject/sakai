@@ -27,13 +27,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;

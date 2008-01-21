@@ -42,7 +42,6 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PortalService;
-import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;

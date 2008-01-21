@@ -27,9 +27,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 
@@ -39,10 +36,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sourceforge.wurfl.wurflapi.CapabilityMatrix;
+import net.sourceforge.wurfl.wurflapi.ObjectsManager;
+import net.sourceforge.wurfl.wurflapi.UAManager;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PageFilter;
@@ -86,7 +88,6 @@ import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.portal.util.URLUtils;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -108,8 +109,6 @@ import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
-
-import net.sourceforge.wurfl.wurflapi.*;
 
 /**
  * <p/> Charon is the Sakai Site based portal.
