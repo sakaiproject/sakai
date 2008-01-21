@@ -253,7 +253,7 @@ public class SiteHandler extends WorksiteHandler
 		
 		
 		// should we consider a frameset ?
-		boolean frameset = includeFrameset(rcontext, res, req, session, page);
+		boolean doFrameSet = includeFrameset(rcontext, res, req, session, page);
 		
 		
 
@@ -301,26 +301,15 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("sakaiFrameReset", req.getParameter("sakai.frame.reset"));
 			rcontext.put("sakaiFramePortlet", req.getParameter("sakai.frame.portlet"));
 			rcontext.put("sakaiSinglePage", req.getParameter("sakai.frame.single.page"));
-
-			if (frameset)
-			{
-				doSendFrameSet(rcontext, res, null);
-			}
-			else
-			{
-				doSendFramedResponse(rcontext, res, null);
-			}
+			doSendFrameTop(rcontext, res, null);
+		}
+		else if (doFrameSet)
+		{
+			doSendFrameSet(rcontext, res, null);
 		}
 		else
 		{
-			if (frameset)
-			{
-				doSendFrameSet(rcontext, res, null);
-			}
-			else
-			{
-				doSendResponse(rcontext, res, null);
-			}
+			doSendResponse(rcontext, res, null);
 		}
 
 		StoredState ss = portalService.getStoredState();
@@ -337,12 +326,14 @@ public class SiteHandler extends WorksiteHandler
 	 * @param object
 	 * @throws IOException 
 	 */
-	private void doSendFrameSet(PortalRenderContext rcontext, HttpServletResponse res, Object object) throws IOException
+	protected void doSendFrameSet(PortalRenderContext rcontext, 
+		HttpServletResponse res, String contentType) 
+		throws IOException
 	{
 		// if we realized that we needed a frameset, we could eliminate 90% of the 
 		// view context processing. At the moment we do everything that we need for
 		// a full page.... which is a waste.
-		portal.sendResponse(rcontext, res, "siteframeset", null);
+		portal.sendResponse(rcontext, res, "site-frame-set", null);
 	}
 
 	/**
@@ -356,7 +347,7 @@ public class SiteHandler extends WorksiteHandler
 	 * @param b
 	 * @throws IOException
 	 */
-	protected void doSendFramedResponse(PortalRenderContext rcontext,
+	protected void doSendFrameTop(PortalRenderContext rcontext,
 			HttpServletResponse res, String contentType)
 			throws IOException
 	{
@@ -629,6 +620,7 @@ public class SiteHandler extends WorksiteHandler
 		Map singleToolMap = null;
 		ToolConfiguration singleTool = null;
 		List tools = page.getTools(0);
+		int toolCount = 0;
 		for (Iterator i = tools.iterator(); i.hasNext();)
 		{
 			ToolConfiguration placement = (ToolConfiguration) i.next();
@@ -642,10 +634,11 @@ public class SiteHandler extends WorksiteHandler
 				// allowed
 			}
 
-			singleToolMap = portal.includeTool(res, req, placement);
-			if ( singleToolMap != null ) {
+			if ( placement != null ) {
 				singleTool = placement;
-				break;
+				singleToolMap = portal.includeTool(res, req, placement);
+				toolCount++;
+				if ( toolCount > 1 ) return false;
 			}
 		}
 

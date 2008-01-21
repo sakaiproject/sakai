@@ -131,10 +131,23 @@ public class GalleryHandler extends SiteHandler
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.portal.charon.handlers.SiteHandler#doSendFramedResponse(org.sakaiproject.portal.api.PortalRenderContext, javax.servlet.http.HttpServletResponse, java.lang.String)
+	 * @see org.sakaiproject.portal.charon.handlers.SiteHandler#doSendFrameSet(org.sakaiproject.portal.api.PortalRenderContext, javax.servlet.http.HttpServletResponse, java.lang.String)
 	 */
 	@Override
-	protected void doSendFramedResponse(PortalRenderContext rcontext, HttpServletResponse res, String contentType) throws IOException
+	protected void doSendFrameSet(PortalRenderContext rcontext, 
+		HttpServletResponse res, String contentType) 
+		throws IOException
+	{
+		portal.sendResponse(rcontext, res, "site-frame-set-gallery", null);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.charon.handlers.SiteHandler#doSendFrameTop(org.sakaiproject.portal.api.PortalRenderContext, javax.servlet.http.HttpServletResponse, java.lang.String)
+	 */
+	@Override
+	protected void doSendFrameTop(PortalRenderContext rcontext, 
+		HttpServletResponse res, String contentType) 
+		throws IOException
 	{
 		portal.sendResponse(rcontext, res, "site-frame-top-gallery", null);
 	}

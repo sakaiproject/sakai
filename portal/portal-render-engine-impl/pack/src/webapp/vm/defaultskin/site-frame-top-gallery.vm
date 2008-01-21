@@ -23,7 +23,7 @@
 		</div>
 		#if (${tabsSites})
 		<div id="headerMax">
-#parse("/vm/defaultskin/includeTabsSiteFrame.vm");
+#parse("/vm/defaultskin/includeTabsSiteFrame.vm")
 		</div>
 		#end
 	</div>
