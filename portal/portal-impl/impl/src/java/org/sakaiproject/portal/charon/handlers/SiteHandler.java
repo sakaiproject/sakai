@@ -618,7 +618,6 @@ public class SiteHandler extends WorksiteHandler
 		if (singleTool != null )
 		{
 
-			log.error("Got Single Tool "+framesetConfig);
 			rcontext.put("singleToolMap", singleToolMap);
 
 			String maximizedUrl = (String) session
@@ -627,7 +626,6 @@ public class SiteHandler extends WorksiteHandler
 
 			if (maximizedUrl != null)
 			{
-				log.error("Miximized URL");
 				framesetRequested = true;
 				rcontext.put("frameMaximizedUrl", maximizedUrl);
 			}
@@ -636,16 +634,13 @@ public class SiteHandler extends WorksiteHandler
 			String toolConfigMax = singleTool.getConfig().getProperty(
 					Portal.PREFER_MAXIMIZE);
 			if ("true".equals(toolConfigMax)) {
-				log.error("toolConfigMax");
 				framesetRequested = true;
 			}
 
 			if ("always".equals(framesetConfig)) {
-				log.error("always");
 				framesetRequested = true;
 			}
 			if ("never".equals(framesetConfig)) {
-				log.error("toolConfigMax");
 				framesetRequested = false;
 			}
 
@@ -653,17 +648,12 @@ public class SiteHandler extends WorksiteHandler
 			// a maximized URL
 			if (singleToolMap.get("isPortletPlacement") != null && maximizedUrl == null)
 			{
-				log.error("portalPlacement");
 				framesetRequested = false;
 			}
 
 			if (framesetRequested) rcontext.put("sakaiFrameSetRequested", Boolean.TRUE);
-		} else {
-			log.error("Single Tool is null ");
 		}
-		log.error("Frameset Requested "+framesetRequested);
 		return framesetRequested;
-
 	}
 
 }
