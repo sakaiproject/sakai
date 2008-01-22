@@ -104,7 +104,6 @@ public class CalendarBean {
 	private MonthWeek								week4					= new MonthWeek();
 	private MonthWeek								week5					= new MonthWeek();
 	private MonthWeek								week6					= new MonthWeek();
-	private List									calendarReferences		= new ArrayList();
 	private CalendarEventVector						calendarEventVector		= null;
 	private String									siteId					= null;
 	private String[]								months					= { "mon_jan", "mon_feb", "mon_mar", "mon_apr", "mon_may", "mon_jun", "mon_jul", "mon_aug", "mon_sep", "mon_oct",
@@ -194,7 +193,7 @@ public class CalendarBean {
 		// If we're on the workspace tab, we get everything.
 		// Don't do this if we're the super-user, since we'd be
 		// overwhelmed.
-		calendarReferences = new ArrayList();
+		List	calendarReferences = new ArrayList();
 		if(isOnWorkspaceTab && !isSuperUser){
 			channelArray = mergedCalendarList.getAllPermittedChannels(new CalendarChannelReferenceMaker(getExcludedSitesFromTabs()));
 			if(channelArray != null){
