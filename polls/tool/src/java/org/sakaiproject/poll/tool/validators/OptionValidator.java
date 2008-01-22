@@ -78,7 +78,7 @@ public class OptionValidator implements Validator {
 
 
 		if (option.getOptionText() == null || option.getOptionText().trim().length()==0) {
-			logger.warn("OptionText is empty!");
+			logger.debug("OptionText is empty!");
 			errors.reject("option_empty","option empty");
 			return;
 		}
@@ -99,7 +99,7 @@ public class OptionValidator implements Validator {
 		text = text.replace("&nbsp;", "");
 		text = StringEscapeUtils.unescapeHtml(text).trim();
 		if (text.trim().length()==0) {
-			logger.warn("OptionText is empty! (after excaping html)");
+			logger.debug("OptionText is empty! (after excaping html)");
 			errors.reject("option_empty","option empty");
 			return;
 		}
