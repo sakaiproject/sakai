@@ -66,5 +66,21 @@ ${tool.toolRenderResult.getTitle()}
 	</script>
     #end
 #end
+<!--
+
+Browser Detection
+
+CSSOK: ${browser.cssOK}
+fileUploadOK: ${browser.fileUploadOK}
+javascriptOK: ${browser.javascriptOK}
+browserName: ${browser.browserName}
+browserPlatform: ${browser.browserPlatform}
+browserVersion: ${browser.browserVersion}
+userAgentString: ${browser.userAgentString}
+
+-->
 </head>
+
+
+
 <!-- END from includeStandardHead.vm -->

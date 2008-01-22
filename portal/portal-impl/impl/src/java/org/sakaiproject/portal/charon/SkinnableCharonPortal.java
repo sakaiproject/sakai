@@ -85,6 +85,7 @@ import org.sakaiproject.portal.charon.handlers.XLoginHandler;
 import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
+import org.sakaiproject.portal.util.BrowserDetector;
 import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.portal.util.URLUtils;
@@ -985,6 +986,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageScriptPath", getScriptPath());
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
+		rcontext.put("browser", new BrowserDetector(request));
 		// rcontext.put("sitHelp", Web.escapeHtml(rb.getString("sit_help")));
 		// rcontext.put("sitReset", Web.escapeHtml(rb.getString("sit_reset")));
 
