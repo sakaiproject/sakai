@@ -208,7 +208,7 @@ public class PollToolBean {
 		  
 	  
 	 
-	  m_log.info("vote is on poll " + voteCollection.getPollId());
+	  m_log.debug("vote is on poll " + voteCollection.getPollId());
 	  Poll poll = manager.getPollById(voteCollection.getPollId());
 	  
 	  //need to check if the user hasn't already voted on this poll
@@ -238,7 +238,7 @@ public class PollToolBean {
 	  
 	  for (int i = 0; i < options.size(); i++){
 		  //create a new vote
-		 m_log.info("this vote is for option " + options.get(i));
+		 m_log.debug("this vote is for option " + options.get(i));
 		 Option opt = new Option(new Long((String)options.get(i)));  
 		 Vote vote = new Vote(poll,opt,votes.getId());
 		 if (vote.getIp() == null) {
