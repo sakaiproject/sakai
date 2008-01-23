@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <registration>
-	<tool id="sakai-gradebook-item-helper"
+	<tool id="sakai-gradebook-helper"
 		title="Gradebook Item Helper"
 		description="Gradebook Item Helper">
 		<category name="sakai.helper" />

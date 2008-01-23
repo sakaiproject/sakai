@@ -7,9 +7,9 @@ import org.sakaiproject.entitybroker.IdEntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
-import org.sakaiproject.tool.gradebook.ui.helpers.producers.GradeGradebookItemProducer;
-import org.sakaiproject.tool.gradebook.ui.helpers.producers.PermissionsErrorProducer;
-import org.sakaiproject.tool.gradebook.ui.helpers.params.GradeGradebookItemViewParams;
+import org.sakaiproject.tool.gradebook.ui.helpers.producers.GradebookItemProducer;
+import org.sakaiproject.tool.gradebook.ui.helpers.producers.AuthorizationFailedProducer;
+import org.sakaiproject.tool.gradebook.ui.helpers.params.GradebookItemViewParams;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 import uk.ac.cam.caret.sakai.rsf.entitybroker.EntityViewParamsInferrer;
@@ -19,10 +19,10 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 /*
  * This is a provider for looking up and adding/editing Gradebook Items.
  */
-public class GradeGradebookItemEntityProvider implements EntityProvider, CoreEntityProvider,
+public class GradebookEntityProvider implements EntityProvider, CoreEntityProvider,
 EntityViewParamsInferrer {
-    private Log log = LogFactory.getLog(GradeGradebookItemEntityProvider.class);
-    public final static String ENTITY_PREFIX = "grade-gradebook-item";
+    private Log log = LogFactory.getLog(GradebookEntityProvider.class);
+    public final static String ENTITY_PREFIX = "gradebook";
     private EntityProviderManager entityProviderManager;
     
     private GradebookService gradebookService;
@@ -50,16 +50,17 @@ EntityViewParamsInferrer {
     }
 
     public ViewParameters inferDefaultViewParameters(String reference) {
+    	
         IdEntityReference ep = new IdEntityReference(reference);
     	String contextId = ep.id;
     	
-    	if(gradebookService.currentUserHasGradingPerm(contextId) || gradebookService.currentUserHasGradeAllPerm(contextId)){
-    		String userId = null;
-    		Long gradebookItemId = null;
-    		return new GradeGradebookItemViewParams(GradeGradebookItemProducer.VIEW_ID, contextId, gradebookItemId, userId);
+    	if(gradebookService.currentUserHasEditPerm(contextId)){
+    		Long gradebookEntryId = null;
+    		return new GradebookItemViewParams(GradebookItemProducer.VIEW_ID, contextId, gradebookEntryId);
     	}else{
-    		return new SimpleViewParameters(PermissionsErrorProducer.VIEW_ID);
+    		return new SimpleViewParameters(AuthorizationFailedProducer.VIEW_ID);
     	}
+
     }
 
     public void setEntityProviderManager(EntityProviderManager entityProviderManager) {

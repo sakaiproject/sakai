@@ -18,7 +18,7 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 	</bean>
 	
-	<bean class="org.sakaiproject.gradebook.tool.helper.PermissionsErrorProducer" />
+	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.AuthorizationFailedProducer" />
 		   
    <bean id="GradebookItemBean" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.GradebookItemBean">
    	  <property name="messages" ref="targettedMessageList"/>
@@ -35,7 +35,6 @@
    	  <property name="commentEntityBeanLocator" ref="Comment" />
    	  <property name="eventTrackingService" ref="org_sakaiproject_tool_gradebook_facades_EventTrackingService" />
    	  <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
-   	  
    </bean>
 
 </beans>
