@@ -1559,11 +1559,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					expandedCollections.add(collectionId);
 				}
 
-				// reset the copy flag
-				if (((String)state.getAttribute (STATE_MOVE_FLAG)).equals (Boolean.TRUE.toString()))
-				{
-					state.setAttribute (STATE_MOVE_FLAG, Boolean.FALSE.toString());
-				}
+				state.setAttribute (STATE_MOVE_FLAG, Boolean.FALSE.toString());
 			}
 
 		}
@@ -1689,10 +1685,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 
 				// reset the copy flag
-				if (((String)state.getAttribute (STATE_COPY_FLAG)).equals (Boolean.TRUE.toString()))
-				{
-					state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
-				}
+				state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
 			}
 
 		}
@@ -1839,10 +1832,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 
 			// reset the copy flag
-			if (((String)state.getAttribute (STATE_COPY_FLAG)).equals (Boolean.TRUE.toString()))
-			{
-				state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
-			}
+			state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
 		}
 		return newId;
 	}
@@ -4452,7 +4442,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			
 			String copyFlag = (String) state.getAttribute (STATE_COPY_FLAG);
-			if (copyFlag.equals (Boolean.TRUE.toString()))
+			if (Boolean.TRUE.toString().equals(copyFlag))
 			{
 				context.put ("copyFlag", copyFlag);
 				List copiedItems = (List) state.getAttribute(STATE_COPIED_IDS);
@@ -4462,7 +4452,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 
 			String moveFlag = (String) state.getAttribute (STATE_MOVE_FLAG);
-			if (moveFlag.equals (Boolean.TRUE.toString()))
+			if (Boolean.TRUE.toString().equals(moveFlag))
 			{
 				context.put ("moveFlag", moveFlag);
 				List movedItems = (List) state.getAttribute(STATE_MOVED_IDS);
