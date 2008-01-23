@@ -44,6 +44,8 @@ public class Day implements Serializable {
 	boolean						occursInOtherMonth				= false;
 	boolean						isSelected						= false;
 	
+	List						dayEvents						= null;
+	
 	String 						backgroundCSSProperty			= "";
 
 	public Day() {
@@ -117,4 +119,17 @@ public class Day implements Serializable {
 		this.isSelected = isSelected;
 	}
 
+	public List getDayEvents() {
+		return dayEvents;
+	}
+
+	public void setDayEvents(List dayEvents) {
+		this.dayEvents = dayEvents;
+	}
+
+	public String getEventCount() {
+		if(dayEvents == null || dayEvents.size() == 0)
+			return "";
+		return "("+dayEvents.size()+")";
+	}
 }

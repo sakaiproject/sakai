@@ -583,18 +583,19 @@ public class CalendarBean {
 				}
 				for(int i = 0; i < 7; i++){
 					Day day = week.getDay(i);
+					CalendarEventVector vector = null;
 					if((weekNo == 0) && (i < dayOfWeek - 1)){
 						int nDay = prevMonthLastDay - dayOfWeek + 2 + i;
 						c.set(Calendar.MONTH, selMonth - 1);
 						c.set(Calendar.DAY_OF_MONTH, nDay);
-						CalendarEventVector vector = getScheduleEventsForDay(c);
+						vector = getScheduleEventsForDay(c);
 						day = new Day(c.getTime(), getDayEventCount(vector) > 0);
 						day.setOccursInOtherMonth(true);
 						day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
 					}else if(currDay > lastDay){
 						c.set(Calendar.MONTH, selMonth + 1);
 						c.set(Calendar.DAY_OF_MONTH, nextMonthDay++);
-						CalendarEventVector vector = getScheduleEventsForDay(c);
+						vector = getScheduleEventsForDay(c);
 						day = new Day(c.getTime(), getDayEventCount(vector) > 0);
 						day.setOccursInOtherMonth(true);
 						day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
@@ -602,13 +603,14 @@ public class CalendarBean {
 						c.set(Calendar.YEAR, selYear);
 						c.set(Calendar.MONTH, selMonth);
 						c.set(Calendar.DAY_OF_MONTH, currDay++);
-						CalendarEventVector vector = getScheduleEventsForDay(c);
+						vector = getScheduleEventsForDay(c);
 						day = new Day(c.getTime(), getDayEventCount(vector) > 0);
 						day.setOccursInOtherMonth(false);
 						day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
 					}
 					day.setToday(sameDay(c, getToday()));
 					day.setSelected(selectedDay != null && sameDay(c, selectedDay));
+					day.setDayEvents(getDayEvents(vector));
 					week.setDay(i, day);
 
 				}
@@ -656,6 +658,7 @@ public class CalendarBean {
 				day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
 				day.setToday(sameDay(c, getToday()));
 				day.setSelected(selected);	
+				day.setDayEvents(getDayEvents(vector));
 	
 				week1.setDay(i, day);
 				c.add(Calendar.DAY_OF_WEEK, +1);

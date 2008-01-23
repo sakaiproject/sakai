@@ -54,9 +54,10 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_sun}"/>		                
 		        </f:facet>
-		        <t:div style="width:100%; text-align: center; #{week.days[0].backgroundCSSProperty};" styleClass="#{week.days[0].styleClass}">
+		        <t:div style="width:100%; position: relative; text-align: center; #{week.days[0].backgroundCSSProperty};" styleClass="#{week.days[0].styleClass}">
+			        <t:div style="display:none" styleClass="eventCount"><t:outputText value="#{week.days[0].eventCount}"/></t:div>
 			        <h:commandLink value="#{week.days[0].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[0].hasEvents}" immediate="true">
-				        <f:param name="selectedDay" value="#{week.days[0].dateAsString}"/>
+			        	<f:param name="selectedDay" value="#{week.days[0].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[0].dayOfMonth}" rendered="#{!week.days[0].hasEvents}" />
 				</t:div>
@@ -65,9 +66,10 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_mon}"/>		                
 		        </f:facet>		        
-		        <t:div style="width:100%; text-align: center; #{week.days[1].backgroundCSSProperty};" styleClass="#{week.days[1].styleClass}">
+		        <t:div style="width:100%; position: relative; text-align: center; #{week.days[1].backgroundCSSProperty};" styleClass="#{week.days[1].styleClass}">
+			        <t:div style="display:none" styleClass="eventCount"><t:outputText value="#{week.days[1].eventCount}"/></t:div>
 			        <h:commandLink value="#{week.days[1].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[1].hasEvents}" immediate="true">
-			            <f:param name="selectedDay" value="#{week.days[1].dateAsString}"/>
+			        	<f:param name="selectedDay" value="#{week.days[1].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[1].dayOfMonth}" rendered="#{!week.days[1].hasEvents}" />
 				</t:div>
@@ -76,9 +78,10 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_tue}"/>		                
 		        </f:facet>		        
-		        <t:div style="width:100%; text-align: center; #{week.days[2].backgroundCSSProperty};" styleClass="#{week.days[2].styleClass}">
+		        <t:div style="width:100%; position: relative; text-align: center; #{week.days[2].backgroundCSSProperty};" styleClass="#{week.days[2].styleClass}">
+			        <t:div style="display:none" styleClass="eventCount"><t:outputText value="#{week.days[2].eventCount}"/></t:div>
 			        <h:commandLink value="#{week.days[2].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[2].hasEvents}" immediate="true">
-			            <f:param name="selectedDay" value="#{week.days[2].dateAsString}"/>
+			        	<f:param name="selectedDay" value="#{week.days[2].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[2].dayOfMonth}" rendered="#{!week.days[2].hasEvents}" />
 				</t:div>
@@ -87,9 +90,10 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_wed}"/>		                
 		        </f:facet>		        
-		        <t:div style="width:100%; text-align: center; #{week.days[3].backgroundCSSProperty};" styleClass="#{week.days[3].styleClass}">
+		        <t:div style="width:100%; position: relative; text-align: center; #{week.days[3].backgroundCSSProperty};" styleClass="#{week.days[3].styleClass}">
+			        <t:div style="display:none" styleClass="eventCount"><t:outputText value="#{week.days[3].eventCount}"/></t:div>
 			        <h:commandLink value="#{week.days[3].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[3].hasEvents}" immediate="true">
-			            <f:param name="selectedDay" value="#{week.days[3].dateAsString}"/>
+			        	<f:param name="selectedDay" value="#{week.days[3].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[3].dayOfMonth}" rendered="#{!week.days[3].hasEvents}" />
 				</t:div>
@@ -98,9 +102,10 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_thu}"/>		                
 		        </f:facet>
-		        <t:div style="width:100%; text-align: center; #{week.days[4].backgroundCSSProperty};" styleClass="#{week.days[4].styleClass}">
+		        <t:div style="width:100%; position: relative; text-align: center; #{week.days[4].backgroundCSSProperty};" styleClass="#{week.days[4].styleClass}">
+			        <t:div style="display:none" styleClass="eventCount"><t:outputText value="#{week.days[4].eventCount}"/></t:div>
 			        <h:commandLink value="#{week.days[4].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[4].hasEvents}" immediate="true">
-			            <f:param name="selectedDay" value="#{week.days[4].dateAsString}"/>
+			        	<f:param name="selectedDay" value="#{week.days[4].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[4].dayOfMonth}" rendered="#{!week.days[4].hasEvents}" />
 				</t:div>
@@ -109,9 +114,10 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_fri}"/>		                
 		        </f:facet>
-		        <t:div style="width:100%; text-align: center; #{week.days[5].backgroundCSSProperty};" styleClass="#{week.days[5].styleClass}">
+		        <t:div style="width:100%; position: relative; text-align: center; #{week.days[5].backgroundCSSProperty};" styleClass="#{week.days[5].styleClass}">
+			        <t:div style="display:none" styleClass="eventCount"><t:outputText value="#{week.days[5].eventCount}"/></t:div>
 			        <h:commandLink value="#{week.days[5].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[5].hasEvents}" immediate="true">
-			            <f:param name="selectedDay" value="#{week.days[5].dateAsString}"/>
+			        	<f:param name="selectedDay" value="#{week.days[5].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[5].dayOfMonth}" rendered="#{!week.days[5].hasEvents}" />
 				</t:div>
@@ -120,9 +126,10 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_sat}"/>		                
 		        </f:facet>
-		        <t:div style="width:100%; text-align: center; #{week.days[6].backgroundCSSProperty};" styleClass="#{week.days[6].styleClass}">
+		        <t:div style="width:100%; position: relative; text-align: center; #{week.days[6].backgroundCSSProperty};" styleClass="#{week.days[6].styleClass}">
+			        <t:div style="display:none" styleClass="eventCount"><t:outputText value="#{week.days[6].eventCount}"/></t:div>
 			        <h:commandLink value="#{week.days[6].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[6].hasEvents}" immediate="true">
-			            <f:param name="selectedDay" value="#{week.days[6].dateAsString}"/>
+			        	<f:param name="selectedDay" value="#{week.days[6].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[6].dayOfMonth}" rendered="#{!week.days[6].hasEvents}" />
 				</t:div>

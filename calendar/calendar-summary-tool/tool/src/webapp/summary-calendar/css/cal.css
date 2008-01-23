@@ -65,3 +65,18 @@
 	font-style: italic;
 	color: #999;
 }
+
+/*---------------------------
+ CALENDAR: TOOLTIP STYLES 
+---------------------------*/
+.eventCount{
+	position:absolute;
+	display: inline !important;
+	right:0px;
+	top:-2px;
+	color:#777;
+	font-size:9px;
+	font-weight:normal;
+	margin:0pt;
+	padding:0pt;
+}
