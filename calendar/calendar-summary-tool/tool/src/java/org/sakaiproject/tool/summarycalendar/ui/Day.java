@@ -128,7 +128,7 @@ public class Day implements Serializable {
 	}
 
 	public String getEventCount() {
-		if(dayEvents == null || dayEvents.size() == 0)
+		if(dayEvents == null || dayEvents.size() <= 1)
 			return "";
 		return "("+dayEvents.size()+")";
 	}
