@@ -1207,6 +1207,7 @@ public abstract class SessionComponent implements SessionManager
 
 			m_maintenanceChecker = new Thread(this, "Sakai.SessionComponent.Maintenance");
 			m_maintenanceCheckerStop = false;
+			m_maintenanceChecker.setDaemon(true);
 			m_maintenanceChecker.start();
 		}
 
