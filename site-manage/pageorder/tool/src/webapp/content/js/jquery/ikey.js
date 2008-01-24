@@ -287,7 +287,7 @@ jQuery.iKey = {
 					dhe.css('-khtml-user-select', 'none');
 				}
 				
-				el.keyCfg = {
+				this.keyCfg = {
 					domNode :     o.domNode ? o.domNode : false,
 					accept :      o.accept || false,
 					activeclass : o.activeclass || false, 
@@ -295,7 +295,7 @@ jQuery.iKey = {
 					helperclass : o.helperclass || false,
 					axis :        /vertically|horizontally/.test(o.axis) ? o.axis : false,
 					onStart :     o.onStart || o.onstart || false,
-					onStop :      o.onStop || o.onstop || false,					
+					onStop :      o.onStop || o.onstop || false					
 				};
 				
 				dhe.each(
