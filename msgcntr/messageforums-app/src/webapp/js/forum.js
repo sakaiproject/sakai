@@ -228,7 +228,7 @@ function doAjax(messageId, topicId, self){
          $("#" + messageId).parents("tr:first").css("backgroundColor", "#ffD0DC");
       }
    });
-	$.ajax({type: "GET", url: location.href, data: ""});
+	//$.ajax({type: "GET", url: location.href, data: ""});
 	return false;
 }
 
