@@ -41,5 +41,6 @@
 	<classpathentry kind="var" path="M2_REPO/org/apache/wicket/wicket-ioc/1.3.0-rc1/wicket-ioc-1.3.0-rc1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/wicket/wicket-spring/1.3.0-rc1/wicket-spring-1.3.0-rc1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/javax/activation/activation/1.0.2/activation-1.0.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/wicket/wicket/1.3.0-rc1/wicket-1.3.0-rc1.jar"/>
 	<classpathentry kind="output" path="m2-target/classes"/>
 </classpath>

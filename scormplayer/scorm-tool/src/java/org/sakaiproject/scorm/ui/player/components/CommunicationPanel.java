@@ -26,6 +26,7 @@ import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -37,7 +38,7 @@ import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.player.behaviors.SjaxCall;
 
-public class CommunicationPanel extends Panel implements IHeaderContributor {
+public class CommunicationPanel extends Panel { //implements IHeaderContributor {
 	public static final ResourceReference API = new CompressedResourceReference(
 			CommunicationPanel.class, "res/API.js");
 
@@ -46,9 +47,9 @@ public class CommunicationPanel extends Panel implements IHeaderContributor {
 
 	private static final long serialVersionUID = 1L;
 
-	private LaunchPanel launchPanel;
+	//private LaunchPanel launchPanel;
 	
-	@SpringBean
+	/*@SpringBean
 	transient LearningManagementSystem lms;
 	
 	@SpringBean
@@ -58,77 +59,26 @@ public class CommunicationPanel extends Panel implements IHeaderContributor {
 	@SpringBean
 	transient ScormSequencingService sequencingService;
 	
-	private SessionBean sessionBean;
+	private SessionBean sessionBean;*/
+	
 	
 	public CommunicationPanel(String id, final SessionBean sessionBean, final LaunchPanel launchPanel) {
 		super(id);
-		this.launchPanel = launchPanel;
-		this.sessionBean = sessionBean;
+		//this.launchPanel = launchPanel;
+		//this.sessionBean = sessionBean;
+		
+		SjaxContainer container = new SjaxContainer("sjaxContainer", sessionBean, launchPanel);
+		
+		add(container);
 		
 		
-		add(new ScormSjaxCall("Commit", 1));
-
-		add(new ScormSjaxCall("GetDiagnostic", 1));
-
-		add(new ScormSjaxCall("GetErrorString", 1));
-	
-		add(new ScormSjaxCall("GetLastError", 0));
-		
-		add(new ScormSjaxCall("GetValue", 1));
-
-		SjaxCall initCall = new ScormSjaxCall("Initialize", 1) {
-			private static final long serialVersionUID = 1L;
-
-			protected String callMethod(ScoBean scoBean, AjaxRequestTarget target, Object... args) {
-				
-				
-				ActivityTree tree = launchPanel.getTree();
-				if (tree != null && !tree.isEmpty()) {
-					tree.selectNode();
-					tree.updateTree(target);
-				}
-				
-				launchPanel.synchronizeState(sessionBean, target);
-
-				updatePageSco(scoBean.getScoId(), target);
-				
-				return super.callMethod(scoBean, target, args);
-			}
-		};
-		
-		
-		initCall.prependJavascript("tb_remove();");
-		
-		add(initCall);
-
-		add(new ScormSjaxCall("SetValue", 2));
-
-		add(new ScormSjaxCall("Terminate", 1) {
-			private static final long serialVersionUID = 1L;
-
-			protected String callMethod(ScoBean scoBean, AjaxRequestTarget target, Object... args) {
-				String result = super.callMethod(scoBean, target, args);
-						
-				ActivityTree tree = launchPanel.getTree();
-				if (tree != null && !tree.isEmpty()) {
-					tree.selectNode();
-					tree.updateTree(target);
-				}
-				
-				applicationService.discardScoBean(scoBean.getScoId(), sessionBean, new LocalResourceNavigator());
-				
-				updatePageSco("undefined", target);
-				
-				return result;
-			}
-		});
 	}
 	
 	
-	public void updatePageSco(String scoId, AjaxRequestTarget target) {
+	/*public void updatePageSco(String scoId, AjaxRequestTarget target) {
 		if (target != null)
 			target.appendJavascript("sco = '" + scoId + "';");
-	}
+	}*/
 
 	protected String getFirstArg(List<String> argumentValues) {
 		if (null == argumentValues || argumentValues.size() <= 0)
@@ -146,16 +96,20 @@ public class CommunicationPanel extends Panel implements IHeaderContributor {
 	
 	
 	
-	public void renderHead(IHeaderResponse response) {
+	/*public void renderHead(IHeaderResponse response) {
 		StringBuffer js = new StringBuffer();
 		
-		js.append("function APIAdapter() { };")	
+		js.append("function APIAdapter() { };\n")	
 			.append("var API_1484_11 = APIAdapter;\n")
 			.append("var api_result = new Array();\n")
 			.append("var call_number = 0;\n")
 			.append("var sco = undefined;\n");
 		
-		response.renderJavascript(js.toString(), "apiAdapterJs");
+		for (int i=0;i<calls.length;i++) {
+			js.append(calls[i].getJavascriptCode()).append("\n");
+		}
+		
+		response.renderJavascript(js.toString(), "SCORM_API");
 	}
 	
 	
@@ -196,7 +150,12 @@ public class CommunicationPanel extends Panel implements IHeaderContributor {
 		protected String getChannelName() {
 			return "1|s";
 		}
-	}
+		
+		public void updatePageSco(String scoId, AjaxRequestTarget target) {
+			if (target != null)
+				target.appendJavascript("sco = '" + scoId + "';");
+		}
+	}*/
 	
 	
 }

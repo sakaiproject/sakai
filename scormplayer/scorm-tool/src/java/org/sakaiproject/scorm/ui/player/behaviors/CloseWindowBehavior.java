@@ -14,8 +14,8 @@ public class CloseWindowBehavior extends ActivityAjaxEventBehavior {
 	
 	private SessionBean sessionBean;
 	
-	public CloseWindowBehavior(SessionBean sessionBean) {
-		super("closeWindow");
+	public CloseWindowBehavior(SessionBean sessionBean, boolean isRelativeUrl) {
+		super("closeWindow", isRelativeUrl);
 		this.sessionBean = sessionBean;
 	}
 	

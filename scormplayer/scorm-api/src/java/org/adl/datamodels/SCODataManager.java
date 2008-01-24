@@ -479,4 +479,32 @@ public class SCODataManager implements IDataManager {
 		this.scoId = scoId;
 	}
 
+	public long getContentPackageId() {
+		return contentPackageId;
+	}
+
+	public void setContentPackageId(long contentPackageId) {
+		this.contentPackageId = contentPackageId;
+	}
+
+	public String getActivityId() {
+		return activityId;
+	}
+
+	public void setActivityId(String activityId) {
+		this.activityId = activityId;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public Map getDataModels() {
+		return mDataModels;
+	}
+
+	public void setDataModels(Map dataModels) {
+		this.mDataModels = dataModels;
+	}
+
 }  // SCODataManager

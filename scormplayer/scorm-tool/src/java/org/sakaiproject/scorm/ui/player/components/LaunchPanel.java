@@ -3,6 +3,7 @@ package org.sakaiproject.scorm.ui.player.components;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
@@ -10,9 +11,10 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.UISynchronizer;
+import org.sakaiproject.scorm.ui.UISynchronizerPanel;
 import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 
-public class LaunchPanel extends Panel implements IHeaderContributor, UISynchronizer {
+public class LaunchPanel extends UISynchronizerPanel implements IHeaderContributor {
 	private static final long serialVersionUID = 1L;
 	
 	protected static final String HEADSCRIPTS = "/library/js/headscripts.js";
@@ -23,6 +25,10 @@ public class LaunchPanel extends Panel implements IHeaderContributor, UISynchron
 	//private TreePanel treePanel;
 	private ActivityTree tree;
 	
+	private WebMarkupContainer contentPanel;
+	
+	private SessionBean sessionBean;
+	
 	@SpringBean
 	transient LearningManagementSystem lms;
 	@SpringBean
@@ -32,41 +38,29 @@ public class LaunchPanel extends Panel implements IHeaderContributor, UISynchron
 	
 	public LaunchPanel(String id, final SessionBean sessionBean, PlayerPage view) {
 		super(id);
+		this.sessionBean = sessionBean;
 		this.view = view;
 		
 		communicationPanel = new CommunicationPanel("comPanel", sessionBean, this);
 		communicationPanel.setOutputMarkupId(true);
+		communicationPanel.setMarkupId("comPanel");
 		add(communicationPanel);
 				
-		//treePanel = new TreePanel("navPanel", sessionBean, this);
-		//treePanel.setOutputMarkupId(true);
-		//add(treePanel);
+		contentPanel = new WebMarkupContainer("scormContent");
+		contentPanel.setOutputMarkupId(true);
+		add(contentPanel);
 		
 		tree = new ActivityTree("tree", sessionBean, this);
-		/*{
 
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected LearningManagementSystem lms() {
-				return lms;
-			}
-			
-			@Override
-			protected ScormResourceService resourceService() {
-				return resourceService;
-			}
-			
-			@Override
-			protected ScormSequencingService sequencingService() {
-				return sequencingService;
-			}
-			
-		};*/
 		tree.setOutputMarkupId(true);
-		add(tree);
-		
+		add(tree);	
 	}
+	
+	/*protected void onBeforeRender() {
+		super.onBeforeRender();
+		
+		view.navigator.displayResource(sessionBean, null);
+	}*/
 
 	public void synchronizeState(SessionBean sessionBean, AjaxRequestTarget target) {		
 		if (null != view) {
@@ -89,5 +83,13 @@ public class LaunchPanel extends Panel implements IHeaderContributor, UISynchron
 	public void renderHead(IHeaderResponse response) {
 		response.renderJavascriptReference(HEADSCRIPTS);
 		response.renderOnLoadJavascript(BODY_ONLOAD_ADDTL);
+	}
+
+	public WebMarkupContainer getContentPanel() {
+		return contentPanel;
+	}
+
+	public void setContentPanel(WebMarkupContainer contentPanel) {
+		this.contentPanel = contentPanel;
 	}
 }

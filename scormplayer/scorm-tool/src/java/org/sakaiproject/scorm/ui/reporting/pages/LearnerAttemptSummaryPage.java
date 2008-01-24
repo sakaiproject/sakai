@@ -36,6 +36,7 @@ import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.api.ActivitySummary;
@@ -88,6 +89,14 @@ public class LearnerAttemptSummaryPage extends ConsoleBasePage {
 		}
 
 		ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
+		
+		PageParameters parentParams = new PageParameters();
+		parentParams.put("id", contentPackage.getId());
+		parentParams.put("learnerId", learnerId);
+		
+		IModel breadcrumbModel = new StringResourceModel("parent.breadcrumb", this, new Model(contentPackage));
+		addBreadcrumb(breadcrumbModel, AttemptListPage.class, parentParams, true);	
+		addBreadcrumb(new Model(learnerName), LearnerAttemptSummaryPage.class, pageParams, false);
 		
 		add(new Label("content.package.name", contentPackage.getTitle()));
 		add(new Label("learner.name", learnerName));
