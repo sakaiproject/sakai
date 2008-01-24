@@ -2089,37 +2089,7 @@ public class AssignmentAction extends PagedResourceActionII
 			// for non-electronic assignment
 			if (assignment.getContent() != null && assignment.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 			{
-				List submissions = AssignmentService.getSubmissions(assignment);
-				// the following operation is accessible for those with add assignment right
-				List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(assignment.getReference());
-				
-				HashSet<String> submittersIdSet = getSubmittersIdSet(submissions);
-				HashSet<String> allowAddSubmissionUsersIdSet = getAllowAddSubmissionUsersIdSet(allowAddSubmissionUsers);
-				
-				if (!submittersIdSet.equals(allowAddSubmissionUsersIdSet))
-				{
-					// get the difference between two sets
-					try
-					{
-						HashSet<String> addSubmissionUserIdSet = (HashSet<String>) allowAddSubmissionUsersIdSet.clone();
-						addSubmissionUserIdSet.removeAll(submittersIdSet);
-						HashSet<String> removeSubmissionUserIdSet = (HashSet<String>) submittersIdSet.clone();
-						removeSubmissionUserIdSet.removeAll(allowAddSubmissionUsersIdSet);
-				        
-						try
-						{
-							addRemoveSubmissionsForNonElectronicAssignment(state, submissions, addSubmissionUserIdSet, removeSubmissionUserIdSet, assignment); 
-						}
-						catch (Exception ee)
-						{
-							Log.warn("chef", this + ee.getMessage());
-						}
-					}
-					catch (Exception e)
-					{
-						Log.warn("chef", this + e.getMessage());
-					}
-				}
+				updateNonElectronicSubmissions(state, assignment);
 			}
 			
 			List userSubmissions = prepPage(state);
@@ -2171,6 +2141,46 @@ public class AssignmentAction extends PagedResourceActionII
 		return template + TEMPLATE_INSTRUCTOR_GRADE_ASSIGNMENT;
 
 	} // build_instructor_grade_assignment_context
+
+
+	/**
+	 * Synchronize the submissions for non electronic assignment with the current user set
+	 * @param state
+	 * @param assignment
+	 */
+	private void updateNonElectronicSubmissions(SessionState state, Assignment assignment) {
+		List submissions = AssignmentService.getSubmissions(assignment);
+		// the following operation is accessible for those with add assignment right
+		List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(assignment.getReference());
+		
+		HashSet<String> submittersIdSet = getSubmittersIdSet(submissions);
+		HashSet<String> allowAddSubmissionUsersIdSet = getAllowAddSubmissionUsersIdSet(allowAddSubmissionUsers);
+		
+		if (!submittersIdSet.equals(allowAddSubmissionUsersIdSet))
+		{
+			// get the difference between two sets
+			try
+			{
+				HashSet<String> addSubmissionUserIdSet = (HashSet<String>) allowAddSubmissionUsersIdSet.clone();
+				addSubmissionUserIdSet.removeAll(submittersIdSet);
+				HashSet<String> removeSubmissionUserIdSet = (HashSet<String>) submittersIdSet.clone();
+				removeSubmissionUserIdSet.removeAll(allowAddSubmissionUsersIdSet);
+		        
+				try
+				{
+					addRemoveSubmissionsForNonElectronicAssignment(state, submissions, addSubmissionUserIdSet, removeSubmissionUserIdSet, assignment); 
+				}
+				catch (Exception ee)
+				{
+					Log.warn("chef", this + ee.getMessage());
+				}
+			}
+			catch (Exception e)
+			{
+				Log.warn("chef", this + e.getMessage());
+			}
+		}
+	}
 
 	/**
 	 * build the instructor view of an assignment
@@ -4473,47 +4483,8 @@ public class AssignmentAction extends PagedResourceActionII
 					// only if user is posting the assignment
 					if (ac.getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 					{
-						try
-						{
-							// temporally make the assignment to be an draft and undraft it after the following operations are done
-							AssignmentEdit aEdit = AssignmentService.editAssignment(a.getReference());
-							aEdit.setDraft(true);
-							AssignmentService.commitEdit(aEdit);
-							
-							// for non-electronic assignment
-							List submissions = AssignmentService.getSubmissions(a);
-							if (submissions != null && submissions.size() >0)
-							{
-								// assignment already exist and with submissions
-								for (Iterator iSubmissions = submissions.iterator(); iSubmissions.hasNext();)
-								{
-									AssignmentSubmission s = (AssignmentSubmission) iSubmissions.next();
-									// remove all submissions
-									try
-									{
-										AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(s.getReference());
-										AssignmentService.removeSubmission(sEdit);
-									}
-									catch (Exception ee)
-									{
-										Log.debug("chef", this + ee.getMessage() + s.getReference());
-									}
-								}
-							}
-							
-							// add submission for every one who can submit
-							HashSet<String> addSubmissionUserIdSet = (HashSet<String>) getAllowAddSubmissionUsersIdSet(AssignmentService.allowAddSubmissionUsers(a.getReference()));	
-							addRemoveSubmissionsForNonElectronicAssignment(state, submissions, addSubmissionUserIdSet, new HashSet(), a);
-							
-							// undraft it
-							aEdit = AssignmentService.editAssignment(a.getReference());
-							aEdit.setDraft(false);
-							AssignmentService.commitEdit(aEdit);
-						}
-						catch (Exception e)
-						{
-							Log.debug("chef", this + e.getMessage() + a.getReference());
-						}
+						// update submissions
+						updateNonElectronicSubmissions(state, a);
 					}
 					else if (bool_change_from_non_electronic)
 					{
