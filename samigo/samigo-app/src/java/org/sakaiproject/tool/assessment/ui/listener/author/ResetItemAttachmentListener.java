@@ -42,6 +42,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -66,30 +67,32 @@ public class ResetItemAttachmentListener
   public void processAction(ActionEvent ae) throws AbortProcessingException {
 	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 	boolean isEditPendingAssessmentFlow =  author.getIsEditPendingAssessmentFlow();
-	ItemService service = null;
+	ItemService itemService = null;
+	AssessmentService assessmentService = null;
 	if (isEditPendingAssessmentFlow) {
-		service = new ItemService();
+		itemService = new ItemService();
+		assessmentService = new AssessmentService();
 	}
 	else {
-		service = new PublishedItemService();
+		itemService = new PublishedItemService();
+		assessmentService = new PublishedAssessmentService();
 	}
 
     ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     String itemId = itemauthorBean.getItemId();
     if (itemId !=null && !("").equals(itemId)){
-      ItemDataIfc item = service.getItem(itemId);
+      ItemDataIfc item = itemService.getItem(itemId);
       log.debug("*** item attachment="+item.getItemAttachmentList());
-      resetItemAttachment(itemauthorBean.getResourceHash(), item.getItemAttachmentList());
+      resetItemAttachment(itemauthorBean.getResourceHash(), item.getItemAttachmentList(), assessmentService);
     }
     else{
-      resetItemAttachment(itemauthorBean.getResourceHash(), new ArrayList());
+      resetItemAttachment(itemauthorBean.getResourceHash(), new ArrayList(), assessmentService);
     }
   }
 
-    public void resetItemAttachment(HashMap resourceHash, List attachmentList){
+    private void resetItemAttachment(HashMap resourceHash, List attachmentList, AssessmentService service){
     // 1. we need to make sure that attachment removed/added by file picker 
     //    will be restored/remove when user cancels the entire modification
-    AssessmentService service = new AssessmentService();
     if (attachmentList != null){
       for (int i=0; i<attachmentList.size(); i++){
          AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
