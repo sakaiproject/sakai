@@ -60,7 +60,7 @@
 				<tr #if($toolfound==true) class="selectedSelected" #end
 					id="row-$rowCount">
 					<td>
-							<input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"  
+						<input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"  
 								#if ($!defaultTools.indexOf($toolId) != -1)
 									checked="checked" disabled="disabled" 
 								#else
@@ -76,43 +76,17 @@
 					</td>
 					<td>
 						<h4>
-						#if ($toolId.indexOf("sakai.news") != -1)
-							## show title for News tool
-							#if ($toolRegistrationSelectedList.contains($toolId))
-								<label for="$toolId">$validator.escapeHtml($newsTitles.get($toolId))</label>
-							#else
-								<label for="$toolId">$validator.escapeHtml($tool.getTitle())</label>
-							#end
-						#elseif ($toolId.indexOf("sakai.iframe") != -1)
-							## show url for Web Content tool
-							#if ($toolRegistrationSelectedList.contains($toolId))
-								<label for="$toolId">$validator.escapeHtml($wcTitles.get($toolId))</label>
-							#else
-								<label for="$toolId">$validator.escapeHtml($tool.getTitle())</label>
-							#end
-						#else
-							<label for="$toolId" >$validator.escapeHtml($tool.getTitle())</label>
-						#end
+							<label for="$toolId" >
+								#if ($!multipleToolIdTitleMap.containsKey($toolId))
+									$validator.escapeHtml($!multipleToolIdTitleMap.get($toolId))
+								#else
+									$validator.escapeHtml($tool.getTitle())
+								#end
+							</label>
 						</h4>	
 					</td>
 					<td>
-						#if ($toolId.indexOf("sakai.news") != -1)
-							## show url for News tool
-							#if ($toolRegistrationSelectedList.contains($toolId))
-								$tlang.getString("tool.news.desc") $newsUrls.get($toolId).
-							#else
-								$tool.getDescription()
-							#end
-						#elseif ($toolId.indexOf("sakai.iframe") != -1)
-							## show url for Web Content tool
-							#if ($toolRegistrationSelectedList.contains($toolId))
-								$tlang.getString("tool.webcontent.desc1") $wcUrls.get($toolId) $tlang.getString("tool.webcontent.desc2")
-							#else
-								$tool.getDescription()
-							#end
-						#else
 							$tool.getDescription()
-						#end
 					</td>
 				</tr>
 			#end

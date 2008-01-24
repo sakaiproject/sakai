@@ -87,10 +87,8 @@
 									<li>
 										#if ($toolId.equals("sakai.mailbox"))
 											$tool.Title: $emailId@$serverName <br />
-										#elseif ($toolId.indexOf("sakai.news") != -1)
-											$tool.Title: $validator.escapeHtml($!newsTitles.get($toolId)) <br />
-										#elseif ($toolId.indexOf("sakai.iframe") != -1)
-											$tool.Title: $validator.escapeHtml($!wcTitles.get($toolId)) <br />
+										#elseif ($!multipleToolIdTitleMap.containsKey($toolId))
+											$validator.escapeHtml($!multipleToolIdTitleMap.get($toolId))
 										#else
 											$tool.Title
 											#foreach ($tId in $!importSiteTools.keys())

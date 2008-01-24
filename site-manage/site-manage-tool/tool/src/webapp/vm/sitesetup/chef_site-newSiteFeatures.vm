@@ -77,48 +77,16 @@
 							/>
 						</td>
 						<td>
-								#if ($toolId.indexOf("sakai.news") != -1)
-									## show title for News tool
-										<label for="$toolId">
-											#if ($toolRegistrationSelectedList.contains($toolId) && $!newsTitles)								
-												$newsTitles.get($toolId)
-											#else
-												$tool.getTitle()
-											#end
-										</label>
-								#elseif ($toolId.indexOf("sakai.iframe") != -1)
-									<label for="$toolId">
-										## show url for Web Content tool
-										#if ($toolRegistrationSelectedList.contains($toolId) && $!wcTitles)
-											$wcTitles.get($toolId)
-										#else
-											$tool.getTitle()
-										#end
-									</label>	
-								#else
-									<label for="$toolId">
-										$tool.getTitle()
-									</label>	
-								#end
+								<label for="$toolId">
+									#if ($!multipleToolIdTitleMap.containsKey($toolId))
+										$validator.escapeHtml($!multipleToolIdTitleMap.get($toolId))
+									#else
+										$validator.escapeHtml($tool.getTitle())
+									#end
+								</label>
 						</td>
 						<td>
-							#if ($toolId.indexOf("sakai.news") != -1)
-								## show url for News tool
-								#if ($toolRegistrationSelectedList.contains($toolId) && $!newsUrls)
-									$newsUrls.get($toolId)
-								#else
-									$tool.getDescription()
-								#end
-							#elseif ($toolId.indexOf("sakai.iframe") != -1)
-								## show url for Web Content tool
-								#if ($toolRegistrationSelectedList.contains($toolId) && $!wcUrls)
-									$wcUrls.get($toolId)
-								#else
-									$tool.getDescription()
-								#end
-							#else
 								$tool.getDescription()
-							#end
 						</td>
 					</tr>	
 				#end
