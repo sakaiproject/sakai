@@ -33,29 +33,17 @@ public class RepublishAssessmentListener implements ActionListener {
 				.lookupBean("assessmentBean");
 		boolean hasGradingData = assessmentBean.getHasGradingData();
 
-		//String publishedAssessmentId = assessmentBean.getAssessmentId();
-		//log.debug("publishedAssessmentId = " + publishedAssessmentId);
+		String publishedAssessmentId = assessmentBean.getAssessmentId();
+		log.debug("publishedAssessmentId = " + publishedAssessmentId);
 		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-		PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) assessmentBean.getAssessment();
-		boolean withSection = true; 
-		if (assessment == null) {
-			PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
-			assessment = assessmentSettings.getAssessment();
-			withSection = false; // the assessment getting from assessmentSettings doesn't have sections
-		}
+		// Go to database to get the newly updated data. The data inside beans might not be up to date.
+		PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
+		
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
 		publishedAssessmentService.saveAssessment(assessment);
-		//AssessmentAccessControlIfc publishedAccessControl = publishedAssessmentService
-				//.loadPublishedAccessControl(Long.valueOf(publishedAssessmentId));
-		//publishedAccessControl.setRetractDate(null);
-		//publishedAssessmentService.saveOrUpdatePublishedAccessControl(publishedAccessControl);
-		//assessmentBean.getAssessment().setAssessmentAccessControl(publishedAccessControl);
 		
 		// If there are submissions, need to regrade them
 		if (hasGradingData) {
-			if (!withSection) {
-				assessment.setSectionSet(publishedAssessmentService.getSectionSetForAssessment((PublishedAssessmentIfc) assessment));
-			}
 			regradeRepublishedAssessment(publishedAssessmentService, (PublishedAssessmentIfc) assessment);
 		}
 

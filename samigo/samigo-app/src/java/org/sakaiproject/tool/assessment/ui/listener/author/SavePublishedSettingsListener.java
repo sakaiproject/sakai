@@ -157,6 +157,7 @@ public class SavePublishedSettingsListener
 	   	// a. LATER set dueDate, startDate, releaseTo
 	   	control.setStartDate(assessmentSettings.getStartDate());
 	   	control.setDueDate(assessmentSettings.getDueDate());
+	   	control.setRetractDate(assessmentSettings.getRetractDate());
 	   	
 	    //check feedback - if at specific time then time should be defined.
 	    if((assessmentSettings.getFeedbackDelivery()).equals("2")) {
