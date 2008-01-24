@@ -27,14 +27,18 @@ import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.behavior.IBehaviorListener;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.util.string.AppendingStringBuffer;
+import org.sakaiproject.scorm.ui.player.util.Utils;
 
 public abstract class ActivityAjaxEventBehavior extends AjaxEventBehavior {
 
-	public ActivityAjaxEventBehavior(String event) {
-		super(event);
-	}
-
 	private static final long serialVersionUID = 1L;
+	
+	final private boolean isRelativeUrl;
+		
+	public ActivityAjaxEventBehavior(String event, boolean isRelativeUrl) {
+		super(event);
+		this.isRelativeUrl = isRelativeUrl;
+	}
 	
 	public String getCall() {
 		return getCallbackScript(false).toString();
@@ -47,7 +51,7 @@ public abstract class ActivityAjaxEventBehavior extends AjaxEventBehavior {
 	
 	public CharSequence getCallbackUrl()
 	{
-		if (getComponent() == null)
+		/*if (getComponent() == null)
 		{
 			throw new IllegalArgumentException(
 					"Behavior must be bound to a component to create the URL");
@@ -64,9 +68,10 @@ public abstract class ActivityAjaxEventBehavior extends AjaxEventBehavior {
 		
 		AppendingStringBuffer url = new AppendingStringBuffer();
 		url.append(toolUrl).append("/");
-		url.append(getComponent().urlFor(this, rli));
+		url.append("scormplayer").append("/");
+		url.append(getComponent().urlFor(this, rli));*/
 
-		return url;
+		return Utils.generateUrl(this, null, getComponent(), isRelativeUrl);
 	}
 
 }

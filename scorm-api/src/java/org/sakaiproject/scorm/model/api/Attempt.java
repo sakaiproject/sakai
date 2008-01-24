@@ -2,6 +2,8 @@ package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Attempt implements Serializable {
 
@@ -15,8 +17,7 @@ public class Attempt implements Serializable {
 	private long attemptNumber;
 	private Date beginDate;
 	private Date lastModifiedDate;
-	
-	//private long dataManagerId = -1;
+	private Map<String, Long> scoDataManagerMap;
 	
 	private boolean isNotExited;
 	private boolean isSuspended;
@@ -24,12 +25,21 @@ public class Attempt implements Serializable {
 	public Attempt() {
 		this.isNotExited = true;
 		this.isSuspended = false;
+		this.scoDataManagerMap = new HashMap<String, Long>();
+	}
+
+	public Long getDataManagerId(String scoId) {
+		return scoDataManagerMap.get(scoId);
+	}
+	
+	public void setDataManagerId(String scoId, Long dataManagerId) {
+		if (scoId != null)
+			scoDataManagerMap.put(scoId, dataManagerId);
 	}
 	
 	public String getLearnerId() {
 		return learnerId;
 	}
-
 
 	public void setLearnerId(String learnerId) {
 		this.learnerId = learnerId;
@@ -139,6 +149,14 @@ public class Attempt implements Serializable {
 
 	public void setContentPackageId(long contentPackageId) {
 		this.contentPackageId = contentPackageId;
+	}
+
+	public Map<String, Long> getScoDataManagerMap() {
+		return scoDataManagerMap;
+	}
+
+	public void setScoDataManagerMap(Map<String, Long> scoDataManagerMap) {
+		this.scoDataManagerMap = scoDataManagerMap;
 	}
 
 }

@@ -57,6 +57,7 @@ import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.ResourceNavigator;
 import org.sakaiproject.scorm.ui.UISynchronizer;
+import org.sakaiproject.scorm.ui.UISynchronizerPanel;
 import org.sakaiproject.scorm.ui.player.behaviors.ActivityAjaxEventBehavior;
 
 public class ActivityTree extends LinkTree {	
@@ -66,7 +67,7 @@ public class ActivityTree extends LinkTree {
 	private static final String ARIA_TREE_ROLE = "wairole:tree";
 	
 	protected SessionBean sessionBean;
-	protected UISynchronizer synchronizer;
+	protected UISynchronizerPanel synchronizer;
 	
 	protected boolean wasEmpty = false;
 	protected boolean isEmpty = true;
@@ -79,7 +80,7 @@ public class ActivityTree extends LinkTree {
 	transient ScormSequencingService sequencingService;
 	
 	
-	public ActivityTree(String id, SessionBean sessionBean, UISynchronizer synchronizer) {
+	public ActivityTree(String id, SessionBean sessionBean, UISynchronizerPanel synchronizer) {
 		super(id);
 		this.synchronizer = synchronizer;
 		this.sessionBean = sessionBean;
@@ -239,7 +240,7 @@ public class ActivityTree extends LinkTree {
 			super(id, model);
 			
 			
-			if (lms.canUseRelativeUrls()) {
+			/*if (lms.canUseRelativeUrls()) {
 				
 				add(new AjaxEventBehavior("onclick")
 				{
@@ -267,9 +268,8 @@ public class ActivityTree extends LinkTree {
 				}.setThrottleDelay(Duration.ONE_SECOND));
 				
 			} else {
-			
-				add(new ActivityAjaxEventBehavior("onclick")
-				{
+			*/
+				add(new ActivityAjaxEventBehavior("onclick", lms.canUseRelativeUrls()) {
 					private static final long serialVersionUID = 1L;
 	
 					protected void onEvent(AjaxRequestTarget target)
@@ -292,7 +292,7 @@ public class ActivityTree extends LinkTree {
 					}
 									
 				}.setThrottleDelay(Duration.ONE_SECOND));
-			}
+			//}
 			
 			add(new AttributeModifier("role", new Model(ARIA_TREEITEM_ROLE)));
 		}
@@ -379,6 +379,12 @@ public class ActivityTree extends LinkTree {
 		@Override
 		protected ScormResourceService resourceService() {
 			return ActivityTree.this.resourceService;
+		}
+		
+		public Component getFrameComponent() {
+			if (synchronizer != null && synchronizer.getContentPanel() != null) 
+				return synchronizer.getContentPanel();
+			return null;
 		}
 		
 	}

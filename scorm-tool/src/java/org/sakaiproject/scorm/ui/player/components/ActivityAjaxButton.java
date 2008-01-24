@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.Application;
+import org.apache.wicket.Component;
 import org.apache.wicket.RequestListenerInterface;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
@@ -21,6 +22,7 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.ResourceNavigator;
+import org.sakaiproject.scorm.ui.player.util.Utils;
 import org.sakaiproject.wicket.ajax.markup.html.form.AjaxRolloverImageButton;
 
 public class ActivityAjaxButton extends AjaxRolloverImageButton {
@@ -58,8 +60,8 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 		
 		final boolean useRelativeUrls = lms.canUseRelativeUrls();
 		
-		add(new AjaxFormSubmitBehavior(form, "onclick")
-		{
+		add(new AjaxFormSubmitBehavior(form, "onclick") {
+			
 			private static final long serialVersionUID = 1L;
 
 			protected void onSubmit(AjaxRequestTarget target)
@@ -94,7 +96,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 				if (useRelativeUrls)
 					return super.getCallbackUrl();
 				
-				if (getComponent() == null)
+				/*if (getComponent() == null)
 				{
 					throw new IllegalArgumentException(
 							"Behavior must be bound to a component to create the URL");
@@ -112,9 +114,9 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 				AppendingStringBuffer url = new AppendingStringBuffer();
 				if (!lms.canUseRelativeUrls())
 					url.append(toolUrl).append("/");
-				url.append(getComponent().urlFor(this, rli));
+				url.append(getComponent().urlFor(this, rli));*/
 
-				return url;
+				return Utils.generateUrl(this, null, getComponent(), useRelativeUrls);
 			}
 		
 		}.setThrottleDelay(Duration.ONE_SECOND));
@@ -240,6 +242,12 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 			return this.getApplication();
 		}
 		
+		public Component getFrameComponent() {
+			if (form.getLaunchPanel() != null && form.getLaunchPanel().getContentPanel() != null)
+				return form.getLaunchPanel().getContentPanel();
+			return null;
+		}
+				
 	}
 	
 }

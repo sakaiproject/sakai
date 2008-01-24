@@ -17,6 +17,7 @@ import org.apache.wicket.request.target.component.BookmarkablePageRequestTarget;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.ui.UISynchronizer;
+import org.sakaiproject.scorm.ui.UISynchronizerPanel;
 import org.sakaiproject.scorm.ui.player.components.ActivityTree;
 import org.sakaiproject.scorm.ui.reporting.pages.AttemptGraphPage;
 
@@ -27,7 +28,7 @@ public class ReportingActivityTree extends ActivityTree {
 	private static Log log = LogFactory.getLog(ReportingActivityTree.class);
 	
 	public ReportingActivityTree(String id, SessionBean sessionBean,
-			UISynchronizer synchronizer) {
+			UISynchronizerPanel synchronizer) {
 		super(id, sessionBean, synchronizer);
 	}
 	

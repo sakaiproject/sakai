@@ -43,6 +43,7 @@ package org.sakaiproject.scorm.ui;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -70,6 +71,14 @@ public class ContentPackageResourceRequestTarget implements IRequestTarget {
 	
 	private final String resourceName;
 	
+	public ContentPackageResourceRequestTarget(String resourceName) {
+		this.resourceName = resourceName;
+		this.requestParameters = new RequestParameters();
+		Map parameters = new HashMap();
+		parameters.put("resourceName", resourceName);
+		requestParameters.setParameters(parameters);
+	}
+	
 	public ContentPackageResourceRequestTarget(RequestParameters requestParameters) {
 		this.requestParameters = requestParameters;
 		
@@ -87,46 +96,6 @@ public class ContentPackageResourceRequestTarget implements IRequestTarget {
 			log.debug("Looking up resource by " + resourceName);
 
 		return application.getSharedResources().get(PlayerPage.class, resourceName, null, null, false);
-		
-		/*ContentPackageResource resource = application.getResourceService().getResource(resourceId, path);
-
-		try {
-			if (resource == null || resource.getInputStream() == null)
-				return null;
-		
-		
-			final String mimeType = resource.getMimeType();
-			final byte[] data = streamBytes(resource.getInputStream());
-			
-			
-			final DynamicWebResource fileResource = new DynamicWebResource() {
-					
-				private static final long serialVersionUID = 1L;
-	
-				protected ResourceState getResourceState() {
-					return new ResourceState() {
-	
-						@Override
-						public String getContentType() {
-							return mimeType;
-						}
-	
-						@Override
-						public byte[] getData() {						
-							return data;
-						}
-							
-					};
-				}				
-			};
-		
-			return fileResource;
-			
-		} catch (ResourceNotFoundException rnfe) {
-			log.error("Could not find resource ", rnfe);
-		}
-		
-		return null;*/
 	}
 	
 	public int hashCode()

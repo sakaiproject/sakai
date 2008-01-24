@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-cascade="all" default-access="field" package="org.adl.datamodels" default-lazy="false">
+<hibernate-mapping default-cascade="all" package="org.adl.datamodels" default-lazy="false">
 	
 	<class name="org.adl.datamodels.SCODataManager" table="SCORM_DATAMANAGER_T">
 	
@@ -29,7 +29,7 @@
 		
 		<property name="lastModifiedDate" column="LAST_MODIFIED_DATE"/>
 		
-		<map name="mDataModels" table="SCORM_MAP_DATAMODELS_T">
+		<map name="dataModels" table="SCORM_MAP_DATAMODELS_T">
     		<key column="DATAMANAGER_ID"/>
     		<map-key column="DM_BINDING" type="string"/>
     		<many-to-many column="DATAMODEL_ID" class="org.adl.datamodels.DataModel"/>

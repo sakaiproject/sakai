@@ -33,6 +33,7 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebResource;
+import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.request.IRequestCodingStrategy;
 import org.apache.wicket.request.target.component.BookmarkablePageRequestTarget;
@@ -84,6 +85,8 @@ public class PlayerPage extends BaseToolPage {
 	
 	
 	private SessionBean sessionBean;
+	
+	public LocalResourceNavigator navigator;
 
 	// Components
 	private LaunchPanel launchPanel;
@@ -97,6 +100,8 @@ public class PlayerPage extends BaseToolPage {
 	
 	public PlayerPage(final PageParameters pageParams) {
 		super();
+		
+		navigator = new LocalResourceNavigator();
 		
 		long contentPackageId = pageParams.getLong("id");
 		String courseId = pageParams.getString("resourceId");
@@ -120,7 +125,7 @@ public class PlayerPage extends BaseToolPage {
 		
 		//add(new AdminPanel("adminPanel", contentPackageId, runState));
 		
-		closeWindowBehavior = new CloseWindowBehavior(sessionBean);
+		closeWindowBehavior = new CloseWindowBehavior(sessionBean, lms.canUseRelativeUrls());
 		add(closeWindowBehavior);
 		
 	}
@@ -225,7 +230,6 @@ public class PlayerPage extends BaseToolPage {
 		
 		String result = null;
 		
-		LocalResourceNavigator navigator = new LocalResourceNavigator();
 		
 		try {
 			
@@ -256,7 +260,7 @@ public class PlayerPage extends BaseToolPage {
 					launchPanel.getTree().setVisible(false);
 				}
 				
-				navigator.displayResource(sessionBean, target);
+				navigator.displayResource(sessionBean, null);
 				
 				return launchPanel;
 			} 
@@ -277,12 +281,6 @@ public class PlayerPage extends BaseToolPage {
 		buttonForm.synchronizeState(sessionBean, target);
 	}
 	
-	
-	public boolean isVersioned()
-	{
-		return true;
-	}
-	
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		
@@ -292,10 +290,13 @@ public class PlayerPage extends BaseToolPage {
 	
 	private void loadSharedResources(String resourceId) {
 		List<ContentPackageResource> resources = resourceService.getResources(resourceId);
+
+		getApplication().getSharedResources().putClassAlias(PlayerPage.class, "play");
 		
 		for (ContentPackageResource cpResource : resources) {
 			String resourceName = cpResource.getPath();
 
+			
 			if (getApplication().getSharedResources().get(resourceName) == null) {
 				
 				WebResource webResource = new ContentPackageWebResource(cpResource);
@@ -303,7 +304,14 @@ public class PlayerPage extends BaseToolPage {
 				if (log.isDebugEnabled()) 
 					log.debug("Adding a shared resource as " + resourceName);
 				
+				//getApplication().getSharedResources().add(resourceName, webResource);
+				
 				getApplication().getSharedResources().add(PlayerPage.class, resourceName, null, null, webResource);
+				
+				//String resourceKey = getApplication().getSharedResources().resourceKey(PlayerPage.class, resourceName, null, null);
+				
+				//((WebApplication)getApplication()).unmount(resourceName);
+				//((WebApplication)getApplication()).mountSharedResource(resourceName, resourceKey);
 				
 			}
 		}
@@ -536,6 +544,12 @@ public class PlayerPage extends BaseToolPage {
 		@Override
 		protected ScormResourceService resourceService() {
 			return PlayerPage.this.resourceService;
+		}
+		
+		public Component getFrameComponent() {
+			if (launchPanel != null)
+				return launchPanel.getContentPanel();
+			return null;
 		}
 		
 	}

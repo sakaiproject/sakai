@@ -9,7 +9,13 @@
 	<wicket:extend>
 		<div id="header" class="navIntraTool">
 			<a href="#" wicket:id="listLink"></a> | <a href="#" wicket:id="uploadLink"></a> | <a href="#" wicket:id="validateLink"></a>
-		</div>	        
+		</div>	
+
+		<wicket:enclosure child="breadcrumbs">
+			<h5><div wicket:id="breadcrumbs"></div></h5>
+			<p/>
+		</wicket:enclosure>
+
 	    <h3><span wicket:id="page.title">Console</span></h3>
 
 	    <div class="navPanel" style="height:auto">

@@ -21,6 +21,7 @@
 package org.sakaiproject.scorm.ui.player.behaviors;
 
 import java.lang.reflect.Method;
+import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,6 +37,7 @@ import org.apache.wicket.behavior.IBehaviorListener;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
+import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.sakaiproject.scorm.model.api.ScoBean;
@@ -47,6 +49,8 @@ import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.ResourceNavigator;
 import org.sakaiproject.scorm.ui.player.decorators.SjaxCallDecorator;
+import org.sakaiproject.scorm.ui.player.util.Utils;
+import org.apache.wicket.protocol.http.pagestore.DiskPageStore;
 
 /**
  * This class is right at the center of all the action. It provides a wrapper for Synchronous
@@ -63,16 +67,14 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	public static final String ARG_COMPONENT_ID = "arg";
 	public static final String RESULT_COMPONENT_ID = "result";
 	public static final String SCO_COMPONENT_ID = "scoId";
-	
-	private static final ResourceReference SJAX = new JavascriptResourceReference(SjaxCall.class, "res/scorm-sjax.js");
-	
+		
 	private static Log log = LogFactory.getLog(SjaxCall.class);
 	private static final long serialVersionUID = 1L;
 	protected static final String APIClass = "APIAdapter";
 	
 	protected String event;
 	protected int numArgs;
-	
+		
 	private String js = null;
 	
 	/**
@@ -88,6 +90,7 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 		this.numArgs = numArgs;
 	}
 
+	protected abstract INavigable getNavigationAgent();
 	
 	protected abstract LearningManagementSystem lms();
 	
@@ -147,7 +150,7 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 
 			@Override
 			public INavigable getAgent() {
-				return new LocalResourceNavigator();
+				return getNavigationAgent();
 			}
 
 			@Override
@@ -209,7 +212,7 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 				String paramName = new StringBuilder("arg").append(i+1).toString();
 				args[i] = this.getComponent().getRequest().getParameter(paramName);
 			}
-						
+			
 			String resultValue = callMethod(scoBean, target, args);
 			
 			StringBuffer resultBuffer = new StringBuffer();
@@ -225,10 +228,9 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 		} catch (Exception e) {
 			log.error("Caught a fatal exception during scorm api communication", e);
 		}
-		
 	}
 	
-	public void prependJavascript(String js) {
+	/*public void prependJavascript(String js) {
 		this.js = js;
 	}
 	
@@ -249,7 +251,7 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	protected CharSequence getSuccessScript()
 	{
 		return null;
-	}
+	}*/
 	
 	@Override
 	protected IAjaxCallDecorator getAjaxCallDecorator()
@@ -262,7 +264,24 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	{
 		StringBuffer buffer = new StringBuffer();
 		
-		buffer.append("ScormSjax.sjaxCall(sco, '").append(getCallUrl()).append("', ");
+		buffer.append("\n");
+		buffer.append("var sjaxCallContainer = document.getElementById('").append(event.toLowerCase())
+			.append("call');\n");
+		buffer.append("var url = undefined;\n");
+				//'").append(getCallUrl()).append("';\n");
+				
+		buffer.append("if (sjaxCallContainer != undefined) {\n")
+			  .append("    url = sjaxCallContainer.value; \n")
+			  .append("} \n");
+		
+		//buffer.append("var d = '").append(new Date().toString()).append("';");
+		
+		//buffer.append("alert(url);");
+		
+		//buffer.append("ScormSjax.sjaxCall(sco, '").append(getCallUrl())
+		//	.append("', ");
+		
+		buffer.append("var wcall=ScormSjax.sjaxCall(sco, url, ");
 		
 		if (numArgs == 0)
 			buffer.append("'', ''");
@@ -271,8 +290,10 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 		else
 			buffer.append("arg1, arg2");
 		
+		buffer.append(",null,null, null, '1|s'); \n return wcall;\n");
 		
-		return generateCallbackScript(buffer.toString());
+		return buffer.toString();
+		//return generateCallbackScript(buffer.toString());
 	}
 	
 	public CharSequence getCallUrl()
@@ -283,30 +304,34 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 					"Behavior must be bound to a component to create the URL");
 		}
 		
-		final RequestListenerInterface rli;
 		
-		rli = IBehaviorListener.INTERFACE;
+		/*String relativePagePath= getComponent().urlFor(this, rli).toString();
 		
-		AppendingStringBuffer url = new AppendingStringBuffer();
+		String url = null;
 		
 		if (!lms().canUseRelativeUrls()) {
 			WebRequest webRequest = (WebRequest)getComponent().getRequest();
 			HttpServletRequest servletRequest = webRequest.getHttpServletRequest();
-			url.append(servletRequest.getContextPath()).append("/");
-		}
+			//url.append(servletRequest.getContextPath()).append("/");
+			url = RequestUtils.toAbsolutePath(servletRequest.getRequestURL().toString(), relativePagePath);
+		} else {
+			url = relativePagePath;
+		}*/
 			
-		url.append(getComponent().urlFor(this, rli));
-		
-		return url;
+		return Utils.generateUrl(this, null, getComponent(), lms().canUseRelativeUrls());
 	}
 	
 	
-	/*@Override
-	protected void onComponentTag(final ComponentTag tag) {
-		// Do nothing -- we don't want to add the javascript to the component.
-	}*/
-	
 	@Override
+	protected void onComponentTag(final ComponentTag tag) {
+		// only add the event handler when the component is enabled.
+		if (getComponent().isEnabled())
+		{
+			tag.put(event, getCallUrl());
+		}
+	}
+	
+	/*@Override
 	public void renderHead(IHeaderResponse response) {
 	    super.renderHead(response);
 
@@ -325,28 +350,36 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	    
 	    script.append(") { ");
 	    
-		script.append(getCallbackScript(false))
-			.append("};");
+	    //script.append(" var elem = getElementById('comPanel'); \n ");
+	    //script.append(" return elem.").append(getEvent().toLowerCase()).append("(); \n");
+	    
+	    
+		script.append(getCallbackScript(false));
+		script.append("};");
 		
 		response.renderJavascript(script.toString(), getEvent());
 	    
-	}
+	}*/
 	
 	
-	public class LocalResourceNavigator extends ResourceNavigator {
-
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public Object getApplication() {
-			return this.getApplication();
+	public String getJavascriptCode() {
+		StringBuffer script = new StringBuffer().append(APIClass)
+			.append(".")
+			.append(getEvent())
+			.append(" = function(");
+	
+	    for (int i=0;i<numArgs;i++) {
+			script.append("arg").append(i+1);
+			if (i+1<numArgs)
+				script.append(", ");
 		}
-		
-		@Override
-		protected ScormResourceService resourceService() {
-			return SjaxCall.this.resourceService();
-		}
-		
+	    
+	    script.append(") { ");
+
+		script.append(getCallbackScript(false));
+		script.append("};");
+	
+		return script.toString();
 	}
 	
 }

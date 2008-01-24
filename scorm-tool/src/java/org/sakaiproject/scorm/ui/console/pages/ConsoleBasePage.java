@@ -23,7 +23,9 @@ package org.sakaiproject.scorm.ui.console.pages;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.scorm.ui.console.components.BreadcrumbPanel;
 import org.sakaiproject.scorm.ui.upload.pages.UploadPage;
 import org.sakaiproject.scorm.ui.validation.pages.ValidationPage;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
@@ -35,6 +37,7 @@ public class ConsoleBasePage extends SakaiPortletWebPage {
 	
 	// The feedback panel component displays dynamic messages to the user
 	private FeedbackPanel feedback;
+	private BreadcrumbPanel breadcrumbs;
 	
 	public ConsoleBasePage() {
 		this(null);
@@ -46,6 +49,11 @@ public class ConsoleBasePage extends SakaiPortletWebPage {
 		add(new NavIntraLink("uploadLink", new ResourceModel("link.upload"), UploadPage.class));
 		add(new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class));
 		add(feedback = new FeedbackPanel("feedback"));
+		add(breadcrumbs = new BreadcrumbPanel("breadcrumbs"));
+	}
+	
+	public void addBreadcrumb(IModel model, Class<?> pageClass, PageParameters params, boolean isEnabled) {
+		breadcrumbs.addBreadcrumb(model, pageClass, params, isEnabled);
 	}
 	
 	protected Label newPageTitleLabel(PageParameters params) {
@@ -57,6 +65,7 @@ public class ConsoleBasePage extends SakaiPortletWebPage {
 		super.onBeforeRender();
 		// If a feedback message exists, then make the feedback panel visible, otherwise, hide it.
 		feedback.setVisible(hasFeedbackMessage());
+		breadcrumbs.setVisible(breadcrumbs.getNumberOfCrumbs() > 0);
 	}
 	
 }

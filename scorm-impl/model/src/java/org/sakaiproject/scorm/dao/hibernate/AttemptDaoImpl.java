@@ -1,5 +1,6 @@
 package org.sakaiproject.scorm.dao.hibernate;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.Date;
@@ -29,13 +30,17 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 	        }
 	      };       
 	      
-	      BigInteger result = (BigInteger)getHibernateTemplate().execute(hcb);
+	      Object result = getHibernateTemplate().execute(hcb);
 	      
 	      int r = 0;
 	      
-	      if (result != null)
-	    	  r = result.intValue();
-	      
+	      if (result != null) {
+	    	  if (result instanceof BigInteger)
+	    		  r = ((BigInteger)result).intValue();
+	    	  else if (result instanceof BigDecimal)
+	    		  r = ((BigDecimal)result).intValue();
+	      }
+	    	  
 	      return r;
 	}
 	

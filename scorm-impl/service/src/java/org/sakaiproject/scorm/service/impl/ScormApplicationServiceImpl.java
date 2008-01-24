@@ -525,14 +525,14 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
         
 		Attempt attempt = getAttempt(sessionBean);
 		
-		//long dataManagerId = attempt.getDataManagerId();
+		Long dataManagerId = attempt.getDataManagerId(scoId);
 		
         // FIXME : We need to look in the db first -- but currently it doesn't seem that data is getting saved correctly
         // First, check to see if we have a ScoDataManager persisted
-        //if (dataManagerId != -1)
-        	//dm = dataManagerDao().load(dataManagerId);
+        if (dataManagerId != null && dataManagerId.longValue() != -1)
+        	dm = dataManagerDao().load(dataManagerId.longValue());
         
-		dm = dataManagerDao().find(courseId, scoId, learnerId, sessionBean.getAttemptNumber());
+		//dm = dataManagerDao().find(courseId, scoId, learnerId, sessionBean.getAttemptNumber());
 
         if (dm == null) {
 	        // If not, create one, which means this is the 
@@ -678,7 +678,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
         
         persistDataManager(validRequests, dm);
         
-        //attempt.setDataManagerId(dm.getId());
+        attempt.setDataManagerId(scoId, dm.getId());
         attemptDao().save(attempt);
         
         return dm;

@@ -21,6 +21,12 @@
 		<!--property name="dataManagerId" column="DATAMANAGER_ID" /-->
 		<property name="suspended" column="IS_SUSPENDED" />
 		<property name="notExited" column="IS_NOT_EXITED" />
+		
+		<map name="scoDataManagerMap" table="SCORM_MAP_SCO_DATAMANAGER_T">
+    		<key column="ATTEMPT_ID"/>
+    		<map-key column="SCO_ID" type="string" />
+    		<element column="DATAMANAGER_ID" type="long" />
+		</map>
 	</class>
 	
 </hibernate-mapping>
