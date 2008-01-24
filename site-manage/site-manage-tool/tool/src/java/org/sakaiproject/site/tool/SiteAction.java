@@ -286,6 +286,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String SORTED_BY_PARTICIPANT_COURSE = "participant_course";
 
 	private static final String SORTED_BY_PARTICIPANT_CREDITS = "participant_credits";
+	
+	private static final String SORTED_BY_PARTICIPANT_STATUS = "participant_status";
 
 	private static final String SORTED_BY_MEMBER_NAME = "member_name";
 
@@ -1762,14 +1764,6 @@ public class SiteAction extends PagedResourceActionII {
 					"activeInactiveUser", Boolean.FALSE.toString());
 			if (activeInactiveUser.equalsIgnoreCase("true")) {
 				context.put("activeInactiveUser", Boolean.TRUE);
-				// put realm object into context
-				realmId = SiteService.siteReference(site.getId());
-				try {
-					context.put("realm", AuthzGroupService
-							.getAuthzGroup(realmId));
-				} catch (GroupNotDefinedException e) {
-					M_log.warn(this + "  IdUnusedException " + realmId);
-				}
 			} else {
 				context.put("activeInactiveUser", Boolean.FALSE);
 			}
@@ -6148,9 +6142,6 @@ public class SiteAction extends PagedResourceActionII {
 						String rId = (String) removals.get(i);
 						try {
 							User user = UserDirectoryService.getUser(rId);
-							Participant selected = new Participant();
-							selected.name = user.getDisplayName();
-							selected.uniqname = user.getId();
 							realmEdit.removeMember(user.getId());
 						} catch (UserNotDefinedException e) {
 							M_log.warn(this + " IdUnusedException " + rId
@@ -7527,6 +7518,7 @@ public class SiteAction extends PagedResourceActionII {
 						participant.uniqname = userId;
 						participant.role = g.getRole()!=null?g.getRole().getId():"";
 						participant.removeable = true;
+						participant.active = g.isActive();
 						participantsMap.put(userId, participant);
 					}
 				} catch (UserNotDefinedException e) {
@@ -7582,6 +7574,7 @@ public class SiteAction extends PagedResourceActionII {
 							participant.role = member.getRole()!=null?member.getRole().getId():"";
 							participant.addSectionEidToList(sectionTitle);
 							participant.uniqname = userId;
+							participant.active=member.isActive();
 						}
 						
 						participantsMap.put(userId, participant);
@@ -7642,6 +7635,7 @@ public class SiteAction extends PagedResourceActionII {
 								participant.role = member.getRole()!=null?member.getRole().getId():"";
 								participant.addSectionEidToList(sectionTitle);
 								participant.uniqname = userId;
+								participant.active = member.isActive();
 							}
 							participantsMap.put(userId, participant);
 							}
@@ -8686,6 +8680,7 @@ public class SiteAction extends PagedResourceActionII {
 						} else {
 							participant.name = u.getDisplayName();
 							participant.uniqname = u.getEid();
+							participant.active = true;
 							pList.add(participant);
 						}
 					} catch (UserNotDefinedException e) {
@@ -8744,6 +8739,7 @@ public class SiteAction extends PagedResourceActionII {
 							} else {
 								participant.name = u.getDisplayName();
 								participant.uniqname = nonOfficialAccount;
+								participant.active = true;
 								pList.add(participant);
 							}
 						} catch (UserNotDefinedException e) {
@@ -8760,6 +8756,7 @@ public class SiteAction extends PagedResourceActionII {
 							// name
 							// to?
 							// -ggolden
+							participant.active = true;
 							pList.add(participant);
 						}
 					}
@@ -9508,6 +9505,7 @@ public class SiteAction extends PagedResourceActionII {
 		Participant participant = new Participant();
 		participant.name = NULL_STRING;
 		participant.uniqname = NULL_STRING;
+		participant.active = true;
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
 		state.setAttribute("form_participantToAdd", participant);
 		state.setAttribute(FORM_ADDITIONAL, NULL_STRING);
@@ -9899,13 +9897,7 @@ public class SiteAction extends PagedResourceActionII {
 				// sort by whether the site is joinable or not
 				boolean b1 = ((Site) o1).isJoinable();
 				boolean b2 = ((Site) o2).isJoinable();
-				if (b1 == b2) {
-					result = 0;
-				} else if (b1 == true) {
-					result = 1;
-				} else {
-					result = -1;
-				}
+				result = compareBoolean(b1, b2);
 			} else if (m_criterion.equals(SORTED_BY_PARTICIPANT_NAME)) {
 				// sort by whether the site is joinable or not
 				String s1 = null;
@@ -9982,6 +9974,18 @@ public class SiteAction extends PagedResourceActionII {
 				}
 
 				result = compareString(s1, s2);
+			} else if (m_criterion.equals(SORTED_BY_PARTICIPANT_STATUS)) {
+				boolean a1 = true;
+				if (o1.getClass().equals(Participant.class)) {
+					a1 = ((Participant) o1).isActive();
+				}
+
+				boolean a2 = true;
+				if (o2.getClass().equals(Participant.class)) {
+					a2 = ((Participant) o2).isActive();
+				}
+				// let the active users show first when sort ascendingly
+				result = -compareBoolean(a1, a2);
 			} else if (m_criterion.equals(SORTED_BY_CREATION_DATE)) {
 				// sort by the site's creation date
 				Time t1 = null;
@@ -10052,6 +10056,18 @@ public class SiteAction extends PagedResourceActionII {
 			return result;
 
 		} // compare
+
+		private int compareBoolean(boolean b1, boolean b2) {
+			int result;
+			if (b1 == b2) {
+				result = 0;
+			} else if (b1 == true) {
+				result = 1;
+			} else {
+				result = -1;
+			}
+			return result;
+		}
 
 		private int compareString(String s1, String s2) {
 			int result;
@@ -10217,6 +10233,9 @@ public class SiteAction extends PagedResourceActionII {
 
 		/** removeable if not from provider */
 		public boolean removeable = true;
+		
+		/** the status, active vs. inactive */
+		public boolean active = true;
 
 		public String getName() {
 			return name;
@@ -10236,6 +10255,10 @@ public class SiteAction extends PagedResourceActionII {
 
 		public boolean isRemoveable() {
 			return removeable;
+		}
+		
+		public boolean isActive()  {
+			return active;
 		}
 
 		// extra info from provider

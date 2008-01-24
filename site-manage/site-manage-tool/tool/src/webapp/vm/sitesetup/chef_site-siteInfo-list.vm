@@ -334,7 +334,16 @@
 					#if ($allowUpdateSiteMembership)
 						#if ($!activeInactiveUser && !$!isMyWorkspace)
 							<th id="status">
+								<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_status")" title ="$tlang.getString("sitegen.siteinfolist.sortstatus")"> 
 								$tlang.getString("sitegen.siteinfolist.status")
+								#if ($currentSortedBy.equals("participant_status")) 
+									#if ($currentSortAsc.equals("true")) 
+										<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortstatusas")" alt ="$tlang.getString("sitegen.siteinfolist.sortstatusas")" /> 
+									#else 
+										<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortstatusdes")" alt ="$tlang.getString("sitegen.siteinfolist.sortstatusdes")" /> 
+									#end 
+								#end 
+							</a>
 							</th>
 						#end
 						<th id="remove" class="screenOnly">
@@ -402,18 +411,10 @@
 						#if ($allowUpdateSiteMembership)
 							#if ($!activeInactiveUser && !$!isMyWorkspace)
 								<td>
-								 #set($grant="")
-									#set($grant = $realm.getMember($uniqname))
-									#set($grantActive = $!grant.isActive())
 									<label class="skip" for="activeGrant$uniqname">$tlang.getString("sitegen.siteinfolist.status.select")  $participant.getDisplayId()</label>
 									<select id="activeGrant$uniqname" name="activeGrant$uniqname">
-										#if($!grant.isActive())
-											<option value="true" selected="selected" >$tlang.getString("sitegen.siteinfolist.active")</option>
-											<option value="false">$tlang.getString("sitegen.siteinfolist.inactive")</option>
-										#else
-											<option value="true" >$tlang.getString("sitegen.siteinfolist.active")</option>
-											<option value="false" selected="selected" >$tlang.getString("sitegen.siteinfolist.inactive")</option>
-										#end
+										<option value="true" #if($!participant.isActive())selected="selected"#end >$tlang.getString("sitegen.siteinfolist.active")</option>
+										<option value="false" #if(!$!participant.isActive())selected="selected"#end>$tlang.getString("sitegen.siteinfolist.inactive")</option>
 									</select>
 								</td>
 							#end
