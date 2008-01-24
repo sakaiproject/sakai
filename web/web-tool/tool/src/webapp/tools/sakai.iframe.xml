@@ -19,6 +19,10 @@
 
 		<!-- Allow this to be set -->
 		<configuration name="functions.require" /> 
+		
+		<!-- Allow multiple instances of this tool within one site -->
+		<configuration name="allowMultipleInstances" value="true" /> 
+		
 	</tool>
 
 </registration>
