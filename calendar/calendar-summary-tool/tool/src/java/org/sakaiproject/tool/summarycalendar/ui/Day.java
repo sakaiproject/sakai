@@ -36,7 +36,6 @@ public class Day implements Serializable {
 
 	Date						date							= null;
 	String						styleClass						= "";
-	List						eventSummaryList				= null;
 	boolean						hasEvents						= false;
 
 	int							dayOfMonth						= -1;
@@ -61,12 +60,13 @@ public class Day implements Serializable {
 	}
 
 	public String getDateAsString() {
+		if(date == null) return "";
 		SimpleDateFormat formatter = new SimpleDateFormat(CalendarBean.DATE_FORMAT);
 		return formatter.format(date);
 	}
 
 	public int getDayOfMonth() {
-		if(dayOfMonth == -1){
+		if(dayOfMonth == -1 && date != null){
 			Calendar c = Calendar.getInstance();
 			c.setTime(date);
 			dayOfMonth = c.get(Calendar.DAY_OF_MONTH);
