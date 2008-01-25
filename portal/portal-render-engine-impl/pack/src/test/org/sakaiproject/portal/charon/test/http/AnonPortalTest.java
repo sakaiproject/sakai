@@ -35,7 +35,6 @@ import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.HttpException;
-import com.meterware.httpunit.HttpNotFoundException;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebLink;
@@ -97,7 +96,7 @@ public class AnonPortalTest extends TestCase
 			inputStream.readFully(buffer);
 			visited = new HashMap<String, String>();
 		}
-		catch (HttpNotFoundException notfound)
+		catch (Exception notfound)
 		{
 			enabled = false;
 		}
