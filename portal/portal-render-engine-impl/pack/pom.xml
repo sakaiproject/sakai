@@ -22,18 +22,17 @@
       <artifactId>sakai-portal-render-engine-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-<!--
+  	<dependency>
+  		<groupId>httpunit</groupId>
+  		<artifactId>httpunit</artifactId>
+  		<version>1.6.2</version>
+  		<scope>test</scope>
+  	</dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
     </dependency>
-    <dependency>
-      <groupId>velocity</groupId>
-      <artifactId>velocity</artifactId>
-      <version>1.4</version>
-    </dependency>
--->
   </dependencies>
   <build>
     <resources/>
