@@ -26,6 +26,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -2110,7 +2111,7 @@ extends VelocityPortletStateAction
 		}
 
       TimeZone timeZone = TimeService.getLocalTimeZone();
-      context.put("timezone", timeZone.getDisplayName(true, TimeZone.SHORT) );
+      context.put("timezone", timeZone.getDisplayName(timeZone.inDaylightTime(new Date()), TimeZone.SHORT) );
       
 		// group realted variables
 		context.put("siteAccess", CalendarEvent.EventAccess.SITE);
