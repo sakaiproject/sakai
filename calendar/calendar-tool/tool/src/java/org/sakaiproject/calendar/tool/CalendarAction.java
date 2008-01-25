@@ -5370,6 +5370,12 @@ extends VelocityPortletStateAction
 		
   		boolean oldExportEnabled = CalendarService.getExportEnabled(calId);
 		
+		if ( enable != null && alias == null )
+		{
+			addAlert(sstate, rb.getString("java.alert.aliasreq"));
+			return;
+		}
+		
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
