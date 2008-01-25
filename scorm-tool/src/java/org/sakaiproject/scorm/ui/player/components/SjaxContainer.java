@@ -204,8 +204,7 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 
 		@Override
 		protected INavigable getNavigationAgent() {
-			// TODO Auto-generated method stub
-			return null;
+			return new LocalResourceNavigator();
 		}
 	}
 	
@@ -228,6 +227,10 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 			if (synchronizerPanel != null && synchronizerPanel.getContentPanel() != null) 
 				return synchronizerPanel.getContentPanel();
 			return null;
+		}
+		
+		public boolean useLocationRedirect() {
+			return false;
 		}
 		
 	}

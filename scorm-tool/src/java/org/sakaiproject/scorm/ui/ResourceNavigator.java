@@ -30,6 +30,10 @@ public abstract class ResourceNavigator implements INavigable, Serializable {
 	
 	public abstract Object getApplication();
 		
+	public boolean useLocationRedirect() {
+		return true;
+	}
+	
 	public void displayResource(final SessionBean sessionBean, Object target) {
 		if (null == sessionBean)
 			return;
@@ -48,24 +52,21 @@ public abstract class ResourceNavigator implements INavigable, Serializable {
 			log.info("Going to " + url);
 		
 		Component component = getFrameComponent();
-		if (component != null) {		
-			WebRequest webRequest = (WebRequest)component.getRequest();
-			HttpServletRequest servletRequest = webRequest.getHttpServletRequest();
+		
+		WebRequest webRequest = (WebRequest)component.getRequest();
+		HttpServletRequest servletRequest = webRequest.getHttpServletRequest();
 
-			String fullUrl = new StringBuilder(servletRequest.getContextPath()).append("/").append(url).toString();
-			
+		String fullUrl = new StringBuilder(servletRequest.getContextPath()).append("/").append(url).toString();
+		
+		if (useLocationRedirect()) {
 			component.add(new AttributeModifier("src", new Model(fullUrl)));
+			
+			if (target != null)
+				((AjaxRequestTarget)target).addComponent(component);
+		} else if (target != null) {
+			((AjaxRequestTarget)target).appendJavascript("parent.scormContent.location.href='" + fullUrl + "'");
 		}
-		
-		if (null == target)
-			return;
-		
 
-		if (component != null)
-			((AjaxRequestTarget)target).addComponent(component);
-		else
-			((AjaxRequestTarget)target).appendJavascript("parent.scormContent.location.href='" + url + "'");
-	
 	}
 	
 	public String getUrl(final SessionBean sessionBean) {
