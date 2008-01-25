@@ -37,9 +37,11 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -1003,7 +1005,15 @@ public class ItemContentsBean implements Serializable {
 	 
   public void setUpdatedScore(Float score) {
 	  if (!score.equals(itemData.getScore())) {
-          ItemService itemService = new ItemService();
+		  AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+		  ItemService itemService = null;
+		  if (author.getIsEditPendingAssessmentFlow()) {
+			  itemService = new ItemService();
+		  }
+		  else {
+			  itemService = new PublishedItemService();
+		  }
+		  
           ItemFacade item = itemService.getItem(itemData.getItemId(), AgentFacade.getAgentString());
           item.setScore(score);
 

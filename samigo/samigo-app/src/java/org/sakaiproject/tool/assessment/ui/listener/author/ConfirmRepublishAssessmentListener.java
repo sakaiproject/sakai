@@ -1,7 +1,6 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -27,9 +26,8 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 		PublishedAssessmentService assessmentService = new PublishedAssessmentService();
 		SavePublishedSettingsListener savePublishedSettingsListener = new SavePublishedSettingsListener();
 		PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
-		//Long assessmentId = assessmentSettings.getAssessmentId();
-		//PublishedAssessmentFacade assessment = assessmentService.getPublishedAssessment(assessmentId.toString());
-		PublishedAssessmentFacade assessment = assessmentSettings.getAssessment();
+		Long assessmentId = assessmentSettings.getAssessmentId();
+		PublishedAssessmentFacade assessment = assessmentService.getPublishedAssessment(assessmentId.toString());
 		PublishedAccessControl control = (PublishedAccessControl)assessment.getAssessmentAccessControl();
 		if (control == null){
 			control = new PublishedAccessControl();
@@ -37,7 +35,6 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 			// later
 		    control.setAssessmentBase(assessment.getData());
 		}
-	    String id = ae.getComponent().getId();
 	    
 		FacesContext context = FacesContext.getCurrentInstance();
 		boolean error = savePublishedSettingsListener.setPublishedSettings(assessmentSettings, context, control, assessment);
