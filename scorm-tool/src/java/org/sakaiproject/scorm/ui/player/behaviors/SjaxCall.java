@@ -230,7 +230,7 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 		}
 	}
 	
-	/*public void prependJavascript(String js) {
+	public void prependJavascript(String js) {
 		this.js = js;
 	}
 	
@@ -251,7 +251,7 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	protected CharSequence getSuccessScript()
 	{
 		return null;
-	}*/
+	}
 	
 	@Override
 	protected IAjaxCallDecorator getAjaxCallDecorator()

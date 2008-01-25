@@ -251,7 +251,9 @@ public class PlayerPage extends BaseToolPage {
 				
 				loadSharedResources(sessionBean.getContentPackage().getResourceId());
 				
-				log.info("PlayerPage sco is " + sessionBean.getScoId());
+				if (log.isDebugEnabled())
+					log.debug("PlayerPage sco is " + sessionBean.getScoId());
+				
 				ScoBean scoBean = api.produceScoBean(sessionBean.getScoId(), sessionBean);
 				scoBean.clearState();
 				PlayerPage.this.synchronizeState(sessionBean, target);
@@ -265,7 +267,8 @@ public class PlayerPage extends BaseToolPage {
 				return launchPanel;
 			} 
 			
-			log.info("Result is " + result);
+			if (log.isDebugEnabled())
+				log.debug("Result is " + result);
 			
 		} catch (Exception e) {
 			result = e.getMessage();
