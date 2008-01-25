@@ -288,8 +288,8 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
         		|| status.equals("_SEQABANDONALL_")) ) {
         	sequencer.clearSeqState();
         	
-        	if (log.isWarnEnabled())
-        		log.warn("Status is " + status + " -- ending course!");
+        	if (log.isDebugEnabled())
+        		log.debug("Status is " + status + " -- ending course!");
         	if (!sessionBean.isRestart())
         		sessionBean.setEnded(true);
         	else
@@ -304,7 +304,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	        if (activity != null)
 	        	sessionBean.setActivityTitle(activity.getTitle());
 	        else 
-	        	log.warn("Activity is null!!!");
+	        	log.debug("Activity is null!!!");
 	        
 	        seqActivityTreeDao().save(tree);
         } else {

@@ -48,8 +48,8 @@ public abstract class ResourceNavigator implements INavigable, Serializable {
 		if (null == url)
 			return;
 
-		if (log.isInfoEnabled())
-			log.info("Going to " + url);
+		if (log.isDebugEnabled())
+			log.debug("Going to " + url);
 		
 		Component component = getFrameComponent();
 		
