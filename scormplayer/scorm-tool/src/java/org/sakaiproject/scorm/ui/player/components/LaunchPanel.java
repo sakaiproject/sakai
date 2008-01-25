@@ -48,6 +48,7 @@ public class LaunchPanel extends UISynchronizerPanel implements IHeaderContribut
 				
 		contentPanel = new WebMarkupContainer("scormContent");
 		contentPanel.setOutputMarkupId(true);
+		contentPanel.setMarkupId("scormContent");
 		add(contentPanel);
 		
 		tree = new ActivityTree("tree", sessionBean, this);
