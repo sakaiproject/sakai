@@ -21,21 +21,16 @@
 
 package org.radeox.test.filter.balance;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.filter.balance.Balancer;
-
-import sun.util.logging.resources.logging;
-
-import junit.framework.TestCase;
 
 /**
  * @author ieb
