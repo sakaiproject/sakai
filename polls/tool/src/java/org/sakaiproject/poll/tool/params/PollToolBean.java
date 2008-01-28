@@ -134,7 +134,7 @@ public class PollToolBean {
 	}
 
  
-  public String processActionAdd() {
+  public Poll processActionAdd() {
 	  boolean isNew = true;
 	  if (poll.getPollId()!=null) {
 		  m_log.debug("Actualy updating poll " + poll.getPollId());
@@ -179,12 +179,7 @@ public class PollToolBean {
       
       voteBean.poll = poll;
     
-      if (!isNew) {
-    	  return "added";
-      } else {
-    	  m_log.info("returning option");
-	  	  return "option";
-      }
+      return poll;
   }
   
   

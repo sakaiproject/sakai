@@ -71,7 +71,7 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-public class AddPollProducer implements ViewComponentProducer,NavigationCaseReporter, ViewParamsReporter {
+public class AddPollProducer implements ViewComponentProducer,NavigationCaseReporter, ViewParamsReporter, ActionResultInterceptor {
 	 public static final String VIEW_ID = "voteAdd";
 	  private UserDirectoryService userDirectoryService;
 	  private PollListManager pollListManager;
@@ -327,7 +327,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		    String siteId = toolManager.getCurrentPlacement().getContext();
 		    newPoll.parameters.add(new UIELBinding("#{poll.siteId}",siteId));
 		  
-		    if (isNew)	 {
+		    if (isNew || poll.getPollOptions() == null || poll.getPollOptions().size() == 0)	 {
 		    	UICommand.make(newPoll, "submit-new-poll", UIMessage.make("new_poll_saveoption"),
 		    	"#{pollToolBean.processActionAdd}");
 		    } else {
@@ -353,6 +353,23 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	  public ViewParameters getViewParameters() {
 		    return new PollViewParameters();
 
+	  }
+
+	  public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
+		  
+		 // OptionViewParameters outgoing = (OptionViewParameters) result.resultingView;
+		  Poll poll = (Poll) actionReturn;
+		  m_log.debug("Action result got poll: " + poll.getPollId());
+		  m_log.debug("resulting view is: " + result.resultingView);
+		  if (poll.getPollOptions() == null || poll.getPollOptions().size() == 0) {
+			result.resultingView = new OptionViewParameters(PollOptionProducer.VIEW_ID, null, poll.getPollId().toString());
+		  } else {
+			  result.resultingView = new SimpleViewParameters(PollToolProducer.VIEW_ID);
+		  }
+		  
+		  //if (poll != null && outgoing.id == null) {
+			//  outgoing.id = poll.getId().toString();
+		  //}
 	  }
 	  
 
