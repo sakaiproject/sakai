@@ -68,6 +68,7 @@
 		<property name="voteBean" ref="voteBean" />
 		<property name="siteService"
 			ref="org.sakaiproject.site.api.SiteService" />
+			<property name="timeService"  ref="org.sakaiproject.time.api.TimeService"/>
 	</bean>
 
 	<bean id="permissionAction"

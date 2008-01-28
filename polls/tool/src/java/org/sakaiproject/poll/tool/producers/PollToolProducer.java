@@ -26,8 +26,10 @@ import java.util.Locale;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
@@ -126,7 +128,10 @@ DefaultView,NavigationCaseReporter {
 		this.siteService = s;
 
 	}
-
+	private TimeService timeService;
+	public void setTimeService(TimeService ts) {
+		timeService = ts;
+	}
 
 	private VoteBean voteBean;
 	public void setVoteBean(VoteBean vb){
@@ -194,7 +199,10 @@ DefaultView,NavigationCaseReporter {
 		}
 
 		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
-				DateFormat.SHORT, M_locale);
+				DateFormat.LONG, M_locale);
+		TimeZone tz = timeService.getLocalTimeZone();
+		df.setTimeZone(tz);
+		//m_log.debug("got timezone: " + tz.getDisplayName());
 
 		UIForm deleteForm = UIForm.make(tofill, "delete-poll-form");
 		// Create a multiple selection control for the tasks to be deleted.
