@@ -147,9 +147,9 @@ public class BasicNewsChannel implements NewsChannel
 			throw new NewsConnectionException(rl.getString("unable_to_interpret") +" " + source);
 		}
 
-		m_title = feed.getTitle();
+		m_title = FormattedText.processEscapedHtml(feed.getTitle());
 		m_source = source;
-		m_description = feed.getDescription();
+		m_description = FormattedText.processEscapedHtml(feed.getDescription());
 		m_description = Validator.stripAllNewlines(m_description);
 
 		m_lastbuilddate = "";
@@ -157,38 +157,38 @@ public class BasicNewsChannel implements NewsChannel
 		Date pubdate = feed.getPublishedDate();
 		if (pubdate != null)
 		{
-			m_pubdate = DateFormat.getDateInstance().format(pubdate);
+			m_pubdate = FormattedText.processEscapedHtml(DateFormat.getDateInstance().format(pubdate));
 			m_lastbuilddate = m_pubdate;
 		}
 		m_pubdate = Validator.stripAllNewlines(m_pubdate);
 		m_lastbuilddate = Validator.stripAllNewlines(m_lastbuilddate);
 
-		m_copyright = feed.getCopyright();
+		m_copyright = FormattedText.processEscapedHtml(feed.getCopyright());
 		m_copyright = Validator.stripAllNewlines(m_copyright);
 
-		m_language = feed.getLanguage();
+		m_language = FormattedText.processEscapedHtml(feed.getLanguage());
 		m_language = Validator.stripAllNewlines(m_language);
 
-		m_link = feed.getLink();
+		m_link = FormattedText.processEscapedHtml(feed.getLink());
 		m_link = Validator.stripAllNewlines(m_link);
 
 		SyndImage image = feed.getImage();
 		if (image != null)
 		{
-			m_imageLink = image.getLink();
+			m_imageLink = FormattedText.processEscapedHtml(image.getLink());
 			m_imageLink = Validator.stripAllNewlines(m_imageLink);
 
-			m_imageTitle = image.getTitle();
+			m_imageTitle = FormattedText.processEscapedHtml(image.getTitle());
 			m_imageTitle = Validator.stripAllNewlines(m_imageTitle);
 
-			m_imageUrl = image.getUrl();
+			m_imageUrl = FormattedText.processEscapedHtml(image.getUrl());
 			m_imageUrl = Validator.stripAllNewlines(m_imageUrl);
 
 			m_imageHeight = "";
 
 			m_imageWidth = "";
 
-			m_imageDescription = image.getDescription();
+			m_imageDescription = FormattedText.processEscapedHtml(image.getDescription());
 			m_imageDescription = Validator.stripAllNewlines(m_imageDescription);
 
 		}
@@ -201,7 +201,7 @@ public class BasicNewsChannel implements NewsChannel
 		{
 			SyndEntry entry = (SyndEntry) items.get(i);
 
-			String iTitle = entry.getTitle();
+			String iTitle = FormattedText.processEscapedHtml(entry.getTitle());
 			iTitle = Validator.stripAllNewlines(iTitle);
 
 			String iDescription = null;
@@ -219,13 +219,14 @@ public class BasicNewsChannel implements NewsChannel
 				M_log.warn(e);
 			}
 
-			String iLink = entry.getLink();
+			String iLink = FormattedText.processEscapedHtml(entry.getLink());
 			iLink = Validator.stripAllNewlines(iLink);
 			String iPubDate = "";
 			Date entrydate = entry.getPublishedDate();
 			if (entrydate != null)
 			{
-				iPubDate = DateFormat.getDateInstance().format(entrydate);
+				iPubDate = FormattedText.processEscapedHtml(
+				             DateFormat.getDateInstance().format(entrydate));
 			}
 			
 			List<NewsItemEnclosure> enclosures = new Vector<NewsItemEnclosure>();
