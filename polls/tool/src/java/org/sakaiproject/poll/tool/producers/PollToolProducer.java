@@ -199,7 +199,7 @@ DefaultView,NavigationCaseReporter {
 		}
 
 		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
-				DateFormat.LONG, M_locale);
+				DateFormat.SHORT, M_locale);
 		TimeZone tz = timeService.getLocalTimeZone();
 		df.setTimeZone(tz);
 		//m_log.debug("got timezone: " + tz.getDisplayName());
