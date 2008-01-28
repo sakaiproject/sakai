@@ -37,7 +37,7 @@ public class ConfirmProducer implements ViewComponentProducer {
 		UIMessage.make(tofill,"message","confirm",parms);
 		if (serverConfigurationService.getString("support.email", null) != null) {
 			UIMessage.make(tofill, "supportMessage", "supportMessage");
-			UILink.make(tofill, "supportEmail",serverConfigurationService.getString("support.email", ""));
+			UILink.make(tofill, "supportEmail",serverConfigurationService.getString("support.email", ""),"mailto:" + serverConfigurationService.getString("support.email", ""));
 		}
 	}
 
