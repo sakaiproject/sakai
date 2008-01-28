@@ -10,6 +10,7 @@ import java.util.List;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
 
+import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -22,6 +23,7 @@ import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UICommand;
+import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 
@@ -41,7 +43,10 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 		return this.VIEW_ID;
 	}
 
-
+	MessageLocator messageLocator;
+	public void setMessageLocator(MessageLocator ml) {
+		messageLocator = ml;
+	}
 	
 	private ServerConfigurationService serverConfigurationService;
 	public void setServerConfigurationService(ServerConfigurationService s) {
@@ -68,9 +73,9 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 		    	for (int i = 0; i < tml.size(); i ++ ) {
 		    		UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:");
 		    		if (tml.messageAt(i).args != null ) {	    		
-		    			UIMessage.make(errorRow, "error", tml.messageAt(i).acquireMessageCode(), (String[])tml.messageAt(i).args[0]);
+		    			UIVerbatim.make(errorRow, "error", messageLocator.getMessage(tml.messageAt(i).acquireMessageCode(), (String[])tml.messageAt(i).args[0]));
 		    		} else {
-		    			UIMessage.make(errorRow, "error", tml.messageAt(i).acquireMessageCode());
+		    			UIVerbatim.make(errorRow, "error", tml.messageAt(i).acquireMessageCode());
 		    		}
 		    		
 		    	}
@@ -81,7 +86,7 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 		
 		String[] args = new String[1];
 		args[0]=serverConfigurationService.getString("ui.service", "Sakai Bassed Service");
-		UIMessage.make(tofill,"main","mainText", args);
+		UIVerbatim.make(tofill,"main",messageLocator.getMessage("mainText", args));
 		UIForm form = UIForm.make(tofill,"form");
 		UIInput.make(form,"input","#{userBean.email}");
 		UICommand.make(form,"submit",UIMessage.make("postForm"),"#{formHandler.processAction}");

@@ -4,28 +4,41 @@
 <beans>
 
 
-<bean id="formHandler" class="org.sakaiproject.tool.resetpass.FormHandler">
-	<property name="userDirectoryService"
+	<bean id="formHandler"
+		class="org.sakaiproject.tool.resetpass.FormHandler">
+		<property name="userDirectoryService"
 			ref="org.sakaiproject.user.api.UserDirectoryService" />
-			<property name="userBean" ref="userBean" />
-			<property name="serverConfigurationService"
+		<property name="userBean" ref="userBean" />
+		<property name="serverConfigurationService"
 			ref="org.sakaiproject.component.api.ServerConfigurationService" />
-		<property name="messageLocator" ref="messageLocator"/>
-			<property name="emailService"
+		<property name="messageLocator" ref="messageLocator" />
+		<property name="emailService"
 			ref="org.sakaiproject.email.api.EmailService" />
-			<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService" />
-			<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
- </bean>	
-  
-  <bean id="formProducer" class="org.sakaiproject.tool.resetpass.FormProducer">
-	  <property name="targettedMessageList" ref="targettedMessageList" /> 
-	  <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-	  
-  </bean>	
-  <bean id="confirmProducer" class="org.sakaiproject.tool.resetpass.ConfirmProducer">
-	  <property name="userBean" ref="userBean" />
-  </bean>	
-  <bean id="userBean" class="org.sakaiproject.tool.resetpass.RetUser" > 
-  	
-  </bean>
+		<property name="eventService"
+			ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="securityService"
+			ref="org.sakaiproject.authz.api.SecurityService" />
+
+	</bean>
+
+	<bean id="formProducer"
+		class="org.sakaiproject.tool.resetpass.FormProducer">
+		<property name="targettedMessageList"
+			ref="targettedMessageList" />
+		<property name="serverConfigurationService"
+			ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="messageLocator" ref="messageLocator" />
+
+	</bean>
+	<bean id="confirmProducer"
+		class="org.sakaiproject.tool.resetpass.ConfirmProducer">
+		<property name="userBean" ref="userBean" />
+		<property name="serverConfigurationService"
+			ref="org.sakaiproject.component.api.ServerConfigurationService" />
+	</bean>
+
+	<bean id="userBean"
+		class="org.sakaiproject.tool.resetpass.RetUser">
+
+	</bean>
 </beans>
