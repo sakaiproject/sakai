@@ -4413,16 +4413,8 @@ public class SiteAction extends PagedResourceActionII {
 					multiCourseInputs.add(validInputSites++, aCourseInputs);
 				}
 			} else {
-				if (state.getAttribute(STATE_FUTURE_TERM_SELECTED) != null
-						&& ((Boolean) state
-								.getAttribute(STATE_FUTURE_TERM_SELECTED))
-								.booleanValue()) {
-					// if future term selected, then not all fields are required
-					// %%%
-				} else {
-					validInput = false;
-				}
-				multiCourseInputs.add(validInputSites++, aCourseInputs);
+				// input invalid
+				validInput = false;
 			}
 		}
 
