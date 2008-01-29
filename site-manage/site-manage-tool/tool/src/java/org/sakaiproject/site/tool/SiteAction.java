@@ -6784,6 +6784,23 @@ public class SiteAction extends PagedResourceActionII {
 							}
 							try {
 								SiteService.save(site);
+								
+								if (site.getType().equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) 
+								{
+									// also remove the provider id attribute if any
+									String realm = SiteService.siteReference(site.getId());
+									try 
+									{
+										AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realm);
+										realmEdit.setProviderGroupId(null);
+										AuthzGroupService.save(realmEdit);
+									} catch (GroupNotDefinedException e) {
+										M_log.warn(this + " IdUnusedException, not found, or not an AuthzGroup object");
+										addAlert(state, rb.getString("java.realm"));
+									} catch (Exception e) {
+										addAlert(state, this + rb.getString("java.problem"));
+									}
+								}
 							} catch (IdUnusedException e) {
 								// TODO:
 							} catch (PermissionException e) {
