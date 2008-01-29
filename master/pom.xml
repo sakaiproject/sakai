@@ -1088,15 +1088,7 @@ This is not needed now that pluto have been released
         <extensions>true</extensions>
         <configuration>
           <deployDirectory>${maven.tomcat.home}</deployDirectory>
-          <webResources>
-            <resource>
-<!-- this is relative to the this pom.xml directory -->
-              <directory>${basedir}/src/webapp</directory>
-              <includes>
-		<include>**/*.*</include>
-	      </includes>
-            </resource>
-          </webResources>
+          <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
         </configuration>
       </plugin>
       <plugin>
@@ -1105,15 +1097,7 @@ This is not needed now that pluto have been released
         <artifactId>maven-war-plugin</artifactId>
         <version>2.0</version>
         <configuration>
-          <webResources>
-            <resource>
-<!-- this is relative to the this pom.xml directory -->
-              <directory>${basedir}/src/webapp</directory>
-              <includes>
-		<include>**/*.*</include>
-	      </includes>
-            </resource>
-          </webResources>
+          <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
         </configuration>
       </plugin>
     </plugins>
