@@ -191,6 +191,8 @@ public interface ContentHostingService extends EntityProducer
 	/** A "list" of all root-level collections */
     public static final Set<String> ROOT_COLLECTIONS = new TreeSet<String>();
 
+	static final String ID_LENGTH_EXCEPTION = "id_length_exception";
+
 	/**
     * For a given id, return its UUID (creating it if it does not already exist)
     */
