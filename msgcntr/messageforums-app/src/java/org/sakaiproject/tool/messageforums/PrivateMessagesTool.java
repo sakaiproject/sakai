@@ -2636,6 +2636,12 @@ private   int   getNum(char letter,   String   a)
 		
     }
     
+    if(returnSet.isEmpty()) {
+    	returnSet.add(autheruser);
+    	sendToStringreplyall+= msgauther+"; " ;
+    	
+    }
+       
     //(2)
     // when clienter  want to add more recepitents
     User tmpusr=null;
@@ -2667,7 +2673,7 @@ private   int   getNum(char letter,   String   a)
     if((selectedComposedlistequalCurrentuser==true)&&(currentuser!=autheruser))
     {
     	returnSet.add(currentuser);
-    
+     
     }
     
     
@@ -2677,6 +2683,7 @@ private   int   getNum(char letter,   String   a)
     	rrepMsg.setRecipientsAsText(sendToStringreplyall);// + " (" + sendToHiddenString + ")");
     	
     }
+    
       
     if(!getBooleanEmailOut())
     {
