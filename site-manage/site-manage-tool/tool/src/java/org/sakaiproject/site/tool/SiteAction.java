@@ -3895,7 +3895,7 @@ public class SiteAction extends PagedResourceActionII {
 		} catch (Exception ignore) {
 		}
 
-		if (c.getTimeInMillis() < t.getStartDate().getTime()) {
+		if (t.getStartDate() != null && c.getTimeInMillis() < t.getStartDate().getTime()) {
 			// if a future term is selected
 			state.setAttribute(STATE_FUTURE_TERM_SELECTED,
 					Boolean.TRUE);
