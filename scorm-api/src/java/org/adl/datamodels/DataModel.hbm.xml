@@ -29,7 +29,9 @@
 		<subclass name="org.adl.datamodels.nav.SCORM_2004_NAV_DM" 
 			discriminator-value="org.adl.datamodels.nav.SCORM_2004_NAV_DM">
 		
-			<many-to-one name="mNavRequests" column="NAV_REQUESTS" index="SCORM_DM_NAV_REQS_IDX" class="org.adl.sequencer.ADLValidRequests" />
+			<one-to-one name="mNavRequests" class="org.adl.sequencer.ADLValidRequests" constrained="true" />
+		
+			<!--many-to-one name="mNavRequests" column="NAV_REQUESTS" index="SCORM_DM_NAV_REQS_IDX" class="org.adl.sequencer.ADLValidRequests" /-->
 				
 			<property name="mCurRequest" column="CURRENT_REQUEST" />
 		
@@ -53,7 +55,16 @@
 			
 			<property name="mSCOID" column="SCO_ID" />
 			
-			<many-to-one name="mURL" column="URL" index="SCORM_SSP_URL_IDX" class="java.net.URL" />
+			<component name="mURL">
+				<property name="protocol" column="PROTOCOL" />
+				<property name="host" column="HOST" />
+				<property name="port" column="PORT" />
+				<property name="file" column="FILE_NAME" />
+				<property name="authority" column="AUTHORITY" />
+				<property name="ref" column="REF" />
+			</component>
+			
+			<!--many-to-one name="mURL" column="URL" index="SCORM_SSP_URL_IDX" class="java.net.URL" /-->
 			
 			<property name="mCourseID" column="COURSE_ID" />
 		

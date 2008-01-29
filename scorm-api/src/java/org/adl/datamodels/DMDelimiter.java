@@ -90,6 +90,10 @@ public class DMDelimiter implements Serializable
       mDescription = iDescription;
    }
 
+   public DMDelimiterDescriptor getDescription() {
+	   return mDescription;
+   }
+   
 
    /**
     * Provides the dot-notation binding for this delimiter.

@@ -146,6 +146,10 @@ public class SCORM_2004_NAV_DM extends DataModel implements Serializable
       mElements.put(desc.mBinding, element);
    }
    
+   public Map getElements() {
+	   return mElements;
+   }
+   
    public IValidRequests getNavRequests() {
 	   return mNavRequests;
    }

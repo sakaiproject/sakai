@@ -18,8 +18,9 @@
 				<value>org/adl/datamodels/DMTypeValidator.hbm.xml</value>
 				<value>org/adl/datamodels/SCODataManager.hbm.xml</value>
 				
+				<value>org/adl/sequencer/ADLValidRequests.hbm.xml</value>
 				
-				<value>org/adl/sequencer/SequencerMappings.hbm.xml</value>
+				<!--value>org/adl/sequencer/SequencerMappings.hbm.xml</value-->
 			</list>
 		</property>
 	</bean>

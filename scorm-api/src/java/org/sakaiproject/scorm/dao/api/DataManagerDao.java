@@ -27,7 +27,7 @@ public interface DataManagerDao {
 
 	public IDataManager load(long id);
 	
-	public List<IDataManager> find(String courseId);
+	//public List<IDataManager> find(String courseId);
 	
 	public IDataManager find(String courseId, String scoId, String userId, long attemptNumber);
 	
@@ -35,8 +35,12 @@ public interface DataManagerDao {
 	
 	public List<IDataManager> find(long contentPackageId, String learnerId, long attemptNumber);
 	
+	public IDataManager find(long contentPackageId, String learnerId, long attemptNumber, String scoId);
+	
 	public IDataManager findByActivityId(long contentPackageId, String activityId, String userId, long attemptNumber);
 	
 	public void save(IDataManager dataManager);
+	
+	public void update(IDataManager dataManager);
 	
 }

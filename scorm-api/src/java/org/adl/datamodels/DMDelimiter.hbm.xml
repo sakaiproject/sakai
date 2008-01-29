@@ -11,7 +11,11 @@
             </generator>
         </id>
         
-        <many-to-one name="mDescription" column="DESCRIPTION" unique-key="ID" index="SCORM_DELIM_DESC_IDX" class="org.adl.datamodels.DMDelimiterDescriptor" />	
+        <one-to-one name="mDescription" cascade="none" class="org.adl.datamodels.DMDelimiterDescriptor"  constrained="true"/>
+        
+        <!-- JLR: Stripped these out from mDescription below 1/28 unique-key="DELIM_ID" index="SCORM_DELIM_DESC_IDX" -->
+        
+        <!--many-to-one name="mDescription" column="DESCRIPTION" class="org.adl.datamodels.DMDelimiterDescriptor" /-->	
         
 		<property name="mValue" column="VALUE" type="string" />
 	

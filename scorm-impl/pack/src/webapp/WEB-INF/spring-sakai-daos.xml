@@ -13,6 +13,17 @@
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" /> 
 	</bean>
 	
+	
+	<!--bean id="org.sakaiproject.scorm.dao.api.DataManagerDao"
+		class="org.sakaiproject.scorm.dao.sakai.DataManagerDaoImpl"
+		singleton="true">
+		
+		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
+		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
+		
+	</bean-->
+	
+	
 	<!--
 	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
 		class="org.sakaiproject.scorm.dao.standalon.StandaloneActivityTreeDaoImpl"

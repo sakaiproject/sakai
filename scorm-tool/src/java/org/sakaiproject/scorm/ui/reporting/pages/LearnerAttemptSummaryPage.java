@@ -20,13 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.reporting.pages;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -39,7 +37,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
-import org.sakaiproject.scorm.model.api.ActivitySummary;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
@@ -50,10 +47,7 @@ import org.sakaiproject.scorm.ui.console.pages.ConsoleBasePage;
 import org.sakaiproject.scorm.ui.reporting.util.SummaryProvider;
 import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
 import org.sakaiproject.wicket.markup.html.repeater.data.presenter.EnhancedDataPresenter;
-import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
-import org.sakaiproject.wicket.markup.html.repeater.data.table.ActionColumn;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.DecoratedPropertyColumn;
-import org.sakaiproject.wicket.markup.html.repeater.util.EnhancedDataProvider;
 
 public class LearnerAttemptSummaryPage extends ConsoleBasePage {
 

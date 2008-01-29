@@ -1,22 +1,36 @@
+/**********************************************************************************
+ * $URL:  $
+ * $Id:  $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2007 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 package org.sakaiproject.scorm.ui.player.components;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.Application;
 import org.apache.wicket.Component;
-import org.apache.wicket.RequestListenerInterface;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
-import org.apache.wicket.behavior.IBehaviorListener;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.apache.wicket.util.time.Duration;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
@@ -40,7 +54,6 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 	private boolean isSyncd = true;
 	private ButtonForm form;
 	
-	private SessionBean sessionBean;
 	private int seqRequest;
 	private String rootSrc;
 	
@@ -54,9 +67,10 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 	public ActivityAjaxButton(final ButtonForm form, SessionBean sessionBean, String id, int seqRequest, String rootSrc) {
 		super(id, form);
 		this.form = form;
-		this.sessionBean = sessionBean;
 		this.seqRequest = seqRequest;
 		this.rootSrc = rootSrc;
+		
+		this.setModel(new Model(sessionBean));
 		
 		final boolean useRelativeUrls = lms.canUseRelativeUrls();
 		
@@ -96,26 +110,6 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 				if (useRelativeUrls)
 					return super.getCallbackUrl();
 				
-				/*if (getComponent() == null)
-				{
-					throw new IllegalArgumentException(
-							"Behavior must be bound to a component to create the URL");
-				}
-				
-				final RequestListenerInterface rli;
-				
-				rli = IBehaviorListener.INTERFACE;
-				
-				WebRequest webRequest = (WebRequest)getComponent().getRequest();
-				HttpServletRequest servletRequest = webRequest.getHttpServletRequest();
-
-				String toolUrl = servletRequest.getContextPath();
-				
-				AppendingStringBuffer url = new AppendingStringBuffer();
-				if (!lms.canUseRelativeUrls())
-					url.append(toolUrl).append("/");
-				url.append(getComponent().urlFor(this, rli));*/
-
 				return Utils.generateUrl(this, null, getComponent(), useRelativeUrls);
 			}
 		
@@ -138,48 +132,14 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 		if (form.getLaunchPanel() != null) {		
 			form.getLaunchPanel().synchronizeState(sessionBean, target);
 			form.getLaunchPanel().getTree().selectNode(); 
-			// FIXME: Commentted this out b/c I don't think we want to do it -- need to make sure JLR 1/2/2008
-			//form.getLaunchPanel().getCommunicationPanel().updatePageSco(sessionBean.getScoId(), target);
 		}
 	}
-	
-	/*public void displayContent(SessionBean sessionBean, Object target) {
-		if (null == target)
-			return;
-		
-		if (sessionBean.isEnded()) {		
-			((AjaxRequestTarget)target).appendJavascript("window.location.href='" + sessionBean.getCompletionUrl() + "';");
-		}
-		
-		String url = getCurrentUrl(sessionBean);
-		if (null != url) {
-			if (log.isDebugEnabled())
-				log.debug("Going to " + url);
-			
-			((AjaxRequestTarget)target).appendJavascript("parent.scormContent.location.href='" + url + "'");
-		} else {
-			log.warn("Url is null!");
-		}
-	}
-	
-	public String getCurrentUrl(SessionBean sessionBean) {
-		if (null != sessionBean.getLaunchData()) {
-			String launchLine = sessionBean.getLaunchData().getLaunchLine();
-			String baseUrl = sessionBean.getBaseUrl();
-			StringBuffer fullPath = new StringBuffer().append(baseUrl);
-			
-			if (!baseUrl.endsWith(Entity.SEPARATOR) && !launchLine.startsWith(Entity.SEPARATOR))
-				fullPath.append(Entity.SEPARATOR);
 
-			fullPath.append(launchLine);
-						
-			return fullPath.toString();
-		}
-		return null;
-	}*/
-	
 	protected void onSubmit(AjaxRequestTarget target, Form form) {
+		SessionBean sessionBean = (SessionBean)getModelObject();
+		modelChanging();
 		doNavigate(sessionBean, seqRequest, target);
+		modelChanged();
 	}
 	
 	protected String getRootSrc() {

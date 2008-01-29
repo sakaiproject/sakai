@@ -37,6 +37,8 @@ public interface ScormResultService {
 	
 	public List<ActivityReport> getActivityReports(long contentPackageId, String learnerId, long attemptNumber);
 	
+	public ActivityReport getActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId);
+	
 	public List<ActivitySummary> getActivitySummaries(long contentPackageId, String learnerId, long attemptNumber);
 	
 	public CMIFieldGroup getAttemptResults(Attempt attempt);

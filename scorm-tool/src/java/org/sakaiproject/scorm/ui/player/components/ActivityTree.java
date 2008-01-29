@@ -37,7 +37,6 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ResourceReference;
-import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.CancelEventIfNoAjaxDecorator;
@@ -56,7 +55,6 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.ResourceNavigator;
-import org.sakaiproject.scorm.ui.UISynchronizer;
 import org.sakaiproject.scorm.ui.UISynchronizerPanel;
 import org.sakaiproject.scorm.ui.player.behaviors.ActivityAjaxEventBehavior;
 
@@ -84,6 +82,7 @@ public class ActivityTree extends LinkTree {
 		super(id);
 		this.synchronizer = synchronizer;
 		this.sessionBean = sessionBean;
+		this.setOutputMarkupId(true);
 		
 		bindModel(sessionBean);
 		if (synchronizer != null)
@@ -385,6 +384,10 @@ public class ActivityTree extends LinkTree {
 			if (synchronizer != null && synchronizer.getContentPanel() != null) 
 				return synchronizer.getContentPanel();
 			return null;
+		}
+		
+		public boolean useLocationRedirect() {
+			return false;
 		}
 		
 	}

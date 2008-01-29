@@ -22,6 +22,7 @@ package org.adl.datamodels;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 import org.adl.datamodels.ieee.IValidatorFactory;
 
@@ -57,6 +58,9 @@ public interface IDataManager extends Serializable {
 	
 	public void setAttemptNumber(long attemptNumber);
 	
+	public Map getDataModels();
+
+	public void setDataModels(Map dataModels);
 	
 	/**
 	 * Adds the identified data model to the set of run-time data models managed

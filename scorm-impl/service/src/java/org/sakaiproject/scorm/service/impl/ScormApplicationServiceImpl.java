@@ -80,10 +80,13 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				log.debug("Creating a new ScoBean for the Sco " + scoId);
 			
 			scoBean = new ScoBeanImpl(scoId, sessionBean);
+			scoBean.clearState();
 			
 			if (null != scoId) {
 				scoBeans.put(scoId, scoBean);
 			}
+			
+			sessionBean.setDisplayingSco(scoBean);
 		}
 		
 		if (log.isDebugEnabled())
@@ -98,6 +101,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			if (log.isDebugEnabled())
 				log.debug("Discarding the ScoBean for the Sco " + scoId);
 			scoBeans.remove(scoId);
+			sessionBean.setDisplayingSco(null);
 		}
 		
 		if (sessionBean.isCloseOnNextTerminate()) {
@@ -676,8 +680,12 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
            }
         }
         
-        persistDataManager(validRequests, dm);
-        
+        if (isNewDataManager) {
+        	persistDataManager(validRequests, dm);
+        } else {
+        	updateDataManager(validRequests, dm);
+        }
+        	
         attempt.setDataManagerId(scoId, dm.getId());
         attemptDao().save(attempt);
         
@@ -983,6 +991,21 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			}*/
    }
 	
+   
+   private void updateDataManager(IValidRequests validRequests, IDataManager scoDataManager) {
+		if (null != validRequests) {
+	        SCORM_2004_NAV_DM navDM = (SCORM_2004_NAV_DM)scoDataManager.getDataModel("adl");
+	
+			navDM.setValidRequests(validRequests);
+			
+			dataManagerDao().update(scoDataManager);
+			
+
+       } else {
+       	log.error("Current nav state is null!");
+       }
+	}
+   
 
 	private void persistDataManager(IValidRequests validRequests, IDataManager scoDataManager) {
 		if (null != validRequests) {
@@ -1009,19 +1032,27 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		// Get the current completion_status
 		err = DMInterface.processGetValue(iRequest, iAdmin, true, scoDataManager, dmInfo);
 		
-		if (err != DMErrorCodes.NO_ERROR) {
-			log.warn("Found an error retrieving value for " + iRequest + " error is " + err);
-			if (defaultValue == null)
-				return "unknown";
-			else
-				return defaultValue;
+		
+		switch (err) {
+		case DMErrorCodes.NO_ERROR:
+			return dmInfo.mValue;
+		case DMErrorCodes.NOT_INITIALIZED:
+			log.info("The data element at " + iRequest + " is not initialized.");
+			break;
+		case DMErrorCodes.DOES_NOT_HAVE_COUNT:
+			if (!iRequest.endsWith("._count"))
+				log.info("Strange error -- 'Does not have count' for data element " + iRequest);
+			break;
+		default:
+			log.warn("Found an error retrieving value for " + iRequest + " error is " + err);	
 		}
 		
-		return dmInfo.mValue;
+		if (defaultValue == null)
+			return "unknown";
+		else
+			return defaultValue;
 	}
-	
-	
-	
+
 	
 	public class CmiData {
 		public boolean setPrimaryObjSuccess = false;
@@ -1264,9 +1295,8 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 				theTempTree.clearSessionState();
 			}
-				
-			//persistActivityTree(theTempTree);
-			persistDataManager(validRequests, dm);
+			
+			updateDataManager(validRequests, dm);
 
 		} catch (Exception e) {
 			log.error("Caught an exception:", e);

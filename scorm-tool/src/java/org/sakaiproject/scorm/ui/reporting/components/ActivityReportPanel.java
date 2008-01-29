@@ -20,10 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.reporting.components;
 
+import java.util.ArrayList;
+
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.sakaiproject.scorm.model.api.ActivityReport;
+import org.sakaiproject.scorm.model.api.Objective;
 
 public class ActivityReportPanel extends Panel {
 
@@ -38,7 +41,7 @@ public class ActivityReportPanel extends Panel {
 		
 		add(new ProgressPanel("progress", report.getProgress()));
 		
-		add(new ObjectivesPanel("objectives", report.getObjectives()));
+		add(new ObjectivesPanel("objectives", new ArrayList<Objective>(report.getObjectives().values())));
 		
 		add(new CMIDataGraph("cmiDataGraph", report.getCmiData()));
 	

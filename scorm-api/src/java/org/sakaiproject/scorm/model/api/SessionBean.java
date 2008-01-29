@@ -1,3 +1,23 @@
+/**********************************************************************************
+ * $URL:  $
+ * $Id:  $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2007 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
@@ -6,7 +26,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.adl.api.ecmascript.IErrorManager;
-import org.adl.datamodels.IDataManager;
 import org.adl.sequencer.ISeqActivityTree;
 import org.adl.sequencer.IValidRequests;
 import org.adl.validator.contentpackage.ILaunchData;
@@ -15,10 +34,8 @@ public class SessionBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	//private long contentPackageId;
-	//private String courseId;
 	private String learnerId;
-	//private String title;
+
 	private long attemptNumber;
 	
 	private ContentPackage contentPackage;
@@ -49,6 +66,8 @@ public class SessionBean implements Serializable {
 	//private IDataManager dataManager;
 	private IErrorManager errorManager;
 	
+	private ScoBean displayingSco;
+	
 	private Attempt attempt;
 	
 	public SessionBean() {
@@ -60,17 +79,6 @@ public class SessionBean implements Serializable {
 		this.learnerId = learnerId;
 		this.contentPackage = contentPackage;
 	}
-
-
-	/*public String getCourseId() {
-		return courseId;
-	}
-
-
-	public void setCourseId(String courseId) {
-		this.courseId = courseId;
-	}*/
-
 
 	public String getLearnerId() {
 		return learnerId;
@@ -225,22 +233,6 @@ public class SessionBean implements Serializable {
 		this.errorManager = errorManager;
 	}
 
-	/*public IDataManager getDataManager() {
-		return dataManager;
-	}
-
-	public void setDataManager(IDataManager dataManager) {
-		this.dataManager = dataManager;
-	}*/
-
-	/*public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}*/
-
 	public Attempt getAttempt() {
 		return attempt;
 	}
@@ -265,14 +257,6 @@ public class SessionBean implements Serializable {
 		this.isRestart = isRestart;
 	}
 
-	/*public long getContentPackageId() {
-		return contentPackageId;
-	}
-
-	public void setContentPackageId(long contentPackageId) {
-		this.contentPackageId = contentPackageId;
-	}*/
-
 	public String getActivityTitle() {
 		return activityTitle;
 	}
@@ -287,6 +271,14 @@ public class SessionBean implements Serializable {
 
 	public void setContentPackage(ContentPackage contentPackage) {
 		this.contentPackage = contentPackage;
+	}
+
+	public ScoBean getDisplayingSco() {
+		return displayingSco;
+	}
+
+	public void setDisplayingSco(ScoBean displayingSco) {
+		this.displayingSco = displayingSco;
 	}
 
 	

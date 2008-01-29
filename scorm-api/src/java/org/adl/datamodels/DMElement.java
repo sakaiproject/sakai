@@ -110,6 +110,10 @@ public abstract class DMElement implements Serializable
       return mInitialized;
    }
 
+   public List getDelimiters() {
+	   return mDelimiters;
+   }
+   
    /**
     * Describes the characteristics of this data model element
     * 
@@ -132,6 +136,11 @@ public abstract class DMElement implements Serializable
       mDescription = iDescription;
    }
 
+   public DMElement getParent() 
+   {
+	   return mParent;
+   }
+   
    /**
     * Adds the provided data model element to this data model element's set
     * of children.

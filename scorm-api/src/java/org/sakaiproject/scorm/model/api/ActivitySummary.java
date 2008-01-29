@@ -9,6 +9,8 @@ public class ActivitySummary implements Serializable {
 	// General data
 	private String scoId;
 	private String title;
+	private long contentPackageId;
+	private String learnerId;
 	
 	// Progress data
 	private double progressMeasure;
@@ -109,6 +111,18 @@ public class ActivitySummary implements Serializable {
 	}
 	public void setScaledToPass(double scaledToPass) {
 		this.scaledToPass = scaledToPass;
+	}
+	public long getContentPackageId() {
+		return contentPackageId;
+	}
+	public void setContentPackageId(long contentPackageId) {
+		this.contentPackageId = contentPackageId;
+	}
+	public String getLearnerId() {
+		return learnerId;
+	}
+	public void setLearnerId(String learnerId) {
+		this.learnerId = learnerId;
 	}
 	
 	
