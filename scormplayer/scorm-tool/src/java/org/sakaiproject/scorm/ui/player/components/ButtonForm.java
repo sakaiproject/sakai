@@ -23,6 +23,7 @@ package org.sakaiproject.scorm.ui.player.components;
 import org.adl.sequencer.SeqNavRequests;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;

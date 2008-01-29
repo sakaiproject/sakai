@@ -21,25 +21,13 @@
 package org.sakaiproject.scorm.ui.player.behaviors;
 
 import java.lang.reflect.Method;
-import java.util.Date;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.Application;
-import org.apache.wicket.RequestListenerInterface;
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.behavior.IBehaviorListener;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
-import org.apache.wicket.protocol.http.RequestUtils;
-import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
@@ -47,10 +35,8 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
-import org.sakaiproject.scorm.ui.ResourceNavigator;
 import org.sakaiproject.scorm.ui.player.decorators.SjaxCallDecorator;
 import org.sakaiproject.scorm.ui.player.util.Utils;
-import org.apache.wicket.protocol.http.pagestore.DiskPageStore;
 
 /**
  * This class is right at the center of all the action. It provides a wrapper for Synchronous
@@ -199,13 +185,17 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	protected void onEvent(final AjaxRequestTarget target) {
 		try {
 			String callNumber = this.getComponent().getRequest().getParameter("callNumber");
-			String scoValue = this.getComponent().getRequest().getParameter("scoId");
-
-			if (log.isDebugEnabled())
-				log.debug("Processing " + scoValue + " as " + callNumber);
+			//String scoValue = this.getComponent().getRequest().getParameter("scoId");
 			
-			final ScoBean scoBean = applicationService().produceScoBean(scoValue, getSessionBean());
+			//final ScoBean scoBean = applicationService().produceScoBean(scoValue, getSessionBean());
 
+			final ScoBean scoBean = getSessionBean().getDisplayingSco();
+			
+			if (log.isDebugEnabled()) {
+				log.debug("Processing " + callNumber);
+				log.debug("Sco: " + scoBean.getScoId());
+			}
+				
 			Object[] args = new Object[numArgs];
 			
 			for (int i=0;i<numArgs;i++) {
@@ -281,7 +271,7 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 		//buffer.append("ScormSjax.sjaxCall(sco, '").append(getCallUrl())
 		//	.append("', ");
 		
-		buffer.append("var wcall=ScormSjax.sjaxCall(sco, url, ");
+		buffer.append("var wcall=ScormSjax.sjaxCall(url, ");
 		
 		if (numArgs == 0)
 			buffer.append("'', ''");

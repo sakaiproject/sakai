@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.sourceforge.net/" xml:lang="en" lang="en">
+<head>
+	<wicket:head>
+		<title><wicket:message key="page.title"/></title>
+	</wicket:head>
+</head>
+<body>
+	<wicket:extend>
+
+		<p class="shorttext">
+			<label for="content.package.name">
+				<b><wicket:message key="cp.name.label"></wicket:message></b>
+			</label>					
+			
+			<span wicket:id="content.package.name"></span>			
+		</p>
+		
+		<p class="shorttext">
+			<label for="learner.name">
+				<b><wicket:message key="learner.name.label"></wicket:message></b>
+			</label>					
+			
+			<span wicket:id="learner.name"></span>			
+		</p>
+		
+		<p class="shorttext">
+			<label for="attempt.number">
+				<b><wicket:message key="attempt.title.label"></wicket:message></b>
+			</label>					
+			
+			<span wicket:id="attempt.number"></span>			
+		</p>
+		
+		<p class="shorttext">
+			<label for="attempt.date">
+				<b><wicket:message key="attempt.date.label"></wicket:message></b>
+			</label>					
+			
+			<span wicket:id="attempt.date"></span>			
+		</p>
+		
+		<p class="shorttext">
+			<label for="attempt.suspended">
+				<b><wicket:message key="attempt.suspended.label"></wicket:message></b>
+			</label>					
+			
+			<span wicket:id="attempt.suspended"></span>			
+		</p>	
+		
+		<p class="shorttext">
+			<label for="attempt.clean.exit">
+				<b><wicket:message key="attempt.clean.exit.label"></wicket:message></b>
+			</label>					
+			
+			<span wicket:id="attempt.clean.exit"></span>			
+		</p>	
+		
+		<br/>
+
+		<div class="navIntraTool">
+			<wicket:message key="attempt.title.label"/> &nbsp;&nbsp;&nbsp;
+			<b>
+				<div wicket:id="attemptNumberLinks">
+					<a wicket:id="attemptNumberLink" style="margin-right: 1em;"></a>
+				</div>
+			</b>
+		</div>
+
+		<wicket:child/>
+		
+		
+	</wicket:extend>
+</body>
+</html>

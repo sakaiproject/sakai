@@ -100,11 +100,11 @@ public class AttemptListPage extends ConsoleBasePage {
 		
 		String[] paramPropertyExpressions = {"contentPackageId", "learnerId"};
 		
-		Action summaryAction = new Action("learnerName", LearnerAttemptSummaryPage.class, paramPropertyExpressions);
+		Action summaryAction = new Action("learnerName", LearnerResultsPage.class, paramPropertyExpressions);
 		actionColumn.addAction(summaryAction);
 		
-		Action detailAction = new Action(detailActionLabel, LearnerAttemptDetailPage.class, paramPropertyExpressions);
-		actionColumn.addAction(detailAction);
+		//Action detailAction = new Action(detailActionLabel, LearnerAttemptDetailPage.class, paramPropertyExpressions);
+		//actionColumn.addAction(detailAction);
 		columns.add(actionColumn);
 		
 		//columns.add(new PropertyColumn(progressHeader, "progress", "progress"));

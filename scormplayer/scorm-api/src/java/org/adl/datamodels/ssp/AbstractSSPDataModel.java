@@ -2,6 +2,7 @@ package org.adl.datamodels.ssp;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 
 import org.adl.datamodels.DataModel;
 
@@ -42,4 +43,9 @@ public abstract class AbstractSSPDataModel extends DataModel {
 	    */
 	   protected List mManaged = null;
 
+	   
+	   public List getManagedElements() {
+		   return mManaged;
+	   }
+	   
 }

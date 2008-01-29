@@ -22,8 +22,10 @@ package org.sakaiproject.scorm.model.api;
 
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class ActivityReport implements Serializable {
 
@@ -33,7 +35,8 @@ public class ActivityReport implements Serializable {
 	private String scoId;
 	private String title;
 	
-	private List<Objective> objectives;
+	private List<Interaction> interactions;
+	private Map<Long, Objective> objectives;
 	
 	private Progress progress;
 	
@@ -43,7 +46,8 @@ public class ActivityReport implements Serializable {
 
 
 	public ActivityReport() {
-		objectives = new LinkedList<Objective>();
+		interactions = new LinkedList<Interaction>();
+		objectives = new HashMap<Long, Objective>();
 	}
 	
 	public String getActivityId() {
@@ -78,15 +82,6 @@ public class ActivityReport implements Serializable {
 		this.score = score;
 	}
 
-	public List<Objective> getObjectives() {
-		return objectives;
-	}
-
-	public void setObjectives(List<Objective> objectives) {
-		this.objectives = objectives;
-	}
-
-
 	public Progress getProgress() {
 		return progress;
 	}
@@ -102,6 +97,22 @@ public class ActivityReport implements Serializable {
 
 	public void setCmiData(List<CMIData> cmiData) {
 		this.cmiData = cmiData;
+	}
+
+	public List<Interaction> getInteractions() {
+		return interactions;
+	}
+
+	public void setInteractions(List<Interaction> interactions) {
+		this.interactions = interactions;
+	}
+
+	public Map<Long, Objective> getObjectives() {
+		return objectives;
+	}
+
+	public void setObjectives(Map<Long, Objective> objectives) {
+		this.objectives = objectives;
 	}
 	
 	

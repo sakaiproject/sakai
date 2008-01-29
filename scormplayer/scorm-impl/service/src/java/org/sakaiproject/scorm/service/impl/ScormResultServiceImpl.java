@@ -43,6 +43,7 @@ import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.CMIData;
 import org.sakaiproject.scorm.model.api.CMIField;
 import org.sakaiproject.scorm.model.api.CMIFieldGroup;
+import org.sakaiproject.scorm.model.api.Interaction;
 import org.sakaiproject.scorm.model.api.Learner;
 import org.sakaiproject.scorm.model.api.LearnerExperience;
 import org.sakaiproject.scorm.model.api.Objective;
@@ -104,6 +105,21 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 		return reports;
 	}
 	
+	public ActivityReport getActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId) {
+		IDataManager dataManager = dataManagerDao().find(contentPackageId, learnerId, attemptNumber, scoId);
+		
+		ActivityReport report = new ActivityReport();
+		Map<String,CMIData> map = this.getCMIDataMap(dataManager);
+	
+		report.setTitle(dataManager.getTitle());
+		report.setScoId(dataManager.getScoId());
+		report.setCmiData(getCMIData(dataManager));
+		
+		mapValues(report, dataManager);
+
+		return report;
+	}
+	
 	
 	public List<ActivitySummary> getActivitySummaries(long contentPackageId, String learnerId, long attemptNumber) {
 		List<IDataManager> dataManagers = dataManagerDao().find(contentPackageId, learnerId, attemptNumber);
@@ -113,6 +129,8 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 			ActivitySummary summary = new ActivitySummary();
 			Map<String,CMIData> map = this.getCMIDataMap(dataManager);
 		
+			summary.setContentPackageId(contentPackageId);
+			summary.setLearnerId(learnerId);
 			summary.setTitle(dataManager.getTitle());
 			summary.setScoId(dataManager.getScoId());
 			
@@ -273,14 +291,74 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 		
 		report.setScore(score);
 		
-		List<Objective> objectives = report.getObjectives();
+		List<Interaction> interactions = report.getInteractions();
+		
+		int numberOfInteractions = getValueAsInt("cmi.interactions._count", dataManager);
+		
+		for (int i=1;i<numberOfInteractions;i++) {
+			Interaction interaction = new Interaction();
+			
+			String interactionName = new StringBuilder("cmi.interactions.").append(i).append(".").toString();
+			
+			String interactionIdName = new StringBuilder(interactionName).append("id").toString();
+			interaction.setId(getValueAsString(interactionIdName, dataManager));
+			
+			String interactionTypeName = new StringBuilder(interactionName).append("type").toString();
+			interaction.setType(getValueAsString(interactionTypeName, dataManager));
+			
+			String numberOfObjectiveIdsName = new StringBuilder(interactionName).append("objectives._count").toString();
+			int numberOfObjectiveIds = getValueAsInt(numberOfObjectiveIdsName, dataManager);
+			
+			List<String> idList = interaction.getObjectiveIds();
+			for (int j=1;j<numberOfObjectiveIds;j++) {
+				String objectiveIdName = new StringBuilder(interactionName).append("objectives.")
+					.append(j).append(".id").toString();
+				
+				idList.add(getValueAsString(objectiveIdName, dataManager));
+			}
+			
+			String interactionTimestampName = new StringBuilder(interactionName).append("timestamp").toString();
+			interaction.setTimestamp(getValueAsString(interactionTimestampName, dataManager));
+			
+			String numCorrectResponsesName = new StringBuilder(interactionName).append("correct_responses._count").toString();
+			int numCorrectResponses = getValueAsInt(numCorrectResponsesName, dataManager);
+			
+			List<String> correctResponses = interaction.getCorrectResponses();
+			for (int n=1;n<numCorrectResponses;n++) {
+				String correctResponsePatternName = new StringBuilder(interactionName).append("correct_responses.").append(n).append("pattern").toString();
+				String correctResponsePattern = getValueAsString(correctResponsePatternName, dataManager);
+				correctResponses.add(correctResponsePattern);
+			}
+			
+			String weightingName = new StringBuilder(interactionName).append("weighting").toString();
+			interaction.setWeighting(getRealValue(weightingName, dataManager));
+			
+			String learnerResponseName = new StringBuilder(interactionName).append("learner_response").toString();
+			interaction.setLearnerResponse(getValueAsString(learnerResponseName, dataManager));
+			
+			String resultName = new StringBuilder(interactionName).append("result").toString();
+			interaction.setResult(getValueAsString(resultName, dataManager));
+			
+			String latencyName = new StringBuilder(interactionName).append("latency").toString();
+			interaction.setLatency(getValueAsString(latencyName, dataManager));
+			
+			String descriptionName = new StringBuilder(interactionName).append("description").toString();
+			interaction.setDescription(getValueAsString(descriptionName, dataManager));
+			
+			interactions.add(interaction);
+		}
+		
+		Map<Long, Objective> objectives = report.getObjectives();
 		
 		int numberOfObjectives = getValueAsInt("cmi.objectives._count", dataManager);
 		
 		for (int i=1;i<=numberOfObjectives;i++) {
 			Objective objective = new Objective();
 			
-			String objectiveName = new StringBuilder("cmi.objectives.").append(i).toString();
+			String objectiveName = new StringBuilder("cmi.objectives.").append(i).append(".").toString();
+			
+			String objectiveIdName = new StringBuilder(objectiveName).append("id").toString();
+			objective.setId(getValueAsString(objectiveIdName, dataManager));
 			
 			String completionStatusName = new StringBuilder(objectiveName).append("completion_status").toString();
 			objective.setCompletionStatus(getValueAsString(completionStatusName, dataManager));
@@ -312,7 +390,8 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 			
 			objective.setScore(objectiveScore);
 			
-			objectives.add(objective);
+			Long identifier = Long.valueOf(objective.getId());
+			objectives.put(identifier, objective);
 		}
 		
 		
@@ -563,6 +642,22 @@ and e.PARENT is null
         return result;
 	}
 	
+	private long getValueAsLong(String element, IDataManager dataManager) {
+		String result = getValue(element, dataManager);
+		
+		if (result.trim().length() == 0 || result.equals("unknown"))
+			return -1;
+
+		long l = -1;
+		
+		try {
+			l = Long.parseLong(result);
+		} catch (NumberFormatException nfe) {
+			log.error("Unabled to parse " + result + " as a long!");
+		}
+		
+        return l;
+	}
 	
 	private String getValue(String iDataModelElement, IDataManager dataManager) {
 		// Process 'GET'

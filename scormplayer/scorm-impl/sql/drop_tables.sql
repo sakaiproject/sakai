@@ -47,10 +47,11 @@ drop table   SCORM_MAP_ADL_TRACK_OBJ_T      ;
 drop table   SCORM_MAP_CHILDREN_T           ;
 drop table   SCORM_MAP_DATAMODELS_T         ;
 drop table   SCORM_MAP_ELEMENTS_T           ;
+drop table   SCORM_MAP_SCO_DATAMANAGER_T    ;
 drop table   SCORM_MAP_TOC_T                ;
 drop table   SCORM_PROCESSING_INFO_T        ;
 drop table   SCORM_TYPE_VALIDATOR_T         ;
-drop table   SCORM_URL;
+drop table   SCORM_URL                      ;
 
 
 

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="all" default-access="field" package="org.adl.sequencer" default-lazy="false">
+
+	<class name="org.adl.sequencer.ADLValidRequests" table="SCORM_ADL_VALID_REQUESTS_T">
+	
+		<id name="id" column="VALID_REQUESTS_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<property name="mStart" column="IS_START_ENABLED" />
+	
+		<property name="mResume" column="IS_RESUME_ALL_ENABLED" />
+	
+		<property name="mContinue" column="IS_CONTINUE_ENABLED" />
+	
+		<property name="mContinueExit" column="IS_CONTINUE_EXIT_ENABLED" />
+	
+		<property name="mPrevious" column="IS_PREVIOUS_ENABLED" />
+	
+		<property name="mSuspend" column="IS_SUSPEND_VALID" />
+
+	
+	</class>
+	
+</hibernate-mapping>

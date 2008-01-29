@@ -1,3 +1,23 @@
+/**********************************************************************************
+ * $URL:  $
+ * $Id:  $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2007 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 package org.sakaiproject.scorm.ui;
 
 import java.io.Serializable;
@@ -6,21 +26,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.Application;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.Request;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.Resource;
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.request.RequestParameters;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
-import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 
 public abstract class ResourceNavigator implements INavigable, Serializable {
 
@@ -64,6 +77,8 @@ public abstract class ResourceNavigator implements INavigable, Serializable {
 			if (target != null)
 				((AjaxRequestTarget)target).addComponent(component);
 		} else if (target != null) {
+			// It's critical to the proper functioning of the tool that this logic be maintained for SjaxCall 
+			// This is due to a bug in Firefox's handling of Javascript when an iframe has control of the XMLHttpRequest
 			((AjaxRequestTarget)target).appendJavascript("parent.scormContent.location.href='" + fullUrl + "'");
 		}
 

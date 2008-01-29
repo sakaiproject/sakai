@@ -1,3 +1,23 @@
+/**********************************************************************************
+ * $URL:  $
+ * $Id:  $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2007 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 package org.sakaiproject.scorm.ui.player.components;
 
 import org.apache.wicket.Component;
@@ -6,7 +26,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
@@ -27,11 +46,10 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 
 	private static final long serialVersionUID = 1L;
 
-	private static final ResourceReference SJAX = new JavascriptResourceReference(SjaxCall.class, "res/scorm-sjax.js");
+	private static final ResourceReference SJAX = new JavascriptResourceReference(SjaxContainer.class, "res/scorm-sjax.js");
 	
 	@SpringBean
 	transient LearningManagementSystem lms;
-	
 	@SpringBean
 	transient ScormApplicationService applicationService;
 	@SpringBean
@@ -39,16 +57,12 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 	@SpringBean
 	transient ScormSequencingService sequencingService;
 	
-	private SessionBean sessionBean;
 	private UISynchronizerPanel synchronizerPanel;
 	private SjaxCall[] calls = new SjaxCall[8]; 
 	private HiddenField[] components = new HiddenField[8];
 	
 	public SjaxContainer(String id, final SessionBean sessionBean, final UISynchronizerPanel synchronizerPanel) {
-		
-		super(id);
-		
-		this.sessionBean = sessionBean;
+		super(id, new Model(sessionBean));
 		this.synchronizerPanel = synchronizerPanel;
 		
 		this.setOutputMarkupId(true);
@@ -68,8 +82,9 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 		calls[5] = new ScormSjaxCall("Initialize", 1) {
 			private static final long serialVersionUID = 1L;
 
-			protected String callMethod(ScoBean scoBean, AjaxRequestTarget target, Object... args) {
+			protected String callMethod(ScoBean blankScoBean, AjaxRequestTarget target, Object... args) {
 				
+				ScoBean scoBean = applicationService().produceScoBean("undefined", getSessionBean());
 				
 				ActivityTree tree = synchronizerPanel.getTree();
 				if (tree != null && !tree.isEmpty()) {
@@ -78,8 +93,6 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 				}
 				
 				synchronizerPanel.synchronizeState(sessionBean, target);
-
-				updatePageSco(scoBean.getScoId(), target);
 				
 				return super.callMethod(scoBean, target, args);
 			}
@@ -99,9 +112,8 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 					tree.updateTree(target);
 				}
 				
-				applicationService.discardScoBean(scoBean.getScoId(), sessionBean, new LocalResourceNavigator());
-				
-				updatePageSco("undefined", target);
+				if (scoBean != null)
+					applicationService.discardScoBean(scoBean.getScoId(), sessionBean, new LocalResourceNavigator());
 				
 				return result;
 			}
@@ -149,8 +161,7 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 		js.append("function APIAdapter() { };\n")	
 			.append("var API_1484_11 = APIAdapter;\n")
 			.append("var api_result = new Array();\n")
-			.append("var call_number = 0;\n")
-			.append("var sco = undefined;\n");
+			.append("var call_number = 0;\n");
 		
 		for (int i=0;i<calls.length;i++) {
 			js.append(calls[i].getJavascriptCode()).append("\n");
@@ -167,9 +178,15 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 			super(event, numArgs);
 		}
 		
+		protected void onEvent(final AjaxRequestTarget target) {
+			modelChanging();
+			super.onEvent(target);
+			modelChanged();
+		}
+		
 		@Override
 		protected SessionBean getSessionBean() {
-			return sessionBean;
+			return (SessionBean)getModelObject();
 		}
 		
 		@Override
@@ -197,11 +214,6 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 			return "1|s";
 		}
 		
-		public void updatePageSco(String scoId, AjaxRequestTarget target) {
-			if (target != null)
-				target.appendJavascript("sco = '" + scoId + "';");
-		}
-
 		@Override
 		protected INavigable getNavigationAgent() {
 			return new LocalResourceNavigator();

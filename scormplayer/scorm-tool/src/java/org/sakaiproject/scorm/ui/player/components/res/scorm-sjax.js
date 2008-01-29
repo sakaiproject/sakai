@@ -2,10 +2,10 @@
 if (typeof(ScormSjax) == "undefined")
 	ScormSjax = { };
 
-ScormSjax.sjaxCall = function sjaxCall(scoId, url, arg1, arg2, successHandler, failureHandler, precondition, channel) {
+ScormSjax.sjaxCall = function sjaxCall(url, arg1, arg2, successHandler, failureHandler, precondition, channel) {
 	//Wicket.Log.info("Calling sjaxCall with url: " + url + " sco: " + scoId + " arg1: " + arg1 + " arg2: " + arg2);
 		
-	var call = new Wicket.Ajax.Call(url + '&scoId=' + scoId + '&arg1=' + arg1 + '&arg2=' + arg2 + '&callNumber=' + call_number, function() {}, function() {}, channel);
+	var call = new Wicket.Ajax.Call(url + '&arg1=' + arg1 + '&arg2=' + arg2 + '&callNumber=' + call_number, function() {}, function() {}, channel);
 	
 	if (typeof(precondition) != "undefined" && precondition != null) {
 		call.request.precondition = precondition;

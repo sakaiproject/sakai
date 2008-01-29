@@ -22,9 +22,16 @@ package org.sakaiproject.scorm.dao.hibernate;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import org.adl.datamodels.DMDelimiter;
+import org.adl.datamodels.DMElement;
+import org.adl.datamodels.DataModel;
 import org.adl.datamodels.IDataManager;
 import org.adl.datamodels.SCODataManager;
+import org.adl.datamodels.ieee.SCORM_2004_DM;
+import org.adl.datamodels.nav.SCORM_2004_NAV_DM;
+import org.adl.datamodels.ssp.SSP_DataModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
@@ -35,7 +42,17 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 	private static Log log = LogFactory.getLog(DataManagerDaoImpl.class);
 	
 	public IDataManager load(long id) {
-		return (IDataManager)getHibernateTemplate().load(SCODataManager.class, id);
+		//return (IDataManager)getHibernateTemplate().load(SCODataManager.class, id);
+	
+		List r = getHibernateTemplate().find(
+				"from " + SCODataManager.class.getName()
+						+ " where id=? ", 
+						new Object[]{ id });
+	
+		if (r != null && r.size() > 0)
+			return (IDataManager)r.get(0);
+		
+		return null;
 	}
 	
 	public List<IDataManager> find(String courseId) {
@@ -88,6 +105,23 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 				new Object[]{ contentPackageId, learnerId, attemptNumber });
 	}
 	
+	public IDataManager find(long contentPackageId, String learnerId, long attemptNumber, String scoId) {
+		StringBuilder buffer = new StringBuilder();
+		
+		buffer.append("from ").append(SCODataManager.class.getName())
+			.append(" where contentPackageId=? and userId=? and attemptNumber=? and scoId=?");
+	
+		List r = getHibernateTemplate().find(buffer.toString(), 
+				new Object[]{ contentPackageId, learnerId, attemptNumber, scoId });
+		
+		if (r.size() == 0)
+			return null;
+		
+		SCODataManager dm = (SCODataManager)r.get(0);
+		
+		return dm;
+	}
+	
 	public IDataManager findByActivityId(long contentPackageId, String activityId, String userId, long attemptNumber) {
 		StringBuilder buffer = new StringBuilder();
 		
@@ -110,8 +144,96 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 	}
 
 	public void save(IDataManager dataManager) {
+		saveOrUpdate(dataManager, true);
+	}
+	
+	public void update(IDataManager dataManager) {
+		saveOrUpdate(dataManager, false);
+	}
+
+	private void saveOrUpdate(IDataManager dataManager, boolean isFirstTime) {
 		dataManager.setLastModifiedDate(new Date());
-		getHibernateTemplate().saveOrUpdate(dataManager);
+		
+		Map<String, DataModel> dataModels = dataManager.getDataModels();
+		
+		if (dataModels != null) {
+			for (java.util.Iterator<String> it = dataModels.keySet().iterator();it.hasNext();) {
+				String key = it.next();
+				DataModel dm = dataModels.get(key);
+				
+				if (dm instanceof SCORM_2004_DM) {
+					SCORM_2004_DM rdm = (SCORM_2004_DM)dm;
+					
+					Map<String, DMElement> map = rdm.getElements();
+					
+					for (DMElement element : map.values()) {
+						merge(element);
+					}
+										
+				} else if (dm instanceof SCORM_2004_NAV_DM) {
+					SCORM_2004_NAV_DM rdm = (SCORM_2004_NAV_DM)dm;
+					
+					Map<String, DMElement> map = rdm.getElements();
+					
+					for (DMElement element : map.values()) {
+						merge(element);
+					}
+					
+				} else {
+					SSP_DataModel rdm = (SSP_DataModel)dm;
+					
+					List<DMElement> list = rdm.getManagedElements();
+					
+					for (DMElement element : list) {
+						merge(element);
+					}
+				}
+				
+			}
+
+		}
+			
+		
+		saveOrUpdate(isFirstTime, dataManager);
+		
+	}
+	
+	private void merge(DMElement element) {
+		if (element.getDescription() != null) {
+			if (element.getDescription().getId() > 0)
+				getHibernateTemplate().saveOrUpdate(element.getDescription());
+			else 
+				getHibernateTemplate().merge(element.getDescription());
+		}
+		
+		List<DMDelimiter> delims = element.getDelimiters();
+		
+		if (delims != null) {
+			for (DMDelimiter delim : delims) {
+				if (delim.getDescription() != null)
+					getHibernateTemplate().merge(delim.getDescription());
+			}
+		}
+	}
+	
+	private void saveOrUpdate(DMElement element, boolean isFirstTime) {
+		if (element.getParent() != null) {
+			saveOrUpdate(element.getParent(), isFirstTime);
+		}
+		
+		if (element.getDescription() != null)
+			saveOrUpdate(isFirstTime, element.getDescription());
+		
+	}
+	
+	private void saveOrUpdate(boolean isFirstTime, Object object) {
+		/*if (isFirstTime)
+			getHibernateTemplate().save(object);
+		else
+			getHibernateTemplate().update(object);
+		*/
+		getHibernateTemplate().saveOrUpdate(object);
+	
 	}
 	
 	

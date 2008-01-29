@@ -651,6 +651,10 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       element = new SCORM_2004_DMElement(desc, null, this);
       mElements.put(desc.mBinding, element);
    }
+   
+   public Map getElements() {
+	   return mElements;
+   }
 
    public int equals(DMRequest iRequest) {
 	   return equals(iRequest, true);

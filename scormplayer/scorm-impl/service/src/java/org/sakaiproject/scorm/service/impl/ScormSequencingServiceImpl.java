@@ -79,9 +79,11 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		
 		update(sessionBean, sequencer, launch, manifest);
 		
-		if (request == SeqNavRequests.NAV_SUSPENDALL) 
+		if (request == SeqNavRequests.NAV_SUSPENDALL) {
 			sessionBean.setSuspended(true);
-		else if (request == SeqNavRequests.NAV_RESUMEALL)
+			sessionBean.setEnded(true);
+			sessionBean.setStarted(false);
+		} else if (request == SeqNavRequests.NAV_RESUMEALL)
 			sessionBean.setSuspended(false);
 		
 		if (agent != null)
@@ -97,8 +99,8 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	
 	public void navigate(String choiceRequest, SessionBean sessionBean, INavigable agent, Object target) {
 		if (choiceRequest == null) {
-			if (log.isInfoEnabled())
-				log.info("navigate with null choice request, ignoring");
+			if (log.isDebugEnabled())
+				log.debug("navigate with null choice request, ignoring");
 			return;
 		}
 			
@@ -136,14 +138,6 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	public SessionBean newSessionBean(ContentPackage contentPackage) {
 		String learnerId = lms().currentLearnerId();
 		SessionBean sessionBean = new SessionBean(learnerId, contentPackage);
-		
-		//ContentPackageManifest manifest = adlManager().getManifest(sessionBean);
-		
-		/*if (manifest != null)
-			sessionBean.setTitle(manifest.getTitle());
-		else 
-			log.error("Could not retrieve manifest for this Scorm Package: " + courseId);
-		*/
 		
 		IErrorManager errorManager = new APIErrorManager(IErrorManager.SCORM_2004_API);
 		sessionBean.setErrorManager(errorManager);
@@ -226,25 +220,6 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		
 		return activity.getControlForwardOnly();
 	}
-	
-	
-	/*public String getCurrentUrl(SessionBean sessionBean) {
-		log.warn("THIS IS BROKEN -- sessionBean.getBaseUrl will return NULL");
-		
-		if (null != sessionBean.getLaunchData()) {
-			String launchLine = sessionBean.getLaunchData().getLaunchLine();
-			String baseUrl = sessionBean.getBaseUrl();
-			StringBuffer fullPath = new StringBuffer().append(baseUrl);
-			
-			if (!baseUrl.endsWith(Entity.SEPARATOR) && !launchLine.startsWith(Entity.SEPARATOR))
-				fullPath.append(Entity.SEPARATOR);
-
-			fullPath.append(launchLine);
-						
-			return fullPath.toString();
-		}
-		return null;
-	}*/
 	
 	public TreeModel getTreeModel(SessionBean sessionBean) {
 		IValidRequests requests = sessionBean.getNavigationState();

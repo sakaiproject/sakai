@@ -225,5 +225,9 @@ public class DMElementDescriptor implements Serializable, Cloneable
       }
    }
 
+	public long getId() {
+		return id;
+	}
+
 
 }  // end DMElementDescriptor

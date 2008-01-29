@@ -49,11 +49,12 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 
 public abstract class LazyLoadPanel extends Panel {
 	
-	public LazyLoadPanel(String id) {
-		super(id);
+	public LazyLoadPanel(String id, IModel model) {
+		super(id, model);
 		setOutputMarkupId(true);
 		final Component loadingComponent = getLoadingComponent("content");
 		add(loadingComponent.setRenderBodyOnly(true));
