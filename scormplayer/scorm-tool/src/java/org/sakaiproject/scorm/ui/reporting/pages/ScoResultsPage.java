@@ -43,7 +43,7 @@ public class ScoResultsPage extends BaseResultsPage {
 		PageParameters parentParams = new PageParameters();
 		parentParams.put("contentPackageId", contentPackage.getId());
 		parentParams.put("learnerId", learner.getId());
-		parentParams.put("attemptNumber", pageParams.get("attemptNumber"));
+		parentParams.put("attemptNumber", attemptNumber);
 		
 		ActivityReport report = resultService.getActivityReport(contentPackage.getId(), learner.getId(), attemptNumber, scoId);
 		

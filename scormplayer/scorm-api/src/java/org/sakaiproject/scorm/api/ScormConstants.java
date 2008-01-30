@@ -14,6 +14,11 @@ public interface ScormConstants {
 	public static final int CONTENT_PACKAGE_STATUS_CLOSED = 3;
 	public static final int CONTENT_PACKAGE_STATUS_NOTYETOPEN = 4;
 	
+	public static final int NOT_ACCESSED = 0;
+	public static final int INCOMPLETE = 1;
+	public static final int COMPLETED = 2;
+	public static final int GRADED = 3;
+	
 	public final static String CMI_OBJECTIVES_ROOT = "cmi.objectives.";
 	public final static String CMI_COMPLETION_STATUS = "cmi.completion_status";
 	public final static String CMI_SUCCESS_STATUS = "cmi.success_status";

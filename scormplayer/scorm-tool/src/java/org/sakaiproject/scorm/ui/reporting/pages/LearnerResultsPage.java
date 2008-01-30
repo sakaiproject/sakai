@@ -34,7 +34,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 		PageParameters parentParams = new PageParameters();
 		parentParams.put("contentPackageId", contentPackage.getId());
 		parentParams.put("learnerId", learner.getId());
-		parentParams.put("attemptNumber", pageParams.get("attemptNumber"));
+		parentParams.put("attemptNumber", attemptNumber);
 		
 		IModel breadcrumbModel = new StringResourceModel("parent.breadcrumb", this, new Model(contentPackage));
 		addBreadcrumb(breadcrumbModel, AttemptListPage.class, uberparentParams, true);	
@@ -58,7 +58,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 		
 		List<IColumn> columns = new LinkedList<IColumn>();
 		
-		String[] paramPropertyExpressions = {"contentPackageId", "learnerId", "scoId"};
+		String[] paramPropertyExpressions = {"contentPackageId", "learnerId", "scoId", "attemptNumber"};
 		
 		ActionColumn actionColumn = new ActionColumn(titleHeader, "title", "title");
 		actionColumn.addAction(new Action("title", ScoResultsPage.class, paramPropertyExpressions));
