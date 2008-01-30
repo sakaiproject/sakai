@@ -478,13 +478,11 @@ public class PrivateMessagesTool
       
       /** only load topics/counts if area is enabled */
       
-     
-    	  Locale loc = null;
+       	  Locale loc = null;
     	
     	  ResourceLoader rl = new ResourceLoader();
     	  loc = rl.getLocale();//( userId);//SessionManager.getCurrentSessionUserId() );
-    	  
-    	  
+    	    	  
     	  List topicsbyLocalization= new ArrayList();// only three folder supported, if need more, please modifify here
     	  
     	  String local_received=getResourceBundleString("pvt_received");
@@ -525,30 +523,53 @@ public class PrivateMessagesTool
             String typeUuid="";  // folder uuid
             if(getLanguage(CurrentTopicTitle).toString().equals(getLanguage(current_NAV).toString()))
             {
-             typeUuid = getPrivateMessageTypeFromContext(topicsbyLocalization.get(countForFolderNum).toString());// topic.getTitle());
+             typeUuid = getPrivateMessageTypeFromContext(topicsbyLocalization.get(countForFolderNum).toString());
             
             
             }
             else
             {
             	
-             typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());//topicsbyLocalization.get(countForFolderNum).toString());// topic.getTitle());
-                  
-            	
-            	
-            	
+             typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());
+                              	
             }
             countForFolderNum++;
             
-          ////need change here:==by huxt
-            decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid));//"prtMsgManager.findMessageCount(typeUuid)"= 40	
+            decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid));
 
-            decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid));//"prtMsgManager.findUnreadMessageCount(typeUuid)"= 1	
+            decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid));
 
           
             decoratedForum.addTopic(decoTopic);
-          }    //if (topic != null)      
-        }//for  Iterator iterator
+          }       
+        }
+        
+        while(iterator.hasNext())//add more folder 
+        {
+               PrivateTopic topic = (PrivateTopic) iterator.next();
+               if (topic != null)
+               {
+
+               
+               /** filter topics by context and type*/                                                    
+                 if (topic.getTypeUuid() != null
+                 && topic.getTypeUuid().equals(typeManager.getUserDefinedPrivateTopicType())
+                   && topic.getContextId() != null && !topic.getContextId().equals(prtMsgManager.getContextId())){
+                    continue;
+                 }       
+               
+                 PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
+                
+                 String typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());          
+               
+                 decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid));
+                 decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid));
+               
+                 decoratedForum.addTopic(decoTopic);
+               }          
+        
+        }
+
       }//if  getPvtAreaEnabled()
     return decoratedForum ;
   }
@@ -567,12 +588,10 @@ public class PrivateMessagesTool
 		/** Preferences key for user's regional language locale */
 		String LOCALE_KEY = "locale";
 
-    
-  
-	  Locale loc = null;
+		Locale loc = null;
 	  //getLocale( String userId )
-	  ResourceLoader rl = new ResourceLoader();
-	  loc=rl.getLocale();//===country = "US"  language="en"
+		ResourceLoader rl = new ResourceLoader();
+		loc=rl.getLocale();//===country = "US"  language="en"
 	
 	  
   	if (!FacesContext.getCurrentInstance().getRenderResponse() && !viewChanged &&
@@ -4108,9 +4127,9 @@ private   int   getNum(char letter,   String   a)
     else if (((String) topicsbyLocalization.get(2)).equalsIgnoreCase(navMode)||"Borrados".equalsIgnoreCase(navMode)||"Deleted".equalsIgnoreCase(navMode)){
       return typeManager.getDeletedPrivateMessageType(); 
     }
-    //else if (PVTMSG_MODE_DRAFT.equalsIgnoreCase(navMode)){
-   //   return typeManager.getDraftPrivateMessageType();
-   // }
+    else if (PVTMSG_MODE_DRAFT.equalsIgnoreCase(navMode)){
+      return typeManager.getDraftPrivateMessageType();
+    }
     else{
       return typeManager.getCustomTopicType(navMode);
     }    
