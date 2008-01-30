@@ -239,7 +239,10 @@
 					<xsl:for-each
 						select="datafield[@tag='513' and @ind1=' ' and @ind2=' ']/subfield[@code='a'] |
                     datafield[@tag='567' and @ind1=' ' and @ind2=' ']/subfield[@code='a'] |
-                    datafield[@tag='949' and @ind1=' ' and @ind2=' ']/subfield[@code='i']">
+                    datafield[@tag='949' and @ind1=' ' and @ind2=' ']/subfield[@code='i'] |
+                    controlfield[@tag='FMT'] |
+                    datafield[@tag='TYP' and @ind1=' ' and @ind2=' ']/subfield[@code='a'] |
+                    datafield[@tag='TYP' and @ind1=' ' and @ind2=' ']/subfield[@code='b']">
 						<type>
 							<xsl:value-of select="text()" />
 						</type>

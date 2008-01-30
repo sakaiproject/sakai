@@ -4303,7 +4303,7 @@ public abstract class BaseCitationService implements CitationService
 		else if (mediatype.equalsIgnoreCase("book"))
 		{
 			synonyms.add("book");
-
+			synonyms.add("bk");
 		}
 		else if (mediatype.equalsIgnoreCase("chapter"))
 		{
