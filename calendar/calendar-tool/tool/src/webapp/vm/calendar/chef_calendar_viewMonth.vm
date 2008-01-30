@@ -42,13 +42,12 @@
 <!-- how to draw a month -->
 <table cellpadding="2" width="100%" border="0" cellspacing="0" class="calendar" summary="$tlang.getString('viewm.list.summary')">
     <tr>
-        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.sun')</th>
-        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.mon')</th>
-        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.tue')</th>                     
-        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.wed')</th> 
-        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.thu')</th>
-        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.fri')</th> 
-        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.sat')</th>  
+       	## --- Modificado por la UPV - Begin
+    	##set ($day_of_Week = $calObj.getDay_Of_Week())
+    	#foreach ($dayname in $dayOfWeekNames)
+		<th align="center" width="14%" class="borderWhite">$dayname</th>
+    	#end
+	## --- Modificado por la UPV - End 
     </tr>           
         #set($row = $monthArray.getRow()) 
         #foreach ($xn in [0..$row])   	

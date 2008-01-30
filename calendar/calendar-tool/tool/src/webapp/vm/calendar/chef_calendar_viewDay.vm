@@ -60,23 +60,7 @@
 			</div>
 			<div class="listNav">
 				<div class="instruction">	
-					#set ($day_of_Week = $calObj.getDay_Of_Week())
-						#if ($day_of_Week == 1)
-						$tlang.getString("java.sun")
-						#elseif ($day_of_Week == 2)
-						$tlang.getString("java.mon")
-						#elseif ($day_of_Week == 3)
-						$tlang.getString("java.tue")
-						#elseif ($day_of_Week == 4)
-						$tlang.getString("java.wed")
-						#elseif ($day_of_Week == 5)
-						$tlang.getString("java.thu")
-						#elseif ($day_of_Week == 6)
-						$tlang.getString("java.fri")
-						#elseif ($day_of_Week == 7)
-						$tlang.getString("java.sat")
-					#end
-					$nameOfMonth $date.Day, $date.Year $timezone</div>
+					$dayName $nameOfMonth $date.Day, $date.Year $timezone</div>
 				
 				#set($isToday = false)
 				#if ($date.Year == $todayYear)

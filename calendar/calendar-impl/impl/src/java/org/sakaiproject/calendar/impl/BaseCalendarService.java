@@ -6267,7 +6267,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				cal.setDay(breakdown.getYear(), breakdown.getMonth(), breakdown.getDay());
 
 				// Set the day of the week as a node attribute.
-				eventList.setAttribute(LIST_DAY_OF_WEEK_ATTRIBUTE_NAME, Integer.toString(cal.getDay_Of_Week() - 1));
+				eventList.setAttribute(LIST_DAY_OF_WEEK_ATTRIBUTE_NAME, Integer.toString(cal.getDay_Of_Week(true) - 1));
 
 				// Attach this list to the top-level node
 				root.appendChild(eventList);
