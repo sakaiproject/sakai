@@ -77,12 +77,12 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 			this.addAttemptNumberLink(i, pageParams, attemptNumberLinks, attemptNumber);
 		}
 		
-		Attempt attempt = resultService.getAttempt(contentPackageId, learnerId, attemptNumber);
+		//Attempt attempt = resultService.getAttempt(contentPackageId, learnerId, attemptNumber);
 		
-		add(new Label("content.package.name", contentPackage.getTitle()));
-		add(new Label("learner.name", learnerName));
+		//add(new Label("content.package.name", contentPackage.getTitle()));
+		//add(new Label("learner.name", learnerName));
 		
-		SimpleDateFormat format = new SimpleDateFormat();
+		/*SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 		
 		boolean isSuspended = false;
 		boolean isNotExited = false;
@@ -95,12 +95,12 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 			if (attempt.getLastModifiedDate() != null)
 				dateString = format.format(attempt.getLastModifiedDate());
 		
-		}
+		}*/
 			
-		add(new Label("attempt.number", String.valueOf(attemptNumber)));
-		add(new Label("attempt.date", dateString));
-		add(new Label("attempt.suspended", String.valueOf(isSuspended)));
-		add(new Label("attempt.clean.exit", String.valueOf(!isNotExited)));
+		//add(new Label("attempt.number", String.valueOf(attemptNumber)));
+		//add(new Label("attempt.date", dateString));
+		//add(new Label("attempt.suspended", String.valueOf(isSuspended)));
+		//add(new Label("attempt.clean.exit", String.valueOf(!isNotExited)));
 		
 		initializePage(contentPackage, learner, attemptNumber, pageParams);
 	}

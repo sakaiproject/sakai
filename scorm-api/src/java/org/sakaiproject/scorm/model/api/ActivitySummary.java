@@ -11,6 +11,7 @@ public class ActivitySummary implements Serializable {
 	private String title;
 	private long contentPackageId;
 	private String learnerId;
+	private long attemptNumber;
 	
 	// Progress data
 	private double progressMeasure;
@@ -123,6 +124,12 @@ public class ActivitySummary implements Serializable {
 	}
 	public void setLearnerId(String learnerId) {
 		this.learnerId = learnerId;
+	}
+	public long getAttemptNumber() {
+		return attemptNumber;
+	}
+	public void setAttemptNumber(long attemptNumber) {
+		this.attemptNumber = attemptNumber;
 	}
 	
 	

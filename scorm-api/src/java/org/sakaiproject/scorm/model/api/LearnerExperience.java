@@ -3,7 +3,9 @@ package org.sakaiproject.scorm.model.api;
 import java.io.Serializable;
 import java.util.Date;
 
-public class LearnerExperience implements Serializable {
+import org.sakaiproject.scorm.api.ScormConstants;
+
+public class LearnerExperience implements Serializable, ScormConstants {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -14,6 +16,8 @@ public class LearnerExperience implements Serializable {
 	private String score;
 	private int numberOfAttempts;
 
+	private Date lastAttemptDate;
+	private int status;
 	
 	public LearnerExperience(Learner learner, long contentPackageId) {
 		this.learnerName = new StringBuilder(learner.getDisplayName()).append(" (")
@@ -69,6 +73,22 @@ public class LearnerExperience implements Serializable {
 
 	public void setScore(String score) {
 		this.score = score;
+	}
+
+	public Date getLastAttemptDate() {
+		return lastAttemptDate;
+	}
+
+	public void setLastAttemptDate(Date lastAttemptDate) {
+		this.lastAttemptDate = lastAttemptDate;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
 	}
 	
 }

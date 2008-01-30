@@ -133,6 +133,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 			summary.setLearnerId(learnerId);
 			summary.setTitle(dataManager.getTitle());
 			summary.setScoId(dataManager.getScoId());
+			summary.setAttemptNumber(attemptNumber);
 			
 			mapValues(summary, dataManager);
 			
@@ -481,16 +482,24 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 			
 			List<Attempt> attempts = getAttempts(contentPackageId, learner.getId());
 			
+			int status = LearnerExperience.NOT_ACCESSED;
 			if (attempts != null) {
 				if (attempts.size() > 0) {
 					// Grab the latest attempt
 					Attempt latestAttempt = attempts.get(0);
 					
-					List<CMIData> data = getSummaryCMIData(latestAttempt);
+					//List<CMIData> data = getSummaryCMIData(latestAttempt);
+					experience.setLastAttemptDate(latestAttempt.getBeginDate());
+	
+					status = LearnerExperience.COMPLETED;
 				}
 			
 				experience.setNumberOfAttempts(attempts.size());
+				
+				
 			}
+			
+			experience.setStatus(status);
 			experiences.add(experience);
 		}
 		

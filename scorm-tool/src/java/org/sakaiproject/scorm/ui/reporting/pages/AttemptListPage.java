@@ -40,7 +40,10 @@ import org.sakaiproject.scorm.model.api.LearnerExperience;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.scorm.ui.NameValuePair;
+import org.sakaiproject.scorm.ui.console.components.AccessStatusColumn;
+import org.sakaiproject.scorm.ui.console.components.AttemptNumberAction;
 import org.sakaiproject.scorm.ui.console.components.ContentPackageDetailPanel;
+import org.sakaiproject.scorm.ui.console.components.DecoratedDatePropertyColumn;
 import org.sakaiproject.scorm.ui.console.pages.ConsoleBasePage;
 import org.sakaiproject.wicket.markup.html.repeater.data.presenter.EnhancedDataPresenter;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
@@ -64,6 +67,8 @@ public class AttemptListPage extends ConsoleBasePage {
 		final long contentPackageId = pageParams.getLong("id");
 		
 		ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
+			
+		addBreadcrumb(new Model(contentPackage.getTitle()), AttemptListPage.class, new PageParameters(), false);	
 		
 		AttemptDataProvider dataProvider = new AttemptDataProvider(contentPackageId);
 		dataProvider.setFilterConfigurerVisible(true);
@@ -75,25 +80,22 @@ public class AttemptListPage extends ConsoleBasePage {
 		add(new ContentPackageDetailPanel("details", contentPackage));
 	}
 	
-	@Override
+	/*@Override
 	protected Label newPageTitleLabel(PageParameters params) {
 		final long contentPackageId = params.getLong("id");
 		
 		ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
 
 		return new Label("page.title", new StringResourceModel("page.title", this, new Model(contentPackage)));
-	}
+	}*/
 	
 	private List<IColumn> getColumns() {
 		IModel learnerNameHeader = new ResourceModel("column.header.learner.name");
-		IModel detailActionLabel = new ResourceModel("column.header.detail.action");
-		//IModel beginDateHeader = new ResourceModel("column.header.begin.date");
-		//IModel lastModifiedDateHeader = new ResourceModel("column.header.last.modified.date");
-		
-		//IModel progressHeader = new ResourceModel("column.header.progress");
-		//IModel scoreHeader = new ResourceModel("column.header.score");
+		IModel attemptedHeader = new ResourceModel("column.header.attempted");
+		IModel statusHeader = new ResourceModel("column.header.status");
 		IModel numberOfAttemptsHeader = new ResourceModel("column.header.attempt.number");
-		
+		IModel scoreHeader = new ResourceModel("column.header.score");
+	
 		List<IColumn> columns = new LinkedList<IColumn>();
 		
 		ActionColumn actionColumn = new ActionColumn(learnerNameHeader, "learnerName", "learnerName");
@@ -102,16 +104,27 @@ public class AttemptListPage extends ConsoleBasePage {
 		
 		Action summaryAction = new Action("learnerName", LearnerResultsPage.class, paramPropertyExpressions);
 		actionColumn.addAction(summaryAction);
-		
-		//Action detailAction = new Action(detailActionLabel, LearnerAttemptDetailPage.class, paramPropertyExpressions);
-		//actionColumn.addAction(detailAction);
 		columns.add(actionColumn);
 		
-		//columns.add(new PropertyColumn(progressHeader, "progress", "progress"));
+		columns.add(new DecoratedDatePropertyColumn(attemptedHeader, "lastAttemptDate", "lastAttemptDate"));
 		
-		//columns.add(new PropertyColumn(scoreHeader, "score", "score"));
+		columns.add(new AccessStatusColumn(statusHeader, "status"));
 		
-		columns.add(new PropertyColumn(numberOfAttemptsHeader, "numberOfAttempts", "numberOfAttempts"));
+		
+		ActionColumn attemptNumberActionColumn = new ActionColumn(numberOfAttemptsHeader, "numberOfAttempts", "numberOfAttempts");
+		attemptNumberActionColumn.addAction(new AttemptNumberAction("numberOfAttempts", LearnerResultsPage.class, paramPropertyExpressions));
+		columns.add(attemptNumberActionColumn);
+		
+		
+
+		//IModel detailActionLabel = new ResourceModel("column.header.detail.action");
+		//IModel beginDateHeader = new ResourceModel("column.header.begin.date");
+		//IModel lastModifiedDateHeader = new ResourceModel("column.header.last.modified.date");
+		
+		//IModel progressHeader = new ResourceModel("column.header.progress");
+		//IModel scoreHeader = new ResourceModel("column.header.score");
+		
+		//columns.add(new PropertyColumn(numberOfAttemptsHeader, "numberOfAttempts", "numberOfAttempts"));
 		
 		//columns.add(new DecoratedDatePropertyColumn(beginDateHeader, "beginDate", "beginDate"));
 		//columns.add(new DecoratedDatePropertyColumn(lastModifiedDateHeader, this, null), "lastModifiedDate", "lastModifiedDate"));
@@ -148,22 +161,8 @@ public class AttemptListPage extends ConsoleBasePage {
 		@Override
 		public List getFilterList() {
 			List<NameValuePair> list = new LinkedList<NameValuePair>();
-			
-			/*List<AcademicSession> terms = findActiveAcademicSessions();
-			
-			if (terms != null) {
-				for (AcademicSession term : terms) {
-					String value = new StringBuilder()
-						.append("Course Sites: Active Term (")
-						.append(term.getDescription()).append(")").toString();
-						
-					list.add(new NameValuePair(value, term.getEid()));
-				}
-			}*/
-			
+					
 			list.add(new NameValuePair("All Groups / Sections", "ALL_GROUPS"));
-			//list.add(new NameValuePair("Project Sites", "PROJECTS"));
-			//list.add(new NameValuePair("All Site Types", "ALL"));
 			
 			return list;
 		}
