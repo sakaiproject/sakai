@@ -441,7 +441,7 @@ public class DbAssignmentService extends BaseAssignmentService
 		 */
 		public int getUngradedSubmissionsCount(String assignmentId)
 		{
-			return super.countSelectedResourcesWhere("where context='" + assignmentId + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[4] + "='" + Boolean.FALSE.toString() + "'" );
+			return super.countSelectedResourcesWhere("where context='" + assignmentId + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "' AND " + SUBMISSION_FIELDS[4] + "='" + Boolean.FALSE.toString() + "'" );
 		}
 		
 
