@@ -178,6 +178,10 @@ public class MessageForumSynopticBean {
 	private transient List compiledDFMessageCounts = null;
 	private transient Map currentUserMembershipsBySite = null;
 	private transient Map receivedFolderUuidByContextId = null;
+	private transient List siteList;
+	private transient Map sitesMap;
+
+
 	
 	/** Used to get contextId when tool on MyWorkspace to set all private messages to Read status */
 	private final String CONTEXTID="contextId";
@@ -327,14 +331,7 @@ public class MessageForumSynopticBean {
 		for (Iterator dfCountIter = dfCounts.iterator(); dfCountIter.hasNext();) {
 			final Object [] aCount = (Object []) dfCountIter.next();
 			
-			if ( currentUserMembershipsBySite == null) {
-				currentUserMembershipsBySite = new HashMap();
-			}
-			
-			if ((roles = (List) currentUserMembershipsBySite.get(aCount[0])) == null) {
-				roles = uiPermissionsManager.getCurrentUserMemberships((String) aCount[0]);
-				currentUserMembershipsBySite.put((String) aCount[0], roles);
-			}
+			roles = getCurrentUserMembershipsBySite((String) aCount[0]);
 			
 			String roleId = ((String) roles.get(0));
 				
@@ -424,14 +421,7 @@ public class MessageForumSynopticBean {
 			while (siteIter.hasNext()) {
 				String siteId = (String) siteIter.next();
 				
-				if ( currentUserMembershipsBySite == null) {
-					currentUserMembershipsBySite = new HashMap();
-				}
-					
-				if ((roles = (List) currentUserMembershipsBySite.get(siteId)) == null) {
-					roles = uiPermissionsManager.getCurrentUserMemberships(siteId);
-					currentUserMembershipsBySite.put((String) siteId, roles);
-				}
+				roles = getCurrentUserMembershipsBySite(siteId);
 
 				for (Iterator i = roles.iterator(); i.hasNext();) {
 					String roleGroupName = (String) i.next();
@@ -483,7 +473,7 @@ public class MessageForumSynopticBean {
 				while (siteId.equals((String) resultSet[0])) {
 					// permissions based on roles, so need to check if user's role has messages
 					// that need to be removed from totals (either total or unread)
-					List roleAndGroups = uiPermissionsManager.getCurrentUserMemberships(siteId);
+					List roleAndGroups = getCurrentUserMembershipsBySite(siteId);
 				
 					if (roleAndGroups.contains((String) resultSet[1])) {
 						resultList.add(resultSet);
@@ -519,7 +509,7 @@ public class MessageForumSynopticBean {
 			for (Iterator siteIter = siteList.iterator(); siteIter.hasNext();) {
 				final String siteId = (String) siteIter.next();
 			
-				List roles = uiPermissionsManager.getCurrentUserMemberships(siteId);
+				List roles = getCurrentUserMembershipsBySite(siteId);
 			
 				if (roles.size() > 1) {
 					multiMembershipSites.add(siteId);
@@ -530,6 +520,19 @@ public class MessageForumSynopticBean {
 		return multiMembershipSites;
 	}
 
+	private List getCurrentUserMembershipsBySite(String siteId) {
+		if (currentUserMembershipsBySite == null) {
+			currentUserMembershipsBySite = new HashMap();
+		}
+		
+		List roles;
+		if ((roles = (List) currentUserMembershipsBySite.get(siteId)) == null) {
+			currentUserMembershipsBySite.put(siteId, uiPermissionsManager.getCurrentUserMemberships(siteId));
+		}
+		
+		return (List) currentUserMembershipsBySite.get(siteId);
+	}
+	
 	private List filterAndAggragateGroupCounts(List counts)
 	{
 		if (counts.isEmpty())
@@ -547,7 +550,7 @@ public class MessageForumSynopticBean {
 		Long currentTopicId = (Long) aCount[1];
 		String currentContextId = (String) aCount[0];
 		String oldContextId;
-		List currentUserMemberships = (List) currentUserMembershipsBySite.get(currentContextId);
+		List currentUserMemberships = (List) getCurrentUserMembershipsBySite(currentContextId);
 		
 		while (countIter.hasNext())
 		{
@@ -1481,7 +1484,10 @@ public class MessageForumSynopticBean {
 	 */
 	private Site getSite(String siteId) 
 		throws IdUnusedException {
-		return SiteService.getSite(siteId);
+		if (sitesMap.get(siteId) == null)
+			return SiteService.getSite(siteId);
+		else
+			return (Site) sitesMap.get(siteId);
 	}
 	
 	/**
@@ -1495,32 +1501,41 @@ public class MessageForumSynopticBean {
 	}
 	
 	/**
+	 * Returns a list of site ids as well as populating a Map of site objects
 	 * 
 	 * @return
 	 * 		List A List of site ids that is published and the user is a member of
 	 */
 	public List getSiteList() {
-		List mySites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-				null,null,null,org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
-				null);
+		if (siteList == null) { 
+			siteList = new ArrayList();
+			
+			if (sitesMap == null) {
+				sitesMap = new HashMap();
+			}
+			
+			List mySites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+					null,null,null,org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
+					null);
 
-		Iterator lsi = mySites.iterator();
+			Iterator lsi = mySites.iterator();
 
-		if (!lsi.hasNext()) {
-			LOG.debug("User " + SessionManager.getCurrentSessionUserId() + " does not belong to any sites.");
+			if (!lsi.hasNext()) {
+				LOG.debug("User " + SessionManager.getCurrentSessionUserId() + " does not belong to any sites.");
 
-			return mySites;
-		}
+				return mySites;
+			}
 
-		final List siteList = new UniqueArrayList();
+			// only display sites that are published and have Message Center in them
+			while (lsi.hasNext()) {
+				Site site = (Site) lsi.next();
 
-		// only display sites that are published and have Message Center in them
-		while (lsi.hasNext()) {
-			Site site = (Site) lsi.next();
-
-			// filter out unpublished
-			if (site.isPublished()) {
-				siteList.add(site.getId());
+				// filter out unpublished
+				if (site.isPublished()) {
+					siteList.add(site.getId());
+					
+					sitesMap.put(site.getId(), site);
+				}
 			}
 		}
 
@@ -1597,7 +1612,7 @@ public class MessageForumSynopticBean {
 	    
 			try {
 				String toolId = "";
-				final Site site = SiteService.getSite(contextId);
+				final Site site = getSite(contextId);
 		    	
 				if (isMessageForumsPageInSite(site)) {
 					toolId = DiscussionForumService.MESSAGE_CENTER_ID;
