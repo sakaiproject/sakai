@@ -146,7 +146,7 @@ public class DirectServlet extends HttpServlet {
          EntityReference ref = entityBroker.parseReference(path);
          if (ref == null || !entityBroker.entityExists(ref.toString())) {
             log.warn("Attempted to access an entity URL path (" + path + ") for an entity ("
-                  + ref.toString() + ") that does not exist");
+                  + (ref == null? "null" : ref.toString()) + ") that does not exist");
             sendError(res, HttpServletResponse.SC_NOT_FOUND);
          } else {
             HttpServletAccessProvider accessProvider = accessProviderManager
