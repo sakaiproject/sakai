@@ -181,8 +181,10 @@ public class MessageForumSynopticBean {
 	private transient Map sitesMap = null;
 	private transient Map currentUserMembershipsBySite = null;
 	private transient Map mfPageInSiteMap = null;
-
-
+	
+	
+	// transient variable for when on home page of site
+	private transient DecoratedCompiledMessageStats siteContents;
 	
 	/** Used to get contextId when tool on MyWorkspace to set all private messages to Read status */
 	private final String CONTEXTID="contextId";
@@ -1047,91 +1049,98 @@ public class MessageForumSynopticBean {
 	 * @return
 	 * 		List of DecoratedCompiledMessageStats for a particular site
 	 */
-	private DecoratedCompiledMessageStats getSiteContents() {
-		final DecoratedCompiledMessageStats dcms = new DecoratedCompiledMessageStats();
-		
-		// Check if tool within site
-		// if so, get stats for just this site
-		if (isMessageForumsPageInSite() || isMessagesPageInSite()) {
-			int unreadPrivate = 0;
-
-			dcms.setSiteName(getSiteName());
-			dcms.setSiteId(getSiteId());
-
-			// Get private message area so we can get the private message forum so we can get the
-			// List of topics so we can get the Received topic to finally determine number of unread messages
-			// only check if Messages & Forums in site, just Messages is on by default
-			boolean isEnabled;
-			final Area area = pvtMessageManager.getPrivateMessageArea();
-			
-			if (isMessageForumsPageInSite()) {
-				isEnabled = area.getEnabled().booleanValue();
-			}
-			else {
-				isEnabled = true;
-			}
-			
-			if (isEnabled) {
-				pvtMessageManager.initializePrivateMessageArea(area);
-				
-				unreadPrivate = pvtMessageManager.findUnreadMessageCount(
-									typeManager.getReceivedPrivateMessageType());
-
-				dcms.setUnreadPrivateAmt(unreadPrivate);
-				dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(getSiteId()));
-			}
-			else {
-				dcms.setUnreadPrivateAmt(0);
-				dcms.setPrivateMessagesUrl(getMCPageURL());
-			}
-		}
-
-		if (isMessageForumsPageInSite() || isForumsPageInSite()) 
+	private DecoratedCompiledMessageStats getSiteContents() 
+	{
+		if (siteContents == null) 
 		{
-			// Number of unread forum messages is a little harder
-			// need to loop through all topics and add them up
-			final List topicsList = forumManager.getDiscussionForums();
-			int unreadForum = 0;
-
-			final Iterator forumIter = topicsList.iterator();
-
-			while (forumIter.hasNext()) 
+			final DecoratedCompiledMessageStats dcms = new DecoratedCompiledMessageStats();
+		
+			// Check if tool within site
+			// if so, get stats for just this site
+			if (isMessageForumsPageInSite() || isMessagesPageInSite()) 
 			{
-				final DiscussionForum df = (DiscussionForum) forumIter.next();
+				int unreadPrivate = 0;
 
-				final List topics = df.getTopics();
-				final Iterator topicIter = topics.iterator();
+				dcms.setSiteName(getSiteName());
+				dcms.setSiteId(getSiteId());
 
-				while (topicIter.hasNext()) 
+				// Get private message area so we can get the private message forum so we can get the
+				// List of topics so we can get the Received topic to finally determine number of unread messages
+				// only check if Messages & Forums in site, just Messages is on by default
+				boolean isEnabled;
+				final Area area = pvtMessageManager.getPrivateMessageArea();
+			
+				if (isMessageForumsPageInSite()) {
+					isEnabled = area.getEnabled().booleanValue();
+				}
+				else {
+					isEnabled = true;
+				}
+			
+				if (isEnabled) {
+					pvtMessageManager.initializePrivateMessageArea(area);
+				
+					unreadPrivate = pvtMessageManager.findUnreadMessageCount(
+										typeManager.getReceivedPrivateMessageType());
+
+					dcms.setUnreadPrivateAmt(unreadPrivate);
+					dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(getSiteId()));
+				}
+				else {
+					dcms.setUnreadPrivateAmt(0);
+					dcms.setPrivateMessagesUrl(getMCPageURL());
+				}
+			}
+
+			if (isMessageForumsPageInSite() || isForumsPageInSite()) 
+			{
+				// Number of unread forum messages is a little harder
+				// need to loop through all topics and add them up
+				final List topicsList = forumManager.getDiscussionForums();
+				int unreadForum = 0;
+
+				final Iterator forumIter = topicsList.iterator();
+
+				while (forumIter.hasNext()) 
 				{
-					final DiscussionTopic topic = (DiscussionTopic) topicIter.next();
-					
-					if (uiPermissionsManager.isRead(topic, df))
+					final DiscussionForum df = (DiscussionForum) forumIter.next();
+
+					final List topics = df.getTopics();
+					final Iterator topicIter = topics.iterator();
+
+					while (topicIter.hasNext()) 
 					{
-						if (!topic.getModerated().booleanValue() || (topic.getModerated().booleanValue() && 
-									uiPermissionsManager.isModeratePostings(topic, df)))
+						final DiscussionTopic topic = (DiscussionTopic) topicIter.next();
+					
+						if (uiPermissionsManager.isRead(topic, df))
 						{
-							unreadForum += messageManager.findUnreadMessageCountByTopicId(topic.getId());
-						}
-						else
-						{	
-							// b/c topic is moderated and user does not have mod perm, user may only
-							// see approved msgs or pending/denied msgs authored by user
-							unreadForum += messageManager.findUnreadViewableMessageCountByTopicId(topic.getId());
+							if (!topic.getModerated().booleanValue() || (topic.getModerated().booleanValue() && 
+										uiPermissionsManager.isModeratePostings(topic, df)))
+							{
+								unreadForum += messageManager.findUnreadMessageCountByTopicId(topic.getId());
+							}
+							else
+							{	
+								// b/c topic is moderated and user does not have mod perm, user may only
+								// see approved msgs or pending/denied msgs authored by user
+								unreadForum += messageManager.findUnreadViewableMessageCountByTopicId(topic.getId());
+							}
 						}
 					}
 				}
-			}
 			
-			dcms.setUnreadForumsAmt(unreadForum);
-			dcms.setMcPageURL(getMCPageURL());
-		}
-		else 
-		{
-			// TODO: what to put on page? Alert? Leave Blank?
+				dcms.setUnreadForumsAmt(unreadForum);
+				dcms.setMcPageURL(getMCPageURL());
+			}
+			else 
+			{
+				// TODO: what to put on page? Alert? Leave Blank?
+			}
+
+			siteContents = dcms;
 		}
 		
-		return dcms;
+		return siteContents;
 	}
 
 	/**
@@ -1495,7 +1504,7 @@ public class MessageForumSynopticBean {
 	 */
 	private Site getSite(String siteId) 
 		throws IdUnusedException {
-		if (sitesMap.get(siteId) == null)
+		if (sitesMap == null || sitesMap.get(siteId) == null)
 			return SiteService.getSite(siteId);
 		else
 			return (Site) sitesMap.get(siteId);
