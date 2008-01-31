@@ -11351,17 +11351,6 @@ public class SiteAction extends PagedResourceActionII {
 		return returnValue;
 	}
 
-	private List getCMSubjects() {
-		String subjectCategory = getCMSubjectCategory();
-
-		if (cms == null || subjectCategory == null) {
-			return new ArrayList(0);
-		}
-		Collection c = sortCmObject(cms.findCourseSets(subjectCategory));
-		return (List) c;
-
-	}
-
 	private List getCMSections(String offeringEid) {
 		if (offeringEid == null || offeringEid.trim().length() == 0)
 			return null;
@@ -11398,27 +11387,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 		return new ArrayList(0);
-	}
-
-	private String getCMSubjectCategory() {
-		if (cmSubjectCategory == null) {
-			cmSubjectCategory = ServerConfigurationService
-					.getString("site-manage.cms.subject.category");
-
-			if (cmSubjectCategory == null) {
-				if (warnedNoSubjectCategory)
-					M_log
-							.debug(rb
-									.getString("nscourse.cm.configure.log.nosubjectcat"));
-				else {
-					M_log
-							.info(rb
-									.getString("nscourse.cm.configure.log.nosubjectcat"));
-					warnedNoSubjectCategory = true;
-				}
-			}
-		}
-		return cmSubjectCategory;
 	}
 
 	private List<String> getCMLevelLabels() {
