@@ -10149,22 +10149,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 	}
 
-	// a utility class for form select options
-	public class IdAndText {
-		public int id;
-
-		public String text;
-
-		public int getId() {
-			return id;
-		}
-
-		public String getText() {
-			return text;
-		}
-
-	} // IdAndText
-
 	// a utility class for working with ToolConfigurations and ToolRegistrations
 	// %%% convert featureList from IdAndText to Tool so getFeatures item.id =
 	// chosen-feature.id is a direct mapping of data
