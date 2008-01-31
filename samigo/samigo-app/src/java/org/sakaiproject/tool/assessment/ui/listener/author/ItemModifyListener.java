@@ -563,8 +563,14 @@ public class ItemModifyListener implements ActionListener
     	   // get it from itemfacade instead
     	   //bean.setSelectedSection(meta.getEntry());
     	   //bean.setOrigSection(meta.getEntry());
-    	   bean.setSelectedSection(itemfacade.getData().getSection().getSectionId().toString());
-    	   bean.setOrigSection(itemfacade.getData().getSection().getSectionId().toString());
+    	   if (itemfacade.getData().getSection() == null) {
+        	   bean.setSelectedSection("0");
+        	   bean.setOrigSection("0");    		   
+    	   }
+    	   else {
+        	   bean.setSelectedSection(itemfacade.getData().getSection().getSectionId().toString());
+        	   bean.setOrigSection(itemfacade.getData().getSection().getSectionId().toString());
+    	   }
        }
 
 	// get pool id for the item
