@@ -73,6 +73,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
+import org.sakaiproject.coursemanagement.api.CourseSet;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Membership;
@@ -554,6 +555,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String HOME_TOOL_ID = "home";
 
 	private static final String STATE_CM_LEVELS = "site.cm.levels";
+	
+	private static final String STATE_CM_LEVEL_OPTS = "site.cm.level_opts";
 
 	private static final String STATE_CM_LEVEL_SELECTIONS = "site.cm.level.selections";
 
@@ -2649,35 +2652,43 @@ public class SiteAction extends PagedResourceActionII {
 			if (courseManagementIsImplemented() && cms != null) {
 				context.put("cmsAvailable", new Boolean(true));
 			}
+			
+			int cmLevelSize = 0;
 
 			if (cms == null || !courseManagementIsImplemented()
 					|| cmLevels == null || cmLevels.size() < 1) {
 				// TODO: redirect to manual entry: case #37
 			} else {
-				Object levelOpts[] = new Object[cmLevels.size()];
+				cmLevelSize = cmLevels.size();
+				Object levelOpts[] = state.getAttribute(STATE_CM_LEVEL_OPTS) == null?new Object[cmLevelSize]:(Object[])state.getAttribute(STATE_CM_LEVEL_OPTS);
 				int numSelections = 0;
 
 				if (selections != null)
 					numSelections = selections.size();
 
-				// populate options for dropdown lists
-				switch (numSelections) {
-				/*
-				 * execution will fall through these statements based on number
-				 * of selections already made
-				 */
-				case 3:
-					// intentionally blank
-				case 2:
-					levelOpts[2] = getCMSections((String) selections.get(1));
-				case 1:
-					levelOpts[1] = getCMCourseOfferings((String) selections
-							.get(0), t.getEid());
-				default:
-					levelOpts[0] = getCMSubjects();
+				// execution will fall through these statements based on number of selections already made
+				if (numSelections == cmLevelSize - 1)
+				{
+					levelOpts[numSelections] = getCMSections((String) selections.get(numSelections-1));
+				}
+				else if (numSelections == cmLevelSize - 2)
+				{
+					levelOpts[numSelections] = getCMCourseOfferings((String) selections.get(numSelections-1), t.getEid());
+				}
+				else if (numSelections < cmLevelSize)
+				{
+					levelOpts[numSelections] = sortCmObject(cms.findCourseSets((String) cmLevels.get(numSelections==0?0:numSelections-1)));
+				}
+				// always set the top level 
+				levelOpts[0] = sortCmObject(cms.findCourseSets((String) cmLevels.get(0)));
+				// clean further element inside the array
+				for (int i = numSelections + 1; i<cmLevelSize; i++)
+				{
+					levelOpts[i] = null;
 				}
 
 				context.put("cmLevelOptions", Arrays.asList(levelOpts));
+				state.setAttribute(STATE_CM_LEVEL_OPTS, levelOpts);
 			}
 			if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null) {
 				context.put("selectedProviderCourse", state
@@ -11412,11 +11423,44 @@ public class SiteAction extends PagedResourceActionII {
 
 	private List<String> getCMLevelLabels() {
 		List<String> rv = new Vector<String>();
-		List<SectionField> fields = sectionFieldProvider.getRequiredFields();
-		for (int k = 0; k < fields.size(); k++) 
+		Set courseSets = cms.getCourseSets();
+		String currentLevel = "";
+		rv = addCategories(rv, courseSets);
+		
+		// course and section exist in the CourseManagementService
+		rv.add(rb.getString("cm.level.course"));
+		rv.add(rb.getString("cm.level.section"));
+		return rv;
+	}
+
+
+	/**
+	 * a recursive function to add courseset categories
+	 * @param rv
+	 * @param courseSets
+	 */
+	private List<String> addCategories(List<String> rv, Set courseSets) {
+		if (courseSets != null)
 		{
-			SectionField sectionField = (SectionField) fields.get(k);
-			rv.add(sectionField.getLabelKey());
+			for (Iterator i = courseSets.iterator(); i.hasNext();)
+			{
+				// get the CourseSet object level
+				CourseSet cs = (CourseSet) i.next();
+				String level = cs.getCategory();
+				if (!rv.contains(level))
+				{
+					rv.add(level);
+				}
+				try
+				{
+					// recursively add child categories
+					rv = addCategories(rv, cms.getChildCourseSets(cs.getEid()));
+				}
+				catch (IdNotFoundException e)
+				{
+					// current CourseSet not found
+				}
+			}
 		}
 		return rv;
 	}
@@ -11612,7 +11656,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		final List selections = new ArrayList(3);
 
-		int cmLevel = 3;
+		int cmLevel = getCMLevelLabels().size();
 		String deptChanged = params.get("deptChanged");
 		if ("true".equals(deptChanged)) {
 			// when dept changes, remove selection on courseOffering and
