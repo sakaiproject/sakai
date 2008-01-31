@@ -176,10 +176,11 @@ public class MessageForumSynopticBean {
 	private transient List userRoles = null;
 	private transient List multiMembershipSites = null;
 	private transient List compiledDFMessageCounts = null;
-	private transient Map currentUserMembershipsBySite = null;
 	private transient Map receivedFolderUuidByContextId = null;
-	private transient List siteList;
-	private transient Map sitesMap;
+	private transient List siteList = null;
+	private transient Map sitesMap = null;
+	private transient Map currentUserMembershipsBySite = null;
+	private transient Map mfPageInSiteMap = null;
 
 
 	
@@ -1285,7 +1286,17 @@ public class MessageForumSynopticBean {
 	 *         FALSE otherwise
 	 */
 	private boolean isMessageForumsPageInSite(Site thisSite) {
-		return isToolInSite(thisSite, DiscussionForumService.MESSAGE_CENTER_ID);
+		if (mfPageInSiteMap == null) {
+			mfPageInSiteMap = new HashMap();
+		}
+		
+		Boolean isMFPageInSite;
+		if ((isMFPageInSite = (Boolean) mfPageInSiteMap.get(thisSite)) == null) {
+			isMFPageInSite = isToolInSite(thisSite, DiscussionForumService.MESSAGE_CENTER_ID);
+			mfPageInSiteMap.put(thisSite, isMFPageInSite);
+		}
+		
+		return isMFPageInSite;
 	}
 	
 	/**
