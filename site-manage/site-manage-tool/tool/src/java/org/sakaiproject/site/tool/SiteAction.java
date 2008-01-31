@@ -9818,10 +9818,6 @@ public class SiteAction extends PagedResourceActionII {
 					id = ((Participant) o).getUniqname();
 					selectedParticipantRoles.put(id, ((Participant) o)
 							.getRole());
-				} else if (o.getClass().equals(Student.class)) {
-					// get participant from roster role
-					id = ((Student) o).getUniqname();
-					selectedParticipantRoles.put(id, ((Student) o).getRole());
 				}
 				if (selectedUserIds.contains(id)) {
 					selectedParticipantList.add(participantList.get(i));
@@ -10349,61 +10345,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 	} // Participant
-
-	/**
-	 * Student in roster
-	 * 
-	 */
-	public class Student {
-		public String name = NULL_STRING;
-
-		public String uniqname = NULL_STRING;
-
-		public String id = NULL_STRING;
-
-		public String level = NULL_STRING;
-
-		public String credits = NULL_STRING;
-
-		public String role = NULL_STRING;
-
-		public String course = NULL_STRING;
-
-		public String section = NULL_STRING;
-
-		public String getName() {
-			return name;
-		}
-
-		public String getUniqname() {
-			return uniqname;
-		}
-
-		public String getId() {
-			return id;
-		}
-
-		public String getLevel() {
-			return level;
-		}
-
-		public String getCredits() {
-			return credits;
-		}
-
-		public String getRole() {
-			return role;
-		}
-
-		public String getCourse() {
-			return course;
-		}
-
-		public String getSection() {
-			return section;
-		}
-
-	} // Student
 
 	public class SiteInfo {
 		public String site_id = NULL_STRING; // getId of Resource
