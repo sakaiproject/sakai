@@ -23,7 +23,6 @@ package org.sakaiproject.calendar.tool;
 
 import java.io.ByteArrayInputStream;
 import java.text.DateFormat;
-import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -2814,9 +2813,7 @@ extends VelocityPortletStateAction
 		
 		context.put("selectedView", rb.getString("java.byyear"));
 		
-		// Added by UPV - Begin
-		context.put("dayOfWeekNames", getCalendarDaysOfWeekNames());
-		// Added by UPV - End
+		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames());
 		
 	} // buildYearContext
 	
@@ -2920,9 +2917,7 @@ extends VelocityPortletStateAction
 		
 		context.put("selectedView", rb.getString("java.bymonth"));
 		
-		// Added by UPV - Begin
-		context.put("dayOfWeekNames", getCalendarDaysOfWeekNames());
-		// Added by UPV - End
+		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames());
 		
 	} // buildMonthContext
 	
@@ -3509,9 +3504,7 @@ extends VelocityPortletStateAction
 		
 		context.put("selectedView", rb.getString("java.byweek"));
 
-		// Added by UPV - Begin
-		context.put("dayOfWeekNames", getCalendarDaysOfWeekNames());
-		// Added by UPV - End
+		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames());
 		
 	} // buildWeekContext
 	
@@ -7648,7 +7641,6 @@ extends VelocityPortletStateAction
 	*/
 	private String calendarUtilGetDay(int dayofweek) 
 	{		
-		int firstDayOfWeek = getFirstDayOfWeek();
 		String[] l_ndays = new String[] {rb.getString("java.sun"),rb.getString("java.mon"),
 					rb.getString("java.tue"),rb.getString("java.wed"),rb.getString("java.thu")
 					,rb.getString("java.fri"),rb.getString("java.sat")};
@@ -7666,43 +7658,6 @@ extends VelocityPortletStateAction
 			
 	}	// calendarUtilGetDay
 		
-	/** Returns array of weekday names, using the locale-specific first day
-	 **/
-	private String[] getCalendarDaysOfWeekNames()
-	{
-		int firstDayOfWeek = getFirstDayOfWeek();
-		
-		String[] weekDays = new String[] 
-		{
-			rb.getString("viewm.sun"),
-			rb.getString("viewm.mon"),
-			rb.getString("viewm.tue"),
-			rb.getString("viewm.wed"),
-			rb.getString("viewm.thu"),
-			rb.getString("viewm.fri"),
-			rb.getString("viewm.sat")
-		};
-
-		String[] localeDays = new String[7];
-
-		for(int col = firstDayOfWeek; col<=7; col++)
-			localeDays[col-firstDayOfWeek] = weekDays[col-1];
-			
-		for (int col = 0; col<firstDayOfWeek-1;col++)
-			localeDays[6-col] = weekDays[col];
-
-		return localeDays;
-	}
-	
-	/** Returns the locale-specific first day of the week (numeric)
-	 **/
-	private int getFirstDayOfWeek()
-	{
-		TimeZone timeZone = TimeService.getLocalTimeZone();
-		Locale locale = rb.getLocale();
-		java.util.Calendar javaCal = java.util.Calendar.getInstance( timeZone, locale );
-		return javaCal.getFirstDayOfWeek();
-	}
 }	 // CalendarAction
 
 

@@ -2,16 +2,16 @@
 <xsl:stylesheet
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:fo="http://www.w3.org/1999/XSL/Format"
-   xmlns:ResourceBundle="http://xml.apache.org/xalan/java/java.util.ResourceBundle"
 	version="1.0">
 
-<xsl:param name="sun"/>
-<xsl:param name="mon"/>
-<xsl:param name="tues"/>
-<xsl:param name="wed"/>
-<xsl:param name="thurs"/>
-<xsl:param name="fri"/>
-<xsl:param name="sat"/>
+<xsl:param name="dayNames0"/>
+<xsl:param name="dayNames1"/>
+<xsl:param name="dayNames2"/>
+<xsl:param name="dayNames3"/>
+<xsl:param name="dayNames4"/>
+<xsl:param name="dayNames5"/>
+<xsl:param name="dayNames6"/>
+
 <xsl:param name="sched"/>
 
 
@@ -437,19 +437,20 @@
 	</fo:block> 
 </fo:block-container>
 </xsl:template>	
+
 <xsl:template name="weekname">
 <xsl:param name="day"/>
 	
-	<xsl:choose>
-	<xsl:when test="$day=0"><xsl:value-of select="$sun"/></xsl:when>   
-   	<xsl:when test="$day=1"><xsl:value-of select="$mon"/></xsl:when>   
-   	<xsl:when test="$day=2"><xsl:value-of select="$tues"/></xsl:when>   
-   	<xsl:when test="$day=3"><xsl:value-of select="$wed"/></xsl:when>   
-    <xsl:when test="$day=4"><xsl:value-of select="$thurs"/></xsl:when>   
-    <xsl:when test="$day=5"><xsl:value-of select="$fri"/></xsl:when>   
-    <xsl:when test="$day=6"><xsl:value-of select="$sat"/></xsl:when>   
-	<xsl:otherwise> </xsl:otherwise>
-	</xsl:choose>
+   <xsl:choose>
+     <xsl:when test="$day=0"><xsl:value-of select="$dayNames0"/></xsl:when>   
+     <xsl:when test="$day=1"><xsl:value-of select="$dayNames1"/></xsl:when>   
+     <xsl:when test="$day=2"><xsl:value-of select="$dayNames2"/></xsl:when>   
+     <xsl:when test="$day=3"><xsl:value-of select="$dayNames3"/></xsl:when>   
+     <xsl:when test="$day=4"><xsl:value-of select="$dayNames4"/></xsl:when>   
+     <xsl:when test="$day=5"><xsl:value-of select="$dayNames5"/></xsl:when>   
+     <xsl:when test="$day=6"><xsl:value-of select="$dayNames6"/></xsl:when>   
+     <xsl:otherwise></xsl:otherwise>
+   </xsl:choose>
    <xsl:text> </xsl:text>
 </xsl:template>
 

@@ -157,7 +157,7 @@
         </includes>
       </resource>
       <resource>
-        <directory>${basedir}/src/bundle</directory>
+        <directory>${basedir}/../../calendar-bundles</directory>
         <includes>
           <include>**/*.properties</include>
         </includes>

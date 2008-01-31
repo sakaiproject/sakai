@@ -132,7 +132,7 @@
   <build>
     <resources>
       <resource>
-        <directory>${basedir}/src/bundle</directory>
+        <directory>${basedir}/../../calendar-bundles</directory>
         <includes>
           <include>**/*.properties</include>
         </includes>

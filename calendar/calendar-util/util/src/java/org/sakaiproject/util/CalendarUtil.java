@@ -35,7 +35,7 @@ public class CalendarUtil
 	/** The calendar object this is based upon. */
 	Calendar m_calendar = null;
 	DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-	ResourceLoader rb = new ResourceLoader();
+	ResourceLoader rb = new ResourceLoader("calendar");
 
 	/**
 	* Construct.
@@ -152,7 +152,12 @@ public class CalendarUtil
 	{
 		int dayofweek = m_calendar.get(Calendar.DAY_OF_WEEK);
 		if ( useLocale )
-			dayofweek = dayofweek - (m_calendar.getFirstDayOfWeek()-Calendar.SUNDAY);
+		{
+			if ( dayofweek >= m_calendar.getFirstDayOfWeek() )
+				dayofweek = dayofweek - (m_calendar.getFirstDayOfWeek()-Calendar.SUNDAY);
+			else
+				dayofweek = dayofweek + Calendar.SATURDAY - (m_calendar.getFirstDayOfWeek()-Calendar.SUNDAY);
+		}
 		return dayofweek;
 
 	}	// getDay_Of_Week
@@ -287,4 +292,38 @@ public class CalendarUtil
 
 	}	// setDay
 
+	/** Returns array of weekday names, using the locale-specific first day
+	 **/
+	public String[] getCalendarDaysOfWeekNames()
+	{
+		int firstDayOfWeek = getFirstDayOfWeek();
+		
+		String[] weekDays = new String[] 
+		{
+			rb.getString("viewm.sun"),
+			rb.getString("viewm.mon"),
+			rb.getString("viewm.tue"),
+			rb.getString("viewm.wed"),
+			rb.getString("viewm.thu"),
+			rb.getString("viewm.fri"),
+			rb.getString("viewm.sat")
+		};
+
+		String[] localeDays = new String[7];
+
+		for(int col = firstDayOfWeek; col<=7; col++)
+			localeDays[col-firstDayOfWeek] = weekDays[col-1];
+			
+		for (int col = 0; col<firstDayOfWeek-1;col++)
+			localeDays[6-col] = weekDays[col];
+
+		return localeDays;
+	}
+   
+	/** Returns the locale-specific first day of the week (numeric)
+	 **/
+	public int getFirstDayOfWeek()
+	{
+		return m_calendar.getFirstDayOfWeek();
+	}
 }	 // CalendarUtil

@@ -187,7 +187,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
    
    private DocumentBuilder docBuilder = null;
    
-   private ResourceLoader rb = new ResourceLoader("calendarimpl");
+   private ResourceLoader rb = new ResourceLoader("calendar");
    
 	/**
 	 * Access this service from the inner classes.
@@ -6023,17 +6023,20 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 			Source src = new DOMSource(doc);
 
-			// Kludge: Xalan in JDK 1.4/1.5 does not properly resolve java.util.ResourceBundle
-			// when passed as parameter, so here we fetch each of the localized strings
-         // Should be able to clean this up in JDK 1.6 and just pass correct ResourceBundle
-			transformer.setParameter("sun", rb.getString("day.sun"));
-			transformer.setParameter("mon", rb.getString("day.mon"));
-			transformer.setParameter("tues", rb.getString("day.tues"));
-			transformer.setParameter("wed", rb.getString("day.wed"));
-			transformer.setParameter("thurs", rb.getString("day.thurs"));
-			transformer.setParameter("fri", rb.getString("day.fri"));
-			transformer.setParameter("sat", rb.getString("day.sat"));
+			CalendarUtil calUtil = new CalendarUtil();
+			String[] dayNames = calUtil.getCalendarDaysOfWeekNames();
          
+			// Kludge: Xalan in JDK 1.4/1.5 does not properly resolve java classes 
+			// (http://xml.apache.org/xalan-j/faq.html#jdk14)
+			// Clean this up in JDK 1.6 and pass ResourceBundle/ArrayList parms
+			transformer.setParameter("dayNames0", dayNames[0]);
+			transformer.setParameter("dayNames1", dayNames[1]);
+			transformer.setParameter("dayNames2", dayNames[2]);
+			transformer.setParameter("dayNames3", dayNames[3]);
+			transformer.setParameter("dayNames4", dayNames[4]);
+			transformer.setParameter("dayNames5", dayNames[5]);
+			transformer.setParameter("dayNames6", dayNames[6]);
+			
 			transformer.setParameter("jan", rb.getString("month.jan"));
 			transformer.setParameter("feb", rb.getString("month.feb"));
 			transformer.setParameter("mar", rb.getString("month.mar"));
@@ -6145,7 +6148,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		{
 			case WEEK_VIEW:
 				actualTimeRange = timeRange;
-				timeRangeList = getTimeRangeListForWeek(actualTimeRange, calendarReferenceList, dailyTimeRange, true);
+				timeRangeList = getTimeRangeListForWeek(actualTimeRange, calendarReferenceList, dailyTimeRange);
 				break;
 
 			case MONTH_VIEW:
@@ -6650,13 +6653,11 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	/**
 	 * Generates a list of time ranges for a week. Each range in the list is a day.
 	 * 
-	 * @param dailyTimeRange
-	 *        representative daily time range (start hour/minute, end hour/minute)
-	 * @param skipSaturdayAndSundayIfNoEvents
-	 *        if true, then Saturday and Sundary are skipped if there are no events.
+	 * @param timeRange start & end date range
+	 * @param calendarReferenceList list of calendar(s) 
+	 * @param dailyTimeRange start and end hour/minute time range
 	 */
-	protected ArrayList getTimeRangeListForWeek(TimeRange timeRange, List calendarReferenceList, TimeRange dailyTimeRange,
-			boolean skipSaturdayAndSundayIfNoEvents)
+	protected ArrayList getTimeRangeListForWeek(TimeRange timeRange, List calendarReferenceList, TimeRange dailyTimeRange)
 	{
 		TimeBreakdown startBreakdown = timeRange.firstTime().breakdownLocal();
 
@@ -6665,15 +6666,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 		ArrayList weekDayTimeRanges = new ArrayList();
 
-		int sundayDayIndex = 0;
-		int saturdayDayIndex = 6;
-		boolean skipSaturdayAndSunday = false;
-
 		TimeBreakdown startBreakDown = dailyTimeRange.firstTime().breakdownLocal();
 
 		TimeBreakdown endBreakDown = dailyTimeRange.lastTime().breakdownLocal();
 
-		for (int i = sundayDayIndex; i <= saturdayDayIndex; i++)
+		// Search all seven weekdays
+		// Note: no assumption can be made regarding the first day being Sunday, 
+		// since in some locales, the first weekday is Monday.
+		for (int i = 0; i <= 6; i++)
 		{
 			//
 			// Use the same start/end times for all days.
@@ -6687,55 +6687,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					.getHour(), endBreakDown.getMin(), endBreakDown.getSec(), endBreakDown.getMs());
 
 			TimeRange newTimeRange = TimeService.newTimeRange(curStartTime, curEndTime, true, false);
-
-			//
-			// If the Saturday/Sunday skipping feature is specified, then on
-			// Saturday, if there are no events scheduled, then check Sunday.
-			// If Sunday also has no events, then we will trim off Saturday/Sunday
-			//
-			if (skipSaturdayAndSundayIfNoEvents && i == sundayDayIndex)
-			{
-				// Get a list of events for Saturday
-				CalendarEventVector calendarEventVectorSunday = getEvents(calendarReferenceList, newTimeRange);
-
-				// If there are no Sunday events, check if there are no Saturday events.
-				if (calendarEventVectorSunday.isEmpty())
-				{
-					GregorianCalendar saturdayCalendarDate = (GregorianCalendar) startCalendarDate.clone();
-					saturdayCalendarDate.set(GregorianCalendar.DAY_OF_WEEK, GregorianCalendar.SATURDAY);
-
-					//
-					// Use the same start/end times for all days.
-					//
-					Time saturdayStartTime = TimeService.newTimeLocal(saturdayCalendarDate.get(GregorianCalendar.YEAR),
-							saturdayCalendarDate.get(GregorianCalendar.MONTH) + 1, saturdayCalendarDate
-									.get(GregorianCalendar.DAY_OF_MONTH), startBreakDown.getHour(), startBreakDown.getMin(),
-							startBreakDown.getSec(), startBreakDown.getMs());
-
-					Time saturdayEndTime = TimeService.newTimeLocal(saturdayCalendarDate.get(GregorianCalendar.YEAR),
-							saturdayCalendarDate.get(GregorianCalendar.MONTH) + 1, saturdayCalendarDate
-									.get(GregorianCalendar.DAY_OF_MONTH), endBreakDown.getHour(), endBreakDown.getMin(),
-							endBreakDown.getSec(), endBreakDown.getMs());
-					TimeRange saturdayTimeRange = TimeService.newTimeRange(saturdayStartTime, saturdayEndTime, true, false);
-
-					// Get a list of events for Sunday
-					CalendarEventVector calendarEventVectorSaturday = getEvents(calendarReferenceList, saturdayTimeRange);
-
-					// If Saturday and Sunday have no events, set a flag to skip them.
-					if (calendarEventVectorSaturday.isEmpty())
-					{
-						skipSaturdayAndSunday = true;
-					}
-				}
-			}
-
-			// If it is not the case that "this is Saturday or Sunday
-			// and we're skipping Saturday and Sunday", then
-			// add the range to the list.
-			if (!((i == sundayDayIndex || i == saturdayDayIndex) && skipSaturdayAndSunday))
-			{
-				weekDayTimeRanges.add(newTimeRange);
-			}
+			weekDayTimeRanges.add(newTimeRange);
 
 			// Move to the next day.
 			startCalendarDate.add(GregorianCalendar.DATE, 1);

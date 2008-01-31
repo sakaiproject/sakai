@@ -2,16 +2,15 @@
 <xsl:stylesheet
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:fo="http://www.w3.org/1999/XSL/Format"
-   xmlns:ResourceBundle="http://xml.apache.org/xalan/java/java.util.ResourceBundle"
 	version="1.0">
 
-<xsl:param name="sun"/>
-<xsl:param name="mon"/>
-<xsl:param name="tues"/>
-<xsl:param name="wed"/>
-<xsl:param name="thurs"/>
-<xsl:param name="fri"/>
-<xsl:param name="sat"/>
+<xsl:param name="dayNames0"/>
+<xsl:param name="dayNames1"/>
+<xsl:param name="dayNames2"/>
+<xsl:param name="dayNames3"/>
+<xsl:param name="dayNames4"/>
+<xsl:param name="dayNames5"/>
+<xsl:param name="dayNames6"/>
 
 <xsl:param name="jan"/>
 <xsl:param name="feb"/>
@@ -94,13 +93,13 @@
 		<fo:table-column column-width="proportional-column-width(1)" number-columns-repeated="{$cols}"/>
 		<fo:table-body>
       	 <fo:table-row line-height="10pt" >
-    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$sun"/> </fo:block></fo:table-cell>
-     		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$mon"/> </fo:block></fo:table-cell>
-     		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$tues"/> </fo:block></fo:table-cell>
-    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$wed"/> </fo:block></fo:table-cell>
-    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$thurs"/> </fo:block></fo:table-cell>
-     		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$fri"/> </fo:block></fo:table-cell>
-    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$sat"/> </fo:block></fo:table-cell>
+    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$dayNames0"/> </fo:block></fo:table-cell>
+     		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$dayNames1"/> </fo:block></fo:table-cell>
+     		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$dayNames2"/> </fo:block></fo:table-cell>
+    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$dayNames3"/> </fo:block></fo:table-cell>
+    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$dayNames4"/> </fo:block></fo:table-cell>
+     		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$dayNames5"/> </fo:block></fo:table-cell>
+    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$dayNames6"/> </fo:block></fo:table-cell>
           </fo:table-row>
    		  <!-- set table height to keep most monthly calendar in  one page -->
    		  <xsl:variable name="lineHeight">
