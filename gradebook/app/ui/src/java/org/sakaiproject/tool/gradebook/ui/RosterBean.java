@@ -754,7 +754,51 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		Category selCategoryView = getSelectedCategory();
         
 		List gradableObjects = new ArrayList();
-		List allAssignments = getGradebookManager().getAssignments(getGradebookId());
+		List allAssignments = new ArrayList(); 
+		if (getCategoriesEnabled()) {
+			List categoryList = getGradebookManager().getCategoriesWithStats(getGradebookId(), getPreferencesBean().getAssignmentSortColumn(), 
+									getPreferencesBean().isAssignmentSortAscending(), getPreferencesBean().getCategorySortColumn(), getPreferencesBean().isCategorySortAscending());
+
+			// then, we need to check for special grader permissions that may limit which categories may be viewed
+			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+				categoryList = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categoryList, getGradebook().getCategory_type());
+			}
+
+			if (categoryList != null && !categoryList.isEmpty()) {
+				Iterator catIter = categoryList.iterator();
+				while (catIter.hasNext()) {
+					Object myCat = catIter.next();
+
+					if (myCat instanceof Category) {
+						List assignmentList = ((Category)myCat).getAssignmentList();
+						if (assignmentList != null && !assignmentList.isEmpty()) {
+							Iterator assignIter = assignmentList.iterator();
+							while (assignIter.hasNext()) {
+								Assignment assign = (Assignment) assignIter.next();
+								allAssignments.add(assign);
+							}
+						}
+					}
+				}
+			}
+
+			if (!isUserAbleToGradeAll() && (isUserHasGraderPermissions() && !getGradebookPermissionService().getPermissionForUserForAllAssignment(getGradebookId(), getUserUid()))) {
+				// is not authorized to view the "Unassigned" Category
+			} else {
+				List unassignedList = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), getPreferencesBean().getAssignmentSortColumn(), getPreferencesBean().isAssignmentSortAscending());
+				if (unassignedList != null && !unassignedList.isEmpty()) {	
+					Iterator unassignedIter = unassignedList.iterator();
+					while (unassignedIter.hasNext()) {
+						Assignment assignWithNoCat = (Assignment) unassignedIter.next();
+						allAssignments.add(assignWithNoCat);
+					}
+				}
+			}
+		}
+		else {
+			allAssignments = getGradebookManager().getAssignments(getGradebookId());
+		}
+		
 		if (!allAssignments.isEmpty()) {
 			for (Iterator assignIter = allAssignments.iterator(); assignIter.hasNext();) {
 				Assignment assign = (Assignment) assignIter.next();
