@@ -47,6 +47,7 @@ import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.data.ParserException;
 
 import net.fortuna.ical4j.util.CompatibilityHints;
+import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.Property;
 
@@ -114,8 +115,16 @@ public class IcalendarReader extends Reader
 				Component component = (Component) i.next();
 	
 				// Find event duration
-				DateProperty dtstartdate = (DateProperty) component.getProperty("DTSTART");
-				DateProperty dtenddate =  (DateProperty) component.getProperty("DTEND");
+				DateProperty dtstartdate;
+				DateProperty dtenddate;
+				if(component instanceof VEvent){
+					VEvent vEvent = (VEvent) component;
+					dtstartdate = vEvent.getStartDate();
+					dtenddate = vEvent.getEndDate(true);
+				}else{
+					dtstartdate = (DateProperty) component.getProperty("DTSTART");
+					dtenddate =  (DateProperty) component.getProperty("DTEND");
+				}
             
             if ( component.getProperty("SUMMARY") == null )
             {
@@ -165,8 +174,8 @@ public class IcalendarReader extends Reader
 				String columns[]	= 
 						{component.getProperty("SUMMARY").getValue(),
 						 description,
-						 DateFormat.getDateInstance(DateFormat.SHORT).format(dtstartdate.getDate()),
-						 DateFormat.getTimeInstance(DateFormat.SHORT).format(dtstartdate.getDate()),
+						 DateFormat.getDateInstance(DateFormat.SHORT, rb.getLocale()).format(dtstartdate.getDate()),
+						 DateFormat.getTimeInstance(DateFormat.SHORT, rb.getLocale()).format(dtstartdate.getDate()),
 						 durationformat,
 						 location};
 				
