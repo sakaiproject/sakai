@@ -292,22 +292,40 @@ public class CalendarUtil
 
 	}	// setDay
 
-	/** Returns array of weekday names, using the locale-specific first day
+	/** Returns array of weekday names, using the locale-specific first day-of-week
+    ** 
+    ** @param longNames indicates whether to use short or long version of weekday names
 	 **/
-	public String[] getCalendarDaysOfWeekNames()
+	public String[] getCalendarDaysOfWeekNames(boolean longNames)
 	{
 		int firstDayOfWeek = getFirstDayOfWeek();
 		
-		String[] weekDays = new String[] 
+		String[] weekDays = null; 
+		String[] longWeekDays = new String[] 
 		{
-			rb.getString("viewm.sun"),
-			rb.getString("viewm.mon"),
-			rb.getString("viewm.tue"),
-			rb.getString("viewm.wed"),
-			rb.getString("viewm.thu"),
-			rb.getString("viewm.fri"),
-			rb.getString("viewm.sat")
+			rb.getString("day.sunday"),
+			rb.getString("day.monday"),
+			rb.getString("day.tuesday"),
+			rb.getString("day.wednesday"),
+			rb.getString("day.thursday"),
+			rb.getString("day.friday"),
+			rb.getString("day.saturday")
 		};
+		String[] shortWeekDays = new String[] 
+		{
+			rb.getString("day.sun"),
+			rb.getString("day.mon"),
+			rb.getString("day.tue"),
+			rb.getString("day.wed"),
+			rb.getString("day.thu"),
+			rb.getString("day.fri"),
+			rb.getString("day.sat")
+		};
+		
+		if ( longNames )
+			weekDays = longWeekDays;
+		else
+			weekDays = shortWeekDays;
 
 		String[] localeDays = new String[7];
 

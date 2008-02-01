@@ -6024,7 +6024,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			Source src = new DOMSource(doc);
 
 			CalendarUtil calUtil = new CalendarUtil();
-			String[] dayNames = calUtil.getCalendarDaysOfWeekNames();
+			String[] dayNames = calUtil.getCalendarDaysOfWeekNames(true);
          
 			// Kludge: Xalan in JDK 1.4/1.5 does not properly resolve java classes 
 			// (http://xml.apache.org/xalan-j/faq.html#jdk14)

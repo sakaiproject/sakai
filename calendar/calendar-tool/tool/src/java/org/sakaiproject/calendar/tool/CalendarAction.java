@@ -2813,7 +2813,7 @@ extends VelocityPortletStateAction
 		
 		context.put("selectedView", rb.getString("java.byyear"));
 		
-		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames());
+		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames(false));
 		
 	} // buildYearContext
 	
@@ -2917,7 +2917,7 @@ extends VelocityPortletStateAction
 		
 		context.put("selectedView", rb.getString("java.bymonth"));
 		
-		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames());
+		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames(false));
 		
 	} // buildMonthContext
 	
@@ -3504,7 +3504,7 @@ extends VelocityPortletStateAction
 		
 		context.put("selectedView", rb.getString("java.byweek"));
 
-		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames());
+		context.put("dayOfWeekNames", calObj.getCalendarDaysOfWeekNames(false));
 		
 	} // buildWeekContext
 	
@@ -7621,10 +7621,10 @@ extends VelocityPortletStateAction
 	public String calendarUtilGetMonth(int l_month)
 	{
 		// get the index for the month. Note, the index is increased by 1, u need to deduct 1 first
-		String[] months = new String [] { rb.getString("java.jan"),rb.getString("java.feb"),rb.getString("java.mar"),
-											rb.getString("java.apr"), rb.getString("java.may"), rb.getString("java.jun"),
-											rb.getString("java.jul"), rb.getString("java.aug"), rb.getString("java.sep"),
-											rb.getString("java.oct"), rb.getString("java.nov"), rb.getString("java.dec") };
+		String[] months = new String [] { rb.getString("jan"),rb.getString("feb"),rb.getString("mar"),
+											rb.getString("apr"), rb.getString("may"), rb.getString("jun"),
+											rb.getString("jul"), rb.getString("aug"), rb.getString("sep"),
+											rb.getString("oct"), rb.getString("nov"), rb.getString("dec") };
 
 		if (l_month >12) 
 		{
@@ -7641,9 +7641,9 @@ extends VelocityPortletStateAction
 	*/
 	private String calendarUtilGetDay(int dayofweek) 
 	{		
-		String[] l_ndays = new String[] {rb.getString("java.sun"),rb.getString("java.mon"),
-					rb.getString("java.tue"),rb.getString("java.wed"),rb.getString("java.thu")
-					,rb.getString("java.fri"),rb.getString("java.sat")};
+		String[] l_ndays = new String[] {rb.getString("day.sunday"),rb.getString("day.monday"),
+					rb.getString("day.tuesday"),rb.getString("day.wednesday"),rb.getString("day.thursday")
+					,rb.getString("day.friday"),rb.getString("day.saturday")};
 		
 		if ( dayofweek > 7 ) 
 		{
