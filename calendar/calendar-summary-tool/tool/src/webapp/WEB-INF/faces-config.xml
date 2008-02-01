@@ -47,7 +47,7 @@
 		<description>Menu Bean</description>
 		<managed-bean-name>MenuBean</managed-bean-name>
 		<managed-bean-class>org.sakaiproject.tool.summarycalendar.ui.MenuBean</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
+		<managed-bean-scope>request</managed-bean-scope>
 	</managed-bean>
 	
 	

@@ -67,6 +67,12 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-mergedlist-util</artifactId>
       <version>${sakai.version}</version>
+      <exclusions>
+      	<exclusion>
+      		<groupId>org.sakaiproject</groupId>
+      		<artifactId>sakai-velocity-tool</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
 <!-- Spring Framework -->
     <dependency>
@@ -100,6 +106,12 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
       <version>${sakai.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.myfaces.tomahawk</groupId>
+            <artifactId>tomahawk</artifactId>
+          </exclusion>
+        </exclusions>
       <type>pom</type>
     </dependency>
 <!-- Apache Commons -->
