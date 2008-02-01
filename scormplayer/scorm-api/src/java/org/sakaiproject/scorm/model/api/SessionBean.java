@@ -26,9 +26,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.adl.api.ecmascript.IErrorManager;
-import org.adl.sequencer.ISeqActivityTree;
 import org.adl.sequencer.IValidRequests;
-import org.adl.validator.contentpackage.ILaunchData;
+import org.adl.validator.contentpackage.LaunchData;
 
 public class SessionBean implements Serializable {
 
@@ -40,14 +39,14 @@ public class SessionBean implements Serializable {
 	
 	private ContentPackage contentPackage;
 	
-	private ISeqActivityTree tree;
+	private ActivityTreeHolder treeHolder;
 	
 	private String activityTitle;
 	
 	private String activityId;
 	private String scoId;
 	private IValidRequests navigationState;
-	private ILaunchData launchData;
+	private LaunchData launchData;
 	private List<?> objectiveStatusSet;
 	private ContentPackageManifest manifest;
 	
@@ -90,13 +89,13 @@ public class SessionBean implements Serializable {
 	}
 
 
-	public ISeqActivityTree getTree() {
-		return tree;
+	public ActivityTreeHolder getTreeHolder() {
+		return treeHolder;
 	}
 
 
-	public void setTree(ISeqActivityTree tree) {
-		this.tree = tree;
+	public void setTreeHolder(ActivityTreeHolder treeHolder) {
+		this.treeHolder = treeHolder;
 	}
 
 
@@ -130,12 +129,12 @@ public class SessionBean implements Serializable {
 	}
 
 
-	public ILaunchData getLaunchData() {
+	public LaunchData getLaunchData() {
 		return launchData;
 	}
 
 
-	public void setLaunchData(ILaunchData launchData) {
+	public void setLaunchData(LaunchData launchData) {
 		this.launchData = launchData;
 	}
 

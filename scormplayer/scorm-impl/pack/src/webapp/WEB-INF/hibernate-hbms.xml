@@ -7,8 +7,10 @@
 		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="mappingResources">
 			<list>
+				<value>org/sakaiproject/scorm/model/api/ActivityTreeHolder.hbm.xml</value>
 				<value>org/sakaiproject/scorm/model/api/Attempt.hbm.xml</value>
 				<value>org/sakaiproject/scorm/model/api/ContentPackage.hbm.xml</value>
+				<value>org/sakaiproject/scorm/model/api/ContentPackageManifest.hbm.xml</value>
 				
 				<value>org/adl/datamodels/DMDelimiter.hbm.xml</value>
 				<value>org/adl/datamodels/DMDelimiterDescriptor.hbm.xml</value>
@@ -19,6 +21,8 @@
 				<value>org/adl/datamodels/SCODataManager.hbm.xml</value>
 				
 				<value>org/adl/sequencer/ADLValidRequests.hbm.xml</value>
+				
+				<value>org/adl/validator/contentpackage/LaunchData.hbm.xml</value>
 				
 				<!--value>org/adl/sequencer/SequencerMappings.hbm.xml</value-->
 			</list>

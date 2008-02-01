@@ -34,12 +34,10 @@
 		class="org.sakaiproject.scorm.adl.impl.ADLConsultantImpl"
 		singleton="true">
 		
-		<!-- Service beans -->
-		<lookup-method name="resourceService" bean="org.sakaiproject.scorm.service.api.ScormResourceService" />
-		
 		<!-- Data Access Objects -->
+		<lookup-method name="contentPackageManifestDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
-		<lookup-method name="seqActivityTreeDao" bean="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao" />
+		<lookup-method name="activityTreeHolderDao" bean="org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao" />
 		
 	</bean>
 	
@@ -71,9 +69,9 @@
 		
 		<!-- Data Access Objects -->
 		<lookup-method name="contentPackageDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageDao" />
+		<lookup-method name="contentPackageManifestDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
 		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
-		<lookup-method name="seqActivityTreeDao" bean="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao" />
 
 	</bean>	
 	
@@ -88,7 +86,6 @@
 		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
 		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
-		<lookup-method name="seqActivityDao" bean="org.sakaiproject.scorm.dao.api.SeqActivityDao" />
 		
 	</bean>
 	
@@ -104,8 +101,8 @@
 		<lookup-method name="adlManager" bean="org.sakaiproject.scorm.adl.ADLConsultant" />
 		
 		<!-- Data Access Objects -->
-		<lookup-method name="seqActivityTreeDao" bean="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao" />		
-		
+		<lookup-method name="activityTreeHolderDao" bean="org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao" />
+		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />		
 	</bean>	
 	
 	<bean id="org.sakaiproject.scorm.service.api.ScormEntityProvider"

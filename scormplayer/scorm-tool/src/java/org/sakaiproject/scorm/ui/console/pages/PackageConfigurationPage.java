@@ -52,7 +52,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 	private String unlimitedMessage;
 	
 	public PackageConfigurationPage(PageParameters params) {
-		long contentPackageId = params.getLong("id");
+		long contentPackageId = params.getLong("contentPackageId");
 		
 		final ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
 		

@@ -200,20 +200,21 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 	
 	private void merge(DMElement element) {
 		if (element.getDescription() != null) {
-			if (element.getDescription().getId() > 0)
+			//if (element.getDescription().getId() > 0)
 				getHibernateTemplate().saveOrUpdate(element.getDescription());
-			else 
-				getHibernateTemplate().merge(element.getDescription());
+			//else 
+			//	getHibernateTemplate().merge(element.getDescription());
 		}
 		
-		List<DMDelimiter> delims = element.getDelimiters();
+		/*List<DMDelimiter> delims = element.getDelimiters();
 		
 		if (delims != null) {
 			for (DMDelimiter delim : delims) {
 				if (delim.getDescription() != null)
-					getHibernateTemplate().merge(delim.getDescription());
+					getHibernateTemplate().saveOrUpdate(delim.getDescription());
+					//getHibernateTemplate().merge(delim.getDescription());
 			}
-		}
+		}*/
 	}
 	
 	private void saveOrUpdate(DMElement element, boolean isFirstTime) {

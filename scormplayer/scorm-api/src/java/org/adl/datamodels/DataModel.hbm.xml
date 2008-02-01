@@ -29,9 +29,9 @@
 		<subclass name="org.adl.datamodels.nav.SCORM_2004_NAV_DM" 
 			discriminator-value="org.adl.datamodels.nav.SCORM_2004_NAV_DM">
 		
-			<one-to-one name="mNavRequests" class="org.adl.sequencer.ADLValidRequests" constrained="true" />
+			<!--one-to-one name="mNavRequests" class="org.adl.sequencer.ADLValidRequests" constrained="true" /-->
 		
-			<!--many-to-one name="mNavRequests" column="NAV_REQUESTS" index="SCORM_DM_NAV_REQS_IDX" class="org.adl.sequencer.ADLValidRequests" /-->
+			<many-to-one name="mNavRequests" column="NAV_REQUESTS" index="SCORM_DM_NAV_REQS_IDX" class="org.adl.sequencer.ADLValidRequests" />
 				
 			<property name="mCurRequest" column="CURRENT_REQUEST" />
 		

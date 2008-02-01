@@ -38,6 +38,7 @@ import org.adl.sequencer.ADLAuxiliaryResource;
 import org.adl.sequencer.ADLDuration;
 import org.adl.sequencer.ADLTracking;
 import org.adl.sequencer.ADLValidRequests;
+import org.adl.sequencer.ActivityNode;
 import org.adl.sequencer.IDuration;
 import org.adl.sequencer.ISeqActivity;
 import org.adl.sequencer.ISeqActivityTree;

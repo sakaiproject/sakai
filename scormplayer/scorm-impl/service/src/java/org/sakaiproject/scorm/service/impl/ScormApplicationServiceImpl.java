@@ -33,6 +33,7 @@ import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.ScoBeanImpl;
+import org.sakaiproject.scorm.model.api.ActivityTreeHolder;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.Learner;
 import org.sakaiproject.scorm.model.api.ScoBean;
@@ -487,7 +488,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			if (attempt == null) {
 				attempt = new Attempt();
 				
-				attempt.setContentPackageId(sessionBean.getContentPackage().getId());
+				attempt.setContentPackageId(sessionBean.getContentPackage().getContentPackageId());
 				attempt.setCourseId(courseId);
 				attempt.setLearnerId(learnerId);
 				attempt.setAttemptNumber(attemptNumber);
@@ -516,7 +517,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		boolean isNewDataManager = false;
         IDataManager dm = null;
         
-        long contentPackageId = sessionBean.getContentPackage().getId();
+        long contentPackageId = sessionBean.getContentPackage().getContentPackageId();
         String activityId = sessionBean.getActivityId();
         String courseId = sessionBean.getContentPackage().getResourceId();
 		String scoId = scoBean.getScoId();
@@ -1136,7 +1137,22 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	
 	private void processTracking(SessionBean sessionBean, CmiData cmiData, IDataManager dm, ISequencer sequencer) {
 		String activityId = sessionBean.getActivityId();
-		ISeqActivityTree tree = sessionBean.getTree();
+		
+		ActivityTreeHolder treeHolder = sessionBean.getTreeHolder();
+		ISeqActivityTree tree = null;
+		
+		if (treeHolder == null) {
+			log.error("Could not find a tree holder!!!");
+			return;
+		}
+		
+		tree = treeHolder.getSeqActivityTree();
+		
+		if (tree == null) {
+			log.error("Could not find a tree!!!");
+			return;
+		}
+		
 		ISeqActivity act = tree.getActivity(activityId);
 		
 		// Only modify the TM if the activity is tracked

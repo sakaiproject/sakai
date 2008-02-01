@@ -68,8 +68,8 @@ public class PlayerPage extends BaseToolPage {
 	public PlayerPage(final PageParameters pageParams) {
 		super();
 
-		long contentPackageId = pageParams.getLong("id");
-
+		long contentPackageId = pageParams.getLong("contentPackageId");
+		
 		int userNavRequest = -1;
 		if (pageParams.containsKey("navRequest"))
 			userNavRequest = pageParams.getInt("navRequest");

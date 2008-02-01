@@ -64,7 +64,7 @@ public class AttemptListPage extends ConsoleBasePage {
 	public AttemptListPage(PageParameters pageParams) {
 		super(pageParams);
 		
-		final long contentPackageId = pageParams.getLong("id");
+		final long contentPackageId = pageParams.getLong("contentPackageId");
 		
 		ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
 			

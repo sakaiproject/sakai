@@ -35,9 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.dao.LearnerDao;
 import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
-import org.sakaiproject.scorm.dao.api.SeqActivityDao;
 import org.sakaiproject.scorm.model.api.ActivityReport;
-import org.sakaiproject.scorm.model.api.ActivitySummary;
 import org.sakaiproject.scorm.model.api.ActivitySummary;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.CMIData;
@@ -65,7 +63,6 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 	protected abstract AttemptDao attemptDao();
 	protected abstract DataManagerDao dataManagerDao();
 	protected abstract LearnerDao learnerDao();
-	protected abstract SeqActivityDao seqActivityDao();
 	
 	
 	public ActivityReport getActivityReport(long contentPackageId, String activityId, String learnerId, long attemptNumber) {

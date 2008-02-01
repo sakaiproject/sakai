@@ -20,12 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.service.impl;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,9 +40,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.dao.LearnerDao;
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
+import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
-import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
-import org.sakaiproject.scorm.model.ContentPackageManifestImpl;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
@@ -63,10 +61,9 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	
 	// Data access objects (also dependency injected by lookup method)
 	protected abstract ContentPackageDao contentPackageDao();
+	protected abstract ContentPackageManifestDao contentPackageManifestDao();
 	protected abstract DataManagerDao dataManagerDao();
 	protected abstract LearnerDao learnerDao();
-	protected abstract SeqActivityTreeDao seqActivityTreeDao();
-	
 	
 	public ContentPackage getContentPackage(long contentPackageId) {
 		return contentPackageDao().load(contentPackageId);
@@ -146,10 +143,8 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 
 		ContentPackage contentPackage = contentPackageDao().load(contentPackageId);
 		
-		String manifestResourceId = resourceService().removeArchive(contentPackage.getResourceId());
-		if (manifestResourceId != null)
-			resourceService().removeManifest(contentPackage.getResourceId(), manifestResourceId);
-		
+		resourceService().removeArchive(contentPackage.getResourceId());
+				
 		contentPackageDao().remove(contentPackage);
 	}
 	
@@ -236,8 +231,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 
 		ContentPackageManifest manifest = createManifest(outcome.getDocument(), validator);
 		String archiveId = resourceService().convertArchive(resourceId);
-		String manifestResourceId = resourceService().putManifest(archiveId, manifest);
-			
+	
 	    // Grab some important info about the site and user
 	    String context = lms().currentContext();
 	    String learnerId = lms().currentLearnerId();
@@ -245,10 +239,12 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	        
 	    String title = getContentPackageTitle(outcome.getDocument());
 	    
+	    Serializable manifestId = contentPackageManifestDao().save(manifest);
+	    
 	    // Now create a representation of this content package in the database
 	    ContentPackage cp = new ContentPackage(title, archiveId);
 	    cp.setContext(context);
-	    cp.setManifestResourceId(manifestResourceId);
+	    cp.setManifestId(manifestId);
 	    cp.setReleaseOn(new Date());
 	    cp.setCreatedBy(learnerId);
 	    cp.setModifiedBy(learnerId);
@@ -256,13 +252,11 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	    cp.setModifiedOn(now);
 
 	    contentPackageDao().save(cp);
+	    
 	}
 	
 	private ContentPackageManifest createManifest(Document document, IValidator validator) {
-		ContentPackageManifest manifest = new ContentPackageManifestImpl();
-		
-		//String title = getContentPackageTitle(document);
-		//manifest.setTitle(title);
+		ContentPackageManifest manifest = new ContentPackageManifest();
 		
 		// Grab the launch data
 		manifest.setLaunchData(validator.getLaunchData(false, false));
@@ -273,7 +267,6 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 				DOMTreeUtility.getNode(document, "sequencingCollection"));
 		
 		manifest.setActTreePrototype(prototype);
-		//manifest.setDocument(document);
 		
 		return manifest;
 	}
