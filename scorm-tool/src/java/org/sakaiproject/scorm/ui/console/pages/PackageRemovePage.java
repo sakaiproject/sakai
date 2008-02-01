@@ -44,9 +44,9 @@ public class PackageRemovePage extends ConsoleBasePage {
 
 	public PackageRemovePage(PageParameters params) {
 		String title = params.getString("title");
-		final long id = params.getLong("id");
+		final long contentPackageId = params.getLong("contentPackageId");
 		
-		ContentPackage contentPackage = new ContentPackage(title, id);
+		ContentPackage contentPackage = new ContentPackage(title, contentPackageId);
 		
 		List<ContentPackage> list = new LinkedList<ContentPackage>();
 		list.add(contentPackage);
@@ -64,7 +64,7 @@ public class PackageRemovePage extends ConsoleBasePage {
 			
 			@Override
 			protected void onSubmit() {
-				contentService.removeContentPackage(id);
+				contentService.removeContentPackage(contentPackageId);
 				setResponsePage(PackageListPage.class);
 			}
 			

@@ -95,7 +95,7 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 	private int chooseStartOrResume(SessionBean sessionBean, INavigable navigator, AjaxRequestTarget target) {
 		int navRequest = SeqNavRequests.NAV_START;
 		
-		List<Attempt> attempts = resultService.getAttempts(sessionBean.getContentPackage().getId(), sessionBean.getLearnerId());
+		List<Attempt> attempts = resultService.getAttempts(sessionBean.getContentPackage().getContentPackageId(), sessionBean.getLearnerId());
 		
 		long attemptNumber = 1;
 		
@@ -182,7 +182,7 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 			log.error("Caught an exception: " , e);
 		} 
 		
-		return new ChoicePanel(lazyId, sessionBean.getContentPackage().getId(), sessionBean.getContentPackage().getResourceId(), result);
+		return new ChoicePanel(lazyId, sessionBean.getContentPackage().getContentPackageId(), sessionBean.getContentPackage().getResourceId(), result);
 	}
 	
 	

@@ -21,48 +21,69 @@
 package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.adl.sequencer.ISeqActivityTree;
 import org.adl.validator.contentpackage.ILaunchData;
+import org.adl.validator.contentpackage.LaunchData;
 
-public interface ContentPackageManifest extends Serializable {
+public class ContentPackageManifest implements Serializable {
 	
-	//public String getTitle();
+	private static final long serialVersionUID = 1L; 
 
-	//public void setTitle(String title);
-
-	//public Document getDocument();
-
-	//public void setDocument(Document manifest);
-
-	public void setLaunchData(List l);
-
-	public List getLaunchData();
-
-	public ILaunchData getLaunchData(String identifier);
+	private Serializable id;
+	private ISeqActivityTree actTreePrototype;
+	//private Map comments;
+	private List launchDataList;
+	private HashMap<String, LaunchData> launchDataMap;
 	
-	/*
-	 * CommentsFromLMS appears to be only set via a LMS UI, 
-	 * and *not* from the manifest. A null return value from
-	 * the getter (and not an empty Map) indicates lack of them.
-	 * 
-	 */
-
-	public Map getCommentsFromLMS();
-
-	public void setCommentsFromLMS(Map mapOfCommentLists);
-
-	public ISeqActivityTree getActTreePrototype();
-
-	public void setActTreePrototype(ISeqActivityTree actTreePrototype);
-
-	//public String getControlMode();
-
-	//public void setControlMode(String mode);
+	public ContentPackageManifest() {
+		
+	}
 	
-	//public String getResourceId();
+	public ISeqActivityTree getActTreePrototype() {
+		return actTreePrototype;
+	}
+
+	/*public Map getCommentsFromLMS() {
+		return comments;
+	}*/
+
+	public LaunchData getLaunchData(String identifier) {
+		return launchDataMap.get(identifier);
+	}
 	
-	//public void setResourceId(String id);
+	public List getLaunchData() {
+		return launchDataList;
+	}
+
+	public void setActTreePrototype(ISeqActivityTree actTreePrototype) {
+		this.actTreePrototype = actTreePrototype;
+	}
+
+	/*public void setCommentsFromLMS(Map comments) {
+		this.comments = comments;
+	}*/
+
+	public void setLaunchData(List launchDataList) {
+		launchDataMap = new HashMap<String, LaunchData>();
+		
+		for(int i=0;i<launchDataList.size();++i){
+			LaunchData l = (LaunchData)launchDataList.get(i);
+		
+			launchDataMap.put(l.getItemIdentifier(),l);
+		}	
+		
+		this.launchDataList = launchDataList;
+	}
+
+	public Serializable getId() {
+		return id;
+	}
+
+	public void setId(Serializable id) {
+		this.id = id;
+	}
 }

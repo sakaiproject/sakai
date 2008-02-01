@@ -29,10 +29,11 @@ public class ContentPackage implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private long id;
+	private long contentPackageId;
 	private String context;
 	private String title;
 	private String resourceId;
+	private Serializable manifestId;
 	private String manifestResourceId;
 	private String url;
 	private Date releaseOn;
@@ -43,17 +44,20 @@ public class ContentPackage implements Serializable {
 	private Date modifiedOn;
 	private String modifiedBy;
 	private int numberOfTries = NUMBER_OF_TRIES_UNLIMITED;
+	private boolean isDeleted;
 	
 	public ContentPackage() {
-		
+		this.isDeleted = false;
 	}
 	
-	public ContentPackage(String title, long id) {
+	public ContentPackage(String title, long contentPackageId) {
+		this();
 		this.title = title;
-		this.id = id;
+		this.contentPackageId = contentPackageId;
 	}
 	
 	public ContentPackage(String title, String resourceId) {
+		this();
 		this.title = title;
 		this.resourceId = resourceId;
 	}
@@ -156,12 +160,12 @@ public class ContentPackage implements Serializable {
 		this.numberOfTries = numberOfTries;
 	}
 
-	public long getId() {
-		return id;
+	public long getContentPackageId() {
+		return contentPackageId;
 	}
 
-	public void setId(long id) {
-		this.id = id;
+	public void setContentPackageId(long contentPackageId) {
+		this.contentPackageId = contentPackageId;
 	}
 	
 	public String getStatus() {
@@ -182,6 +186,26 @@ public class ContentPackage implements Serializable {
 
 	public void setManifestResourceId(String manifestResourceId) {
 		this.manifestResourceId = manifestResourceId;
+	}
+
+	public Serializable getManifestId() {
+		return manifestId;
+	}
+
+	public void setManifestId(Serializable manifestId) {
+		this.manifestId = manifestId;
+	}
+
+	public boolean isDeleted() {
+		return isDeleted;
+	}
+
+	public boolean getDeleted() {
+		return isDeleted;
+	}
+	
+	public void setDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 }

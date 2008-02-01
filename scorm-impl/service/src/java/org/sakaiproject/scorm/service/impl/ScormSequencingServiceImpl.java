@@ -33,7 +33,10 @@ import org.adl.sequencer.SeqNavRequests;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.adl.ADLConsultant;
+import org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao;
+import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
+import org.sakaiproject.scorm.model.api.ActivityTreeHolder;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.model.api.SessionBean;
@@ -54,8 +57,8 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	protected abstract ADLConsultant adlManager();
 	
 	// Data access objects (also dependency injected by lookup method)
-	protected abstract SeqActivityTreeDao seqActivityTreeDao();
-	
+	protected abstract ActivityTreeHolderDao activityTreeHolderDao();
+	protected abstract AttemptDao attemptDao();
 	
 	
 	public String navigate(int request, SessionBean sessionBean, INavigable agent, Object target) {
@@ -80,6 +83,8 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		update(sessionBean, sequencer, launch, manifest);
 		
 		if (request == SeqNavRequests.NAV_SUSPENDALL) {
+			sessionBean.getAttempt().setSuspended(true);
+			attemptDao().save(sessionBean.getAttempt());
 			sessionBean.setSuspended(true);
 			sessionBean.setEnded(true);
 			sessionBean.setStarted(false);
@@ -271,20 +276,30 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
         		sessionBean.setRestart(false);
         } 
         
-        ISeqActivityTree tree = sessionBean.getTree();
+		ActivityTreeHolder treeHolder = sessionBean.getTreeHolder();
+		ISeqActivityTree tree = null;
+		
+		if (treeHolder == null) {
+			log.error("Could not find a tree holder!!!");
+			return;
+		}
+		
+		tree = treeHolder.getSeqActivityTree();
+		
+		if (tree == null) {
+			log.error("Could not find a tree!!!");
+			return;
+		}
         
-        if (tree != null) {
-	        ISeqActivity activity = tree.getActivity(sessionBean.getActivityId());
+        ISeqActivity activity = tree.getActivity(sessionBean.getActivityId());
 	        
-	        if (activity != null)
-	        	sessionBean.setActivityTitle(activity.getTitle());
-	        else 
-	        	log.debug("Activity is null!!!");
+	    if (activity != null)
+	      	sessionBean.setActivityTitle(activity.getTitle());
+	    else 
+	       	log.debug("Activity is null!!!");
 	        
-	        seqActivityTreeDao().save(tree);
-        } else {
-        	log.warn("Seq activity tree is null!!!");
-        }
+	    activityTreeHolderDao().save(treeHolder);
+        
 	}
 	
 }

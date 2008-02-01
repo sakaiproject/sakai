@@ -11,11 +11,23 @@
             </generator>
         </id>
         
-        <one-to-one name="mDescription" cascade="none" class="org.adl.datamodels.DMDelimiterDescriptor"  constrained="true"/>
+        <component name="mDescription" class="org.adl.datamodels.DMDelimiterDescriptor">
+        
+        	<property name="mName" column="DESC_NAME" />
+	
+			<property name="mDefault" column="DEFAULT_VALUE" />
+		
+			<property name="mValueSPM" column="VALUE_SPM" />
+		
+			<many-to-one name="mValidator" column="VALIDATOR" index="SCORM_DELIM_DESC_VAL_IDX" class="org.adl.datamodels.DMTypeValidator" />
+        
+        </component>
+        
+        <!--one-to-one name="mDescription" cascade="none" class="org.adl.datamodels.DMDelimiterDescriptor"  constrained="false"/-->
         
         <!-- JLR: Stripped these out from mDescription below 1/28 unique-key="DELIM_ID" index="SCORM_DELIM_DESC_IDX" -->
         
-        <!--many-to-one name="mDescription" column="DESCRIPTION" class="org.adl.datamodels.DMDelimiterDescriptor" /-->	
+        <!--many-to-one name="mDescription" cascade="none" column="DESCRIPTION" class="org.adl.datamodels.DMDelimiterDescriptor" /-->	
         
 		<property name="mValue" column="VALUE" type="string" />
 	

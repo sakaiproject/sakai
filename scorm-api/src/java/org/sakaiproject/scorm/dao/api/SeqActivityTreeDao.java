@@ -26,12 +26,6 @@ public interface SeqActivityTreeDao {
 
 	public ISeqActivityTree find(long contentPackageId, String learnerId);
 	
-	//public ISeqActivityTree find(String courseId, String userId);
-	
-	//public SeqActivityTreeSnapshot findSnapshot(String courseId, String userId);
-	
-	//public List<SeqActivityTreeSnapshot> findUserSnapshots(String userId);
-	
 	public void save(ISeqActivityTree tree);
 	
 }

@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.dao.hibernate;
 
-import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
@@ -35,9 +34,9 @@ public class ContentPackageDaoImpl extends HibernateDaoSupport implements Conten
 	
 	public List<ContentPackage> find(String context) {
 		String statement = new StringBuilder("from ").append(ContentPackage.class.getName())
-			.append(" where context = ? ").toString();
+			.append(" where context = ? and deleted = ? ").toString();
 		
-		return getHibernateTemplate().find(statement, new Object[] { context });
+		return getHibernateTemplate().find(statement, new Object[] { context, false });
 	}
 
 	public void save(ContentPackage contentPackage) {
@@ -45,7 +44,8 @@ public class ContentPackageDaoImpl extends HibernateDaoSupport implements Conten
 	}
 
 	public void remove(ContentPackage contentPackage) {
-		getHibernateTemplate().delete(contentPackage);
+		contentPackage.setDeleted(true);
+		getHibernateTemplate().saveOrUpdate(contentPackage);
 	}
 	
 }
