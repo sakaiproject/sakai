@@ -69,9 +69,9 @@
 
    <distributionManagement>
       <repository>
-         <id>Sakai-Maven2</id>
-         <name>Sakaiproject Maven 2 repository</name>
-         <url>file://source.sakaiproject.org/maven2/</url>
+         <id>Sakai-Maven2</id> 
+         <name>Sakaiproject Maven 2 repository</name> 
+         <url>dav:https://source.sakaiproject.org/maven2</url> 
       </repository>
       <site>
          <id>local site</id>
@@ -239,6 +239,14 @@
    </profiles>
 
    <!-- No build for a base project -->
-   <build></build>
+   <build>
+      <extensions>
+         <extension>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-webdav</artifactId>
+            <version>1.0-beta-2</version>
+         </extension>
+      </extensions>
+   </build>
 
 </project>
