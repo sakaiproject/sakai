@@ -5,16 +5,21 @@
     <artifactId>search-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-search-util</name>
+  <name>sakai-search-adapters-pack</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-search-util</artifactId>
-  <packaging>jar</packaging>
+  <artifactId>sakai-search-adapters-pack</artifactId>
+  <packaging>sakai-component</packaging>
   <properties>
-    <deploy.target/>
+    <deploy.target>components</deploy.target>
   </properties>
   <build>
+    
+    
+    
+    
+    
     <resources>
       <resource>
         <directory>${basedir}/src/bundle</directory>
@@ -24,22 +29,16 @@
         <filtering>false</filtering>
       </resource>
       <resource>
-        <directory>${basedir}/src/sql</directory>
-        <includes>
-          <include>**/*.sql</include>
-        </includes>
-        <filtering>false</filtering>
-      </resource>
-      <resource>
         <directory>${basedir}/src/java</directory>
         <includes>
           <include>**/*.xml</include>
-          <include>**/*.xslt</include>
         </includes>
         <filtering>false</filtering>
       </resource>
     </resources>
 <!-- java source -->
+    
+    
     <testResources>
       <testResource>
         <directory>${basedir}/src/testBundle</directory>
@@ -48,33 +47,14 @@
         </includes>
         <filtering>false</filtering>
       </testResource>
-      <testResource>
-        <directory>${basedir}/src/test</directory>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
-        <filtering>false</filtering>
-      </testResource>
-<!--includes:  include: **/*Test -->
+<!--includes: **/*Test -->
     </testResources>
 <!-- other resources for the jar - the message bundles -->
   </build>
   <dependencies>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-api</artifactId>
-     <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
+      <artifactId>sakai-search-adapters-impl</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>

@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.component;
+package org.sakaiproject.search.util;
 
 import org.sakaiproject.util.ResourceLoader;
 

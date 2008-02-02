@@ -46,9 +46,9 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
-import org.sakaiproject.search.component.Messages;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.util.HTMLParser;
+import org.sakaiproject.search.util.Messages;
 
 /**
  * @author ieb

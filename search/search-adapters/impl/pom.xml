@@ -7,9 +7,9 @@
     <version>SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-search-impl-adapters</name>
+  <name>sakai-search-adapters-impl</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-search-impl-adapters</artifactId>
+  <artifactId>sakai-search-adapters-impl</artifactId>
   <packaging>jar</packaging>
   <properties>
     <deploy.target/>
@@ -73,13 +73,13 @@
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-impl</artifactId>
+      <artifactId>sakai-search-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-api</artifactId>
+      <artifactId>sakai-search-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
@@ -115,6 +115,12 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
@@ -125,6 +131,12 @@
       <version>1.2.13</version>
       <type>jar</type>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <type>jar</type>
     </dependency>
     
   </dependencies>
