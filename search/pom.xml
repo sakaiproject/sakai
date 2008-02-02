@@ -17,15 +17,37 @@
   </scm>
   <packaging>pom</packaging>
 
+ <profiles>
 
-  <modules>
-    <module>search-api/api</module>
-    <module>search-help</module>
-    <module>search-impl/impl</module>
-    <module>search-impl/pack</module>
-    <module>search-integration-test</module>
-    <module>search-model</module>
-    <module>search-util</module>
-    <module>search-tool/tool</module>
-  </modules>
+    <profile>
+        <id>framework</id>
+  	<modules>
+    	  <module>search-api/api</module>
+    	  <module>search-help</module>
+    	  <module>search-impl/impl</module>
+    	  <module>search-impl/pack</module>
+    	  <module>search-integration-test</module>
+    	  <module>search-model</module>
+    	  <module>search-util</module>
+    	  <module>search-tool/tool</module>
+  	</modules>
+     </profile>
+    <profile>
+        <id>full</id>
+        <activation>
+          <activeByDefault>true</activeByDefault>
+        </activation>
+  	<modules>
+    	  <module>search-api/api</module>
+    	  <module>search-help</module>
+    	  <module>search-impl/impl</module>
+    	  <module>search-impl/impl-adapters</module>
+    	  <module>search-impl/pack</module>
+    	  <module>search-integration-test</module>
+    	  <module>search-model</module>
+    	  <module>search-util</module>
+    	  <module>search-tool/tool</module>
+  	</modules>
+     </profile>
+  </profiles>
 </project>
