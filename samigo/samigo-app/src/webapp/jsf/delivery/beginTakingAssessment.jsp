@@ -63,7 +63,7 @@
 <div class="tier1">
  <h4> <h:outputText value="#{delivery.assessmentTitle} #{deliveryMessages.info} " /></h4>
 <div class="tier2">
-<h:messages styleClass="validation"/>
+<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
   <h:outputText value="#{delivery.instructorMessage}" escape="false"/>
 
   <p></p> 

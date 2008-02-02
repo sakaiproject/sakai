@@ -44,7 +44,7 @@
 <div class="tier1">
 
   <!-- Error publishing assessment -->
-  <h:messages globalOnly="true" styleClass="validation" />
+  <h:messages globalOnly="true" infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
   <div class="validation">
        <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_1}" />
 	   <br/>

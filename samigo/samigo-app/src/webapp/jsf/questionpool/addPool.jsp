@@ -41,7 +41,7 @@
 <h3 class="insColor insBak insBor">
 <h:outputText value="#{questionPoolMessages.add_p}"/>
 </h3>
-<h:messages styleClass="validation"/>
+<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 <h:outputText value="#{questionPoolMessages.add_p_required}"/>
  <div class="tier1">
  <h:panelGrid columns="2" columnClasses="shorttext">

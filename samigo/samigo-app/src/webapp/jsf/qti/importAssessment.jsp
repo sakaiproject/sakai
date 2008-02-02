@@ -42,7 +42,7 @@
    <h3><h:outputText  value="#{authorImportExport.import_a}" /></h3>
     <div class="tier1">
      <div class="form_label">
-      <h:messages styleClass="validation" />
+      <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
       <h:outputText value="#{authorImportExport.import_instructions}"/>
     </div>
     <br />

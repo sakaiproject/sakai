@@ -61,7 +61,7 @@
      <h:outputText value="#{template.templateName}"/>
 </h3>
  <h:outputText escape="false" value="#{templateMessages.template_instructions}"/>
- <h:messages styleClass="validation"/>
+ <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
   <div class="tier1">
 <p>

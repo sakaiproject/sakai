@@ -135,7 +135,7 @@ function escapeApostrophe(name) {
 
   </p>
 
-  <h:messages styleClass="validation"/>
+  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 
   <div class="tier1">
      <h:outputText value="#{evaluationMessages.max_score_poss}" style="instruction"/>

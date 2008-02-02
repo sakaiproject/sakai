@@ -117,7 +117,7 @@ document.location='../evaluation/questionScore';
 
   </p>
 <div class="tier1">
-  <h:messages styleClass="validation"/>
+  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 
   <h:dataTable value="#{questionScores.sections}" var="partinit">
     <h:column>

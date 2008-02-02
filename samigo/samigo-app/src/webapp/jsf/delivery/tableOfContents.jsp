@@ -146,7 +146,7 @@ function clickSubmitForGrade(){
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 <h:commandLink id="submitforgrade" action="#{delivery.submitForGrade}" value="" />
 
-    <h:messages styleClass="validation"/>
+    <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
     <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
       <h:column>
       <h:panelGroup>

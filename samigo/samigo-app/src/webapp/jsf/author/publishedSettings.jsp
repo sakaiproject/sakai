@@ -88,7 +88,7 @@ function disableAllFeedbackCheck(feedbackType)
   <%@ include file="/jsf/author/allHeadings.jsp" %>
 
 <p>
-  <h:messages styleClass="validation"/>
+  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 </p>
 
     <h3>

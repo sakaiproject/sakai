@@ -122,7 +122,7 @@ document.location='../evaluation/totalScores';
 
   </p>
 <div class="tier1">
-  <h:messages styleClass="validation"/>
+  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
   <!-- only shows Max Score Possible if this assessment does not contain random dawn parts -->
 
 <sakai:flowState bean="#{totalScores}" />

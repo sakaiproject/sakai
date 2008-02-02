@@ -126,7 +126,7 @@ document.location='../evaluation/gradeStudentResult';
     </h:commandLink>
   </p>
 
-  <h:messages styleClass="validation"/>
+  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 
 <f:verbatim><h4></f:verbatim>
 <h:outputText value="#{totalScores.assessmentName}" />

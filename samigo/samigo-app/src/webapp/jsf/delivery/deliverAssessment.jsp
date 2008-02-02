@@ -127,7 +127,7 @@ function saveTime()
 
 
 <!-- FORM ... note, move these hiddens to whereever they are needed as fparams-->
-<h:messages styleClass="validation"/>
+<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
 <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
 <!-- h:inputHidden id="ItemIdent" value="#{item.ItemIdent}"/ -->

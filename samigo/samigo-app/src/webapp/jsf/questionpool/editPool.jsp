@@ -69,7 +69,7 @@ var textuncheckall="<h:outputText value="#{questionPoolMessages.t_uncheckAll}"/>
 <h3 class="insColor insBak insBor">
 <h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.currentPool.displayName}"/>
 </h3>
-<h:messages styleClass="validation" />
+<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{questionPoolMessages.msg_imp_editpool}"/>
  <div class="tier2">
 <h:panelGrid columns="2" columnClasses="shorttext">

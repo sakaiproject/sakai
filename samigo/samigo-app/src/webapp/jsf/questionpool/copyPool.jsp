@@ -42,7 +42,7 @@
 <!-- content... -->
  <div class="portletBody">
 <h:form id="copyPool">
-<h:messages styleClass="validation"/>
+<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 
 <h3>
 <h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{questionPoolMessages.copy_p}"/>

@@ -47,7 +47,7 @@
   </h3>
 <p>
 
-  <h:messages styleClass="validation"/>
+  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 
 
 </p>

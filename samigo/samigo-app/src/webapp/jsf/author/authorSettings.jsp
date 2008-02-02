@@ -222,7 +222,7 @@ function uncheckOther(field){
      <h:outputText value="#{assessmentSettingsMessages.settings} #{assessmentSettingsMessages.dash} #{assessmentSettings.title}" />
     </h3>
 <p>
-  <h:messages styleClass="validation"/>
+  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 </p>
 
 <div class="tier1">

@@ -58,7 +58,7 @@ function getSelectedType(qtiUrl, cpUrl){
    <h3><h:outputText  value="#{authorImportExport.export_a} #{authorImportExport.dash} #{assessmentBean.title}" /></h3>
     <div class="tier1">
      <div class="form_label">
-      <h:messages styleClass="validation" />
+      <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
         <h:outputText value="#{authorImportExport.choose_type_1}" escape="true" />
 		<h:outputLink value="#" onclick="window.open('http://www.imsglobal.org/question/')" onkeypress="window.open('http://www.imsglobal.org/question/')">
 		  <h:outputText value="#{authorImportExport.ims_qti}"/>

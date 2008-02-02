@@ -69,7 +69,7 @@ document.links[newindex].onclick();
 <!-- content... -->
 <!-- some back end stuff stubbed -->
 <h:form id="assesssmentForm">
-<h:messages styleClass="validation"/>
+<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 <h:outputText styleClass="validation" value="#{authorMessages.edit_published_assessment_warn_1}" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"/>
 <h:outputText styleClass="validation" value="#{authorMessages.edit_published_assessment_warn_2}" rendered="#{!author.isEditPendingAssessmentFlow && !assessmentBean.hasGradingData}"/>
   <h:inputHidden id="assessmentId" value="#{assessmentBean.assessmentId}"/>

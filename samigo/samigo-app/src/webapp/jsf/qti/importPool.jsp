@@ -44,7 +44,7 @@
    <h3><h:outputText  value="#{authorImportExport.import_qp}" /></h3>
     <div class="tier1">
      <div class="form_label">
-      <h:messages styleClass="validation" />
+      <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
       <%-- currently import pool mirrors import assessment --%>
       <h:outputText value="#{authorImportExport.import_instructions}"/>
     </div>

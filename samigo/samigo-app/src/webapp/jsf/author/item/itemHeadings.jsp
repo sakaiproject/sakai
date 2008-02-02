@@ -135,8 +135,8 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
 </h:commandLink>
 
-<h:message rendered="#{questionpool.importToAuthoring == 'true' && itemauthor.target == 'assessment'}" for="changeQType1" styleClass="validate"/>
-<h:message rendered="#{questionpool.importToAuthoring == 'false' && itemauthor.target == 'assessment'}" for="changeQType2" styleClass="validate"/>
+<h:message rendered="#{questionpool.importToAuthoring == 'true' && itemauthor.target == 'assessment'}" for="changeQType1" infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+<h:message rendered="#{questionpool.importToAuthoring == 'false' && itemauthor.target == 'assessment'}" for="changeQType2" infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 </div>
 <!-- SUBHEADING -->
 <p class="navModeAction">
@@ -185,7 +185,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
 --%>
  </span>
  <br />
-   <h:messages styleClass="validation"/>
+   <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 
  <br />
 

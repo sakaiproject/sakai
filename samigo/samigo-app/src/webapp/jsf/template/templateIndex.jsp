@@ -37,7 +37,7 @@
 <!-- content... -->
 <div class="portletBody">
   <h:form id="templateCreateForm">
-<h:messages styleClass="validation"/>
+<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
   <!-- HEADINGS -->
   <%@ include file="/jsf/template/templateHeadings.jsp" %>
 

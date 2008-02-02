@@ -49,7 +49,7 @@
 </h4>
 
 <h:form id="submittedForm">
-<h:messages styleClass="validation" />
+<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 
     <h:outputText value="#{deliveryMessages.submission_confirmation_message_1}" /> 
     <h:outputText escape="false" value="<br /> #{delivery.submissionMessage}" />
