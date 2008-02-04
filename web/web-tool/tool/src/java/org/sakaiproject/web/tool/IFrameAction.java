@@ -156,7 +156,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	
 	private static final String IFRAME_ALLOWED_MACROS_PROPERTY = "iframe.allowed.macros";
 	
-	private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_EID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE},${SESSION_ID}";
+	private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_EID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE}";
 	
 	private static ArrayList allowedMacrosList;
 	
