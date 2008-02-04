@@ -76,11 +76,13 @@ public class BrowserDetector
 
 	private boolean fileUploadOK = false;
 
-
 	public BrowserDetector(HttpServletRequest request)
 	{
 		super();
-		this.userAgentString = request.getHeader("user-agent");
+		if (request != null)
+		{
+			this.userAgentString = request.getHeader("user-agent");
+		}
 		parse();
 	}
 
@@ -129,141 +131,144 @@ public class BrowserDetector
 
 	private void parse()
 	{
-		int versionStartIndex = userAgentString.indexOf("/");
-		int versionEndIndex = userAgentString.indexOf(" ");
-		browserName = userAgentString.substring(0, versionStartIndex);
-		try
+		if (userAgentString != null && userAgentString.length() > 0)
 		{
-			String agentSubstring = null;
-			if (versionEndIndex < 0)
-			{
-				agentSubstring = userAgentString.substring(versionStartIndex + 1);
-			}
-			else
-			{
-				agentSubstring = userAgentString.substring(versionStartIndex + 1,
-						versionEndIndex);
-			}
-			browserVersion = toFloat(agentSubstring);
-		}
-		catch (NumberFormatException e)
-		{
-		}
-		if (userAgentString.indexOf(MSIE) != -1)
-		{
-			versionStartIndex = (userAgentString.indexOf(MSIE) + MSIE.length() + 1);
-			versionEndIndex = userAgentString.indexOf(";", versionStartIndex);
-			browserName = MSIE;
+			int versionStartIndex = userAgentString.indexOf("/");
+			int versionEndIndex = userAgentString.indexOf(" ");
+			browserName = userAgentString.substring(0, versionStartIndex);
 			try
 			{
-				browserVersion = toFloat(userAgentString.substring(versionStartIndex,
-						versionEndIndex));
+				String agentSubstring = null;
+				if (versionEndIndex < 0)
+				{
+					agentSubstring = userAgentString.substring(versionStartIndex + 1);
+				}
+				else
+				{
+					agentSubstring = userAgentString.substring(versionStartIndex + 1,
+							versionEndIndex);
+				}
+				browserVersion = toFloat(agentSubstring);
 			}
 			catch (NumberFormatException e)
 			{
 			}
-		}
-		if (userAgentString.indexOf(OPERA) != -1)
-		{
-			versionStartIndex = (userAgentString.indexOf(OPERA) + OPERA.length() + 1);
-			versionEndIndex = userAgentString.indexOf(" ", versionStartIndex);
-			browserName = OPERA;
-			try
+			if (userAgentString.indexOf(MSIE) != -1)
 			{
-				browserVersion = toFloat(userAgentString.substring(versionStartIndex,
-						versionEndIndex));
-			}
-			catch (NumberFormatException e)
-			{
-			}
-		}
-		if ((userAgentString.indexOf("Windows") != -1)
-				|| (userAgentString.indexOf("WinNT") != -1)
-				|| (userAgentString.indexOf("Win98") != -1)
-				|| (userAgentString.indexOf("Win95") != -1))
-		{
-			browserPlatform = WINDOWS;
-		}
-		if (userAgentString.indexOf("Mac") != -1)
-		{
-			browserPlatform = MACINTOSH;
-		}
-		if (userAgentString.indexOf("X11") != -1)
-		{
-			browserPlatform = UNIX;
-		}
-		if (browserPlatform == WINDOWS)
-		{
-			if (browserName.equals(MOZILLA))
-			{
-				if (browserVersion >= 3.0)
+				versionStartIndex = (userAgentString.indexOf(MSIE) + MSIE.length() + 1);
+				versionEndIndex = userAgentString.indexOf(";", versionStartIndex);
+				browserName = MSIE;
+				try
 				{
-					javascriptOK = true;
-					fileUploadOK = true;
+					browserVersion = toFloat(userAgentString.substring(versionStartIndex,
+							versionEndIndex));
 				}
-				if (browserVersion >= 4.0)
+				catch (NumberFormatException e)
 				{
-					cssOK = true;
 				}
 			}
-			else if (browserName == MSIE)
+			if (userAgentString.indexOf(OPERA) != -1)
 			{
-				if (browserVersion >= 4.0)
+				versionStartIndex = (userAgentString.indexOf(OPERA) + OPERA.length() + 1);
+				versionEndIndex = userAgentString.indexOf(" ", versionStartIndex);
+				browserName = OPERA;
+				try
 				{
-					javascriptOK = true;
-					fileUploadOK = true;
-					cssOK = true;
+					browserVersion = toFloat(userAgentString.substring(versionStartIndex,
+							versionEndIndex));
+				}
+				catch (NumberFormatException e)
+				{
 				}
 			}
-			else if (browserName == OPERA)
+			if ((userAgentString.indexOf("Windows") != -1)
+					|| (userAgentString.indexOf("WinNT") != -1)
+					|| (userAgentString.indexOf("Win98") != -1)
+					|| (userAgentString.indexOf("Win95") != -1))
 			{
-				if (browserVersion >= 3.0)
+				browserPlatform = WINDOWS;
+			}
+			if (userAgentString.indexOf("Mac") != -1)
+			{
+				browserPlatform = MACINTOSH;
+			}
+			if (userAgentString.indexOf("X11") != -1)
+			{
+				browserPlatform = UNIX;
+			}
+			if (browserPlatform == WINDOWS)
+			{
+				if (browserName.equals(MOZILLA))
 				{
-					javascriptOK = true;
-					fileUploadOK = true;
-					cssOK = true;
+					if (browserVersion >= 3.0)
+					{
+						javascriptOK = true;
+						fileUploadOK = true;
+					}
+					if (browserVersion >= 4.0)
+					{
+						cssOK = true;
+					}
+				}
+				else if (browserName == MSIE)
+				{
+					if (browserVersion >= 4.0)
+					{
+						javascriptOK = true;
+						fileUploadOK = true;
+						cssOK = true;
+					}
+				}
+				else if (browserName == OPERA)
+				{
+					if (browserVersion >= 3.0)
+					{
+						javascriptOK = true;
+						fileUploadOK = true;
+						cssOK = true;
+					}
 				}
 			}
-		}
-		else if (browserPlatform == MACINTOSH)
-		{
-			if (browserName.equals(MOZILLA))
+			else if (browserPlatform == MACINTOSH)
 			{
-				if (browserVersion >= 3.0)
+				if (browserName.equals(MOZILLA))
 				{
-					javascriptOK = true;
-					fileUploadOK = true;
+					if (browserVersion >= 3.0)
+					{
+						javascriptOK = true;
+						fileUploadOK = true;
+					}
+					if (browserVersion >= 4.0)
+					{
+						cssOK = true;
+					}
 				}
-				if (browserVersion >= 4.0)
+				else if (browserName == MSIE)
 				{
-					cssOK = true;
+					if (browserVersion >= 4.0)
+					{
+						javascriptOK = true;
+						fileUploadOK = true;
+					}
+					if (browserVersion > 4.0)
+					{
+						cssOK = true;
+					}
 				}
 			}
-			else if (browserName == MSIE)
+			else if (browserPlatform == UNIX)
 			{
-				if (browserVersion >= 4.0)
+				if (browserName.equals(MOZILLA))
 				{
-					javascriptOK = true;
-					fileUploadOK = true;
-				}
-				if (browserVersion > 4.0)
-				{
-					cssOK = true;
-				}
-			}
-		}
-		else if (browserPlatform == UNIX)
-		{
-			if (browserName.equals(MOZILLA))
-			{
-				if (browserVersion >= 3.0)
-				{
-					javascriptOK = true;
-					fileUploadOK = true;
-				}
-				if (browserVersion >= 4.0)
-				{
-					cssOK = true;
+					if (browserVersion >= 3.0)
+					{
+						javascriptOK = true;
+						fileUploadOK = true;
+					}
+					if (browserVersion >= 4.0)
+					{
+						cssOK = true;
+					}
 				}
 			}
 		}
