@@ -37,22 +37,27 @@ public class HTMLParser implements Iterator<String>
 {
 	private static Log log = LogFactory.getLog(HTMLParser.class);
 
-	private static final char[][] IGNORE_TAGS = new char[][] { "script".toCharArray(), "head".toCharArray(), "style".toCharArray() };
+	private static final char[][] IGNORE_TAGS = new char[][] { "script".toCharArray(),
+			"head".toCharArray(), "style".toCharArray() };
 
 	private static final String PAD = "                                                                                                                   ";
 
-	private static final Map<String,String> entities = new HashMap<String,String>();
+	private static final Map<String, String> entities = new HashMap<String, String>();
 
 	static
 	{
 		try
 		{
-			BufferedReader br = new BufferedReader(new InputStreamReader(HTMLParser.class
-					.getResourceAsStream("/org/sakaiproject/search/util/htmlentities.config")));
-			for ( String line = br.readLine(); line != null; line = br.readLine() ) {
-				if ( !line.startsWith("#") )   {
-				String[] parts = line.split("=");
-				char code = (char) Integer.parseInt(parts[1]);
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(
+							HTMLParser.class
+									.getResourceAsStream("/org/sakaiproject/search/util/htmlentities.config")));
+			for (String line = br.readLine(); line != null; line = br.readLine())
+			{
+				if (!line.startsWith("#"))
+				{
+					String[] parts = line.split("=");
+					char code = (char) Integer.parseInt(parts[1]);
 					entities.put(parts[0], new String(new char[] { code }));
 				}
 			}
@@ -82,7 +87,14 @@ public class HTMLParser implements Iterator<String>
 
 	public HTMLParser(String content)
 	{
-		cbuf = content.toCharArray();
+		if (content == null)
+		{
+			cbuf = new char[0];
+		}
+		else
+		{
+			cbuf = content.toCharArray();
+		}
 		current = 0;
 		clen = cbuf.length;
 	}
@@ -159,7 +171,8 @@ public class HTMLParser implements Iterator<String>
 			if (cbuf[tagend - 1] == '/')
 			{
 			}
-			else if (tagstart + 2 < clen && cbuf[tagstart] == '!' && cbuf[tagstart + 1] == '-' && cbuf[tagstart + 2] == '-')
+			else if (tagstart + 2 < clen && cbuf[tagstart] == '!'
+					&& cbuf[tagstart + 1] == '-' && cbuf[tagstart + 2] == '-')
 			{
 			}
 			else if (cbuf[tagstart] == '/')
@@ -173,7 +186,8 @@ public class HTMLParser implements Iterator<String>
 						int j = elementStack[endstack - 2];
 						for (int i = 0; i < (elend - tagstart); i++)
 						{
-							if (Character.toLowerCase(cbuf[tagstart + i]) != Character.toLowerCase(cbuf[j + i]))
+							if (Character.toLowerCase(cbuf[tagstart + i]) != Character
+									.toLowerCase(cbuf[j + i]))
 							{
 								match = false;
 								break;
@@ -208,7 +222,8 @@ public class HTMLParser implements Iterator<String>
 								ignoreAfter = true;
 								for (int j = 0; j < IGNORE_TAGS[i].length; j++)
 								{
-									if (IGNORE_TAGS[i][j] != Character.toLowerCase(cbuf[tagstart + j]))
+									if (IGNORE_TAGS[i][j] != Character
+											.toLowerCase(cbuf[tagstart + j]))
 									{
 										ignoreAfter = false;
 										break;

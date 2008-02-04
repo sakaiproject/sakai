@@ -24,11 +24,19 @@
 -->
 <beans>
  
-<!--
-   <import resource="coreSearchComponents.xml" />
--->
-   <import resource="parallelIndexComponents.xml" />
-   <import resource="contentAdapterComponents.xml" />
-   <import resource="siteAdapterComponents.xml" />
+ 
+  <bean id="siteAdapter" 
+    class="org.sakaiproject.search.component.adapter.site.SiteContentProducer"
+    singleton="true"
+    init-method="init" >
+    <property name="siteService" ><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+    
+     <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>    
+	 <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
+     <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+    
+  </bean>
+  
   
 </beans>

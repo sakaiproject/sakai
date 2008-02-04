@@ -321,43 +321,6 @@ public class MessageContentProducer implements EntityContentProducer
 		return false;
 	}
 
-	/**
-	 * @{inheritDoc}
-	 */
-	public List getAllContent()
-	{
-		List all = new ArrayList();
-		List l = messageService.getChannels();
-		for (Iterator i = l.iterator(); i.hasNext();)
-		{
-
-			try
-			{
-				MessageChannel c = (MessageChannel) i.next();
-
-				List messages = c.getMessages(null, true);
-				// WARNING: I think the implementation caches on thread, if this
-				// is
-				// a builder
-				// thread this may not work
-				for (Iterator mi = messages.iterator(); mi.hasNext();)
-				{
-					Message m = (Message) mi.next();
-					all.add(m.getReference());
-				}
-			}
-			catch (Exception ex)
-			{
-				log.error("Got error on channel ", ex); //$NON-NLS-1$
-
-			}
-		}
-		if (log.isDebugEnabled())
-		{
-			log.debug("Message." + toolName + ".getAllContent::" + all.size());
-		}
-		return all;
-	}
 
 	/**
 	 * @{inheritDoc}
@@ -482,7 +445,7 @@ public class MessageContentProducer implements EntityContentProducer
 
 	public List getSiteContent(String context)
 	{
-		List all = new ArrayList();
+		List<String> all = new ArrayList<String>();
 		List l = messageService.getChannelIds(context);
 		for (Iterator i = l.iterator(); i.hasNext();)
 		{
