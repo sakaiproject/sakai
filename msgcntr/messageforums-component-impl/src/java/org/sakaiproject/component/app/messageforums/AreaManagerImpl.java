@@ -124,18 +124,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
 
     public Area getDiscusionArea() {
-        Area area = getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());
-        if (area == null) {
-            area = createArea(typeManager.getDiscussionForumType(), null);
-            area.setName(getResourceBundleString(FORUMS_TITLE));
-            area.setEnabled(Boolean.TRUE);
-            area.setHidden(Boolean.TRUE);
-            area.setLocked(Boolean.FALSE);
-            area.setModerated(Boolean.FALSE);
-            area.setSendEmailOut(Boolean.TRUE);
-            saveArea(area);
-        }
-        return area;
+        return getDiscussionArea(this.getContextId());
     }
     
     public Area getDiscussionArea(String contextId) {
@@ -252,16 +241,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     public Area getAreaByContextIdAndTypeId(final String typeId) {
         LOG.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_AREA_BY_CONTEXT_AND_TYPE_ID);
-                q.setParameter("contextId", getContextId(), Hibernate.STRING);
-                q.setParameter("typeId", typeId, Hibernate.STRING);
-                return q.uniqueResult();
-            }
-        };
-
-        return (Area) getHibernateTemplate().execute(hcb);
+        return this.getAreaByContextIdAndTypeId(getContextId(), typeId);
     }
     
     public Area getAreaByContextIdAndTypeId(final String contextId, final String typeId) {
@@ -280,7 +260,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     public Area getAreaByType(final String typeId) {
       final String currentUser = getCurrentUser();
-      LOG.debug("getAreaByContextAndTypeForUser executing for current user: " + currentUser);
+      LOG.debug("getAreaByType executing for current user: " + currentUser);
       HibernateCallback hcb = new HibernateCallback() {
           public Object doInHibernate(Session session) throws HibernateException, SQLException {
               Query q = session.getNamedQuery(QUERY_AREA_BY_TYPE);              

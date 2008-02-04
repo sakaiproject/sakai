@@ -21,21 +21,88 @@
 package org.sakaiproject.api.app.messageforums;
 
 /**
+ * The Area id the high level object of the object model. Typicaly a site
+ * can contain up to 2 Areas - a Discussion Area and a Private Message Area
+ * 
  * @author rshastri
  *
  */
+
+
 public interface AreaManager
 {
- 
-  public boolean isPrivateAreaEnabled();
-  public void saveArea(Area area);
-  public Area createArea(String typeId, String contextId);
-  public void deleteArea(Area area);
-  public Area getAreaByContextIdAndTypeId(String typeId);
-  public Area getAreaByContextIdAndTypeId(String contextId, String typeId);
-  public Area getAreaByType(final String typeId);  
-  public Area getPrivateArea();
-  public Area getDiscusionArea();
-  public Area getDiscussionArea(final String contextId);
-  public String getResourceBundleString(String key);
+	/**
+	 * Is the private area enabeled in this site?
+	 * @return
+	 */
+	public boolean isPrivateAreaEnabled();
+	
+	/**
+	 * Save an area
+	 * @param area
+	 */
+	public void saveArea(Area area);
+	
+	/**
+	 * Create an area of the given type in the given context
+	 * @param typeId the type id (private or discussion)
+	 * @param contextId the context
+	 * @return the created Area object
+	 */
+	public Area createArea(String typeId, String contextId);
+	
+	/**
+	 * 
+	 * @param area
+	 */
+	public void deleteArea(Area area);
+	
+	/**
+	 * Get an area of the given type
+	 * @param typeId
+	 * @return
+	 */
+	public Area getAreaByContextIdAndTypeId(String typeId);
+    
+	
+	/** Get an Area by context and type
+	 * @param contextId
+	 * @param typeId
+	 * @return
+	 */
+	public Area getAreaByContextIdAndTypeId(String contextId, String typeId);
+	
+	/** 
+	 * Get all Areas of the given type
+	 * @param typeId
+	 * @return
+	 * 
+	 * @deprecated since Jan 2008, seems never to have been used
+	 */
+	public Area getAreaByType(final String typeId);  
+	
+	/**
+	 * Get the private area for this site
+	 * @return
+	 */
+	public Area getPrivateArea();
+	
+	/**
+	 * Get the discussion are for this site
+	 * @return
+	 */
+	public Area getDiscusionArea();
+	
+	/**
+	 * Get the discussion are for the given context
+	 * @param contextId
+	 * @return
+	 */
+	public Area getDiscussionArea(final String contextId);
+	
+	/**
+	 * @param key
+	 * @return
+	 */
+	public String getResourceBundleString(String key);
 }
