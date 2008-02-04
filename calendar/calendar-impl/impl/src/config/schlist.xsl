@@ -6,6 +6,11 @@
 	version="1.0">
 
 <xsl:param name="sched"/>
+<xsl:param name="site"/>
+<xsl:param name="event"/>
+<xsl:param name="location"/>
+<xsl:param name="type"/>
+<xsl:param name="from"/>
         
 <xsl:template match="schedule">
 <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
@@ -122,14 +127,14 @@
 <xsl:template name="evitem">
 <xsl:param name="ev"/>
 	<fo:block font-weight="bold" font-size="8pt" text-align="start">
-		Site: <xsl:value-of select="grp"/>
+			<xsl:value-of select="$site"/><xsl:text> </xsl:text><xsl:value-of select="grp"/>
 	</fo:block>
 	<fo:block font-size="8pt" text-align="start">
-		Event: <xsl:value-of select="title"/>
+	  <xsl:value-of select="$event"/><xsl:text> </xsl:text><xsl:value-of select="title"/>
 	</fo:block>
 	<fo:block font-size="8pt" text-align="start">
 		<fo:inline>
-			<xsl:value-of select="@dt"/>From:</fo:inline>
+			<xsl:value-of select="@dt"/><xsl:value-of select="$from"/><xsl:text> </xsl:text></fo:inline>
 		<xsl:call-template name="dtconv">
 		 <xsl:with-param name="fromdt" select="@from"/>
 		</xsl:call-template>-		
@@ -139,7 +144,7 @@
 	</fo:block>
 	<xsl:if test="place !=''">
 		<fo:block font-size="8pt" text-align="start">
-			Location: <xsl:value-of select="place"/>
+			<xsl:value-of select="$location"/><xsl:text> </xsl:text><xsl:value-of select="place"/>
 		</fo:block>
 	</xsl:if>
 	<fo:block font-size="8pt" text-align="start">
@@ -147,7 +152,7 @@
 	</fo:block>
 	
 	<fo:block font-size="8pt" text-align="start">
-	 Event type: <xsl:value-of select="type"/>
+	 <xsl:value-of select="$type"/><xsl:text> </xsl:text><xsl:value-of select="type"/>
 	</fo:block>
 	<xsl:if test="description !=''">
 		<fo:block font-size="7pt" text-align="start" padding="2mm">

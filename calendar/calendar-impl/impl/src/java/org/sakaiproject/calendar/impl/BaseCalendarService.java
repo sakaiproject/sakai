@@ -6050,6 +6050,12 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			transformer.setParameter("nov", rb.getString("month.nov"));
 			transformer.setParameter("dec", rb.getString("month.dec"));
          
+			transformer.setParameter("site", rb.getString("event.site"));
+			transformer.setParameter("event", rb.getString("event.event"));
+			transformer.setParameter("location", rb.getString("event.location"));
+			transformer.setParameter("type", rb.getString("event.type"));
+			transformer.setParameter("from", rb.getString("event.from"));
+			 
 			transformer.setParameter("sched", rb.getString("sched.for"));
 			transformer.transform(src, new SAXResult(driver.getContentHandler()));
 		}
@@ -6562,6 +6568,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 	/**
 	 * Gets the standard date string from the time parameter
+	 * Note: This format is required by XSL template and should _not_ be localized.
 	 */
 	protected String getDateFromTime(Time time)
 	{
@@ -6661,8 +6668,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	{
 		TimeBreakdown startBreakdown = timeRange.firstTime().breakdownLocal();
 
-		GregorianCalendar startCalendarDate = TimeService.getCalendar(TimeService.getLocalTimeZone(), startBreakdown.getYear(),
-				startBreakdown.getMonth() - 1, startBreakdown.getDay(), 0, 0, 0, 0);
+		GregorianCalendar startCalendarDate = (GregorianCalendar)GregorianCalendar.getInstance(TimeService.getLocalTimeZone(), rb.getLocale());
+		startCalendarDate.set(startBreakdown.getYear(),	startBreakdown.getMonth() - 1, startBreakdown.getDay(), 0, 0, 0);
 
 		ArrayList weekDayTimeRanges = new ArrayList();
 
