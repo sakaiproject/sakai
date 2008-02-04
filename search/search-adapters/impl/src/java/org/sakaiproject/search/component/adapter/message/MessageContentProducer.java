@@ -48,13 +48,17 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.util.HTMLParser;
-import org.sakaiproject.search.util.Messages;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * @author ieb
  */
 public class MessageContentProducer implements EntityContentProducer
 {
+
+	private static final String BUNDLE_NAME = "org.sakaiproject.search.component.adapter.message.bundle.Messages"; //$NON-NLS-1$
+
+	private static final ResourceLoader RESOURCE_BUNDLE = new ResourceLoader(BUNDLE_NAME);
 
 	/**
 	 * debug logger
@@ -88,8 +92,7 @@ public class MessageContentProducer implements EntityContentProducer
 	public void init()
 	{
 
-		if ( "true".equals(serverConfigurationService.getString(
-				"search.enable", "false")))
+		if ("true".equals(serverConfigurationService.getString("search.enable", "false")))
 		{
 			for (Iterator i = addEvents.iterator(); i.hasNext();)
 			{
@@ -102,7 +105,6 @@ public class MessageContentProducer implements EntityContentProducer
 			searchIndexBuilder.registerEntityContentProducer(this);
 		}
 	}
-
 
 	/**
 	 * {@inheritDoc}
@@ -119,22 +121,32 @@ public class MessageContentProducer implements EntityContentProducer
 	{
 		return new StringReader(getContent(reference));
 	}
-	
-	private Reference getReference(String reference) {
-		try {
+
+	private Reference getReference(String reference)
+	{
+		try
+		{
 			Reference r = entityManager.newReference(reference);
-			if (log.isDebugEnabled() ) {
-					log.debug("Message."+toolName+".getReference"+reference+":"+r);
+			if (log.isDebugEnabled())
+			{
+				log.debug("Message." + toolName + ".getReference" + reference + ":" + r);
 			}
-			return r;		
-		} catch ( Exception ex ) {			
+			return r;
+		}
+		catch (Exception ex)
+		{
 		}
 		return null;
 	}
-	private EntityProducer getProducer(Reference ref) {
-		try {
-			 return ref.getEntityProducer();
-		} catch ( Exception ex ) {			
+
+	private EntityProducer getProducer(Reference ref)
+	{
+		try
+		{
+			return ref.getEntityProducer();
+		}
+		catch (Exception ex)
+		{
 		}
 		return null;
 	}
@@ -161,8 +173,8 @@ public class MessageContentProducer implements EntityContentProducer
 					Method getSubject = c.getMethod("getSubject", //$NON-NLS-1$
 							new Class[] {});
 					Object o = getSubject.invoke(mh, new Object[] {});
-					sb.append(Messages.getString("MessageContentProducer.5"));
-					SearchUtils.appendCleanString(o.toString(),sb);
+					sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.5"));
+					SearchUtils.appendCleanString(o.toString(), sb);
 					sb.append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				catch (Exception ex)
@@ -171,18 +183,19 @@ public class MessageContentProducer implements EntityContentProducer
 					log.debug("Didnt get Subject  from " + mh, ex); //$NON-NLS-1$
 				}
 
-				sb.append(Messages.getString("MessageContentProducer.3")); //$NON-NLS-1$
-				sb.append(Messages.getString("MessageContentProducer.4"));
-				SearchUtils.appendCleanString(mh.getFrom().getDisplayName(),sb); //$NON-NLS-1$
+				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.3")); //$NON-NLS-1$
+				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.4"));
+				SearchUtils.appendCleanString(mh.getFrom().getDisplayName(), sb); //$NON-NLS-1$
 				sb.append("\n"); //$NON-NLS-1$
-				sb.append(Messages.getString("MessageContentProducer.11")); //$NON-NLS-1$
+				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.11")); //$NON-NLS-1$
 				String mBody = m.getBody();
 
-				for ( HTMLParser hp = new HTMLParser(mBody); hp.hasNext(); ) {
+				for (HTMLParser hp = new HTMLParser(mBody); hp.hasNext();)
+				{
 					SearchUtils.appendCleanString(hp.next(), sb);
 					sb.append(" ");
 				}
-				
+
 				sb.append("\n"); //$NON-NLS-1$
 				log.debug("Message Content for " + ref.getReference() + " is " //$NON-NLS-1$ //$NON-NLS-2$
 						+ sb.toString());
@@ -198,7 +211,10 @@ public class MessageContentProducer implements EntityContentProducer
 						EntityContentProducer ecp = searchIndexBuilder
 								.newEntityContentProducer(areference);
 						String attachementDigest = ecp.getContent(areference);
-						sb.append(Messages.getString("MessageContentProducer.23")).append(attachementDigest) //$NON-NLS-1$
+						sb
+								.append(
+										RESOURCE_BUNDLE
+												.getString("MessageContentProducer.23")).append(attachementDigest) //$NON-NLS-1$
 								.append("\n"); //$NON-NLS-1$
 					}
 					catch (Exception ex)
@@ -208,8 +224,11 @@ public class MessageContentProducer implements EntityContentProducer
 					}
 				}
 				String r = sb.toString();
-				if (log.isDebugEnabled() ) {
-					log.debug("Message."+toolName+".getContent"+reference+":"+r);
+				if (log.isDebugEnabled())
+				{
+					log
+							.debug("Message." + toolName + ".getContent" + reference
+									+ ":" + r);
 				}
 				return r;
 			}
@@ -221,9 +240,8 @@ public class MessageContentProducer implements EntityContentProducer
 			{
 				throw new RuntimeException(" Failed to get message content ", e); //$NON-NLS-1$
 			}
-		} 
+		}
 
-		
 		throw new RuntimeException(" Not a Message Entity " + reference); //$NON-NLS-1$
 	}
 
@@ -232,6 +250,7 @@ public class MessageContentProducer implements EntityContentProducer
 	 */
 	public String getTitle(String reference)
 	{
+		log.error("Getting Title");
 		Reference ref = getReference(reference);
 		EntityProducer ep = getProducer(ref);
 		if (ep instanceof MessageService)
@@ -242,25 +261,26 @@ public class MessageContentProducer implements EntityContentProducer
 				Message m = ms.getMessage(ref);
 				MessageHeader mh = m.getHeader();
 				Class c = mh.getClass();
-				String subject = Messages.getString("MessageContentProducer.2"); //$NON-NLS-1$
+				String subject = RESOURCE_BUNDLE.getString("MessageContentProducer.2"); //$NON-NLS-1$
 				try
 				{
 					Method getSubject = c.getMethod("getSubject", //$NON-NLS-1$
 							new Class[] {});
 					Object o = getSubject.invoke(mh, new Object[] {});
-					subject = Messages.getString("MessageContentProducer.33") + o.toString() + " "; //$NON-NLS-1$ //$NON-NLS-2$
+					subject = RESOURCE_BUNDLE.getString("MessageContentProducer.33") + o.toString() + " "; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				catch (Exception ex)
 				{
 					log.debug("Didnt get Subject  from " + mh); //$NON-NLS-1$
 				}
-
-				String title = subject + Messages.getString("MessageContentProducer.36") //$NON-NLS-1$
+				String title = subject
+						+ RESOURCE_BUNDLE.getString("MessageContentProducer.36") //$NON-NLS-1$
 						+ mh.getFrom().getDisplayName();
-				
-				String r = SearchUtils.appendCleanString(title,null).toString();
-				if (log.isDebugEnabled() ) {
-					log.debug("Message."+toolName+".getTitle"+reference+":"+r);
+
+				String r = SearchUtils.appendCleanString(title, null).toString();
+				if (log.isDebugEnabled())
+				{
+					log.debug("Message." + toolName + ".getTitle" + reference + ":" + r);
 				}
 				return r;
 			}
@@ -332,8 +352,9 @@ public class MessageContentProducer implements EntityContentProducer
 
 			}
 		}
-		if (log.isDebugEnabled() ) {
-			log.debug("Message."+toolName+".getAllContent::"+all.size());
+		if (log.isDebugEnabled())
+		{
+			log.debug("Message." + toolName + ".getAllContent::" + all.size());
 		}
 		return all;
 	}
@@ -528,9 +549,8 @@ public class MessageContentProducer implements EntityContentProducer
 					String chanellId = (String) ci.next();
 					try
 					{
-						MessageChannel c = messageService
-								.getChannel(messageService.channelReference(
-										context, chanellId));
+						MessageChannel c = messageService.getChannel(messageService
+								.channelReference(context, chanellId));
 						List messages = c.getMessages(null, true);
 						mi = messages.iterator();
 						if (mi.hasNext())
@@ -556,8 +576,7 @@ public class MessageContentProducer implements EntityContentProducer
 
 			public void remove()
 			{
-				throw new UnsupportedOperationException(
-						"Remove not implemented"); //$NON-NLS-1$
+				throw new UnsupportedOperationException("Remove not implemented"); //$NON-NLS-1$
 			}
 
 		};
@@ -625,69 +644,93 @@ public class MessageContentProducer implements EntityContentProducer
 		return null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.EntityContentProducer#getId(java.lang.String)
 	 */
 	public String getId(String reference)
 	{
-		try {
+		try
+		{
 			String r = getReference(reference).getId();
-			if (log.isDebugEnabled() ) {
-				log.debug("Message."+toolName+".getContainer"+reference+":"+r);
+			if (log.isDebugEnabled())
+			{
+				log.debug("Message." + toolName + ".getContainer" + reference + ":" + r);
 			}
 			return r;
-		} catch ( Exception ex ) {
+		}
+		catch (Exception ex)
+		{
 			return "";
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.EntityContentProducer#getSubType(java.lang.String)
 	 */
 	public String getSubType(String reference)
 	{
-		try {
+		try
+		{
 			String r = getReference(reference).getSubType();
-			if (log.isDebugEnabled() ) {
-				log.debug("Message."+toolName+".getContainer"+reference+":"+r);
+			if (log.isDebugEnabled())
+			{
+				log.debug("Message." + toolName + ".getContainer" + reference + ":" + r);
 			}
 			return r;
-		} catch ( Exception ex ) {
+		}
+		catch (Exception ex)
+		{
 			return "";
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
 	 */
 	public String getType(String reference)
 	{
-		try {
+		try
+		{
 			String r = getReference(reference).getType();
-			if (log.isDebugEnabled() ) {
-				log.debug("Message."+toolName+".getContainer"+reference+":"+r);
+			if (log.isDebugEnabled())
+			{
+				log.debug("Message." + toolName + ".getContainer" + reference + ":" + r);
 			}
 			return r;
-		} catch ( Exception ex ) {
-			return "";
 		}
-	}
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
-	 */
-	public String getContainer(String reference)
-	{
-		try {
-			String r = getReference(reference).getContainer();
-			if (log.isDebugEnabled() ) {
-				log.debug("Message."+toolName+".getContainer"+reference+":"+r);
-			}
-			return r;
-		} catch ( Exception ex ) {
+		catch (Exception ex)
+		{
 			return "";
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
+	 */
+	public String getContainer(String reference)
+	{
+		try
+		{
+			String r = getReference(reference).getContainer();
+			if (log.isDebugEnabled())
+			{
+				log.debug("Message." + toolName + ".getContainer" + reference + ":" + r);
+			}
+			return r;
+		}
+		catch (Exception ex)
+		{
+			return "";
+		}
+	}
 
 	/**
 	 * @return the entityManager
@@ -697,15 +740,14 @@ public class MessageContentProducer implements EntityContentProducer
 		return entityManager;
 	}
 
-
 	/**
-	 * @param entityManager the entityManager to set
+	 * @param entityManager
+	 *        the entityManager to set
 	 */
 	public void setEntityManager(EntityManager entityManager)
 	{
 		this.entityManager = entityManager;
 	}
-
 
 	/**
 	 * @return the searchIndexBuilder
@@ -715,15 +757,14 @@ public class MessageContentProducer implements EntityContentProducer
 		return searchIndexBuilder;
 	}
 
-
 	/**
-	 * @param searchIndexBuilder the searchIndexBuilder to set
+	 * @param searchIndexBuilder
+	 *        the searchIndexBuilder to set
 	 */
 	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder)
 	{
 		this.searchIndexBuilder = searchIndexBuilder;
 	}
-
 
 	/**
 	 * @return the searchService
@@ -733,15 +774,14 @@ public class MessageContentProducer implements EntityContentProducer
 		return searchService;
 	}
 
-
 	/**
-	 * @param searchService the searchService to set
+	 * @param searchService
+	 *        the searchService to set
 	 */
 	public void setSearchService(SearchService searchService)
 	{
 		this.searchService = searchService;
 	}
-
 
 	/**
 	 * @return the serverConfigurationService
@@ -751,9 +791,9 @@ public class MessageContentProducer implements EntityContentProducer
 		return serverConfigurationService;
 	}
 
-
 	/**
-	 * @param serverConfigurationService the serverConfigurationService to set
+	 * @param serverConfigurationService
+	 *        the serverConfigurationService to set
 	 */
 	public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService)

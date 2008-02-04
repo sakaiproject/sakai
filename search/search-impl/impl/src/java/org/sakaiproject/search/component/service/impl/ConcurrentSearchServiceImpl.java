@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.search.api.SearchStatus;
-import org.sakaiproject.search.util.Messages;
+import org.sakaiproject.search.component.Messages;
 
 /**
  * The search service

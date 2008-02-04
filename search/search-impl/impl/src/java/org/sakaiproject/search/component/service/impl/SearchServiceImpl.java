@@ -36,8 +36,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.search.api.SearchIndexBuilderWorker;
 import org.sakaiproject.search.api.SearchStatus;
+import org.sakaiproject.search.component.Messages;
 import org.sakaiproject.search.model.SearchWriterLock;
-import org.sakaiproject.search.util.Messages;
 
 /**
  * The search service
