@@ -137,6 +137,12 @@
           <include>**/*.properties</include>
         </includes>
       </resource>
+      <resource>
+        <directory>${basedir}/src/config</directory>
+        <includes>
+          <include>**/*.config</include>
+        </includes>
+      </resource>
     </resources>
   </build>
 </project>

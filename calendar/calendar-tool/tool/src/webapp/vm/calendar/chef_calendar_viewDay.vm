@@ -1,39 +1,5 @@
 <!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_viewDay.vm,v 1.10 2005/06/14 20:11:56 suiyy.umich.edu Exp $ -->
-#macro (iconImage $eventType $tooltip)
-#if ($eventType=="Academic Calendar")
-<img src = "#imageLink("sakai/academic_calendar.gif")" alt="$tlang.getString('del.acad')" border="0">
-#elseif ($eventType =="Activity")
-<img src = "#imageLink("sakai/activity.gif")" alt="$tlang.getString('del.activ')" border="0">
-#elseif ($eventType =="Cancellation")
-<img src = "#imageLink("sakai/cancelled.gif")" alt="$tlang.getString('del.cancell')" border="0">
-#elseif ($eventType =="Class section - Discussion")
-<img src = "#imageLink("sakai/class_dis.gif")" alt ="$tlang.getString('del.class.disc')" border="0">
-#elseif ($eventType =="Class section - Lab")
-<img src = "#imageLink("sakai/class_lab.gif")" alt="$tlang.getString('del.class.lab')" border="0">
-#elseif ($eventType =="Class section - Lecture")
-<img src = "#imageLink("sakai/class_lec.gif")" alt="$tlang.getString('del.class.lect')" border="0">
-#elseif ($eventType =="Class section - Small Group")
-<img src = "#imageLink("sakai/class_sma.gif")" alt="$tlang.getString('del.class.small')" border="0">
-#elseif ($eventType =="Class session")
-<img src = "#imageLink("sakai/class_session.gif")" alt="$tlang.getString('del.classsession')" border="0">
-#elseif ($eventType =="Computer Session")
-<img src = "#imageLink("sakai/computersession.gif")" alt="$tlang.getString('del.computer')" border="0">
-#elseif ($eventType =="Deadline")
-<img src = "#imageLink("sakai/deadline.gif")" alt="$tlang.getString('del.dead')" border="0">
-#elseif ($eventType =="Exam")
-<img src = "#imageLink("sakai/exam.gif")" alt="$tlang.getString('del.exam')" border="0">
-#elseif ($eventType =="Meeting")
-<img src = "#imageLink("sakai/meeting.gif")" alt="$tlang.getString('del.meet')" border="0">
-#elseif ($eventType =="Quiz")
-<img src = "#imageLink("sakai/quiz.gif")" alt="$tlang.getString('del.quiz')" border="0">
-#elseif ($eventType =="Special event")
-<img src = "#imageLink("sakai/special_event.gif")" alt="$tlang.getString('del.special')" border="0">
-#elseif ($eventType =="Web Assignment")
-<img src = "#imageLink("sakai/webassignment.gif")" alt="$tlang.getString('del.web')" border="0">
-#elseif ($eventType =="Multidisciplinary Conference")
-<img src = "#imageLink("sakai/multi-conference.gif")" alt="$tlang.getString('del.multi')" border="0">
-#end
-#end
+
 <div class="portletBody">
 #if($menu)#toolbar($menu)#end
 
@@ -157,40 +123,7 @@
                             <td width="$v%" class="borderTopLeft">
                         #end
                         <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($x.getEvent().getReference())")" title="$x.getEvent().getDisplayName()">
-                        #set ($eventType = $x.getEvent().getType())
-                        #if ($eventType =="Academic Calendar")
-                        <img src = "#imageLink("sakai/academic_calendar.gif")" alt="$tlang.getString('del.acad')" border="0">
-                        #elseif ($eventType=="Activity")
-                        <img src = "#imageLink("sakai/activity.gif")" alt="$tlang.getString('del.activ')" border="0" />
-                        #elseif ($eventType =="Cancellation")
-                        <img src = "#imageLink("sakai/cancelled.gif")" alt="$tlang.getString('del.cancell')" border="0">
-                        #elseif ($eventType =="Class section - Discussion")
-                        <img src = "#imageLink("sakai/class_dis.gif")" alt ="$tlang.getString('del.class.disc')" border="0">
-                        #elseif ($eventType =="Class section - Lab")
-                        <img src = "#imageLink("sakai/class_lab.gif")" alt="$tlang.getString('del.class.lab')" border="0">
-                        #elseif ($eventType =="Class section - Lecture")
-                        <img src = "#imageLink("sakai/class_lec.gif")" alt="$tlang.getString('del.class.lect')" border="0">
-                        #elseif ($eventType =="Class section - Small Group")
-                        <img src = "#imageLink("sakai/class_sma.gif")" alt="$tlang.getString('del.class.small')" border="0">
-                        #elseif ($eventType =="Class session")
-                        <img src = "#imageLink("sakai/class_session.gif")" alt="$tlang.getString('del.classsession')" border="0">
-                        #elseif ($eventType =="Computer Session")
-                        <img src = "#imageLink("sakai/computersession.gif")" alt="$tlang.getString('del.computer')" border="0">
-                        #elseif ($eventType =="Deadline")
-                        <img src = "#imageLink("sakai/deadline.gif")" alt="$tlang.getString('del.dead')" border="0">
-                        #elseif ($eventType =="Exam")
-                        <img src = "#imageLink("sakai/exam.gif")" alt="$tlang.getString('del.exam')" border="0">
-                        #elseif ($eventType =="Meeting")
-                        <img src = "#imageLink("sakai/meeting.gif")" alt="$tlang.getString('del.meet')" border="0">
-                        #elseif ($eventType =="Quiz")
-                        <img src = "#imageLink("sakai/quiz.gif")" alt="$tlang.getString('del.quiz')" border="0">
-                        #elseif ($eventType =="Special event")
-                        <img src = "#imageLink("sakai/special_event.gif")" alt="$tlang.getString('del.special')" border="0">
-                        #elseif ($eventType =="Web Assignment")
-                        <img src = "#imageLink("sakai/webassignment.gif")" alt="$tlang.getString('del.web')" border="0">
-                        #elseif ($eventType =="Multidisciplinary Conference")
-                        <img src = "#imageLink("sakai/multi-conference.gif")" alt="$tlang.getString('del.multi')" border="0">
-                        #end
+                        #iconImage ($x.getEvent().getType())
                         $validator.escapeHtml($x.getEvent().getDisplayName())</a>   
                         </td> 
                         #set($counter = $counter +1)
@@ -237,40 +170,7 @@
                                     <td width="$v%" class="borderTopLeft">
                             #end
                             <a href="#" onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($x.getEvent().getReference())")';return false;" title="$x.getEvent().getDisplayName()">
-                            #set ($eventType = $x.getEvent().getType())
-                            #if ($eventType =="Academic Calendar")
-                            <img src = "#imageLink("sakai/academic_calendar.gif")" border="0">
-                            #elseif ($eventType=="Activity")
-                            <img src = "#imageLink("sakai/activity.gif")" border="0">
-                            #elseif ($eventType =="Cancellation")
-                            <img src = "#imageLink("sakai/cancelled.gif")" border="0">
-                            #elseif ($eventType =="Class section - Discussion")
-                            <img src = "#imageLink("sakai/class_dis.gif")" border="0">
-                            #elseif ($eventType =="Class section - Lab")
-                            <img src = "#imageLink("sakai/class_lab.gif")" border="0">
-                            #elseif ($eventType =="Class section - Lecture")
-                            <img src = "#imageLink("sakai/class_lec.gif")" border="0">
-                            #elseif ($eventType =="Class section - Small Group")
-                            <img src = "#imageLink("sakai/class_sma.gif")" border="0">
-                            #elseif ($eventType =="Class session")
-                            <img src = "#imageLink("sakai/class_session.gif")" border="0">
-                            #elseif ($eventType =="Computer Session")
-                            <img src = "#imageLink("sakai/computersession.gif")" border="0">
-                            #elseif ($eventType =="Deadline")
-                            <img src = "#imageLink("sakai/deadline.gif")" border="0">
-                            #elseif ($eventType =="Exam")
-                            <img src = "#imageLink("sakai/exam.gif")" border="0">
-                            #elseif ($eventType =="Meeting")
-                            <img src = "#imageLink("sakai/meeting.gif")" border="0">
-                            #elseif ($eventType =="Quiz")
-                            <img src = "#imageLink("sakai/quiz.gif")" border="0">
-                            #elseif ($eventType =="Special event")
-                            <img src = "#imageLink("sakai/special_event.gif")" border="0">
-                            #elseif ($eventType =="Web Assignment")
-                            <img src = "#imageLink("sakai/webassignment.gif")" border="0">
-                            #elseif ($eventType =="Multidisciplinary Conference")
-                            <img src = "#imageLink("sakai/multi-conference.gif")" border="0" />
-                            #end
+                            #iconImage($x.getEvent().getType())
                             $validator.escapeHtml($x.getEvent().getDisplayName())
                             </a>
                             </td>

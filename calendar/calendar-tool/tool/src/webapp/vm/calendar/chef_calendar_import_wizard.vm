@@ -90,39 +90,7 @@
 					<td nowrap="nowrap" >$impEvent.getDisplayStartDate()</td>
 					<td nowrap="nowrap" >
 						<label for="eventSelected$impEvent.getLineNumber()">
-							#if($impEvent.getType()=="Academic Calendar")
-								<img src = "#imageLink("sakai/academic_calendar.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif ($impEvent.getType()=="Activity")
-								<img src = "#imageLink("sakai/activity.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif($impEvent.getType()=="Cancellation")
-								<img src = "#imageLink("sakai/cancelled.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif ($impEvent.getType()=="Class section - Discussion")
-								<img src = "#imageLink("sakai/class_dis.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif ($impEvent.getType()=="Class section - Lab")
-								<img src = "#imageLink("sakai/class_lab.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif ($impEvent.getType()=="Class section - Lecture")
-								<img src = "#imageLink("sakai/class_lec.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif ($impEvent.getType()=="Class section - Small Group")
-								<img src = "#imageLink("sakai/class_sma.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif ($impEvent.getType()=="Class session")
-								<img src = "#imageLink("sakai/class_session.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif($impEvent.getType()=="Computer Session")
-								<img src = "#imageLink("sakai/computersession.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif($impEvent.getType()=="Deadline")
-								<img src = "#imageLink("sakai/deadline.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif($impEvent.getType()=="Exam")
-								<img src = "#imageLink("sakai/exam.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif($impEvent.getType()=="Quiz")
-								<img src = "#imageLink("sakai/quiz.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif ($impEvent.getType()=="Meeting")
-								<img src = "#imageLink("sakai/meeting.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif($impEvent.getType()=="Special event")
-								<img src = "#imageLink("sakai/special_event.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif($impEvent.getType()=="Web Assignment")
-								<img src = "#imageLink("sakai/webassignment.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#elseif($impEvent.getType()=="Multidisciplinary Conference")
-								<img src = "#imageLink("sakai/multi-conference.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
-							#end
+							#iconImage( $impEvent.getType() )
 							&nbsp;$validator.escapeHtml($impEvent.getDisplayName())&nbsp;
 							($impEvent.getDisplayStartTime()&nbsp;-&nbsp;$impEvent.getDisplayEndTime())
 						</label>

@@ -95,39 +95,7 @@
                 #foreach ($m in $eventsn)                    
                     <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($m.getReference())")" title="$validator.escapeHtml($m.getDisplayName())" style="	text-decoration: none !important">
                     #set($size = $m.getDisplayName().length())
-                    #if($m.getType()=="Academic Calendar")
-                        <img src = "#imageLink("sakai/academic_calendar.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif ($m.getType()=="Activity")
-                        <img src = "#imageLink("sakai/activity.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif($m.getType()=="Cancellation")
-                        <img src = "#imageLink("sakai/cancelled.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif ($m.getType()=="Class section - Discussion")
-                        <img src = "#imageLink("sakai/class_dis.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif ($m.getType()=="Class section - Lab")
-                        <img src = "#imageLink("sakai/class_lab.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif ($m.getType()=="Class section - Lecture")
-                        <img src = "#imageLink("sakai/class_lec.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif ($m.getType()=="Class section - Small Group")
-                        <img src = "#imageLink("sakai/class_sma.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif ($m.getType()=="Class session")
-                        <img src = "#imageLink("sakai/class_session.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif($m.getType()=="Computer Session")
-                        <img src = "#imageLink("sakai/computersession.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif($m.getType()=="Deadline")
-                        <img src = "#imageLink("sakai/deadline.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif($m.getType()=="Exam")
-                        <img src = "#imageLink("sakai/exam.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif($m.getType()=="Quiz")
-                        <img src = "#imageLink("sakai/quiz.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif ($m.getType()=="Meeting")
-                        <img src = "#imageLink("sakai/meeting.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif($m.getType()=="Special event")
-                        <img src = "#imageLink("sakai/special_event.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif($m.getType()=="Web Assignment")
-                        <img src = "#imageLink("sakai/webassignment.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #elseif($m.getType()=="Multidisciplinary Conference")
-                        <img src = "#imageLink("sakai/multi-conference.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
-                    #end
+						  #iconImage($m.getType())
                     #set($size = $m.getDisplayName().length())                            
                     #if ($size > 8)
                         #set($stringa = $m.getDisplayName().substring(0,8))

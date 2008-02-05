@@ -115,7 +115,7 @@
                         #end ## if ($n==$todayIndex)
 
                         <a href="#" onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($event.getReference())")';return false;" title="$validator.escapeHtml($event.getDisplayName())">
-                        #iconImage($event.Type $event.getDisplayName() $imageURI)
+                        #iconImage($event.Type)
                         $validator.escapeHtml($event.getDisplayName())</a></div></td>
 
                     #else   ## -> flag == true
@@ -270,7 +270,7 @@
                         #if ($hm.put($n, $tempCol)) #end
 
                         <a href="#" onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($eventclass.getEvent().getReference())")';return false;" title="$validator.escapeHtml($eventclass.getEvent().getDisplayName())">
-                        #iconImage($event.Type $event.getDisplayName() $imageURI)
+                        #iconImage($event.Type)
                         $validator.escapeHtml($event.getDisplayName())</a></div></td>
             #else ## corresponding to if($eventD.getFlag()==false)
                     ## no cell to be rendered, because of the above rowspan. but column counter++
@@ -379,42 +379,6 @@
 #end
 
 
-## to show the corresponding icon image for event
-#macro (iconImage $eventType $tooltip $imageURI)
-#if ($eventType =="Academic Calendar")
-<img src = "#imageLink("sakai/academic_calendar.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType=="Activity")
-<img src = "#imageLink("sakai/activity.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Cancellation")
-<img src = "#imageLink("sakai/cancelled.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Class section - Discussion")
-<img src = "#imageLink("sakai/class_dis.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Class section - Lab")
-<img src = "#imageLink("sakai/class_lab.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Class section - Lecture")
-<img src = "#imageLink("sakai/class_lec.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Class section - Small Group")
-<img src = "#imageLink("sakai/class_sma.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Class session")
-<img src = "#imageLink("sakai/class_session.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Computer Session")
-<img src = "#imageLink("sakai/computersession.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Deadline")
-<img src = "#imageLink("sakai/deadline.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Exam")
-<img src = "#imageLink("sakai/exam.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Meeting")
-<img src = "#imageLink("sakai/meeting.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Quiz")
-<img src = "#imageLink("sakai/quiz.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Special event")
-<img src = "#imageLink("sakai/special_event.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Web Assignment")
-<img src = "#imageLink("sakai/webassignment.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#elseif ($eventType =="Multidisciplinary Conference")
-<img src = "#imageLink("sakai/multi-conference.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
-#end
-#end
 <div class="viewLinkControl">
 	#if($page != "first")
   		<a href="#" onclick="location='#toolLink("$action" "doPpagew")';return false;" title="$tlang.getString('vieww.gotoe')">$tlang.getString("vieww.gotoe")</a>
@@ -613,7 +577,7 @@
                         #end ## if ($n==$todayIndex)
 
                         <a href="#" onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($event.getReference())")';return false;" title="$validator.escapeHtml($event.getDisplayName())">
-                        #iconImage($event.Type $event.getDisplayName() $imageURI)
+                        #iconImage($event.Type)
                         $validator.escapeHtml($event.getDisplayName())</a></div></td>
 
                     #else   ## -> flag == true
@@ -769,7 +733,7 @@
                         #if ($hm.put($n, $tempCol)) #end
 
                         <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($eventclass.getEvent().getReference())")" title="$validator.escapeHtml($eventclass.getEvent().getDisplayName())">
-                        #iconImage($event.Type $event.getDisplayName() $imageURI)
+                        #iconImage($event.Type)
                         $validator.escapeHtml($event.getDisplayName())</a></div></td>
             #else ## corresponding to if($eventD.getFlag()==false)
                     ## no cell to be rendered, because of the above rowspan. but column counter++

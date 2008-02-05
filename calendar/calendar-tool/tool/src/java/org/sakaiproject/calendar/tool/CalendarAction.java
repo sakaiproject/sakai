@@ -22,6 +22,7 @@
 package org.sakaiproject.calendar.tool;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -111,7 +113,10 @@ extends VelocityPortletStateAction
 	private static Log M_log = LogFactory.getLog(CalendarAction.class);
 
 	/** Resource bundle using current language locale */
-	 private static ResourceLoader rb = new ResourceLoader("calendar");
+	private static ResourceLoader rb = new ResourceLoader("calendar");
+
+	// configuration properties (initialized in initState()	 
+   Properties configProps = null;
 	
 	private static final String CONFIRM_IMPORT_WIZARD_STATE = "CONFIRM_IMPORT";
 	private static final String WIZARD_IMPORT_FILE = "importFile";
@@ -165,7 +170,7 @@ extends VelocityPortletStateAction
 	/** state selected view */
 	private static final String STATE_SELECTED_VIEW = "state_selected_view";
 	
-	/** DELIMETER used to separate the list of custom fields for this calendar. */
+	/** DELIMITER used to separate the list of custom fields for this calendar. */
 	private final static String ADDFIELDS_DELIMITER = "_,_";
 
 	protected final static String STATE_INITED = "calendar.state.inited";
@@ -177,6 +182,7 @@ extends VelocityPortletStateAction
 	private final static String STATE_SCHEDULE_TO = "scheduleTo";
 	private final static String STATE_SCHEDULE_TO_GROUPS = "scheduleToGroups";
 	private static final String STATE_SELECTED_GROUPS_FILTER = "groups_filters";
+	
 	/**
 	 * Used by callback to convert channel references to channels.
 	 */
@@ -1076,6 +1082,7 @@ extends VelocityPortletStateAction
 			// can get at it.
 			context.put(mergedCalendarsCollection, calendarList);
 			context.put("tlang",rb);
+			context.put("config",configProps);
 			sstate.setAttribute(
 			CalendarAction.SSTATE_ATTRIBUTE_MERGED_CALENDARS,
 			calendarList);
@@ -1301,6 +1308,7 @@ extends VelocityPortletStateAction
 			// can get at it.
 			context.put(ADDFIELDS_CALENDARS_COLLECTION, addFieldsCalendarArray);
 			context.put("tlang",rb);
+			context.put("config",configProps);
 			if (addFieldsCalendarArray == null)
 				context.put(ADDFIELDS_CALENDARS_COLLECTION_ISEMPTY, Boolean.valueOf(true));
 			else
@@ -1600,6 +1608,7 @@ extends VelocityPortletStateAction
 			// can get at it.
 			context.put(ADDFIELDS_CALENDARS_COLLECTION, addfieldsCalendarArray);
 			context.put("tlang",rb);
+			context.put("config",configProps);
 			if (addfieldsCalendarArray == null)
 				context.put(ADDFIELDS_CALENDARS_COLLECTION_ISEMPTY, Boolean.valueOf(true));
 			else
@@ -2104,6 +2113,7 @@ extends VelocityPortletStateAction
 		context.put("message", state.getState());
 		context.put("state", state.getKey());
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		return template;
 		
 	}	 // buildMainPanelContext
@@ -2127,6 +2137,7 @@ extends VelocityPortletStateAction
 		// Set whatever the current wizard state is.
 		context.put("importWizardState", state.getImportWizardState());
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		// Set the imported events into the context.
 		context.put("wizardImportedEvents", state.getWizardImportedEvents());
 		
@@ -2251,6 +2262,7 @@ extends VelocityPortletStateAction
 		}
 		context.put("freq", freq);
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		// get the data the user just input in the preview new/revise page
 		context.put("savedData",state.getNewData());
 		
@@ -2269,6 +2281,7 @@ extends VelocityPortletStateAction
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		Calendar calendarObj = null;
 		CalendarEvent calEvent = null;
 		CalendarUtil calObj= new CalendarUtil(); //null;
@@ -2326,6 +2339,7 @@ extends VelocityPortletStateAction
 					// Add any additional fields in the calendar.
 					customizeCalendarPage.loadAdditionalFieldsIntoContextFromCalendar( calendarObj, context);
 					context.put("tlang",rb);
+					context.put("config",configProps);
 					context.put("calEventFlag","true");
 					context.put("new", "false");
 					// if from the metadata view of announcement, the message is already the system resource
@@ -2368,6 +2382,7 @@ extends VelocityPortletStateAction
 			// if this a new annoucement, get the subject and body from temparory record
 			context.put("new", "true");
 			context.put("tlang",rb);
+			context.put("config",configProps);
 			context.put("attachments", attachments);
 			context.put("fromAttachmentFlag",state.getfromAttachmentFlag());
 		}
@@ -2456,6 +2471,7 @@ extends VelocityPortletStateAction
 			M_log.debug(".buildNewContext(): " + e);
 		}
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		context.put("event", calEvent);
 		context.put("helper",new Helper());
 		context.put("message","revise");
@@ -2488,6 +2504,7 @@ extends VelocityPortletStateAction
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		context.put("Context", ToolManager.getCurrentPlacement().getContext());
 		context.put("CalendarService", CalendarService.getInstance());
 		context.put("SiteService", SiteService.getInstance());
@@ -2549,6 +2566,7 @@ extends VelocityPortletStateAction
 				
 				context.put(EVENT_CONTEXT_VAR, calEvent);
 				context.put("tlang",rb);
+				context.put("config",configProps);
 				
 				// Get the attachments from assignment tool for viewing
 				String assignmentId = calEvent.getField(NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
@@ -2775,6 +2793,7 @@ extends VelocityPortletStateAction
 		}
 		calObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		context.put("yearArray",yearObj);
 		context.put("year",new Integer(calObj.getYear()));
 		context.put("date",dateObj1);
@@ -2809,6 +2828,7 @@ extends VelocityPortletStateAction
 		context.put("allow_delete", Boolean.valueOf(false));
 		context.put("allow_revise", Boolean.valueOf(false));
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		context.put(Menu.CONTEXT_ACTION, "CalendarAction");
 		
 		context.put("selectedView", rb.getString("java.byyear"));
@@ -2884,6 +2904,7 @@ extends VelocityPortletStateAction
 		context.put("year", new Integer(calObj.getYear()));
 		context.put("monthArray",monthObj2);
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		int row = 5;
 		context.put("row",new Integer(row));
 		context.put("date",dateObj1);
@@ -3215,6 +3236,7 @@ extends VelocityPortletStateAction
 		context.put("helper",new Helper());
 		context.put("calObj", calObj);
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		state.setState("day");
 		context.put("message", state.getState());
 		
@@ -3246,6 +3268,7 @@ extends VelocityPortletStateAction
 		
 		context.put("permissionallowed",Boolean.valueOf(allowed));
 		context.put("tlang",rb);
+		context.put("config",configProps);
 
 		context.put("selectedView", rb.getString("java.byday"));
 		
@@ -3457,6 +3480,7 @@ extends VelocityPortletStateAction
 		context.put("page",state.getCurrentPage());
 		state.setState("week");
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		
 		context.put("message",state.getState());
 		
@@ -3488,6 +3512,7 @@ extends VelocityPortletStateAction
 		
 		context.put("realDate", TimeService.newTime());
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		Vector vec = new Vector();
 		context.put("vec", vec);
 		Vector conflictVec = new Vector();
@@ -3518,6 +3543,7 @@ extends VelocityPortletStateAction
 	CalendarActionState state)
 	{
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		
@@ -3631,6 +3657,7 @@ extends VelocityPortletStateAction
 		}
 
 		context.put("tlang", rb);
+		context.put("config",configProps);
 
 		// provide form names
 		context.put("form-alias", FORM_ALIAS);
@@ -3678,6 +3705,7 @@ extends VelocityPortletStateAction
 	CalendarActionState state)
 	{
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		
@@ -6579,6 +6607,7 @@ extends VelocityPortletStateAction
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		MyMonth monthObj2 = null;
 		MyDate dateObj1 = new MyDate();
 		StringBuilder exceptionMessage = new StringBuilder();
@@ -6948,7 +6977,7 @@ extends VelocityPortletStateAction
 		
 		context.put("selectedView", rb.getString("java.listeve"));
 		context.put("tlang",rb);
-		
+		context.put("config",configProps);		
 
 		context.put("calendarFormattedText", new CalendarFormattedText());
 
@@ -7174,6 +7203,7 @@ extends VelocityPortletStateAction
 		SessionState stateForMenus = ((JetspeedRunData)runData).getPortletSessionState(portlet.getID());
 		stateForMenus.setAttribute(MenuItem.STATE_MENU, bar);
 		context.put("tlang",rb);
+		context.put("config",configProps);
 		context.put(Menu.CONTEXT_MENU, bar);
 		context.put("menu_PDF", bar_print);
 		context.put(Menu.CONTEXT_ACTION, "CalendarAction");
@@ -7535,6 +7565,20 @@ extends VelocityPortletStateAction
 
 			// make sure the observer is in sync with state
 			updateObservationOfChannel(mergedCalendarList, rundata, state, calState);
+		}
+		
+		// Initialize configuration properties
+		try
+		{
+			if ( configProps == null )
+			{
+				configProps = new Properties();
+				configProps.load(this.getClass().getResourceAsStream("calendar.config"));
+			}
+		}
+		catch ( IOException e )
+		{
+			M_log.warn("unable to load calendar.config: " + e);
 		}
 		
 	} // initState

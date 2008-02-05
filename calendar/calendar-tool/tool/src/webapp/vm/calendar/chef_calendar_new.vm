@@ -524,98 +524,98 @@ function ampmChange(FieldName)
 			#end
 			<select  id="eventType" name="eventType" onchange="blur()">
 				#if ($type =="Academic Calendar") 
-				<option selected="selected" value="Academic Calendar">$tlang.getString("del.acad")</option> 
+				<option selected="selected" value="Academic Calendar">$tlang.getString("legend.key1")</option> 
 				#else  
-				<option value="Academic Calendar">$tlang.getString("del.acad")</option>  
+				<option value="Academic Calendar">$tlang.getString("legend.key1")</option>  
 				#end
 				
 				#if ($type=="Activity") 
-				<option selected="selected" value="Activity">$tlang.getString("del.activ")</option>  
-				#else <option value="Activity">$tlang.getString("del.activ")</option>  
+				<option selected="selected" value="Activity">$tlang.getString("legend.key2")</option>  
+				#else <option value="Activity">$tlang.getString("legend.key2")</option>  
 				#end
 				
 				#if ($type =="Cancellation") 
-				<option selected="selected" value="Cancellation">$tlang.getString("del.cancell")</option>  
+				<option selected="selected" value="Cancellation">$tlang.getString("legend.key3")</option>  
 				#else  
-				<option value="Cancellation">$tlang.getString("del.cancell")</option> 
+				<option value="Cancellation">$tlang.getString("legend.key3")</option> 
 				#end
 				
 				#if ($type =="Class section - Discussion") 
-				<option selected="selected" value="Class section - Discussion">$tlang.getString("del.class.disc") </option>  
+				<option selected="selected" value="Class section - Discussion">$tlang.getString("legend.key4") </option>  
 				#else 
-				<option value="Class section - Discussion">$tlang.getString("del.class.disc") </option> 
+				<option value="Class section - Discussion">$tlang.getString("legend.key4") </option> 
 				#end
 				
 				#if ($type =="Class section - Lab") 
-				<option selected="selected" value="Class section - Lab">$tlang.getString("del.class.lab") </option> 
+				<option selected="selected" value="Class section - Lab">$tlang.getString("legend.key5") </option> 
 				#else 
-				<option value="Class section - Lab">$tlang.getString("del.class.lab") </option> 
+				<option value="Class section - Lab">$tlang.getString("legend.key5") </option> 
 				#end
 				
 				#if ($type =="Class section - Lecture") 
-				<option selected="selected" value="Class section - Lecture">$tlang.getString("del.class.lect") </option> 
+				<option selected="selected" value="Class section - Lecture">$tlang.getString("legend.key6") </option> 
 				#else 
-				<option value="Class section - Lecture">$tlang.getString("del.class.lect") </option> 
+				<option value="Class section - Lecture">$tlang.getString("legend.key6") </option> 
 				#end
 				
 				#if ($type =="Class section - Small Group") 
-				<option selected="selected" value="Class section - Small Group">$tlang.getString("del.class.small") </option> 
+				<option selected="selected" value="Class section - Small Group">$tlang.getString("legend.key7") </option> 
 				#else 
-				<option value="Class section - Small Group">$tlang.getString("del.class.small") </option> 
+				<option value="Class section - Small Group">$tlang.getString("legend.key7") </option> 
 				#end
 				
 				#if ($type =="Class session") 
-				<option selected="selected" value="Class session">$tlang.getString("del.classsession") </option> 
+				<option selected="selected" value="Class session">$tlang.getString("legend.key8") </option> 
 				#else 
-				<option value="Class session">$tlang.getString("del.classsession") </option> 
+				<option value="Class session">$tlang.getString("legend.key8") </option> 
 				#end
 				
 				#if ($type =="Computer Session") 
-				<option selected="selected" value="Computer Session">$tlang.getString("del.computer")</option> 
+				<option selected="selected" value="Computer Session">$tlang.getString("legend.key9")</option> 
 				#else 
-				<option value="Computer Session">$tlang.getString("del.computer")</option> 
+				<option value="Computer Session">$tlang.getString("legend.key9")</option> 
 				#end
 				
 				#if ($type =="Deadline") 
-				<option selected="selected" value="Deadline">$tlang.getString("del.dead")</option> 
+				<option selected="selected" value="Deadline">$tlang.getString("legend.key10")</option> 
 				#else 
-				<option value="Deadline">$tlang.getString("del.dead")</option> 
+				<option value="Deadline">$tlang.getString("legend.key10")</option> 
 				#end
 				
 				#if ($type =="Exam") 
-				<option selected="selected" value="Exam">$tlang.getString("del.exam")</option> 
+				<option selected="selected" value="Exam">$tlang.getString("legend.key11")</option> 
 				#else 
-				<option value="Exam">$tlang.getString("del.exam")</option> 
+				<option value="Exam">$tlang.getString("legend.key11")</option> 
 				#end
 				
 				#if ($type=="Meeting") 
-				<option selected="selected" value="Meeting">$tlang.getString("del.meet")</option> 
+				<option selected="selected" value="Meeting">$tlang.getString("legend.key12")</option> 
 				#else 
-				<option value="Meeting">$tlang.getString("del.meet")</option> 
+				<option value="Meeting">$tlang.getString("legend.key12")</option> 
 				#end
 				
 				#if ($type=="Multidisciplinary Conference") 
-				<option selected="selected" value="Multidisciplinary Conference">$tlang.getString("del.multi")</option value=> 
+				<option selected="selected" value="Multidisciplinary Conference">$tlang.getString("legend.key16")</option value=> 
 				#else 
-				<option value="Multidisciplinary Conference">$tlang.getString("del.multi")</option> 
+				<option value="Multidisciplinary Conference">$tlang.getString("legend.key16")</option> 
 				#end
 				
 				#if ($type =="Quiz") 
-				<option selected="selected" value="Quiz">$tlang.getString("del.quiz")</option> 
+				<option selected="selected" value="Quiz">$tlang.getString("legend.key13")</option> 
 				#else 
-				<option value="Quiz">$tlang.getString("del.quiz")</option> 
+				<option value="Quiz">$tlang.getString("legend.key13")</option> 
 				#end
 				
 				#if ($type =="Special event") 
-				<option selected="selected" value="Special event">$tlang.getString("del.special")</option> 
+				<option selected="selected" value="Special event">$tlang.getString("legend.key14")</option> 
 				#else 
-				<option value="Special event">$tlang.getString("del.special")</option> 
+				<option value="Special event">$tlang.getString("legend.key14")</option> 
 				#end
 				
 				#if ($type =="Web Assignment") 
-				<option selected="selected" value="Web Assignment">$tlang.getString("del.web")</option> 
+				<option selected="selected" value="Web Assignment">$tlang.getString("legend.key15")</option> 
 				#else 
-				<option value="Web Assignment">$tlang.getString("del.web")</option> 
+				<option value="Web Assignment">$tlang.getString("legend.key15")</option> 
 				#end
 			</select>
 		</p>
