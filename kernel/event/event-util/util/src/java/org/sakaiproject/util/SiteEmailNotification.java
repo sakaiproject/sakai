@@ -1,0 +1,242 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
+package org.sakaiproject.util;
+
+import java.util.List;
+import java.util.Vector;
+
+import org.sakaiproject.alias.api.Alias;
+import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.NotificationAction;
+import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+
+/**
+ * <p>
+ * SiteEmailNotification is an EmailNotification that selects the site's participants (based on site access) as the recipients of the notification.
+ * </p>
+ * <p>
+ * getRecipients() is satified here (although it can be customized by the extensions to this class).
+ * </p>
+ * <p>
+ * The following should be specified to extend the class:
+ * <ul>
+ * <li>getResourceAbility() - to require an additional permission to qualify as a recipient (other than site membership)</li>
+ * <li>addSpecialRecipients() - to add other recipients</li>
+ * </ul>
+ * </p>
+ */
+public class SiteEmailNotification extends EmailNotification
+{
+	/**
+	 * Construct.
+	 */
+	public SiteEmailNotification()
+	{
+	}
+
+	/**
+	 * Construct.
+	 * 
+	 * @param siteId
+	 *        The id of the site whose users will get a mailing.
+	 */
+	public SiteEmailNotification(String siteId)
+	{
+		super(siteId);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public NotificationAction getClone()
+	{
+		EmailNotification clone = makeEmailNotification();
+		clone.set(this);
+
+		return clone;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected List getRecipients(Event event)
+	{
+		// get the resource reference
+		Reference ref = EntityManager.newReference(event.getResource());
+
+		// use either the configured site, or if not configured, the site (context) of the resource
+		String siteId = (getSite() != null) ? getSite() : ref.getContext();
+
+		// if the site is published, use the list of users who can SITE_VISIT the site,
+		// else use the list of users who can SITE_VISIT_UNP the site.
+		try
+		{
+			Site site = SiteService.getSite(siteId);
+			String ability = SiteService.SITE_VISIT;
+			if (!site.isPublished())
+			{
+				ability = SiteService.SITE_VISIT_UNPUBLISHED;
+			}
+
+			// get the list of users who can do the right kind of visit
+			List users = SecurityService.unlockUsers(ability, ref.getReference());
+
+			// get the list of users who have the appropriate access to the resource
+			if (getResourceAbility() != null)
+			{
+				List users2 = SecurityService.unlockUsers(getResourceAbility(), ref.getReference());
+
+				// find intersection of users and user2
+				users.retainAll(users2);
+			}
+
+			// add any other users
+			addSpecialRecipients(users, ref);
+
+			return users;
+		}
+		catch (Exception any)
+		{
+			return new Vector();
+		}
+	}
+
+	/**
+	 * Add to the user list any other users who should be notified about this ref's change.
+	 * 
+	 * @param users
+	 *        The user list, already populated based on site visit and resource ability.
+	 * @param ref
+	 *        The entity reference.
+	 */
+	protected void addSpecialRecipients(List users, Reference ref)
+	{
+	}
+
+	/**
+	 * Get the additional security function string needed for the resource that is the target of the notification <br />
+	 * users who get notified need to have this ability with this resource, too.
+	 * 
+	 * @return The additional ability string needed for a user to receive notification.
+	 */
+	protected String getResourceAbility()
+	{
+		return null;
+	}
+
+	/**
+	 * Format a to address, sensitive to the notification service's replyable configuration.
+	 * 
+	 * @param event
+	 * @return
+	 */
+	protected String getTo(Event event)
+	{
+		if (NotificationService.isNotificationToReplyable())
+		{
+			// to site title <email>
+			return "To: " + getToSite(event);
+		}
+		else
+		{
+			// to the site, but with no reply
+			return "To: " + getToSiteNoReply(event);
+		}
+	}
+
+	/**
+	 * Format a to address, to the related site, but with no reply.
+	 * 
+	 * @param event
+	 *        The event that matched criteria to cause the notification.
+	 * @return a to address, to the related site, but with no reply.
+	 */
+	protected String getToSiteNoReply(Event event)
+	{
+		Reference ref = EntityManager.newReference(event.getResource());
+
+		// use either the configured site, or if not configured, the site (context) of the resource
+		String siteId = (getSite() != null) ? getSite() : ref.getContext();
+
+		// get a site title
+		String title = siteId;
+		try
+		{
+			Site site = SiteService.getSite(siteId);
+			title = site.getTitle();
+		}
+		catch (Exception ignore)
+		{
+		}
+
+		return "\"" + title + "\"<no-reply@" + ServerConfigurationService.getServerName() + ">";
+	}
+
+	/**
+	 * Format the to site email address.
+	 * 
+	 * @param event
+	 *        The event that matched criteria to cause the notification.
+	 * @return the email address attribution for the site.
+	 */
+	protected String getToSite(Event event)
+	{
+		Reference ref = EntityManager.newReference(event.getResource());
+
+		// use either the configured site, or if not configured, the site (context) of the resource
+		String siteId = (getSite() != null) ? getSite() : ref.getContext();
+
+		// get a site title
+		String title = siteId;
+		String email = null;
+		try
+		{
+			Site site = SiteService.getSite(siteId);
+			title = site.getTitle();
+
+			// check that the channel exists
+			String channel = "/mailarchive/channel/" + siteId + "/main";
+			EntityManager.newReference(channel);
+	
+			// find the alias for this site's mail channel
+			List all = AliasService.getAliases(channel);
+			if (!all.isEmpty()) email = ((Alias) all.get(0)).getId();
+		}
+		catch (Exception ignore)
+		{
+		}
+
+		// if for any reason we did not find an email, setup for the no-reply for email
+		if (email == null) email = "no-reply";
+
+		String rv = "\"" + title + "\" <" + email + "@" + ServerConfigurationService.getServerName() + ">";
+
+		return rv;
+	}
+}

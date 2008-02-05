@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <!-- database beans -->
+    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlDb2"       class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlDb2"     singleton="true"/>
+    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlDefault"   class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlDefault" singleton="true"/>
+    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlHSql"      class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlHSql"    singleton="true"/>
+    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlMsSql"     class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlMsSql"   singleton="true"/>
+    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlMySql"     class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlMySql"   singleton="true"/>
+    <bean id="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlOracle"    class="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlOracle"  singleton="true"/>
+
+    <!-- database beans -->
+    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlDb2"               class="org.sakaiproject.event.impl.UsageSessionServiceSqlDb2"             singleton="true"/>
+    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlDefault"           class="org.sakaiproject.event.impl.UsageSessionServiceSqlDefault"         singleton="true"/>
+    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlHSql"              class="org.sakaiproject.event.impl.UsageSessionServiceSqlHSql"            singleton="true"/>
+    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlMsSql"             class="org.sakaiproject.event.impl.UsageSessionServiceSqlMsSql"           singleton="true"/>
+    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlMySql"             class="org.sakaiproject.event.impl.UsageSessionServiceSqlMySql"           singleton="true"/>
+    <bean id="org.sakaiproject.event.impl.UsageSessionServiceSqlOracle"            class="org.sakaiproject.event.impl.UsageSessionServiceSqlOracle"          singleton="true"/>
+
+	<bean id="org.sakaiproject.event.api.EventTrackingService"
+			class="org.sakaiproject.event.impl.ClusterEventTracking"
+            init-method="init" destroy-method="destroy" singleton="true">
+
+        <lookup-method name="sqlService"                 bean="org.sakaiproject.db.api.SqlService"/>
+        <lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <lookup-method name="timeService"                bean="org.sakaiproject.time.api.TimeService"/>
+        <lookup-method name="usageSessionService"        bean="org.sakaiproject.event.api.UsageSessionService"/>
+        <lookup-method name="sessionManager"             bean="org.sakaiproject.tool.api.SessionManager"/>
+
+        <property name="checkDb">    <value>true</value>         </property>
+        <property name="autoDdl">    <value>${auto.ddl}</value>  </property>
+        <property name="period">     <value>5</value>            </property>
+        <property name="batchWrite"> <value>true</value>         </property>
+        <property name="databaseBeans">
+           <map>
+              <entry key="default"><ref bean="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlDefault"/></entry>
+              <entry key="db2"    ><ref bean="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlDb2"    /></entry>
+              <entry key="hsqldb" ><ref bean="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlHSql"   /></entry>
+              <entry key="mssql"  ><ref bean="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlMsSql"  /></entry>
+              <entry key="mysql"  ><ref bean="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlMySql"  /></entry>
+              <entry key="oracle" ><ref bean="org.sakaiproject.event.impl.ClusterEventTrackingServiceSqlOracle" /></entry>
+           </map>
+        </property>
+	</bean>
+
+	<!-- alternate, non-storage, non-clustered impl -->
+	<!--
+	<bean id="org.sakaiproject.event.api.EventTrackingService"
+			class="org.sakaiproject.event.impl.BasicEventTracking"
+            init-method="init" destroy-method="destroy" singleton="true">
+
+        <lookup-method name="usageSessionService" bean="org.sakaiproject.event.api.UsageSessionService"/>
+        <lookup-method name="sessionManager"      bean="org.sakaiproject.tool.api.SessionManager"/>
+
+	</bean>
+	-->
+
+	<bean id="org.sakaiproject.event.api.NotificationService"
+			class="org.sakaiproject.event.impl.DbNotificationService"
+            init-method="init" destroy-method="destroy" singleton="true">
+
+        <lookup-method name="eventTrackingService"       bean="org.sakaiproject.event.api.EventTrackingService"/>
+        <lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <lookup-method name="idManager"                  bean="org.sakaiproject.id.api.IdManager"/>
+        <lookup-method name="sqlService"                 bean="org.sakaiproject.db.api.SqlService"/>
+
+        <property name="tableName">          <value>SAKAI_NOTIFICATION</value>  </property>
+        <property name="locksInDb">          <value>false</value>               </property>
+        <property name="autoDdl">            <value>${auto.ddl}</value>         </property>
+        <property name="emailToReplyable">   <value>false</value>               </property>
+        <property name="emailFromReplyable"> <value>false</value>               </property>
+	</bean>
+
+	<bean id="org.sakaiproject.event.api.UsageSessionService"
+			class="org.sakaiproject.event.impl.UsageSessionServiceAdaptor"
+            init-method="init" destroy-method="destroy" singleton="true">
+
+        <lookup-method name="timeService"                bean="org.sakaiproject.time.api.TimeService"/>
+        <lookup-method name="sqlService"                 bean="org.sakaiproject.db.api.SqlService"/>
+        <lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <lookup-method name="threadLocalManager"         bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+        <lookup-method name="sessionManager"             bean="org.sakaiproject.tool.api.SessionManager"/>
+        <lookup-method name="eventTrackingService"       bean="org.sakaiproject.event.api.EventTrackingService"/>
+        <lookup-method name="authzGroupService"          bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <lookup-method name="idManager"                  bean="org.sakaiproject.id.api.IdManager"/>
+        <lookup-method name="userDirectoryService"       bean="org.sakaiproject.user.api.UserDirectoryService"/>
+
+		<property name="autoDdl"><value>${auto.ddl}</value></property>
+        <property name="databaseBeans">
+           <map>
+              <entry key="db2"    ><ref bean="org.sakaiproject.event.impl.UsageSessionServiceSqlDb2"    /></entry>
+              <entry key="default"><ref bean="org.sakaiproject.event.impl.UsageSessionServiceSqlDefault"/></entry>
+              <entry key="hsqldb" ><ref bean="org.sakaiproject.event.impl.UsageSessionServiceSqlHSql"   /></entry>
+              <entry key="mssql"  ><ref bean="org.sakaiproject.event.impl.UsageSessionServiceSqlMsSql"  /></entry>
+              <entry key="mysql"  ><ref bean="org.sakaiproject.event.impl.UsageSessionServiceSqlMySql"  /></entry>
+              <entry key="oracle" ><ref bean="org.sakaiproject.event.impl.UsageSessionServiceSqlOracle" /></entry>
+           </map>
+        </property>
+	</bean>
+
+</beans>

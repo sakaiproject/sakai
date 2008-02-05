@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Event Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>event-base</artifactId>
+  <packaging>pom</packaging>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/event/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/event/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/event/trunk</url>
+  </scm>
+
+
+  <modules>
+    <module>event-api/api</module>
+    <module>event-impl/impl</module>
+    <module>event-impl/pack</module>
+    <module>event-util/util</module>
+    <module>event-shared-deploy</module>
+  </modules>
+</project>
