@@ -12,7 +12,7 @@
   <artifactId>component</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>event-impl-impl</module>
-    <module>event-impl-pack</module>
+    <module>sakai-event-impl</module>
+    <module>sakai-event-impl</module>
   </modules>
 </project>

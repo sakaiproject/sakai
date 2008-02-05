@@ -9,7 +9,7 @@
   </parent>
   <name>Event Component Implementation</name>
   <groupId>org.sakaiproject.kernel.event.component</groupId>
-  <artifactId>event-impl-impl</artifactId>
+  <artifactId>sakai-event-impl</artifactId>
   <organization>
     <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
