@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.tool.api.SessionManager"
+			class="org.sakaiproject.tool.impl.SessionComponent"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
+		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+
+		<property name="inactiveInterval"><value>1800</value></property>
+		<property name="checkEvery"><value>60</value></property>
+	</bean>
+
+	<!-- register one component to be both the ToolManager and the ActiveToolManager -->
+	<bean id="org.sakaiproject.tool.api.ActiveToolManager"
+			name="org.sakaiproject.tool.api.ToolManager"
+			class="org.sakaiproject.tool.impl.ActiveToolComponent"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
+		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
+		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+
+	</bean>
+
+</beans>
