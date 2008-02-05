@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This is an include file used to express the common dependencies across those 
+     JSF tools which use the SUN Reference Implementation.  This file will reduce
+     the cutting and pasting into the JSF tools project.xml files.
+
+     To use this, a tool includes a line like 
+
+	<extend>../../master/sakai-jsf-sun-ri-tool.xml</extend>
+
+     Instead of 
+
+	<extend>../../master/project.xml</extend>
+
+     This file already extends the master project.xml.
+-->
+
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>project.xml</extend>
+	<name>Sakai JSF Tool Using Sun's Reference Implementation</name>
+	<groupId>sakaiproject</groupId>
+	<id>sakai-jsf-sun-ri-tool</id>
+	<currentVersion>${sakai.version}</currentVersion>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://www.sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2005</inceptionYear>
+	
+	<dependencies>
+	
+		<!-- Generic JSF Dependencies Below -->
+			
+		<dependency>
+			<groupId>jsf</groupId>
+			<artifactId>jsf-impl</artifactId>
+			<version>1.1.01</version>
+		<properties>
+			<war.bundle>true</war.bundle>
+		</properties>        
+		</dependency>
+
+		<dependency>
+			<groupId>jsf</groupId>
+			<artifactId>jsf-api</artifactId>
+			<version>1.1.01</version>
+		<properties>
+			<war.bundle>true</war.bundle>
+		</properties>        
+		</dependency>
+
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>jspapi</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>servletapi</groupId>
+			<artifactId>servletapi</artifactId>
+			<version>2.4</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>jstl</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.0.2</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>        
+		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-jsf-tool</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>        
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-jsf-app</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>        
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-jsf-widgets</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>        
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-jsf-widgets-sun</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>        
+		</dependency>
+
+<!--try for sakai tag and wysiwyg-->
+		<dependency>
+			<groupId>commons-digester</groupId>
+			<artifactId>commons-digester</artifactId>
+			<version>1.6</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>        
+		</dependency>
+
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+  	        <version>3.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.7.0</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>        
+		</dependency>
+
+		<dependency>
+			<groupId>taglibs</groupId>
+			<artifactId>standard</artifactId>
+			<version>1.0.4</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>        
+		</dependency>
+
+	</dependencies>
+	
+	<build>
+	
+		<!--  Nothing here... -->
+
+	</build>
+
+</project>
