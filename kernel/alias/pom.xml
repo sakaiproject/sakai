@@ -2,26 +2,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>base</artifactId>
+    <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Sakai Alias Project</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>alias-base</artifactId>
+  <name>Sakai Alias Service</name>
+  <groupId>org.sakaiproject.kernel</groupId>
+  <artifactId>alias</artifactId>
   <packaging>pom</packaging>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/alias/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/alias/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/alias/trunk</url>
-  </scm>
-
   <modules>
-    <module>alias-api/api</module>
-    <module>alias-impl/impl</module>
-    <module>alias-impl/pack</module>
-    <module>alias-tool/tool</module>
+    <module>alias-api</module>
+    <module>component</module>
   </modules>
 </project>
