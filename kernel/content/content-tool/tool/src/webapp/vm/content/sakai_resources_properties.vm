@@ -1,0 +1,89 @@
+## version: $Id$
+<!-- sakai_resources_properties.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
+<div class="portletBody specialLink">
+	<h3>
+		$tlang.getString("action.props") 
+	</h3>
+	
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<p class="instruction">
+		$tlang.getString("instr.props") $required
+	</p>
+	#set($i = "0")
+	#set($model = $item)
+	<form name="$DETAILS_FORM_NAME" id="$DETAILS_FORM_NAME" action="#toolLink("ResourcesAction" "doReviseProperties")" method="post">
+		<input type="hidden" name="sakai_action" id="sakai_action" value="doReviseProperties" />
+		<input type="hidden" name="user_action" id="user_action" value="save" />
+		<div id="propertiesDiv${DOT}$i" style="display:block;">
+			<p class="shorttext#if($item.isNameMissing()) validation#end">
+				#if($item.canChangeDisplayName() )
+					<span class="reqStar">*</span>
+					<label for="displayName${DOT}$i">
+						$tlang.getString("title.name") 
+					</label>
+					<input type="text" size="40" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
+				#else
+					<label for="displayName_display${DOT}$i">
+						$tlang.getString("title.name") 
+					</label>
+					<input type="text" size="40" id="displayName_display${DOT}$i" disabled="disabled" value="$validator.escapeHtml("$!item.name")" />
+					<input type="hidden" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
+				#end
+			</p>
+			#parse("/vm/resources/sakai_properties.vm")
+			<hr class="itemSeparator" />
+		</div>			
+	
+		#if ($model.resourceTypeDef.hasNotificationDialog())
+			#if($model.isDropbox())
+				<p class="act">
+					<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
+					<label for="notify_dropbox">
+						#if($model.userIsMaintainer())
+							$tlang.getString("notify.instructor")
+						#else
+							$tlang.getString("notify.student")
+						#end
+					</label>
+				</p>
+			#elseif($model.isUserSite())
+			#else
+				<p>
+					<label for="notify">
+						$tlang.getString("gen.email1")
+					</label>	
+					<select name="notify" id="notify">
+						<option value="r">$tlang.getString("gen.email2")</option>
+						<option value="o">$tlang.getString("gen.email3")</option>
+						<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+					</select>
+				</p>	
+			#end
+		#end
+	
+		<p class="act">
+			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.update")" accesskey="s" />
+			<input type="button" id="cancel_button" onclick="javascript:document.getElementById('user_action').value='cancel';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.cancel")" accesskey="x" />
+		</p>
+		
+	</form>
+</div>
+#parse("/vm/resources/sakai_properties_scripts.vm")
+<script type="text/javascript">
+	var mimeCategories = new Array();
+#set($count = 0)
+#foreach($category in $contentTypeImageService.mimeCategories)
+	mimeCategories[$count] = "$category";
+#set($count = $count + 1)
+#end
+	var mimeSubtypes = new Array();
+#foreach($category in $contentTypeImageService.MimeCategories)
+	mimeSubtypes["$category"] = new Array();
+#set($count = 0)
+#foreach($subtype in $contentTypeImageService.getMimeSubtypes("$category"))
+	mimeSubtypes["$category"][$count] = "$subtype";
+#set($count = $count + 1)
+#end
+#end
+</script>
+

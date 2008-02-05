@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+
+	<!-- 
+	create a simple advisor providor 
+	-->
+	<bean id="org.sakaiproject.content.providers.CourseManagement"
+			class="org.sakaiproject.content.providers.SimpleSiteContentAdvisorProvider"
+            init-method="init" singleton="true">
+        <property name="siteContentAdvisorTypeRegistry"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+        <property name="siteContentAdvisor"><ref bean="org.sakaiproject.content.providers.CourseManagement.advisor"/></property>
+        <property name="siteType"><value>course</value></property>
+    </bean>
+
+    <!-- 
+    give the simple provider a coursemanagement advisor 
+    -->
+	<bean id="org.sakaiproject.content.providers.CourseManagement.advisor"
+			class="org.sakaiproject.content.providers.cm.CourseManagementSiteContentAdvisor"
+            singleton="true">
+        <property name="courseManagementService"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/></property>
+    </bean>
+
+</beans>

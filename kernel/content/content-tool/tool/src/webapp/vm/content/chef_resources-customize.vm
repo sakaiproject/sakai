@@ -1,0 +1,23 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/content/chef_resources-customize.vm,v 1.2 2005/06/03 15:50:41 jimeng.umich.edu Exp $
+###############################################################
+##### deprecated -- not used in refactored resources tool #####
+###############################################################
+<script type="text/javascript">
+	focus_path = [ "$form-notify" ];
+</script>
+
+<div class="chefPortletContainer">
+	<h3>
+		$!description
+	</h3>
+	<div class="chefPortletContent">
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+		<form action="#toolForm($action)" method="post">
+			</fieldset>
+			<p class="act">
+				<input type="submit" name="$form-submit" value="$tlang.getString("gen.save")" />
+				<input type="submit" name="$form-cancel" value="$tlang.getString("gen.cancel")" />
+			</p>
+		</form>
+	</div>
+</div>

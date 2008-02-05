@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping
+   package="org.sakaiproject.content.hbm">
+
+   <class name="Lock" table="content_resource_lock" lazy="true" batch-size="10">
+      <cache usage="nonstrict-read-write"/>
+
+      <id name="id" column="id" length="36">
+         <generator class="org.sakaiproject.id.hbm.IdGenerator"/>
+      </id>
+
+<!--
+      <id name="id" length="40" type="long">
+         <generator class="native">
+            <param name="sequence">osp_RepositoryLock_SEQ</param>
+            </generator>
+      </id>
+-->
+
+      <property name="asset" length="36" column="asset_id" not-null="false" />
+      <property name="qualifier" length="36" column="qualifier_id" not-null="false" />
+      <property name="active" column="is_active" not-null="false" type="boolean"/>
+      <property name="system" column="is_system" not-null="false" type="boolean"/>
+      <property name="reason" length="36" column="reason" not-null="false"/>
+      <property name="dateAdded" column="date_added" not-null="false"/>
+      <property name="dateRemoved" column="date_removed" not-null="false"/>
+   </class>
+
+
+   <query name="activeByAsset">
+      from Lock w where is_active=1 and asset_id=?
+   </query>
+
+   <query name="getLock">
+      from Lock w where asset_id=? and qualifier_id=?
+   </query>
+
+   <query name="getQualifierLocks">
+      from Lock w where qualifier_id=?
+   </query>
+
+   <query name="activeByQualifier">
+      from Lock w where is_active=1 and qualifier_id=?
+   </query>
+
+
+</hibernate-mapping>

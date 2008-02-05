@@ -1,0 +1,273 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2007 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
+package org.sakaiproject.content.impl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.api.SiteSpecificResourceType;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+
+public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl 
+{
+	/** Our logger. */
+	protected static Log M_log = LogFactory.getLog(DbResourceTypeRegistry.class);
+
+	/** Configuration: to run the ddl on init or not. */
+	protected boolean m_autoDdl = false;
+	
+	/** Table amd field names**/
+	
+	protected static String m_resourceTableName = "CONTENT_TYPE_REGISTRY";
+	protected static String m_contextIDField    = "CONTEXT_ID";
+	protected static String m_resourceIDField   = "RESOURCE_TYPE_ID";
+	protected static String m_enabledField      = "ENABLED";
+	
+	/** SQL to get enabled resource ids **/
+	protected static String GET_ENABLED_RESOURCES = "select " + m_resourceIDField + 
+	                                                " from " + m_resourceTableName + 
+	                                                " where " + m_contextIDField + "= ? " + 
+	                                                " and " + m_enabledField + "=?";
+	
+	
+    /** SQL to get full map of resources **/
+	
+	protected static String FIELDLIST = m_contextIDField + ", " + m_resourceIDField + ", " + m_enabledField;
+	protected static String GET_RESOURCEID_MAP = "select " + FIELDLIST + " from " + m_resourceTableName + 
+				                                 " where " + m_contextIDField + "=?";
+	/** SQL to delete and insert triples **/
+	
+	protected static String DELETE_CURRENT_MAP = "delete from " + m_resourceTableName + 
+	                                             " where " + m_contextIDField + "=?";
+	protected static String INSERT_RESOURCEID_MAP = "insert into " + m_resourceTableName +
+	                                                " (" + FIELDLIST + ") values (?, ?, ?) ";
+	
+	                                                
+	/** Dependency: SqlService */
+	protected SqlService m_sqlService = null;
+	//protected SqlReader m_sqlReader = null;
+	
+	/**
+	 * @param service
+	 */
+	public void setSqlService(SqlService service)
+	{
+		this.m_sqlService = service;
+	}
+
+	
+	/**
+	 * Configuration: to run the ddl on init or not.
+	 *
+	 * @param value
+	 *        the auto ddl value.
+	 */
+	public void setAutoDdl(String value)
+	{
+		m_autoDdl = new Boolean(value).booleanValue();
+	}
+	
+	/* protected -- delete everything in the db associated with this context
+	 * 
+	 * @param Connection connection
+	 * 	      the sqlservice connection
+	 * @param String contextID
+	 *        the contextID
+	 */
+	
+	protected void deleteMapofResourceTypesForContext(String contextID)
+	{
+		Object fields[] = new Object[1];
+		fields[0] = contextID;
+
+		boolean ok = m_sqlService.dbWrite(DELETE_CURRENT_MAP, fields);
+	}
+	
+	/* insert enabled status for resource ids in the given map for the provided contextid
+	 * 
+	 * @param Connection connection
+	 *        the sqlservice connection
+	 * 
+	 * @param String contextID
+	 * 
+	 * @param Map<String resourceID, Boolean isOn> enabled
+	 *        whether or not each resourceID is enabled in this context
+	 */
+	
+	protected void insertMapofResourceTypesforContext(String contextID, Map<String, Boolean> enabled)
+	{
+		Iterator<String> iter = enabled.keySet().iterator();
+		while (iter.hasNext()) 
+		{
+			String resourceID = iter.next();
+
+			Object fields[] = new Object[3];
+			fields[0]= contextID;
+			fields[1] = resourceID;
+			fields[2]= (enabled.get(resourceID).booleanValue() ? "e" : "d");
+			
+			m_sqlService.dbWrite(INSERT_RESOURCEID_MAP, fields);
+		}
+	}
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#setResourceTypesForContext(java.lang.String, java.util.Map)
+	 */
+	public void setMapOfResourceTypesForContext(final String context, final Map<String, Boolean> enabled) 
+	{
+		//super.setMapOfResourceTypesForContext(context, enabled);
+		//Replace in teh db
+		
+
+		m_sqlService.transact(new Runnable()
+		{
+			public void run()
+			{
+				saveMap(context, enabled);					
+			}
+		}, "DbResourceTypeRegistry.setMapOfResourceTypesForContext: " + context);
+		
+		ThreadLocalManager.set("getMapOfResourceTypesForContext@" + context, new HashMap<String, Boolean>(enabled));
+	}
+	
+	protected void saveMap(String context, Map<String, Boolean> enabled) 
+	{
+		this.deleteMapofResourceTypesForContext(context);
+		this.insertMapofResourceTypesforContext(context, enabled);
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#getResourceTypesForContext(java.lang.String)
+	 */
+	public Map<String, Boolean> getMapOfResourceTypesForContext(String context) 
+	{
+		Map<String, Boolean> enabled = (Map<String, Boolean>) ThreadLocalManager.get("getMapOfResourceTypesForContext@" + context);
+			
+		if(enabled == null)
+		{
+			enabled = new HashMap<String, Boolean>();
+			Object fields[] = new Object[1];
+			fields[0] = context;
+			
+			List results = m_sqlService.dbRead(GET_RESOURCEID_MAP, fields, new SqlReader()
+			{
+				public Object readSqlResultRecord(ResultSet result)
+				{
+					try
+					{
+						return new Entry(result.getString(2), "e".equals(result.getString(3)));
+					}
+					catch (SQLException ignore)
+					{
+						return null;
+					}
+				}
+			});
+				
+			for(Object result : results)
+			{
+				if(result instanceof Entry)
+				{
+					Entry entry = (Entry) result;
+					
+					enabled.put(entry.getTypeId(), new Boolean(entry.isEnabled()));
+				}
+			}
+			
+			if(enabled.isEmpty())
+			{
+				for(ResourceType type : this.typeIndex.values())
+				{
+					if(type instanceof SiteSpecificResourceType)
+					{
+						enabled.put(type.getId(), new Boolean(((SiteSpecificResourceType) type).isEnabledByDefault()));
+					}
+				}
+			}
+			
+			ThreadLocalManager.set("getMapOfResourceTypesForContext@" + context, enabled);
+		}
+
+		return new HashMap<String, Boolean>(enabled);
+	} 
+
+
+	/**
+	 * Final initialization, once all dependencies are set.
+	 */
+	public void init()
+	{
+		try
+		{
+			M_log.info("init()");
+			if (m_autoDdl)
+			{
+				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_registry");
+				super.init();
+			}
+
+		}
+		catch (Throwable t)
+		{
+		}
+	}
+	
+	public class Entry
+	{
+		protected String typeId;
+		protected boolean enabled;
+		public Entry(String typeId, boolean enabled)
+		{
+			this.typeId = typeId;
+			this.enabled = enabled;
+		}
+		public boolean isEnabled() 
+		{
+			return enabled;
+		}
+		public void setEnabled(boolean enabled) 
+		{
+			this.enabled = enabled;
+		}
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+		public void setTypeId(String typeId) 
+		{
+			this.typeId = typeId;
+		}
+	}
+
+}

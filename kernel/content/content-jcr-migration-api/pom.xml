@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>content-base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <name>sakai-content-jcr-migration-api</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-content-jcr-migration-api</artifactId>
+  <organization>
+    <name>The Sakai Foundation</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <packaging>jar</packaging>
+  <properties>
+    <deploy.target>shared</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+        <groupId>javax.jcr</groupId>
+        <artifactId>jcr</artifactId>
+        <version>${sakai.jcr.version}</version> 
+    </dependency>
+  </dependencies>
+  <build>
+    
+    
+    
+    
+    
+    
+    <resources/>
+    
+  </build>
+</project>

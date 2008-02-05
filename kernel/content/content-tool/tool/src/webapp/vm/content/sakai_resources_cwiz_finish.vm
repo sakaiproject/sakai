@@ -1,0 +1,77 @@
+## version: $Id$
+<!-- chef_resources_cwiz_finish.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
+<div class="portletBody specialLink">
+	<h3>
+		$title 
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<p class="instruction">
+		$instruction
+		$required
+	</p>
+	
+	<form name="$DETAILS_FORM_NAME" id="$DETAILS_FORM_NAME" action="#toolLinkParam("ResourcesAction" "doCompleteCreateWizard" "flow=update")" method="post">
+		<input type="hidden" name="sakai_action" id="sakai_action" value="doCompleteCreateWizard" />
+		<input type="hidden" name="user_action" id="user_action" value="save" />
+		<input type="hidden" name="user_action" id="user_action" value="save" />
+		#set($model = $item)
+		#set($i = "0")
+		<div id="propertiesDiv${DOT}$i" style="display:block;">
+			<p class="shorttext">
+				<span class="reqStar">*</span>
+				<label for="name${DOT}$i">
+					$tlang.getString("title.name") 
+				</label>
+				<input type="text" size="40" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
+			</p>
+			#parse("/vm/resources/sakai_properties.vm")
+			<hr class="itemSeparator" />
+		</div>		
+	
+		#if ($model.resourceTypeDef.hasNotificationDialog())
+			#if($model.isDropbox())
+				<p class="act">
+					<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
+					<label for="notify_dropbox">
+						#if($model.userIsMaintainer())
+							$tlang.getString("notify.instructor")
+						#else
+							$tlang.getString("notify.student")
+						#end
+					</label>
+				</p>
+			#elseif($model.isUserSite())
+			#else
+				<p class="shorttext">
+					<label for="notify">
+						$tlang.getString("gen.email1")
+					</label>	
+					<select name="notify" id="notify">
+						<option value="r">$tlang.getString("gen.email2")</option>
+						<option value="o">$tlang.getString("gen.email3")</option>
+						<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+					</select>
+				</p>	
+			#end
+		#end
+		
+	
+		<p class="act">
+			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.finish")" accesskey="s" />
+			<input type="button" id="cancel_button" onclick="javascript:document.getElementById('user_action').value='cancel';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.cancel")" accesskey="x" />
+		</p>
+		
+	</form>
+</div>
+#parse("/vm/resources/sakai_properties_scripts.vm")
+<script type="text/javascript">
+	focus_path = [ "displayName${DOT}$i" ];
+	function focusOnNameElement()
+	{
+		var nameElement = document.getElementById("displayName${DOT}$i");
+		nameElement.focus();
+		nameElement.select();
+	}
+	setTimeout(focusOnNameElement, 25);
+</script>
+
