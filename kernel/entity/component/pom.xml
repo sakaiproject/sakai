@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>entity</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Entity Component</name>
+  <groupId>org.sakaiproject.kernel.entity</groupId>
+  <artifactId>component</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>sakai-entity-impl</module>
+    <module>sakai-entity-pack</module>
+  </modules>
+</project>
