@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>util-base</artifactId>
-		<groupId>org.sakaiproject</groupId>
+		<artifactId>util</artifactId>
+		<groupId>org.sakaiproject.kernel</groupId>
 		<version>SNAPSHOT</version>
-		<relativePath>../../pom.xml</relativePath>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
-  <name>sakai-util-log</name>
+  <name>Util Log</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-util-log</artifactId>
   <organization>

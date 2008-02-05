@@ -8,7 +8,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
   <description>Common Deployment Descriptor for util</description>
-  <name>sakai-util-common-deploy</name>
+  <name>Common Util Deployment</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-util-common-deploy</artifactId>
   <organization>

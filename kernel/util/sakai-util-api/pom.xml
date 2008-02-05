@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>util-base</artifactId>
-		<groupId>org.sakaiproject</groupId>
+		<artifactId>util</artifactId>
+		<groupId>org.sakaiproject.kernel</groupId>
 		<version>SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-  <name>sakai-util-api</name>
-  <groupId>org.sakaiproject</groupId>
+  <name>Sakai Util Api</name>
+  <groupId>org.sakaiproject.kernel.util</groupId>
   <artifactId>sakai-util-api</artifactId>
   <organization>
     <name>University of Michigan</name>
@@ -23,7 +23,7 @@
 <!-- to be able to access the Sakai component manager -->
     <dependency>
       
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
     </dependency>

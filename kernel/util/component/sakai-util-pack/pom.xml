@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>util-base</artifactId>
-		<groupId>org.sakaiproject</groupId>
+		<artifactId>component</artifactId>
+		<groupId>org.sakaiproject.kernel.util</groupId>
 		<version>SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
-  <name>sakai-util-pack</name>
-  <groupId>org.sakaiproject</groupId>
+  <name>Sakai Util package</name>
+  <groupId>org.sakaiproject.kernel.util.component</groupId>
   <artifactId>sakai-util-pack</artifactId>
   <organization>
     <name>University of Michigan</name>
@@ -22,7 +22,7 @@
   <dependencies>
     <dependency>
       
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.util.component</groupId>
       <artifactId>sakai-util-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>

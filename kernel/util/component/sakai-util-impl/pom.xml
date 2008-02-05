@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>util-base</artifactId>
-		<groupId>org.sakaiproject</groupId>
+		<artifactId>component</artifactId>
+		<groupId>org.sakaiproject.kernel.util</groupId>
 		<version>SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
-  <name>sakai-util-impl</name>
-  <groupId>org.sakaiproject</groupId>
+  <name>Sakai Util Impl</name>
+  <groupId>org.sakaiproject.kernel.util.component</groupId>
   <artifactId>sakai-util-impl</artifactId>
   <organization>
     <name>University of Michigan</name>
@@ -22,43 +22,43 @@
   <dependencies>
     <dependency>
       
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.authz</groupId>
       <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
       
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
       
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
       
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
       
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.user</groupId>
       <artifactId>sakai-user-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
       
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.tool</groupId>
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
       
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.entity</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
