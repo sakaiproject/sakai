@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>event-impl</artifactId>
+    <artifactId>component</artifactId>
     <groupId>org.sakaiproject.kernel.event</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Event Component Package</name>
-  <groupId>org.sakaiproject.kernel.event.event-impl</groupId>
+  <groupId>org.sakaiproject.kernel.event.component</groupId>
   <artifactId>event-impl-pack</artifactId>
   <organization>
     <name>Sakai Foundation</name>
@@ -21,7 +21,7 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject.event.event-impl</groupId>
+      <groupId>org.sakaiproject.kernel.event.component</groupId>
       <artifactId>event-impl-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>

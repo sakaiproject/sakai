@@ -9,7 +9,7 @@
   </parent>
   <name>Sakai Event Component Implementation</name>
   <groupId>org.sakaiproject.kernel.event</groupId>
-  <artifactId>event-impl</artifactId>
+  <artifactId>component</artifactId>
   <packaging>pom</packaging>
   <modules>
     <module>event-impl-impl</module>

@@ -12,10 +12,9 @@
   <artifactId>event</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>event-api/api</module>
-    <module>event-impl/impl</module>
-    <module>event-impl/pack</module>
-    <module>event-util/util</module>
-    <module>event-shared-deploy</module>
+    <module>sakai-event-api</module>
+    <module>component</module>
+    <module>sakai-event-util</module>
+    <module>shared-deploy</module>
   </modules>
 </project>

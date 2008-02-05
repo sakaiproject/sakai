@@ -12,7 +12,7 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-event-shared-deploy</artifactId>
   <organization>
-    <name>University of Michigan</name>
+    <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
