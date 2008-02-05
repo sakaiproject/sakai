@@ -1478,6 +1478,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 			}
 			else
 			{
+				connection.rollback();
 				return true;
 			}
 
@@ -1498,6 +1499,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				{
 					log.info("Cant remove Lock to node " + node.getNodename()
 							+ " node exists ");
+					connection.rollback();
 					return false;
 				}
 			}
@@ -1513,11 +1515,12 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 			if (clearLock.executeUpdate() == 1)
 			{
 				log.warn("NODE UNLOCKED BY USER " + swl.getNodename());
-
+				connection.commit();
 			}
 			else
 			{
 				log.info("NODE NOT UNLOCKED BY USER " + swl.getNodename());
+				connection.commit();
 				return false;
 			}
 
