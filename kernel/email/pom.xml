@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Email Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>email-base</artifactId>
+  <packaging>pom</packaging>
+
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/email/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/email/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/email/trunk</url>
+  </scm>
+  
+
+  <modules>
+    <module>email-api/api</module>
+    <module>email-impl/impl</module>
+    <module>email-impl/pack</module>
+    <module>email-shared-deploy</module>
+  </modules>
+</project>
