@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+
+<toolOrder>
+
+	<category name="myworkspace">
+		<tool id = "home" selected = "true" />
+		<tool id = "sakai.sitesetup" required = "true" />
+		<tool id = "sakai.membership" required="true" />
+		<tool id = "sakai.preferences" required="true" />
+
+	</category>
+
+	<category name="course">
+		<tool id = "sakai.iframe.site" />
+		<tool id = "sakai.synoptic.chat" />
+		<tool id = "sakai.synoptic.discussion" />
+		<tool id = "sakai.synoptic.announcement" />
+		<tool id = "home" selected = "true" />
+		<tool id = "sakai.syllabus" />
+		<tool id = "sakai.schedule" />
+		<tool id = "sakai.announcements" selected = "true" />
+		<tool id = "sakai.resources" />
+		<tool id = "sakai.discussion" />
+		<tool id = "sakai.assignment" />
+		<tool id = "sakai.assignment.grades" />
+		<tool id = "sakai.samigo" />
+		<tool id = "sakai.gradebook.tool" />
+		<tool id = "sakai.dropbox" />
+		<tool id = "sakai.chat" />
+		<tool id = "sakai.rwiki" />
+		<tool id = "sakai.mailbox" />
+		<tool id = "sakai.news" />
+		<tool id = "sakai.iframe" />
+		<tool id = "sakai.presentation" />
+		<tool id = "sakai.sections" />
+		<tool id = "sakai.site.roster" />
+		<tool id = "sakai.siteinfo" required = "true" />
+
+	</category>
+
+	<category name="project">
+		<tool id = "sakai.iframe.site" />
+		<tool id = "sakai.synoptic.chat" />
+		<tool id = "sakai.synoptic.discussion" />
+		<tool id = "sakai.synoptic.announcement" />
+		<tool id = "home" selected = "true" />
+		<tool id = "sakai.syllabus" />
+		<tool id = "sakai.schedule" />
+		<tool id = "sakai.announcements" />
+		<tool id = "sakai.resources" />
+		<tool id = "sakai.discussion" />
+		<tool id = "sakai.assignment" />
+		<tool id = "sakai.assignment.grades" />
+		<tool id = "sakai.samigo" />
+		<tool id = "sakai.gradebook.tool" />
+		<tool id = "sakai.dropbox" />
+		<tool id = "sakai.chat" />
+		<tool id = "sakai.rwiki" />
+		<tool id = "sakai.mailbox" />
+		<tool id = "sakai.news" />
+		<tool id = "sakai.iframe" />
+		<tool id = "sakai.presentation" />
+		<tool id = "sakai.sections" />
+		<tool id = "sakai.site.roster" />
+		<tool id = "sakai.siteinfo" required = "true" />
+
+	</category>
+
+	<category name="portfolio">
+		<tool id = "sakai.iframe.site" />
+		<tool id = "sakai.synoptic.chat" />
+		<tool id = "sakai.synoptic.discussion" />
+		<tool id = "sakai.synoptic.announcement" />
+		<tool id = "home" selected = "true" />
+      <toolCategory id="communicate">
+         <name><![CDATA[Communicate]]></name>
+         <tool id = "sakai.announcements"/>
+         <tool id = "sakai.schedule"/>
+         <tool id = "sakai.discussion"/>
+         <tool id = "sakai.chat"/>
+         <tool id = "sakai.rwiki"/>
+         <tool id = "sakai.news"/>
+         <tool id = "sakai.iframe" />
+   		<tool id = "sakai.mailbox" />
+      </toolCategory>
+      <toolCategory id="collectReflect">
+         <name><![CDATA[Collect & Reflect]]></name>
+         <tool id = "sakai.resources" />
+         <tool id = "osp.wizard" />
+         <tool id = "osp.matrix" />
+      </toolCategory>
+      <toolCategory id="designPublish">
+         <name><![CDATA[Design & Publish]]></name>
+         <tool id = "osp.presentation" />
+         <tool id = "osp.style" />
+         <tool id = "osp.presLayout" />
+      </toolCategory>
+      <toolCategory id="guide">
+         <name><![CDATA[Guide]]></name>
+         <tool id = "osp.presTemplate"/>
+         <tool id = "osp.glossary"/>
+         <tool id = "sakai.metaobj"/>
+         <tool id = "sakai.datapoint"/>
+         <tool id = "sakai.gmt"/>
+      </toolCategory>
+      <toolCategory id="reviewEvaluate">
+         <name><![CDATA[Review & Evaluate]]></name>
+         <tool id = "osp.evaluation"/>
+      </toolCategory>
+      <toolCategory id="analyzeReport">
+         <name><![CDATA[Analyze & Report]]></name>
+         <tool id="sakai.reports"/>
+      </toolCategory>
+      <toolCategory id="manage">
+         <name><![CDATA[Manage]]></name>
+   		<tool id = "sakai.siteinfo" required = "true" />
+         <tool id = "sakai.sections" />
+         <tool id = "sakai.site.roster" />
+      </toolCategory>
+	</category>
+
+</toolOrder>

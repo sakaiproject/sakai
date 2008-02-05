@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
+
+Licensed under the Educational Community License, Version 1.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.opensource.org/licenses/ecl1.php
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>component-base</artifactId>
+  <name>Sakai Component Project</name>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/component/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/component/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/component/trunk</url>
+  </scm>
+
+  <packaging>pom</packaging>
+  <modules>
+     <module>component-api/component</module>
+     <module>component-api/api</module>
+     <module>component-impl/impl</module>
+     <module>component-impl/pack</module>
+     <module>component-shared-deploy</module>
+  </modules>
+</project>
