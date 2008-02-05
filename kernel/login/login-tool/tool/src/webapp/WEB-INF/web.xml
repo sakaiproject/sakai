@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    <display-name>sakai-sample-tools-login</display-name>
+    <description>Sakai 2 sample tools: login</description>
+
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>sakai.request.container</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+       <init-param>
+            <param-name>tool.placement</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>remote.user</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.login</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request.container</filter-name>
+        <servlet-name>sakai.login.container</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+
+    <servlet>
+        <servlet-name>sakai.login</servlet-name>
+        <servlet-class>org.sakaiproject.login.tool.LoginTool</servlet-class>
+        <init-param>
+            <param-name>container</param-name>
+            <param-value>/sakai-login-tool/container</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>sakai.login.container</servlet-name>
+        <servlet-class>org.sakaiproject.login.tool.ContainerLogin</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+	<!-- map the container login, and then cause it to trigger container authentication -->
+    <servlet-mapping>
+        <servlet-name>sakai.login.container</servlet-name>
+        <url-pattern>/container/*</url-pattern>
+    </servlet-mapping>
+
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+
+	<!-- to add a user to this BASIC auth tomcat container authentication, add lines to your tomcat/conf/tomcat-users.xml:
+    		*** Enable this only if using Tomcat's built-in BASIC auth
+	    <tomcat-users>
+	        <role rolename="sakaiuser"/>
+	        <user username="NAME" password="PW" roles="sakaiuser"/>
+	    </tomcat-users>
+	among the other definitions there -->
+
+    <!-- Define a Security Constraint on this Application
+    		*** Enable this only if using Tomcat's built-in BASIC auth
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>container</web-resource-name>
+            <url-pattern>/container/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>sakaiuser</role-name>
+        </auth-constraint>
+    </security-constraint>
+	*** -->
+
+    <!-- Define the Login Configuration for this Application
+    		*** Enable this only if using Tomcat's built-in BASIC auth
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>Sakai Users</realm-name>
+    </login-config>
+	*** -->
+
+    <!-- Security roles referenced by this web application
+    		*** Enable this only if using Tomcat's built-in BASIC auth
+    <security-role>
+        <description>
+            The role that is required to log in to Sakai
+        </description>
+        <role-name>sakaiuser</role-name>
+    </security-role>
+	*** -->
+
+</web-app>
