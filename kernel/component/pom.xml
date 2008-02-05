@@ -21,13 +21,13 @@ limitations under the License.
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>base</artifactId>
+    <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>component-base</artifactId>
+  <groupId>org.sakaiproject.kernel</groupId>
+  <artifactId>component</artifactId>
   <name>Sakai Component Project</name>
 
   <scm>
@@ -38,10 +38,8 @@ limitations under the License.
 
   <packaging>pom</packaging>
   <modules>
-     <module>component-api/component</module>
-     <module>component-api/api</module>
-     <module>component-impl/impl</module>
-     <module>component-impl/pack</module>
-     <module>component-shared-deploy</module>
+     <module>api</module>
+     <module>component</module>
+     <module>deploy</module>
   </modules>
 </project>
