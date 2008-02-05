@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai DB Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>db-base</artifactId>
+  <packaging>pom</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/db/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/db/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/db/trunk</url>
+  </scm>
+  
+
+  <modules>
+    <module>db-api/api</module>
+    <module>db-impl/ext</module>
+    <module>db-impl/impl</module>
+    <module>db-impl/pack</module>
+    <module>db-util/storage</module>
+    <module>db-util/conversion</module>
+    <module>db-shared-deploy</module>
+  </modules>
+</project>
