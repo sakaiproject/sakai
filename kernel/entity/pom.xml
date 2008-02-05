@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Entity Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>entity-base</artifactId>
+  <packaging>pom</packaging>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/entity/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/entity/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/entity/trunk</url>
+  </scm>
+  <modules>
+    <module>entity-api/api</module>
+    <module>entity-impl/impl</module>
+    <module>entity-impl/pack</module>
+    <module>entity-util/util</module>
+  </modules>
+</project>
