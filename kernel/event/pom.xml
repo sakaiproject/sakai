@@ -15,6 +15,6 @@
     <module>sakai-event-api</module>
     <module>component</module>
     <module>sakai-event-util</module>
-    <module>shared-deploy</module>
+    <module>deploy</module>
   </modules>
 </project>

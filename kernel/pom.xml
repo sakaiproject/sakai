@@ -4,7 +4,7 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>kernel</artifactId>
   <packaging>pom</packaging>
-  <name>Sakai Master</name>
+  <name>Sakai Kernel</name>
   <version>SNAPSHOT</version>
   <organization>
     <name>Sakai Project</name>
@@ -1103,24 +1103,26 @@ This is not needed now that pluto have been released
     </plugins>
   </build>
   <modules>
+    <module>component</module>
+    <module>alias</module>
+    <module>event</module>
+<!--
     <module>acccess</module>
     <module>authz</module>
-    <module>component</module>
     <module>db</module>
     <module>entity</module>
     <module>jcr</module>
     <module>optional</module>
     <module>site</module>
     <module>user</module>
-    <module>alias</module>
     <module>cluster</module>
     <module>content</module>
     <module>email</module>
-    <module>event</module>
     <module>login</module>
     <module>memory</module>
     <module>pom.xml</module>
     <module>tool</module>
     <module>util</module>
+-->
   </modules>
 </project>

@@ -2,60 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>base</artifactId>
+    <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Tool Project</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>tool-base</artifactId>
+  <groupId>org.sakaiproject.kernel</groupId>
+  <artifactId>tool</artifactId>
   <packaging>pom</packaging>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/tool/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/tool/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/tool/trunk</url>
-  </scm>
-
-   
-  <profiles>
-    <profile>
-        <id>framework</id>
         <modules>
-            <module>tool-api/api</module>
-            <module>tool-impl/impl</module>
-            <module>tool-impl/pack</module>
-            <module>tool-util/servlet</module>
-            <module>tool-util/util</module>
-            <module>tool-shared-deploy</module>
+            <module>sakai-tool-api</module>
+            <module>component</module>
+            <module>util</module>
+            <module>deploy</module>
         </modules>
-     </profile>
-    <profile>
-        <id>mini</id>
-        <modules>
-            <module>tool-api/api</module>
-            <module>tool-impl/impl</module>
-            <module>tool-impl/pack</module>
-            <module>tool-util/servlet</module>
-            <module>tool-util/util</module>
-            <module>tool-shared-deploy</module>
-        </modules>
-     </profile>
-     <profile>
-        <id>full</id>
-        <activation>
-          <activeByDefault>true</activeByDefault>
-        </activation>
-  	<modules>
-	    <module>tool-api/api</module>
-	    <module>tool-impl/impl</module>
-	    <module>tool-impl/pack</module>
-	    <module>tool-tool/su</module>
-	    <module>tool-util/servlet</module>
-	    <module>tool-util/util</module>
-	    <module>tool-shared-deploy</module>
-	</modules>
-     </profile>
-  </profiles>
 </project>

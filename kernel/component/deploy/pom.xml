@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>component-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>component</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <description>Shared Deployment Descriptor for Component</description>
-  <name>sakai-component-shared-deploy</name>
-  <groupId>org.sakaiproject</groupId>
+  <name>Component Shared Deployment</name>
+  <groupId>org.sakaiproject.kernel.component</groupId>
   <artifactId>sakai-component-shared-deploy</artifactId>
   <organization>
     <name>University of Michigan</name>

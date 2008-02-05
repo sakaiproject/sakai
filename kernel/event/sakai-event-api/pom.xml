@@ -7,7 +7,7 @@
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>event-api</name>
+  <name>Sakai Event API</name>
   <groupId>org.sakaiproject.kernel.event</groupId>
   <artifactId>sakai-event-api</artifactId>
   <organization>

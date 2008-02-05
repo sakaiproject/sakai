@@ -2,31 +2,31 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>component-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>component</artifactId>
+    <groupId>org.sakaiproject.kernel.component</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-component-integration-test</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.kernel.component.component</groupId>
   <artifactId>sakai-component-integration-test</artifactId>
   <packaging>sakai-component</packaging>
   <properties>
-    <deploy.target>components</deploy.target>
+    <deploy.target>components-ignore</deploy.target>
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.event</groupId>
       <artifactId>sakai-test-harness</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.event</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.event</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>

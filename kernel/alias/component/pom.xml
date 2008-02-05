@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>component</artifactId>
-    <groupId>org.sakaiproject.alias</groupId>
+    <artifactId>alias</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Alias Compponent</name>
-  <groupId>org.sakaiproject.kernel.alias.component</groupId>
-  <artifactId>alias</artifactId>
+  <groupId>org.sakaiproject.kernel.alias</groupId>
+  <artifactId>component</artifactId>
   <packaging>pom</packaging>
 
   <modules>

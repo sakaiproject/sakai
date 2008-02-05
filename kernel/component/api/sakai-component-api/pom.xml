@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>component-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>api</artifactId>
+    <groupId>org.sakaiproject.kernel.component</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>sakai-component-api</name>
-  <groupId>org.sakaiproject</groupId>
+  <name>Sakai Component API</name>
+  <groupId>org.sakaiproject.kernel.component.api</groupId>
   <artifactId>sakai-component-api</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
@@ -21,7 +21,7 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
     </dependency>

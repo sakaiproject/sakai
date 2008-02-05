@@ -7,7 +7,7 @@
     <version>SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-component-pack</name>
+  <name>Sakai Component Package</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-component-pack</artifactId>
   <organization>
