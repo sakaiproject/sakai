@@ -307,6 +307,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 					deleteJournalSavePointPst.clearParameters();
 					deleteJournalSavePointPst.setString(1, serverId);
 					deleteJournalSavePointPst.executeUpdate();
+					connection.commit();
 				}
 			}
 			catch (Exception ex)
