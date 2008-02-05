@@ -7,7 +7,7 @@
 		<version>SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-  <name>sakai-util-id-hbm</name>
+  <name>Sakai Hibernate ID Util</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-util-id-hbm</artifactId>
   <organization>
