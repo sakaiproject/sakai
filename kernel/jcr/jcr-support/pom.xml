@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>jcr-base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai JSR-170 Support Service Impl</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-jcr-support-impl-base</artifactId>
+    <organization>
+    <name>Timefields Ltd</name>
+    <url>http://www.tfd.co.uk/</url>
+  </organization>
+  <inceptionYear>2008</inceptionYear>
+  <packaging>pom</packaging>
+  <modules>
+    <module>impl</module>
+    <module>pack</module>
+  </modules>
+ <dependencies>
+    <dependency>
+      <groupId>javax.jcr</groupId>
+      <artifactId>jcr</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jcr-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+
+  </dependencies>
+</project>

@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../master</relativePath>
+  </parent>
+  <name>Sakai JSR-170 Service</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>jcr-base</artifactId>
+  <packaging>pom</packaging>
+  <issueManagement>
+     <system>jira</system>
+     <url>http://bugs.sakaiproject.org/jira/browse/SAK</url>
+  </issueManagement>
+  <ciManagement>
+     <system>continuum</system>
+     <notifiers>
+        <notifier>
+            <type>mail</type>
+            <address>builds@collab.sakaiproject.org</address>
+        </notifier>
+     </notifiers>
+  </ciManagement>
+  <inceptionYear>2003</inceptionYear>
+  <!-- Mailing Lists ======================================================= -->
+
+    <mailingLists>
+        <mailingList>
+            <name>Sakai User List</name>
+            <subscribe>https://collab.sakaiproject.org</subscribe>
+            <unsubscribe>https://collab.sakaiproject.org</unsubscribe>
+            <post>sakai-user@collab.sakaiproject.org</post>
+            <archive>http://news.gmane.org/group/gmane.comp.cms.sakai.user/last=/force_load=t</archive>
+        </mailingList>
+        <mailingList>
+            <name>Sakai Developer List</name>
+            <subscribe>https://collab.sakaiproject.org</subscribe>
+            <unsubscribe>https://collab.sakaiproject.org</unsubscribe>
+            <post>sakai-dev@collab.sakaiproject.org</post>
+            <archive>http://news.gmane.org/group/gmane.comp.cms.sakai.dev/last=/force_load=t</archive>
+        </mailingList>
+        <mailingList>
+            <name>Sakai SCM List</name>
+            <subscribe>https://collab.sakaiproject.org</subscribe>
+            <unsubscribe>https://collab.sakaiproject.org</unsubscribe>
+            <post>source@collab.sakaiproject.org</post>
+        </mailingList>
+    </mailingLists>
+    <licenses>
+        <license>
+            <name>Educational Community License, Version 1.0</name>
+            <url>http://www.opensource.org/licenses/ecl1.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+   <scm>
+     <connection>scm:svn:https://source.sakaiproject.org/svn/jcr/trunk/</connection>
+     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/jccr/trunk/</developerConnection>
+     <url>https://source.sakaiproject.org/svn/jcr/trunk/</url>
+   </scm> 
+  
+  <modules>
+    <module>jcr-api</module>
+    <module>jcr-util</module>
+    <module>jcr-support</module>
+    <module>jackrabbit-impl</module>
+  </modules>
+</project>

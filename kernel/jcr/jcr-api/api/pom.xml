@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>sakai-jcr-api-base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <description>JCRService API</description>
+  <name>JCRService API</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-jcr-api</artifactId>
+  <organization>
+    <name>Timefields Ltd</name>
+    <url>http://www.tfd.co.uk/</url>
+  </organization>
+  <inceptionYear>2007</inceptionYear>
+  <packaging>jar</packaging>
+  <properties>
+    <deploy.target>shared</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>javax.jcr</groupId>
+      <artifactId>jcr</artifactId>
+      <version>${sakai.jcr.version}</version>
+    </dependency>
+  </dependencies>
+</project>
