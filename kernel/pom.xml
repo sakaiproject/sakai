@@ -1110,6 +1110,7 @@ This is not needed now that pluto have been released
     <module>util</module>
     <module>entity</module>
     <module>user</module>
+    <module>content</module>
 <!--
     <module>acccess</module>
     <module>authz</module>
@@ -1118,7 +1119,6 @@ This is not needed now that pluto have been released
     <module>optional</module>
     <module>site</module>
     <module>cluster</module>
-    <module>content</module>
     <module>email</module>
     <module>login</module>
     <module>memory</module>
