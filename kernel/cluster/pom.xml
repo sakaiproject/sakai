@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Cluster Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>cluster-base</artifactId>
+  <packaging>pom</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/cluster/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/cluster/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/cluster/trunk</url>
+  </scm>
+  
+
+  <modules>
+    <module>cluster-api/api</module>
+    <module>cluster-impl/impl</module>
+    <module>cluster-impl/pack</module>
+  </modules>
+</project>

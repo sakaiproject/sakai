@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <!-- database beans -->
+    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDb2"       class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDb2"     singleton="true"/>
+    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDefault"   class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDefault" singleton="true"/>
+    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlHSql"      class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlHSql"    singleton="true"/>
+    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMsSql"     class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMsSql"   singleton="true"/>
+    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMySql"     class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMySql"   singleton="true"/>
+    <bean id="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlOracle"    class="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlOracle"  singleton="true"/>
+
+	<bean id="org.sakaiproject.cluster.api.ClusterService"
+			class="org.sakaiproject.cluster.impl.SakaiClusterService"
+            init-method="init" destroy-method="destroy" singleton="true">
+        <property name="serverConfigurationService"> <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/> </property>
+        <property name="sqlService">                 <ref bean="org.sakaiproject.db.api.SqlService"/>                        </property>
+        <property name="eventTrackingService">       <ref bean="org.sakaiproject.event.api.EventTrackingService"/>           </property>
+        <property name="usageSessionService">        <ref bean="org.sakaiproject.event.api.UsageSessionService"/>            </property>
+        <property name="threadLocalManager">         <ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/>      </property>
+
+        <property name="refresh">                    <value>60</value>          </property>
+        <property name="expired">                    <value>600</value>         </property>
+        <property name="ghostingPercent">            <value>100</value>         </property>
+        <property name="autoDdl">                    <value>${auto.ddl}</value> </property>
+        <property name="databaseBeans">
+           <map>
+              <entry key="default"><ref bean="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDefault"/></entry>
+              <entry key="db2"    ><ref bean="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlDb2"    /></entry>
+              <entry key="hsqldb" ><ref bean="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlHSql"   /></entry>
+              <entry key="oracle" ><ref bean="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlOracle" /></entry>
+              <entry key="mssql"  ><ref bean="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMsSql"  /></entry>
+              <entry key="mysql"  ><ref bean="org.sakaiproject.cluster.impl.SakaiClusterServiceSqlMySql"  /></entry>
+           </map>
+        </property>
+	</bean>
+
+</beans>
