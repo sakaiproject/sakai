@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>content-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>component</artifactId>
+    <groupId>org.sakaiproject.kernel.content</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>sakai-content-lock-hbm</name>
-  <groupId>org.sakaiproject</groupId>
+  <name>Sakai Content Hibernate Lock Implementation</name>
+  <groupId>org.sakaiproject.kernel.content.component</groupId>
   <artifactId>sakai-content-lock-hbm</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
@@ -21,7 +21,7 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.content</groupId>
       <artifactId>sakai-content-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>

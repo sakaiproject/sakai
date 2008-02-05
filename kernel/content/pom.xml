@@ -2,93 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>base</artifactId>
+    <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Content Project</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>content-base</artifactId>
+  <groupId>org.sakaiproject.kernel</groupId>
+  <artifactId>content</artifactId>
   <packaging>pom</packaging>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/content/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/content/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/content/trunk</url>
-  </scm>
-
-  <profiles>
-
-  <profile>
-        <id>framework</id>
-        <modules>
-          <module>content-api/api</module>
-          <module>content-help</module>
-          <module>content-impl/hbm</module>
-          <module>content-impl/impl</module>
-          <module>content-tool</module>
-          <module>content-tool/tool</module>
-          <module>content-util/util</module>
-          <module>content-impl/pack</module>
-        </modules>
-  </profile>
-  <profile>
-        <id>framework-jcr</id>
-        <modules>
-          <module>content-api/api</module>
-          <module>content-help</module>
-          <module>content-impl/hbm</module>
-          <module>content-impl/impl</module>
-          <module>content-impl-jcr/impl</module>
-          <module>content-jcr-migration-api</module>
-          <module>content-jcr-migration-impl</module>
-          <module>content-tool</module>
-          <module>content-tool/tool</module>
-          <module>content-util/util</module>
-          <module>content-impl-jcr/pack</module>
-          <module>contentmultiplex-impl/impl</module>
-        </modules>
-  </profile>
-
-  <profile>
-        <id>full-jcr</id>
   <modules>
-    <module>content-api/api</module>
-    <module>content-help</module>
-    <module>content-impl/hbm</module>
-    <module>content-impl/impl</module>
-    <module>content-jcr-migration-api</module>
-    <module>content-jcr-migration-impl</module>
-    <module>content-impl-jcr/impl</module>
-    <module>content-impl-jcr/pack</module>
-    <module>content-impl-providers/impl</module>
-    <module>content-impl-providers/pack</module>
-    <module>content-tool</module>
-    <module>content-tool/tool</module>
-    <module>content-util/util</module>
-    <module>contentmultiplex-impl/impl</module>
+    <module>sakai-content-api</module>
+    <module>component</module>
+    <module>sakai-content-util</module>
+    <module>sakai-content-jcr-migration-impl</module>
+    <module>content-bundles</module>
   </modules>
-  </profile>
-
-
-  <profile>
-        <id>full</id>
-        <activation>
-          <activeByDefault>true</activeByDefault>
-        </activation>
-  <modules>
-    <module>content-api/api</module>
-    <module>content-help</module>
-    <module>content-impl/hbm</module>
-    <module>content-impl/impl</module>
-    <module>content-impl/pack</module>
-    <module>content-impl-providers/impl</module>
-    <module>content-impl-providers/pack</module>
-    <module>content-tool</module>
-    <module>content-tool/tool</module>
-    <module>content-util/util</module>
-  </modules>
-  </profile>
-  </profiles>
 </project>
