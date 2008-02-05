@@ -75,7 +75,7 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 		    		if (tml.messageAt(i).args != null ) {	    		
 		    			UIVerbatim.make(errorRow, "error", messageLocator.getMessage(tml.messageAt(i).acquireMessageCode(), (String[])tml.messageAt(i).args[0]));
 		    		} else {
-		    			UIVerbatim.make(errorRow, "error", tml.messageAt(i).acquireMessageCode());
+		    			UIVerbatim.make(errorRow, "error", messageLocator.getMessage(tml.messageAt(i).acquireMessageCode()));
 		    		}
 		    		
 		    	}
