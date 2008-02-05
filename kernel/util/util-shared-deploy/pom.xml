@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>util-base</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+  <description>Shared Deployment Descriptor for util</description>
+  <name>sakai-util-shared-deploy</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-util-shared-deploy</artifactId>
+  <organization>
+    <name>University of Michigan</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <packaging>pom</packaging>
+  <properties>
+    <deploy.target>shared</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>jdom</groupId>
+      <artifactId>jdom</artifactId>
+      <version>1.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>jaxen</groupId>
+      <artifactId>jaxen</artifactId>
+      <version>1.1-beta-10</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>
