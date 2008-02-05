@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Site Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>site-base</artifactId>
+  <packaging>pom</packaging>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/site/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/site/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/site/trunk</url>
+  </scm>
+
+ <profiles>
+ <profile>
+        <id>framework</id>
+  <modules>
+    <module>site-api/api</module>
+    <module>site-help</module>
+    <module>site-impl/impl</module>
+    <module>site-impl/pack</module>
+    <module>site-tool/tool</module>
+  </modules>
+  </profile>
+
+ <profile>
+        <id>full</id>
+        <activation>
+          <activeByDefault>true</activeByDefault>
+        </activation>
+
+  <modules>
+    <module>site-api/api</module>
+    <module>site-help</module>
+    <module>site-impl/impl</module>
+    <module>site-impl/pack</module>
+    <module>site-tool/tool</module>
+    <module>mergedlist-util/util</module>
+  </modules>
+  </profile>
+  </profiles>
+</project>

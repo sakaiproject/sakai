@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.sites"
+			title="Admin: Sites Editor"
+			description="An administration tool to edit Sites.">
+
+		<configuration name="pagesize" value="20" />
+
+	</tool>
+
+</registration>
