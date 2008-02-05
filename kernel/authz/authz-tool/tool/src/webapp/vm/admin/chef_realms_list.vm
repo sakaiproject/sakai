@@ -1,0 +1,52 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_realms_list.vm,v 1.2 2005/05/19 19:53:01 gsilver.umich.edu Exp $ -->
+<script type="text/javascript" language="JavaScript">
+	focus_path = ["search"];
+</script>
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+			#if ($alertMessage)<div class="alertMessage">$tlang.getString("realm.list.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="instruction clear">
+			$tlang.getString("realm.list.these")
+		</div>
+		#if($totalNumber>0)
+		<div class="instruction">
+			$tlang.getString("realm.list.youare") $startNumber - $endNumber $tlang.getString("realm.list.of") $totalNumber $tlang.getString("realm.list.results")
+		</div>
+		#end
+#if ($realms.size() > 0)
+	#set ($realmCount = 0)
+		<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("realm.list.summary")">
+			<tr>
+				<th id="Id">$tlang.getString("realm.list.realmid")</th>
+##				<th id="Description">$tlang.getString("realm.list.used")</th>
+				<th id="Provider">$tlang.getString("realm.list.provide")</th>
+				<th id="Maintain">$tlang.getString("realm.list.maintain")</th>
+			</tr>
+	#foreach ($realm in $realms)
+			<tr>
+				<td headers="Id">
+					<h4>
+						#if ($service.allowUpdate($realm.Id))
+							<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($realm.Id)")" title="$tlang.getString("realm.edit.edit") $validator.escapeHtml($realm.Id)">
+								$validator.escapeHtml($realm.Id)
+							</a>
+						#else
+							$validator.escapeHtml($realm.Id)
+						#end
+					</h4>	
+				</td>
+##				<td headers="Description">$!validator.escapeHtml($!realm.Description)</td>
+				<td headers="Provider">$!validator.escapeHtml($!realm.ProviderGroupId)</td>
+				<td headers="Maintain">$!validator.escapeHtml($!realm.MaintainRole)</td>
+			</tr>
+	#end
+		</table>
+#else
+		<div class="instruction">
+			$tlang.getString("realm.list.norealms")
+		</div>
+#end
+	</div>
+

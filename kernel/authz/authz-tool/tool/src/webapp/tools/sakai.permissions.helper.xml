@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool id="sakai.permissions.helper" title="Set Permissions" description="Sakai Permissions Helper Tool">
+       <configuration name="test" value="reg-value" />
+
+       <category name="sakai.helper" />
+
+	</tool>
+
+</registration>
