@@ -1,0 +1,70 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_create.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
+
+<script type="text/javascript" language="JavaScript">
+	focus_path = ["id"];
+</script>
+
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+
+	<h3>
+		$tlang.getString("usecre.entthe")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("usecre.alert") $validator.escapeHtml($alertMessage)</div>#end	
+
+	<form name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post">
+		<p class="shorttext required">
+			#if(!$user)<span class="reqStar">*</span>#end
+			<label #if(!$user) for="eid" #end>
+				 $tlang.getString("usecre.useid")
+			</label>
+			#if(!$user)<input type="text" name="eid" id="eid" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end/>#else$validator.escapeHtml($user.Eid)#end
+		</p>
+		<p class="shorttext">
+			<label for="first-name">
+				$tlang.getString("usecre.firnam")
+			</label>
+			<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end/>
+		</p>
+		<p class="shorttext">
+			<label for="last-name">
+				$tlang.getString("usecre.lasnam")
+			</label>
+			<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end/>
+		</p>
+		<p class="shorttext">
+			<label for="email">
+				$tlang.getString("usecre.ema")
+			</label>
+			<input type="text" name="email" id="email"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
+		</p>
+		<p class="shorttext required">
+			#if ($pwRequired) <span class="reqStar">*</span> #end
+			<label for="pw">
+				$tlang.getString("usecre.crenewpass")
+			</label>
+			<input type="password" name="pw" id="pw"/>
+		</p>
+		<p class="shorttext required">
+			#if ($pwRequired) <span class="reqStar">*</span> #end
+			<label for="pw0">
+				$tlang.getString("usecre.vernewpass")
+			</label>
+			<input type="password" name="pw0" id="pw0"/>
+		</p>
+		<p class="shorttext">
+			<label for="dtype">
+				$tlang.getString("usecre.typ")
+			</label>
+			<input disabled type="text" name="dtype" id="dtype" value="$type"/>
+			<input type="hidden" name="type" id="type" value="$type"/>
+		</p>
+		<div class="act">
+			<input type="submit" class="active"  name="eventSubmit_doSave" value="$tlang.getString("usecre.creaco")"  accesskey="s" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("usecre.can")"  accesskey="x" />
+		</div>
+	</form>
+</div>
+

@@ -1,0 +1,98 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_view.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
+
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	
+		<h3>
+			$tlang.getString("usevie.revandmod")
+		</h3>
+		#if ($alertMessage)
+				<div class="alertMessage">
+					$tlang.getString("usevie.alert") $validator.escapeHtml($alertMessage)
+				</div>
+		#end
+
+		<form name="$form-name" action="#toolForm("$action")" method="post">
+			<h4>
+				$tlang.getString("usevie.use")
+			</h4>	
+
+				<table class="itemSummary" summary="$tlang.getString("usevie.revandmod2")">
+					<tr>
+						<th>
+							$tlang.getString("usevie.use2")
+						</th>
+						<td>
+							$validator.escapeHtml($user.Eid)
+						</td>
+					</tr>
+					<tr>
+						<th>
+							$tlang.getString("usevie.firnam")
+						</th>
+						<td>
+							$validator.escapeHtml($user.FirstName)
+						</td>
+					</tr>
+					<tr>
+						<th>
+							$tlang.getString("usevie.lasnam")
+						</th>
+						<td>
+							$validator.escapeHtml($user.LastName)
+						</td>
+					</tr>
+					<tr>
+						<th>
+							$tlang.getString("usevie.ema")
+						</th>
+						<td>
+							$validator.escapeHtml($user.Email)
+						</td>
+					</tr>
+					<tr>
+						<th>
+							$tlang.getString("usevie.typ")
+						</th>
+						<td>
+							$validator.escapeHtml($user.Type)
+						</td>
+					</tr>
+				</table>
+
+			<table class="itemSummary" summary="$tlang.getString("usevie.revuseinf")">
+				<tr>
+					<th>$tlang.getString("usevie.creby")</th>
+					<td>
+						$validator.escapeHtml($user.CreatedBy.DisplayName)
+					</td>
+				</tr>
+				<tr>
+					<th>$tlang.getString("usevie.cre")</th>
+					<td >
+						$validator.escapeHtml($user.CreatedTime.toStringLocalFull())
+					</td>
+				</tr>
+				<tr>
+					<th>$tlang.getString("usevie.modby")</th>
+					<td>
+						$validator.escapeHtml($user.ModifiedBy.DisplayName)
+					</td>
+				</tr>
+				<tr>
+					<th>$tlang.getString("usevie.mod")</th>
+					<td>
+						$validator.escapeHtml($user.ModifiedTime.toStringLocalFull())
+					</td>
+				</tr>
+			</table>
+			<input type="hidden" id="id" name="id" value="$validator.escapeHtml($user.Id)" />
+#if($enableEdit)
+			<div class="act">
+				<input type="submit" name="eventSubmit_doModify" value="$tlang.getString("usevie.mod2")"  accesskey="s" />
+			</div>
+#end
+		</form>
+	</div>
