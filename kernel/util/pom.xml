@@ -19,7 +19,7 @@
     <module>sakai-util-id-hbm</module>
     <module>component</module>
     <module>sakai-util-log</module>
-    <module>Sakai-util</module>
+    <module>sakai-util</module>
     <module>deploy</module>
   </modules>
 </project>
