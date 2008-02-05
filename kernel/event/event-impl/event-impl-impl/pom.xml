@@ -2,16 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>event-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>event</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-event-impl</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-event-impl</artifactId>
+  <name>event-impl-impl</name>
+  <groupId>org.sakaiproject.kernel.event</groupId>
+  <artifactId>event-impl-impl</artifactId>
   <organization>
-    <name>University of Michigan</name>
+    <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
