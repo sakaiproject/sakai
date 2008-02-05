@@ -1122,5 +1122,5 @@ This is not needed now that pluto have been released
     <module>pom.xml</module>
     <module>tool</module>
     <module>util</module>
-  </module>
+  </modules>
 </project>

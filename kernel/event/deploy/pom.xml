@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>db-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>event</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <description>Shared Deployment Descriptor for Event</description>
-  <name>sakai-event-shared-deploy</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-event-shared-deploy</artifactId>
+  <name>Event DeploymentS</name>
+  <groupId>org.sakaiproject.kernel.event</groupId>
+  <artifactId>deploy</artifactId>
   <organization>
     <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>

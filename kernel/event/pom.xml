@@ -5,7 +5,7 @@
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
+    <relativePath>../</relativePath>
   </parent>
   <name>Sakai Event Project</name>
   <groupId>org.sakaiproject.kernel</groupId>

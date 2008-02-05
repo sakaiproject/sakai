@@ -5,13 +5,13 @@
     <artifactId>event</artifactId>
     <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>event-api</name>
   <groupId>org.sakaiproject.kernel.event</groupId>
   <artifactId>sakai-event-api</artifactId>
   <organization>
-    <name>University of Michigan</name>
+    <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
@@ -31,7 +31,7 @@
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      ngroupIdnorg.sakaiproject.kernel.entity</groupId>
+      <groupId>org.sakaiproject.kernel.entity</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
