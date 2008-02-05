@@ -2,33 +2,28 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>tool-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>component</artifactId>
+    <groupId>org.sakaiproject.kernel.tool</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-tool-util</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-tool-util</artifactId>
+  <name>Sakai Tool Component Package</name>
+  <groupId>org.sakaiproject.kernel.tool.component</groupId>
+  <artifactId>sakai-tool-pack</artifactId>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
   <properties>
-    <deploy.target/>
+    <deploy.target>components</deploy.target>
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
+      <groupId>org.sakaiproject.kernel.tool.component</groupId>
+      <artifactId>sakai-tool-impl</artifactId>
       <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
   </dependencies>
   <build>
@@ -39,6 +34,7 @@
     
     
     <resources/>
+<!-- java source -->
     
   </build>
 </project>

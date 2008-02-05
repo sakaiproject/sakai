@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>tool</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Tool Component</name>
+  <groupId>org.sakaiproject.kernel.tool</groupId>
+  <artifactId>component</artifactId>
+  <packaging>pom</packaging>
+
+        <modules>
+            <module>sakai-tool-impl</module>
+            <module>sakai-tool-pack</module>
+        </modules>
+</project>

@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>tool-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>component</artifactId>
+    <groupId>org.sakaiproject.kernel.tool</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-tool-impl</name>
-  <groupId>org.sakaiproject</groupId>
+  <name>Sakai Tool Component Implementation</name>
+  <groupId>org.sakaiproject.kernel.tool.component</groupId>
   <artifactId>sakai-tool-impl</artifactId>
   <organization>
     <name>University of Michigan</name>
@@ -21,17 +21,17 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.tool</groupId>
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.authz</groupId>
       <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
@@ -41,17 +41,17 @@
       <version>1.0.4</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.tool</groupId>
       <artifactId>sakai-tool-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>

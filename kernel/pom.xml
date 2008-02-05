@@ -1106,6 +1106,7 @@ This is not needed now that pluto have been released
     <module>component</module>
     <module>alias</module>
     <module>event</module>
+    <module>tool</module>
 <!--
     <module>acccess</module>
     <module>authz</module>
@@ -1121,7 +1122,6 @@ This is not needed now that pluto have been released
     <module>login</module>
     <module>memory</module>
     <module>pom.xml</module>
-    <module>tool</module>
     <module>util</module>
 -->
   </modules>
