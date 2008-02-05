@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.sakaiproject.test.SakaiTestBase;
 import org.sakaiproject.user.api.UserEdit;
+import org.springframework.util.StringUtils;
 
 import com.novell.ldap.LDAPConnection;
 import com.novell.ldap.LDAPException;
@@ -60,6 +61,10 @@ public class JLDAPDirectoryProviderIntegrationTest extends SakaiTestBase {
 	
 	public static final String UNGETTABLE_BY_EMAIL_USER_BEAN_NAME_CONFIG_KEY = 
 		"ungettable-by-email-user-bean-name";
+
+	public static final String BLACKLISTED_EID = "blacklisted-eid";
+
+	public static final String BLACKLISTED_EID_PASSWORD = "blacklisted-password";
 	
 	/** Encapsulates test configuration and convenience utilities */
 	private JLDAPDirectoryProviderIntegrationTestSupport support;
@@ -314,6 +319,59 @@ public class JLDAPDirectoryProviderIntegrationTest extends SakaiTestBase {
         // should be able to allocate an LDAP connection and pass the following simple test
         testConfirmsUserExistenceIfPassedValidEid();
         
+    }
+    
+    public void testBlacklistedEidCannotAuthenticate() {
+    	String blacklistedEid = support.getConfiguredValue(BLACKLISTED_EID);
+    	String blacklistedEidPassword = support.getConfiguredValue(BLACKLISTED_EID_PASSWORD);
+    	if ( !(StringUtils.hasText(blacklistedEid)) ) {
+    		// no blacklisted EID configured, not able to perform test
+    		return;
+    	}
+    	if ( support.udp.isSearchableEid(blacklistedEid) ) {
+    		fail("Test configuration is not valid. JLDAPDirectoryProvider.isSearchableEid() " +
+    				"reports that the configured blacklisted EID [" + blacklistedEid + 
+    				"] _is_ searchable. Please set [" + BLACKLISTED_EID + "] to a blacklisted EID.");
+    	}
+    	if ( !(StringUtils.hasText(blacklistedEidPassword)) ) {
+    		fail("Test configuration is not valid. A blacklisted EID has been configured [" + 
+    				blacklistedEid + "], but a corresponding password has not. Please set [" + 
+    				BLACKLISTED_EID_PASSWORD + 
+    				"] to a valid password for EID [" + blacklistedEid + "]");
+    	}
+    	// We have no good way to guarantee that the corresponding directory entry
+    	// doesn't exist, so some of this test is really taking a portion of the
+    	// implementation on faith.
+    	assertFalse("Should have refused to authenticate a blacklisted EID [" + blacklistedEid + "]",
+    			support.udp.authenticateUser(blacklistedEid, null, blacklistedEidPassword));
+    }
+    
+    public void testBlacklistedEidCannotRetrieveAttributes() {
+    	// most of this is boilerplate copied from testBlacklistedEidCannotAuthenticate()
+    	String blacklistedEid = support.getConfiguredValue(BLACKLISTED_EID);
+    	String blacklistedEidPassword = support.getConfiguredValue(BLACKLISTED_EID_PASSWORD);
+    	if ( !(StringUtils.hasText(blacklistedEid)) ) {
+    		// no blacklisted EID configured, not able to perform test
+    		return;
+    	}
+    	if ( support.udp.isSearchableEid(blacklistedEid) ) {
+    		fail("Test configuration is not valid. JLDAPDirectoryProvider.isSearchableEid() " +
+    				"reports that the configured blacklisted EID [" + blacklistedEid + 
+    				"] _is_ searchable. Please set [" + BLACKLISTED_EID + "] to a blacklisted EID.");
+    	}
+    	if ( !(StringUtils.hasText(blacklistedEidPassword)) ) {
+    		fail("Test configuration is not valid. A blacklisted EID has been configured [" + 
+    				blacklistedEid + "], but a corresponding password has not. Please set [" + 
+    				BLACKLISTED_EID_PASSWORD + 
+    				"] to a valid password for EID [" + blacklistedEid + "]");
+    	}
+    	// we expect the stub to remain effectively "empty" except for the EID field,
+    	// hence the two instances here for asserting unchanged state
+    	UserEditStub expectedEdit = support.newUserEditStub(blacklistedEid);
+    	UserEditStub actualEdit = support.newUserEditStub(blacklistedEid);
+    	assertFalse(support.udp.getUser(actualEdit));
+    	assertEquals("Expected the search to short-circuit and for the passed UserEdit to consequently remain unchanged", 
+    				expectedEdit, actualEdit);
     }
 	
 

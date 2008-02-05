@@ -135,6 +135,24 @@
 			</map>
 		</property -->
 		
+		<!-- Optional. Defaults to allowing searches on any EID, including empty
+		and null Strings. -->
+		<!-- property name="eidValidator">
+			<bean class="edu.amc.sakai.user.RegexpBlacklistEidValidator">
+				<property name="regexpFlags">
+					<bean id="java.util.regex.Pattern.CASE_INSENSITIVE"
+						class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				</property>
+				<property name="eidBlacklist">
+					<list>
+						<value>guest</value>
+						<value>nobody</value>
+						<value>adversary</value>
+					</list>
+				</property>
+			</bean>
+		</property -->
+		
 	</bean>
 			
     <!-- An optional bean definition which can be used to customize LDAP

@@ -158,6 +158,10 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 
 	/** Handles LDAP attribute mappings and encapsulates filter writing */
 	private LdapAttributeMapper ldapAttributeMapper;
+	
+	/** Currently limited to allowing/disallowing searches for particular user EIDs.
+	 * Implements things like user EID blacklists. */
+	private EidValidator eidValidator;
 
 	/**
 	 * Defaults to an anon-inner class which handles {@link LDAPEntry}(ies)
@@ -671,6 +675,13 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			}
 			return cachedUserData;
 		}
+		
+		if ( !(isSearchableEid(eid)) ) {
+			if ( M_log.isInfoEnabled() ) {
+				M_log.info("User EID not searchable (possibly blacklisted or otherwise syntactically invalid) [" + eid + "]");
+			}
+			return null;
+		}
 
 		String filter = 
 			ldapAttributeMapper.getFindUserByEidFilter(eid);
@@ -679,6 +690,22 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		return (LdapUserData)searchDirectoryForSingleEntry(filter, 
 				conn, null, null, null);
 
+	}
+
+	/**
+	 * Consults the cached {@link EidValidator} to determine if the
+	 * given {@link User} EID is searchable. Allows any EID if no
+	 * {@link EidValidator} has been configured.
+	 *  
+	 * @param eid a user EID, possibly <code>null</code> or otherwise "empty"
+	 * @return <code>true</code> if no {@link EidValidator} has been
+	 *   set, or the result of {@link EidValidator#isSearchableEid(String)}
+	 */
+	protected boolean isSearchableEid(String eid) {
+		if ( eidValidator == null ) {
+			return true;
+		}
+		return eidValidator.isSearchableEid(eid);
 	}
 
 	/**
@@ -923,9 +950,19 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			M_log.debug("mapLdapEntryOntoUserData() [dn = " + ldapEntry.getDN() + "]");
 		}
 
-		LdapUserData userData = new LdapUserData();
+		LdapUserData userData = newLdapUserData();
 		ldapAttributeMapper.mapLdapEntryOntoUserData(ldapEntry, userData);
 		return userData;
+	}
+
+	/**
+	 * Instantiates a {@link LdapUserData}. This method exists primarily for
+	 * overriding in test cases.
+	 * 
+	 * @return a new {@link LdapUserData}
+	 */
+	protected LdapUserData newLdapUserData() {
+		return new LdapUserData();
 	}
 
 	/**
@@ -1335,6 +1372,30 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 */
 	public boolean isCaseSensitiveCacheKeys() {
 		return caseSensitiveCacheKeys;
+	}
+
+	/**
+	 * Access the service used to verify EIDs prior to executing
+	 * searches on those values.
+	 * 
+	 * @see #isSearchableEid(String)
+	 * @return an {@link EidValidator} or <code>null</code> if no
+	 *   such dependency has been configured
+	 */
+	public EidValidator getEidValidator() {
+		return eidValidator;
+	}
+
+	/**
+	 * Assign the service used to verify EIDs prior to executing
+	 * searches on those values. This field defaults to <code>null</code>
+	 * indicating that all EIDs are searchable.
+	 * 
+	 * @param eidValidator an {@link EidValidator} or <code>null</code>
+	 *   to indicate that all EIDs are searchable.
+	 */
+	public void setEidValidator(EidValidator eidValidator) {
+		this.eidValidator = eidValidator;
 	}
 
 }

@@ -186,6 +186,35 @@ on the JLDAPDirectoryProvider, unless the javax.net.ssl.trustStore and
 javax.net.ssl.trustStorePassword system properties have been set. Future
 implementations may be more flexible in this regard.
 
+  EID Blacklisting
+  -----------------------
+
+In some cases it may be appropriate to short-circuit searches on certain EID values.
+For example, perhaps your directory loads placeholder entries with stock login
+values like "guest" while user accounts are provisioned. Directory ACLs may be such 
+that Sakai can read attributes from these entries, but doing so would in fact be
+inappropriate since the user record has not yet been properly initialized. In other 
+cases, you may be able to predict that certain EIDs will never resolve to directory 
+entries, in which cases skipping a network hop to the directory may be appealing. Such 
+EID interception policies can be configured by injecting an 
+edu.amc.sakai.user.EidValidator instance into the JLDAPDirectoryProvider. 
+jldap-beans.xml contains a commented-out example of configuring a 
+RegexpBlacklistEidValidator implementation of that interface. That class accepts a 
+list of Java Pattern strings and refuses to "validate" any EID matching any pattern 
+in that list.
+
+Please note that email address blacklisting is not supported in any way at this time.
+For example, if a client invokes JLDAPDirectoryProvider.findUserByEmail(), the result
+is _not_ suppressed even if the current EIDValidator would refuse to validate the
+resulting user's EID.
+
+Typically, EID blacklists are configured at startup and require a restart to pick up
+new configuration. However, it is technically possible to adjust the blacklist
+configuration at runtime by any number of means. Please be aware, though, that EID 
+blacklisting may not have an immediate effect if a blacklisted user has already been
+cached. That is, the cache entry must timeout or otherwise flush the user record before
+blacklisting policies will go into effect for that user. 
+
   Connection Pooling
   ------------------------
 
