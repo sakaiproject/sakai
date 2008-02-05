@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>site-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>site</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>sakai-site-api</name>
-  <groupId>org.sakaiproject</groupId>
+  <name>Sakai Site API</name>
+  <groupId>org.sakaiproject.kernel.site</groupId>
   <artifactId>sakai-site-api</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
@@ -21,32 +21,32 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.entity</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.authz</groupId>
       <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.tool</groupId>
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.user</groupId>
       <artifactId>sakai-user-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
