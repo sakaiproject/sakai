@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>event</artifactId>
-    <groupId>org.sakaiproject.kernel</groupId>
+    <artifactId>event-impl</artifactId>
+    <groupId>org.sakaiproject.kernel.event</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>event-impl-impl</name>
-  <groupId>org.sakaiproject.kernel.event</groupId>
+  <name>Event Component Implementation</name>
+  <groupId>org.sakaiproject.kernel.event.event-impl</groupId>
   <artifactId>event-impl-impl</artifactId>
   <organization>
     <name>Sakai Foundation</name>
@@ -21,17 +21,12 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
+      <groupId>org.sakaiproject.kernel.component</groupId>
+      <artifactId>component</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.event.api</groupId>
       <artifactId>sakai-event-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>

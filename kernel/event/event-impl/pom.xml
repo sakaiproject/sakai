@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>event</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Event Component Implementation</name>
+  <groupId>org.sakaiproject.kernel.event</groupId>
+  <artifactId>event-impl</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>event-impl-impl</module>
+    <module>event-impl-pack</module>
+  </modules>
+</project>
