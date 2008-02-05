@@ -9,7 +9,7 @@
   </parent>
   <name>Event Utilities</name>
   <groupId>org.sakaiproject.kernel.event</groupId>
-  <artifactId>event-util</artifactId>
+  <artifactId>sakai-event-util</artifactId>
   <organization>
     <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>

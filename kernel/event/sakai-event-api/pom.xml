@@ -9,7 +9,7 @@
   </parent>
   <name>event-api</name>
   <groupId>org.sakaiproject.kernel.event</groupId>
-  <artifactId>event-api</artifactId>
+  <artifactId>sakai-event-api</artifactId>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>
