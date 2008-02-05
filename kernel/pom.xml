@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>master</artifactId>
+  <artifactId>kernel</artifactId>
   <packaging>pom</packaging>
   <name>Sakai Master</name>
   <version>SNAPSHOT</version>
@@ -59,9 +59,9 @@
         </license>
     </licenses>
    <scm>
-     <connection>scm:svn:https://source.sakaiproject.org/svn/master/trunk</connection>
-     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/master/trunk</developerConnection>
-     <url>https://source.sakaiproject.org/svn/master/trunk</url>
+     <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</connection>
+     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</developerConnection>
+     <url>https://source.sakaiproject.org/svn/kernel/trunk</url>
    </scm> 
   
   <properties>
@@ -1102,4 +1102,25 @@ This is not needed now that pluto have been released
       </plugin>
     </plugins>
   </build>
+  <modules>
+    <module>acccess</module>
+    <module>authz</module>
+    <module>component</module>
+    <module>db</module>
+    <module>entity</module>
+    <module>jcr</module>
+    <module>optional</module>
+    <module>site</module>
+    <module>user</module>
+    <module>alias</module>
+    <module>cluster</module>
+    <module>content</module>
+    <module>email</module>
+    <module>event</module>
+    <module>login</module>
+    <module>memory</module>
+    <module>pom.xml</module>
+    <module>tool</module>
+    <module>util</module>
+  </module>
 </project>
