@@ -3,32 +3,32 @@
   <modelVersion>4.0.0</modelVersion>
   <packaging>pom</packaging>
   <parent>
-    <artifactId>authz-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>component</artifactId>
+    <groupId>org.sakaiproject.kernel.authz</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>sakai-authz-integration-test</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-authz-integration-test</artifactId>
+  <name>Sakai AuthZ Component Integration Tests</name>
+  <groupId>org.sakaiproject.kernel.authz.component</groupId>
+  <artifactId>integration-test</artifactId>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.test</groupId>
       <artifactId>sakai-test-harness</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.authz</groupId>
       <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.entity</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.tool</groupId>
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>

@@ -1112,9 +1112,9 @@ This is not needed now that pluto have been released
     <module>user</module>
     <module>content</module>
     <module>site</module>
+    <module>authz</module>
 <!--
     <module>acccess</module>
-    <module>authz</module>
     <module>db</module>
     <module>jcr</module>
     <module>optional</module>
