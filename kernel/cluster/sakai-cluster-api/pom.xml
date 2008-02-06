@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>cluster-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>cluster</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-cluster-api</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.kernel.cluster</groupId>
   <artifactId>sakai-cluster-api</artifactId>
   <organization>
     <name>University of Michigan</name>
@@ -21,7 +21,7 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
     </dependency>

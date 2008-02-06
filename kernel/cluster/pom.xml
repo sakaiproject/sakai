@@ -8,7 +8,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Cluster Project</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>cluster</artifactId>
   <packaging>pom</packaging>
   
