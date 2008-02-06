@@ -76,6 +76,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 		Connection connection = null;
 		Statement stmt = null;
 		ResultSet rs = null;
+		long txid = 0;
 		try
 		{
 			connection = datasource.getConnection();
@@ -88,6 +89,9 @@ public class TransactionSequenceImpl implements TransactionSequence
 				stmt.executeUpdate("insert into "
 						+ "search_transaction ( txid, txname ) " + "values (0,'" + name
 						+ "')");
+				txid = 0;
+			} else {
+				txid = rs.getLong(1);
 			}
 			connection.commit();
 		}
@@ -119,7 +123,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 			{
 			}
 		}
-		log.debug("Transaction Sequece " + getName() + " Started at " + getNextId());
+		log.debug("Transaction Sequence " + getName() + " Started at " + txid);
 
 	}
 
