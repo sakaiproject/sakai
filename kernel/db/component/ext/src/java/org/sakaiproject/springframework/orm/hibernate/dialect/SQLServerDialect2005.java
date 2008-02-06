@@ -30,7 +30,7 @@ import java.sql.Types;
  * <br>Creation Date: May 1, 2006
  *
  * @author Mike DeSimone, mike.[at].rsmart.com
- * @version $Revision: $
+ * @version $Revision$
  */
 public class SQLServerDialect2005 extends SQLServerDialect {
 
