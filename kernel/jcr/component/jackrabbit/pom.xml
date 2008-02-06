@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>jcr-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>component</artifactId>
+    <groupId>org.sakaiproject.kernel.jcr</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Jackrabbit JSR-170 Service Impl</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-jackrabbit-impl-base</artifactId>
+  <groupId>org.sakaiproject.kernel.jcr.component</groupId>
+  <artifactId>jackrabbit</artifactId>
     <organization>
     <name>Timefields Ltd</name>
     <url>http://www.tfd.co.uk/</url>
@@ -17,8 +17,8 @@
   <inceptionYear>2007</inceptionYear>
   <packaging>pom</packaging>
   <modules>
-    <module>impl</module>
-    <module>pack</module>
+    <module>sakai-jackrabbit-impl</module>
+    <module>sakai-jackrabbit-pack</module>
   </modules>
   <properties>
 	  <jackrabbit.version>1.3.3</jackrabbit.version>
@@ -30,38 +30,38 @@
       <version>1.0</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.jcr</groupId>
       <artifactId>sakai-jcr-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.user</groupId>
       <artifactId>sakai-user-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.authz</groupId>
       <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.entity</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
