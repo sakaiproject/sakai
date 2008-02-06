@@ -80,6 +80,7 @@
 
                 <!-- Replace the favorite icon from tomcat -->
                 <copy file="${basedir}/../reference/library/src/webapp/icon/favicon.ico" tofile="${basedir}/target/pack/webapps/ROOT/favicon.ico" overwrite="true" />
+                <copy file="${basedir}/../reference/library/src/webapp/icon/apple-touch-icon.png" tofile="${basedir}/target/pack/webapps/ROOT/apple-touch-icon.png" overwrite="true" />
 
                 <copy file="${basedir}/../ECLv1.txt" tofile="${basedir}/target/pack/ECLv1.txt" overwrite="true" />
 
