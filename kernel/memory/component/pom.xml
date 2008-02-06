@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>memory</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Memory Component</name>
+  <groupId>org.sakaiproject.kernel.memory</groupId>
+  <artifactId>component</artifactId>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>sakai-memory-impl</module>
+    <module>sakai-memory-pack</module>
+  </modules>
+</project>
