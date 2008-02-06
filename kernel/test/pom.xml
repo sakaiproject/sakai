@@ -2,23 +2,16 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>base</artifactId>
+    <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Test Harness</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-test-harness</artifactId>
+  <groupId>org.sakaiproject.kernel</groupId>
+  <artifactId>test</artifactId>
   <packaging>jar</packaging>
   
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/test-harness/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/test-harness/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/test-harness/trunk</url>
-  </scm>
-  
-
   <properties>
     <deploy.target/>
   </properties>
