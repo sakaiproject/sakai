@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>db</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai DB Component</name>
+  <groupId>org.sakaiproject.kernel.db</groupId>
+  <artifactId>component</artifactId>
+  <packaging>pom</packaging>
+  
+
+  <modules>
+    <module>sakai-db-impl</module>
+    <module>sakai-db-pack</module>
+    <module>sakai-db-ext</module>
+  </modules>
+</project>
