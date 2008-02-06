@@ -9,7 +9,7 @@
   </parent>
   <name>Sakai Test Harness</name>
   <groupId>org.sakaiproject.kernel</groupId>
-  <artifactId>test</artifactId>
+  <artifactId>test-harness</artifactId>
   <packaging>jar</packaging>
   
   <properties>

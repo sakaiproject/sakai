@@ -21,8 +21,8 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject.kernel.component</groupId>
-      <artifactId>component</artifactId>
+      <groupId>org.sakaiproject.kernel.component.api</groupId>
+      <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
@@ -66,7 +66,7 @@
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.component</groupId>
+      <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
@@ -89,6 +89,11 @@
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>${sakai.servletapi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
     </dependency>
   </dependencies>
   <build>

@@ -81,7 +81,7 @@
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.tool</groupId>
+      <groupId>org.sakaiproject.kernel.tool.util</groupId>
       <artifactId>sakai-tool-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>

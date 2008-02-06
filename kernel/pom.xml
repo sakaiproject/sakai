@@ -1114,14 +1114,15 @@ This is not needed now that pluto have been released
     <module>site</module>
     <module>authz</module>
     <module>email</module>
+    <module>db</module>
+    <module>memory</module>
+    <module>test-harness</module>
 <!--
     <module>acccess</module>
-    <module>db</module>
     <module>jcr</module>
     <module>optional</module>
     <module>cluster</module>
     <module>login</module>
-    <module>memory</module>
     <module>pom.xml</module>
 -->
   </modules>
