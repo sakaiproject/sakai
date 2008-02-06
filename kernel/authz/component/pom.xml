@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>authz</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai AuthZ Component</name>
+  <groupId>org.sakaiproject.kernel.authz</groupId>
+  <artifactId>component</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>sakai-authz-impl</module>
+    <module>sakai-authz-pack</module>
+    <module>integration-test</module>
+  </modules>
+</project>
