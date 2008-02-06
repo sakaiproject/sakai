@@ -209,6 +209,7 @@ public abstract class StaticHandler extends BasePortalHandler
 			while (nr > 0)
 			{
 				out.write(buffer, 0, nr);
+				nr = fin.read(buffer, 0, bsize);
 			}
 
 		}
