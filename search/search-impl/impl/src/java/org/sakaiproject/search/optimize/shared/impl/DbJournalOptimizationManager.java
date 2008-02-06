@@ -109,7 +109,8 @@ public class DbJournalOptimizationManager implements JournalManager
 			success.setString(1, ojms.indexWriter);
 			success.executeUpdate();
 			connection.commit();
-			log.info("Shared Journal Mege Committed into SavePoint "+ojms.oldestSavePoint);
+			log.info("Shared Journal Mege Committed into SavePoint "
+					+ ojms.oldestSavePoint);
 		}
 		catch (Exception ex)
 		{
@@ -165,9 +166,11 @@ public class DbJournalOptimizationManager implements JournalManager
 			throws IndexJournalException
 	{
 		PreparedStatement getJournalSavePointPst = null;
+		PreparedStatement getEarlierSavePoint = null;
 		PreparedStatement lockEarlierSavePoints = null;
 		PreparedStatement listMergeSet = null;
 		PreparedStatement listJournal = null;
+
 		OptimizeJournalManagerStateImpl jms = new OptimizeJournalManagerStateImpl();
 		ResultSet rs = null;
 		Connection connection = null;
@@ -177,22 +180,26 @@ public class DbJournalOptimizationManager implements JournalManager
 			connection = datasource.getConnection();
 			getJournalSavePointPst = connection
 					.prepareStatement("select serverid, jid from search_node_status order by jid asc ");
+			getEarlierSavePoint = connection
+					.prepareStatement("select serverid, jid from search_node_status order by jid asc ");
 
 			jms.indexWriter = serverId + ":" + transactionId;
 			jms.transactionId = transactionId;
 			jms.oldestSavePoint = 0;
 
 			List<String> servers = clusterService.getServers();
-			
+
 			// workout the oldest SavePoint that has not yet been merged
 			// by any running cluster node.
-			// this assumes that all the cluster nodes are running. 
-			// Any that are not running will have to be restarted in a clean state
+			// this assumes that all the cluster nodes are running.
+			// Any that are not running will have to be restarted in a clean
+			// state
 			// so that they update from scratch.
 
 			getJournalSavePointPst.clearParameters();
 			rs = getJournalSavePointPst.executeQuery();
-			while (jms.oldestSavePoint == 0 && rs.next())
+			long oldestActiveSavepoint = 0;
+			while (oldestActiveSavepoint == 0 && rs.next())
 			{
 				String server = rs.getString(1);
 				log.debug("Got Server " + server + " with savePoint " + rs.getLong(2));
@@ -205,7 +212,7 @@ public class DbJournalOptimizationManager implements JournalManager
 					}
 					if (server.equals(s))
 					{
-						jms.oldestSavePoint = rs.getLong(2);
+						oldestActiveSavepoint = rs.getLong(2);
 						log.debug("	Match against " + s);
 						break;
 					}
@@ -216,7 +223,18 @@ public class DbJournalOptimizationManager implements JournalManager
 				}
 
 			}
-			jms.oldestSavePoint--;
+			rs.close();
+			getEarlierSavePoint = connection
+					.prepareStatement("select txid from search_journal where txid < ? and  status = 'commited' order by txid desc ");
+			getEarlierSavePoint.clearParameters();
+			getEarlierSavePoint.setLong(1, oldestActiveSavepoint);
+			rs = getEarlierSavePoint.executeQuery();
+			jms.oldestSavePoint = 0;
+			if (rs.next())
+			{
+				jms.oldestSavePoint = rs.getLong(1);
+			}
+
 			if (jms.oldestSavePoint <= 0)
 			{
 				throw new NoOptimizationRequiredException("Oldest savePoint is 0");
@@ -341,6 +359,13 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			try
 			{
+				getEarlierSavePoint.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
 				lockEarlierSavePoints.close();
 			}
 			catch (Exception ex)
@@ -394,7 +419,8 @@ public class DbJournalOptimizationManager implements JournalManager
 			int i = updateTarget.executeUpdate();
 
 			connection.commit();
-			log.info("Rolled Back Failed Shared Index operation a retry will happen on annother node soon ");
+			log
+					.info("Rolled Back Failed Shared Index operation a retry will happen on annother node soon ");
 		}
 		catch (Exception ex)
 		{
@@ -404,7 +430,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex2)
 			{
-				log.error("Rollback Of shared Journal Merge Failed ",ex);
+				log.error("Rollback Of shared Journal Merge Failed ", ex);
 			}
 		}
 		finally
@@ -443,9 +469,9 @@ public class DbJournalOptimizationManager implements JournalManager
 
 			connection = datasource.getConnection();
 			countJournals = connection.createStatement();
-			
+
 			long nSavePoints = 0;
-			Map<String,String> mergingMap = new HashMap<String, String>();
+			Map<String, String> mergingMap = new HashMap<String, String>();
 			long transactionId = transaction.getTransactionId();
 			String thisWriter = serverId + ":" + transactionId;
 			try
@@ -458,14 +484,16 @@ public class DbJournalOptimizationManager implements JournalManager
 					String indexwriter = rs.getString(2);
 					String status = rs.getString(3);
 					long ts = rs.getLong(4);
-					if ( "merging-prepare".equals(status) ) {
-						mergingMap.put(indexwriter, indexwriter);						
-					} else if ( "commited".equals(status) ) {
+					if ("merging-prepare".equals(status))
+					{
+						mergingMap.put(indexwriter, indexwriter);
+					}
+					else if ("commited".equals(status))
+					{
 						nSavePoints++;
 					}
 				}
-				
-				
+
 				rs.close();
 			}
 			catch (Exception ex)
@@ -473,50 +501,81 @@ public class DbJournalOptimizationManager implements JournalManager
 				log
 						.info("Optimzation of central journal is in progress on annother node, no optimization possible on this node ");
 			}
-			if ( mergingMap.size() > 1 ) {
+			if (mergingMap.size() > 1)
+			{
 				StringBuilder sb = new StringBuilder();
-				sb.append("\tMore than One shares segments merge appears to be active in the \n");
+				sb
+						.append("\tMore than One shares segments merge appears to be active in the \n");
 				sb.append("\tcluster, you Must investigate the search_journal table\n");
 				sb.append("\tA list of index Writers Follows\n\t===================\n");
-				for( String iw : mergingMap.values() ) {
+				for (String iw : mergingMap.values())
+				{
 					sb.append("\t").append(iw);
-					if ( iw.equals(thisWriter) ) {
-						sb.append("\tThis node is currently optimizing the shared segments,");
-						sb.append("\tThis is an error as only one copy of this node should be ");
-						sb.append("\tActive in the cluster");				
-					} else if ( iw.startsWith(serverId) ) {
-						sb.append("\tThis node is currently optimizing the shared segments,");
-						sb.append("\tThis is an error as only one copy of this node should be ");
-						sb.append("\tActive in the cluster");											
+					if (iw.equals(thisWriter))
+					{
+						sb
+								.append("\tThis node is currently optimizing the shared segments,");
+						sb
+								.append("\tThis is an error as only one copy of this node should be ");
+						sb.append("\tActive in the cluster");
+					}
+					else if (iw.startsWith(serverId))
+					{
+						sb
+								.append("\tThis node is currently optimizing the shared segments,");
+						sb
+								.append("\tThis is an error as only one copy of this node should be ");
+						sb.append("\tActive in the cluster");
 					}
 				}
 				sb.append("\t==========================\n");
 				log.error(sb.toString());
-				throw new NoOptimizationRequiredException("Merge already in progress, possible error");					
-			} else if ( mergingMap.size() == 1) {
+				throw new NoOptimizationRequiredException(
+						"Merge already in progress, possible error");
+			}
+			else if (mergingMap.size() == 1)
+			{
 				StringBuilder sb = new StringBuilder();
-				for( String iw : mergingMap.values() ) {
-					if ( iw.equals(thisWriter) ) {
-						sb.append("This node already merging shared segments, index writer "+iw);
-						sb.append("\tThis node is currently optimizing the shared segments,");
-						sb.append("\tThis is an error as only one copy of this node should be ");
-						sb.append("\tActive in the cluster");				
-					} else if ( iw.startsWith(serverId) ) {
-						sb.append("This node already merging shared segments, index writer "+iw);
-						sb.append("\tThis node is currently optimizing the shared segments,");
-						sb.append("\tThis is an error as only one copy of this node should be ");
-						sb.append("\tActive in the cluster");											
+				for (String iw : mergingMap.values())
+				{
+					if (iw.equals(thisWriter))
+					{
+						sb
+								.append("This node already merging shared segments, index writer "
+										+ iw);
+						sb
+								.append("\tThis node is currently optimizing the shared segments,");
+						sb
+								.append("\tThis is an error as only one copy of this node should be ");
+						sb.append("\tActive in the cluster");
+					}
+					else if (iw.startsWith(serverId))
+					{
+						sb
+								.append("This node already merging shared segments, index writer "
+										+ iw);
+						sb
+								.append("\tThis node is currently optimizing the shared segments,");
+						sb
+								.append("\tThis is an error as only one copy of this node should be ");
+						sb.append("\tActive in the cluster");
 					}
 				}
-				if ( sb.length() == 0 ) {
-					log.info("There is annother node performing shared index merge, this node will continue with other operations ");
-					throw new NoOptimizationRequiredException("Merge already in progress, normal");					
-				} else {
-					log.error(sb.toString());
-					throw new NoOptimizationRequiredException("Merge already in progress, possible error");					
+				if (sb.length() == 0)
+				{
+					log
+							.info("There is annother node performing shared index merge, this node will continue with other operations ");
+					throw new NoOptimizationRequiredException(
+							"Merge already in progress, normal");
 				}
-				
-			} 
+				else
+				{
+					log.error(sb.toString());
+					throw new NoOptimizationRequiredException(
+							"Merge already in progress, possible error");
+				}
+
+			}
 			else if (nSavePoints < journalSettings.getMinimumOptimizeSavePoints())
 			{
 				throw new NoOptimizationRequiredException("Insufficient items to optimze");

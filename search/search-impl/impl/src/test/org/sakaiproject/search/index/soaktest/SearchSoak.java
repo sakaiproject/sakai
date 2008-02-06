@@ -118,23 +118,26 @@ public class SearchSoak extends TestCase
 			node[i].init();
 		}
 		clusterService.init();
-		
 
-		long endTime  = System.currentTimeMillis()+3600000;
+		long endTime = System.currentTimeMillis() + 3600000;
 		long timeLeft = endTime - System.currentTimeMillis();
-		while( timeLeft > 0 ) {
+		while (timeLeft > 0)
+		{
 			for (int i = 0; i < 4; i++)
 			{
 				node[i].testSearch();
+				// simulate holes in the sequence
+				node[i].makeTransactionHole();
 			}
 			Thread.sleep(1000);
 			for (int i = 0; i < 4; i++)
 			{
 				node[i].getThreadLocalManager().clear();
 			}
+
 			timeLeft = endTime - System.currentTimeMillis();
 		}
-		
+
 		for (int i = 0; i < 4; i++)
 		{
 			node[i].close();
@@ -146,16 +149,17 @@ public class SearchSoak extends TestCase
 		log.info(" waiting for 30 ");
 		Thread.sleep(30000);
 		Runtime.getRuntime().gc();
-		for ( int k = 0; k < 50; k++ ) {
+		for (int k = 0; k < 50; k++)
+		{
 			for (int i = 0; i < 4; i++)
 			{
 				node[i].testSearch();
 			}
-			log.info("Done "+k);
+			log.info("Done " + k);
 		}
 		log.info(" take snapshot will terminate in 1h, ctrl+C to exit ");
 		Thread.sleep(3600000);
-		
+
 	}
 
 }

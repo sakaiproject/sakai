@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -115,6 +116,10 @@ public class SearchIndexerNode
 
 	private ThreadLocalManager threadLocalManager;
 
+	private TransactionSequenceImpl sequence;
+
+	private static Random rand = new Random();
+
 	public SearchIndexerNode(MockClusterService clusterService, String base,
 			String instanceName, String driver, String url, String userame,
 			String password)
@@ -133,15 +138,20 @@ public class SearchIndexerNode
 		String shared = base + "/shared";
 		String instanceBase = base + "/" + instanceName;
 		String localIndexBase = instanceBase + "/index/local";
-		String sharedJournalBase = shared ;
-		
+		String sharedJournalBase = shared;
+
 		threadLocalManager = new MockThreadLocalManager();
 
 		JournalSettings journalSettings = new JournalSettings();
 		journalSettings.setLocalIndexBase(localIndexBase);
 		journalSettings.setSharedJournalBase(sharedJournalBase);
-		journalSettings.setMinimumOptimizeSavePoints(50); // the number of shared save points before we attemt to merge
-		journalSettings.setOptimizeMergeSize(50); // the number of local save points before we try to merge
+		journalSettings.setMinimumOptimizeSavePoints(50); // the number of
+															// shared save
+															// points before we
+															// attemt to merge
+		journalSettings.setOptimizeMergeSize(50); // the number of local save
+													// points before we try to
+													// merge
 		journalSettings.setLocalMaxBufferedDocs(50);
 		journalSettings.setLocalMaxMergeDocs(1000000);
 		journalSettings.setLocalMaxMergeFactor(10);
@@ -163,7 +173,7 @@ public class SearchIndexerNode
 		MockServerConfigurationService serverConfigurationService = new MockServerConfigurationService();
 		serverConfigurationService.setInstanceName(instanceName);
 		MergeUpdateManager mergeUpdateManager = new MergeUpdateManager();
-		TransactionSequenceImpl sequence = new TransactionSequenceImpl();
+		sequence = new TransactionSequenceImpl();
 
 		SharedFilesystemJournalStorage sharedFilesystemJournalStorage = new SharedFilesystemJournalStorage();
 		JournaledFSIndexStorageUpdateTransactionListener journaledFSIndexStorageUpdateTransactionListener = new JournaledFSIndexStorageUpdateTransactionListener();
@@ -198,7 +208,7 @@ public class SearchIndexerNode
 		journaledFSIndexStorage.setServerConfigurationService(serverConfigurationService);
 		mu.setJournaledObject(journaledFSIndexStorage);
 		mu.setMergeUpdateManager(mergeUpdateManager);
-		
+
 		OptimizableIndexImpl optimizableIndex = new OptimizableIndexImpl();
 		optimizableIndex.setJournaledIndex(journaledFSIndexStorage);
 
@@ -212,9 +222,7 @@ public class SearchIndexerNode
 		optimizeUpdateManager.addTransactionListener(otli);
 		optimizeUpdateManager.setSequence(new LocalTransactionSequenceImpl());
 
-		
 		mu.setOptimizeUpdateManager(optimizeUpdateManager);
-
 
 		JournalManagerUpdateTransaction journalManagerUpdateTransaction = new JournalManagerUpdateTransaction();
 		MockSearchIndexBuilder mockSearchIndexBuilder = new MockSearchIndexBuilder();
@@ -258,7 +266,6 @@ public class SearchIndexerNode
 		journaledFSIndexStorage.init();
 
 		tiw.init();
-
 
 		OptimizeIndexOperation oo = new OptimizeIndexOperation();
 		oo.setJournaledObject(journaledFSIndexStorage);
@@ -316,7 +323,7 @@ public class SearchIndexerNode
 				{
 					tds.populateDocuments(500, instanceName);
 					tds.resetAfter(3000);
-					
+
 				}
 				catch (Exception e)
 				{
@@ -331,7 +338,6 @@ public class SearchIndexerNode
 		journaledFSIndexStorage.addIndexListener(cim);
 		IndexListenerCloser indexCloser = new IndexListenerCloser();
 		journaledFSIndexStorage.addIndexListener(indexCloser);
-
 
 		// Journal Optimization
 
@@ -350,7 +356,7 @@ public class SearchIndexerNode
 		clusterService.addServerConfigurationService(serverConfigurationService);
 
 		long journalOptimizeLimit = 100;
-		
+
 		optimizeSequence.setName("journaloptimize");
 		optimizeSequence.setDatasource(tds.getDataSource());
 
@@ -398,7 +404,6 @@ public class SearchIndexerNode
 		journalOptimizer.setPeriod(1000);
 		taskList.add(journalOptimizer);
 
-		
 		SearchServiceManagement mbean = new SearchServiceManagement(instanceName);
 		mbean.setIndexStorageProvider(journaledFSIndexStorage);
 		mbean.setSearchService(searchService);
@@ -406,9 +411,9 @@ public class SearchIndexerNode
 		mbean.setIndexListenerCloser(indexCloser);
 		mbean.setIndexWorker(tiw);
 		mbean.setThreadLocalManager(threadLocalManager);
-		
+
 		mbean.init();
-		
+
 		cim.setSearchService(searchService);
 		cim.setTasks(taskList);
 		cim.init();
@@ -455,40 +460,42 @@ public class SearchIndexerNode
 					+ ex.getMessage());
 		}
 	}
+
 	public void testSlowSearch() throws Exception
 	{
-			long start1 = System.currentTimeMillis();
-			IndexSearcher is = journaledFSIndexStorage.getIndexSearcher();
-			TermQuery tq = new TermQuery(new Term(SearchService.FIELD_CONTENTS, "node"));
+		long start1 = System.currentTimeMillis();
+		IndexSearcher is = journaledFSIndexStorage.getIndexSearcher();
+		TermQuery tq = new TermQuery(new Term(SearchService.FIELD_CONTENTS, "node"));
 
-			long start = System.currentTimeMillis();
-			log.info("Searching with "+is);
-			Hits h = is.search(tq);
-			log.info("Performing Search and Slepping 500ms with "+is);
-			Thread.sleep(500);
-			log.info("Performing Search and Slepping 500ms with "+is);
-			long end = System.currentTimeMillis();
-			log.info("Got " + h.length() + " hits from " + is.getIndexReader().numDocs()
-					+ " for node " + instanceName + " in " + (end - start) + ":"
-					+ (start - start1) + " ms");
-			for ( int i = 0; i < h.length(); i++ ) {
-				Document d = h.doc(i);
-				for ( Enumeration<Field> e = d.fields(); e.hasMoreElements(); ) {
-					e.nextElement();
-				}
+		long start = System.currentTimeMillis();
+		log.info("Searching with " + is);
+		Hits h = is.search(tq);
+		log.info("Performing Search and Slepping 500ms with " + is);
+		Thread.sleep(500);
+		log.info("Performing Search and Slepping 500ms with " + is);
+		long end = System.currentTimeMillis();
+		log.info("Got " + h.length() + " hits from " + is.getIndexReader().numDocs()
+				+ " for node " + instanceName + " in " + (end - start) + ":"
+				+ (start - start1) + " ms");
+		for (int i = 0; i < h.length(); i++)
+		{
+			Document d = h.doc(i);
+			for (Enumeration<Field> e = d.fields(); e.hasMoreElements();)
+			{
+				e.nextElement();
 			}
+		}
 	}
 
 	/**
-	 * @throws IOException 
-	 * 
+	 * @throws IOException
 	 */
 	public void reopenIndex() throws IOException
 	{
 		journaledFSIndexStorage.markModified();
 		journaledFSIndexStorage.getIndexReader();
 		log.info("Reopend Index");
-		
+
 	}
 
 	/**
@@ -497,6 +504,18 @@ public class SearchIndexerNode
 	public ThreadLocalManager getThreadLocalManager()
 	{
 		return threadLocalManager;
+	}
+
+	/**
+	 * 
+	 */
+	public void makeTransactionHole()
+	{
+		if ((rand.nextInt(100) % 18) == 0)
+		{
+			long n = sequence.getNextId();
+			log.info("Simulated Transaction Hole at " + n);
+		}
 	}
 
 }
