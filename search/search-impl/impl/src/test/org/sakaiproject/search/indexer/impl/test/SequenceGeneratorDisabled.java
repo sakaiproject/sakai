@@ -39,12 +39,15 @@ public class SequenceGeneratorDisabled extends TestCase
 
 	private TransactionSequenceImpl sequenceGenerator;
 
+	private ConcurrentHashMap<Long, Long> m = new ConcurrentHashMap<Long, Long>();
 
 	private int nt;
 
 	protected long fail;
 
 	private TDataSource tds;
+
+	private long last;
 
 	/**
 	 * @param name
@@ -108,6 +111,84 @@ public class SequenceGeneratorDisabled extends TestCase
 						for (int i = 0; i < 1000; i++)
 						{
 							n = sequenceGenerator.getNextId();
+							if (seq.get(n) != null)
+							{
+								fail = n;
+								fail("Local clash on " + n);
+
+							}
+							seq.put(n, n);
+						}
+						log.debug("Last " + n);
+						for (long nx : seq.values())
+						{
+							if (m.get(nx) != null)
+							{
+								fail = nx;
+								fail("Concurrent clash on " + nx);
+							}
+							m.put(nx, nx);
+						}
+					}
+					finally
+					{
+						nt--;
+					}
+
+				}
+
+			});
+			t.start();
+		}
+		while (nt > 0)
+		{
+			if (fail != 0)
+			{
+				fail("Failed with clash on " + fail);
+			}
+			Thread.yield();
+		}
+		log.info("==PASSED========================== "+this.getClass().getName()+".testGetNextId");
+
+	}
+	/**
+	 * Test method for
+	 * {@link org.sakaiproject.search.transaction.impl.TransactionSequenceImpl#getNextId()}.
+	 */
+	public final void testGetNextIdWrapped()
+	{
+		sequenceGenerator.setMinValue(10);
+		sequenceGenerator.setMaxValue(200);
+		log.info("================================== "+this.getClass().getName()+".testGetNextId");
+		nt = 0;
+		fail = 0;
+		last = 0;
+		for (int i = 0; i < 20; i++)
+		{
+			Thread t = new Thread(new Runnable()
+			{
+
+				public void run()
+				{
+					try
+					{
+						nt++;
+						long n = 0;
+						long locallast = 0;
+						Map<Long, Long> seq = new HashMap<Long, Long>();
+						for (int i = 0; i < 1000; i++)
+						{
+							n = sequenceGenerator.getNextId();
+							if ( n < last ) {
+								log.debug("Wrapped "+last+":"+n);
+								 m = new ConcurrentHashMap<Long, Long>();
+							}
+							if ( n < locallast ) {
+								log.debug("Wrapped Local"+locallast+":"+n);
+								seq = new HashMap<Long, Long>();
+							}
+							last = n;
+							locallast = n;
 							if (seq.get(n) != null)
 							{
 								fail = n;

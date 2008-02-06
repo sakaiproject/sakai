@@ -287,7 +287,7 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 		{
 			SearchBuilderItem sbi = itxList.next();
 			if (sbi != null
-					&& SearchBuilderItem.STATE_LOCKED.equals(sbi.getSearchstate()))
+					&& sbi.isLocked() )
 			{
 				String ref = sbi.getName();
 				if (ref != null)

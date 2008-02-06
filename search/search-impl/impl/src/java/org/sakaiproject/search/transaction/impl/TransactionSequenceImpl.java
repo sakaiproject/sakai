@@ -56,6 +56,12 @@ public class TransactionSequenceImpl implements TransactionSequence
 
 	private boolean checked  = false;
 
+	private boolean wrap =  false;
+
+	private long maxValue = -1;
+
+	private long minValue = 0;
+
 	public void destroy()
 	{
 
@@ -76,7 +82,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 		Connection connection = null;
 		Statement stmt = null;
 		ResultSet rs = null;
-		long txid = 0;
+		long txid = minValue;
 		try
 		{
 			connection = datasource.getConnection();
@@ -87,9 +93,9 @@ public class TransactionSequenceImpl implements TransactionSequence
 			if (!rs.next())
 			{
 				stmt.executeUpdate("insert into "
-						+ "search_transaction ( txid, txname ) " + "values (0,'" + name
+						+ "search_transaction ( txid, txname ) " + "values ("+minValue+",'" + name
 						+ "')");
-				txid = 0;
+				txid = minValue;
 			} else {
 				txid = rs.getLong(1);
 			}
@@ -138,6 +144,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 		Connection connection = null;
 		PreparedStatement selectpst = null;
 		PreparedStatement updatepst = null;
+		PreparedStatement resetpst = null;
 		ResultSet rs = null;
 
 		try
@@ -147,6 +154,9 @@ public class TransactionSequenceImpl implements TransactionSequence
 					.prepareStatement("select txid from search_transaction where txname = '"
 							+ name + "'");
 
+			resetpst = connection
+			.prepareStatement("update search_transaction set txid = "+minValue+"  where  txname = '"
+					+ name + "'");
 			updatepst = connection
 					.prepareStatement("update search_transaction set txid = txid + 1  where  txname = '"
 							+ name + "'");
@@ -172,6 +182,16 @@ public class TransactionSequenceImpl implements TransactionSequence
 					if (rs.next())
 					{
 						txid = rs.getLong(1);
+						if ( wrap && txid > maxValue  ) {
+							resetpst.clearParameters();
+							success = (resetpst.executeUpdate() == 1);
+							if ( !success ) {
+								throw new RuntimeException(
+								"Failed to reset ");
+							}
+							success = false;
+							
+						}
 					}
 					else
 					{
@@ -220,6 +240,13 @@ public class TransactionSequenceImpl implements TransactionSequence
 			try
 			{
 				updatepst.close();
+			}
+			catch (Exception ex2)
+			{
+			}
+			try
+			{
+				resetpst.close();
 			}
 			catch (Exception ex2)
 			{
@@ -279,5 +306,39 @@ public class TransactionSequenceImpl implements TransactionSequence
 		long next = localId++;
 		return next;
 	}
+
+	/**
+	 * @return the maxValue
+	 */
+	public long getMaxValue()
+	{
+		return maxValue;
+	}
+
+	/**
+	 * @param maxValue the maxValue to set
+	 */
+	public void setMaxValue(long maxValue)
+	{
+		this.maxValue = maxValue;
+		wrap = true;
+	}
+
+	/**
+	 * @return the minValue
+	 */
+	public long getMinValue()
+	{
+		return minValue;
+	}
+
+	/**
+	 * @param minValue the minValue to set
+	 */
+	public void setMinValue(long minValue)
+	{
+		this.minValue = minValue;
+	}
+
 
 }

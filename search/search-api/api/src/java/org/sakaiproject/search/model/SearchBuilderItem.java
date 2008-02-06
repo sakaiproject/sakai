@@ -229,6 +229,15 @@ public interface SearchBuilderItem
 	 * @throws IOException
 	 */
 	void input(DataInputStream dataInputStream) throws IOException;
+	/**
+	 * The lock id on this object
+	 * @return
+	 */
+	int getLock();
+	/**
+	 * @return
+	 */
+	boolean isLocked();
 
 
 	

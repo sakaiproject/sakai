@@ -44,6 +44,7 @@ import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
 import org.sakaiproject.search.transaction.api.IndexItemsTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
+import org.sakaiproject.search.transaction.api.TransactionSequence;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -81,9 +82,13 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 	 */
 	private DataSource datasource;
 
+	private int nodeLock;
+
+	private TransactionSequence sequence;
+
 	public void init()
 	{
-
+		nodeLock = (int) sequence.getNextId();
 	}
 
 	public void destroy()
@@ -252,7 +257,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			SearchBuilderItem masterItem = getMasterItem(connection);
 			try
 			{
-				
+
 				Integer masterAction = getMasterAction(masterItem);
 				log.debug(" Master Item is " + masterItem.getName() + ":" //$NON-NLS-1$ //$NON-NLS-2$
 						+ masterItem.getSearchaction() + ":" //$NON-NLS-1$
@@ -297,8 +302,8 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 						}
 						finally
 						{
-							if (SearchBuilderItem.STATE_LOCKED.equals(siteMaster
-									.getSearchstate()))
+							// any value > 1000 is a lock
+							if (siteMaster.getLock() == nodeLock )
 							{
 								List<SearchBuilderItem> l = new ArrayList<SearchBuilderItem>();
 								l.add(siteMaster);
@@ -310,7 +315,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			finally
 			{
-				if (SearchBuilderItem.STATE_LOCKED.equals(masterItem.getSearchstate()))
+				if (masterItem.getLock() == nodeLock  )
 				{
 					List<SearchBuilderItem> l = new ArrayList<SearchBuilderItem>();
 					l.add(masterItem);
@@ -342,12 +347,13 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 					if (!SearchBuilderItem.ACTION_UNKNOWN.equals(sbi.getSearchaction()))
 					{
 						lockedPst.clearParameters();
-						lockedPst.setInt(1, SearchBuilderItem.STATE_LOCKED.intValue());
+						lockedPst.setInt(1, nodeLock);
 						lockedPst.setString(2, sbi.getId());
 						lockedPst.setInt(3, SearchBuilderItem.STATE_PENDING.intValue());
 						if (lockedPst.executeUpdate() == 1)
 						{
 							sbi.setSearchstate(SearchBuilderItem.STATE_LOCKED);
+							sbi.setLock(nodeLock);
 							a.add(sbi);
 						}
 						connection.commit();
@@ -425,19 +431,19 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 				}
 				else
 				{
-					sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
 					unLockPst.clearParameters();
 					unLockPst.setInt(1, SearchBuilderItem.STATE_COMPLETED.intValue());
 					unLockPst.setString(2, sbi.getId());
-					unLockPst.setInt(3, SearchBuilderItem.STATE_LOCKED.intValue());
+					unLockPst.setInt(3, sbi.getLock());
 					if (unLockPst.executeUpdate() != 1)
 					{
-						log.warn("Failed to mark " + sbi.getName() + " as completed ");
+						log.warn("Failed to mark " + sbi + " as completed ");
 					}
 					else
 					{
 						log.debug("Marked " + sbi.getName() + " as completed ");
 					}
+					sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
 					connection.commit();
 				}
 			}
@@ -494,7 +500,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 					unLockPst.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
 				}
 				unLockPst.setString(2, sbi.getId());
-				unLockPst.setInt(3, SearchBuilderItem.STATE_LOCKED.intValue());
+				unLockPst.setInt(3, sbi.getSearchstate());
 				if (unLockPst.executeUpdate() == 1)
 				{
 					log.warn("Failed to mark " + sbi.getName() + " as pending ");
@@ -534,7 +540,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			lockMaster = connection.prepareStatement("update " + SEARCH_BUILDER_ITEM_T
 					+ " set searchstate = ? where itemscope = ? and searchstate = ? ");
 			lockMaster.clearParameters();
-			lockMaster.setInt(1, SearchBuilderItem.STATE_LOCKED.intValue());
+			lockMaster.setInt(1, nodeLock);
 			lockMaster.setInt(2, SearchBuilderItem.ITEM_GLOBAL_MASTER.intValue());
 			lockMaster.setInt(3, SearchBuilderItem.STATE_PENDING.intValue());
 			lockMaster.executeUpdate();
@@ -547,12 +553,14 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 							+ " where itemscope = ? and searchstate = ? "); //$NON-NLS-1$
 			pst.clearParameters();
 			pst.setInt(1, SearchBuilderItem.ITEM_GLOBAL_MASTER.intValue());
-			pst.setInt(2, SearchBuilderItem.STATE_LOCKED.intValue());
+			pst.setInt(2, nodeLock);
 			rst = pst.executeQuery();
 			SearchBuilderItemImpl sbi = new SearchBuilderItemImpl();
 			if (rst.next())
 			{
 				populateSearchBuilderItem(rst, sbi);
+				sbi.setLock(nodeLock);
+				log.info("Locked Master item to this node "+sbi);
 				rst.close();
 				connection.commit();
 			}
@@ -607,7 +615,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			lockMaster = connection.prepareStatement("update " + SEARCH_BUILDER_ITEM_T
 					+ " set searchstate = ? where itemscope = ? and searchstate = ? ");
 			lockMaster.clearParameters();
-			lockMaster.setInt(1, SearchBuilderItem.STATE_LOCKED.intValue());
+			lockMaster.setInt(1, nodeLock);
 			lockMaster.setInt(2, SearchBuilderItem.ITEM_SITE_MASTER.intValue());
 			lockMaster.setInt(3, SearchBuilderItem.STATE_PENDING.intValue());
 			lockMaster.executeUpdate();
@@ -619,7 +627,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 					+ " where itemscope =   ? and searchstate = ?  "); //$NON-NLS-1$
 			pst.clearParameters();
 			pst.setInt(1, SearchBuilderItem.ITEM_SITE_MASTER.intValue());
-			pst.setInt(2, SearchBuilderItem.STATE_LOCKED.intValue());
+			pst.setInt(2, nodeLock);
 			rst = pst.executeQuery();
 			List<SearchBuilderItem> a = new ArrayList<SearchBuilderItem>();
 			while (rst.next())
@@ -679,7 +687,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 	{
 		if (master.getName().equals(SearchBuilderItem.GLOBAL_MASTER))
 		{
-			if (SearchBuilderItem.STATE_LOCKED.equals(master.getSearchstate()))
+			if (master.getLock() == nodeLock)
 			{
 				return master.getSearchaction();
 			}
@@ -698,12 +706,13 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		if (siteMaster.getName().startsWith(SearchBuilderItem.INDEX_MASTER)
 				&& !SearchBuilderItem.GLOBAL_CONTEXT.equals(siteMaster.getContext()))
 		{
-			if (SearchBuilderItem.STATE_LOCKED.equals(siteMaster.getSearchstate()))
+			if (siteMaster.getLock() == nodeLock )
 			{
 				return siteMaster.getSearchaction();
 			}
 		}
-		return SearchBuilderItem.STATE_UNKNOWN;
+		
+		return SearchBuilderItem.ACTION_UNKNOWN;
 	}
 
 	private void populateSearchBuilderItem(ResultSet rst, SearchBuilderItemImpl sbi)
@@ -852,8 +861,6 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			log
 					.debug("DONE ADD ALL RECORDS ==========================================================="); //$NON-NLS-1$
-			controlItem.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
-			updateOrSave(connection, controlItem);
 			connection.commit();
 		}
 		finally
@@ -896,8 +903,6 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 								+ "' and name <> '" + controlItem.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			}
-			controlItem.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
-			updateOrSave(connection, controlItem);
 			connection.commit();
 		}
 		finally
@@ -1020,6 +1025,22 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 	public void setDatasource(DataSource datasource)
 	{
 		this.datasource = datasource;
+	}
+
+	/**
+	 * @return the sequence
+	 */
+	public TransactionSequence getSequence()
+	{
+		return sequence;
+	}
+
+	/**
+	 * @param sequence the sequence to set
+	 */
+	public void setSequence(TransactionSequence sequence)
+	{
+		this.sequence = sequence;
 	}
 
 }

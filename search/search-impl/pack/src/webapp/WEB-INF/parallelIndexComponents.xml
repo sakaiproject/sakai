@@ -376,7 +376,21 @@
     	destroy-method="destroy" >
 			<property name="datasource"><ref bean="javax.sql.DataSource"/></property>
     		<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+			<property name="sequence"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.itemQueueLock"/></property>
     </bean>
+    
+	<bean 
+    	class="org.sakaiproject.search.transaction.impl.TransactionSequenceImpl" 
+    	id="org.sakaiproject.search.api.SearchService.parallel.index.itemQueueLock" 
+	   	init-method="init" 
+    	destroy-method="destroy" >
+			<property name="datasource"><ref bean="javax.sql.DataSource"/></property>
+			<property name="minValue" ><value>2000</value></property>
+			<property name="maxValue" ><value>10000000</value></property>
+			<property name="name" ><value>itemQueueLock</value></property>
+    </bean>
+    
+    
 	<bean 
     	class="org.sakaiproject.search.transaction.impl.TransactionSequenceImpl" 
     	id="org.sakaiproject.search.api.SearchService.parallel.index.indexerSequence" 

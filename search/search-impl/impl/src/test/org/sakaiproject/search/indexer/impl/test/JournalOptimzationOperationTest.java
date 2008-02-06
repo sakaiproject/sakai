@@ -31,6 +31,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.derby.impl.services.locks.LockSet;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
@@ -225,7 +226,15 @@ public class JournalOptimzationOperationTest extends TestCase
 		MockSearchIndexBuilder mockSearchIndexBuilder = new MockSearchIndexBuilder();
 		TransactionIndexManagerImpl transactionIndexManager = new TransactionIndexManagerImpl();
 		SearchBuilderQueueManager searchBuilderQueueManager = new SearchBuilderQueueManager();
-
+		
+		TransactionSequenceImpl lockSequenceImpl = new TransactionSequenceImpl();
+		lockSequenceImpl.setDatasource(tds.getDataSource());
+		lockSequenceImpl.setName("queueManagerLock");
+		lockSequenceImpl.setMinValue(2000);
+		lockSequenceImpl.setMaxValue(10000000);
+		lockSequenceImpl.init();
+		searchBuilderQueueManager.setSequence(lockSequenceImpl);
+		
 		transactionIndexManager.setAnalyzerFactory(new StandardAnalyzerFactory());
 		transactionIndexManager.setJournalSettings(journalSettings);
 		transactionIndexManager.setSequence(sequence);

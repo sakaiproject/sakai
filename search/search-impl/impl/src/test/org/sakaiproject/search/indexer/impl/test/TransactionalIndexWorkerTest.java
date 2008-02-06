@@ -152,6 +152,16 @@ public class TransactionalIndexWorkerTest extends TestCase
 		journalStorageUpdateTransactionListener.setJournalStorage(sharedFileSystem);
 		
 		searchBuilderQueueManager = new SearchBuilderQueueManager();
+		
+		TransactionSequenceImpl lockSequenceImpl = new TransactionSequenceImpl();
+		lockSequenceImpl.setDatasource(tds.getDataSource());
+		lockSequenceImpl.setName("queueManagerLock");
+		lockSequenceImpl.setMinValue(2000);
+		lockSequenceImpl.setMaxValue(10000000);
+		lockSequenceImpl.init();
+		searchBuilderQueueManager.setSequence(lockSequenceImpl);
+
+		
 		searchBuilderQueueManager.setDatasource(tds.getDataSource());
 		searchBuilderQueueManager.setSearchIndexBuilder(mockSearchIndexBuilder);
 
