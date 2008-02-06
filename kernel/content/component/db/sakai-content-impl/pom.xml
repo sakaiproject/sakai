@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>component</artifactId>
-    <groupId>org.sakaiproject.kernel.content</groupId>
+    <artifactId>db</artifactId>
+    <groupId>org.sakaiproject.kernel.content.component</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Content DB Service Implementation</name>
-  <groupId>org.sakaiproject.kernel.content.component</groupId>
+  <groupId>org.sakaiproject.kernel.content.component.db</groupId>
   <artifactId>sakai-content-impl</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
@@ -32,7 +32,7 @@
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.content.component</groupId>
+      <groupId>org.sakaiproject.kernel.content.component.db</groupId>
       <artifactId>sakai-content-lock-hbm</artifactId>
       <version>${sakai.version}</version>
     </dependency>

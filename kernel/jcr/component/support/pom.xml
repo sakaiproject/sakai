@@ -9,7 +9,7 @@
   </parent>
   <name>Sakai JSR-170 Support Service Impl</name>
   <groupId>org.sakaiproject.kernel.jcr.component</groupId>
-  <artifactId>sakai-jcr-support-impl-base</artifactId>
+  <artifactId>support</artifactId>
     <organization>
     <name>Timefields Ltd</name>
     <url>http://www.tfd.co.uk/</url>

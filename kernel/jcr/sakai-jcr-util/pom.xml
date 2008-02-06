@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>jcr-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>jcr</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-jcr-util</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.kernel.jcr</groupId>
   <artifactId>sakai-jcr-util</artifactId>
   <packaging>jar</packaging>
   <properties>
@@ -36,7 +36,7 @@
     </dependency>
 
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.jcr</groupId>
       <artifactId>sakai-jcr-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>

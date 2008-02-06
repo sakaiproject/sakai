@@ -5,17 +5,13 @@
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Sakai JSR-170</name>
+  <name>Sakai Test Project</name>
   <groupId>org.sakaiproject.kernel</groupId>
-  <artifactId>jcr</artifactId>
-  <inceptionYear>2007</inceptionYear>
+  <artifactId>test</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>sakai-jcr-api</module>
-    <module>sakai-jcr-util</module>
-    <module>component</module>
-    <module>deploy</module>
+    <module>sakai-test-harness</module>
   </modules>
 </project>
