@@ -21,7 +21,7 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject.kernel.emai.component</groupId>
+      <groupId>org.sakaiproject.kernel.email.component</groupId>
       <artifactId>sakai-email-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>

@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>content-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>migration</artifactId>
+    <groupId>org.sakaiproject.kernel.content.component</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>sakai-content-jcr-migration-api</name>
-  <groupId>org.sakaiproject</groupId>
+  <name>Sakai Content JCR Migration API</name>
+  <groupId>org.sakaiproject.kernel.content.component.migration</groupId>
   <artifactId>sakai-content-jcr-migration-api</artifactId>
   <organization>
     <name>The Sakai Foundation</name>

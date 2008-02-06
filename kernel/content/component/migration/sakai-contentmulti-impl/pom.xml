@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>content-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>migration</artifactId>
+    <groupId>org.sakaiproject.kernel.content.component</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-contentmulti-impl</name>
-  <groupId>org.sakaiproject</groupId>
+  <name>Sakai Content Service Multiplexer Implementation</name>
+  <groupId>org.sakaiproject.kernel.content.component.migration</groupId>
   <artifactId>sakai-contentmulti-impl</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
@@ -21,37 +21,37 @@
   </properties>
   <dependencies>
     <dependency>      
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.content</groupId>
       <artifactId>sakai-content-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>      
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.content.component.migration</groupId>
       <artifactId>sakai-content-jcr-migration-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.entity</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.site</groupId>
       <artifactId>sakai-site-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.event</groupId>
       <artifactId>sakai-event-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.memory</groupId>
       <artifactId>sakai-memory-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>

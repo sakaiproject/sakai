@@ -1118,12 +1118,6 @@ This is not needed now that pluto have been released
     <module>memory</module>
     <module>test</module>
     <module>jcr</module>
-<!--
-    <module>acccess</module>
-    <module>optional</module>
     <module>cluster</module>
-    <module>login</module>
-    <module>pom.xml</module>
--->
   </modules>
 </project>

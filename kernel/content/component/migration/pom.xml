@@ -12,6 +12,8 @@
   <artifactId>migration</artifactId>
   <packaging>pom</packaging>
   <modules>
+    <module> sakai-content-jcr-migration-api</module>
     <module> sakai-content-jcr-migration-impl</module>
+    <module> sakai-contentmulti-impl</module>
   </modules>
 </project>
