@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>email-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>email</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <description>Shared Deployment Descriptor for Email</description>
-  <name>sakai-email-shared-deploy</name>
-  <groupId>org.sakaiproject</groupId>
+  <name>Sakai Email Shared Deploy</name>
+  <groupId>org.sakaiproject.kernel.email</groupId>
   <artifactId>sakai-email-shared-deploy</artifactId>
   <organization>
     <name>University of Michigan</name>

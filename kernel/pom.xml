@@ -1113,13 +1113,13 @@ This is not needed now that pluto have been released
     <module>content</module>
     <module>site</module>
     <module>authz</module>
+    <module>email</module>
 <!--
     <module>acccess</module>
     <module>db</module>
     <module>jcr</module>
     <module>optional</module>
     <module>cluster</module>
-    <module>email</module>
     <module>login</module>
     <module>memory</module>
     <module>pom.xml</module>
