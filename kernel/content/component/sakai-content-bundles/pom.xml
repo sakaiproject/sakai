@@ -9,7 +9,7 @@
   </parent>
   <name>Sakai Content Bundle</name>
   <groupId>org.sakaiproject.kernel.content.component</groupId>
-  <artifactId>sakai-content-bundle</artifactId>
+  <artifactId>sakai-content-bundles</artifactId>
   <inceptionYear>2003</inceptionYear>
   <packaging>jar</packaging>
   <build>

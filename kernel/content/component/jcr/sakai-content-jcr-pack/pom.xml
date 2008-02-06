@@ -26,6 +26,11 @@
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
+        <groupId>org.sakaiproject.kernel.content.component/groupId>
+        <artifactId>sakai-content-bundles</artifactId>
+        <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.kernel.content.component.migration</groupId>
       <artifactId>sakai-contentmulti-impl</artifactId>
       <version>${sakai.version}</version>
