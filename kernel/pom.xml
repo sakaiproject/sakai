@@ -1116,7 +1116,7 @@ This is not needed now that pluto have been released
     <module>email</module>
     <module>db</module>
     <module>memory</module>
-    <module>test-harness</module>
+    <module>test</module>
 <!--
     <module>acccess</module>
     <module>jcr</module>

@@ -16,6 +16,7 @@
     <module>sakai-content-pack</module>
     <module>sakai-content-jcr-impl</module>
     <module>sakai-content-jcr-pack</module>
+    <module>sakai-content-lock-hbm</module>
     <module>sakai-content-jcr-migration-impl</module>
     <module>test</module>
   </modules>

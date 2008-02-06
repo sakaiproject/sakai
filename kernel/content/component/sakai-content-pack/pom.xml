@@ -21,7 +21,7 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject.kernel.content</groupId>
+      <groupId>org.sakaiproject.kernel.content.component</groupId>
       <artifactId>sakai-content-impl</artifactId>
       <version>${sakai.version}</version>
       <exclusions>
