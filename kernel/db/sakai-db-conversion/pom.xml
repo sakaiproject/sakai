@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>db-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>db</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-db-conversion</name>
-  <groupId>org.sakaiproject</groupId>
+  <name>Sakai DB Conversion Utility</name>
+  <groupId>org.sakaiproject.kernel.db</groupId>
   <artifactId>sakai-db-conversion</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
@@ -21,7 +21,7 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.db</groupId>
       <artifactId>sakai-db-storage</artifactId>
       <version>${sakai.version}</version>
     </dependency>

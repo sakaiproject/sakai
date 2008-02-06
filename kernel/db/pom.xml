@@ -2,30 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>base</artifactId>
+    <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai DB Project</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>db-base</artifactId>
+  <groupId>org.sakaiproject.kernel</groupId>
+  <artifactId>db</artifactId>
   <packaging>pom</packaging>
   
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/db/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/db/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/db/trunk</url>
-  </scm>
-  
-
   <modules>
-    <module>db-api/api</module>
-    <module>db-impl/ext</module>
-    <module>db-impl/impl</module>
-    <module>db-impl/pack</module>
-    <module>db-util/storage</module>
-    <module>db-util/conversion</module>
-    <module>db-shared-deploy</module>
+    <module>sakai-db-api</module>
+    <module>component</module>
+    <module>sakai-db-conversion</module>
+    <module>sakai-db-storage</module>
   </modules>
 </project>

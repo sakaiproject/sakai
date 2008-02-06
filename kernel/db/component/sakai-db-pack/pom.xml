@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>db-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>component</artifactId>
+    <groupId>org.sakaiproject.kernel.db</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>sakai-db-pack</name>
-  <groupId>org.sakaiproject</groupId>
+  <name>Sakai DB Component Package</name>
+  <groupId>org.sakaiproject.kernel.db.component</groupId>
   <artifactId>sakai-db-pack</artifactId>
   <organization>
     <name>Sakai Foundation</name>
@@ -21,7 +21,7 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.db.component</groupId>
       <artifactId>sakai-db-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
