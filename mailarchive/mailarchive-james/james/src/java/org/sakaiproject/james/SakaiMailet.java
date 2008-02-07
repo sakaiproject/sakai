@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.net.URLEncoder;
 
 import javax.mail.Address;
 import javax.mail.BodyPart;
@@ -587,6 +588,9 @@ public class SakaiMailet extends GenericMailet
 		// everything else gets treated as an attachment
 		else
 		{
+			// ContentType can't handle filenames with spaces
+			type = type.replaceAll( p.getFileName(), URLEncoder.encode(p.getFileName()) );
+			
 			ContentType cType = new ContentType(type);
 			String name = p.getFileName();
 			String disposition = p.getDisposition();
