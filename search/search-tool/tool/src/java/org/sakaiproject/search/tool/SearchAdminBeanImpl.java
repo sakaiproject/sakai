@@ -512,11 +512,11 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	public List<Segment> getSegments()
 	{
 		List<Segment> segments = new ArrayList<Segment>();
-		List segmentInfo = searchService.getSegmentInfo();
+		Object[] segmentInfo = searchService.getSegmentInfo().toArray();
 		StringBuilder sb = new StringBuilder();
-		for ( Iterator i = segmentInfo.iterator(); i.hasNext(); ) {
+		for ( Object ra : segmentInfo ) {
 			// name, size, lastup
-			final Object[] r  =(Object[]) i.next();
+			final Object[] r  =(Object[]) ra;
 			segments.add(new Segment() {
 
 				public String getLastUpdate()
