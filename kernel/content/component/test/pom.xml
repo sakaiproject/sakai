@@ -6,7 +6,7 @@
     <artifactId>component</artifactId>
     <groupId>org.sakaiproject.kernel.event</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Content Integration Test</name>
   <groupId>org.sakaiproject.kernel.content.component</groupId>
@@ -58,17 +58,4 @@
       <version>1.0.4</version>
     </dependency>
   </dependencies>
-  <build>
-    
-    
-    
-    
-    
-    
-    <resources/>
-    
-    <testResources>
-<!--includes:  include: **/CmIntegrationTest.java -->
-    </testResources>
-  </build>
 </project>

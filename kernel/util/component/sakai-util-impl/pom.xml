@@ -5,7 +5,7 @@
 		<artifactId>component</artifactId>
 		<groupId>org.sakaiproject.kernel.util</groupId>
 		<version>SNAPSHOT</version>
-		<relativePath>../../pom.xml</relativePath>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
   <name>Sakai Util Impl</name>
   <groupId>org.sakaiproject.kernel.util.component</groupId>
@@ -75,15 +75,4 @@
       <version>1.2.8</version>
     </dependency>
   </dependencies>
-  <build>
-    
-    
-    
-    
-    
-    
-    <resources/>
-<!-- java source -->
-    
-  </build>
 </project>

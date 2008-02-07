@@ -5,7 +5,7 @@
     <artifactId>component</artifactId>
     <groupId>org.sakaiproject.kernel.tool</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Tool Component Package</name>
   <groupId>org.sakaiproject.kernel.tool.component</groupId>
@@ -26,15 +26,4 @@
       <version>${sakai.version}</version>
     </dependency>
   </dependencies>
-  <build>
-    
-    
-    
-    
-    
-    
-    <resources/>
-<!-- java source -->
-    
-  </build>
 </project>

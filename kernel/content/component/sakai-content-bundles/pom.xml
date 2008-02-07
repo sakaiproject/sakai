@@ -12,14 +12,4 @@
   <artifactId>sakai-content-bundles</artifactId>
   <inceptionYear>2003</inceptionYear>
   <packaging>jar</packaging>
-  <build>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/main/bundle</directory>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-    </resources>
-  </build>
 </project>

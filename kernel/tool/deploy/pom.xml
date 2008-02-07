@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>tool-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>tool</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <description>Shared Deployment Descriptor for Tool</description>
   <name>Sakai Tool Shared Deploy</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-tool-shared-deploy</artifactId>
+  <groupId>org.sakaiproject.kernel.tool</groupId>
+  <artifactId>deploy</artifactId>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>

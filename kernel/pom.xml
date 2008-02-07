@@ -199,12 +199,6 @@ This is not needed now that pluto have been released
                 <version>1.0</version>
                 <scope>provided</scope>
            </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-dav-common</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
       <!-- parser API inconsistancies -->
 	   <!-- force this version where used  -->
            <dependency>
@@ -460,476 +454,110 @@ This is not needed now that pluto have been released
 
 	<!-- kernel apis -->
            <dependency>
-		<groupId>org.sakaiproject</groupId>
+		<groupId>org.sakaiproject.kernel.authz</groupId>
 		<artifactId>sakai-authz-api</artifactId>
                 <version>${sakai.version}</version>
 		<scope>provided</scope>
 	   </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.alias</groupId>
                 <artifactId>sakai-alias-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-archive-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.cluster</groupId>
                 <artifactId>sakai-cluster-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-comp-shared-help</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.component.api</groupId>
                 <artifactId>sakai-component-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.component.api</groupId>
                 <artifactId>sakai-component</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.content</groupId>
                 <artifactId>sakai-content-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.db</groupId>
                 <artifactId>sakai-db-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.db</groupId>
                 <artifactId>sakai-db-ext</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.email</groupId>
                 <artifactId>sakai-email-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.entity</groupId>
                 <artifactId>sakai-entity-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.event</groupId>
                 <artifactId>sakai-event-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-courier-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-help-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-help-content</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-import-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.jcr</groupId>
                 <artifactId>sakai-jcr-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.memory</groupId>
                 <artifactId>sakai-memory-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-portal-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-portal-render-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-sections-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.site</groupId>
                 <artifactId>sakai-site-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-site-manage-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.tool</groupId>
                 <artifactId>sakai-tool-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.tool.util</groupId>
                 <artifactId>sakai-tool-servlet</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.user</groupId>
                 <artifactId>sakai-user-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.kernel.util</groupId>
                 <artifactId>sakai-util-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-velocity-tool-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-web-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-
-	<!-- release apis -->
-           <dependency>
-                <groupId>org.sakaiproject.osp</groupId>
-                <artifactId>osp-common-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.osp</groupId>
-                <artifactId>osp-glossary-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.osp</groupId>
-                <artifactId>osp-integration-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.osp</groupId>
-                <artifactId>osp-matrix-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.osp</groupId>
-                <artifactId>osp-portal-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.osp</groupId>
-                <artifactId>osp-presentation-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.osp</groupId>
-                <artifactId>osp-wizard-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-announcement-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-assignment-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-calendar-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-chat-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-citations-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-common-composite-component-data</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-common-edu-person-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-common-manager-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-common-type-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-comp-shared-scheduler</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-contentreview-logic-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-contentreview-service-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-coursemanagement-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-discussion-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-gradebook-service-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-jcr-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-mailarchive-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-message-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-messageforums-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-metaobj-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-news-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-podcasts-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-poll-logic-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-postem-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-presence-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-presentation-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-privacy-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-profile-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-profile-component-shared</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-rights-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-roster-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-rwiki-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-samigo-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-samigo-services</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-scheduler-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-search-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-syllabus-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-usermembership-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-reports-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-          <dependency>
-      		<groupId>org.sakaiproject</groupId>
-      		<artifactId>sakai-warehouse-api</artifactId>
-      		<version>${sakai.version}</version>
-      		<scope>provided</scope>
-       	  </dependency>
-
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-contentreview-service-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
@@ -1039,22 +667,56 @@ This is not needed now that pluto have been released
     <outputDirectory>target/classes</outputDirectory>
     <finalName>${artifactId}-${version}</finalName>
     <testOutputDirectory>target/test-classes</testOutputDirectory>
-    <sourceDirectory>src/java</sourceDirectory>
-    <scriptSourceDirectory>src/webapp</scriptSourceDirectory>
-    <testSourceDirectory>src/test</testSourceDirectory>
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <scriptSourceDirectory>src/main/webapp</scriptSourceDirectory>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <testResources>
+      <testResource>
+        <directory>${basedir}/src/test/java</directory>
+        <excludes>
+	  <exclude>**/*.java</exclude>
+        </excludes>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </testResource>
+      <testResource>
+	   <directory>${basedir}/src/test/respources</directory>
+           <includes>
+		<include>**/*</include>
+           </includes>
+      </testResource>
+    </testResources>
+
     <resources>
 	<resource>
-	   <directory>${basedir}/src/java</directory>
+	   <directory>${basedir}/src/main/java</directory>
            <excludes>
 		<exclude>**/*.java</exclude>
            </excludes>
-	</resource>
-	<resource>
-	   <directory>${basedir}/src/bundle</directory>
            <includes>
 		<include>**/*</include>
            </includes>
 	</resource>
+	<resource>
+	   <directory>${basedir}/src/main/respources</directory>
+           <includes>
+		<include>**/*</include>
+           </includes>
+	</resource>
+        <resource>
+           <directory>${basedir}/src/main/sql</directory>
+           <includes>
+             <include>**/*.sql</include>
+           </includes>
+         </resource>
+        <resource>
+           <directory>${basedir}/src/main/config</directory>
+           <includes>
+             <include>**/*.properties</include>
+             <include>**/*.xml</include>
+           </includes>
+         </resource>
     </resources>
     <plugins>
       <plugin>
@@ -1088,7 +750,7 @@ This is not needed now that pluto have been released
         <extensions>true</extensions>
         <configuration>
           <deployDirectory>${maven.tomcat.home}</deployDirectory>
-          <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
+          <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
         </configuration>
       </plugin>
       <plugin>
@@ -1097,7 +759,7 @@ This is not needed now that pluto have been released
         <artifactId>maven-war-plugin</artifactId>
         <version>2.0</version>
         <configuration>
-          <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
+          <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
         </configuration>
       </plugin>
     </plugins>

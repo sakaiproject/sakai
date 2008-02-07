@@ -5,7 +5,7 @@
     <artifactId>util</artifactId>
     <groupId>org.sakaiproject.kernel.tool</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakia Tool Utils</name>
   <groupId>org.sakaiproject.kernel.tool.util</groupId>
@@ -31,14 +31,4 @@
       <version>1.0.4</version>
     </dependency>
   </dependencies>
-  <build>
-    
-    
-    
-    
-    
-    
-    <resources/>
-    
-  </build>
 </project>

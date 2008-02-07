@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>sakai-jcr-api-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>jcr</artifactId>
+    <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <description>Shared Deployment Descriptor for JSR-1700 service</description>
   <name>JSR-170 API</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-jsr170-shared-deploy</artifactId>
+  <groupId>org.sakaiproject.kernel.jcr</groupId>
+  <artifactId>deploy</artifactId>
   <organization>
     <name>Timefields Ltd</name>
     <url>http://www.tfd.co.uk/</url>

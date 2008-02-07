@@ -36,18 +36,4 @@
       <version>1.0.4</version>
     </dependency>
   </dependencies>
-  <build>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/config</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${basedir}/src/resources</directory>
-      </resource>
-    </resources>
-  </build>
 </project>

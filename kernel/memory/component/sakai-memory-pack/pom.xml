@@ -26,8 +26,4 @@
       <version>${sakai.version}</version>
     </dependency>
   </dependencies>
-  <build>
-    <resources/>
-<!-- java source -->
-  </build>
 </project>

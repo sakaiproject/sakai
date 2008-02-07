@@ -46,14 +46,4 @@
       <version>${sakai.servletapi.version}</version>
     </dependency>
   </dependencies>
-  <build>
-    
-    
-    
-    
-    
-    
-    <resources/>
-    
-  </build>
 </project>

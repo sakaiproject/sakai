@@ -63,23 +63,4 @@
       <version>${sakai.ehcache.version}</version>
     </dependency>  
   </dependencies>
-  <build>
-  <resources>
-      <resource>
-        <directory>${basedir}/src/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources><!-- java source -->
-    <testResources>
-      <testResource>
-        <directory>${basedir}/src/test</directory>
-        <includes>
-          <include>**/*.*</include>
-        </includes>
-        <filtering>false</filtering>
-      </testResource>
-    </testResources>
-  </build>
 </project>

@@ -49,15 +49,4 @@
     </developer>
   </developers>
   <reports/>
-  <build>
-    <resources>
-      <resource>
-        <directory>src/conf</directory>
-        <includes>
-          <include>log4j.properties</include>
-        </includes>
-      </resource>
-    </resources>
-<!--nagEmailAddress: jholtzman@berkeley.edu -->
-  </build>
 </project>

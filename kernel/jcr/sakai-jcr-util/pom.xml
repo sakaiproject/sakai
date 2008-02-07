@@ -15,16 +15,6 @@
     <deploy.target/>
   </properties>
   <build>
-    
-    <resources>
-      <resource>
-        <directory>${basedir}/src/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-        </includes>
-        <filtering>false</filtering>
-      </resource>
-    </resources>
   </build>
   <dependencies>
  

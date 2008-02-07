@@ -38,17 +38,4 @@
       <version>1.0.4</version>
     </dependency>
   </dependencies>
-  <build>
-    
-    
-    
-    
-    
-    
-    <resources/>
-    
-    <testResources>
-<!--includes:  include: **/AuthzIntegrationTest.java -->
-    </testResources>
-  </build>
 </project>

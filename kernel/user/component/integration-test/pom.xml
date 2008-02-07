@@ -5,7 +5,7 @@
     <artifactId>component</artifactId>
     <groupId>org.sakaiproject.kernel.user</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai User Integration Test</name>
   <groupId>org.sakaiproject.kernel.user.component</groupId>

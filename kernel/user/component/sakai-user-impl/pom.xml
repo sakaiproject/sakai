@@ -5,7 +5,7 @@
     <artifactId>component</artifactId>
     <groupId>org.sakaiproject.kernel.user</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai User Service Implementation</name>
   <groupId>org.sakaiproject.kernel.user.component</groupId>
@@ -118,22 +118,4 @@
       </dependency>
 	
   </dependencies>
-  <build>
-
-
-
-
-
-
-    <resources>
-      <resource>
-        <directory>${basedir}/src/sql</directory>
-        <includes>
-          <include>**/*.sql</include>
-        </includes>
-      </resource>
-    </resources>
-<!-- java source -->
-
-  </build>
 </project>

@@ -29,13 +29,6 @@ limitations under the License.
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>component</artifactId>
   <name>Sakai Component Project</name>
-
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/component/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/component/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/component/trunk</url>
-  </scm>
-
   <packaging>pom</packaging>
   <modules>
      <module>api</module>

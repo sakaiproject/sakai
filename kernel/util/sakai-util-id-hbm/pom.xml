@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>util-base</artifactId>
-		<groupId>org.sakaiproject</groupId>
+		<artifactId>util</artifactId>
+		<groupId>org.sakaiproject.kernel</groupId>
 		<version>SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
   <name>Sakai Hibernate ID Util</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.kernel.util</groupId>
   <artifactId>sakai-util-id-hbm</artifactId>
   <organization>
     <name>University of Michigan</name>
@@ -33,14 +33,4 @@
       <version>${sakai.hibernate.version}</version>
     </dependency>
   </dependencies>
-  <build>
-    
-    
-    
-    
-    
-    
-    <resources/>
-    
-  </build>
 </project>

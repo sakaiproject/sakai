@@ -56,12 +56,4 @@
       <version>${sakai.spring.version}</version>
     </dependency>
   </dependencies>
-
-  <build>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/resources</directory>
-      </resource>
-    </resources>
-  </build>
 </project>

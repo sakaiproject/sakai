@@ -16,8 +16,8 @@
     <module>sakai-content-bundles</module>
 <!--
     <module>jcr</module>
--->
     <module>migration</module>
+-->
     <module>test</module>
   </modules>
 </project>

@@ -5,7 +5,7 @@
     <artifactId>db</artifactId>
     <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai DB Conversion Utility</name>
   <groupId>org.sakaiproject.kernel.db</groupId>
@@ -34,7 +34,4 @@
       <artifactId>commons-dbcp</artifactId>
     </dependency>
   </dependencies>
-  <build>
-    <resources/>
-  </build>
 </project>

@@ -5,7 +5,7 @@
     <artifactId>component</artifactId>
     <groupId>org.sakaiproject.kernel.cluster</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Cluster Package</name>
   <groupId>org.sakaiproject.kernel.cluster.component</groupId>
@@ -26,9 +26,4 @@
       <version>${sakai.version}</version>
     </dependency>
   </dependencies>
-  <build>
-    <testOutputDirectory>target/test-classes</testOutputDirectory>
-    <resources/>
-<!-- java source -->
-  </build>
 </project>

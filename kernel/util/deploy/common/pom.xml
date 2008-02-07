@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>util-base</artifactId>
-		<groupId>org.sakaiproject</groupId>
+		<artifactId>deploy</artifactId>
+		<groupId>org.sakaiproject.kernel.util</groupId>
 		<version>SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
   <description>Common Deployment Descriptor for util</description>
   <name>Common Util Deployment</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-util-common-deploy</artifactId>
+  <groupId>org.sakaiproject.kernel.util.deploy</groupId>
+  <artifactId>common</artifactId>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>

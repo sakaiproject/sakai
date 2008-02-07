@@ -41,7 +41,4 @@
       <version>${sakai.version}</version>
     </dependency>
   </dependencies>
-  <build>
-    <resources/>
-  </build>
 </project>
