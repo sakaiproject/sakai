@@ -7,7 +7,7 @@
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>sakai-cluster-api</name>
+  <name>Sakai Cluster API</name>
   <groupId>org.sakaiproject.kernel.cluster</groupId>
   <artifactId>sakai-cluster-api</artifactId>
   <organization>

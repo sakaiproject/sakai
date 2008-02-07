@@ -699,7 +699,7 @@ This is not needed now that pluto have been released
            </includes>
 	</resource>
 	<resource>
-	   <directory>${basedir}/src/main/respources</directory>
+	   <directory>${basedir}/src/main/resources</directory>
            <includes>
 		<include>**/*</include>
            </includes>

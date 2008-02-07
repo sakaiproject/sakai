@@ -7,7 +7,7 @@
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>sakai-jcr-util</name>
+  <name>Sakai Jcr Utilties</name>
   <groupId>org.sakaiproject.kernel.jcr</groupId>
   <artifactId>sakai-jcr-util</artifactId>
   <packaging>jar</packaging>
