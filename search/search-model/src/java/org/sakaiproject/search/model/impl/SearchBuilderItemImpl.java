@@ -228,6 +228,9 @@ public class SearchBuilderItemImpl implements SearchBuilderItem
 	 */
 	public int getLock()
 	{
+		if ( lock == 0 && isLocked() ) {
+			return searchstate;
+		}
 		return lock ;
 	}
 
@@ -245,8 +248,11 @@ public class SearchBuilderItemImpl implements SearchBuilderItem
 	 */
 	public boolean isLocked()
 	{
-		return (this.lock > 0 );
+		return (this.lock > 0 || 
+				this.searchstate >= SearchBuilderItem.states.length ||
+				this.searchstate < 0);
 	}
+
 
 
 

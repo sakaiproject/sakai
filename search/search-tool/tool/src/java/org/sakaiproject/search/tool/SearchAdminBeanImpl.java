@@ -119,6 +119,8 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 
 	private String siteCheck = null;
 
+	private boolean redirect = false;
+
 	/**
 	 * Construct a SearchAdminBean, checking permissions first
 	 * 
@@ -156,6 +158,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 
 		}
 		doCommand();
+		internCommand = null;
 	}
 	
 	
@@ -166,35 +169,44 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 		if (internCommand == REBUILDSITE)
 		{
 			doRebuildSite();
+			redirect = true;
 		}
 		else if (internCommand == REFRESHSITE)
 		{
 			doRefreshSite();
+			redirect = true;
 		}
 		else if (internCommand == REBUILDINSTANCE)
 		{
 			doRebuildInstance();
+			redirect = true;
 		}
 		else if (internCommand == REFRESHINSTNACE)
 		{
 			doRefreshInstance();
+			redirect = true;
 		}
 		else if (internCommand == REFRESHSTATUS)
 		{
 			doRefreshStatus();
+			redirect = true;
 
 		}
 		else if (internCommand == REMOVELOCK)
 		{
 			doRemoveLock();
+			redirect = true;
 
 		}
 		else if ( internCommand == RELOADINDEX ) {
 			doReloadIndex();
+			redirect = true;
 		} else if ( internCommand == DISABLEDIAGNOSTICS ) {
 			searchService.disableDiagnostics();
+			redirect = true;
 		} else if ( internCommand == ENABLEDIAGNOSTICS ) {
 			searchService.enableDiagnostics();
+			redirect = true;
 		}
 		
 		internCommand = null;
@@ -329,7 +341,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 					FormattedText.escapeHtml(sbi.getName(),false), 
 					sbi.getContext(), 
 					SearchBuilderItem.actions[sbi.getSearchaction().intValue()], 
-					SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
+					sbi.isLocked()?"Locked to "+sbi.getLock():SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
 					sbi.getVersion() }));
 		}
 		return sb.toString();
@@ -345,7 +357,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 					FormattedText.escapeHtml(sbi.getName(),false), 
 					sbi.getContext(), 
 					SearchBuilderItem.actions[sbi.getSearchaction().intValue()], 
-					SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
+					sbi.isLocked()?"Locked to "+sbi.getLock():SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
 					sbi.getVersion() }));
 		}
 		return sb.toString();		
@@ -362,7 +374,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 					FormattedText.escapeHtml(sbi.getName(),false), 
 					sbi.getContext(), 
 					SearchBuilderItem.actions[sbi.getSearchaction().intValue()], 
-					SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
+					sbi.isLocked()?"Locked to "+sbi.getLock():SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
 					sbi.getVersion() }));
 		}
 		return sb.toString();		
@@ -451,7 +463,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 
 				public String getStatus()
 				{
-					return SearchBuilderItem.states[sbi.getSearchstate().intValue()];
+					return sbi.isLocked()?"Locked to "+sbi.getLock():SearchBuilderItem.states[sbi.getSearchstate().intValue()];
 				}
 				
 			});
@@ -554,12 +566,13 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 
 				public String getOperation()
 				{
+					
 					return SearchBuilderItem.actions[sbi.getSearchaction().intValue()];
 				}
 
 				public String getStatus()
 				{
-					return SearchBuilderItem.states[sbi.getSearchstate().intValue()];
+					return sbi.isLocked()?"Locked to "+sbi.getLock():SearchBuilderItem.states[sbi.getSearchstate().intValue()];
 				}
 				
 			});
@@ -653,6 +666,16 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			});
 		}
 		return workers;
+	}
+
+
+
+	/**
+	 * @return the redirect
+	 */
+	public boolean isRedirectRequired()
+	{
+		return redirect;
 	}
 
 }

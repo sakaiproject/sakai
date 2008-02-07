@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.search.tool.api.SearchAdminBean;
 import org.sakaiproject.search.tool.api.SearchBeanFactory;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -214,7 +215,11 @@ public class ControllerServlet2 extends HttpServlet
 		{
 		}
 		try
-		{
+		{	SearchAdminBean searchAdminBean = searchBeanFactory.newSearchAdminBean(request);
+			if ( searchAdminBean.isRedirectRequired() ) {
+				response.sendRedirect(request.getRequestURL().toString());
+				return;
+			}
 			vc.put("adminModel", searchBeanFactory.newSearchAdminBean(request));
 		}
 		catch (PermissionException e1)

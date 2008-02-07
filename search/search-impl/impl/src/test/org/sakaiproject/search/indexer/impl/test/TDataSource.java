@@ -570,7 +570,7 @@ public class TDataSource
 						log.error("Found " + sbi.getName() + " when should have not  "
 								+ value + " "
 								+ SearchBuilderItem.actions[sbi.getSearchaction()] + " "
-								+ SearchBuilderItem.states[sbi.getSearchstate()] + "");
+								+ (sbi.isLocked()?"Locked to "+sbi.getLock():SearchBuilderItem.states[sbi.getSearchstate()]) + "");
 						errors++;
 					}
 					else

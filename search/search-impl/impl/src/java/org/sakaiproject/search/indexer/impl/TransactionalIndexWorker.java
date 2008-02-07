@@ -207,7 +207,7 @@ public class TransactionalIndexWorker implements IndexWorker
 				if (log.isDebugEnabled())
 				{
 					log.debug("Item [" + sbi.getName() + "] state ["
-							+ SearchBuilderItem.states[sbi.getSearchstate()]
+							+ (sbi.isLocked()?"Locked to "+sbi.getLock():SearchBuilderItem.states[sbi.getSearchstate()])
 							+ " action ["
 							+ SearchBuilderItem.actions[sbi.getSearchaction()] + "]");
 				}
@@ -231,7 +231,7 @@ public class TransactionalIndexWorker implements IndexWorker
 					if (log.isDebugEnabled())
 					{
 						log.debug("Item [" + sbi.getName() + "] state ["
-								+ SearchBuilderItem.states[sbi.getSearchstate()]
+								+ (sbi.isLocked()?"Locked to "+sbi.getLock():SearchBuilderItem.states[sbi.getSearchstate()])
 								+ " action ["
 								+ SearchBuilderItem.actions[sbi.getSearchaction()] + "]");
 					}

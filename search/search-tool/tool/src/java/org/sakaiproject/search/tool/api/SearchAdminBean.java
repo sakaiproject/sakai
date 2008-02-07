@@ -157,4 +157,9 @@ public interface SearchAdminBean
 	 */
 	List<WorkerThread> getWorkerThreads();
 
+	/**
+	 * @return
+	 */
+	boolean isRedirectRequired();
+
 }
