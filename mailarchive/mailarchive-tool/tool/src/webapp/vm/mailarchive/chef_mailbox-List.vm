@@ -2,7 +2,6 @@
 <script type="text/javascript" language="JavaScript">
   focus_path = ["search"];
 </script>
-<script type="text/javascript" src="/library/js/jquery.js"></script>
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 	<form name="toolbar" action="#toolForm("$action")" method="post">
