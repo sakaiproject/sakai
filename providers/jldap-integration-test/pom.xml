@@ -58,6 +58,13 @@
   	</dependency>
   	
   	<dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jldap-provider-mock</artifactId>
+      <version>${sakai.version}</version>
+      <scope>test</scope>
+    </dependency>
+  	
+  	<dependency>
   		<groupId>org.sakaiproject</groupId>
   		<artifactId>sakai-test-harness</artifactId>
   		<version>${sakai.version}</version>
@@ -72,12 +79,6 @@
   	<dependency>
   		<groupId>org.sakaiproject</groupId>
   		<artifactId>sakai-entity-api</artifactId>
-  		<version>${sakai.version}</version>
-  	</dependency>
-
-  	<dependency>
-  		<groupId>org.sakaiproject</groupId>
-  		<artifactId>sakai-entity-util</artifactId>
   		<version>${sakai.version}</version>
   	</dependency>
 

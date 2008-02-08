@@ -984,6 +984,20 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		// delegate to the LdapAttributeMapper since it knows the most
 		// about how the LdapUserData instance was originally populated
 		ldapAttributeMapper.mapUserDataOntoUserEdit(userData, userEdit);
+		
+		// This is not an entirely satisfactory solution, but it's important
+		// for all attribute mapping to respect this configuration (SAK-12705),
+		// so we centralized the logic rather than rely on swappable attribute 
+		// mapping plugins. We decided to override the EID casing when mapping
+		// to UserEdits rather than when mapping to LdapUserDatas since we
+		// felt it was better to keep the caching of LDAP data and the mapping
+		// of that data to Sakai-consumable values as separate concerns.
+		//
+		// One wonders if a better solution might be to enforce case-sentivity 
+		// rules where they matter, though, which is currenty in the UDS.
+		if ( !(caseSensitiveCacheKeys) ) {
+			userEdit.setEid(toCaseInsensitiveCacheKey(userData.getEid()));
+		}
 	}
 
 	/**
