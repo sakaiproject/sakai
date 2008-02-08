@@ -2,25 +2,45 @@
 <script type="text/javascript" language="JavaScript">
   focus_path = ["search"];
 </script>
+<script type="text/javascript" src="/library/js/jquery.js"></script>
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 	<form name="toolbar" action="#toolForm("$action")" method="post">
 		<div class="navPanel">
+			<div class="viewNav" style="width:50%">
+		<div class="instruction">
+			#if ($validFrom)
+				#if ($!validFrom.length() == 0)
+					$tlang.getString("lis.noemail")<br />
+				#else
+					$tlang.getString("lis.youare")#if($validFrom != "*") $tlang.getString("gen.fro2") $validFrom#else.#end<br />
+				#end
+				$tlang.getString("lis.emasen")
+				</div>	
+	
+				<ul  class="attachList indnt3">
+					#foreach ($alias in $aliases)
+						<li><a href="mailto:${alias.getId()}@${serverName}" title="$tlang.getString("lis.sendmailto") ${alias.getId()}@${serverName}">${alias.getId()}@${serverName}</a></li>
+					#end
+					<li><a href="mailto:${nonAlias}@${serverName}" title="$tlang.getString("lis.sendmailto") ${nonAlias}@${serverName}">${nonAlias}@${serverName}</a></li>
+				</ul>
+			#else
+				$tlang.getString("lis.youarenot")<hr class="itemSeparator" />
+			#end
+		</div>
 			<div class="searchNav"> 
 				<label for="search" class="skip">$tlang.getString('lis.search')</label>
 				<input size="15" value="$!search" name="search" id="search" type="text" class="searchField" onkeypress="formSubmitOnEnter(this, event)" />
 				<input type="hidden" name="eventSubmit_doSearch" id="eventSubmit_doSearch" value="Search for emails" />
-				<a href="#" title="$tlang.getString('lis.search')" onclick="location = '#toolLink("$action" "doSearch")'+buildQueryString('toolbar');return false;">
-					<input type="button" value="$tlang.getString('lis.search')" />
-				</a>
+				<a href="#" title="$tlang.getString('lis.search')" onclick="location = '#toolLink("$action" "doSearch")'+buildQueryString('toolbar');document.getElementById('submitnotifwrap').style.visibility='visible';return false;" style="text-decoration:none !important"><input type="button" value="$tlang.getString('lis.search')" /></a>
 				#if (($!search) && (!$search.equals("")))
-					<a href="#" title="Search" onclick="location = '#toolLink("$action" "doSearch_clear")';return false;">
-						<input type="button" value="$tlang.getString('lis.clear')" />
-					</a>
+					<a href="#" title="Search" onclick="location = '#toolLink("$action" "doSearch_clear")';return false;" style="text-decoration:none !important"><input type="button" value="$tlang.getString('lis.clear')" /></a>
 				#end
+				<div id="submitnotifwrap" style="padding:6px 0;visibility:hidden"><span id="submitnotif">$tlang.getString("lis.searchnotif")</span></div>								
 			</div>
 		</div>	
 	</form>	
+
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	#if ($sort-order)
 		#set ($sort-img = "sakai/sortascending.gif")
@@ -29,30 +49,9 @@
 		#set ($sort-img = "sakai/sortdescending.gif")
 		#set ($sort-dir = "descending")
 	#end
-
-
-	<div class="instruction">
-		#if ($validFrom)
-			#if ($!validFrom.length() == 0)
-				$tlang.getString("lis.noemail")<br />
-			#else
-				$tlang.getString("lis.youare")#if($validFrom != "*") $tlang.getString("gen.fro2") $validFrom#else.#end<br />
-			#end
-			$tlang.getString("lis.emasen")<br />
-			<ul  class="attachList indnt3">
-				#foreach ($alias in $aliases)
-					<li><a href="mailto:${alias.getId()}@${serverName}" title="$tlang.getString("lis.sendmailto") ${alias.getId()}@${serverName}">${alias.getId()}@${serverName}</a></li>
-				#end
-				<li><a href="mailto:${nonAlias}@${serverName}" title="$tlang.getString("lis.sendmailto") ${nonAlias}@${serverName}">${nonAlias}@${serverName}</a></li>
-			</ul>
-		#else
-			$tlang.getString("lis.youarenot")<hr class="itemSeparator" />
-		#end
-	</div>	
 	#if($allMsgNumberInt > 0)
-		<div class="navPanel">	
 			<div class="listNav">
-				<div class="instruction">$tlang.getString("list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("list.of") $allMsgNumber $tlang.getString("list.items")</div>
+				<div class="instruction">$tlang.getString("list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("list.of") $allMsgNumber</div>
 				#if ($pagesize != 0)
 					#if ($goPPButton == "true")
 						<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
@@ -108,7 +107,7 @@
 				#end
 	
 			</div>
-		</div>	
+
 		<table class ="listHier lines nolines specialLink" cellspacing="0" summary ="$tlang.getString("lis.summary")">
 			<tr>
 				<th id="from">
@@ -163,7 +162,11 @@
 		</table>
 	#else
 		<p class="instruction">
-			$tlang.getString("lis.noema")
+			#if (($!search) && (!$search.equals("")))
+				$tlang.getString("lis.nosearchresults")
+			#else
+				$tlang.getString("lis.noema")
+			#end
 		</p>
 	#end	
 </div>	
