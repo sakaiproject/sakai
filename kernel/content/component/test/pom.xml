@@ -4,7 +4,7 @@
   <packaging>pom</packaging>
   <parent>
     <artifactId>component</artifactId>
-    <groupId>org.sakaiproject.kernel.event</groupId>
+    <groupId>org.sakaiproject.kernel.content</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
@@ -56,6 +56,11 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
     </dependency>
   </dependencies>
 </project>

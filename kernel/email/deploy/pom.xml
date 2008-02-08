@@ -10,7 +10,7 @@
   <description>Shared Deployment Descriptor for Email</description>
   <name>Sakai Email Shared Deploy</name>
   <groupId>org.sakaiproject.kernel.email</groupId>
-  <artifactId>sakai-email-shared-deploy</artifactId>
+  <artifactId>deploy</artifactId>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>

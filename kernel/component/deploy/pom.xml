@@ -10,7 +10,7 @@
   <description>Shared Deployment Descriptor for Component</description>
   <name>Component Shared Deployment</name>
   <groupId>org.sakaiproject.kernel.component</groupId>
-  <artifactId>sakai-component-shared-deploy</artifactId>
+  <artifactId>deploy</artifactId>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>
