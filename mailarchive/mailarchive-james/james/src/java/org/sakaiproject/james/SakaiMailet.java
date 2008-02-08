@@ -593,18 +593,17 @@ public class SakaiMailet extends GenericMailet
 		{
 			String name = p.getFileName();
 			
-			// look for UTF8 encoded filenames
+			// look for filenames not parsed by getFileName() 
 			if ( name == null && type.indexOf(NAME_PREFIX) != -1 )
 			{
-				String encodedFilename = type.substring( type.indexOf(NAME_PREFIX)+NAME_PREFIX.length() );
-				name = MimeUtility.decodeText( encodedFilename );
-				type = type.replace( encodedFilename, name );
+				name = type.substring( type.indexOf(NAME_PREFIX)+NAME_PREFIX.length() );
 			}
-			
 			// ContentType can't handle filenames with spaces or UTF8 characters
 			if ( name != null )
 			{
-				type = type.replace( name, URLEncoder.encode(name, "UTF-8") );
+				String decodedName = MimeUtility.decodeText( name ); // first decode RFC 2047
+				type = type.replace( name, URLEncoder.encode(decodedName, "UTF-8") );
+				name = decodedName;
 			}
 			
 			ContentType cType = new ContentType(type);
