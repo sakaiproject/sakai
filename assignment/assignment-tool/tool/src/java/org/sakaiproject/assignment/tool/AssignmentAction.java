@@ -7600,9 +7600,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			else if (m_criteria.equals(SORTED_BY_ASSIGNMENT_STATUS))
 			{
-				String s1 = getAssignmentStatus((Assignment) o1);
-				String s2 = getAssignmentStatus((Assignment) o2);
-				result = compareString(s1, s2);
+				result = compareString(((Assignment) o1).getStatus(), ((Assignment) o2).getStatus());
 			}
 			else if (m_criteria.equals(SORTED_BY_NUM_SUBMISSIONS))
 			{
@@ -7659,12 +7657,8 @@ public class AssignmentAction extends PagedResourceActionII
 				try
 				{
 					AssignmentSubmission submission1 = AssignmentService.getSubmission(((Assignment) o1).getId(), m_user);
-					String status1 = getSubmissionStatus(submission1, (Assignment) o1);
-
 					AssignmentSubmission submission2 = AssignmentService.getSubmission(((Assignment) o2).getId(), m_user);
-					String status2 = getSubmissionStatus(submission2, (Assignment) o2);
-
-					result = compareString(status1, status2);
+					result = compareString(submission1.getStatus(), submission2.getStatus());
 				}
 				catch (IdUnusedException e)
 				{
@@ -7857,7 +7851,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					else
 					{
-						status1 = getSubmissionStatus(m_state, (AssignmentSubmission) s1);
+						status1 = s1.getStatus();
 					}
 				}
 				
@@ -7874,7 +7868,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					else
 					{
-						status2 = getSubmissionStatus(m_state, (AssignmentSubmission) s2);
+						status2 = s2.getStatus();
 					}
 				}
 				
@@ -8043,10 +8037,7 @@ public class AssignmentAction extends PagedResourceActionII
 			else if (m_criteria.equals(SORTED_SUBMISSION_BY_STATUS))
 			{
 				// sort by submission status
-				String status1 = getSubmissionStatus(m_state, (AssignmentSubmission) o1);
-				String status2 = getSubmissionStatus(m_state, (AssignmentSubmission) o2);
-
-				result = compareString(status1, status2);
+				result = compareString(((AssignmentSubmission) o1).getStatus(), ((AssignmentSubmission) o2).getStatus());
 			}
 			else if (m_criteria.equals(SORTED_SUBMISSION_BY_GRADE))
 			{
@@ -8190,64 +8181,6 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			return result;
 		}
-		
-		/**
-		 * get the submissin status
-		 */
-		private String getSubmissionStatus(SessionState state, AssignmentSubmission s)
-		{
-			String status = "";
-			if (s.getReturned())
-			{
-				if (s.getTimeReturned() != null && s.getTimeSubmitted() != null && s.getTimeReturned().before(s.getTimeSubmitted()))
-				{
-					status = rb.getString("listsub.resubmi");
-				}
-				else
-				{
-					status = rb.getString("gen.returned");
-				}
-			}
-			else if (s.getGraded())
-			{
-				if (state.getAttribute(WITH_GRADES) != null && ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue())
-				{
-					status = rb.getString("grad3");
-				}
-				else
-				{
-					status = rb.getString("gen.commented");
-				}
-			}
-			else
-			{
-				status = rb.getString("gen.ung1");
-			}
-			
-			return status;
-
-		} // getSubmissionStatus
-
-		/**
-		 * get the status string of assignment
-		 */
-		private String getAssignmentStatus(Assignment a)
-		{
-			String status = "";
-			Time currentTime = TimeService.newTime();
-
-			if (a.getDraft())
-				status = rb.getString("draft2");
-			else if (a.getOpenTime().after(currentTime))
-				status = rb.getString("notope");
-			else if (a.getDueTime().after(currentTime))
-				status = rb.getString("ope");
-			else if ((a.getCloseTime() != null) && (a.getCloseTime().before(currentTime)))
-				status = rb.getString("clos");
-			else
-				status = rb.getString("due2");
-			return status;
-		} // getAssignmentStatus
 
 		/**
 		 * get submission status
