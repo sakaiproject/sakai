@@ -23,82 +23,82 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.content</groupId>
       <artifactId>sakai-content-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.content.component.migration</groupId>
       <artifactId>sakai-content-jcr-migration-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.content</groupId>
       <artifactId>sakai-content-util</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.content.component.jcr</groupId>
       <artifactId>sakai-content-jcr-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.entity</groupId>
       <artifactId>sakai-entity-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.user</groupId>
       <artifactId>sakai-user-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.authz</groupId>
       <artifactId>sakai-authz-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.db</groupId>
       <artifactId>sakai-db-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.event</groupId>
       <artifactId>sakai-event-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.tool</groupId>
       <artifactId>sakai-tool-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.memory</groupId>
       <artifactId>sakai-memory-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.db</groupId>
       <artifactId>sakai-db-storage</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>      
       <groupId>commons-logging</groupId>
@@ -116,7 +116,7 @@
     <dependency>
         <groupId>org.sakaiproject.kernel.jcr</groupId>
         <artifactId>sakai-jcr-api</artifactId>
-        <version>${sakai.version}</version> <!-- 1.4 latest -->
+        <version>SNAPSHOT</version> <!-- 1.4 latest -->
         <scope>provided</scope> <!-- remove when in master -->
     </dependency>
 

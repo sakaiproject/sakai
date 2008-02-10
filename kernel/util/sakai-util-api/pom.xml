@@ -25,7 +25,7 @@
       
       <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
 <!-- host jdom for all those folks using it in APIs, etc -->
     <dependency>

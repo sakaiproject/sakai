@@ -23,7 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.cluster.component</groupId>
       <artifactId>sakai-cluster-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

@@ -23,7 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.email.component</groupId>
       <artifactId>sakai-email-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

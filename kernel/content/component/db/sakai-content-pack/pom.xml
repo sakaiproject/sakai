@@ -23,7 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.content.component.db</groupId>
       <artifactId>sakai-content-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
       <exclusions>
 	<exclusion>
 	  <groupId>org.sakaiproject.kernel.content.component.db</groupId>
@@ -34,7 +34,7 @@
     <dependency>
 	<groupId>org.sakaiproject.kernel.content.component</groupId>
         <artifactId>sakai-content-bundles</artifactId>
-        <version>${sakai.version}</version>
+        <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

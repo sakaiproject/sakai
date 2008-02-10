@@ -28,7 +28,7 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.jcr</groupId>
       <artifactId>sakai-jcr-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
       <type>jar</type>
     </dependency>
 

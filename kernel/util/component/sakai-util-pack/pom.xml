@@ -24,7 +24,7 @@
       
       <groupId>org.sakaiproject.kernel.util.component</groupId>
       <artifactId>sakai-util-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

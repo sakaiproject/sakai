@@ -23,7 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.event.component</groupId>
       <artifactId>sakai-event-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

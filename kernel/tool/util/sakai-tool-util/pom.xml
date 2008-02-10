@@ -23,7 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.tool</groupId>
       <artifactId>sakai-tool-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>

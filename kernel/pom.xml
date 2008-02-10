@@ -65,7 +65,6 @@
    </scm> 
   
   <properties>
-    <sakai.version>SNAPSHOT</sakai.version>
     <sakai.plugin.version>2.2</sakai.plugin.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring</sakai.spring.artifactId>
@@ -461,109 +460,109 @@ This is not needed now that pluto have been released
            <dependency>
 		<groupId>org.sakaiproject.kernel.authz</groupId>
 		<artifactId>sakai-authz-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
 		<scope>provided</scope>
 	   </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.alias</groupId>
                 <artifactId>sakai-alias-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.cluster</groupId>
                 <artifactId>sakai-cluster-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.component.api</groupId>
                 <artifactId>sakai-component-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.component.api</groupId>
                 <artifactId>sakai-component</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.content</groupId>
                 <artifactId>sakai-content-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.db</groupId>
                 <artifactId>sakai-db-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.db</groupId>
                 <artifactId>sakai-db-ext</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.email</groupId>
                 <artifactId>sakai-email-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.entity</groupId>
                 <artifactId>sakai-entity-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.event</groupId>
                 <artifactId>sakai-event-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.jcr</groupId>
                 <artifactId>sakai-jcr-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.memory</groupId>
                 <artifactId>sakai-memory-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.site</groupId>
                 <artifactId>sakai-site-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.tool</groupId>
                 <artifactId>sakai-tool-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.tool.util</groupId>
                 <artifactId>sakai-tool-servlet</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.user</groupId>
                 <artifactId>sakai-user-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
                 <groupId>org.sakaiproject.kernel.util</groupId>
                 <artifactId>sakai-util-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
 
@@ -757,7 +756,7 @@ This is not needed now that pluto have been released
         <inherited>true</inherited>
         <groupId>org.sakaiproject.maven.plugins</groupId>
         <artifactId>sakai</artifactId>
-        <version>SNAPSHOT</version>
+        <version>1.0</version>
         <extensions>true</extensions>
         <configuration>
           <deployDirectory>${maven.tomcat.home}</deployDirectory>

@@ -23,22 +23,22 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.content.component.jcr</groupId>
       <artifactId>sakai-content-jcr-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
         <groupId>org.sakaiproject.kernel.content.component/groupId>
         <artifactId>sakai-content-bundles</artifactId>
-        <version>${sakai.version}</version>
+        <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.content.component.migration</groupId>
       <artifactId>sakai-contentmulti-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.content.component.migration</groupId>
       <artifactId>sakai-content-jcr-migration-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

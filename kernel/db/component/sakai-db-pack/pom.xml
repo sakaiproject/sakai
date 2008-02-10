@@ -23,7 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.db.component</groupId>
       <artifactId>sakai-db-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
