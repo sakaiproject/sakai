@@ -4,7 +4,7 @@
   <parent>
     <artifactId>component</artifactId>
     <groupId>org.sakaiproject.kernel.cluster</groupId>
-    <version>K-1.0-RC1</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Cluster Service Implementation </name>
@@ -23,32 +23,32 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.cluster</groupId>
       <artifactId>sakai-cluster-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.db</groupId>
       <artifactId>sakai-db-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.event</groupId>
       <artifactId>sakai-event-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>

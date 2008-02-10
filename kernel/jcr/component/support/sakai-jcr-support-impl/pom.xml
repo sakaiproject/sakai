@@ -4,7 +4,7 @@
   <parent>
     <artifactId>support</artifactId>
     <groupId>org.sakaiproject.kernel.jcr.component</groupId>
-    <version>K-1.0-RC1</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai JCR Support Service Implementation</name>

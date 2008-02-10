@@ -4,7 +4,7 @@
   <parent>
     <artifactId>component</artifactId>
     <groupId>org.sakaiproject.kernel.tool</groupId>
-    <version>K-1.0-RC1</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Tool Component Package</name>
@@ -23,7 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.tool.component</groupId>
       <artifactId>sakai-tool-impl</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

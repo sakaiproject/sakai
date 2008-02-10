@@ -4,7 +4,7 @@
   <parent>
     <artifactId>api</artifactId>
     <groupId>org.sakaiproject.kernel.component</groupId>
-    <version>K-1.0-RC1</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Component Manager Cover</name>

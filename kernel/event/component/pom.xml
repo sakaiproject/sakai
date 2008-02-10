@@ -4,7 +4,7 @@
   <parent>
     <artifactId>event</artifactId>
     <groupId>org.sakaiproject.kernel</groupId>
-    <version>K-1.0-RC1</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Event Component Implementation</name>

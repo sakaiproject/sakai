@@ -4,7 +4,7 @@
   <parent>
     <artifactId>db</artifactId>
     <groupId>org.sakaiproject.kernel</groupId>
-    <version>K-1.0-RC1</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai DB API</name>
@@ -23,12 +23,12 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

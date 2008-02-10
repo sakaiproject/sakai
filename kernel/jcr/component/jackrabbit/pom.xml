@@ -4,7 +4,7 @@
   <parent>
     <artifactId>component</artifactId>
     <groupId>org.sakaiproject.kernel.jcr</groupId>
-    <version>K-1.0-RC1</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Jackrabbit JSR-170 Service Impl</name>
@@ -32,38 +32,38 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.jcr</groupId>
       <artifactId>sakai-jcr-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     
     <dependency>
       <groupId>org.sakaiproject.kernel.user</groupId>
       <artifactId>sakai-user-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.authz</groupId>
       <artifactId>sakai-authz-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.entity</groupId>
       <artifactId>sakai-entity-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
      <dependency>
       <groupId>commons-logging</groupId>

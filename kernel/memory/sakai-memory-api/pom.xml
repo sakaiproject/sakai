@@ -4,7 +4,7 @@
   <parent>
     <artifactId>memory</artifactId>
     <groupId>org.sakaiproject.kernel</groupId>
-    <version>K-1.0-RC1</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Memory API</name>
@@ -23,27 +23,27 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.entity</groupId>
       <artifactId>sakai-entity-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.event</groupId>
       <artifactId>sakai-event-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.user</groupId>
       <artifactId>sakai-user-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

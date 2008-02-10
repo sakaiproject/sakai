@@ -5,7 +5,7 @@
   <parent>
     <artifactId>component</artifactId>
     <groupId>org.sakaiproject.kernel.authz</groupId>
-    <version>K-1.0-RC1</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai AuthZ Component Integration Tests</name>
@@ -15,22 +15,22 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.test</groupId>
       <artifactId>sakai-test-harness</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.authz</groupId>
       <artifactId>sakai-authz-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.entity</groupId>
       <artifactId>sakai-entity-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.tool</groupId>
       <artifactId>sakai-tool-api</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>

@@ -3,7 +3,7 @@
   <parent>
     <artifactId>test</artifactId>
     <groupId>org.sakaiproject.kernel</groupId>
-    <version>K-1.0-RC1</version>
+    <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Test Harness</name>

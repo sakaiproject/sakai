@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>component</artifactId>
 		<groupId>org.sakaiproject.kernel.util</groupId>
-		<version>K-1.0-RC1</version>
+		<version>SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
   <name>Sakai Util package</name>
@@ -24,7 +24,7 @@
       
       <groupId>org.sakaiproject.kernel.util.component</groupId>
       <artifactId>sakai-util-impl</artifactId>
-      <version>K-1.0-RC1</version>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
