@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>component</artifactId>
     <groupId>org.sakaiproject.kernel.site</groupId>
-    <version>SNAPSHOT</version>
+    <version>K-1.0-RC1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Site Service Implementation</name>
@@ -17,78 +17,78 @@
   <inceptionYear>2003</inceptionYear>
   <packaging>jar</packaging>
   <properties>
-    <deploy.target/>
+    <deploy.target />
   </properties>
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel.site</groupId>
       <artifactId>sakai-site-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.authz</groupId>
       <artifactId>sakai-authz-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.entity</groupId>
       <artifactId>sakai-entity-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.user</groupId>
       <artifactId>sakai-user-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.tool</groupId>
       <artifactId>sakai-tool-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.event</groupId>
       <artifactId>sakai-event-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.component.api</groupId>
       <artifactId>sakai-component-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.memory</groupId>
       <artifactId>sakai-memory-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.db</groupId>
       <artifactId>sakai-db-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.entity</groupId>
       <artifactId>sakai-entity-util</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.tool.util</groupId>
       <artifactId>sakai-tool-util</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel.db</groupId>
       <artifactId>sakai-db-storage</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>

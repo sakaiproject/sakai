@@ -1,13 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>jackrabbit</artifactId>
     <groupId>org.sakaiproject.kernel.jcr.component</groupId>
-    <version>SNAPSHOT</version>
+    <version>K-1.0-RC1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Jackrabbit JCR Service Package</name>
@@ -29,7 +26,7 @@
    <dependency>      
       <groupId>org.sakaiproject.kernel.jcr.component.jackrabbit</groupId>
       <artifactId>sakai-jackrabbit-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>K-1.0-RC1</version>
     </dependency>
   </dependencies>
 </project>
