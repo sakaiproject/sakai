@@ -22,7 +22,7 @@
   <dependencies>
     <dependency>
       
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
