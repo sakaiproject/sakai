@@ -27,8 +27,10 @@
     </links>
 
     <menu name="${project.name}">
-       <item name="API" href="/component/api/index.html"/>
-       <item name="Implementation" href="/component/api/index.html"/>
+       <item name="API" href="/api/sakai-component/index.html"/>
+       <item name="Component Manager" href="/api/sakai-component-api/index.html"/>
+       <item name="Service Implementation" href="/component/sakai-component-impl/index.html"/>
+       <item name="Integration Test" href="/component/integration-test/index.html"/>
     </menu>
 
     <menu ref="reports" />

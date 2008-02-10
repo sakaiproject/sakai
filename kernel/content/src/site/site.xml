@@ -4,11 +4,11 @@
   <publishDate position="navigation-bottom" format="MM-dd-yy"/>
   
   <bannerLeft>
-    <name>Sakai Kernel Project </name>
+    <name>Sakai Kernel Project ( ${project.name} ) </name>
     <href>/</href>
   </bannerLeft>
   <bannerRight>
-    <name>Sakai Kernel Project </name>
+    <name>Sakai Kernel Project ( ${project.name} ) </name>
     <src>/images/logo.gif</src>
     <href>http://www.sakaiproject.org/</href>
   </bannerRight>
@@ -27,8 +27,13 @@
     </links>
 
     <menu name="${project.name}">
-       <item name="API" href="/component/api/index.html"/>
-       <item name="Implementation" href="/component/api/index.html"/>
+       <item name="API" href="/sakai-content-api/index.html"/>
+       <item name="DB Implementation" href="/component/db/sakai-content-impl/index.html"/>
+       <item name="DB Lock Implementation" href="/component/db/sakai-content-lock-hbm/index.html"/>
+       <item name="JCR Implementation" href="/component/jcr/sakai-content-jcr-impl/index.html"/>
+       <item name="Migration API" href="/component/migration/sakai-content-jcr-migration-api/index.html"/>
+       <item name="Migration Implementation" href="/component/migration/sakai-content-jcr-migration-impl/index.html"/>
+       <item name="Content Util" href="/sakai-content-util/index.html"/>
     </menu>
 
     <menu ref="reports" />

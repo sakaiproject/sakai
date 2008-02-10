@@ -4,11 +4,11 @@
   <publishDate position="navigation-bottom" format="MM-dd-yy"/>
   
   <bannerLeft>
-    <name>Sakai Kernel Project </name>
+    <name>Sakai Kernel Project (${project.name})</name>
     <href>/</href>
   </bannerLeft>
   <bannerRight>
-    <name>Sakai Kernel Project </name>
+    <name>Sakai Kernel Project (${project.name})</name>
     <src>/images/logo.gif</src>
     <href>http://www.sakaiproject.org/</href>
   </bannerRight>
@@ -27,8 +27,8 @@
     </links>
 
     <menu name="${project.name}">
-       <item name="API" href="/component/api/index.html"/>
-       <item name="Implementation" href="/component/api/index.html"/>
+       <item name="API" href="/sakai-memory-api/index.html"/>
+       <item name="Implementation" href="/component/sakai-memory-impl/index.html"/>
     </menu>
 
     <menu ref="reports" />

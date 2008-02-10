@@ -4,11 +4,11 @@
   <publishDate position="navigation-bottom" format="MM-dd-yy"/>
   
   <bannerLeft>
-    <name>Sakai Kernel Project </name>
+    <name>Sakai Kernel Project (${project.name})</name>
     <href>/</href>
   </bannerLeft>
   <bannerRight>
-    <name>Sakai Kernel Project </name>
+    <name>Sakai Kernel Project (${project.name})</name>
     <src>/images/logo.gif</src>
     <href>http://www.sakaiproject.org/</href>
   </bannerRight>
@@ -27,8 +27,10 @@
     </links>
 
     <menu name="${project.name}">
-       <item name="API" href="/component/api/index.html"/>
-       <item name="Implementation" href="/component/api/index.html"/>
+       <item name="API" href="/sakai-jcr-api/index.html"/>
+       <item name="Jackrabbit JCR Implementation" href="/component/jackrabbit/sakai-jackrabbit-impl/index.html"/>
+       <item name="JCR Support Implementation" href="/component/support/sakai-jcr-support-impl/index.html"/>
+       <item name="JCR Utils" href="/sakai-jcr-util/index.html"/>
     </menu>
 
     <menu ref="reports" />
