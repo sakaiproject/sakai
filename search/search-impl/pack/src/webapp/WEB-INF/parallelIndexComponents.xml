@@ -374,6 +374,7 @@
     	id="org.sakaiproject.search.api.SearchService.parallel.index.searchBuilderQueueManager"
 	   	init-method="init" 
     	destroy-method="destroy" >
+    	    <property name="autoDdl"><value>${auto.ddl}</value></property>
 			<property name="datasource"><ref bean="javax.sql.DataSource"/></property>
     		<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
 			<property name="sequence"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.itemQueueLock"/></property>

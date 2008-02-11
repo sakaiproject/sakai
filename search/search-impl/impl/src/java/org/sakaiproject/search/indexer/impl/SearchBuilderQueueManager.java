@@ -36,6 +36,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;
@@ -86,8 +87,26 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 
 	private TransactionSequence sequence;
 
+	/** Configuration: to run the ddl on init or not. */
+	protected boolean autoDdl = false;
+
 	public void init()
 	{
+		try
+		{
+			if (autoDdl)
+			{
+				SqlService.getInstance().ddl(this.getClass().getClassLoader(),
+						"sakai_search_parallel");
+			}
+		}
+		catch (Exception ex)
+		{
+			log.error("Perform additional SQL setup", ex);
+			
+			
+		}
+
 		nodeLock = (int) sequence.getNextId();
 	}
 
@@ -1041,6 +1060,22 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 	public void setSequence(TransactionSequence sequence)
 	{
 		this.sequence = sequence;
+	}
+	/**
+	 * Configuration: to run the ddl on init or not.
+	 * 
+	 * @param value
+	 *        the auto ddl value.
+	 */
+	public void setAutoDdl(String value)
+	{
+		autoDdl = new Boolean(value).booleanValue();
+	}
+	/**
+	 */
+	public String getAutoDdl()
+	{
+		return String.valueOf(autoDdl);
 	}
 
 }
