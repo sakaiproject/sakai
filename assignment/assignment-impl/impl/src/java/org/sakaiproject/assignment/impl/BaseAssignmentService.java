@@ -2437,14 +2437,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		for (int x = 0; x < allContents.size(); x++)
 		{
-			try
+			aContent = (AssignmentContent) allContents.get(x);
+			if (aContent.getCreator().equals(owner.getId()))
 			{
-				aContent = (AssignmentContent) allContents.get(x);
-				if (aContent.getCreator().equals(owner.getId())) ;
 				retVal.add(aContent);
-			}
-			catch (Exception e)
-			{
 			}
 		}
 
