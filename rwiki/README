@@ -1,3 +1,16 @@
+2.5 2008-01-25
+
+TO Run RWiki you will need trunk +
+search 
+ which requires
+   mailarchive
+      announcements
+	 jobscheduler
+
+
+
+
+=========================================
 Corrections.
 
 wiki.comments=true
