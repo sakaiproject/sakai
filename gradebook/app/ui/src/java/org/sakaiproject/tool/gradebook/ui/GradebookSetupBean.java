@@ -617,7 +617,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	{
 		double total = 0;
 
-		if (categories != null || categories.size() > 0)
+		if (categories != null && categories.size() > 0)
 		{
 			Iterator catIter = categories.iterator();
 			while (catIter.hasNext())
