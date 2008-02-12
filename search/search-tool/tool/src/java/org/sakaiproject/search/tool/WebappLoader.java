@@ -91,6 +91,9 @@ public class WebappLoader extends ResourceLoader
                 {
                     paths[i] += '/';
                 }
+		if ( paths[i].startsWith("./") ) {
+			paths[i] = paths[i].substring(1);
+		}
                 rsvc.info("WebappLoader : added template path - '" + paths[i] + "'");
             }
         }
