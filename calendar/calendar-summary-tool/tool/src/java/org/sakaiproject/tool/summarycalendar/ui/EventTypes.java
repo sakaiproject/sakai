@@ -13,7 +13,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class EventTypes {
 
-	private static ResourceLoader		msgs					= new ResourceLoader("org.sakaiproject.tool.summarycalendar.bundle.Messages");	
+	private static ResourceLoader		msgs					= new ResourceLoader("calendar");	
 
 	private static List<String>			eventTypes				= null;
 	static{
@@ -69,22 +69,22 @@ public class EventTypes {
 	 */
 	public static void reloadLocalization() {
 		eventTypesToLocalized = new HashMap<String, String>();
-		eventTypesToLocalized.put("Academic Calendar", msgs.getString("del.acad"));
-		eventTypesToLocalized.put("Activity", msgs.getString("del.activ"));
-		eventTypesToLocalized.put("Cancellation", msgs.getString("del.cancell"));
-		eventTypesToLocalized.put("Class section - Discussion", msgs.getString("del.class.disc"));
-		eventTypesToLocalized.put("Class section - Lab", msgs.getString("del.class.lab"));
-		eventTypesToLocalized.put("Class section - Lecture", msgs.getString("del.class.lect"));
-		eventTypesToLocalized.put("Class section - Small Group", msgs.getString("del.class.small"));
-		eventTypesToLocalized.put("Class session", msgs.getString("del.classsession"));
-		eventTypesToLocalized.put("Computer Session", msgs.getString("del.computer"));
-		eventTypesToLocalized.put("Deadline", msgs.getString("del.dead"));
-		eventTypesToLocalized.put("Exam", msgs.getString("del.exam"));
-		eventTypesToLocalized.put("Meeting", msgs.getString("del.meet"));
-		eventTypesToLocalized.put("Multidisciplinary Conference", msgs.getString("del.multi"));
-		eventTypesToLocalized.put("Quiz", msgs.getString("del.quiz"));
-		eventTypesToLocalized.put("Special event", msgs.getString("del.special"));
-		eventTypesToLocalized.put("Web Assignment", msgs.getString("del.web"));
+		eventTypesToLocalized.put("Academic Calendar", msgs.getString("legend.key1"));
+		eventTypesToLocalized.put("Activity", msgs.getString("legend.key2"));
+		eventTypesToLocalized.put("Cancellation", msgs.getString("legend.key3"));
+		eventTypesToLocalized.put("Class section - Discussion", msgs.getString("legend.key4"));
+		eventTypesToLocalized.put("Class section - Lab", msgs.getString("legend.key5"));
+		eventTypesToLocalized.put("Class section - Lecture", msgs.getString("legend.key6"));
+		eventTypesToLocalized.put("Class section - Small Group", msgs.getString("legend.key7"));
+		eventTypesToLocalized.put("Class session", msgs.getString("legend.key8"));
+		eventTypesToLocalized.put("Computer Session", msgs.getString("legend.key9"));
+		eventTypesToLocalized.put("Deadline", msgs.getString("legend.key10"));
+		eventTypesToLocalized.put("Exam", msgs.getString("legend.key11"));
+		eventTypesToLocalized.put("Meeting", msgs.getString("legend.key12"));
+		eventTypesToLocalized.put("Multidisciplinary Conference", msgs.getString("legend.key13"));
+		eventTypesToLocalized.put("Quiz", msgs.getString("legend.key14"));
+		eventTypesToLocalized.put("Special event", msgs.getString("legend.key15"));
+		eventTypesToLocalized.put("Web Assignment", msgs.getString("legend.key16"));
 	}
 
 }

@@ -11,7 +11,7 @@
 %>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-   <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.summarycalendar.bundle.Messages"/>
+   <jsp:setProperty name="msgs" property="baseName" value="calendar"/>
 </jsp:useBean>
 
 <f:view>
@@ -51,7 +51,7 @@
 			>
 			<h:column id="sunday">
 				<f:facet name="header">	 
-		           <h:outputText value="#{msgs.day_sun}"/>		                
+		           <h:outputText value="#{CalBean.dayOfWeekNames[0]}" />		          
 		        </f:facet>
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[0].backgroundCSSProperty}; display: block" styleClass="#{week.days[0].styleClass}">
 			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[0].eventCount}"/></h:panelGroup>
@@ -63,7 +63,7 @@
 			</h:column>
 			<h:column id="monday">
 				<f:facet name="header">	 
-		           <h:outputText value="#{msgs.day_mon}"/>		                
+		           <h:outputText value="#{CalBean.dayOfWeekNames[1]}"/>		                
 		        </f:facet>		        
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[1].backgroundCSSProperty}; display: block" styleClass="#{week.days[1].styleClass}">
 			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[1].eventCount}"/></h:panelGroup>
@@ -75,7 +75,7 @@
 			</h:column>
 			<h:column id="tuesday">
 				<f:facet name="header">	 
-		           <h:outputText value="#{msgs.day_tue}"/>		                
+		           <h:outputText value="#{CalBean.dayOfWeekNames[2]}"/>		                
 		        </f:facet>		        
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[2].backgroundCSSProperty}; display: block" styleClass="#{week.days[2].styleClass}">
 			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[2].eventCount}"/></h:panelGroup>
@@ -87,7 +87,7 @@
 			</h:column>
 			<h:column id="wednesday">
 				<f:facet name="header">	 
-		           <h:outputText value="#{msgs.day_wed}"/>		                
+		           <h:outputText value="#{CalBean.dayOfWeekNames[3]}"/>		                
 		        </f:facet>		        
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[3].backgroundCSSProperty}; display: block" styleClass="#{week.days[3].styleClass}">
 			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[3].eventCount}"/></h:panelGroup>
@@ -99,7 +99,7 @@
 			</h:column>
 			<h:column id="thursday">
 				<f:facet name="header">	 
-		           <h:outputText value="#{msgs.day_thu}"/>		                
+		           <h:outputText value="#{CalBean.dayOfWeekNames[4]}"/>		                
 		        </f:facet>
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[4].backgroundCSSProperty}; display: block" styleClass="#{week.days[4].styleClass}">
 			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[4].eventCount}"/></h:panelGroup>
@@ -111,7 +111,7 @@
 			</h:column>
 			<h:column id="friday">
 				<f:facet name="header">	 
-		           <h:outputText value="#{msgs.day_fri}"/>		                
+		           <h:outputText value="#{CalBean.dayOfWeekNames[5]}"/>		                
 		        </f:facet>
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[5].backgroundCSSProperty}; display: block" styleClass="#{week.days[5].styleClass}">
 			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[5].eventCount}"/></h:panelGroup>
@@ -123,7 +123,7 @@
 			</h:column>
 			<h:column id="saturday">
 				<f:facet name="header">	 
-		           <h:outputText value="#{msgs.day_sat}"/>		                
+		           <h:outputText value="#{CalBean.dayOfWeekNames[6]}"/>		                
 		        </f:facet>
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[6].backgroundCSSProperty}; display: block" styleClass="#{week.days[6].styleClass}">
 			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[6].eventCount}"/></h:panelGroup>

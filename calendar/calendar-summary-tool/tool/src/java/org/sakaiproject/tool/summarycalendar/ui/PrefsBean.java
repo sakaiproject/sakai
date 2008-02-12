@@ -75,7 +75,7 @@ public class PrefsBean {
 	private static Log							LOG							= LogFactory.getLog(PrefsBean.class);
 
 	/** Resource bundle */
-	private transient ResourceLoader			msgs						= new ResourceLoader("org.sakaiproject.tool.summarycalendar.bundle.Messages");
+	private transient ResourceLoader			msgs						= new ResourceLoader("calendar");
 	
 	/** Bean members */
 	private List								viewModes					= null;

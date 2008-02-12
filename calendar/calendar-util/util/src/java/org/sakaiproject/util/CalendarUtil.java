@@ -46,6 +46,15 @@ public class CalendarUtil
 		m_calendar = Calendar.getInstance(locale);
 		
 	}	// CalendarUtil
+	
+	/**
+	* Construct.
+	*/
+	public CalendarUtil(Calendar calendar) 
+	{
+		m_calendar = calendar;
+		
+	}	// CalendarUtil
 		
 	/**
 	* Access the current user.
@@ -344,4 +353,5 @@ public class CalendarUtil
 	{
 		return m_calendar.getFirstDayOfWeek();
 	}
+	
 }	 // CalendarUtil

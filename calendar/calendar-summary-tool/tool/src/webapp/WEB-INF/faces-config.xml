@@ -9,7 +9,7 @@
 <faces-config>
     
 	<application>
-		<message-bundle>org.sakaiproject.tool.summarycalendar.bundle.Messages</message-bundle>
+		<message-bundle>calendar</message-bundle>
 	    <locale-config>
 	      <default-locale>en</default-locale>
 		</locale-config>
@@ -23,7 +23,7 @@
 		<managed-property>
 			<description>Bundle baseName</description>
 			<property-name>baseName</property-name>
-			<value>org.sakaiproject.tool.summarycalendar.bundle.Messages</value>
+			<value>calendar</value>
 		</managed-property>
 	</managed-bean>
 

@@ -10,7 +10,7 @@
 %>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-   <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.summarycalendar.bundle.Messages"/>
+   <jsp:setProperty name="msgs" property="baseName" value="calendar"/>
 </jsp:useBean>
 
 <f:view>
