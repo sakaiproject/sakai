@@ -249,7 +249,7 @@
 
 	#set($yearList = [$earliestYear .. $latestYear])
 	
-    <select name="$monthselect_id" id="$monthselect_id" onchange="blur()">  
+    <select name="$monthselect_id" id="$monthselect_id">  
       #if ($monthSelected == 1) <option value="1" selected="selected">$tlang.getString("jan")</option> #else <option value="1">$tlang.getString("jan")</option> #end
         
 		#if ($monthSelected == 2) <option value="2" selected="selected">$tlang.getString("feb")</option> #else <option value="2">$tlang.getString("feb")</option> #end
@@ -276,7 +276,7 @@
 
     </select>
     
-    <select name="$dayselect_id" id="$dayselect_id" onchange="blur()">
+    <select name="$dayselect_id" id="$dayselect_id">
 		
     #foreach($d in [1..31])
         #if($d == $daySelected)
@@ -288,7 +288,7 @@
 	
     </select>
     
-    <select name="$yearselect_id" id="$yearselect_id" onchange="blur()">
+    <select name="$yearselect_id" id="$yearselect_id">
 		
         #foreach ($y in $yearList)
             #if ($y == $yearSelected)
