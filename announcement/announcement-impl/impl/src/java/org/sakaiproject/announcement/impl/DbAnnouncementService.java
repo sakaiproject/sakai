@@ -45,6 +45,8 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.BaseDbDoubleStorage;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.javax.Filter;
+import org.sakaiproject.javax.PagingPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -328,6 +330,21 @@ public class DbAnnouncementService extends BaseAnnouncementService
 		public void removeMessage(MessageChannel channel, MessageEdit edit)
 		{
 			super.removeResource(channel, edit);
+		}
+
+		public int getCount(MessageChannel channel)
+		{
+			return super.getCount(channel);
+		}
+
+		public int getCount(MessageChannel channel, Filter filter)
+		{
+			return super.getCount(channel, filter);
+		}
+                
+		public List getMessages(MessageChannel channel, Filter filter, boolean asc, PagingPosition pager)
+		{       
+			return super.getMessages(channel, filter, asc, pager);
 		}
 
 		public List getMessages(MessageChannel channel, Time afterDate, int limitedToLatest, String draftsForId, boolean pubViewOnly)
