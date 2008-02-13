@@ -723,7 +723,7 @@ public class PodcastServiceImpl implements PodcastService {
 		 *  	retract date (currently only release date supported in UI)
 		 *  	notification level
 		 */
-		contentHostingService.addResource(Validator
+		ContentResource cr = contentHostingService.addResource(Validator
 				.escapeResourceName(filename), resourceCollection, idVariationLimit,
 				contentType, body, resourceProperties, (Collection) new ArrayList(), false, 
 				TimeService.newTime(displayDate.getTime()), null,
@@ -731,7 +731,7 @@ public class PodcastServiceImpl implements PodcastService {
 		
 		// add entry for event tracking
 		final Event event = EventTrackingService.newEvent(EVENT_ADD_PODCAST,
-				getEventMessage(filename), true, NotificationService.NOTI_NONE);
+				getEventMessage(cr.getReference()), true, NotificationService.NOTI_NONE);
 		EventTrackingService.post(event);
 
 	}
