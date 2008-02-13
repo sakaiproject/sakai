@@ -2378,56 +2378,13 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		}
 
 		/**
-         	 * Return a list of all or filtered messages in the channel limited to those inthe paging range. 
-         	 * 
-         	 * @param filter
-         	 *        A filtering object to accept messages, or null if no filtering is desired.
-         	 * @param ascending
-         	 *        Order of messages, ascending if true, descending if false
-         	 *        The order in which the messages will be found in the iteration is by date, oldest 
-         	 *        first if ascending is true, newest first if ascending is false.
-         	 * @param pages
-         	 *        An indication of the range of pages we are looking for
-         	 * @return a list of channel Message objects or specializations of Message objects (may be empty).
-         	 * @exception PermissionException
-         	 *            if the user does not have read permission to the channel.
-		 *
-		 * Note: This is an inefficient memory-only implementation and should be overridden in the 
-		 * database implementations to use the database to do the data reductions.  This implementation
-		 * also only searches the body because it is handling messages.
+		 * @inheritDoc
 		 */
-		public List getPagedMessages(String search, boolean ascending, PagingPosition pages) throws PermissionException
+		public int getCount(Filter filter) throws PermissionException
 		{
-			// check security on the channel (throws if not permitted)
-			unlock(SECURE_READ, getReference());
-			// track event
-			// m_eventTrackingService.post(m_eventTrackingService.newEvent(eventId(SECURE_READ), getReference(), false));
-
-			List rv = findFilterMessages(null, ascending);
-           		if (search != null)
-                	{
-                        	Vector filtered = new Vector();
-                        	for (Iterator iMsgs = rv.iterator(); iMsgs.hasNext();)
-                        	{
-                                	Message msg = (Message) iMsgs.next();
-	
-					// When this is extended - it should probably search more fields
-                                	if (StringUtil.containsIgnoreCase(FormattedText.convertFormattedTextToPlaintext(msg.getBody()), search))
-                                	{
-                                        	filtered.add(msg);
-                                	}
-                        	}
-                        	rv = filtered;
-			}
-
-			// Trim down to the elements in the page rage
-			if ( pages != null ) 
-			{
-                		pages.validate(rv.size());
-                		rv = rv.subList(pages.getFirst() - 1, pages.getLast());
-			}
-			return rv;
-		} // getPagedMessages
+			List msgs = getMessages(filter, true, null);
+			return msgs.size();
+		}
 
 		/**
 		 * Return a list of all or filtered messages in the channel. The order in which the messages will be found in the iteration is by date, oldest first if ascending is true, newest first if ascending is false.
@@ -2449,6 +2406,23 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 			return findFilterMessages(filter, ascending);
 
+		} // getMessages
+
+		/**
+		 * {@inheritDoc}
+		 */
+		public List getMessages(Filter filter, boolean ascending, PagingPosition pages) throws PermissionException
+		{
+			// check security on the channel (throws if not permitted)
+			unlock(SECURE_READ, getReference());
+
+			List rv = findFilterMessages(filter, ascending);
+			if ( pages != null ) 
+			{
+                		pages.validate(rv.size());
+                		rv = rv.subList(pages.getFirst() - 1, pages.getLast());
+			}
+			return rv;
 		} // getMessages
 
 		/**
