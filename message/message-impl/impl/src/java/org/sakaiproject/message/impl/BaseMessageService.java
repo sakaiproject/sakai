@@ -2373,6 +2373,9 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		 */
 		public int getCount() throws PermissionException
 		{
+			// Allow the Storage to indicate "not implemented"
+			int retval = m_storage.getCount(this);
+			if ( retval >= 0 ) return retval;
 			List msgs = getMessages(null, true);
 			return msgs.size();
 		}
@@ -2382,6 +2385,9 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		 */
 		public int getCount(Filter filter) throws PermissionException
 		{
+			// Allow the Storage to indicate "not implemented"
+			int retval = m_storage.getCount(this, filter);
+			if ( retval >= 0 ) return retval;
 			List msgs = getMessages(filter, true, null);
 			return msgs.size();
 		}
@@ -2416,7 +2422,12 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// check security on the channel (throws if not permitted)
 			unlock(SECURE_READ, getReference());
 
-			List rv = findFilterMessages(filter, ascending);
+			// Allow the Storage to indicate "not implemented"
+			List rv = m_storage.getMessages(this, filter, ascending, pages);
+			if ( rv != null ) return rv;
+
+			// This *will* get us messages regardless
+			rv = findFilterMessages(filter, ascending);
 			if ( pages != null ) 
 			{
                 		pages.validate(rv.size());
@@ -4421,6 +4432,32 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		 * Forget about a message.
 		 */
 		public void removeMessage(MessageChannel channel, MessageEdit edit);
+
+		/**
+		 * Count messages 
+		 * @return message count (-1 indicates this is not implemented in Storage)
+		 */ 
+		public int getCount(MessageChannel channel);
+
+		/**
+		 * Count messages with a Filter
+		 * @return message count (-1 indicates this is not implemented in Storage)
+		 */
+		public int getCount(MessageChannel channel, Filter filter);
+
+		/**
+		 * Get messages filtered, sorted, and paged
+		 * 
+		 * @param context
+		 *        The root channel ref to match.
+		 * @param filter
+		 *        filter the records according to this filter - may be null
+		 * @param pager
+		 *        limit on the records returned - may be null
+		 * @return A list of Message objects that meet the criteria; may be empty
+	         *         returning null indicates - not implemened in Storage.
+		 */
+		public List getMessages(MessageChannel channel, Filter filter, boolean asc, PagingPosition pager);
 
 		/**
 		 * Get messages filtered by date and count and drafts, in descending (latest first) order
