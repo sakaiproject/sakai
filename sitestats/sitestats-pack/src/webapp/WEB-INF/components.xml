@@ -142,6 +142,9 @@
 			<!-- Maximum number of processed events per job run. -->
 			<property name="maxEventsPerRun" value="50000" />
 			
+			<!-- Number of processed events in each sql query. -->
+			<property name="sqlBlockSize" value="1000" />
+			
 			<!-- Starting eventId to be processed.
 				WARNING: This value is only read on the first job run; after that, job status is
 						tracked in SST_JOB_RUN table... If not specified, the job will use the most

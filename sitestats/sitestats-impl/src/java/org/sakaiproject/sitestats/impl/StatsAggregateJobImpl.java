@@ -26,6 +26,7 @@ public class StatsAggregateJobImpl implements Job {
 
 	// Spring fields
 	private int					maxEventsPerRun		= 0;
+	private int					sqlBlockSize		= 1000;
 	private long				startEventId		= -1;
 	private long 				lastEventIdInTable	= -1;
 
@@ -38,7 +39,6 @@ public class StatsAggregateJobImpl implements Job {
 	private JobRun				jobRun				= null;
 	private Object				extDbdriver			= null;
 	private String				sqlGetEvent			= null;
-	private final static int	SQL_BLOCK_SIZE		= 1000;
 	private boolean				isOracle 			= false;
 	// Statement below has performance problems in MySQL (STAT-58)
 //	private final static String MYSQL_GET_EVENT		= "select EVENT_ID as EVENT_ID,EVENT_DATE as EVENT_DATE,EVENT as EVENT,REF as REF,SESSION_USER as SESSION_USER,e.SESSION_ID as SESSION_ID " +
@@ -171,11 +171,11 @@ public class StatsAggregateJobImpl implements Job {
 					if(firstEventIdProcessed == -1)
 						offset = eventIdLowerLimit;
 					st.setLong(1, offset);					// MySQL >= startId	
-					st.setLong(2, SQL_BLOCK_SIZE + offset);	// MySQL < endId
+					st.setLong(2, sqlBlockSize + offset);	// MySQL < endId
 				}else{
 					st.setLong(1, eventIdLowerLimit);		// lower limit	
 					st.setLong(2, offset);					// Oracle offset
-					st.setLong(3, SQL_BLOCK_SIZE + offset);	// Oracle limit	
+					st.setLong(3, sqlBlockSize + offset);	// Oracle limit	
 				}
 				rs = st.executeQuery();
 				
@@ -218,8 +218,8 @@ public class StatsAggregateJobImpl implements Job {
 						firstEventIdProcessedInBlock = -1;
 						if(counter >= getMaxEventsPerRun()){
 							abortIteration = true;
-						}else if(counter + SQL_BLOCK_SIZE < getMaxEventsPerRun()){
-							offset += SQL_BLOCK_SIZE;	
+						}else if(counter + sqlBlockSize < getMaxEventsPerRun()){
+							offset += sqlBlockSize;	
 						}else{
 							offset += getMaxEventsPerRun() - counter;
 						}
@@ -356,6 +356,14 @@ public class StatsAggregateJobImpl implements Job {
 
 	public void setMaxEventsPerRun(int maxEventsPerRun) {
 		this.maxEventsPerRun = maxEventsPerRun;
+	}
+
+	public int getSqlBlockSize() {
+		return sqlBlockSize;
+	}
+
+	public void setSqlBlockSize(int sqlBlockSize) {
+		this.sqlBlockSize = sqlBlockSize;
 	}
 
 	public long getStartEventId() {
