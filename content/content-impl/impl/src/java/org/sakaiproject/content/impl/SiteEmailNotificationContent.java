@@ -21,21 +21,29 @@
 
 package org.sakaiproject.content.impl;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.NotificationAction;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.SiteEmailNotification;
 import org.sakaiproject.util.StringUtil;
@@ -50,6 +58,7 @@ import org.sakaiproject.util.FormattedText;
  */
 public class SiteEmailNotificationContent extends SiteEmailNotification
 {
+	private static Log log = LogFactory.getLog(SiteEmailNotificationContent.class);
 	private static ResourceBundle rb = ResourceBundle.getBundle("siteemacon");
 	
 	protected String plainTextContent() {
@@ -126,6 +135,27 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		String url = ref.getUrl();
 		String blankLine = "\n\n";
 		String newLine = "\n";
+		Time releaseDate = null;
+		Time retractDate = null;
+
+		try
+		{
+			ContentResource res = ContentHostingService.getResource(ref.getId());
+			releaseDate = res.getReleaseDate();
+			retractDate = res.getRetractDate();
+		}
+		catch (IdUnusedException iue)
+		{
+			log.warn("Message constructed without knowledge of release date.\n" + iue.getMessage(), iue);
+		}
+		catch (PermissionException pe)
+		{
+			log.warn("Message constructed without knowledge of release date.\n" + pe.getMessage(), pe);
+		}
+		catch (TypeException te)
+		{
+			log.warn("Message constructed without knowledge of release date.\n" + te.getMessage(), te);
+		}
 
 		if ( doHtml ) 
 		{
@@ -175,6 +205,27 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 			buf.append(")");
 		}
 		buf.append(blankLine);
+
+		// add availability information
+		Time now = TimeService.newTime();
+		if (releaseDate != null && releaseDate.after(now))
+		{
+			String rawmsg = null;
+			Object[] args = null;
+			if (retractDate != null)
+			{
+				rawmsg = rb.getString("resource.available.range");
+				args = new Object[] { releaseDate.toStringLocalFull(), retractDate.toStringLocalFull() };
+			}
+			else
+			{
+				rawmsg = rb.getString("resource.available.become");
+				args = new Object[] { releaseDate.toStringLocalFull() };
+				
+			}
+			String msg = MessageFormat.format(rawmsg, args);
+			buf.append(msg).append(blankLine);
+		}
 
 		// add location
 		String path = constructPath(ref.getReference());
