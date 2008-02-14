@@ -192,8 +192,8 @@ public class StudentScoreUpdateListener
               EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", logString.toString(), true));
               log.debug("****4 itemGradingId="+data.getItemGradingId());
               log.debug("****5 set points = " + data.getAutoScore() + ", comments to " + data.getComments());
-              itemGradingSet.add(data);
             }
+            itemGradingSet.add(data);
           }
         }
         if (adata==null){
