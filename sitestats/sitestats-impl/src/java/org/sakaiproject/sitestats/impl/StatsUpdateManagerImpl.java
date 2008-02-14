@@ -708,16 +708,20 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			//	resource = '/' + resource;
 		
 		// MessageCenter (OLD) CASE: Handle old MessageCenter events */
-		if(event.startsWith("content.") && resource.startsWith("MessageCenter")) {
-			resource = resource.replaceFirst("MessageCenter::", "/MessageCenter/site/");
-			resource = resource.replaceAll("::", "/");
-			return M_ets.newEvent(
-					event.replaceFirst("content.", "msgcntr."), 
-					resource, 
-					false);
+		if (event!=null){
+			if(event.startsWith("content.") && resource.startsWith("MessageCenter")) {
+				resource = resource.replaceFirst("MessageCenter::", "/MessageCenter/site/");
+				resource = resource.replaceAll("::", "/");
+				return M_ets.newEvent(
+						event.replaceFirst("content.", "msgcntr."), 
+						resource, 
+						false);
+			}else{ 
+				return e;
+			}
+		}else{
+			return M_ets.newEvent("garbage.", resource, false);
 		}
-
-		return e;
 	}
 	
 	private String parseSiteId(Event e){

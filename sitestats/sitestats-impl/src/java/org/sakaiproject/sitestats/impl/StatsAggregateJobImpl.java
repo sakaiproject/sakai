@@ -57,7 +57,7 @@ public class StatsAggregateJobImpl implements Job {
 														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
 														"where EVENT_ID >= ? " +
 														") " +
-														"WHERE rn <= ? AND rn > ?";
+														"WHERE rn BETWEEN ? AND  ?";
 	private final static String LAST_EVENT_ID		= "select max(EVENT_ID) LAST_ID from SAKAI_EVENT";
 	
 	// Services
@@ -174,28 +174,32 @@ public class StatsAggregateJobImpl implements Job {
 					st.setLong(2, SQL_BLOCK_SIZE + offset);	// MySQL < endId
 				}else{
 					st.setLong(1, eventIdLowerLimit);		// lower limit	
-					st.setLong(2, SQL_BLOCK_SIZE + offset);	// Oracle limit	
-					st.setLong(3, offset);					// Oracle offset
+					st.setLong(2, offset);					// Oracle offset
+					st.setLong(3, SQL_BLOCK_SIZE + offset);	// Oracle limit	
 				}
 				rs = st.executeQuery();
 				
 				while(rs.next()){
 					abortIteration = false;
-					Date date = new Date(rs.getDate("EVENT_DATE").getTime());
-					String event = rs.getString("EVENT");
-					String ref = rs.getString("REF");
-					String sessionUser = rs.getString("SESSION_USER");
-					String sessionId = rs.getString("SESSION_ID");
-					
-					eventsQueue.add( statsUpdateManager.buildEvent(date, event, ref, sessionUser, sessionId) );
-					
-					counter++;					
-					lastProcessedEventId = rs.getInt("EVENT_ID");
-					lastEventDate = date;
-					if(firstEventIdProcessed == -1)
-						firstEventIdProcessed = lastProcessedEventId;
-					if(firstEventIdProcessedInBlock == -1)
-						firstEventIdProcessedInBlock = lastProcessedEventId;					
+					try{
+						//If an exception is launched, iteration is not aborted but no event is added to event queue
+						Date date = new Date(rs.getDate("EVENT_DATE").getTime());
+						String event = rs.getString("EVENT");
+						String ref = rs.getString("REF");
+						String sessionUser = rs.getString("SESSION_USER");
+						String sessionId = rs.getString("SESSION_ID");
+						eventsQueue.add( statsUpdateManager.buildEvent(date, event, ref, sessionUser, sessionId) );
+						
+						counter++;					
+						lastProcessedEventId = rs.getInt("EVENT_ID");
+						lastEventDate = date;
+						if(firstEventIdProcessed == -1)
+							firstEventIdProcessed = lastProcessedEventId;
+						if(firstEventIdProcessedInBlock == -1)
+							firstEventIdProcessedInBlock = lastProcessedEventId;
+					}catch(Exception e){
+						//ignore
+					}
 				}
 				rs.close();
 				
@@ -232,6 +236,7 @@ public class StatsAggregateJobImpl implements Job {
 			
 			st.close();
 		}catch(SQLException e){
+			e.printStackTrace();
 			closeEventDbConnection(connection);
 			LOG.error("Unable to retrieve events", e);
 			return "Unable to retrieve events due to: " + e.getMessage(); 
