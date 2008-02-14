@@ -208,6 +208,7 @@ public class FileUtils
 			}
 			catch (Exception e)
 			{
+				log.warn("Exception closing output zip", e);
 			}
 			try
 			{
@@ -215,6 +216,7 @@ public class FileUtils
 			}
 			catch (Exception e)
 			{
+				log.warn("Exception closing file input stream", e);
 			}
 		}
 	}
@@ -301,6 +303,7 @@ public class FileUtils
 			}
 			catch (Exception ex)
 			{
+				log.warn("Exception closing file output stream", ex);
 			}
 		}
 	}

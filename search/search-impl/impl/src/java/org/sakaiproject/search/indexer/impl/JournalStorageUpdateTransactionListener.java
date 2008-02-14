@@ -21,6 +21,9 @@
 
 package org.sakaiproject.search.indexer.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.search.index.impl.ClusterFSIndexStorage;
 import org.sakaiproject.search.indexer.api.IndexJournalException;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;
@@ -38,6 +41,8 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
 public class JournalStorageUpdateTransactionListener implements
 		IndexUpdateTransactionListener
 {
+	private static final Log log = LogFactory.getLog(JournalStorageUpdateTransactionListener.class);
+	
 	private JournalStorage journalStorage;
 
 	public void init()
@@ -113,7 +118,7 @@ public class JournalStorageUpdateTransactionListener implements
 		}
 		catch (Exception ex)
 		{
-
+			log.warn("Exception during rollback", ex);
 		}
 		finally
 		{

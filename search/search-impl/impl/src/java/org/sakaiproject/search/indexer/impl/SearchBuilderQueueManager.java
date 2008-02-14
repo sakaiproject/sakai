@@ -188,6 +188,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex2)
 			{
+				log.warn("Exception during rollback", ex2);
 			}
 		}
 		finally
@@ -198,6 +199,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex2)
 			{
+				log.warn("Exception closing connection", ex2);
 			}
 		}
 	}
@@ -239,6 +241,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex2)
 			{
+				log.warn("Exception during rollback", ex2);
 			}
 			throw new IndexTransactionException("Failed to open transaction ", ex);
 		}
@@ -250,6 +253,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex2)
 			{
+				log.warn("Exception closing connection", ex2);
 			}
 		}
 

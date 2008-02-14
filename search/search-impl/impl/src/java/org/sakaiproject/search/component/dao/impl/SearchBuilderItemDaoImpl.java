@@ -153,6 +153,7 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 			}
 			catch (Exception ex)
 			{
+				dlog.warn("Exception counting pending items", ex);
 			};
 		}
 
