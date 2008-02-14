@@ -5933,7 +5933,7 @@ public class DiscussionForumTool
 	private List filterModeratedMessages(List messages, DiscussionTopic topic, DiscussionForum forum)
 	{
 		List viewableMsgs = new ArrayList();
-		if (messages != null || messages.size() > 0)
+		if (messages != null && messages.size() > 0)
 		{
 			if (forum == null) 
 			{
