@@ -1020,11 +1020,11 @@ public class BasicArchiveService
 							UserDirectoryService.commitEdit(userEdit);
 							count++;
 							// because it is an UM id, report it in the merge log.
-							msg.concat("The user id " + userId + "(" + wtId + ") doesn't exist, and was just created. \n");
+							msg = msg.concat("The user id " + userId + "(" + wtId + ") doesn't exist, and was just created. \n");
 						}
 						catch(UserIdInvalidException error)
 						{
-							msg.concat("This user with id -" + wtId + ", can't be merged because of the invalid email address.\n");
+							msg = msg.concat("This user with id -" + wtId + ", can't be merged because of the invalid email address.\n");
 						}
 						catch(UserAlreadyDefinedException error)
 						{
@@ -1056,7 +1056,7 @@ public class BasicArchiveService
 						}
 						catch(UserIdInvalidException error)
 						{
-							msg.concat("This user with id -" + wtId + ", can't be merged because of the invalid email address.\n");
+							msg = msg.concat("This user with id -" + wtId + ", can't be merged because of the invalid email address.\n");
 						}
 						catch(UserAlreadyDefinedException error)
 						{
