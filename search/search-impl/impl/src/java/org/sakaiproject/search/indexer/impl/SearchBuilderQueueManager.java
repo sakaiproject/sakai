@@ -103,8 +103,6 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		catch (Exception ex)
 		{
 			log.error("Perform additional SQL setup", ex);
-			
-			
 		}
 
 		nodeLock = (int) sequence.getNextId();
@@ -151,6 +149,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex2)
 			{
+				log.warn("error during rollback in commit", ex2);
 			}
 		}
 		finally
@@ -161,6 +160,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex2)
 			{
+				log.warn("error closing connection in commit", ex2);
 			}
 		}
 	}
@@ -393,6 +393,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 				}
 				catch (Exception ex)
 				{
+					log.warn("Error closing result set", ex);
 				}
 				try
 				{
@@ -400,6 +401,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 				}
 				catch (Exception ex)
 				{
+					log.warn("Error closing statement", ex);
 				}
 			}
 
@@ -479,7 +481,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex)
 			{
-
+				log.warn("Error unlocking pst", ex);
 			}
 			try
 			{
@@ -487,7 +489,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex)
 			{
-
+				log.warn("Error deleting pst", ex);
 			}
 		}
 	}
@@ -539,7 +541,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex)
 			{
-
+				log.warn("Error unlocking pst", ex);
 			}
 		}
 	}
@@ -607,6 +609,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex)
 			{
+				log.warn("Error closing rst", ex);
 			}
 			try
 			{
@@ -614,6 +617,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex)
 			{
+				log.warn("Error closing pst", ex);
 			}
 			try
 			{
@@ -621,6 +625,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex)
 			{
+				log.warn("Error closing lockMaster", ex);
 			}
 		}
 	}
@@ -677,6 +682,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex)
 			{
+				log.warn("Error closing rst", ex);
 			}
 			try
 			{
@@ -684,6 +690,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex)
 			{
+				log.warn("Error closing pst", ex);
 			}
 			try
 			{
@@ -691,6 +698,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex)
 			{
+				log.warn("Error closing lockMaster", ex);
 			}
 		}
 	}
@@ -894,6 +902,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex)
 			{
+				log.warn("Error closing stm", ex);
 			}
 		}
 
@@ -936,6 +945,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex)
 			{
+				log.warn("Error closing stm", ex);
 			};
 		}
 	}
@@ -972,6 +982,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex)
 			{
+				log.warn("Error closing pst", ex);
 			}
 		}
 	}
@@ -997,6 +1008,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex)
 			{
+				log.warn("Error closing pst", ex);
 			}
 		}
 

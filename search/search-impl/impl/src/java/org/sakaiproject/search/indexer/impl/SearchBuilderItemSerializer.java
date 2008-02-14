@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
 
@@ -43,7 +45,8 @@ import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
  */
 public class SearchBuilderItemSerializer
 {
-
+	private static final Log log = LogFactory.getLog(SearchBuilderItemSerializer.class);
+	
 	protected static final String TRANSACTION_LIST = "sakai_tx";
 
 	public void init()
@@ -91,7 +94,7 @@ public class SearchBuilderItemSerializer
 			}
 			catch (IOException ioex)
 			{
-
+				log.warn("Exception reading from input stream", ioex);
 			}
 			dataInputStream.close();
 		}

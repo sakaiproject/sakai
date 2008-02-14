@@ -469,6 +469,7 @@ public class TransactionalIndexWorker implements IndexWorker
 						}
 						catch (IOException ioex)
 						{
+							log.warn("Error closing contentReader", ioex);
 						}
 					}
 					fireEndDocument(ref);
