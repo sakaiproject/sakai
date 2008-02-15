@@ -10275,7 +10275,7 @@ public class SiteAction extends PagedResourceActionII {
 			Iterator it = sectionEidList.iterator();
 			for (int i = 0; i < sectionEidList.size(); i ++) {
 				String sectionEid = (String)it.next();
-				if (i < 0)
+				if (i > 0)
 					sb.append(",<br />");
 				sb.append(sectionEid);
 			}
