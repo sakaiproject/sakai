@@ -325,7 +325,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);        
         
-
+        if (eventTrackingService == null) // SAK-12988
+			throw new Error("eventTrackingService is null!");
         if (isNew) {
             eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_ADD, getEventMessage(forum, permissions), false));
         } else {
@@ -352,6 +353,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);        
 
+        if (eventTrackingService == null) // SAK-12988
+			throw new Error("eventTrackingService is null!");
         if (isNew) {
             eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_ADD, getEventMessage(forum, permissions), false));
         } else {
@@ -424,6 +427,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);
 
+        if (eventTrackingService == null) // SAK-12988
+			throw new Error("eventTrackingService is null!");
         if (isNew) {
             eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic, permissions), false));
         } else {
@@ -450,6 +455,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);
 
+        if (eventTrackingService == null) // SAK-12988
+			throw new Error("eventTrackingService is null!");
         if (isNew) {
             eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic, permissions), false));
         } else {
@@ -748,6 +755,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
+        if (eventTrackingService == null) // SAK-12988
+			throw new Error("eventTrackingService is null!");
         if (isNew) {
             eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_ADD, getEventMessage(forum, permissions), false));
         } else {
@@ -778,6 +787,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
 
+        if (eventTrackingService == null) // SAK-12988
+			throw new Error("eventTrackingService is null!");
         if (isNew) {
             eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_ADD, getEventMessage(forum, permissions), false));
         } else {
@@ -877,6 +888,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);
         
+        if (eventTrackingService == null) // SAK-12988
+			throw new Error("eventTrackingService is null!");
         if (isNew) {
             eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic, permissions), false));
         } else {
@@ -907,6 +920,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         permissions.setRole(permission.getRole());
         getHibernateTemplate().saveOrUpdate(permissions);                
         
+        if (eventTrackingService == null) // SAK-12988
+			throw new Error("eventTrackingService is null!");
         if (isNew) {
             eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic, permissions), false));
         } else {

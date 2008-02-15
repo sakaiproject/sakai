@@ -191,14 +191,17 @@ public class MembershipManagerImpl implements MembershipManager{
     AuthzGroup realm = null;
     try{
       realm = authzGroupService.getAuthzGroup(realmId);
-      currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());      
+      currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+      if (currentSite == null) // SAK-12988
+				throw new Error("Could not obtain Site object!");
     }
     catch (IdUnusedException e){
+		//FIXME Is this expected behavior?  If so it should be documented - LDS
       LOG.debug(e.getMessage(), e);
       return returnMap;
     } catch (GroupNotDefinedException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		//FIXME Is this expected behavior?  If so it should be documented - LDS
+    	LOG.error(e.getMessage(), e);
 	}
         
     /** handle groups */
@@ -231,6 +234,8 @@ public class MembershipManagerImpl implements MembershipManager{
     
     /** handle users */
     Set users = realm.getMembers();
+    if (users == null)
+			throw new Error("Could not obtain members from realm!");
     
     /** create our HashSet of user ids */
     for (Iterator userIterator = users.iterator(); userIterator.hasNext();){
@@ -284,12 +289,15 @@ public class MembershipManagerImpl implements MembershipManager{
     try{
       realm = authzGroupService.getAuthzGroup(realmId);      
     } catch (GroupNotDefinedException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		//FIXME Is this expected behavior?  If so it should be documented - LDS
+    	LOG.error(e.getMessage(), e);
 	}
                 
     /** handle users */
     Set users = realm.getMembers();
+    if (users == null)
+		throw new Error("Could not obtain members from realm!");
+
     for (Iterator userIterator = users.iterator(); userIterator.hasNext();){
       Member member = (Member) userIterator.next();      
       String userId = member.getUserId();
