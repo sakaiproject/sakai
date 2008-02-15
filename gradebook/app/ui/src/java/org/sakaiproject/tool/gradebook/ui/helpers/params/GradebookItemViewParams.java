@@ -7,6 +7,7 @@ public class GradebookItemViewParams extends SimpleViewParameters {
 	public Long assignmentId;
 	public String contextId;
 	public String finishURL;
+	public String name;
 	
 	public GradebookItemViewParams() {}
 	
@@ -26,7 +27,7 @@ public class GradebookItemViewParams extends SimpleViewParameters {
 	}
 	
 	public String getParseSpec(){
-		return super.getParseSpec() + ",@1:contextId,@2:assignmentId,finishURL";
+		return super.getParseSpec() + ",@1:contextId,@2:assignmentId,finishURL,name";
 	}
 	
 }

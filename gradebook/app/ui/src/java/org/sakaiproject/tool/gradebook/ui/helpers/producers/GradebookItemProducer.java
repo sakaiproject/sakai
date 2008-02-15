@@ -31,6 +31,7 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.RawViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
+import uk.org.ponder.rsf.util.RSFUtil;
 
 public class GradebookItemProducer implements ActionResultInterceptor,
 ViewComponentProducer, ViewParamsReporter, DefaultView {
@@ -131,8 +132,8 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         
         form.parameters.add( new UIELBinding("#{GradebookItemBean.gradebookId}", gradebookManager.getGradebook(params.contextId).getId()));
         
-        //RSFUtil.addResultingViewBinding(form, "viewParameters.id", assignmentOTP + ".id");
-        //RSFUtil.addResultingViewBinding(form, "viewParameters.name", assignmentOTP + ".name");
+        //RSFUtil.addResultingViewBinding(form, "assignmentId", assignmentOTP + ".id");
+        RSFUtil.addResultingViewBinding(form, "name", assignmentOTP + ".name");
         
         //Action Buttons
         if (add){
@@ -172,7 +173,9 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 				result.resultingView = new RawViewParameters(params.finishURL);
 			}
 			else if (params.finishURL != null && actionReturn.equals("submit")) {
-				result.resultingView = new RawViewParameters(params.finishURL);
+				//tack on name of newly created item
+				String name = ((GradebookItemViewParams)result.resultingView).name;
+				result.resultingView = new RawViewParameters(params.finishURL + "?value=" + name);
 			}
 		}
 	}

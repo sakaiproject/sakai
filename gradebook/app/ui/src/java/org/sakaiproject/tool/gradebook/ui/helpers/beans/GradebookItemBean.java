@@ -10,6 +10,7 @@ import uk.org.ponder.beanutil.entity.EntityBeanLocator;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
+import uk.org.ponder.rsf.components.UIELBinding;
 
 public class GradebookItemBean {
 	
@@ -23,9 +24,11 @@ public class GradebookItemBean {
     }
 		
     private Map<String, Assignment> OTPMap;
+    private EntityBeanLocator assignmentEntityBeanLocator;
 	@SuppressWarnings("unchecked")
 	public void setAssignmentEntityBeanLocator(EntityBeanLocator entityBeanLocator) {
 		this.OTPMap = entityBeanLocator.getDeliveredBeans();
+		this.assignmentEntityBeanLocator = entityBeanLocator;
 	}
 
 	private MessageLocator messageLocator;
@@ -62,6 +65,7 @@ public class GradebookItemBean {
 								assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
 					}
 					assignment.setId(id);
+					//new UIELBinding("Assignment." + key + ".id", id);
 					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.successful",
 							new Object[] {assignment.getName() }, TargettedMessage.SEVERITY_INFO));
 				} catch (ConflictingAssignmentNameException e){
@@ -80,6 +84,7 @@ public class GradebookItemBean {
 				}
 			}
 		}
+		
 		return SUBMIT;
 	}
 	
