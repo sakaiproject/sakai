@@ -267,7 +267,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
                    Assignment asn = new Assignment();
                    asn.setGradebook(gb);
-                   asn.setName(name);
+                   asn.setName(name.trim());
                    asn.setPointsPossible(points);
                    asn.setDueDate(dueDate);
              			 asn.setUngraded(false);
@@ -479,7 +479,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
     			asn.setCategory(cat);
-    			asn.setName(name);
+    			asn.setName(name.trim());
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(false);
@@ -869,7 +869,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
-    			asn.setName(name);
+    			asn.setName(name.trim());
     			asn.setDueDate(dueDate);
     			asn.setUngraded(true);
     			if (isNotCounted != null) {
@@ -913,7 +913,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
     			asn.setCategory(cat);
-    			asn.setName(name);
+    			asn.setName(name.trim());
     			asn.setDueDate(dueDate);
     			asn.setUngraded(true);
     			if (isNotCounted != null) {

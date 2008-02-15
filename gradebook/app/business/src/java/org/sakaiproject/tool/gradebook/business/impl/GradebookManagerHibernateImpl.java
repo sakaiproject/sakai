@@ -2684,7 +2684,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
-    			asn.setName(name);
+    			asn.setName(name.trim());
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(false);
@@ -2736,7 +2736,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
     			asn.setCategory(cat);
-    			asn.setName(name);
+    			asn.setName(name.trim());
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(false);

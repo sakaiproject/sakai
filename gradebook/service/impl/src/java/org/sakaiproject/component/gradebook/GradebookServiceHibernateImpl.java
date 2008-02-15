@@ -759,7 +759,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				}
 				assignment.setCounted(assignmentDefinition.isCounted());
 				assignment.setDueDate(assignmentDefinition.getDueDate());
-				assignment.setName(assignmentDefinition.getName());
+				assignment.setName(assignmentDefinition.getName().trim());
 				assignment.setPointsPossible(assignmentDefinition.getPoints());
 				assignment.setReleased(assignmentDefinition.isReleased());
 				updateAssignment(assignment, session);
