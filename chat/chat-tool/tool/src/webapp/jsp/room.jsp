@@ -5,6 +5,10 @@
 	//focus_path = [ "Control", "mainForm:message" ];
 
 </script>
+<script type="text/javascript">
+	window.frameElement.className='wcwmenu'
+</script>
+
       
          <sakai:tool_bar rendered="#{ChatTool.canManageTool || ChatTool.siteChannelCount > 1 || ChatTool.maintainer}">
             <h:commandLink action="#{ChatTool.processActionListRooms}" rendered="#{ChatTool.canManageTool}">
@@ -71,6 +75,7 @@
 					marginheight="0"
 					scrolling="no"
 					align="right"
+					class="wcwmenu"
 					src="roomUsers">
 				</iframe>
 			</div>
@@ -83,6 +88,7 @@
 					marginwidth="0"
 					marginheight="0"
 					scrolling="no"
+					class="wcwmenu"
 					style="clear:both;display:block"
 					src="roomControl"
 					onLoad="window.scroll(0,0);">
