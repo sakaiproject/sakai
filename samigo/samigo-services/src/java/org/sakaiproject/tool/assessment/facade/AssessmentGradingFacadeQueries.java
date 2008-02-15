@@ -1980,5 +1980,4 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    }
 	    return al;
   }
-
 }

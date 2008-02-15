@@ -196,8 +196,9 @@ public interface AssessmentGradingFacadeQueriesAPI
   public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage);
 
   public void removeUnsubmittedAssessmentGradingData(AssessmentGradingIfc data);
-  
+
   public boolean getHasGradingData(Long publishedAssessmentId);
     
   public ArrayList getHasGradingDataAndHasSubmission(Long publishedAssessmentId);
+
 }

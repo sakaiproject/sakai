@@ -72,12 +72,13 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 			.lookupBean("publishedSettings");
 		Long publishedAssessmentId = publishedAssessmentSettings.getAssessmentId();
 		GradingService gradingService = new GradingService();
+
 		ArrayList al = gradingService.getHasGradingDataAndHasSubmission(publishedAssessmentId);
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
 
 		if (al.size() == 2) {
 			assessmentBean.setHasGradingData(((Boolean)al.get(0)).booleanValue());
-			assessmentBean.setHasSubmission(((Boolean)al.get(1)).booleanValue());
+			assessmentBean.setHasSubmission(((Boolean)al.get(1)).booleanValue());				
 		}
 		else {
 			assessmentBean.setHasGradingData(false);

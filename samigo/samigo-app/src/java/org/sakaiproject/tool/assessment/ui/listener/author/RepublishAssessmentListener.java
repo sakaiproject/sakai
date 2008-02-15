@@ -39,11 +39,20 @@ public class RepublishAssessmentListener implements ActionListener {
 		// Go to database to get the newly updated data. The data inside beans might not be up to date.
 		PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
 		
+		boolean withSection = true; 
+		if (assessment == null) {
+			PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
+			assessment = assessmentSettings.getAssessment();
+			withSection = false; // the assessment getting from assessmentSettings doesn't have sections
+		}
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
 		publishedAssessmentService.saveAssessment(assessment);
 		
 		// If there are submissions, need to regrade them
 		if (hasGradingData) {
+			if (!withSection) {
+				assessment.setSectionSet(publishedAssessmentService.getSectionSetForAssessment((PublishedAssessmentIfc) assessment));
+			}
 			regradeRepublishedAssessment(publishedAssessmentService, (PublishedAssessmentIfc) assessment);
 		}
 
