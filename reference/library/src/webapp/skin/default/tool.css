@@ -445,13 +445,12 @@ tr.selectedFound{
 
 
 
-/*when a row contained a searched for item has been found*/
+/*a selected row*/
 
-/*see: discussion*/
-
-tr.selectedFound{
-	background: #cff;
+tr.selectedSelected{
+	background: #eff;
 }
+
 /*a row that is being sorted - see resources in Sakai 2.3*/
 tr#selectedReorder{
 	color: #000;
@@ -656,10 +655,19 @@ textarea:focus{
 	position: relative;
 }
 .navIntraTool span.inactive {
+	color:#666;
 	margin-right:1em;
 	white-space: nowrap;
 	display:inline-block
 }
+
+.navIntraTool span.current {
+	margin-right:1em;
+	color:#666;
+	white-space: nowrap;
+	display:inline-block
+}
+
 
 /*SECTION 9 MESSAGES*/
 /*see: create any item*/

@@ -384,6 +384,36 @@ h4 + div.itemAction{
 .navIntraTool li{
 	list-style: none;
 	display: inline;
+	margin:0 !important;
+	padding:0 !important;
+
+}
+
+.navIntraTool li span a{
+	margin:0 !important;
+	padding:0 !important;
+}
+.navIntraTool li span{
+	border-left:1px solid #ccc;
+	padding:0 5px 0 8px;
+}
+
+.navIntraTool li.firstToolBarItem span{
+	border:none;
+	margin:0;
+	padding: 0 5px 0 0
+}
+
+.navIntraTool li span.current{
+	color:#777;
+	margin:0;
+	padding:0 5px 0 8px;
+}
+
+.navIntraTool li span.inactive{
+	color:#999;
+	margin:0;
+	padding:0 5px 0 8px
 }
 
 
