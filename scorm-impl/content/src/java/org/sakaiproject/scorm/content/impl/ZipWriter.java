@@ -91,7 +91,11 @@ public class ZipWriter {
 	
 	
 	private void addEntry(ZipEntry entry, InputStream contentStream) throws IOException {
-		outStream.setMethod(ZipOutputStream.STORED);
+		try {
+			outStream.setMethod(ZipOutputStream.STORED);
+		} catch (IllegalArgumentException e){
+			throw new IOException("IllegalArgumentException in " + this.getClass().getName() + ".addEntry() for " + entry.toString());
+		}
 		outStream.putNextEntry(entry);
 		int len;
 		byte[] buf = new byte[1024];

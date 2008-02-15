@@ -35,9 +35,13 @@ import org.sakaiproject.scorm.model.api.ActivityReport;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
 import org.sakaiproject.scorm.service.api.ScormResultService;
+import org.sakaiproject.scorm.ui.reporting.components.ProgressPanel;
+import org.sakaiproject.scorm.ui.reporting.components.ScorePanel;
 import org.sakaiproject.scorm.ui.reporting.util.InteractionProvider;
 import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
 import org.sakaiproject.wicket.markup.html.repeater.data.presenter.EnhancedDataPresenter;
+import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
+import org.sakaiproject.wicket.markup.html.repeater.data.table.ActionColumn;
 
 public class ScoResultsPage extends BaseResultsPage {
 
@@ -48,8 +52,6 @@ public class ScoResultsPage extends BaseResultsPage {
 	
 	public ScoResultsPage(PageParameters pageParams) {
 		super(pageParams);
-	
-		
 		
 	}
 
@@ -67,13 +69,18 @@ public class ScoResultsPage extends BaseResultsPage {
 		
 		ActivityReport report = resultService.getActivityReport(contentPackage.getContentPackageId(), learner.getId(), attemptNumber, scoId);
 		
+		add(new ScorePanel("scorePanel", report.getScore()));
+		
+		add(new ProgressPanel("progressPanel", report.getProgress()));
+		
 		IModel breadcrumbModel = new StringResourceModel("uberparent.breadcrumb", this, new Model(contentPackage));
-		addBreadcrumb(breadcrumbModel, AttemptListPage.class, uberparentParams, true);	
+		addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);	
 		addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, true);
 		addBreadcrumb(new Model(report.getTitle()), ScoResultsPage.class, pageParams, false);
 		
 		
 		InteractionProvider dataProvider = new InteractionProvider(report.getInteractions());
+		dataProvider.setTableTitle("Interactions");
 		EnhancedDataPresenter presenter = new EnhancedDataPresenter("interactionPresenter", getColumns(), dataProvider);
 		add(presenter);
 	}
@@ -90,7 +97,11 @@ public class ScoResultsPage extends BaseResultsPage {
 		
 		List<IColumn> columns = new LinkedList<IColumn>();
 
-		columns.add(new PropertyColumn(idHeader, "id", "id"));
+		String[] paramPropertyExpressions = {"contentPackageId", "learnerId", "scoId", "attemptNumber", "interactionId"};
+		
+		ActionColumn actionColumn = new ActionColumn(idHeader, "interactionId", "interactionId");
+		actionColumn.addAction(new Action("interactionId", InteractionResultsPage.class, paramPropertyExpressions));
+		columns.add(actionColumn);
 		columns.add(new PropertyColumn(descriptionHeader, "description", "description"));
 		//columns.add(new PropertyColumn(learnerResponseHeader, "learnerResponse", "learnerResponse"));
 		columns.add(new PropertyColumn(resultHeader, "result", "result"));

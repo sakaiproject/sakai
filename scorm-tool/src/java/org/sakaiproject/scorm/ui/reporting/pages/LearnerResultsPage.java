@@ -57,7 +57,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 		parentParams.put("attemptNumber", attemptNumber);
 		
 		IModel breadcrumbModel = new StringResourceModel("parent.breadcrumb", this, new Model(contentPackage));
-		addBreadcrumb(breadcrumbModel, AttemptListPage.class, uberparentParams, true);	
+		addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);	
 		addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, false);
 		
 		SummaryProvider dataProvider = new SummaryProvider(resultService.getActivitySummaries(contentPackage.getContentPackageId(), learner.getId(), attemptNumber));

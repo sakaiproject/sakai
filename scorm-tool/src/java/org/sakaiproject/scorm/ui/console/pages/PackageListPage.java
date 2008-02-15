@@ -42,7 +42,7 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.ui.console.components.DecoratedDatePropertyColumn;
 import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
-import org.sakaiproject.scorm.ui.reporting.pages.AttemptListPage;
+import org.sakaiproject.scorm.ui.reporting.pages.ResultsListPage;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.ActionColumn;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.BasicDataTable;
@@ -88,7 +88,7 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 			actionColumn.addAction(new Action(new ResourceModel("column.action.edit.label"), PackageConfigurationPage.class, paramPropertyExpressions));
 			
 		if (canViewResults)
-			actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), AttemptListPage.class, paramPropertyExpressions));
+			actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), ResultsListPage.class, paramPropertyExpressions));
 				
 		columns.add(actionColumn);
 		

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../project.xml</extend>
+	<extend>../../../master/project.xml</extend>
 	<id>sakai-scorm-model-impl</id>
 	<name>sakai-scorm-model-impl</name>
 	<shortDescription>Sakai Scorm Model Implementation</shortDescription>
@@ -11,6 +11,14 @@
 	</properties>
 
 	<dependencies>
+		<!-- Plugin dependency -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai</artifactId>
+			<version>${sakai.plugin.version}</version>
+			<type>plugin</type>
+		</dependency>
+
 		<!-- SCORM dependencies -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -34,13 +42,66 @@
 				<deploy.target>shared</deploy.target>
 			</properties>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>${sakai.hibernate.groupId}</groupId>
+			<artifactId>${sakai.hibernate.artifactId}</artifactId>
+			<version>${sakai.hibernate.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-authz-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-coursemanagement-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-site-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-content-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>generic-dao</groupId>
 			<artifactId>generic-dao</artifactId>
 			<version>0.9</version>
 			<url>http://source.edtech.vt.edu/maven/</url>
-        </dependency>
+        	</dependency>
 		
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -48,7 +109,14 @@
   	        <version>1.0.4</version>
 		</dependency>
 		
-    </dependencies>
+	</dependencies>
+	<build>
+		<sourceDirectory>src/java</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/java</directory>
+			</resource>
+		</resources>
 
+	</build>
 </project>
-

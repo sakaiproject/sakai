@@ -70,14 +70,12 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 		
 		IDataManager dataManager = dataManagerDao().findByActivityId(contentPackageId, activityId, learnerId, attemptNumber);
 		
-		//Map<String,CMIData> map = this.getCMIDataMap(dataManager);
-		
 		report.setActivityId(activityId);
 		report.setTitle(dataManager.getTitle());
 		report.setScoId(dataManager.getScoId());
 		report.setCmiData(getCMIData(dataManager));
-		
-		mapValues(report, dataManager);
+
+		mapValues(report, dataManager, contentPackageId, learnerId, attemptNumber);
 		
 		return report;
 	}
@@ -94,7 +92,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 			report.setScoId(dataManager.getScoId());
 			report.setCmiData(getCMIData(dataManager));
 			
-			mapValues(report, dataManager);
+			mapValues(report, dataManager, contentPackageId, learnerId, attemptNumber);
 			
 			reports.add(report);
 		}
@@ -112,7 +110,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 		report.setScoId(dataManager.getScoId());
 		report.setCmiData(getCMIData(dataManager));
 		
-		mapValues(report, dataManager);
+		mapValues(report, dataManager, contentPackageId, learnerId, attemptNumber);
 
 		return report;
 	}
@@ -139,6 +137,39 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 		
 		return summaries;
 	}
+	
+	public Interaction getInteraction(long contentPackageId, String learnerId, long attemptNumber, String scoId, String interactionId) {
+		IDataManager dataManager = dataManagerDao().find(contentPackageId, learnerId, attemptNumber, scoId);
+		
+		List<Interaction> interactions = new LinkedList<Interaction>();
+		mapInteractions(interactions, dataManager, contentPackageId, learnerId, attemptNumber);
+		
+		Interaction interaction = null;
+		
+		for (Interaction current : interactions) {
+			
+			if (current.getInteractionId().equals(interactionId)) {
+				interaction = current;
+				break;
+			}
+			
+		}
+		
+		if (interaction != null && interaction.getObjectiveIds().size() > 0) {
+			Map<String, Objective> objectivesMap = new HashMap<String, Objective>();
+			mapObjectives(objectivesMap, dataManager, contentPackageId, learnerId, attemptNumber);
+		
+			List<Objective> objectivesList = interaction.getObjectives();
+			for (String objectiveId : interaction.getObjectiveIds()) {
+				Objective objective = objectivesMap.get(objectiveId);
+				if (objective != null)
+					objectivesList.add(objective);
+			}
+		}
+		
+		return interaction;
+	}
+	
 	
 	public List<CMIData> getSummaryCMIData(Attempt attempt) {
 		// FIXME: Need to replace SCO_ID with a real id
@@ -265,7 +296,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 	}
 	
 	
-	private void mapValues(ActivityReport report, IDataManager dataManager) {
+	private void mapValues(ActivityReport report, IDataManager dataManager, long contentPackageId, String learnerId, long attemptNumber) {
 		Progress progress = new Progress();
 		
 		progress.setProgressMeasure(getRealValue("cmi.progress_measure", dataManager));
@@ -291,15 +322,30 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 		
 		List<Interaction> interactions = report.getInteractions();
 		
+		mapInteractions(interactions, dataManager, contentPackageId, learnerId, attemptNumber);
+		
+		//Map<String, Objective> objectives = report.getObjectives();
+		//mapObjectives(objectives, dataManager, contentPackageId, learnerId, attemptNumber);
+	
+	}
+	
+	
+	private void mapInteractions(List<Interaction> interactions, IDataManager dataManager, long contentPackageId, String learnerId, long attemptNumber) {
 		int numberOfInteractions = getValueAsInt("cmi.interactions._count", dataManager);
 		
-		for (int i=1;i<numberOfInteractions;i++) {
+		for (int i=0;i<numberOfInteractions;i++) {
 			Interaction interaction = new Interaction();
+			
+			interaction.setActivityTitle(dataManager.getTitle());
+			interaction.setAttemptNumber(attemptNumber);
+			interaction.setContentPackageId(contentPackageId);
+			interaction.setLearnerId(learnerId);
+			interaction.setScoId(dataManager.getScoId());
 			
 			String interactionName = new StringBuilder("cmi.interactions.").append(i).append(".").toString();
 			
 			String interactionIdName = new StringBuilder(interactionName).append("id").toString();
-			interaction.setId(getValueAsString(interactionIdName, dataManager));
+			interaction.setInteractionId(getValueAsString(interactionIdName, dataManager));
 			
 			String interactionTypeName = new StringBuilder(interactionName).append("type").toString();
 			interaction.setType(getValueAsString(interactionTypeName, dataManager));
@@ -308,7 +354,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 			int numberOfObjectiveIds = getValueAsInt(numberOfObjectiveIdsName, dataManager);
 			
 			List<String> idList = interaction.getObjectiveIds();
-			for (int j=1;j<numberOfObjectiveIds;j++) {
+			for (int j=0;j<numberOfObjectiveIds;j++) {
 				String objectiveIdName = new StringBuilder(interactionName).append("objectives.")
 					.append(j).append(".id").toString();
 				
@@ -322,8 +368,8 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 			int numCorrectResponses = getValueAsInt(numCorrectResponsesName, dataManager);
 			
 			List<String> correctResponses = interaction.getCorrectResponses();
-			for (int n=1;n<numCorrectResponses;n++) {
-				String correctResponsePatternName = new StringBuilder(interactionName).append("correct_responses.").append(n).append("pattern").toString();
+			for (int n=0;n<numCorrectResponses;n++) {
+				String correctResponsePatternName = new StringBuilder(interactionName).append("correct_responses.").append(n).append(".pattern").toString();
 				String correctResponsePattern = getValueAsString(correctResponsePatternName, dataManager);
 				correctResponses.add(correctResponsePattern);
 			}
@@ -345,12 +391,12 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 			
 			interactions.add(interaction);
 		}
-		
-		Map<Long, Objective> objectives = report.getObjectives();
-		
+	}
+	
+	private void mapObjectives(Map<String, Objective> objectives, IDataManager dataManager, long contentPackageId, String learnerId, long attemptNumber) {
 		int numberOfObjectives = getValueAsInt("cmi.objectives._count", dataManager);
 		
-		for (int i=1;i<=numberOfObjectives;i++) {
+		for (int i=0;i<numberOfObjectives;i++) {
 			Objective objective = new Objective();
 			
 			String objectiveName = new StringBuilder("cmi.objectives.").append(i).append(".").toString();
@@ -388,11 +434,9 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 			
 			objective.setScore(objectiveScore);
 			
-			Long identifier = Long.valueOf(objective.getId());
+			String identifier = objective.getId();
 			objectives.put(identifier, objective);
 		}
-		
-		
 	}
 	
 	

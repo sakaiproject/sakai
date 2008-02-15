@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../project.xml</extend>
+	<extend>../../../master/project.xml</extend>
 	<id>sakai-scorm-adl-impl</id>
 	<name>sakai-scorm-adl-impl</name>
 	<shortDescription>Sakai Scorm ADL Implementation</shortDescription>
@@ -11,6 +11,13 @@
   	</properties>
   	
   	<dependencies>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai</artifactId>
+			<version>${sakai.plugin.version}</version>
+			<type>plugin</type>
+		</dependency>
+
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-scorm-api</artifactId>
@@ -95,7 +102,26 @@
 			<version>2.0.2</version>
 			<type>jar</type>
 		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1</version>
+		</dependency>
 		
 	</dependencies>
+
+	<build>
+		<sourceDirectory>src/java</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+		</resources>
+
+	</build>
   	
 </project>
