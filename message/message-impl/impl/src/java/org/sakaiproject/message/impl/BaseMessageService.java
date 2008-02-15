@@ -2271,12 +2271,24 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			m_isRemoved = true;
 
 			// channel notification
-			notify(event);
+			startNotifyThread(event);
 
 			// now clear observers
 			deleteObservers();
 
 		} // setRemoved
+
+		private void startNotifyThread(Event event) {
+			try
+			{
+				NotifyThread n = new NotifyThread(event);
+				Thread t = new Thread(n);
+				t.start();
+			}
+			catch(Exception e)
+			{
+			}
+		}
 
 		/**
 		 * Access the context of the resource.
@@ -2668,7 +2680,10 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			m_eventTrackingService.post(event);
 
 			// channel notification
-			if (transientNotification) notify(event);
+			if (transientNotification) 
+			{
+				startNotifyThread(event);
+			}
 			
 			// close the edit object
 			((BaseMessageEdit) edit).closeEdit();
@@ -2934,8 +2949,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			Event event = m_eventTrackingService.newEvent(eventId(function), message.getReference(), true);
 			m_eventTrackingService.post(event);
 
-			// channel notification
-			notify(event);
+			startNotifyThread(event);
 
 			// close the edit object
 			((BaseMessageEdit) message).closeEdit();
@@ -2987,20 +3001,6 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			return channel;
 
 		} // toXml
-
-		/**
-		 * Notify the channel that it has changed (i.e. when a message has changed)
-		 * 
-		 * @param event
-		 *        The event that caused the update.
-		 */
-		public void notify(Event event)
-		{
-			// notify observers, sending the tracking event to identify the change
-			setChanged();
-			notifyObservers(event);
-
-		} // notify
 
 		/**
 		 * Find the message, in cache or info store - cache it if newly found.
@@ -4742,4 +4742,49 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 	} // PublicFilter
 
+	/** Class that starts a session to import XML data. */
+	protected class NotifyThread extends Observable implements Runnable 
+	{
+		public void init(){}
+		public void start(){}
+		
+		private Event m_event = null;
+		
+		//constructor
+		NotifyThread(Event event)
+		{
+			m_event = event;
+		}
+
+		public void run()
+		{
+		    try
+			{
+		    	notify(m_event);
+			}
+		    catch(Exception e) {
+		
+		    }
+		    finally
+			{
+				//clear any current bindings
+				m_threadLocalManager.clear();
+			}
+		}
+		
+		/**
+		 * Notify the channel that it has changed (i.e. when a message has changed)
+		 * 
+		 * @param event
+		 *        The event that caused the update.
+		 */
+		protected void notify(Event event)
+		{
+			// notify observers, sending the tracking event to identify the change
+			setChanged();
+			notifyObservers(event);
+
+		} // notify
+		
+	}//notifyThread
 }
