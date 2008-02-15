@@ -21,74 +21,83 @@
 
 	## use the standard menu reference
 	#set ($mnu=$sakai_menu)
+	#set($hasItems="false")
+	#foreach ($item in $mnu.Items)
+		#if ($item.IsEnabled || $item.IsChecked || $mnu.Showdisabled)
+			#set($hasItems="true")
+		#end	
+	#end
 
-	## do nothing if no menu or empty menu
-	#if (($mnu) && (!$mnu.isEmpty()))
+	#if (($mnu) && (!$mnu.isEmpty())  && ($hasItems=="true"))
+		<ul class="navIntraTool actionToolBar" role="menu">
+			#set ($toolbaritemCount=0)	
+			#foreach ($item in $mnu.Items)
+				## figure the link
+				#set ($base=$sakai_ActionURL.reset().setParameter("sakai_action", $item.Action).toString())
 
-		<div class="navIntraTool">
-		#foreach ($item in $mnu.Items)
-			## figure the link
-			#set ($base=$sakai_ActionURL.reset().setParameter("sakai_action", $item.Action).toString())
-
-			#if ($item.IsEnabled)
-				#if(!$item.IsDivider)
+				#if ($item.IsEnabled)
+					#if(!$item.IsDivider)
 					
-					## enabled not field not divider (i.e. a button)
-					#if (!$item.IsField)
+						## enabled not field not divider (i.e. a button)
+						#if (!$item.IsField)
 
-						## non-url support (i.e. action back to tool)
-						#if ($item.Url.length() == 0)
+							## non-url support (i.e. action back to tool)
+							#if ($item.Url.length() == 0)
 
 							## checked item support
 							#if($item.IsChecked)
-								<span class="chefToolBarToggle">
-									<a href="#" title="$item.Title" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">
-										$item.Title
-									</a>
-								</span>
-
+								#set( $toolbaritemCount=$toolbaritemCount + 1)
+								<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem">
+									<span class="chefToolBarToggle"><a href="#" title="$item.Title" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
+								</li>
 							## unchecked item support
 							#else
-								<a href="#" title="$item.Title" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">
-									$item.Title
-								</a>
+								#set( $toolbaritemCount=$toolbaritemCount + 1)
+								<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem">
+									<span><a href="#" title="$item.Title" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
+								</li>
 							#end
 
 						## url support (i.e. to another place, another window)
 						#else
-							<a href="$item.Url" title="$item.Title" target="_blank">
-								$item.Title
-							</a>
+							#set( $toolbaritemCount=$toolbaritemCount + 1)
+							<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem" aria-haspopup="true">
+								<span class="externalLink"><a href="$item.Url" title="$item.Title" target="_blank">$item.Title</a></span>
+							</li>	
 						#end
 
 					## here's a text field in a form for the toolbar
 					#else
-					<form name="$item.Form" action="$base" class="inlineForm" method="post">
-						<input size="15" value="$item.Value" name="$item.Title" id="$item.Title" type="text" class="searchField" />
-					</form>
+					#set( $toolbaritemCount=$toolbaritemCount + 1)
+					<li #if ($toolbaritemCount ==1) class="firstToolBarItem inputItem" #else class="inputItem" #end role="menuitem">
+						<form name="$item.Form" action="$base" class="inlineForm" method="post">
+							<input size="15" value="$item.Value" name="$item.Title" id="$item.Title" type="text" class="searchField" />
+						</form>
+					</li>	
 					#end
 
 				## here's a menu divider
 				#else
-					<span class="portletToolBarDisabled">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+##					<span class="portletToolBarDisabled">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
 				#end
 			
 			## not enabled - could be checked
 			#elseif ($item.IsChecked)
-				<span class="chefToolBarSelected">$item.Title</span>
+				#set( $toolbaritemCount=$toolbaritemCount + 1)
+				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem" aria-disabled="true"><span class="current">$item.Title</span></li>
 
 			## not enabled - not checked - show if we are showing disabled
 			#elseif ($mnu.Showdisabled)
-				<span class="chefToolBarDisabled">$item.Title</span>
+				#set( $toolbaritemCount=$toolbaritemCount + 1)
+				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem" aria-disabled="true"><span class="disabled">$item.Title</span></li>
 			#end
-
 		## end of foreach loop
 		#end
-		</div>
-
+		</ul>
 	## end if "if there's a menu" if
 	#end
 #end
+
 
 
 #* ------------------------------------------------------------------
