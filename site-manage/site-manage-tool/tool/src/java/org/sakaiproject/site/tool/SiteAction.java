@@ -8660,9 +8660,7 @@ public class SiteAction extends PagedResourceActionII {
 					.split("\r\n");
 
 			for (i = 0; i < officialAccountArray.length; i++) {
-				String officialAccount = StringUtil
-						.trimToNull(officialAccountArray[i].replaceAll(
-								"[\t\r\n]", ""));
+				String officialAccount = StringUtil.trimToNull(officialAccountArray[i].replaceAll("[\t\r\n]", ""));
 				// if there is some text, try to use it
 				if (officialAccount != null) {
 					// automaticially add nonOfficialAccount account
@@ -8689,19 +8687,21 @@ public class SiteAction extends PagedResourceActionII {
 						// We didn't find anyone via email address, so try getting the user by EID
 						if(u == null) {
 							u = UserDirectoryService.getUserByEid(officialAccount);
-							if (u != null)
-								M_log.info("found user with eid " + officialAccount);
 						}
 						
-						if (site != null && site.getUserRole(u.getId()) != null) {
-							// user already exists in the site, cannot be added
-							// again
-							existingUsers.add(officialAccount);
-						} else {
-							participant.name = u.getDisplayName();
-							participant.uniqname = u.getEid();
-							participant.active = true;
-							pList.add(participant);
+						if (u != null)
+						{
+							M_log.info("found user with eid " + officialAccount);
+							if (site != null && site.getUserRole(u.getId()) != null) {
+								// user already exists in the site, cannot be added
+								// again
+								existingUsers.add(officialAccount);
+							} else {
+								participant.name = u.getDisplayName();
+								participant.uniqname = u.getEid();
+								participant.active = true;
+								pList.add(participant);
+							}
 						}
 					} catch (UserNotDefinedException e) {
 						addAlert(state, officialAccount + " " + rb.getString("java.username") + " ");
@@ -8713,14 +8713,10 @@ public class SiteAction extends PagedResourceActionII {
 		if (nonOfficialAccounts != null) {
 			String[] nonOfficialAccountArray = nonOfficialAccounts.split("\r\n");
 			for (i = 0; i < nonOfficialAccountArray.length; i++) {
-				String nonOfficialAccount = nonOfficialAccountArray[i];
+				String nonOfficialAccount = StringUtil.trimToNull(nonOfficialAccountArray[i].replaceAll("[ \t\r\n]", ""));
 
-				// if there is some text, try to use it
-				nonOfficialAccount.replaceAll("[ \t\r\n]", "");
-
-				// remove the trailing dots and empty space
-				while (nonOfficialAccount.endsWith(".")
-						|| nonOfficialAccount.endsWith(" ")) {
+				// remove the trailing dots
+				while (nonOfficialAccount != null && nonOfficialAccount.endsWith(".")) {
 					nonOfficialAccount = nonOfficialAccount.substring(0,
 							nonOfficialAccount.length() - 1);
 				}
@@ -8982,8 +8978,8 @@ public class SiteAction extends PagedResourceActionII {
 				false);
 
 		// update the not added user list
-		String notAddedOfficialAccounts = null;
-		String notAddedNonOfficialAccounts = null;
+		String notAddedOfficialAccounts = NULL_STRING;
+		String notAddedNonOfficialAccounts = NULL_STRING;
 		for (Iterator iEIds = eIdRoles.keySet().iterator(); iEIds.hasNext();) {
 			String iEId = (String) iEIds.next();
 			if (!addedParticipantEIds.contains(iEId)) {
@@ -9000,14 +8996,14 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 		if (addedParticipantEIds.size() != 0
-				&& (notAddedOfficialAccounts != null || notAddedNonOfficialAccounts != null)) {
+				&& (!notAddedOfficialAccounts.equals(NULL_STRING) || !notAddedNonOfficialAccounts.equals(NULL_STRING))) {
 			// at lease one officialAccount account or an nonOfficialAccount
 			// account added, and there are also failures
 			addAlert(state, rb.getString("java.allusers"));
 		}
 
-		if (notAddedOfficialAccounts == null
-				&& notAddedNonOfficialAccounts == null) {
+		if (notAddedOfficialAccounts.equals(NULL_STRING)
+				&& notAddedNonOfficialAccounts.equals(NULL_STRING)) {
 			// all account has been added successfully
 			removeAddParticipantContext(state);
 		} else {
@@ -9102,8 +9098,13 @@ public class SiteAction extends PagedResourceActionII {
 									String userName = user.getDisplayName();
 									// send notification email
 									if (this.userNotificationProvider == null)
+									{
 										M_log.warn("notification provider is null!");
-									userNotificationProvider.notifyAddedParticipant(nonOfficialAccount, user, sEdit.getTitle());
+									}
+									else
+									{
+										userNotificationProvider.notifyAddedParticipant(nonOfficialAccount, user, sEdit.getTitle());
+									}
 									
 								}
 							}
