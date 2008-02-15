@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -5066,6 +5067,8 @@ public class SiteAction extends PagedResourceActionII {
 						try {
 							User instructor = UserDirectoryService.getUserByEid(instructorId);
 							
+							rb = new ResourceLoader(instructor.getId(), "sitesetupgeneric");
+							
 							// reset 
 							buf.setLength(0);
 							
@@ -5111,6 +5114,8 @@ public class SiteAction extends PagedResourceActionII {
 							// send the email
 							EmailService.send(from, to, message_subject, content,
 									headerTo, replyTo, null);
+							// revert back the local setting to default
+							rb = new ResourceLoader("sitesetupgeneric");
 						}
 						catch (Exception e)
 						{
@@ -5122,6 +5127,8 @@ public class SiteAction extends PagedResourceActionII {
 
 			// To Support
 			from = cUser.getEmail();
+			// set locale to system default
+			rb.setContextLocale(Locale.getDefault());
 			to = requestEmail;
 			headerTo = requestEmail;
 			replyTo = cUser.getEmail();
@@ -5194,6 +5201,8 @@ public class SiteAction extends PagedResourceActionII {
 			// To the Instructor
 			from = requestEmail;
 			to = cUser.getEmail();
+			// set the locale to individual receipient's setting
+			rb = new ResourceLoader(cUser.getId(), "sitesetupgeneric");
 			headerTo = to;
 			replyTo = to;
 			buf.setLength(0);
@@ -5205,6 +5214,8 @@ public class SiteAction extends PagedResourceActionII {
 			content = buf.toString();
 			EmailService.send(from, to, message_subject, content, headerTo,
 					replyTo, null);
+			// revert the locale to system default
+			rb = new ResourceLoader("sitesetupgeneric");
 			state.setAttribute(REQUEST_SENT, new Boolean(true));
 
 		} // if
@@ -5277,6 +5288,8 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			// To Support
+			//set local to default
+			rb.setContextLocale(Locale.getDefault());
 			from = UserDirectoryService.getCurrentUser().getEmail();
 			to = requestEmail;
 			headerTo = requestEmail;

@@ -42,6 +42,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 	
 	public void notifyAddedParticipant(boolean newNonOfficialAccount,
 			User user, String siteTitle) {
+		rb = new ResourceLoader(user.getId(), "UserNotificationProvider");
 		
 		String from = getSetupRequestEmailAddress();
 		if (from != null) {
@@ -106,6 +107,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 	public void notifyNewUserEmail(User user, String newUserPassword,
 			String siteTitle) {
 		
+		rb = new ResourceLoader(user.getId(), "UserNotificationProvider");
 		
 		String from = getSetupRequestEmailAddress();
 		String productionSiteName = serverConfigurationService.getString(
