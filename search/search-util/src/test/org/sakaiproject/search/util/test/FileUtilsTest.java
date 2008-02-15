@@ -57,7 +57,7 @@ public class FileUtilsTest extends TestCase
 	 */
 	protected void setUp() throws Exception
 	{
-		testSpace = new File("m2-target");
+		testSpace = new File("target");
 		testSpace = new File(testSpace,"FileUtilsTestDir");
 		testSpace = new File(testSpace,"work");
 		testSpace.mkdirs();

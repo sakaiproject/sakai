@@ -22,6 +22,7 @@
 package org.sakaiproject.search.optimize.shared.impl;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -98,10 +99,16 @@ public class SharedFilesystemLoadTransactionListener implements
 		try
 		{
 			JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
+			List<Long> mergeList = jtransaction.getMergeList();
+			// dont delete the last shared segment, we want to keep all versions
+			mergeList.remove(mergeList.size()-1);
 			for (long savePoint : jtransaction.getMergeList())
 			{
 				sharedFilesystemJournalStorage.removeJournal(savePoint);
 			}
+			// we will leave previous versions of this save point in place in the shared
+			// space, only allowing them to be cleaned up as a whole.
+			// there will be no trimming of versions of a segment
 			for (File f : jtransaction.getMergeSegmentList())
 			{
 				log.debug("Deleting Segment " + f.getPath());

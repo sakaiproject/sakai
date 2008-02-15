@@ -94,7 +94,7 @@ public class SearchBuilderItemSerializer
 			}
 			catch (IOException ioex)
 			{
-				log.warn("Exception reading from input stream", ioex);
+				log.debug("Exception reading from input stream, normal behaviour at the end of a list, readInt 210 ", ioex);
 			}
 			dataInputStream.close();
 		}

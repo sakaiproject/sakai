@@ -170,7 +170,6 @@ public class FileUtils
 			zout.setLevel(ZipOutputStream.STORED);
 		}
 		final byte[] buffer = new byte[1024 * 100];
-		FileInputStream fin = null;
 		try
 		{
 			recurse(source, new RecurseAction()
@@ -209,14 +208,6 @@ public class FileUtils
 			catch (Exception e)
 			{
 				log.warn("Exception closing output zip", e);
-			}
-			try
-			{
-				fin.close();
-			}
-			catch (Exception e)
-			{
-				log.warn("Exception closing file input stream", e);
 			}
 		}
 	}

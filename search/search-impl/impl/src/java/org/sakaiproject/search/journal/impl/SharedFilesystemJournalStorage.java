@@ -78,12 +78,34 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	private JournalSettings journalSettings;
 
 	/**
+	 * Tries to find the latest version of a shared transaction file, limiting
+	 * to 1000 versions of any file. The last existing version is in the first
+	 * element, the next file is in the second element.
+	 * 
 	 * @param transactionId
 	 * @return
 	 */
-	private File getTransactionFile(long transactionId)
+	private File[] getTransactionFile(long transactionId)
 	{
-		return new File(journalSettings.getJournalLocation(), transactionId + ".zip");
+		File f = new File(journalSettings.getJournalLocation(), transactionId + ".zip");
+		File testFile = f;
+		int i = 0;
+		while (testFile.exists() && i < 1000)
+		{
+			f = testFile;
+			testFile = new File(journalSettings.getJournalLocation(), transactionId + "-"
+					+ i + ".zip");
+			i++;
+		}
+		File[] result = new File[2];
+		result[0] = f;
+		result[1] = testFile;
+		if (log.isDebugEnabled())
+		{
+			log.debug("F0:" + result[0] + ":" + result[0].exists() + " F1:" + result[1]
+					+ ":" + result[1].exists());
+		}
+		return result;
 	}
 
 	/*
@@ -96,7 +118,7 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 			throws IOException
 	{
 		File indexLocation = new File(location);
-		log.info("++++++ Saving "+indexLocation+" to shared");
+		log.info("++++++ Saving " + indexLocation + " to shared");
 		File tmpZip = new File(journalSettings.getJournalLocation(), transactionId
 				+ ".zip." + System.currentTimeMillis());
 		tmpZip.getParentFile().mkdirs();
@@ -104,12 +126,14 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 		String replacePath = String.valueOf(transactionId);
 
 		FileOutputStream zout = new FileOutputStream(tmpZip);
-		FileUtils.pack(indexLocation, basePath, replacePath, zout, journalSettings.getCompressShared());
+		FileUtils.pack(indexLocation, basePath, replacePath, zout, journalSettings
+				.getCompressShared());
 		zout.close();
 
-		File journalZip = getTransactionFile(transactionId);
+		File[] journalZip = getTransactionFile(transactionId);
 
-		return new JournalStorageStateImpl(tmpZip, journalZip);
+		// save into the new space
+		return new JournalStorageStateImpl(tmpZip, journalZip[1]);
 	}
 
 	/*
@@ -156,8 +180,15 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	{
 		File ws = new File(workingSpace);
 		ws.mkdirs();
-		File f = getTransactionFile(savePoint);
-		FileInputStream source = new FileInputStream(f);
+		File[] f = getTransactionFile(savePoint);
+		// retrieve the existing transaction file
+		if (!f[0].exists())
+		{
+			log.error("======================================= Lost Shared Segment ================= \n" +
+					"\t"+f[0] + "\n" +
+					"\tThe above file does not exist, this should not happen and should be investigated ");
+		}
+		FileInputStream source = new FileInputStream(f[0]);
 		FileUtils.unpack(source, ws);
 
 		source.close();
@@ -187,8 +218,18 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	 */
 	public void removeJournal(long savePoint) throws IOException
 	{
-		File f = getTransactionFile(savePoint);
-		FileUtils.deleteAll(f);
+
+		File[] f = getTransactionFile(savePoint);
+		// remove all existing transaction versions
+		while (f[0].exists())
+		{
+			if (log.isDebugEnabled())
+			{
+				log.debug("Removing " + f[0]);
+			}
+			FileUtils.deleteAll(f[0]);
+			f = getTransactionFile(savePoint);
+		}
 
 	}
 
