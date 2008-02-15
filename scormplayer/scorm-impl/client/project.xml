@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../project.xml</extend>
+	<extend>../../../master/project.xml</extend>
 	<id>sakai-scorm-client-impl</id>
 	<name>sakai-scorm-client-impl</name>
 	<shortDescription>Sakai Scorm Client Implementation</shortDescription>
@@ -11,6 +11,14 @@
 	</properties>
 
 	<dependencies>
+		<!-- Plugin dependency -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai</artifactId>
+			<version>${sakai.plugin.version}</version>
+			<type>plugin</type>
+		</dependency>
+
 		<!-- SCORM dependencies -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -104,7 +112,16 @@
 			<artifactId>xstream</artifactId>
 			<version>1.2.1</version>
 		</dependency>
-    </dependencies>
+	</dependencies>
+	<build>
+		<sourceDirectory>src/java</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/java</directory>
+			</resource>
+		</resources>
+	</build>
+
 
 </project>
 

@@ -28,20 +28,23 @@ import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.CMIData;
 import org.sakaiproject.scorm.model.api.CMIField;
 import org.sakaiproject.scorm.model.api.CMIFieldGroup;
+import org.sakaiproject.scorm.model.api.Interaction;
 import org.sakaiproject.scorm.model.api.Learner;
 import org.sakaiproject.scorm.model.api.LearnerExperience;
 
 public interface ScormResultService {
 
-	public ActivityReport getActivityReport(long contentPackageId, String activityId, String learnerId, long attemptNumber);
+	//public ActivityReport getActivityReport(long contentPackageId, String activityId, String learnerId, long attemptNumber);
 	
-	public List<ActivityReport> getActivityReports(long contentPackageId, String learnerId, long attemptNumber);
+	//public List<ActivityReport> getActivityReports(long contentPackageId, String learnerId, long attemptNumber);
 	
 	public ActivityReport getActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId);
 	
 	public List<ActivitySummary> getActivitySummaries(long contentPackageId, String learnerId, long attemptNumber);
 	
-	public CMIFieldGroup getAttemptResults(Attempt attempt);
+	public Interaction getInteraction(long contentPackageId, String learnerId, long attemptNumber, String scoId, String interactionId);
+	
+	//public CMIFieldGroup getAttemptResults(Attempt attempt);
 	
 	//public List<CMIData> getCMIData(Attempt attempt, String activityId);
 	

@@ -21,8 +21,12 @@
 package org.sakaiproject.scorm.ui.console.pages;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ResourceReference;
+import org.apache.wicket.markup.html.IHeaderContributor;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.scorm.ui.console.components.BreadcrumbPanel;
@@ -31,9 +35,11 @@ import org.sakaiproject.scorm.ui.validation.pages.ValidationPage;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
 import org.sakaiproject.wicket.markup.html.link.NavIntraLink;
 
-public class ConsoleBasePage extends SakaiPortletWebPage {
+public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContributor {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static ResourceReference CONSOLE_CSS = new CompressedResourceReference(ConsoleBasePage.class, "res/scorm_console.css");
 	
 	// The feedback panel component displays dynamic messages to the user
 	private FeedbackPanel feedback;
@@ -66,6 +72,11 @@ public class ConsoleBasePage extends SakaiPortletWebPage {
 		// If a feedback message exists, then make the feedback panel visible, otherwise, hide it.
 		feedback.setVisible(hasFeedbackMessage());
 		breadcrumbs.setVisible(breadcrumbs.getNumberOfCrumbs() > 0);
+	}
+	
+	public void renderHead(IHeaderResponse response) {
+		super.renderHead(response);
+		response.renderCSSReference(CONSOLE_CSS);
 	}
 	
 }

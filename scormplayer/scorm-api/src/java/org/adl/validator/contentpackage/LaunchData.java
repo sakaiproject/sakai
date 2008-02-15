@@ -507,6 +507,13 @@ public class LaunchData implements ILaunchData
     */
    public String getXMLBase()
    {
+	  if (mManifestXMLBase == null)
+		  mManifestXMLBase = "";
+	  if (mResourcesXMLBase == null)
+		  mResourcesXMLBase = "";
+	  if (mResourceXMLBase == null)
+		  mResourceXMLBase = "";
+	   
       StringBuffer result = new StringBuffer(mManifestXMLBase);
 
       // add a file separator only if there is a directory before and after it.
@@ -735,7 +742,14 @@ public class LaunchData implements ILaunchData
 
       launchLine = mLocation;
       parameterString = mParameters;
-      if ( !parameterString.equals("") )
+      
+      if (launchLine == null)
+    	  launchLine = "";
+      
+      if (parameterString == null)
+    	  parameterString = "";
+      
+      if (!parameterString.equals("") )
       {
          while ( parameterString.startsWith("?") || 
                  parameterString.startsWith("&") )

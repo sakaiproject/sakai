@@ -36,7 +36,7 @@ public class ActivityReport implements Serializable {
 	private String title;
 	
 	private List<Interaction> interactions;
-	private Map<Long, Objective> objectives;
+	private Map<String, Objective> objectives;
 	
 	private Progress progress;
 	
@@ -47,7 +47,7 @@ public class ActivityReport implements Serializable {
 
 	public ActivityReport() {
 		interactions = new LinkedList<Interaction>();
-		objectives = new HashMap<Long, Objective>();
+		objectives = new HashMap<String, Objective>();
 	}
 	
 	public String getActivityId() {
@@ -107,11 +107,24 @@ public class ActivityReport implements Serializable {
 		this.interactions = interactions;
 	}
 
-	public Map<Long, Objective> getObjectives() {
+	public List<Objective> getInteractionObjectives(Interaction interaction) {
+		List<Objective> list = new LinkedList<Objective>();
+		for (String objectiveId : interaction.getObjectiveIds()) {
+			Objective objective = objectives.get(objectiveId);
+			
+			if (objective != null)
+				list.add(objective);
+			
+		}
+		
+		return list;
+	}
+	
+	public Map<String, Objective> getObjectives() {
 		return objectives;
 	}
 
-	public void setObjectives(Map<Long, Objective> objectives) {
+	public void setObjectives(Map<String, Objective> objectives) {
 		this.objectives = objectives;
 	}
 	
