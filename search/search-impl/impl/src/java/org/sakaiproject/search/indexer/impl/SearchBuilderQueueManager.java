@@ -978,7 +978,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		{
 			try
 			{
-				pst.close();
+				if (pst != null) pst.close();
 			}
 			catch (Exception ex)
 			{
