@@ -126,7 +126,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		String rolesRef = (String) toolSession.getAttribute(PermissionsHelper.ROLES_REF);
 		if (rolesRef == null) rolesRef = targetRef;
 
-		toolSession.setAttribute(STARTED, new Boolean(true));
+		toolSession.setAttribute(STARTED, Boolean.valueOf(true));
 
 		// setup for editing the permissions of the site for this tool, using the roles of this site, too
 		state.setAttribute(PermissionsAction.STATE_REALM_ID, targetRef);

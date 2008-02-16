@@ -331,7 +331,9 @@ public class PermissionsAction
 							M_log.warn("PermissionsAction.readForm: addRole after getRole null: " + role.getId() + " : " + e);
 						}
 					}
-					myRole.allowFunction(lock);
+					if (myRole != null) {
+						myRole.allowFunction(lock);
+					}
 				}
 				else
 				{

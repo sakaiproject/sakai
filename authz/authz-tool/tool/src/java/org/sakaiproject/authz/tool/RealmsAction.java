@@ -220,9 +220,9 @@ public class RealmsAction extends PagedResourceActionII
 
 		if (totalNumber < endNumber) endNumber = totalNumber;
 
-		context.put("startNumber", new Integer(startNumber));
-		context.put("endNumber", new Integer(endNumber));
-		context.put("totalNumber", new Integer(totalNumber));
+		context.put("startNumber", Integer.valueOf(startNumber));
+		context.put("endNumber", Integer.valueOf(endNumber));
+		context.put("totalNumber", Integer.valueOf(totalNumber));
 
 		// build the menu
 		Menu bar = new MenuImpl();
@@ -1055,7 +1055,7 @@ public class RealmsAction extends PagedResourceActionII
 		// create the role
 		try
 		{
-			Role newRole = realm.addRole(id, role);
+			realm.addRole(id, role);
 		}
 		catch (RoleAlreadyDefinedException e)
 		{
