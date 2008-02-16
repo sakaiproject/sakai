@@ -90,7 +90,6 @@ public class TableOfContentsTool
       HttpServletRequest request = (HttpServletRequest) FacesContext
           .getCurrentInstance().getExternalContext().getRequest();
       StringBuffer base = request.getRequestURL();
-      String servletPath = request.getServletPath();
       String contextPath = request.getContextPath();
 
       int pos = base.indexOf(contextPath);

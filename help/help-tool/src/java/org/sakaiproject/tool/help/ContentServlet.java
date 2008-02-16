@@ -88,7 +88,7 @@ public class ContentServlet extends HttpServlet
                   new InputStreamReader(url.openStream(),"UTF-8"));
 
           int readReturn = 0;
-          String sbuf = new String();
+          String sbuf;
           while ((sbuf = br.readLine()) != null)
           {
             writer.write( sbuf );
@@ -113,7 +113,8 @@ public class ContentServlet extends HttpServlet
   {
     if (helpManager == null)
     {
-      return (HelpManager) ComponentManager.get(HelpManager.class.getName());
+    	helpManager = (HelpManager) ComponentManager.get(HelpManager.class.getName()); 
+    	return helpManager;
     }
     return helpManager;
   }

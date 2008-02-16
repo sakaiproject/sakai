@@ -1008,6 +1008,7 @@ public List getActiveContexts(Map session)
 	    catch (IOException e)
 	    {
 	      LOG.error("failed to create IndexWriter " + e.getMessage(), e);
+	      return;
 	    }
 	
 	    // Index categories and resources
@@ -1040,8 +1041,7 @@ public List getActiveContexts(Map session)
 	URL urlResource = null;
 	InputStream ism = null;
     BufferedInputStream bis = null;
-    BufferedInputStream bisCorpus = null;
-
+    
     try
     {
       try {
@@ -1103,9 +1103,6 @@ public List getActiveContexts(Map session)
       try{
         if (bis != null){
           bis.close();
-        }
-        if (bisCorpus != null){
-          bisCorpus.close();
         }
       }
       catch (IOException e){
@@ -1309,7 +1306,7 @@ public List getActiveContexts(Map session)
             }
             else
             {
-              resource.setDocId(new Integer(cnt).toString());
+              resource.setDocId(Integer.valueOf(cnt).toString());
               cnt++;
             }
 

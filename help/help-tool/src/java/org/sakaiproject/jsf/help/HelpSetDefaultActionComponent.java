@@ -61,8 +61,6 @@ public class HelpSetDefaultActionComponent extends UIOutput
     if (form != null)
     {
 
-      String formId = form.getClientId(context);
-
       writer.startElement("script", null);
       writer.writeAttribute("type", "text/javascript", null);
 

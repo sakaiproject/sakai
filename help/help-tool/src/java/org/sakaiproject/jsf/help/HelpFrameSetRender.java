@@ -75,8 +75,7 @@ public class HelpFrameSetRender extends Renderer
     String searchToolUrl = (String) component.getAttributes().get(
         "searchToolUrl");
     String tocToolUrl = (String) component.getAttributes().get("tocToolUrl");        
-    String helpUrl = (String) component.getAttributes().get("helpUrl");
-
+    
     String helpParameter = ((HttpServletRequest) context.getExternalContext()
         .getRequest()).getParameter("help");
 
