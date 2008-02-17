@@ -3595,7 +3595,7 @@ private   int   getNum(char letter,   String   a)
     
     Topic newTopic= prtMsgManager.getTopicByUuid(moveTopicTitle);
     Topic oldTopic=selectedTopic.getTopic();
-    if( newTopic.getUuid() == oldTopic.getUuid()){
+    if (newTopic.getUuid().equals(oldTopic.getUuid())) {
     	//error
     	setErrorMessage(getResourceBundleString(MOVE_MSG_ERROR));
     	return null;
