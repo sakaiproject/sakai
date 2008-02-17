@@ -694,7 +694,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	public void setTempSubject(String tempSubject)
 	{
 		// if there's a change
-		if (tempSubject != m_tempSubject)
+		if (!tempSubject.equals(m_tempSubject))
 		{
 			// remember the new
 			m_tempSubject = tempSubject;
@@ -707,7 +707,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	 */
 	public void setTempBody(String tempBody)
 	{
-		if (tempBody != m_tempBody)
+		if (!tempBody.equals(m_tempBody))
 		{
 			// remember the new
 			m_tempBody = tempBody;
@@ -776,7 +776,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	public void setChannelId(String channelId)
 	{
 		// if there's a change
-		if (channelId != m_channelId)
+		if (!channelId.equals(m_channelId))
 		{
 			// remember the new
 			m_channelId = channelId;
@@ -1158,7 +1158,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	public void setStatus(String status)
 	{
 		// if there's a change
-		if (status != m_status)
+		if (!status.equals(m_status))
 		{
 			// remember the new
 			m_status = status;
