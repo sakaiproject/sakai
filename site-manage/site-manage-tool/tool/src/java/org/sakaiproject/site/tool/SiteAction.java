@@ -3149,7 +3149,7 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private List getProviderCourseList(String id) {
 		Vector rv = new Vector();
-		if (id == null || id == NULL_STRING) {
+		if (id == null || NULL_STRING.equals(id) ) {
 			return rv;
 		}
 		// Break Provider Id into course id parts
