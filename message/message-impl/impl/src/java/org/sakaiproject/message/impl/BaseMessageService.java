@@ -569,7 +569,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		if (m_securityService.unlock(eventId(lock1), resource)) return true;
 
 		// if the second is different, check that
-		if ((lock1 != lock2) && (m_securityService.unlock(eventId(lock2), resource))) return true;
+		if ((!lock1.equals(lock2)) && (m_securityService.unlock(eventId(lock2), resource))) return true;
 
 		return false;
 
@@ -592,10 +592,10 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		if (m_securityService.unlock(eventId(lock1), resource)) return true;
 
 		// if the second is different, check that
-		if ((lock1 != lock2) && (m_securityService.unlock(eventId(lock2), resource))) return true;
+		if ((!lock1.equals(lock2)) && (m_securityService.unlock(eventId(lock2), resource))) return true;
 
 		// if the third is different, check that
-		if ((lock1 != lock3) && (lock2 != lock3) && (m_securityService.unlock(eventId(lock3), resource))) return true;
+		if ((!lock1.equals(lock3)) && (!lock2.equals(lock3)) && (m_securityService.unlock(eventId(lock3), resource))) return true;
 
 		return false;
 
