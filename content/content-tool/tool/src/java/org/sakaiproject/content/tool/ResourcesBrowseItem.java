@@ -1190,7 +1190,7 @@ public class ResourcesBrowseItem
 			 {
 				 m_container = ContentHostingService.getContainingCollectionId(m_id);
 			 }
-			 if(m_container == null || m_container.trim() == "")
+			 if(m_container == null || m_container.trim().length() == 0 )
 			 {
 				 m_container = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
 			 }
@@ -1252,7 +1252,7 @@ public class ResourcesBrowseItem
 			 {
 				 m_container = ContentHostingService.getContainingCollectionId(m_id);
 			 }
-			 if(m_container == null || m_container.trim() == "")
+			 if(m_container == null || m_container.trim().length() == 0 )
 			 {
 				 m_container = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
 			 }
