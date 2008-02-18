@@ -38,7 +38,7 @@ public class StaticScriptsHandler extends StaticHandler
 {
 	private static final String URL_FRAGMENT = "scripts";
 
-	public void DirectToolHandler()
+	public StaticScriptsHandler()
 	{
 		setUrlFragment(StaticScriptsHandler.URL_FRAGMENT);
 	}
