@@ -670,7 +670,7 @@ public class CalendarBean {
 	}
 
 	private boolean reloadCalendarEvents() {
-		boolean reload = (weeks == null) || (weeks.size() == 0) || updateEventList || (prevViewMode != viewMode);
+		boolean reload = (weeks == null) || (weeks.size() == 0) || updateEventList || (!prevViewMode.equals(viewMode));
 		return reload;
 	}
 	
