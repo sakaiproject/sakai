@@ -742,32 +742,19 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			// recognize what to do from the path
 			String option = req.getPathInfo();
-			
-			
 
+			String[] parts = {};
 
-			// if missing, set it to home or gateway
-			if ((option == null) || ("/".equals(option)))
+			if (option == null || "/".equals(option))
 			{
-				
-
-				if (session.getUserId() == null)
-				{
-					String siteId = siteHelper.getGatewaySiteId();
-					if (siteId == null)
-					{
-						siteId = ServerConfigurationService.getGatewaySiteId();
-					}
-					option = "/"+handlerPrefix+"/" + siteId;
-				}
-				else
-				{
-					option = "/"+handlerPrefix+"/" + SiteService.getUserSiteId(session.getUserId());
-				}
+				// Use the default handler prefix
+				parts = new String[]{"", handlerPrefix};
 			}
-
-			// get the parts (the first will be "")
-			String[] parts = option.split("/");
+			else
+			{
+				//get the parts (the first will be "")
+				parts = option.split("/");
+			}
 
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 			PortalHandler ph = handlerMap.get(parts[1]);

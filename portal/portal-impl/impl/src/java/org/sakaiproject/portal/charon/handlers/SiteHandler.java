@@ -135,10 +135,15 @@ public class SiteHandler extends WorksiteHandler
 		{
 			if (session.getUserId() == null)
 			{
-				siteId = ServerConfigurationService.getGatewaySiteId();
+				siteId = portal.getSiteHelper().getGatewaySiteId();
+				if (siteId == null)
+				{
+					siteId = ServerConfigurationService.getGatewaySiteId();
+				}
 			}
 			else
 			{
+				// TODO Should maybe switch to portal.getSiteHelper().getMyWorkspace()
 				siteId = SiteService.getUserSiteId(session.getUserId());
 			}
 		}
@@ -187,7 +192,7 @@ public class SiteHandler extends WorksiteHandler
 						&& !SiteService.siteExists(siteId))
 				{
 					String refString = AliasService.getTarget(siteId);
-					siteId = EntityManager.newReference(refString).getContainer();
+						siteId = EntityManager.newReference(refString).getContainer();
 				}
 
 				site = portal.getSiteHelper().getSiteVisit(siteId);
