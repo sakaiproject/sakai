@@ -7925,8 +7925,7 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 							else
 							{
-								result = (new Double(grade1)).doubleValue() > (new Double(grade2)).doubleValue() ? 1 : -1;
-
+								result = compareDouble(grade1, grade2);
 							}
 						}
 						else
@@ -8067,8 +8066,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					else
 					{
-						result = (new Double(grade1)).doubleValue() > (new Double(grade2)).doubleValue() ? 1 : -1;
-
+						result = compareDouble(grade1, grade2);
 					}
 				}
 				else
@@ -8104,8 +8102,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					else
 					{
-						result = (new Double(grade1)).doubleValue() > (new Double(grade2)).doubleValue() ? 1 : -1;
-
+						result = compareDouble(grade1, grade2);
 					}
 				}
 				else
@@ -8165,7 +8162,27 @@ public class AssignmentAction extends PagedResourceActionII
 				result = -result;
 			}
 			return result;
-		} // compare
+		}
+
+		/**
+		 * Compare two strings as double values. Deal with the case when either of the strings cannot be parsed as double value.
+		 * @param grade1
+		 * @param grade2
+		 * @return
+		 */
+		private int compareDouble(String grade1, String grade2) {
+			int result;
+			try
+			{
+				result = (new Double(grade1)).doubleValue() > (new Double(grade2)).doubleValue() ? 1 : -1;
+			}
+			catch (Exception formatException)
+			{
+				// in case either grade1 or grade2 cannot be parsed as Double
+				result = compareString(grade1, grade2);
+			}
+			return result;
+		} // compareDouble
 
 		private int compareString(String s1, String s2) 
 		{
