@@ -63,10 +63,10 @@
 .ahref{behavior:url(#default#AnchorClick);}
 </style>
 <div class="portletBody specialLink">
-	<div class="navIntraTool">
-		<a href="#toolLink("ResourcesAction" "doCancel")">$tlang.getString("list.site")</a>
-		| $tlang.getString('dav.webdav')
-	</div>
+	<ul class="navIntraTool actionToolBar" role="menu">
+		<li class="firstToolBarItem" role="menuitem"><span><a href="#toolLink("ResourcesAction" "doCancel")">$tlang.getString("list.site")</a></span></li>
+		<li role="menuitem" aria-disabled="true"><span class="current">$tlang.getString('dav.webdav')</span></li>
+	</ul>
 	#if($menu)#toolbar($menu)#end
 	<h3>$tlang.getString("dav.webdav")</h3>
 	<h4>$tlang.getString("dav.url")</h4>
