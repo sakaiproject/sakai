@@ -190,7 +190,7 @@ public class SiteHandler extends WorksiteHandler
 				// First check for site alias
 				if (siteId != null && !siteId.equals("")
 						&& !SiteService.siteExists(siteId))
-				{
+					{
 					String refString = AliasService.getTarget(siteId);
 						siteId = EntityManager.newReference(refString).getContainer();
 				}
@@ -218,20 +218,6 @@ public class SiteHandler extends WorksiteHandler
 					portal.doError(req, res, session, Portal.ERROR_SITE);
 				}
 				return;
-			}
-		}
-
-		// Try to lookup alias if pageId not found
-		if (pageId != null && !pageId.equals("") && site.getPage(pageId) == null)
-		{
-			try
-			{
-				String refString = AliasService.getTarget(pageId);
-				pageId = EntityManager.newReference(refString).getId();
-			}
-			catch (IdUnusedException e)
-			{
-				log.debug("Alias does not resolve " + e.getMessage());
 			}
 		}
 
