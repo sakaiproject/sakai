@@ -10,38 +10,30 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.ui.helpers.params.GradeGradebookItemViewParams;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 import uk.org.ponder.beanutil.entity.EntityBeanLocator;
 import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIMessage;
-import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UIVerbatim;
-import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
-import uk.org.ponder.rsf.evolvers.TextInputEvolver;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
+import uk.org.ponder.rsf.flow.ARIResult;
+import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.DefaultView;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.flow.jsfnav.DynamicNavigationCaseReporter;
-import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
+import uk.org.ponder.rsf.viewstate.RawViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-public class GradeGradebookItemProducer implements DynamicNavigationCaseReporter, 
-ViewComponentProducer, ViewParamsReporter, DefaultView {
+public class GradeGradebookItemProducer implements ActionResultInterceptor,  ViewComponentProducer, ViewParamsReporter {
 
     public static final String VIEW_ID = "gradeGradebookItem";
     public String getViewID() {
@@ -153,15 +145,18 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         this.messageLocator = messageLocator;
     }
     
-    public List reportNavigationCases() {
-        //List togo = new ArrayList();
-        //togo.add(new NavigationCase("cancel", new SimpleViewParameters(FinishedHelperProducer.VIEWID)));
-        //togo.add(new NavigationCase("submit", 
-        //        new FinishedHelperViewParams(FinishedHelperProducer.VIEWID, null, null)));
-        
-    	return new ArrayList();
-        //return togo;
-    }
+    public void interceptActionResult(ARIResult result,
+			ViewParameters incoming, Object actionReturn) {
+		if (incoming instanceof GradeGradebookItemViewParams) {
+			GradeGradebookItemViewParams params = (GradeGradebookItemViewParams) incoming;
+			if (params.finishURL != null && actionReturn.equals("cancel")) {
+				result.resultingView = new RawViewParameters(params.finishURL);
+			}
+			else if (params.finishURL != null && actionReturn.equals("submit")) {
+				result.resultingView = new RawViewParameters(params.finishURL);
+			}
+		}
+	}
 
     public void setGradebookManager(GradebookManager gradebookManager) {
     	this.gradebookManager = gradebookManager;
