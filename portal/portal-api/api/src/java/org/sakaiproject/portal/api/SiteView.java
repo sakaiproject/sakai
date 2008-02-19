@@ -46,8 +46,9 @@ public interface SiteView
 	*/
 
 	/**
+	 * The prefix for creating site URLs. Eg. If "site" then URLs will come out like /portal/site/...
 	 * required
-	 * @param prefix
+	 * @param prefix The prefix to use.
 	 */
 	void setPrefix(String prefix);
 
