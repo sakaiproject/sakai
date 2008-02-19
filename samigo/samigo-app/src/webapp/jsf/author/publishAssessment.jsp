@@ -48,9 +48,10 @@
   <div class="validation">
        <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_1}" />
 	   <br/>
-       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_2}" />
+       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_2_no_hyphen}" rendered="#{author.isEditPendingAssessmentFlow}"/>
+       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_2_hyphen}" rendered="#{!author.isEditPendingAssessmentFlow}"/>
 	   <br/>
-       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_3}" />
+       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_3}" rendered="#{!author.isEditPendingAssessmentFlow}"/>
    </div>
 
 <h:panelGrid columns="2" rowClasses="shorttext" rendered="#{author.isEditPendingAssessmentFlow}">
@@ -243,8 +244,8 @@ function toggle(){
 
        <!-- Cancel button -->
        <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="#{author.getOutcome}" rendered="#{author.isEditPendingAssessmentFlow}"/>
-	   <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="#{author.getOutcome}" rendered="#{!author.isEditPendingAssessmentFlow}">
-		  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+	   <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="editAssessment" rendered="#{!author.isEditPendingAssessmentFlow}">
+		  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
 	   </h:commandButton>
 
 </p>
