@@ -1,10 +1,9 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/prefs/chef_membership.vm,v 1.10 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
 <div class="portletBody">
-	<div class="navIntraTool">
-	$tlang.getString("mb.cursit")
-	|
-	<a href="#toolLink("$action" "doGoto_joinable")" title="$tlang.getString('mb.joisit')">$tlang.getString('mb.joisit')</a>
-	</div>
+	<ul class="navIntraTool actionToolbar" role="menu">
+	<li class="firstToolBarItem" role="menuitem" aria-disabled="true"><span class="current">$tlang.getString("mb.cursit")</span></li>
+	<li role="menuitem"><span><a href="#toolLink("$action" "doGoto_joinable")" title="$tlang.getString('mb.joisit')">$tlang.getString('mb.joisit')</a></span></li>
+</ul>
 	
 	<h3>
 		$tlang.getString("mb.cursit") 

@@ -1,10 +1,9 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/prefs/chef_membership_joinable.vm,v 1.13 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
 <div class="portletBody">
-	<div class="navIntraTool">
-	<a href="#toolLink("$action" "doGoto_unjoinable")" title="$tlang.getString('mb.cursit')">$tlang.getString('mb.cursit')</a>
-	|
-	$tlang.getString("mb.joisit")
-	</div>
+	<ul class="navIntraTool actionToolBar" role="menu">
+		<li class="firstToolBarItem" role="menuitem"><span><a href="#toolLink("$action" "doGoto_unjoinable")" title="$tlang.getString('mb.cursit')">$tlang.getString('mb.cursit')</a></span></li>
+		<li role="menuitem" aria-disabled="true"><span class="current">$tlang.getString("mb.joisit")</span></li>		
+	</ul>
 	
 	<h3>
 		$tlang.getString("mb.joinable")
