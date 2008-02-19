@@ -29,9 +29,9 @@
 		#end
 	</div>
 	*#
-	<div class="navIntraTool">
-		<a href="#" onclick="location='#toolLink("$action" "doShow_simple_search")';return false;"  title ="Search">$tlang.getString("list.search")</a>
-	</div>
+	<ul class="navIntraTool actionToolBar">
+		<li class="firstToolBarItem"><a href="#" onclick="location='#toolLink("$action" "doShow_simple_search")';return false;"  title ="Search">$tlang.getString("list.search")</a></span></li>
+	</ul>
 	<h3>$tlang.getString("list.results")</h3>
 	#if ($sites.size() > 0)
 		<div class="navPanel">
