@@ -4,11 +4,12 @@
 
 		#if ($toolId=="sakai.motd")
 			#if($menu)
-			<div class="navIntraTool">
-				<a href="#" title="$tlang.getString("motd.options")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
+			<ul class="navIntraTool actionToolBar" role="menu">
+				<li class="firstToolBarItem" role="menuitem"><span><a href="#" title="$tlang.getString("motd.options")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
 					$tlang.getString("gen.options")
 				</a>
-			</div>
+				</span></li>
+			</ul>
 			#end
 			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 			#foreach ($item in $messages)
@@ -51,11 +52,13 @@
 		#end
 		#if ($toolId=="sakai.synoptic.chat")
 			#if($menu)
-			<div class="navIntraTool">
-				<a href="#" title="$tlang.getString("chat.options")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
-					$tlang.getString("gen.options")
-				</a>
-			</div>
+			<ul class="navIntraTool actionToolBar" role="menu">
+				<li class="firstToolBarItem" role="menuitem"><span>
+					<a href="#" title="$tlang.getString("chat.options")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
+						$tlang.getString("gen.options")
+					</a>
+				</span></li>
+			</ul>
 			#end
 			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 			#foreach ($item in $messages)
@@ -67,11 +70,13 @@
 		#end	
 		#if ($toolId=="sakai.synoptic.discussion")
 			#if($menu)
-			<div class="navIntraTool">
+			<ul class="navIntraTool actionToolBar" role="menu">
+				<li class="firstToolBarItem" role="menuitem"><span>					
 				<a href="#" title="$tlang.getString("disc.options")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
 					$tlang.getString("gen.options")
 				</a>
-			</div>
+				</span></li>
+			</ul>
 			#end
 			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 			#foreach ($item in $messages)
