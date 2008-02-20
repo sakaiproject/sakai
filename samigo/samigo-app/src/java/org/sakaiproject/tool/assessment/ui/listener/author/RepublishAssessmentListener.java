@@ -11,6 +11,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -38,21 +39,12 @@ public class RepublishAssessmentListener implements ActionListener {
 		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 		// Go to database to get the newly updated data. The data inside beans might not be up to date.
 		PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
-		
-		boolean withSection = true; 
-		if (assessment == null) {
-			PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
-			assessment = assessmentSettings.getAssessment();
-			withSection = false; // the assessment getting from assessmentSettings doesn't have sections
-		}
+		EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.republish", "publishedAssessmentId=" + publishedAssessmentId, true));
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
 		publishedAssessmentService.saveAssessment(assessment);
-		
+
 		// If there are submissions, need to regrade them
 		if (hasGradingData) {
-			if (!withSection) {
-				assessment.setSectionSet(publishedAssessmentService.getSectionSetForAssessment((PublishedAssessmentIfc) assessment));
-			}
 			regradeRepublishedAssessment(publishedAssessmentService, (PublishedAssessmentIfc) assessment);
 		}
 

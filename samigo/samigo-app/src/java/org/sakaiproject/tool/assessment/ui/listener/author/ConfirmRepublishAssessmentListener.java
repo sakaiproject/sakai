@@ -9,6 +9,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -19,6 +20,8 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettin
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class ConfirmRepublishAssessmentListener implements ActionListener {
+	// To Do: I think this can be combined with SavePublishedSettingsListener.
+	
 	private static Log log = LogFactory.getLog(ConfirmRepublishAssessmentListener.class);
 	
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
@@ -36,8 +39,9 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 		    control.setAssessmentBase(assessment.getData());
 		}
 	    
+		EventTrackingService.post(EventTrackingService.newEvent("sam.pubsetting.edit", "publishedAssessmentId=" + assessmentId, true));
 		FacesContext context = FacesContext.getCurrentInstance();
-		boolean error = savePublishedSettingsListener.setPublishedSettings(assessmentSettings, context, control, assessment);
+		boolean error = savePublishedSettingsListener.setPublishedSettings(assessmentSettings, context, control, assessment, false);
 		if (error){
 		   	assessmentSettings.setOutcome("editPublishedAssessmentSettings");
 		   	return;

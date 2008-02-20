@@ -37,6 +37,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
@@ -102,16 +103,15 @@ public class SavePublishedSettingsListener
 	        // need to fix accessControl so it can take AssessmentFacade later
 	        control.setAssessmentBase(assessment.getData());
 	    }
+	    boolean retractNow = false;
 	    String id = ae.getComponent().getId();
-	    // Check if the action is clicking the the Retract button on Assessment Retract Confirmation button
+	    // Check if the action is clicking the the "Retract" button on Assessment Retract Confirmation button
 	    if (id.equals("retract")) {
-	    	control.setRetractDate(new Date());
+	    	retractNow = true;
 	    }
-	    else {
-	    	control.setRetractDate(assessmentSettings.getRetractDate());
-	    }
-	    
-    boolean error = setPublishedSettings(assessmentSettings, context, control, assessment);
+
+	EventTrackingService.post(EventTrackingService.newEvent("sam.pubsetting.edit", "publishedAssessmentId=" + assessmentId, true));
+    boolean error = setPublishedSettings(assessmentSettings, context, control, assessment, retractNow);
     if (error){
         assessmentSettings.setOutcome("editPublishedAssessmentSettings");
         return;
@@ -122,7 +122,7 @@ public class SavePublishedSettingsListener
     	assessmentSettings.setOutcome("editPublishedAssessmentSettings");
 		return;
     }
-
+    
     updateGB(assessmentSettings, assessment);
 
     assessmentService.saveAssessment(assessment);
@@ -132,8 +132,8 @@ public class SavePublishedSettingsListener
         
     assessmentSettings.setOutcome(author.getFromPage());
   }
-
-  public boolean setPublishedSettings(PublishedAssessmentSettingsBean assessmentSettings, FacesContext context, PublishedAccessControl control, PublishedAssessmentFacade assessment) {
+ 
+  public boolean setPublishedSettings(PublishedAssessmentSettingsBean assessmentSettings, FacesContext context, PublishedAccessControl control, PublishedAssessmentFacade assessment, boolean retractNow) {
 	    boolean error = false;
 	    // check if start date is valid
 	    if(!assessmentSettings.getIsValidStartDate()){
@@ -154,10 +154,16 @@ public class SavePublishedSettingsListener
 	    	error=true;
 	    }
 	    
-	   	// a. LATER set dueDate, startDate, releaseTo
+	   	// LATER set dueDate, startDate, retractDate 
 	   	control.setStartDate(assessmentSettings.getStartDate());
 	   	control.setDueDate(assessmentSettings.getDueDate());
-	   	control.setRetractDate(assessmentSettings.getRetractDate());
+	   	if (retractNow)
+	   	{
+	   		control.setRetractDate(new Date());
+	   	}
+	   	else {
+	   		control.setRetractDate(assessmentSettings.getRetractDate());
+	   	}
 	   	
 	    //check feedback - if at specific time then time should be defined.
 	    if((assessmentSettings.getFeedbackDelivery()).equals("2")) {

@@ -206,7 +206,6 @@ public class ItemAddListener
     if (!saveItem(itemauthorbean)){
 	throw new RuntimeException("failed to saveItem.");
     }
-    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "itemId=" + itemauthorbean.getItemId(), true));
     item.setOutcome("editAssessment");
     item.setPoolOutcome("editPool");
     itemauthorbean.setItemTypeString("");
@@ -465,9 +464,11 @@ public class ItemAddListener
       isPendingOrPool = isEditPendingAssessmentFlow || isFromQuestionPool;
       ItemService delegate;
       if (isPendingOrPool) {
+    	  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "itemId=" + itemauthor.getItemId(), true));
       	  delegate = new ItemService();
       }
       else {
+    	  EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.revise", "itemId=" + itemauthor.getItemId(), true));
       	  delegate = new PublishedItemService();
       }
       // update not working yet, delete, then add
