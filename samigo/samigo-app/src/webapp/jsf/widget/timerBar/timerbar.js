@@ -48,62 +48,6 @@ var last_epoch_milliseconds = new Date().getTime();
 var max_suspense_milliseconds = 10000;//10 seconds....
 var payback = 1.5;
 
-function incrCount(){
-  // make sure that timer bar running, JavaScript enabled
-  epoch_milliseconds = new Date().getTime();
-  var suspense = epoch_milliseconds - last_epoch_milliseconds;
-
-/* the Javascript timer on the page is an estimated time. The assessment time limit is
-   based on the server time in 2.1.1. So it is ok if users cheat, the real time will catch up with them.
-  // if some wise guy turned off JavaScript more than max_suspense_milliseconds
-  if (suspense > max_suspense_milliseconds)
-  {
-    // add in suspense time in 1/10 seconds
-    loaded += Math.floor(suspense/100);
-    loaded *= payback; //  apply penalty.
-    if (loaded > waitTime * 10)
-      loaded = waitTime * 10;
-    startTimer(); // crank up timer with new value
-    alert("JavaScript must be enabled!");
-  }
-*/
-  last_epoch_milliseconds = epoch_milliseconds;
-  
-  window.status="Loaded....";
-  var setRedBar = false;
-  if(waitTime>300){ //waitTime is the timeLimit and it is in second
-    warnTime=10*(waitTime-300);
-    if (loaded==warnTime){ // loaded is in 1/10th s
-      setRedBar = true;
-      alert('You have 5 minutes left');
-    }
-    if (loaded > warnTime){ setRedBar = true; } 
-    if (setRedBar){
-      if(ns4){
-       document.tbar.bgColor="red";
-      }
-      else{
-        if(ie4){
-          document.all.tbar.style.backgroundColor="red";
-        }
-        else{
-          document.getElementById("tbar").style.backgroundColor="red";
-        }
-      }
-    }
-  }
-
-  if(!pauseTiming==true)
-    loaded++;
-  if(loaded<0)loaded=0;
-  if(loaded>=waitTime*10){
-    clearInterval(Pid);
-    loaded=waitTime*10; // loaded is in 1/10th of a second here
-    setTimeout('hidebar()',100);
-  }
-  resizeEl(PBdone, 0, blocksize*loaded, barheight-2, 0);
-}
-
 function hidebar(){
 clearInterval(Pid);
 window.status='';
@@ -131,7 +75,7 @@ PBdone=(ns4)?PBouter.document.layers['PBdone']:(ie4)?document.all['PBdone']:docu
 resizeEl(PBdone,0,0,barheight-2,0);
 if(ns4)PBouter.visibility="show";
 else PBouter.style.visibility="visible";
-Pid=setInterval('incrCount()',100);
+Pid=setInterval('progressTimerBar()', 100);
 startTimer();
 }
 
@@ -197,10 +141,44 @@ function showCountDown(){
   }
 }
 
+function progressTimerBar(){
+    var present=new Date();
+    var presentH=present.getHours();
+    var presentM=present.getMinutes();
+    var presentS=present.getSeconds();
+    var remainTime=((endH*3600)+(endM*60)+endS) -((presentH*3600)+(presentM*60)+presentS);
+	//alert("remainTime=" + remainTime);
+    window.status="Loaded....";
+    var setRedBar = false;
+    if(waitTime>300){ //waitTime is the timeLimit and it is in second
+		if(remainTime==300){ //waitTime is the timeLimit and it is in second
+		setRedBar = true;
+		alert('You have 5 minutes left');
+		}
+		else if (remainTime < 300){ setRedBar = true; } 
+
+		if (setRedBar){
+			if(ns4){
+				document.tbar.bgColor="red";
+			}
+			else{
+				if(ie4){
+					document.all.tbar.style.backgroundColor="red";
+				}
+				else{
+					document.getElementById("tbar").style.backgroundColor="red";
+				}
+			}
+		}
+    }
+	resizeEl(PBdone, 0, blocksize*(waitTime - remainTime) * 10 , barheight-2, 0);
+}
+
 function stopTimer(){
   document.getElementById('timer').innerHTML="Time's up";
   clearTimeout(timerID);
 running=false;
+hidebar(); 
 }
 progressBarInit();
 
