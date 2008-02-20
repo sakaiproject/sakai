@@ -381,35 +381,46 @@ h4 + div.itemAction{
 }
 
 /*toolbar - turn into a list for 2.6 - default list render here, style in tool.css*/
-..navIntraTool li{
+.navIntraTool li{
 	list-style: none;
 	display: inline;
 	margin:0 !important;
 	padding:0 !important;
-
 }
 
 .navIntraTool li span a{
 	margin:0 !important;
 	padding:0 !important;
 }
+
 .navIntraTool li span, .navIntraTool li span.current, .navIntraTool li span.inactive{
 	border-left:1px solid #ccc;
 	margin:0;
 	padding:0 5px 0 8px
 }
+/*special style for the first item, namely no border-left*/
 .navIntraTool li.firstToolBarItem span{
 	border:none;
 	margin:0;
 	padding: 0 5px 0 8px;
 }
+/*some toolbars have input type=text, and the next item (fieldSibling) is a submit link*/
+.navIntraTool li span.formItem,.navIntraTool li span.fieldSibling  {
+	margin:0;
+	border:none;
+	padding:0;
+}
+.navIntraTool li span.fieldSibling {
+	padding: 0 5px 0 0;
+}
+/*style for item that would be a link if you were not at the page already*/
 .navIntraTool li span.current{
 	color:#777;
 }
-.navIntraTool li span.inactive{
-	color:#999;
-}
 
+.navIntraTool li span.inactive{
+	color:#777;
+}
 
 /*for action controls */
 /*create any item type*/
