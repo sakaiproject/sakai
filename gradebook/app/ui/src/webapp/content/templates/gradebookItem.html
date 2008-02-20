@@ -42,8 +42,17 @@
 			<li>
 				<label rsf:id="point_label"><span class="reqStar">*</span> Gradebook Item Point Value</label> <input rsf:id="point" type="text" size="30" maxlength="100"/>
 			</li>
-			<li>
-				<label rsf:id="msg=gradebook.add-gradebook-item.due_date_label">Due Date</label> <input rsf:id="due_date:" value="12/31/2007"/>
+			<li class="due_date">
+				<label rsf:id="msg=gradebook.add-gradebook-item.due_date_label">Due Date</label> 
+				<fieldset>
+					<ol>
+						<li>
+							<input rsf:id="require_due_date" type="checkbox" />
+							<label rsf:id="require_due_date_label">Require Due Date?</label>
+						</li>
+					</ol>
+				</fieldset>
+				<div rsf:id="require_due_date_container" class="indent"><input rsf:id="due_date:" value="12/31/2007"/></div>
 			</li>
 			<li rsf:id="category_li">
 				<label rsf:id="msg=gradebook.add-gradebook-item.category_label">Category</label>
@@ -71,5 +80,25 @@
 	</fieldset>													
 	</form>
 </div>
+<script type="text/javascript">
+//<![CDATA[
+function show_due_date(){
+	el = jQuery("input:checkbox[@name='require_due_date']").get(0);
+	if (el) {
+		if (el.checked) {
+			jQuery(el).parents("fieldset:first").next('div').show();
+		} else {
+			jQuery(el).parents("fieldset:first").next('div').hide();
+		}
+	}
+}
+jQuery(document).ready(function(){
+	//Init require due date checkboxes
+	jQuery("input[@name='require_due_date']").each(function(){
+		this.onclick = show_due_date;
+	});
+});
+//]]>
+</script>
 </body>
 </html>

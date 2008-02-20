@@ -1,9 +1,14 @@
 package org.sakaiproject.tool.gradebook.ui.helpers.producers;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.ui.helpers.params.GradebookItemViewParams;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.site.api.SiteService;
@@ -22,6 +27,9 @@ import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UIVerbatim;
+import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
+import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
@@ -47,6 +55,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     private ToolManager toolManager;
     private SessionManager sessionManager;
     private GradebookManager gradebookManager;
+    private EntityBeanLocator assignmentBeanLocator;
     
 	/*
 	 * You can change the date input to accept time as well by uncommenting the lines like this:
@@ -74,16 +83,31 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	
     	//OTP
     	String assignmentOTP = "Assignment.";
+    	String OTPKey = "";
     	if (params.assignmentId != null) {
-    		assignmentOTP += params.assignmentId.toString();
+    		OTPKey += params.assignmentId.toString();
     	} else {
-    		assignmentOTP += EntityBeanLocator.NEW_PREFIX + "1";
+    		OTPKey += EntityBeanLocator.NEW_PREFIX + "1";
     	}
+    	assignmentOTP += OTPKey;
     	
     	Boolean add = (params.assignmentId == null);
     	
         //set dateEvolver
         dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);
+        
+        //Display None Decorator list
+		Map attrmap = new HashMap();
+		attrmap.put("style", "display:none");
+		DecoratorList display_none_list =  new DecoratorList(new UIFreeAttributeDecorator(attrmap));
+		
+		//Setting up Dates
+    	Calendar cal = Calendar.getInstance();
+    	cal.add(Calendar.DAY_OF_YEAR, 7);
+    	cal.set(Calendar.HOUR_OF_DAY, 17);
+    	cal.set(Calendar.MINUTE, 0);
+    	Date duedate = cal.getTime();
+
         
         if (add){
         	UIMessage.make(tofill, "heading", "gradebook.add-gradebook-item.heading_add");
@@ -105,8 +129,20 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         		new Object[]{ reqStar }));
         UIInput.make(form, "point", assignmentOTP + ".pointsPossible");
         
-        UIInput due_date = UIInput.make(form, "due_date:", assignmentOTP + ".dueDate");
-        dateEvolver.evolveDateInput(due_date);
+        
+        Assignment assignment = (Assignment) assignmentBeanLocator.locateBean(OTPKey);
+        Boolean require_due_date = (assignment.getDueDate() != null);
+		UIBoundBoolean require_due = UIBoundBoolean.make(form, "require_due_date", "#{GradebookItemBean.requireDueDate}", require_due_date);
+		UIMessage require_due_label = UIMessage.make(form, "require_due_date_label", "gradebook.add-gradebook-item.require_due_date");
+		UILabelTargetDecorator.targetLabel(require_due_label, require_due);
+		
+		UIOutput require_due_container = UIOutput.make(form, "require_due_date_container");
+		UIInput dueDateField = UIInput.make(form, "due_date:", assignmentOTP + ".dueDate");
+		dateEvolver.evolveDateInput(dueDateField, (assignment.getDueDate() != null ? assignment.getDueDate() : duedate));
+		
+		if (!require_due_date){
+			require_due_container.decorators = display_none_list;
+		}
         
         if (categories.size() > 0){
         	
@@ -178,5 +214,9 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 				result.resultingView = new RawViewParameters(params.finishURL + "?value=" + name);
 			}
 		}
+	}
+
+	public void setAssignmentBeanLocator(EntityBeanLocator assignmentBeanLocator) {
+		this.assignmentBeanLocator = assignmentBeanLocator;
 	}
 }

@@ -5,6 +5,10 @@
 	margin-left: 0;
 }
 
+label .reqStar {
+	margin-left: -6pt;	
+}
+
 table.listHier{
 	width: 100%;
 }
@@ -43,7 +47,6 @@ li.last {
 .pagerDiv {
 	float: right;	
 	position: relative;
-	top: -4em;
 }
 
 h3 {
@@ -63,6 +66,7 @@ legend {
 	color: #000;
 	font-weight: bold;
 	margin-left: 0;
+	margin-bottom: .5em;
 	padding: 0;
 }
 
@@ -103,6 +107,14 @@ fieldset fieldset {
 	padding: 0;
 }
 
+fieldset div.indent {
+    margin-left: 14.5em;	
+}
+
+fieldset fieldset.indent li {
+	margin: 0 .5em .5em 0;
+}
+
 fieldset fieldset legend {
 	color: #333;
 	font-weight: normal;
@@ -111,6 +123,7 @@ fieldset fieldset legend {
 
 form fieldset fieldset li {
 	margin-bottom: 0;
+	margin-left: 0;
 	padding: 0;
 }
 
@@ -140,20 +153,32 @@ li p.instruction {
 	margin-left: 14.5em;
 }
 
+li fieldset ol li p.instruction {
+	margin-left: 0;	
+}
+
 
 
 /* Errors/Notifications ========================================*/
 
+li.alertMessageInline {
+	display: inline;	
+}
+
+div.generalErrors li.alertMessageInline {
+	display: block;	
+}
+
 .messages {
-	background: url("/sakai-gradebook-tool/content/images/error-arrow.png") no-repeat .5em 0;
-	color: #fff;
+	xbackground: url("/sakai-assignment2-tool/content/images/error-arrow.png") no-repeat .5em 0;
+	xcolor: #fff;
 	display: block;
 	margin: 0;
 	xpadding: .5em .5em .5em 2em;
 }
 
 .messages li {
-	background: url("/sakai-gradebook-tool/content/images/error-arrow.png") no-repeat .5em 0;
+	xbackground: url("/sakai-assignment2-tool/content/images/error-arrow.png") no-repeat .5em 0;
 	padding: .5em .5em .5em 2em;
 }
 
@@ -163,6 +188,7 @@ li.error {
 
 li.info {
 	background-color: #00ba05;
+	color: #fff;
 }
 
 .error input[type="text"] {
@@ -171,7 +197,7 @@ li.info {
 
 .error p,
 .error ul {
-	background: #ba0005 url("/sakai-gradebook-tool/content/images/error-arrow.png") no-repeat .5em 0;
+	background: #ba0005 url("/sakai-assignment2-tool/content/images/error-arrow.png") no-repeat .5em 0;
 	color: #fff;
 	display: block;
 	margin: 0;
@@ -192,4 +218,46 @@ li .error p {
 
 .pointer {
 	cursor: pointer;
+}
+
+
+/* breadcrumb navigation styles */
+.breadCrumb {
+	font-size: 1.2em;
+	padding: .5em 0; 
+	background: #ffe; /* This is our background color */
+	margin: 0 0 1em 0;
+}
+
+.navIntraTool 	 .breadCrumb {
+	margin:0;float:left
+}
+
+.breadCrumb li{
+	display: inline; 
+	background: #ffe url("/sakai-assignment2-tool/content/images/breadSep.gif") center right no-repeat;
+	padding:0 1.2em 0  .5em;
+	margin:0;
+}
+.breadCrumb li:first-child{
+	padding-left:3px
+}
+.breadCrumb li.lastCrumb{
+	display: inline; 
+	background-image: none;
+}
+
+.breadCrumbCurrent {
+	font-weight: bold;
+	display: inline; 
+	padding: 0px;
+}
+
+A.breadCrumb {
+	font-weight: bold;
+	margin: 0px;
+}
+
+A:hover.breadCrumb {
+	color: #333;
 }

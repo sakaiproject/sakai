@@ -7,8 +7,8 @@
       <property name="messageLocator">
          <ref bean="messageLocator" />
       </property>
-      <property name="infoStyleClass" value="info" />
-      <property name="errorStyleClass" value="error" />
+      <property name="infoStyleClass" value="success" />
+      <property name="errorStyleClass" value="alertMessageInline" />
    </bean>
    
    <bean id="LocalPermissionLogic" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.locallogic.LocalPermissionLogic">

@@ -10,6 +10,7 @@
 		<property name="dateEvolver" ref="fieldDateInputEvolver" />
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />
+		<property name="assignmentBeanLocator" ref="Assignment" />
 	</bean>
 	
 	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.GradeGradebookItemProducer" >

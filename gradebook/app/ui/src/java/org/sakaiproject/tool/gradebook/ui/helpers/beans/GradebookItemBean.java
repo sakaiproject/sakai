@@ -16,6 +16,7 @@ public class GradebookItemBean {
 	
 	private static final String CANCEL = "cancel";
 	private static final String SUBMIT = "submit";
+	private static final String FAILURE = "failure";
 	
 	
 	private TargettedMessageList messages;
@@ -51,8 +52,27 @@ public class GradebookItemBean {
 	}
 	
 	public String processActionAddItem(){
+		Boolean errorFound = Boolean.FALSE;
+		
 		for (String key : OTPMap.keySet()) {
 			Assignment assignment = OTPMap.get(key);
+				
+			//check for null name
+			if (assignment.getName() == null || assignment.getName().equals("")) {
+				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.null_name"));
+				errorFound = Boolean.TRUE;
+			}
+			
+			//check for null points
+			if (assignment.getPointsPossible() == null) {
+				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.null_points"));
+				errorFound = Boolean.TRUE;
+			}
+				
+			if (errorFound) {
+				return FAILURE;
+			}
+			
 			if (key.equals(EntityBeanLocator.NEW_PREFIX + "1")){
 				//We have a new assignment object
 				Long id = null;
@@ -71,6 +91,7 @@ public class GradebookItemBean {
 				} catch (ConflictingAssignmentNameException e){
 					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.conflicting_name",
 							new Object[] {assignment.getName() }, "Assignment." + key + ".name"));
+					errorFound = Boolean.TRUE;
 				}
 			} else {
 				//we are editing an existing object
@@ -81,8 +102,12 @@ public class GradebookItemBean {
 				} catch (ConflictingAssignmentNameException e){
 					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.conflicting_name",
 							new Object[] {assignment.getName() }, "Assignment." + key + ".name"));
+					errorFound = Boolean.TRUE;
 				}
 			}
+		}
+		if(errorFound) {
+			return FAILURE;
 		}
 		
 		return SUBMIT;
