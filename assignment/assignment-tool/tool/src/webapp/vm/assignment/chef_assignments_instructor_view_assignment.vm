@@ -1,17 +1,21 @@
-<div class="portletBody">
-	#if ($taggable)
+<div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
+#if ($taggable)
 		#if (!$activityHelpers.isEmpty())
-			<div class="navIntraTool">
+		<ul class="navIntraTool actionToolBar" role="menu">
 				#set ($first = true)
 				#foreach ($helperInfo in $activityHelpers)
 					#if (!$first)
-						| <a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+					<li  class="firstToolBarItem" role="menuitem">
+						<span><a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
+					</li>	
 					#else
 						#set ($first = false)
-						<a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+						<li role="menuitem">						
+							<span><a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
+						</li>	
 					#end
 				#end
-			</div>
+			</ul
 		#end
 	#end
 	<h3>
@@ -98,9 +102,10 @@
 					$tlang.getString("gen.gra3")
 				</th>
 				<td>
-					$gradeTypeTable.get($assignment.getContent().getTypeOfGrade())
-					#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-						($!tlang.getString("stupresub.max") $assignment.getContent().getMaxGradePointDisplay())
+					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
+					$gradeScale
+					#if ($gradeScale == "Points")
+						(max $assignment.getContent().getMaxGradePointDisplay())
 					#end
 				</td>
 			</tr>
@@ -254,13 +259,14 @@
 					</tr>
 					<tr>
 						<th>
-							$tlang.getString("gen.grasca")
+							Grade Scale:
 						</th>
 						<td>
-							$gradeTypeTable.get($assignment.getContent().getTypeOfGrade())
-									#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-										($!tlang.getString("stupresub.max") $assignment.getContent().getMaxGradePointDisplay())
-									#end
+							#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
+							$gradeScale
+							#if ($gradeScale == "Points")
+								(max $assignment.getContent().getMaxGradePointDisplay())
+							#end
 						</td>
 					</tr>
 					##show alert when assignment is modified and the modified date is after its open date

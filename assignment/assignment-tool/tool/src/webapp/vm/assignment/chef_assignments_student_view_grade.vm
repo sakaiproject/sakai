@@ -1,28 +1,32 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_student_view_grade.vm,v 1.2 2005/05/19 19:39:49 gsilver.umich.edu Exp $ -->
-<div class="portletBody">
+
+<div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
 	#set ($assignment = $submission.Assignment)
 	#if ($taggable)
 		#if (!$itemHelpers.isEmpty())
-			<div class="navIntraTool">
+		<ul class="navIntraTool actionToolBar" role="menu">
 				#set ($first = true)
 				#foreach ($helperInfo in $itemHelpers)
 					#if (!$first)
-						| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+						<li  class="firstToolBarItem" role="menuitem">
+							<span><a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
+						</li>	
 					#else
 						#set ($first = false)
-						<a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+						<li role="menuitem">	
+						<span><a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a></span>
 					#end
 				#end
-			</div>
+			</ul>
 		#end
 	#end
 	<h3>
-	$tlang.getString("stuviewgrad.viewass2")
-		#if ($submission.Returned)
-			<span class="highlight"> - $tlang.getString("gen.returned")</span>
-		#elseif (!$!nonElectronicType)
-			<span class="highlight"> - $tlang.getString("gen.subm4")</span>
-		#end
+	$validator.escapeHtml($assignment.getTitle())
+			#if ($submission.Returned)
+						<span class="highlight"> - $tlang.getString("gen.returned")</span>
+			#elseif (!$!nonElectronicType)
+				<span class="highlight"> - $tlang.getString("gen.subm4")</span>
+			#end
 		</h3>
 
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
@@ -82,7 +86,7 @@
 									, $submission.GradeDisplay
 								#end
 							#elseif ($!submitTime)
-								Re-submitted $submitTime.toStringLocalFull()
+								$tlang.getString("gen.resub") $submitTime.toStringLocalFull()
 								#if ($submitTime.after($assignment.DueTime))
 									<span class="highlight"> $tlang.getString("gen.late")</span>
 								#end
@@ -91,9 +95,9 @@
 							$tlang.getString("ungra")
 						#end
 					#end
-					$gradeTypeTable.get($assignment.getContent().getTypeOfGrade())
-					#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-						($!tlang.getString("stupresub.max") $assignment.getContent().getMaxGradePointDisplay())
+					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
+					#if ($gradeScale == "Points")
+						(max $assignment.getContent().getMaxGradePointDisplay())
 					#end
 				</td>
 				</tr>
@@ -264,7 +268,7 @@
 			#end
 		<form action="#toolForm("AssignmentAction")" method="post" >
 			<div class="act">
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade" value="$tlang.getString("gen.backtolist")" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade" value="$tlang.getString("gen.backtolist")" accesskey="x" class="active"/>
 			</div>
 		</form>
 	</div>

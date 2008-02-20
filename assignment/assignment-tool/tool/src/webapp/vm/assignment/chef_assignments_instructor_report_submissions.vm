@@ -1,20 +1,36 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_report_submissions.vm,v 1.6 2005/06/03 15:38:27 gsilver.umich.edu Exp $ -->
-<div class="portletBody">
-	<div class="navIntraTool">
+<div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
+	<ul class="navIntraTool actionToolBar" role="menu">
+		#set($prevAction=false)
 		#if ($allowAddAssignment)
-			<a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a> |
+			#set($prevAction=true)
+			<li  class="firstToolBarItem" role="menuitem">
+				<span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span>
+			</li>
 		#end
-		<a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a> | <span style="margin:.5em">$!tlang.getString('gen.grarep')</span>
+		<li #if ($prevAction=false) class="firstToolBarItem" #end>
+			<span><a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a></span>
+		</li>
+		<li role="menuitem" aria-disabled="true">
+			<span class="current">$!tlang.getString('gen.grarep')</span>
+		</li> 
+	
 		#if ($allowAddAssignment)
-			| <a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString('gen.stuvie')">$!tlang.getString('gen.stuvie')</a>		
+			<li role="menuitem">
+				<span><a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString('gen.stuvie')">$!tlang.getString('gen.stuvie')</a></span>
+			</li>				
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
-			| <a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a>
+			<li role="menuitem">
+				<span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span>
+			</li>	
 		#end
 		#if ($allowUpdateSite)
-			| <a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a>
+			<li role="menuitem">
+				<span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span>
+			</li>	
 		#end
-	</div>
+	</ul>
 		<h3>
 		$!tlang.getString('gen.grarep')
 	</h3>
@@ -24,10 +40,13 @@
 			$tlang.getString("gen.theare2")
 		</p>
 	#else
-		<div class="navIntraTool">
-			<a href="$accessPointUrl" title="$!tlang.getString('downspr')">$!tlang.getString('downspr')</a>
-		</div>
 		<div class="navPanel">
+			<div class="viewNav">
+			<br />
+			<a href="$accessPointUrl" title="$!tlang.getString('downspr')">$!tlang.getString('downspr')</a>
+				
+				
+			</div>
 			<div class="listNav">
 				<div class="instruction">
 					$tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.of") $allMsgNumber $tlang.getString("gen.items")
@@ -43,11 +62,11 @@
 						</form>
 					#end
 					#if ($goPPButton == "true")
-						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 							<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" accesskey="p" />
 						</form>
 					#else
-						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 							<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
 						</form>
 					#end

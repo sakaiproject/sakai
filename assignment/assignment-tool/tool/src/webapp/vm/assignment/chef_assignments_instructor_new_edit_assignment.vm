@@ -8,12 +8,15 @@
 		{ 
 			obj_textfield.disabled = false;
 			obj_textfield.style.backgroundColor = 'white';
-			document.forms[0].new_assignment_grade_points.focus()
+			document.forms[0].new_assignment_grade_points.focus();
+			obj_textfield.style.backgroundColor = '#ffe';
+			document.getElementById('req-$name_GradePoints').style.display="inline";
 		}
 		else
 		{ 
 			obj_textfield.disabled = true;
 			obj_textfield.style.backgroundColor = '#eee';
+			document.getElementById('req-$name_GradePoints').style.display="none"
 		}
 	}
 
@@ -46,24 +49,42 @@
 <script type="text/javascript">
 	focus_path = [ '$fField' ];
 </script>
-<div class="portletBody">
-	<div class="navIntraTool">
+<div class="portletBody"  xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#" xmlns:aaa="http://www.w3.org/2005/07/aaa">
+	<ul class="navIntraTool actionToolBar" role="menu">
 		#if ($allowAddAssignment)
-			<span class="margin:.5em">$!tlang.getString("new")</span> | <a href="#" title = "$!tlang.getString('lisofass1')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='lisofass1';document.newAssignmentForm.submit();return false;">$!tlang.getString("lisofass1")</a>
+			<li class="firstToolBarItem" role="menuitem" aria-disabled="true">
+				<span class="current">$!tlang.getString("new")</span>
+			</li>
+			<li role="menuitem">
+				<span><a href="#" title = "$!tlang.getString('lisofass1')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='lisofass1';document.newAssignmentForm.submit();return false;">$!tlang.getString("lisofass1")</a></span>
+			</li>	
 			#if ($withGrade && $!allowGradeSubmission)
-				| <a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='grarep';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.grarep")</a>
+				<li  role="menuitem">
+					<span><a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='grarep';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.grarep")</a></span>
+				</li>
 			#end
-			| <a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.stuvie")</a>
+			<li  role="menuitem">
+				<span><a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.stuvie")</a></span>
+			</li>				
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
-			| <a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a>
+			<li  role="menuitem">		
+				<span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span>
+			</li>
 		#end
 		#if ($allowUpdateSite)
-			| <a href="#" title="$tlang.getString('permis')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='permissions';document.newAssignmentForm.submit();return false;">$tlang.getString('permis')</a>
+			<li  role="menuitem">
+				<span><a href="#" title="$tlang.getString('permis')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='permissions';document.newAssignmentForm.submit();return false;">$tlang.getString('permis')</a></span>
+			</li>	
 		#end
-	</div>
+	</ul>
 	<h3>
-		$tlang.getString("new")
+		
+	#if($validator.escapeHtml($!value_title) && $validator.escapeHtml($!value_title) !='')
+			$validator.escapeHtml($!value_title) <span class="highlight">	$tlang.getString("edit")
+	#else
+		$tlang.getString("new.title")
+	#end
 	</h3>
 
 <p class="instruction">
@@ -308,12 +329,13 @@
 					#end
 				</select>
 			</p>
-			<p class="checkbox labelindnt">
+			<p class="labelindnt">
 				## enable the maxfield when it is points grade type
+				<span class="reqStar" style="display:none" id="req-$name_GradePoints">*</span>
 				#if ($value_GradeType == 3)
 					<input name="$name_GradePoints" id="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="11"/>
 				#else
-					<input name="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="11" disabled="disabled" style="background-color:#eee;border:1px solid gray"/>
+					<input name="$name_GradePoints" id="$name_GradePoints"  value="$!value_GradePoints" type="text" size="5" maxlength="11" disabled="disabled" style="background-color:#eee;border:1px solid gray"/>
 				#end
 				<label for="$name_GradePoints">$tlang.getString("gen.forpoi")</label>
 			</p>	
@@ -486,13 +508,13 @@
 				#else
 					#set ($listDisplay="none")
 				#end
-				<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString('group.list.summary')">
+				<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellpadding="0" cellspacing="0" summary="$tlang.getString('group.list.summary')">
 						<tr>
 							<th id ="selectAllGroups" style="width:2em;padding-left:.4em">
 								<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
 							</th>
 					 		<th id ="groupname">
-									$tlang.getString('group.list.title')</a>
+									$tlang.getString('group.list.title')
 							</th>
 							<th id ="groupdescription">
 								$tlang.getString('group.list.descr')
@@ -508,10 +530,10 @@
 											#set($selected = true)
 										#end
 									#end
-									<input type="checkbox" name="selectedGroups" id="$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+									<input type="checkbox" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
 								</td>
-								<td headers="name" class="checkbox">
-									<label for="$group.Id">
+								<td headers="name" class="checkbox" style="white-space:nowrap">
+									<label for="id-$group.Id">
 										$validator.escapeHtml($group.Title)
 									</label>	
 								</td>
@@ -530,14 +552,14 @@
 					$tlang.getString("receive.confirm.submission.email.options")
 				</h4>
 				<p class="checkbox  indnt2">
-					<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.none')" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end >
-					<label for="$tlang.getString('receive.confirm.submission.email.none')">$tlang.getString('receive.confirm.submission.email.none')</label>
+					<input type="radio" name="$!name_assignment_instructor_notifications" id="notsendnotif" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end />
+					<label for="notsendnotif">$tlang.getString('receive.confirm.submission.email.none')</label>
 					<br/>
-					<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.each')" value="$!value_assignment_instructor_notifications_each" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_each))checked="checked" #end >
-					<label for="$tlang.getString('receive.confirm.submission.email.each')">$tlang.getString('receive.confirm.submission.email.each')</label>
+					<input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotif" value="$!value_assignment_instructor_notifications_each" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_each))checked="checked" #end />
+					<label for="sendnotif">$tlang.getString('receive.confirm.submission.email.each')</label>
 					<br/>
-					<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.digest')" value="$!value_assignment_instructor_notifications_digest" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_digest))checked="checked" #end >
-					<label for="$tlang.getString('receive.confirm.submission.email.digest')">$tlang.getString('receive.confirm.submission.email.digest')</label>
+					<input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotifsummary" value="$!value_assignment_instructor_notifications_digest" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_digest))checked="checked" #end />
+					<label for="sendnotifsummary">$tlang.getString('receive.confirm.submission.email.digest')</label>
 				</p>
 			#end
 			## attachments

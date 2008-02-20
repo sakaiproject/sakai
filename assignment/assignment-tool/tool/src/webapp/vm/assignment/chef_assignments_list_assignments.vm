@@ -20,57 +20,50 @@ function allowClick(object)
 <div class="portletBody">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
 	## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
-	<div class="navIntraTool">
+	<ul class="navIntraTool actionToolBar" role="menu">
 		#set($prevAction=false)
 		#if ($allowAddAssignment)
 			#set($prevAction=true)
-			<a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a>
+			<li  class="firstToolBarItem" role="menuitem"><span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span></li>
 		#end
-		#if ($prevAction)
-			 | 
-		#else
-			#set($prevAction=true)
-		#end
-		#if (!$!view.equals('lisofass1'))
-			<a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a>
-		#else
-			<span style="margin:.5em">$!tlang.getString("lisofass1")</span>
-		#end
+		<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem"
+			#if (!$!view.equals('lisofass1'))
+				>
+				<span><a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a></span>
+			#else
+				 aria-disabled="true">
+				<span class="current">$!tlang.getString("lisofass1")</span>
+			#end
+		</li>	
+		
 		#if ($withGrade && $!allowGradeSubmission)
-			#if ($prevAction)
-			 | 
-			#else
-				#set($prevAction=true)
-			#end
-			<a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a>
+			<li#if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end  role="menuitem">
+				<span><a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a></span>
+			</li>
 		#end
+	
 		#if ($allowAddAssignment)
-			#if ($prevAction)
-			 | 
-			#else
-				#set($prevAction=true)
-			#end
-			#if (!$!view.equals('stuvie'))
-				<a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
-			#else
-				$!tlang.getString("gen.stuvie")
-			#end
+			<li  #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem"
+				#if (!$!view.equals('stuvie'))
+					>
+					<span><a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a></span>
+				#else
+					aria-disabled="true">
+					<span class="current">$!tlang.getString("gen.stuvie")</span>
+				#end
+			</li>	
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
-			#if ($prevAction)
-			 |
-			#else
-				#set($prevAction=true)
-			#end
-			<a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a>
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end  role="menuitem">
+				<span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span>
+			</li>
 		#end
 		#if ($allowUpdateSite)
-			#if ($prevAction)
-			 | 
-			#end
-			<a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a>
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end  role="menuitem">
+				<span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span>
+			</li>	
 		#end
-	</div>
+	</ul>
 	#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<h3>
@@ -122,11 +115,11 @@ function allowClick(object)
 					</form>
 				#end
 				#if ($goPPButton == "true")
-					<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+					<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" accesskey="p" />
 					</form>
 				#else
-					<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+					<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
 					</form>
 				#end

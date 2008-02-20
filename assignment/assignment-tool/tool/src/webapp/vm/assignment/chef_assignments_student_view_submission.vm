@@ -1,5 +1,100 @@
+<style type="text/css">
+	.toggleAnchor{
+		border:1px solid #cef;
+		background:#cef url(/library/image/sakai/expand.gif) 5px no-repeat !important;
+		padding:5px 5px 5px 25px !important;
+		cursor:pointer
+	}
+	.toggleAnchor:hover,	.toggleAnchorOpen:hover{
+		border:1px solid #9cf;
+	}
+
+	.toggleAnchorOpen{
+		border:1px solid #cef;
+		background:#cef url(/library/image/sakai/collapse.gif) 5px no-repeat !important;
+		padding:5px 5px 5px 25px !important;
+		cursor:pointer
+	}
+	.toggledContent{
+		margin:0;
+		border:2px solid #cef;
+		border-top:none;
+		padding: 1em
+	}
+	.toggledContent h4{
+		color:#000 !important;
+		width:40em;
+		margin:.5em 0 !important;
+		padding:.3em 0;
+		border-bottom:2px solid #ccc
+	}
+
+</style>
+
+<script type="text/javascript" src="/library/js/jquery.js"></script>
+<script type="text/javascript">
+ $(document).ready(function(){
+ 	// toggle a fade
+ 	jQuery.fn.fadeToggle = function(speed, easing, callback) {
+   return this.animate({opacity: 'toggle'}, speed, easing, callback);
+}; 
+$('.inlinecoms').hide();
+$('.gencoms').hide();
+$('#toggleInline').click(function(){
+	$('.inlinecoms').fadeToggle();
+	if ($('#toggleInline').is('.toggleAnchor')){
+		$('#toggleInline').removeClass('toggleAnchor')
+		$('#toggleInline').addClass('toggleAnchorOpen')
+		}
+	else {
+		$('#toggleInline').removeClass('toggleAnchorOpen')
+			$('#toggleInline').addClass('toggleAnchor')
+	}	
+
+  resizeFrame('grow');
+	return false;
+});
+$('#toggleGen').click(function(){
+$('.gencoms').fadeToggle();
+if ($('#toggleGen').is('.toggleAnchor')){
+	$('#toggleGen').removeClass('toggleAnchor')
+	$('#toggleGen').addClass('toggleAnchorOpen')
+	}
+else {
+	$('#toggleGen').removeClass('toggleAnchorOpen')
+		$('#toggleGen').addClass('toggleAnchor')
+	}	
+ resizeFrame('grow');
+ 	return false;
+});
+});
+//this function needs jquery 1.1.2 or later - it resizes the parent iframe without bringing the scroll to the top
+	function resizeFrame(updown) 
+	{
+		if (top.location != self.location) 	 {
+			var frame = parent.document.getElementById(window.name);
+		}	
+			if( frame ) 
+		{
+			if(updown=='shrink')
+			{
+				var clientH = document.body.clientHeight - 30;
+			}
+			else
+			{
+				var clientH = document.body.clientHeight + 30;
+			}
+			$( frame ).height( clientH );
+		} 
+		else 
+		{
+			throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+		}
+	}
+
+</script>
 <div class="portletBody">
-	## submission times
+## submission times
 	#set($timeReturned=false)
 	#set($timeReturned=$submission.TimeReturned)
 	#set($timeSubmitted=false)
@@ -28,16 +123,16 @@
 			<h3>
 				#if(!$submitted)
 					## draft submission
-					$tlang.getString("viewassign")
+##					$tlang.getString("viewassign")
 					## no need to show status if this is for an non-electronic submission type of assignment
 				 #if (!$!nonElectronicType)
-						<span class="highlight">
-						 	- $tlang.getString("gen.inpro")
-						</span>
+##						<span class="highlight">
+##						 	- $tlang.getString("gen.inpro")
+##						</span>
 					#end
 				#end
 				#if ($!timeReturned && $!timeSubmitted && $!timeReturned.after($!timeSubmitted))
-				 $tlang.getString("assig1")
+				$validator.escapeHtml($assignment.getTitle())
 					<span class="highlight">
 						 - $tlang.getString("resubmit")
 					</span>
@@ -73,7 +168,7 @@
 					## no need to show status if this is for an non-electronic submission type of assignment
 					#if (!$!nonElectronicType)
 							<span class="highlight">
-						 	- $tlang.getString("gen.inpro")
+						aaaa 	- $tlang.getString("gen.inpro")
 							</span>
 						#end
 				</h3>
@@ -160,15 +255,17 @@
 							<th>
 								$tlang.getString("gen.gra3")
 							</th>
-							<td>
-								#if ($assignment.getContent().TypeOfGrade != 1)
-									$submission.GradeDisplay
-								#else
-									$tlang.getString("gen.nograd")
-								#end
-								#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-									($!tlang.getString("stupresub.max") $assignment.getContent().getMaxGradePointDisplay())
-								#end
+							<td class="highlight">
+								<strong>
+									#if ($assignment.getContent().TypeOfGrade != 1)
+										$submission.GradeDisplay
+									#else
+										$tlang.getString("gen.nograd")
+									#end
+									#if ($gradeScale == "Points")
+										(max $assignment.getContent().getMaxGradePointDisplay())
+									#end
+								</strong>
 							</td>
 						</tr>
 					#else
@@ -177,9 +274,9 @@
 								$tlang.getString("gen.grasca")
 							</th>
 							<td>
-								$gradeTypeTable.get($assignment.getContent().getTypeOfGrade())
-								#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-									($!tlang.getString("stupresub.max") $assignment.getContent().getMaxGradePointDisplay())
+								$gradeScale
+								#if ($gradeScale == "Points")
+									(max $assignment.getContent().getMaxGradePointDisplay())
 								#end
 							</td>
 						</tr>
@@ -245,7 +342,14 @@
         	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
 		#end
 		<hr class="itemSeparator" />
-		<h3>$tlang.getString("gen.submission")</h3>
+		#if ($returned)
+			<h3>$tlang.getString("gen.resubmission")</h3> 
+		#else
+				<h3>$tlang.getString("gen.submission")</h3> 
+		#end	
+
+
+
 		## show special instruction if this is for an non-electronic submission type of assignment
 		#if ($!nonElectronicType)
 			<p class="instruction">
@@ -302,15 +406,19 @@
 						#set($feedbackText = false)
 						#set($feedbackText = $submission.FeedbackText)
 						#if ($!feedbackText && $feedbackText.length()>0)
-						<h4>$tlang.getString("gen.orisub2")</h4>
+							#if ($!prevFeedbackText)
+								<h3>$tlang.getString("gen.orisub3")</h3>							
+							#else
+								<h3>$tlang.getString("gen.orisub2")</h3>
+							#end
 						<div class="textPanel">
 							$cheffeedbackhelper.escapeAssignmentFeedback($feedbackText)
 						</div>
 						#end
 						## for returned submission, show the instructor commented text as well
 						#if ($!prevFeedbackText)
-							<h4>$tlang.getString("gradingsub.prefeetex")</h4>
-							<div class="textPanel">
+							<h4 id="toggleInline" class="toggleAnchor">$tlang.getString("gradingsub.prefeetex3")</h4>
+							<div class="inlinecoms toggledContent">
 								$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
 							</div>
 						#end
@@ -326,18 +434,18 @@
 			#end
 			#if (($submissionType==2) || ($submissionType==3)) 
 				#if ($submissionType==2)
-					<h4>
+					<p class="instruction">
 						#if (($submitted && !$returned) || ($returned && $!timeReturned && $!timeSubmitted && $!timeReturned.before($!timeSubmitted)) || ($!closeTime && $currentTime.after($closeTime)))
 							## for submitted not yet returned submission; or returned by resubmitted submission; or after close date
 							$tlang.getString("stuviewsubm.youatt")
 						#else
 							$tlang.getString("stuviewsubm.theassall2")
 						#end
-					</h4>
+					</p>
 				#end	
-				<h4>
-					$tlang.getString("gen.att")
-				</h4>	
+				<h3>
+					$tlang.getString("gen.stuatt") 
+				</h3>	
 					#set ($size = 0)
 					#set ($props = false)
 					#foreach ($attachment in $attachments) 
@@ -415,14 +523,21 @@
 				#end
 				#if ($returned && $!timeReturned && ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted) || !$!timeSubmitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
-						<h5>$tlang.getString("gen.addinst")</h5>
-						<div>$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
-					#else
+						#if ($submissionType==2)
+							<h3>$tlang.getString("gen.addinst2")</h3>
+						#else
+							<h3>$tlang.getString("gen.addinst")</h3>
+						#end	
+							<div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
+						#else
 					#end
 					## for returned (not resubmitted ) submission, show the instructor feedback
 					#if ($!prevFeedbackComment && $!prevFeedbackComment.trim().length() > 0)
-						<h5>$tlang.getString("gradingsub.prefee")</h5>
-						<div class="textPanel">$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
+							<h4  id="toggleGen" class="toggleAnchor">
+								$tlang.getString("gradingsub.prefee2")
+								</h4>
+					<div class="gencoms toggledContent">					
+						$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
 					#end					
 					#set ($size = 0)
 					#set ($props = false)
@@ -438,7 +553,7 @@
 					#if ($size == 0)
 						##$tlang.getString("gen.noatt")
 					#else
-						<h5>$tlang.getString("gen.addinstatts")</h5>
+						<h4>$tlang.getString("gen.addinstatts")</h4>
 						<ul class="attachList indnt1">
 							#foreach ($attachment in $feedbackAttachments) 
 								#set ($props = false)
@@ -500,11 +615,11 @@
 				#if ($withGrade)
 					#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
 					#if ($!previousGrades.length() != 0 )
-					<br />$tlang.getString("gradingsub.pregra") $previousGrades
+						<h4>$tlang.getString("gradingsub.pregra")</h4> <table border="0" style="margin:.5em 0">$previousGrades</table>
 					#else
 						#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionPreviousGrades()))
 						#if ($!previousGrades.length() != 0 )
-							<br />$tlang.getString("gradingsub.pregra") $previousGrades
+						<h4>$tlang.getString("gradingsub.pregra")</h4> <table border="0" style="margin:.5em 0">$previousGrades</table>
 						#end
 					#end
 				#end
@@ -720,7 +835,8 @@
 						#else
 							#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionPreviousGrades()))
 							#if ($!previousGrades.length() != 0 )
-								<br />$tlang.getString("gradingsub.pregra") $previousGrades
+
+									<br />$tlang.getString("gradingsub.pregra") $previousGrades
 							#end
 						#end
 					#end

@@ -1,20 +1,29 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_preview_assignment.vm,v 1.9 2005/06/14 14:47:34 zqian.umich.edu Exp $ -->
-<div class="portletBody">
-	<div class="navIntraTool">
+<div class="portletBody"  xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
+	<ul class="navIntraTool actionToolBar" role="menu">
 		#if ($allowAddAssignment)
-			$!tlang.getString("new") | <a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title = "$!tlang.getString('lisofass1')">$!tlang.getString("lisofass1")</a>
+			<li  class="firstToolBarItem" role="menuitem" aria-disabled="true">
+				<span class="current">$!tlang.getString("new")</span>
+			</li>
+			<li role="menuitem">
+				<span><a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title = "$!tlang.getString('lisofass1')">$!tlang.getString("lisofass1")</a></span>
+			</li>				
 			#if ($withGrade && $!allowGradeSubmission)
-				| <a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a>
+				<li role="menuitem">
+					<span><a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a></span>
+				</li>
 			#end
-			| <a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
+			<li role="menuitem">
+				<span><a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a></span>
+			</li>	
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
-			| <a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a>
+			<li role="menuitem"><span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span></li>
 		#end
 		#if ($allowUpdateSite)
-			| <a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a>
+			<li role="menuitem"><span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span></li>
 		#end
-	</div>
+	</ul>
 	<h3>
 		$tlang.getString("prevassig.preass")
 	</h3>
@@ -100,8 +109,8 @@
 										</th>
 										<td>
 											$gradeTypeTable.get($value_GradeType)
-											#if ($gradeTypeTable.get($value_GradeType) == $!tlang.getString("points"))
-												($!tlang.getString("stupresub.max") $value_GradePoints)
+											#if ($gradeTypeTable.get($value_GradeType) == "Points")
+												(max $value_GradePoints)
 											#end
 										</td>
 									</tr>
@@ -250,8 +259,8 @@
 								</th>
 								<td>
 									$gradeTypeTable.get($value_GradeType)
-									#if ($gradeTypeTable.get($value_GradeType) == $!tlang.getString("points"))
-										($!tlang.getString("stupresub.max") $value_GradePoints)
+									#if ($gradeTypeTable.get($value_GradeType) == "Points")
+										(max $value_GradePoints)
 									#end
 								</td>
 							</tr>

@@ -3531,7 +3531,7 @@ public class AssignmentAction extends PagedResourceActionII
 										previousGrades = "";
 									}
 								}
-								previousGrades = rb.getString("gen.subm6") + now.toStringLocalFull() + "<p />" + sEdit.getGradeDisplay() + "<p />" +previousGrades;
+								previousGrades =  "<tr><td style=\"padding:0 1em 0 0\">" + now.toStringLocalFull() +  "</td><td><span class=\"highlight\"><strong>" + sEdit.getGradeDisplay() + "</strong></span></td></tr>" +previousGrades;
 
 								sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES,
 										previousGrades);
@@ -3546,7 +3546,7 @@ public class AssignmentAction extends PagedResourceActionII
 										.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null ? sPropertiesEdit
 										.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT)
 										: "";
-								feedbackTextHistory = rb.getString("gen.subm6") + now.toStringLocalFull() + "<p />" + sEdit.getFeedbackText() + "<p />" + feedbackTextHistory;
+								feedbackTextHistory =  "<h4>" + now.toStringLocalFull() + "</h4>" + "<div style=\"margin:0;padding:0\">" + sEdit.getFeedbackText() + "</div>" + feedbackTextHistory;
 								sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT,
 										feedbackTextHistory);
 	
@@ -3555,7 +3555,7 @@ public class AssignmentAction extends PagedResourceActionII
 										.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null ? sPropertiesEdit
 										.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT)
 										: "";
-								feedbackCommentHistory = rb.getString("gen.subm6") + now.toStringLocalFull() + "<p />" + sEdit.getFeedbackComment() + "<p />" + feedbackCommentHistory;
+								feedbackCommentHistory = "<h4>" + now.toStringLocalFull() + "</h4>" + "<div style=\"margin:0;padding:0\">" + sEdit.getFeedbackComment() + "</div>" + feedbackCommentHistory;
 								sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT,
 										feedbackCommentHistory);
 								
@@ -3565,13 +3565,13 @@ public class AssignmentAction extends PagedResourceActionII
 										.getProperty(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS)
 										: "";
 								List feedbackAttachments = sEdit.getFeedbackAttachments();
-								String att = rb.getString("gen.subm6") + now.toStringLocalFull() + "<p />";
+								String att = "<h5>" +  now.toStringLocalFull() + "</h5>";
 								for (int k = 0; k<feedbackAttachments.size();k++)
 								{
-									att = att + ((Reference) feedbackAttachments.get(k)).getReference() + "<p />";
+									att = att + ((Reference) feedbackAttachments.get(k)).getReference() + "<br />";
 								}
 								feedbackAttachmentHistory = att + feedbackAttachmentHistory;
-								
+									
 								sPropertiesEdit.addProperty(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS,
 										feedbackAttachmentHistory);
 	
@@ -10267,4 +10267,4 @@ public class AssignmentAction extends PagedResourceActionII
 			contentReviewService = (ContentReviewService) ComponentManager.get(ContentReviewService.class.getName());
 		}
 	}
-}
+}	

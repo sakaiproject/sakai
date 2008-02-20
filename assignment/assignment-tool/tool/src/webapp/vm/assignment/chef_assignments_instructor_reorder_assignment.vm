@@ -1,61 +1,54 @@
 ##<!-- $Header: Exp $ -->
 ## Assignments - reorder view
-<div class="portletBody">
+<div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
 	## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
-	<div class="navIntraTool">
+	<ul class="navIntraTool actionToolBar" role="menu">
 		#set($prevAction=false)
 		#if ($allowAddAssignment)
 			#set($prevAction=true)
-			<a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a>
-		#end
-		#if ($prevAction)
-			 | 
-		#else
-			#set($prevAction=true)
+			<li  class="firstToolBarItem" role="menuitem">			
+				<span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span>
+			</li>	
 		#end
 		#if (!$!view.equals('lisofass1'))
-			<a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a>
+			#set($prevAction=true)
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">			
+				<span><a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a></span>
+			</li>	
 		#else
-			<span style="margin:.5em">$!tlang.getString("lisofass1")</span>
+			<li role="menuitem" aria-disabled="true">
+				<span class="disabled">$!tlang.getString("lisofass1")</span>
+			</li>	
 		#end
 		#if ($withGrade && $!allowGradeSubmission)
-			#if ($prevAction)
-			 | 
-			#else
-				#set($prevAction=true)
-			#end
-			<a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a>
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+				<span><a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a></span>
+			</li>	
 		#end
 		#if ($allowAddAssignment)
-			#if ($prevAction)
-			 | 
-			#else
-				#set($prevAction=true)
-			#end
 			#if (!$!view.equals('stuvie'))
-				<a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
+				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+					<span><a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a></span>
+				</li>	
 			#else
-				$!tlang.getString("gen.stuvie")
+				<li  #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem" aria-disabled="true">
+					<span class="disabled">$!tlang.getString("gen.stuvie")</span>
+				</li>	
 			#end
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
-			#if ($prevAction)
-			 |
-			#else
-				#set($prevAction=true)
-			#end
-			$tlang.getString('gen.reorder')
+			<li  #if($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem" aria-disabled="true">
+				<span class="current">$tlang.getString('gen.reorder')</span>
+			</li>	
 		#end
 		#if ($allowUpdateSite)
-			#if ($prevAction)
-			 | 
-			#end
-			<a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a>
+		<li  #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true) #end role="menuitem" aria-disabled="true">
+			<span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span>
+		</li>	
 		#end
-	</div>
+	</ul>
 	#end
-	
 	#if ($alertMessage)<div class="alertMessage" style="width:80%  !important">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
 	
 	<form name="reorderForm" id="reorderForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
@@ -63,15 +56,13 @@
 		<input type="hidden" name="option" id="option" value="" />
 		<input type="hidden" name="view" id="view" value="" />
 		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
-		<div class ="breadCrumb specialLink">
-			<h3>
-				$tlang.getString("gen.reordertitle")
-			</h3>
-		</div>
+		<h3>
+			$tlang.getString("gen.reordertitle")
+		</h3>
 		<div class="instruction">
 			$tlang.getString("gen.sortinstruct")
 		</div>
-		<table class="listHier lines nolines" summary="$tlang.getString("sort.summary")" border="0" cellspacing="0" cellpadding="0">
+		<table class="listHier lines nolines" summary="$tlang.getString("sort.summary")" border="0" cellspacing="0" cellpadding="0" style="border:1px solid #fff">
 			<caption class="skip" style="display: none;">$tlang.getString("sort.caption")</caption>
 			<tbody>
 			<tr>
@@ -98,25 +89,25 @@
 			    ## The 1% width attributes fixes a minor bug of having extra space after the drop down.
 				<td headers="moveUp" class="moveUp">
 					<a#if($count <= 1) style="display:none;"#end href="#" onclick="moveRow(this,'up')" title="$tlang.getString("sort.moveup")">
-						<img src="#imageLink("sakai/arrowUp.gif")" alt="$tlang.getString("sort.moveup")" border="0">
+					<img src="#imageLink("sakai/arrowUp.gif")" alt="$tlang.getString("sort.moveup")" border="0" style="width:13px" />
 					</a>
 				</td>
 				<td headers="moveDown" class="moveDown">
 					<a#if($count >= $assignmentsize) style="display:none;"#end href="#" onclick="moveRow(this,'down')" title="$tlang.getString("sort.movedn")">
-						<img src="#imageLink("sakai/arrowDown.gif")" alt="$tlang.getString("sort.movedn")" border="0">
+					<img src="#imageLink("sakai/arrowDown.gif")" alt="$tlang.getString("sort.movedn")" border="0" style="width:13px" />
 					</a>
 				</td>
 				<td headers="title">
-					$!assignment.getTitle()
+					<h4>$!assignment.getTitle()</h4>
 				</td>
-				<td headers="opentime">
+				<td headers="open">
 					$!assignment.openTime.toStringLocalFull()
 				</td>
-				<td headers="duetime">
+				<td headers="due">
 					$!assignment.dueTime.toStringLocalFull()
 				</td>
 				<td headers="position">
-				  <select name="position_$validator.escapeUrl("$assignment.id")" onChange="moveRow(this,this.value);">
+				  <select name="position_$validator.escapeUrl("$assignment.id")" onchange="moveRow(this,this.value);">
 					#foreach($i in [1..$assignmentsize])
 					<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
 					#end
@@ -128,8 +119,8 @@
 			</tbody>
 		</table>
 		<p class="act" style="margin:0;padding:.3em 0;">
-			<input type="button" name="save" value="$tlang.getString("gen.sav")" onclick="javascript:document.reorderForm.onsubmit();document.getElementById('option').value='reorder';document.reorderForm.submit();return false;" />
-			<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="javascript:document.reorderForm.onsubmit();document.getElementById('option').value='cancelreorder';document.reorderForm.submit();return false;" />
+			<input type="button" name="save" value="$tlang.getString("gen.sav")" onclick="javascript:document.reorderForm.onsubmit();document.getElementById('option').value='reorder';document.reorderForm.submit();return false;" class="active" accesskey="s" />
+			<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="javascript:document.reorderForm.onsubmit();document.getElementById('option').value='cancelreorder';document.reorderForm.submit();return false;" accesskey="x" />
 		</p>
 	</form>						
 
@@ -253,6 +244,7 @@
 									cellChildNodes[curCellChild].style.display = "none";
 								} else {
 									cellChildNodes[curCellChild].style.display = "inline";
+							  	cellChildNodes[curCellChild].className = "moveUp";
 								}
 							}
 							if (cellChildNodes[curCellChild].tagName == "SELECT") {

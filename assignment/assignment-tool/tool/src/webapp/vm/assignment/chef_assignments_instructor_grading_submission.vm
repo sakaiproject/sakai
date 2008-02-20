@@ -1,5 +1,38 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_grading_submission.vm,v 1.10 2005/06/03 15:32:15 zqian.umich.edu Exp $ -->
 ## no focus_path
+<style type="text/css">
+	.toggleAnchor{
+		border:1px solid #cef;
+		background:#cef url(/library/image/sakai/expand.gif) 5px no-repeat !important;
+		padding:5px 5px 5px 25px !important;
+		cursor:pointer
+	}
+	.toggleAnchor:hover,	.toggleAnchorOpen:hover{
+		border:1px solid #9cf;
+	}
+
+	.toggleAnchorOpen{
+		border:1px solid #cef;
+		background:#cef url(/library/image/sakai/collapse.gif) 5px no-repeat !important;
+		padding:5px 5px 5px 25px !important;
+		cursor:pointer
+	}
+	.toggledContent{
+		margin:0;
+		border:2px solid #cef;
+		border-top:none;
+		padding: 1em
+	}
+	.toggledContent h4{
+		color:#000 !important;
+		width:40em;
+		margin:.5em 0 !important;
+		padding:.3em 0;
+		border-bottom:2px solid #ccc
+	}
+</style>
+
+
 <script type="text/javascript">
 focus_path = [ '$fField' ];
 function handleEnterKeyPress(ev)
@@ -11,25 +44,103 @@ function handleEnterKeyPress(ev)
 			 }
 		 }
 </script>
-<div class="portletBody">
-	<div class="navIntraTool">
+<script type="text/javascript" src="/library/js/jquery.js"></script>
+<script type="text/javascript">
+ $(document).ready(function(){
+ 	// toggle a fade
+ 	jQuery.fn.fadeToggle = function(speed, easing, callback) {
+   return this.animate({opacity: 'toggle'}, speed, easing, callback);
+}; 
+$('.inlinecoms').hide();
+$('.gencoms').hide();
+$('#toggleInline').click(function(){
+	$('.inlinecoms').fadeToggle();
+	if ($('#toggleInline').is('.toggleAnchor')){
+		$('#toggleInline').removeClass('toggleAnchor')
+		$('#toggleInline').addClass('toggleAnchorOpen')
+		}
+	else {
+		$('#toggleInline').removeClass('toggleAnchorOpen')
+			$('#toggleInline').addClass('toggleAnchor')
+	}	
+
+  resizeFrame('grow');
+	return false;
+});
+$('#toggleGen').click(function(){
+$('.gencoms').fadeToggle();
+if ($('#toggleGen').is('.toggleAnchor')){
+	$('#toggleGen').removeClass('toggleAnchor')
+	$('#toggleGen').addClass('toggleAnchorOpen')
+	}
+else {
+	$('#toggleGen').removeClass('toggleAnchorOpen')
+		$('#toggleGen').addClass('toggleAnchor')
+	}	
+ resizeFrame('grow');
+ 	return false;
+});
+});
+//this function needs jquery 1.1.2 or later - it resizes the parent iframe without bringing the scroll to the top
+	function resizeFrame(updown) 
+	{
+		if (top.location != self.location) 	 {
+			var frame = parent.document.getElementById(window.name);
+		}	
+			if( frame ) 
+		{
+			if(updown=='shrink')
+			{
+				var clientH = document.body.clientHeight - 30;
+			}
+			else
+			{
+				var clientH = document.body.clientHeight + 30;
+			}
+			$( frame ).height( clientH );
+		} 
+		else 
+		{
+			throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+		}
+	}
+
+</script>
+
+
+<div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
+<ul class="navIntraTool actionToolBar" role="menu">
+		#set($prevAction=false)
 		#if ($allowAddAssignment)
-			<a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a> |
+			#set($prevAction=true)
+			<li role="menuitem" class="firstToolBarItem">
+				<span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span>
+			</li>
 		#end
-		<a href="#" title = "$!tlang.getString('lisofass1')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='lisofass1';document.gradeForm.submit();return false;">$!tlang.getString("lisofass1")</a>
+		<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+			<span><a href="#" title = "$!tlang.getString('lisofass1')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='lisofass1';document.gradeForm.submit();return false;">$!tlang.getString("lisofass1")</a></span>
+		</li>	
 		#if ($withGrade && $!allowGradeSubmission)
-			| <a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='grarep';document.gradeForm.submit();return false;">$!tlang.getString("gen.grarep")</a>
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+				<span><a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='grarep';document.gradeForm.submit();return false;">$!tlang.getString("gen.grarep")</a></span>
+			</li>				
 		#end
 		#if ($allowAddAssignment)
-			| <a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.gradeForm.submit();return false;">$!tlang.getString("gen.stuvie")</a>
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+				<span><a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.gradeForm.submit();return false;">$!tlang.getString("gen.stuvie")</a></span>
+			</li>	
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
-			| <a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a>
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+				<span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span>
+			</li>	
 		#end
 		#if ($allowUpdateSite)
-			| <a href="#" title="$tlang.getString('permis')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='permissions';document.gradeForm.submit();return false;">$tlang.getString('permis')</a>
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+				<span><a href="#" title="$tlang.getString('permis')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='permissions';document.gradeForm.submit();return false;">$tlang.getString('permis')</a></span>
+			</li>	
 		#end
-	</div>
+	</ul>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
 	
 	## the form
@@ -38,7 +149,7 @@ function handleEnterKeyPress(ev)
 		<input type="hidden" name="option" id="option" value="" />
 		<input type="hidden" name="view" id="view" value="" />
 		<h3>
-			$tlang.getString("gen.openquote")$assignment.title$tlang.getString("gen.closequote")
+			$assignment.title
 			<span class="highlight"> - 
 			#if ($withGrade)
 				#if (!$!submission.getGraded())
@@ -151,13 +262,13 @@ function handleEnterKeyPress(ev)
 		</table>
 			#if ($assignment_expand_flag)
 				<p class="discTria">
-					<a href="#" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='hide_instruction';document.gradeForm.submit();return false;" accesskey="a"/>
+					<a href="#" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='hide_instruction';document.gradeForm.submit();return false;">
 					<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gradingsub.opecliass")" border="0" width="13" height="13" align="top" /></a>
 					$tlang.getString("gen.assinf")
 				</p>	
 			#else
 				<p class="discTria">
-					<a href="#" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='show_instruction';document.gradeForm.submit();return false;" accesskey="a"/>
+					<a href="#" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='show_instruction';document.gradeForm.submit();return false;">
 					<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.clocli")" border="0" width="13" height="13" align="top" /></a>
 					$tlang.getString("gen.assinf")
 				</p>	
@@ -179,7 +290,7 @@ function handleEnterKeyPress(ev)
 					#if ($!props)
 						#set ($size = $size + 1)
 					#end
-				#end 
+				#end
 				#if ($size == 0)
 					<p class="instruction">$tlang.getString("gen.noatt")</p>
 				#else
@@ -210,9 +321,10 @@ function handleEnterKeyPress(ev)
 					<p class="instruction">$tlang.getString("nonelec_instruction2")</p>
 				#elseif ($submissionType!=2)
 					## if there is a text
-					<p class="instruction">
-						$tlang.getString("gen.submittedtext")
-					</p>
+## redundant
+##					<p class="instruction">
+##						$tlang.getString("gen.submittedtext")aaaaa
+##					</p>
 					#if(($submission.submitted || !$alertGradeDraft) && $!value_feedback_text.length() >0 )
 						<p class="instruction">$tlang.getString("gradingsub.belisthe")</p>
 						<table border="0" summary="layout"><tr><td>
@@ -224,8 +336,8 @@ function handleEnterKeyPress(ev)
 					#end
 					## for returned submission, show the instructor comment as well
 					#if ($!prevFeedbackText)
-						<h4>$tlang.getString("gradingsub.prefeetex")</h4>
-						<div class="textPanel indnt1">
+						<h4  id="toggleInline" class="toggleAnchor specialLink">$tlang.getString("gradingsub.prefeetex3")</h4>
+						<div class="inlinecoms toggledContent">
 							$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
 						</div>
 					#end
@@ -233,7 +345,7 @@ function handleEnterKeyPress(ev)
 				## submitted attachment
 				
 			 #if ($submissionType!=1 && $submissionType!=4) ## do not show attach messages if no attach are allowed...
-					<h4>$tlang.getString("gen.stuatt")</h4>
+					<h3>$tlang.getString("gen.stuatt")</h3>
 					#set ($size = 0)
 					#if ($!submission.submitted || !$alertGradeDraft)
 						#set ($props = false)
@@ -284,8 +396,10 @@ function handleEnterKeyPress(ev)
 						</td></tr></table>
 						## for returned (not resubmitted ) submission, show the instructor feedback
 						#if ($!prevFeedbackComment)
-							<h4>$tlang.getString("gradingsub.prefee")</h4>
-							<div class="textPanel indnt1">$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
+							<h4 id="toggleGen" class="toggleAnchor">
+								$tlang.getString("gradingsub.prefee2")</h4>
+							<div class="gencoms  toggledContent">
+								$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
 						#end
 						<h4>
 							#if ($withGrade)
@@ -293,7 +407,7 @@ function handleEnterKeyPress(ev)
 							#else
 								$tlang.getString("gen.atttoret2")
 							#end
-						</h4>
+						</h4>	
 						#set ($size = 0)
 						#set ($props = false)
 						#foreach ($attachment in $gradingAttachments) 
@@ -379,7 +493,7 @@ function handleEnterKeyPress(ev)
 					-->
 *#
 						#if ($withGrade)
-							<div class="highlightPanel">
+							<div class="highlightPanel" style="width:80%">
 								#set ($gradeType = $assignment.getContent().TypeOfGrade)
 								#if ($gradeType == 1)
 									<p class="shorttext">
@@ -393,7 +507,7 @@ function handleEnterKeyPress(ev)
 										<select name="$name_grade" id="grade">
 											<option  value="" #if($value_grade.equals(""))selected="selected"#end>ungraded</option>
 											#foreach ($i in ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F"])
-												<option  value="$i" #if ($value_grade.equals($i))selected#end>$i</option>
+												<option  value="$i" #if ($value_grade.equals($i))selected="selected"#end>$i</option>
 											#end
 										</select>
 									</p>	
@@ -424,7 +538,7 @@ function handleEnterKeyPress(ev)
 								#set ($previousGrades =  $submission.Properties.getProperty($submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
 								#if ($!previousGrades.length() != 0 )
 									<h4>$tlang.getString("gradingsub.pregra")</h4>
-									<div class="indnt1"> $previousGrades</div>
+									<table border="0" style="margin:.5em 0"> $previousGrades</table>
 								#end
 						</div>	
 						#end
@@ -460,7 +574,7 @@ function handleEnterKeyPress(ev)
 						#set($closeTimeStyle="display:block")
 					#end
 					## only show date selection when allowed to resubmit
-					<p class="shorttext" id="allowResubmitTime" style=$!closeTimeStyle>
+					<p class="shorttext" id="allowResubmitTime" style="$!closeTimeStyle">
 						<label for="$name_ResubmitMonth">
 							$tlang.getString("gen.acesubunt")
 						</label>

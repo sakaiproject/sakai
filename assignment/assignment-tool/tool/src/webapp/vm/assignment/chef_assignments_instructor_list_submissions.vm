@@ -1,67 +1,54 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_list_submissions.vm,v 1.10 2005/06/14 16:07:00 zqian.umich.edu Exp $ -->
-<div class="portletBody">
-	<div class="navIntraTool">
+<div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
+	<ul class="navIntraTool actionToolBar" role="menu">
 		#set($prevAction=false)
 		#if ($allowAddAssignment)
 			#set($prevAction=true)
-			<a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a>
+			<li  class="firstToolBarItem" role="menuitem">
+				<span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span>
+			</li>	
 		#end
-		#if ($prevAction)
-			| 
-		#else
-			#set($prevAction=true)
-		#end
-		<a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a>
+		<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+			<span><a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a></span>
+		</li>			
 		#if ($withGrade && $!allowGradeSubmission)
-			#if ($prevAction)
-			 | 
-			#else
-				#set($prevAction=true)
-			#end
-			<a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a>
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+				<span><a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a></span>
+			</li>	
 		#end
-		#if ($allowAddAssignment)
-			#if ($prevAction)
-			 | 
-			#else
-				#set($prevAction=true)
-			#end
 			#if (!$!view.equals('stuvie'))
-				<a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
+				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+					<span><a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a></span>
+				</li>	
 			#else
-				$!tlang.getString("gen.stuvie")
+				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem" aria-disabled="true">			
+					<span class="current">$!tlang.getString("gen.stuvie")</span>
+				</li>	
 			#end
-		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
-			#if ($prevAction)
-			 |
-			#else
-				#set($prevAction=true)
-			#end
-			<a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a>
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+				<span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span>
+			</li>	
 		#end
 		#if ($allowUpdateSite)
-			#if ($prevAction)
-			 | 
-			#else
-				#set($prevAction=true)
-			#end
-			<a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a>
+			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+				<span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span>
+			</li>	
 		#end
-	</div>
+	</ul>
 	<h3>
-		$!tlang.getString('submissionsfor') "$assignment.getTitle()"
+		$assignment.getTitle()<span class="highlight"> - $!tlang.getString('gen.subm2') </span>
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
-	## show the view by group choice when there is at least one group defined
-	#if ($!groups.hasNext())
-		<div class="navPanel">
-			<div class="viewNav">
-				<form name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-					<input type="hidden" name="eventSubmit_doView_submission_list_option" value="view" />
-					<label for="view">
-						$tlang.getString("gen.view2")
-					</label>
+		## show the view by group choice when there is at least one group defined
+		#if ($!groups.hasNext())
+			<div class="navPanel">
+				<div class="viewNav">
+					<form name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
+						<input type="hidden" name="eventSubmit_doView_submission_list_option" value="view" />
+						<label for="view">
+							$tlang.getString("gen.view2")
+						</label>
 						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 						<select id="view" name="view" size="1" tabindex="3" onchange="blur();document.viewForm.submit();">
 							<option value="$tlang.getString('gen.viewallgroupssections')" #if($!view.equals($tlang.getString('gen.viewallgroupssections')))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
@@ -71,36 +58,50 @@
 						</select>
 					</form>
 				</div>
-		</div>
-		<br />
-	#end
-	#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
-	#set ($showMsg = false)
-	#set ($showMsg = $!allMsgNumber)
-	#if (!$!showMsg || $showMsg ==0)
-		<p class="instruction">
-			$tlang.getString("theisnostudent")
-		</p>
-	#else
-		<div class="navIntraTool">
-			<a href="$accessPointUrl" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a> | 
-			#if ($withGrade)
-				<a href="#toolLinkParam("$action" "doRelease_grades" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
+		#end		
+		#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
+		#set ($showMsg = false)
+		#set ($showMsg = $!allMsgNumber)
+		#if (!$!showMsg || $showMsg ==0)
+		#else
+			#if ($submissionType != 4)
+				## only show this for not "non-electronic" type of assignments
+				#set($form_action="eventSubmit_doSet_defaultNoSubmissionScore")
+				#set($form_label = "non.submission.grade")
 			#else
-				<a href="#toolLinkParam("$action" "doRelease_grades" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('relcommented')">$!tlang.getString('relcommented')</a>
+				## assign grade to not graded "non-electronic" submissions
+				#set($form_action="eventSubmit_doSet_defaultNotGradedNonElectronicScore")
+				#set($form_label="not.graded.non.electronic.submission.grade")
 			#end
-			## upload all
-			| <a href="#toolLinkParam("$action" "doPrep_upload_all" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
-			#if ($taggable)
-				#foreach ($provider in $providers)
-					#set ($helperInfo = false)
-					#set ($helperInfo = $provider.provider.getItemsHelperInfo($activity.Reference))
-					#if ($helperInfo)
-						| <a href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($activity.Reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+			<div class="listNav">
+					<a href="$accessPointUrl" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
+					## upload all
+						|  <a href="#toolLinkParam("$action" "doPrep_upload_all" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
+					#if ($withGrade)
+						|  <a href="#toolLinkParam("$action" "doRelease_grades" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
+					#else
+						|	 <a href="#toolLinkParam("$action" "doRelease_grades" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('relcommented')">$!tlang.getString('relcommented')</a>
 					#end
-				#end
-			#end
-		</div>
+					#if ($taggable)
+						#foreach ($provider in $providers)
+							#set ($helperInfo = false)
+							#set ($helperInfo = $provider.provider.getItemsHelperInfo($activity.Reference))
+							#if ($helperInfo)
+								|  <a href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($activity.Reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+							#end
+						#end
+					#end
+			</div>	
+			#set ($gradeType = $assignment.getContent().TypeOfGrade)
+		#end
+		#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
+		#set ($showMsg = false)
+		#set ($showMsg = $!allMsgNumber)
+		#if (!$!showMsg || $showMsg ==0)
+			<p class="instruction">
+				$tlang.getString("theisnostudent")
+			</p>
+		#else
 		<div class="navPanel">
 			#if ($submissionType != 4)
 				## only show this for not "non-electronic" type of assignments
@@ -112,10 +113,10 @@
 				#set($form_label="not.graded.non.electronic.submission.grade")
 			#end
 			<div class="viewNav">
-				#set ($gradeType = $assignment.getContent().TypeOfGrade)
+							#set ($gradeType = $assignment.getContent().TypeOfGrade)
 				<form name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
 					<input type="hidden" name="$!form_action" value="setScore" />
-					<label for="gradeList">$tlang.getString($!form_label)</label>
+					<label for="defaultGrade_1" style="display:block" class="textPanelFooter">$tlang.getString($!form_label)</label>
 					##for non-point-based grading, choose the default grade from drop-down
 					#if ($!gradeType != 3)
 						<select id="defaultGrade_1" name="defaultGrade" size="1" >
@@ -156,11 +157,11 @@
 						</form>
 					#end
 					#if ($goPPButton == "true")
-						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 							<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" accesskey="p" />
 						</form>
 					#else
-						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 							<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
 						</form>
 					#end
