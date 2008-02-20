@@ -90,8 +90,7 @@
 					<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.add_assignment_due_date} #{msgs.date_entry_format_description}"/>
 				</h:panelGroup>
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
-  					<t:inputCalendar id="dueDate" value="#{item.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true"
-  							popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
+  					<t:inputDate id="dueDate" value="#{bean.assignment.dueDate}" popupCalendar="true" type="both" ampm="true" />
 					<h:message for="dueDate" styleClass="alertMessageInline" />
 				</h:panelGroup>
 	

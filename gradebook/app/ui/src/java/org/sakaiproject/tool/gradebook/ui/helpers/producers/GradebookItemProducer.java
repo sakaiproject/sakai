@@ -83,7 +83,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	Boolean add = (params.assignmentId == null);
     	
         //set dateEvolver
-        dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);
+        dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);
         
         if (add){
         	UIMessage.make(tofill, "heading", "gradebook.add-gradebook-item.heading_add");

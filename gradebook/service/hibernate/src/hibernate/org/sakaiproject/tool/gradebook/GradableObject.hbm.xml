@@ -23,7 +23,7 @@
 
 		<subclass name="org.sakaiproject.tool.gradebook.Assignment" extends="org.sakaiproject.tool.gradebook.GradableObject"  discriminator-value="1">
 			<property name="pointsPossible" column="POINTS_POSSIBLE" type="double" />
-			<property name="dueDate" column="DUE_DATE" type="date" />
+			<property name="dueDate" column="DUE_DATE" type="java.util.Date" />
 			<property name="notCounted" column="NOT_COUNTED" type="boolean" />
 			<property name="externallyMaintained" column="EXTERNALLY_MAINTAINED" type="boolean" />
 			<property name="externalStudentLink" column="EXTERNAL_STUDENT_LINK" type="string" />
