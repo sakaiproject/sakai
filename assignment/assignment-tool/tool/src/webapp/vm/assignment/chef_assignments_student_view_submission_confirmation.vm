@@ -7,16 +7,20 @@
 			$tlang.getString('confirm.savesubmission.title')
 		#end
 	</h3>
-	<p class="success">
+	<div class="success">
 	#if ($!submitted)
 		$tlang.getString('confirm.submission.success')
 	#else
 		$tlang.getString('confirm.savesubmission.success')
 	#end
-</p>
 	#if ($!email_confirmation && $!submitted)	 
   #if ($!user_email)	 
-  	<p class="success">$tlang.getString('confirm.submission.email')</p>
+  	$tlang.getString('confirm.submission.email')
+	#end
+	#end
+</div>
+	#if ($!email_confirmation && $!submitted)	 
+  #if ($!user_email)	 
   #else	 
    ## no email could be sent due to the missing recipent email address	 
    <p class="alertMessage">$tlang.getString('confirm.submission.email.noEmailAddress')</p>	 
@@ -90,7 +94,7 @@
 				##$validator.escapeHtmlFormattedText($!submit_text)
 			</div>
 		#else
-			<p class="indnt2">
+			<p class="indnt2 instruction">
 				#if ($!submitted)
 					$tlang.getString('confirm.submission.notext')
 				#else
@@ -131,7 +135,7 @@
 			</ul>
 		#end	
 		<p class="act">
-			<input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString('confirm.submission.button')"  class="active" />
+			<input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString('gen.backtolist')"  class="active" />
 		</p>
 	</form>
 </div>

@@ -60,14 +60,14 @@
 			<div class="checkbox  indnt2">
 				## release uploaded info
 				<input type="radio" name="release" id="release_true" value="true" #if($!releaseGrades)checked="checked"#end>
-				<label for="$!releaseInfo_true">$tlang.getString("uploadall.releaseOption.yes")</label>
+				<label for="release_true">$tlang.getString("uploadall.releaseOption.yes")</label>
 				<br/>
 				## NOT release uploaded info
 				<input type="radio" name="release" id="release_false" value="false" #if(!$!releaseGrades)checked="checked"#end>
-				<label for="$!releaseInfo_false">$tlang.getString("uploadall.releaseOption.no")</label>
+				<label for="release_false">$tlang.getString("uploadall.releaseOption.no")</label>
 			</div>
 			<p class="act">
-			<input type="button" name="uploadButton" id="uploadButton"  accesskey="s"
+			<input type="button" name="uploadButton" id="uploadButton"  accesskey="s" class="active"
 						onclick="javascript:showNotif('submitnotif','uploadButton','uploadAllForm');document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doUpload_all' 'flow=upload')'; submitform('uploadAllForm');" value="$tlang.getString('uploadall.button.upload')" />
 					
 					<input type="button" name="cancelButton" id="cancelButton"  accesskey="x"

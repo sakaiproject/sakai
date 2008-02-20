@@ -40,9 +40,10 @@
 					$tlang.getString("gen.grasca")
 				</th>
 				<td>
-					$gradeTypeTable.get($assignment.getContent().getTypeOfGrade())
-					#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-						($!tlang.getString("stupresub.max") $assignment.getContent().getMaxGradePointDisplay())
+					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
+					$gradeScale
+					#if ($gradeScale == "Points")
+						($tlang.getString("stupresub.max") $assignment.getContent().getMaxGradePointDisplay())
 					#end
 				</td>
 			</tr>
