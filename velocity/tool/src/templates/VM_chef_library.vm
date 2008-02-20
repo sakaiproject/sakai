@@ -40,42 +40,46 @@
 					
 						## enabled not field not divider (i.e. a button)
 						#if (!$item.IsField)
-
+							#if ($formItem==1)
+								#set ($prevItemWasField= "fieldSibling")
+							#else
+								#set ($prevItemWasField= "")
+							#end	
 							## non-url support (i.e. action back to tool)
 							#if ($item.Url.length() == 0)
-
-							## checked item support
-							#if($item.IsChecked)
-								#set( $toolbaritemCount=$toolbaritemCount + 1)
-								<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem">
-									<span class="chefToolBarToggle"><a href="#" title="$item.Title" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
-								</li>
-							## unchecked item support
+								## checked item support
+								#if($item.IsChecked)
+									#set( $toolbaritemCount=$toolbaritemCount + 1)
+									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem">
+										<span class="chefToolBarToggle $prevItemWasField"><a href="#" title="$item.Title" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
+									</li>
+								## unchecked item support
+								#else
+									#set( $toolbaritemCount=$toolbaritemCount + 1)
+									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem">
+										<span class="$prevItemWasField"><a href="#" title="$item.Title" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
+									</li>
+								#end
+							## url support (i.e. to another place, another window)
 							#else
 								#set( $toolbaritemCount=$toolbaritemCount + 1)
-								<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem">
-									<span><a href="#" title="$item.Title" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
-								</li>
+								<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem" aria-haspopup="true">
+									<span class="externalLink $prevItemWasField"><a href="$item.Url" title="$item.Title" target="_blank">$item.Title</a></span>
+								</li>	
 							#end
-
-						## url support (i.e. to another place, another window)
+							#set ($formItem=0)
+						## here's a text field in a form for the toolbar
 						#else
 							#set( $toolbaritemCount=$toolbaritemCount + 1)
-							<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem" aria-haspopup="true">
-								<span class="externalLink"><a href="$item.Url" title="$item.Title" target="_blank">$item.Title</a></span>
+							#set ($formItem=1)
+							<li #if ($toolbaritemCount ==1) class="firstToolBarItem inputItem" #else class="inputItem" #end role="menuitem">
+								<span class="formItem">
+									<form name="$item.Form" action="$base" class="inlineForm" method="post">
+										<input size="15" value="$item.Value" name="$item.Title" id="$item.Title" type="text" class="searchField" />
+									</form>
+								</span>	
 							</li>	
 						#end
-
-					## here's a text field in a form for the toolbar
-					#else
-					#set( $toolbaritemCount=$toolbaritemCount + 1)
-					<li #if ($toolbaritemCount ==1) class="firstToolBarItem inputItem" #else class="inputItem" #end role="menuitem">
-						<form name="$item.Form" action="$base" class="inlineForm" method="post">
-							<input size="15" value="$item.Value" name="$item.Title" id="$item.Title" type="text" class="searchField" />
-						</form>
-					</li>	
-					#end
-
 				## here's a menu divider
 				#else
 ##					<span class="portletToolBarDisabled">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
@@ -84,12 +88,12 @@
 			## not enabled - could be checked
 			#elseif ($item.IsChecked)
 				#set( $toolbaritemCount=$toolbaritemCount + 1)
-				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem" aria-disabled="true"><span class="current">$item.Title</span></li>
+				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem" aria-disabled="true"><span class="current $prevItemWasField">$item.Title</span></li>
 
 			## not enabled - not checked - show if we are showing disabled
 			#elseif ($mnu.Showdisabled)
 				#set( $toolbaritemCount=$toolbaritemCount + 1)
-				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem" aria-disabled="true"><span class="disabled">$item.Title</span></li>
+				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end role="menuitem" aria-disabled="true"><span class="disabled $prevItemWasField">$item.Title</span></li>
 			#end
 		## end of foreach loop
 		#end
