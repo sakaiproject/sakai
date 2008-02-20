@@ -4877,9 +4877,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	private void integrateWithCalendar(SessionState state, AssignmentEdit a, String title, Time dueTime, String checkAddDueTime, Time oldDueTime, ResourcePropertiesEdit aPropertiesEdit) 
 	{
-		if (state.getAttribute(CALENDAR) != null)
+		Calendar c = (Calendar) state.getAttribute(CALENDAR);
+		if (c != null)
 		{
-			Calendar c = (Calendar) state.getAttribute(CALENDAR);
 			String dueDateScheduled = a.getProperties().getProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
 			String oldEventId = aPropertiesEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
 			CalendarEvent e = null;
@@ -4888,7 +4888,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				// find the old event
 				boolean found = false;
-				if (oldEventId != null && c != null)
+				if (oldEventId != null)
 				{
 					try
 					{
@@ -4955,81 +4955,78 @@ public class AssignmentAction extends PagedResourceActionII
 
 			if (checkAddDueTime.equalsIgnoreCase(Boolean.TRUE.toString()))
 			{
-				if (c != null)
+				// commit related properties into Assignment object
+				String ref = "";
+				try
 				{
-					// commit related properties into Assignment object
-					String ref = "";
+					ref = a.getReference();
+					AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
+
 					try
 					{
-						ref = a.getReference();
-						AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
+						e = null;
+						CalendarEvent.EventAccess eAccess = CalendarEvent.EventAccess.SITE;
+						Collection eGroups = new Vector();
 
-						try
+						if (aEdit.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
 						{
-							e = null;
-							CalendarEvent.EventAccess eAccess = CalendarEvent.EventAccess.SITE;
-							Collection eGroups = new Vector();
+							eAccess = CalendarEvent.EventAccess.GROUPED;
+							Collection groupRefs = aEdit.getGroups();
 
-							if (aEdit.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
+							// make a collection of Group objects from the collection of group ref strings
+							Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+							for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
 							{
-								eAccess = CalendarEvent.EventAccess.GROUPED;
-								Collection groupRefs = aEdit.getGroups();
-
-								// make a collection of Group objects from the collection of group ref strings
-								Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-								for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
-								{
-									String groupRef = (String) iGroupRefs.next();
-									eGroups.add(site.getGroup(groupRef));
-								}
+								String groupRef = (String) iGroupRefs.next();
+								eGroups.add(site.getGroup(groupRef));
 							}
-							e = c.addEvent(/* TimeRange */TimeService.newTimeRange(dueTime.getTime(), /* 0 duration */0 * 60 * 1000),
-									/* title */rb.getString("due") + " " + title,
-									/* description */rb.getString("assig1") + " " + title + " " + "is due on "
-											+ dueTime.toStringLocalFull() + ". ",
-									/* type */rb.getString("deadl"),
-									/* location */"",
-									/* access */ eAccess,
-									/* groups */ eGroups,
-									/* attachments */EntityManager.newReferenceList());
+						}
+						e = c.addEvent(/* TimeRange */TimeService.newTimeRange(dueTime.getTime(), /* 0 duration */0 * 60 * 1000),
+								/* title */rb.getString("due") + " " + title,
+								/* description */rb.getString("assig1") + " " + title + " " + "is due on "
+										+ dueTime.toStringLocalFull() + ". ",
+								/* type */rb.getString("deadl"),
+								/* location */"",
+								/* access */ eAccess,
+								/* groups */ eGroups,
+								/* attachments */EntityManager.newReferenceList());
 
-							aEdit.getProperties().addProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
-							if (e != null)
-							{
-								aEdit.getProperties().addProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID, e.getId());
-							}
-							
-							// edit the calendar ojbject and add an assignment id field
-							CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
-									
-							edit.setField(NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, a.getId());
-							
-							c.commitEvent(edit);
-							
-						}
-						catch (IdUnusedException ee)
+						aEdit.getProperties().addProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
+						if (e != null)
 						{
-							Log.warn("chef", ee.getMessage());
+							aEdit.getProperties().addProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID, e.getId());
 						}
-						catch (PermissionException ee)
-						{
-							Log.warn("chef", rb.getString("cannotfin1"));
-						}
-						catch (Exception ee)
-						{
-							Log.warn("chef", ee.getMessage());
-						}
-						// try-catch
-
-
-						AssignmentService.commitEdit(aEdit);
+						
+						// edit the calendar ojbject and add an assignment id field
+						CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
+								
+						edit.setField(NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, a.getId());
+						
+						c.commitEvent(edit);
+						
 					}
-					catch (Exception ignore)
+					catch (IdUnusedException ee)
 					{
-						// ignore the exception
-						Log.warn("chef", rb.getString("cannotfin2") + ref);
+						Log.warn("chef", ee.getMessage());
 					}
-				} // if
+					catch (PermissionException ee)
+					{
+						Log.warn("chef", rb.getString("cannotfin1"));
+					}
+					catch (Exception ee)
+					{
+						Log.warn("chef", ee.getMessage());
+					}
+					// try-catch
+
+
+					AssignmentService.commitEdit(aEdit);
+				}
+				catch (Exception ignore)
+				{
+					// ignore the exception
+					Log.warn("chef", rb.getString("cannotfin2") + ref);
+				}
 			} // if
 		}
 	}
