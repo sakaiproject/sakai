@@ -54,7 +54,9 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.EmailNotification;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.SiteEmailNotification;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -397,7 +399,9 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	@Override
 	protected String plainTextContent() {
 		// TODO replace this with a reasonable plain text equivalent
-		return htmlContent();
+		String content = htmlContent();
+		content = FormattedText.convertFormattedTextToPlaintext(content);
+		return content;
 	}
 
 }
