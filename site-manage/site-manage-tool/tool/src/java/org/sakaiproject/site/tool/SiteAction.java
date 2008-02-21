@@ -2854,7 +2854,7 @@ public class SiteAction extends PagedResourceActionII {
 
 					state.setAttribute(STATE_TEMPLATE_INDEX, "46");
 				} else { // uploaded file is not a valid archive
-
+					addAlert(state, rb.getString("importFile.invalidfile"));
 				}
 			}
 		}
