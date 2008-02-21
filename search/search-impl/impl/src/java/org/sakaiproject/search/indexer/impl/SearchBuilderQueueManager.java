@@ -605,7 +605,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		{
 			try
 			{
-				rst.close();
+				if (rst != null) rst.close();
 			}
 			catch (Exception ex)
 			{
@@ -613,7 +613,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			try
 			{
-				pst.close();
+				if (pst != null) pst.close();
 			}
 			catch (Exception ex)
 			{
