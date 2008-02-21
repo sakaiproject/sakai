@@ -374,6 +374,9 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 							Double weight = assignment.getCategory().getWeight();
 							if (weight != null && weight.doubleValue() > 0)
 								weight = new Double(weight.doubleValue() * 100);
+							if (assignmentWeight == null)
+								throw new IllegalStateException(
+										"Double weight == null!");
 							assignmentWeight = weight.toString();
 							assignmentCategory = assignment.getCategory().getName() + " " + getLocalizedString("cat_weight_display", new String[] {assignmentWeight});
 						} else {

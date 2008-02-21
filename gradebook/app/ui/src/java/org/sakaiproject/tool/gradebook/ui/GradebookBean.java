@@ -94,6 +94,8 @@ public class GradebookBean extends InitializableBean {
                 logger.error("Request made for inaccessible gradebookUid=" + newGradebookUid);
                 newGradebookUid = null;
             }
+            if(gradebook == null)
+            	throw new IllegalStateException("Gradebook gradebook == null!");
             newGradebookId = gradebook.getId();
             if (logger.isInfoEnabled()) logger.info("setGradebookUid gradebookUid=" + newGradebookUid + ", gradebookId=" + newGradebookId);
         }

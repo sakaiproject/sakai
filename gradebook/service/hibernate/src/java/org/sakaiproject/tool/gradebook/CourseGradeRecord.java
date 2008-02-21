@@ -45,7 +45,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
     static {
         calcComparator = new Comparator<CourseGradeRecord>() {
             public int compare(CourseGradeRecord cgr1, CourseGradeRecord cgr2) {
-                if((cgr1 == null && cgr2 == null) || (cgr1.getGradeAsPercentage() == null && cgr2.getGradeAsPercentage() == null)) {
+                if((cgr1 == null || cgr2 == null) || (cgr1.getGradeAsPercentage() == null && cgr2.getGradeAsPercentage() == null)) {
                     return 0;
                 }
                 if(cgr1 == null || cgr1.getGradeAsPercentage() == null) {

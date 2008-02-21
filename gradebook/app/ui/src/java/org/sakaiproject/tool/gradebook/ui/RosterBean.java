@@ -468,6 +468,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 				logger.debug("  data children=" + rosterDataTable.getChildren());
 			}
 		}
+		if (rosterDataTable == null)
+			throw new IllegalArgumentException(
+					"HtmlDataTable rosterDataTable == null!");
 		
 		//check if columns of changed due to categories
 		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
