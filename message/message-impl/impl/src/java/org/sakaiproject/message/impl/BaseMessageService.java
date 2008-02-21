@@ -4110,7 +4110,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// there should not be a case where there's no message or a message with no channel... -ggolden
 			if ((m_message == null) || ((BaseMessageEdit) m_message).m_channel == null)
 			{
-				M_log.warn("setGroupAccess() called with null message: " + m_message.toString() + " or channel: " + ((m_message == null) ? "" : ((BaseMessageEdit) m_message).m_channel.toString()));
+				M_log.warn("setGroupAccess() called with null message: " + ((m_message == null) ? "null" : ((BaseMessageEdit) m_message).toString()) + " or channel: " + ((m_message == null) ? "" : ((BaseMessageEdit) m_message).m_channel.toString()));
 				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:channel", ((m_message == null) ? "" : ((BaseMessageEdit) m_message).getReference()));
 			}
 
@@ -4174,7 +4174,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// there should not be a case where there's no message or a message with no channel... -ggolden
 			if ((m_message == null) || ((BaseMessageEdit) m_message).m_channel == null)
 			{
-				M_log.warn("clearGroupAccess() called with null message: " + m_message.toString() + " or channel: " + ((m_message == null) ? "" : ((BaseMessageEdit) m_message).m_channel.toString()));
+				M_log.warn("clearGroupAccess() called with null message: " + ((m_message == null) ? "null" : ((BaseMessageEdit) m_message).toString()) + " or channel: " + ((m_message == null) ? "" : ((BaseMessageEdit) m_message).m_channel.toString()));
 				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:channel", ((m_message == null) ? "" : ((BaseMessageEdit) m_message).getReference()));
 			}
 
