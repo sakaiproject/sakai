@@ -145,7 +145,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		{
 			try
 			{
-				connection.rollback();
+				if (connection != null) connection.rollback();
 			}
 			catch (Exception ex2)
 			{
@@ -156,7 +156,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		{
 			try
 			{
-				connection.close();
+				if (connection != null) connection.close();
 			}
 			catch (Exception ex2)
 			{
@@ -184,22 +184,22 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		{
 			try
 			{
-				connection.rollback();
+				if (connection != null) connection.rollback();
 			}
 			catch (Exception ex2)
 			{
-				log.warn("Exception during rollback", ex2);
+				log.debug("Exception during rollback", ex2);
 			}
 		}
 		finally
 		{
 			try
 			{
-				connection.close();
+				if (connection != null) connection.close();
 			}
 			catch (Exception ex2)
 			{
-				log.warn("Exception closing connection", ex2);
+				log.debug("Exception closing connection", ex2);
 			}
 		}
 	}
@@ -241,7 +241,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			catch (Exception ex2)
 			{
-				log.warn("Exception during rollback", ex2);
+				log.debug("Exception during rollback", ex2);
 			}
 			throw new IndexTransactionException("Failed to open transaction ", ex);
 		}
@@ -249,11 +249,11 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		{
 			try
 			{
-				connection.close();
+				if (connection != null) connection.close();
 			}
 			catch (Exception ex2)
 			{
-				log.warn("Exception closing connection", ex2);
+				log.debug("Exception closing connection", ex2);
 			}
 		}
 
@@ -389,7 +389,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			{
 				try
 				{
-					rst.close();
+					if (rst != null) rst.close();
 				}
 				catch (Exception ex)
 				{
@@ -397,7 +397,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 				}
 				try
 				{
-					pst.close();
+					if (pst != null) pst.close();
 				}
 				catch (Exception ex)
 				{
