@@ -875,9 +875,11 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 					}
 					catch (IdUnusedException e)
 					{
-						M_log.warn("Exception archiving channel with id: " + channelId);
+						M_log.warn("Exception archiving channel with id: " + channelId, e);
 					}
 
+					if(channel == null)
+						throw new IllegalStateException("ChatChannel channel == null!");
 					Element channelElement = channel.toXml(doc, stack);
 					chat.appendChild(channelElement);
 					channelCount++;
