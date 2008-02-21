@@ -307,7 +307,7 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 				}
 			}
 
-			if(dmb.getDepth() > 0)
+			if(dmb != null && dmb.getDepth() > 0)
 			{
 				writer.write("<tr style=\"display:none\" id=\"_id_" + new
 						Integer(hideDivNo).toString() + "__hide_division_" + "\">");

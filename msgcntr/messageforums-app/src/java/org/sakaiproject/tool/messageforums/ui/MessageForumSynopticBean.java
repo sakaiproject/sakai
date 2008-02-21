@@ -380,6 +380,8 @@ public class MessageForumSynopticBean {
 				currentValues = (Object []) currentIter.next();
 			}
 
+			if (currentValues == null)
+				throw new IllegalStateException("currentValues == null");
 			// is current site in the removeList. if so, return index where
 			final int pos = indexOf((String) currentValues[0], getSiteIds(removeList));
 			

@@ -785,9 +785,13 @@ public class DiscussionForumTool
    */
   public String processActionDeleteForum()
   {
+    if (uiPermissionsManager == null)
+    {
+      throw new IllegalStateException("uiPermissionsManager == null");
+    }
     if (selectedForum == null)
     {
-      LOG.debug("There is no forum selected for deletion");
+      throw new IllegalStateException("selectedForum == null");
     }
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
@@ -935,6 +939,8 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(VALID_FORUM_TITLE_WARN));
       return FORUM_SETTING_REVISE;
     }
+    if (selectedForum == null)
+			throw new IllegalStateException("selectedForum == null");
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
@@ -975,6 +981,8 @@ public class DiscussionForumTool
     	return null;
     }
     
+    if (selectedForum == null)
+		throw new IllegalStateException("selectedForum == null");
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
@@ -1009,6 +1017,8 @@ public class DiscussionForumTool
     	return null;
     }
 
+    if (selectedForum == null)
+		throw new IllegalStateException("selectedForum == null");
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
@@ -1293,6 +1303,10 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(VALID_TOPIC_TITLE_WARN));
       return TOPIC_SETTING_REVISE;
     }
+    if (selectedTopic == null)
+		throw new IllegalStateException("selectedTopic == null");
+    if (selectedForum == null)
+		throw new IllegalStateException("selectedForum == null");
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
@@ -2014,6 +2028,8 @@ public class DiscussionForumTool
 	  while (iter.hasNext())
 	  {
 		  DiscussionTopic topic = (DiscussionTopic) iter.next();
+		  if (topic == null)
+				continue;
 //		  TODO: put this logic in database layer
 		  if (topic != null && topic.getDraft().equals(Boolean.FALSE)||
 				  (topic.getDraft().equals(Boolean.TRUE)&&topic.getCreatedBy().equals(getUserId()))
@@ -5616,10 +5632,9 @@ public class DiscussionForumTool
     if (session != null){
     	/** get navigation string of previous navigation (set by navigation handler) */
     	attr = (String) session.getAttribute("MC_PREVIOUS_NAV");	
+        /** store caller navigation string in session (used to return from add groups/users) */
+        session.setAttribute("MC_ADD_GROUPS_USERS_CALLER", attr);
     }
-		    
-    /** store caller navigation string in session (used to return from add groups/users) */
-    session.setAttribute("MC_ADD_GROUPS_USERS_CALLER", attr);
                   
   	return "addGroupsUsers";
   }

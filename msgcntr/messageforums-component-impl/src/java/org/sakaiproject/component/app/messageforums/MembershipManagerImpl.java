@@ -205,6 +205,8 @@ public class MembershipManagerImpl implements MembershipManager{
 	}
         
     /** handle groups */
+    if (currentSite == null)
+			throw new IllegalStateException("Site currentSite == null!");
     Collection groups = currentSite.getGroups();    
     for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();){
       Group currentGroup = (Group) groupIterator.next();      
@@ -233,6 +235,8 @@ public class MembershipManagerImpl implements MembershipManager{
     }
     
     /** handle users */
+    if (realm == null)
+			throw new IllegalStateException("AuthzGroup realm == null!");
     Set users = realm.getMembers();
     if (users == null)
 			throw new Error("Could not obtain members from realm!");
@@ -294,6 +298,8 @@ public class MembershipManagerImpl implements MembershipManager{
 	}
                 
     /** handle users */
+    if (realm == null)
+			throw new IllegalStateException("AuthzGroup realm == null!");
     Set users = realm.getMembers();
     if (users == null)
 		throw new Error("Could not obtain members from realm!");

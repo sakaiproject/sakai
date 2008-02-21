@@ -2322,6 +2322,9 @@ private   int   getNum(char letter,   String   a)
       PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(new Long(msgId)) ;
       if(msg != null)
       {
+    	  if (dbean == null)
+					throw new IllegalStateException(
+							"PrivateMessageDecoratedBean dbean == null!");
         dbean.addPvtMessage(new PrivateMessageDecoratedBean(msg)) ;
         detailMsg = dbean;
       }
@@ -2646,7 +2649,9 @@ private   int   getNum(char letter,   String   a)
 		}
   	
 	
-		
+		if (replyrecipientaddtmp == null)
+				throw new IllegalStateException(
+						"User replyrecipientaddtmp == null!");
 		if((!(replyrecipientaddtmp.getDisplayName()).equals(getUserName()) ) )//&&(!(replyrecipientaddtmp.getDisplayName()).equals(msgauther)))
        {
     	returnSet.add(replyrecipientaddtmp);
