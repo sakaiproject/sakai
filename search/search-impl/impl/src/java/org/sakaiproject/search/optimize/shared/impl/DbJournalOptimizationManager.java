@@ -256,8 +256,8 @@ public class DbJournalOptimizationManager implements JournalManager
 			// too many ?
 			if ( nshared > 2*journalSettings.getMinimumOptimizeSavePoints() ) {
 				// adjust the oldestSavePoint
-				// the number will be less than this if there are holes, add 1 to get the one before.
-				jms.oldestSavePoint = earliestSavePoint + 2*journalSettings.getMinimumOptimizeSavePoints()+1;
+				// the number will be less than this if there are holes
+				jms.oldestSavePoint = earliestSavePoint + 2*journalSettings.getMinimumOptimizeSavePoints();
 				// adjust for a potential hole
 				getEarlierSavePoint.setLong(1, jms.oldestSavePoint);
 				rs = getEarlierSavePoint.executeQuery();
