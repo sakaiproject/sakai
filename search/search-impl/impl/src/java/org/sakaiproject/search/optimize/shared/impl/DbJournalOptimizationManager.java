@@ -225,14 +225,16 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			rs.close();
 			getEarlierSavePoint = connection
-					.prepareStatement("select txid from search_journal where txid < ? and  status = 'commited' order by txid desc ");
+					.prepareStatement("select min(txid),max(txid) from search_journal where txid < ? and  status = 'commited' ");
 			getEarlierSavePoint.clearParameters();
 			getEarlierSavePoint.setLong(1, oldestActiveSavepoint);
 			rs = getEarlierSavePoint.executeQuery();
 			jms.oldestSavePoint = 0;
+			long earliestSavePoint = 0;
 			if (rs.next())
 			{
-				jms.oldestSavePoint = rs.getLong(1);
+				earliestSavePoint = rs.getLong(1);
+				jms.oldestSavePoint = rs.getLong(2);
 			}
 
 			if (jms.oldestSavePoint <= 0)
@@ -240,6 +242,40 @@ public class DbJournalOptimizationManager implements JournalManager
 				throw new NoOptimizationRequiredException("Oldest savePoint is 0");
 			}
 			rs.close();
+			
+			long nshared = jms.oldestSavePoint - earliestSavePoint;
+			
+			// no point in going further there are not enough segments.
+			if (nshared < journalSettings.getMinimumOptimizeSavePoints())
+			{
+				throw new NoOptimizationRequiredException(
+						"Insuficient Journal Entries prior to savepoint "
+								+ jms.oldestSavePoint + " to optimize, found " + nshared);
+			}
+			
+			// too many ?
+			if ( nshared > 2*journalSettings.getMinimumOptimizeSavePoints() ) {
+				// adjust the oldestSavePoint
+				// the number will be less than this if there are holes, add 1 to get the one before.
+				jms.oldestSavePoint = earliestSavePoint + 2*journalSettings.getMinimumOptimizeSavePoints()+1;
+				// adjust for a potential hole
+				getEarlierSavePoint.setLong(1, jms.oldestSavePoint);
+				rs = getEarlierSavePoint.executeQuery();
+				jms.oldestSavePoint = 0;
+				earliestSavePoint = 0;
+				if (rs.next())
+				{
+					earliestSavePoint = rs.getLong(1);
+					jms.oldestSavePoint = rs.getLong(2);
+				}
+				if (jms.oldestSavePoint <= 0)
+				{
+					throw new NoOptimizationRequiredException("Oldest savePoint is 0");
+				}
+				rs.close();
+				
+				
+			}
 
 			log.debug("Optimizing shared Journal Storage to savepoint "
 					+ jms.oldestSavePoint);
