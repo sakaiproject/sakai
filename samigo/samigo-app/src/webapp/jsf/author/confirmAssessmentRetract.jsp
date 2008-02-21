@@ -45,11 +45,11 @@
      </div>
        <p class="act">
        <h:commandButton id="retract" accesskey="#{assessmentSettingsMessages.a_retract}" value="#{assessmentSettingsMessages.button_retract}" type="submit"
-         styleClass="active" action="#{publishedSettings.getOutcome}" >
+         styleClass="active" action="author" >
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
        </h:commandButton>
-       <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" style="act" action="author" />
+       <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" style="act" action="editPublishedAssessmentSettings" />
        </p>
 
  </h:form>
