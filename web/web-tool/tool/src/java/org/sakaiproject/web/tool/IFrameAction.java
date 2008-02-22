@@ -159,6 +159,26 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_EID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE}";
 	
 	private static ArrayList allowedMacrosList;
+	// initialize list of approved macros for replacement within URL
+	static
+	{
+		allowedMacrosList = new ArrayList();
+		
+		final String allowedMacros = 
+			ServerConfigurationService.getString(IFRAME_ALLOWED_MACROS_PROPERTY, MACRO_DEFAULT_ALLOWED);
+			
+		String parts[] = allowedMacros.split(",");
+		
+		if(parts != null) {
+		
+			for(int i = 0; i < parts.length; i++) {
+			
+				allowedMacrosList.add(parts[i]);
+			
+			}
+		
+		}
+	}
 	
 	/**
 	 * Populate the state with configuration settings
@@ -194,28 +214,6 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 		// set the special setting
 		String special = config.getProperty(SPECIAL);
-		
-		// initialize list of approved macros for replacement within URL
-		if (allowedMacrosList == null) {
-		
-			allowedMacrosList = new ArrayList();
-		
-			final String allowedMacros = 
-				ServerConfigurationService.getString(IFRAME_ALLOWED_MACROS_PROPERTY, MACRO_DEFAULT_ALLOWED);
-				
-			String parts[] = allowedMacros.split(",");
-			
-			if(parts != null) {
-			
-				for(int i = 0; i < parts.length; i++) {
-				
-					allowedMacrosList.add(parts[i]);
-				
-				}
-			
-			}
-			
-		}
 		
 		final String sakaiPropertiesUrlKey = config.getProperty(SAKAI_PROPERTIES_URL_KEY);
 		
