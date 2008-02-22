@@ -35,7 +35,7 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
@@ -48,6 +48,8 @@ import org.sakaiproject.tool.cover.ToolManager;
 public class PodcastPermissionsServiceImpl implements PodcastPermissionsService {
 
 	private Log LOG = LogFactory.getLog(PodcastPermissionsServiceImpl.class);
+	
+	private ContentHostingService contentHostingService;
 
 	/**
 	 * Determines if authenticated user has 'read' access to podcast collection folder
@@ -59,7 +61,7 @@ public class PodcastPermissionsServiceImpl implements PodcastPermissionsService 
 	 * 		TRUE - has read access, FALSE - does not
 	 */
 	public boolean allowAccess(String id) {
-		return ContentHostingService.allowGetCollection(id);
+		return contentHostingService.allowGetCollection(id);
 	}
 
 	/**
@@ -166,6 +168,10 @@ public class PodcastPermissionsServiceImpl implements PodcastPermissionsService 
 	 */
 	private String getSiteId() {
 		return ToolManager.getCurrentPlacement().getContext();
+	}
+
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
 	}
 
 }

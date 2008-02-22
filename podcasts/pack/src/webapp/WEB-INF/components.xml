@@ -3,6 +3,10 @@
 <beans>
 	<bean id="org.sakaiproject.api.app.podcasts.PodcastPermissionsService"
 		class="org.sakaiproject.component.app.podcasts.PodcastPermissionsServiceImpl">
+
+		<property name="contentHostingService">
+ 			<ref bean="org.sakaiproject.content.api.ContentHostingService" />
+		</property>
 	</bean>
 	
 	<bean id="org.sakaiproject.api.app.podcasts.PodcastService"
