@@ -124,13 +124,31 @@ public class GenericCalendarImporter implements CalendarImporterService
 	// Map of readers for various formats. Keyed by import type.
 	private final Map readerMap = new HashMap();
 
-	public static final DateFormat TIME_FORMATTER = new SimpleDateFormat("hh:mm a");
+	private DateFormat timeFormatter()
+	{
+		DateFormat rv = new SimpleDateFormat("hh:mm a");
+		rv.setLenient(false);
+		return rv;
+	}
 
-	public static final DateFormat TIME_FORMATTER_WITH_SECONDS = new SimpleDateFormat("hh:mm:ss a");
+	private DateFormat timeFormatterWithSeconds()
+	{
+		return new SimpleDateFormat("hh:mm:ss a");
+	}
 
-	static final DateFormat time24HourFormatter = new SimpleDateFormat("HH:mm");
+	private DateFormat time24HourFormatter()
+	{
+		DateFormat rv = new SimpleDateFormat("HH:mm");
+		rv.setLenient(false);
+		return rv;
+	}
 
-	static final DateFormat time24HourFormatterWithSeconds = new SimpleDateFormat("HH:mm:ss");
+	private DateFormat time24HourFormatterWithSeconds()
+	{
+		DateFormat rv = new SimpleDateFormat("HH:mm:ss");
+		rv.setLenient(false);
+		return rv;
+	}
 
    private ResourceLoader rb = new ResourceLoader("calendarimpl");
 
@@ -636,9 +654,6 @@ public class GenericCalendarImporter implements CalendarImporterService
 	public GenericCalendarImporter()
 	{
 		super();
-		TIME_FORMATTER.setLenient(false);
-		time24HourFormatter.setLenient(false);
-		time24HourFormatterWithSeconds.setLenient(false);
 	}
 
 	/*
@@ -718,7 +733,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 
 							try
 							{
-								mapCellValue = TIME_FORMATTER.parse(value);
+								mapCellValue = timeFormatter().parse(value);
 								success = true;
 							}
 
@@ -731,7 +746,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 							{
 								try
 								{
-									mapCellValue = TIME_FORMATTER_WITH_SECONDS.parse(value);
+									mapCellValue = timeFormatterWithSeconds().parse(value);
 									success = true;
 								}
 
@@ -745,7 +760,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 							{
 								try
 								{
-									mapCellValue = time24HourFormatter.parse(value);
+									mapCellValue = time24HourFormatter().parse(value);
 									success = true;
 								}
 
@@ -759,7 +774,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 							{
 								try
 								{
-									mapCellValue = time24HourFormatterWithSeconds.parse(value);
+									mapCellValue = time24HourFormatterWithSeconds().parse(value);
 									success = true;
 								}
 
