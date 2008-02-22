@@ -233,10 +233,10 @@ public class DropboxNotification extends EmailNotification
 	 * @see org.sakaiproject.util.EmailNotification#getTag(java.lang.String, java.lang.String)
 	 */
 	@Override
-	protected String getTag(String newline, String title) 
+	protected String getTag(String newline, String title, boolean shouldUseHtml) 
 	{
 		// TODO Auto-generated method stub
-		return super.getTag(newline, title);
+		return super.getTag(newline, title, shouldUseHtml);
 	}
 
 	/* (non-Javadoc)
