@@ -392,29 +392,37 @@ public class DavServlet extends HttpServlet
 	/**
 	 * Simple date format for the creation date ISO representation (partial).
 	 */
-	protected static final SimpleDateFormat creationDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
-
-	static
+	private SimpleDateFormat creationDateFormat()
 	{
+		final SimpleDateFormat creationDateFormat = new SimpleDateFormat(
+				"yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 		creationDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+		return creationDateFormat;
 	}
 
 	/**
 	 * Simple date format for the HTTP Date
 	 */
-	protected static final SimpleDateFormat HttpDateFormat = new SimpleDateFormat("EEE, d MMM yyyy hh:mm:ss z", Locale.US);
-
-	static
+	private SimpleDateFormat httpDateFormat()
 	{
-		HttpDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	};
+		final SimpleDateFormat httpDateFormat = new SimpleDateFormat(
+				"EEE, d MMM yyyy hh:mm:ss z", Locale.US);
+		httpDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+		return httpDateFormat;
+	}
 
 	/**
 	 * The set of SimpleDateFormat formats to use in getDateHeader().
 	 */
-	protected static final SimpleDateFormat formats[] = { new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US),
-			new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
-			new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US) };
+	private SimpleDateFormat[] dateFormats()
+	{
+		final SimpleDateFormat formats[] = {
+				new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US),
+				new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz",
+						Locale.US),
+				new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US) };
+		return formats;
+	}
 
 	// ----------------------------------------------------- Instance Variables
 
@@ -4410,7 +4418,7 @@ public class DavServlet extends HttpServlet
 				generatedXML.writeData(resourceName);
 				generatedXML.writeElement(null, "displayname", XMLWriter.CLOSING);
 				generatedXML.writeProperty(null, "getcontentlanguage", Locale.getDefault().toString());
-				generatedXML.writeProperty(null, "getlastmodified", formats[0].format(lock.creationDate));
+				generatedXML.writeProperty(null, "getlastmodified", dateFormats()[0].format(lock.creationDate));
 				generatedXML.writeProperty(null, "getcontentlength", String.valueOf(0));
 				generatedXML.writeProperty(null, "getcontenttype", "");
 				generatedXML.writeProperty(null, "getetag", "");
@@ -4505,7 +4513,7 @@ public class DavServlet extends HttpServlet
 					}
 					else if (property.equals("getlastmodified"))
 					{
-						generatedXML.writeProperty(null, "getlastmodified", formats[0].format(lock.creationDate));
+						generatedXML.writeProperty(null, "getlastmodified", dateFormats()[0].format(lock.creationDate));
 					}
 					else if (property.equals("resourcetype"))
 					{
@@ -4631,7 +4639,7 @@ public class DavServlet extends HttpServlet
 	 */
 	private String getISOCreationDate(long creationDate)
 	{
-		StringBuilder creationDateValue = new StringBuilder(creationDateFormat.format(new Date(creationDate)));
+		StringBuilder creationDateValue = new StringBuilder(creationDateFormat().format(new Date(creationDate)));
 		/*
 		 * int offset = Calendar.getInstance().getTimeZone().getRawOffset() / 3600000; // FIXME ? if (offset < 0) { creationDateValue.append("-"); offset = -offset; } else if (offset > 0) { creationDateValue.append("+"); } if (offset != 0) { if (offset <
 		 * 10) creationDateValue.append("0"); creationDateValue.append(offset + ":00"); } else { creationDateValue.append("Z"); }
@@ -4644,7 +4652,7 @@ public class DavServlet extends HttpServlet
 	 */
 	private String getHttpDate(long dateMS)
 	{
-		return HttpDateFormat.format(new Date(dateMS));
+		return httpDateFormat().format(new Date(dateMS));
 	}
 
 	// -------------------------------------------------- LockInfo Inner Class
@@ -4698,7 +4706,7 @@ public class DavServlet extends HttpServlet
 			result += "Scope:" + scope + "\n";
 			result += "Depth:" + depth + "\n";
 			result += "Owner:" + owner + "\n";
-			result += "Expiration:" + formats[0].format(new Date(expiresAt)) + "\n";
+			result += "Expiration:" + dateFormats()[0].format(new Date(expiresAt)) + "\n";
 			Enumeration tokensList = tokens.elements();
 			while (tokensList.hasMoreElements())
 			{
