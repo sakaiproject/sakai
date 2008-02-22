@@ -219,11 +219,6 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 				buf.append("<a href=\"" + attachment.getUrl() + "\">" + attachmentTitle + "</a>" + newline);
 			}
 		}
-		
-		buf.append("<hr/>" + newline + rb.getString("this") + " "
-				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (<a href=\""
-				+ ServerConfigurationService.getPortalUrl() + "\">" + ServerConfigurationService.getPortalUrl() + "</a>) "
-				+ rb.getString("forthe") + " " + title + " " + rb.getString("site") + newline + rb.getString("youcan") + newline);
 
 		return buf.toString();
 	}
@@ -253,10 +248,19 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	/**
 	 * @inheritDoc
 	 */
-	protected String getTag(String newline, String title)
+	protected String getTag(String newline, String title, boolean shouldUseHtml)
 	{
-		// We handle this in the bodies of the messages
-		return "";
+		if (shouldUseHtml) {
+			return ("<hr/>" + newline + rb.getString("this") + " "
+					+ ServerConfigurationService.getString("ui.service", "Sakai") + " (<a href=\""
+					+ ServerConfigurationService.getPortalUrl() + "\">" + ServerConfigurationService.getPortalUrl() + "</a>) "
+					+ rb.getString("forthe") + " " + title + " " + rb.getString("site") + newline + rb.getString("youcan") + newline);
+		} else {
+			return (rb.getString("separator") + newline + rb.getString("separator") + newline + rb.getString("this") + " "
+					+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl()
+					+ ") " + rb.getString("forthe") + " " + title + " " + rb.getString("site") + newline + rb.getString("youcan")
+					+ newline);
+		}
 	}
 
 	/**
