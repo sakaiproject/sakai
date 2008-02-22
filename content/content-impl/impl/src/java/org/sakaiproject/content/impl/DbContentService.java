@@ -752,7 +752,7 @@ public class DbContentService extends BaseContentService
 		}
 		catch (Throwable t)
 		{
-			M_log.warn("getUuid: failed: " + t);
+			M_log.warn("setUuid: failed: " + t);
 		}
 	}
 
@@ -3040,7 +3040,7 @@ public class DbContentService extends BaseContentService
 			String result = (String) list.get(0);
 			try
 			{
-				size = Long.parseLong(result);
+				size = Float.valueOf(result).longValue();
 			}
 			catch(Exception e)
 			{
