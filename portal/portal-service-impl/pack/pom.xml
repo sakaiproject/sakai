@@ -7,9 +7,9 @@
     <version>SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>000sakai-portal-service-pack</name>
+  <name>sakai-portal-service-pack</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>000sakai-portal-service-pack</artifactId>
+  <artifactId>sakai-portal-service-pack</artifactId>
   <organization>
     <name>University of Cambridge</name>
     <url>http://sakaiproject.org/</url>
