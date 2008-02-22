@@ -40,6 +40,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.SiteEmailNotification;
 
 public class SiteEmailNotificationSyllabus extends SiteEmailNotification
@@ -120,8 +121,9 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 	}
 	
 	protected String plainTextContent() {
-		// TODO add suitable plain text version here
-		return htmlContent();
+		String content = htmlContent();
+		content = FormattedText.convertFormattedTextToPlaintext(content);
+		return content;
 	}
 	
 	protected String htmlContent() {
