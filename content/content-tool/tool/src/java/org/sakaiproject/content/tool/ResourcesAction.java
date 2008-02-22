@@ -5120,10 +5120,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		String webdav_instructions = ServerConfigurationService.getString("webdav.instructions.url");
 		context.put("webdav_instructions" ,webdav_instructions);
 
-		String browserID = UsageSessionService.getSession().getBrowserId();
-		if(browserID.equals(UsageSession.WIN_IE))
+		// TODO: Consider whether we should return a trivial session
+		// or a null in the case of anonymous users.
+		UsageSession session = UsageSessionService.getSession();
+		if ( session != null )
 		{
-			context.put("isWinIEBrowser", Boolean.TRUE.toString());
+			String browserID = UsageSessionService.getSession().getBrowserId();
+			if(browserID.equals(UsageSession.WIN_IE))
+			{
+				context.put("isWinIEBrowser", Boolean.TRUE.toString());
+			}
 		}
 
 		return TEMPLATE_DAV;

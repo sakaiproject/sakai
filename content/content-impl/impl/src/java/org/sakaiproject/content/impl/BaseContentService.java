@@ -1520,7 +1520,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			String userId = SessionManager.getCurrentSessionUserId();
 			
 			// available if user is creator
-			available = creator != null && userId != null && creator.equals(userId);
+			available = ( creator != null && userId != null && creator.equals(userId) ) 
+				|| ( creator == null && userId == null );
 			
 			if(! available)
 			{
@@ -2401,29 +2402,34 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		String currentUser = SessionManager.getCurrentSessionUserId();
 		String owner = "";
       
-      try
-      {
+		try
+		{
  			ResourceProperties props = getProperties(id);
 			owner = props.getProperty(ResourceProperties.PROP_CREATOR);
-      }
-      catch ( Exception e ) 
-      {
-         // PermissionException can be thrown if not AUTH_RESOURCE_READ
-         return false;
-      }
+		}
+		catch ( Exception e ) 
+		{
+			// PermissionException can be thrown if not AUTH_RESOURCE_READ
+			return false;
+		}
       
 		// check security to delete any collection
 		if ( unlockCheck(AUTH_RESOURCE_WRITE_ANY, id) )
-         return true;
+			return true;
 
 		// check security to delete own collection
-		else if ( unlockCheck(AUTH_RESOURCE_WRITE_OWN, id)
-                && currentUser.equals(owner) )
-         return true;
+		else if ( currentUser != null && currentUser.equals(owner) 
+			&& unlockCheck(AUTH_RESOURCE_WRITE_OWN, id) )
+			return true;
+
+		// check security to delete own collection for anonymous users
+		else if ( currentUser == null && owner == null && 
+			unlockCheck(AUTH_RESOURCE_WRITE_OWN, id) )
+			return true;
             
-      // otherwise not authorized
-      else
-         return false;
+		// otherwise not authorized
+		else
+			return false;
 
 	} // allowUpdate
 
@@ -2450,30 +2456,36 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		String ref = getReference(id);
 		String currentUser = SessionManager.getCurrentSessionUserId();
-      String owner = "";
+		String owner = "";
       
-      try
-      {
+		try
+		{
  			ResourceProperties props = getProperties(id);
 			owner = props.getProperty(ResourceProperties.PROP_CREATOR);
-      }
-      catch ( Exception e ) 
-      {
-         // PermissionException can be thrown if not RESOURCE_AUTH_READ
-         return false;
-      }
+		}
+		catch ( Exception e ) 
+		{
+			// PermissionException can be thrown if not RESOURCE_AUTH_READ
+			return false;
+		}
       
 		// check security to delete any collection
 		if ( unlockCheck(AUTH_RESOURCE_REMOVE_ANY, id) )
-         return true;
+			return true;
 
 		// check security to delete own collection
-		else if ( currentUser.equals(owner) && unlockCheck(AUTH_RESOURCE_REMOVE_OWN, id) )
-         return true;
+		else if ( currentUser != null && currentUser.equals(owner) && 
+			unlockCheck(AUTH_RESOURCE_REMOVE_OWN, id) )
+			return true;
+
+		// check security to delete own collection for anonymous users
+		else if ( currentUser == null && owner == null && 
+			unlockCheck(AUTH_RESOURCE_REMOVE_OWN, id) )
+			return true;
             
-      // otherwise not authorized
-      else
-         return false;
+		// otherwise not authorized
+		else
+			return false;
 
 	} // allowRemove
 
@@ -5985,13 +5997,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		List mySites = m_siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null, null,
 				org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
 
-		// add in the user's myworkspace site, if we can find it
-		try
+		// add in the user's myworkspace site, if we can find it and if the user
+		// is not anonymous
+		String userId = SessionManager.getCurrentSessionUserId();
+		if ( userId != null )
 		{
-			mySites.add(m_siteService.getSite(m_siteService.getUserSiteId(SessionManager.getCurrentSessionUserId())));
-		}
-		catch (IdUnusedException e)
-		{
+			try
+			{
+				mySites.add(m_siteService.getSite(m_siteService.getUserSiteId(userId)));
+			}
+			catch (IdUnusedException e)
+			{
+			}
 		}
 
 		// check each one for dropbox and resources
@@ -8645,8 +8662,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return rv;
 		}
 
+		// Anonymous users do not get drop boxes
+		String userId = SessionManager.getCurrentSessionUserId();
+		if ( userId == null ) return rv;
+
 		// form the current user's dropbox collection within this site's
-		rv += StringUtil.trimToZero(SessionManager.getCurrentSessionUserId()) + "/";
+		rv += StringUtil.trimToZero(userId) + "/";
 		return rv;
 	}
 
@@ -9000,24 +9021,26 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public Collection getGroupsWithRemovePermission(String collectionId)
 	{
 		Collection rv = new ArrayList();
-      String owner = "";
+		String owner = "";
 		String currentUser = SessionManager.getCurrentSessionUserId();
-		
-      try
-      {
+
+		try
+		{
  			ResourceProperties props = getProperties(collectionId);
 			owner = props.getProperty(ResourceProperties.PROP_CREATOR);
-      }
-      catch ( Exception e ) 
-      {
+		}
+		catch ( Exception e ) 
+		{
 			// assume user is not owner
-      }
+		}
       
 		String refString = getReference(collectionId);
 		Reference ref = m_entityManager.newReference(refString);
       
 		Collection groups = null;
-      if ( currentUser.equals(owner) )
+		if ( currentUser != null && currentUser.equals(owner) )
+			groups = getGroupsAllowFunction(AUTH_RESOURCE_REMOVE_OWN, ref.getReference());
+		else if ( currentUser == null && owner == null )
 			groups = getGroupsAllowFunction(AUTH_RESOURCE_REMOVE_OWN, ref.getReference());
 		else
 			groups = getGroupsAllowFunction(AUTH_RESOURCE_REMOVE_ANY, ref.getReference());
