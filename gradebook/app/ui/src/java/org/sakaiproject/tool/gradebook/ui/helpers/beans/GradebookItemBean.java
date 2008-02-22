@@ -50,13 +50,18 @@ public class GradebookItemBean {
 	public void setGradebookId(Long gradebookId){
 		this.gradebookId = gradebookId;
 	}
+	private Boolean counted = Boolean.FALSE;
+	public void setCounted(Boolean counted) {
+		this.counted = counted;
+	}
 	
 	public String processActionAddItem(){
 		Boolean errorFound = Boolean.FALSE;
 		
 		for (String key : OTPMap.keySet()) {
 			Assignment assignment = OTPMap.get(key);
-				
+			assignment.setNotCounted(!counted);	
+			
 			//check for null name
 			if (assignment.getName() == null || assignment.getName().equals("")) {
 				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.null_name"));

@@ -164,7 +164,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         }
         
         UIBoundBoolean.make(form, "release", assignmentOTP + ".released");
-        UIBoundBoolean.make(form, "course_grade", assignmentOTP + ".counted");
+        UIBoundBoolean.make(form, "course_grade", "#{GradebookItemBean.counted}", !assignment.isNotCounted());
         
         form.parameters.add( new UIELBinding("#{GradebookItemBean.gradebookId}", gradebookManager.getGradebook(params.contextId).getId()));
         
