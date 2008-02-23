@@ -467,6 +467,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 					}
 					resolvedEntry = getUserByEid(eid, null);
 				} catch ( InvalidEmailAddressException e ) {
+					M_log.warn("findUserByEmail(): Attempted to look up user at an invalid email address [" + email + "]", e);
 					useStdFilter = true; // fall back to std processing, we cant derive an EID from this addr
 				}
 			}
@@ -497,9 +498,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			}
 
 			return true;
-		} catch ( InvalidEmailAddressException e ) {
-			M_log.warn("findUserByEmail(): Attempted to look up user at an invalid email address [" + email + "]", e);
-			return false;
+		
 		} catch ( Exception e ) {
 			M_log.error("findUserByEmail(): failed [email = " + email + "]", e);
 			return false;
