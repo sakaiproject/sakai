@@ -223,7 +223,7 @@ the absence of being able to easily configure attribute merging from multiple di
 though, it is at least possible able to calculate email addresses from user EID values.
 
 This behavior is implemented by EmailAddressDerivingLdapAttributeMapper, which takes two
-additional properties in addition to the standard properties supported by 
+new properties in addition to the standard properties supported by 
 SimpleLdapAttributeMapper:
 
   1) addressPattern -- Regexp describing the addresses which the provider will assume
