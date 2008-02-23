@@ -243,7 +243,11 @@ However, these configuration properties are asymmetric in order to allow for sit
 where a school may wish to configure this feature for performance reasons rather than 
 limited data stores. In these cases, addressPattern would be configured to match several 
 email domains such that most findUserByEmail() operations are converted to getUserByEid()
-operations in order to leverage the provider's EID-keyed cache.
+operations in order to leverage the provider's EID-keyed cache. In this situation
+defaultAddressDomain could be set to null if the LDAP host in fact supplies email 
+attributes. Otherwise a single domain will need to be specified for any user entry which
+does not report an email attribute. More complicated domain selection strategies could
+be implemented via EmailAddressDerivingLdapAttributeMapper extension.
 
   Connection Pooling
   ------------------------
