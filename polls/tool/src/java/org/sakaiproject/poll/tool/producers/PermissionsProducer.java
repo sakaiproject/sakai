@@ -41,6 +41,7 @@ import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
+import uk.org.ponder.beanutil.PathUtil;
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
@@ -144,14 +145,15 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 				UIBranchContainer row = UIBranchContainer.make(form,"permission-row:",role.getId());
 				UIOutput.make(row,"role",role.getId());
 				//now iterate through the permissions
-				String prefix = "#{roleperms." + role.getId();
+				
+				String prefix = PathUtil.composePath("roleperms",role.getId());
 				for (int ip =0; ip < perms.length;ip++){
 					String thisPerm = (String)perms[ip];
 					thisPerm = thisPerm.substring(thisPerm.indexOf('.') + 1);
 					UIBranchContainer col = UIBranchContainer.make(row,"box-row:", thisPerm);
 					m_log.debug("drawing box for "+ thisPerm + " for role " + role.getId());
 					//new Boolean(role.isAllowed((String)perms[ip]))
-					UIBoundBoolean.make(col, "perm-box", prefix +"."+ thisPerm + "}", new Boolean(role.isAllowed((String)perms[ip])));
+					UIBoundBoolean.make(col, "perm-box","#{" + prefix +"."+ thisPerm + "}", new Boolean(role.isAllowed((String)perms[ip])));
 					 									  
 				}
 			}
