@@ -281,10 +281,6 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 				UNIFORM_CASE_EID, provider.toCaseInsensitiveCacheKey(MIXED_CASE_EID));
 	}
 	
-	private static interface VarargsMethod {
-	    public Object call(Object... args);
-	}
-	
 	public void testGetUserDispatch() {
 		final Mock mockDoGetUserByEid = mock(VarargsMethod.class);
         final VarargsMethod doGetUserByEid = (VarargsMethod)mockDoGetUserByEid.proxy();
@@ -456,6 +452,8 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 				doMapUserDataOntoUserEdit.call(userData,userEdit);			
 			}
 		};
+		
+		assertFalse(attributeMapper instanceof EidDerivedEmailAddressHandler); // sanity check 
 		provider.setLdapAttributeMapper(attributeMapper);
 		
 		String eid = "some-eid";
@@ -463,7 +461,7 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		String emailFilter = "(mail=" + email + ")";
 		LdapUserData userData = new LdapUserData();
 		userData.setEid(eid);
-		userData.setEmail(emailFilter);
+		userData.setEmail(email);
 		UserEditStub userEdit = new UserEditStub();
 		userEdit.setEid(eid);
 		userEdit.setEmail(email);
@@ -480,8 +478,211 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		assertTrue(provider.findUserByEmail(userEdit, email));
 		mockDoSearchDirectoryForSingleEntry.verify();
 		mockDoMapUserDataOntoUserEdit.verify();
-		
 	}
+	
+	/**
+	 * Exists to allow mocking of the {@link LdapAttributeMapper} and
+	 * {@link EidDerivedEmailAddressHandler} simultaneously 
+	 */
+	private interface SyntheticEmailLdapAttributeMapper extends LdapAttributeMapper, EidDerivedEmailAddressHandler {}
+	
+	public void testFindUserByEidDerivedEmailDispatch() {
+		final Mock mockDoGetUserByEid = mock(VarargsMethod.class);
+        final VarargsMethod doGetUserByEid = (VarargsMethod)mockDoGetUserByEid.proxy();
+		final Mock mockDoMapUserDataOntoUserEdit = mock(VarargsMethod.class);
+        final VarargsMethod doMapUserDataOntoUserEdit = (VarargsMethod)mockDoMapUserDataOntoUserEdit.proxy();
+        // "override" the default attrib mapper so we can implement two interfaces
+        this.mockAttributeMapper = mock(SyntheticEmailLdapAttributeMapper.class);
+        this.attributeMapper = (LdapAttributeMapper) this.mockAttributeMapper.proxy();
+		
+		JLDAPDirectoryProvider provider = new JLDAPDirectoryProvider() {
+			protected LdapUserData getUserByEid(String eid, LDAPConnection conn) 
+			throws LDAPException {
+				return (LdapUserData)doGetUserByEid.call(eid, conn);
+			}
+			protected void mapUserDataOntoUserEdit(LdapUserData userData, UserEdit userEdit) {
+				doMapUserDataOntoUserEdit.call(userData,userEdit);			
+			}
+		};
+		provider.setLdapAttributeMapper(attributeMapper);
+		
+		String eid = "some-eid";
+		String email = eid + "@university.edu"; // other tests explicitly cause the eid and account ID to differ
+		LdapUserData userData = new LdapUserData();
+		userData.setEid(eid);
+		userData.setEmail(email);
+		UserEditStub userEdit = new UserEditStub();
+		userEdit.setEid(eid);
+		userEdit.setEmail(email);
+		mockAttributeMapper.expects(once()).method("unpackEidFromAddress").
+			with(eq(email)).will(returnValue(eid));
+		mockDoGetUserByEid.expects(once()).method("call")
+			.with(eq(new Object[] { userEdit.getEid(), null
+					}))
+			.will(returnValue(userData));
+		// see comments re mapUserDataOntoUserEdit() in testGetUserByEidDispatch()
+		mockDoMapUserDataOntoUserEdit.expects(once()).method("call")
+			.with(eq(new Object[] {userData, userEdit}));
+		
+		assertTrue(provider.findUserByEmail(userEdit, email));
+		mockDoGetUserByEid.verify();
+		mockDoMapUserDataOntoUserEdit.verify();
+	}
+	
+	/**
+	 * Verifies that {@link InvalidEmailAddressException}s thrown by a
+	 * {@link EidDerivedEmailAddressHandler} are trapped and cause the 
+	 * operation to fall back to "standard" find-by-email processing. This
+	 * allows for situations where email addresses for users in some domain 
+	 * are known to the LDAP but host, but others are not.
+	 */
+	public void testFindUserByEidDerivedEmailDispatchFallsBackToStandardSearchOnInvalidEmailAddressException() {
+        // "override" the default attrib mapper so we can implement two interfaces
+        this.mockAttributeMapper = mock(SyntheticEmailLdapAttributeMapper.class);
+        this.attributeMapper = (LdapAttributeMapper) this.mockAttributeMapper.proxy();
+		
+        final Mock mockDoSearchDirectoryForSingleEntry = mock(VarargsMethod.class);
+		final VarargsMethod doSearchDirectoryForSingleEntry = (VarargsMethod)mockDoSearchDirectoryForSingleEntry.proxy();
+		final Mock mockDoMapUserDataOntoUserEdit = mock(VarargsMethod.class);
+        final VarargsMethod doMapUserDataOntoUserEdit = (VarargsMethod)mockDoMapUserDataOntoUserEdit.proxy();
+		
+		JLDAPDirectoryProvider provider = new JLDAPDirectoryProvider() {
+			protected Object searchDirectoryForSingleEntry(String filter, 
+					LDAPConnection conn,
+					LdapEntryMapper mapper,
+					String[] searchResultPhysicalAttributeNames,
+					String searchBaseDn)
+			throws LDAPException {
+				return doSearchDirectoryForSingleEntry.call(filter,conn,mapper,searchResultPhysicalAttributeNames,searchBaseDn);
+			}
+			protected void mapUserDataOntoUserEdit(LdapUserData userData, UserEdit userEdit) {
+				doMapUserDataOntoUserEdit.call(userData,userEdit);			
+			}
+		};
+        
+		provider.setLdapAttributeMapper(attributeMapper);
+		
+		String eid = "some-eid";
+		String email = eid + "@university.edu"; // other tests explicitly cause the eid and account ID to differ
+		String emailFilter = "(mail=" + email + ")";
+		LdapUserData userData = new LdapUserData();
+		userData.setEid(eid);
+		userData.setEmail(email);
+		UserEditStub userEdit = new UserEditStub();
+		userEdit.setEid(eid);
+		userEdit.setEmail(email);
+		
+		mockAttributeMapper.expects(once()).method("unpackEidFromAddress").
+			with(eq(email)).will(throwException(new InvalidEmailAddressException("Unable to unpack [" + email + "]")));
+		mockAttributeMapper.expects(once()).method("getFindUserByEmailFilter").
+			with(eq(email)).after(mockAttributeMapper, "unpackEidFromAddress").
+			will(returnValue(emailFilter));
+		mockDoSearchDirectoryForSingleEntry.expects(once()).method("call").
+			with(eq(new Object[] {emailFilter, null, null, null, null})).
+			after(mockAttributeMapper, "getFindUserByEmailFilter").
+			will(returnValue(userData));
+		// see comments re mapUserDataOntoUserEdit() in testGetUserByEidDispatch()
+		mockDoMapUserDataOntoUserEdit.expects(once()).method("call")
+			.with(eq(new Object[] {userData, userEdit})).
+			after(mockDoSearchDirectoryForSingleEntry, "call");
+		
+		assertTrue(provider.findUserByEmail(userEdit, email));
+		mockDoSearchDirectoryForSingleEntry.verify();
+		mockDoMapUserDataOntoUserEdit.verify();
+	}
+	
+	/**
+	 * Tests a scenario that really shouldn't ever occur if a 
+	 * {@link EidDerivedEmailAddressHandler} is well implemented. That is, that
+	 * collaborator should never return null from 
+	 * {@link EidDerivedEmailAddressHandler#unpackEidFromAddress(String)}, but throw
+	 * a {@link InvalidEmailAddressException}. Here we verify that even if the
+	 * handler is misbehaved in this way, we act as if a {@link InvalidEmailAddressException}
+	 * has been thrown
+	 */
+	public void testFindUserByEidDerivedEmailDispatchExitsGracefullyOnNullEid() {
+		// "override" the default attrib mapper so we can implement two interfaces
+        this.mockAttributeMapper = mock(SyntheticEmailLdapAttributeMapper.class);
+        this.attributeMapper = (LdapAttributeMapper) this.mockAttributeMapper.proxy();
+		
+        final Mock mockDoSearchDirectoryForSingleEntry = mock(VarargsMethod.class);
+		final VarargsMethod doSearchDirectoryForSingleEntry = (VarargsMethod)mockDoSearchDirectoryForSingleEntry.proxy();
+		final Mock mockDoMapUserDataOntoUserEdit = mock(VarargsMethod.class);
+        final VarargsMethod doMapUserDataOntoUserEdit = (VarargsMethod)mockDoMapUserDataOntoUserEdit.proxy();
+		
+		JLDAPDirectoryProvider provider = new JLDAPDirectoryProvider() {
+			protected Object searchDirectoryForSingleEntry(String filter, 
+					LDAPConnection conn,
+					LdapEntryMapper mapper,
+					String[] searchResultPhysicalAttributeNames,
+					String searchBaseDn)
+			throws LDAPException {
+				return doSearchDirectoryForSingleEntry.call(filter,conn,mapper,searchResultPhysicalAttributeNames,searchBaseDn);
+			}
+			protected void mapUserDataOntoUserEdit(LdapUserData userData, UserEdit userEdit) {
+				doMapUserDataOntoUserEdit.call(userData,userEdit);			
+			}
+		};
+        
+		provider.setLdapAttributeMapper(attributeMapper);
+		
+		String eid = "some-eid";
+		String email = eid + "@university.edu"; // other tests explicitly cause the eid and account ID to differ
+		String emailFilter = "(mail=" + email + ")";
+		LdapUserData userData = new LdapUserData();
+		userData.setEid(eid);
+		userData.setEmail(email);
+		UserEditStub userEdit = new UserEditStub();
+		userEdit.setEid(eid);
+		userEdit.setEmail(email);
+		
+		mockAttributeMapper.expects(once()).method("unpackEidFromAddress").
+			with(eq(email)).will(returnValue(null));
+		mockAttributeMapper.expects(once()).method("getFindUserByEmailFilter").
+			with(eq(email)).after(mockAttributeMapper, "unpackEidFromAddress").
+			will(returnValue(emailFilter));
+		mockDoSearchDirectoryForSingleEntry.expects(once()).method("call").
+			with(eq(new Object[] {emailFilter, null, null, null, null})).
+			after(mockAttributeMapper, "getFindUserByEmailFilter").
+			will(returnValue(userData));
+		// see comments re mapUserDataOntoUserEdit() in testGetUserByEidDispatch()
+		mockDoMapUserDataOntoUserEdit.expects(once()).method("call")
+			.with(eq(new Object[] {userData, userEdit})).
+			after(mockDoSearchDirectoryForSingleEntry, "call");
+		
+		assertTrue(provider.findUserByEmail(userEdit, email));
+		mockDoSearchDirectoryForSingleEntry.verify();
+		mockDoMapUserDataOntoUserEdit.verify();
+	}
+	
+	/**
+	 * Very similar to {@link #testFindUserByEidDerivedEmailDispatchExitsGracefullyOnInvalidEmailAddressException()},
+	 * but checks for null return values rather than exceptional exits.
+	 */
+	public void testFindUserByEidDerivedEmailDispatchExitsGracefullyOnNullSearchResults() {
+		// "override" the default attrib mapper so we can implement two interfaces
+        this.mockAttributeMapper = mock(SyntheticEmailLdapAttributeMapper.class);
+        this.attributeMapper = (LdapAttributeMapper) this.mockAttributeMapper.proxy();
+        
+        JLDAPDirectoryProvider provider = new JLDAPDirectoryProvider() {
+			protected LdapUserData getUserByEid(String eid, LDAPConnection conn) 
+			throws LDAPException {
+				return null;
+			}
+		};
+		provider.setLdapAttributeMapper(attributeMapper);
+		
+		String eid = "some-eid";
+		String email = eid + "@university.edu"; // other tests explicitly cause the eid and account ID to differ
+		UserEditStub userEdit = new UserEditStub();
+		userEdit.setEid(eid);
+		userEdit.setEmail(email);
+		mockAttributeMapper.expects(once()).method("unpackEidFromAddress").
+			with(eq(email)).will(returnValue(eid));
+		assertFalse(provider.findUserByEmail(userEdit, email));
+	}
+	
+	
 	
 	protected EidAssignmentStub setEidOnReceivedUserEdit() {
 		return new EidAssignmentStub();

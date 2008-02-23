@@ -215,6 +215,36 @@ blacklisting may not have an immediate effect if a blacklisted user has already 
 cached. That is, the cache entry must timeout or otherwise flush the user record before
 blacklisting policies will go into effect for that user. 
 
+  Derived Email Addresses
+  ------------------------
+  
+At some institutions, not all user attributes are stored in a single directory. In 
+the absence of being able to easily configure attribute merging from multiple directories, 
+though, it is at least possible able to calculate email addresses from user EID values.
+
+This behavior is implemented by EmailAddressDerivingLdapAttributeMapper, which takes two
+additional properties in addition to the standard properties supported by 
+SimpleLdapAttributeMapper:
+
+  1) addressPattern -- Regexp describing the addresses which the provider will assume
+  are not known to the LDAP host. This will cause the provider to attempt to search for
+  a user using an EID derived from the email address.  
+  2) defaultAddressDomain -- This domain will be used to calculate an email address for
+  users entries returned from the LDAP host which do not contain email attributes.
+  Specifically, the address will be created by concatenating the users EID and this
+  domain.
+
+In most cases, these two properties are set to nearly identical values. For example:
+
+  <property name="defaultAddressDomain" value="myschool.edu" />
+  <property name="addressPattern" value=".*?@myschool.edu$" />
+  
+However, these configuration properties are asymmetric in order to allow for situations 
+where a school may wish to configure this feature for performance reasons rather than 
+limited data stores. In these cases, addressPattern would be configured to match several 
+email domains such that most findUserByEmail() operations are converted to getUserByEid()
+operations in order to leverage the provider's EID-keyed cache.
+
   Connection Pooling
   ------------------------
 

@@ -32,8 +32,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.util.StringUtil;
 
 import com.novell.ldap.LDAPConnection;
 import com.novell.ldap.LDAPEntry;
@@ -162,7 +164,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	/** Currently limited to allowing/disallowing searches for particular user EIDs.
 	 * Implements things like user EID blacklists. */
 	private EidValidator eidValidator;
-
+	
 	/**
 	 * Defaults to an anon-inner class which handles {@link LDAPEntry}(ies)
 	 * by passing them to {@link #mapLdapEntryOntoUserData(LDAPEntry)}, the
@@ -451,7 +453,60 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 */
 	public boolean findUserByEmail(UserEdit edit, String email)
 	{
+		try {
+			
+			boolean useStdFilter = !(ldapAttributeMapper instanceof EidDerivedEmailAddressHandler);
+			LdapUserData resolvedEntry = null;
+			if ( !(useStdFilter) ) {
+				try {
+					String eid = 
+						StringUtil.trimToNull(((EidDerivedEmailAddressHandler)ldapAttributeMapper).unpackEidFromAddress(email));
+					if ( eid == null ) { // shouldn't happen (see unpackEidFromEmail() javadoc)
+						throw new InvalidEmailAddressException("Attempting to unpack an EID from [" + email + 
+								"] resulted in a null or empty string");
+					}
+					resolvedEntry = getUserByEid(eid, null);
+				} catch ( InvalidEmailAddressException e ) {
+					useStdFilter = true; // fall back to std processing, we cant derive an EID from this addr
+				}
+			}
+			
+			// we do _only_ fall back to std processing if EidDerivedEmailAddressHandler actually
+			// indicated it could not handle the given email addr. If it could handle the addr
+			// but found no results, we honor that empty result set
+			if ( useStdFilter ) { // value may have been changed in EidDerivedEmailAddressHandler block above
+				String filter = 
+					ldapAttributeMapper.getFindUserByEmailFilter(email);
+				resolvedEntry = (LdapUserData)searchDirectoryForSingleEntry(filter, 
+						null, null, null, null);
+			}
+		
+			if ( resolvedEntry == null ) {
+				if ( M_log.isDebugEnabled() ) {
+					M_log.debug("findUserByEmail(): failed to find user by email [email = " + email + "]");
+				}
+				return false;
+			}
 
+			if ( M_log.isDebugEnabled() ) {
+				M_log.debug("findUserByEmail(): found user by email [email = " + email + "]");
+			}
+
+			if ( edit != null ) {
+				mapUserDataOntoUserEdit(resolvedEntry, edit);
+			}
+
+			return true;
+		} catch ( InvalidEmailAddressException e ) {
+			M_log.warn("findUserByEmail(): Attempted to look up user at an invalid email address [" + email + "]", e);
+			return false;
+		} catch ( Exception e ) {
+			M_log.error("findUserByEmail(): failed [email = " + email + "]", e);
+			return false;
+		}
+		
+		/*
+		
 		if ( M_log.isDebugEnabled() ) {
 			M_log.debug("findUserByEmail(): [email = " + email + "]");
 		}
@@ -487,6 +542,8 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			M_log.error("findUserByEmail(): failed [email = " + email + "]", e);
 			return false;
 		}
+		
+		*/
 
 	}
 
@@ -1411,5 +1468,5 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	public void setEidValidator(EidValidator eidValidator) {
 		this.eidValidator = eidValidator;
 	}
-
+	
 }
