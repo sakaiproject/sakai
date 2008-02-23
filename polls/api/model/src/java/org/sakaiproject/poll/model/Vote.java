@@ -56,7 +56,8 @@ public class Vote {
 	    userId = currentuser.getId();
 	    //set the Ip to the current sessions IP
 	    UsageSession usageSession = UsageSessionService.getSession();
-	    ip = usageSession.getIpAddress();
+	    if (usageSession != null)
+	    	ip = usageSession.getIpAddress();
 	}
 	
 	public void setId(Long value) {
