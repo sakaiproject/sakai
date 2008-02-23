@@ -406,7 +406,7 @@ public class DavServlet extends HttpServlet
 	private SimpleDateFormat httpDateFormat()
 	{
 		final SimpleDateFormat httpDateFormat = new SimpleDateFormat(
-				"EEE, d MMM yyyy hh:mm:ss z", Locale.US);
+				"EEE, d MMM yyyy HH:mm:ss z", Locale.US);
 		httpDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 		return httpDateFormat;
 	}
