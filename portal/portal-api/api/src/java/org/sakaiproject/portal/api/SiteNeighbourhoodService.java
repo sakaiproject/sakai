@@ -46,5 +46,21 @@ public interface SiteNeighbourhoodService
 	 * @return
 	 */
 	List<Site> getSitesAtNode(HttpServletRequest request, Session session, boolean includeMyWorksite);
+	
+	/**
+	 * Convert an ID that is normally displayed in the URL into something more readable.
+	 * @param siteId The ID to convert.
+	 * @param content The context that this site is presented in.
+	 * @return 
+	 */
+	String lookupSiteAlias(String siteId, String content);
+	
+	
+	/**
+	 * Attempt to convert an alias back into a site reference.
+	 * @param alias
+	 * @return <code>null</code> if we couldn't find an reference that this maps to.
+	 */
+	String parseSiteAlias(String alias);
 
 }
