@@ -133,6 +133,10 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 			t.setId(idManager.createUuid());
 		}
 
+		//we may need to truncate the description field
+		if (t.getDetails().length() > 254)
+			t.setDetails(t.getDetails().substring(0, 254));
+		
 		try {
 			getHibernateTemplate().saveOrUpdate(t);
 
