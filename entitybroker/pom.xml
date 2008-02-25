@@ -2,6 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
+   <parent>
+    <artifactId>base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+   </parent>
    <name>Sakai Entity Broker</name>
    <groupId>org.sakaiproject</groupId>
    <artifactId>entitybroker</artifactId>
@@ -19,13 +25,6 @@
       entity providers are accessible in Sakai as if they were created using the legacy system.
    </description>
    <version>1.2.0</version>
-
-   <!-- Sakai master pom is parent -->
-   <parent>
-      <artifactId>master</artifactId>
-      <groupId>org.sakaiproject</groupId>
-      <version>SNAPSHOT</version>
-   </parent>
 
    <!-- Define the modules that are part of this -->
    <modules>
@@ -67,6 +66,8 @@
       </developer>
    </developers>
 
+   <!-- Distribution Management commented out as likely to clash with Sakai release artifact generation  -->
+   <!--
    <distributionManagement>
       <repository>
          <id>Sakai-Maven2</id> 
@@ -78,11 +79,7 @@
          <url>file:./site/</url>
       </site>
    </distributionManagement>
-
-   <issueManagement>
-      <system>JIRA</system>
-      <url>http://jira.sakaiproject.org/jira/</url>
-   </issueManagement>
+   -->
 
    <ciManagement>
       <system>Continuum</system>
@@ -111,112 +108,16 @@
       </notifiers>
    </ciManagement>
 
-   <!-- define the license -->
-   <licenses>
-      <license>
-         <name>Educational Community License, Version 1.0</name>
-         <url>http://www.opensource.org/licenses/ecl1.php</url>
-         <distribution>repo</distribution>
-      </license>
-   </licenses>
-
    <!-- define source code repository location -->
    <scm>
-      <connection>scm:svn:https://source.sakaiproject.org/contrib/caret/entitybroker/trunk/</connection>
-      <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/caret/entitybroker/trunk/</developerConnection>
-      <url>https://source.sakaiproject.org/viewsvn/caret/entitybroker/trunk/?root=contrib</url>
-   </scm>
-
-   <!-- define javadocs and jxr docs -->
-   <reporting>
-      <plugins>
-         <plugin>
-            <!-- javadocs -->
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-               <debug>true</debug>
-               <links>
-                  <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
-               </links>
-               <breakiterator>true</breakiterator>
-               <verbose>true</verbose>
-            </configuration>
-         </plugin>
-         <plugin>
-            <!-- junit test reports -->
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-         </plugin>
-         <plugin>
-            <!-- unit test coverage reporting -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>cobertura-maven-plugin</artifactId>
-            <version>2.0</version>
-         </plugin>
-         <plugin>
-            <!-- Code analysis report -->
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-pmd-plugin</artifactId>
-            <configuration>
-               <targetjdk>1.5</targetjdk>
-               <rulesets>
-                  <ruleset>/rulesets/basic.xml</ruleset>
-                  <ruleset>/rulesets/codesize.xml</ruleset>
-                  <ruleset>/rulesets/design.xml</ruleset>
-                  <ruleset>/rulesets/finalizers.xml</ruleset>
-                  <ruleset>/rulesets/imports.xml</ruleset>
-                  <ruleset>/rulesets/logging-java.xml</ruleset>
-                  <ruleset>/rulesets/migrating.xml</ruleset>
-                  <ruleset>/rulesets/strings.xml</ruleset>
-                  <!-- <ruleset>/rulesets/typeresolution.xml</ruleset> Causes a screen buffer and thus a failure when building on servers -AZ -->
-                  <ruleset>/rulesets/unusedcode.xml</ruleset>
-               </rulesets>
-               <format>xml</format>
-               <linkXref>true</linkXref>
-               <sourceEncoding>utf-8</sourceEncoding>
-               <minimumTokens>100</minimumTokens>
-            </configuration>
-         </plugin>
-         <plugin>
-            <!-- Changelog report -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>changelog-maven-plugin</artifactId>
-            <configuration>
-               <type>range</type>
-               <range>90</range><!-- days -->
-            </configuration>
-         </plugin>
-         <plugin>
-            <!-- TODO tags report -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>taglist-maven-plugin</artifactId>
-            <configuration>
-               <tags>
-                  <tag>TODO</tag>
-                  <tag>FIXME</tag>
-                  <tag>@deprecated</tag>
-               </tags>
-            </configuration>
-         </plugin>
-         <plugin>
-            <!-- jdepend code analysis -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>jdepend-maven-plugin</artifactId>
-         </plugin>
-         <plugin>
-            <!-- jxr source code cross linking -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>jxr-maven-plugin</artifactId>
-            <configuration>
-               <linkJavadoc>true</linkJavadoc>
-               <javadocDir>apidocs</javadocDir>
-            </configuration>
-         </plugin>
-      </plugins>
-   </reporting>
-
+    <connection>scm:svn:https://source.sakaiproject.org/svn/entitybroker/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/entitybroker/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/entitybroker/trunk</url>
+  </scm>
+  
    <profiles>
+      <!-- Profile definition commented out as may clash with release artifact generation -->
+      <!--
       <profile>
          <id>release</id>
          <build>
@@ -236,9 +137,12 @@
             </plugins>
          </build>
       </profile>
+      -->
    </profiles>
-
+	
    <!-- No build for a base project -->
+   <!-- Build definition commented out as may clash with Sakai release artifact generation -->
+   <!--
    <build>
       <extensions>
          <extension>
@@ -248,5 +152,6 @@
          </extension>
       </extensions>
    </build>
+   -->
 
 </project>
