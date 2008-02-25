@@ -200,7 +200,8 @@ public class CalendarBean {
 			channelArray = mergedCalendarList.getAllPermittedChannels(new CalendarChannelReferenceMaker(getExcludedSitesFromTabs()));
 			if(channelArray != null){
 				for(int i = 0; i < channelArray.length; i++)
-					calendarReferences.add(channelArray[i]);
+					if(channelArray[i] != null)
+						calendarReferences.add(channelArray[i]);
 			}
 		}
 
