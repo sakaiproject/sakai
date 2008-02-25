@@ -26,11 +26,14 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>
@@ -870,4 +873,225 @@ public class HistogramQuestionScoresBean
     randomType= param;
   }
 
+  
+  
+  // Below added by gopalrc Nov 2007
+
+  /**
+   * added by gopalrc Nov 2007
+   * 
+   * The set of students with all answers correct for this question
+   */
+  private Set studentsWithAllCorrect;
+
+  /**
+   * added by gopalrc Nov 2007
+   * 
+   * The set of students who responded to this question
+   */
+  private Set studentsResponded;
+  
+  /**
+   * added by gopalrc Nov 2007
+   * 
+   * Percentage of students in the overall upper 25%
+   * who got this question right
+   */
+  private String percentCorrectFromUpperQuartileStudents;
+  
+  /**
+   * added by gopalrc Nov 2007
+   * 
+   * Percentage of students in the overall lower 25%
+   * who got this question right
+   */
+  private String percentCorrectFromLowerQuartileStudents;
+
+  /**
+   * added by gopalrc Nov 2007
+   * 
+   * Discrimination value of this question
+   */
+  private String discrimination;
+  
+  /**
+   * added by gopalrc Dec 2007
+   * 
+   * Count of selected answer frequencies 
+   * plus numberOfStudentsWithZeroAnswers
+   */
+  private String n;
+  
+  /**
+   * added by gopalrc Dec 2007
+   * 
+   * Number of students who selected no answer 
+   */
+  private int numberOfStudentsWithZeroAnswers = 0;
+  
+  /**
+   * added by gopalrc Dec 2007
+   * 
+   * The published item (question) id
+   */
+  private Long itemId;
+
+  
+  /**
+   * added by gopalrc Dec 2007
+   * 
+   * The published item (question) id
+   */
+  private int numberOfParts;
+  
+  
+  public String getQuestionLabel() {
+	  if (getNumberOfParts() > 1) {
+		  return "P" + partNumber + "-Q" + questionNumber; 
+	  }
+	  else {
+		  return "Q" + questionNumber; 
+	  }
+  }
+  
+  public void addStudentWithAllCorrect(String agentId) {
+	  if (studentsWithAllCorrect == null) {
+		  studentsWithAllCorrect = new TreeSet();
+	  }
+	  studentsWithAllCorrect.add(agentId);
+  }
+  
+  public void addStudentResponded(String agentId) {
+	  if (studentsResponded == null) {
+		  studentsResponded = new TreeSet();
+	  }
+	  studentsResponded.add(agentId);
+  }
+  
+  public void clearStudentsWithAllCorrect() {
+	  studentsWithAllCorrect = null;
+  }
+  
+  public void clearStudentsResponded() {
+	  studentsResponded = null;
+  }
+
+  
+  public Set getStudentsWithAllCorrect() {
+	return studentsWithAllCorrect;
+  }
+	
+  public Set getStudentsResponded() {
+	return studentsResponded;
+  }
+
+
+  public String getDiscrimination() {
+	  return discrimination;
+  }
+
+  public void setDiscrimination(String discrimination) {
+	  this.discrimination = discrimination;
+  }
+
+  public String getPercentCorrectFromUpperQuartileStudents() {
+	  return percentCorrectFromUpperQuartileStudents;
+  }
+
+  public void setPercentCorrectFromUpperQuartileStudents(
+		  String percentCorrectFromUpperQuartileStudents) {
+	  this.percentCorrectFromUpperQuartileStudents = percentCorrectFromUpperQuartileStudents;
+  }
+
+  public String getPercentCorrectFromLowerQuartileStudents() {
+	  return percentCorrectFromLowerQuartileStudents;
+  }
+
+  public void setPercentCorrectFromLowerQuartileStudents(
+		  String percentCorrectFromLowerQuartileStudents) {
+	  this.percentCorrectFromLowerQuartileStudents = percentCorrectFromLowerQuartileStudents;
+  }
+
+  public String getN() {
+	/*
+		if (histogramBars == null) return "0";
+		int numberOfStudents = 0;
+		for (int i=0; i<histogramBars.length; i++) {
+			numberOfStudents += histogramBars[i].getNumStudents();
+		}
+		int n = numberOfStudents + getNumberOfStudentsWithZeroAnswers();
+	*/
+	/*  
+		int n = getNumResponses() + getNumberOfStudentsWithZeroAnswers();
+		return "" + n;
+	*/
+	  return n;
+  }
+  
+  public void setN(String n) {
+	  this.n = n;
+  }
+
+  public int getNumberOfStudentsWithZeroAnswers() {
+	  return numberOfStudentsWithZeroAnswers;
+  }
+
+  public void setNumberOfStudentsWithZeroAnswers(
+		  int numberOfStudentsWithZeroAnswers) {
+	  this.numberOfStudentsWithZeroAnswers = numberOfStudentsWithZeroAnswers;
+  }
+
+  public Long getItemId() {
+	  return itemId;
+  }
+
+  public void setItemId(Long itemId) {
+	  this.itemId = itemId;
+  }
+
+  public int getNumberOfParts() {
+	  return numberOfParts;
+  }
+
+  public void setNumberOfParts(int numberOfParts) {
+	  this.numberOfParts = numberOfParts;
+  }
+  
+  public boolean getShowPercentageCorrectAndDiscriminationFigures() {
+	  return !getQuestionType().equals("3");
+  }
+
+  public int getSumOfStudentResponsesInUndisplayedItemAnalysisColumns() {
+	  if (histogramBars==null || histogramBars.length<13) {
+		  return 0;
+	  }
+	  else {
+		  int sum = 0;
+		  for (int i=12; i<histogramBars.length; i++) {
+			  sum += histogramBars[i].getNumStudents();
+		  }
+		  return sum;
+	  }
+  }
+  
+  public String getStudentResponsesInUndisplayedItemAnalysisColumns() {
+	  if (histogramBars==null || histogramBars.length<13) {
+		  return "";
+	  }
+	  else {
+		  String sep = " | ";
+		  String responses = sep;
+		  for (int i=12; i<histogramBars.length; i++) {
+			  if (histogramBars[i].getIsCorrect()) {
+				  responses += "(" + histogramBars[i].getNumStudents() + ")" + sep;
+			  }
+			  else {
+				  responses += histogramBars[i].getNumStudents() + sep;
+			  }
+		  }
+		  return responses;
+	  }
+  }
+  
+  
 }

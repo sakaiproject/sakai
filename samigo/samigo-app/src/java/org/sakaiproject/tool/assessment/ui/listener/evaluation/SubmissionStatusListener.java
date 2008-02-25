@@ -155,9 +155,11 @@ public class SubmissionStatusListener
       	bean.setSortAscending(sortAscending);
       	log.debug("submissionStatus() :: sortAscending = " + sortAscending);
       }
+
       totalScoresBean.setSelectedSectionFilterValue(bean.getSelectedSectionFilterValue());
       
       bean.setPublishedId(publishedId);
+      
       // we are only interested in showing last submissions
 
       List scores = delegate.getLastSubmittedAssessmentGradingList(new Long(publishedId));
@@ -176,7 +178,7 @@ public class SubmissionStatusListener
       //Date dueDate = null;
 
       // Collect a list of all the users in the scores list
-      Map useridMap= totalScoresBean.getUserIdMap();
+      Map useridMap= totalScoresBean.getUserIdMap(TotalScoresBean.CALLED_FROM_SUBMISSION_STATUS_LISTENER);
 
 
       ArrayList agentUserIds = totalScorelistener.getAgentIds(useridMap);

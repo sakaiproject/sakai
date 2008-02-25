@@ -92,18 +92,23 @@ public class PublishedAssessmentFacade
   private Date feedbackDate;
   private String ownerSiteName;
   private Set publishedAssessmentAttachmentSet;
+  
+  // added by gopalrc Nov 2007
+  private String releaseToGroups;
 
   public PublishedAssessmentFacade() {
   }
 
   // constructor that whole min. info, used for listing
+  // amended by gopalrc Nov 2007 to include releaseToGroups
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
-                                 Date startDate, Date dueDate){
+                                 Date startDate, Date dueDate, String releaseToGroups){
     this.publishedAssessmentId = id;
     this.title = title;
     this.releaseTo = releaseTo;
     this.startDate = startDate;
     this.dueDate = dueDate;
+    this.releaseToGroups = releaseToGroups; // added by gopalrc Nov 2007
   }
 
   // constructor that whole min. info, used for listing
@@ -665,4 +670,13 @@ public class PublishedAssessmentFacade
   public String getHasMetaDataForQuestions() {
 	    return (String)this.publishedMetaDataMap.get(HASMETADATAFORQUESTIONS);
   }
+  /**
+   * added by gopalrc - Nov 2007
+   * @return
+   */
+  public String getReleaseToGroups() {
+	    return this.releaseToGroups;
+  }
+
+  
 }

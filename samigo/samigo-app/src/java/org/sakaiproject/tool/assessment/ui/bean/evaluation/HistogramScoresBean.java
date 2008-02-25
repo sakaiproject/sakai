@@ -26,6 +26,8 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.text.NumberFormat;
 
 import org.apache.commons.logging.Log;
@@ -825,4 +827,159 @@ publishedId = ppublishedId;
     histogramBars = bars;
   }
 
+  
+  // Below Added by gopalrc - Nov 2007
+  /**
+   * added by gopalrc Nov 2007
+   * Students in the upper 25%
+   */
+  private Map upperQuartileStudents;
+  
+  /**
+   * added by gopalrc Nov 2007
+   * Students in the lower 25%
+   */
+  private Map lowerQuartileStudents;
+
+  /**
+   * gopalrc - Nov 2007
+   * The maximum number of answers per question
+   * for this assessment (for detailed stats layout)
+   */
+  private int maxNumberOfAnswers = 0;
+
+  
+  /**
+   * gopalrc Dec 2007
+   * The HistogramQuestionScores for detailed Statistics for 
+   */
+  private Collection detailedStatistics;
+
+  
+  
+  public void addToUpperQuartileStudents(String agentId) {
+	  if (upperQuartileStudents == null) {
+		  upperQuartileStudents = new HashMap();
+	  }
+	  upperQuartileStudents.put(agentId, agentId);
+  }
+  
+  public boolean isUpperQuartileStudent(String agentId) {
+	  if (upperQuartileStudents == null) {
+		  return false;
+	  }
+	  else {
+		  if (upperQuartileStudents.get(agentId) == null) {
+			  return false;
+		  }
+		  else {
+			  return true;
+		  }
+	  }
+  }
+  
+  public int getNumberOfUpperQuartileStudents() {
+	  if (upperQuartileStudents == null) {
+		  return 0;
+	  }
+	  else {
+		  return upperQuartileStudents.size();
+	  }
+  }
+  
+  public void addToLowerQuartileStudents(String agentId) {
+	  if (lowerQuartileStudents == null) {
+		  lowerQuartileStudents = new HashMap();
+	  }
+	  lowerQuartileStudents.put(agentId, agentId);
+  }
+  
+  
+  public boolean isLowerQuartileStudent(String agentId) {
+	  if (lowerQuartileStudents == null) {
+		  return false;
+	  }
+	  else {
+		  if (lowerQuartileStudents.get(agentId) == null) {
+			  return false;
+		  }
+		  else {
+			  return true;
+		  }
+	  }
+  }
+
+  public int getNumberOfLowerQuartileStudents() {
+	  if (lowerQuartileStudents == null) {
+		  return 0;
+	  }
+	  else {
+		  return lowerQuartileStudents.size();
+	  }
+  }
+  
+  public void clearUpperQuartileStudents() {
+	  upperQuartileStudents = null;
+  }
+  
+  public void clearLowerQuartileStudents() {
+	  lowerQuartileStudents = null;
+  }
+  
+  
+  public int getMaxNumberOfAnswers() {
+	  return maxNumberOfAnswers;  
+  }
+
+  public void setMaxNumberOfAnswers(int maxNumberOfAnswers) {
+	  this.maxNumberOfAnswers = maxNumberOfAnswers;
+  }
+
+  public Collection getDetailedStatistics() {
+	return detailedStatistics;
+  }
+
+  public void setDetailedStatistics(Collection detailedStatistics) {
+	this.detailedStatistics = detailedStatistics;
+  }
+	
+  public boolean getShowDiscriminationColumn() {
+	  try {
+		  return getTotalScore() == null ? false : Float.parseFloat(getTotalScore())!=0.0f;
+	  }
+	  catch (NumberFormatException ex) {
+		  return false;
+	  }
+  }
+  
+  public boolean getShowPartAndTotalScoreSpreadsheetColumns() {
+	  try {
+		  return getTotalScore() == null ? false : Float.parseFloat(getTotalScore())!=0.0f;
+	  }
+	  catch (NumberFormatException ex) {
+		  return false;
+	  }
+  }
+  
+  
+  public String getUndisplayedStudentResponseInItemAnalysisColumnHeader() {
+	  
+	  if (getMaxNumberOfAnswers()<13) {
+		  return "";
+	  }
+	  else {
+		  int first = 65+12;
+		  char firstUndisplayed = (char)first;
+		  int last = 65+getMaxNumberOfAnswers()-1;
+		  char lastUndisplayed = (char)last;
+		  if (first==last) {
+			  return String.valueOf(firstUndisplayed);
+		  }
+		  else {
+			  return String.valueOf(firstUndisplayed) + " - " + String.valueOf(lastUndisplayed);
+		  }
+	  }
+  }
+
+  
 }

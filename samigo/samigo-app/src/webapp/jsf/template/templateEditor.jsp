@@ -156,7 +156,14 @@
           itemLabel="#{templateMessages.anon}"/>
        <f:selectItem itemValue="SITE_MEMBERS"
           itemLabel="#{templateMessages.auth_users}"/>
+       <f:selectItem itemValue="SELECTED_GROUPS"
+          itemLabel="#{templateMessages.selected_groups}"/>
      </h:selectOneRadio>
+     
+     <f:verbatim> Testing Testing </f:verbatim>
+     
+     
+     
   </div>
   </samigo:hideDivision>
 
@@ -603,6 +610,8 @@
   <h:inputHidden id="templateId" value="#{template.idString}"/>
   <h:inputHidden id="createdBy" value="#{template.createdBy}"/>
   <h:inputHidden id="createdDate" value="#{template.createdDate}"/>
+
+
 
   <p class="act">
   <h:panelGroup rendered="#{(template.idString ne '1' && template.typeId ne '142') || person.isAdmin}">

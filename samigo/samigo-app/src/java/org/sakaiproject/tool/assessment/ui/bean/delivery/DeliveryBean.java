@@ -2722,7 +2722,15 @@ public class DeliveryBean
 			for (int i = 0; i < pageList.size(); i++) {
 				page = (SitePage) pageList.get(i);
 				List pageToolList = page.getTools();
-				toolId = ((ToolConfiguration) pageToolList.get(0)).getTool().getId();
+				//toolId = ((ToolConfiguration) pageToolList.get(0)).getTool().getId();
+				
+				// gopalrc - Jan 2008 - issue with null tool
+				if (pageToolList.get(0)==null && ((ToolConfiguration) pageToolList.get(0)).getTool()==null) {
+					continue;
+				}
+				toolId = ((ToolConfiguration) pageToolList.get(0)).getToolId();
+
+				
 				if (toolId.equalsIgnoreCase("sakai.samigo")) {
 					return page.getId();
 				}

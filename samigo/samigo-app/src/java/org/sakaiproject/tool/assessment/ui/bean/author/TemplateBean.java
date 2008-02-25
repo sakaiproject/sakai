@@ -894,4 +894,29 @@ public class TemplateBean implements Serializable
     return typeId;
   }
 
+  
+  
+  
+  
+  protected String groups[] = {"Group 1", "Group 2", "Group 3"};
+  protected String selectedGroups[] = new String[0];
+
+  public String[] getGroups() {
+	  return groups;
+  }
+
+  public void setGroups(String[] groups) {
+	  this.groups = groups;
+  }
+
+  public String[] getSelectedGroups() {
+	  return selectedGroups;
+  }
+
+  public void setSelectedGroups(String[] selectedGroups) {
+	  this.selectedGroups = selectedGroups;
+  }
+  
+  
+  
 }

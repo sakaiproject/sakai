@@ -24,6 +24,8 @@
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -35,6 +37,11 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -44,6 +51,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  * <p>Title: Samigo</p>
@@ -61,7 +69,9 @@ public class LoginServlet
 	 * 
 	 */
 	private static final long serialVersionUID = -5495078878170443939L;
-private static Log log = LogFactory.getLog(LoginServlet.class);
+	private static Log log = LogFactory.getLog(LoginServlet.class);
+
+	private SiteService siteService;
 
   public LoginServlet()
   {
@@ -133,10 +143,15 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
         person.setAnonymousId(agentIdString);
       }
       else { // check membership
-	agentIdString = req.getRemoteUser();
+    	agentIdString = req.getRemoteUser();
         isAuthenticated = ( agentIdString!= null && !("").equals(agentIdString));
         if (isAuthenticated){
-          isAuthorized = checkMembership(pub, req, res);
+          if (releaseTo.indexOf(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)>-1) {
+        	  isAuthorized = checkMembershipForGroupRelease(pub, req, res);
+          }
+          else {
+        	  isAuthorized = checkMembership(pub, req, res);
+          }
           // in 2.2, agentId is differnt from req.getRemoteUser()
           agentIdString = AgentFacade.getAgentString();
         }
@@ -170,7 +185,7 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
             relativePath = false;
             delivery.setActionString(null);
             path = "/authn/login?url=" + URLEncoder.encode(req.getRequestURL().toString()+"?id="+alias, "UTF-8");
-	  }
+          }
         }
         else { //isAuthenticated but not authorized
           path = "/jsf/delivery/accessDenied.faces";
@@ -208,6 +223,47 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
     }
     return isMember;
   }
+  
+  /**
+   * added by gopalrc - Nov 2007
+   * 
+   * @param pub
+   * @param req
+   * @param res
+   * @return
+   */
+  private boolean checkMembershipForGroupRelease(PublishedAssessmentFacade pub,
+	       HttpServletRequest req, HttpServletResponse res){
+	    boolean isMember=false;
+	    // get the site that owns the published assessment
+	    List l =PersistenceService.getInstance().getAuthzQueriesFacade().
+	        getAuthorizationByFunctionAndQualifier("OWN_PUBLISHED_ASSESSMENT",
+	        pub.getPublishedAssessmentId().toString());
+	    if (l == null || l.isEmpty()) {
+	    	return false;
+	    }
+	    String siteId = ((AuthorizationData)l.get(0)).getAgentIdString();
+		Collection siteGroupsContainingUser = null;
+		String currentUserId = UserDirectoryService.getCurrentUser().getId();
+		try {
+			siteGroupsContainingUser = siteService.getSite(siteId).getGroupsWithMember(currentUserId);
+		}
+		catch (IdUnusedException ex) {
+			// no site found
+		}
+	    
+	    // get list of groups that this published assessment has been released to
+	    l =PersistenceService.getInstance().getAuthzQueriesFacade().
+	        getAuthorizationByFunctionAndQualifier("TAKE_PUBLISHED_ASSESSMENT",
+	        pub.getPublishedAssessmentId().toString());
+	    for (int i=0;i<l.size();i++){
+	      String groupId = ((AuthorizationData)l.get(i)).getAgentIdString();
+	      isMember = isUserInAuthorizedGroup(groupId, siteGroupsContainingUser);
+	      if (isMember)
+	        break;
+	    }
+	    return isMember;
+  }
 
   // check if assessment is available based on criteria like
   // dueDate
@@ -222,4 +278,28 @@ private static Log log = LogFactory.getLog(LoginServlet.class);
     }
     return assessmentIsAvailable;
   }
+  
+  
+  /**
+   * added by gopalrc - Nov 2007
+   * 
+   * @param authorizedGroupId
+   * @param userGroups
+   * @return
+   */
+  private boolean isUserInAuthorizedGroup(String authorizedGroupId, Collection userGroups) {
+	  if (userGroups==null || userGroups.isEmpty() 
+			  || authorizedGroupId==null || authorizedGroupId.equals("")) {
+		  return false;
+	  }
+	  Iterator userGroupsIter = userGroups.iterator();
+	  while (userGroupsIter.hasNext()) {
+		Group group = (Group) userGroupsIter.next();
+		if (group.getId().equals(authorizedGroupId)) {
+			return true;
+		}
+	  }
+	  return false;
+  }
+  
 }

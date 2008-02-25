@@ -530,6 +530,13 @@
       <artifactId>sakai-jsf-spreadsheet</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+
+<!-- for spreadsheet support -->
+    <dependency>
+      <groupId>poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>2.5.1</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

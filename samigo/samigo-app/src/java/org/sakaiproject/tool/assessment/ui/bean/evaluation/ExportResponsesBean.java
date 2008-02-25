@@ -21,6 +21,8 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -29,7 +31,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -40,13 +44,36 @@ import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
+import org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+
+// below added for extended spreadsheet support - gopalrc
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+
 
 /**
  * <p>Description: class form for evaluating total scores</p>
  *
  */
 public class ExportResponsesBean implements Serializable, PhaseAware {
+	
+	/**
+	 * gopalrc - Jan 2008
+	 * Marks the beginning of each new sheet.
+	 * If absent, treat as a single-sheet workbook. 
+	 */
+	public static final String NEW_SHEET_MARKER = "<sheet/>";
+	public static final String HEADER_MARKER = "<header/>";
+	
+	public static final String FORMAT = "<format ";
+	public static final String FORMAT_BOLD = FORMAT + "bold/>";
+
+	
 	private String assessmentId;
 	private String assessmentName;
 	private boolean anonymous;
@@ -128,19 +155,40 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 	
 	public void exportExcel(ActionEvent event){
         log.debug("exporting as Excel: assessment id =  " + getAssessmentId());
+        
+        /*
         SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(), 
         		getDownloadFileName(), 
         		new SpreadsheetDataFileWriterXls());
+		*/
+        
+        // changed from above by gopalrc - Jan 2008
+        // to allow local customization of spreadsheet output
+        FacesContext faces = FacesContext.getCurrentInstance();
+        HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
+        response.reset();	// Eliminate the added-on stuff
+        response.setHeader("Pragma", "public");	// Override old-style cache control
+        response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0");	// New-style
+       	writeDataToResponse(getSpreadsheetData(), getDownloadFileName(), response);
+       	faces.responseComplete();
     }
 	
     private List<List<Object>> getSpreadsheetData() {
-    	String audioMessage = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","audio_message");
+        // gopalrc Dec 2007
+        HistogramListener histogramListener = new HistogramListener();
+  	  	Iterator detailedStats = histogramListener.getDetailedStatisticsSpreadsheetData(assessmentId).iterator(); 
+  	  	boolean showPartAndTotalScoreSpreadsheetColumns = (Boolean) detailedStats.next();
+  	  	//boolean showDiscriminationColumn = (Boolean) detailedStats.next();
+  		boolean showDetailedStatisticsSheet = (Boolean) detailedStats.next();
+  	  	
+  	  	String audioMessage = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","audio_message");
     	String fileUploadMessage = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","file_upload_message");
         GradingService gradingService = new GradingService();
-        List<List<Object>> list = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage);
-        
+        List<List<Object>> list = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage, showPartAndTotalScoreSpreadsheetColumns);
+
         // Now insert the header line
         ArrayList<Object> headerList = new ArrayList<Object>();
+        headerList.add(HEADER_MARKER);
         if (anonymous) {
   		  headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","sub_id"));
   	  	}
@@ -150,8 +198,22 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
   		  headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","user_name"));
   		  headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","num_submission"));
   	  	}
-        headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","tot"));
-  	  	PublishedAssessmentService pubService = new PublishedAssessmentService();
+
+        PublishedAssessmentService pubService = new PublishedAssessmentService();
+  	  	
+  	  	// gopalrc - Nov 2007
+        if (showPartAndTotalScoreSpreadsheetColumns) {
+	  	  	int numberOfSections = pubService.getPublishedSectionCount(Long.valueOf(assessmentId)).intValue();
+	  	  	if (numberOfSections > 1) {
+		  	  	for (int i = 1; i <= numberOfSections; i++) {
+		    		  headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","part") 
+		    				  + " " + i + " " + ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","score"));
+		    	}
+	  	  	}
+	        
+	        headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","tot"));
+        }
+  	  	
   	  	int numberOfQuestions = pubService.getPublishedItemCount(Long.valueOf(assessmentId)).intValue();
   	  	log.debug("numberOfQuestions=" + numberOfQuestions);
   	  	for (int i = 1; i <= numberOfQuestions; i++) {
@@ -160,6 +222,27 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
   				  + ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","text"));
   	  	}
   	  	list.add(0,headerList);
+  	  	
+        // gopalrc - Jan 2008 - New Sheet Marker
+  		ArrayList<Object> newSheetList;
+  	  	newSheetList = new ArrayList<Object>();
+  	  	newSheetList.add(NEW_SHEET_MARKER);
+  	  	newSheetList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","responses"));
+  	  	list.add(0, newSheetList);
+
+        // gopalrc - Jan 2008 - New Sheet Marker
+  	  	if (showDetailedStatisticsSheet) {
+  	  		newSheetList = new ArrayList<Object>();
+  	  		newSheetList.add(NEW_SHEET_MARKER);
+  	  		newSheetList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","item_analysis"));
+  	  		list.add(newSheetList);
+
+  	  		// gopalrc Dec 2007
+        	while (detailedStats.hasNext()) {
+        		list.add((List)detailedStats.next());
+        	}
+        }
+  	  	
         return list;
     }
     
@@ -183,4 +266,134 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 		fileName.append(df.format(now));
 		return fileName.toString();
 	}
+    
+    
+	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
+		response.setContentType("application/vnd.ms-excel");
+		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".xls");
+
+		OutputStream out = null;
+		try {
+			out = response.getOutputStream();
+			getAsWorkbook(spreadsheetData).write(out);
+			out.flush();
+		} catch (IOException e) {
+			if (log.isErrorEnabled()) log.error(e);
+		} finally {
+			try {
+				if (out != null) out.close();
+			} catch (IOException e) {
+				if (log.isErrorEnabled()) log.error(e);
+			}
+		}
+	}
+
+	private HSSFWorkbook getAsWorkbookTest(List<List<Object>> spreadsheetData) {
+		HSSFWorkbook wb = new HSSFWorkbook();
+		HSSFSheet sheet = wb.createSheet();
+		Iterator<List<Object>> dataIter = spreadsheetData.iterator();
+
+		// By convention, the first list in the list contains column headers.
+		HSSFRow headerRow = sheet.createRow((short)0);
+		List<Object> headerList = dataIter.next();
+		for (short i = 0; i < headerList.size(); i++) {
+			createCell(headerRow, i, null).setCellValue(headerList.get(i).toString());
+		}
+		short rowPos = 1;
+		while (dataIter.hasNext()) {
+			List<Object> rowData = dataIter.next();
+			HSSFRow row = sheet.createRow(rowPos++);
+			for (short i = 0; i < rowData.size(); i++) {
+				HSSFCell cell = createCell(row, i, null);
+				Object data = rowData.get(i);
+				if (data != null) {
+					if (data instanceof Double) {
+						cell.setCellValue(((Double)data).doubleValue());
+					} 
+					else {
+						cell.setCellValue(data.toString());
+					}
+				}
+			}
+		}
+		return wb;
+	}
+	
+	private HSSFWorkbook getAsWorkbook(List<List<Object>> spreadsheetData) {
+		HSSFWorkbook wb = new HSSFWorkbook();
+
+		HSSFCellStyle boldStyle = wb.createCellStyle();
+		HSSFFont font = wb.createFont();
+		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		boldStyle.setFont(font);
+		HSSFCellStyle headerStyle = boldStyle;
+		
+		HSSFSheet sheet = null;
+
+		Iterator<List<Object>> dataIter = spreadsheetData.iterator();
+		
+		short rowPos = 0;
+		while (dataIter.hasNext()) {
+			List<Object> rowData = dataIter.next();
+
+			if (rowData.get(0).toString().equals(NEW_SHEET_MARKER)) {
+				 sheet = wb.createSheet(rowData.get(1).toString());
+				 rowPos = 0;
+			}
+			// By convention, the first list in the list contains column headers.
+			// This should only happen once and usually only in a single-sheet workbook
+			else if (rowData.get(0).toString().equals(HEADER_MARKER)) {
+				HSSFRow headerRow = sheet.createRow(rowPos++);
+				for (short i = 0; i < rowData.size()-1; i++) {
+					createCell(headerRow, i, headerStyle).setCellValue(rowData.get(i+1).toString());
+				}
+			}
+			else {
+				HSSFRow row = sheet.createRow(rowPos++);
+				short colPos = 0;
+				Iterator colIter = rowData.iterator();
+				while (colIter.hasNext()) {
+				//for (short i = 0; i < rowData.size(); i++) {
+					HSSFCell cell = null;
+					
+					//Object data = rowData.get(i);
+					Object data = colIter.next();
+					if (data != null) {
+						if (data.toString().startsWith(FORMAT)) {
+							if (data.equals(FORMAT_BOLD)) {
+								cell = createCell(row, colPos++, boldStyle);
+							}
+							data = colIter.next();
+						}
+						else {
+							cell = createCell(row, colPos++, null);
+						}
+						if (data instanceof Double) {
+							cell.setCellValue(((Double)data).doubleValue());
+						} else {
+							cell.setCellValue(data.toString());
+						}
+					}
+				}
+			}
+			
+		}
+		
+		return wb;
+	}
+
+	
+	private HSSFCell createCell(HSSFRow row, short column, HSSFCellStyle cellStyle) {
+		HSSFCell cell = row.createCell(column);
+		cell.setEncoding(HSSFCell.ENCODING_UTF_16);
+		
+		if (cellStyle != null) {
+			cell.setCellStyle(cellStyle);
+		}
+		
+		return cell;
+	}
+	
+    
+    
 }

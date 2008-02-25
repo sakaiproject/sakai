@@ -276,11 +276,13 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
   } 
 
   public boolean getGradeAnyAssessment() {
-    return getPrivilege("grade_any_assessment");
+	boolean priv = getPrivilege("grade_any_assessment");   
+    return priv;
   } 
 
   public boolean getGradeOwnAssessment() {
-    return getPrivilege("grade_own_assessment");
+	boolean priv = getPrivilege("grade_own_assessment");
+    return priv;
   } 
 
   public boolean getCreateQuestionPool() {

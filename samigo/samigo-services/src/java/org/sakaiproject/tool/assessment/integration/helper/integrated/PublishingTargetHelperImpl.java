@@ -26,6 +26,7 @@ import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 
@@ -65,10 +66,11 @@ public class PublishingTargetHelperImpl implements PublishingTargetHelper
    */
   public HashMap getTargets()
   {
-
      HashMap map = new HashMap();
      map.put("Anonymous Users", "ANONYMOUS_USERS");
      map.put(AgentFacade.getCurrentSiteName(), AgentFacade.getCurrentSiteId());
+     //map.put("Selected Groups", "SELECTED_GROUPS");
+     map.put(AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS, AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS);
      return map;
   }
 }

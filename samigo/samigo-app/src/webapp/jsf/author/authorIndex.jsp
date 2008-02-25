@@ -330,10 +330,14 @@
          </h:panelGroup>
       </f:facet>
 
-      <h:outputText value="#{publishedAssessment.releaseTo}" rendered="#{publishedAssessment.releaseTo ne 'Anonymous Users'}">
+      <h:outputText value="#{publishedAssessment.releaseTo}" rendered="#{publishedAssessment.releaseTo ne 'Anonymous Users' && publishedAssessment.releaseTo ne 'Selected Groups'}">
 	       <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
 	  </h:outputText>
       <h:outputText value="#{assessmentSettingsMessages.anonymous_users}" rendered="#{publishedAssessment.releaseTo eq 'Anonymous Users'}">
+           <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
+      </h:outputText>
+      <h:outputText value="#{publishedAssessment.releaseTo}" rendered="#{publishedAssessment.releaseTo eq 'Selected Groups'}" 
+         title="#{publishedAssessment.releaseToGroups}">
            <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
       </h:outputText>
     </h:column>

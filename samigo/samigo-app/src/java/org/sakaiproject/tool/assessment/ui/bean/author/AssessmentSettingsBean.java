@@ -28,11 +28,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -49,7 +51,12 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -60,13 +67,17 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
+import org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -171,7 +182,7 @@ public class AssessmentSettingsBean
 
   private List attachmentList;
 
-  private boolean isValidDate = true;;
+  private boolean isValidDate = true;
   private boolean isValidStartDate = true;
   private boolean isValidDueDate = true;
   private boolean isValidRetractDate = true;
@@ -1282,38 +1293,27 @@ public class AssessmentSettingsBean
       return false;
   }
 
+  // modified gopalrc - Nov 2007
   public SelectItem[] getPublishingTargets(){
     HashMap targets = ptHelper.getTargets();
     Set e = targets.keySet();
     Iterator iter = e.iterator();
-    // sort the targets
-    String[] titles = new String[targets.size()];
+    int numSelections = getNumberOfGroupsForSite() > 0 ? 3 : 2;
+   	SelectItem[] target = new SelectItem[numSelections];
     while (iter.hasNext()){
-      for (int m = 0; m < e.size(); m++) {
-        String t = (String)iter.next();
-        titles[m] = t;
-      }
+	    String t = (String)iter.next();
+	    if (t.equals("Anonymous Users")) {
+	  	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+	  	  target[0] = new SelectItem(t, rb.getString("anonymous_users"));
+	    }
+	    else if (numSelections == 3 && t.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+	  	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+	  	  target[2] = new SelectItem(t, rb.getString("selected_groups"));
+	    }
+	    else if (t.equals(AgentFacade.getCurrentSiteName())) {
+	  	  target[1] = new SelectItem(t, t);
+	    }
     }
-    Arrays.sort(titles);
-    SelectItem[] target = new SelectItem[targets.size()];
-    for (int i=0; i<titles.length; i++){
-      //target[i] = new SelectItem(titles[i]);	
-      if (titles[i].equals("Anonymous Users")) {
-    	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
-    	  target[i] = new SelectItem(titles[i], rb.getString("anonymous_users"));
-      }
-      else {
-    	  target[i] = new SelectItem(titles[i], titles[i]);
-      }
-    }
-    /**
-    SelectItem[] target = new SelectItem[targets.size()];
-    while (iter.hasNext()){
-      for (int i = 0; i < e.size(); i++) {
-        target[i] = new SelectItem((String)iter.next());
-      }
-    }
-    */
     return target;
   }
 
@@ -1515,4 +1515,109 @@ public class AssessmentSettingsBean
 	  this.originalRetractDateString = "";
 	  this.originalFeedbackDateString = "";
   }
+
+  
+  /**
+   * gopalrc Nov 2007
+   * Returns all groups for site
+   * @return
+   */
+  public SelectItem[] getGroupsForSite(){
+      SelectItem[] groupSelectItems = new SelectItem[0];
+      TreeMap sortedSelectItems = new TreeMap();
+	  Site site = null;
+	  try {
+		 site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+		 Collection groups = site.getGroups();
+	     if (groups != null && groups.size() > 0) {
+	    	 groupSelectItems = new SelectItem[groups.size()];
+	    	 Iterator groupIter = groups.iterator();
+	    	 while (groupIter.hasNext()) {
+	    		 Group group = (Group) groupIter.next();
+	    		 //String groupType = group.getProperties().getProperty("sections_category");
+	    		 //groupType = groupType == null ? "" : " (" + groupType + ")";
+	    		 String groupDescription = group.getDescription()==null || group.getDescription().equals("") ? "" : " : " + group.getDescription();
+	    		 String displayDescription = group.getTitle() + groupDescription;
+	    		 sortedSelectItems.put(group.getTitle().toUpperCase(), new SelectItem(group.getId(), displayDescription));
+	    	 }
+	    	 Set keySet = sortedSelectItems.keySet();
+	    	 groupIter = keySet.iterator();
+	    	 int i=0;
+	    	 while (groupIter.hasNext()) {
+	    		 groupSelectItems[i++] = (SelectItem) sortedSelectItems.get(groupIter.next());
+	    	 }
+	     }
+	  }
+	  catch (IdUnusedException ex) {
+		  // No site available
+	  }
+	  return groupSelectItems;
+  }
+  
+  
+  /**
+   * gopalrc Nov 2007
+   * Returns the total number of groups for this site
+   * @return
+   */
+  public int getNumberOfGroupsForSite(){
+	  int numGroups = 0;
+	  try {
+		 Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+		 Collection groups = site.getGroups();
+	     if (groups != null) {
+	    	 numGroups = groups.size();
+	     }
+	  }
+	  catch (IdUnusedException ex) {
+		  // No site available
+	  }
+	  return numGroups;
+  }
+
+  /**
+   * gopalrc Nov 2007
+   * The authorized groups
+   */
+  private String[] groupsAuthorized;
+  
+  /**
+   * gopalrc Nov 2007
+   * Returns the groups to which this assessment is released
+   * @return
+   */
+  public String[] getGroupsAuthorized() {
+	 groupsAuthorized = null;
+	 AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
+	 List authorizations = authz.getAuthorizationByFunctionAndQualifier("TAKE_ASSESSMENT", getAssessmentId().toString());
+	 if (authorizations != null && authorizations.size()>0) {
+		 groupsAuthorized = new String[authorizations.size()];
+		 Iterator authsIter = authorizations.iterator();
+		 int i = 0;
+		 while (authsIter.hasNext()) {
+			 AuthorizationData ad = (AuthorizationData) authsIter.next();
+			 groupsAuthorized[i++] = ad.getAgentIdString();
+		 }
+	 }
+	 return groupsAuthorized;
+  }
+  
+  public void setGroupsAuthorized(String[] groupsAuthorized){
+	  this.groupsAuthorized = groupsAuthorized;
+  }
+  
+  /** 
+   * To compensate for strange stateful behaviour of this bean
+   * added by gopalrc Nov 2007
+   * 
+   * TODO: troubleshoot stateful behaviour if time allows
+   * - found that it's due to the bean having "session" scope
+   * - but changing it to "request" scope causes other issues 
+   * 
+   * @return
+   */
+  public String[] getGroupsAuthorizedToSave() {
+	 return groupsAuthorized;
+  }  
+  
 }

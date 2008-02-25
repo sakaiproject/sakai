@@ -27,12 +27,17 @@ import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.standalone.FacadeUtils;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 
 /**
@@ -86,6 +91,69 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 		return enrollments;
 	}
 
+	
+
+	/**
+	 * added by gopalrc - Jan 2008
+	 * @param siteid
+	 * @param userUid
+	 * @return
+	 */
+	public List getGroupReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
+		List availEnrollments = getAvailableEnrollments(siteid, userUid);
+		List enrollments = new ArrayList();
+		for (Iterator eIter = availEnrollments.iterator(); eIter.hasNext(); ) {
+			EnrollmentRecord enr = (EnrollmentRecord)eIter.next();
+			if (isUserInReleaseGroup(enr.getUser().getUserUid(), AgentFacade.getCurrentSiteId(), publishedAssessmentId)) {
+				enrollments.add(enr);
+			}
+		}
+		return enrollments;
+	}
+	
+	
+	/**
+	 * added by gopalrc - Jan 2008
+	 */
+	private SiteService siteService;
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+	
+
+	/**
+	 * added by gopalrc - Jan 2008
+	 * @param userId
+	 * @param siteId
+	 * @return
+	 */
+	private boolean isUserInReleaseGroup(String userId, String siteId, String publishedAssessmentId) {
+		//String functionName="assessment.takeAssessment";
+		Collection siteGroups = null;
+		try {
+			siteGroups = siteService.getSite(siteId).getGroupsWithMember(userId);
+		}
+		catch (IdUnusedException ex) {
+			// no site found
+		}
+		List releaseGroupIds = PersistenceService.getInstance()
+		  .getPublishedAssessmentFacadeQueries()
+		  .getReleaseToGroupIdsForPublishedAssessment(publishedAssessmentId);
+
+		Iterator groupsIter = siteGroups.iterator();
+		while (groupsIter.hasNext()) {
+			Group group = (Group) groupsIter.next();
+			for (Iterator releaseGroupIdsIter = releaseGroupIds.iterator(); 
+				releaseGroupIdsIter.hasNext();) {
+				//if this group is a release group
+				if (group.getId().equals((String)releaseGroupIdsIter.next())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public List getAvailableSections(String siteid, String userUid) {
 		List availableSections = new ArrayList();
 

@@ -81,8 +81,16 @@ public interface SectionAwareServiceHelper{
   * @return
   *  whether a member belongs to a section under a certain role
   */
-
 	public boolean isSectionMemberInRoleStudent(String sectionId, String studentId);
 
+	
+	/**
+	 * added by gopalrc - Jan 2008
+	 * @param siteid
+	 * @param userUid
+	 * @return
+	 */
+	public List getGroupReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId);
+	
 }
 

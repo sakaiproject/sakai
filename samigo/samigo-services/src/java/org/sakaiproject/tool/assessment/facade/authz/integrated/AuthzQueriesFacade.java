@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -81,7 +82,8 @@ public class AuthzQueriesFacade
   public boolean hasPrivilege(String functionName)
   {
       String context = ToolManager.getCurrentPlacement().getContext();
-      return SecurityService.unlock(functionName, "/site/"+context);
+      boolean privilege = SecurityService.unlock(functionName, "/site/"+context);
+      return privilege;
   }
 
     // this method is added by daisyf on 02/22/05
@@ -273,6 +275,38 @@ public class AuthzQueriesFacade
     getHibernateTemplate().deleteAll(l);
   }
 
+  /**
+   * Removes an authorization for a specified qualifier and function
+   * added by gopalrc - Nov 2007 
+   * @param qualifierId
+   * @param functionId
+   */
+  public void removeAuthorizationByQualifierAndFunction(String qualifierId, String functionId) {
+	    String query="select a from AuthorizationData a where a.qualifierId="+qualifierId;
+	    String clause=" and a.functionId='" + functionId + "'";
+	    List l = getHibernateTemplate().find(query+clause);
+	    getHibernateTemplate().deleteAll(l);
+  }
+  
+  /**
+   * Removes an authorization for a specified agent, qualifier and function
+   * TODO: This should be optimized into a single SQL call for a set of agents (groups)
+   * added by gopalrc - Nov 2007 
+   * @param agentId
+   * @param qualifierId
+   */
+  public void removeAuthorizationByAgentQualifierAndFunction(String agentId, String qualifierId, String functionId) {
+	    String query="select a from AuthorizationData a where a.qualifierId="+qualifierId;
+	    // String query="from AuthorizationData a where a.qualifierId="+qualifierId;
+	    String clause=" and a.agentIdString='" + agentId + "'";
+	    clause+=" and a.functionId='" + functionId + "'";
+	    List l = getHibernateTemplate().find(query+clause);
+	    if (l != null && l.size() > 0) {
+	    	getHibernateTemplate().deleteAll(l);
+	    }
+  }
+  
+  
   /** This returns a HashMap containing (String a.qualiferId, AuthorizationData a)
     * agentId is a site for now but can be a user
     */
@@ -314,4 +348,5 @@ public class AuthzQueriesFacade
     return isMember;
   }
 
+  
 }

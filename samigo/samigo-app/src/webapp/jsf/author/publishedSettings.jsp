@@ -77,6 +77,31 @@ function disableAllFeedbackCheck(feedbackType)
   }
   document.forms[0].submit();
 }
+
+ 
+function showHideReleaseGroups(){
+  var showGroups;
+  var inputList= document.getElementsByTagName("INPUT");
+  for (i = 0; i <inputList.length; i++) 
+  {
+    if(inputList[i].type=='radio')
+    {
+      if(inputList[i].value.indexOf("Selected Groups")>=0) {
+        showGroups=inputList[i].checked;
+        break;
+      }  
+    }
+  }
+  if(showGroups) {
+	document.getElementById("groupDiv").style.display = "block";
+	document.getElementById("groupDiv").style.width = "80%";
+  }
+  else {
+	document.getElementById("groupDiv").style.display = "none";
+  }
+}
+
+
 </script>
 
 <div class="portletBody">
@@ -157,34 +182,34 @@ function disableAllFeedbackCheck(feedbackType)
   </samigo:hideDivision>
 
   <!-- *** RELEASED TO *** -->
-
-  <samigo:hideDivision title="#{assessmentSettingsMessages.t_releasedTo}" id="div3">
-<div class="tier2">
+<samigo:hideDivision title="#{assessmentSettingsMessages.t_releasedTo}" id="div3">
+  <div class="tier2">
     <h:panelGrid   summary="#{templateMessages.released_to_info_sec}">
-<%--
-      <h:selectManyCheckbox disabled="true" layout="pagedirection" value="#{publishedSettings.targetSelected}">
-        <f:selectItems value="#{assessmentSettings.publishingTargets}" />
-      </h:selectManyCheckbox>
---%>
       <h:selectOneRadio disabled="true" layout="pagedirection" value="#{publishedSettings.firstTargetSelected}">
         <f:selectItems value="#{assessmentSettings.publishingTargets}" />
       </h:selectOneRadio>
+    </h:panelGrid>
+      
+  <f:verbatim><div id="groupDiv" class="tier3"></f:verbatim>
+  <f:verbatim><table bgcolor="#CCCCCC"><tr><td></f:verbatim>  
+  
+  <f:verbatim></td><td></f:verbatim>
+  <h:outputText value="#{assessmentSettingsMessages.title_description}" />
+  <f:verbatim></td></tr></table></f:verbatim>
+  
+  <h:selectManyCheckbox disabled="true" id="groupsForSite" layout="pagedirection" value="#{publishedSettings.groupsAuthorized}">
+     <f:selectItems value="#{publishedSettings.groupsForSite}" />
+  </h:selectManyCheckbox>
+  <f:verbatim></div></f:verbatim>
+
+      
       <h:panelGroup styleClass="longtext">
     <h:outputLabel value="#{assessmentSettingsMessages.published_assessment_url}: " />
         <h:outputText value="#{publishedSettings.publishedUrl}" />
       </h:panelGroup>
-    </h:panelGrid>
-</div>
-<%-- dublicate information
-
-    <h:panelGrid columns="2">
-      <h:outputText value="#{assessmentSettingsMessages.published_assessment_url}: " />
-      <h:outputLink value="#{publishedSettings.publishedUrl}" target="newWindow">
-        <h:outputText value="#{publishedSettings.publishedUrl}" />
-      </h:outputLink>
-    </h:panelGrid>
---%>
-  </samigo:hideDivision>
+    
+  </div>
+</samigo:hideDivision>
 
   <!-- *** HIGH SECURITY *** -->
   <samigo:hideDivision title="#{assessmentSettingsMessages.t_highSecurity}" id="div4">
@@ -658,7 +683,7 @@ function disableAllFeedbackCheck(feedbackType)
 </h:form>
 <!-- end content -->
 </div>
-        <script language="javascript" style="text/JavaScript">hideUnhideAllDivsExceptOne('none');</script>
+        <script language="javascript" style="text/JavaScript">hideUnhideAllDivsExceptOne('none');showHideReleaseGroups();</script>
       </body>
     </html>
   </f:view>

@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,8 +49,10 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -456,18 +459,38 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
   }
 
+  
   public HashMap getSubmissionSizeOfAllPublishedAssessments(){
-    HashMap h = new HashMap();
+
+	// modified by gopalrc to take account of group release
+	//ArrayList groupIds = getSiteGroupIds(AgentFacade.getCurrentSiteId());
+	
+	/*
+	String groupsIdStr = "(";
+	Iterator groupIdIter = groupIds.iterator();
+	while (groupIdIter.hasNext()) {
+		groupsIdStr += "'" + groupIdIter.next().toString() + "', ";
+	}
+	groupsIdStr += "'none')";
+    */
+	
+	
+	HashMap h = new HashMap();
+	
     Object [] values = {"VIEW_PUBLISHED_ASSESSMENT", AgentFacade.getCurrentSiteId(), Boolean.valueOf(true)};
-    //List list = getHibernateTemplate().find("select new PublishedAssessmentData(a.publishedAssessmentId, count(a)) from AssessmentGradingData a where a.forGrade=? group by a.publishedAssessmentId", Boolean.valueOf(true));
     
+    //List list = getHibernateTemplate().find("select new PublishedAssessmentData(a.publishedAssessmentId, count(a)) from AssessmentGradingData a where a.forGrade=? group by a.publishedAssessmentId", Boolean.valueOf(true));
     List list = getHibernateTemplate().find(
     		"select new PublishedAssessmentData(ag.publishedAssessmentId, count(ag.publishedAssessmentId)) " +
             "from AssessmentGradingData ag, AuthorizationData au " +
             "where au.functionId = ? and au.agentIdString = ? " +
             "and ag.publishedAssessmentId = au.qualifierId and ag.forGrade=? " +
             "group by ag.publishedAssessmentId", values);
-            
+
+    
+    //"where au.functionId = ? and (au.agentIdString = ?  or au.agentIdString in (?)) " +
+
+    
     Iterator iter = list.iterator();
     while (iter.hasNext()){
       PublishedAssessmentData o = (PublishedAssessmentData)iter.next();
@@ -1580,9 +1603,21 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       };
       return getHibernateTemplate().executeFind(hcb);
   }
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage) {
+  
+  
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, boolean showPartAndTotalScoreSpreadsheetColumns) {
 	  ArrayList finalList = new ArrayList();
 	  PublishedAssessmentService pubService = new PublishedAssessmentService();
+	  
+	  
+	  // gopalrc - Nov 2007
+	  HashSet publishedAssessmentSections = pubService.getSectionSetForAssessment(Long.valueOf(publishedAssessmentId));
+	  Float zeroFloat = new Float(0.0);
+	  //QuestionScoreListener questionScoreListener = new QuestionScoreListener();
+	  //QuestionScoresBean questionScoresBean = new QuestionScoresBean();
+	  //questionScoreListener.questionScores(publishedAssessmentId, questionScoresBean, false);
+
+	  
 	  HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(pubService.getPublishedAssessment(publishedAssessmentId.toString()));
 	  HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(pubService.getPublishedAssessment(publishedAssessmentId.toString()));
 	  HashMap publishedItemHash = pubService.preparePublishedItemHash(pubService.getPublishedAssessment(publishedAssessmentId.toString()));
@@ -1591,6 +1626,28 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	  int numSubmission = 1;
 	  String lastAgentId = "";
 	  while(assessmentGradingIter.hasNext()) {
+		  
+
+		  // gopalrc Nov 2007
+		  // create new section-item-scores structure for this assessmentGrading
+		  Iterator sectionsIter = publishedAssessmentSections.iterator();
+		  HashMap sectionItems = new HashMap();
+		  TreeMap sectionScores = new TreeMap();
+		  while (sectionsIter.hasNext()) {
+			  PublishedSectionData publishedSection = (PublishedSectionData) sectionsIter.next();
+			  ArrayList itemsArray = publishedSection.getItemArraySortedForGrading();
+			  Iterator itemsIter = itemsArray.iterator();
+			  // Iterate through the assessment questions (items)
+			  HashMap itemsForSection = new HashMap();
+			  while (itemsIter.hasNext()) {
+				ItemDataIfc item = (ItemDataIfc) itemsIter.next();
+				itemsForSection.put(item.getItemId(), item.getItemId());
+			  }
+			  sectionItems.put(publishedSection.getSequence(), itemsForSection);
+			  sectionScores.put(publishedSection.getSequence(), zeroFloat);
+		  }
+		  
+		  
 		  ArrayList responseList = new ArrayList();
 		  AssessmentGradingData assessmentGradingData = (AssessmentGradingData) assessmentGradingIter.next();
 		  String agentId = assessmentGradingData.getAgentId();
@@ -1618,18 +1675,26 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				  numSubmission = 1;
 				  lastAgentId = agentId;
 			  }
-			  responseList.add(Integer.valueOf(numSubmission));
+			  responseList.add(Double.parseDouble(""+numSubmission));
 		  }
-		  
-		  Float finalScore = assessmentGradingData.getFinalScore();
-		  responseList.add(finalScore);
+
+		  //gopalrc - Dec 2007
+		  int sectionScoreColumnStart = responseList.size();
+          if (showPartAndTotalScoreSpreadsheetColumns) {
+			  Float finalScore = assessmentGradingData.getFinalScore();
+			  responseList.add((Double)finalScore.doubleValue()); // gopal - cast for spreadsheet numerics
+          }
+          
 		  Long assessmentGradingId = assessmentGradingData.getAssessmentGradingId();
+
 		  HashMap studentGradingMap = getStudentGradingData(assessmentGradingData.getAssessmentGradingId().toString());
 		  ArrayList grades = new ArrayList();
           grades.addAll(studentGradingMap.values());
+          
+          
 	      Collections.sort(grades, new QuestionComparator(publishedItemHash));
 	      
-	       for (Object oo: grades) {	   
+	      for (Object oo: grades) {	   
 
 	    	   // There can be more than one answer to a question, e.g. for
 	    	   // FIB with more than one blank or matching questions. So sort
@@ -1645,8 +1710,18 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	   ItemGradingIfc grade = null;
 	    	   //boolean isAudioFileUpload = false;
 	    	   boolean isFinFib = false;
+	    	   
+	    	   // gopalrc - Dec 2007
+	    	   float itemScore = 0.0f;
+	    	   
 	    	   for (Object ooo: l) {
 	    		   grade = (ItemGradingIfc)ooo;
+	    		   
+	    		   // gopalrc - Dec 2007
+	    		   if (grade!=null && grade.getAutoScore()!=null) {
+	    			   itemScore += grade.getAutoScore().floatValue();
+	    		   }
+	    		   
 	    		   // now print answer data
 	    		   log.debug("<br> "+ grade.getPublishedItemId() + " " + grade.getRationale() + " " + grade.getAnswerText() + " " + grade.getComments() + " " + grade.getReview());
 	    		   Long publishedItemId = grade.getPublishedItemId();
@@ -1740,7 +1815,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 		    		   count++;
 	    		   }
+	    	   } // inner for - answers
+
+    		   // gopalrc - Dec 2007
+	    	   if (itemScore < 0.0f) {
+	    		   itemScore = 0.0f;
 	    	   }
+    		   updateSectionScore(sectionItems, sectionScores, grade.getPublishedItemId(), itemScore);
+	    	   
 	    	   
 	    	   if (isFinFib && maintext.indexOf("No Answer") >= 0 && count == 1) {
 	    		   maintext = "No Answer";
@@ -1750,12 +1832,47 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	   }
 	    	   
 	    	   responseList.add(maintext);
-	       }
+	
+	    	   
+	       } // outer for - questions
+	      
+	   	   // gopalrc - Dec 2007
+           if (showPartAndTotalScoreSpreadsheetColumns) {
+		       if (sectionScores.size() > 1) {
+			   	   Iterator keys = sectionScores.keySet().iterator();
+			   	   while (keys.hasNext()) {
+			   		   Double partScore = (Double) ((Float) sectionScores.get(keys.next())).doubleValue() ;
+			   		   responseList.add(sectionScoreColumnStart++, partScore);
+			   	   }
+		       }
+           }
+	       
 	       finalList.add(responseList);
-	  }
+	  } // while
 	  Collections.sort(finalList, new ResponsesComparator(anonymous));
 	  return finalList;
   }
+  
+  
+  /**
+   * gopalrc - added Dec 2007
+   * @param sectionItems
+   * @param sectionScores
+   * @param grade
+   */
+  private void updateSectionScore(HashMap sectionItems, TreeMap sectionScores, Long publishedItemId, float itemScore) {
+	  Iterator keys = sectionItems.keySet().iterator();
+	  while (keys.hasNext()) {
+		  Integer sectionSequence = (Integer) keys.next();
+		  HashMap itemsForSection = (HashMap) sectionItems.get(sectionSequence);
+		  if (itemsForSection.get(publishedItemId)!=null) {
+			  Float score = new Float( ((Float)sectionScores.get(sectionSequence)).floatValue() + itemScore);
+			  sectionScores.put(sectionSequence, score); 
+		  }
+	  }
+  }
+  
+  
   
     /*
 	 sort answers by sequence number within question if one is defined
@@ -1903,7 +2020,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			}
 		}
 	}
-	
+
 	  public void removeUnsubmittedAssessmentGradingData(final AssessmentGradingIfc data) {
 		    final HibernateCallback hcb = new HibernateCallback(){
 		    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -1980,4 +2097,35 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    }
 	    return al;
   }
+	
+	private SiteService siteService;
+	
+	/**
+	 * added by gopalrc - Nov 2007
+`	 * TODO: should perhaps be moved to SiteService
+	 * @param siteId
+	 * @return
+	 */
+/*	
+	private ArrayList getSiteGroupIds(final String siteId) {
+		Collection siteGroups = null;
+		try {
+			siteGroups = siteService.getSite(siteId).getGroups();
+		}
+		catch (IdUnusedException ex) {
+			// no site found
+		}
+		Iterator groupsIter = siteGroups.iterator();
+		final ArrayList groupIds = new ArrayList();
+		// To accomodate the problem with Hibernate and empty array parameters 
+		// TODO: this should probably be handled in a more efficient way
+		groupIds.add("none");  
+		while (groupsIter.hasNext()) {
+			Group group = (Group) groupsIter.next(); 
+			groupIds.add(group.getId());
+		}
+		return groupIds;
+	}
+*/
+
 }

@@ -108,6 +108,18 @@ public class GradingSectionAwareServiceImpl implements GradingSectionAwareServic
 
 
   /**
+   * added by gopalrc - Jan 2008
+   * @return
+   *  an EnrollmentRecord list for each student that the current user
+   *  is allowed to grade, who is in at least one of the release groups 
+   *  for this published assessment. 
+   */
+   public List getGroupReleaseEnrollments(String Uid, String userUid, String publishedAssessmentId){
+     return helper.getGroupReleaseEnrollments(Uid, userUid, publishedAssessmentId);
+   }
+  
+  
+  /**
   * @param searchString
   *  a substring search for student name or display UID; the exact rules are
   *  up to the implementation

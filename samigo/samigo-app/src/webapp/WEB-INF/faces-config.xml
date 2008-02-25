@@ -974,6 +974,12 @@
       <from-outcome>histogramScores</from-outcome>
       <to-view-id>/jsf/evaluation/histogramScores.jsp</to-view-id>
     </navigation-case>
+    
+    <navigation-case>
+      <from-outcome>detailedStatistics</from-outcome>
+      <to-view-id>/jsf/evaluation/detailedStatistics.jsp</to-view-id>
+    </navigation-case>
+     
     <navigation-case>
       <from-outcome>exportResponses</from-outcome>
       <to-view-id>/jsf/evaluation/exportResponses.jsp</to-view-id>
@@ -994,7 +1000,7 @@
       <from-outcome>confirmRetake</from-outcome>
       <to-view-id>/jsf/evaluation/confirmRetake.jsp</to-view-id>
     </navigation-case>
-	  <navigation-case>
+	<navigation-case>
       <from-outcome>emailError</from-outcome>
       <to-view-id>/jsf/evaluation/emailError.jsp</to-view-id>
     </navigation-case>
@@ -1074,6 +1080,7 @@
       <to-view-id>/jsf/author/item/fillInNumeric.jsp</to-view-id>
     </navigation-case>
   </navigation-rule>
+
 
   <!-- Components -->
   <component>

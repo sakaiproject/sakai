@@ -94,4 +94,14 @@ public interface GradingSectionAwareServiceAPI
   */
   public boolean isSectionMemberInRoleStudent(String sectionId, String studentId);
 
+  
+  /**
+   * added by gopalrc - Jan 2008
+   * @return
+   *  an EnrollmentRecord list for each student that the current user
+   *  is allowed to grade, who is in at least one of the release groups 
+   *  for this published assessment. 
+   */
+   public List getGroupReleaseEnrollments(String Uid, String userUid, String publishedAssessmentId);
+  
 }

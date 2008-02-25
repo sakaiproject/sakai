@@ -252,8 +252,19 @@ public class QuestionScoreListener implements ActionListener,
 
 			if ("true".equalsIgnoreCase(totalBean.getAnonymous())) {
 				// reset sectionaware pulldown to -1 all sections
-				totalBean
-						.setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
+				//totalBean
+				//		.setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
+				
+		        // changed from above by gopalrc - Jan 2008
+		    	//PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		        //boolean groupRelease = publishedAssessmentService.isReleasedToGroups(publishedId);
+				boolean groupRelease = publishedAssessment.getAssessmentAccessControl().getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS);
+		    	if (groupRelease) {
+		    		totalBean.setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
+		    	}
+		    	else {
+		    		totalBean.setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
+		    	}
 			}
 
 			bean.setPublishedId(publishedId);
@@ -275,7 +286,7 @@ public class QuestionScoreListener implements ActionListener,
 
 			// now we need filter by sections selected
 			ArrayList scores = new ArrayList(); // filtered list
-			Map useridMap = totalBean.getUserIdMap();
+			Map useridMap = totalBean.getUserIdMap(TotalScoresBean.CALLED_FROM_QUESTION_SCORE_LISTENER);
 			log.debug("questionScores(): useridMap.size = " + useridMap.size());
 
 			/*

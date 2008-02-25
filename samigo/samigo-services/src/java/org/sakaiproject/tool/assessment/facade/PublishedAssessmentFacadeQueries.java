@@ -23,6 +23,8 @@ package org.sakaiproject.tool.assessment.facade;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -31,16 +33,24 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.Vector;
+
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
@@ -95,6 +105,8 @@ import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -723,10 +735,19 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		}
 		// write authorization
 		createAuthorization(publishedAssessment);
+		
 		return new PublishedAssessmentFacade(publishedAssessment);
 	}
 
 	public void createAuthorization(PublishedAssessmentData p) {
+		// conditional processing added by gopalrc Nov 2007
+		if (p.getAssessmentAccessControl().getReleaseTo()!= null 
+				&& p.getAssessmentAccessControl().getReleaseTo()
+				.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+			createAuthorizationForSelectedGroups(p);
+			return;
+		}
+		
 		String qualifierIdString = p.getPublishedAssessmentId().toString();
 		Vector v = new Vector();
 
@@ -783,7 +804,30 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 					.createAuthorization(agentId, "VIEW_PUBLISHED_ASSESSMENT",
 							qualifierIdString);
 		}
+		
 	}
+	
+	/**
+	 * added by gopalrc Nov 2007
+	 * Creates Authorizations for Selected Groups
+	 * @param p
+	 */
+	public void createAuthorizationForSelectedGroups(PublishedAssessmentData publishedAssessment) {
+	    AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
+		String qualifierIdString = publishedAssessment.getPublishedAssessmentId().toString();
+		authz.createAuthorization(AgentFacade.getCurrentSiteId(), "OWN_PUBLISHED_ASSESSMENT", qualifierIdString);
+		authz.createAuthorization(AgentFacade.getCurrentSiteId(), "VIEW_PUBLISHED_ASSESSMENT", qualifierIdString);
+
+	    List authorizationsToCopy = authz.getAuthorizationByFunctionAndQualifier("TAKE_ASSESSMENT", publishedAssessment.getAssessmentId().toString());
+	    if (authorizationsToCopy != null && authorizationsToCopy.size()>0) {
+			 Iterator authsIter = authorizationsToCopy.iterator();
+			 while (authsIter.hasNext()) {
+				 AuthorizationData adToCopy = (AuthorizationData) authsIter.next();
+     			 authz.createAuthorization(adToCopy.getAgentIdString(), "TAKE_PUBLISHED_ASSESSMENT", publishedAssessment.getPublishedAssessmentId().toString());
+			 }
+	    }
+	}
+	
 
 	public AssessmentData loadAssessment(Long assessmentId) {
 		return (AssessmentData) getHibernateTemplate().load(
@@ -885,21 +929,27 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 	public List getNumberOfSubmissionsOfAllAssessmentsByAgent(
 			final String agentId, final String siteId) {
+		
+		// modified by gopalrc to take account of group release
+		final ArrayList groupIds = getSiteGroupIdsForSubmittingAgent(agentId, siteId);
+		
 		final String query = "select new AssessmentGradingData("
 				+ " a.publishedAssessmentId, count(a)) "
 				+ " from AssessmentGradingData as a, AuthorizationData as az "
-				+ " where a.agentId=? and a.forGrade=? and az.agentIdString=? "
-				+ " and az.functionId=? and az.qualifierId=a.publishedAssessmentId"
+				+ " where a.agentId=:agentId and a.forGrade=:forGrade "
+				+ " and (az.agentIdString=:siteId or az.agentIdString in (:groupIds)) "
+				+ " and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId"
 				+ " group by a.publishedAssessmentId";
 
 		final HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(query);
-				q.setString(0, agentId);
-				q.setBoolean(1, true);
-				q.setString(2, siteId);
-				q.setString(3, "TAKE_PUBLISHED_ASSESSMENT");
+				q.setString("agentId", agentId);
+				q.setBoolean("forGrade", true);
+				q.setString("siteId", siteId);
+				q.setString("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+				q.setParameterList("groupIds", groupIds);
 				return q.list();
 			};
 		};
@@ -1054,13 +1104,20 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			String sortString, final String siteAgentId, boolean ascending) {
 		Date currentDate = new Date();
 		String orderBy = getOrderBy(sortString);
+		
+		// modified by gopalrc to take account of group release
+		// realised that this is not necessary for site agents
+		//final ArrayList groupIds = getSiteGroupIds(siteAgentId);
+		
 
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) "
 				+ " from PublishedAssessmentData p, PublishedAccessControl c, AuthorizationData z  "
-				+ " where c.assessment.publishedAssessmentId = p.publishedAssessmentId and p.status=? and "
-				+ " p.publishedAssessmentId=z.qualifierId and z.functionId=? "
-				+ " and z.agentIdString= ? order by p." + orderBy;
+				+ " where c.assessment.publishedAssessmentId = p.publishedAssessmentId and p.status=:status and "
+				+ " p.publishedAssessmentId=z.qualifierId and z.functionId=:functionId "
+				//+ " and (z.agentIdString=:siteId or z.agentIdString in (:groupIds)) "
+				+ " and z.agentIdString=:siteId "
+				+ " order by p." + orderBy;
 		if (ascending == true)
 			query += " asc";
 		else
@@ -1071,14 +1128,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(hql);
-				q.setInteger(0, 1);
-				q.setString(1, "OWN_PUBLISHED_ASSESSMENT");
-				q.setString(2, siteAgentId);
+				q.setInteger("status", 1);
+				q.setString("functionId", "OWN_PUBLISHED_ASSESSMENT");
+				q.setString("siteId", siteAgentId);
+				//q.setParameterList("groupIds", groupIds);
 				return q.list();
 			};
 		};
 		List l = getHibernateTemplate().executeFind(hcb);
 
+		
 		// List l = getHibernateTemplate().find(query,
 		// new Object[] {siteAgentId},
 		// new org.hibernate.type.Type[] {Hibernate.STRING});
@@ -1095,11 +1154,22 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		}
 
 		ArrayList pubList = new ArrayList();
+		TreeMap groupsForSite = null;
+		String releaseToGroups;
 		for (int i = 0; i < list.size(); i++) {
 			PublishedAssessmentData p = (PublishedAssessmentData) list.get(i);
+			releaseToGroups = null;
+			if (p.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+				if (groupsForSite == null) {
+					groupsForSite = getGroupsForSite();
+				}
+				Long assessmentId = p.getPublishedAssessmentId();
+				releaseToGroups = getReleaseToGroupsAsString(groupsForSite, assessmentId);
+			}
+			
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p
 					.getPublishedAssessmentId(), p.getTitle(),
-					p.getReleaseTo(), p.getStartDate(), p.getDueDate());
+					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), releaseToGroups);
 			pubList.add(f);
 		}
 		return pubList;
@@ -1114,14 +1184,21 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	 */
 	public ArrayList getBasicInfoOfAllInActivePublishedAssessments(
 			String sortString, final String siteAgentId, boolean ascending) {
+		
+		// modified by gopalrc to take account of group release
+		// realised that this is not necessary for site agents
+		//final ArrayList groupIds = getSiteGroupIds(siteAgentId);
+		
 		String orderBy = getOrderBy(sortString);
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title,"
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) from PublishedAssessmentData p,"
 				+ " PublishedAccessControl c, AuthorizationData z  "
-				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId " 
-				+ " and ((p.status=? and (c.dueDate<= ? or  c.retractDate<= ?)) or p.status=?) " 
-				+ " and p.publishedAssessmentId=z.qualifierId and z.functionId=? "
-				+ " and z.agentIdString= ? order by p." + orderBy;
+				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
+				+ " and ((p.status=:activeStatus and (c.dueDate<=:today or c.retractDate<=:today)) or p.status=:editStatus)"
+				+ " and p.publishedAssessmentId=z.qualifierId and z.functionId=:functionId "
+				//+ " and (z.agentIdString=:siteId or z.agentIdString in (:groupIds)) "
+				+ " and z.agentIdString=:siteId "
+				+ " order by p." + orderBy;
 
 		if (ascending)
 			query += " asc";
@@ -1133,17 +1210,19 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(hql);
-				q.setInteger(0, 1);
-				q.setTimestamp(1, new Date());
-				q.setTimestamp(2, new Date());
-				q.setInteger(3, 3);
-				q.setString(4, "OWN_PUBLISHED_ASSESSMENT");
-				q.setString(5, siteAgentId);
+				q.setInteger("activeStatus", 1);
+				q.setTimestamp("today", new Date());
+				q.setInteger("editStatus", 3);
+				q.setString("functionId", "OWN_PUBLISHED_ASSESSMENT");
+				q.setString("siteId", siteAgentId);
+				//q.setParameterList("groupIds", groupIds);
 				return q.list();
 			};
 		};
 		List list = getHibernateTemplate().executeFind(hcb);
 
+		
+		
 		// List list = getHibernateTemplate().find(query,
 		// new Object[] {new Date(), new Date(),siteAgentId} ,
 		// new org.hibernate.type.Type[] {Hibernate.TIMESTAMP,
@@ -1151,11 +1230,24 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		// Hibernate.STRING});
 
 		ArrayList pubList = new ArrayList();
+		TreeMap groupsForSite = null;
+		String releaseToGroups;
+		
 		for (int i = 0; i < list.size(); i++) {
 			PublishedAssessmentData p = (PublishedAssessmentData) list.get(i);
+			releaseToGroups = null;
+			
+			if (p.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+				if (groupsForSite == null) {
+					groupsForSite = getGroupsForSite();
+				}
+				Long assessmentId = p.getPublishedAssessmentId();
+				releaseToGroups = getReleaseToGroupsAsString(groupsForSite, assessmentId);
+			}
+
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p
 					.getPublishedAssessmentId(), p.getTitle(),
-					p.getReleaseTo(), p.getStartDate(), p.getDueDate());
+					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), releaseToGroups);
 			pubList.add(f);
 		}
 		return pubList;
@@ -1205,11 +1297,24 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				PublishedItemText.class, itemTextId);
 	}
 
+	
 	// added by daisy - please check the logic - I based this on the
 	// getBasicInfoOfAllActiveAssessment
+	// modified by gopalrc - Nov 2007
+	// to include release to selected groups
+	/**
+	 * 
+	 * @param orderBy
+	 * @param ascending
+	 * @param status
+	 * @param siteId
+	 * @return
+	 */
 	public ArrayList getBasicInfoOfAllPublishedAssessments(String orderBy,
 			boolean ascending, final String siteId) {
 
+		final ArrayList groupIds = getSiteGroupIdsForCurrentUser(siteId);
+		
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
 				+ " c.feedbackDate, f.feedbackDelivery,  f.feedbackAuthoring, c.lateHandling, "
@@ -1219,8 +1324,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
 				+ " and p.publishedAssessmentId = f.assessment.publishedAssessmentId "
 				+ " and p.publishedAssessmentId = em.assessment.publishedAssessmentId "
-				+ " and (p.status=? or p.status=?) and az.agentIdString=? "
-				+ " and az.functionId=? and az.qualifierId=p.publishedAssessmentId"
+				+ " and (p.status=:activeStatus or p.status=:editStatus) and (az.agentIdString=:siteId or az.agentIdString in (:groupIds)) "
+				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId"
 				+ " order by ";
 
 		if (ascending == false) {
@@ -1243,10 +1348,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(hql);
-				q.setInteger(0, 1);
-				q.setInteger(1, 3);
-				q.setString(2, siteId);
-				q.setString(3, "TAKE_PUBLISHED_ASSESSMENT");
+				q.setInteger("activeStatus", 1);
+				q.setInteger("editStatus", 3);
+				q.setParameterList("groupIds", groupIds);
+				q.setString("siteId", siteId);
+				q.setString("functionId", "TAKE_PUBLISHED_ASSESSMENT");
 				return q.list();
 			};
 		};
@@ -1813,9 +1919,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	 */
 	public ArrayList getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(
 			final String agentId, final String siteId) {
+		
+		// modified by gopalrc to take account of group release
+		final ArrayList groupIds = getSiteGroupIdsForCurrentUser(siteId);
+		
 		// Get total no. of submission per assessment by the given agent
-		// sorted by submittedData DESC
-		final String last_query = "select new AssessmentGradingData("
+		final String hql = "select new AssessmentGradingData("
 				+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
 				+ " a.submittedDate, a.isLate,"
 				+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
@@ -1823,33 +1932,26 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				+ " a.timeElapsed) "
 				+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
 				+ " where a.publishedAssessmentId = p.publishedAssessmentId"
-				+ " and a.forGrade=? and a.agentId=? and az.agentIdString=? "
-				+ " and az.functionId=? and az.qualifierId=p.publishedAssessmentId"
+				+ " and a.forGrade=:forGrade and a.agentId=:agentId"
+				+ " and (az.agentIdString=:siteId or az.agentIdString in (:groupIds)) "
+				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId"
 				+ " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
 
-		// Get total no. of submission per assessment by the given agent
+		
+		// sorted by submittedData DESC
+		final String order_last = " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
 		// sorted by finalScore DESC
-
-		final String highest_query = "select new AssessmentGradingData("
-				+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
-				+ " a.submittedDate, a.isLate,"
-				+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
-				+ " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
-				+ " a.timeElapsed) "
-				+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
-				+ " where a.publishedAssessmentId = p.publishedAssessmentId"
-				+ " and a.forGrade=? and a.agentId=? and az.agentIdString=? "
-				+ " and az.functionId=? and az.qualifierId=p.publishedAssessmentId"
-				+ " order by p.publishedAssessmentId DESC, a.finalScore DESC, a.submittedDate DESC";
-
+		final String order_highest = " order by p.publishedAssessmentId DESC, a.finalScore DESC, a.submittedDate DESC";
+		
 		final HibernateCallback hcb_last = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
-				Query q = session.createQuery(last_query);
-				q.setBoolean(0, true);
-				q.setString(1, agentId);
-				q.setString(2, siteId);
-				q.setString(3, "TAKE_PUBLISHED_ASSESSMENT");
+				Query q = session.createQuery(hql + order_last);
+				q.setBoolean("forGrade", true);
+				q.setString("agentId", agentId);
+				q.setString("siteId", siteId);
+				q.setParameterList("groupIds", groupIds);
+				q.setString("functionId", "TAKE_PUBLISHED_ASSESSMENT");
 				return q.list();
 			};
 		};
@@ -1860,11 +1962,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		final HibernateCallback hcb_highest = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
-				Query q = session.createQuery(highest_query);
-				q.setBoolean(0, true);
-				q.setString(1, agentId);
-				q.setString(2, siteId);
-				q.setString(3, "TAKE_PUBLISHED_ASSESSMENT");
+				Query q = session.createQuery(hql + order_highest);
+				q.setBoolean("forGrade", true);
+				q.setString("agentId", agentId);
+				q.setString("siteId", siteId);
+				q.setParameterList("groupIds", groupIds);
+				q.setString("functionId", "TAKE_PUBLISHED_ASSESSMENT");
 				return q.list();
 			};
 		};
@@ -2066,12 +2169,29 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		    List l = getHibernateTemplate().find(query, values);
 		    if (l.size()>0){
 		    	AuthorizationData a = (AuthorizationData) l.get(0);
-		      return a.getAgentIdString();
+		    	// gopalrc - added first condition to take account of group releases
+		    	PublishedAssessmentData publishedAssessment = 
+		    		loadPublishedAssessment(Long.valueOf(publishedAssessmentId));
+		    	if (publishedAssessment.getAssessmentAccessControl().getReleaseTo()
+		    			.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+		    		return siteService.findGroup(a.getAgentIdString()).getContainingSite().getId();
+		    	}
+		    	else {
+		    		return a.getAgentIdString();
+		    	}
 		    }
 		    else return null;
-		  }
+	}
 	  
+	/**
+	 * Modified by gopalrc - Jan 2008
+	 * to take account of difference in obtaining question count
+	 * between randomized and non-randomized questions
+	 */  
 	public Integer getPublishedItemCount(final Long publishedAssessmentId) {
+		return getPublishedItemCountForNonRandomSections(publishedAssessmentId) +
+			getPublishedItemCountForRandomSections(publishedAssessmentId);
+/*		
 		final HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
@@ -2079,6 +2199,86 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 						.createQuery("select count(i) from PublishedItemData i, PublishedSectionData s, "
 								+ " PublishedAssessmentData p where p.publishedAssessmentId=? and "
 								+ " p = s.assessment and i.section = s");
+				q.setLong(0, publishedAssessmentId.longValue());
+				return q.list();
+			};
+		};
+		List list = getHibernateTemplate().executeFind(hcb);
+		return (Integer) list.get(0);
+*/		
+	}
+
+	/**
+	 * gopalrc - Jan 2008
+	 * @param publishedAssessmentId
+	 * @return
+	 */
+	public Integer getPublishedItemCountForRandomSections(final Long publishedAssessmentId) {
+		final HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query q = session
+						.createQuery("select m.entry from PublishedSectionData s, "
+								+ " PublishedAssessmentData p, PublishedSectionMetaData m " 
+								+ " where p.publishedAssessmentId=:publishedAssessmentId and m.label=:metaDataLabel and "
+								+ " p = s.assessment and m.section = s ");
+				q.setLong("publishedAssessmentId", publishedAssessmentId.longValue());
+				q.setString("metaDataLabel", SectionDataIfc.NUM_QUESTIONS_DRAWN);
+				//q.setString("metaDataEntry", SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString());
+				return q.list();
+			};
+		};
+		List list = getHibernateTemplate().executeFind(hcb);
+		
+		int sum = 0;
+		for (int i=0; i<list.size(); i++) {
+			if (list.get(i) != null) {
+				sum += Integer.valueOf((String)list.get(i));
+			}
+		}
+		return sum;
+	}
+
+	/**
+	 * gopalrc - Jan 2008
+	 * @param publishedAssessmentId
+	 * @return
+	 */
+	public Integer getPublishedItemCountForNonRandomSections(final Long publishedAssessmentId) {
+		final HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query q = session
+						.createQuery("select count(i) from PublishedItemData i, PublishedSectionData s, "
+								+ " PublishedAssessmentData p, PublishedSectionMetaData m " 
+								+ " where p.publishedAssessmentId=:publishedAssessmentId and m.label=:metaDataLabel and "
+								+ " p = s.assessment and i.section = s and m.section = s and m.entry=:metaDataEntry ");
+
+				q.setLong("publishedAssessmentId", publishedAssessmentId.longValue());
+				q.setString("metaDataLabel", SectionDataIfc.AUTHOR_TYPE);
+				q.setString("metaDataEntry", SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString());
+				//q.setLong(0, publishedAssessmentId.longValue());
+				return q.list();
+			};
+		};
+		List list = getHibernateTemplate().executeFind(hcb);
+		return (Integer) list.get(0);
+	}
+	
+	
+	/**
+	 * added by gopalrc - Nov 2007
+	 * @param publishedAssessmentId
+	 * @return
+	 */
+	public Integer getPublishedSectionCount(final Long publishedAssessmentId) {
+		final HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query q = session
+						.createQuery("select count(s) from PublishedSectionData s, "
+								+ " PublishedAssessmentData p where p.publishedAssessmentId=? and "
+								+ " p = s.assessment");
 				q.setLong(0, publishedAssessmentId.longValue());
 				return q.list();
 			};
@@ -2097,138 +2297,313 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			return null;
 	}
 
-	  public void updateAssessmentLastModifiedInfo(
-				PublishedAssessmentFacade publishedAssessmentFacade) {
-			int retryCount = PersistenceService.getInstance().getRetryCount()
-					.intValue();
-			AssessmentBaseIfc data = publishedAssessmentFacade.getData();
-			data.setLastModifiedBy(AgentFacade.getAgentString());
-			data.setLastModifiedDate(new Date());
-			retryCount = PersistenceService.getInstance().getRetryCount()
-					.intValue();
-			while (retryCount > 0) {
-				try {
-					getHibernateTemplate().update(data);
-					retryCount = 0;
-				} catch (Exception e) {
-					log.warn("problem update assessment: " + e.getMessage());
-					retryCount = PersistenceService.getInstance().retryDeadlock(e,
-							retryCount);
-				}
+	public void updateAssessmentLastModifiedInfo(
+			PublishedAssessmentFacade publishedAssessmentFacade) {
+		int retryCount = PersistenceService.getInstance().getRetryCount()
+				.intValue();
+		AssessmentBaseIfc data = publishedAssessmentFacade.getData();
+		data.setLastModifiedBy(AgentFacade.getAgentString());
+		data.setLastModifiedDate(new Date());
+		retryCount = PersistenceService.getInstance().getRetryCount()
+				.intValue();
+		while (retryCount > 0) {
+			try {
+				getHibernateTemplate().update(data);
+				retryCount = 0;
+			} catch (Exception e) {
+				log.warn("problem update assessment: " + e.getMessage());
+				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+						retryCount);
 			}
 		}
-	  
-	  public void saveOrUpdateSection(SectionFacade section) {
-			int retryCount = PersistenceService.getInstance().getRetryCount()
-					.intValue();
-			while (retryCount > 0) {
-				try {
-					getHibernateTemplate().saveOrUpdate(section.getData());
-					retryCount = 0;
-				} catch (Exception e) {
-					log.warn("problem save or update section: " + e.getMessage());
-					retryCount = PersistenceService.getInstance().retryDeadlock(e,
-							retryCount);
-				}
-			}
-		}
-	  
-		public void removeItemAttachment(Long itemAttachmentId) {
-			PublishedItemAttachment itemAttachment = (PublishedItemAttachment) getHibernateTemplate()
-					.load(PublishedItemAttachment.class, itemAttachmentId);
-			ItemDataIfc item = itemAttachment.getItem();
-			int retryCount = PersistenceService.getInstance().getRetryCount()
-					.intValue();
-			while (retryCount > 0) {
-				try {
-					if (item != null) { // need to dissociate with item before
-						// deleting in Hibernate 3
-						Set set = item.getItemAttachmentSet();
-						set.remove(itemAttachment);
-						getHibernateTemplate().delete(itemAttachment);
-						retryCount = 0;
-					}
-				} catch (Exception e) {
-					log.warn("problem delete itemAttachment: " + e.getMessage());
-					retryCount = PersistenceService.getInstance().retryDeadlock(e,
-							retryCount);
-				}
-			}
-		}
-		
-		public PublishedSectionFacade addSection(Long publishedAssessmentId) {
-			// #1 - get the assessment and attach teh new section to it
-			// we are working with Data instead of Facade in this method but should
-			// return
-			// SectionFacade at the end
-			PublishedAssessmentData assessment = loadPublishedAssessment(publishedAssessmentId);
-			// lazy loading on sectionSet, so need to initialize it
-			Set sectionSet = getSectionSetForAssessment(publishedAssessmentId);
-			assessment.setSectionSet(sectionSet);
+	}
 
-			// #2 - will called the section "Section d" here d is the total no. of
-			// section in this assessment
-			// #2 section has no default name - per Marc's new mockup
-			PublishedSectionData section = new PublishedSectionData(null,
-					new Integer(sectionSet.size() + 1), // NEXT section
-					"", "", TypeD.DEFAULT_SECTION, SectionData.ACTIVE_STATUS,
-					AgentFacade.getAgentString(), new Date(), AgentFacade
-							.getAgentString(), new Date());
-			section.setAssessment(assessment);
-			section.setAssessmentId(assessment.getAssessmentId());
-
-			// add default part type, and question Ordering
-			section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE,
-					SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString());
-			section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING,
-					SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString());
-
-			sectionSet.add(section);
-			int retryCount = PersistenceService.getInstance().getRetryCount()
-					.intValue();
-			while (retryCount > 0) {
-				try {
-					getHibernateTemplate().saveOrUpdate(section);
-					retryCount = 0;
-				} catch (Exception e) {
-					log
-							.warn("problem save or update assessment: "
-									+ e.getMessage());
-					retryCount = PersistenceService.getInstance().retryDeadlock(e,
-							retryCount);
-				}
-			}
-			return new PublishedSectionFacade(section);
-		}
-		
-		public PublishedSectionFacade getSection(Long sectionId) {
-			PublishedSectionData publishedSection = (PublishedSectionData) getHibernateTemplate().load(
-					PublishedSectionData.class, sectionId);
-			return new PublishedSectionFacade(publishedSection);
-		}
-		
-		public AssessmentAccessControlIfc loadPublishedAccessControl(Long publishedAssessmentId) {
-			List list = getHibernateTemplate().find(
-					"select c from PublishedAssessmentData as p, PublishedAccessControl as c " +
-					" where c.assessment.publishedAssessmentId=p.publishedAssessmentId " +
-					" and p.publishedAssessmentId = ?", publishedAssessmentId);
-							
-			return (PublishedAccessControl) list.get(0);
-		}
-		
-		public void saveOrUpdatePublishedAccessControl(AssessmentAccessControlIfc publishedAccessControl) {
-			int retryCount = PersistenceService.getInstance().getRetryCount()
-					.intValue();
-			while (retryCount > 0) {
-				try {
-					getHibernateTemplate().saveOrUpdate(publishedAccessControl);
-					retryCount = 0;
-				} catch (Exception e) {
-					log.warn("problem save or update publishedAccessControl data: " + e.getMessage());
-					retryCount = PersistenceService.getInstance().retryDeadlock(e,
-							retryCount);
-				}
+	public void saveOrUpdateSection(SectionFacade section) {
+		int retryCount = PersistenceService.getInstance().getRetryCount()
+				.intValue();
+		while (retryCount > 0) {
+			try {
+				getHibernateTemplate().saveOrUpdate(section.getData());
+				retryCount = 0;
+			} catch (Exception e) {
+				log.warn("problem save or update section: " + e.getMessage());
+				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+						retryCount);
 			}
 		}
+	}
 
+	public void removeItemAttachment(Long itemAttachmentId) {
+		PublishedItemAttachment itemAttachment = (PublishedItemAttachment) getHibernateTemplate()
+				.load(PublishedItemAttachment.class, itemAttachmentId);
+		ItemDataIfc item = itemAttachment.getItem();
+		int retryCount = PersistenceService.getInstance().getRetryCount()
+				.intValue();
+		while (retryCount > 0) {
+			try {
+				if (item != null) { // need to dissociate with item before
+					// deleting in Hibernate 3
+					Set set = item.getItemAttachmentSet();
+					set.remove(itemAttachment);
+					getHibernateTemplate().delete(itemAttachment);
+					retryCount = 0;
+				}
+			} catch (Exception e) {
+				log.warn("problem delete itemAttachment: " + e.getMessage());
+				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+						retryCount);
+			}
+		}
+	}
+
+	public PublishedSectionFacade addSection(Long publishedAssessmentId) {
+		// #1 - get the assessment and attach teh new section to it
+		// we are working with Data instead of Facade in this method but should
+		// return
+		// SectionFacade at the end
+		PublishedAssessmentData assessment = loadPublishedAssessment(publishedAssessmentId);
+		// lazy loading on sectionSet, so need to initialize it
+		Set sectionSet = getSectionSetForAssessment(publishedAssessmentId);
+		assessment.setSectionSet(sectionSet);
+
+		// #2 - will called the section "Section d" here d is the total no. of
+		// section in this assessment
+		// #2 section has no default name - per Marc's new mockup
+		PublishedSectionData section = new PublishedSectionData(
+				null,
+				new Integer(sectionSet.size() + 1), // NEXT section
+				"", "", TypeD.DEFAULT_SECTION, SectionData.ACTIVE_STATUS,
+				AgentFacade.getAgentString(), new Date(), AgentFacade
+						.getAgentString(), new Date());
+		section.setAssessment(assessment);
+		section.setAssessmentId(assessment.getAssessmentId());
+
+		// add default part type, and question Ordering
+		section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE,
+				SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString());
+		section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING,
+				SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString());
+
+		sectionSet.add(section);
+		int retryCount = PersistenceService.getInstance().getRetryCount()
+				.intValue();
+		while (retryCount > 0) {
+			try {
+				getHibernateTemplate().saveOrUpdate(section);
+				retryCount = 0;
+			} catch (Exception e) {
+				log
+						.warn("problem save or update assessment: "
+								+ e.getMessage());
+				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+						retryCount);
+			}
+		}
+		return new PublishedSectionFacade(section);
+	}
+
+	public PublishedSectionFacade getSection(Long sectionId) {
+		PublishedSectionData publishedSection = (PublishedSectionData) getHibernateTemplate()
+				.load(PublishedSectionData.class, sectionId);
+		return new PublishedSectionFacade(publishedSection);
+	}
+
+	public AssessmentAccessControlIfc loadPublishedAccessControl(
+			Long publishedAssessmentId) {
+		List list = getHibernateTemplate()
+				.find(
+						"select c from PublishedAssessmentData as p, PublishedAccessControl as c "
+								+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
+								+ " and p.publishedAssessmentId = ?",
+						publishedAssessmentId);
+
+		return (PublishedAccessControl) list.get(0);
+	}
+
+	public void saveOrUpdatePublishedAccessControl(
+			AssessmentAccessControlIfc publishedAccessControl) {
+		int retryCount = PersistenceService.getInstance().getRetryCount()
+				.intValue();
+		while (retryCount > 0) {
+			try {
+				getHibernateTemplate().saveOrUpdate(publishedAccessControl);
+				retryCount = 0;
+			} catch (Exception e) {
+				log.warn("problem save or update publishedAccessControl data: "
+						+ e.getMessage());
+				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+						retryCount);
+			}
+		}
+	}
+
+	private SecurityService securityService;
+	private SiteService siteService;
+	
+
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+	
+	
+	/**
+	 * added by gopalrc - Nov 2007
+`	 * TODO: should perhaps bemoved to SiteService
+	 * @param siteId
+	 * @return
+	 */
+	private ArrayList getSiteGroupIdsForSubmittingAgent(String agentId, String siteId) {
+		//String functionName="assessment.takeAssessment";
+		Collection siteGroups = null;
+		try {
+			siteGroups = siteService.getSite(siteId).getGroupsWithMember(agentId);
+		}
+		catch (IdUnusedException ex) {
+			// no site found
+		}
+		Iterator groupsIter = siteGroups.iterator();
+		final ArrayList groupIds = new ArrayList();
+		// To accomodate the problem with Hibernate and empty array parameters 
+		// TODO: this should probably be handled in a more efficient way
+		groupIds.add("none");  
+		while (groupsIter.hasNext()) {
+			Group group = (Group) groupsIter.next(); 
+			// TODO: Does this conditional check need to be done,
+			// or is it sufficient thet the individual is in the group
+			//if (securityService.unlock(functionName, group.getReference())) {
+				groupIds.add(group.getId());
+			//}
+		}
+		return groupIds;
+	}
+	
+	/**
+	 * added by gopalrc - Nov 2007
+`	 * TODO: should perhaps bemoved to SiteService
+	 * @param siteId
+	 * @return
+	 */
+	private ArrayList getSiteGroupIdsForCurrentUser(final String siteId) {
+		String currentUserId = UserDirectoryService.getCurrentUser().getId();
+		return getSiteGroupIdsForSubmittingAgent(currentUserId, siteId);
+	}
+	
+	
+	/**
+	 * added by gopalrc - Nov 2007
+`	 * TODO: should perhaps be moved to SiteService
+	 * @param siteId
+	 * @return
+	 */
+/*	
+	private ArrayList getSiteGroupIds(final String siteId) {
+		Collection siteGroups = null;
+		try {
+			siteGroups = siteService.getSite(siteId).getGroups();
+		}
+		catch (IdUnusedException ex) {
+			// no site found
+		}
+		Iterator groupsIter = siteGroups.iterator();
+		final ArrayList groupIds = new ArrayList();
+		// To accomodate the problem with Hibernate and empty array parameters 
+		// TODO: this should probably be handled in a more efficient way
+		groupIds.add("none");  
+		while (groupsIter.hasNext()) {
+			Group group = (Group) groupsIter.next(); 
+			groupIds.add(group.getId());
+		}
+		return groupIds;
+	}
+*/
+	
+	/**
+	 * added by gopalrc November 2007
+	 * 
+	 * @param assessmentId
+	 * @return
+	 */
+	private String getReleaseToGroupsAsString(TreeMap groupsForSite, Long assessmentId) {
+		 List releaseToGroups = new ArrayList();
+		 String releaseToGroupsAsString = null;
+	     AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
+		 List authorizations = authz.getAuthorizationByFunctionAndQualifier("TAKE_PUBLISHED_ASSESSMENT", assessmentId.toString());
+		 if (authorizations != null && authorizations.size()>0) {
+			 Iterator authsIter = authorizations.iterator();
+			 while (authsIter.hasNext()) {
+				 AuthorizationData ad = (AuthorizationData) authsIter.next();
+				 Object group = groupsForSite.get(ad.getAgentIdString());
+				 if (group != null) {
+					 releaseToGroups.add(group);
+				 }
+			 }			 
+			 Collections.sort(releaseToGroups);
+			 releaseToGroupsAsString = "";
+			 
+			 if (releaseToGroups != null && releaseToGroups.size()!=0 ) {
+				 String lastGroup = (String) releaseToGroups.get(releaseToGroups.size()-1);
+				 Iterator releaseToGroupsIter = releaseToGroups.iterator();
+				 while (releaseToGroupsIter.hasNext()) {
+					 String group = (String) releaseToGroupsIter.next();
+					 releaseToGroupsAsString += group;
+					 if (!group.equals(lastGroup) ) {
+						 releaseToGroupsAsString += ", ";
+					 }
+				 }
+			 }
+		 }
+		 return releaseToGroupsAsString;
+	}
+	
+
+	  /**
+	   * added by gopalrc Nov 2007
+	   * Returns all groups for site
+	   * @return
+	   */
+	  private TreeMap getGroupsForSite(){
+	      TreeMap sortedGroups = new TreeMap();
+		  Site site = null;
+		  try {
+			 site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			 Collection groups = site.getGroups();
+		     if (groups != null && groups.size() > 0) {
+		    	 Iterator groupIter = groups.iterator();
+		    	 while (groupIter.hasNext()) {
+		    		 Group group = (Group) groupIter.next();
+		    		 sortedGroups.put(group.getId(), group.getTitle());
+		    	 }
+		     }
+		  }
+		  catch (IdUnusedException ex) {
+			  // No site available
+		  }
+		  return sortedGroups;
+	  }
+
+	
+	  /**
+	   * added by gopalrc - Jan 2008
+	   * @param publishedAssessmentId
+	   * @return
+	   */
+ 	  public List getReleaseToGroupIdsForPublishedAssessment(
+				final String publishedAssessmentId) {
+			
+ 			final String query = "select agentIdString from AuthorizationData az where az.functionId=:functionId and az.qualifierId=:publishedAssessmentId";
+			final HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session)
+						throws HibernateException, SQLException {
+					Query q = session.createQuery(query);
+					q.setString("publishedAssessmentId", publishedAssessmentId);
+					q.setString("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+					return q.list();
+				};
+			};
+			return getHibernateTemplate().executeFind(hcb);
+	}
 }

@@ -37,10 +37,12 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -86,7 +88,11 @@ public class QuestionScoresBean
   private String typeId;
   private HashMap scoresByItem;
   private static Log log = LogFactory.getLog(QuestionScoresBean.class);
-  private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
+
+  // modified by gopalrc - Jan 2008
+  //private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
+  private String selectedSectionFilterValue = null;
+  
   private String selectedSARationaleView =SHOW_SA_RATIONALE_RESPONSES_POPUP;
   private ArrayList allAgents;
   private boolean haveModelShortAnswer;
@@ -103,7 +109,8 @@ public class QuestionScoresBean
   private String searchString;
   private String defaultSearchString;
 
-  
+  private Boolean releasedToGroups = null; // added by gopalrc - Jan 2008
+
   /**
    * Creates a new QuestionScoresBean object.
    */
@@ -115,7 +122,8 @@ public class QuestionScoresBean
 
 	protected void init() {
         defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
-		if (searchString == null) {
+
+        if (searchString == null) {
 			searchString = defaultSearchString;
 		}
 		
@@ -277,6 +285,15 @@ public class QuestionScoresBean
   public void setPublishedId(String ppublishedId)
   {
     publishedId = ppublishedId;
+    
+    //added by gopalrc - Jan 2007
+	if (isReleasedToGroups()) {
+		setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
+	}
+	else {
+		setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
+	}
+    
   }
 
   /**
@@ -728,7 +745,17 @@ public class QuestionScoresBean
 
 
   public String getSelectedSectionFilterValue() {
-    return selectedSectionFilterValue;
+	  // lazy initialization added by gopalrc - Jan 2008  
+	  if (selectedSectionFilterValue == null) {
+		  if (isReleasedToGroups()) {
+			  setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
+		  }
+		  else {
+			  setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
+		  }
+	  }
+
+	  return selectedSectionFilterValue;
   }
 
   public void setSelectedSectionFilterValue(String param ) {
@@ -882,5 +909,21 @@ public void clear(ActionEvent event) {
 	{
 		this.haveModelShortAnswer = haveModelShortAnswer;
 	}
+
+	/**
+	 * added by gopalrc - jan 2008
+	 * @return
+	 */
+	public boolean isReleasedToGroups() {
+/*		
+		if (releasedToGroups == null) {
+	    	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+	    	releasedToGroups = publishedAssessmentService.isReleasedToGroups(publishedId);
+		}
+		return releasedToGroups;
+*/
+		return this.getPublishedAssessment().getAssessmentAccessControl().getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS);
+	}
+	
 	
 }
