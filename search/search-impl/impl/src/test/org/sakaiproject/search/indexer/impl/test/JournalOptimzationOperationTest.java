@@ -285,6 +285,7 @@ public class JournalOptimzationOperationTest extends TestCase
 		JournalOptimizationTransactionListener journalOptimizationTransactionListener = new JournalOptimizationTransactionListener();
 		SharedFilesystemLoadTransactionListener sharedFilesystemLoadTransactionListener = new SharedFilesystemLoadTransactionListener();
 		SharedFilesystemSaveTransactionListener sharedFilesystemSaveTransactionListener = new SharedFilesystemSaveTransactionListener();
+		sharedFilesystemSaveTransactionListener.setSharedSleep(10);
 		OptimizeSharedTransactionListenerImpl optimizeSharedTransactionListener = new OptimizeSharedTransactionListenerImpl();
 		optimizeSharedTransactionListener.setJournalSettings(journalSettings);
 

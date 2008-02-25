@@ -40,6 +40,8 @@ public class SharedFilesystemSaveTransactionListener implements
 
 	private SharedFilesystemJournalStorage sharedFilesystemJournalStorage;
 
+	private long sharedSleep = 90000;
+
 	public void init()
 	{
 
@@ -88,6 +90,15 @@ public class SharedFilesystemSaveTransactionListener implements
 					.get(SharedFilesystemSaveTransactionListener.class.getName()
 							+ ".state");
 			sharedFilesystemJournalStorage.commitSave(jss);
+			try
+			{
+				// sleep for 90s to make NFS happy
+				Thread.sleep(sharedSleep);
+			}
+			catch (Exception ex)
+			{
+
+			}
 
 		}
 		catch (Exception ex)
@@ -127,6 +138,15 @@ public class SharedFilesystemSaveTransactionListener implements
 					.get(SharedFilesystemSaveTransactionListener.class.getName()
 							+ ".state");
 			sharedFilesystemJournalStorage.rollbackSave(jss);
+			try
+			{
+				// sleep for 90s to make NFS happy
+				Thread.sleep(sharedSleep);
+			}
+			catch (Exception ex)
+			{
+
+			}
 
 		}
 		catch (Exception ex)
@@ -152,6 +172,22 @@ public class SharedFilesystemSaveTransactionListener implements
 			SharedFilesystemJournalStorage sharedFilesystemJournalStorage)
 	{
 		this.sharedFilesystemJournalStorage = sharedFilesystemJournalStorage;
+	}
+
+	/**
+	 * @return the sharedSleep
+	 */
+	public long getSharedSleep()
+	{
+		return sharedSleep;
+	}
+
+	/**
+	 * @param sharedSleep the sharedSleep to set
+	 */
+	public void setSharedSleep(long sharedSleep)
+	{
+		this.sharedSleep = sharedSleep;
 	}
 
 }
