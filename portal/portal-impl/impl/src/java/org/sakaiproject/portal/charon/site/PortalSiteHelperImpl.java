@@ -42,6 +42,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntitySummary;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -311,6 +312,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
 		m.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(s)));
 
+		// TODO: This should come from the site neighbourhood.
 		ResourceProperties rp = s.getProperties();
 		String ourParent = rp.getProperty(PROP_PARENT_ID);
 		boolean isChild = ourParent != null;
@@ -353,6 +355,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	/**
+	 * Gets the path of sites back to the root of the tree.
 	 * @param s
 	 * @param ourParent
 	 * @return
@@ -766,6 +769,14 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						+ site.getId());
 			}
 		}
+		else
+		{
+			String displayId = portal.getSiteNeighbourhoodService().lookupSiteAlias(site.getReference(), null);
+			if (displayId != null)
+			{
+				return displayId;
+			}
+		}
 
 		return site.getId();
 	}
@@ -800,6 +811,18 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					return SiteService.getSiteVisit(alternateSiteId);
 				}
 				catch (UserNotDefinedException ee)
+				{
+				}
+			}
+			else
+			{
+				String reference = portal.getSiteNeighbourhoodService().parseSiteAlias(siteId);
+				Reference ref = EntityManager.getInstance().newReference(reference);
+				try 
+				{
+					return SiteService.getSiteVisit(ref.getId());
+				}
+				catch (IdUnusedException iue)
 				{
 				}
 			}

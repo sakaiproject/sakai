@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -161,14 +160,18 @@ public class SiteHandler extends WorksiteHandler
 		Site site = null;
 		try
 		{
+			// This should understand aliases as well as IDs
 			site = portal.getSiteHelper().getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
-			// continue on to alias check
 		}
 		catch (PermissionException e)
 		{
+		}
+
+		if (site == null)
+		{				
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
 			{
@@ -177,48 +180,12 @@ public class SiteHandler extends WorksiteHandler
 				ss.setToolContextPath(toolContextPath);
 				portalService.setStoredState(ss);
 				portal.doLogin(req, res, session, req.getPathInfo(), false);
-				return;
 			}
-			// otherwise continue on to alias check
-		}
-
-		// Now check for site alias
-		if (site == null)
-		{
-			try
-			{
-				// First check for site alias
-				if (siteId != null && !siteId.equals("")
-						&& !SiteService.siteExists(siteId))
-					{
-					String refString = AliasService.getTarget(siteId);
-						siteId = EntityManager.newReference(refString).getContainer();
-				}
-
-				site = portal.getSiteHelper().getSiteVisit(siteId);
-			}
-			catch (IdUnusedException e)
+			else
 			{
 				portal.doError(req, res, session, Portal.ERROR_SITE);
-				return;
 			}
-			catch (PermissionException e)
-			{
-				// if not logged in, give them a chance
-				if (session.getUserId() == null)
-				{
-					StoredState ss = portalService.newStoredState("directtool", "tool");
-					ss.setRequest(req);
-					ss.setToolContextPath(toolContextPath);
-					portalService.setStoredState(ss);
-					portal.doLogin(req, res, session, req.getPathInfo(), false);
-				}
-				else
-				{
-					portal.doError(req, res, session, Portal.ERROR_SITE);
-				}
-				return;
-			}
+			return;
 		}
 
 		// Lookup the page in the site - enforcing access control
