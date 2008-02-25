@@ -22,6 +22,8 @@
 package org.sakaiproject.portal.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.alias.api.Alias;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -42,14 +46,16 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * @author ieb
  */
 public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 {
+
+	private static final String SITE_ALIAS = "/sitealias/";
 
 	private static final Log log = LogFactory.getLog(SiteNeighbourhoodServiceImpl.class);
 
@@ -60,6 +66,11 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	private UserDirectoryService userDirectoryService;
 
 	private ServerConfigurationService serverConfigurationService;
+	
+	private AliasService aliasService;
+	
+	/** Should all site aliases have a prefix */
+	private boolean useAliasPrefix = false;
 
 	public void init()
 	{
@@ -506,6 +517,81 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
 	{
 		this.userDirectoryService = userDirectoryService;
+	}
+
+	public String lookupSiteAlias(String id, String context)
+	{
+		List<Alias> aliases = aliasService.getAliases(id);
+		if (aliases.size() > 0) 
+		{
+			if (aliases.size() > 1 && log.isInfoEnabled())
+			{
+				if (log.isDebugEnabled())
+				{
+					log.debug("More than one alias for "+ id+ " sorting.");
+				}
+				Collections.sort(aliases, new Comparator<Alias>()
+				{
+					public int compare(Alias o1, Alias o2)
+					{
+						return o1.getId().compareTo(o2.getId());
+					}
+					
+				});
+			}
+			for (Alias alias : aliases)
+			{
+				String aliasId = alias.getId();
+				boolean startsWithPrefix = aliasId.startsWith(SITE_ALIAS);
+				if (startsWithPrefix)
+				{
+					if (useAliasPrefix)
+					{
+						return aliasId.substring(SITE_ALIAS.length());
+					}
+				}
+				else
+				{
+					if (!useAliasPrefix)
+					{
+						return aliasId;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public String parseSiteAlias(String url)
+	{
+		String id = ((useAliasPrefix)?SITE_ALIAS:"")+url;
+		try
+		{
+			String reference = aliasService.getTarget(id);
+			return reference;
+		}
+		catch (IdUnusedException e)
+		{
+			if (log.isDebugEnabled())
+			{
+				log.debug("No alias found for "+ id);
+			}
+		}
+		return null;
+	}
+
+	public void setAliasService(AliasService aliasService) {
+		this.aliasService = aliasService;
+	}
+
+	public boolean isUseAliasPrefix()
+	{
+		return useAliasPrefix;
+	}
+
+	public void setUseAliasPrefix(boolean useAliasPrefix)
+	{
+		this.useAliasPrefix = useAliasPrefix;
 	}
 
 }

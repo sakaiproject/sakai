@@ -31,6 +31,7 @@
 	       <property name="preferencesService" ><ref bean="org.sakaiproject.user.api.PreferencesService" /></property>
 	       <property name="userDirectoryService" ><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
 	       <property name="serverConfigurationService" ><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
+	       <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService" /></property>
     </bean>
 
 </beans>
