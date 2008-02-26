@@ -308,9 +308,9 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	/**
 	 * @inheritDoc
 	 */
-	protected String getTag(String newLine, String title)
+	protected String getTag(String title, boolean shouldUseHtml)
 	{
-		// We handle this in the bodies of the messages
+		// tbd: move here from generateContentForType 
 		return "";
 	}
 

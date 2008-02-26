@@ -63,9 +63,8 @@ import org.sakaiproject.util.StringUtil;
  * <ul>
  * <li>getRecipients() - get a collection of Users to send the notification to</li>
  * <li>getHeaders() - form the complete message headers (like from: to: reply-to: date: subject: etc). from: and to: are for display only</li>
- * <li>getMessage() - form the complete message body (minus headers)</li>
+ * <li>htmlContent() and plainTextContent() - form the complete message body (minus headers)</li>
  * <li>getTag() - the part of the body at the end that identifies the list</li>
- * <li>isBodyHTML() - say if your body is html or not (not would be plain text)</li>
  * </ul>
  * </p>
  * <p>
@@ -113,50 +112,6 @@ public class DropboxNotification extends EmailNotification
 		return rv;
 	}
 	
-//	/**
-//	 * Format a to address, sensitive to the notification service's replyable configuration.
-//	 * 
-//	 * @param event
-//	 * @return
-//	 */
-//	protected String getTo(Event event)
-//	{
-//		if (NotificationService.isNotificationToReplyable())
-//		{
-//			// to site title <email>
-//			return "To: " + getToSite(event);
-//		}
-//		else
-//		{
-//			// to the site, but with no reply
-//			return "To: " + getToSiteNoReply(event);
-//		}
-//	}
-
-
-	/**
-	 * Get the message for the email.
-	 * 
-	 * @param event
-	 *        The event that matched criteria to cause the notification.
-	 * @return the message for the email.
-	 */
-	protected String getMessage(Event event)
-	{	
-		StringBuilder message = new StringBuilder();
-		message.append(MIME_ADVISORY);
-		message.append(BOUNDARY_LINE);
-		message.append(plainTextHeaders());
-		message.append(plainTextContent());
-		message.append(BOUNDARY_LINE);
-		message.append(htmlHeaders());
-		message.append(htmlPreamble());
-		message.append(htmlContent());
-		message.append(htmlEnd());
-		message.append(TERMINATION_LINE);
-		return message.toString();
-	}
-
 	/**
 	 * Get the list of User objects who are eligible to receive the notification email.
 	 * 
@@ -233,20 +188,10 @@ public class DropboxNotification extends EmailNotification
 	 * @see org.sakaiproject.util.EmailNotification#getTag(java.lang.String, java.lang.String)
 	 */
 	@Override
-	protected String getTag(String newline, String title, boolean shouldUseHtml) 
+	protected String getTag(String title, boolean shouldUseHtml) 
 	{
-		// TODO Auto-generated method stub
-		return super.getTag(newline, title, shouldUseHtml);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.EmailNotification#isBodyHTML(org.sakaiproject.event.api.Event)
-	 */
-	@Override
-	protected boolean isBodyHTML(Event event) 
-	{
-		// TODO Auto-generated method stub
-		return super.isBodyHTML(event);
+		// tbd: move from addMessageText
+		return "";
 	}
 
 	protected String plainTextContent() 
