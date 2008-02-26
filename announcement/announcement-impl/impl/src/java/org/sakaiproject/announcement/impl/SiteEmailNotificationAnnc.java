@@ -248,27 +248,19 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	/**
 	 * @inheritDoc
 	 */
-	protected String getTag(String newline, String title, boolean shouldUseHtml)
+	protected String getTag(String title, boolean shouldUseHtml)
 	{
 		if (shouldUseHtml) {
-			return ("<hr/>" + newline + rb.getString("this") + " "
+			return ("<hr/><br/>" + rb.getString("this") + " "
 					+ ServerConfigurationService.getString("ui.service", "Sakai") + " (<a href=\""
 					+ ServerConfigurationService.getPortalUrl() + "\">" + ServerConfigurationService.getPortalUrl() + "</a>) "
-					+ rb.getString("forthe") + " " + title + " " + rb.getString("site") + newline + rb.getString("youcan") + newline);
+					+ rb.getString("forthe") + " " + title + " " + rb.getString("site") + "<br/>" + rb.getString("youcan") + "<br/>");
 		} else {
-			return (rb.getString("separator") + newline + rb.getString("separator") + newline + rb.getString("this") + " "
+			return (rb.getString("separator") + "\n" + rb.getString("this") + " "
 					+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl()
-					+ ") " + rb.getString("forthe") + " " + title + " " + rb.getString("site") + newline + rb.getString("youcan")
-					+ newline);
+					+ ") " + rb.getString("forthe") + " " + title + " " + rb.getString("site") + "\n" + rb.getString("youcan")
+					+ "\n");
 		}
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected boolean isBodyHTML(Event e)
-	{
-		return true;
 	}
 
 	/**
@@ -402,7 +394,6 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 
 	@Override
 	protected String plainTextContent() {
-		// TODO replace this with a reasonable plain text equivalent
 		String content = htmlContent();
 		content = FormattedText.convertFormattedTextToPlaintext(content);
 		return content;
