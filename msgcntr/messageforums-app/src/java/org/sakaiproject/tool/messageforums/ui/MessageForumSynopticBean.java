@@ -1506,16 +1506,21 @@ public class MessageForumSynopticBean {
 	 * 			Site object for this id
 	 */
 	private Site getSite(String siteId) 
-		throws IdUnusedException {
-		if (sitesMap == null || sitesMap.get(siteId) == null) {
-			
+	throws IdUnusedException {
+		if (sitesMap == null) {
+			sitesMap = new HashMap();
+		}
+	
+		if (sitesMap.get(siteId) == null) {
 			Site site = SiteService.getSite(siteId);
 			sitesMap.put(site.getId(), site);
 			return site;
 		}
-		else
+		else {
 			return (Site) sitesMap.get(siteId);
+		}
 	}
+
 	
 	/**
 	 * Returns current context
