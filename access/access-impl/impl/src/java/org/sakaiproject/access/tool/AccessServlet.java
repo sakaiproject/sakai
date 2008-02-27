@@ -458,7 +458,7 @@ public class AccessServlet extends VmServlet
 		if (path != null)
 		{
 			// where to go after
-			session.setAttribute(Tool.HELPER_DONE_URL, Web.returnUrl(req, path));
+			session.setAttribute(Tool.HELPER_DONE_URL, Web.returnUrl(req, Validator.escapeUrl(path)));
 		}
 
 		// check that we have a return path set; might have been done earlier
