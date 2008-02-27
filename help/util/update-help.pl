@@ -33,7 +33,7 @@ die "Please specify document path." if $docrepo eq "";
 die "Please specify svn path." if $svnrepo eq "";
 
 my $svn_comment = "NOJIRA Update help docs (synchronize with IU KB)";
-my $svn_user = "stephen.marquard\@uct.ac.za";
+(my $svn_user, my $svn_pass) = getSvnAuth();
 my $svn = "/usr/bin/svn";
 
 ### ----- Get the index documents from the KB
@@ -133,7 +133,7 @@ update_svn_collection($svnrepo, $docrepo);
 
 #### ----- Commit changes to svn
 
-commit_svn_changes($svnrepo, $svn_user, $svn_comment);
+commit_svn_changes($svnrepo, $svn_user, $svn_pass, $svn_comment);
 
 #### ----- Consistency checks on the document collections
 

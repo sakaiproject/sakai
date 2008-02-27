@@ -54,6 +54,7 @@ sub commit_svn_changes($$$)
 {
  my $svnrepo = shift;
  my $svn_user = shift;
+ my $svn_pass = shift;
  my $svn_comment = shift;
 
  my $svn = "/usr/bin/svn";
@@ -61,7 +62,7 @@ sub commit_svn_changes($$$)
  my @projectlist = glob("$svnrepo/*");
 
  foreach my $project (@projectlist) {
-	system("$svn --username=$svn_user -m \"$svn_comment\" ci $project");
+	system("$svn --username $svn_user --password $svn_pass -m \"$svn_comment\" ci $project");
  }
 }
 
