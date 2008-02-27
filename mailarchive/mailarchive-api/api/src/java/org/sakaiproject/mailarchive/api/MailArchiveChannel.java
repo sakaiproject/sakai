@@ -85,13 +85,13 @@ public interface MailArchiveChannel extends MessageChannel
 	 * @param attachments
 	 *        The message header attachments, a vector of Reference objects.
 	 * @param body
-	 *        The message body.
+	 *        The message body.- body[0] is plain/text; body[1] is html/text
 	 * @return The newly added message.
 	 * @exception PermissionException
 	 *            If the user does not have write permission to the channel.
 	 */
 	public MailArchiveMessage addMailArchiveMessage(String subject, String fromAddress, Time dateSent, List mailHeaders,
-			List attachments, String body) throws PermissionException;
+			List attachments, String[] body) throws PermissionException;
 
 	/** @return true if the channel enabled, false if not. */
 	public boolean getEnabled();

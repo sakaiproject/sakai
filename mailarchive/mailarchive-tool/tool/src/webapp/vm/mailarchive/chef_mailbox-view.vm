@@ -50,7 +50,7 @@
 		#end
 		<tr>
 			<th>$tlang.getString("gen.bod2")</th>
-			<td>$validator.escapeHtmlFormattedText($email.Body)</td>
+			<td>$validator.escapeHtmlFormattedText($email.FormattedBody)</td>
 		</tr>
 		#set ($attachments = $email.Header.Attachments)
 		#if (!$attachments.isEmpty())

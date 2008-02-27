@@ -39,4 +39,19 @@ public interface MailArchiveMessage extends Message
 	 * @return The mail archive message header.
 	 */
 	public MailArchiveMessageHeader getMailArchiveHeader();
+
+	/**
+	 * Get the html body, as a string.
+	 * 
+	 * @return The html-encoded body, as a string.
+	 */
+	public String getHtmlBody();
+
+	/**
+	 * Get the formatted body (either html or plain-text converted to html), as a string.
+	 * 
+	 * @return The formatted body as a string.
+	 */
+	public String getFormattedBody();
+
 }

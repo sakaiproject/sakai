@@ -59,7 +59,11 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.Web;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -814,17 +818,18 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 		 * @param attachments
 		 *        The message header attachments, a vector of Reference objects.
 		 * @param body
-		 *        The message body.
+		 *        The message body.- body[0] is plain/text; body[1] is html/text
 		 * @return The newly added message.
 		 * @exception PermissionException
 		 *            If the user does not have write permission to the channel.
 		 */
 		public MailArchiveMessage addMailArchiveMessage(String subject, String fromAddress, Time dateSent, List mailHeaders,
-				List attachments, String body) throws PermissionException
+				List attachments, String[] body) throws PermissionException
 		{
 			MailArchiveMessageEdit edit = (MailArchiveMessageEdit) addMessage();
 			MailArchiveMessageHeaderEdit header = edit.getMailArchiveHeaderEdit();
-			edit.setBody(body);
+			edit.setBody(body[0]); 
+			edit.setHtmlBody(body[1]);
 			header.replaceAttachments(attachments);
 			header.setSubject(subject);
 			header.setFromAddress(fromAddress);
@@ -933,6 +938,8 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 
 	public class BaseMailArchiveMessageEdit extends BaseMessageEdit implements MailArchiveMessageEdit
 	{
+		protected String m_html_body = null;
+		
 		/**
 		 * Construct.
 		 * 
@@ -944,6 +951,7 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 		public BaseMailArchiveMessageEdit(MessageChannel channel, String id)
 		{
 			super(channel, id);
+			m_html_body = "";
 
 		} // BaseMailArchiveMessageEdit
 
@@ -969,7 +977,51 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 		 */
 		public BaseMailArchiveMessageEdit(MessageChannel channel, Element el)
 		{
-			super(channel, el);
+			this(channel, "");
+
+			m_html_body = Xml.decodeAttribute(el, "body-html");
+			m_body      = Xml.decodeAttribute(el, "body");
+
+			// the children (header, body)
+			NodeList children = el.getChildNodes();
+			final int length = children.getLength();
+			for (int i = 0; i < length; i++)
+			{
+				Node child = children.item(i);
+				if (child.getNodeType() == Node.ELEMENT_NODE)
+				{
+					Element element = (Element) child;
+
+					// look for a header
+					if (element.getTagName().equals("header"))
+					{
+						// re-create a header
+						m_header = newMessageHeader(this, element);
+					}
+
+					// or look for a body (old style of encoding)
+					else if (element.getTagName().equals("body"))
+					{
+						if ((element.getChildNodes() != null) && (element.getChildNodes().item(0) != null))
+						{
+							// convert from plaintext messages to formatted text messages
+							m_body = element.getChildNodes().item(0).getNodeValue();
+							if (m_body != null) m_body = FormattedText.convertPlaintextToFormattedText(m_body);
+						}
+						if (m_body == null)
+						{
+							m_body = "";
+						}
+					}
+
+					// or look for properties
+					else if (element.getTagName().equals("properties"))
+					{
+						// re-create properties
+						m_properties = new BaseResourcePropertiesEdit(element);
+					}
+				}
+			}
 
 		} // BaseMailArchiveMessageEdit
 
@@ -995,6 +1047,77 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 
 		} // getMailArchiveHeaderEdit
 
+		/**
+		 * Replace the html body, as a string.
+		 * 
+		 * @param body
+		 *        The html-encoded body, as a string.
+		 */
+		public void setHtmlBody(String body)
+		{
+			m_html_body = body;
+		} // setHtmlBody
+
+		/**
+		 * Get the html body, as a string.
+		 * 
+		 * @return The html-encoded body, as a string.
+		 */
+		public String getHtmlBody()
+		{
+			return m_html_body;
+		} // getHtmlBody
+
+		/**
+		 * Get the formatted body (either html or plain-text converted to html), as a string.
+		 * 
+		 * @return The formatted body as a string.
+		 */
+		public String getFormattedBody()
+		{
+			if ( getHtmlBody() != null && getHtmlBody().length() > 0 )
+				return m_html_body;
+			else 
+				return Web.encodeUrlsAsHtml( FormattedText.convertPlaintextToFormattedText(m_body) );
+				
+		} // getHtmlBody
+
+		/**
+		 * Take all values from this object.
+		 * 
+		 * @param other
+		 *        The other object to take values from.
+		 */
+		protected void setAll(Message other)
+		{
+			super.setAll( other );
+			if ( other instanceof BaseMailArchiveMessageEdit )
+				m_html_body = ((BaseMailArchiveMessageEdit)other).getHtmlBody();
+		}
+
+		/**
+		 * Serialize the resource into XML, adding an element to the doc under the top of the stack element.
+		 * 
+		 * @param doc
+		 *        The DOM doc to contain the XML (or null for a string return).
+		 * @param stack
+		 *        The DOM elements, the top of which is the containing element of the new "resource" element.
+		 * @return The newly added element.
+		 */
+		public Element toXml(Document doc, Stack stack)
+		{
+			Element message = super.toXml(doc, stack);
+
+			// Over-ride super.toXml() definition of body and body-html attributes
+			
+			// store the html body in attribute
+			Xml.encodeAttribute(message, "body-html", getHtmlBody() );
+
+			// store the plain-text body in attribute
+			Xml.encodeAttribute(message, "body", getBody() );
+
+			return message;
+		}
 	} // class BasicMailArchiveMessageEdit
 
 	/**********************************************************************************************************************************************************************************************************************************************************

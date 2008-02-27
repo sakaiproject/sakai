@@ -36,4 +36,13 @@ public interface MailArchiveMessageEdit extends MailArchiveMessage, MessageEdit
 	 * @return The announcement message header.
 	 */
 	public MailArchiveMessageHeaderEdit getMailArchiveHeaderEdit();
+	
+	/**
+	 * Replace the html body, as a string.
+	 * 
+	 * @param body
+	 *        The html-encoded body, as a string.
+	 */
+	public void setHtmlBody(String body);
+	
 }

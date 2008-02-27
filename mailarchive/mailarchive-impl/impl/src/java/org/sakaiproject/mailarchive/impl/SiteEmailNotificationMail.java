@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.text.MessageFormat;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
@@ -49,7 +50,7 @@ import org.sakaiproject.util.Web;
  */
 public class SiteEmailNotificationMail extends SiteEmailNotification
 {
-	// borrow from announcement's notification class
+	// ResourceBundle _not_ ResourceLoader -- we want the site's default locale
 	private static ResourceBundle rb = ResourceBundle.getBundle("siteemaanc");
 
 	/**
@@ -87,43 +88,15 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 		List headers = hdr.getMailHeaders();
 
 		List filteredHeaders = super.getHeaders(event);
-		String innerContentType = null;
-		String outerContentType = null;
-		String contentType = null;
 
 		for (int i = 0; i < headers.size(); i++)
 		{
 			String headerStr = (String) headers.get(i);
 
 			if (headerStr.startsWith("Return-Path") || headerStr.startsWith("Content-Transfer-Encoding")) continue;
-
-			if (headerStr.startsWith(MailArchiveService.HEADER_INNER_CONTENT_TYPE + ": ")) innerContentType = headerStr;
-			if (headerStr.startsWith(MailArchiveService.HEADER_OUTER_CONTENT_TYPE + ": ")) outerContentType = headerStr;
-
-			if (!headerStr.startsWith("Content-Type: "))
-			{
-				filteredHeaders.add(headerStr);
-			}
-			else
-			{
-				contentType = headerStr;
-			}
-		}
-
-		if (innerContentType != null)
-		{
-			// use the content type of the inner email message body
-			//filteredHeaders.add(innerContentType.replaceAll(MailArchiveService.HEADER_INNER_CONTENT_TYPE, "Content-Type"));
-		}
-		else if (outerContentType != null)
-		{
-			// use the content type from the outer message (content type as set in the email originally)
-			//filteredHeaders.add(outerContentType.replaceAll(MailArchiveService.HEADER_OUTER_CONTENT_TYPE, "Content-Type"));
-		}
-		else if (contentType != null)
-		{
-			// Oh well, use the plain old Content-Type header
-			//filteredHeaders.add(contentType);
+			if (headerStr.startsWith("Content-Type: ")) continue;
+			
+			filteredHeaders.add(headerStr);
 		}
 
 		return filteredHeaders;
@@ -134,21 +107,28 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 	 */
 	protected String getTag(String title, boolean shouldUseHtml)
 	{
-		{
-			if (shouldUseHtml) {
-				return ("<hr/><br/>" + rb.getString("this") + " "
-						+ ServerConfigurationService.getString("ui.service", "Sakai") + " (<a href=\""
-						+ ServerConfigurationService.getPortalUrl() + "\">" + ServerConfigurationService.getPortalUrl() + "</a>) "
-						+ rb.getString("forthe") + " " + title + " " + rb.getString("site") + "<br/>" + rb.getString("youcan") + "<br/>");
-			} else {
-				return (rb.getString("separator") + "\n" + rb.getString("this") + " "
-						+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl()
-						+ ") " + rb.getString("forthe") + " " + title + " " + rb.getString("site") + "\n" + rb.getString("youcan")
-						+ "\n");
-			}
+		StringBuilder buf = new StringBuilder();
+			
+		if (shouldUseHtml) {
+			buf.append("<br/><hr/><br/>");
+			String portalUrl = "<a href=\"" + ServerConfigurationService.getPortalUrl() + "\" >" + ServerConfigurationService.getPortalUrl() + "<a/>"; 
+			buf.append( MessageFormat.format( rb.getString("automsg1"),  
+														 new Object[]{ServerConfigurationService.getString("ui.service", "Sakai"), 
+																		  portalUrl, title} ));
+			buf.append( "<br/>" + rb.getString("automsg2")+"<br/>" );
+		} 
+		else {
+			buf.append("\n----------------------\n" );
+			buf.append( MessageFormat.format( rb.getString("automsg1"),
+														 new Object[]{ServerConfigurationService.getString("ui.service", "Sakai"), 
+																		  ServerConfigurationService.getPortalUrl(), title} ));
+			buf.append( "\n" + rb.getString("automsg2") + "\n" );
 		}
+		
+		return buf.toString();
 	}
 
+	
 	@Override
 	protected String htmlContent() {
 		StringBuilder buf = new StringBuilder();
@@ -168,26 +148,24 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 			Site site = SiteService.getSite(siteId);
 			title = site.getTitle();
 		}
-		catch (Exception ignore)
-		{
-		}
+		catch (Exception ignore) {}
 
-		// use the message's body
-		buf.append(Web.encodeUrlsAsHtml(msg.getBody()));
+		// if html isn't available, convert plain-text into html
+		buf.append( msg.getFormattedBody() );
 
 		// add any attachments
 		List attachments = hdr.getAttachments();
 		if (attachments.size() > 0)
 		{
-			buf.append("<br/>\n" + "Attachments:<br/>\n");
+			buf.append("<br/>" + "Attachments:<br/>");
 			for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
 			{
 				Reference attachment = (Reference) iAttachments.next();
 				String attachmentTitle = attachment.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-				buf.append("<br/>\n<a href=\"" + attachment.getUrl() + "\" >" + attachmentTitle + "</a><br/>\n");
+				buf.append("<br/><a href=\"" + attachment.getUrl() + "\" >" + attachmentTitle + "</a><br/>");
 			}
 		}
-
+		
 		return buf.toString();
 	}
 
@@ -215,20 +193,19 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 			Site site = SiteService.getSite(siteId);
 			title = site.getTitle();
 		}
-		catch (Exception ignore)
-		{
-		}
+		catch (Exception ignore) {}
 
-		// use the message's body
-		// %%% JANDERSE convert to plaintext - email is currently sent plaintext only,
-		// so text formatting that may be present in the message should be removed.
-		buf.append(FormattedText.convertFormattedTextToPlaintext(msg.getBody()));
+		// if plain-text isn't available, convert html into plain text
+		if ( msg.getBody() != null && msg.getBody().length() > 0 )
+			buf.append( msg.getBody() );
+		else
+			buf.append(FormattedText.convertFormattedTextToPlaintext(msg.getHtmlBody()));
 
 		// add any attachments
 		List attachments = hdr.getAttachments();
 		if (attachments.size() > 0)
 		{
-			buf.append("\n" + "Attachments:\n");
+			buf.append("\n\n" + "Attachments:\n");
 			for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
 			{
 				Reference attachment = (Reference) iAttachments.next();
@@ -237,7 +214,7 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 				buf.append("\n" + attachment.getUrl() + "\n");
 			}
 		}
-		
+
 		return buf.toString();
 	}
 }
