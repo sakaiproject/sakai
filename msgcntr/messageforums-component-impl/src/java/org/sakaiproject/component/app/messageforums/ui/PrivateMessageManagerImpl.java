@@ -94,8 +94,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private static final String QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT = "findPrvtMsgsByUserTypeContext";
   private static final String QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS = "findPrivateMessageByIdWithRecipients";
   
-  private static List aggregateList;
-
   private AreaManager areaManager;
   private MessageForumsMessageManager messageManager;
   private MessageForumsForumManager forumManager;
@@ -183,7 +181,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   
   
   //==============Need to be modified to support localization huxt
-  public PrivateForum initializePrivateMessageArea(Area area)
+  public PrivateForum initializePrivateMessageArea(Area area, List aggregateList)
   {
 	  /** The type string for this "application": should not change over time as it may be stored in various parts of persistent entities. */
 		String APPLICATION_ID = "sakai:resourceloader";
@@ -209,8 +207,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 	  //huxt -end
 	  
     
-    
-    initializeMessageCounts();
+    aggregateList.clear();
+    aggregateList.addAll(initializeMessageCounts());
     
     getHibernateTemplate().lock(area, LockMode.NONE);
     
@@ -816,7 +814,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#findMessageCount(java.lang.String)
    */
-  public int findMessageCount(String typeUuid)
+  public int findMessageCount(String typeUuid, List aggregateList)
   {    
     if (LOG.isDebugEnabled())
     {
@@ -851,7 +849,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#findUnreadMessageCount(java.lang.String)
    */
-  public int findUnreadMessageCount(String typeUuid)
+  public int findUnreadMessageCount(String typeUuid, List aggregateList)
   {    
     if (LOG.isDebugEnabled())
     {
@@ -890,7 +888,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
    * initialize message counts
    * @param typeUuid
    */
-  private void initializeMessageCounts()
+  private List initializeMessageCounts()
   {    
     if (LOG.isDebugEnabled())
     {
@@ -909,7 +907,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       }
     };
         
-    aggregateList = (List) getHibernateTemplate().execute(hcb);        
+    return (List) getHibernateTemplate().execute(hcb);        
   }
 
 

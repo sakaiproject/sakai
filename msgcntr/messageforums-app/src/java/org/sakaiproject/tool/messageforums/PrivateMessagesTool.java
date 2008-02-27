@@ -205,6 +205,8 @@ public class PrivateMessagesTool
   
   PrivateForumDecoratedBean decoratedForum;
   
+  private List aggregateList = new ArrayList();
+  
   private Area area;
   private PrivateForum forum;  
   private List pvtTopics=new ArrayList();
@@ -419,7 +421,7 @@ public class PrivateMessagesTool
     }
     
     if (getPvtAreaEnabled() || isInstructor() || isEmailPermit()){      
-      PrivateForum pf = prtMsgManager.initializePrivateMessageArea(area);
+      PrivateForum pf = prtMsgManager.initializePrivateMessageArea(area, aggregateList);
       pf = prtMsgManager.initializationHelper(pf, area);
       pvtTopics = pf.getTopics();
       Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
@@ -536,9 +538,9 @@ public class PrivateMessagesTool
             }
             countForFolderNum++;
             
-            decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid));
+            decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid, aggregateList));
 
-            decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid));
+            decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid, aggregateList));
 
           
             decoratedForum.addTopic(decoTopic);
@@ -563,8 +565,8 @@ public class PrivateMessagesTool
                 
                  String typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());          
                
-                 decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid));
-                 decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid));
+                 decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid, aggregateList));
+                 decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid,aggregateList));
                
                  decoratedForum.addTopic(decoTopic);
                }          
@@ -3378,7 +3380,7 @@ private   int   getNum(char letter,   String   a)
     
     String typeUuid = getPrivateMessageTypeFromContext(selectedTopicTitle);          
     
-    setTotalMsgInFolder(prtMsgManager.findMessageCount(typeUuid));
+    setTotalMsgInFolder(prtMsgManager.findMessageCount(typeUuid, aggregateList));
     
     if(ismutable)
     {

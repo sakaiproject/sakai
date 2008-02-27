@@ -1080,10 +1080,11 @@ public class MessageForumSynopticBean {
 				}
 			
 				if (isEnabled) {
-					pvtMessageManager.initializePrivateMessageArea(area);
-				
+					List aggregateList = new ArrayList();
+					pvtMessageManager.initializePrivateMessageArea(area, aggregateList);
+
 					unreadPrivate = pvtMessageManager.findUnreadMessageCount(
-										typeManager.getReceivedPrivateMessageType());
+										typeManager.getReceivedPrivateMessageType(), aggregateList);
 
 					dcms.setUnreadPrivateAmt(unreadPrivate);
 					dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(getSiteId()));
@@ -1506,8 +1507,12 @@ public class MessageForumSynopticBean {
 	 */
 	private Site getSite(String siteId) 
 		throws IdUnusedException {
-		if (sitesMap == null || sitesMap.get(siteId) == null)
-			return SiteService.getSite(siteId);
+		if (sitesMap == null || sitesMap.get(siteId) == null) {
+			
+			Site site = SiteService.getSite(siteId);
+			sitesMap.put(site.getId(), site);
+			return site;
+		}
 		else
 			return (Site) sitesMap.get(siteId);
 	}
@@ -1617,7 +1622,7 @@ public class MessageForumSynopticBean {
     			if (area != null) {
     				if (isMessagesPageInSite() || area.getEnabled().booleanValue() || pvtMessageManager.isInstructor()){
 		    			/* TODO: determine if receivedTopicUuid = ""; // is OK? */
-		    			PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
+		    			PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area, new ArrayList());
 		    			pf = pvtMessageManager.initializationHelper(pf, area);
 		    			List pvtTopics = pf.getTopics();
 		    			Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator

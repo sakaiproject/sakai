@@ -80,7 +80,7 @@ public interface PrivateMessageManager {
      */
     Area getPrivateMessageArea();
     
-    public PrivateForum initializePrivateMessageArea(Area area);        
+    public PrivateForum initializePrivateMessageArea(Area area, List aggregateList);        
     
     public PrivateForum initializationHelper(PrivateForum forum, Area area);
     
@@ -117,16 +117,18 @@ public interface PrivateMessageManager {
     /**
      * find message count for type
      * @param typeUuid
+     * @param aggregateList
      * @return count
      */
-    public int findMessageCount(String typeUuid);
+    public int findMessageCount(String typeUuid, List aggregateList);
     
     /**
      * find unread message count for type
      * @param typeUuid
+     * @param aggregateList
      * @return count
      */
-    public int findUnreadMessageCount(String typeUuid);
+    public int findUnreadMessageCount(String typeUuid, List aggregateList);
     
     public MessageForumsMessageManager getMessageManager();
     public Message getMessageById(Long messageId);
