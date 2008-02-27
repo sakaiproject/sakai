@@ -538,10 +538,11 @@
     	destroy-method="destroy" >
 			<property name="transactionListeners" >
 				<list>
-					<ref bean="org.sakaiproject.search.api.SearchService.parallel.index.journalOptimizationTransactionListener" />
+					<ref bean="org.sakaiproject.search.api.SearchService.parallel.index.journalOptimizationStartTransactionListener" />
 					<ref bean="org.sakaiproject.search.api.SearchService.parallel.index.sharedFilesystemLoadTransactionListener" />
 					<ref bean="org.sakaiproject.search.api.SearchService.parallel.index.optimizeSharedTransactionListener" />
 					<ref bean="org.sakaiproject.search.api.SearchService.parallel.index.sharedFilesystemSaveTransactionListener" />
+					<ref bean="org.sakaiproject.search.api.SearchService.parallel.index.journalOptimizationEndTransactionListener" />
 				</list>
 			</property>
 
@@ -562,8 +563,14 @@
 			<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
     </bean>
 	<bean 
-    	class="org.sakaiproject.search.optimize.shared.impl.JournalOptimizationTransactionListener" 
-    	id="org.sakaiproject.search.api.SearchService.parallel.index.journalOptimizationTransactionListener"
+    	class="org.sakaiproject.search.optimize.shared.impl.JournalOptimizationStartTransactionListener" 
+    	id="org.sakaiproject.search.api.SearchService.parallel.index.journalOptimizationStartTransactionListener"
+   		init-method="init" 
+    	destroy-method="destroy" >
+    </bean>
+	<bean 
+    	class="org.sakaiproject.search.optimize.shared.impl.JournalOptimizationEndTransactionListener" 
+    	id="org.sakaiproject.search.api.SearchService.parallel.index.journalOptimizationEndTransactionListener"
    		init-method="init" 
     	destroy-method="destroy" >
     </bean>

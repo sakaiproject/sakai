@@ -35,11 +35,11 @@ import org.sakaiproject.search.transaction.api.IndexTransactionException;
  * 
  * @author ieb
  */
-public class JournalOptimizationTransactionListener implements
+public class JournalOptimizationEndTransactionListener implements
 		IndexUpdateTransactionListener
 {
 
-	private static final Log log = LogFactory.getLog(JournalOptimizationTransactionListener.class);
+	private static final Log log = LogFactory.getLog(JournalOptimizationEndTransactionListener.class);
 
 	public void init()
 	{
@@ -57,19 +57,6 @@ public class JournalOptimizationTransactionListener implements
 	 */
 	public void prepare(IndexTransaction transaction) throws IndexJournalException
 	{
-		JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
-		JournalManager journalManager = jtransaction.getJournalManager();
-		OptimizeJournalManagerStateImpl jms = (OptimizeJournalManagerStateImpl) journalManager
-				.prepareSave(transaction.getTransactionId());
-		
-		
-		jtransaction.setState(jms);
-
-		// set the last item to the target
-		// set the merge list to all the segments, the merge list is processed in reverse order
-		jtransaction.setTargetSavePoint(jms.mergeList.get(jms.mergeList.size() - 1));
-		jtransaction.setMergeList(jms.mergeList);
-
 	}
 
 	/**
@@ -91,11 +78,6 @@ public class JournalOptimizationTransactionListener implements
 	 */
 	public void open(IndexTransaction transaction) throws IndexTransactionException
 	{
-		JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
-		JournalManager journalManager = jtransaction.getJournalManager();
-		
-
-		journalManager.doOpenTransaction(transaction);
 	}
 
 	/**

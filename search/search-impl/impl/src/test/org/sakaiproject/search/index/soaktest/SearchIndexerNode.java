@@ -71,9 +71,10 @@ import org.sakaiproject.search.optimize.impl.OptimizeIndexManager;
 import org.sakaiproject.search.optimize.impl.OptimizeIndexOperation;
 import org.sakaiproject.search.optimize.impl.OptimizeTransactionListenerImpl;
 import org.sakaiproject.search.optimize.shared.impl.DbJournalOptimizationManager;
+import org.sakaiproject.search.optimize.shared.impl.JournalOptimizationEndTransactionListener;
 import org.sakaiproject.search.optimize.shared.impl.JournalOptimizationManagerImpl;
 import org.sakaiproject.search.optimize.shared.impl.JournalOptimizationOperation;
-import org.sakaiproject.search.optimize.shared.impl.JournalOptimizationTransactionListener;
+import org.sakaiproject.search.optimize.shared.impl.JournalOptimizationStartTransactionListener;
 import org.sakaiproject.search.optimize.shared.impl.OptimizeSharedTransactionListenerImpl;
 import org.sakaiproject.search.optimize.shared.impl.SharedFilesystemLoadTransactionListener;
 import org.sakaiproject.search.optimize.shared.impl.SharedFilesystemSaveTransactionListener;
@@ -354,7 +355,8 @@ public class SearchIndexerNode
 		JournalOptimizationOperation journalOptimizationOperation = new JournalOptimizationOperation();
 		JournalOptimizationManagerImpl journalOptimizationManager = new JournalOptimizationManagerImpl();
 
-		JournalOptimizationTransactionListener journalOptimizationTransactionListener = new JournalOptimizationTransactionListener();
+		JournalOptimizationStartTransactionListener journalOptimizationStartTransactionListener = new JournalOptimizationStartTransactionListener();
+		JournalOptimizationEndTransactionListener journalOptimizationEndTransactionListener = new JournalOptimizationEndTransactionListener();
 		SharedFilesystemLoadTransactionListener sharedFilesystemLoadTransactionListener = new SharedFilesystemLoadTransactionListener();
 		SharedFilesystemSaveTransactionListener sharedFilesystemSaveTransactionListener = new SharedFilesystemSaveTransactionListener();
 		sharedFilesystemSaveTransactionListener.setSharedSleep(10);
@@ -382,13 +384,15 @@ public class SearchIndexerNode
 				.setSharedFilesystemJournalStorage(sharedFilesystemJournalStorage);
 
 		journalOptimizationManager
-				.addTransactionListener(journalOptimizationTransactionListener);
+				.addTransactionListener(journalOptimizationStartTransactionListener);
 		journalOptimizationManager
 				.addTransactionListener(sharedFilesystemLoadTransactionListener);
 		journalOptimizationManager
 				.addTransactionListener(optimizeSharedTransactionListener);
 		journalOptimizationManager
 				.addTransactionListener(sharedFilesystemSaveTransactionListener);
+		journalOptimizationManager
+				.addTransactionListener(journalOptimizationEndTransactionListener);
 
 		journalOptimizationManager.setAnalyzerFactory(analyzerFactory);
 		journalOptimizationManager.setJournalManager(optimizeJournalManager);
@@ -396,10 +400,11 @@ public class SearchIndexerNode
 		journalOptimizationManager.setJournalSettings(journalSettings);
 
 		List<TransactionListener> tl = new ArrayList<TransactionListener>();
-		tl.add(journalOptimizationTransactionListener);
+		tl.add(journalOptimizationStartTransactionListener);
 		tl.add(sharedFilesystemLoadTransactionListener);
 		tl.add(optimizeSharedTransactionListener);
 		tl.add(sharedFilesystemSaveTransactionListener);
+		tl.add(journalOptimizationEndTransactionListener);
 		journalOptimizationManager.setTransactionListeners(tl);
 
 		journalOptimizationOperation

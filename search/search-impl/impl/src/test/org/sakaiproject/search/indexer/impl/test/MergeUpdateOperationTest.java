@@ -50,7 +50,6 @@ import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
 import org.sakaiproject.search.mock.MockThreadLocalManager;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.search.optimize.api.OptimizableIndex;
 import org.sakaiproject.search.optimize.impl.OptimizableIndexImpl;
 import org.sakaiproject.search.optimize.impl.OptimizeIndexManager;
 import org.sakaiproject.search.optimize.impl.OptimizeTransactionListenerImpl;
