@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html><head>
-<title>Importing scores into Gradebook</title>
+<title>Importing Gradebook items from a
+spreadsheet</title>
 <style type="text/css">
 		/* Style for specific inline images */
-		
+		div.image{display: inline;}div.image{display: inline;}
 		/* Style for specific ordered lists */
 		
 		/* Style for specific table cells */
@@ -13,7 +14,8 @@
 </head>
 <body>
 <div class="helpBody">
-<h2>Importing scores into Gradebook</h2>
+<h2>Importing Gradebook items from a
+spreadsheet</h2>
 
 
 
@@ -33,11 +35,11 @@ document, you must be assigned a role having the necessary
 permissions.  To determine your role, follow the directions in <a href="content.hlp?docId=arbu">Participant roles</a>.  For a
 basic understanding of roles and permissions, see <a href="content.hlp?docId=arax">Permissions and roles: Overview</a>.</p>
 
-<p>To import grades, you must first create a <code>.csv</code>
-spreadsheet file containing columns of point-based scores, and then
-upload it to the Gradebook Loading Dock. The first row of your
-spreadsheet must contain headings for the columns it contains. The
-first column must contain individuals' usernames.</p>
+<p>To import Gradebook items, you must first create a
+<code>.csv</code> spreadsheet file containing columns of point-based
+scores, and then upload it to the Gradebook Loading Dock. The first
+row of your spreadsheet must contain headings for the columns it
+contains. The first column must contain individuals' usernames.</p>
 
 <p>Once you have your <code>.csv</code> file ready for upload, follow
 these steps:</p>
@@ -47,78 +49,94 @@ these steps:</p>
 <ol><li>In your site's <a href="content.hlp?docId=arcc">menubar</a>, click <strong><code>Gradebook</code></strong>.
 
 <br /><br />
-</li><li>Near the top, click <strong><code>Upload/Import</code></strong>.
+</li><li>Near the top, click <strong><code>Import gradebook item from
+spreadsheet</code></strong>.
 
 <br /><br />
-</li><li>On the Upload/Import screen, click <strong><code>Upload spreadsheet (csv
-format) to Loading Dock</code></strong>.
-
-<br /><br />
-</li><li>To select a file for upload, click <strong><code>Browse</code></strong>. Find the file
-on your computer, click its name, and then click <strong><code>Open</code></strong>.
+</li><li>On the Import Gradebook Item screen, click <strong><code>Upload spreadsheet
+(csv format) to Loading Dock</code></strong>.
 
 <br /><br />
 </li><li>In the field next to "Title", type a unique name to be displayed
 in the Loading Dock.
 
 <br /><br />
+</li><li>To select a file for upload, click <strong><code>Browse</code></strong>. Find the file
+on your computer, click its name, and then click <strong><code>Open</code></strong>.
+
+<br /><br />
+
 </li><li>Click <strong><code>Save</code></strong>.
 
 <br /><br />
-</li><li>On the Verify Upload screen, review the number of assignments and
+</li><li>On the Verify Upload screen, review the number of items and
 students for your upload, and view a display of the file's
 contents. If the content is correct, click <strong><code>Ok</code></strong>. If you need to
 select another file, click <strong><code>Back</code></strong>.
 </li></ol>
 
 <p>Once a file is uploaded to the Loading Dock, its contents become
-available to import as new Gradebook assignments. To import an
-uploaded file's contents as a new Gradebook assignment, follow these
-steps:</p>
+available to import as a new Gradebook item. To import an uploaded
+file's contents as a new Gradebook item:</p>
 
 <h4>Importing a file from the Loading Dock</h4>
 
-<ol><li>On the Upload/Import screen, find your newly uploaded file in the
-Loading Dock, and next to it, click <strong><code>Import</code></strong>.
+<ol><li>On the Import Gradebook Item screen, find your newly uploaded file
+in the Loading Dock, and next to it, click <strong><code>Import</code></strong>.
 
 <br /><br />
 </li><li>On the Import Preview screen, click the radio button to select the
-column that represents the assignment and corresponding scores you
+column that represents the Gradebook item and corresponding scores you
 want to import. (You can select only one at a time.) Then click
 <strong><code>Import Selected</code></strong>.
 
 <br /><br />
-</li><li>On the Import Assignment and Scores screen, enter the following
+</li><li>On the Import Gradebook Item and Scores screen, enter the following
 information:<br /><br />
 
 <ul><li><strong>Title:</strong> The title you provided in the steps above
 is automatically filled in. If you didn't provide a title earlier, you
 must provide one here. The maximum length is 255 characters.
-</li><li><strong>Assignment Point Value:</strong> Enter a total point value
-for the assignment. This must be greater than zero. Decimal values are
-permitted to two decimal places.
+</li><li><strong>Gradebook Item Point Value:</strong> Enter a total point
+value for the Gradebook item. This must be greater than zero. Decimal
+values are permitted to two decimal places.
 </li><li><strong>Due Date:</strong> In <code>mm/dd/yy</code> format,
-indicate the assignment's due date, or click the calendar icon to
-select a date using the pop-up calendar tool. This field is not
-required.
+indicate the item's due date, or click the "calendar" icon
+ <div class="inlineimage image"><img class="noborder" src="image/a012w.gif" alt="Calendar icon" /></div>  to select a date using the pop-up calendar tool. This
+field is not required.
 </li><li><strong>Select a column to import comments:</strong> If a column
 in your file contains comments, use the drop-down list to select the
 appropriate column, and add the comments to the import. Comments will
 appear next to the grades in the Gradebook. This field is not required.
 </li></ul><br />
-</li><li>To include this assignment when calculating the final grade, check
-the appropriate box. You can change this option later, if
-necessary.<br /><br />
-</li><li>To make this assignment's scores available to students, check the
-box next to <strong><code>Release assignment</code></strong>. You can change this option
-later, if necessary.<br /><br />
+</li><li>To make this item's scores available to students, select the
+<strong><code>Release this Item to Students</code></strong> option. You can deselect this
+later, if necessary.
+
+
+<br /><br />
+</li><li>To include this item when calculating the course grade, select the
+<strong><code>Include this item in course grade calculations</code></strong> option. You
+can deselect this later, if necessary.
+
+<br /><br />
 </li><li>When you're finished, click <strong><code>Submit</code></strong>. You'll return to the
-Import Preview screen, where you'll see confirmation that the
-assignment has been added. You can now select another assignment for
-import, or click the <strong><code>Reset</code></strong> button to return to the Gradebook
-Overview screen. You should see your imported assignment(s) listed
-under "Assignments".
+Import Preview screen, where you'll see confirmation that your item
+was added. You can now select another item for import, or click
+"Reset"  <div class="inlineimage image"><img class="noborder" src="image/a009j.jpg" alt="Reset button icon" /></div>   to return to the main screen; see <a href="content.hlp?docId=aqzn">The reset button</a>. You should see your imported assignment(s) listed
+under "Gradebook Items Summary".
 </li></ol>
+
+<h4>Other import options</h4>
+
+<p>Gradebook also allows you to import grades for existing Gradebook
+items.</p>
+
+<p>A similar functionality is available in Sakai's Post'Em tool. You
+can upload a <code>.csv</code> spreadsheet of grades (and feedback, if
+desired) that students can view. For more information, see <a href="content.hlp?docId=atik">Using the Post'Em tool</a>.</p>
+
+
 
 
 </div>
