@@ -59,12 +59,6 @@
 	<div class="pad">
 	 &nbsp;<p>&nbsp;</p>
 		<p></p>
-	<h3>Documentation</h3>
-		<p>
-		<a href="http://confluence.sakaiproject.org/confluence/display/DOC/Sakai+2.5">
-		Release documentation</a> -- ranging from installation to use and 
-		configuration of the software -- is maintained in a wiki. You're 
-		encouraged to create an account and give us your comments and questions!</p>
 		<h3>Downloads</h3>
 	
 	<table cellspacing="8">
@@ -125,7 +119,7 @@
 		Sakai is Java-based and will therefore run on a wide variety of 
 		platforms.&nbsp;&nbsp; The platforms against which Sakai 2.5.0 has been specifically QA'ed, however, are:<br /><br />
 	
-	<table class="dec">
+	<table class="dec" width="264">
 		<tbody>
 			<tr>
 				<td>
@@ -137,45 +131,41 @@
 							<th>Win 2003</th>
 						</tr>
 						<tr>
-							<th>MySQL 5.0</th>
-							<td class="topw">&nbsp;</td>
-							<td class="topbl">*</td>
-							<td class="topw">&nbsp;</td>
+							<th style="vertical-align: middle">MySQL 4.1</th>
+							<td class="topw" style="text-align: center">&nbsp;</td>
+							<td class="topbl" style="text-align: center">
+							<p style="text-align: center">&nbsp;</td>
+							<td class="topw" style="text-align: center">&nbsp;</td>
 						</tr>
 						<tr>
-							<th>MySQL 4.1</th>
-							<td class="topw">&nbsp;</td>
-							<td class="topbl">*</td>
-							<td class="topw">&nbsp;</td>
+							<th style="vertical-align: middle">MySQL 5.0</th>
+							<td class="topw" style="text-align: center">&nbsp;</td>
+							<td class="topbl" style="text-align: center; vertical-align: middle">
+							<p style="text-align: center">*</td>
+							<td class="topw" style="text-align: center">&nbsp;</td>
+						</tr>
+						<tr>
+							<th style="vertical-align: middle">Oracle 9i</th>
+							<td class="topbl" style="text-align: center">
+							<p style="text-align: center">*</td>
+							<td class="topw" style="text-align: center">&nbsp;</td>
+							<td class="topw" style="text-align: center">&nbsp;</td>
+						</tr>
+						<tr>
+							<th style="vertical-align: middle">Oracle&nbsp;10g&nbsp;</th>
+							<td class="topw" style="text-align: center">&nbsp;</td>
+							<td class="topbl" style="text-align: center">
+							<p style="text-align: center">*</td>
+							<td class="topw" style="text-align: center">&nbsp;</td>
 						</tr>
 					</table>
 				</td>
-				<td>
-					<table class="dec">
-						<tr>
-							<td>&nbsp;</td>
-							<th>Solaris</th>
-							<th>Linux</th>
-							<th>Win 2003</th>
-						</tr>
-						<tr>
-							<th>Oracle&nbsp;10g&nbsp;</th>
-							<td class="topw">&nbsp;</td>
-							<td class="topbl">*</td>
-							<td class="topw">&nbsp;</td>
-						</tr>
-						<tr>
-							<th>Oracle 9i</th>
-							<td class="topbl">*</td>
-							<td class="topw">&nbsp;</td>
-							<td class="topw">&nbsp;</td>
-						</tr>
-					</table>
-				</td>
+				
 			</tr>
 			<tr>
-				<td colspan="2" align="left"><strong>*</strong> - Sakai QA Server<br/>
-					<strong>Dark cell</strong> - Sakai 2.5.0 (or earlier) in production at a Sakai member institution.
+				<td colspan="2" align="left"><strong>*</strong> -&nbsp; Sakai QA Server.<br/>
+					<strong>Dark cell</strong> - Combination reported as 
+				successfully being used for production with Sakai 2.5 (or earlier).
 				</td>
 			</tr>
 		</tbody>
@@ -196,7 +186,8 @@
 			</tr>
 			<tr>
 	            <td class="top"><p>Java J2SE</p></td>
-	            <td class="top"><p>5.0</p></td>
+	            <td class="top"><p>5.0</p>
+				<p>(1.5.0_13)</p></td>
 	            <td><p>The Java 2 Platform Standard Edition 5.0 (J2SE 5.0) is <em>required</em> to build and run Sakai (developers recognize this version as Java 1.5.0).  
 	            	JSP pages (among other things) require some compilation, so downloading and attempting to use only the runtime environment (JRE 5.0) will not suffice. 
 	            	You can download the latest <a href="http://java.sun.com/javase/downloads/index_jdk5.jsp">J2SE 5.0 JDK</a> release from 
@@ -218,12 +209,12 @@
             <tr>
 	            <td class="top"><p>Apache Tomcat</p></td>
 	            <td class="top">
-		        	<p>5.5.23+</p>
+		        	<p>5.5.23</p>
 	          	</td>
             	<td><p>Although Tomcat is not the only available servlet container, it is highly recommended for Sakai, 
 	            	and the documentation assumes Tomcat use.  Sakai QA was conducted on Tomcat 5.5.23, so this is 
 	            	the recommended version. (Note that Sakai 2.5.0 will not 
-				currently work with Tomcat 5.5.26 due to a
+				work with Tomcat 5.5.26 due to a
 				<a target="_blank" href="http://issues.apache.org/bugzilla/show_bug.cgi?id=43241">
 				change in Tomcat</a>, also see
 				<a target="_blank" href="http://jira.sakaiproject.org/jira/browse/SAK-12931">
@@ -254,7 +245,8 @@
 		       </td>
 		       <td><p>Sakai uses HSQLDB as its "out of the box" database, requiring no special installation
 					steps to set up but this database is not recommended for production installations.
-					MySQL 4.1.12+, MySQL 5.0.45+, Oracle 9i and Oracle 10g are currently supported by Sakai 2.5 
+					
+					<p>MySQL 4.1.12+, MySQL 5.0.45+, Oracle 9i and Oracle 10g are currently supported by Sakai 2.5 
 					but setting them up to work with Sakai will require additional configuration
 					(see the <a href="install-overview.html">Installation Guide</a>).
 					
@@ -295,10 +287,9 @@
 				<ul>
 					<li><a href="release-notes.html">2.5.0 Release Notes</a></li>
 					<li><a href="fixed-issues.html">2.5.0 Fixed Issues</a></li>
-					<li><a class="red" href="open-issues.html">2.5.0 Open Issues</span></a></li>
+					<li><a href="open-issues.html">2.5.0 Open Issues</a></li>
 					<li>
-					<a href="http://bugs.sakaiproject.org/confluence/display/REL/Sakai+2.5.x+Maintenance+Branch">
-					2.5.x Maintenance Branch</a></li>
+					<a href="http://confluence.sakaiproject.org/confluence/x/OgCu">2.5.x Maintenance Branch</a></li>
 				</ul></p>
   				</td>
 			</tr>
@@ -310,7 +301,11 @@
       			<td>
        				<ul>
 				        <li><a href="install-overview.html">Installation Guide</a></li>
-				        <li><a href="http://bugs.sakaiproject.org/confluence/display/DOC/2.3+Sakai+Tools">Sakai Tools</a></li>
+				        <li>
+						<a href="http://confluence.sakaiproject.org/confluence/x/BoCI">Sakai Tools</a></li>
+						<li>
+						<a href="http://confluence.sakaiproject.org/confluence/x/ToDj">
+						Sys Admin Guide</a></li>
 					</ul>
 				</td>
      		</tr>
@@ -322,8 +317,8 @@
 				<td><p>Some of the most authoritative technical documentation on Sakai code and services is found in the form of .doc files 
 					in the <b>reference</b> module of Sakai, which can be 
 				directly reached through subversion (and is also included in 
-				release archives). The articles for the 2.5.0 release can be found at: <br/>
-					<a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-5-0/docs/architecture/">
+				release archives). The articles for the 2.5.0 release can be found at: 
+				<a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-5-0/docs/architecture/">
 					https://source.sakaiproject.org/svn/reference/tags/sakai_2-5-0/docs/architecture/</a></p><br/>
 				</td>
 			</tr>
@@ -343,8 +338,10 @@
 				<td><p><a href="http://bugs.sakaiproject.org/confluence/dashboard.action">Confluence</a> is the wiki software used by the Sakai project.  Confluence is used for a wide variety of purposes: the collaborative forging of documentation and design ideas, project management, and the sharing of notes on various topics.  A few of the more informative spaces are identified below:
 					<ul>
 						<li><a href="http://bugs.sakaiproject.org/confluence/display/MGT">Project Management and Coordination</a></li>
-						<li><a href="http://bugs.sakaiproject.org/confluence/display/ENC/Home">Sakaipedia</a></li>
-						<li><a href="http://bugs.sakaiproject.org/confluence/display/BOOT/Home">Programmer's Cafe</a></li>
+						<li>
+						<a href="http://bugs.sakaiproject.org/confluence/display/ENC">Sakaipedia</a></li>
+						<li>
+						<a href="http://bugs.sakaiproject.org/confluence/display/BOOT">Programmer's Cafe</a></li>
 					</ul>
 					<p></p>
 				</td>
@@ -352,9 +349,8 @@
 			<tr>
 				<td colspan="2" class="line">&nbsp;</td></tr>
 			<tr>
-				<th><p>Support<br/>Docs</p></th>
-				<td><p>JavaDocs and TagLibDocs are available on-line:</p>
-					<ul>
+				<th>Support<br/>Docs</th>
+				<td>JavaDocs and TagLibDocs are available on-line:<ul>
 						<li><a href="javadoc/">JavaDocs</a>
 						or <a href="javadoc/sakai-javadoc.zip">
 						(download zip)</a></li>
@@ -370,7 +366,8 @@
 	
 	<a name="latest"></a>
 	<h3>Getting the Latest Source Code</h3>
-	<p>Sakai is using Subversion for its source control, and has maintenance branches - which include the latest bug fixes - for its most current releases. You can check out the maintenance branch for Sakai 2.5 with a subversion client:<p>
+	<p>Sakai is using Subversion for its source control, and has maintenance branches 
+	- which include the latest bug fixes - for its most current releases. You can check out the maintenance branch for Sakai 2.5 with a subversion client:<p>
 	
 	<p><b>svn co https://source.sakaiproject.org/svn/sakai/branches/sakai_2-5-x/ </b></p>
 	<p>
@@ -382,29 +379,31 @@
 	Mercury portal, and a few of the basic applications.  You can check it out of subversion, then just add your application
 	code and any further dependencies that your application needs.  You can grab it here, e.g.: </p>
 	<p><b>svn export https://source.sakaiproject.org/svn/mini/tags/sakai_2-5-0/</b></p>
-	<p>(Since the mini is mainly just a convenient support for other development, it's likely that 'svn export' will be the preferred, cleaner way to get this codebase)
+	<p>(Since mini is mainly just a convenient support for other development, it's likely that 'svn export' will be the preferred, cleaner way to get this codebase)
 	<p>&nbsp;</p>
 	
 	<a name="issues"></a>
 	<h3>
 	Issue Tracking
 	</h3>
-	 Bug reports and feature requests may be created and monitored through our Jira system:
-	<a href="http://bugs.sakaiproject.org/jira/secure/Dashboard.jspa">
-	Sakai Jira </a>
-	<p>&nbsp;</p>
+	 Bug reports and feature requests may be created and monitored through
+		<a href="http://jira.sakaiproject.org/jira">Jira</a>.<p>&nbsp;</p>
 	
 	<a name="community"></a>
 	<h3>Community</h3>
 	
-	 <p>The Sakai community interacts online mainly in two forums.  The first is through the email archives attached to the sites on <a href="http://collab.sakaiproject.org">Sakai Collab</a>.  "Collab" is a Sakai-based service run by the Sakai Foundation to support
-	the collaboration of its community.  For technical questions, <b>sakai-dev</b> is the most active such site, but many others are available, ranging from pedagogy to UI design. We encourage you to create an account, join any groups on the collab server for which you may have an interest, and participate.</p>
+	 <p>The Sakai community interacts online mainly in two forums.  The first is through the email archives attached to the sites on 
+		<a href="http://collab.sakaiproject.org">Collab</a>.  "Collab" is an 
+		instance of Sakai run by the Sakai Foundation to support
+		collaboration in the Sakai community.  For help with technical questions, <b>sakai-dev</b> 
+		is the most active such site, but many others are available, ranging 
+		from teaching and learning to user experience. We encourage you to create an account, join any groups on the Collab server for which you may have an interest, and participate.</p>
 	<p>To join, for example, the developer's site, simply create an account from the gateway page, log in, and then use the "Membership" tool to join the site labeled <b>DG: Development</b>. By joining this site you are automatically added to the
 	<a href="mailto:sakai-dev@collab.sakaiproject.org">sakai-dev@collab.sakaiproject.org</a> mailing list.   To "unsubscribe" from any of the lists, simply use the same Membership tool to unjoin the sites.</p>  
 	
 	<b>NOTE:</b> This is not technically a listserv, so that sending an "unsubscribe" email will accomplish nothing.</em></p>
 	
-	 <p>The second forum is <a href="http://bugs.sakaiproject.org/confluence">Confluence</a>, the wiki web used by the project.  Confluence is used for a wide variety of purposes: the collaborative forging of documentation or design ideas, project management reporting, and the sharing of notes on a wide array of topics.  You can browse its pages there anonymously, but if you want to comment or otherwise participate you're encouraged to create an account there as well.</p>
+	 <p>The second forum is <a href="http://bugs.sakaiproject.org/confluence">Confluence</a>, the wiki used by the project.  Confluence is used for a wide variety of purposes: the collaborative forging of documentation or design ideas, project management, and the sharing of notes on a wide array of topics.  You can browse its pages anonymously, but if you want to comment or otherwise participate you're encouraged to create an account there as well.</p>
 	<p>&nbsp;</p>
 	
 	<a name="releases"></a>
