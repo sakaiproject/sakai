@@ -2,11 +2,18 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+
+   <bean id="resourceIndex" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfs</value></property>
+      <property name="name"><value>Resources</value></property>
+      <property name="location"><value>/sakai_resources/arfs.html</value></property>
+      <property name="defaultForTool"><value>sakai.resources</value></property>      
+   </bean>
+
    <bean id="resourceOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>area</value></property>
       <property name="name"><value>Resources Overview</value></property>
       <property name="location"><value>/sakai_resources/area.html</value></property>
-      <property name="defaultForTool"><value>sakai.resources</value></property>      
    </bean>
 
    <bean id="usingFolders" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -157,6 +164,7 @@
                <property name="name"><value>Resources</value></property>
                <property name="resources">
                   <list>
+                     <ref bean="resourceIndex"/>
                      <ref bean="resourceOverview"/>
                      <ref bean="viewResource"/>
                      <ref bean="itemDetails"/>
