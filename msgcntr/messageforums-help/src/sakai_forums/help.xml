@@ -70,6 +70,17 @@
             <value>/sakai_forums/atdk.html</value>
         </property>
     </bean>
+    <bean id="mcDeleteMessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>auul</value>
+        </property>
+        <property name="name">
+            <value>Delete a forum message</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/auul.html</value>
+        </property>
+    </bean>
     <bean id="mcView" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
             <value>asbe</value>
@@ -147,6 +158,7 @@
                             <ref bean="mcChangeOrder"/>
                             <ref bean="mcPermissions"/>
                             <ref bean="mcRevise"/>
+                            <ref bean="mcDeleteMessage"/>
                             <ref bean="mcView"/>
                             <ref bean="mcPost"/>
                             <ref bean="mcGrade" />
