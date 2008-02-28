@@ -113,6 +113,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -120,6 +121,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -127,6 +129,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 		log.debug("Transaction Sequence " + getName() + " Started at " + txid);
@@ -229,6 +232,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 			try
 			{
@@ -236,6 +240,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 			try
 			{
@@ -243,6 +248,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 			try
 			{
@@ -250,6 +256,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 			try
 			{
@@ -257,6 +264,7 @@ public class TransactionSequenceImpl implements TransactionSequence
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 		}
 	}

@@ -84,6 +84,7 @@ public class WordContentDigester extends BaseContentDigester
 				}
 				catch (IOException e)
 				{
+					log.debug(e);
 				}
 			}
 		}

@@ -242,6 +242,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 			}
 		});
@@ -290,6 +291,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 					}
 					catch (Exception ex)
 					{
+						log.debug(ex);
 
 					}
 					try
@@ -298,6 +300,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 					}
 					catch (Exception ex)
 					{
+						log.debug(ex);
 					}
 				}
 				if (tableExists)
@@ -322,6 +325,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 				try
 				{
@@ -329,6 +333,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 			}
 		}
@@ -375,6 +380,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 				try
 				{
@@ -382,6 +388,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 				try
 				{
@@ -389,6 +396,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 
 			}
@@ -414,6 +422,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		}
 		catch (InterruptedException iex)
 		{
+			log.debug(iex);
 		}
 		return false;
 	}
@@ -441,6 +450,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		}
 		catch (InterruptedException iex)
 		{
+			log.debug(iex);
 
 		}
 		return false;
@@ -1107,6 +1117,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				}
 				catch (Exception ex2)
 				{
+					log.debug(ex);
 				}
 				log.warn("Unable to get Search Jorunal SavePoint ", ex);
 			}
@@ -1118,6 +1129,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 				try
 				{
@@ -1125,6 +1137,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 				try
 				{
@@ -1132,6 +1145,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 
 			}

@@ -149,12 +149,20 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 		{
 			try
 			{
+				rst.close();
+			}
+			catch (Exception ex)
+			{
+				dlog.warn("Exception counting pending items", ex);
+			}
+			try
+			{
 				pst.close();
 			}
 			catch (Exception ex)
 			{
 				dlog.warn("Exception counting pending items", ex);
-			};
+			}
 		}
 
 	}

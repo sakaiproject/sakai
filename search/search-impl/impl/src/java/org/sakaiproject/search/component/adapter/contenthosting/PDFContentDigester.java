@@ -71,7 +71,7 @@ public class PDFContentDigester extends BaseContentDigester
 				PDDocument pddoc = parser.getPDDocument();
 				pddoc.close();
 			} catch ( Exception e ) {
-				
+				log.debug(e);
 			}
 			throw new RuntimeException("Failed to get content for indexing: cause: "+ex.getMessage(), ex);
 		}
@@ -85,6 +85,7 @@ public class PDFContentDigester extends BaseContentDigester
 				}
 				catch (IOException e)
 				{
+					log.debug(e);
 				}
 			}
 		}

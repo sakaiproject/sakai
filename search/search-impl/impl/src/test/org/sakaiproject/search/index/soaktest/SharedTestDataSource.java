@@ -508,6 +508,7 @@ public class SharedTestDataSource
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 			try
 			{
@@ -515,6 +516,7 @@ public class SharedTestDataSource
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 		}
 		return nitems;

@@ -123,7 +123,7 @@ public class ClusterSegmentsStorage
 				}
 				catch (Exception e)
 				{
-
+					log.debug(e);
 				}
 				throw new RuntimeException("Segment " + addsi.getName()
 						+ " is corrupted ");
@@ -141,6 +141,7 @@ public class ClusterSegmentsStorage
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 		log
@@ -282,6 +283,7 @@ public class ClusterSegmentsStorage
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 		log
@@ -445,6 +447,7 @@ public class ClusterSegmentsStorage
 			}
 			catch (Exception e)
 			{
+				log.debug(e);
 			}
 		}
 	}

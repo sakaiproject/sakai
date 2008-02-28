@@ -96,7 +96,7 @@ public class PPTContentDigester extends BaseContentDigester
 					}
 					catch (Exception e)
 					{
-
+						log.debug(e);
 					}
 				}
 			};
@@ -124,6 +124,7 @@ public class PPTContentDigester extends BaseContentDigester
 				}
 				catch (IOException e)
 				{
+					log.debug(e);
 				}
 			}
 		}

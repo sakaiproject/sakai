@@ -82,6 +82,7 @@ public class ControllerServlet extends HttpServlet
 		}
 		catch (Exception ex)
 		{
+			int x = 1; //ignore
 		}
 		if (sessionManager == null)
 		{

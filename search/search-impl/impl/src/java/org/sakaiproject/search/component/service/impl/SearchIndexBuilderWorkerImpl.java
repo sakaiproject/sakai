@@ -638,7 +638,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 					}
 					catch (Exception ex)
 					{
-
+						log.debug(ex);
 					}
 					retries--;
 					try
@@ -647,6 +647,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 					}
 					catch (InterruptedException ie)
 					{
+						log.debug(ie);
 					}
 				}
 			}
@@ -696,7 +697,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 					}
 					catch (Exception ex)
 					{
-
+						log.debug(ex);
 					}
 					try
 					{
@@ -704,7 +705,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 					}
 					catch (Exception ex)
 					{
-
+						log.debug(ex);
 					}
 					retries--;
 					try
@@ -713,6 +714,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 					}
 					catch (InterruptedException ie)
 					{
+						log.debug(ie);
 					}
 				}
 			}
@@ -737,6 +739,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				}
 				catch (SQLException e)
 				{
+					log.debug(e);
 				}
 			}
 			if (insertLock != null)
@@ -747,6 +750,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				}
 				catch (SQLException e)
 				{
+					log.debug(e);
 				}
 			}
 			if (updateNodeLock != null)
@@ -757,6 +761,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				}
 				catch (SQLException e)
 				{
+					log.debug(e);
 				}
 			}
 			if (selectExpiredNodeLock != null)
@@ -767,6 +772,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				}
 				catch (SQLException e)
 				{
+					log.debug(e);
 				}
 			}
 			if (deleteExpiredNodeLock != null)
@@ -777,6 +783,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				}
 				catch (SQLException e)
 				{
+					log.debug(e);
 				}
 			}
 			if (connection != null)
@@ -788,6 +795,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				}
 				catch (SQLException e)
 				{
+					log.debug(e);
 				}
 				connection = null;
 			}
@@ -978,6 +986,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				}
 				catch (SQLException e)
 				{
+					log.debug(e);
 				}
 			}
 			log.error("Failed to get lock " + ex.getMessage());
@@ -993,6 +1002,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				}
 				catch (SQLException e)
 				{
+					log.debug(e);
 				}
 			}
 			if (selectLock != null)
@@ -1003,6 +1013,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				}
 				catch (SQLException e)
 				{
+					log.debug(e);
 				}
 			}
 			if (updateLock != null)
@@ -1013,6 +1024,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				}
 				catch (SQLException e)
 				{
+					log.debug(e);
 				}
 			}
 			if (insertLock != null)
@@ -1023,6 +1035,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				}
 				catch (SQLException e)
 				{
+					log.debug(e);
 				}
 			}
 			if (countWork != null)
@@ -1033,6 +1046,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				}
 				catch (SQLException e)
 				{
+					log.debug(e);
 				}
 			}
 

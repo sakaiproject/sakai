@@ -198,6 +198,7 @@ public class SiteContentProducer implements EntityContentProducer
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 		return false;
@@ -216,6 +217,7 @@ public class SiteContentProducer implements EntityContentProducer
 		}
 		catch (Exception ex)
 		{
+			log.debug(ex);
 		}
 		return null;
 	}
@@ -228,6 +230,7 @@ public class SiteContentProducer implements EntityContentProducer
 		}
 		catch (Exception ex)
 		{
+			log.debug(ex);
 		}
 		return null;
 	}

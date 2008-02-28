@@ -137,6 +137,7 @@ public class OptimizeIndexOperation implements ManagementOperation
 						}
 						catch (Exception ex)
 						{
+							log.debug(ex);
 						}
 
 					}

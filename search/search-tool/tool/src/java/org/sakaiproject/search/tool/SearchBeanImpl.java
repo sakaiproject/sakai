@@ -187,6 +187,7 @@ public class SearchBeanImpl implements SearchBean
 		}
 		catch (Exception ex)
 		{
+			log.debug(ex);
 
 		}
 		currentSite = this.siteService.getSite(this.siteId);
@@ -214,6 +215,7 @@ public class SearchBeanImpl implements SearchBean
 		}
 		catch (Exception ex)
 		{
+			log.debug(ex);
 
 		}
 		currentSite = this.siteService.getSite(this.siteId);
@@ -764,6 +766,7 @@ public class SearchBeanImpl implements SearchBean
 		}
 		catch (Exception ex)
 		{
+			log.debug(ex);
 		}
 		return pages;
 	}

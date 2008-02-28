@@ -213,6 +213,7 @@ public class ControllerServlet2 extends HttpServlet
 		}
 		catch (PermissionException e1)
 		{
+			log.debug(e1);
 		}
 		try
 		{	SearchAdminBean searchAdminBean = searchBeanFactory.newSearchAdminBean(request);
@@ -224,6 +225,7 @@ public class ControllerServlet2 extends HttpServlet
 		}
 		catch (PermissionException e1)
 		{
+			log.debug(e1);
 		}
 		try
 		{
@@ -231,6 +233,7 @@ public class ControllerServlet2 extends HttpServlet
 		}
 		catch (PermissionException e1)
 		{
+			log.debug(e1);
 		}
 		try
 		{
@@ -238,6 +241,7 @@ public class ControllerServlet2 extends HttpServlet
 		}
 		catch (PermissionException e1)
 		{
+			log.debug(e1);
 		}
 		try
 		{

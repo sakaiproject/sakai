@@ -176,7 +176,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 					}
 					catch (Exception e)
 					{
-
+						log.debug(e);
 					}
 					log
 							.error("Failed to migrate indexes to itemscope based storage, search cant startup, please investigate immediately ");
@@ -190,6 +190,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 					}
 					catch (Exception e)
 					{
+						log.debug(e);
 					}
 					try
 					{
@@ -197,6 +198,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 					}
 					catch (Exception e)
 					{
+						log.debug(e);
 					}
 					try
 					{
@@ -204,6 +206,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 					}
 					catch (Exception e)
 					{
+						log.debug(e);
 					}
 				}
 			}
@@ -568,6 +571,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 						}
 						catch (IOException ioex)
 						{
+							log.debug(ioex);
 						}
 					}
 				}
@@ -765,6 +769,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -816,6 +821,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 	}
@@ -916,6 +922,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -923,6 +930,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 	}
@@ -970,6 +978,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -977,6 +986,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 	}
@@ -1039,6 +1049,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 	}
@@ -1064,6 +1075,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -1093,6 +1105,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -1259,6 +1272,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 				try
 				{
@@ -1266,6 +1280,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 			}
 
@@ -1304,11 +1319,20 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		{
 			try
 			{
+				rst.close();
+			}
+			catch (Exception ex)
+			{
+				log.debug(ex);
+			}
+			try
+			{
 				pst.close();
 			}
 			catch (Exception ex)
 			{
-			};
+				log.debug(ex);
+			}
 		}
 
 	}
@@ -1460,6 +1484,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -1504,6 +1529,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			};
 		}
 	}

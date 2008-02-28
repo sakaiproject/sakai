@@ -359,7 +359,7 @@ public class SearchIndexerNode
 		JournalOptimizationEndTransactionListener journalOptimizationEndTransactionListener = new JournalOptimizationEndTransactionListener();
 		SharedFilesystemLoadTransactionListener sharedFilesystemLoadTransactionListener = new SharedFilesystemLoadTransactionListener();
 		SharedFilesystemSaveTransactionListener sharedFilesystemSaveTransactionListener = new SharedFilesystemSaveTransactionListener();
-		sharedFilesystemSaveTransactionListener.setSharedSleep(10);
+		sharedFilesystemSaveTransactionListener.setSharedSleep(120000);
 		OptimizeSharedTransactionListenerImpl optimizeSharedTransactionListener = new OptimizeSharedTransactionListenerImpl();
 		optimizeSharedTransactionListener.setJournalSettings(journalSettings);
 

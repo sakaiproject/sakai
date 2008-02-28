@@ -135,6 +135,7 @@ public class MessageContentProducer implements EntityContentProducer
 		}
 		catch (Exception ex)
 		{
+			log.debug(ex);
 		}
 		return null;
 	}
@@ -147,6 +148,7 @@ public class MessageContentProducer implements EntityContentProducer
 		}
 		catch (Exception ex)
 		{
+			log.debug(ex);
 		}
 		return null;
 	}
@@ -592,6 +594,7 @@ public class MessageContentProducer implements EntityContentProducer
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 		return false;

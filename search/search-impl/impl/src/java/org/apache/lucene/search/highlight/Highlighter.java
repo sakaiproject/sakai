@@ -333,6 +333,7 @@ public class Highlighter
 				}
 				catch (Exception e)
 				{
+					int x=1; // ignore
 				}
 			}
 		}

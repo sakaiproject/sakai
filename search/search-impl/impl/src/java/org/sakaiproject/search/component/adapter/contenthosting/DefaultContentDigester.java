@@ -74,6 +74,7 @@ public class DefaultContentDigester implements ContentDigester
 				}
 				catch (Exception e)
 				{
+					log.debug(e);
 				}
 			} 
 			return sb.toString();

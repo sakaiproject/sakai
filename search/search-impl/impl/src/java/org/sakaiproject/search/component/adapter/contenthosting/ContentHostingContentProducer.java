@@ -645,12 +645,15 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		catch (PermissionException e)
 		{
+			log.debug(e);
 		}
 		catch (IdUnusedException e)
 		{
+			log.debug(e);
 		}
 		catch (TypeException e)
 		{
+			log.debug(e);
 		}
 		return null;
 	}

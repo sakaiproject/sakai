@@ -136,7 +136,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 						}
 						catch (Exception e)
 						{
-
+							log.debug(e);
 						}
 					}
 
@@ -165,7 +165,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 						}
 						catch (Exception ex2)
 						{
-
+							log.debug(e);
 						}
 					}
 					log
@@ -297,6 +297,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 			}
 			catch (Exception ex)
 			{
+				log.debug(e);
 			}
 			indexSearcher = null;
 			log.error("There has been a major poblem with the"
@@ -310,6 +311,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 			}
 			catch (Exception ex)
 			{
+				log.debug(e);
 			}
 			indexSearcher = null;
 			log.error("There has been a major poblem with the "
@@ -446,6 +448,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 					catch (Exception ex)
 					{
 						// dotn care if this fails
+						log.debug(ex);
 					}
 				}
 			}
@@ -675,6 +678,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 							}
 							catch (Exception ex2)
 							{
+								log.debug(ex2);
 							}
 							try
 							{

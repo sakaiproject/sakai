@@ -94,7 +94,8 @@ public class DbJournalManagerTest extends TestCase
 			dbJournalManager.getNextSavePoint(9);
 			fail("Should have exhausted the journal");
 		} catch ( JournalExhausetedException jex ) {
-			
+			log.debug(jex);
+
 		}
 		log.info("==PASSED========================== "+this.getClass().getName()+".testGetNextSavePoint");
 	}
@@ -143,6 +144,7 @@ public class DbJournalManagerTest extends TestCase
 			dbJournalManager.getNextSavePoint(9);
 			fail("Should have exhausted the journal");
 		} catch ( JournalExhausetedException jex ) {
+			log.debug(jex);
 			
 		}
 		log.info("==PASSED========================== "+this.getClass().getName()+".testCommitSave");
@@ -167,7 +169,8 @@ public class DbJournalManagerTest extends TestCase
 			long i = dbJournalManager.getNextSavePoint(20);
 			fail("Should have exhausted the journal got "+i);
 		} catch ( JournalExhausetedException jex ) {
-			
+			log.debug(jex);
+
 		}
 		log.info("==PASSED========================== "+this.getClass().getName()+".testRollbackSave");
 

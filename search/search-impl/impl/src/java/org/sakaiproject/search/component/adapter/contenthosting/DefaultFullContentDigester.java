@@ -149,10 +149,12 @@ public class DefaultFullContentDigester extends DefaultContentDigester
 			try {
 				this.in.close();
 			} catch ( Exception ex ) {
+				log.debug(ex);
 			}
 			try { 
 				inputStream.close();
 			} catch ( Exception ex ) {
+				log.debug(ex);
 			}
 			inputStream = null;
 		}

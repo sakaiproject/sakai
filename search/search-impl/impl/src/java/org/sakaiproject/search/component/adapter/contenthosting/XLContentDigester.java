@@ -112,6 +112,7 @@ public class XLContentDigester extends BaseContentDigester
 				}
 				catch (IOException e)
 				{
+					log.debug(e);
 				}
 			}
 		}

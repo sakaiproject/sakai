@@ -298,6 +298,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -305,6 +306,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 

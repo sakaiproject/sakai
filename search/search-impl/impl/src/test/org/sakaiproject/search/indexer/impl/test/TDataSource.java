@@ -509,6 +509,7 @@ public class TDataSource
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 			try
 			{
@@ -516,6 +517,7 @@ public class TDataSource
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 		}
 		return items;
@@ -635,6 +637,7 @@ public class TDataSource
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 			try
 			{
@@ -642,6 +645,7 @@ public class TDataSource
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 		}
 		return items;

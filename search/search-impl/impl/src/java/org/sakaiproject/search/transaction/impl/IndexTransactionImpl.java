@@ -108,6 +108,7 @@ public abstract class IndexTransactionImpl implements IndexTransaction
 			}
 			catch (IndexTransactionException e)
 			{
+				log.debug(e);
 			}
 			doBeforeClose();
 			fireClose(this);

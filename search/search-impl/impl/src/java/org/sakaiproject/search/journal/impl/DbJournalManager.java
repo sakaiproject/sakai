@@ -163,6 +163,7 @@ public class DbJournalManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -170,6 +171,7 @@ public class DbJournalManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -177,6 +179,7 @@ public class DbJournalManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 	}
@@ -224,6 +227,7 @@ public class DbJournalManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 		return jms;
@@ -257,6 +261,7 @@ public class DbJournalManager implements JournalManager
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex);
 			}
 			throw new IndexJournalException("Failed to commit index ", ex);
 		}
@@ -264,10 +269,19 @@ public class DbJournalManager implements JournalManager
 		{
 			try
 			{
+				success.close();
+			}
+			catch (Exception ex)
+			{
+				log.debug(ex);
+			}
+			try
+			{
 				connection.close();
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -299,6 +313,7 @@ public class DbJournalManager implements JournalManager
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 
 			}

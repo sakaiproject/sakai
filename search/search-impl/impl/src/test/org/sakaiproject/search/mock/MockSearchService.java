@@ -130,6 +130,7 @@ public class MockSearchService implements SearchService
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 			try
 			{
@@ -137,6 +138,7 @@ public class MockSearchService implements SearchService
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 			try
 			{
@@ -144,6 +146,7 @@ public class MockSearchService implements SearchService
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 		}
 		return pendingDocs;

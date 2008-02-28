@@ -106,6 +106,7 @@ public class SearchSoak extends TestCase
 		}
 		catch (ClassNotFoundException cnfe)
 		{
+			log.debug(cnfe);
 		}
 
 		log.info("Using " + driver);

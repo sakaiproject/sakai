@@ -207,6 +207,7 @@ public class RefCountIndexSearcher extends IndexSearcher implements ThreadBound,
 		}
 		catch (IOException ioex)
 		{
+			log.debug(ioex);
 
 		}
 		try

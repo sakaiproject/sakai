@@ -83,7 +83,7 @@ public final class QueryTermExtractor
 			}
 			catch (IOException e)
 			{
-				// ignore
+				int x = 1;// ignore
 			}
 		}
 		return terms;

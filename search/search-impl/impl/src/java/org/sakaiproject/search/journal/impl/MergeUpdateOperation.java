@@ -218,7 +218,7 @@ public class MergeUpdateOperation implements ManagementOperation
 							}
 							catch (Exception ex)
 							{
-							}
+								log.debug(ex);							}
 
 						}
 					}

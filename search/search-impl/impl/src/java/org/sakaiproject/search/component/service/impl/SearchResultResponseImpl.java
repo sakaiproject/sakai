@@ -100,6 +100,7 @@ public class SearchResultResponseImpl implements SearchResult
 		}
 		catch (UnsupportedEncodingException e)
 		{
+			log.debug(e);
 		}
 		this.attributes = m;
 		this.query = query;

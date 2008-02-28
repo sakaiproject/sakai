@@ -135,6 +135,7 @@ public class JournalOptimizationOperation implements ManagementOperation
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 
 		}

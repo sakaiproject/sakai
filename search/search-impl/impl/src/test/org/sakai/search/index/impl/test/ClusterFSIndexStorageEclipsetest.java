@@ -123,6 +123,7 @@ public class ClusterFSIndexStorageEclipsetest extends TestCase
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 
 			}
 			s.close();

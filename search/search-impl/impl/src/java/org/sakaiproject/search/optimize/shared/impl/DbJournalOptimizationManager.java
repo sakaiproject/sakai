@@ -90,6 +90,7 @@ public class DbJournalOptimizationManager implements JournalManager
 		Connection connection = null;
 		try
 		{
+			System.err.println("+++++++++++++++++++++COMMIT+++++++++++++++");
 			connection = datasource.getConnection();
 			// set the target to committed and then delete the rest
 			// so the final segment becomes commtted with a writer id of
@@ -120,6 +121,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 			throw new IndexJournalException("Failed to commit index ", ex);
 		}
@@ -131,6 +133,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -138,6 +141,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -145,6 +149,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -355,6 +360,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 			throw ijex;
 		}
@@ -366,6 +372,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex);
 			}
 			if (ex instanceof LockTimeoutException)
 			{
@@ -385,6 +392,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -392,6 +400,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -399,6 +408,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -406,6 +416,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -413,6 +424,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -420,6 +432,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -427,6 +440,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex2)
 			{
+				log.debug(ex2);
 			}
 		}
 		return jms;
@@ -477,6 +491,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -484,6 +499,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -633,6 +649,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -640,6 +657,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -647,6 +665,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 

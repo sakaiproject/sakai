@@ -145,6 +145,7 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 			}
 			catch (Exception ex)
 			{
+				ex.printStackTrace();
 
 			}
 		}

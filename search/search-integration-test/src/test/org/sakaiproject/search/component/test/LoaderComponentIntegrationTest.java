@@ -208,7 +208,8 @@ public class LoaderComponentIntegrationTest extends TestCase
 
 		}
 		catch (Throwable t)
-		{
+		{ 
+			int x = 1; //ignore
 		}
 		try
 		{
@@ -218,6 +219,7 @@ public class LoaderComponentIntegrationTest extends TestCase
 		}
 		catch (Throwable t)
 		{
+			int x = 1; //ignore
 		}
 		try
 		{

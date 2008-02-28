@@ -126,6 +126,7 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 		}
 		catch (IOException ex)
 		{
+			log.debug(ex);
 
 		}
 
@@ -139,6 +140,7 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 			}
 			catch (IOException ioex)
 			{
+				log.debug(ioex);
 
 			}
 		}
@@ -169,6 +171,7 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 			}
 			catch (IOException ioex)
 			{
+				log.debug(ioex);
 
 			}
 		}
@@ -190,6 +193,7 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 		}
 		catch (IOException ioex)
 		{
+			log.debug(ioex);
 
 		}
 

@@ -374,6 +374,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 		finally
@@ -384,6 +385,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception e)
 			{
+				log.debug(e);
 			}
 		}
 		return segmentList;
@@ -556,6 +558,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception e)
 			{
+				log.debug(e);
 			}
 			recoverFromFailure();
 		}
@@ -567,6 +570,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception e)
 			{
+				log.debug(e);
 			}
 		}
 		return segmentList;
@@ -667,6 +671,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception e)
 			{
+				log.debug(e);
 			}
 			recoverFromFailure();
 		}
@@ -678,6 +683,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception e)
 			{
+				log.debug(e);
 			}
 		}
 		return segmentList;
@@ -748,6 +754,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					}
 					catch (Exception ex)
 					{
+						log.debug(ex);
 					}
 				}
 			}
@@ -764,6 +771,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -771,6 +779,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -827,6 +836,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -834,6 +844,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 		return dbsegments;
@@ -918,6 +929,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -925,6 +937,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -932,6 +945,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -939,6 +953,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -1023,6 +1038,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1030,6 +1046,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1037,6 +1054,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1044,6 +1062,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1051,6 +1070,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1058,6 +1078,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -1148,6 +1169,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 				try
 				{
@@ -1155,6 +1177,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 			}
 			else
@@ -1171,6 +1194,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1178,6 +1202,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1185,6 +1210,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1192,6 +1218,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -1237,6 +1264,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 	}
@@ -1611,6 +1639,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 
 				}
 				try
@@ -1619,6 +1648,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 
 				}
 			}
@@ -1653,6 +1683,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception e)
 			{
+				log.debug(ex);
 			}
 			throw new RuntimeException("Failed to recover dammaged segment ", ex);
 
@@ -1665,6 +1696,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception e)
 			{
+				log.debug(e);
 
 			}
 		}
@@ -1736,6 +1768,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					}
 					catch (Exception ex)
 					{
+						log.debug(ex);
 					}
 				}
 			}
@@ -1753,6 +1786,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1760,6 +1794,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -1797,6 +1832,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					}
 					catch (Exception ex)
 					{
+						log.debug(ex);
 					}
 				}
 			}
@@ -1814,6 +1850,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1821,6 +1858,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -1939,6 +1977,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1946,6 +1985,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1953,6 +1993,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1960,6 +2001,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1967,6 +2009,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -1974,6 +2017,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -2094,6 +2138,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					}
 					catch (Exception ex)
 					{
+						log.debug(ex);
 					}
 				}
 			}
@@ -2110,6 +2155,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -2117,6 +2163,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 
@@ -2180,6 +2227,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -2187,6 +2235,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 			try
 			{
@@ -2194,6 +2243,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 
 			}
 		}
@@ -2329,6 +2379,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				}
 				catch (Exception ex1)
 				{
+					log.debug(ex);
 
 				}
 
@@ -2341,6 +2392,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				}
 				catch (Exception ex)
 				{
+					log.debug(ex);
 				}
 			}
 		}
@@ -2505,6 +2557,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			catch (Exception ex)
 			{
+				log.debug(ex);
 			}
 		}
 	}

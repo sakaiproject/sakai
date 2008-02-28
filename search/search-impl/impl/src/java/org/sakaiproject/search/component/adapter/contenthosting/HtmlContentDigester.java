@@ -124,6 +124,7 @@ public class HtmlContentDigester extends BaseContentDigester
 					}
 					catch (IOException e)
 					{
+						log.debug(e);
 					}
 				}
 				if (contentStream != null)
@@ -134,6 +135,7 @@ public class HtmlContentDigester extends BaseContentDigester
 					}
 					catch (IOException e)
 					{
+						log.debug(e);
 					}
 				}
 			}
