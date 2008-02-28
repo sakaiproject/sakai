@@ -301,6 +301,12 @@ function setMainFrameHeightNow(id)
 			var position = findPosition(frame);
 			parent.window.scrollTo(position[0]+scroll[0], position[1]+scroll[1]);
 		}
+
+// optional hook triggered after the head script fires.
+
+		if (parent.postIframeResize){ 
+			parent.postIframeResize(id);
+		}
 	}
 }
 
