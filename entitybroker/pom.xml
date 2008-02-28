@@ -19,9 +19,9 @@
    <inceptionYear>2007</inceptionYear>
    <url>http://confluence.sakaiproject.org/confluence/x/F7M</url>
    <description>
-      Sakai Entity Broker is an entity system for use in Sakai. Ideally we want flexible entities which make development of integrated Sakai tools easier and
+      The Sakai Entity Broker is an entity system for use in Sakai. Ideally we want flexible entities which make development of integrated Sakai tools easier and
       more flexible. Our goals are to make the entity system easier on developers (easier to use and understand) and more powerful (easier to extend and
-      improve). The Entity Broker seamlessly integrates with the existing Entity system in Sakai (Entity Producers and Entities) and entities created using
+      improve). The Entity Broker integrates seamlessly with the existing Entity system in Sakai (Entity Producers and Entities) and entities created using
       entity providers are accessible in Sakai as if they were created using the legacy system.
    </description>
    <version>1.2.0</version>
