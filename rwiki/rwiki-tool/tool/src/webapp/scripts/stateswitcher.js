@@ -1021,6 +1021,10 @@ function setMainFrameHeightNoScroll(id, shouldScroll) {
 		    parent.window.scrollTo(coords.x, coords.y + framey);
 		  }
 		}
+
+                if (parent.postIframeResize){ 
+			parent.postIframeResize(id);
+		}
 	}
 
 }
