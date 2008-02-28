@@ -1977,10 +1977,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		List highest_list = getHibernateTemplate().executeFind(hcb_highest);
 		
 		//getEvaluationModel();
-		String query = "select a.publishedAssessmentId, e.scoringType, ac.submissionsAllowed  " +
-		"from PublishedEvaluationModel e, PublishedAccessControl ac, PublishedAssessmentData a " +
-		"where e.assessment.publishedAssessmentId = a.publishedAssessmentId " +
-		"and ac.assessment.publishedAssessmentId = a.publishedAssessmentId ";
+		String query = "select e.assessment.publishedAssessmentId, e.scoringType, ac.submissionsAllowed  " +
+		"from PublishedEvaluationModel e, PublishedAccessControl ac " +
+		"where e.assessment.publishedAssessmentId = ac.assessment.publishedAssessmentId ";
 
 		List l = getHibernateTemplate().find(query);
 		HashMap scoringTypeMap = new HashMap();
