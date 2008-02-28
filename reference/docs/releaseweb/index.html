@@ -185,17 +185,24 @@
 				<td colspan="4" class="line">&nbsp;</td>
 			</tr>
 			<tr>
-	            <td class="top"><p>Java J2SE</p></td>
-	            <td class="top"><p>5.0</p>
+	            <td class="top"><p>Java<br>
+				J2SE<br>
+				JDK</p></td>
+	            <td class="top"><p>5.0 Update 13</p>
 				<p>(1.5.0_13)</p></td>
-	            <td><p>The Java 2 Platform Standard Edition 5.0 (J2SE 5.0) is <em>required</em> to build and run Sakai (developers recognize this version as Java 1.5.0).  
-	            	JSP pages (among other things) require some compilation, so downloading and attempting to use only the runtime environment (JRE 5.0) will not suffice. 
-	            	You can download the latest <a href="http://java.sun.com/javase/downloads/index_jdk5.jsp">J2SE 5.0 JDK</a> release from 
-	            	Sun.  If you find Sun Microsystem's versioning and naming conventions confusing, see 
-					<a href="http://java.sun.com/javase/namechange.html">Sun Java SE Naming and Versions</a> for an outline of their practices.</p>
+	            <td><p>The 
+				<a href="http://java.sun.com/javase/downloads/index_jdk5.jsp">Java 2 Platform Standard Edition 5.0 (J2SE 
+				JDK 5.0)</a> is <em>required</em> to build and run Sakai and we 
+				recommend JDK 5.0 Update 13 or newer.&nbsp; JSP pages (among other things) require some compilation, so downloading and attempting to use only the runtime environment (JRE 
+				5.0) will not suffice.  (Developers may know JDK 5.0 better as Java 
+				version 1.5.0, and we recommend you use version 1.5.0_13 or 
+				newer; if you find Sun Microsystem's versioning and naming conventions confusing, see 
+					<a href="http://java.sun.com/javase/namechange.html">Sun Java SE Naming and Versions</a> for an outline of their practices.)</p>
 					<p>
-					<b>Java SE 6:</b> Sakai 2.5 is not compatible with Java Platform, Standard Edition 6 (Java SE 6), otherwise known as Java 1.6.0.  
-					Compilation errors have been reported by members of the Community experimenting with Sakai and Java SE 6.</p>
+					<b>Java Standard Edition 6:</b> Sakai 2.5 is not compatible with Java 
+					SE JDK 6, otherwise known as Java 1.6.0.  
+					Compilation errors have been reported by members of the Community experimenting with Sakai and 
+					JDK 6.</p>
 					<p>
 					<b>Applet Warning:</b> security vulnerabilities have been reported for applets under certain minor 
 					versions of the JRE.  Sakai does include some applets, so see Sun's
@@ -212,9 +219,10 @@
 		        	<p>5.5.23</p>
 	          	</td>
             	<td><p>Although Tomcat is not the only available servlet container, it is highly recommended for Sakai, 
-	            	and the documentation assumes Tomcat use.  Sakai QA was conducted on Tomcat 5.5.23, so this is 
-	            	the recommended version. (Note that Sakai 2.5.0 will not 
-				work with Tomcat 5.5.26 due to a
+	            	and the documentation assumes Tomcat use.  Sakai QA was conducted on Tomcat 5.5.23, 
+				and this is 
+	            	the recommended version. (Note that Tomcat 5.5.26 is not&nbsp; 
+				compatible with Sakai due to a
 				<a target="_blank" href="http://issues.apache.org/bugzilla/show_bug.cgi?id=43241">
 				change in Tomcat</a>, also see
 				<a target="_blank" href="http://jira.sakaiproject.org/jira/browse/SAK-12931">
@@ -266,7 +274,8 @@
 		       </td>
 		       <td><p>For MySQL 4.1 we recommend mysql-connector-java-3.1.14 and 
 		       		for MySQL 5.0 we recommend mysql-connector-java-5.1.5 with query caching enabled.</p>
-				<p>Whether running Oracle 9i or 10g use a recent Oracle 10g 
+				<p>Regardless of the version of Oracle in use, we recommend 
+				using a recent Oracle 11g 
 				driver (See
 				<a href="http://jira.sakaiproject.org/jira/browse/SAK-11960">SAK-11960</a>.)</p>
 		       </td>
