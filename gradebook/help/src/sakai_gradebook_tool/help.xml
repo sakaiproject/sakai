@@ -62,12 +62,25 @@
             <value>aukf</value>
         </property>
         <property name="name">
-            <value>Uploading and importing scores</value>
+            <value>Importing Gradebook items from a spreadsheet</value>
         </property>
         <property name="location">
             <value>/sakai_gradebook_tool/aukf.html</value>
         </property>
     </bean>
+    <bean id="gradebookImportExisting" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>avdo</value>
+        </property>
+        <property name="name">
+            <value>Importing grades for existing Gradebook items</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/avdo.html</value>
+        </property>
+    </bean>
+
+
     <bean id="gradebookSorting" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
             <value>arby</value>
@@ -152,6 +165,7 @@
                             <ref bean="gradebookEnteringScores"/>
                             <ref bean="gradebookComment"/>
                             <ref bean="gradebookUploadingScores"/>
+                            <ref bean="gradebookImportExisting"/>
                             <ref bean="gradebookSorting"/>
                             <ref bean="gradebookRoster"/>
                             <ref bean="gradebookCumulativeScores"/>
