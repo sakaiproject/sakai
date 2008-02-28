@@ -17,6 +17,8 @@ require '/usr/local/sakaihelp/helputil.pl';
 
 my $KbBaseUrl = "http://remote.kb.iu.edu/REST/v0.2";
 
+my $KbMediaUrl = "https://media.kb.iu.edu/";
+
 my $xsl = "/usr/local/sakaihelp/util/kb-to-help.xsl";
 
 my $docrepo = $ARGV[0];
@@ -26,6 +28,8 @@ my $preview = $ARGV[2];
 #my $docrepo = "/usr/local/sakaihelp/docs";
 #my $svnrepo = "/usr/local/sakaihelp/help_trunk";
 #my $preview = "sakai25";
+
+my $update_from_kb = 1;
 
 print "\nUsing documents in [$docrepo], svn repo [$svnrepo], preview [$preview]\n";
 
@@ -37,6 +41,8 @@ my $svn_comment = "NOJIRA Update help docs (synchronize with IU KB)";
 my $svn = "/usr/bin/svn";
 
 ### ----- Get the index documents from the KB
+
+if ($update_from_kb) {
  
 # create XML Parser
 my $xml = new XML::Simple (KeyAttr=>'id');
@@ -125,15 +131,23 @@ if ($preview ne "") {
 rename("$docrepo/docs_kb.xml","$docrepo/docs.xml");
 rename("$docrepo/newdocs_kb.xml","$docrepo/newdocs.xml");
 
+}
+
 #### ----- Update the svn collection
 
 print "Updating svn collection: $svnrepo from $docrepo\n";
 
 update_svn_collection($svnrepo, $docrepo);
 
+# Check for included images
+
+checkimages($docrepo);
+
 #### ----- Commit changes to svn
 
 commit_svn_changes($svnrepo, $svn_user, $svn_pass, $svn_comment);
 
 #### ----- Consistency checks on the document collections
+
+getdoclist($svnrepo);
 

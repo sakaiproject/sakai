@@ -1,3 +1,9 @@
+use strict;
+use XML::Parser::PerlSAX;
+
+my %imglist;
+my %doclist;
+
 sub getfile($$$$)
 {
   my $username = shift;
@@ -66,4 +72,103 @@ sub commit_svn_changes($$$)
  }
 }
 
+### Get a list of images referenced in the given 
+
+sub checkimages($) 
+{
+ my $docrepo = shift;
+
+ %imglist = ();
+
+ my $handler = SAXImgHandler->new();
+ my $parser = XML::Parser::PerlSAX->new(Handler => $handler);
+
+ my @files = glob("$docrepo/*.html");
+ foreach my $file (@files) {
+	my %parser_args = (Source => {SystemId => $file});
+	$parser->parse(%parser_args);
+ }
+
+ print "\nImages in $docrepo:\n";
+ foreach my $i (keys %imglist) {
+ 	print "$i\n";
+ }
+
+ return %imglist;
+}
+
+sub getdoclist($)
+{
+ my $svnrepo = shift;
+
+ %doclist = ();
+ my %havedocs;
+
+ my $handler = SAXDocHandler->new();
+ my $parser = XML::Parser::PerlSAX->new(Handler => $handler);
+
+ my @files = glob("$svnrepo/*/src/*/*.html");
+
+ foreach my $file (@files) {
+        my %parser_args = (Source => {SystemId => $file});
+        $parser->parse(%parser_args);
+	if ($file =~ /([A-Za-z]+).html/) {
+		$havedocs{$1} = $1;
+	}
+ }
+
+ print "\nDocids in $svnrepo:\n";
+ foreach my $i (keys %doclist) {
+	if (!defined($havedocs{$i})) {
+ 		print "referenced but not included: $i\n";
+	}
+ }
+
+ print "Have: " . keys(%havedocs) . " referenced: " . keys(%doclist) . "\n";
+
+}
+
 return 1;
+
+# begin the in-line package (c/f examples at http://www.xml.com/pub/a/2001/02/14/perlsax.html)
+
+package SAXImgHandler;
+
+sub new {
+    my $type = shift;
+    return bless {}, $type;
+}
+
+sub start_element {
+    my ($self, $element) = @_;
+
+    if ($element->{Name} eq 'img') {
+	$imglist{$element->{Attributes}->{'src'}} = $element->{Attributes}->{'src'};
+    }
+}
+
+1;
+
+# another SAX parser
+
+package SAXDocHandler;
+
+sub new {
+    my $type = shift;
+    return bless {}, $type;
+}
+
+sub start_element {
+    my ($self, $element) = @_;
+
+    if ($element->{Name} eq 'a') {
+	## We want docids from <a href="content.hlp?docId=abcd">
+	my $href = $element->{Attributes}->{'href'};
+	if ($href =~ /^content.hlp\?docId=([A-Za-z]+)$/) {
+        	$doclist{$1} = $1;
+	}
+    }
+}
+
+1;
+
