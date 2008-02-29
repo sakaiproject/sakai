@@ -5,6 +5,14 @@
 <% response.setContentType("text/html; charset=UTF-8"); %>
 <f:view>
 
+<script type="text/javascript">
+	// SAK-12177: If i'm being loaded into the iframe upon redirect
+	// reset the tool so proper page will be displayed
+	// NOTE: URL taken from reset icon 
+	if (window.parent.location.href.indexOf("printFriendly") == -1)
+	    window.location.href = '<h:outputText value="#{SyllabusTool.resetUrl}" />';
+</script>
+
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
 </jsp:useBean>

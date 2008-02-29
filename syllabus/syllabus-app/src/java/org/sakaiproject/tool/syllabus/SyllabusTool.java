@@ -478,6 +478,15 @@ public class SyllabusTool
     this.siteId = siteId;
   }
 
+  /**
+   * Returns the tool reset url
+   */
+  public String getResetUrl()
+  {
+	  return ServerConfigurationService.getToolUrl() + "-reset/" +
+	  			ToolManager.getCurrentPlacement().getId() + "/?panel=Main";	
+  }
+  
   //testing the access to control the "create/edit"
   //button showing up or not on main page.
   public String getEditAble()
