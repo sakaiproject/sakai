@@ -66,8 +66,8 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissio
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -98,6 +98,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private PermissionLevelManager permissionLevelManager;
   private Map courseMemberMap = null;
   private boolean usingHelper = false; // just a flag until moved to database from helper
+  private ContentHostingService contentHostingService;
   
   public static final int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
 
@@ -106,6 +107,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
      LOG.info("init()");
     ;
   }
+  
+  public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
 
   public List searchTopicMessages(Long topicId, String searchText)
   {
@@ -1985,7 +1990,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
       attach.setAttachmentName(name);
 
-      ContentResource cr = ContentHostingService.getResource(attachId);
+      ContentResource cr = contentHostingService.getResource(attachId);
       attach.setAttachmentSize((new Integer(cr.getContentLength())).toString());
       attach.setCreatedBy(cr.getProperties().getProperty(
           cr.getProperties().getNamePropCreator()));

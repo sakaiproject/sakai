@@ -63,9 +63,9 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessage
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -154,6 +154,7 @@ public class PrivateMessagesTool
     
   /** Dependency Injected   */
   private MessageForumsTypeManager typeManager;
+  private ContentHostingService contentHostingService;
  
   /** Navigation for JSP   */
   public static final String MAIN_PG="main";
@@ -3146,10 +3147,10 @@ private   int   getNum(char letter,   String   a)
         }
       }
       
-      ContentResource cr = ContentHostingService.getResource(id);
+      ContentResource cr = contentHostingService.getResource(id);
       prtMsgManager.removePvtMsgAttachment(sa);
       if(id.toLowerCase().startsWith("/attachment"))
-        ContentHostingService.removeResource(id);
+        contentHostingService.removeResource(id);
     }
     catch(Exception e)
     {
@@ -4510,5 +4511,9 @@ private   int   getNum(char letter,   String   a)
 	  	
 	  	return eventMessagePrefix + ToolManager.getCurrentPlacement().getContext() + 
 	  				"/" + object.toString() + "/" + SessionManager.getCurrentSessionUserId();
+	}
+
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
 	}
 }

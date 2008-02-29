@@ -53,7 +53,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessage
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
 import org.sakaiproject.component.app.messageforums.exception.LockedException;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.api.IdManager;
@@ -94,6 +94,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private SessionManager sessionManager;
 
     private EventTrackingService eventTrackingService;
+    
+    private ContentHostingService contentHostingService;
 
     public void init() {
        LOG.info("init()");
@@ -131,6 +133,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public SessionManager getSessionManager() {
         return sessionManager;
     }
+    
+    public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
     
     /**
      * FOR SYNOPTIC TOOL:
@@ -986,7 +992,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
   {
   	try
   	{
-      String tempString = ContentHostingService.getResource(id).getUrl();
+      String tempString = contentHostingService.getResource(id).getUrl();
       String newString = new String();
       char[] oneChar = new char[1];
       for (int i = 0; i < tempString.length(); i++)

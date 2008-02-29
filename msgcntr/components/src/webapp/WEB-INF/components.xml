@@ -40,6 +40,9 @@
         <property name="permissionManager">
             <ref bean="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
         </property> 
+        <property name="contentHostingService">
+        		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
+        </property>
     </bean>
 	    
     <bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" 
@@ -276,6 +279,9 @@
 		        <property name="eventTrackingService">
         		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
 		        </property>
+		        <property name="contentHostingService">
+        		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
+		        </property>
             </bean>            
         </property>
          <property name="transactionAttributes">
@@ -315,6 +321,9 @@
 		        <property name="emailService">
         		    <ref bean="org.sakaiproject.email.api.EmailService"/>
 		        </property>			 		        
+		        <property name="contentHostingService">
+        		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
+		        </property>
             </bean>           
         </property>
          <property name="transactionAttributes">
@@ -369,6 +378,9 @@
                  <property name="permissionLevelManager">
 		            <ref bean="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
         		 </property>
+        		 <property name="contentHostingService">
+        		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
+		        </property>
             </bean>           
         </property>
          <property name="transactionAttributes">

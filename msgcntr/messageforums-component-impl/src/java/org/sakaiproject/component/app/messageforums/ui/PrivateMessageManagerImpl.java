@@ -65,8 +65,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.cover.SiteService;
 
@@ -101,6 +101,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private IdManager idManager;
   private SessionManager sessionManager;  
   private EmailService emailService;
+  private ContentHostingService contentHostingService;
   
   
   // SAK-11130:  modified to support sakai localization 	 SAK-11130
@@ -130,6 +131,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 	LOG.info("init()");
     ;
   }
+  
+  public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
 
   public boolean getPrivateAreaEnabled()
   {
@@ -342,7 +347,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
       attach.setAttachmentName(name);
 
-      ContentResource cr = ContentHostingService.getResource(attachId);
+      ContentResource cr = contentHostingService.getResource(attachId);
       attach.setAttachmentSize((new Integer(cr.getContentLength())).toString());
       attach.setCreatedBy(cr.getProperties().getProperty(
           cr.getProperties().getNamePropCreator()));

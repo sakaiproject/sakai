@@ -424,6 +424,11 @@
             <property-name>forumManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsForumManager"]}</value>
         </managed-property>                         
+        <managed-property>
+            <description>Content Hosting Service</description>
+            <property-name>contentHostingService</property-name>
+            <value>#{Components["org.sakaiproject.content.api.ContentHostingService"]}</value>
+        </managed-property>
     </managed-bean>
     
     <!-- =================== Synoptic Managed Bean ============== -->

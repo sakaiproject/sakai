@@ -60,7 +60,7 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
@@ -113,6 +113,11 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	private MessageForumsTypeManager typeManager;
 	private DiscussionForumManager dfManager;
 	private PermissionLevelManager permissionManager;
+	private ContentHostingService contentHostingService;
+	
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
 
 	private static final Log LOG = LogFactory.getLog(DiscussionForumService.class);
 
@@ -991,8 +996,8 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	
 	private Attachment copyAttachment(String attachmentId) {
 		try {			
-			ContentResource oldAttachment = ContentHostingService.getResource(attachmentId);
-			ContentResource attachment = ContentHostingService.addAttachmentResource(
+			ContentResource oldAttachment = contentHostingService.getResource(attachmentId);
+			ContentResource attachment = contentHostingService.addAttachmentResource(
 				oldAttachment.getProperties().getProperty(
 						ResourceProperties.PROP_DISPLAY_NAME), ToolManager
 						.getCurrentPlacement().getContext(), ToolManager.getTool(
