@@ -13,23 +13,23 @@
         </property>
 		<property name="defaultForTool"><value>sakai.gradebook</value></property>
     </bean>
-    <bean id="gradebookAddAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <bean id="gradebookAddItem" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
             <value>aran</value>
         </property>
         <property name="name">
-            <value>Creating/adding, editing, or deleting a Gradebook assignment</value>
+            <value>Creating/adding, editing, or deleting a Gradebook item<</value>
         </property>
         <property name="location">
             <value>/sakai_gradebook_tool/aran.html</value>
         </property>
     </bean>
-    <bean id="gradebookAssignmentDetails" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <bean id="gradebookItemDetails" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
             <value>aras</value>
         </property>
         <property name="name">
-            <value>Viewing assignment details</value>
+            <value>Viewing Gradebook item details</value>
         </property>
         <property name="location">
             <value>/sakai_gradebook_tool/aras.html</value>
@@ -40,7 +40,7 @@
             <value>araj</value>
         </property>
         <property name="name">
-            <value>Entering or editing Gradebook grades</value>
+            <value>Entering or editing grades</value>
         </property>
         <property name="location">
             <value>/sakai_gradebook_tool/araj.html</value>
@@ -79,8 +79,6 @@
             <value>/sakai_gradebook_tool/avdo.html</value>
         </property>
     </bean>
-
-
     <bean id="gradebookSorting" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
             <value>arby</value>
@@ -97,7 +95,7 @@
             <value>arah</value>
         </property>
         <property name="name">
-            <value>Setting student feedback options</value>
+            <value>Making grades available to students</value>
         </property>
         <property name="location">
             <value>/sakai_gradebook_tool/arah.html</value>
@@ -108,7 +106,7 @@
             <value>aqzg</value>
         </property>
         <property name="name">
-            <value>Viewing and exporting student roster from the Gradebook</value>
+            <value>Viewing and exporting student grades</value>
         </property>
         <property name="location">
             <value>/sakai_gradebook_tool/aqzg.html</value>
@@ -119,7 +117,7 @@
             <value>aqzt</value>
         </property>
         <property name="name">
-            <value>Exporting scores from the Gradebook</value>
+            <value>Calculating and exporting course grades</value>
         </property>
         <property name="location">
             <value>/sakai_gradebook_tool/aqzt.html</value>
@@ -141,7 +139,7 @@
             <value>asbw</value>
         </property>
         <property name="name">
-            <value>Viewing and interpreting cumulative scores</value>
+            <value>Viewing course grades</value>
         </property>
         <property name="location">
             <value>/sakai_gradebook_tool/asbw.html</value>
@@ -160,8 +158,8 @@
                     <property name="resources">
                         <list>
                             <ref bean="gradebookOverview"/>
-                            <ref bean="gradebookAddAssignment"/>
-                            <ref bean="gradebookAssignmentDetails"/>
+                            <ref bean="gradebookAddItem"/>
+                            <ref bean="gradebookItemDetails"/>
                             <ref bean="gradebookEnteringScores"/>
                             <ref bean="gradebookComment"/>
                             <ref bean="gradebookUploadingScores"/>
