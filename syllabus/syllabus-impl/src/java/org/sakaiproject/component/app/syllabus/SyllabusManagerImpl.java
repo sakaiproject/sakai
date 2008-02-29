@@ -36,8 +36,8 @@ import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.user.api.User;
 
@@ -52,6 +52,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class SyllabusManagerImpl extends HibernateDaoSupport implements SyllabusManager
 {
+  private ContentHostingService contentHostingService;
 
   private static final String QUERY_BY_USERID_AND_CONTEXTID = "findSyllabusItemByUserAndContextIds";
   private static final String QUERY_BY_CONTEXTID = "findSyllabusItemByContextId";
@@ -65,6 +66,10 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
   private static final String DATA_KEY = "syllabusId";
   private static final String SYLLABUS_DATA_ID = "syllabusId";
   private static final String ATTACHMENTS = "attachments";
+  
+  public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
   
   /**
    * createSyllabusItem creates a new SyllabusItem
@@ -406,7 +411,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       
       attach.setName(name);
 
-      ContentResource cr = ContentHostingService.getResource(attachId);
+      ContentResource cr = contentHostingService.getResource(attachId);
       attach.setSize((new Integer(cr.getContentLength())).toString());
       User creator = UserDirectoryService.getUser(cr.getProperties().getProperty(cr.getProperties().getNamePropCreator()));
       attach.setCreatedBy(creator.getDisplayName());

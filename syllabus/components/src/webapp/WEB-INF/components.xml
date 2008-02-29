@@ -31,6 +31,9 @@
 					<ref
 						bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 				</property>
+				<property name="contentHostingService">
+					<ref bean="org.sakaiproject.content.api.ContentHostingService" />
+				</property>
 			</bean>
 		</property>
 		<property name="transactionAttributes">
@@ -53,6 +56,9 @@
  		<property name="notificationService">
 <!-- 			<ref bean="org.sakaiproject.service.legacy.notification.NotificationService" />-->
  			<ref bean="org.sakaiproject.event.api.NotificationService" />
+		</property>
+		<property name="contentHostingService">
+			<ref bean="org.sakaiproject.content.api.ContentHostingService" />
 		</property>
 	</bean>
 

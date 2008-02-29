@@ -40,8 +40,8 @@ import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -108,6 +108,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
   private static final String PAGE_ID = "pageId";
   /** Dependency: a SyllabusManager. */
   private SyllabusManager syllabusManager;
+  private ContentHostingService contentHostingService;
  
   /** Dependency: a logger component. */
   private Log logger = LogFactory.getLog(SyllabusServiceImpl.class);
@@ -159,6 +160,9 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     this.syllabusManager = syllabusManager;
   }
 
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
  
   /*
    * (non-Javadoc)
@@ -681,7 +685,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                             		Set attachSet = new TreeSet();
                             		for(int m=0; m<attachStringList.size(); m++)
                             		{
-                            			ContentResource cr = ContentHostingService.getResource((String)attachStringList.get(m));
+                            			ContentResource cr = contentHostingService.getResource((String)attachStringList.get(m));
                             			ResourceProperties rp = cr.getProperties();
 //                            			SyllabusAttachment tempAttach = syllabusManager.createSyllabusAttachmentObject(
 //                            					(String)attachStringList.get(m),rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
@@ -1206,8 +1210,8 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 						while(attachIter.hasNext())
 						{
 							SyllabusAttachment thisAttach = (SyllabusAttachment)attachIter.next();
-							ContentResource oldAttachment = ContentHostingService.getResource(thisAttach.getAttachmentId());
-							ContentResource attachment = ContentHostingService.addAttachmentResource(
+							ContentResource oldAttachment = contentHostingService.getResource(thisAttach.getAttachmentId());
+							ContentResource attachment = contentHostingService.addAttachmentResource(
 								oldAttachment.getProperties().getProperty(
 										ResourceProperties.PROP_DISPLAY_NAME), ToolManager
 										.getCurrentPlacement().getContext(), ToolManager.getTool(
@@ -1348,5 +1352,4 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 		}
 		transferCopyEntities(fromContext, toContext, ids);
 	}
-	
 }

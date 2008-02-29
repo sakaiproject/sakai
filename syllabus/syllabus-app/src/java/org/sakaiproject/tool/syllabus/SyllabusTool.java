@@ -41,9 +41,9 @@ import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -221,6 +221,8 @@ public class SyllabusTool
   private final String httpPrefix = "http://";
   
   private final String httpsPrefix = "https://";
+  
+  private ContentHostingService contentHostingService;
   
   public SyllabusTool()
   {
@@ -587,7 +589,7 @@ public class SyllabusTool
             
             syllabusManager.removeSyllabusAttachSyllabusData(den.getEntry(), attach);  
             if(id.toLowerCase().startsWith("/attachment"))
-              ContentHostingService.removeResource(id);
+              contentHostingService.removeResource(id);
           }
           syllabusManager.removeSyllabusFromSyllabusItem(syllabusItem, den
               .getEntry());
@@ -629,7 +631,7 @@ public class SyllabusTool
           String id = ((SyllabusAttachment)attachments.get(i)).getAttachmentId();
           syllabusManager.removeSyllabusAttachmentObject((SyllabusAttachment)attachments.get(i));
           if(id.toLowerCase().startsWith("/attachment"))
-            ContentHostingService.removeResource(id);
+            contentHostingService.removeResource(id);
         }
         syllabusManager.removeSyllabusDataObject(entry.getEntry());
       }
@@ -886,7 +888,7 @@ public class SyllabusTool
         String id = ((SyllabusAttachment)attachments.get(i)).getAttachmentId();
         syllabusManager.removeSyllabusAttachmentObject((SyllabusAttachment)attachments.get(i));
         if(id.toLowerCase().startsWith("/attachment"))
-          ContentHostingService.removeResource(id);
+          contentHostingService.removeResource(id);
       }
     }
     catch(Exception e)
@@ -1396,6 +1398,10 @@ public class SyllabusTool
     this.syllabusService = syllabusService;
   }
   
+  public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
+  
   public String processAddAttRead()
   {
     if(entry.getEntry().getTitle() == null)
@@ -1434,7 +1440,7 @@ public class SyllabusTool
         String fileName = item.getName();
         byte[] fileContents = item.get();
         
-        ResourcePropertiesEdit props = ContentHostingService.newResourceProperties();
+        ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
         
         String tempS = fileName;
         //logger.info(tempS);
@@ -1443,7 +1449,7 @@ public class SyllabusTool
         if(lastSlash > 0)
           fileName = tempS.substring(lastSlash+1);
             
-        ContentResource thisAttach = ContentHostingService.addAttachmentResource(fileName, item.getContentType(), fileContents, props);
+        ContentResource thisAttach = contentHostingService.addAttachmentResource(fileName, item.getContentType(), fileContents, props);
         
         SyllabusAttachment attachObj = syllabusManager.createSyllabusAttachmentObject(thisAttach.getId(), fileName);
         ////////revise        syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), attachObj);
@@ -1452,7 +1458,7 @@ public class SyllabusTool
         String ss = thisAttach.getUrl();
         String fileWithWholePath = thisAttach.getUrl();
         
-        ContentResource getAttach = ContentHostingService.getResource(thisAttach.getId());
+        ContentResource getAttach = contentHostingService.getResource(thisAttach.getId());
         
         String s = ss;
         
@@ -1594,10 +1600,10 @@ public class SyllabusTool
           }
         }
         
-        ContentResource cr = ContentHostingService.getResource(id);
+        ContentResource cr = contentHostingService.getResource(id);
         syllabusManager.removeSyllabusAttachmentObject(sa);
         if(id.toLowerCase().startsWith("/attachment"))
-          ContentHostingService.removeResource(id);
+          contentHostingService.removeResource(id);
       }
       catch(Exception e)
       {
@@ -1640,10 +1646,10 @@ public class SyllabusTool
           }
         }
         
-        ContentResource cr = ContentHostingService.getResource(id);
+        ContentResource cr = contentHostingService.getResource(id);
         syllabusManager.removeSyllabusAttachmentObject(sa);
         if(id.toLowerCase().startsWith("/attachment"))
-          ContentHostingService.removeResource(id);
+          contentHostingService.removeResource(id);
         
         allAttachments.clear();
         for(int i=0; i<attachments.size(); i++)

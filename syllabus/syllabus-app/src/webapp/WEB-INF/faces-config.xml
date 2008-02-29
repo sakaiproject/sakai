@@ -55,6 +55,11 @@
 			<property-name>syllabusService</property-name>
 			<value>#{Components["org.sakaiproject.api.app.syllabus.SyllabusService"]}</value>
 		</managed-property>    
+		<managed-property>
+			<description>contentHostingService</description>
+			<property-name>contentHostingService</property-name>
+			<value>#{Components["org.sakaiproject.content.api.ContentHostingService"]}</value>
+		</managed-property> 
 	</managed-bean>
 
   <component>
