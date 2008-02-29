@@ -2,6 +2,7 @@ package org.sakaiproject.tool.resetpass;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.logging.Log;
@@ -111,8 +112,11 @@ public class FormHandler {
 			String body = buff.toString();
 			m_log.debug("body: " + body);
 			
+			List headers = new ArrayList();
+			headers.add("Precedence: bulk");
+			
 			emailService.send(from,userBean.getUser().getEmail(),messageLocator.getMessage("mailSubject", new Object[]{productionSiteName}),body,
-					userBean.getUser().getEmail(), null, null);
+					userBean.getUser().getEmail(), null, headers);
           
 			m_log.info("New password emailed to: " + userE.getEid() + " (" + userE.getId() + ")");
 			eventService.post(eventService.newEvent("user.resetpass", userE.getReference() , true));
