@@ -124,16 +124,31 @@
 		<eventParserTip for="contextId" separator="/" index="3"/>
 	</tool> -->
 	
-	<!-- forums (message center - available in sakai 2.4+) -->
+	<!-- forums -->
 	<tool 
 		toolId="sakai.forums"
-		additionalToolIds="sakai.messages"
 		selected="true">
-		<event eventId="msgcntr.new" selected="true"/>
-		<event eventId="msgcntr.read" selected="true"/>
-		<event eventId="msgcntr.revise" selected="true"/>
-		<event eventId="msgcntr.delete" selected="true"/>
-		<event eventId="msgcntr.response" selected="true"/>
+		<event eventId="forums.new" selected="true"/>
+		<event eventId="forums.read" selected="true"/>
+		<event eventId="forums.response" selected="true"/>
+		<!-- Need SAK-13119 FIXED: 
+		<event eventId="forums.delete" selected="true"/>
+		<event eventId="forums.newtopic" selected="true"/>
+		<event eventId="forums.revisetopic" selected="true"/>
+		<event eventId="forums.deleteforum" selected="true"/>
+		<event eventId="forums.deletetopic" selected="true"/>
+		-->
+		<eventParserTip for="contextId" separator="/" index="3"/>
+	</tool>
+	
+	<!-- messages -->
+	<tool 
+		toolId="sakai.messages"
+		selected="true">
+		<event eventId="messages.new" selected="true"/>
+		<event eventId="messages.newfolder" selected="true"/>
+		<event eventId="messages.delete" selected="true"/>
+		<event eventId="messages.reply" selected="true"/>
 		<eventParserTip for="contextId" separator="/" index="3"/>
 	</tool>
 	
