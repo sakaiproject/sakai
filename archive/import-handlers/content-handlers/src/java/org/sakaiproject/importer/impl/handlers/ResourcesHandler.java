@@ -50,8 +50,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentCollectionEdit;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
@@ -64,6 +63,8 @@ import org.apache.commons.logging.Log;
 
 public class ResourcesHandler implements HandlesImportable {
 	private static final String COPYRIGHT = "(c) 2007";
+	
+	private ContentHostingService chs; 
 	
 	private Log m_log = LogFactory.getLog(org.sakaiproject.importer.impl.handlers.ResourcesHandler.class);
 
@@ -98,7 +99,7 @@ public class ResourcesHandler implements HandlesImportable {
 				//title = ((FileResource)thing).getTitle();
 				description = ((FileResource)thing).getDescription();
 				String fileName = ((FileResource)thing).getFileName();
-				id = ContentHostingService.getSiteCollection(siteId) + ((FileResource)thing).getDestinationResourcePath();
+				id = chs.getSiteCollection(siteId) + ((FileResource)thing).getDestinationResourcePath();
 				contentType = new MimetypesFileTypeMap().getContentType(fileName);
 				contents = ((FileResource)thing).getFileBytes();
 //				if((title == null) || (title.equals(""))) {
@@ -132,14 +133,14 @@ public class ResourcesHandler implements HandlesImportable {
 			} else if ("sakai-web-link".equals(thing.getTypeName())) {
 				title = ((WebLink)thing).getTitle();
 				description = ((WebLink)thing).getDescription();
-				id = ContentHostingService.getSiteCollection(siteId) + thing.getContextPath();
+				id = chs.getSiteCollection(siteId) + thing.getContextPath();
 				contentType = ResourceProperties.TYPE_URL;
 				String absoluteUrl = "";
 				if (((WebLink)thing).isAbsolute()) {
 					absoluteUrl = ((WebLink)thing).getUrl();
 				} else {
 					absoluteUrl = ServerConfigurationService.getServerUrl() + "/access/content" + 
-						ContentHostingService.getSiteCollection(siteId) + ((WebLink)thing).getUrl();
+						chs.getSiteCollection(siteId) + ((WebLink)thing).getUrl();
 				}
 				contents = absoluteUrl.getBytes();
 				if((title == null) || (title.equals(""))) {
@@ -156,7 +157,7 @@ public class ResourcesHandler implements HandlesImportable {
 			} else if ("sakai-html-document".equals(thing.getTypeName())) {
 				title = ((HtmlDocument)thing).getTitle();
 				contents = ((HtmlDocument)thing).getContent().getBytes();
-				id = ContentHostingService.getSiteCollection(siteId) + thing.getContextPath();
+				id = chs.getSiteCollection(siteId) + thing.getContextPath();
 				contentType = "text/html";
 				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
 				if(m_log.isDebugEnabled()){ 
@@ -166,7 +167,7 @@ public class ResourcesHandler implements HandlesImportable {
 			} else if ("sakai-text-document".equals(thing.getTypeName())) {
 				title = ((TextDocument)thing).getTitle();
 				contents = ((TextDocument)thing).getContent().getBytes();
-				id = ContentHostingService.getSiteCollection(siteId) + thing.getContextPath();
+				id = chs.getSiteCollection(siteId) + thing.getContextPath();
 				contentType = "text/plain";
 				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
 				if(m_log.isDebugEnabled()){ 
@@ -184,7 +185,7 @@ public class ResourcesHandler implements HandlesImportable {
 	  			 * Added title to the end of the path. Otherwise, we're setting the props on the 
 	  			 * containing folder rather than the folder itself.
 	  			 */
-	  			String path = ContentHostingService.getSiteCollection(siteId) + ((Folder)thing).getPath();
+	  			String path = chs.getSiteCollection(siteId) + ((Folder)thing).getPath();
 	    		addContentCollection(path,resourceProps);
 
 			}
@@ -257,7 +258,7 @@ public class ResourcesHandler implements HandlesImportable {
 	protected void addContentResource(String id, String contentType, byte[] contents, Map properties, int notifyOption) {
 		try {
 			id = makeIdClean(id);
-			ResourcePropertiesEdit resourceProps = ContentHostingService.newResourceProperties();
+			ResourcePropertiesEdit resourceProps = chs.newResourceProperties();
 			Set keys = properties.keySet();
 			for (Iterator i = keys.iterator();i.hasNext();) {
 				String key = (String)i.next();
@@ -266,9 +267,9 @@ public class ResourcesHandler implements HandlesImportable {
 			}
 			String enclosingDirectory = id.substring(0, id.lastIndexOf('/', id.length() - 2) + 1);
 			if(existsDirectory(enclosingDirectory)) {
-				ContentHostingService.addProperty(enclosingDirectory, ResourceProperties.PROP_HAS_CUSTOM_SORT, Boolean.TRUE.toString());
+				chs.addProperty(enclosingDirectory, ResourceProperties.PROP_HAS_CUSTOM_SORT, Boolean.TRUE.toString());
 			}
-			ContentHostingService.addResource(id, contentType, contents, resourceProps, notifyOption);
+			chs.addResource(id, contentType, contents, resourceProps, notifyOption);
 		} catch (PermissionException e) {
 			m_log.error("ResourcesHandler.addContentResource: " + e.toString());
 		} catch (IdUsedException e) {
@@ -300,7 +301,7 @@ public class ResourcesHandler implements HandlesImportable {
 	
 	protected boolean existsDirectory(String path) {
 		try {
-			ContentHostingService.getCollection(path);
+			chs.getCollection(path);
 		} catch (IdUnusedException e) {
 			return false;
 		} catch (TypeException e) {
@@ -314,7 +315,7 @@ public class ResourcesHandler implements HandlesImportable {
 
 	protected void addContentCollection(String path, Map properties) {
 			path = makeIdClean(path);
-			ResourcePropertiesEdit resourceProps = ContentHostingService.newResourceProperties();
+			ResourcePropertiesEdit resourceProps = chs.newResourceProperties();
 			Set keys = properties.keySet();
 			for (Iterator i = keys.iterator();i.hasNext();) {
 				String key = (String)i.next();
@@ -331,7 +332,7 @@ public class ResourcesHandler implements HandlesImportable {
 //
 //				}
 
-				ContentHostingService.addCollection(path, resourceProps);
+				chs.addCollection(path, resourceProps);
 				//coll = ContentHostingService.addCollection(path);
                 //ContentHostingService.commitCollection(coll);
 				
@@ -384,6 +385,14 @@ public class ResourcesHandler implements HandlesImportable {
 		}
 		
 		return rv;
+	}
+
+	public ContentHostingService getChs() {
+		return chs;
+	}
+
+	public void setChs(ContentHostingService chs) {
+		this.chs = chs;
 	}
 
 }

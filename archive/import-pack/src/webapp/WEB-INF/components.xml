@@ -23,6 +23,7 @@
 	<bean id="org.sakaiproject.importer.impl.handlers.ResourcesHandler"
 			class="org.sakaiproject.importer.impl.handlers.ResourcesHandler"
 			singleton="true">
+			<property name="chs"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
 	</bean>
 	
 	<!-- <bean id="org.sakaiproject.importer.impl.handlers.AnnouncementHandler" -->
