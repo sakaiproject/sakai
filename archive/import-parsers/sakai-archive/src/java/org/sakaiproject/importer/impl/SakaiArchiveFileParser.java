@@ -33,6 +33,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.archive.cover.ImportMetadataService;
 import org.sakaiproject.importer.api.ImportDataSource;
+import org.sakaiproject.importer.api.ImportFileParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -73,6 +74,10 @@ public class SakaiArchiveFileParser extends ZipFileParser {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public ImportFileParser newParser() {
+		return new SakaiArchiveFileParser();
 	}
 	
 	public ImportDataSource parse(byte[] fileData, String unArchiveLocation) {

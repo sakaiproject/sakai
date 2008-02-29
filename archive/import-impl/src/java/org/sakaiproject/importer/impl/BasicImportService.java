@@ -69,7 +69,7 @@ public class BasicImportService implements ImportService {
 		for(Iterator i = this.parsers.iterator();i.hasNext();){
 			ImportFileParser parser = (ImportFileParser)i.next();
 			if(parser.isValidArchive(archiveFileData)){
-				return parser.parse(archiveFileData, configService.getSakaiHomePath() + "archive");
+				return parser.newParser().parse(archiveFileData, configService.getSakaiHomePath() + "archive");
 			}
 		}
 		// invalid or unsupported archive file

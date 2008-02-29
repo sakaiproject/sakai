@@ -81,6 +81,10 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 			return CC_SCHEMA_NAME.equals(XPathHelper.getNodeValue("/manifest/metadata/schema", manifest));
 		} else return false;
 	}
+	
+	public ImportFileParser newParser() {
+		return new CommonCartridgeFileParser();
+	}
 
 	protected Collection getCategoriesFromArchive(String pathToData) {
 		Collection categories = new ArrayList();
