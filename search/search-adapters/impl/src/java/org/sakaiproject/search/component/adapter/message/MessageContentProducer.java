@@ -49,6 +49,8 @@ import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.javax.PagingPosition;
+
 
 /**
  * @author ieb
@@ -485,17 +487,22 @@ public class MessageContentProducer implements EntityContentProducer
 		final Iterator ci = l.iterator();
 		return new Iterator()
 		{
-			Iterator mi = null;
+			MessageChannel mc = null;
+			int messageCount = -1;
+			int nextMessage = -1;  // Index overall messages - Starts at 1
+			List messages = null;
+			int listPos = 0;  // Index each chunk - Starts at zero
+			int chunkSize = 100;  // Retrieve 100 at a time
 
 			public boolean hasNext()
 			{
-				if (mi == null)
+				if (mc == null)
 				{
 					return nextIterator();
 				}
 				else
 				{
-					if (mi.hasNext())
+					if (messageCount > 1 && nextMessage <= messageCount)
 					{
 						return true;
 					}
@@ -514,12 +521,12 @@ public class MessageContentProducer implements EntityContentProducer
 					String chanellId = (String) ci.next();
 					try
 					{
-						MessageChannel c = messageService.getChannel(messageService
+						mc = messageService.getChannel(messageService
 								.channelReference(context, chanellId));
-						List messages = c.getMessages(null, true);
-						mi = messages.iterator();
-						if (mi.hasNext())
+						messageCount = mc.getCount();
+						if (messageCount > 0 )
 						{
+							nextMessage = 1;  // Pager starts at 1
 							return true;
 						}
 					}
@@ -527,16 +534,51 @@ public class MessageContentProducer implements EntityContentProducer
 					{
 						ex.printStackTrace();
 						log.warn("Failed to get channel " + chanellId); //$NON-NLS-1$
-
 					}
 				}
+				mc = null;
+				nextMessage = -1;
+				messageCount = -1;
 				return false;
 			}
 
+			/*
+			 * Loop though the messages in the channel grabbing them 
+			 * in chunkSize chunks for efficiency. 
+			 */
 			public Object next()
 			{
-				Message m = (Message) mi.next();
-				return m.getReference();
+				if ( messages != null && listPos >= 0 && listPos < messages.size() )
+				{
+					Message m = (Message) messages.get(listPos);
+					nextMessage = nextMessage + 1;
+					listPos = listPos + 1;
+					return m.getReference();
+				}
+
+				// Retrieve the next "chunk"
+				PagingPosition pages = new PagingPosition(nextMessage, (nextMessage + chunkSize - 1));
+				try 
+				{
+					messages = mc.getMessages(null, true, pages);
+					if ( messages != null && messages.size() > 0 )
+					{
+						listPos = 0;
+						Message m = (Message) messages.get(listPos);
+						nextMessage = nextMessage + 1;
+						listPos = listPos + 1;
+						return m.getReference();
+					}
+				}
+				catch (Exception ex)
+				{
+					ex.printStackTrace();
+					log.warn("Failed to get message " + nextMessage); //$NON-NLS-1$
+					
+				}
+				// We are done looping through this channel
+				nextMessage = messageCount + 1;
+				return null;
 			}
 
 			public void remove()
