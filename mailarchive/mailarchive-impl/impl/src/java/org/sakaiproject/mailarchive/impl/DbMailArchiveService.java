@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageChannel;
 import org.sakaiproject.message.api.MessageChannelEdit;
@@ -37,10 +38,16 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.BaseDbDoubleStorage;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.javax.Filter;
-import org.sakaiproject.javax.PagingPosition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
+
+import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.javax.Filter;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.mailarchive.api.MailArchiveMessage;
 
 /**
  * <p>
@@ -182,7 +189,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * BaseMessageService extensions
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
+     
 	/**
 	 * Construct a Storage object.
 	 * 
@@ -193,7 +200,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 		return new DbStorage(this);
 
 	} // newStorage
-
+    
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Storage implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -212,7 +219,65 @@ public class DbMailArchiveService extends BaseMailArchiveService
 					"PUBVIEW", FIELDS, m_locksInDb, "channel", "message", user, m_sqlService);
 
 		} // DbStorage
+        
+		/* matchXml - Optionaly do a pre-de-serialize match
+		 *
+		 * A call back to match before the XML is parsed and turned into a
+		 * Resource.  If we can decide here - it is more efficient than 
+		 * sending the XML through SAX.
+		 */
+		@Override
+		public int matchXml(String xml, String search) 
+		{
 
+			if (!xml.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"))
+				return 0;
+
+			/*
+			 * <?xml version="1.0" encoding="UTF-8"?> <message
+			 * body="Qm9keSAyMDA4MDEyNzIwMTM0MTkzMw=="
+			 * body-html="Qm9keSAyMDA4MDEyNzIwMTM0MTkzMw=="> <header
+			 * access="channel" date="20080127201341934" from="admin"
+			 * id="d978685c-8730-4975-b3ea-55fdf03e0e5a"
+			 * mail-date="20080127201341933" mail-from="from 20080127201341933"
+			 * subject="Subject 20080127201341933"/><properties/></message>
+			 */
+			String body = getXmlAttr(xml, "body");
+			String from = getXmlAttr(xml, "from");
+			String subject = getXmlAttr(xml, "subject");
+			if (body == null || from == null || subject == null)
+				return 0;
+
+			try 
+			{
+				byte[] decoded = CommonsCodecBase64.decodeBase64(body.getBytes("UTF-8"));
+				body = new String(decoded, "UTF-8");
+			} 
+			catch (Exception e) 
+			{
+				return 0;
+			}
+
+			if (StringUtil.containsIgnoreCase(subject, search)
+					|| StringUtil.containsIgnoreCase(from, search)
+					|| StringUtil.containsIgnoreCase(body, search)) 
+			{
+				return 1;
+			}
+			return -1;
+		}
+
+		String getXmlAttr(String xml, String tagName)
+		{
+			String lookfor = tagName+"=\""; 
+			int ipos = xml.indexOf(lookfor);
+			if ( ipos < 1 ) return null;
+			ipos = ipos + lookfor.length();
+			int jpos = xml.indexOf("\"",ipos);
+			if ( jpos < 1 || ipos > jpos ) return null;
+			return xml.substring(ipos,jpos);
+		}
+        
 		/** Channels * */
 
 		public boolean checkChannel(String ref)
@@ -277,6 +342,21 @@ public class DbMailArchiveService extends BaseMailArchiveService
 			return super.getAllResources(channel);
 		}
 
+		public List getMessages(MessageChannel channel,String search, boolean asc, PagingPosition pager)
+		{
+			return super.getAllResources(channel, null, search, asc, pager);
+		}
+        
+		public int getCount(MessageChannel channel)
+		{
+			return super.getCount(channel);
+		}
+        
+        	public int getCount(MessageChannel channel, Filter filter)
+        	{
+			return super.getCount(channel, filter);
+		}
+        
 		public MessageEdit putMessage(MessageChannel channel, String id)
 		{
 			return (MessageEdit) super.putResource(channel, id, null);
@@ -302,24 +382,14 @@ public class DbMailArchiveService extends BaseMailArchiveService
 			super.removeResource(channel, edit);
 		}
 
-		public int getCount(MessageChannel channel)
-		{
-			return super.getCount(channel);
-		}
-
-		public int getCount(MessageChannel channel, Filter filter)
-		{
-			return super.getCount(channel, filter);
-		}
-
-		public List getMessages(MessageChannel channel, Filter filter, boolean asc, PagingPosition pager)
-		{
-			return super.getMessages(channel, filter, asc, pager);
-		}
-
 		public List getMessages(MessageChannel channel, Time afterDate, int limitedToLatest, String draftsForId, boolean pubViewOnly)
 		{
 			return super.getResources(channel, afterDate, limitedToLatest, draftsForId, pubViewOnly);
+		}
+ 
+		public List getMessages(MessageChannel channel, Filter filter,boolean asc, PagingPosition pager) 
+		{
+			return super.getAllResources(channel,filter, null, asc, pager);
 		}
 
 	} // DbStorage

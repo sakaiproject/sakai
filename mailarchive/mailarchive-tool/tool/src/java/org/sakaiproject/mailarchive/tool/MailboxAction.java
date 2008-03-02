@@ -52,6 +52,7 @@ import org.sakaiproject.mailarchive.api.MailArchiveChannel;
 import org.sakaiproject.mailarchive.api.MailArchiveChannelEdit;
 import org.sakaiproject.mailarchive.api.MailArchiveMessage;
 import org.sakaiproject.mailarchive.cover.MailArchiveService;
+import org.sakaiproject.message.api.Message;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -60,6 +61,9 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+
+import org.sakaiproject.javax.Filter;
+import org.sakaiproject.javax.SearchFilter;
 
 /**
  * <p>
@@ -101,7 +105,9 @@ public class MailboxAction extends PagedResourceActionII
 	private static final String STATE_OPTION_OPEN = "optOpen";
 
 	private static final String STATE_OPTION_ALIAS = "optAlias";
-
+	
+	private static final String STATE_ALERT_MESSAGE = "alertMessage";
+	
 	/** Sort codes. */
 	private static final int SORT_FROM = 0;
 
@@ -112,29 +118,19 @@ public class MailboxAction extends PagedResourceActionII
 	/** paging */
 	private static final String STATE_ALL_MESSAGES = "allMessages";
 
+	private static final String STATE_ALL_MESSAGES_SEARCH = "allMessages-search";
+	
 	private static final String STATE_MSG_VIEW_ID = "msg-id";
-
+    
+    /** State to cache the count of messages **/
+    
+	private static final String STATE_COUNT = "state-cached-count";
+    
+	private static final String STATE_COUNT_SEARCH = "state-cached-count-search";   
+	
+	private final int MESSAGE_THRESHOLD_DEFAULT = 250;
+	
 	/** paging */
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.cheftool.PagedResourceActionII#readResourcesPage(org.sakaiproject.service.framework.session.SessionState, int, int)
-	 */
-	protected List readResourcesPage(SessionState state, int first, int last)
-	{
-
-		List rv = new Vector();
-		if (state.getAttribute(STATE_ALL_MESSAGES) != null)
-		{
-			rv = (List) state.getAttribute(STATE_ALL_MESSAGES);
-		}
-
-		PagingPosition page = new PagingPosition(first, last);
-		page.validate(rv.size());
-		rv = rv.subList(page.getFirst() - 1, page.getLast());
-
-		return rv;
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -143,12 +139,57 @@ public class MailboxAction extends PagedResourceActionII
 	 */
 	protected int sizeResources(SessionState state)
 	{
-		int size = 0;
-		if (state.getAttribute(STATE_ALL_MESSAGES) != null)
+
+		String search = (String) state.getAttribute(STATE_SEARCH);
+
+		// We cache the count at the tool level because it is not done perfectly
+		// at the lower layer
+		Integer lastCount = (Integer) state.getAttribute(STATE_COUNT);
+		String countSearch = (String) state.getAttribute(STATE_COUNT_SEARCH);
+	
+		if ( search == null && countSearch == null && lastCount != null )
 		{
-			size = ((List) state.getAttribute(STATE_ALL_MESSAGES)).size();
+			return lastCount.intValue();
 		}
-		return size;
+		if ( countSearch != null && countSearch.equals(search))
+		{
+			return lastCount.intValue();
+		}
+	
+        	// Check to see if we have put all the messages in state because this
+        	// is a short corpus
+		List allMessages = (List) state.getAttribute(STATE_ALL_MESSAGES);
+		String messagesSearch = (String) state.getAttribute(STATE_ALL_MESSAGES_SEARCH);
+		boolean match = (search == null && messagesSearch == null);
+        	if ( search != null && search.equals(messagesSearch) )
+        	{
+        		match = true;
+        	}
+ 	 
+		// If we have some messages stored in state and the search matches, we know
+        	// the size of the messages.
+		if ( allMessages != null && match )
+		{
+			return allMessages.size();
+		}
+	
+		// We must talk to the Storage to count the messages
+        	try
+		{
+			MailArchiveChannel channel = MailArchiveService.getMailArchiveChannel((String) state.getAttribute(STATE_CHANNEL_REF));
+			int cCount = channel.getCount(getSearchFilter(search));
+
+			lastCount = new Integer(cCount);
+			state.setAttribute(STATE_COUNT, lastCount);
+			state.setAttribute(STATE_COUNT_SEARCH, search);
+			return cCount;
+		}
+		catch (Exception e)
+		{
+			Log.warn("chef", "sizeResources failed search="+search+" exeption="+e);
+		}
+
+        	return 0;
 	}
 
 	/**
@@ -245,61 +286,92 @@ public class MailboxAction extends PagedResourceActionII
 
 	} // class MyComparator
 
-	/**
-	 * Implement this to return alist of all the resources that there are to page. Sort them as appropriate.
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.cheftool.PagedResourceActionII#readResourcesPage(org.sakaiproject.service.framework.session.SessionState, int, int)
 	 */
-	protected List readAllResources(SessionState state)
+	protected List readResourcesPage(SessionState state, int first, int last)
 	{
 		// read all channel messages
 		List allMessages = null;
-		try
-		{
-			MailArchiveChannel channel = MailArchiveService.getMailArchiveChannel((String) state.getAttribute(STATE_CHANNEL_REF));
-
-			allMessages = channel.getMessages(null, true);
-		}
-		catch (PermissionException e)
-		{
-		}
-		catch (IdUnusedException e)
-		{
-		}
-
-		// deal with no messages
-		if (allMessages == null) return new Vector();
-
-		String search = (String) state.getAttribute(STATE_SEARCH);
-
-		// filter if searching
-		if (search != null)
-		{
-			Vector filtered = new Vector();
-			for (Iterator iMsgs = allMessages.iterator(); iMsgs.hasNext();)
-			{
-				MailArchiveMessage msg = (MailArchiveMessage) iMsgs.next();
-
-				if (StringUtil.containsIgnoreCase(msg.getMailArchiveHeader().getSubject(), search)
-						|| StringUtil.containsIgnoreCase(msg.getMailArchiveHeader().getFromAddress(), search)
-						|| StringUtil.containsIgnoreCase(FormattedText.convertFormattedTextToPlaintext(msg.getBody()), search))
-				{
-					filtered.add(msg);
-				}
-			}
-
-			allMessages = filtered;
-		}
-
-		// if other than ascending date, sort them all
 		boolean ascending = ((Boolean) state.getAttribute(STATE_ASCENDING)).booleanValue();
-		int sort = ((Integer) state.getAttribute(STATE_SORT)).intValue();
+		int sort = ((Integer) state.getAttribute(STATE_SORT)).intValue();		
+		String search = (String) state.getAttribute(STATE_SEARCH);
+		PagingPosition pages = new PagingPosition(first, last);
+		
+		int resourceCount = sizeResources(state);
+
+		// If we are sorted by date, or our message corpus is too large
+		// we use the database to do the hard work - it will be sorted by date
+		// Only - but we prevent the user from ever using any thing but date sorting
+		// for a large corpus.
+		if ( resourceCount > getMessageThreshold() )
+		{
+			try
+			{
+				MailArchiveChannel channel = MailArchiveService.getMailArchiveChannel((String) state.getAttribute(STATE_CHANNEL_REF));
+				allMessages = channel.getMessages(getSearchFilter(search), ascending, pages);
+				state.removeAttribute(STATE_ALL_MESSAGES);
+				state.removeAttribute(STATE_ALL_MESSAGES_SEARCH);
+			}
+			catch (Exception e)
+			{
+				Log.warn("chef", "readResourcesPage not able to retrieve messages sort ="+ 
+						sort+" search = "+search+" first="+first+" last="+last);
+			}
+	
+			// deal with no messages
+			if (allMessages == null) return new Vector();
+			
+			return allMessages;
+		}
+
+		// We have a non-date sort and not too many messages in the corpus
+		// so we pull all the messages into memory to do the sorting
+		allMessages = (List) state.getAttribute(STATE_ALL_MESSAGES);
+		String messagesSearch = (String) state.getAttribute(STATE_ALL_MESSAGES_SEARCH);
+		
+		boolean match = (search == null && messagesSearch == null);
+		if ( search != null && search.equals(messagesSearch) )
+		{
+			match = true;
+		}
+
+		// If we don't already have the messages - pull them from the database
+		if ( allMessages == null || !match )
+		{
+			allMessages = null;
+			state.removeAttribute(STATE_ALL_MESSAGES);
+			state.removeAttribute(STATE_ALL_MESSAGES_SEARCH);
+			try
+			{
+				MailArchiveChannel channel = MailArchiveService.getMailArchiveChannel((String) state.getAttribute(STATE_CHANNEL_REF));
+				allMessages = channel.getMessages(getSearchFilter(search), ascending, null);
+				state.setAttribute(STATE_ALL_MESSAGES, allMessages);
+				state.setAttribute(STATE_ALL_MESSAGES_SEARCH, search);
+			}
+			catch (PermissionException e)
+			{
+			}
+			catch (IdUnusedException e)
+			{
+			}
+		}
+		
+		if (allMessages == null) allMessages = new Vector();
+		
 		if ((allMessages.size() > 1) && ((!ascending) || (sort != SORT_DATE)))
 		{
 			Collections.sort(allMessages, new MyComparator(sort, ascending));
 		}
 
-		return allMessages;
+		// Reduced to the proper paged set of things
+		pages.validate(allMessages.size());
+		allMessages = allMessages.subList(pages.getFirst() - 1, pages.getLast());
 
-	} // readAllResources
+		return allMessages;
+	} // readPagedResources
 
 	/**
 	 * Populate the state object, if needed.
@@ -339,21 +411,6 @@ public class MailboxAction extends PagedResourceActionII
 				state.setAttribute(STATE_VIEW_HEADERS, new Boolean(false));
 			}
 
-			// // setup the observer to notify our main panel
-			// if (state.getAttribute(STATE_OBSERVER) == null)
-			// {
-			// // the delivery location for this tool
-			// String deliveryId = clientWindowId(state, portlet.getID());
-			//				
-			// // the html element to update on delivery
-			// String elementId = mainPanelUpdateId(portlet.getID());
-			//				
-			// // the event resource reference pattern to watch for
-			// Reference r = EntityManager.newReference(channel);
-			// String pattern = MailArchiveService.messageReference(r.getContext(), r.getId(), "");
-			//
-			// state.setAttribute(STATE_OBSERVER, new EventObservingCourier(deliveryId, elementId, pattern));
-			// }
 		}
 
 	} // initState
@@ -368,6 +425,14 @@ public class MailboxAction extends PagedResourceActionII
 		String mode = (String) state.getAttribute(STATE_MODE);
 
 		context.put(Menu.CONTEXT_ACTION, state.getAttribute(STATE_ACTION));
+		String search = (String) state.getAttribute(STATE_SEARCH);
+		
+		String alertMessage = (String) state.getAttribute(STATE_ALERT_MESSAGE);
+		if ( alertMessage != null )
+		{
+			state.setAttribute(STATE_ALERT_MESSAGE, null);
+			context.put(STATE_ALERT_MESSAGE, alertMessage);
+		}
 
 		if ("list".equals(mode))
 		{
@@ -384,7 +449,7 @@ public class MailboxAction extends PagedResourceActionII
 			return buildViewModeContext(portlet, context, rundata, state);
 		}
 
-		else if (MODE_OPTIONS.equals(mode))
+		else if (MODE_OPTIONS.equals(mode)) 
 		{
 			return buildOptionsPanelContext(portlet, context, rundata, state);
 		}
@@ -406,42 +471,76 @@ public class MailboxAction extends PagedResourceActionII
 	{
 		boolean allowDelete = false;
 
-		// get the message
-		MailArchiveMessage message = null;
-
 		// prepare the sort of messages
 		context.put("tlang", rb);
 		prepPage(state);
 
-		List messages = (List) state.getAttribute(STATE_ALL_MESSAGES);
-		int pos = ((Integer) state.getAttribute(STATE_VIEW_ID)).intValue();
-		message = (MailArchiveMessage) messages.get(pos);
-		
-		// fix for SAK-5879
-		// make sure STATE_MSG_VIEW_ID is updated so that Confirm mode will have access to the correct message id
-		state.setAttribute(STATE_MSG_VIEW_ID, message.getId());
-		//
-		
+		String id = (String) state.getAttribute(STATE_MSG_VIEW_ID);
 
+		String channelRef = (String) state.getAttribute(STATE_CHANNEL_REF);
+		MailArchiveChannel channel = null;
+		try 
+		{
+			channel = MailArchiveService.getMailArchiveChannel(channelRef);
+		}
+		catch (Exception e)
+		{
+			Log.warn("chef", "Cannot find channel "+channelRef);
+		}
+
+		List resources = (List) state.getAttribute(STATE_ALL_MESSAGES);
+		boolean found = false;
+		boolean foundInState = false;
+		if (resources != null)
+		{
+			int pos = ((Integer) state.getAttribute(STATE_VIEW_ID)).intValue();
+			MailArchiveMessage message = (MailArchiveMessage) resources.get(pos);
+			// fix for SAK-5879
+			// make sure STATE_MSG_VIEW_ID is updated so that Confirm mode will have access to the correct message id
+			state.setAttribute(STATE_MSG_VIEW_ID, message.getId());
+			context.put("email",message);
+			if ( channel != null ) allowDelete = channel.allowRemoveMessage(message);
+			found = true;
+			foundInState = true;
+		}
+		
+		// Not in state - retrieve the message in service the message using the service
+		if ( ! found && channel != null )
+		{
+			try
+			{
+				Message msg = channel.getMessage(id);
+				context.put("email",msg);
+				allowDelete = channel.allowRemoveMessage(msg);
+				found = true;
+			}
+			catch (Exception e)
+			{
+				Log.warn("chef", "Could not retrieve message "+e);
+			}
+		}
+
+		// Decide if we page next or back
 		boolean goNext = state.getAttribute(STATE_NEXT_EXISTS) != null;
 		boolean goPrev = state.getAttribute(STATE_PREV_EXISTS) != null;
+		
+		// TODO: Someday - we can do this if it is not in state.  We need to 
+		// effectively know position within the current page and treat "Next" 
+		// as a getPagedResources (with search as appropriate) for a single page
+		// (i.e. page 124-124)  - but this would mean a full-scan of the channel
+		// on the "next page" If there are few enough messages to fit in memory 
+		// we give the user nicer features.  If search were less costly, this
+		// would be much better.
+		if ( ! foundInState || ! found )
+		{
+			goNext = goPrev = false;
+		}
+		
+		// If we have too many messages - do not allow previous and next
 		context.put("goPPButton", new Boolean(goPrev));
 		context.put("goNPButton", new Boolean(goNext));
 
-		try
-		{
-			MailArchiveChannel channel = MailArchiveService.getMailArchiveChannel((String) state.getAttribute(STATE_CHANNEL_REF));
-			context.put("email", message);
-
-			allowDelete = channel.allowRemoveMessage(message);
-		}
-		catch (IdUnusedException e)
-		{
-		}
-		catch (PermissionException e)
-		{
-		}
-		if (message == null)
+		if (! found )
 		{
 			context.put("message", rb.getString("thiemames1"));
 		}
@@ -474,16 +573,6 @@ public class MailboxAction extends PagedResourceActionII
 		return (String) getContext(rundata).get("template") + "-view";
 
 	} // buildViewModeContext
-
-	/*
-	 * 
-	 */
-	/*
-	 * private MailArchiveMessage adjustPaging(Context context, SessionState state) { MailArchiveMessage message = null; List messages = (List) state.getAttribute(STATE_ALL_MESSAGES); int pos = ((Integer) state.getAttribute(STATE_VIEW_ID)).intValue();
-	 * boolean goNext = state.getAttribute(STATE_GO_NEXT) != null; boolean goPrev = state.getAttribute(STATE_GO_PREV) != null; state.removeAttribute(STATE_GO_NEXT); state.removeAttribute(STATE_GO_PREV); if (goNext || goPrev) { if (goNext) { if (pos <
-	 * messages.size()-1) { pos++; } } if (goPrev) { if (pos > 0) { pos--; } } } if (pos == -1) { pos = 0; } if (pos >= messages.size()) { pos = messages.size() -1; } message = (MailArchiveMessage) messages.get(pos); //get the message id if (pos > 0) {
-	 * context.put("goPPButton", Boolean.TRUE); } else { context.put("goPPButton", Boolean.FALSE); } if (pos < sizeResources(state)-1) { context.put("goNPButton", Boolean.TRUE); } else { context.put("goNPButton", Boolean.FALSE); } return message; }
-	 */
 
 	/**
 	 * Build the context for the confirm remove mode (in the Main panel).
@@ -522,7 +611,6 @@ public class MailboxAction extends PagedResourceActionII
 	 */
 	private String buildListModeContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
-		state.setAttribute(STATE_ALL_MESSAGES, readAllResources(state));
 
 		// prepare the page of messages
 		context.put("tlang", rb);
@@ -558,11 +646,6 @@ public class MailboxAction extends PagedResourceActionII
 
 		// output the search field
 		context.put(STATE_SEARCH, state.getAttribute(STATE_SEARCH));
-
-		// if (state.getAttribute(STATE_NUM_MESSAGES) != null)
-		// {
-		// context.put("num-messages", state.getAttribute(STATE_NUM_MESSAGES));
-		// }
 
 		// eventSubmit value and id field for drill down
 		context.put("view-id", VIEW_ID);
@@ -639,14 +722,14 @@ public class MailboxAction extends PagedResourceActionII
 
 		String id = runData.getParameters().getString(VIEW_ID);
 		state.setAttribute(STATE_MSG_VIEW_ID, id);
-
+		
 		int pos = -1;
 		List resources = (List) state.getAttribute(STATE_ALL_MESSAGES);
 		if (resources != null)
 		{
+			// if this is the one, return this index
 			for (int i = 0; i < resources.size(); i++)
 			{
-				// if this is the one, return this index
 				if (((MailArchiveMessage) (resources.get(i))).getId().equals(id)) pos = i;
 			}
 		}
@@ -654,9 +737,6 @@ public class MailboxAction extends PagedResourceActionII
 
 		// disable auto-updates while in view mode
 		disableObservers(state);
-
-		// set the message id
-		// state.setAttribute(STATE_VIEW_ID, runData.getParameters().getString(VIEW_ID));
 
 	} // doView
 
@@ -717,6 +797,13 @@ public class MailboxAction extends PagedResourceActionII
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) runData).getJs_peid();
 		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(peid);
+		
+		int resourceCount = sizeResources(state);
+		if ( resourceCount > getMessageThreshold() )
+		{
+			state.setAttribute(STATE_ALERT_MESSAGE,"Too many messages - you can only sort by date.");
+			return;
+		}
 
 		// we are changing the sort, so start from the first page again
 		resetPaging(state);
@@ -771,6 +858,13 @@ public class MailboxAction extends PagedResourceActionII
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) runData).getJs_peid();
 		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(peid);
+		
+		int resourceCount = sizeResources(state);
+		if ( resourceCount > getMessageThreshold() )
+		{
+			state.setAttribute(STATE_ALERT_MESSAGE,"Too many messages - you can only sort by date.");
+			return;
+		}
 
 		// we are changing the sort, so start from the first page again
 		resetPaging(state);
@@ -1151,6 +1245,76 @@ public class MailboxAction extends PagedResourceActionII
 		state.setAttribute(PermissionsHelper.PREFIX, "mail.");
 
 	} // doPermissions
+
+	private SearchFilter getSearchFilter(String search)
+	{
+		if ( search == null ) return null;
+
+		return new MailMessageSearchFilter(search);
+	}
+
+	protected class MailMessageSearchFilter implements SearchFilter
+	{
+		protected String m_search = null;
+
+		public MailMessageSearchFilter(String search)
+		{
+			m_search = search;
+		}
+
+		/**
+		 * Return the search string - may be null.  Note that a non-null
+		 * return from this does *not* imply that this is a search-only
+		 * filter - only the isSearchFilter() indicates that this is 
+		 * a search-only filter.
+		 *
+		 * @return The search string for this filter - may be null.
+		 */
+		public String getSearchString()
+		{
+			return m_search;
+		}
+
+		/**
+		 * Does this object satisfy the criteria of the filter?
+		 * 
+		 * @param o
+		 *        The object to test.
+		 * @return true if the object is accepted by the filter, false if not.
+		 */
+		public boolean accept(Object o)
+		{
+			// we want to test only messages
+			if (!(o instanceof MailArchiveMessage))
+			{
+				return false;
+			}
+
+			if ( m_search != null ) 
+			{
+				MailArchiveMessage msg = (MailArchiveMessage) o;
+				if (StringUtil.containsIgnoreCase(msg.getMailArchiveHeader().getSubject(), m_search)
+					|| StringUtil.containsIgnoreCase(msg.getMailArchiveHeader().getFromAddress(), m_search)
+					|| StringUtil.containsIgnoreCase(FormattedText.convertFormattedTextToPlaintext(msg.getBody()), m_search))
+
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+
+	/**
+	 * get the Message Threshold
+	 */
+	private int getMessageThreshold()
+	{
+		return ServerConfigurationService.getInt("mailarchive.message-threshold",
+				MESSAGE_THRESHOLD_DEFAULT);
+	}
+
 
 } // MailboxAction
 
