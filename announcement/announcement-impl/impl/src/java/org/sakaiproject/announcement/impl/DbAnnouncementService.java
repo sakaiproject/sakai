@@ -344,7 +344,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
                 
 		public List getMessages(MessageChannel channel, Filter filter, boolean asc, PagingPosition pager)
 		{       
-			return super.getMessages(channel, filter, asc, pager);
+			return super.getAllResources(channel, filter, null, asc, pager);
 		}
 
 		public List getMessages(MessageChannel channel, Time afterDate, int limitedToLatest, String draftsForId, boolean pubViewOnly)
