@@ -13,9 +13,9 @@
   <packaging>pom</packaging>
 
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn-test/access/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn-test/access/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn-test/access/trunk</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/access/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/access/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/access/trunk</url>
   </scm>
 
   <modules>
