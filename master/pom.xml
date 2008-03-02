@@ -1104,6 +1104,17 @@ This is not needed now that pluto have been released
           <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
         </configuration>
       </plugin>
+      <plugin>
+      	<inherited>true</inherited>
+      	<groupId>org.apache.maven.plugins</groupId>
+      	<artifactId>maven-release-plugin</artifactId>
+        <configuration>
+        	<tagbase>https://source.sakaiproject.org/svn-test/sakai/tags</tagbase>
+            <preparationGoals>clean verify install</preparationGoals>
+            <autoVersionSubmodules>true</autoVersionSubmodules>
+            <useReleaseProfile>true</useReleaseProfile>
+        </configuration>
+       </plugin>
     </plugins>
   </build>
 </project>
