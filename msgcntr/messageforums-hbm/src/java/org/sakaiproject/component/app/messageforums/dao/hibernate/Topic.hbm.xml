@@ -28,7 +28,7 @@
 	<!--  Version number used for optimistic locking -->
     <version name="version" column="VERSION" />
 
-    <property name="uuid" column="UUID" length="36" not-null="true" />
+    <property name="uuid" column="UUID" length="36" not-null="true" index="MFR_TOPIC_T_UUID_I"/>
     <property name="created" column="CREATED" not-null="true" index="MFR_TOPIC_CREATED_I"/>
     <property name="createdBy" column="CREATED_BY" length="36" not-null="true" />
     <property name="modified" column="MODIFIED" not-null="true" />
