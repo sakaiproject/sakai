@@ -41,7 +41,8 @@
       <many-to-one name="topic" column="t_surrogateKey"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
         not-null="false" cascade="save-update" unique="false"
-        lazy="false"/>
+        lazy="false"
+        index="MFR_MEMBERSHIP_ITEM_I01_I"/>
                
       <many-to-one name="forum" column="of_surrogateKey"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
@@ -51,7 +52,8 @@
       <many-to-one name="area" column="a_surrogateKey"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
         not-null="false" cascade="save-update" unique="false"
-        lazy="false"/>  
+        lazy="false"
+        index="MFR_MEMBERSHIP_ITEM_I02_I"/>  
   </class>
     
    <query name="findAllMembershipItemsForForumsForSite">
