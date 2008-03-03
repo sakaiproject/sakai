@@ -19,11 +19,17 @@
 			<div class="indnt1">
 				<div class="instruction"><h:outputText value="#{msgs.grade_entry_info}" escape="false"/></div>
 			
-				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod" layout="pageDirection">
+				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod1" layout="pageDirection"  rendered="#{gradebookSetupBean.enableLetterGrade}">
 					<f:selectItem itemValue="points" itemLabel="#{msgs.entry_opt_points}" />
 	        <f:selectItem itemValue="percent" itemLabel="#{msgs.entry_opt_percent}" /> 
-	        <f:selectItem itemValue="letterGrade" itemLabel="#{msgs.entry_opt_letters}" />
+	        <f:selectItem itemValue="letterGrade" itemLabel="#{msgs.entry_opt_letters}"/>
 				</h:selectOneRadio>
+
+				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod2" layout="pageDirection"  rendered="#{!gradebookSetupBean.enableLetterGrade}">
+					<f:selectItem itemValue="points" itemLabel="#{msgs.entry_opt_points}" />
+	        <f:selectItem itemValue="percent" itemLabel="#{msgs.entry_opt_percent}" /> 
+				</h:selectOneRadio>
+
 			</div>
 			
 			<% /*Per SAK-10879, no longer allow user to customize letter grading scale. set rendered="false" and removed js call from select radio button */

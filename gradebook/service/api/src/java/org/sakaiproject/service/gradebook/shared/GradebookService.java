@@ -59,6 +59,8 @@ public interface GradebookService {
 	public static final String gradePermission = "grade";
 	public static final String viewPermission = "view";
 	
+	public static final String enableLetterGradeString = "gradebook_enable_letter_grade";
+	
 	public static final MathContext MATH_CONTEXT = new MathContext(10, RoundingMode.HALF_DOWN);
 	
 	public static Comparator lettergradeComparator = new Comparator() 
