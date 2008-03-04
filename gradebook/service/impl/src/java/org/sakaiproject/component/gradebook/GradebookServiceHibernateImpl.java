@@ -1329,8 +1329,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  viewableAssignments = getAssignments(gradebook.getId(), null, true);
 	  } else if (!getAuthz().isUserHasGraderPermissions(gradebookUid)) {  
 		  // user doesn't have grader permissions, so check to see if able to grade or view own grades
-		  if (getAuthz().isUserAbleToGrade(gradebookUid) || getAuthz().isUserAbleToViewOwnGrades(gradebookUid)) {
+		  if (getAuthz().isUserAbleToGrade(gradebookUid)) {
 			  viewableAssignments = getAssignments(gradebook.getId(), null, true);
+		  } else if (getAuthz().isUserAbleToViewOwnGrades(gradebookUid)) {
+			  // if user is just a student, we need to filter out unreleased items
+			  List allAssigns = getAssignments(gradebook.getId(), null, true);
+			  if (allAssigns != null) {
+				  for (Iterator aIter = allAssigns.iterator(); aIter.hasNext();) {
+					  Assignment assign = (Assignment) aIter.next();
+					  if (assign != null && assign.isReleased()) {
+						  viewableAssignments.add(assign);
+					  }
+				  }
+			  }
 		  }
 	  } else {  
 		  // this user has grader perms, so we need to filter the items returned

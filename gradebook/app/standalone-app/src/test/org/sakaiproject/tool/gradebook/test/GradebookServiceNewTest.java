@@ -394,8 +394,9 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		
 		// student
 		setAuthnId(STUDENT_IN_SECTION_UID1);
+		// only returns released items
 		viewableAssignments = gradebookService.getViewableAssignmentsForCurrentUser(GRADEBOOK_UID_NO_CAT);
-		Assert.assertTrue(viewableAssignments.size() == 2);
+		Assert.assertTrue(viewableAssignments.size() == 0);
 		
 		// now test gb with categories and grader permissions
 		Gradebook gb = gradebookManager.getGradebook(GRADEBOOK_UID_WITH_CAT);
@@ -411,8 +412,9 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertTrue(viewableAssignments.size() == 1);
 		
 		setAuthnId(STUDENT_IN_SECTION_UID2);
+		// only returns released assign
 		viewableAssignments = gradebookService.getViewableAssignmentsForCurrentUser(GRADEBOOK_UID_WITH_CAT);
-		Assert.assertTrue(viewableAssignments.size() == 2);
+		Assert.assertTrue(viewableAssignments.size() == 0);
 	}
 	
 	public void testGetViewableSectionUuidToNameMap() throws Exception {
