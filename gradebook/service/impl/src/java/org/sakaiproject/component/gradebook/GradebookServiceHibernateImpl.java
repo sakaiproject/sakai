@@ -1386,7 +1386,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
   }
   
-  public Map<String, String> getViewableStudentsForItemForCurrentUser(String gradebookUid, Long gradableObjectId) {
+  public Map<String, String> getViewableStudentsForItemForCurrentUser(final String gradebookUid, final Long gradableObjectId) {
 	  if (gradebookUid == null || gradableObjectId == null) {
 		  throw new IllegalArgumentException("null gradebookUid or gradableObjectId passed to getViewableStudentsForUserForItem");
 	  }
@@ -1396,7 +1396,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  throw new SecurityException("user " + getUserUid() + " attempted to access student information for gb item " + gradableObjectId); 
 	  }
 	  
-	  Assignment gradebookItem = getAssignment(gradableObjectId);
+	  Assignment gradebookItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+		  public Object doInHibernate(Session session) throws HibernateException {
+			  return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
+		  }
+	  });
+	  
 	  if (gradebookItem == null) {
 		  log.debug("The gradebook item does not exist, so returning empty set");
 		  return new HashMap();
@@ -1466,7 +1471,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  return authz.isUserAbleToViewOwnGrades(gradebookUid);
   }
   
-  public List<GradeDefinition> getGradesForStudentsForItem(Long gradableObjectId, List<String> studentIds) {
+  public List<GradeDefinition> getGradesForStudentsForItem(final String gradebookUid, final Long gradableObjectId, List<String> studentIds) {
 	  if (gradableObjectId == null) {
 		  throw new IllegalArgumentException("null gradableObjectId passed to getGradesForStudentsForItem");
 	  }
@@ -1476,7 +1481,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  if (studentIds != null && !studentIds.isEmpty()) {
 		  // first, we need to make sure the current user is authorized to view the
 		  // grades for all of the requested students
-		  Assignment gbItem = getAssignment(gradableObjectId);
+		  Assignment gbItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			  public Object doInHibernate(Session session) throws HibernateException {
+				  return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
+			  }
+		  });
+		  
 		  if (gbItem != null) {
 			  Gradebook gradebook = gbItem.getGradebook();
 			  

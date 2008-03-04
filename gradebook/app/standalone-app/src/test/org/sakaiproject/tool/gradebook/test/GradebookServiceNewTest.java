@@ -234,7 +234,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 			List studentIds = new ArrayList();
 			studentIds.add(STUDENT_IN_SECTION_UID1);
 			studentIds.add(STUDENT_NOT_IN_SECTION_UID1);
-			grades = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentIds);
+			grades = gradebookService.getGradesForStudentsForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, studentIds);
 		} catch (SecurityException e) {
 		}
 
@@ -481,13 +481,13 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 			gradebookService.getViewableStudentsForItemForCurrentUser(GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
 		List studentIds = new ArrayList(studentIdFunctionMap.keySet());
 		
-		List gradeDefs = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentIds);
+		List gradeDefs = gradebookService.getGradesForStudentsForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, studentIds);
 		Assert.assertNotNull(gradeDefs);
 		Assert.assertTrue(gradeDefs.size() == 0);
 		
 		// add a score to the gb
 		gradebookService.setAssignmentScore(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_IN_SECTION_UID1, new Double(35), "Service Test");
-		gradeDefs = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentIds);
+		gradeDefs = gradebookService.getGradesForStudentsForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, studentIds);
 		Assert.assertTrue(gradeDefs.size() == 1);
 		GradeDefinition gradeForS1 = (GradeDefinition)gradeDefs.get(0);
 		Assert.assertTrue(gradeForS1 != null);
@@ -500,14 +500,14 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		
 		// add another score to gb
 		gradebookService.setAssignmentScore(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_NOT_IN_SECTION_UID1, new Double(40), "Service Test");
-		gradeDefs = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentIds);
+		gradeDefs = gradebookService.getGradesForStudentsForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, studentIds);
 		Assert.assertTrue(gradeDefs.size() == 2);
 		
 		setAuthnId(TA_UID);
 		//should throw SecurityException b/c trying to get one student that user
 		// is not authorized to view
 		try {
-			gradeDefs = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentIds);
+			gradeDefs = gradebookService.getGradesForStudentsForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, studentIds);
 			Assert.fail();
 		} catch (SecurityException e) {
 			
@@ -519,7 +519,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		// try with the auth students
 		List studentInSection = new ArrayList();
 		studentInSection.add(STUDENT_IN_SECTION_UID1);
-		gradeDefs = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentInSection);
+		gradeDefs = gradebookService.getGradesForStudentsForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, studentInSection);
 		Assert.assertTrue(gradeDefs.size() == 1);
 		gradeForS1 = (GradeDefinition)gradeDefs.get(0);
 		Assert.assertTrue(gradeForS1 != null);
@@ -532,7 +532,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		
 		gradebookNoCat = gradebookManager.getGradebook(GRADEBOOK_UID_NO_CAT);
 		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
-		gradeDefs = gradebookService.getGradesForStudentsForItem(asn1IdNoCat, studentInSection);
+		gradeDefs = gradebookService.getGradesForStudentsForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, studentInSection);
 		Assert.assertTrue(gradeDefs.size() == 1);
 		gradeForS1 = (GradeDefinition)gradeDefs.get(0);
 		Assert.assertEquals(GradebookService.GRADE_TYPE_LETTER, gradeForS1.getGradeEntryType());

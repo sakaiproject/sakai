@@ -545,13 +545,13 @@ public interface GradebookService {
 	public boolean currentUserHasViewOwnGradesPerm(String gradebookUid);
 	
 	/**
-	 * 
+	 * @param gradebookUid
 	 * @param gradableObjectId
 	 * @param studentIds
 	 * @return a list of GradeDefinition with the grade information for the given
-	 * students for the given assignment
+	 * students for the given gradableObjectId
 	 * @throws SecurityException if the current user is not authorized to view
 	 * or grade a student in the passed list
 	 */
-	public List<GradeDefinition> getGradesForStudentsForItem(Long gradableObjectId, List<String> studentIds);
+	public List<GradeDefinition> getGradesForStudentsForItem(String gradebookUid, Long gradableObjectId, List<String> studentIds);
 }
