@@ -94,16 +94,18 @@ code {
 .helpBody {
 	padding: 0 1em 1em 1em
 	} 
+
+
 /*for web content - 2 states of the body > div that used instead of div.portletBody in web content), with toolbar, without*/
 /*see  a course site web contentn tool  - as instructor and as student - ends with a IE hack needed to make the make the bottom scrolbar (when present) behave.*/
+/*the margin/padding adjustments for both are to avoid https://bugzilla.mozilla.org/show_bug.cgi?id=361768 they essentially tuck the iframe borders "underneath" the outside of the containing block*/
 .wcwmenu{
-	padding: 0.2em 0em 0em 0em;
-	margin: 3px 0 -1em  0;
+	padding: .1em 0;
+	margin: -.2em 0;
 }
-
 .wcwomenu{
 	padding: 0;
-	margin: -.3em 0 -1em 0;
+	margin: -.1em 0 -1em 0;
 }
 
 * html #wciframe{
