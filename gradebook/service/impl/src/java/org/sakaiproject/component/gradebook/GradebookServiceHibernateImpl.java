@@ -305,11 +305,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		GradeDefinition gradeDef = (GradeDefinition)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				
-				Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-					public Object doInHibernate(Session session) throws HibernateException {
-						return getAssignmentWithoutStats(gradebookUid, gbItemId, session);
-					}
-				});
+				Assignment assignment = getAssignmentWithoutStats(gradebookUid, gbItemId, session);
+	
 				if (assignment == null) {
 					throw new AssessmentNotFoundException("There is no assignment with the gbItemId " 
 							+ gbItemId + " in gradebook " + gradebookUid);
@@ -338,6 +335,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				} else {
 				
 					AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid, session);
+					CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, gbItemId, studentUid);
 					if (log.isDebugEnabled()) log.debug("gradeRecord=" + gradeRecord);
 					
 					if (gradeRecord == null) {
@@ -347,6 +345,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					} else {
 						gradeDef.setDateRecorded(gradeRecord.getDateRecorded());
 						gradeDef.setGraderUid(gradeRecord.getGraderId());
+						if (gradeComment != null) {
+							gradeDef.setGradeComment(gradeComment.getCommentText());
+						}
 						
 						if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
 							List gradeList = new ArrayList();
@@ -1521,8 +1522,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				  }
 			  }
 			  
-			  // now, we can populate the grade information
+			  // retrieve the grading comments for all of the students
+			  List<Comment> commentRecs = getComments(gbItem, studentIds);
+			  Map<String, String> studentIdCommentTextMap = new HashMap();
+			  if (commentRecs != null) {
+				  for (Iterator<Comment> cIter = commentRecs.iterator(); cIter.hasNext();) {
+					  Comment comment = cIter.next();
+					  if (comment != null) {
+						  studentIdCommentTextMap.put(comment.getStudentId(), comment.getCommentText());
+					  }
+				  }
+			  }
 			  
+			  // now, we can populate the grade information
 			  List<AssignmentGradeRecord> gradeRecs = getAllAssignmentGradeRecordsForGbItem(gradableObjectId, studentIds);
 			  if (gradeRecs != null) {
 				  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
@@ -1542,6 +1554,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						  gradeDef.setGradeReleased(gradeReleased);
 						  gradeDef.setGraderUid(agr.getGraderId());
 						  gradeDef.setDateRecorded(agr.getDateRecorded());
+						  
+						  String commentText = studentIdCommentTextMap.get(agr.getStudentId());
+						  if (commentText != null) {
+							  gradeDef.setGradeComment(commentText);
+						  }
 						  
 						  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
 							  gradeDef.setGrade(agr.getLetterEarned());

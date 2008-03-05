@@ -229,7 +229,7 @@ public interface GradebookService {
 	 * @param gradebookUid
 	 * @param gbItemId
 	 * @param studentUid
-	 * @return Returns the current score for the student, respecting the grade 
+	 * @return Returns a GradeDefinition for the student, respecting the grade 
 	 * entry type for the gradebook (ie in %, letter grade, or points format).
 	 * Returns null if no grade
 	 * @throws GradebookNotFoundException

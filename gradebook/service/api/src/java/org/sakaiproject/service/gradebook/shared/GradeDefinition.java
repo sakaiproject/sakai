@@ -32,6 +32,7 @@ public class GradeDefinition {
 	private String graderUid;
 	private Date dateRecorded;
 	private String grade;
+	private String gradeComment;
 	private int gradeEntryType;
 	private boolean gradeReleased;
 	
@@ -72,6 +73,16 @@ public class GradeDefinition {
 	 */
 	public void setGrade(String grade) {
 		this.grade = grade;
+	}
+	
+	public String getGradeComment()
+	{
+		return gradeComment;
+	}
+	
+	public void setGradeComment(String gradeComment)
+	{
+		this.gradeComment = gradeComment;
 	}
 	
 	/**

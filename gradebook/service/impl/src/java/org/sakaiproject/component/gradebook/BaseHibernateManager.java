@@ -49,6 +49,7 @@ import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
@@ -1303,5 +1304,35 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     		}
     	}
     	return letterGradeList;
+    }
+    
+    public List getComments(final Assignment assignment, final Collection studentIds) {
+    	if (studentIds.isEmpty()) {
+    		return new ArrayList();
+    	}
+        return (List)getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+            	List comments;
+            	if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+            		Query q = session.createQuery(
+            			"from Comment as c where c.gradableObject=:go and c.studentId in (:studentIds)");
+                    q.setParameter("go", assignment);
+                    q.setParameterList("studentIds", studentIds);
+                    comments = q.list();
+            	} else {
+            		comments = new ArrayList();
+            		Query q = session.createQuery("from Comment as c where c.gradableObject=:go");
+            		q.setParameter("go", assignment);
+            		List allComments = q.list();
+            		for (Iterator iter = allComments.iterator(); iter.hasNext(); ) {
+            			Comment comment = (Comment)iter.next();
+            			if (studentIds.contains(comment.getStudentId())) {
+            				comments.add(comment);
+            			}
+            		}
+            	}
+                return comments;
+            }
+        });
     }
 }
