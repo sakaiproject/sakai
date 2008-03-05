@@ -1062,3 +1062,9 @@ from
 -- clean up the temp tables
 drop table PERMISSIONS_TEMP;
 drop table PERMISSIONS_SRC_TEMP;
+
+
+-- Samigo
+-- SAK-10441: Added indexes to imporve Samigo performance
+create index SAM_ASSGRAD_AID_PUBASSEID_T on SAM_ASSESSMENTGRADING_T (AGENTID,PUBLISHEDASSESSMENTID);
+
