@@ -991,3 +991,12 @@ update SAKAI_SITE_TOOL set title = 'Chat Room' where REGISTRATION = 'sakai.chat'
 alter table POLL_POLL add POLL_UUID varchar2(255);
 alter table POLL_OPTION add OPTION_UUID varchar2(255);
 
+-- SAK-13137
+create index MFR_MEMBERSHIP_ITEM_I01_I on MFR_MEMBERSHIP_ITEM_T (t_surrogateKey);
+create index MFR_MEMBERSHIP_ITEM_I02_I on MFR_MEMBERSHIP_ITEM_T (a_surrogateKey);
+
+-- SAK-13138
+create index MFR_MESSAGE_T_IN_REPLY_TO_I on MFR_MESSAGE_T (IN_REPLY_TO);
+create index MFR_MESSAGE_DELETED_I on MFR_MESSAGE_T (DELETED);
+create index MFR_TOPIC_T_UUID_I on MFR_TOPIC_T (UUID);
+create index MFR_UNREAD_STATUS_I2 on MFR_UNREAD_STATUS_T (MESSAGE_C, USER_C, READ_C);
