@@ -1044,8 +1044,11 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			if (!iRequest.endsWith("._count"))
 				log.info("Strange error -- 'Does not have count' for data element " + iRequest);
 			break;
+		case DMErrorCodes.WRITE_ONLY:
+			log.info("This data element " + iRequest + " is write only.");
+			break;
 		default:
-			log.warn("Found an error retrieving value for " + iRequest + " error is " + err);	
+			log.info("Found a data model error retrieving value for " + iRequest + " error is " + err);	
 		}
 		
 		if (defaultValue == null)
