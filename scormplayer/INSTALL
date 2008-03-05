@@ -1,6 +1,9 @@
 INSTALLATION DIRECTIONS
 
-FIRST STEP: Checkout the Foundation 2.5.x branch of Sakai and build it. (You'll need maven 2 installed and configured, and a tomcat dir
+FIRST STEP: Checkout the Foundation 2.5.x branch of Sakai and build it. At UCDavis we've also
+been successfully running it against our local 2.4.x branch, which is fairly close to the
+2.4.x maintenance branch. 
+(You'll need maven 2 installed and configured, and a tomcat dir
 as per the normal Sakai directions for building)
 
 (1) svn co https://source.sakaiproject.org/svn/sakai/branches/sakai_2-5-x/ sakai
@@ -18,9 +21,8 @@ SECOND STEP: Install sakai-wicket
 
 (3) cd sakai-wicket/
 
-(4) Check that your local copy of sakai-wicket/pom.xml has it's sakai.wicket.version set to 1.3.0-rc2. 
-
-	The repository version of sakai-wicket is currently set to 1.3.0, which may cause some problems. 
+(4) It shouldn't be necessary to mess with the wicket version any longer (1.3.0 seems to work
+for us just fine)
 
 (5) mvn clean install sakai:deploy
 
@@ -31,39 +33,27 @@ THIRD STEP: Install the scorm component (api, impl, and tool) -- you may already
 
 (2) Modify the pom.xml at the base directory (e.g. sakai/pom.xml) to include a module "scorm"
 
+(2.b) [optional] You may also modify the components.xml as per the in-line comments to use
+		 the StandaloneResourceService in place of the SakaiResourceService -- doing
+		 this will mean that the resources get unpacked and stored in a directory
+		 called 'contentPackages' wherever you run startup.sh (by default) for the
+		 tomcat instance (or under logs, depending on your tomcat config). This
+		 will improve the performance of the player slightly, and leads to a 
+		 less tightly integrated deployment with Sakai. Of course, since the 
+		 other services (notably LearningManagementSystem) depend on Sakai, this 
+	         is mostly an academic distinction for the moment. It's important to note
+		 that this deployment will be incompatible with the default deployment -- 
+		 each time you change you will no longer be able to access resources stored
+		 in the other method. Also, if you do use StandaloneResourceService you
+		 will want to think about whether that data will stick around when/if you
+		 rebuild Sakai and/or redeploy Tomcat. 
+
 (3) cd scorm/
 
 (4) mvn clean install sakai:deploy
 
 
-
-OPTIONAL FOURTH STEP: Activate 'Content Hosting Handler Resolver' (If you want to use the chh build as opposed to unzipping content packages)
-
-Note!!!! This is currently broken functionality (1/15/2008) -- and may no longer be necessary. 
-
-It's important that you enable the Content Hosting Handler resolver in order to be able to correctly make use of the Scorm Player.
-
-To do this, 
-
-(1) Add the following properties to your sakai.properties (in your tomcat/sakai directory):
-
-	content.useCHH=true
-
-(2) Go to content/content-impl/pack/src/webapp/WEB-INF/components.xml and remove the comments from the 
-    contentHostingHandlerResolver property in the bean org.sakaiproject.content.api.ContentHostingService:
-
-	<!--
-	<property name="contentHostingHandlerResolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
-	-->
-	^^ Remove both sets of comment tags (<!-- and -->)	
-
-
-(3) Rebuild content.
-	(a) cd content/
-	(b) mvn clean install sakai:deploy
-
-
-FOURTH (OR FIFTH) STEP: Start up tomcat.
+FOURTH STEP: Start up tomcat.
 
 
 

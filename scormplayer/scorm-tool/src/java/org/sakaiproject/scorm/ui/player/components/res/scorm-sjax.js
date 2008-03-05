@@ -95,9 +95,38 @@ ScormSjax.sjaxCall = function sjaxCall(prefix, arg1, arg2, successHandler, failu
 	    	var node = root.childNodes[i];				
 
 			if (node.tagName == "component") {
-				Wicket.Log.info("Sjax: Process component");
-				var call = new Wicket.Ajax.Call();
-				call.processComponent(steps, node);
+				// get the component id
+				var compId = node.getAttribute("id");
+				
+				Wicket.Log.info("Sjax: Process component " + compId);
+				
+				var text="";
+	
+				// get the new component body
+				if (node.hasChildNodes()) {
+					text = node.firstChild.nodeValue;
+				}
+	
+				// if the text was escaped, unascape it
+				// (escaping is done when the component body contains a CDATA section)
+				var encoding = node.getAttribute("encoding");
+				if (encoding != null && encoding!="") {
+					text = Wicket.decode(encoding, text);
+				}
+				
+				// get existing component
+				var element = Wicket.$(compId);
+	
+				if (element == null || typeof(element) == "undefined") {			
+					Wicket.Log.error("Component with id [["+compId+"]] a was not found while trying to perform markup update. Make sure you called component.setOutputMarkupId(true) on the component whose markup you are trying to update.");
+				} else {
+					Wicket.Log.info("Sjax: Replace " + text);
+					// replace the component
+					Wicket.replaceOuterHtml(element, text);
+				}
+				//var call = new Wicket.Ajax.Call();
+				//call.processComponent(steps, node);
+	        	//ScormSjax.processComponent(steps, node);
 	        } else if (node.tagName == "evaluate") {
 		    	var text = node.firstChild.nodeValue;
 		    
@@ -113,7 +142,7 @@ ScormSjax.sjaxCall = function sjaxCall(prefix, arg1, arg2, successHandler, failu
 			    
 			    	resultValue = scormresult[1];
 			    	
-			    	Wicket.Log.info("Sjax: result = " + resultValue);
+			    	Wicket.Log.info("Sjax: " + prefix + "('" + arg1 + "', '" + arg2 + "') results in '" + resultValue + "'");
 			    	
 			    } else {
 			    	

@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.player.components;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.Component;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -46,6 +48,8 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 
 	private static final long serialVersionUID = 1L;
 
+	private static Log log = LogFactory.getLog(SjaxContainer.class);
+	
 	private static final ResourceReference SJAX = new JavascriptResourceReference(SjaxContainer.class, "res/scorm-sjax.js");
 	
 	@SpringBean
@@ -86,15 +90,17 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 				
 				ScoBean scoBean = applicationService().produceScoBean("undefined", getSessionBean());
 				
+				String result = super.callMethod(scoBean, target, args);
+				
+				synchronizerPanel.synchronizeState(sessionBean, target);
+				
 				ActivityTree tree = synchronizerPanel.getTree();
-				if (tree != null && !tree.isEmpty()) {
+				if (tree != null && !tree.isEmpty()) {				
 					tree.selectNode();
 					tree.updateTree(target);
 				}
 				
-				synchronizerPanel.synchronizeState(sessionBean, target);
-				
-				return super.callMethod(scoBean, target, args);
+				return result;
 			}
 		};
 
@@ -176,6 +182,27 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 		
 		public ScormSjaxCall(String event, int numArgs) {
 			super(event, numArgs);
+		}
+		
+		protected String callMethod(ScoBean scoBean, AjaxRequestTarget target, Object... args) {
+			String result = super.callMethod(scoBean, target, args);
+			if (log.isDebugEnabled()) {
+				String methodName = getEvent();
+				StringBuilder argDisplay = new StringBuilder();
+				for (int i=0;i<args.length;i++) {
+					argDisplay.append("'").append(args[i]).append("'");
+					if (i+1 < args.length)
+						argDisplay.append(", ");
+				}
+				String display = new StringBuilder().append(methodName)
+					.append("(")
+					.append(argDisplay).append(")").append(" returns ")
+					.append("'").append(result).append("'").toString();
+				
+				log.debug(display);
+			}
+			
+			return result;
 		}
 		
 		protected void onEvent(final AjaxRequestTarget target) {
