@@ -2,11 +2,11 @@
   <name>sakai-scorm-pack</name>
   <comment>This project packs the components used by the Sakai Scorm Tool</comment>
   <projects>
-    <project>sakai-scorm-model-impl</project>
+    <project>sakai-scorm-client-impl</project>
     <project>sakai-scorm-content-impl</project>
+    <project>sakai-scorm-model-impl</project>
     <project>sakai-scorm-service-impl</project>
     <project>sakai-scorm-adl-impl</project>
-    <project>sakai-scorm-client-impl</project>
   </projects>
   <buildSpec>
     <buildCommand>

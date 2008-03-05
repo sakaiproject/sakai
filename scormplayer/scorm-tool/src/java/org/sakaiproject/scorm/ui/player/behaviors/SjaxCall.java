@@ -205,22 +205,11 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 			
 			String resultValue = callMethod(scoBean, target, args);
 			
-			StringBuffer resultBuffer = new StringBuffer();
-			/*resultBuffer.append("api_result[").append(callNumber).append("] = ");
-			resultBuffer.append("'").append(resultValue).append("'");
-			resultBuffer.append(";");
-			
-			if (log.isDebugEnabled())
-				log.debug("Result is " + resultBuffer.toString());
-			*/
-			
-			resultBuffer.append("scormresult=").append(resultValue);
-			
-			
-			target.appendJavascript(resultBuffer.toString());
-			
-			//target.appendJavascript(resultBuffer.toString());
-			
+			String result = new StringBuffer().append("scormresult=")
+				.append(resultValue).append(";").toString();
+
+			target.appendJavascript(result);
+
 		} catch (Exception e) {
 			log.error("Caught a fatal exception during scorm api communication", e);
 		}

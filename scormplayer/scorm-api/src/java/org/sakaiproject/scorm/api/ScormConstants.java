@@ -45,6 +45,7 @@ public interface ScormConstants {
 	public static final int VALIDATION_NOTVALIDPROFILE = 6;
 	public static final int VALIDATION_MISSINGREQUIREDFILES = 7;
 	public static final int VALIDATION_CONVERTFAILED = -1;
+	public static final int VALIDATION_WRONGMIMETYPE = 8;
 	
 	
 }

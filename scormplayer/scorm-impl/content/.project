@@ -2,8 +2,8 @@
   <name>sakai-scorm-content-impl</name>
   <comment>This project creates the content implementation used by the Sakai Scorm Tool</comment>
   <projects>
-    <project>sakai-scorm-adl-impl</project>
     <project>sakai-scorm-api</project>
+    <project>sakai-scorm-adl-impl</project>
   </projects>
   <buildSpec>
     <buildCommand>

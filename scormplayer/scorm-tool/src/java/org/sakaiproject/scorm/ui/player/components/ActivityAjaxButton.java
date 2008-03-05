@@ -132,6 +132,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 		if (form.getLaunchPanel() != null) {		
 			form.getLaunchPanel().synchronizeState(sessionBean, target);
 			form.getLaunchPanel().getTree().selectNode(); 
+			form.getLaunchPanel().getTree().updateTree(target);
 		}
 	}
 

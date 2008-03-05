@@ -11,14 +11,14 @@
 		<form wicket:id="removeForm">
 		
 			<div class="alertMessage">
-				<wicket:message key="verify.remove">Are you sure?</wicket:message>
+				<span wicket:id="alert"></span>
 			</div>
 			<div style="display:block;clear:both" ></div>
 		
 			<table class="listHier" wicket:id="removeTable"/>
 		
 			<p class ="act">
-				<input type="submit" class="active" wicket:message="value:page.submit" accesskey="s" />
+				<input type="submit" wicket:id="submit" class="active" wicket:message="value:page.submit" accesskey="s" />
 				<input type="submit" wicket:id="cancel" wicket:message="value:page.cancel" accesskey="x" />
 			</p>
 		</form>

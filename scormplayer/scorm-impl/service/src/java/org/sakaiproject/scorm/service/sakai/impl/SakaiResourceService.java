@@ -4,6 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -18,7 +21,14 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.scorm.exceptions.InvalidArchiveException;
+import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
 import org.sakaiproject.scorm.model.api.Archive;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.service.impl.AbstractResourceService;
@@ -35,10 +45,39 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	protected abstract ContentHostingService contentService();
 	protected abstract ServerConfigurationService configurationService();
 	protected abstract ToolManager toolManager();
+
 	
-	public String convertArchive(String resourceId) {
-		String archiveId = stripSuffix(super.convertArchive(resourceId)) + "/";
-		return archiveId;
+	public String convertArchive(String resourceId, String title) throws InvalidArchiveException {
+		String uuid = super.convertArchive(resourceId, title);
+		
+		int packageCount = countExistingContentPackages(title);
+		
+		if (packageCount > 1) 
+			title = new StringBuilder(title).append(" (").append(packageCount).append(")").toString();
+			
+			
+		ContentCollectionEdit collection = null;
+		try {
+			collection = contentService().editCollection(getContentPackageDirectoryPath(uuid));
+		
+			collection.setHidden();
+			
+			ResourcePropertiesEdit props = collection.getPropertiesEdit();
+			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, title);
+			
+			contentService().commitCollection(collection);
+		} catch (Exception e) {
+			log.warn("Unable to rename the root collection for " + uuid + " to " + title);
+		
+			try {
+				if (collection != null)
+					contentService().cancelCollection(collection);
+			} catch (Exception ex) {
+				log.warn("Failed to cancel collection edit for " + uuid);
+			}
+		} 
+		
+		return uuid;
 	}
 	
 	public Archive getArchive(String resourceId) {
@@ -93,13 +132,25 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		return megaBytes;
 	}
 		
-	public List<ContentPackageResource> getResources(String archiveResourceId) {
-		return getContentResourcesRecursive(archiveResourceId, "");
+	public String getResourcePath(String resourceId, String launchLine) {
+		StringBuilder pathBuilder = new StringBuilder();
+		
+		if (launchLine.startsWith("/"))
+			launchLine = launchLine.substring(1);
+		
+		pathBuilder.append(getContentPackageDirectoryPath(resourceId));
+		pathBuilder.append(launchLine);
+		
+		return pathBuilder.toString().replace(" ", "%20");
+	}
+	
+	public List<ContentPackageResource> getResources(String uuid) {
+		String contentPackageDirectoryId = getContentPackageDirectoryPath(uuid);
+		return getContentResourcesRecursive(contentPackageDirectoryId, uuid, "");
 	}
 		
 	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden) {
-		String siteId = toolManager().getCurrentPlacement().getContext();
-		String collectionId = contentService().getSiteCollection(siteId);
+		String collectionId = getRootDirectoryPath();
 		
 		String fileName = new String(name);
 		int extIndex = fileName.lastIndexOf('.');
@@ -133,43 +184,118 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	}
 	
 	public List<Archive> getUnvalidatedArchives() {
-		String siteId = toolManager().getCurrentPlacement().getContext();
-		String siteCollectionId = contentService().getSiteCollection(siteId);
+		String siteCollectionId = getRootDirectoryPath();
 		
 		return findUnvalidatedArchives(siteCollectionId);
 	}
 	
-	public void removeArchive(String resourceId) {		
-
+	
+	
+	public void removeResources(String uuid) throws ResourceNotDeletedException {		
+		String contentPackageDirectoryId = "";
 		try {
-			if (resourceId.endsWith("/"))
-				resourceId = resourceId.substring(0, resourceId.length());
+			contentPackageDirectoryId = getContentPackageDirectoryPath(uuid);
+			removeResourcesRecursive(contentPackageDirectoryId);
 			
-			ContentResourceEdit edit = contentService().editResource(resourceId);
+			if (log.isDebugEnabled())
+				log.debug("Removing collection " + contentPackageDirectoryId);
 			
-			contentService().removeResource(edit);
-
+			contentService().removeCollection(contentPackageDirectoryId);
+		} catch (IdUnusedException iuue) {
+			// I think this could be a bug with the BaseContentService
+			// possibly related to caching... 
+			// Trap this. We can keep going; this isn't really a case that we want to give up on the whole operation
+			log.warn("An underlying collection or resource was not properly removed, causing this collection remove to fail: " + contentPackageDirectoryId, iuue);
 		} catch (Exception e) {
-			log.error("Unable to remove archive: " + resourceId, e);
+			log.error("Unable to remove archive: " + contentPackageDirectoryId, e);
+			throw new ResourceNotDeletedException(e.getMessage());
+		}
+	}
+	
+	protected String getRootDirectoryPath() {
+		String siteId = toolManager().getCurrentPlacement().getContext();
+		String collectionId = contentService().getSiteCollection(siteId);
+		
+		return collectionId;
+	}
+	
+	protected String getContentPackageDirectoryPath(String uuid) {
+		return new StringBuilder(getRootDirectoryPath()).append(uuid).append("/").toString();
+	}
+	
+	private void removeResourcesRecursive(String collectionId) 
+		throws IdUnusedException, InUseException, PermissionException, 
+			ServerOverloadException, TypeException {
+		
+		ContentCollection collection = contentService().getCollection(collectionId);
+		
+		List<ContentEntity> members = collection.getMemberResources();
+		
+		for (ContentEntity member : members) {
+			if (member.isResource() && member instanceof ContentResource) {
+				if (log.isDebugEnabled())
+					log.debug("Removing resource " + member.getId());
+				try {
+					contentService().removeResource(member.getId());
+				} catch (IdUnusedException iuue) {
+					// I think this could be a bug with the BaseContentService
+					// possibly related to caching... 
+					// Trap this. We can keep going; this isn't really a case that we want to give up on the whole operation
+					log.warn("Could not find this resource to remove: " + member.getId());
+				}
+			} else if (member.isCollection() && member instanceof ContentCollection)
+				removeResourcesRecursive(member.getId());
 		}
 		
+		if (log.isDebugEnabled())
+			log.debug("Removing collection " + collectionId);
+		
+		try {
+			contentService().removeCollection(collectionId);
+		} catch (IdUnusedException iuue) {
+			// I think this could be a bug with the BaseContentService
+			// possibly related to caching... 
+			// Trap this. We can keep going; this isn't really a case that we want to give up on the whole operation
+			log.warn("Could not find this collection to remove: " + collectionId);
+		}
 	}
 	
 	
-	protected List<ContentPackageResource> getContentResourcesRecursive(String collectionId, String path) {
+	protected List<ContentPackageResource> getContentResourcesRecursive(String collectionId, String uuid, String path) {
 		List<ContentPackageResource> resources = new LinkedList<ContentPackageResource>();
 		try {
 			ContentCollection collection = contentService().getCollection(collectionId);
 			List<ContentEntity> members = collection.getMemberResources();
 						
 			for (ContentEntity member : members) {
-				String resourcePath = member.getId();
-				resourcePath = resourcePath.replace(" ", "%20");
+				//String resourcePath = member.getId();
+				//resourcePath = resourcePath.replace(" ", "%20");
+				
+				String id = member.getId();
+				
+				String[] tokens = id.split("/");
+				
+				String filename = tokens[tokens.length - 1];
+				
+				StringBuilder launchLineBuilder = new StringBuilder(path);
+				
+				if (path.equals(""))
+					launchLineBuilder.append(filename);
+				else if (!path.endsWith("/"))
+					launchLineBuilder.append("/").append(filename);
+				else
+					launchLineBuilder.append(filename);
+				
+				if (member.isCollection())
+					launchLineBuilder.append("/");
+				
+				String launchline = launchLineBuilder.toString();
+				String resourcePath = getResourcePath(uuid, launchline);
 				
 				if (member.isResource() && member instanceof ContentResource) 
 					resources.add(new ContentPackageSakaiResource(resourcePath, (ContentResource)member));
 				else if (member.isCollection() && member instanceof ContentCollection)
-					resources.addAll(getContentResourcesRecursive(member.getId(), ""));
+					resources.addAll(getContentResourcesRecursive(member.getId(), uuid, launchline));
 			}
 		
 		} catch (Exception e) {
@@ -178,17 +304,27 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		
 		return resources;
 	}
+
 		
-	protected String newFolder(String parentPath, ZipEntry entry) {
-		String collectionId = new StringBuilder(parentPath).append("/").append(entry.getName()).toString();
+	protected String newFolder(String uuid, ZipEntry entry) {
+		String entryName = entry.getName();
 		
 		ContentCollectionEdit collection = null;
+		
+		String collectionId = getResourcePath(uuid, entryName);
+		
+		if (log.isDebugEnabled())
+			log.debug("Adding a folder with collection id: " + collectionId);
 		
 		try {
 			collection = contentService().addCollection(collectionId);
 			
+			String displayName = getDisplayName(entryName);
+
+			collection.setHidden();
+			
 			ResourcePropertiesEdit props = collection.getPropertiesEdit();
-			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, getDisplayName(entry.getName()));
+			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
 			
 			contentService().commitCollection(collection);
 		} catch (IdUsedException e) {
@@ -205,8 +341,10 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		return collectionId;
 	}
 	
-	protected String newItem(String parentPath, ZipInputStream zipStream, ZipEntry entry) {
-		String resourceId = new StringBuilder(parentPath).append("/").append(entry.getName()).toString();
+	protected String newItem(String uuid, ZipInputStream zipStream, ZipEntry entry) {
+		String entryName = entry.getName();
+		
+		String resourceId = getResourcePath(uuid, entryName);
 
 		ContentResourceEdit resource = null;
 		
@@ -226,6 +364,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			
 			resource.setContent(outStream.toByteArray());
 			resource.setContentType(getMimeType(entry.getName()));
+			resource.setHidden();
 						
 			ResourcePropertiesEdit props = resource.getPropertiesEdit();
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, getDisplayName(entry.getName()));
@@ -243,6 +382,42 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		
 		return resourceId;
 	}
+	
+	private int countExistingContentPackages(String title) {
+		int count = 1;
+		
+		String rootCollectionId = getRootDirectoryPath();
+		
+		try {
+			ContentCollection collection = contentService().getCollection(rootCollectionId);
+		
+			List<ContentEntity> members = collection.getMemberResources();
+			
+			for (ContentEntity entity : members) {
+				
+				if (entity.isCollection()) {
+					ResourceProperties props = entity.getProperties();
+				
+					String name = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				
+					if (name != null) {
+						Pattern p = Pattern.compile(title + "\\s*\\(?\\d*\\)?");
+						Matcher m = p.matcher(name);
+						if (m.matches())
+							count++;
+					}
+				}
+			}
+			
+		
+		} catch (Exception e) {
+			log.warn("Unable to find existing content packages with title " + title);
+		}
+
+		
+		return count;
+	}
+	
 	
 	private String getDisplayName(String name) {
 		String[] parts = name.split("/");
@@ -263,7 +438,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			for (ContentEntity member : members) {
 				if (member.isResource()) {
 					String mimeType = ((ContentResource)member).getContentType();
-					if (mimeType != null && mimeType.equals("application/zip")) {
+					if (isValidArchive(mimeType)) {
 						ResourceProperties props = member.getProperties();
 						String title = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 						

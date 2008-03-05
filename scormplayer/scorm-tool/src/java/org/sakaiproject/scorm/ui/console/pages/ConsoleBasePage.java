@@ -42,7 +42,7 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	private static ResourceReference CONSOLE_CSS = new CompressedResourceReference(ConsoleBasePage.class, "res/scorm_console.css");
 	
 	// The feedback panel component displays dynamic messages to the user
-	private FeedbackPanel feedback;
+	protected FeedbackPanel feedback;
 	private BreadcrumbPanel breadcrumbs;
 	
 	public ConsoleBasePage() {

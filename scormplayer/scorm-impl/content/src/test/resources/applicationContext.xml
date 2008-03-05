@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- setup wicket application -->
+	<bean id="toolWicketApplication" class="org.sakaiproject.scorm.ui.player.ScormTool">
+		<property name="resourceService"><ref bean="org.sakaiproject.scorm.service.api.ScormResourceService"/></property>
+	</bean>
+
+    <!--bean id="scormAccessProvider" class="org.sakaiproject.scorm.ui.ScormAccessProvider"
+    	init-method="init"
+    	singleton="true">
+    	<property name="webApplication"><ref bean="scormAccessProviderApplication"/></property>
+    	<property name="providerManager"><ref bean="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager"/></property>
+    </bean-->
+    
+    <bean id="scormAccessProviderApplication" class="org.sakaiproject.scorm.ui.ScormAccessProviderApplication">
+    	<property name="providerManager"><ref bean="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager"/></property>
+    </bean>
+    
+    
+</beans>

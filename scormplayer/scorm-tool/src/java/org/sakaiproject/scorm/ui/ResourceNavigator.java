@@ -57,6 +57,7 @@ public abstract class ResourceNavigator implements INavigable, Serializable {
 		
 		String url = getUrl(sessionBean);
 		
+		
 		// Don't bother to display anything if a null url is returned. 
 		if (null == url)
 			return;
@@ -100,14 +101,16 @@ public abstract class ResourceNavigator implements INavigable, Serializable {
 		if (resourceId.startsWith("/"))
 			resourceId = resourceId.substring(1);
 		
-		StringBuilder nameBuilder = new StringBuilder(resourceId);
+		/*StringBuilder nameBuilder = new StringBuilder(resourceId);
 		
 		if (!resourceId.endsWith("/") && !launchLine.startsWith("/")) 
 			nameBuilder.append("/");
 		
 		nameBuilder.append(launchLine);
 		
-		String resourceName = nameBuilder.toString();
+		String resourceName = nameBuilder.toString();*/
+		
+		String resourceName = resourceService().getResourcePath(resourceId, launchLine);
 	
 		
 		
