@@ -180,6 +180,8 @@ public class ActivityTree extends LinkTree {
 				target.addComponent((Component)synchronizer);
 			wasEmpty = true;
 		}
+		
+		this.updateTree(target);
 	}
 
 	@Override

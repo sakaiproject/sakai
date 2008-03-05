@@ -4,8 +4,8 @@
   <projects>
     <project>sakai-scorm-api</project>
     <project>sakai-scorm-model-impl</project>
-    <project>sakai-scorm-content-impl</project>
     <project>sakai-scorm-adl-impl</project>
+    <project>sakai-scorm-content-impl</project>
   </projects>
   <buildSpec>
     <buildCommand>

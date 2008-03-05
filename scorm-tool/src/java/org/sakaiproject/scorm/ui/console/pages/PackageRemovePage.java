@@ -23,14 +23,21 @@ package org.sakaiproject.scorm.ui.console.pages;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.wicket.markup.html.form.CancelButton;
@@ -39,10 +46,15 @@ public class PackageRemovePage extends ConsoleBasePage {
 	
 	private static final long serialVersionUID = 1L;
 	
+	private static Log log = LogFactory.getLog(PackageRemovePage.class);
+	
 	@SpringBean
 	ScormContentService contentService;
 
-	public PackageRemovePage(PageParameters params) {
+	private Label alertLabel;
+	private Button submitButton;
+	
+	public PackageRemovePage(final PageParameters params) {
 		String title = params.getString("title");
 		final long contentPackageId = params.getLong("contentPackageId");
 		
@@ -64,13 +76,21 @@ public class PackageRemovePage extends ConsoleBasePage {
 			
 			@Override
 			protected void onSubmit() {
-				contentService.removeContentPackage(contentPackageId);
-				setResponsePage(PackageListPage.class);
+				try {
+					contentService.removeContentPackage(contentPackageId);
+					setResponsePage(PackageListPage.class);
+				} catch (ResourceNotDeletedException rnde) {
+					log.warn("Failed to delete all underlying resources ", rnde);
+					alertLabel.setModel(new ResourceModel("exception.remove"));
+					submitButton.setVisible(false);
+					setResponsePage(PackageRemovePage.class, params);
+				}
 			}
 			
 		};
-		
+		removeForm.add(alertLabel = new Label("alert", new ResourceModel("verify.remove")));
 		removeForm.add(removeTable);
+		removeForm.add(submitButton = new Button("submit"));
 		removeForm.add(new CancelButton("cancel", PackageListPage.class));
 		
 		add(removeForm);

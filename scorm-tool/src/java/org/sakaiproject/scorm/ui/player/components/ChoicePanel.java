@@ -31,12 +31,12 @@ public class ChoicePanel extends Panel {
 	
 	private void addChoice(String requestId, int request, long id, String resourceId) {
 		final PageParameters params = new PageParameters();
-		params.add("id", "" + id);
+		params.add("contentPackageId", "" + id);
 		params.add("resourceId", resourceId);
 		params.add("navRequest", "" + request);
 		
 		add(new BookmarkablePageLink(requestId, PlayerPage.class, params));
 	}
-		
+	
 	
 }

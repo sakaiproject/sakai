@@ -193,7 +193,6 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 		
 		for (ContentPackageResource cpResource : resources) {
 			String resourceName = cpResource.getPath();
-
 			
 			if (getApplication().getSharedResources().get(resourceName) == null) {
 				

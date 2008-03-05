@@ -1,6 +1,7 @@
 package org.sakaiproject.scorm.service.impl;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -8,6 +9,7 @@ import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.scorm.exceptions.InvalidArchiveException;
 import org.sakaiproject.scorm.model.api.Archive;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 
@@ -16,9 +18,20 @@ public abstract class AbstractResourceService implements ScormResourceService {
 	private static Log log = LogFactory.getLog(AbstractResourceService.class);
 	
 	
-	public String convertArchive(String resourceId) {
-		unpack(resourceId);
-		return resourceId;
+	public String convertArchive(String resourceId, String title) throws InvalidArchiveException {
+		return unpack(resourceId);
+	}
+	
+	public String getResourcePath(String resourceId, String launchLine) {
+		StringBuilder pathBuilder = new StringBuilder();
+		
+		if (launchLine.startsWith("/"))
+			launchLine = launchLine.substring(1);
+		
+		pathBuilder.append(getContentPackageDirectoryPath(resourceId));
+		pathBuilder.append(launchLine);
+		
+		return pathBuilder.toString().replace(" ", "%20");
 	}
 	
 	protected String getMimeType(String name) {
@@ -32,9 +45,20 @@ public abstract class AbstractResourceService implements ScormResourceService {
 		return mimeType;
 	}
 	
-	protected abstract String newFolder(String parentPath, ZipEntry entry);
+	protected boolean isValidArchive(String mimeType) {
+		
+		return (mimeType != null && (mimeType.equals("application/zip")
+				|| mimeType.equals("application/x-download")));
+
+	}
 	
-	protected abstract String newItem(String parentPath, ZipInputStream zipStream, ZipEntry entry);
+	protected abstract String newFolder(String uuid, ZipEntry entry);
+	
+	protected abstract String newItem(String uuid, ZipInputStream zipStream, ZipEntry entry);
+	
+	protected abstract String getRootDirectoryPath();
+	
+	protected abstract String getContentPackageDirectoryPath(String uuid);
 	
 	protected String stripSuffix(String name) {
 		int indexOf = name.lastIndexOf('.');
@@ -45,14 +69,22 @@ public abstract class AbstractResourceService implements ScormResourceService {
 		return name.substring(0, indexOf);
 	}
 	
-	protected void unpack(String resourceId) {
+	protected String unpack(String resourceId) throws InvalidArchiveException {
 		Archive archive = getArchive(resourceId);
-		String archivePath = stripSuffix(archive.getPath());
+
+		String uuid = UUID.randomUUID().toString();
 		
-		if (archive.getMimeType().equals("application/zip")) {
-			unzip(archivePath, new ZipInputStream(getArchiveStream(resourceId)));	
-		}
+		if (!isValidArchive(archive.getMimeType()))
+			log.warn("Invalid mime type = " + archive.getMimeType());
+		
+		if (true)		
+			unzip(uuid, new ZipInputStream(getArchiveStream(resourceId)));	 
+		else 
+			throw new InvalidArchiveException(archive.getMimeType());
+		
+		return uuid;
 	}
+
 	
 	protected void unpackEntry(String parentPath, ZipInputStream stream, ZipEntry entry) {	
 		if (entry.isDirectory())

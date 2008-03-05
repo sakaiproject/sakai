@@ -39,7 +39,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 		private static final long serialVersionUID = 1L;
 		
 		private FileUploadField fileUploadField;
-		private boolean fileHidden = false;
+		private boolean fileHidden = true;
 		private boolean fileValidated = false;
 		
 		public FileUploadForm(String id) {
@@ -55,7 +55,6 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 			
 			add(fileUploadField = new FileUploadField("fileInput"));
 			add(new CheckBox("fileValidated"));
-			add(new CheckBox("fileHidden"));
 			
 			add(new CancelButton("cancel", PackageListPage.class));
 		}

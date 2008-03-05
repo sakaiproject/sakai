@@ -84,7 +84,7 @@ ScormSjax.sjaxCall = function sjaxCall(prefix, arg1, arg2, successHandler, failu
 		   	return;
 		}
 			
-		Wicket.Log.info("SCORM: root element " + root);
+		//Wicket.Log.info("SCORM: root element " + root);
 			
 		// Initialize the array for steps (closures that execute each action)
 		var steps = new Array();
@@ -95,6 +95,7 @@ ScormSjax.sjaxCall = function sjaxCall(prefix, arg1, arg2, successHandler, failu
 	    	var node = root.childNodes[i];				
 
 			if (node.tagName == "component") {
+				Wicket.Log.info("Sjax: Process component");
 				var call = new Wicket.Ajax.Call();
 				call.processComponent(steps, node);
 	        } else if (node.tagName == "evaluate") {
@@ -106,19 +107,24 @@ ScormSjax.sjaxCall = function sjaxCall(prefix, arg1, arg2, successHandler, failu
 			        text = Wicket.decode(encoding, text);
 			    }
 			    
-			    var scormresult = text.match(new RegExp("^scormresult=([a-z|A-Z|0-9_]*)$"));
+			    var scormresult = text.match(new RegExp("^scormresult=(.*);$"));
 			    
 			    if (scormresult != null) {
 			    
 			    	resultValue = scormresult[1];
-			    
+			    	
+			    	Wicket.Log.info("Sjax: result = " + resultValue);
+			    	
 			    } else {
+			    	
 				    // test if the javascript is in form of identifier|code
 				    // if it is, we allow for letting the javascript decide when the rest of processing will continue 
 				    // by invoking identifier();
 				    var res = text.match(new RegExp("^([a-z|A-Z_][a-z|A-Z|0-9_]*)\\|((.|\\n)*)$"));
 				    		     
 				    if (res != null) {
+		
+						Wicket.Log.info("Sjax javascript " + res);
 		
 				    	text = "var f = function(" + res[1] + ") {" + res[2] +"};";
 				    			    	

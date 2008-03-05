@@ -42,10 +42,10 @@ public class ContentPackageFile extends ContentPackageResource {
 		return inputStream;
 	}
 
-	public String getPath() {
+	/*public String getPath() {
 		String fullPath = new StringBuilder("/").append(archiveResourceId).append(super.getPath()).toString();
 		return fullPath.replace(" ", "%20");
-	}
+	}*/
 
 	@Override
 	public String getMimeType() {

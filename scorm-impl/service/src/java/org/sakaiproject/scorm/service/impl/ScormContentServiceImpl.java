@@ -42,6 +42,8 @@ import org.sakaiproject.scorm.dao.LearnerDao;
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
 import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
+import org.sakaiproject.scorm.exceptions.InvalidArchiveException;
+import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
@@ -139,13 +141,14 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	}
 	
 	
-	public void removeContentPackage(long contentPackageId) {
+	public void removeContentPackage(long contentPackageId) throws ResourceNotDeletedException {
 
 		ContentPackage contentPackage = contentPackageDao().load(contentPackageId);
 		
-		resourceService().removeArchive(contentPackage.getResourceId());
-				
 		contentPackageDao().remove(contentPackage);
+		
+		resourceService().removeResources(contentPackage.getResourceId());
+		
 	}
 	
 	public void updateContentPackage(ContentPackage contentPackage) {
@@ -200,12 +203,14 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		
 		try {
 			convertToContentPackage(resourceId, validator, validatorOutcome);
+		} catch (InvalidArchiveException iae) {
+			return VALIDATION_WRONGMIMETYPE;
 		} catch (Exception e) {
 			log.error("Failed to convert content package for resourceId: " + resourceId, e);
 			return VALIDATION_CONVERTFAILED;
 		}
 			
-		return result;	
+		return result;
 	}
 	
 	public IValidator validate(File contentPackage, boolean iManifestOnly, boolean iValidateToSchema) {
@@ -230,14 +235,22 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	private void convertToContentPackage(String resourceId, IValidator validator, IValidatorOutcome outcome) throws Exception {
 
 		ContentPackageManifest manifest = createManifest(outcome.getDocument(), validator);
-		String archiveId = resourceService().convertArchive(resourceId);
-	
-	    // Grab some important info about the site and user
+		
+		// Grab some important info about the site and user
 	    String context = lms().currentContext();
 	    String learnerId = lms().currentLearnerId();
 	    Date now = new Date();
-	        
-	    String title = getContentPackageTitle(outcome.getDocument());
+		
+		String title = getContentPackageTitle(outcome.getDocument());
+		
+		int packageCount = contentPackageDao().countContentPackages(context, title);
+		
+		if (packageCount > 1) {
+			title = new StringBuilder(title).append(" (").append(packageCount).append(")").toString();
+		}
+		
+		String archiveId = resourceService().convertArchive(resourceId, title);
+	
 	    
 	    Serializable manifestId = contentPackageManifestDao().save(manifest);
 	    

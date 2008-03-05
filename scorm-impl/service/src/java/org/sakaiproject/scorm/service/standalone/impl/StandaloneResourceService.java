@@ -35,12 +35,12 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
 import org.sakaiproject.scorm.model.api.Archive;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.service.impl.AbstractResourceService;
 
-public abstract class StandaloneResourceService extends AbstractResourceService {
+public class StandaloneResourceService extends AbstractResourceService {
 
 	private final String storagePath = "contentPackages";
 	
@@ -112,6 +112,24 @@ public abstract class StandaloneResourceService extends AbstractResourceService 
 	public int getMaximumUploadFileSize() {
 		return 2000;
 	}
+	
+	public String getResourcePath(String resourceId, String launchLine) {
+		/*File contentPackageDirectory = getContentPackageDirectory(resourceId);
+		
+		File resource = new File(contentPackageDirectory, launchLine);
+		
+		String path = resource.getAbsolutePath();
+		
+		return path.replace(" ", "%20");*/
+		
+		String fullPath = new StringBuilder().append(File.separatorChar).append(resourceId)
+			.append(File.separatorChar).append(launchLine).toString();
+		
+		if (log.isDebugEnabled())
+			log.debug("getResourcePath = " + fullPath);
+		
+		return fullPath.replace(" ", "%20");
+	}
 
 	public List<ContentPackageResource> getResources(String archiveResourceId) {
 		File dir = getContentPackageDirectory(archiveResourceId);
@@ -154,17 +172,31 @@ public abstract class StandaloneResourceService extends AbstractResourceService 
 		
 		removeAll(dir);
 	}
+
+	public void removeResources(String collectionId)
+			throws ResourceNotDeletedException {
+		File dir = getContentPackageDirectory(collectionId);
+		
+		removeAll(dir);
+	}
 	
-	
-	protected String newFolder(String parentPath, ZipEntry entry) {
-		File file = new File(parentPath, entry.getName());
+	protected String getContentPackageDirectoryPath(String uuid) {
+		return getContentPackageDirectory(uuid).getAbsolutePath();
+	}
+
+	protected String getRootDirectoryPath() {
+		return getRootDirectory().getAbsolutePath();
+	}
+
+	protected String newFolder(String uuid, ZipEntry entry) {
+		File file = new File(getContentPackageDirectory(uuid), entry.getName());
 		file.mkdir();
 		
 		return file.getAbsolutePath();
 	}
 	
-	protected String newItem(String parentPath, ZipInputStream zipStream, ZipEntry entry) {
-		File file = new File(parentPath, entry.getName());
+	protected String newItem(String uuid, ZipInputStream zipStream, ZipEntry entry) {
+		File file = new File(getContentPackageDirectory(uuid), entry.getName());
 		
 		FileOutputStream fileStream = null;
 		try {
@@ -187,8 +219,14 @@ public abstract class StandaloneResourceService extends AbstractResourceService 
 		return file.getAbsolutePath();
 	}
 	
+	private File getRootDirectory() {
+		File rootDir = new File(storagePath);
+		
+		return rootDir;
+	}
+	
 	private File getContentPackageDirectory(String uuid) {
-		File storageDir = new File(storagePath, uuid);
+		File storageDir = new File(getRootDirectory(), uuid);
 		// Ensure that this directory exists
 		storageDir.mkdirs();
 		
@@ -205,16 +243,24 @@ public abstract class StandaloneResourceService extends AbstractResourceService 
 		File[] filesInDirectory = directory.listFiles();
 		
 		for (File file : filesInDirectory) {
-			String filePath = new StringBuilder(path).append(File.separatorChar)
-				.append(file.getName()).toString();
+			StringBuilder pathBuilder = new StringBuilder(path);
+			if (path.equals("")) 
+				pathBuilder.append(file.getName());
+			else 
+				pathBuilder.append(File.separatorChar).append(file.getName());
+				
+			String filePath = pathBuilder.toString();
 			
 			if (file.isDirectory()) 
 				files.addAll(getContentPackageFilesRecursive(archiveResourceId, file, filePath));
 			else 
-				files.add(new ContentPackageFile(archiveResourceId, filePath, file));
+				files.add(new ContentPackageFile(archiveResourceId, getResourcePath(archiveResourceId, filePath), file));
 		}
 		
 		return files;
 	}
+
+
+	
 		
 }

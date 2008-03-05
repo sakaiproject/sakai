@@ -21,6 +21,8 @@
 package org.sakaiproject.scorm.dao.hibernate;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -28,6 +30,23 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ContentPackageDaoImpl extends HibernateDaoSupport implements ContentPackageDao {
 
+	public int countContentPackages(String context, String name) {
+		int count = 1;
+		
+		List<ContentPackage> contentPackages = find(context);
+
+		for (ContentPackage cp : contentPackages) {
+			
+			Pattern p = Pattern.compile(name + "\\s*\\(?\\d*\\)?");
+			Matcher m = p.matcher(cp.getTitle());
+			if (m.matches())
+				count++;
+			
+		}
+		
+		return count;
+	}
+	
 	public ContentPackage load(long id) {
 		return (ContentPackage)getHibernateTemplate().load(ContentPackage.class, id);
 	}

@@ -20,20 +20,15 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.service.api;
 
-import java.io.File;
 import java.util.List;
 
-import org.adl.validator.IValidator;
-import org.adl.validator.IValidatorOutcome;
-import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.scorm.api.ScormConstants;
+import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.w3c.dom.Document;
 
 public interface ScormContentService extends ScormConstants {
-	
-	//public String addContentPackage(File contentPackage, IValidator validator, IValidatorOutcome outcome) throws Exception;
-	
+
 	public ContentPackage getContentPackage(long contentPackageId);
 	
 	public List<ContentPackage> getContentPackages();
@@ -42,14 +37,10 @@ public interface ScormContentService extends ScormConstants {
 	
 	public String getContentPackageTitle(Document document);
 
-	//public List<ContentResource> getZipArchives();
-	
-	public void removeContentPackage(long contentPackageId);
+	public void removeContentPackage(long contentPackageId) throws ResourceNotDeletedException;
 	
 	public void updateContentPackage(ContentPackage contentPackage);
 	
 	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema);
-	
-	//public IValidator validate(File contentPackage, boolean iManifestOnly, boolean iValidateToSchema);
-	
+
 }

@@ -41,6 +41,8 @@ public class ConfirmPage extends ConsoleBasePage implements ScormConstants {
 		switch (status) {
 		case VALIDATION_SUCCESS:
 			return "validate.success";
+		case VALIDATION_WRONGMIMETYPE:
+			return "validate.wrong.mime.type";
 		case VALIDATION_NOFILE:
 			return "validate.no.file";
 		case VALIDATION_NOMANIFEST:

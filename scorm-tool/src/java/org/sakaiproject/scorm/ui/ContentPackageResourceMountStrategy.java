@@ -101,10 +101,14 @@ public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUr
 		
 		if (resourceName != null && resourceName.trim().length() > 0) {
 			if (!url.endsWith("/"))
-			{
 				url.append("/");
-			}
-			url.append("resourceName").append("/").append(resourceName);
+
+			url.append("resourceName");
+			
+			if (!resourceName.startsWith("/"))
+				url.append("/");
+			
+			url.append(resourceName);
 		}
 		
 		if (log.isDebugEnabled())
