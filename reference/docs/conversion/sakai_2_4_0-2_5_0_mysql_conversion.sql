@@ -20,6 +20,7 @@ create index isearchbuilderitem_sco on searchbuilderitem (itemscope);
 
 
 -- SAK-9808: Implement ability to delete threaded messages within Forums
+-- also released in sakai_2-4-0_2-4-x_mysql_conversion_001.sql  
 alter table MFR_MESSAGE_T add DELETED bit not null default false;
 create index MFR_MESSAGE_DELETED_I on MFR_MESSAGE_T (DELETED);
 
@@ -27,6 +28,7 @@ create index MFR_MESSAGE_DELETED_I on MFR_MESSAGE_T (DELETED);
 alter table CHAT2_CHANNEL modify CONTEXT VARCHAR(99) NOT NULL;
 
 --Chat SAK-10163
+-- also released in sakai_2_4_0-2_4_x_mysql_conversion_003.sql  
 ALTER TABLE CHAT2_CHANNEL ADD COLUMN PLACEMENT_ID varchar(99) NULL;
 ALTER TABLE CHAT2_CHANNEL CHANGE contextDefaultChannel placementDefaultChannel tinyint(1) NULL;
 
@@ -100,6 +102,7 @@ CREATE TABLE GB_PERMISSION_T (
 );
 
 --Gradebook SAK-12429
+-- also released in sakai_2_4_0-2_4_x_mysql_conversion_005.sql  
 CREATE INDEX GB_GRADING_EVENT_T_STU_OBJ_ID ON GB_GRADING_EVENT_T (STUDENT_ID, GRADABLE_OBJECT_ID);
 
 --OSP SAK-10553
@@ -962,6 +965,7 @@ alter table SAKAI_PERSON_T add locked bit(1);
 
 --Chat SAK-10215
 --This only has to be run if you've upgraded from 2.3 and had chat data
+-- also released in sakai_2_4_0-2_4_x_mysql_conversion_004.sql  
 update SAKAI_SITE_TOOL set title = 'Chat Room' where REGISTRATION = 'sakai.chat' and TITLE like 'Chat Room: "%';
 
 
