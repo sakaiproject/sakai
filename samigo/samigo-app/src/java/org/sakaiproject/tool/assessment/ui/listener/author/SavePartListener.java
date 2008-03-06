@@ -91,6 +91,13 @@ public class SavePartListener
     // template selected
     // #1 - read from form editpart.jsp
     String title = (sectionBean.getSectionTitle()).trim();
+    if(title == null || title.equals("")){
+    	String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "empty_part_title_error");
+    	context.addMessage(null, new FacesMessage(err));
+    	sectionBean.setOutcome("editPart");
+        return;
+    }
+    
     String description = sectionBean.getSectionDescription();
     String sectionId = sectionBean.getSectionId();
     AssessmentService assessmentService = new AssessmentService();
