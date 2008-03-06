@@ -28,5 +28,16 @@
 		<property name="calendarService"><ref bean="org.sakaiproject.calendar.api.CalendarService"/></property>
 		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
 	</bean>
+	
+	<bean id="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService"
+		class="org.sakaiproject.calendar.impl.BaseExternalCalendarSubscriptionService"
+		init-method="init" destroy-method="destroy"
+		singleton="true">
+		<property name="calendarService"><ref bean="org.sakaiproject.calendar.api.CalendarService"/></property>
+ 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="calendarImporterService"><ref bean="org.sakaiproject.calendar.api.CalendarImporterService"/></property>
+	</bean>
 
 </beans>

@@ -91,6 +91,7 @@ import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -301,6 +302,15 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
       else
    		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_ICAL + Entity.SEPARATOR + context + Entity.SEPARATOR + id;
 	}
+
+   
+	/**
+	 * @inheritDoc
+	 */
+	public String calendarSubscriptionReference(String context, String id)
+	{
+      return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_SUBSCRIPTION + Entity.SEPARATOR + context + Entity.SEPARATOR + id;
+	}
 	
 	/**
 	 * @inheritDoc
@@ -348,6 +358,24 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				+ calendarId + Entity.SEPARATOR + id;
 
 	} // eventReference
+	
+	/**
+	 * Access the internal reference which can be used to access the subscripted event from within the system.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @param calendarId
+	 *        The calendar id.
+	 * @param id
+	 *        The event id.
+	 * @return The the internal reference which can be used to access the subscripted event from within the system.
+	 */
+	public String eventSubscriptionReference(String context, String calendarId, String id)
+	{
+		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_EVENT_SUBSCRIPTION + Entity.SEPARATOR + context + Entity.SEPARATOR
+				+ calendarId + Entity.SEPARATOR + id;
+
+	} // eventSubscriptionReference
 
 	/**
 	 * Takes several calendar References and merges their events from within a given time range.
@@ -586,6 +614,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		FunctionManager.registerFunction(AUTH_MODIFY_CALENDAR_OWN);
 		FunctionManager.registerFunction(AUTH_MODIFY_CALENDAR_ANY);
 		FunctionManager.registerFunction(AUTH_IMPORT_CALENDAR);
+		FunctionManager.registerFunction(AUTH_SUBSCRIBE_CALENDAR);
 		FunctionManager.registerFunction(AUTH_READ_CALENDAR);
 		FunctionManager.registerFunction(AUTH_ALL_GROUPS_CALENDAR);
 	}
@@ -655,6 +684,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 */
 	public boolean allowGetCalendar(String ref)
 	{
+		if(REF_TYPE_CALENDAR_SUBSCRIPTION.equals(m_entityManager.newReference(ref).getSubType()))
+			return true;
 		return unlockCheck(AUTH_READ_CALENDAR, ref);
 
 	} // allowGetCalendar
@@ -721,6 +752,13 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 */
 	public Calendar getCalendar(String ref) throws IdUnusedException, PermissionException
 	{
+		Reference _ref = m_entityManager.newReference(ref);
+		if(REF_TYPE_CALENDAR_SUBSCRIPTION.equals(_ref.getSubType())) {
+			Calendar c = ExternalCalendarSubscriptionService.getCalendarSubscription(ref);			
+			if (c == null) throw new IdUnusedException(ref);
+			return c;
+		}
+			
 		Calendar c = findCalendar(ref);
 		if (c == null) throw new IdUnusedException(ref);
 
@@ -857,6 +895,19 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		return unlockCheck(AUTH_IMPORT_CALENDAR, ref);
 
 	} // allowImportCalendar
+
+	/**
+	 * check permissions for subscribing external calendars
+	 * 
+	 * @param ref
+	 *        The calendar reference.
+	 * @return true if the user is allowed to subscribe external calendars, false if not.
+	 */
+	public boolean allowSubscribeCalendar(String ref)
+	{
+		return unlockCheck(AUTH_SUBSCRIBE_CALENDAR, ref);
+
+	} // allowSubscribeCalendar
 
 	/**
 	 * check permissions for editCalendar()
@@ -1230,7 +1281,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				subType = parts[2];
 				if (REF_TYPE_CALENDAR.equals(subType) || 
 						 REF_TYPE_CALENDAR_PDF.equals(subType) || 
-						 REF_TYPE_CALENDAR_ICAL.equals(subType))
+						 REF_TYPE_CALENDAR_ICAL.equals(subType) ||
+						 REF_TYPE_CALENDAR_SUBSCRIPTION.equals(subType))
 				{
 					// next is the context id
 					if (parts.length > 3)
@@ -1244,7 +1296,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 						}
 					}
 				}
-				else if (REF_TYPE_EVENT.equals(subType))
+				else if (REF_TYPE_EVENT.equals(subType) || REF_TYPE_EVENT_SUBSCRIPTION.equals(subType))
 				{
 					// next three parts are context, channel (container) and event id
 					if (parts.length > 5)
@@ -1343,7 +1395,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		try
 		{
 			// if this is a calendar
-			if (REF_TYPE_CALENDAR.equals(ref.getSubType()) || REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()))
+			if (REF_TYPE_CALENDAR.equals(ref.getSubType()) || REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()) || REF_TYPE_CALENDAR_SUBSCRIPTION.equals(ref.getSubType()))
 			{
 				Calendar cal = getCalendar(ref.getReference());
 				props = cal.getProperties();
@@ -1353,6 +1405,12 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			else if (REF_TYPE_EVENT.equals(ref.getSubType()))
 			{
 				Calendar cal = getCalendar(calendarReference(ref.getContext(), ref.getContainer()));
+				CalendarEvent event = cal.getEvent(ref.getId());
+				props = event.getProperties();
+			}
+			else if (REF_TYPE_EVENT_SUBSCRIPTION.equals(ref.getSubType()))
+			{
+				Calendar cal = getCalendar(calendarSubscriptionReference(ref.getContext(), ref.getContainer()));
 				CalendarEvent event = cal.getEvent(ref.getId());
 				props = event.getProperties();
 			}
@@ -1391,7 +1449,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		try
 		{
 			// if this is a calendar
-			if (REF_TYPE_CALENDAR.equals(ref.getSubType()) || REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()))
+			if (REF_TYPE_CALENDAR.equals(ref.getSubType()) || REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()) || REF_TYPE_CALENDAR_SUBSCRIPTION.equals(ref.getSubType()))
 			{
 				rv = getCalendar(ref.getReference());
 			}
@@ -1400,6 +1458,11 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			else if (REF_TYPE_EVENT.equals(ref.getSubType()))
 			{
 				Calendar cal = getCalendar(calendarReference(ref.getContext(), ref.getContainer()));
+				rv = cal.getEvent(ref.getId());
+			}
+			else if (REF_TYPE_EVENT_SUBSCRIPTION.equals(ref.getSubType()))
+			{
+				Calendar cal = getCalendar(calendarSubscriptionReference(ref.getContext(), ref.getContainer()));
 				rv = cal.getEvent(ref.getId());
 			}
 
@@ -3508,6 +3571,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 	} // class BaseCalendar
 
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * CalendarEvent implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/

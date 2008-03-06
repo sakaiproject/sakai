@@ -106,6 +106,8 @@ calendar Portlet
 	#parse("/vm/calendar/chef_calendar_delete.vm")
 #elseif ($message=='list')
 	#parse("/vm/calendar/chef_calendar_viewList.vm")
+#elseif ($message=='calendarSubscriptions')
+	#parse("/vm/calendar/chef_calendar-subscriptions.vm")
 #elseif ($message=='customizeCalendar')
 		#parse("/vm/calendar/chef_calendar-customize_fields.vm")
 #elseif ($message=='mergeCalendars')

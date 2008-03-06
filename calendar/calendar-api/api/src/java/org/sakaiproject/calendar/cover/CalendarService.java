@@ -56,7 +56,9 @@ public class CalendarService
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.calendar.api.CalendarService.REFERENCE_ROOT;
 	public static java.lang.String REF_TYPE_CALENDAR = org.sakaiproject.calendar.api.CalendarService.REF_TYPE_CALENDAR;
 	public static java.lang.String REF_TYPE_CALENDAR_PDF = org.sakaiproject.calendar.api.CalendarService.REF_TYPE_CALENDAR_PDF;
+	public static java.lang.String REF_TYPE_CALENDAR_SUBSCRIPTION = org.sakaiproject.calendar.api.CalendarService.REF_TYPE_CALENDAR_SUBSCRIPTION; 
 	public static java.lang.String REF_TYPE_EVENT = org.sakaiproject.calendar.api.CalendarService.REF_TYPE_EVENT;
+	public static java.lang.String REF_TYPE_EVENT_SUBSCRIPTION = org.sakaiproject.calendar.api.CalendarService.REF_TYPE_EVENT_SUBSCRIPTION;
 	public static int MOD_NA = org.sakaiproject.calendar.api.CalendarService.MOD_NA;
 	public static int MOD_THIS = org.sakaiproject.calendar.api.CalendarService.MOD_THIS;
 	public static int MOD_ALL = org.sakaiproject.calendar.api.CalendarService.MOD_ALL;
@@ -94,6 +96,15 @@ public class CalendarService
 			return null;
 
 		return service.calendarICalReference(param0);
+	}
+	
+	public static java.lang.String calendarSubscriptionReference(java.lang.String param0, java.lang.String param1)
+	{
+		org.sakaiproject.calendar.api.CalendarService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.calendarSubscriptionReference(param0, param1);
 	}
                                        
 	public static boolean getExportEnabled(String param0)
@@ -148,6 +159,15 @@ public class CalendarService
 			return false;
 
 		return service.allowImportCalendar(param0);
+	}
+
+	public static boolean allowSubscribeCalendar(java.lang.String param0)
+	{
+		org.sakaiproject.calendar.api.CalendarService service = getInstance();
+		if (service == null)
+			return false;
+
+		return service.allowSubscribeCalendar(param0);
 	}
 
 	public static boolean allowEditCalendar(java.lang.String param0)
@@ -211,6 +231,15 @@ public class CalendarService
 			return null;
 
 		return service.eventReference(param0, param1, param2);
+	}
+
+	public static java.lang.String eventSubscriptionReference(java.lang.String param0, java.lang.String param1, java.lang.String param2)
+	{
+		org.sakaiproject.calendar.api.CalendarService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.eventSubscriptionReference(param0, param1, param2);
 	}
 
 	public static org.sakaiproject.calendar.api.CalendarEventVector getEvents(java.util.List param0, org.sakaiproject.time.api.TimeRange param1)

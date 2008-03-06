@@ -74,6 +74,9 @@ public interface CalendarService
 	/** Security lock for importing events into a calendar. */
 	public static final String AUTH_IMPORT_CALENDAR = "calendar.import";
 
+	/** Security lock for subscribing external calendars. */
+	public static final String AUTH_SUBSCRIBE_CALENDAR = "calendar.subscribe";
+
 	/** Security lock for adding to a calendar. */
 	public static final String AUTH_READ_CALENDAR = "calendar.read";
 
@@ -89,12 +92,18 @@ public interface CalendarService
 	/** The Reference type for a calendar pdf. */
 	public static final String REF_TYPE_CALENDAR_ICAL = "ical";
 
+	/** The Reference type for a external calendar subscription. */
+	public static final String REF_TYPE_CALENDAR_SUBSCRIPTION = "subscription";
+
 	/** Calendar property to enable ical export */
 	//(tbd: move to ResourceProperties) 
 	public static final String PROP_ICAL_ENABLE = "ICAL:enable";
 	
 	/** The Reference type for an event. */
 	public static final String REF_TYPE_EVENT = "event";
+	
+	/** The Reference type for a subscripted event. */
+	public static final String REF_TYPE_EVENT_SUBSCRIPTION = "eventsubscripted";
 
 	/** Recurring event modification intention: no intention. */
 	public static final int MOD_NA = 0;
@@ -179,6 +188,13 @@ public interface CalendarService
 	public boolean allowImportCalendar(String ref);
 
 	/**
+	* check permissions for subscribing external calendars
+	* @param ref The calendar reference.
+	* @return true if the user is allowed to subscribe external calendars, false if not.
+	*/
+	public boolean allowSubscribeCalendar(String ref);
+
+	/**
 	* check permissions for editCalendar() e.g. add/delete fields
 	* @param ref The calendar reference.
 	* @return true if the user is allowed to edit the calendar, false if not.
@@ -251,6 +267,14 @@ public interface CalendarService
 	public String calendarICalReference(Reference ref);
 
 	/**
+	* Access the internal reference which can be used to access the external calendar subscription from within the system.
+	* @param context The context.
+	* @param id The calendar id.
+	* @return The the internal reference which can be used to access the external calendar subscription from within the system.
+	*/
+	public String calendarSubscriptionReference(String context, String id);
+	
+	/**
 	 ** Determine if public ical export for this calendar is enabled
 	 ** @param ref the calendar reference
 	 ** @return true if allowed, otherwise false
@@ -276,6 +300,19 @@ public interface CalendarService
 	 * @return The the internal reference which can be used to access the event from within the system.
 	 */
 	public String eventReference(String context, String calendarId, String id);
+	
+	/**
+	 * Access the internal reference which can be used to access the subscripted event from within the system.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @param calendarlId
+	 *        The channel id.
+	 * @param id
+	 *        The event id.
+	 * @return The the internal reference which can be used to access the subscripted event from within the system.
+	 */
+	public String eventSubscriptionReference(String context, String calendarId, String id);
 
 	/**
 	* Takes several calendar References and merges their events from within a given time range.
