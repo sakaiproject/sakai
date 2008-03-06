@@ -6204,42 +6204,49 @@ public class SiteAction extends PagedResourceActionII {
 		Collection groups = s.getGroups();
 		if (groups != null)
 		{
-			for (Iterator iGroups = groups.iterator(); iGroups.hasNext();)
+			try
 			{
-				Group g = (Group) iGroups.next();
-				try
+				for (Iterator iGroups = groups.iterator(); iGroups.hasNext();)
 				{
-					Set gMembers = g.getMembers();
-					for (Iterator iGMembers = gMembers.iterator(); iGMembers.hasNext();)
+					Group g = (Group) iGroups.next();
+					try
 					{
-						Member gMember = (Member) iGMembers.next();
-						String gMemberId = gMember.getUserId();
-						Member siteMember = s.getMember(gMemberId);
-						if ( siteMember  == null)
+						Set gMembers = g.getMembers();
+						for (Iterator iGMembers = gMembers.iterator(); iGMembers.hasNext();)
 						{
-							// user has been removed from the site
-							g.removeMember(gMemberId);
-						}
-						else
-						{
-							// if there is a difference between the role setting, remove the entry from group and add it back with correct role, all are marked "not provided"
-							if (!g.getUserRole(gMemberId).equals(siteMember.getRole()))
+							Member gMember = (Member) iGMembers.next();
+							String gMemberId = gMember.getUserId();
+							Member siteMember = s.getMember(gMemberId);
+							if ( siteMember  == null)
 							{
+								// user has been removed from the site
 								g.removeMember(gMemberId);
-								g.addMember(gMemberId, siteMember.getRole().getId(), siteMember.isActive(), false);
+							}
+							else
+							{
+								// if there is a difference between the role setting, remove the entry from group and add it back with correct role, all are marked "not provided"
+								if (!g.getUserRole(gMemberId).equals(siteMember.getRole()))
+								{
+									g.removeMember(gMemberId);
+									g.addMember(gMemberId, siteMember.getRole().getId(), siteMember.isActive(), false);
+								}
 							}
 						}
+						// post event about the participant update
+						EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, g.getId(),false));
 					}
-					// commit
-					// post event about the participant update
-					EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, g.getId(),false));
-					SiteService.save(s);
+					catch (Exception ee)
+					{
+						M_log.warn(this + ee.getMessage() + g.getId());
+					}
+					
 				}
-				catch (Exception ee)
-				{
-					M_log.warn(this + ee.getMessage() + g.getId());
-				}
-				
+				// commit, save the site
+				SiteService.save(s);
+			}
+			catch (Exception e)
+			{
+				M_log.warn(this + e.getMessage() + s.getId());
 			}
 		}
 	}
