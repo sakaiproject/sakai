@@ -196,8 +196,10 @@ var textuncheckall="<h:outputText value="#{questionPoolMessages.t_uncheckAll}"/>
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ImportQuestionsToAuthoring" />
   </h:commandButton>
 
+  <h:commandButton accesskey="#{questionPoolMessages.a_cancel}" style="act" value="#{questionPoolMessages.cancel}" action="poolList" immediate="true">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
+  </h:commandButton>
 
- <h:commandButton accesskey="#{questionPoolMessages.a_cancel}" style="act" value="#{questionPoolMessages.cancel}" action="poolList" immediate="true"/>
  <h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\"> Processing.....</span>"/>
  </div>
 

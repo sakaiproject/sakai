@@ -39,6 +39,7 @@
     <h:outputText value=" #{generalMessages.separator} " rendered="#{authorization.adminQuestionPool}"/>
     <h:commandLink accesskey="#{generalMessages.a_pool}" title=" #{generalMessages.t_questionPool} " action="poolList" immediate="true">
       <h:outputText value="#{generalMessages.questionPool}" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
     </h:commandLink>
 </h:panelGroup>
 </p>

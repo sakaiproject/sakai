@@ -72,7 +72,9 @@
 	value="#{questionPoolMessages.save}" styleClass="active">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
   </h:commandButton>
-<h:commandButton accesskey="#{questionPoolMessages.a_cancel}" style="act" value="#{questionPoolMessages.cancel}" action="poolList" immediate="true"/>
+  <h:commandButton accesskey="#{questionPoolMessages.a_cancel}" style="act" value="#{questionPoolMessages.cancel}" action="poolList" immediate="true">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
+  </h:commandButton>
 
 </p>
  </h:form>

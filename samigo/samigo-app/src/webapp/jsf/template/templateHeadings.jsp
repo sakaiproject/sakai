@@ -29,7 +29,7 @@
     <h:outputText value=" #{generalMessages.separator} " rendered="#{authorization.adminAssessment}"/>
       <h:outputText value="#{generalMessages.template}" />
     <h:outputText value=" #{generalMessages.separator} " rendered="#{authorization.adminQuestionPool}"/>
-    <h:commandLink accesskey="#{generalMessages.a_pool}" title="#{generalMessages.t_questionPool}" action="poolList" id="poolLink" immediate="true" rendered="#{authorization.adminQuestionPool}">
+    <h:commandLink id="questionPoolsLink" accesskey="#{generalMessages.a_pool}" title="#{generalMessages.t_questionPool}" action="poolList" immediate="true" rendered="#{authorization.adminQuestionPool}">
       <h:outputText value="#{generalMessages.questionPool}" />
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />

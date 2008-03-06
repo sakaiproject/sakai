@@ -5,18 +5,27 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
-public class QuestionPoolListener implements ActionListener{
+public class QuestionPoolListener implements ActionListener {
 
 	/**
 	 * Standard process action method.
-	 * @param ae ActionEvent
+	 * 
+	 * @param ae
+	 *            ActionEvent
 	 * @throws AbortProcessingException
 	 */
-	  public void processAction(ActionEvent ae) throws AbortProcessingException
-	  {
-		  AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-		  author.setIsEditPendingAssessmentFlow(true);
-	  }
+	public void processAction(ActionEvent ae) throws AbortProcessingException {
+		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+		author.setIsEditPendingAssessmentFlow(true);
+
+		QuestionPoolBean qpoolbean = (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
+		// If from "Question Pools" link, always get data from db to rebuild the tree 
+		if (ae != null && ae.getComponent().getId().equals("questionPoolsLink")) {
+			qpoolbean.buildTree();
+		}
+		qpoolbean.setQpDataModelByLevel();
+	}
 }

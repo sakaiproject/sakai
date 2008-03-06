@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.questionpool;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Iterator;
@@ -30,11 +31,13 @@ import java.util.Iterator;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.model.ListDataModel;
 import javax.faces.application.FacesMessage;
 
 import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -42,6 +45,7 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
+import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataModel;
 //import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 //import org.sakaiproject.tool.assessment.data.model.Tree;
@@ -176,8 +180,6 @@ public class PoolSaveListener implements ActionListener
 
       // Rebuild the tree with the new pool
       qpbean.buildTree();
-//	qpbean.setCurrentPool(null);
-
 
       //  System.out.println( "SAVE - POOLSOURCE= "+qpbean.getAddPoolSource());
       //where do you get value from addPoolSource?  It always return null though.
@@ -202,10 +204,12 @@ public class PoolSaveListener implements ActionListener
       qpbean.setAddedPools(addedPools);
 	  qpbean.setOutcome("editPool");
 	  qpbean.setAddPoolSource("");
+	  qpbean.setSubQpDataModelByLevel();
       }
       else {
 	  qpbean.setOutcomeEdit("poolList");
 	  qpbean.setOutcome("poolList");
+      qpbean.setQpDataModelByLevel();
       }
 	// set outcome for action
 	return true;
