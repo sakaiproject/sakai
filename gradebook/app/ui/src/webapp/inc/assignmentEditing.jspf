@@ -26,7 +26,8 @@
 	<h:outputText value="#{msgs.add_assignment_title}" rendered="#{bean.assignment.externallyMaintained}" />
 	<h:outputText value="#{bean.assignment.name}" rendered="#{bean.assignment.externallyMaintained}" />
 
-	<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!bean.assignment.externallyMaintained}"/>
+	<h:outputLabel for="points" id="pointsLabel1" value="#{msgs.add_assignment_points}" rendered="#{!bean.assignment.externallyMaintained && bean.localGradebook.grade_type == 1}"/>
+	<h:outputLabel for="points" id="pointsLabel2" value="#{msgs.add_assignment_relative_weight}" rendered="#{!bean.assignment.externallyMaintained && bean.localGradebook.grade_type != 1}"/>
 	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
 		<h:inputText id="points" value="#{bean.assignment.pointsPossible}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 			<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />

@@ -69,7 +69,8 @@
 					</h:panelGroup>  
 				</h:panelGroup>
 	<%-- Commented out for non-graded rollback && item.ungraded == 'normal' --%>
-				<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained}"/>
+				<h:outputLabel for="points" id="pointsLabel1" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type == 1}"/>
+				<h:outputLabel for="points" id="pointsLabel2" value="#{msgs.add_assignment_relative_weight}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 1}"/>
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
 					<h:inputText id="points" value="#{item.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 					</h:inputText>
