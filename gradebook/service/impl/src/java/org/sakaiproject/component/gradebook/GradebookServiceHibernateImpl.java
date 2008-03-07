@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.StaleObjectStateException;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
@@ -52,6 +53,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
@@ -59,6 +61,7 @@ import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
+import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -66,6 +69,7 @@ import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
 /**
  * A Hibernate implementation of GradebookService.
@@ -345,12 +349,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					} else {
 						gradeDef.setDateRecorded(gradeRecord.getDateRecorded());
 						gradeDef.setGraderUid(gradeRecord.getGraderId());
-						if (gradeComment != null) {
-							gradeDef.setGradeComment(gradeComment.getCommentText());
-						}
 						
 						if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
-							List gradeList = new ArrayList();
+							List<AssignmentGradeRecord> gradeList = new ArrayList<AssignmentGradeRecord>();
 							gradeList.add(gradeRecord);
 							convertPointsToLetterGrade(gradebook, gradeList);
 							AssignmentGradeRecord gradeRec = (AssignmentGradeRecord)gradeList.get(0);
@@ -367,6 +368,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 								gradeDef.setGrade(gradeRecord.getPointsEarned().toString());
 							}
 						}
+					}
+					
+					if (gradeComment != null) {
+						gradeDef.setGradeComment(gradeComment.getCommentText());
 					}
 				}
 				
@@ -1576,5 +1581,364 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  }
 	  
 	  return studentGrades;
+  }
+  
+  public boolean isGradeValid(String gradebookUuid, String grade) {
+	  if (gradebookUuid == null) {
+		  throw new IllegalArgumentException("Null gradebookUuid passed to isGradeValid");
+	  }
+	  Gradebook gradebook;
+	  try {
+		  gradebook = getGradebook(gradebookUuid);
+	  } catch (GradebookNotFoundException gnfe) {
+		  throw new GradebookNotFoundException("No gradebook exists with the given gradebookUid: " + 
+				  gradebookUuid + "Error: " + gnfe.getMessage());
+	  }
+	  
+	  int gradeEntryType = gradebook.getGrade_type();
+	  LetterGradePercentMapping mapping = null;
+	  if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER) {
+		  mapping = getLetterGradePercentMapping(gradebook);
+	  }
+	  
+	  return isGradeValid(grade, gradeEntryType, mapping);
+  }
+  
+  private boolean isGradeValid(String grade, int gradeEntryType, LetterGradePercentMapping gradeMapping) {
+
+	  boolean gradeIsValid = false;
+
+	  if (grade == null || grade.equals("")) {
+
+		  gradeIsValid = true;
+
+	  } else {
+
+		  if (gradeEntryType == GradebookService.GRADE_TYPE_POINTS ||
+				  gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE) {
+			  try {
+				  Double gradeAsDouble = Double.parseDouble(grade);
+				  // grade must be greater than or equal to 0
+				  if (gradeAsDouble.doubleValue() >= 0) {
+					  gradeIsValid = true;
+				  }
+			  } catch (NumberFormatException nfe) {
+				  if (log.isDebugEnabled()) log.debug("Passed grade is not a numeric value");
+			  }
+
+		  } else if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER) {
+			  if (gradeMapping == null) {
+				  throw new IllegalArgumentException("Null mapping passed to isGradeValid for a letter grade-based gradeook");
+			  }
+
+			  String standardizedGrade = gradeMapping.standardizeInputGrade(grade);
+			  if (standardizedGrade != null) {
+				  gradeIsValid = true;
+			  }
+		  } else {
+			  throw new IllegalArgumentException("Invalid gradeEntryType passed to isGradeValid");
+		  }
+	  }
+
+	  return gradeIsValid;
+  }
+
+  public List<String> identifyStudentsWithInvalidGrades(String gradebookUid, Map<String, String> studentIdToGradeMap) {
+	  if (gradebookUid == null) {
+		  throw new IllegalArgumentException("null gradebookUid passed to identifyStudentsWithInvalidGrades");
+	  }
+
+	  List<String> studentsWithInvalidGrade = new ArrayList<String>();
+
+	  if (studentIdToGradeMap != null) {
+		  Gradebook gradebook;
+
+		  try {
+			  gradebook = getGradebook(gradebookUid);
+		  } catch (GradebookNotFoundException gnfe) {
+			  throw new GradebookNotFoundException("No gradebook exists with the given gradebookUid: " + 
+					  gradebookUid + "Error: " + gnfe.getMessage());
+		  }
+
+		  LetterGradePercentMapping gradeMapping = null;
+		  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+			  gradeMapping = getLetterGradePercentMapping(gradebook);
+		  }
+
+		  for (String studentId : studentIdToGradeMap.keySet()) {
+			  String grade = studentIdToGradeMap.get(studentId);
+			  if (!isGradeValid(grade, gradebook.getGrade_type(), gradeMapping)) {
+				  studentsWithInvalidGrade.add(studentId);
+			  }
+		  }
+	  }  
+	  return studentsWithInvalidGrade;
+  }
+
+  public void saveGradeAndCommentForStudent(String gradebookUid, Long gradableObjectId, String studentUid, String grade, String comment) {
+	  if (gradebookUid == null || gradableObjectId == null || studentUid == null) {
+		  throw new IllegalArgumentException("Null gradebookUid or gradableObjectId or studentUid passed to saveGradeAndCommentForStudent");
+	  }
+
+	  GradeDefinition gradeDef = new GradeDefinition();
+	  gradeDef.setStudentUid(studentUid);
+	  gradeDef.setGrade(grade);
+	  gradeDef.setGradeComment(comment);
+
+	  List<GradeDefinition> gradeDefList = new ArrayList<GradeDefinition>();
+	  gradeDefList.add(gradeDef);
+
+	  saveGradesAndComments(gradebookUid, gradableObjectId, gradeDefList);
+  }
+
+  public void saveGradesAndComments(final String gradebookUid, final Long gradableObjectId, List<GradeDefinition> gradeDefList) {
+	  if (gradebookUid == null || gradableObjectId == null) {
+		  throw new IllegalArgumentException("Null gradebookUid or gradableObjectId passed to saveGradesAndComments");
+	  }
+
+	  if (gradeDefList != null) {
+		  Gradebook gradebook;
+
+		  try {
+			  gradebook = getGradebook(gradebookUid); 
+		  } catch (GradebookNotFoundException gnfe) {
+			  throw new GradebookNotFoundException("No gradebook exists with the given gradebookUid: " + 
+					  gradebookUid + "Error: " + gnfe.getMessage());
+		  }
+
+		  Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			  public Object doInHibernate(Session session) throws HibernateException {
+				  return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
+			  }
+		  });
+
+		  if (assignment == null) {
+			  throw new AssessmentNotFoundException("No gradebook item exists with gradable object id = " + gradableObjectId);
+		  }
+
+		  if (!currentUserHasGradingPerm(gradebookUid)) {
+			  log.warn("User attempted to save grades and comments without authorization");
+			  throw new SecurityException("Current user is not authorized to save grades or comments in gradebook " + gradebookUid);
+		  }
+
+		  // let's identify all of the students being updated first
+		  Map<String, GradeDefinition> studentIdGradeDefMap = new HashMap<String, GradeDefinition>();
+		  Map<String, String> studentIdToGradeMap = new HashMap<String, String>();
+
+		  for (GradeDefinition gradeDef: gradeDefList) {
+			  studentIdGradeDefMap.put(gradeDef.getStudentUid(), gradeDef);
+			  studentIdToGradeMap.put(gradeDef.getStudentUid(), gradeDef.getGrade());
+		  }
+
+		  // check for invalid grades
+		  List invalidStudents = identifyStudentsWithInvalidGrades(gradebookUid, studentIdToGradeMap);
+		  if (invalidStudents != null && !invalidStudents.isEmpty()) {
+			  throw new InvalidGradeException ("At least one grade passed to be updated is " +
+			  "invalid. No grades or comments were updated.");
+		  }
+
+		  boolean userHasGradeAllPerm = currentUserHasGradeAllPerm(gradebookUid);
+
+		  // let's retrieve all of the existing grade recs for the given students
+		  // and assignments
+		  List<AssignmentGradeRecord> allGradeRecs = 
+			  getAllAssignmentGradeRecordsForGbItem(gradableObjectId, studentIdGradeDefMap.keySet());
+
+
+		  // put in map for easier accessibility
+		  Map<String, AssignmentGradeRecord> studentIdToAgrMap = new HashMap<String, AssignmentGradeRecord>();
+		  if (allGradeRecs != null) {
+			  for (AssignmentGradeRecord rec : allGradeRecs) {
+				  studentIdToAgrMap.put(rec.getStudentId(), rec);
+			  }
+		  }
+
+		  // set up the grader and grade time
+		  String graderId = getAuthn().getUserUid();
+		  Date now = new Date();
+
+		  // get grade mapping, if nec, to convert grades to points
+		  LetterGradePercentMapping mapping = null;
+		  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+			  mapping = getLetterGradePercentMapping(gradebook);
+		  }
+
+		  // get all of the comments, as well
+		  List<Comment> allComments = getComments(assignment, studentIdGradeDefMap.keySet());
+		  // put in a map for easier accessibility
+		  Map<String, Comment> studentIdCommentMap = new HashMap<String, Comment>();
+		  if (allComments != null) {
+			  for (Comment comment : allComments) {
+				  studentIdCommentMap.put(comment.getStudentId(), comment);
+			  }
+		  }
+
+		  // these are the records that will need to be updated. iterate through
+		  // everything and then we'll save it all at once
+		  Set<AssignmentGradeRecord> agrToUpdate = new HashSet<AssignmentGradeRecord>();
+		  Set<Comment> commentsToUpdate = new HashSet<Comment>();
+		  Set<GradingEvent> eventsToAdd = new HashSet<GradingEvent>();
+
+		  for (GradeDefinition gradeDef : gradeDefList) {
+
+			  String studentId = gradeDef.getStudentUid();
+
+			  // check specific grading privileges if user does not have
+			  // grade all perm
+			  if (!userHasGradeAllPerm) {
+				  if (!isUserAbleToGradeItemForStudent(gradebookUid, gradableObjectId, studentId)) {
+					  log.warn("User " + graderId + " attempted to save a grade for " + studentId + 
+					  " without authorization");
+
+					  throw new SecurityException("User " + graderId + " attempted to save a grade for " + 
+							  studentId + " without authorization");
+				  }
+			  }
+
+			  Double convertedGrade = convertInputGradeToPoints(gradebook.getGrade_type(), mapping, assignment.getPointsPossible(), gradeDef.getGrade());
+
+			  // let's see if this agr needs to be updated
+			  AssignmentGradeRecord gradeRec = studentIdToAgrMap.get(studentId);
+			  if (gradeRec != null) {
+				  if ((convertedGrade == null && gradeRec.getPointsEarned() != null) || 
+						  (convertedGrade != null && gradeRec.getPointsEarned() == null) ||
+						  (convertedGrade != null && gradeRec.getPointsEarned() != null && 
+								  !convertedGrade.equals(gradeRec.getPointsEarned()))) {
+					  
+					  gradeRec.setPointsEarned(convertedGrade);
+					  gradeRec.setGraderId(graderId);
+					  gradeRec.setDateRecorded(now);
+
+					  agrToUpdate.add(gradeRec);
+
+					  // we also need to add a GradingEvent
+					  // the event stores the actual input grade, not the converted one
+					  GradingEvent event = new GradingEvent(assignment, graderId, studentId, gradeDef.getGrade());
+					  eventsToAdd.add(event);
+				  }
+			  } else {
+				  // if the grade is something other than null, add a new AGR
+				  if (gradeDef.getGrade() != null && !gradeDef.getGrade().trim().equals("")) {
+					  gradeRec =  new AssignmentGradeRecord(assignment, studentId, convertedGrade);
+					  gradeRec.setPointsEarned(convertedGrade);
+					  gradeRec.setGraderId(graderId);
+					  gradeRec.setDateRecorded(now);
+
+					  agrToUpdate.add(gradeRec);
+
+					  // we also need to add a GradingEvent
+					  // the event stores the actual input grade, not the converted one
+					  GradingEvent event = new GradingEvent(assignment, graderId, studentId, gradeDef.getGrade());
+					  eventsToAdd.add(event);
+				  }
+			  }
+
+			  // let's see if the comment needs to be updated
+			  Comment comment = studentIdCommentMap.get(studentId);
+			  if (comment != null) {
+				  boolean oldCommentIsNull = comment.getCommentText() == null || comment.getCommentText().equals("");
+				  boolean newCommentIsNull = gradeDef.getGradeComment() == null || gradeDef.getGradeComment().equals("");
+				  
+				  if ((oldCommentIsNull && !newCommentIsNull) || 
+						  (!oldCommentIsNull && newCommentIsNull) ||
+						  (!oldCommentIsNull && !newCommentIsNull && 
+								  !gradeDef.getGradeComment().equals(comment.getCommentText()))) {
+					  // update this comment
+					  System.out.println("!!!!!!!!!!!!!!!  should be updating comment! " + gradeDef.getStudentUid() + " " + gradeDef.getGradeComment());
+					  comment.setCommentText(gradeDef.getGradeComment());
+					  comment.setGraderId(graderId);
+					  comment.setDateRecorded(now);
+
+					  commentsToUpdate.add(comment);
+				  }
+			  } else {
+				  // if there is a comment, add it
+				  if (gradeDef.getGradeComment() != null && !gradeDef.getGradeComment().trim().equals("")) {
+					  comment = new Comment(studentId, gradeDef.getGradeComment(), assignment);
+					  
+					  System.out.println("!!!!!!!!!!!!!!!  should be updating comment!" + gradeDef.getStudentUid() + " " + gradeDef.getGradeComment());
+					  comment.setGraderId(graderId);
+					  comment.setDateRecorded(now);
+
+					  commentsToUpdate.add(comment);
+				  }
+			  }
+		  }
+
+		  // now let's save them
+		  try {
+			  getHibernateTemplate().saveOrUpdateAll(agrToUpdate);
+			  getHibernateTemplate().saveOrUpdateAll(commentsToUpdate);
+			  getHibernateTemplate().saveOrUpdateAll(eventsToAdd);
+		  }	catch (HibernateOptimisticLockingFailureException holfe) {
+			  if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to save scores and comments for gb Item " + gradableObjectId);
+			  throw new StaleObjectModificationException(holfe);
+		  } catch (StaleObjectStateException sose) {
+			  if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to save scores and comments for gb Item " + gradableObjectId);
+			  throw new StaleObjectModificationException(sose);
+		  }
+	  }
+  }
+
+  /**
+   * 
+   * @param gradeEntryType
+   * @param mapping
+   * @param gbItemPointsPossible
+   * @param grade
+   * @return given a generic String grade, converts it to the equivalent Double
+   * point value that will be stored in the db based upon the gradebook's grade entry type
+   */
+  private Double convertInputGradeToPoints(int gradeEntryType, LetterGradePercentMapping mapping, 
+		  Double gbItemPointsPossible, String grade) throws InvalidGradeException {
+	  Double convertedValue = null;
+
+	  if (grade != null && !grade.equals("")) {
+		  if (gradeEntryType == GradebookService.GRADE_TYPE_POINTS) {
+			  try {
+				  Double pointValue = Double.parseDouble(grade);
+				  convertedValue = pointValue;
+			  } catch (NumberFormatException nfe) {
+				  throw new InvalidGradeException("Invalid grade passed to convertInputGradeToPoints");
+			  }
+		  } else if (gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE ||
+				  gradeEntryType == GradebookService.GRADE_TYPE_LETTER) {
+
+			  // for letter or %-based grading, we need to calculate the equivalent point value
+			  if (gbItemPointsPossible == null) {
+				  throw new IllegalArgumentException("Null points possible passed" +
+				  " to convertInputGradeToPoints for letter or % based grading");
+			  }
+
+			  Double percentage = null;
+			  if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER) {
+				  if (mapping == null) {
+					  throw new IllegalArgumentException("No mapping passed to convertInputGradeToPoints for a letter-based gb");
+				  }
+
+				  if(mapping.getGradeMap() != null)
+				  {
+					  percentage = mapping.getValue(grade);
+					  if(percentage == null)
+					  {
+						  throw new IllegalArgumentException("Invalid grade passed to convertInputGradeToPoints");
+					  }
+				  }
+			  } else {
+				  try {
+					  percentage = Double.parseDouble(grade);
+				  } catch (NumberFormatException nfe) {
+					  throw new IllegalArgumentException("Invalid % grade passed to convertInputGradeToPoints");
+				  }
+			  }
+
+			  convertedValue = calculateEquivalentPointValueForPercent(gbItemPointsPossible, percentage);
+
+		  } else {
+			  throw new InvalidGradeException("invalid grade entry type passed to convertInputGradeToPoints");
+		  }
+	  }
+
+	  return convertedValue;
   }
 }

@@ -59,8 +59,10 @@ import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsExcep
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
@@ -554,5 +556,300 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 			
 		}
 		
+	}
+	
+	public void testIsGradeValid() throws Exception {
+		// try a null gradebookUuid
+		try {
+			gradebookService.isGradeValid(null, null);
+			fail("did not catch null gradebookUuid passed to isGradeValid");
+		} catch (IllegalArgumentException iae) {}
+		
+		// let's start with a points-based gradebook
+		Gradebook gradebookNoCat = gradebookManager.getGradebook(GRADEBOOK_UID_NO_CAT);
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		
+		// null grades are valid
+		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, null));
+		// try some positive point values
+		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "25.34"));
+		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "0"));
+		// negative should fail
+		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "-1"));
+		// try non-numeric
+		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "A"));
+		
+		// switch to %-based gradebook
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		
+		// null grades are valid
+		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, null));
+		// try some positive point values
+		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "25.34"));
+		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "0"));
+		// negative should fail
+		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "-1"));
+		// try non-numeric
+		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "A"));
+		
+		// switch to letter-based gradebook
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		// null grades are valid
+		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, null));
+		// try some point values
+		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "25.34"));
+		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "0"));
+		// negative should fail
+		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "-1"));
+		// try some valid ones
+		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "A"));
+		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "c-"));
+	}
+	
+	public void testIdentifyStudentsWithInvalidGrades() throws Exception {
+		// try some null parameters
+		try {
+			gradebookService.identifyStudentsWithInvalidGrades(null, new HashMap<String, String>());
+			fail("did not catch null gradebookUid passed to identifyStudentsWithInvalidGrades");
+		} catch (IllegalArgumentException iae) {}
+		
+		// try a null map 
+		List<String> invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(GRADEBOOK_UID_NO_CAT, null);
+		assertTrue(invalidStudentIds.isEmpty());
+		
+		//add some students and grades for a points-based gb
+		Gradebook gradebookNoCat = gradebookManager.getGradebook(GRADEBOOK_UID_NO_CAT);
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		
+		Map<String, String> studentIdGradeMap = new HashMap<String, String>();
+		studentIdGradeMap.put(STUDENT_IN_SECTION_UID1, "15");
+		studentIdGradeMap.put(STUDENT_IN_SECTION_UID2, "-1");  // invalid
+		studentIdGradeMap.put(STUDENT_NOT_IN_SECTION_UID1, "A"); //invalid
+		studentIdGradeMap.put(STUDENT_NOT_IN_SECTION_UID2, "25.67"); //valid//
+		
+		invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(GRADEBOOK_UID_NO_CAT, studentIdGradeMap);
+		assertEquals(2, invalidStudentIds.size());
+		assertTrue(invalidStudentIds.contains(STUDENT_IN_SECTION_UID2));
+		assertTrue(invalidStudentIds.contains(STUDENT_NOT_IN_SECTION_UID1));
+		
+		//use a %-based gradebook
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(GRADEBOOK_UID_NO_CAT, studentIdGradeMap);
+		assertEquals(2, invalidStudentIds.size());
+		assertTrue(invalidStudentIds.contains(STUDENT_IN_SECTION_UID2));
+		assertTrue(invalidStudentIds.contains(STUDENT_NOT_IN_SECTION_UID1));
+		
+		// use a letter-based gb
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(GRADEBOOK_UID_NO_CAT, studentIdGradeMap);
+		assertEquals(3, invalidStudentIds.size());
+		assertTrue(invalidStudentIds.contains(STUDENT_IN_SECTION_UID1));
+		assertTrue(invalidStudentIds.contains(STUDENT_IN_SECTION_UID2));
+		assertTrue(invalidStudentIds.contains(STUDENT_NOT_IN_SECTION_UID2));
+	}
+	
+	public void testSaveGradeAndCommentForStudent() throws Exception {
+		// try some null params
+		try {
+			gradebookService.saveGradeAndCommentForStudent(null, new Long(1), STUDENT_IN_SECTION_UID1, "A", "Good work");
+			fail("Did not catch null gradebookUuid passed to saveGradeAndCommentForStudent");
+		} catch (IllegalArgumentException iae) {}
+		
+		try {
+			gradebookService.saveGradeAndCommentForStudent(GRADEBOOK_UID_NO_CAT, null, STUDENT_IN_SECTION_UID1, "A", "Good work");
+			fail("Did not catch null gradableObjectId passed to saveGradeAndCommentForStudent");
+		} catch (IllegalArgumentException iae) {}
+		
+		try {
+			gradebookService.saveGradeAndCommentForStudent(GRADEBOOK_UID_NO_CAT, new Long(1), null, "A", "Good work");
+			fail("Did not catch null gradableObjectId passed to saveGradeAndCommentForStudent");
+		} catch (IllegalArgumentException iae) {}
+		
+		// try invalid gradebookUuid
+		try {
+			gradebookService.saveGradeAndCommentForStudent("bogus!", asn1IdNoCat, STUDENT_IN_SECTION_UID1, null, null);
+			fail("did not catch bogus gradebookUuid passed to saveGradeAndCommentForStudent");
+		} catch (GradebookNotFoundException gnfe) {}
+		
+		// try invalid gradableObjectId
+		try {
+			gradebookService.saveGradeAndCommentForStudent(GRADEBOOK_UID_NO_CAT, new Long(12345), STUDENT_IN_SECTION_UID1, null, null);
+			fail("did not catch bogus gradableObjectId passed to saveGradeAndCommentForStudent");
+		} catch (AssessmentNotFoundException anfe) {}
+		
+		// use point-based gb
+		Gradebook gradebookNoCat = gradebookManager.getGradebook(GRADEBOOK_UID_NO_CAT);
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		
+		// add a grade and comment for student
+		String score = "15.0";
+		String comment = "Good work";
+		gradebookService.saveGradeAndCommentForStudent(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1, score, comment);
+		
+		// try to retrieve it again
+		GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
+		assertEquals(score, gradeDef.getGrade());
+		assertEquals(comment, gradeDef.getGradeComment());
+		
+		// try an invalid grade
+		try {
+			gradebookService.saveGradeAndCommentForStudent(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1, "A", comment);
+			fail("did not catch invalid grade passed to saveGradeAndCommentForStudent");
+		} catch (InvalidGradeException ige) {}
+		
+		// try setting the score and comment to null
+		score = null;
+		comment = null;
+		
+		gradebookService.saveGradeAndCommentForStudent(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1, score, comment);
+		
+		// try to retrieve it again
+		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
+		assertNull(gradeDef.getGrade());
+		assertNull(gradeDef.getGradeComment());
+		
+		// set just a comment
+		comment = "Try again!";
+		gradebookService.saveGradeAndCommentForStudent(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1, score, comment);
+		
+		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
+		assertNull(gradeDef.getGrade());
+		assertEquals(comment, gradeDef.getGradeComment());
+		
+		// try to update a student as a TA
+		authn.setAuthnContext(TA_UID);
+		// should only have auth to update student in her section
+		score = "25.78";
+		comment = "Jolly good show";
+		
+		gradebookService.saveGradeAndCommentForStudent(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1, score, comment);
+		
+		// try to retrieve it again
+		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
+		assertEquals(score, gradeDef.getGrade());
+		assertEquals(comment, gradeDef.getGradeComment());
+		
+		// now try to update a student not in the section
+		try {
+			gradebookService.saveGradeAndCommentForStudent(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_NOT_IN_SECTION_UID1, score, comment);
+			fail("did not catch ta trying to update score and comment w/o authorization!");
+		} catch (SecurityException se) {}
+		
+		// make sure students don't have authorization
+		authn.setAuthnContext(STUDENT_IN_SECTION_UID1);
+		try {
+			gradebookService.saveGradeAndCommentForStudent(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_NOT_IN_SECTION_UID1, score, comment);
+			fail("did not catch student trying to update score and comment w/o authorization!");
+		} catch (SecurityException se) {}
+	}
+	
+	public void testSaveGradesAndComments() throws Exception {
+		// try nulls
+		try {
+			gradebookService.saveGradesAndComments(null, asn1IdNoCat, new ArrayList<GradeDefinition>());
+			fail("did not catch null gradebookUuid passed to saveGradesAndComments");
+		} catch (IllegalArgumentException iae) {}
+		
+		try {
+			gradebookService.saveGradesAndComments(GRADEBOOK_UID_NO_CAT, null, new ArrayList<GradeDefinition>());
+			fail("did not catch null gradableObjectId passed to saveGradesAndComments");
+		} catch (IllegalArgumentException iae) {}
+		
+		// try invalid gradebookUuid
+		try {
+			gradebookService.saveGradesAndComments("bogus!", asn1IdNoCat, new ArrayList<GradeDefinition>());
+			fail("did not catch bogus gradebookUuid passed to saveGradesAndComments");
+		} catch (GradebookNotFoundException gnfe) {}
+		
+		// try invalid gradableObjectId
+		try {
+			gradebookService.saveGradesAndComments(GRADEBOOK_UID_NO_CAT, new Long(12345), new ArrayList<GradeDefinition>());
+			fail("did not catch bogus gradableObjectId passed to saveGradesAndComments");
+		} catch (AssessmentNotFoundException anfe) {}
+		
+		authn.setAuthnContext(INSTRUCTOR_UID);
+		
+		// null gradeDef list shouldn't do anything
+		gradebookService.saveGradesAndComments(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, null);
+		
+		// Add some grade defs
+		String def1Grade = "10.5";
+		String def1Comment = "Good work";
+		String def2Grade = "";
+		String def2Comment = "Turn this in";
+
+		GradeDefinition def1 = new GradeDefinition();
+		def1.setStudentUid(STUDENT_IN_SECTION_UID1);
+		def1.setGrade(def1Grade);
+		def1.setGradeComment(def1Comment);
+		
+		GradeDefinition def2 = new GradeDefinition();
+		def2.setStudentUid(STUDENT_NOT_IN_SECTION_UID1);
+		def2.setGrade(def2Grade);
+		def2.setGradeComment(def2Comment);
+		
+		List<GradeDefinition> gradeDefList = new ArrayList<GradeDefinition>();
+		gradeDefList.add(def1);
+		gradeDefList.add(def2);
+		
+		// use point-based gb
+		Gradebook gradebookNoCat = gradebookManager.getGradebook(GRADEBOOK_UID_NO_CAT);
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		
+		gradebookService.saveGradesAndComments(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, gradeDefList);
+		
+		// now let's see if the change was successful
+		// try to retrieve it again
+		GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
+		assertEquals(def1Grade, gradeDef.getGrade());
+		assertEquals(def1Comment, gradeDef.getGradeComment());
+		
+		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_NOT_IN_SECTION_UID1);
+		assertNull(gradeDef.getGrade());
+		assertEquals(def2Comment, gradeDef.getGradeComment());
+		
+		// let's try this as a TA - should throw SecurityException b/c not auth for STUDENT_NOT_IN_SECTION_UID1
+		authn.setAuthnContext(TA_UID);
+		try {
+			gradebookService.saveGradesAndComments(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, gradeDefList);
+			fail("did not catch TA trying to save grades for students w/o auth");
+		} catch (SecurityException se) {}
+		
+		// if we remove def2, TA should be able to update
+		gradeDefList = new ArrayList<GradeDefinition>();		
+		def1Grade = "37.0";
+		def1Comment = "";
+		def1.setGrade(def1Grade);
+		def1.setGradeComment(def1Comment);
+		gradeDefList.add(def1);
+		
+		gradebookService.saveGradesAndComments(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, gradeDefList);
+		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
+		assertEquals(def1Grade, gradeDef.getGrade());
+		assertEquals(def1Comment, gradeDef.getGradeComment());
+		
+		// let's try an invalid grade
+		gradeDefList = new ArrayList<GradeDefinition>();		
+		def1.setGrade("A");
+		def1.setGradeComment("I like letters");
+		gradeDefList.add(def1);
+		
+		try {
+			gradebookService.saveGradesAndComments(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, gradeDefList);
+			fail("Did not catch invalid grade passed to saveGradesAndComments");
+		} catch (InvalidGradeException ige) {}
+		
+		// double check grade wasn't updated
+		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
+		assertEquals(def1Grade, gradeDef.getGrade());
+		assertEquals(def1Comment, gradeDef.getGradeComment());
 	}
 }

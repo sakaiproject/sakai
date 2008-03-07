@@ -1306,6 +1306,16 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return letterGradeList;
     }
     
+    protected Double calculateEquivalentPointValueForPercent(Double doublePointsPossible, Double doublePercentEarned) {
+    	if (doublePointsPossible == null || doublePercentEarned == null)
+    		return null;
+    	
+    	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
+		BigDecimal percentEarned = new BigDecimal(doublePercentEarned.toString());
+		BigDecimal equivPoints = pointsPossible.multiply(percentEarned.divide(new BigDecimal("100"), GradebookService.MATH_CONTEXT));
+		return new Double(equivPoints.doubleValue());
+    }
+    
     public List getComments(final Assignment assignment, final Collection studentIds) {
     	if (studentIds.isEmpty()) {
     		return new ArrayList();

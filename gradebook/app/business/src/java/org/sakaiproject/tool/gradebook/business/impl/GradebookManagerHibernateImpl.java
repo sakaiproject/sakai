@@ -2150,16 +2150,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		return null;
     }
     
-    private Double calculateEquivalentPointValueForPercent(Double doublePointsPossible, Double doublePercentEarned) {
-    	if (doublePointsPossible == null || doublePercentEarned == null)
-    		return null;
-    	
-    	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
-		BigDecimal percentEarned = new BigDecimal(doublePercentEarned.toString());
-		BigDecimal equivPoints = pointsPossible.multiply(percentEarned.divide(new BigDecimal("100"), GradebookService.MATH_CONTEXT));
-		return new Double(equivPoints.doubleValue());
-    }
-    
     private Double calculateDoublePointForLetterGradeRecord(AssignmentGradeRecord gradeRecordFromCall)
     {
     	Assignment assign = getAssignment(gradeRecordFromCall.getAssignment().getId()); 

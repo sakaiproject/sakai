@@ -554,4 +554,58 @@ public interface GradebookService {
 	 * or grade a student in the passed list
 	 */
 	public List<GradeDefinition> getGradesForStudentsForItem(String gradebookUid, Long gradableObjectId, List<String> studentIds);
+	
+	/**
+	 * 
+	 * @param gradebookUuid
+	 * @param grade
+	 * @return true if the given grade is a valid grade given the gradebook's grade
+	 * entry type.  ie, if gradebook is set to grade entry by points, will check for valid point value.
+	 * if entry by letter, will check for valid letter, etc
+	 */
+	public boolean isGradeValid(String gradebookUuid, String grade);
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param studentIdToGradeMap - the student's username mapped to their grade
+	 * that you want to validate
+	 * @return a list of the studentIds that were associated with invalid grades
+	 * given the gradebook's grade entry type. useful if validating a list
+	 * of student/grade pairs for a single gradebook (more efficient than calling
+	 * gradeIsValid repeatedly). returns null if all grades are valid
+	 */
+	public List<String> identifyStudentsWithInvalidGrades(String gradebookUid, Map<String, String> studentIdToGradeMap);
+	
+	/**
+	 * Save a student score and comment for a gradebook item. The input score must
+	 * be valid according to the given gradebook's grade entry type.
+	 * @param gradebookUid
+	 * @param gradableObjectId
+	 * @param studentId
+	 * @param grade - must be in format according to gradebook's grade entry type
+	 * @param comment
+	 * @throws InvalidGradeException - if grade is invalid. grade and comment will not be saved
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 * @throws SecurityException if current user is not authorized to grade student
+	 */
+	public void saveGradeAndCommentForStudent(String gradebookUid, Long gradableObjectId,
+			String studentId, String grade, String comment) throws InvalidGradeException, 
+			GradebookNotFoundException,	AssessmentNotFoundException;
+	
+	/**
+	 * Given a list of GradeDefinitions for students for a given gradebook and gradable object,
+	 * will save the assciated scores and coments.  Scores must be in a format 
+	 * according to the gradebook's grade entry type (ie points, %, letter).
+	 * @param gradebookUid
+	 * @param gradableObjectId
+	 * @param gradeDefList
+	 * @throws InvalidGradeException if any of the grades are not valid - none will be saved
+	 * @throws SecurityException if the user does not have access to a student in the list -
+	 * no grades or comments will be saved for any student
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public void saveGradesAndComments(String gradebookUid, Long gradableObjectId, List<GradeDefinition> gradeDefList);
 }
