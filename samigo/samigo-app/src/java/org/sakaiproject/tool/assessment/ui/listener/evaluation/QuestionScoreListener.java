@@ -387,67 +387,54 @@ public class QuestionScoreListener implements ActionListener,
 					+ scoresByItem.size());
 			bean.setScoresByItem(scoresByItem);
 
-			iter = scores.iterator();
-
-			if (iter.hasNext()) {
-				Object next = iter.next();
-				
-				// Okay, here we get the first result set, which has a summary of
-				// information and a pointer to the graded assessment we should be
-				// displaying. We get the graded assessment.
-				ItemGradingData data = (ItemGradingData) next;
-				
-				try {
-					bean.setAnonymous(publishedAssessment.getEvaluationModel()
-							.getAnonymousGrading().equals(
-									EvaluationModel.ANONYMOUS_GRADING) ? "true"
-											: "false");
-				} catch (RuntimeException e) {
-					// log.info("No evaluation model.");
-					bean.setAnonymous("false");
-				}
-				
-				// below properties don't seem to be used in jsf pages,
-				try {
-					bean.setLateHandling(publishedAssessment
-							.getAssessmentAccessControl().getLateHandling()
-							.toString());
-				} catch (Exception e) {
-					// log.info("No access control model.");
-					bean
-					.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION
-							.toString());
-				}
-				try {
-					bean.setDueDate(publishedAssessment
-							.getAssessmentAccessControl().getDueDate().toString());
-					dueDate = publishedAssessment.getAssessmentAccessControl()
-					.getDueDate();
-				} catch (RuntimeException e) {
-					// log.info("No due date.");
-					bean.setDueDate(new Date().toString());
-				}
-				try {
-					bean.setMaxScore(publishedAssessment.getEvaluationModel()
-							.getFixedTotalScore().toString());
-				} catch (RuntimeException e) {
-					float score = (float) 0.0;
-					Iterator iter2 = publishedAssessment.getSectionArraySorted()
+			try {
+				bean.setAnonymous(publishedAssessment.getEvaluationModel()
+						.getAnonymousGrading().equals(
+								EvaluationModel.ANONYMOUS_GRADING) ? "true"
+										: "false");
+			} catch (RuntimeException e) {
+				// log.info("No evaluation model.");
+				bean.setAnonymous("false");
+			}
+			
+			// below properties don't seem to be used in jsf pages,
+			try {
+				bean.setLateHandling(publishedAssessment
+						.getAssessmentAccessControl().getLateHandling()
+						.toString());
+			} catch (Exception e) {
+				// log.info("No access control model.");
+				bean
+				.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION
+						.toString());
+			}
+			try {
+				bean.setDueDate(publishedAssessment
+						.getAssessmentAccessControl().getDueDate().toString());
+				dueDate = publishedAssessment.getAssessmentAccessControl()
+				.getDueDate();
+			} catch (RuntimeException e) {
+				// log.info("No due date.");
+				bean.setDueDate(new Date().toString());
+			}
+			try {
+				bean.setMaxScore(publishedAssessment.getEvaluationModel()
+						.getFixedTotalScore().toString());
+			} catch (RuntimeException e) {
+				float score = (float) 0.0;
+				Iterator iter2 = publishedAssessment.getSectionArraySorted()
+				.iterator();
+				while (iter2.hasNext()) {
+					SectionDataIfc sdata = (SectionDataIfc) iter2.next();
+					Iterator iter3 = sdata.getItemArraySortedForGrading()
 					.iterator();
-					while (iter2.hasNext()) {
-						SectionDataIfc sdata = (SectionDataIfc) iter2.next();
-						Iterator iter3 = sdata.getItemArraySortedForGrading()
-						.iterator();
-						while (iter3.hasNext()) {
-							ItemDataIfc idata = (ItemDataIfc) iter3.next();
-							if (idata.getItemId().equals(new Long(itemId)))
-								score = idata.getScore().floatValue();
-						}
+					while (iter3.hasNext()) {
+						ItemDataIfc idata = (ItemDataIfc) iter3.next();
+						if (idata.getItemId().equals(new Long(itemId)))
+							score = idata.getScore().floatValue();
 					}
-					bean.setMaxScore(Float.toString(score));
-					log.debug("itemId 1 = " + data.getPublishedItemId());
-					log.debug("itemId 2 = " + itemId);
 				}
+				bean.setMaxScore(Float.toString(score));
 			}
 			
 			// need to get id from somewhere else, not from data. data only
