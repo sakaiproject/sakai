@@ -387,6 +387,7 @@ public class ErrorReporter
 		try
 		{
 			// headers
+		        res.setStatus(javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			res.setContentType("text/html; charset=UTF-8");
 			res.addDateHeader("Expires", System.currentTimeMillis()
 					- (1000L * 60L * 60L * 24L * 365L));
