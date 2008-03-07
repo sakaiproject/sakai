@@ -23,6 +23,7 @@ package org.sakaiproject.tool.summarycalendar.ui;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,11 +31,15 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.util.ResourceLoader;
 
 
 public class EventSummary implements Serializable {
 	private static final long	serialVersionUID	= 4943854683550852507L;
 
+	/** Resource bundle */
+	private transient ResourceLoader msgs 			= new ResourceLoader("calendar");
+	
 	private final int	MAX_TEXT_SIZE	= 30;
 
 	private String		displayName		= "";
@@ -73,13 +78,21 @@ public class EventSummary implements Serializable {
 		Time firstTime = range.firstTime();
 		Time lastTime = range.lastTime();
 		if(isSameDay(firstTime.getTime(), lastTime.getTime())) {
-			tmp.append(firstTime.toStringLocalTime());
-			tmp.append(" - ");
-			tmp.append(lastTime.toStringLocalTime());
+			tmp.append(getDateStr(firstTime));
+			tmp.append(" ");
+			tmp.append(getTimeStr(firstTime));
+			if(!firstTime.equals(lastTime)) {
+				tmp.append(" - ");
+				tmp.append(getTimeStr(lastTime));
+			}
 		} else {
-			tmp.append(firstTime.toStringLocalFull());
+			tmp.append(getDateStr(firstTime));
+			tmp.append(" ");
+			tmp.append(getTimeStr(firstTime));
 			tmp.append(" - ");
-			tmp.append(lastTime.toStringLocalFull());
+			tmp.append(getDateStr(lastTime));
+			tmp.append(" ");
+			tmp.append(getTimeStr(lastTime));
 		}
 		this.date = tmp.toString();
 	}
@@ -220,5 +233,29 @@ public class EventSummary implements Serializable {
 		return (s.get(Calendar.ERA) == e.get(Calendar.ERA) &&
         		s.get(Calendar.YEAR) == e.get(Calendar.YEAR) &&
         		s.get(Calendar.DAY_OF_YEAR) == e.get(Calendar.DAY_OF_YEAR));
+	}
+	
+	private boolean isToday(long dateMs) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		Date today = cal.getTime();
+		cal.add(Calendar.DAY_OF_YEAR, 1);
+		Date tomorrow = cal.getTime();
+		Date date = new Date(dateMs);
+		return date.after(today) && date.before(tomorrow);
+	}
+	
+	private String getDateStr(Time time) {
+		if(isToday(time.getTime()))
+			return msgs.getString("today") + ",";
+		else
+			return time.toStringLocalDate();
+	}
+	
+	private String getTimeStr(Time time) {
+		return time.toStringLocalTime();
 	}
 }
