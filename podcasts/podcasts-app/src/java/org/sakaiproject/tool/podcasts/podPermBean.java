@@ -285,11 +285,11 @@ public class podPermBean {
 				} 
 				catch (PermissionException e) {
 					LOG.warn("PermissionException trying to get roles for site "
-								+ podcastService.getSiteId() + e.getMessage());
+								+ podcastService.getSiteId() + e.getMessage(), e);
 				} 
 				catch (GroupNotDefinedException e) {
 					LOG.info("GroupNotDefinedException while constructing permission data table contents for site "
-									+ podcastService.getSiteId() + ".");
+									+ podcastService.getSiteId() + ".", e);
 				}
 
 				// Create a list of azGroup ids to get permissions
@@ -410,7 +410,7 @@ public class podPermBean {
 
 		} catch (GroupNotDefinedException e) {
 			LOG.error("GroupNotDefinedException trying to get roles for site "
-							+ podcastService.getSiteId() + ". " + e.getMessage());
+							+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 		}
 
 		return rolesInfo;
@@ -508,7 +508,7 @@ public class podPermBean {
 
 		} catch (IdUnusedException e) {
 			LOG.error("IdUnusedException attempting to get site name for site. "
-						+ e.getMessage());
+						+ e.getMessage(), e);
 		}
 
 		return siteName;
@@ -556,11 +556,11 @@ public class podPermBean {
 		} 
 		catch (PermissionException e) {
 			LOG.warn("PermissionException trying to get roles for site "
-						+ podcastService.getSiteId() + e.getMessage());
+						+ podcastService.getSiteId() + e.getMessage(), e);
 		} 
 		catch (GroupNotDefinedException e) {
 			LOG.error("GroupNotDefinedException while constructing permission table for site "
-							+ podcastService.getSiteId() + ".");
+							+ podcastService.getSiteId() + ".", e);
 		}
 
 		// Create a list of azGroup ids to get permissions

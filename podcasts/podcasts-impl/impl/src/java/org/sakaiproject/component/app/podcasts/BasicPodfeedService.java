@@ -634,13 +634,13 @@ public class BasicPodfeedService implements PodfeedService {
 					catch (PermissionException e) {
 						// Problem with this podcast file - LOG and skip
 						LOG.error("PermissionException generating podfeed while adding entry for site: "
-							+ siteId + ". SKIPPING... " + e.getMessage());
+							+ siteId + ". SKIPPING... " + e.getMessage(), e);
 
 					} 
 					catch (IdUnusedException e) {
 						// Problem with this podcast file - LOG and skip
 						LOG.warn("IdUnusedException generating podfeed while adding entry for site: "
-							+ siteId + ".  SKIPPING... " + e.getMessage());
+							+ siteId + ".  SKIPPING... " + e.getMessage(), e);
 
 					}
 				}
@@ -829,7 +829,7 @@ public class BasicPodfeedService implements PodfeedService {
 		catch (PermissionException e) {
 			// log and return null to indicate there was a problem generating
 			LOG.error("PermissionException while trying to retrieve Podcast folder Id string "
-							+ "while generating feed for site " + siteId + e.getMessage());
+							+ "while generating feed for site " + siteId + e.getMessage(), e);
 		}
 		finally {
 			securityService.clearAdvisors();

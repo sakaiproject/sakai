@@ -179,7 +179,7 @@ public class podHomeBean {
 			} catch (ParseException e) {
 				// since revising, only log error if malformed date and not just blank
 				if (! "".equals(dispDate)) {
-					LOG.error("ParseException while rendering Revise Podcast page. ");
+					LOG.error("ParseException while rendering Revise Podcast page. ", e);
 				}
 			}
 			
@@ -277,7 +277,7 @@ public class podHomeBean {
 			} 
 			catch (PermissionException e) {
 				LOG.info("PermissionException getting file URL for "
-						+ resourceId + "while displaying podcast file for site " + podcastService.getSiteId() );
+						+ resourceId + "while displaying podcast file for site " + podcastService.getSiteId());
 				setErrorMessage(PERMISSION_ALERT);
 
 			} 
@@ -430,7 +430,7 @@ public class podHomeBean {
 			}
 		} 
 		catch (IdUnusedException e) {
-			LOG.error("No Site found while trying to check if site has Resources tool.");
+			LOG.error("No Site found while trying to check if site has Resources tool.", e);
 			
 			// Only want to display this message if they are instructors or administrators
 			// so if student say it exists
@@ -487,13 +487,13 @@ public class podHomeBean {
 			}
 			catch (InUseException e) {
 				LOG.info("InUseException while attempting to determine if podcast folder exists."
-								+ " for site " + podcastService.getSiteId());
+								+ " for site " + podcastService.getSiteId(), e);
 				setErrorMessage(INTERNAL_ERROR_ALERT);
 
 			}
 			catch (PermissionException e) {
 				LOG.warn("PermissionException while attempting to determine if podcast folder exists."
-							+ " for site " + podcastService.getSiteId());
+							+ " for site " + podcastService.getSiteId(), e);
 				setErrorMessage(PERMISSION_ALERT);
 
 			}
@@ -669,11 +669,11 @@ public class podHomeBean {
 			}
 			catch (PermissionException e) {
 				LOG.warn("PermissionException getting podcast with id " + podcastResource.getId() + " while constructing DecoratedPodcastBean for site "
-						+ podcastService.getSiteId() + ". " + e.getMessage());
+						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			}
 			catch (IdUnusedException e) {
 				LOG.warn("IdUnusedException getting podcast with id " + podcastResource.getId() + " while constructing DecoratedPodcastBean for site "
-						+ podcastService.getSiteId() + ". " + e.getMessage());
+						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			}
 			
 			// if user puts URL instead of file, this is result of retrieving filename
@@ -765,25 +765,25 @@ public class podHomeBean {
 		} 
 		catch (PermissionException e) {
 			LOG.warn("PermissionException getting podcasts for display in site "
-						+ podcastService.getSiteId() + ". " + e.getMessage());
+						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(PERMISSION_ALERT);
 
 		} 
 		catch (InUseException e) {
 			LOG.warn("InUseException while getting podcasts for display"
-						+ podcastService.getSiteId() + ". " + e.getMessage());
+						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
 
 		} 
 		catch (IdInvalidException e) {
 			LOG.error("IdInvalidException while getting podcasts for display "
-						+ podcastService.getSiteId() + ". " + e.getMessage());
+						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(ID_INVALID_ALERT);
 
 		} 
 		catch (InconsistentException e) {
 			LOG.error("InconsistentException while getting podcasts for display "
-						+ podcastService.getSiteId() + ". " + e.getMessage());
+						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
 			
 			return null;
@@ -791,13 +791,13 @@ public class podHomeBean {
 		} 
 		catch (IdUsedException e) {
 			LOG.warn("IdUsedException while gettting podcasts for display "
-						+ podcastService.getSiteId() + ". " + e.getMessage());
+						+ podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(ID_UNUSED_ALERT);
 
 		}
 		catch (IdUnusedException e) {
 			LOG.warn("IdUnusedException while determining if Podcasts folder has HIDDEN permission set" 
-						+ " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+						+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 		}
 
 		// create local List of DecoratedBeans
@@ -823,11 +823,11 @@ public class podHomeBean {
 				} 
 				catch (EntityPropertyNotDefinedException e) {
 					LOG.error("EntityPropertyNotDefinedException while creating DecoratedPodcastBean "
-									+ " for site "+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage());
+									+ " for site "+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage(), e);
 				}
 				catch (EntityPropertyTypeException e) {
 					LOG.error("EntityPropertyTypeException while creating DecoratedPodcastBean "
-									+ " for site "+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage());
+									+ " for site "+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage(), e);
 				}
 			}
 		}
@@ -863,7 +863,7 @@ public class podHomeBean {
 			} 
 			catch (PermissionException e) {
 				LOG.warn("PermissionException while determining if there are files in the podcast folder "
-								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(PERMISSION_ALERT);
 			}
 		}
@@ -912,23 +912,23 @@ public class podHomeBean {
 			} 
 			catch (EntityPropertyNotDefinedException e) {
 				LOG.error("EntityPropertyNotDefinedException while attempting to fill selectedPodcast property "
-								+ " for site " + podcastService.getSiteId() + ". SKIPPING..." + e.getMessage());
+								+ " for site " + podcastService.getSiteId() + ". SKIPPING..." + e.getMessage(), e);
 				throw new Error(e);
 
 			} 
 			catch (EntityPropertyTypeException e) {
 				LOG.error("EntityPropertyTypeException while attempting to fill selectedPodcast property "
-								+ " for site " + podcastService.getSiteId() + ". SKIPPING..." + e.getMessage());
+								+ " for site " + podcastService.getSiteId() + ". SKIPPING..." + e.getMessage(), e);
 				throw new Error(e);
 
 			}
 			catch (IdUnusedException e) {
 				LOG.error("IdUnusedException while attempting to determine if Podcasts folder is hidden for site " 
-							+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage());
+							+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage(), e);
 			}
 			catch (PermissionException e) {
 				LOG.error("PermissionException while attempting to determine if Podcasts folder is hidden for site " 
-						+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage());
+						+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage(),e );
 			}
 		}
 	}
@@ -1189,7 +1189,7 @@ public class podHomeBean {
 		catch (IOException e) {
 			LOG.warn("IOException while attempting to set BufferedInputStream to upload "
 							+ filename + " from site " + podcastService.getSiteId() + ". "
-									 + e.getMessage());
+									 + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
 
 		}
@@ -1244,7 +1244,7 @@ public class podHomeBean {
 			} 
 			catch (IOException e) {
 				LOG.error("IOException while attempting the actual upload file " + filename + " during processAdd "
-								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(IO_ALERT);
 				
 				// stay on Add podcast page
@@ -1300,43 +1300,43 @@ public class podHomeBean {
 			} 
 			catch (OverQuotaException e) {
 				LOG.warn("OverQuotaException while attempting to actually add the new podcast "
-								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(QUOTA_ALERT);
 
 			} 
 			catch (ServerOverloadException e) {
 				LOG.info("ServerOverloadException while attempting to actually add the new podcast "
-								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(INTERNAL_ERROR_ALERT);
 
 			} 
 			catch (InconsistentException e) {
 				LOG.error("InconsistentException while attempting to actually add the new podcast "
-								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				throw new Error(e);
 
 			} 
 			catch (IdInvalidException e) {
 				LOG.error("IdInvalidException while attempting to actually add the new podcast "
-								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(ID_INVALID_ALERT);
 
 			} 
 			catch (IdLengthException e) {
 				LOG.warn("IdLengthException while attempting to actually add the new podcast "
-								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(LENGTH_ALERT);
 
 			} 
 			catch (PermissionException e) {
 				LOG.warn("PermissionException while attempting to actually add the new podcast "
-								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(PERMISSION_ALERT);
 
 			} 
 			catch (IdUniquenessException e) {
 				LOG.error("IdUniquenessException while attempting to actually add the new podcast "
-								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+								+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 				setErrorMessage(ID_USED_ALERT);
 
 			}
@@ -1423,7 +1423,7 @@ public class podHomeBean {
 				} 
 				catch (IOException e) {
 					LOG.error("IOException while attempting to get file contents when revising podcast for "
-									+ filename + " in site " + podcastService.getSiteId() + ". " + e.getMessage());
+									+ filename + " in site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 					setErrorMessage(IO_ALERT);
 					return "podcastRevise";
 					
@@ -1451,7 +1451,7 @@ public class podHomeBean {
 				}
 				catch (ParseException e1) {
 					LOG.error("ParseException attempting to convert date for " + selectedPodcast.title
-									+ " for site " + podcastService.getSiteId() + ". " + e1.getMessage());
+									+ " for site " + podcastService.getSiteId() + ". " + e1.getMessage(), e1);
 					displayInvalidDateErrMsg = true;
 					return "podcastRevise";
 
@@ -1492,39 +1492,39 @@ public class podHomeBean {
 		} 
 		catch (PermissionException e) {
 			LOG.error("PermissionException while revising podcast "
-					+ selectedPodcast.title + " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+					+ selectedPodcast.title + " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(PERMISSION_ALERT);
 			
 		} 
 		catch (InUseException e) {
 			LOG.warn("InUseException while revising podcast "
-					+ selectedPodcast.title + " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+					+ selectedPodcast.title + " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
 
 		} 
 		catch (OverQuotaException e) {
 			LOG.warn("OverQuotaException while revising podcast "
-					+ selectedPodcast.title + " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+					+ selectedPodcast.title + " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(QUOTA_ALERT);
 
 		} 
 		catch (ServerOverloadException e) {
 			LOG.warn("ServerOverloadException while revising podcast "
-					+ selectedPodcast.title + " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+					+ selectedPodcast.title + " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
 
 		} 
 		catch (IdLengthException e) {
 			LOG.warn("IdLengthException while revising podcast with filename changed from "
 							+ selectedPodcast.filename + " to " + filename
-							+ " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+							+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 			setErrorMessage(LENGTH_ALERT);
 			return "podcastRevise";
 
 		}
 		catch (ParseException e) {
 			LOG.error("ParseException attempting to convert date for " + selectedPodcast.title
-							+ " for site " + podcastService.getSiteId() + ". " + e.getMessage());
+							+ " for site " + podcastService.getSiteId() + ". " + e.getMessage(), e);
 			date = "";
 			displayInvalidDateErrMsg = true;
 			return "podcastRevise";
@@ -1581,14 +1581,14 @@ public class podHomeBean {
 		catch (PermissionException e) {
 			LOG.error("PermissionException while deleting podcast "
 							+ selectedPodcast.title + " from site " + podcastService.getSiteId() 
-							+ ". " + e.getMessage());
+							+ ". " + e.getMessage(), e);
 			setErrorMessage(PERMISSION_ALERT);
 
 		} 
 		catch (InUseException e) {
 			LOG.warn("InUseException while deleting podcast "
 					+ selectedPodcast.title + " from site " + podcastService.getSiteId() 
-					+ ". " + e.getMessage());
+					+ ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
 
 		} 
@@ -1596,7 +1596,7 @@ public class podHomeBean {
 			// For IdUnusedException and TypeException
 			LOG.error(e.getMessage() + " while deleting podcast "
 					+ selectedPodcast.title + " from site " + podcastService.getSiteId() 
-					+ ". " + e.getMessage());
+					+ ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
 
 		}
@@ -1761,6 +1761,9 @@ public class podHomeBean {
 	 * does not do bounds checking, so do that and if OK,
 	 * let Validator check for errors like Feb 30, etc.
 	 * 
+	 * TODO: Try and find an actual validator to replace this
+	 * 		 method
+	 * 
 	 * @param date
 	 * 			The candidate String date
 	 * 
@@ -1822,11 +1825,11 @@ public class podHomeBean {
 				int hour = Integer.parseInt(timeSplit[0]);
 				int min = Integer.parseInt(timeSplit[1]);
 
-				if (hour < 0 || hour > 23) {
+				if (hour < 1 || hour > 12) {
 					return false;
 
 				} 
-				else if (min < 0 || min > 60) {
+				else if (min < 0 || min > 59) {
 					return false;
 
 				}
@@ -1836,15 +1839,15 @@ public class podHomeBean {
 				int min = Integer.parseInt(timeSplit[1]);
 				int sec = Integer.parseInt(timeSplit[2]);
 
-				if (hour < 0 || hour > 23) {
+				if (hour < 1 || hour > 12) {
 					return false;
 
 				}
-				else if (min < 0 || min > 60) {
+				else if (min < 0 || min > 59) {
 					return false;
 
 				} 
-				else if (sec < 0 || sec > 60) {
+				else if (sec < 0 || sec > 59) {
 					return false;
 
 				}
@@ -1852,7 +1855,7 @@ public class podHomeBean {
 		}
 
 		// We want a 12 hour clock, so AM/PM needs to be specified
-		if ("AM".equals(wholeDateSplit[2]) || "PM".equals(wholeDateSplit[2])) {
+		if ("AM".equalsIgnoreCase(wholeDateSplit[2]) || "PM".equalsIgnoreCase(wholeDateSplit[2])) {
 			return true;
 
 		}

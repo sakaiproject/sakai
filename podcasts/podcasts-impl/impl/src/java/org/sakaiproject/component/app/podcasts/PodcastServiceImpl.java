@@ -314,19 +314,19 @@ public class PodcastServiceImpl implements PodcastService {
 		catch (IdUnusedException e) {
 			LOG.error("IdUnusedException when trying to get podcast collection for edit in site: "
 							+ siteId + " " + e.getMessage(), e);
-			throw e;
+			throw new Error(e);
 
 		} 
 		catch (PermissionException e) {
 			LOG.error("PermissionException when trying to get podcast collection for edit in site: "
 							+ siteId + " " + e.getMessage(), e);
-			throw e;
+			throw new Error(e);
 
 		} 
 		catch (InUseException e) {
 			LOG.warn("InUseException attempting to retrieve podcast folder " + podcastsCollection  
 							+ " for site: " + siteId + ". " + e.getMessage(), e);
-			throw e;
+			throw new Error(e);
 			
 		}
 
@@ -344,7 +344,7 @@ public class PodcastServiceImpl implements PodcastService {
 			return podcastFolder.getReference();
 		}
 		catch (Exception e) {
-			LOG.error("Exception thrown while attempting to retrieve podcast folder reference.");
+			LOG.error("Exception thrown while attempting to retrieve podcast folder reference.", e);
 		}
 		
 		return null;
@@ -465,7 +465,7 @@ public class PodcastServiceImpl implements PodcastService {
 			catch (PermissionException e1) {
 				// If thrown here, it truly is a PermissionException, so log and rethrow
 				LOG.warn("PermissionException while trying to determine correct podcast folder Id String "
-								+ " for site: " + siteId + ". NOTE: folder may be HIDDEN.");
+								+ " for site: " + siteId + ". NOTE: folder may be HIDDEN may cause this.");
 				throw e1; 
 			}
 		} 
@@ -496,7 +496,7 @@ public class PodcastServiceImpl implements PodcastService {
 			catch (PermissionException e1) {
 				// Now they truly cannot access, so log and rethrow
 				LOG.warn("PermissionException thrown on second attempt at retrieving podcasts folder. "
-							+ " for site: " + siteId + ".");
+							+ " for site: " + siteId + ".", e1);
 				throw e1;
 			} 
 			catch (TypeException e1) {
@@ -608,7 +608,7 @@ public class PodcastServiceImpl implements PodcastService {
 		} 
 		catch (TypeException e) {
 			LOG.error("TypeException while attempting to pull resource: "
-					+ resourceId + " for site: " + getSiteId() + ". " + e.getMessage());
+					+ resourceId + " for site: " + getSiteId() + ". " + e.getMessage(), e);
 			throw new Error(e);
 		}
 		
@@ -634,7 +634,7 @@ public class PodcastServiceImpl implements PodcastService {
 		} 
 		catch (TypeException e) {
 			LOG.error("TypeException while attempting to pull resource: "
-					+ resourceId + " for site: " + getSiteId() + ". " + e.getMessage());
+					+ resourceId + " for site: " + getSiteId() + ". " + e.getMessage(), e);
 			throw new Error(e);
 		}
 		catch (InUseException e) {
@@ -1227,25 +1227,25 @@ public class PodcastServiceImpl implements PodcastService {
 					commitContentCollection(podcastsEdit);
 				}
 				catch (IdUnusedException e) {
-					LOG.error("IdUnusedException attempting to get site info to set feed title and description for site " + siteId);
+					LOG.error("IdUnusedException attempting to get site info to set feed title and description for site " + siteId, e);
 				}
 			}
 		}
 		catch (IdUnusedException e) {
 			LOG.error("IdUnusedException attempting to retrive podcast folder collection to check "
-					+ "if feed info exists for site " + siteId);
+					+ "if feed info exists for site " + siteId, e);
 		}
 		catch (TypeException e) {
 			LOG.error("TypeException attempting to retrive podcast folder collection to check "
-					+ "if feed info exists for site " + siteId);
+					+ "if feed info exists for site " + siteId, e);
 		}
 		catch (PermissionException e) {
 			LOG.error("PermissionException attempting to retrive podcast folder collection to check "
-					+ "if feed info exists for site " + siteId);
+					+ "if feed info exists for site " + siteId, e);
 		}
 		catch (InUseException e) {
 			LOG.info("InUsedException attempting to retrive podcast folder collection to check "
-					+ "if feed info exists for site " + siteId);
+					+ "if feed info exists for site " + siteId, e);
 		}
 	}
 	
@@ -1267,7 +1267,7 @@ public class PodcastServiceImpl implements PodcastService {
 		} 
 		catch (TypeException e) {
 			LOG.error("TypeException while getting the resource " + resourceId
-					+ "'s URL. Resource from site " + getSiteId() + ". " + e.getMessage());
+					+ "'s URL. Resource from site " + getSiteId() + ". " + e.getMessage(), e);
 			throw new Error(e);
 		}
 
@@ -1315,7 +1315,7 @@ public class PodcastServiceImpl implements PodcastService {
 		} 
 		catch (PermissionException e) {
 			LOG.warn("PermissionException attempting to retrieve podcast folder id "
-							+ " for site " + getSiteId() + ". " + e.getMessage());
+							+ " for site " + getSiteId() + ". " + e.getMessage(), e);
 			throw new Error(e);
 
 		}
@@ -1344,7 +1344,7 @@ public class PodcastServiceImpl implements PodcastService {
 		} 
 		catch (PermissionException e) {
 			LOG.warn("PermissionException attempting to retrieve podcast folder id "
-							+ " for site " + getSiteId() + ". " + e.getMessage());
+							+ " for site " + getSiteId() + ". " + e.getMessage(), e);
 			throw new Error(e);
 			
 		}
