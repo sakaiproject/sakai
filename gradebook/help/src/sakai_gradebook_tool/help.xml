@@ -11,7 +11,7 @@
         <property name="location">
             <value>/sakai_gradebook_tool/arap.html</value>
         </property>
-		<property name="defaultForTool"><value>sakai.gradebook</value></property>
+		<property name="defaultForTool"><value>sakai.gradebook.tool</value></property>
     </bean>
     <bean id="gradebookAddItem" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
