@@ -93,8 +93,12 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 		{
 			String headerStr = (String) headers.get(i);
 
-			if (headerStr.startsWith("Return-Path") || headerStr.startsWith("Content-Transfer-Encoding")) continue;
-			if (headerStr.startsWith("Content-Type: ")) continue;
+			if (headerStr.regionMatches(true, 0, MailArchiveService.HEADER_RETURN_PATH, 0, MailArchiveService.HEADER_RETURN_PATH.length())) 
+				continue;
+			if (headerStr.regionMatches(true, 0, MailArchiveService.HEADER_CONTENT_TRANSFER_ENCODING, 0, MailArchiveService.HEADER_CONTENT_TRANSFER_ENCODING.length())) 
+				continue;
+			if (headerStr.regionMatches(true, 0, MailArchiveService.HEADER_CONTENT_TYPE, 0, MailArchiveService.HEADER_CONTENT_TYPE.length())) 
+				continue;
 			
 			filteredHeaders.add(headerStr);
 		}

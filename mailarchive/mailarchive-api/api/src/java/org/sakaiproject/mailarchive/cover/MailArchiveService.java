@@ -94,6 +94,10 @@ public class MailArchiveService
 	public static java.lang.String REF_TYPE_CHANNEL = org.sakaiproject.mailarchive.api.MailArchiveService.REF_TYPE_CHANNEL;
 
 	public static java.lang.String REF_TYPE_MESSAGE = org.sakaiproject.mailarchive.api.MailArchiveService.REF_TYPE_MESSAGE;
+	
+	public static java.lang.String HEADER_CONTENT_TYPE = org.sakaiproject.mailarchive.api.MailArchiveService.HEADER_CONTENT_TYPE;
+	public static java.lang.String HEADER_RETURN_PATH = org.sakaiproject.mailarchive.api.MailArchiveService.HEADER_RETURN_PATH;
+	public static java.lang.String HEADER_CONTENT_TRANSFER_ENCODING = org.sakaiproject.mailarchive.api.MailArchiveService.HEADER_CONTENT_TRANSFER_ENCODING;
 
 	public static org.sakaiproject.mailarchive.api.MailArchiveChannel getMailArchiveChannel(java.lang.String param0)
 			throws org.sakaiproject.exception.IdUnusedException, org.sakaiproject.exception.PermissionException

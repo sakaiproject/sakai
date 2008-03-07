@@ -183,8 +183,12 @@ public class SakaiMailet extends GenericMailet
 			while (headers.hasMoreElements())
 			{
 				String line = (String) headers.nextElement();
-				if (line.startsWith("Content-Type: "))
-					mailHeaders.add(line.replaceAll("Content-Type", MailArchiveService.HEADER_OUTER_CONTENT_TYPE));
+				// check if string starts with "Content-Type", ignoring case
+				if (line.regionMatches(true, 0, MailArchiveService.HEADER_CONTENT_TYPE, 0, MailArchiveService.HEADER_CONTENT_TYPE.length()))
+				{
+					String contentType = line.substring(0, MailArchiveService.HEADER_CONTENT_TYPE.length() );
+					mailHeaders.add(line.replaceAll(contentType, MailArchiveService.HEADER_OUTER_CONTENT_TYPE));
+				}
 				mailHeaders.add(line);
 			}
 

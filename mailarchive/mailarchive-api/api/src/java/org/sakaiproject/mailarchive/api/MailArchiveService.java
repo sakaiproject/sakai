@@ -90,6 +90,11 @@ public interface MailArchiveService extends MessageService
 	 * Message header that indicates the Content-Type of the message body of an archived message - this may be different from the original outer-envelope Content-Type (outer might be multipart)
 	 */
 	public static final String HEADER_INNER_CONTENT_TYPE = "X-Content-Type-Message-Body";
+	
+	// Common mail headers -- always use a case-insensitive test against these
+	public static final String HEADER_CONTENT_TYPE = "Content-Type";
+	public static final String HEADER_RETURN_PATH  = "Return-Path";
+	public static final String HEADER_CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
 
 	/**
 	 * A (MailArchiveChannel) cover for getChannel() to return a specific mail archive group.
