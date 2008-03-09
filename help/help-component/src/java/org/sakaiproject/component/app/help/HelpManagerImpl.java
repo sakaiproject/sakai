@@ -1163,7 +1163,7 @@ public List getActiveContexts(Map session)
         }
         catch (Exception e)
         {
-          LOG.debug("Unable to load classpath resource: " + classpathUrl);
+          LOG.warn("Unable to load help index from " + classpathUrl + " : " + e.getMessage());
         }
      }
   }
