@@ -18,7 +18,7 @@
             <value>aran</value>
         </property>
         <property name="name">
-            <value>Creating/adding, editing, or deleting a Gradebook item<</value>
+            <value>Creating/adding, editing, or deleting a Gradebook item</value>
         </property>
         <property name="location">
             <value>/sakai_gradebook_tool/aran.html</value>
