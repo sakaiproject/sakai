@@ -96,6 +96,7 @@ public class ShowAttachmentMediaServlet extends HttpServlet
     
     // ** note that res.setContentType() must be called before
 	// res.getOutputStream(). see javadoc on this
+    res.setContentType(mimeType);
     FileInputStream inputStream = null;
     BufferedInputStream buf_inputStream = null;
     ServletOutputStream outputStream = res.getOutputStream();

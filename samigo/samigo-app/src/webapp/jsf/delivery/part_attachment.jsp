@@ -32,6 +32,8 @@
         <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
         <h:outputText escape="false" value="
 	      <embed src=\"#{delivery.protocol}/samigo/servlet/ShowAttachmentMedia?actionMode=preview&resourceId=#{attach.resourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" volume=\"50\" height=\"350\" width=\"400\" autostart=\"false\"/>" rendered="#{attach.isInlineVideo}"/>
+	    <h:outputText escape="false" value="
+		  <embed src=\"#{delivery.protocol}/samigo/servlet/ShowAttachmentMedia?actionMode=preview&resourceId=#{attach.resourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" volume=\"50\" height=\"50\" width=\"400\" autostart=\"false\"/>" rendered="#{attach.isInlineMP3}"/>
         <h:outputText escape="false" value="
 	      <embed src=\"#{delivery.protocol}/samigo/servlet/ShowAttachmentMedia?actionMode=preview&resourceId=#{attach.resourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" height=\"350\" width=\"400\"/>" rendered="#{attach.isInlineFlash}"/>
 	    <h:outputText escape="false" value="
