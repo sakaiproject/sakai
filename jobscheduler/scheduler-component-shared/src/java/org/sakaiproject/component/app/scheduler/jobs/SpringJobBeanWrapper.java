@@ -33,7 +33,7 @@ import org.quartz.JobExecutionException;
  * This class is final to ensure that it will be constructable
  * by the scheduler infrastructure
  */
-public final class SpringJobBeanWrapper implements JobBeanWrapper, Job {
+public class SpringJobBeanWrapper implements JobBeanWrapper, Job {
 
    private String beanId;
    private String jobName;

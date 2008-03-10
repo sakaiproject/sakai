@@ -53,6 +53,8 @@ public class SchedulerManagerImpl implements SchedulerManager
    private Map beanJobs = new Hashtable();
 
   private static final String JOB_INTERFACE = "org.quartz.Job";
+  private static final String STATEFULJOB_INTERFACE = "org.quartz.StatefulJob";
+  
 
   private SchedulerFactory schedFactory;
   private Scheduler scheduler;
@@ -181,7 +183,8 @@ public void init()
     Class[] classArr = cl.getInterfaces();
     for (int i = 0; i < classArr.length; i++)
     {
-      if (classArr[i].getName().equals(JOB_INTERFACE))
+    	if (classArr[i].getName().equals(JOB_INTERFACE) || 
+    			classArr[i].getName().equals(STATEFULJOB_INTERFACE))
       {
         return true;
       }
