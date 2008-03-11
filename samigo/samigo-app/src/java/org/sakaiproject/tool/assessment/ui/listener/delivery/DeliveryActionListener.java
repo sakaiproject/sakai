@@ -1118,8 +1118,19 @@ public class DeliveryActionListener
 
           // Randomize matching the same way for each
         }
+
+        // Show the answers in the same order that student did.
+		String agentString = "";
+		if (delivery.getActionMode() == DeliveryBean.GRADE_ASSESSMENT) {
+			StudentScoresBean studentscorebean = (StudentScoresBean) ContextUtil
+					.lookupBean("studentScores");
+			agentString = studentscorebean.getStudentId();
+		} else {
+			agentString = getAgentString();
+		}
+
         Collections.shuffle(shuffled, 
-        					new Random( (long) item.getText().hashCode() + getAgentString().hashCode()));
+        		new Random( (long) item.getText().hashCode() + agentString.hashCode()));
         /*
         if (item.getTypeId().equals(TypeIfc.MATCHING))
         {
