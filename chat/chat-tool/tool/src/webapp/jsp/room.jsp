@@ -38,21 +38,20 @@
 					</h:selectOneMenu> 
 					<h:selectOneMenu id="messageOptions"
 							value="#{ChatTool.messageOptions}" 
-							onchange="this.form.submit();"
-							rendered="#{ChatTool.canRenderMessageOptions}">
-						<f:selectItem itemValue="-1" itemLabel="#{msgs.allMessages}" />
-						<f:selectItems value="#{ChatTool.messageOptionsList}" />
+							onchange="this.form.submit();">
+					   	<f:selectItems value="#{ChatTool.messageOptionsList}" />
 					</h:selectOneMenu>
+					      				      
 				</h:column> 
 			</h:panelGrid> 
 			<div id="chatListWrapper" class="chatListWrapper">
 				<div  class="chatListHeadWrapper">
 					<h:outputText value="#{msgs.lay_note}" rendered="#{ChatTool.canRenderAllMessages}" />
 					<h:outputFormat value="#{msgs.lay_restricted_note_days}" rendered="#{ChatTool.canRenderDateMessages}" >
-						<f:param value="#{ChatTool.currentChannel.chatChannel.filterParam}" />
+						<f:param value="#{ChatTool.currentChannel.chatChannel.timeParam}" />
 					</h:outputFormat>
 					<h:outputFormat value="#{msgs.lay_restricted_note_messages}" rendered="#{ChatTool.canRenderNumberMessages}" >
-						<f:param value="#{ChatTool.currentChannel.chatChannel.filterParam}" />
+						<f:param value="#{ChatTool.currentChannel.chatChannel.numberParam}" />
 					</h:outputFormat>
 					<h:outputText value="#{msgs.lay_restricted_note_none}" rendered="#{ChatTool.canRenderNoMessages}" />
 				</div>

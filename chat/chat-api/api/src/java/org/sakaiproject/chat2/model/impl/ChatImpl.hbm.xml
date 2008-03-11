@@ -22,6 +22,8 @@
 		<property name="description" type="string" length="255" />
 		<property name="filterType" type="string" length="25" />
 		<property name="filterParam" type="int" />
+		<property name="timeParam" type="int" not-null="true" />
+		<property name="numberParam" type="int" not-null="true"/>
 		<property name="placementDefaultChannel" type="boolean" index="CHAT_CHANNEL_DEFAULT_I"/>
 		<property name="enableUserOverride" type="boolean" column="ENABLE_USER_OVERRIDE" not-null="false"/>
 		<property name="migratedChannelId" type="string" length="99" />

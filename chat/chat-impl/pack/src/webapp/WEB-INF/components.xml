@@ -53,11 +53,13 @@
     		class="org.sakaiproject.chat2.model.ChatChannel"
     		singleton="true">
     	<property name="filterType">
-    		<bean id="org.sakaiproject.chat2.model.ChatChannel.FILTER_BY_TIME"
+    		<bean id="org.sakaiproject.chat2.model.ChatChannel.FILTER_ALL"
                class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
          </bean>
       </property>
     	<property name="filterParam"><value>3</value></property>
+    	<property name="timeParam"><value>3</value></property>
+    	<property name="numberParam"><value>10</value></property>
     	<property name="enableUserOverride"><value>true</value></property>
     </bean>
     

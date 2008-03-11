@@ -48,8 +48,10 @@ public class ChatChannel implements Entity {
    private Date creationDate;
    private String title;
    private String description;
-   private String filterType = FILTER_BY_TIME;
+   private String filterType = FILTER_ALL;
    private int filterParam = 3;
+   private int timeParam = 3;
+   private int numberParam = 10;
    private boolean placementDefaultChannel = false;
    private boolean enableUserOverride = true;
    private Set messages = new HashSet();
@@ -66,6 +68,8 @@ public class ChatChannel implements Entity {
    public ChatChannel(ChatChannel defaults) {
       this.filterType = defaults.getFilterType();
       this.filterParam = defaults.getFilterParam();
+      this.timeParam = defaults.getTimeParam();
+      this.numberParam = defaults.getNumberParam();
       this.enableUserOverride = defaults.isEnableUserOverride();
    }
    
@@ -253,5 +257,21 @@ public String getPlacement() {
  */
 public void setPlacement(String placement) {
 	this.placement = placement;
+}
+
+public int getNumberParam() {
+	return numberParam;
+}
+
+public void setNumberParam(int numberParam) {
+	this.numberParam = numberParam;
+}
+
+public int getTimeParam() {
+	return timeParam;
+}
+
+public void setTimeParam(int timeParam) {
+	this.timeParam = timeParam;
 }
 }
