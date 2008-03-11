@@ -4,7 +4,7 @@
 Gradebook item</title>
 <style type="text/css">
 		/* Style for specific inline images */
-		
+		div.image{display: inline;}
 		/* Style for specific ordered lists */
 		
 		/* Style for specific table cells */
@@ -53,23 +53,37 @@ basic understanding of roles and permissions, see <a href="content.hlp?docId=ara
 <p>To create/add a new Gradebook item:</p>
 
 <ol><li>In the <a href="content.hlp?docId=arcc">menubar</a>, click <strong><code>Gradebook</code></strong>, and then
-click <strong><code>Add item</code></strong>.
+click <strong><code>Add Gradebook item</code></strong>.
 
 <br /><br />
-</li><li>On the Add Item screen, fill in the following information:
+</li><li>On the Add Gradebook Item screen, fill in the following information:
 
 <br /><br />
 
 <ul><li><strong>Title:</strong> A title is required for all Gradebook
 items. The title can be up to 255 characters long.
-</li><li><strong>Item Point Value:</strong> You must assign a point
-value to all Gradebook items. Enter a value greater than
-zero. Decimals are permitted, but values are limited to two decimal
-places.
+<br /><br />
+</li><li>Item Value: You must assign a value to all Gradebook
+items. Depending on whether you have chosen (in Gradebook Setup) to
+enter grades as points or either percentages or letters, you will see
+one of the following:
+<br /><br />
+
+  <ul><li><strong>Gradebook Item Point Value:</strong> If you have chosen
+  to enter your grades as points, enter a value greater than
+  zero. Decimals are permitted, but values are limited to two decimal
+  places.
+
+  </li><li><strong>Gradebook Item Relative Weight:</strong> If you have
+  chosen to enter your grades as either percentages or letter grades,
+  enter the relative weight.
+
+  </li></ul>
+<br /><br />
 </li><li><strong>Due Date:</strong> You can optionally designate a due date
 for a Gradebook item. You can manually enter the due date (e.g.,
-<code>09/28/07</code>), or click the calendar icon to select a date
-from a pop-up calendar.
+<code>09/28/07</code>), or click the calendar icon  <div class="inlineimage image"><img class="noborder" src="image/a012w.gif" alt="Calendar icon" /></div>  to
+select a date from a pop-up calendar.
 </li></ul><br />
 </li><li>If you wish to include this item when calculating students'
 final grades, check the box provided. You can change this later.
