@@ -1,3 +1,16 @@
+--SAK-12527 Changes to Chat Room options do not work consistently
+
+-- add column timeParam and numberParam 
+alter table CHAT2_CHANNEL add timeParam int;
+alter table CHAT2_CHANNEL add numberParam int;
+
+UPDATE CHAT2_CHANNEL
+SET numberParam = Case When filterParam = 0 or filterType <> 'SelectByNumber' Then 10 Else filterParam End,
+timeParam = Case When filterparam = 0 or filterType <> 'SelectMessagesByTime' Then 3 Else filterParam End;
+
+alter table CHAT2_CHANNEL modify (timeParam int not null);
+alter table CHAT2_CHANNEL modify (numberParam int not null);
+
 --SAK-12176 Messages-Send cc to recipients' email address(es)
 
 -- add column sendEmailOut to table MFR_AREA_T
