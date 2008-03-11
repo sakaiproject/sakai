@@ -875,17 +875,16 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
   
-  /*
-   * (non-Javadoc)
+  /**
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#getCurrentUserMemberships()
    */
-  public List getCurrentUserMemberships() {
+  public List<String> getCurrentUserMemberships() {
 	return getCurrentUserMemberships(getContextId());  
   }
   
-  public List getCurrentUserMemberships(String siteId)
+  public List<String> getCurrentUserMemberships(String siteId)
   {
-	  List userMemberships = new ArrayList();
+	  List<String> userMemberships = new ArrayList<String>();
 	  // first, add the user's role
 	  final String currRole = getCurrentUserRole(siteId);
 	  userMemberships.add(currRole);

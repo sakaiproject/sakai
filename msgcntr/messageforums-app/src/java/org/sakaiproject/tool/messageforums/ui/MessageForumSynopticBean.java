@@ -3,7 +3,7 @@
  * $Id: MessageForumsSynopticBean.java $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2008 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -21,7 +21,6 @@
 package org.sakaiproject.tool.messageforums.ui;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,16 +43,15 @@ import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
+import org.sakaiproject.api.app.messageforums.ui.SynopticMFManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -166,22 +164,23 @@ public class MessageForumSynopticBean {
 
 /* =========== End of DecoratedCompiledMessageStats =========== */
 
-	// transient only persists in request scope
+	// transient only persists in request scope, when on MyWorkspace
 	private transient Boolean myWorkspace = null;
 	private transient Boolean pmEnabled = null;
 	private transient Boolean anyMFToolInSite = null;
 	private transient List myWorkspaceContents = null;
 	private transient String pvtTopicMessageUrl = null;
 	private transient List groupedSitesCounts = null;
-	private transient List userRoles = null;
-	private transient List multiMembershipSites = null;
+	private transient List<String> userRoles = null;
 	private transient List compiledDFMessageCounts = null;
 	private transient Map receivedFolderUuidByContextId = null;
 	private transient List siteList = null;
 	private transient Map sitesMap = null;
-	private transient Map currentUserMembershipsBySite = null;
-	private transient Map mfPageInSiteMap = null;
-	
+	private transient Map<String, List<String>> currentUserMembershipsBySite = null;
+	private transient Map<String, String> toolsInSitesMap = null;
+	private transient Map<String, String> mainRoleInSites = null;
+	  
+
 	
 	// transient variable for when on home page of site
 	private transient DecoratedCompiledMessageStats siteContents;
@@ -225,6 +224,9 @@ public class MessageForumSynopticBean {
 	/** Needed to determine if user has read permission of topic */
 	private UIPermissionsManager uiPermissionsManager;
 	
+	/** Needed to pull roles/groups as well as tools within sites */
+	private SynopticMFManager synopticMFManager;
+	
 	public void setMessageManager(MessageForumsMessageManager messageManager) {
 		this.messageManager = messageManager;
 	}
@@ -251,6 +253,10 @@ public class MessageForumSynopticBean {
 
 	public void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager) {
 		this.uiPermissionsManager = uiPermissionsManager;
+	}
+
+	public void setSynopticMFManager(SynopticMFManager synopticMFManager) {
+		this.synopticMFManager = synopticMFManager;
 	}
 
 	public void setPreferencesService(PreferencesService preferencesService) {
@@ -417,23 +423,20 @@ public class MessageForumSynopticBean {
 	 * @return
 	 * 		List of role ids user has for all sites passed in
 	 */
-	private List getUserRoles(List siteList) {
+	private List<String> getUserRoles(List siteList) {
 		if (userRoles == null) {
-			userRoles = new UniqueArrayList();
-			final Iterator siteIter = siteList.iterator();
-			List roles;
-			
-			while (siteIter.hasNext()) {
-				String siteId = (String) siteIter.next();
-				
-				roles = getCurrentUserMembershipsBySite(siteId);
+			userRoles = new ArrayList<String>();
 
-				for (Iterator i = roles.iterator(); i.hasNext();) {
-					String roleGroupName = (String) i.next();
-				
-					if (! userRoles.contains(roleGroupName)) {
-						userRoles.addAll(roles);						
-					}
+			if (mainRoleInSites == null)
+				mainRoleInSites = synopticMFManager.getUserRoleForAllSites();
+			
+			for (Iterator iter = siteList.iterator(); iter.hasNext();)
+			{
+				String siteId = (String) iter.next();
+			
+				if (!userRoles.contains(mainRoleInSites.get(siteId)))
+				{
+					userRoles.add(mainRoleInSites.get(siteId));
 				}
 			}
 		}
@@ -507,35 +510,66 @@ public class MessageForumSynopticBean {
 	 * Returns a list of all sites that the current user has
 	 * multiple memberships (ie, grouped).
 	 */
-	private List getMultiMembershipSites(List siteList) {
-		if (multiMembershipSites == null) {
-			multiMembershipSites = new ArrayList();
+	private List<String> getMultiMembershipSites(List<String> siteList) {
+		List<String> multiMembershipSites = new ArrayList<String>();
 		
-			for (Iterator siteIter = siteList.iterator(); siteIter.hasNext();) {
-				final String siteId = (String) siteIter.next();
+		for (Iterator<String> siteIter = siteList.iterator(); siteIter.hasNext();) {
+			final String siteId = (String) siteIter.next();
 			
-				List roles = getCurrentUserMembershipsBySite(siteId);
+			List<String> roles = getCurrentUserMembershipsBySite(siteId);
 			
-				if (roles.size() > 1) {
-					multiMembershipSites.add(siteId);
-				}
+			if (roles.size() > 1) {
+				multiMembershipSites.add(siteId);
 			}
 		}
 		
 		return multiMembershipSites;
 	}
 
-	private List getCurrentUserMembershipsBySite(String siteId) {
+	/**
+	 * Returns a Map of site id, List of role/group memberships
+	 */
+	private Map<String, List<String>> fillCurrentUserMembershipsBySite()
+	{
+		Map<String, List<String>> membershipMap = new HashMap<String, List<String>>();
+		
+		Map<String, String> singleGroupMap = synopticMFManager.getGroupMembershipsForSites(siteList);
+		
+		for (Iterator<String> iter = siteList.iterator(); iter.hasNext();)
+		{
+			String tempSiteId = iter.next();
+			
+			if (mainRoleInSites == null)
+				mainRoleInSites = synopticMFManager.getUserRoleForAllSites();
+			
+			String mainRole = mainRoleInSites.get(tempSiteId);
+			
+			List<String> groupList = new ArrayList<String>();
+			groupList.add(mainRole);
+			while (singleGroupMap.containsKey(tempSiteId))
+			{
+				groupList.add(singleGroupMap.get(tempSiteId));
+				singleGroupMap.remove(tempSiteId);
+			}
+
+			if (!groupList.isEmpty())
+			{
+				membershipMap.put(tempSiteId, groupList);
+			}
+		}
+		
+		return membershipMap;
+	}
+
+	/**
+	 * Returns a List<String> of roles/groups for the site whose id is passed in
+	 */
+	private List<String> getCurrentUserMembershipsBySite(String siteId) {
 		if (currentUserMembershipsBySite == null) {
-			currentUserMembershipsBySite = new HashMap();
+			currentUserMembershipsBySite = fillCurrentUserMembershipsBySite();
 		}
 		
-		List roles;
-		if ((roles = (List) currentUserMembershipsBySite.get(siteId)) == null) {
-			currentUserMembershipsBySite.put(siteId, uiPermissionsManager.getCurrentUserMemberships(siteId));
-		}
-		
-		return (List) currentUserMembershipsBySite.get(siteId);
+		return (List<String>) currentUserMembershipsBySite.get(siteId);
 	}
 	
 	private List filterAndAggragateGroupCounts(List counts)
@@ -707,7 +741,7 @@ public class MessageForumSynopticBean {
 	 * @return
 	 * 		List of unread message counts grouped by site
 	 */
-	private List compileDFMessageCount(List siteList) {
+	private List compileDFMessageCount(List<String> siteList) {
 		if (compiledDFMessageCounts == null) {
 			compiledDFMessageCounts = new ArrayList();
 
@@ -720,7 +754,7 @@ public class MessageForumSynopticBean {
 			// get List of sites where user is part of a group since
 			// need to process differently since could affect which messages
 			// able to view.
-			final List groupedSites = getMultiMembershipSites(siteList);
+			final List<String> groupedSites = getMultiMembershipSites(siteList);
 		
 			siteListMinusGrouped.removeAll(groupedSites);
 
@@ -867,15 +901,9 @@ public class MessageForumSynopticBean {
 				dcms.setMcPageURL(getMCPageURL(siteId));
 				dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(siteId));
 				
-				try {
-					dcms.setMessagesandForums(isMessageForumsPageInSite(getSite(siteId)));
-					dcms.setMessages(isMessagesPageInSite(getSite(siteId)));
-					dcms.setForums(isForumsPageInSite(getSite(siteId)));
-				}
-				catch (IdUnusedException e) {
-					LOG.error("IdUnusedException while trying to determine what tools are in site "
-									+ siteId + "to set decorated synoptic messages & forums bean values.");
-				}
+				dcms.setMessagesandForums(isMessageForumsPageInSite(siteId));
+				dcms.setMessages(isMessagesPageInSite(siteId));
+				dcms.setForums(isForumsPageInSite(siteId));
 
 				contents.add(dcms);
 				
@@ -943,11 +971,11 @@ public class MessageForumSynopticBean {
 			dcms.setSiteId(siteId);
 
 			// Put check here because if not in site, skip
-			if (isMessageForumsPageInSite(site) || isMessagesPageInSite(site)) {
+			if (isMessageForumsPageInSite(siteId) || isMessagesPageInSite(siteId)) {
 
 				// ************ checking for unread private messages for this site ************  
 				if (siteId.equals(pmCounts[0])) {
-					if (isMessagesPageInSite(site)) {
+					if (isMessagesPageInSite(siteId)) {
 						dcms.setUnreadPrivateAmt(((Integer) pmCounts[1]).intValue());
 						hasPrivate = true;						
 					}
@@ -978,7 +1006,7 @@ public class MessageForumSynopticBean {
 				}
 			}
 				
-			if (isMessageForumsPageInSite(site) || isForumsPageInSite(site)) {
+			if (isMessageForumsPageInSite(siteId) || isForumsPageInSite(siteId)) {
 				// ************ check for unread discussion forum messages on this site ************
 				if (siteId.equals(unreadDFCount[0])) {
 					// counts exist, so put it in decorated bean
@@ -999,15 +1027,9 @@ public class MessageForumSynopticBean {
 				dcms.setMcPageURL(getMCPageURL(siteId));
 				dcms.setPrivateMessagesUrl(generatePrivateTopicMessagesUrl(siteId));
 
-				try {
-					dcms.setMessagesandForums(isMessageForumsPageInSite(getSite(siteId)));
-					dcms.setMessages(isMessagesPageInSite(getSite(siteId)));
-					dcms.setForums(isForumsPageInSite(getSite(siteId)));
-				}
-				catch (IdUnusedException e) {
-					LOG.error("IdUnusedException while trying to determine what tools are in site "
-									+ siteId + "to set decorated synoptic messages & forums bean values.");
-				}
+				dcms.setMessagesandForums(isMessageForumsPageInSite(siteId));
+				dcms.setMessages(isMessagesPageInSite(siteId));
+				dcms.setForums(isForumsPageInSite(siteId));
 
 				contents.add(dcms);
 				
@@ -1279,36 +1301,15 @@ public class MessageForumSynopticBean {
 	 *         FALSE otherwise
 	 */
 	public boolean isMessageForumsPageInSite() {
-		boolean mfToolExists = false;
-
-		try {
-			final Site thisSite = getSite(getContext());
-
-			mfToolExists = isMessageForumsPageInSite(thisSite);
-
-		} catch (IdUnusedException e) {
-			LOG.error("IdUnusedException while trying to check if site has MF tool.");
-		}
-
-		return mfToolExists;
+		return isMessageForumsPageInSite(getContext());
 	}
 
 	/**
 	 * @return TRUE if Messages & Forums (Message Center) exists in this site,
 	 *         FALSE otherwise
 	 */
-	private boolean isMessageForumsPageInSite(Site thisSite) {
-		if (mfPageInSiteMap == null) {
-			mfPageInSiteMap = new HashMap();
-		}
-		
-		Boolean isMFPageInSite;
-		if ((isMFPageInSite = (Boolean) mfPageInSiteMap.get(thisSite)) == null) {
-			isMFPageInSite = isToolInSite(thisSite, DiscussionForumService.MESSAGE_CENTER_ID);
-			mfPageInSiteMap.put(thisSite, isMFPageInSite);
-		}
-		
-		return isMFPageInSite;
+	private boolean isMessageForumsPageInSite(String siteId) {
+			return isToolInSite(siteId, DiscussionForumService.MESSAGE_CENTER_ID);
 	}
 	
 	/**
@@ -1316,26 +1317,15 @@ public class MessageForumSynopticBean {
 	 *         FALSE otherwise
 	 */
 	public boolean isForumsPageInSite() {
-		boolean mfToolExists = false;
-
-		try {
-			final Site thisSite = getSite(getContext());
-
-			mfToolExists = isForumsPageInSite(thisSite);
-
-		} catch (IdUnusedException e) {
-			LOG.error("IdUnusedException while trying to check if site has MF tool.");
-		}
-
-		return mfToolExists;
+		return isForumsPageInSite(getContext());
 	}
 
 	/**
 	 * @return TRUE if Forums tool exists in this site,
 	 *         FALSE otherwise
 	 */
-	private boolean isForumsPageInSite(Site thisSite) {
-		return isToolInSite(thisSite, DiscussionForumService.FORUMS_TOOL_ID);
+	private boolean isForumsPageInSite(String siteId) {
+		return isToolInSite(siteId, DiscussionForumService.FORUMS_TOOL_ID);
 	}
 
 	/**
@@ -1345,24 +1335,15 @@ public class MessageForumSynopticBean {
 	public boolean isMessagesPageInSite() {
 		boolean mfToolExists = false;
 
-		try {
-			final Site thisSite = getSite(getContext());
-
-			mfToolExists = isMessagesPageInSite(thisSite);
-
-		} catch (IdUnusedException e) {
-			LOG.error("IdUnusedException while trying to check if site has MF tool.");
-		}
-
-		return mfToolExists;
+		return isMessagesPageInSite(getContext());
 	}
 
 	/**
 	 * @return TRUE if Messages tool exists in this site,
 	 *         FALSE otherwise
 	 */
-	private boolean isMessagesPageInSite(Site thisSite) {
-		return isToolInSite(thisSite, DiscussionForumService.MESSAGES_TOOL_ID);
+	private boolean isMessagesPageInSite(String siteId) {
+		return isToolInSite(siteId, DiscussionForumService.MESSAGES_TOOL_ID);
 	}
 
 	/**
@@ -1376,10 +1357,20 @@ public class MessageForumSynopticBean {
 	 * 
 	 * @return
 	 */
-	private boolean isToolInSite(Site thisSite, String toolId) {
-		final Collection toolsInSite = thisSite.getTools(toolId);
-
-		return ! toolsInSite.isEmpty();		
+	private boolean isToolInSite(String siteId, String toolId) {
+		  if (toolsInSitesMap == null)
+		  {
+			  // if on home page of site this check gets called first
+			  // so add current site to siteList
+			  if (siteList == null && !isMyWorkspace())
+			  {
+				  siteList = new ArrayList();
+				  siteList.add(getContext());
+			  }
+			  toolsInSitesMap = synopticMFManager.fillToolsInSites(siteList);
+		  }
+		  
+		  return toolsInSitesMap.containsKey(siteId + ":" + toolId);
 	}
 
 	/**
@@ -1400,37 +1391,44 @@ public class MessageForumSynopticBean {
 	 *         Needed since tool could possibly by in MyWorkspace
 	 */
 	private String getMCPageURL(String siteId) {
-	    ToolConfiguration mcTool = null;
+	    String mcToolId = null;
 	    String url = null;
 	    
 	    try {
 	    	String toolId = "";
 	    	final Site site = getSite(siteId);
 	    	
-	    	if (isMessageForumsPageInSite(site)) {
+	    	if (isMessageForumsPageInSite(siteId)) 
+	    	{
 	    		toolId = DiscussionForumService.MESSAGE_CENTER_ID;
 	    	}
-	    	else if (isForumsPageInSite(site)) {
+	    	else if (isForumsPageInSite(siteId)) 
+	    	{
 	    		toolId = DiscussionForumService.FORUMS_TOOL_ID;
 	    	}
-	    	else if (isMessagesPageInSite(site)) {
+	    	else if (isMessagesPageInSite(siteId)) 
+	    	{
 	    		toolId = DiscussionForumService.MESSAGES_TOOL_ID;
 	    	}
 
-    		mcTool = site.getToolForCommonId(toolId);
+	    	mcToolId = toolsInSitesMap.get(siteId + ":" + toolId);
 
-	    	if (mcTool != null) {
-	    		if (toolId == DiscussionForumService.MESSAGE_CENTER_ID) {
+	    	if (mcToolId != null) 
+	    	{
+	    		if (toolId == DiscussionForumService.MESSAGE_CENTER_ID) 
+	    		{
 	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
-	    							+ mcTool.getId() + "/sakai.messageforums.helper.helper/main";
+	    							+ mcToolId + "/sakai.messageforums.helper.helper/main";
 	    		}
-	    		else if (toolId == DiscussionForumService.FORUMS_TOOL_ID) {
+	    		else if (toolId == DiscussionForumService.FORUMS_TOOL_ID) 
+	    		{
 	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
-	    							+ mcTool.getId() + "/sakai.messageforums.helper.helper/discussionForum/forumsOnly/dfForums";
+	    							+ mcToolId + "/sakai.messageforums.helper.helper/discussionForum/forumsOnly/dfForums";
 	    		}
-	    		else if (toolId == DiscussionForumService.MESSAGES_TOOL_ID) {
+	    		else if (toolId == DiscussionForumService.MESSAGES_TOOL_ID) 
+	    		{
 	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
-	    							+ mcTool.getId() + "/sakai.messageforums.helper.helper/privateMsg/pvtMsgHpView";
+	    							+ mcToolId + "/sakai.messageforums.helper.helper/privateMsg/pvtMsgHpView";
 	    		}
 	    	}
 		}
@@ -1591,7 +1589,7 @@ public class MessageForumSynopticBean {
 	 * Return Received folder uuid  
 	 */
 	private String getUuidFromMap(String contextId) {
-		if (receivedFolderUuidByContextId == null) {
+		if (receivedFolderUuidByContextId == null || receivedFolderUuidByContextId.isEmpty()) {
 			List tempSiteList = new ArrayList();
 			tempSiteList.addAll(filterOutExcludedSites(getSiteList()));
 			List receivedUuidsForAllSites = forumsManager.
@@ -1639,28 +1637,28 @@ public class MessageForumSynopticBean {
 				}
     		}
 
-			ToolConfiguration mcTool = null;
+			String mcToolId = null;
 			String url = null;
 	    
 			try {
 				String toolId = "";
 				final Site site = getSite(contextId);
 		    	
-				if (isMessageForumsPageInSite(site)) {
+				if (isMessageForumsPageInSite(contextId)) {
 					toolId = DiscussionForumService.MESSAGE_CENTER_ID;
 				}
-				else if (isMessagesPageInSite(site)) {
+				else if (isMessagesPageInSite(contextId)) {
 					toolId = DiscussionForumService.MESSAGES_TOOL_ID;
 				}
-				else if (isForumsPageInSite(site)) {
+				else if (isForumsPageInSite(contextId)) {
 					toolId = DiscussionForumService.FORUMS_TOOL_ID;
 				}
 
-				mcTool = site.getToolForCommonId(toolId);
-
-				if (mcTool != null) {
+				mcToolId = toolsInSitesMap.get(contextId + ":" + toolId);
+				
+				if (mcToolId != null) {
 					pvtTopicMessageUrl = ServerConfigurationService.getPortalUrl() + "/directtool/"
-		    					+ mcTool.getId() + "/sakai.messageforums.helper.helper/privateMsg/pvtMsg?pvtMsgTopicId=" 
+		    					+ mcToolId + "/sakai.messageforums.helper.helper/privateMsg/pvtMsg?pvtMsgTopicId=" 
 		    					+ receivedTopicUuid + "&contextId=" + contextId + "&selectedTopic=Received";
 	    			return pvtTopicMessageUrl;
 	    		}

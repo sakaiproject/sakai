@@ -210,12 +210,12 @@
 	  Needed since user can have different roles in different sites -->
   <query name="findDiscussionForumMessageCountsForAllSites">
     <![CDATA[select a.contextId, membershipItem.name, count(*)
-    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
     		   join messages.topic as topic
     		   join topic.membershipItemSet as membershipItem
                join topic.openForum as f
-               join f.area as a
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
              where a.contextId in ( :siteList ) and
                membershipItem.name in ( :roleList )and
                f.draft = false and
@@ -239,13 +239,13 @@
 	 access.  -->
 <query name="findDiscussionForumReadMessageCountsForAllSites">
     <![CDATA[select a.contextId, membershipItem.name, count(*)
-    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl,
-    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
     		   join messages.topic as topic
     		   join topic.membershipItemSet as membershipItem
                join topic.openForum as f
-               join f.area as a
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
              where a.contextId in ( :siteList ) and
                membershipItem.name in ( :roleList ) and
                us.userId = :userId and
@@ -269,12 +269,12 @@
 		If user member of multiple role/groups, need to filter out overlapping permissions. -->
 <query name="findDiscussionForumMessageCountsForGroupedSitesByTopic">
     <![CDATA[select a.contextId, topic.id, membershipItem.name, count(*)
-    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
 	 		   join messages.topic as topic
      		   join topic.membershipItemSet as membershipItem
                join topic.openForum as f
-               join f.area as a
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
              where a.contextId in ( :siteList ) and 
                membershipItem.name in ( :roleList ) and
                messages.draft = false and
@@ -296,13 +296,13 @@
 		If user member of multiple role/groups, need to filter out overlapping permissions. -->
 <query name="findDiscussionForumReadMessageCountsForGroupedSitesByTopic">
     <![CDATA[select a.contextId, topic.id, membershipItem.name, count(*)
-    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us,
-    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
 	 		   join messages.topic as topic
      		   join topic.membershipItemSet as membershipItem
                join topic.openForum as f
-               join f.area as a
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
              where a.contextId in ( :siteList ) and 
                membershipItem.name in ( :roleList ) and
                us.userId = :userId and
