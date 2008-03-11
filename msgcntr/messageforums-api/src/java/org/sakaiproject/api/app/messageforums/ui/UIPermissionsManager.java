@@ -129,9 +129,9 @@ public interface UIPermissionsManager
    * (role + groups/sections) 
    * @return
    */
-  public List<String> getCurrentUserMemberships();
-  public List<String> getCurrentUserMemberships(String siteId);
-
+  public List getCurrentUserMemberships();
+  public List getCurrentUserMemberships(String siteId);
+  
   public Set getAreaItemsSet(Area area);
 
   public Set getForumItemsSet(DiscussionForum forum);

@@ -109,12 +109,6 @@
         </property>
     </bean>
      
-    <bean id="org.sakaiproject.api.app.messageforums.ui.SynopticMFManager" class="org.sakaiproject.component.app.messageforums.ui.SynopticMFManagerImpl">
-        <property name="sqlService">
-            <ref bean="org.sakaiproject.db.api.SqlService"/>
-        </property>
-     </bean>
-
     <bean id="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" class="org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl" init-method="init">
 		<property name="toolManager">
              <ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>

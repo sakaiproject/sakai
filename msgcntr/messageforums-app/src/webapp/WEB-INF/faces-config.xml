@@ -473,11 +473,6 @@
             <property-name>uiPermissionsManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"]}</value>
         </managed-property>
-        <managed-property>
-            <description>Synoptic MF Manager</description>
-            <property-name>synopticMFManager</property-name>
-            <value>#{Components["org.sakaiproject.api.app.messageforums.ui.SynopticMFManager"]}</value>
-        </managed-property>
  		<managed-property>
 			<description>API Dependency: preferences service</description>
 			<property-name>preferencesService</property-name>
