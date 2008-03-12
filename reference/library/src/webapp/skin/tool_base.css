@@ -904,3 +904,14 @@ font-weight: bold;
 	border: 1px solid #000000;
 	padding: 0.5em;
 }
+
+/*any list (ul) of messages in a synoptic list view*/
+.synopticList{
+	margin:0;
+	padding:0;
+}
+/*a list item - children are h3.textPanelHeader, p.textPanelFooter, div.textPanel*/
+.synopticList li{ 
+	padding:0;
+	margin:.5em 0 ;
+} 
