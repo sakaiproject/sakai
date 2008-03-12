@@ -332,7 +332,9 @@
 					</div>
 				#else
 					#set ($rowCount=0)
+					<ul class="synopticList">
 					#foreach ($ann_item in $showMessagesList)
+					<li>
 						#set ($rowCount =$rowCount + 1)
 							#if ($ann_item.Header.draft)
 							#else
@@ -372,7 +374,9 @@
 								</div>
 							#end
 						#end	
+						</li>
 					#end
+					</ul>
 				#end
 			</form>
 
