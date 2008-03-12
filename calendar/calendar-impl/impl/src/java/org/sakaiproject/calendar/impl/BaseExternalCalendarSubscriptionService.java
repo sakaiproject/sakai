@@ -355,7 +355,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			return channels;
 		}
 		ToolConfiguration tc = site.getToolForCommonId(SCHEDULE_TOOL_ID);
-		Properties config = tc.getConfig();
+		Properties config = tc == null? null : tc.getConfig();
 		if (tc != null && config != null)
 		{
 			String prop = config.getProperty(TC_PROP_SUBCRIPTIONS);
@@ -410,7 +410,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			return subscriptions;
 		}
 		ToolConfiguration tc = site.getToolForCommonId(SCHEDULE_TOOL_ID);
-		Properties config = tc.getConfig();
+		Properties config = tc == null? null : tc.getConfig();
 		if (tc != null && config != null)
 		{
 			String prop = config.getProperty(TC_PROP_SUBCRIPTIONS);
