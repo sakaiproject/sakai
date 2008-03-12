@@ -533,6 +533,16 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    
    
    public String processActionBackToRoom() {
+	   String filter = getCurrentChannel().getChatChannel().getFilterType();
+	   if(filter.equals(ChatChannel.FILTER_ALL)){
+		   setMessageOptions(Integer.toString(MESSAGEOPTIONS_ALL_MESSAGES));
+	   }else if(filter.equals(ChatChannel.FILTER_BY_NUMBER)){
+		   setMessageOptions(Integer.toString(MESSAGEOPTIONS_MESSAGES_BY_NUMBER));
+	   }else if(filter.equals(ChatChannel.FILTER_BY_TIME)){
+		   setMessageOptions(Integer.toString(MESSAGEOPTIONS_MESSAGES_BY_DATE));
+	   }else if(filter.equals(ChatChannel.FILTER_NONE)){
+		   setMessageOptions(Integer.toString(MESSAGEOPTIONS_NO_MESSAGES));
+	   }
       return PAGE_ENTER_ROOM;
    }
    
