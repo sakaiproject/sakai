@@ -10,23 +10,12 @@
          
          <sakai:messages />
          
-         <t:dataList id="chatSynoptic" var="message"
-				value="#{ChatTool.synopticMessages}" layout="simple">
-		
-				<f:verbatim>
-				<h3 class="testPanelHeader">
-				</f:verbatim>
-					<h:outputText value="#{message.restrictedBody}" />
-				<f:verbatim>
-				</h3>
-				<p class="textPanelFooter">
-				</f:verbatim>
-					<h:outputText value="(#{message.chatMessage.chatChannel.title} - #{message.owner} - #{message.dateTime})" />
-				<f:verbatim>
-				</p>
-				</f:verbatim>
-
-			</t:dataList>
+		<t:dataList id="chatSynoptic" var="message" value="#{ChatTool.synopticMessages}" layout="unorderedList" styleClass="synopticList">
+        	<t:htmlTag value="h3" styleClass="textPanelHeader">
+				<h:outputText value="#{message.restrictedBody}"/>
+			</t:htmlTag>
+	        <h:outputText value="(#{message.chatMessage.chatChannel.title} - #{message.owner} - #{message.dateTime})" styleClass="textPanelFooter" style="display:block"/>
+        </t:dataList>
 			
 		</h:form>
 	</sakai:view>
