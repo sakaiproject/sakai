@@ -9,9 +9,11 @@ import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
+import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.tool.gradebook.Permission;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -23,6 +25,7 @@ import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.math.BigDecimal;
 
 public class GradebookManagerOPCTest extends GradebookTestBase {
@@ -3166,5 +3170,129 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		{
 			Assert.assertTrue(originalSize == gradebookManager.getAssignments(persistentGradebook.getId()).size());
 		}
+	}
+	
+	public void testGetFixedGrade() throws Exception
+	{
+		try
+		{
+			List uid = new ArrayList();
+			uid.add("studentId1");
+			uid.add("studentId2");
+			uid.add("studentId3");
+			uid.add("studentId4");
+			uid.add("studentId5");
+			Map studentIdMap = new HashMap();
+			studentIdMap.put("studentId1", new Double(1.0));
+			studentIdMap.put("studentId2", new Double(2.0));
+			studentIdMap.put("studentId3", new Double(3.0));
+			studentIdMap.put("studentId4", new Double(4.0));
+			studentIdMap.put("studentId5", new Double(5.0));
+
+			Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+			persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+			gradebookManager.updateGradebook(persistentGradebook);
+
+			Course courseSite = integrationSupport.createCourse(persistentGradebook.getUid(), "test site", false, true, true);
+      User student1 = userManager.createUser("studentId1", "studentId1", "studentId1-last, studentId1-first", "studentId1");
+      User student2 = userManager.createUser("studentId2", "studentId2", "studentId2-last, studentId2-first", "studentId2");
+      User student3 = userManager.createUser("studentId3", "studentId3", "studentId3-last, studentId3-first", "studentId3");
+      User student4 = userManager.createUser("studentId4", "studentId4", "studentId4-last, studentId4-first", "studentId4");
+      User student5 = userManager.createUser("studentId5", "studentId5", "studentId5-last, studentId5-first", "studentId5");
+      integrationSupport.addSiteMembership(student1.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+      integrationSupport.addSiteMembership(student2.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+      integrationSupport.addSiteMembership(student3.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+      integrationSupport.addSiteMembership(student4.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+      integrationSupport.addSiteMembership(student5.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+      
+  		userManager.createUser("instructor", null, null, null);
+  		integrationSupport.addSiteMembership("instructor", persistentGradebook.getUid(), Role.INSTRUCTOR);
+  		setAuthnId("instructor");
+      
+      gradebookManager.updateGradebook(persistentGradebook);
+
+  		Assignment assign = gradebookManager.getAssignment(assgn1Long);
+  		
+  		persistentGradebook.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+  		gradebookManager.updateGradebook(persistentGradebook);
+  		assign.setPointsPossible(new Double(5));
+  		gradebookManager.updateAssignment(assign);
+  		
+  		List gradeRecords = generateGradeRecords(assign, 5);
+
+  		//get course grade scale with +/- and change them and set it as the seleted mapping for this gradebook 
+  		Set gradeScaleSet = persistentGradebook.getGradeMappings();
+  		Iterator iter = gradeScaleSet.iterator();
+  		GradeMapping gradeMap = null;
+  		GradingScale scale;
+  		if(iter != null)
+  		{
+  			for(; iter.hasNext();) 
+  			{
+  				GradeMapping mapping = (GradeMapping)iter.next();
+  				if(mapping.getGradingScale().getUid().equalsIgnoreCase("LetterGradePlusMinusMapping"))
+  				{
+  					gradeMap = mapping;
+  					gradeMap.setGradingScale(mapping.getGradingScale());
+  					gradeScaleSet.remove(mapping);
+
+  					Map percentMap = gradeMap.getGradeMap();
+  					percentMap.put("A", new Double("97.0"));
+  					gradeMap.setGradeMap(percentMap);
+  					gradeScaleSet.add(gradeMap);
+  					persistentGradebook.setGradeMappings(gradeScaleSet);
+  					gradebookManager.updateGradebook(persistentGradebook);
+  					break;
+  				}
+  			}
+  		}
+  		
+  		Set afterChange = persistentGradebook.getGradeMappings();
+  		for(Iterator iterator = afterChange.iterator(); iterator.hasNext();)
+  		{
+				GradeMapping mapping = (GradeMapping)iterator.next();
+				//System.out.println("=======" + mapping.getGradingScale().getUid());
+				Map mm = mapping.getGradeMap();
+				for(Iterator ii = mm.keySet().iterator(); ii.hasNext();)
+				{
+					String key = (String)ii.next();
+					Double value = (Double)mm.get(key);
+					//System.out.println("-----scale::--" + key + ":::" + value);
+				}
+  		}
+  		//System.out.println("++++++current scale:" + persistentGradebook.getSelectedGradeMapping().getGradingScale().getUid());
+  		
+  		for(int i=0; i<gradeRecords.size(); i++)
+  		{
+  			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+  			agr.setLetterEarned("A");
+  		}
+  		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_LETTER);
+
+  		Map courseRecords = gradebookService.getImportCourseGrade(persistentGradebook.getUid());
+  		for(Iterator iterator = courseRecords.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)courseRecords.get(key);
+  			Assert.assertTrue(value.endsWith("A-"));
+  			//System.out.println("---------------" + key + ":::" + value);
+  		}
+  		
+  		Map courseRecordsFixed = gradebookService.getFixedGrade(persistentGradebook.getUid());
+  		for(Iterator iterator = courseRecordsFixed.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)courseRecordsFixed.get(key);
+  			Assert.assertTrue(value.endsWith("A"));
+  			//System.out.println("---------------" + key + ":::" + value);
+  		}
+
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+
 	}
 }

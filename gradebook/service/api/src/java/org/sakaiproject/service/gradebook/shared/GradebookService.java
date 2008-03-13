@@ -608,4 +608,12 @@ public interface GradebookService {
 	 * @throws AssessmentNotFoundException
 	 */
 	public void saveGradesAndComments(String gradebookUid, Long gradableObjectId, List<GradeDefinition> gradeDefList);
+
+	/**
+	 * Get fixed grades for students by using course grade scale.
+	 * @param gradebookUid
+	 * @return Map of enrollment displayId as key, grade as value
+	 * 
+	 */
+	public Map getFixedGrade(String gradebookUid);
 }
