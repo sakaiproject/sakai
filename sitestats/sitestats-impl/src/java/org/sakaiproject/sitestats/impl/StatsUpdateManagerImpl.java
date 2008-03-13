@@ -381,6 +381,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			String eventId = e.getEvent();
 			String resourceRef = e.getResource();
+			if(userId == null || eventId == null || resourceRef == null)
+				return;
 			consolidateEvent(date, eventId, resourceRef, userId, siteId);
 		}//else LOG.info("EventInfo ignored:  '"+e.toString()+"' ("+e.toString()+") USER_ID: "+userId);
 	}
