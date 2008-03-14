@@ -71,7 +71,7 @@ foreach my $docid (keys %{$docs_kb->{document}})
 	   (! -s "$docrepo/$docid.html") ||
 	   ($docs_kb->{document}->{$docid}->{timestamp} ne $docs_local->{document}->{$docid}->{timestamp}) )
 	{
-		print "Fetching update docid in docs collection: $docid\n";
+		print "Fetching updated docid in docs collection: $docid\n";
 
 		my $url = "$KbBaseUrl/sakaiht/document/sakaihelp/$docid.xml?domain=sakaiht\\&domain=sakainew";
 
@@ -88,7 +88,7 @@ foreach my $docid (keys %{$newdocs_kb->{document}})
 	   (! -s "$docrepo/$docid.html") ||
 	   ($newdocs_kb->{document}->{$docid}->{timestamp} ne $newdocs_local->{document}->{$docid}->{timestamp}) )
 	{
-		print "Fetching update docid in newdocs collection: $docid\n";
+		print "Fetching updated docid in newdocs collection: $docid\n";
 
 		my $url = "$KbBaseUrl/sakainew/document/sakaihelp/$docid.xml?domain=sakaiht\\&domain=sakainew";
 

@@ -67,6 +67,8 @@ sub commit_svn_changes($$$)
 
  my @projectlist = glob("$svnrepo/*");
 
+ print "Committing any svn changes:\n";
+
  foreach my $project (@projectlist) {
 	system("$svn --username $svn_user --password $svn_pass -m \"$svn_comment\" ci $project");
  }
