@@ -748,7 +748,7 @@ public class CalendarBean {
 				selectedEvent.setDate(event.getRange());
 				selectedEvent.setType(event.getType());
 				selectedEvent.setTypeLocalized(EventTypes.getLocalizedEventType(event.getType()));
-				selectedEvent.setDescription(event.getDescription());
+				selectedEvent.setDescription(event.getDescriptionFormatted());
 				selectedEvent.setLocation(event.getLocation());
 				Site site = M_ss.getSite(calendar.getContext());
 				selectedEvent.setSite(site.getTitle());

@@ -171,7 +171,7 @@
 		        	<h:outputText id="type" value="#{CalBean.selectedEvent.typeLocalized}" style="padding-left: 3px;"/>
 		        </h:panelGroup>
 				<h:outputLabel for="description" value="#{msgs.description}" rendered="#{CalBean.selectedEvent.description ne ''}"/>
-		        <h:outputText id="description" value="#{CalBean.selectedEvent.description}" rendered="#{CalBean.selectedEvent.description ne ''}"/>
+		        <h:outputText id="description" value="#{CalBean.selectedEvent.description}" escape="false" rendered="#{CalBean.selectedEvent.description ne ''}"/>
 							
 				<f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim>
 				<h:outputLabel for="location" value="#{msgs.location}" rendered="#{CalBean.selectedEvent.hasLocation}" />
