@@ -287,10 +287,9 @@
 				</xsl:element>
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:text>
-					[You do not have sufficient permission to view this
-					document.]
-				</xsl:text>
+				<xsl:text>[document unavailable: </xsl:text>
+				<xsl:value-of select="@docid" />
+				<xsl:text>]</xsl:text>
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>

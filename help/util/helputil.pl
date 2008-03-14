@@ -77,6 +77,8 @@ sub commit_svn_changes($$$)
 sub checkimages($) 
 {
  my $docrepo = shift;
+ my $imagedir = shift;
+ my $kbmedia = shift;
 
  %imglist = ();
 
@@ -91,10 +93,29 @@ sub checkimages($)
 
  print "\nImages in $docrepo:\n";
  foreach my $i (keys %imglist) {
- 	print "$i\n";
+	if ($i =~ /image\/(.*)/) {
+		if (! -s "$imagedir/$1") {
+		 	print "$i: $1 ADDING\n";
+			addimage($i, $kbmedia, $imagedir, $1);
+		} 
+	}
  }
 
  return %imglist;
+}
+
+sub addimage ($$$)
+{
+  my $imgurl = shift;
+  my $kbmedia = shift;
+  my $imgdir = shift;
+  my $imgbasename = shift;
+
+  my $wget = "/usr/bin/wget";
+  my $svn = "/usr/bin/svn";
+
+  system("cd $imgdir ; $wget $kbmedia/$imgurl");
+  system("$svn add $imgdir/$imgbasename");
 }
 
 sub getdoclist($)

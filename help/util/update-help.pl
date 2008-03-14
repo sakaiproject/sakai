@@ -141,7 +141,7 @@ update_svn_collection($svnrepo, $docrepo);
 
 # Check for included images
 
-checkimages($docrepo);
+checkimages($docrepo, $svnrepo . "/help-images", $KbMediaUrl);
 
 #### ----- Commit changes to svn
 
