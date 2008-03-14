@@ -18,6 +18,7 @@ public class GradebookItemBean {
 	private static final String SUBMIT = "submit";
 	private static final String FAILURE = "failure";
 	
+	public Boolean requireDueDate = false;
 	
 	private TargettedMessageList messages;
     public void setMessages(TargettedMessageList messages) {
@@ -72,6 +73,10 @@ public class GradebookItemBean {
 			if (assignment.getPointsPossible() == null) {
 				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.null_points"));
 				errorFound = Boolean.TRUE;
+			}
+			
+			if (this.requireDueDate == null || this.requireDueDate == Boolean.FALSE) {
+				assignment.setDueDate(null);				
 			}
 				
 			if (errorFound) {
