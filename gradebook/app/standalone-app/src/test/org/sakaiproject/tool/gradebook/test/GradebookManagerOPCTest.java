@@ -3284,15 +3284,85 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
   			String key = (String)iterator.next();
   			String value= (String)courseRecordsFixed.get(key);
   			Assert.assertTrue(value.endsWith("A"));
-  			//System.out.println("---------------" + key + ":::" + value);
+  			//System.out.println("---------------" + key + ":::" + value);	
   		}
+  		
+  		//test for weighted category type
+  		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+  		gradebookManager.updateGradebook(persistentGradebook);
+  		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
+  		List gradeRecords1 = generateGradeRecords(assign2, 5);
+  		for(int i=0; i<gradeRecords1.size(); i++)
+  		{
+  			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords1.get(i);
+  			agr.setLetterEarned("A");
+  		}
+  		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords1, GradebookService.GRADE_TYPE_LETTER);
+  		courseRecords = gradebookService.getImportCourseGrade(persistentGradebook.getUid());
+  		for(Iterator iterator = courseRecords.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)courseRecords.get(key);
+  			Assert.assertTrue(value.endsWith("A-"));
+  		}
+  		courseRecordsFixed = gradebookService.getFixedGrade(persistentGradebook.getUid());
+  		for(Iterator iterator = courseRecordsFixed.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)courseRecordsFixed.get(key);
+  			Assert.assertTrue(value.endsWith("A"));	
+  		}
+  		//test for weighted category and change the scale for B too:
+  		gradeScaleSet = persistentGradebook.getGradeMappings();
+  		iter = gradeScaleSet.iterator();
+  		gradeMap = null;
+  		if(iter != null)
+  		{
+  			for(; iter.hasNext();) 
+  			{
+  				GradeMapping mapping = (GradeMapping)iter.next();
+  				if(mapping.getGradingScale().getUid().equalsIgnoreCase("LetterGradePlusMinusMapping"))
+  				{
+  					gradeMap = mapping;
+  					gradeMap.setGradingScale(mapping.getGradingScale());
+  					gradeScaleSet.remove(mapping);
+
+  					Map percentMap = gradeMap.getGradeMap();
+  					percentMap.put("B", new Double("86.5"));
+  					gradeMap.setGradeMap(percentMap);
+  					gradeScaleSet.add(gradeMap);
+  					persistentGradebook.setGradeMappings(gradeScaleSet);
+  					gradebookManager.updateGradebook(persistentGradebook);
+  					break;
+  				}
+  			}
+  		}
+  		for(int i=0; i<gradeRecords1.size(); i++)
+  		{
+  			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords1.get(i);
+  			agr.setLetterEarned("B");
+  		}
+  		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords1, GradebookService.GRADE_TYPE_LETTER);
+  		courseRecords = gradebookService.getImportCourseGrade(persistentGradebook.getUid());
+  		for(Iterator iterator = courseRecords.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)courseRecords.get(key);
+  			Assert.assertTrue(value.endsWith("B+"));
+  		}
+  		courseRecordsFixed = gradebookService.getFixedGrade(persistentGradebook.getUid());
+  		for(Iterator iterator = courseRecordsFixed.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)courseRecordsFixed.get(key);
+  			Assert.assertTrue(value.endsWith("A-"));
+  		}
+
 
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
-		
-
 	}
 }
