@@ -156,6 +156,17 @@
             <value>/sakai_gradebook_tool/avdp.html</value>
         </property>
     </bean>
+    <bean id="gradebookCalculation" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>awpx</value>
+        </property>
+        <property name="name">
+            <value>How categories and weighting affect grade calculation</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/awpx.html</value>
+        </property>
+    </bean>
     <bean id="gradebookEntryTypeScale" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
             <value>atfl</value>
@@ -193,6 +204,7 @@
                             <ref bean="gradebookFeedbackOptions"/>
                             <ref bean="gradebookExportScores"/>
                             <ref bean="gradebookCategories"/>
+                            <ref bean="gradebookCalculation"/>
                             <ref bean="gradebookEntryTypeScale"/>
                         </list>
                     </property>

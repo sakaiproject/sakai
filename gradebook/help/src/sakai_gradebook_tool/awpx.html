@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title>How categories and weighting affect
+     grade calculation in Gradebook</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		div.image{display: inline;}div.image{display: inline;}div.image{display: inline;}div.image{display: inline;}
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>How categories and weighting affect
+     grade calculation in Gradebook</h2>
+<p>Depending on how you have set it up, your gradebook will calculate
+course grades differently. For more information on setting up the
+Gradebook, see <a href="content.hlp?docId=avdp">Using categories and weighted grades in Gradebook</a>. The following
+examples will help you understand how the different choices in
+<strong><code>Gradebook Setup</code></strong> will affect how students' course grades are
+calculated.</p>
+
+<a name="top"> </a>
+
+<p>On this page:</p>
+
+
+
+<ul><li><a href="#percent">Displaying grades as percentages with no
+categories and no weighting</a> 
+</li><li><a href="#percentweight">Displaying grades as percentages with
+weighted categories</a>
+</li><li><a href="#pointweight">Displaying grades as points with weighted
+categories</a>
+</li><li><a href="#point">Displaying grades as points with simple
+categories and no weighting</a>
+</li></ul>
+
+<a name="percent"> </a>
+
+<h3>Displaying grades as percentages with no categories and no
+weighting</h3>
+
+<p>In this example, the instructor has set up the gradebook with no
+categories and no weighting and has chosen to enter the grades as
+percentages.</p>
+
+<div class="inlineimage image"><img class="noborder" src="image/a013m.gif" alt="gradebook table" /></div>
+
+
+<p>The course grade is calculated as follows:</p>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><col /><tr valign="top"><th align="left" class="noborder">Title</th><th align="left" class="noborder">Grade (%)</th><th align="left" class="noborder">Item value</th><th align="left" class="noborder">Grade in points</th></tr><tr valign="top"><td align="left" class="noborder">Essay</td><td align="left" class="noborder">90</td><td align="left" class="noborder">45</td><td align="left" class="noborder">40.5 (90% of 45)</td></tr><tr valign="top"><td align="left" class="noborder">Lab</td><td align="left" class="noborder">80</td><td align="left" class="noborder">45</td><td align="left" class="noborder">36 (80% of 45)
+</td></tr></table>
+
+<p><strong>Total:</strong> 90 points</p>
+
+<p><strong>Course grade:</strong> 85% ((40.5+36)/90 * 100)</p>
+
+<a href="#top">Back to top</a>
+
+<a name="percentweight"> </a>
+
+<h3>Displaying grades as percentages with weighted categories</h3>
+
+<p>In this example, the instructor has set up the gradebook with weighted
+categories and has chosen to enter the grades as percentages.</p>
+
+<div class="inlineimage image"><img class="noborder" src="image/a013n.gif" alt="gradebook table" /></div>
+
+
+<p>The course grade is calculated as follows:</p>
+
+<h4>Category Essays (70% weight)</h4>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><col /><col /><tr valign="top"><th align="left" class="noborder">Title</th><th align="left" class="noborder">Grade (%)</th><th align="left" class="noborder">Item value</th><th align="left" class="noborder">Weight in
+category</th><th align="left" class="noborder">Weighted grade (%)
+</th></tr><tr valign="top"><td align="left" class="noborder">Essay 1</td><td align="left" class="noborder">50</td><td align="left" class="noborder">50</td><td align="left" class="noborder">0.50 (50/(50+30+20))</td><td align="left" class="noborder">25 (50*.50)
+</td></tr><tr valign="top"><td align="left" class="noborder">Essay 2</td><td align="left" class="noborder">50</td><td align="left" class="noborder">30</td><td align="left" class="noborder">0.30 (30/(50+30+20))</td><td align="left" class="noborder">15 (50*.30)
+</td></tr><tr valign="top"><td align="left" class="noborder">Essay 3</td><td align="left" class="noborder">50</td><td align="left" class="noborder">20</td><td align="left" class="noborder">0.20 (20/(50+30+20))</td><td align="left" class="noborder">10 (50*.20)
+</td></tr></table>
+
+<p><strong>Total (Essays):</strong> 50% (25+15+10)</p>
+
+<h4>Category labs (30% weight)</h4>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><col /><col /><tr valign="top"><th align="left" class="noborder">Title</th><th align="left" class="noborder">Grade (%)</th><th align="left" class="noborder">Item value</th><th align="left" class="noborder">Weight in
+category</th><th align="left" class="noborder">Weighted grade (%)
+</th></tr><tr valign="top"><td align="left" class="noborder">Lab 1</td><td align="left" class="noborder">100</td><td align="left" class="noborder">50</td><td align="left" class="noborder">0.50 (50/(50+50))</td><td align="left" class="noborder">50 (100*.50)
+</td></tr><tr valign="top"><td align="left" class="noborder">Lab 2</td><td align="left" class="noborder">100</td><td align="left" class="noborder">50</td><td align="left" class="noborder">0.50 (50/(50+50))</td><td align="left" class="noborder">50 (100*.50)
+</td></tr></table>
+
+<p><strong>Total (Labs):</strong> 100% (50+50)
+</p><p><strong>Overall course grade (Essays and Labs):</strong> 65%</p>
+
+<table class="noborder" cellpadding="4"><col /><col /><tr valign="top"><td align="left" class="noborder">Essays</td><td align="left" class="noborder">35% (70%*50%)</td></tr><tr valign="top"><td align="left" class="noborder">Labs</td><td align="left" class="noborder">30% (30%*100%)</td></tr><tr valign="top"><td align="left" class="noborder">Total</td><td align="left" class="noborder">65% (35%+30%)</td></tr></table>
+
+<a href="#top">Back to top</a>
+
+<a name="pointweight"> </a>
+
+<h3>Displaying grades as points with weighted categories</h3>
+
+<p>In this example, the instructor has set up the gradebook with weighted
+categories and has chosen to enter the grades as points.</p>
+
+<div class="inlineimage image"><img class="noborder" src="image/a013o.gif" alt="gradebook table" /></div>
+
+
+<p>The course grade is calculated as follows:</p>
+
+<h4>Category essays (70% weight)</h4>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><tr valign="top"><th align="left" class="noborder">Title</th><th align="left" class="noborder">Grade (Points)</th><th align="left" class="noborder">Item value</th></tr><tr valign="top"><td align="left" class="noborder">Essay 1</td><td align="left" class="noborder">25</td><td align="left" class="noborder">50</td></tr><tr valign="top"><td align="left" class="noborder">Essay 2</td><td align="left" class="noborder">15</td><td align="left" class="noborder">30</td></tr><tr valign="top"><td align="left" class="noborder">Essay 3</td><td align="left" class="noborder">10</td><td align="left" class="noborder">20</td></tr><tr valign="top"><th align="left" class="noborder">Total</th><th align="left" class="noborder">50</th><th align="left" class="noborder">100</th></tr></table>
+
+<p><strong>Total (Essays):</strong> 50% (50/100)*100</p>
+
+<h4>Category labs (30% weight)</h4>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><tr valign="top"><th align="left" class="noborder">Title</th><th align="left" class="noborder">Grade (Points)</th><th align="left" class="noborder">Item value</th></tr><tr valign="top"><td align="left" class="noborder">Lab A</td><td align="left" class="noborder">50</td><td align="left" class="noborder">50</td></tr><tr valign="top"><td align="left" class="noborder">Lab B</td><td align="left" class="noborder">50</td><td align="left" class="noborder">50</td></tr><tr valign="top"><th align="left" class="noborder">Total</th><th align="left" class="noborder">100</th><th align="left" class="noborder">100</th></tr></table>
+
+<p><strong>Total (Labs):</strong> 100% (100/100)*100</p>
+
+<p><strong>Overall course grade (Essays and Labs):</strong> 65%</p>
+
+<table class="noborder" cellpadding="4"><col /><col /><tr valign="top"><td align="left" class="noborder">Essays</td><td align="left" class="noborder">35% (70%*50%)</td></tr><tr valign="top"><td align="left" class="noborder">Labs</td><td align="left" class="noborder">30% (30%*100%)</td></tr><tr valign="top"><td align="left" class="noborder">Total</td><td align="left" class="noborder">65% (35%+30%)
+</td></tr></table>
+
+<a href="#top">Back to top</a>
+
+<a name="point"> </a>
+
+<h3>Displaying grades as points with simple categories and no
+weighting</h3>
+
+<p>In this example, the instructor has set up the gradebook with simple
+(unweighted) categories and has chosen to enter the grades as points.</p>
+
+<div class="inlineimage image"><img class="noborder" src="image/a013p.gif" alt="gradebook table" /></div>
+
+
+<p>The course grade is calculated as follows:</p>
+
+<table class="noborder" cellpadding="4"><col /><col /><col /><col /><tr valign="top"><th align="left" class="noborder">Category</th><th align="left" class="noborder">Total earned (points)</th><th align="left" class="noborder">Total value</th><th align="left" class="noborder">Average (%)</th></tr><tr valign="top"><td align="left" class="noborder">Essays</td><td align="left" class="noborder">80 (41+27+12)</td><td align="left" class="noborder">90 (45+30+15)</td><td align="left" class="noborder">88.88% (80/90)</td></tr><tr valign="top"><td align="left" class="noborder">Labs</td><td align="left" class="noborder">100 (36+55+9)</td><td align="left" class="noborder">120 (45+60+15)</td><td align="left" class="noborder">83.33% (100/120)</td></tr><tr valign="top"><td align="left" class="noborder">Total</td><td align="left" class="noborder">180</td><td align="left" class="noborder">210</td><td align="left" class="noborder">85.71%
+</td></tr></table>
+
+<p><strong>Total:</strong> 180 points</p>
+
+<p><strong>Course grade:</strong> 85.71% (180/210)</p>
+
+<a href="#top">Back to top</a>
+
+<br /><br />
+</div>
+</body></html>
