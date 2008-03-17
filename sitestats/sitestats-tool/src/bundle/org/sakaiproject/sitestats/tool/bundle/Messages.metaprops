@@ -1,0 +1,886 @@
+#I18NEdit properties organization file, not to be edited!
+action_all..text.changed=20071023154051
+action_all..text.md5=sclMovvD54/DAGnI0PAWgA\=\=
+action_all.pt_PT.text.author=Nuno Fernandes
+action_all.pt_PT.text.changed=20071023154052
+action_all.pt_PT.text.md5=MmMMqRPQHE/ucbvo7yjt6g\=\=
+action_delete..text.changed=20071023154051
+action_delete..text.md5=8qbEmPuQ7jRdmX+Ij847GA\=\=
+action_delete.pt_PT.text.author=Nuno Fernandes
+action_delete.pt_PT.text.changed=20071023154052
+action_delete.pt_PT.text.md5=W1yfncg53MhYs8Q3GwFJMA\=\=
+action_new..text.changed=20071023154051
+action_new..text.md5=A8Ln5B/8GBpOhAgLRxDoHg\=\=
+action_new.pt_PT.text.author=Nuno Fernandes
+action_new.pt_PT.text.changed=20071023154052
+action_new.pt_PT.text.md5=5qdJIs0iqWiPkJHRSQtLFA\=\=
+action_read..text.changed=20071023154051
+action_read..text.md5=ehpfPnn9yR7fL16tnWartA\=\=
+action_read.pt_PT.text.author=Nuno Fernandes
+action_read.pt_PT.text.changed=20071023154052
+action_read.pt_PT.text.md5=7Q5HwaCbMCtPZHVCFAiEyQ\=\=
+action_revise..text.changed=20071023154051
+action_revise..text.md5=gDOYXjEzrNIhX5xHfd812g\=\=
+action_revise.pt_PT.text.author=Nuno Fernandes
+action_revise.pt_PT.text.changed=20071023154052
+action_revise.pt_PT.text.md5=jmsJvgSQttfKUDIEi3tOKQ\=\=
+all..text.changed=20061212185411
+all..text.md5=sclMovvD54/DAGnI0PAWgA\=\=
+all.pt_PT.text.author=UFPUV
+all.pt_PT.text.changed=20061212190506
+all.pt_PT.text.md5=MmMMqRPQHE/ucbvo7yjt6g\=\=
+available_events..text.changed=20061212185411
+available_events..text.md5=BE0/ny0jd9w9rQHAH+qhwQ\=\=
+available_events.pt_PT.text.author=UFPUV
+available_events.pt_PT.text.changed=20061212190526
+available_events.pt_PT.text.md5=PHbiQlqIoomW3Ww+PV3fIg\=\=
+bt_export..text.changed=20071023154051
+bt_export..text.md5=RjsN/osT6aBFJDdoTzBgeg\=\=
+bt_export.pt_PT.text.author=Nuno Fernandes
+bt_export.pt_PT.text.changed=20071023154052
+bt_export.pt_PT.text.md5=zI0k5Di6YqEk2RWLlDg6QA\=\=
+bt_export_csv..text.changed=20061212185411
+bt_export_csv..text.md5=wE8eSEGmr3gIjWzPbzqKdg\=\=
+bt_export_csv.pt_PT.text.author=UFPUV
+bt_export_csv.pt_PT.text.changed=20061212190533
+bt_export_csv.pt_PT.text.md5=yTDeiefAeG2yAEw/fD3Wmg\=\=
+bt_export_excel..text.changed=20071023154051
+bt_export_excel..text.md5=Zb+/BcKI+KjsEMRv61VqYw\=\=
+bt_export_excel.pt_PT.text.author=Nuno Fernandes
+bt_export_excel.pt_PT.text.changed=20071023154052
+bt_export_excel.pt_PT.text.md5=RcJAUrDvpnrjhIiVDXGxKw\=\=
+bt_export_pdf..text.changed=20071023154051
+bt_export_pdf..text.md5=r4BwYGXA/PZTsY8FsKfpnw\=\=
+bt_export_pdf.pt_PT.text.author=Nuno Fernandes
+bt_export_pdf.pt_PT.text.changed=20071023154052
+bt_export_pdf.pt_PT.text.md5=5g/ncDOwSXzjvILybkrx9A\=\=
+cancel..text.changed=20061212185411
+cancel..text.md5=6keIcF5oc7Qkxl6RwoRrGQ\=\=
+cancel.pt_PT.text.author=UFPUV
+cancel.pt_PT.text.changed=20061212190546
+cancel.pt_PT.text.md5=hHYH115QQJC1r/FqbmyDUQ\=\=
+clear_search..text.changed=20061212185411
+clear_search..text.md5=3DC8DHkU21kY2kJj/Ok60g\=\=
+clear_search.pt_PT.text.author=UFPUV
+clear_search.pt_PT.text.changed=20061212190553
+clear_search.pt_PT.text.md5=iuDS1N1/7LRybAJ7gOnYrQ\=\=
+click_to_max..text.changed=20071023154051
+click_to_max..text.md5=UzJsE9w4zhaXsjEpeKJdQw\=\=
+click_to_max.pt_PT.text.author=Nuno Fernandes
+click_to_max.pt_PT.text.changed=20071023154052
+click_to_max.pt_PT.text.md5=dS+Sbc2R0xCYLHiiK7L4iw\=\=
+combo_events_events..text.changed=20061212185411
+combo_events_events..text.md5=+XVGGV9UQhiXJH3w3FmVYw\=\=
+combo_events_events.pt_PT.text.author=UFPUV
+combo_events_events.pt_PT.text.changed=20061212190558
+combo_events_events.pt_PT.text.md5=xgwfrisppgGIjmxUvRsauQ\=\=
+combo_events_users..text.changed=20061212185411
+combo_events_users..text.md5=X/nfGYIiqW8mvyyyedg72A\=\=
+combo_events_users.pt_PT.text.author=UFPUV
+combo_events_users.pt_PT.text.changed=20061212190604
+combo_events_users.pt_PT.text.md5=NjPgf/xA/yj8YPE0jGN8jw\=\=
+combo_resources_resources..text.changed=20061212185411
+combo_resources_resources..text.md5=88yMx3q/S1XghQiUr/d2Qw\=\=
+combo_resources_resources.pt_PT.text.author=UFPUV
+combo_resources_resources.pt_PT.text.changed=20061212190610
+combo_resources_resources.pt_PT.text.md5=ibeiXW1pygzQ4AU+9LRfvg\=\=
+combo_resources_users..text.changed=20061212185411
+combo_resources_users..text.md5=X/nfGYIiqW8mvyyyedg72A\=\=
+combo_resources_users.pt_PT.text.author=UFPUV
+combo_resources_users.pt_PT.text.changed=20061212190617
+combo_resources_users.pt_PT.text.md5=NjPgf/xA/yj8YPE0jGN8jw\=\=
+configured_events..text.changed=20061212185411
+configured_events..text.md5=mzNiOBR9ug8GqKaCMCSqmA\=\=
+configured_events.pt_PT.text.author=UFPUV
+configured_events.pt_PT.text.changed=20061212190627
+configured_events.pt_PT.text.md5=328ysSph3QJhS7W65h8xcA\=\=
+date_type_all..text.changed=20061212185411
+date_type_all..text.md5=sclMovvD54/DAGnI0PAWgA\=\=
+date_type_all.pt_PT.text.author=UFPUV
+date_type_all.pt_PT.text.changed=20061212190633
+date_type_all.pt_PT.text.md5=MmMMqRPQHE/ucbvo7yjt6g\=\=
+date_type_int..text.changed=20061212185411
+date_type_int..text.md5=0W3QGt9zXtm4fuv/X8Oc5Q\=\=
+date_type_int.pt_PT.text.author=UFPUV
+date_type_int.pt_PT.text.changed=20061212190639
+date_type_int.pt_PT.text.md5=xL767tnw+9hO4ReXOTsAcg\=\=
+day_fri..text.changed=20061212185411
+day_fri..text.md5=rGFvhEuaXqWoJ79/uZsa1Q\=\=
+day_fri.pt_PT.text.author=UFPUV
+day_fri.pt_PT.text.changed=20061212190650
+day_fri.pt_PT.text.md5=2quAxdrcgfotAZxWL4BZlA\=\=
+day_mon..text.changed=20061212185411
+day_mon..text.md5=/SlFiuWKwyothzTtkK1R7A\=\=
+day_mon.pt_PT.text.author=UFPUV
+day_mon.pt_PT.text.changed=20061212190659
+day_mon.pt_PT.text.md5=VnKHiWog/elKH+d0dxhPYg\=\=
+day_sat..text.changed=20061212185411
+day_sat..text.md5=E8fS1zf4H3v4mu2fvNCtVQ\=\=
+day_sat.pt_PT.text.author=UFPUV
+day_sat.pt_PT.text.changed=20061212190704
+day_sat.pt_PT.text.md5=gVUj8qlKdKNWJJB2xV6ZiA\=\=
+day_sun..text.changed=20061212185411
+day_sun..text.md5=72Vy5M1Yuzmj9Ogvxk/p8A\=\=
+day_sun.pt_PT.text.author=UFPUV
+day_sun.pt_PT.text.changed=20061212190712
+day_sun.pt_PT.text.md5=hO9f/6vNuKgpu9xU3qo9eQ\=\=
+day_thu..text.changed=20061212185411
+day_thu..text.md5=7V6DU9/FhfTGs6VdGp/AHQ\=\=
+day_thu.pt_PT.text.author=Nuno Fernandes
+day_thu.pt_PT.text.changed=20061212185412
+day_thu.pt_PT.text.md5=CgxArbGItTn9Q1QmstJRcQ\=\=
+day_tue..text.changed=20061212185411
+day_tue..text.md5=Ld7N6FQI+vIwZSRE23jLcg\=\=
+day_tue.pt_PT.text.author=Nuno Fernandes
+day_tue.pt_PT.text.changed=20061212185412
+day_tue.pt_PT.text.md5=U3CgecsuBysBWhpoh5RX+g\=\=
+day_wed..text.changed=20061212185411
+day_wed..text.md5=UQwpKxaG6wcNnpCldfdBBg\=\=
+day_wed.pt_PT.text.author=Nuno Fernandes
+day_wed.pt_PT.text.changed=20061212185412
+day_wed.pt_PT.text.md5=+Y+WjsfHbXL5JsF2iEnzkQ\=\=
+export_filename_date_format..text.changed=20061212185411
+export_filename_date_format..text.md5=26hZ8SkV+RA+UfMAZJq3AA\=\=
+export_filename_date_format.pt_PT.text.author=Nuno Fernandes
+export_filename_date_format.pt_PT.text.changed=20061212185412
+export_filename_date_format.pt_PT.text.md5=9pfBiCPpAw29yrNm7UGACw\=\=
+first_load..text.changed=20061212185411
+first_load..text.md5=+ysuWE8cGXoNd2bC9jIuQQ\=\=
+first_load.pt_PT.text.author=UFPUV
+first_load.pt_PT.text.changed=20061212190826
+first_load.pt_PT.text.md5=BspMmUV6efkilYEszys6UA\=\=
+from_date..text.changed=20061212185411
+from_date..text.md5=elI0fW/mlRmJaAnxHxHzYA\=\=
+from_date.pt_PT.text.author=UFPUV
+from_date.pt_PT.text.changed=20061212190837
+from_date.pt_PT.text.md5=xnz9t9BrEkKgCCExZlYPdw\=\=
+help..text.changed=20061212185411
+help..text.md5=ZX+LjaYo74PPaRAbaBcVCg\=\=
+help.pt_PT.text.author=UFPUV
+help.pt_PT.text.changed=20061212190841
+help.pt_PT.text.md5=PAa35o1ujDVgmdkfiTKGUA\=\=
+instructions_events..text.changed=20061212185411
+instructions_events..text.md5=jKzA005Xjsr2TAfQZjfHog\=\=
+instructions_events.pt_PT.text.author=UFPUV
+instructions_events.pt_PT.text.changed=20061212190902
+instructions_events.pt_PT.text.md5=UuHWS9ZxyxC5WV/yAO9FJA\=\=
+instructions_preferences..text.changed=20061212185411
+instructions_preferences..text.md5=RxG97NDdbaUJtVSwCSgicw\=\=
+instructions_preferences.pt_PT.text.author=UFPUV
+instructions_preferences.pt_PT.text.changed=20061212190924
+instructions_preferences.pt_PT.text.md5=6sRg93TnAOJN4AI0040+IQ\=\=
+instructions_prefs_activity_tools..text.changed=20071023154051
+instructions_prefs_activity_tools..text.md5=EyDDPaCYFSFLOHq6eu1UOg\=\=
+instructions_prefs_activity_tools.pt_PT.text.author=Nuno Fernandes
+instructions_prefs_activity_tools.pt_PT.text.changed=20071023154052
+instructions_prefs_activity_tools.pt_PT.text.md5=6dcQ1O/kRM5kmJ0lMXdoaA\=\=
+instructions_prefs_events..text.changed=20061212185411
+instructions_prefs_events..text.md5=PPmJqalPF37z6qdeH9eH3g\=\=
+instructions_prefs_events.pt_PT.text.author=UFPUV
+instructions_prefs_events.pt_PT.text.changed=20061212190940
+instructions_prefs_events.pt_PT.text.md5=9yRh7MbbGld8RtF/vLKPFA\=\=
+instructions_prefs_general..text.changed=20071023154051
+instructions_prefs_general..text.md5=XCe/j6fZqaVejrYRa7C+vQ\=\=
+instructions_prefs_general.pt_PT.text.author=Nuno Fernandes
+instructions_prefs_general.pt_PT.text.changed=20071023154052
+instructions_prefs_general.pt_PT.text.md5=AoZd7/eajaTKJ1GqDbsbqg\=\=
+instructions_prefs_overview..text.changed=20061212185411
+instructions_prefs_overview..text.md5=keBDm8MrIeilgshbFgtZCg\=\=
+instructions_prefs_overview.pt_PT.text.author=UFPUV
+instructions_prefs_overview.pt_PT.text.changed=20061212191006
+instructions_prefs_overview.pt_PT.text.md5=qkrUc8q8jGiiN7ymc+wClQ\=\=
+instructions_prefs_sep_chart..text.changed=20071023154051
+instructions_prefs_sep_chart..text.md5=bLvPB+nVVH9f6R5SEL4Cvw\=\=
+instructions_prefs_sep_chart.pt_PT.text.author=Nuno Fernandes
+instructions_prefs_sep_chart.pt_PT.text.changed=20071023154052
+instructions_prefs_sep_chart.pt_PT.text.md5=kfGyZ2nGYGIqUWRO6lqEQw\=\=
+instructions_resources..text.changed=20061212185411
+instructions_resources..text.md5=MtZPgjr18emsRZyMxpiA4Q\=\=
+instructions_resources.pt_PT.text.author=UFPUV
+instructions_resources.pt_PT.text.changed=20061212191032
+instructions_resources.pt_PT.text.md5=uaLre1kDYK9UMUjj/aSErg\=\=
+instructions_sitelist..text.changed=20061212185411
+instructions_sitelist..text.md5=ND8YedW1HbTVYJRx4ZZu5Q\=\=
+instructions_sitelist.pt_PT.text.author=UFPUV
+instructions_sitelist.pt_PT.text.changed=20061212191114
+instructions_sitelist.pt_PT.text.md5=U+ZyOob15KKKqxolifQ8yA\=\=
+label_activity_other_tools..text.changed=20071023154051
+label_activity_other_tools..text.md5=9JalbCdptnO4AGGBOtT/Ag\=\=
+label_activity_other_tools.pt_PT.text.author=Nuno Fernandes
+label_activity_other_tools.pt_PT.text.changed=20071023154052
+label_activity_other_tools.pt_PT.text.md5=PrhWPJx1Kfh0WvQDSyrRgg\=\=
+last_updated..text.changed=20061212185411
+last_updated..text.md5=sT7v91z4Ajn0Op5LaY+sjA\=\=
+last_updated.pt_PT.text.author=UFPUV
+last_updated.pt_PT.text.changed=20061212191125
+last_updated.pt_PT.text.md5=kaHNhI+Pr/MTJUlyXCpPuA\=\=
+legend_activity..text.changed=20061212185411
+legend_activity..text.md5=7Pwt/+VowQpn28bTckz94g\=\=
+legend_activity.pt_PT.text.author=UFPUV
+legend_activity.pt_PT.text.changed=20061212191131
+legend_activity.pt_PT.text.md5=eVrcb7+VMkNMCqm/wH4n0w\=\=
+legend_activity_barchart..text.changed=20071023154051
+legend_activity_barchart..text.md5=G0pA+yEkd7UffKBzHUDBqA\=\=
+legend_activity_barchart.pt_PT.text.author=Nuno Fernandes
+legend_activity_barchart.pt_PT.text.changed=20071023154052
+legend_activity_barchart.pt_PT.text.md5=dLItxGl2c9NhUC52HR+qbA\=\=
+legend_activity_piechart..text.changed=20071023154051
+legend_activity_piechart..text.md5=01VwHNu18IbLTYceeCYMZw\=\=
+legend_activity_piechart.pt_PT.text.author=Nuno Fernandes
+legend_activity_piechart.pt_PT.text.changed=20071023154052
+legend_activity_piechart.pt_PT.text.md5=OMJoASqWGI81qoVpYyN7tw\=\=
+legend_unique_visitors..text.changed=20061212185411
+legend_unique_visitors..text.md5=UfO5OyZlYXIbRsX22KYDSA\=\=
+legend_unique_visitors.pt_PT.text.author=UFPUV
+legend_unique_visitors.pt_PT.text.changed=20061212191142
+legend_unique_visitors.pt_PT.text.md5=Ayg3jp2yrO88VOUo/nDHFQ\=\=
+legend_visits..text.changed=20061212185411
+legend_visits..text.md5=1+Y3pun/EW3i+olVEkCpTQ\=\=
+legend_visits.pt_PT.text.author=UFPUV
+legend_visits.pt_PT.text.changed=20061212191147
+legend_visits.pt_PT.text.md5=9h1O4aurFybuRFC0O0iq/A\=\=
+menu_events..text.changed=20061212185411
+menu_events..text.md5=h/n3NaHTZ5POrs1ORxJLYw\=\=
+menu_events.pt_PT.text.author=UFPUV
+menu_events.pt_PT.text.changed=20061212191152
+menu_events.pt_PT.text.md5=I9UCgTn1H4Lld1UCriua8A\=\=
+menu_overview..text.changed=20061212185411
+menu_overview..text.md5=O4eCeaBNxH1gkyyylNliWQ\=\=
+menu_overview.pt_PT.text.author=UFPUV
+menu_overview.pt_PT.text.changed=20061212191158
+menu_overview.pt_PT.text.md5=PT/0E0VUEiCP2dv5H/5aew\=\=
+menu_prefs..text.changed=20061212185411
+menu_prefs..text.md5=0INPzsYzd4XudJyPVGT29g\=\=
+menu_prefs.pt_PT.text.author=UFPUV
+menu_prefs.pt_PT.text.changed=20061212191204
+menu_prefs.pt_PT.text.md5=eGNDck5N0UNNOZt5x20dOg\=\=
+menu_reports..text.changed=20071023154051
+menu_reports..text.md5=yRx7k8KM0YdBtx9yfuge4w\=\=
+menu_reports.pt_PT.text.author=Nuno Fernandes
+menu_reports.pt_PT.text.changed=20071023154052
+menu_reports.pt_PT.text.md5=xdWCjPFJzebv/9nqzUgXKw\=\=
+menu_resources..text.changed=20061212185411
+menu_resources..text.md5=3c9QwpKU1EFPP3wbvIkstQ\=\=
+menu_resources.pt_PT.text.author=UFPUV
+menu_resources.pt_PT.text.changed=20061212191210
+menu_resources.pt_PT.text.md5=2UK6LCN6mX6mem1pz14wjQ\=\=
+menu_sitelist..text.changed=20061212185411
+menu_sitelist..text.md5=iWe1H8IpE/w2RH1qr+69tQ\=\=
+menu_sitelist.pt_PT.text.author=UFPUV
+menu_sitelist.pt_PT.text.changed=20061212191216
+menu_sitelist.pt_PT.text.md5=I7yo+Q60WCGR4n3t4kS7Lg\=\=
+menu_users..text.changed=20061212185411
+menu_users..text.md5=+arl/ajYEKKfEtHmG0qyXw\=\=
+menu_users.pt_PT.text.author=UFPUV
+menu_users.pt_PT.text.changed=20061212191227
+menu_users.pt_PT.text.md5=A7ncFDFUNvuPLfJK/Pjosw\=\=
+mo_ago..text.changed=20071023154051
+mo_ago..text.md5=IvGkZnYEuFV8myCcIBtLxg\=\=
+mo_ago.pt_PT.text.author=UFPUV
+mo_ago.pt_PT.text.changed=20061212191231
+mo_ago.pt_PT.text.md5=XFkCPFcCQ9toEAi1FmJ1UQ\=\=
+mo_apr..text.changed=20061212185411
+mo_apr..text.md5=bXIVxLO8RxbQJqxGxtmuZA\=\=
+mo_apr.pt_PT.text.author=UFPUV
+mo_apr.pt_PT.text.changed=20061212191236
+mo_apr.pt_PT.text.md5=QfUXHabgSvvWWW6i2mi7Fg\=\=
+mo_dec..text.changed=20061212185411
+mo_dec..text.md5=0ge04LzkKo8VVc46BeKH9g\=\=
+mo_dec.pt_PT.text.author=UFPUV
+mo_dec.pt_PT.text.changed=20061212191240
+mo_dec.pt_PT.text.md5=GYZSYSik/Lm3rPq6NFgHog\=\=
+mo_feb..text.changed=20061212185411
+mo_feb..text.md5=6hcdVAzNXwZpFx7wbTzYSA\=\=
+mo_feb.pt_PT.text.author=UFPUV
+mo_feb.pt_PT.text.changed=20061212191244
+mo_feb.pt_PT.text.md5=io7uuBzNFBAmcBoZ0GxkbQ\=\=
+mo_jan..text.changed=20061212185411
+mo_jan..text.md5=5oVk8j4Ok5rOp23D0rwBvw\=\=
+mo_jan.pt_PT.text.author=UFPUV
+mo_jan.pt_PT.text.changed=20061212191249
+mo_jan.pt_PT.text.md5=5oVk8j4Ok5rOp23D0rwBvw\=\=
+mo_jul..text.changed=20061212185411
+mo_jul..text.md5=ooZs1u+qZckieNR3Gp6uxw\=\=
+mo_jul.pt_PT.text.author=UFPUV
+mo_jul.pt_PT.text.changed=20061212191256
+mo_jul.pt_PT.text.md5=ooZs1u+qZckieNR3Gp6uxw\=\=
+mo_jun..text.changed=20061212185411
+mo_jun..text.md5=60tAwSIdrVsj/n74TSkr4Q\=\=
+mo_jun.pt_PT.text.author=UFPUV
+mo_jun.pt_PT.text.changed=20061212191304
+mo_jun.pt_PT.text.md5=60tAwSIdrVsj/n74TSkr4Q\=\=
+mo_mar..text.changed=20061212185411
+mo_mar..text.md5=fOayKGpTluYUuEhBBdJ34A\=\=
+mo_mar.pt_PT.text.author=UFPUV
+mo_mar.pt_PT.text.changed=20061212191309
+mo_mar.pt_PT.text.md5=fOayKGpTluYUuEhBBdJ34A\=\=
+mo_may..text.changed=20061212185411
+mo_may..text.md5=GV+7V//nRJeW0jRmCFzm2A\=\=
+mo_may.pt_PT.text.author=UFPUV
+mo_may.pt_PT.text.changed=20061212191314
+mo_may.pt_PT.text.md5=n9jlDBZbHvuJTIMRh56CXQ\=\=
+mo_nov..text.changed=20061212185411
+mo_nov..text.md5=ND5pV753xiR6orjQ3raL1g\=\=
+mo_nov.pt_PT.text.author=UFPUV
+mo_nov.pt_PT.text.changed=20061212191318
+mo_nov.pt_PT.text.md5=ND5pV753xiR6orjQ3raL1g\=\=
+mo_oct..text.changed=20061212185411
+mo_oct..text.md5=WUvgiILI6dXvue62LzA3RA\=\=
+mo_oct.pt_PT.text.author=UFPUV
+mo_oct.pt_PT.text.changed=20061212191322
+mo_oct.pt_PT.text.md5=fBR82p5JWQ9qvoPRGLc1Ow\=\=
+mo_sep..text.changed=20061212185411
+mo_sep..text.md5=8EqnAZxJBHT6POFuk1AbVw\=\=
+mo_sep.pt_PT.text.author=UFPUV
+mo_sep.pt_PT.text.changed=20061212191326
+mo_sep.pt_PT.text.md5=XVt4aZ5XEE8voDu997kZew\=\=
+move_all..text.changed=20061212185411
+move_all..text.md5=kiTCOu/ork0WQlvp76SRJA\=\=
+move_all.pt_PT.text.author=UFPUV
+move_all.pt_PT.text.changed=20061212191338
+move_all.pt_PT.text.md5=Rc/PE93pkEJERbkiuLu3xQ\=\=
+move_selected..text.changed=20061212185411
+move_selected..text.md5=lz9IN4avAsF5yd+L78pIxA\=\=
+move_selected.pt_PT.text.author=UFPUV
+move_selected.pt_PT.text.changed=20061212191347
+move_selected.pt_PT.text.md5=shFObO2+xyjUfNz7eHb8dg\=\=
+no_data..text.changed=20061212185411
+no_data..text.md5=77ogoC7kwcD5yizitfkrDQ\=\=
+no_data.pt_PT.text.author=UFPUV
+no_data.pt_PT.text.changed=20061212191359
+no_data.pt_PT.text.md5=aKOJuJqcn/qQnDep8xjLEA\=\=
+overview_average..text.changed=20061212185411
+overview_average..text.md5=grE54iHyUV6J8EdKODHQhw\=\=
+overview_average.pt_PT.text.author=Nuno Fernandes
+overview_average.pt_PT.text.changed=20061212185412
+overview_average.pt_PT.text.md5=QbHPS1bfCYyl5Oia8d2EGQ\=\=
+overview_back..text.changed=20071023154051
+overview_back..text.md5=BdfFho3QBg6MHt9FRJUzOA\=\=
+overview_back.pt_PT.text.author=Nuno Fernandes
+overview_back.pt_PT.text.changed=20071023154052
+overview_back.pt_PT.text.md5=pDCRO6IfEFpM/VY+tVS4kQ\=\=
+overview_title_activity..text.changed=20071023154051
+overview_title_activity..text.md5=7Pwt/+VowQpn28bTckz94g\=\=
+overview_title_activity.pt_PT.text.author=Nuno Fernandes
+overview_title_activity.pt_PT.text.changed=20071023154052
+overview_title_activity.pt_PT.text.md5=eVrcb7+VMkNMCqm/wH4n0w\=\=
+overview_title_activity_sum..text.changed=20061212185411
+overview_title_activity_sum..text.md5=7Pwt/+VowQpn28bTckz94g\=\=
+overview_title_activity_sum.pt_PT.text.author=UFPUV
+overview_title_activity_sum.pt_PT.text.changed=20061212191429
+overview_title_activity_sum.pt_PT.text.md5=eVrcb7+VMkNMCqm/wH4n0w\=\=
+overview_title_chart..text.changed=20061212185411
+overview_title_chart..text.md5=HTZ4PhIxftQA6+3esHKiew\=\=
+overview_title_chart.pt_PT.text.author=UFPUV
+overview_title_chart.pt_PT.text.changed=20061212191434
+overview_title_chart.pt_PT.text.md5=eqowVgFwIQ6NkX9p/B1FPA\=\=
+overview_title_unique_visits_sum..text.changed=20061212185411
+overview_title_unique_visits_sum..text.md5=UfO5OyZlYXIbRsX22KYDSA\=\=
+overview_title_unique_visits_sum.pt_PT.text.author=UFPUV
+overview_title_unique_visits_sum.pt_PT.text.changed=20061212191441
+overview_title_unique_visits_sum.pt_PT.text.md5=6DptW0ttb/5OuB4QLD7uZQ\=\=
+overview_title_visits..text.changed=20071023154051
+overview_title_visits..text.md5=1+Y3pun/EW3i+olVEkCpTQ\=\=
+overview_title_visits.pt_PT.text.author=Nuno Fernandes
+overview_title_visits.pt_PT.text.changed=20071023154052
+overview_title_visits.pt_PT.text.md5=9h1O4aurFybuRFC0O0iq/A\=\=
+overview_title_visits_sum..text.changed=20061212185411
+overview_title_visits_sum..text.md5=1+Y3pun/EW3i+olVEkCpTQ\=\=
+overview_title_visits_sum.pt_PT.text.author=UFPUV
+overview_title_visits_sum.pt_PT.text.changed=20061212191446
+overview_title_visits_sum.pt_PT.text.md5=9h1O4aurFybuRFC0O0iq/A\=\=
+overview_total_activity..text.changed=20061212185411
+overview_total_activity..text.md5=ilapbOf82s3c1CeKpGXmTw\=\=
+overview_total_activity.pt_PT.text.author=UFPUV
+overview_total_activity.pt_PT.text.changed=20061212191454
+overview_total_activity.pt_PT.text.md5=B39rDBYL5OEc4HnwinNTaw\=\=
+overview_total_unique_visits..text.changed=20061212185411
+overview_total_unique_visits..text.md5=80/EBnRXuwWjKRd/Id33/g\=\=
+overview_total_unique_visits.pt_PT.text.author=UFPUV
+overview_total_unique_visits.pt_PT.text.changed=20061212191505
+overview_total_unique_visits.pt_PT.text.md5=gKSsXZzN6vWVrjZwugtY6A\=\=
+overview_total_visits..text.changed=20061212185411
+overview_total_visits..text.md5=VAZwdNJEid21ZUv0ZkLLhQ\=\=
+overview_total_visits.pt_PT.text.author=UFPUV
+overview_total_visits.pt_PT.text.changed=20061212191512
+overview_total_visits.pt_PT.text.md5=zvjBC0OrI147HZpno8KfKg\=\=
+overview_unique_visits_total_users..text.changed=20061212185411
+overview_unique_visits_total_users..text.md5=8MwT0aPIE8yG/ea+ZZlT5g\=\=
+overview_unique_visits_total_users.pt_PT.text.author=UFPUV
+overview_unique_visits_total_users.pt_PT.text.changed=20061212191528
+overview_unique_visits_total_users.pt_PT.text.md5=Fm/qgPtup0rzcBz0zW/H4Q\=\=
+prefs_3dCharts..text.changed=20071023154051
+prefs_3dCharts..text.md5=QB5bB2Lbu0wMjkVehh4Vhg\=\=
+prefs_3dCharts.pt_PT.text.author=Nuno Fernandes
+prefs_3dCharts.pt_PT.text.changed=20071023154052
+prefs_3dCharts.pt_PT.text.md5=r0C+cGfDjgHqVK+4p0fAlw\=\=
+prefs_chartTransparency..text.changed=20071023154051
+prefs_chartTransparency..text.md5=HkmMFKTt4OVDq+X2No686w\=\=
+prefs_chartTransparency.pt_PT.text.author=Nuno Fernandes
+prefs_chartTransparency.pt_PT.text.changed=20071023154052
+prefs_chartTransparency.pt_PT.text.md5=LkwV6aX8KY5th5I2K7kPNg\=\=
+prefs_event_list..text.changed=20061212185411
+prefs_event_list..text.md5=zAwyy4U6Tb05SxBxCnCNYg\=\=
+prefs_event_list.pt_PT.text.author=UFPUV
+prefs_event_list.pt_PT.text.changed=20061212191537
+prefs_event_list.pt_PT.text.md5=nzt/YCJQehbveF1QTYWQdQ\=\=
+prefs_itemLabelsVisible..text.changed=20071023154051
+prefs_itemLabelsVisible..text.md5=yESq0rJOMD2VnjUgMpmTxg\=\=
+prefs_itemLabelsVisible.pt_PT.text.author=Nuno Fernandes
+prefs_itemLabelsVisible.pt_PT.text.changed=20071023154052
+prefs_itemLabelsVisible.pt_PT.text.md5=dcZfwICvQ8szGVGZmuG0gA\=\=
+prefs_listToolEventsOnlyAvailableInSite..text.changed=20071023154051
+prefs_listToolEventsOnlyAvailableInSite..text.md5=Y5xnk+zYZl00XigUocYXGA\=\=
+prefs_listToolEventsOnlyAvailableInSite.pt_PT.text.author=Nuno Fernandes
+prefs_listToolEventsOnlyAvailableInSite.pt_PT.text.changed=20071023154052
+prefs_listToolEventsOnlyAvailableInSite.pt_PT.text.md5=sRCMYV5Vwh5xBkhkWIfRFQ\=\=
+prefs_noeventsselected..text.changed=20061212185411
+prefs_noeventsselected..text.md5=3D/2zB728QgT2IKBBinLRg\=\=
+prefs_noeventsselected.pt_PT.text.author=UFPUV
+prefs_noeventsselected.pt_PT.text.changed=20061212191628
+prefs_noeventsselected.pt_PT.text.md5=zyjwqy1fJQtzj0BFDytdnw\=\=
+prefs_not_updated..text.changed=20071023154051
+prefs_not_updated..text.md5=kC+I3YWMiTEh0H0N9X7tMg\=\=
+prefs_not_updated.pt_PT.text.author=Nuno Fernandes
+prefs_not_updated.pt_PT.text.changed=20071023154052
+prefs_not_updated.pt_PT.text.md5=cSBrM9e6xwca644NcfSb6g\=\=
+prefs_overview_page..text.changed=20061212185411
+prefs_overview_page..text.md5=mgRnlXcuKkfALDvc7qkVCg\=\=
+prefs_overview_page.pt_PT.text.author=UFPUV
+prefs_overview_page.pt_PT.text.changed=20061212191636
+prefs_overview_page.pt_PT.text.md5=PakIoXgHe8CFqB3MX9/Smg\=\=
+prefs_sep_activity_definition..text.changed=20071023154051
+prefs_sep_activity_definition..text.md5=hYaOIwDhCc5vapl+vQNV+A\=\=
+prefs_sep_activity_definition.pt_PT.text.author=Nuno Fernandes
+prefs_sep_activity_definition.pt_PT.text.changed=20071023154052
+prefs_sep_activity_definition.pt_PT.text.md5=8V6B0c6QelRf0OpkUt+6Yg\=\=
+prefs_sep_chart..text.changed=20071023154051
+prefs_sep_chart..text.md5=HTZ4PhIxftQA6+3esHKiew\=\=
+prefs_sep_chart.pt_PT.text.author=Nuno Fernandes
+prefs_sep_chart.pt_PT.text.changed=20071023154052
+prefs_sep_chart.pt_PT.text.md5=eqowVgFwIQ6NkX9p/B1FPA\=\=
+prefs_sep_general..text.changed=20071023154051
+prefs_sep_general..text.md5=DbN3kh9M52LGJSYTEJeWjw\=\=
+prefs_sep_general.pt_PT.text.author=Nuno Fernandes
+prefs_sep_general.pt_PT.text.changed=20071023154052
+prefs_sep_general.pt_PT.text.md5=QiOAFQkPwhRmUL1/nViQaw\=\=
+prefs_updated..text.changed=20071023154051
+prefs_updated..text.md5=ijedVe8PYVT6AaN75J/NCg\=\=
+prefs_updated.pt_PT.text.author=UFPUV
+prefs_updated.pt_PT.text.changed=20061212191652
+prefs_updated.pt_PT.text.md5=4AQ1rI78K/JiJgqys6wiHA\=\=
+refresh..text.changed=20061212185411
+refresh..text.md5=A7YlFhhPtu9ZH0W9SXS3Uw\=\=
+refresh.pt_PT.text.author=UFPUV
+refresh.pt_PT.text.changed=20061212192021
+refresh.pt_PT.text.md5=xd0wGEgI1sSMCBdUB3w90Q\=\=
+report_back..text.changed=20071023154051
+report_back..text.md5=BVf6kj3O5ND4axQJ9cIWfw\=\=
+report_back.pt_PT.text.author=Nuno Fernandes
+report_back.pt_PT.text.changed=20071023154052
+report_back.pt_PT.text.md5=BLK2M5Sbvia+usNFpiyfrA\=\=
+report_err_emptygroup..text.changed=20071023154051
+report_err_emptygroup..text.md5=QvIr7SyPgOHI2ySQnWHdTw\=\=
+report_err_emptygroup.pt_PT.text.author=Nuno Fernandes
+report_err_emptygroup.pt_PT.text.changed=20071023154052
+report_err_emptygroup.pt_PT.text.md5=5B5ro8Wy/YPk88YXEYSv4Q\=\=
+report_err_emptyrole..text.changed=20071023154051
+report_err_emptyrole..text.md5=kEqaP3DAjRWZj+vtm4zdPw\=\=
+report_err_emptyrole.pt_PT.text.author=Nuno Fernandes
+report_err_emptyrole.pt_PT.text.changed=20071023154052
+report_err_emptyrole.pt_PT.text.md5=k6yR6QyPBHMV32kXkAggdA\=\=
+report_err_nocustomdates..text.changed=20071023154051
+report_err_nocustomdates..text.md5=F9fihLstwb20QcPfH9GelA\=\=
+report_err_nocustomdates.pt_PT.text.author=Nuno Fernandes
+report_err_nocustomdates.pt_PT.text.changed=20071023154052
+report_err_nocustomdates.pt_PT.text.md5=fstK46Clalc0Ata3MpvJjg\=\=
+report_err_noevents..text.changed=20071023154051
+report_err_noevents..text.md5=gjxxp+b7wxrhXhXor82AqQ\=\=
+report_err_noevents.pt_PT.text.author=Nuno Fernandes
+report_err_noevents.pt_PT.text.changed=20071023154052
+report_err_noevents.pt_PT.text.md5=7GzIqZ6iDYE3dgrGn0YNrA\=\=
+report_err_nogroup..text.changed=20071023154051
+report_err_nogroup..text.md5=V/EX/gWVwQhVgxBzQyNMnA\=\=
+report_err_nogroup.pt_PT.text.author=Nuno Fernandes
+report_err_nogroup.pt_PT.text.changed=20071023154052
+report_err_nogroup.pt_PT.text.md5=VunYPwUONrckTS1a8M6tOw\=\=
+report_err_noresources..text.changed=20071023154051
+report_err_noresources..text.md5=8Rfa8s7DEZrfYSSqgtZOxg\=\=
+report_err_noresources.pt_PT.text.author=Nuno Fernandes
+report_err_noresources.pt_PT.text.changed=20071023154052
+report_err_noresources.pt_PT.text.md5=6+O9AUwr4PIwoqfBbALaNA\=\=
+report_err_notools..text.changed=20071023154051
+report_err_notools..text.md5=Bg8V2uB3d51ph4xtbreuHg\=\=
+report_err_notools.pt_PT.text.author=Nuno Fernandes
+report_err_notools.pt_PT.text.changed=20071023154052
+report_err_notools.pt_PT.text.md5=kR0FudZE0fDWqmi+WUHt+w\=\=
+report_err_nousers..text.changed=20071023154051
+report_err_nousers..text.md5=zNbiU+pFBnXSyG/3Zi3HGQ\=\=
+report_err_nousers.pt_PT.text.author=Nuno Fernandes
+report_err_nousers.pt_PT.text.changed=20071023154052
+report_err_nousers.pt_PT.text.md5=pcJozHQCz6Z5g+UpyqN8aQ\=\=
+report_generate..text.changed=20071023154051
+report_generate..text.md5=tAuA8HXrrg46dcaJar3JSQ\=\=
+report_generate.pt_PT.text.author=Nuno Fernandes
+report_generate.pt_PT.text.changed=20071023154052
+report_generate.pt_PT.text.md5=A6CgnXLcVveG73TJdUu08A\=\=
+report_multiple_sel_instruction..text.changed=20071023154051
+report_multiple_sel_instruction..text.md5=YxLr1rh8b0a5LINbTCV72w\=\=
+report_multiple_sel_instruction.pt_PT.text.author=Nuno Fernandes
+report_multiple_sel_instruction.pt_PT.text.changed=20071023154052
+report_multiple_sel_instruction.pt_PT.text.md5=pcmFjBgmy3t3UmW16okW+w\=\=
+report_what..text.changed=20071023154051
+report_what..text.md5=2knpP+WMjw1sM/ueRNGyHQ\=\=
+report_what.pt_PT.text.author=Nuno Fernandes
+report_what.pt_PT.text.changed=20071023154052
+report_what.pt_PT.text.md5=oAqlHyTnkezRwh2Q3HyEFA\=\=
+report_what_all..text.changed=20071023154051
+report_what_all..text.md5=sclMovvD54/DAGnI0PAWgA\=\=
+report_what_all.pt_PT.text.author=Nuno Fernandes
+report_what_all.pt_PT.text.changed=20071023154052
+report_what_all.pt_PT.text.md5=MmMMqRPQHE/ucbvo7yjt6g\=\=
+report_what_events..text.changed=20071023154051
+report_what_events..text.md5=h/n3NaHTZ5POrs1ORxJLYw\=\=
+report_what_events.pt_PT.text.author=Nuno Fernandes
+report_what_events.pt_PT.text.changed=20071023154052
+report_what_events.pt_PT.text.md5=I9UCgTn1H4Lld1UCriua8A\=\=
+report_what_events_byevent..text.changed=20071023154051
+report_what_events_byevent..text.md5=NVfYJvrAFKLtqBocWODz7Q\=\=
+report_what_events_byevent.pt_PT.text.author=Nuno Fernandes
+report_what_events_byevent.pt_PT.text.changed=20071023154052
+report_what_events_byevent.pt_PT.text.md5=uZvXpNSD927yH3TGJ9gqXg\=\=
+report_what_events_bytool..text.changed=20071023154051
+report_what_events_bytool..text.md5=nyD8OYp5gQ/yEDuHIkEC4w\=\=
+report_what_events_bytool.pt_PT.text.author=Nuno Fernandes
+report_what_events_bytool.pt_PT.text.changed=20071023154052
+report_what_events_bytool.pt_PT.text.md5=TBqwfCe3SnFEcnqwKfh8Aw\=\=
+report_what_fine_grained_selection..text.changed=20071023154051
+report_what_fine_grained_selection..text.md5=7Ec2xE75YueHOUXSyNC0vw\=\=
+report_what_fine_grained_selection.pt_PT.text.author=Nuno Fernandes
+report_what_fine_grained_selection.pt_PT.text.changed=20071023154052
+report_what_fine_grained_selection.pt_PT.text.md5=ndM81B03OBhc2+FVg9LpCQ\=\=
+report_what_instructions..text.changed=20071023154051
+report_what_instructions..text.md5=P649pnwCCr19NY10hhciEg\=\=
+report_what_instructions.pt_PT.text.author=Nuno Fernandes
+report_what_instructions.pt_PT.text.changed=20071023154052
+report_what_instructions.pt_PT.text.md5=//EZggD/q09fdhO6B8E6oA\=\=
+report_what_resource_action..text.changed=20071023154051
+report_what_resource_action..text.md5=vR9EPSXYPqoScC8yBnWp6Q\=\=
+report_what_resource_action.pt_PT.text.author=Nuno Fernandes
+report_what_resource_action.pt_PT.text.changed=20071023154052
+report_what_resource_action.pt_PT.text.md5=8UrKrxJtNhjHEz6mhuW7iQ\=\=
+report_what_resources..text.changed=20071023154051
+report_what_resources..text.md5=3c9QwpKU1EFPP3wbvIkstQ\=\=
+report_what_resources.pt_PT.text.author=Nuno Fernandes
+report_what_resources.pt_PT.text.changed=20071023154052
+report_what_resources.pt_PT.text.md5=2UK6LCN6mX6mem1pz14wjQ\=\=
+report_what_sel_resources..text.changed=20071023154051
+report_what_sel_resources..text.md5=KZ01mAmtbnuF1VqkQt9Xjw\=\=
+report_what_sel_resources.pt_PT.text.author=Nuno Fernandes
+report_what_sel_resources.pt_PT.text.changed=20071023154052
+report_what_sel_resources.pt_PT.text.md5=+sAR9omgfxGsmDrpB+2aXQ\=\=
+report_what_visits..text.changed=20071023154051
+report_what_visits..text.md5=1+Y3pun/EW3i+olVEkCpTQ\=\=
+report_what_visits.pt_PT.text.author=Nuno Fernandes
+report_what_visits.pt_PT.text.changed=20071023154052
+report_what_visits.pt_PT.text.md5=9h1O4aurFybuRFC0O0iq/A\=\=
+report_when..text.changed=20071023154051
+report_when..text.md5=qRfRxjQns7TWZQxVasoBlg\=\=
+report_when.pt_PT.text.author=Nuno Fernandes
+report_when.pt_PT.text.changed=20071023154052
+report_when.pt_PT.text.md5=6wQzXNCl1yWdGDNWE6WrQQ\=\=
+report_when_all..text.changed=20071023154051
+report_when_all..text.md5=sclMovvD54/DAGnI0PAWgA\=\=
+report_when_all.pt_PT.text.author=Nuno Fernandes
+report_when_all.pt_PT.text.changed=20071023154052
+report_when_all.pt_PT.text.md5=TC3aW2QdorzV5wQY/jqBjg\=\=
+report_when_custom..text.changed=20071023154051
+report_when_custom..text.md5=kFicR/BuuXHVSFkfI8KFrw\=\=
+report_when_custom.pt_PT.text.author=Nuno Fernandes
+report_when_custom.pt_PT.text.changed=20071023154052
+report_when_custom.pt_PT.text.md5=TabTtXMI0/SAVPVY1VtBcw\=\=
+report_when_from_date..text.changed=20071023154051
+report_when_from_date..text.md5=elI0fW/mlRmJaAnxHxHzYA\=\=
+report_when_from_date.pt_PT.text.author=Nuno Fernandes
+report_when_from_date.pt_PT.text.changed=20071023154052
+report_when_from_date.pt_PT.text.md5=IITAT3o4Cmi2U+X8gtNS8A\=\=
+report_when_instructions..text.changed=20071023154051
+report_when_instructions..text.md5=+1siwbcMaUtYryoQhv/AoA\=\=
+report_when_instructions.pt_PT.text.author=Nuno Fernandes
+report_when_instructions.pt_PT.text.changed=20071023154052
+report_when_instructions.pt_PT.text.md5=JvSjIEG3UgfUmyIk+PdxxA\=\=
+report_when_last30days..text.changed=20071023154051
+report_when_last30days..text.md5=JVdJFAXdls5D9VoxM8/R/g\=\=
+report_when_last30days.pt_PT.text.author=Nuno Fernandes
+report_when_last30days.pt_PT.text.changed=20071023154052
+report_when_last30days.pt_PT.text.md5=Nx/12qYA7/jaDaBIdCU37Q\=\=
+report_when_last7days..text.changed=20071023154051
+report_when_last7days..text.md5=TmJRoFm0MUGfcJDWa83Dcg\=\=
+report_when_last7days.pt_PT.text.author=Nuno Fernandes
+report_when_last7days.pt_PT.text.changed=20071023154052
+report_when_last7days.pt_PT.text.md5=4d+xWG7p/VRhTFIJGQ8+aw\=\=
+report_when_to_date..text.changed=20071023154051
+report_when_to_date..text.md5=AbbiA0S2iDXF7R3e3yDVMQ\=\=
+report_when_to_date.pt_PT.text.author=Nuno Fernandes
+report_when_to_date.pt_PT.text.changed=20071023154052
+report_when_to_date.pt_PT.text.md5=nAEPj+75q7iTxHnsU/Bd4w\=\=
+report_who..text.changed=20071023154051
+report_who..text.md5=p+jT0BPiYZgBioNZTc3vfg\=\=
+report_who.pt_PT.text.author=Nuno Fernandes
+report_who.pt_PT.text.changed=20071023154052
+report_who.pt_PT.text.md5=BjWkkwnyQpwPcw1qSauK0g\=\=
+report_who_all..text.changed=20071023154051
+report_who_all..text.md5=sclMovvD54/DAGnI0PAWgA\=\=
+report_who_all.pt_PT.text.author=Nuno Fernandes
+report_who_all.pt_PT.text.changed=20071023154052
+report_who_all.pt_PT.text.md5=MmMMqRPQHE/ucbvo7yjt6g\=\=
+report_who_custom..text.changed=20071023154051
+report_who_custom..text.md5=kFicR/BuuXHVSFkfI8KFrw\=\=
+report_who_custom.pt_PT.text.author=Nuno Fernandes
+report_who_custom.pt_PT.text.changed=20071023154052
+report_who_custom.pt_PT.text.md5=A7ncFDFUNvuPLfJK/Pjosw\=\=
+report_who_group..text.changed=20071023154051
+report_who_group..text.md5=A5NxNM7auQeL45p37jpIoA\=\=
+report_who_group.pt_PT.text.author=Nuno Fernandes
+report_who_group.pt_PT.text.changed=20071023154052
+report_who_group.pt_PT.text.md5=xdfxUxlsp8+wmu1xmWyN7g\=\=
+report_who_instructions..text.changed=20071023154051
+report_who_instructions..text.md5=NqrAy7nO9LNTxcXQDMAVkA\=\=
+report_who_instructions.pt_PT.text.author=Nuno Fernandes
+report_who_instructions.pt_PT.text.changed=20071023154052
+report_who_instructions.pt_PT.text.md5=ZjOwqqzkSumbafxudcVAOA\=\=
+report_who_none..text.changed=20071023154051
+report_who_none..text.md5=at+X+DrPZFPUpqSxBw83VA\=\=
+report_who_none.pt_PT.text.author=Nuno Fernandes
+report_who_none.pt_PT.text.changed=20071023154052
+report_who_none.pt_PT.text.md5=g1Id2dGfcwDwt6aoyP5+6A\=\=
+report_who_not_match..text.changed=20071023154051
+report_who_not_match..text.md5=dXM54BFo8+cfkKIoPY697g\=\=
+report_who_not_match.pt_PT.text.author=Nuno Fernandes
+report_who_not_match.pt_PT.text.changed=20071023154052
+report_who_not_match.pt_PT.text.md5=LnvQZllDAEFP3j2DRhbIbQ\=\=
+report_who_role..text.changed=20071023154051
+report_who_role..text.md5=u7q9vhsmL3XZnWKIC5U74Q\=\=
+report_who_role.pt_PT.text.author=Nuno Fernandes
+report_who_role.pt_PT.text.changed=20071023154052
+report_who_role.pt_PT.text.md5=VNx6oHZFXeckdKO1SqDVfg\=\=
+reportres_print..text.changed=20071023154051
+reportres_print..text.md5=nQjgRY8mBLGrR7dxRmQNuA\=\=
+reportres_print.pt_PT.text.author=Nuno Fernandes
+reportres_print.pt_PT.text.changed=20071023154052
+reportres_print.pt_PT.text.md5=fDVv4dcZnH4HlbG2DXo4xA\=\=
+reportres_printversion..text.changed=20071023154051
+reportres_printversion..text.md5=evYvPBfDQybd6rjGjfCZIw\=\=
+reportres_printversion.pt_PT.text.author=Nuno Fernandes
+reportres_printversion.pt_PT.text.changed=20071023154052
+reportres_printversion.pt_PT.text.md5=PKPlA/4KykKrdYPZJBqxDQ\=\=
+reportres_summ_act_basedon..text.changed=20071023154051
+reportres_summ_act_basedon..text.md5=ZV5n80yG6kiuu6MII3MNRg\=\=
+reportres_summ_act_basedon.pt_PT.text.author=Nuno Fernandes
+reportres_summ_act_basedon.pt_PT.text.changed=20071023154052
+reportres_summ_act_basedon.pt_PT.text.md5=QT8F5ajvRSEiSeYTJOwg3w\=\=
+reportres_summ_act_events_selected..text.changed=20071023154051
+reportres_summ_act_events_selected..text.md5=WS9qRMoait+2V2I9Fccg5Q\=\=
+reportres_summ_act_events_selected.pt_PT.text.author=Nuno Fernandes
+reportres_summ_act_events_selected.pt_PT.text.changed=20071023154052
+reportres_summ_act_events_selected.pt_PT.text.md5=E6FgQL8vHof5lsjsYkZ7UA\=\=
+reportres_summ_act_rsrc_action..text.changed=20071023154051
+reportres_summ_act_rsrc_action..text.md5=IcY/SVUlUvv56dmAI3wVqw\=\=
+reportres_summ_act_rsrc_action.pt_PT.text.author=Nuno Fernandes
+reportres_summ_act_rsrc_action.pt_PT.text.changed=20071023154052
+reportres_summ_act_rsrc_action.pt_PT.text.md5=WZhzywQLudQLjFOHyGQGYw\=\=
+reportres_summ_act_rsrc_selected..text.changed=20071023154051
+reportres_summ_act_rsrc_selected..text.md5=YOSUVdq4bRxZGsK+ishNWg\=\=
+reportres_summ_act_rsrc_selected.pt_PT.text.author=Nuno Fernandes
+reportres_summ_act_rsrc_selected.pt_PT.text.changed=20071023154052
+reportres_summ_act_rsrc_selected.pt_PT.text.md5=VJO5yoY2W38tj5MZlDDKtw\=\=
+reportres_summ_act_tools_selected..text.changed=20071023154051
+reportres_summ_act_tools_selected..text.md5=YF8cDsR5057L+9p3xEOe8Q\=\=
+reportres_summ_act_tools_selected.pt_PT.text.author=Nuno Fernandes
+reportres_summ_act_tools_selected.pt_PT.text.changed=20071023154052
+reportres_summ_act_tools_selected.pt_PT.text.md5=WxzaOKjLVbW01WlqCGkI/Q\=\=
+reportres_summ_generatedon..text.changed=20071023154051
+reportres_summ_generatedon..text.md5=DvurKYhIX0wEgVgw/2YRcQ\=\=
+reportres_summ_generatedon.pt_PT.text.author=Nuno Fernandes
+reportres_summ_generatedon.pt_PT.text.changed=20071023154052
+reportres_summ_generatedon.pt_PT.text.md5=E7jg/KkzcQOUNHf4qhe5xQ\=\=
+reportres_summ_timeperiod..text.changed=20071023154051
+reportres_summ_timeperiod..text.md5=R9wFlTeXIqEnfWJuyaY11g\=\=
+reportres_summ_timeperiod.pt_PT.text.author=Nuno Fernandes
+reportres_summ_timeperiod.pt_PT.text.changed=20071023154052
+reportres_summ_timeperiod.pt_PT.text.md5=nNs4+xJrHjI/78Qv6HODww\=\=
+reportres_summ_usr_group_selected..text.changed=20071023154051
+reportres_summ_usr_group_selected..text.md5=1ZFD/74yOjMkTnxV3CKIfA\=\=
+reportres_summ_usr_group_selected.pt_PT.text.author=Nuno Fernandes
+reportres_summ_usr_group_selected.pt_PT.text.changed=20071023154052
+reportres_summ_usr_group_selected.pt_PT.text.md5=HOGsdAUfwokbQrRcS2PD/g\=\=
+reportres_summ_usr_role_selected..text.changed=20071023154051
+reportres_summ_usr_role_selected..text.md5=feBJfXKtl400hlQKvF8E8A\=\=
+reportres_summ_usr_role_selected.pt_PT.text.author=Nuno Fernandes
+reportres_summ_usr_role_selected.pt_PT.text.changed=20071023154052
+reportres_summ_usr_role_selected.pt_PT.text.md5=Ec1dPStoLPyn9JpVF3AdWw\=\=
+reportres_summ_usr_selectiontype..text.changed=20071023154051
+reportres_summ_usr_selectiontype..text.md5=Gw+tOumiXxLuUCjHY0x9Rg\=\=
+reportres_summ_usr_selectiontype.pt_PT.text.author=Nuno Fernandes
+reportres_summ_usr_selectiontype.pt_PT.text.changed=20071023154052
+reportres_summ_usr_selectiontype.pt_PT.text.md5=OfPgfX0eCzhF5BpO0SWRYw\=\=
+reportres_summ_usr_users_selected..text.changed=20071023154051
+reportres_summ_usr_users_selected..text.md5=VcZ1wQFliP3uUHMfR0iR7w\=\=
+reportres_summ_usr_users_selected.pt_PT.text.author=Nuno Fernandes
+reportres_summ_usr_users_selected.pt_PT.text.changed=20071023154052
+reportres_summ_usr_users_selected.pt_PT.text.md5=xJvtuty0ASvnc3mxZN917g\=\=
+reportres_title..text.changed=20071023154051
+reportres_title..text.md5=SxtNyM84s8ZLHWV9qPWsjA\=\=
+reportres_title.pt_PT.text.author=Nuno Fernandes
+reportres_title.pt_PT.text.changed=20071023154052
+reportres_title.pt_PT.text.md5=RoXV3ZHGX2wpm30UycG16A\=\=
+search..text.changed=20061212185411
+search..text.md5=EzSEQsxqJwMtK0qii3Wl0w\=\=
+search.pt_PT.text.author=UFPUV
+search.pt_PT.text.changed=20061212192028
+search.pt_PT.text.md5=MdqVbZMe8sqzYPgGcf7ttA\=\=
+search_int..text.changed=20061212185411
+search_int..text.md5=9XJrk9RamIU2czaL4YsAwg\=\=
+search_int.pt_PT.text.author=UFPUV
+search_int.pt_PT.text.changed=20061212192042
+search_int.pt_PT.text.md5=FRNPWIu7cHd42oSgFEEMQA\=\=
+search_int2..text.changed=20061212185411
+search_int2..text.md5=ENMmHp0L+5AxSMGAr9gNLA\=\=
+search_int2.pt_PT.text.author=UFPUV
+search_int2.pt_PT.text.changed=20061212192055
+search_int2.pt_PT.text.md5=k3pprQ2loACkMeZfAKb93g\=\=
+search_label..text.changed=20061212185411
+search_label..text.md5=U+7x3ByE69F9ZFFzt7dlWg\=\=
+search_label.pt_PT.text.author=UFPUV
+search_label.pt_PT.text.changed=20061212192102
+search_label.pt_PT.text.md5=B2LmqS2lrJVhG/V5wcibMg\=\=
+select_date..text.changed=20061212185411
+select_date..text.md5=aOE6EPiZiqXePg/0wbaGIw\=\=
+select_date.pt_PT.text.author=UFPUV
+select_date.pt_PT.text.changed=20061212192110
+select_date.pt_PT.text.md5=VnMdgtxNsYZTYaBtWdcwWQ\=\=
+site_published..text.changed=20061212185411
+site_published..text.md5=m52Kl2tC4L1mOBeXZElD1Q\=\=
+site_published.pt_PT.text.author=UFPUV
+site_published.pt_PT.text.changed=20061212192128
+site_published.pt_PT.text.md5=HxCnhh0VqvCYrVZKfYqVBg\=\=
+site_type..text.changed=20061212185411
+site_type..text.md5=2JjfpgluyqihbmTcH2LW1g\=\=
+site_type.pt_PT.text.author=UFPUV
+site_type.pt_PT.text.changed=20061212192133
+site_type.pt_PT.text.md5=uCjv+xfsc/A/4zpwdWCjcg\=\=
+site_unpublished..text.changed=20061212185411
+site_unpublished..text.md5=B3ThY8199ILt0qvUmBifiw\=\=
+site_unpublished.pt_PT.text.author=UFPUV
+site_unpublished.pt_PT.text.changed=20061212192141
+site_unpublished.pt_PT.text.md5=LUqHDCgLkeuj9zlf+v4y3Q\=\=
+sites..text.changed=20061212185411
+sites..text.md5=0n7b0Yw735zh0BPGYmuibA\=\=
+sites.pt_PT.text.author=UFPUV
+sites.pt_PT.text.changed=20061212192147
+sites.pt_PT.text.md5=Hi2WOx1TqDASnghCOB9vmg\=\=
+submenu_byDate..text.changed=20071023154051
+submenu_byDate..text.md5=8REntnPdDBA9phxf0WAaWA\=\=
+submenu_byDate.pt_PT.text.author=Nuno Fernandes
+submenu_byDate.pt_PT.text.changed=20071023154052
+submenu_byDate.pt_PT.text.md5=035kRZPhdnvl0S5j3GO+CQ\=\=
+submenu_byTool..text.changed=20071023154051
+submenu_byTool..text.md5=7HM7zmWFTZ7QexF3IEoTjw\=\=
+submenu_byTool.pt_PT.text.author=Nuno Fernandes
+submenu_byTool.pt_PT.text.changed=20071023154052
+submenu_byTool.pt_PT.text.md5=8Rmj5BonqK15orTlmscbNg\=\=
+submenu_month..text.changed=20071023154051
+submenu_month..text.md5=gMvd3iGS1Fmpnum4CIpt9Q\=\=
+submenu_month.pt_PT.text.author=Nuno Fernandes
+submenu_month.pt_PT.text.changed=20071023154052
+submenu_month.pt_PT.text.md5=x6ySS2fN5OV6znvOixw+IA\=\=
+submenu_week..text.changed=20071023154051
+submenu_week..text.md5=Q4wdJmvzZZ5u+vwMiYrmNQ\=\=
+submenu_week.pt_PT.text.author=Nuno Fernandes
+submenu_week.pt_PT.text.changed=20071023154052
+submenu_week.pt_PT.text.md5=nRlq9OfCyk53KEaHteLDkA\=\=
+submenu_year..text.changed=20071023154051
+submenu_year..text.md5=APcV5plgglcEJ6I1sW5pGg\=\=
+submenu_year.pt_PT.text.author=Nuno Fernandes
+submenu_year.pt_PT.text.changed=20071023154052
+submenu_year.pt_PT.text.md5=OkrK+0K/kfYJU2PLysui1w\=\=
+th_action..text.changed=20061212185411
+th_action..text.md5=AEv2yaQAAxQCkulzMCNsUw\=\=
+th_action.pt_PT.text.author=UFPUV
+th_action.pt_PT.text.changed=20061212192221
+th_action.pt_PT.text.md5=LE9UytdhTunn3rF/UBp5IQ\=\=
+th_date..text.changed=20061212185411
+th_date..text.md5=FhdsCy6ZmO2j/nqtd1u1ZA\=\=
+th_date.pt_PT.text.author=UFPUV
+th_date.pt_PT.text.changed=20061212192233
+th_date.pt_PT.text.md5=qu3CKFDSnvZsWNN+K1KjZw\=\=
+th_event..text.changed=20061212185411
+th_event..text.md5=pOz8cFdDlJkM8XvYPfSZ9w\=\=
+th_event.pt_PT.text.author=UFPUV
+th_event.pt_PT.text.changed=20061212192238
+th_event.pt_PT.text.md5=1VWUIPeVebmqcBogLEvH6w\=\=
+th_id..text.changed=20061212185411
+th_id..text.md5=Htza2Js6IkXXWaFp2hv1ow\=\=
+th_id.pt_PT.text.author=UFPUV
+th_id.pt_PT.text.changed=20061212192249
+th_id.pt_PT.text.md5=C4zsFpYRhvtzxFRD9p4xLA\=\=
+th_resource..text.changed=20061212185411
+th_resource..text.md5=voVFrnqwJ24ViYques+9eg\=\=
+th_resource.pt_PT.text.author=UFPUV
+th_resource.pt_PT.text.changed=20061212192256
+th_resource.pt_PT.text.md5=ve/bRJlER1d6GZkVXVq1Vg\=\=
+th_status..text.changed=20061212185411
+th_status..text.md5=7FOoxPB7rtXYglByyJeZvg\=\=
+th_status.pt_PT.text.author=UFPUV
+th_status.pt_PT.text.changed=20061212192301
+th_status.pt_PT.text.md5=M5fmnM4343yGBfV7Nn1rMw\=\=
+th_title..text.changed=20061212185411
+th_title..text.md5=t4oyI1A4lnIcyhMD93YVmw\=\=
+th_title.pt_PT.text.author=UFPUV
+th_title.pt_PT.text.changed=20061212192335
+th_title.pt_PT.text.md5=/0MRKFrz19nhqKlo6YlqBA\=\=
+th_total..text.changed=20061212185411
+th_total..text.md5=lrAUEnPqurMgEZxGfNyvFw\=\=
+th_total.pt_PT.text.author=UFPUV
+th_total.pt_PT.text.changed=20061212192342
+th_total.pt_PT.text.md5=lrAUEnPqurMgEZxGfNyvFw\=\=
+th_type..text.changed=20061212185411
+th_type..text.md5=ofond5JCtJAveuO91cbVCA\=\=
+th_type.pt_PT.text.author=UFPUV
+th_type.pt_PT.text.changed=20061212192349
+th_type.pt_PT.text.md5=T0J8FFfgK86A6DJSER/SfQ\=\=
+th_user..text.changed=20061212185411
+th_user..text.md5=Se4whzSOjUTh/toZF0Q5hw\=\=
+th_user.pt_PT.text.author=UFPUV
+th_user.pt_PT.text.changed=20061212192355
+th_user.pt_PT.text.md5=wCiemIl6tY8jHBaLGaZ7Lg\=\=
+to_date..text.changed=20061212185411
+to_date..text.md5=AbbiA0S2iDXF7R3e3yDVMQ\=\=
+to_date.pt_PT.text.author=UFPUV
+to_date.pt_PT.text.changed=20061212192400
+to_date.pt_PT.text.md5=06+sbgZ8nKBFZ0V1RuMLfQ\=\=
+tool_title..text.changed=20061212185411
+tool_title..text.md5=xNNAbjGfMappuxZClK0r3Q\=\=
+tool_title.pt_PT.text.author=UFPUV
+tool_title.pt_PT.text.changed=20061212192651
+tool_title.pt_PT.text.md5=SaoVqHI9UJ3UA7kb0Gz9Xw\=\=
+unauthorized..text.changed=20061212185411
+unauthorized..text.md5=/kXGghu7EGZj76q1eL9WEQ\=\=
+unauthorized.pt_PT.text.author=UFPUV
+unauthorized.pt_PT.text.changed=20061212192706
+unauthorized.pt_PT.text.md5=E0chEJr4fPL/qZWuhyzwaA\=\=
+update..text.changed=20061212185411
+update..text.md5=BpMwZ6r9SEJdZ7ywG7pctg\=\=
+update.pt_PT.text.author=UFPUV
+update.pt_PT.text.changed=20061212192714
+update.pt_PT.text.md5=XPiXb4YjxbEJo/KwODm+JQ\=\=
+updating..text.changed=20061212185411
+updating..text.md5=p9eEpjAXk/YcBwSW1piNNg\=\=
+updating.pt_PT.text.author=UFPUV
+updating.pt_PT.text.changed=20061212192721
+updating.pt_PT.text.md5=p/pE6k2b9D1mWAG9Eu6Llg\=\=
+view..text.changed=20061212185411
+view..text.md5=3yXeQshIN7r1+hUEmovHZA\=\=
+view.pt_PT.text.author=UFPUV
+view.pt_PT.text.changed=20061212192738
+view.pt_PT.text.md5=by7VcMfPlfoqb5qADJ8u/w\=\=

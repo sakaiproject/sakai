@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+		
+			
+	<!-- Hibernate Mappings (.hbm) -->	
+	<bean id="sitestats-additional-mappings"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/sitestats/impl/hbm/PrefsImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/EventStatImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/ResourceStatImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/SiteVisitsImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/SiteActivityImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/JobRunImpl.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	
+
+	<!-- CommonStatGrpByDate -->	
+	<bean id="org.sakaiproject.sitestats.api.CommonStatGrpByDate"
+		class="org.sakaiproject.sitestats.impl.CommonStatGrpByDateImpl">
+	</bean>
+
+	<!-- Prefs -->	
+	<bean id="org.sakaiproject.sitestats.api.Prefs"
+		class="org.sakaiproject.sitestats.impl.PrefsImpl">
+	</bean>
+
+	<!-- ResourceStat -->	
+	<bean id="org.sakaiproject.sitestats.api.ResourceStat"
+		class="org.sakaiproject.sitestats.impl.ResourceStatImpl">
+	</bean>
+
+	<!-- EventStat -->	
+	<bean id="org.sakaiproject.sitestats.api.EventStat"
+		class="org.sakaiproject.sitestats.impl.EventStatImpl">
+	</bean>
+
+	<!-- SiteVisits -->	
+	<bean id="org.sakaiproject.sitestats.api.SiteVisits"
+		class="org.sakaiproject.sitestats.impl.SiteVisitsImpl">
+	</bean>
+
+	<!-- SiteVisits -->	
+	<bean id="org.sakaiproject.sitestats.api.SiteActivity"
+		class="org.sakaiproject.sitestats.impl.SiteActivityImpl">
+	</bean>
+	
+</beans>

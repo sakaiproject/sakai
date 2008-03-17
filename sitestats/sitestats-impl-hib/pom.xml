@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>sitestats-base</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>M2</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<name>Sakai SiteStats Hibernate</name>
+	<groupId>org.sakaiproject</groupId>
+	<artifactId>sakai-sitestats-impl-hib</artifactId>
+	<organization>
+		<name>Universidade Fernando Pessoa</name>
+		<url>http://www.ufp.pt</url>
+	</organization>
+	<inceptionYear>2006</inceptionYear>
+	<packaging>jar</packaging>
+	<properties>
+		<deploy.target>shared</deploy.target>
+	</properties>
+
+	<dependencies>
+		<!-- SiteStats -->
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-sitestats-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<resources>
+			<resource>
+				<directory>src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/resources</directory>
+			</resource>
+		</resources>
+	</build>
+</project>

@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>sitestats-base</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>M2</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<name>Sakai SiteStats Components</name>
+	<groupId>org.sakaiproject</groupId>
+	<artifactId>sakai-sitestats-components</artifactId>
+	<organization>
+		<name>Universidade Fernando Pessoa</name>
+		<url>http://www.ufp.pt</url>
+	</organization>
+	<inceptionYear>2006</inceptionYear>
+	<packaging>sakai-component</packaging>
+	<properties>
+		<deploy.target>components</deploy.target>
+	</properties>
+
+	<dependencies>
+		<!-- SiteStats -->
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-sitestats-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-sitestats-impl</artifactId>
+			<version>${sakai.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-sitestats-impl-hib</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-sitestats-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+				<excludes>
+					<exclude>**/web.xml</exclude>
+				</excludes>
+			</resource>
+		</resources>
+	</build>
+</project>

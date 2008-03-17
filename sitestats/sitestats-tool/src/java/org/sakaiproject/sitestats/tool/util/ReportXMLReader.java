@@ -1,0 +1,223 @@
+package org.sakaiproject.sitestats.tool.util;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.faces.context.FacesContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
+import org.sakaiproject.sitestats.api.Report;
+import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.tool.bean.ReportsBean;
+import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+public class ReportXMLReader extends AbstractObjectReader {
+
+	/** Our log (commons). */
+	private static Log				LOG					= LogFactory.getLog(ReportXMLReader.class);
+	
+	/** Resource bundle */
+	private String					bundleName	= FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+	private ResourceLoader			msgs		= new ResourceLoader(bundleName);
+	
+	private ReportsBean				reportsBean	= null;
+	
+	private TimeService				ts			= (TimeService) ComponentManager.get(TimeService.class.getName());
+	private SiteService				M_ss		= (SiteService) ComponentManager.get(SiteService.class.getName());
+	private ToolManager				M_tm		= (ToolManager) ComponentManager.get(ToolManager.class.getName());
+	private UserDirectoryService	M_uds		= (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
+	private StatsManager			sm			= (StatsManager) ComponentManager.get(StatsManager.class.getName());
+
+
+	@Override
+	public void parse(InputSource input) throws IOException, SAXException {
+		if (input instanceof ReportInputSource) {
+            parse(((ReportInputSource)input).getReport());
+        } else {
+            throw new SAXException("Unsupported InputSource specified. "  + "Must be a ReportInputSource");
+        }
+	}
+
+	public void parse(Report report) throws SAXException {
+		if (report == null) {
+            throw new NullPointerException("Parameter report must not be null");
+        }
+        if (handler == null) {
+            throw new IllegalStateException("ContentHandler not set");
+        }
+        
+        // get ReportsBean
+		FacesContext facesContext = FacesContext.getCurrentInstance();
+		reportsBean = (ReportsBean) facesContext.getApplication().createValueBinding("#{ReportsBean}").getValue(facesContext);
+        
+        //Start the document
+        handler.startDocument();
+        
+        //Generate SAX events for the Report
+        generateReport(report);
+        
+        //End the document
+        handler.endDocument();
+	}
+	
+	
+	
+	protected void generateReport(Report report) throws SAXException {
+        if (report == null) {
+            throw new NullPointerException("Parameter report must not be null");
+        }
+        if (handler == null) {
+            throw new IllegalStateException("ContentHandler not set");
+        }
+        
+        handler.startElement("report");        
+        String reportTitle = msgs.getString("reportres_title");
+		try{
+			String siteTitle = M_ss.getSite(M_tm.getCurrentPlacement().getContext()).getTitle();
+			reportTitle += " (" + siteTitle + ")";
+		}catch(IdUnusedException e){
+			// ignore
+		}
+        handler.element("title", reportTitle);
+        
+        // activity based on
+		generateReportSummaryHeaderRow(msgs.getString("reportres_summ_act_basedon") ,reportsBean.getReportActivityBasedOn(report));
+		String reportResourceAction = reportsBean.getReportResourceAction(report);
+		// resources action
+		if(reportResourceAction != null && reportResourceAction != null)
+			generateReportSummaryHeaderRow(reportsBean.getReportResourceActionTitle(report) ,reportResourceAction);
+		// activity selection
+		String reportActivitySelection = reportsBean.getReportActivitySelection(report);
+		if(reportActivitySelection != null)
+			generateReportSummaryHeaderRow(reportsBean.getReportActivitySelectionTitle(report) ,reportActivitySelection);
+		// time period
+		generateReportSummaryHeaderRow(msgs.getString("reportres_summ_timeperiod") ,reportsBean.getReportTimePeriod(report));
+		// user selection type
+		generateReportSummaryHeaderRow(msgs.getString("reportres_summ_usr_selectiontype") ,reportsBean.getReportUserSelectionType(report));
+		// user selection
+		String reportUserSelection = reportsBean.getReportUserSelection();
+		if(reportUserSelection != null)
+			generateReportSummaryHeaderRow(reportsBean.getReportUserSelectionTitle(report) ,reportUserSelection);
+		// report timestamp
+        generateReportSummaryHeaderRow(msgs.getString("reportres_summ_generatedon") ,reportsBean.getReportGenerationDate(report));
+        
+        String what = report.getReportParams().getWhat();
+        handler.element("what", what);
+        String who = report.getReportParams().getWho();
+        handler.element("who", who);
+        
+        // report header
+        generateReportDataHeader(what, who);
+        
+        // report data
+        generateReportData(report.getReportData(), what, who);
+        
+        handler.endElement("report");
+    }
+
+	protected void generateReportSummaryHeaderRow(String label, String value) throws SAXException {
+        if (label == null || value == null) {
+            throw new NullPointerException("Parameter label and value must not be null");
+        }
+        if (handler == null) {
+            throw new IllegalStateException("ContentHandler not set");
+        }
+        
+        handler.startElement("summaryheader");
+        handler.element("label", label);
+        handler.element("value", value);
+        handler.endElement("summaryheader");
+    }
+	
+	private void generateReportDataHeader(String what, String who) throws SAXException {
+        if (what == null || who == null) {
+            throw new NullPointerException("Parameter what and who must not be null");
+        }
+        if (handler == null) {
+            throw new IllegalStateException("ContentHandler not set");
+        }
+        
+        handler.startElement("datarowheader");
+        handler.element("what", what);
+        handler.element("who", who);
+        handler.element("th_id", msgs.getString("th_id"));
+        handler.element("th_user", msgs.getString("th_user"));
+        if(what.equals(StatsManager.WHAT_RESOURCES)){
+            handler.element("th_resource", msgs.getString("th_resource"));
+            handler.element("th_action", msgs.getString("th_action"));
+        }else{
+            handler.element("th_event", msgs.getString("th_event"));	
+        }
+        handler.element("th_date", msgs.getString("th_date"));
+        handler.element("th_total", msgs.getString("th_total"));
+        handler.endElement("datarowheader");
+	}
+
+	private void generateReportData(List<CommonStatGrpByDate> data, String what, String who) throws SAXException {
+        if (data == null || what == null || who == null) {
+            throw new NullPointerException("Parameter data, what and who must not be null");
+        }
+        if (handler == null) {
+            throw new IllegalStateException("ContentHandler not set");
+        }
+
+        Iterator<CommonStatGrpByDate> i = data.iterator();
+        while(i.hasNext()){
+        	CommonStatGrpByDate cs = i.next();
+            handler.startElement("datarow");
+            handler.element("what", what);
+            handler.element("who", who);
+            
+            // user id and name
+        	String userId = null;
+        	String userName = null;
+            try{
+				User user = M_uds.getUser(cs.getUserId());
+				userId = user.getDisplayId();
+				userName = user.getDisplayName();
+			}catch(UserNotDefinedException e){
+				userId = cs.getUserId();
+				userName = "";
+			}
+            handler.element("userid", userId);
+            handler.element("username", userName);
+            
+            if(!who.equals(StatsManager.WHO_NONE)) {
+	            // event or (resource and action)
+	            if(what.equals(StatsManager.WHAT_RESOURCES)){
+		            //handler.element("resourceimg", sm.getResourceImage(cs.getRefImg()));
+	            	//handler.element("resourceimg", "image/sakai/generic.gif");
+	            	String resName = sm.getResourceName(cs.getRef());
+	            	String resAction = cs.getRefAction();
+	            	handler.element("resource", resName == null? "" : resName);
+		            handler.element("action", resAction == null? "" : msgs.getString("action_"+resAction) );
+	            }else{
+	            	String eventRef = cs.getRef();
+	            	handler.element("event", sm.getEventName(eventRef == null? "" : eventRef));
+	            }
+	            
+	            // last date
+	            java.util.Date date = cs.getDate();
+	            handler.element("lastdate", date == null? "" :ts.newTime(date.getTime()).toStringLocalDate());
+	            
+	            // count
+	            handler.element("count", String.valueOf(cs.getCount()));
+            }
+            
+            handler.endElement("datarow");
+        }
+	}
+}
