@@ -77,6 +77,11 @@
       <property name="name"><value>Check Assignment Grade</value></property>
       <property name="location"><value>/sakai_assignment_grades/arbg.html</value></property>
    </bean>
+   <bean id="assignmentGbMethods" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avnd</value></property>
+      <property name="name"><value>Link Assignment to the Gradebook</value></property>
+      <property name="location"><value>/sakai_assignment_grades/avnd.html</value></property>
+   </bean>
    
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
           class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
@@ -89,9 +94,10 @@
                   <list>
                      <ref bean="assignmentOverview"/>
                      <ref bean="createAssignment"/>
+                     <ref bean="assignmentGbMethods"/>
 					 <ref bean="gradingAssignment"/>
 					 <ref bean="assignmentAttachment"/>
-                     <ref bean="reviseAssignment"/>					 
+                     			 <ref bean="reviseAssignment"/>					 
 					 <ref bean="returnAssignment"/>
 					 <ref bean="resubmitAssignment"/>
 					 <ref bean="exportAssignmentGrade"/>
