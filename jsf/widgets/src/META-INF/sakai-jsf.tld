@@ -313,6 +313,24 @@
           form submit.
       </description>
     </attribute>
+    <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        CSS style(s) to be applied when this component is rendered.
+      </description>
+    </attribute>
+    <attribute>
+      <name>styleClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Space-separated list of CSS style class(es) to be applied when
+        this element is rendered.  This value must be passed through
+        as the "class" attribute on generated markup.
+      </description>
+    </attribute>
   </tag>
 
 
@@ -790,6 +808,23 @@
           	  Advisory title information about markup elements generated for this component.
       </description>
     </attribute>
+    <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        CSS style(s) to be applied when this component is rendered.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onclick</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Javascript code executed when a pointer button is
+        clicked over this element.
+      </description>
+    </attribute>    
   </tag>
 
   <tag>
