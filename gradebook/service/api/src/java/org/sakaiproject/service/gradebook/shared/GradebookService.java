@@ -616,4 +616,20 @@ public interface GradebookService {
 	 * 
 	 */
 	public Map getFixedGrade(String gradebookUid);
+	
+	/**
+	 * Get fixed earned points for students by using course grade scale.
+	 * @param gradebookUid
+	 * @return Map of enrollment displayId as key, point as value string
+	 * 
+	 */
+	public Map getFixedPoint(String gradebookUid);
+
+	/**
+	 * Get old earned points for students by using letter grade scale.
+	 * @param gradebookUid
+	 * @return Map of enrollment displayId as key, point as value string
+	 * 
+	 */
+	public Map getOldPoint(String gradebookUid);
 }

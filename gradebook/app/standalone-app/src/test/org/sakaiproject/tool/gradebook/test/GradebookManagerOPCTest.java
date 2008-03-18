@@ -3357,7 +3357,23 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
   			String value= (String)courseRecordsFixed.get(key);
   			Assert.assertTrue(value.endsWith("A-"));
   		}
-
+  		
+  		Map pointMap = gradebookService.getOldPoint(persistentGradebook.getUid());
+  		for(Iterator iterator = pointMap.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)pointMap.get(key);
+  			//System.out.println("+++++++++++" + key + ":::" + value);
+  			Assert.assertTrue(new BigDecimal(new Double(value).toString(), GradebookService.MATH_CONTEXT).equals(new BigDecimal("87.8", GradebookService.MATH_CONTEXT)));
+  		}
+  		pointMap = gradebookService.getFixedPoint(persistentGradebook.getUid());
+  		for(Iterator iterator = pointMap.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)pointMap.get(key);
+  			//System.out.println("+++++++++++" + key + ":::" + value);
+  			Assert.assertTrue(new BigDecimal(new Double(value).toString(), GradebookService.MATH_CONTEXT).equals(new BigDecimal("90.7", GradebookService.MATH_CONTEXT)));
+  		}
 
 		}
 		catch(Exception e)
