@@ -3426,7 +3426,8 @@ private   int   getNum(char letter,   String   a)
     } else if(PVTMSG_MODE_RECEIVED.equals(createFolder) || PVTMSG_MODE_SENT.equals(createFolder)|| 
     			PVTMSG_MODE_DELETE.equals(createFolder) || PVTMSG_MODE_DRAFT.equals(createFolder))
     {
-    	setErrorMessage(CREATE_DIFF_FOLDER_NAME);
+    	setErrorMessage(getResourceBundleString(CREATE_DIFF_FOLDER_NAME));
+    	return null;
     } else if(createFolder.length() > 100) 
     {
     	setErrorMessage(getResourceBundleString(ENTER_SHORTER_NAME));
