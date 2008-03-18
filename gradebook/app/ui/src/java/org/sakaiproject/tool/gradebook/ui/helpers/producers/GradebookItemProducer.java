@@ -9,8 +9,10 @@ import java.util.Map;
 
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.ui.helpers.params.GradebookItemViewParams;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -80,6 +82,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	//Gradebook Info
     	Long gradebookId = gradebookManager.getGradebook(params.contextId).getId();
     	List categories = gradebookManager.getCategories(gradebookId);
+    	Gradebook gradebook  = gradebookManager.getGradebook(params.contextId);
     	
     	//OTP
     	String assignmentOTP = "Assignment.";
@@ -125,8 +128,13 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         		new Object[]{ reqStar }));
         UIInput.make(form, "title", assignmentOTP + ".name");
         
-        UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.point_label",
-        		new Object[]{ reqStar }));
+        if (gradebook.getGrade_type() != GradebookService.GRADE_TYPE_PERCENTAGE) {
+        	UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.point_label",
+        			new Object[]{ reqStar }));
+        } else {
+        	UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.percentage_label",
+        			new Object[]{ reqStar }));
+        }
         UIInput.make(form, "point", assignmentOTP + ".pointsPossible");
         
         
