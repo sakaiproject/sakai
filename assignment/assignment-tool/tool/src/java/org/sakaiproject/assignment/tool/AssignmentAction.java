@@ -59,9 +59,9 @@ import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
 import org.sakaiproject.assignment.cover.AssignmentService;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
-import org.sakaiproject.assignment.taggable.api.TaggingHelperInfo;
-import org.sakaiproject.assignment.taggable.api.TaggingManager;
-import org.sakaiproject.assignment.taggable.api.TaggingProvider;
+import org.sakaiproject.taggable.api.TaggingHelperInfo;
+import org.sakaiproject.taggable.api.TaggingManager;
+import org.sakaiproject.taggable.api.TaggingProvider;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Sort;
@@ -919,7 +919,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+				.get("org.sakaiproject.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable() && assignment != null)
 		{
 			addProviders(context, state);
@@ -1042,7 +1042,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+				.get("org.sakaiproject.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable() && assignment != null)
 		{
 			addProviders(context, state);
@@ -1120,7 +1120,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+				.get("org.sakaiproject.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable() && submission != null)
 		{
 			AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
@@ -1157,7 +1157,7 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_list_assignments_context(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+				.get("org.sakaiproject.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable())
 		{
 			context.put("producer", ComponentManager
@@ -2106,7 +2106,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+				.get("org.sakaiproject.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable() && assignment != null)
 		{
 			context.put("producer", ComponentManager
@@ -2218,7 +2218,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+				.get("org.sakaiproject.taggable.api.TaggingManager");
 		if (taggingManager.isTaggable() && assignment != null)
 		{
 			List<DecoratedTaggingProvider> providers = addProviders(context, state);
@@ -4247,7 +4247,7 @@ public class AssignmentAction extends PagedResourceActionII
 		ParameterParser params = data.getParameters();
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+				.get("org.sakaiproject.taggable.api.TaggingManager");
 		TaggingProvider provider = taggingManager.findProviderById(params
 				.getString(PROVIDER_ID));
 
@@ -4278,7 +4278,7 @@ public class AssignmentAction extends PagedResourceActionII
 		ParameterParser params = data.getParameters();
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+				.get("org.sakaiproject.taggable.api.TaggingManager");
 		TaggingProvider provider = taggingManager.findProviderById(params
 				.getString(PROVIDER_ID));
 
@@ -4309,7 +4309,7 @@ public class AssignmentAction extends PagedResourceActionII
 		ParameterParser params = data.getParameters();
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+				.get("org.sakaiproject.taggable.api.TaggingManager");
 		TaggingProvider provider = taggingManager.findProviderById(params
 				.getString(PROVIDER_ID));
 
@@ -5800,7 +5800,7 @@ public class AssignmentAction extends PagedResourceActionII
 						try
 						{
 							TaggingManager taggingManager = (TaggingManager) ComponentManager
-									.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+									.get("org.sakaiproject.taggable.api.TaggingManager");
 	
 							AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
 									.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
@@ -5944,7 +5944,7 @@ public class AssignmentAction extends PagedResourceActionII
 				try
 				{
 					TaggingManager taggingManager = (TaggingManager) ComponentManager
-							.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+							.get("org.sakaiproject.taggable.api.TaggingManager");
 
 					AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
 					.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
@@ -10216,7 +10216,7 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	private List<DecoratedTaggingProvider> initDecoratedProviders() {
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+				.get("org.sakaiproject.taggable.api.TaggingManager");
 		List<DecoratedTaggingProvider> providers = new ArrayList<DecoratedTaggingProvider>();
 		for (TaggingProvider provider : taggingManager.getProviders())
 		{
