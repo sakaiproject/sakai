@@ -200,5 +200,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   public boolean getHasGradingData(Long publishedAssessmentId);
     
   public ArrayList getHasGradingDataAndHasSubmission(Long publishedAssessmentId);
+  
+  public String getFilename(Long itemGradingId, String agentId, String filename);
 
 }

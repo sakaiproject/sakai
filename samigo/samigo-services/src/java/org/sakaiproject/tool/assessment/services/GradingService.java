@@ -1667,6 +1667,18 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    }
 	    return al;
   }
+  
+
+  public String getFileName(Long itemGradingId, String agentId, String filename) {
+	  String name = "";
+	    try {
+	    	name = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().getFilename(itemGradingId, agentId, filename);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return name;
+  }
 }
 
 

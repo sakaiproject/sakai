@@ -2128,4 +2128,107 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	}
 */
 
+	public String getFilename(Long itemGradingId, String agentId, String filename) {
+		int dotIndex = filename.lastIndexOf(".");
+   	    if (dotIndex < 0) {
+   	    	return getFilenameWOExtesion(itemGradingId, agentId, filename);
+   	    }
+   	    else {
+   	    	return getFilenameWExtesion(itemGradingId, agentId, filename, dotIndex);
+   	    }
+	}
+
+	private String getFilenameWOExtesion(Long itemGradingId, String agentId, String filename) {
+		StringBuffer bindVar = new StringBuffer(filename);
+		bindVar.append("%");
+		
+   	    Object [] values = {itemGradingId.longValue(), agentId, bindVar.toString()};
+	    List list = getHibernateTemplate().find(
+	    		"select filename from MediaData m where m.itemGradingData.itemGradingId=? and m.createdBy=? and m.filename like ?", values);
+   	    if (list.size() == 0) {
+	    	return filename;
+	    }
+   	    
+   	    HashSet hs = new HashSet();
+   	    Iterator iter = list.iterator();
+   	    String name = "";
+   	    // Only add the filename which
+   	    // 1. with no extension because the newly updated one has no extention
+   	    // 2. name is same to filename or name like filename(...
+   	    // For example, if the filename is ab. We only want ab, ab(1), ab(2)... and don't want abc to be in
+   	    while(iter.hasNext()) {
+   	    	name = ((String) iter.next()).trim();
+   	    	if (name.indexOf(".") < 0 && (name.equals(filename) || name.startsWith(filename + "("))) {
+   	    		hs.add(name);
+   	    	}
+   	    }
+   	    
+   	    if (hs.size() == 0) {
+   	    	return filename;
+   	    }
+   	    
+   	    StringBuffer testName = new StringBuffer(filename);
+	    int i = 1;
+	    while(true) {
+	    	if (!hs.contains(testName.toString())) {
+	    		return testName.toString();
+	    	}
+	    	else {
+	    		i++;
+	    		testName = new StringBuffer(filename);
+	    	    testName.append("(");
+	    		testName.append(i);
+	    		testName.append(")");
+	    	}
+	    }
+	}
+	
+	private String getFilenameWExtesion(Long itemGradingId, String agentId, String filename, int dotIndex) {
+		String filenameWithoutExtension = filename.substring(0, dotIndex);
+		StringBuffer bindVar = new StringBuffer(filenameWithoutExtension);
+		bindVar.append("%");
+		bindVar.append(filename.substring(dotIndex));
+   	       	    
+		Object [] values = {itemGradingId.longValue(), agentId, bindVar.toString()};
+	    List list = getHibernateTemplate().find(
+	    		"select filename from MediaData m where m.itemGradingData.itemGradingId=? and m.createdBy=? and m.filename like ?", values);
+   	    if (list.size() == 0) {
+	    	return filename;
+	    }
+   	    
+   	    HashSet hs = new HashSet();
+   	    Iterator iter = list.iterator();
+   	    String name = "";
+   	    int nameLenght = 0;
+   	    String extension = filename.substring(dotIndex);
+   	    int extensionLength = extension.length();
+   	    while(iter.hasNext()) {
+   	    	name = ((String) iter.next()).trim();
+   	    	if ((name.equals(filename) || name.startsWith(filenameWithoutExtension + "("))) {
+   	    		nameLenght = name.length();
+   	    		hs.add(name.substring(0, nameLenght - extensionLength));
+   	    	}
+   	    }
+   	    
+   	    if (hs.size() == 0) {
+   	    	return filename;
+   	    }
+   	    
+	    StringBuffer testName = new StringBuffer(filenameWithoutExtension);
+	    int i = 1;
+   	    while(true) {
+	    	if (!hs.contains(testName.toString())) {
+	    		testName.append(extension);
+	    		return testName.toString();
+	    	}
+	    	else {
+	    		i++;
+	    		testName = new StringBuffer(filenameWithoutExtension);
+	    	    testName.append("(");
+	    		testName.append(i);
+	    		testName.append(")");
+	    	}
+   	    }
+	}
+	
 }

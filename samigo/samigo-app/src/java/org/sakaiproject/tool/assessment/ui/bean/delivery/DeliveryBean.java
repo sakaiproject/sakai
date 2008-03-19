@@ -1804,7 +1804,7 @@ public class DeliveryBean
     log.debug("***6a. addMediaToItemGrading, itemGradinDataId=" +
               itemGradingData.getItemGradingId());
     // 1b. get filename
-    String fullname = media.getName();
+    String fullname = media.getName().trim();
     int underscore_index = fullname.lastIndexOf("_"); 
     int dot_index = fullname.lastIndexOf("."); 
     String filename = fullname.substring(0,underscore_index);
@@ -1813,13 +1813,17 @@ public class DeliveryBean
     	filename = filename + fullname.substring(dot_index);
     }
     log.debug("**** filename="+filename);
+
+    String updatedFilename = gradingService.getFileName(itemGradingData.getItemGradingId(), agent, filename);
+    log.debug("**** updatedFilename="+updatedFilename);
+
     
     if (SAVETODB)
     { // put the byte[] in
       mediaData = new MediaData(itemGradingData, mediaByte,
                                 new Long(mediaByte.length + ""),
                                 mimeType, "description", null,
-                                filename, false, false, new Integer(1),
+                                updatedFilename, false, false, new Integer(1),
                                 agent, new Date(),
                                 agent, new Date(), null);
     }
@@ -1828,7 +1832,7 @@ public class DeliveryBean
       mediaData = new MediaData(itemGradingData, null,
                                 new Long(mediaByte.length + ""),
                                 mimeType, "description", mediaLocation,
-                                filename, false, false, new Integer(1),
+                                updatedFilename, false, false, new Integer(1),
                                 agent, new Date(),
                                 agent, new Date(), null);
 
