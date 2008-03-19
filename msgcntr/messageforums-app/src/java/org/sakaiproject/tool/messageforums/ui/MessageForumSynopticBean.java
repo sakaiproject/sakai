@@ -697,6 +697,46 @@ public class MessageForumSynopticBean {
 		return groupedSitesCounts;
 	}
 	
+ 	/**
+	 * Computes the counts for sites with topics that don't have
+	 * membership items (permissions) associate with them, ie, it
+	 * uses the defaults
+	 * @param siteList
+	 * @return
+	 */
+	private List<Object []> computeNonMICounts(List<String> siteList)
+	{
+		// Get List of total counts - kept as list since will
+		// be accessing all elements
+		final List<Object []> nonMICounts = messageManager.
+					findDiscussionForumMessageCountsForTopicsWithMissingPermsForAllSites(siteList);
+	
+		// Convert List of counts of read messages to Map since
+		// will be accessing specific sites' counts
+		final List<Object []> nonMIReadCounts = messageManager.
+						findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites(siteList);
+		Map<String, Integer> nonMIReadCountsMap = new HashMap<String, Integer>();
+	
+		for (Object [] nonMIReadCount: nonMIReadCounts)
+		{
+			nonMIReadCountsMap.put((String) nonMIReadCount[0], (Integer) nonMIReadCount[1]); 
+		}
+	
+		// Loop through all elements of nonMICounts and 
+		// do the actual computation if read count exists for current site
+		for (Object [] nonMIcount: nonMICounts)
+		{
+			Integer nonMIReadCount = nonMIReadCountsMap.get((String) nonMIcount[0]);
+				if (nonMIReadCount != null)
+			{
+				// Need to subtract int values, not Integer
+				nonMIcount[1] = new Integer(((Integer) nonMIcount[1]).intValue() - nonMIReadCount.intValue());
+			}
+		}
+		
+		return nonMICounts;
+	}
+	
 	/**
 	 * Determines the number of unread messages for each site.
 	 * Filters out messages user does not have read permission for.
@@ -714,6 +754,10 @@ public class MessageForumSynopticBean {
 			// retrieve what possible roles user could be in sites
 			final List roleList = getUserRoles(siteList);
 
+			// retrieve counts for topics within sites that don't
+			// have membership item permissions saved in the db
+			final List<Object []> nonMICounts = computeNonMICounts(siteList);
+			
 			final List siteListMinusGrouped = new ArrayList();
 			siteListMinusGrouped.addAll(siteList);
 		
@@ -765,11 +809,48 @@ public class MessageForumSynopticBean {
 			} // end (! discussionForumMessageCounts.isEmpty())
 
 			compiledDFMessageCounts.addAll(groupedSitesCounts);
+			
+			// add in counts for sites with topics that don't have
+			// membership items associated with them (ie, defaults)
+			addNonMICounts(nonMICounts, compiledDFMessageCounts);
 		}
 		
 		return compiledDFMessageCounts;
 	}
 
+ 	/**
+	 * Adds in counts for all sites that have topics with no associated
+	 * membership items (permissions), ie, uses defaults
+	 * @param nonMICounts
+	 * @param compiledDFMessageCounts
+	 */
+	private void addNonMICounts(List<Object []> nonMICounts, List<Object []> compiledDFMessageCounts)
+	{
+		Map<String, Object []> compiledCountsMap = new HashMap<String, Object []>();
+		List<Object []> countsToAdd = new ArrayList<Object []>();
+		
+		for (Object [] compiledCount: compiledDFMessageCounts)
+		{
+			compiledCountsMap.put((String) compiledCount[0], compiledCount);
+		}
+		
+		for (Object [] nonMIcount: nonMICounts)
+		{
+			Object [] currentUnreadCount = compiledCountsMap.get((String) nonMIcount[0]);
+	
+			if (currentUnreadCount != null) {
+				currentUnreadCount[1] = new Integer((Integer) currentUnreadCount[1]).intValue() +
+										new Integer((Integer) nonMIcount[1]).intValue();
+			}
+			else
+			{
+				countsToAdd.add(nonMIcount);
+			}
+		}
+		
+		compiledDFMessageCounts.addAll(countsToAdd);
+	}
+		
 	/**
 	 * Removes all sites user does not want message info about and
 	 * returns all sites left
@@ -786,11 +867,7 @@ public class MessageForumSynopticBean {
 		if (excludedSites != null) {
 			for (Iterator excludeIter = excludedSites.iterator(); excludeIter.hasNext(); ) {
 				final String siteId = (String) excludeIter.next();
-				final int pos = indexOf(siteId, allSites);
-			
-				if (pos != -1) {
-					allSites.remove(pos);
-				}
+				allSites.remove(siteId);
 			}
 		}
 		

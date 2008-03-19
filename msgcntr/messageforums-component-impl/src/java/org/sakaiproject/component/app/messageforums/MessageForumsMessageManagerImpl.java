@@ -137,6 +137,52 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
 	}
+ 
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of discussion forum messages grouped by site for sites with
+     * 		Forum topics that don't have membership items in the db
+     */
+    public List<Object []> findDiscussionForumMessageCountsForTopicsWithMissingPermsForAllSites(final List<String> siteList) {
+    	if (siteList == null) {
+            LOG.error("findDiscussionForumMessageCountsForTopicsWithMissingPermsForAllSites failed with null site list.");
+            throw new IllegalArgumentException("Null Argument");
+    	}	
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumMessageCountsForTopicsWithMissingPermsForAllSites");
+                    q.setParameterList("siteList", siteList);
+                    q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
+
+        return (List) getHibernateTemplate().execute(hcb);
+    }
+    
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of discussion forum messages grouped by site for sites with
+     * 		Forum topics that don't have membership items in the db
+     */
+    public List<Object []> findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites(final List<String> siteList) {
+    	if (siteList == null) {
+            LOG.error("findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites failed with null site list.");
+            throw new IllegalArgumentException("Null Argument");
+    	}	
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites");
+                    q.setParameterList("siteList", siteList);
+                    q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
+
+        return (List) getHibernateTemplate().execute(hcb);
+    }
     
     /**
      * FOR SYNOPTIC TOOL:
@@ -1013,7 +1059,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
   	}
   	catch(Exception e)
   	{
-  		LOG.error("MessageForumsMessageManagerImpl.getAttachmentUrl" + e);
+  		LOG.error("MessageForumsMessageManagerImpl.getAttachmentUrl" + e, e);
   	}
   	return null;
   }
@@ -1065,7 +1111,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 		catch (IdUnusedException e) {
 			// Weirdness - should not happen
 			LOG.error("IdUnusedException attempting to get site for id " + siteId + " to check if tool " 
-							+ "with id " + toolId + " is in it.");
+							+ "with id " + toolId + " is in it.", e);
 		}
 		
 		return false;

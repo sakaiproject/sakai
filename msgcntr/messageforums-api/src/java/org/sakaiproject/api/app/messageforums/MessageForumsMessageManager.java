@@ -90,6 +90,10 @@ public interface MessageForumsMessageManager {
 
     public List findDiscussionForumReadMessageCountsForGroupedSitesByTopic(final List siteList, final List roleList); // added
     
+    public List<Object []> findDiscussionForumMessageCountsForTopicsWithMissingPermsForAllSites(final List<String> siteList);
+
+    public List<Object []> findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites(final List<String> siteList);
+
     public List findMessagesByTopicId(Long topicId);
 
     public Attachment getAttachmentById(Long attachmentId);

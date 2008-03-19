@@ -205,23 +205,73 @@
              group by recipient.contextId
     ]]>
   </query>
+  
+<!-- Gets counts of messages user can access from sites with Forum topics
+	 that don't have membership items -->
+  <query name="findDiscussionForumMessageCountsForTopicsWithMissingPermsForAllSites">
+    <![CDATA[select a.contextId, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+    		   join messages.topic as topic
+               join topic.openForum as f
+               join f.area as a
+             where a.contextId in ( :siteList ) and
+               f.draft = false and
+               topic.draft = false and
+               messages.draft = false and
+               messages.deleted = false and
+              (messages.approved = true or
+               messages.createdBy = :userId) and
+              (topic not in (select distinct dbmi.topic from 
+               				 org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl dbmi
+               				 where dbmi.topic = topic))
+             group by a.contextId
+    ]]>
+ 
+ </query>
+
+<!-- Gets counts of read messages user can access from sites with Forum topics
+	 that don't have membership items -->
+  <query name="findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites">
+    <![CDATA[select a.contextId, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+    		   join messages.topic as topic
+               join topic.openForum as f
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
+             where a.contextId in ( :siteList ) and
+               f.draft = false and
+               topic.draft = false and
+               messages.draft = false and
+               messages.deleted = false and
+               us.userId = :userId and
+               us.read = true and
+               messages.id = us.messageId and
+              (messages.approved = true or
+               messages.createdBy = :userId) and
+              (topic not in (select distinct dbmi.topic from 
+               				 org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl dbmi
+               				 where dbmi.topic = topic))
+             group by a.contextId
+    ]]>
+ 
+ </query>
 
 <!--  Gets counts of message user can access grouped by site and role/group.
 	  Needed since user can have different roles in different sites -->
   <query name="findDiscussionForumMessageCountsForAllSites">
     <![CDATA[select a.contextId, membershipItem.name, count(*)
-    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
     		   join messages.topic as topic
     		   join topic.membershipItemSet as membershipItem
                join topic.openForum as f
-               join f.area as a
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
              where a.contextId in ( :siteList ) and
-               membershipItem.name in ( :roleList )and
                f.draft = false and
                topic.draft = false and
                messages.draft = false and
                messages.deleted = false and
+              membershipItem.name in ( :roleList ) and
              ((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
                membershipItem.permissionLevel = pl.id)  and
               (pl.read = true and 
@@ -239,13 +289,13 @@
 	 access.  -->
 <query name="findDiscussionForumReadMessageCountsForAllSites">
     <![CDATA[select a.contextId, membershipItem.name, count(*)
-    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl,
-    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
     		   join messages.topic as topic
     		   join topic.membershipItemSet as membershipItem
                join topic.openForum as f
-               join f.area as a
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
              where a.contextId in ( :siteList ) and
                membershipItem.name in ( :roleList ) and
                us.userId = :userId and
@@ -269,12 +319,12 @@
 		If user member of multiple role/groups, need to filter out overlapping permissions. -->
 <query name="findDiscussionForumMessageCountsForGroupedSitesByTopic">
     <![CDATA[select a.contextId, topic.id, membershipItem.name, count(*)
-    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
 	 		   join messages.topic as topic
      		   join topic.membershipItemSet as membershipItem
                join topic.openForum as f
-               join f.area as a
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
              where a.contextId in ( :siteList ) and 
                membershipItem.name in ( :roleList ) and
                messages.draft = false and
@@ -296,13 +346,13 @@
 		If user member of multiple role/groups, need to filter out overlapping permissions. -->
 <query name="findDiscussionForumReadMessageCountsForGroupedSitesByTopic">
     <![CDATA[select a.contextId, topic.id, membershipItem.name, count(*)
-    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us,
-    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
 	 		   join messages.topic as topic
      		   join topic.membershipItemSet as membershipItem
                join topic.openForum as f
-               join f.area as a
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
              where a.contextId in ( :siteList ) and 
                membershipItem.name in ( :roleList ) and
                us.userId = :userId and
