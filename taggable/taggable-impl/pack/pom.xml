@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>taggable-base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <groupId>org.sakaiproject</groupId>
+  <name>Sakai Taggable Component</name>
+  <artifactId>sakai-taggable-pack</artifactId>
+  <version>${sakai.version}</version>
+  <organization>
+    <name>The Sakai Foundation</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <packaging>sakai-component</packaging>
+  <properties>
+    <deploy.target>components</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-taggable-impl</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-taggable-hbm</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>
