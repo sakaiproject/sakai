@@ -225,6 +225,7 @@
         <module>warehouse</module>
         <module>reports</module>
 	<module>reset-pass</module>
+	<module>taggable</module>
       </modules>
     </profile>
   </profiles>
