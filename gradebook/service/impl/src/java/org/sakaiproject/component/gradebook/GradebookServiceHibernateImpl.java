@@ -2062,25 +2062,15 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   		LetterGradePercentMapping lgpm = getLetterGradePercentMapping(assignment.getGradebook());
   		letterGrade = lgpm.getGrade(calculateEquivalentPercent(pointPossible, pointsEarned));
   		
-  		Iterator iter = gradebook.getGradeMappings().iterator();
-  		GradeMapping gradeMap;
- 
-  		if(iter != null)
+  		GradeMapping gradeMap = gradebook.getSelectedGradeMapping();
+
+  		if(gradeMap != null)
   		{
-  			for(; iter.hasNext();) 
-  			{
-  				GradeMapping mapping = (GradeMapping)iter.next();
-  				if(mapping.getGradingScale().getUid().equalsIgnoreCase("LetterGradePlusMinusMapping"))
-  				{
-  					gradeMap = mapping;
-
-  					Double rightPercent = gradeMap.getValue(letterGrade);
-  					BigDecimal rightPercentBD = new BigDecimal(rightPercent);
-  					BigDecimal pointPossibleBD = new BigDecimal(pointPossible);
-
-  					return new Double(rightPercentBD.multiply(pointPossibleBD).divide(new BigDecimal(new Double("100.0"))).doubleValue());
-  				}
-  			}
+  			Double rightPercent = gradeMap.getValue(letterGrade);
+  			BigDecimal rightPercentBD = new BigDecimal(rightPercent);
+  			BigDecimal pointPossibleBD = new BigDecimal(pointPossible);
+  			
+				return new Double(rightPercentBD.multiply(pointPossibleBD).divide(new BigDecimal(new Double("100.0"))).doubleValue());
   		}
   	}
   	return null;
