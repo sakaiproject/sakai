@@ -62,7 +62,7 @@ public class ToolBarRenderer extends Renderer
 		return;
 	}
     ResponseWriter writer = context.getResponseWriter();
-    writer.write("<div class=\"navIntraTool\">");
+    writer.write("<ul class=\"navIntraTool actionToolbar\" role=\"menu\">");
 
     return;
   }
@@ -93,7 +93,7 @@ public class ToolBarRenderer extends Renderer
 
     if (clientId != null)
     {
-      writer.startElement("div", component);
+      writer.startElement("ul", component);
     }
 
     List children = component.getChildren();
@@ -108,15 +108,22 @@ public class ToolBarRenderer extends Renderer
       UIComponent child = (UIComponent)iter.next();
        
       if (child.isRendered()) {
-         if (!first && separator !=null && separator != "") writer.write("<span class=\"separator\">" + separator + "</span>");
-   
+         if (!first)   
+         {
+        	 writer.write("<li role=\"menuitem\"><span");
+         }
+         else
+         {
+        	 writer.write("<li role=\"menuitem\" class=\"firstToolBarItem\"><span");
+         }
          RendererUtil.encodeRecursive(context, child);
+    	 writer.write("</span></li> ");
          first = false;
       }
     } 
       if (clientId != null)
         {
-        writer.endElement("div");
+        writer.endElement("ul");
       }
 
   }
@@ -124,7 +131,7 @@ public class ToolBarRenderer extends Renderer
   public void encodeEnd(FacesContext context, UIComponent component) throws IOException
   {
     ResponseWriter writer = context.getResponseWriter();
-    writer.write("</div>");
+    writer.write("</ul>");
   }
 }
 

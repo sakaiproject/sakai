@@ -45,14 +45,16 @@ public class ToolBarItemRenderer extends JSFDepends.CommandLinkRenderer
 
     if (!isDisabled(context, component))
     {
-        // use default link rendering
+        // use default link rendering, after closing open span tag
+	  ResponseWriter writer = context.getResponseWriter();
+	  	writer.write(">");
       super.encodeBegin(context, component);
     }
     else
     {
-        // setup to render the disabled link ourselves
+        // setup to render the disabled link ourselves - close open span tag after adding inactive attributes
       ResponseWriter writer = context.getResponseWriter();
-      writer.write("<span class=\"inactive\">");
+      writer.write(" aria-disabled=\"true\" class=\"inactive\">");
     }
   }
 
@@ -91,9 +93,7 @@ public class ToolBarItemRenderer extends JSFDepends.CommandLinkRenderer
     }
     else
     {
-        // finish rendering the disabled link ourselves
-      ResponseWriter writer = context.getResponseWriter();
-      writer.write("</span>");
+        // rendering of end of disabled link taken care of already
     }
   }
 
