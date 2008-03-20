@@ -2603,6 +2603,8 @@ public class DeliveryBean
   }
   
   private boolean pastDueDate(){
+	if (this.actionMode == PREVIEW_ASSESSMENT)
+		return false;  
     boolean pastDue = true;
     Date currentDate = new Date();
     Date dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
@@ -2613,6 +2615,8 @@ public class DeliveryBean
   }
 
   private boolean isRetracted(boolean isSubmitForGrade){
+	if (this.actionMode == PREVIEW_ASSESSMENT)
+		return false;    
     boolean isRetracted = true;
     Date currentDate = new Date();
     Date retractDate = null;
