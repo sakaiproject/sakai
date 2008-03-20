@@ -108,7 +108,7 @@ public class PrivateMessagesTool
    */
   private static final String REPLY_SUBJECT_PREFIX = "pvt_reply_prefix";
   private static final String FORWARD_SUBJECT_PREFIX = "pvt_forward_prefix";
-  //sakai-reply all
+  //sakai-reply allF
   private static final String ReplyAll_SUBJECT_PREFIX = "pvt_replyall_prefix";
   private static final String ALERT = "pvt_alert";
   private static final String NO_MATCH_FOUND = "pvt_no_match_found";
@@ -3423,8 +3423,8 @@ private   int   getNum(char letter,   String   a)
     {
     	setErrorMessage(getResourceBundleString(ENTER_FOLDER_NAME));
       	return null ;
-    } else if(PVTMSG_MODE_RECEIVED.equals(createFolder) || PVTMSG_MODE_SENT.equals(createFolder)|| 
-    			PVTMSG_MODE_DELETE.equals(createFolder) || PVTMSG_MODE_DRAFT.equals(createFolder))
+    } else if((PVTMSG_MODE_RECEIVED.toLowerCase()).equals(createFolder.toLowerCase()) || (PVTMSG_MODE_SENT.toLowerCase()).equals(createFolder.toLowerCase())|| 
+    		 (PVTMSG_MODE_DELETE.toLowerCase()).equals(createFolder.toLowerCase()) || (PVTMSG_MODE_DRAFT.toLowerCase()).equals(createFolder.toLowerCase()))
     {
     	setErrorMessage(getResourceBundleString(CREATE_DIFF_FOLDER_NAME));
     	return null;
