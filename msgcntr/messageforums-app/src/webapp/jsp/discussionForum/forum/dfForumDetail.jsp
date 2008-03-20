@@ -124,6 +124,23 @@
 					<f:verbatim></div></f:verbatim>
 				</h:panelGroup>
 				
+				<h:dataTable styleClass="listHier" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="0" cellspacing="0" columnClasses="attach,bogus" summary="layout">
+					  <h:column>
+					  <%-- gsilver: need to tie in the attachment type to actual  MIME type mapping tables instead of the below (which is prevalent everywhere) or at the very least provide a mechanism for defaults. --%> 
+						<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="application/vnd.ms-excel" />
+						<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="text/html" />
+						<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="application/pdf" />
+						<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="application/vnd.ms-powerpoint" />
+						<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="text/plain" />
+						<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="application/msword" />
+						</h:column>
+						<h:column>
+						<h:outputLink value="#{eachAttach.url}" target="_blank">
+							<h:outputText value="#{eachAttach.attachment.attachmentName}" />
+						</h:outputLink>				  
+					</h:column>
+			  </h:dataTable>
+				
 				
 			<f:verbatim></div></f:verbatim>
 			
