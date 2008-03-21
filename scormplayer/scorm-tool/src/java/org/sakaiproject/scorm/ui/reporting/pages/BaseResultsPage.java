@@ -23,7 +23,10 @@ package org.sakaiproject.scorm.ui.reporting.pages;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.link.PageLink;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -34,6 +37,7 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
+import org.sakaiproject.scorm.ui.Icon;
 import org.sakaiproject.scorm.ui.console.pages.ConsoleBasePage;
 import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.DecoratedPropertyColumn;
@@ -42,6 +46,9 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 
 	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(BaseResultsPage.class);
+	
+	private static ResourceReference NEXT_ICON = new ResourceReference(BaseResultsPage.class, "res/arrow_right.png");
+	private static ResourceReference PREV_ICON = new ResourceReference(BaseResultsPage.class, "res/arrow_left.png");
 	
 	@SpringBean
 	transient LearningManagementSystem lms;
@@ -93,32 +100,39 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 			this.addAttemptNumberLink(i, pageParams, attemptNumberLinks, attemptNumber);
 		}
 		
-		//Attempt attempt = resultService.getAttempt(contentPackageId, learnerId, attemptNumber);
-		
-		//add(new Label("content.package.name", contentPackage.getTitle()));
-		//add(new Label("learner.name", learnerName));
-		
-		/*SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-		
-		boolean isSuspended = false;
-		boolean isNotExited = false;
-		String dateString = "";
-		
-		if (attempt != null) {
-			isSuspended = attempt.isSuspended();
-			isNotExited = attempt.isNotExited();
-			
-			if (attempt.getLastModifiedDate() != null)
-				dateString = format.format(attempt.getLastModifiedDate());
-		
-		}*/
-			
-		//add(new Label("attempt.number", String.valueOf(attemptNumber)));
-		//add(new Label("attempt.date", dateString));
-		//add(new Label("attempt.suspended", String.valueOf(isSuspended)));
-		//add(new Label("attempt.clean.exit", String.valueOf(!isNotExited)));
-		
 		initializePage(contentPackage, learner, attemptNumber, pageParams);
+		
+		String scoId = pageParams.getString("scoId");
+		String interactionId = pageParams.getString("interactionId");
+		
+		String[] siblingIds = resultService.getSiblingIds(contentPackageId, learnerId, attemptNumber, scoId, interactionId);
+		
+		Link previousLink = newPreviousLink(siblingIds[0], pageParams);
+		Link nextLink = newNextLink(siblingIds[1], pageParams);
+		
+		Icon previousIcon = new Icon("previousIcon", PREV_ICON);
+		Icon nextIcon = new Icon("nextIcon", NEXT_ICON);
+		
+		previousIcon.setVisible(previousLink.isVisible());
+		nextIcon.setVisible(nextLink.isVisible());
+
+		add(previousLink);
+		add(previousIcon);
+		
+		add(nextLink);
+		add(nextIcon);
+	}
+	
+	protected Link newPreviousLink(String previousId, PageParameters pageParams) {
+		Link link = new PageLink("previousLink", BaseResultsPage.class);
+		link.setVisible(false);
+		return link;
+	}
+	
+	protected Link newNextLink(String nextId, PageParameters pageParams) {
+		Link link = new PageLink("nextLink", BaseResultsPage.class);
+		link.setVisible(false);
+		return link;
 	}
 	
 	protected abstract void initializePage(ContentPackage contentPackage, Learner learner, long attemptNumber, PageParameters pageParams);
@@ -147,6 +161,8 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 
 		container.add(item);
 	}
+	
+	
 	
 	
 	public class PercentageColumn extends DecoratedPropertyColumn {

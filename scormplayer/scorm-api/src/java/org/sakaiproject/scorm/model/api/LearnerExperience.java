@@ -19,6 +19,9 @@ public class LearnerExperience implements Serializable, ScormConstants {
 	private Date lastAttemptDate;
 	private int status;
 	
+	private String previousLearnerIds;
+	private String nextLearnerIds;
+	
 	public LearnerExperience(Learner learner, long contentPackageId) {
 		this.learnerName = new StringBuilder(learner.getDisplayName()).append(" (")
 			.append(learner.getDisplayId()).append(")").toString();
@@ -89,6 +92,22 @@ public class LearnerExperience implements Serializable, ScormConstants {
 
 	public void setStatus(int status) {
 		this.status = status;
+	}
+
+	public String getPreviousLearnerIds() {
+		return previousLearnerIds;
+	}
+
+	public void setPreviousLearnerIds(String previousLearnerId) {
+		this.previousLearnerIds = previousLearnerId;
+	}
+
+	public String getNextLearnerIds() {
+		return nextLearnerIds;
+	}
+
+	public void setNextLearnerIds(String nextLearnerId) {
+		this.nextLearnerIds = nextLearnerId;
 	}
 	
 }

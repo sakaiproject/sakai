@@ -27,13 +27,11 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.LearnerExperience;
@@ -54,6 +52,8 @@ public class ResultsListPage extends ConsoleBasePage {
 
 	private static final long serialVersionUID = 1L;
 
+	private static ResourceReference PAGE_ICON = new ResourceReference(LearnerResultsPage.class, "res/report.png");
+	
 	private static Log log = LogFactory.getLog(ResultsListPage.class);
 	
 	@SpringBean
@@ -72,22 +72,15 @@ public class ResultsListPage extends ConsoleBasePage {
 		
 		AttemptDataProvider dataProvider = new AttemptDataProvider(contentPackageId);
 		dataProvider.setFilterConfigurerVisible(true);
-		
+		dataProvider.setTableTitle(getLocalizer().getString("table.title", this));
+
 		EnhancedDataPresenter presenter = new EnhancedDataPresenter("attemptPresenter", getColumns(), dataProvider);
 		
 		add(presenter);
 		
 		add(new ContentPackageDetailPanel("details", contentPackage));
 	}
-	
-	/*@Override
-	protected Label newPageTitleLabel(PageParameters params) {
-		final long contentPackageId = params.getLong("id");
-		
-		ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
 
-		return new Label("page.title", new StringResourceModel("page.title", this, new Model(contentPackage)));
-	}*/
 	
 	private List<IColumn> getColumns() {
 		IModel learnerNameHeader = new ResourceModel("column.header.learner.name");
@@ -115,28 +108,7 @@ public class ResultsListPage extends ConsoleBasePage {
 		attemptNumberActionColumn.addAction(new AttemptNumberAction("numberOfAttempts", LearnerResultsPage.class, paramPropertyExpressions));
 		columns.add(attemptNumberActionColumn);
 		
-		
 
-		//IModel detailActionLabel = new ResourceModel("column.header.detail.action");
-		//IModel beginDateHeader = new ResourceModel("column.header.begin.date");
-		//IModel lastModifiedDateHeader = new ResourceModel("column.header.last.modified.date");
-		
-		//IModel progressHeader = new ResourceModel("column.header.progress");
-		//IModel scoreHeader = new ResourceModel("column.header.score");
-		
-		//columns.add(new PropertyColumn(numberOfAttemptsHeader, "numberOfAttempts", "numberOfAttempts"));
-		
-		//columns.add(new DecoratedDatePropertyColumn(beginDateHeader, "beginDate", "beginDate"));
-		//columns.add(new DecoratedDatePropertyColumn(lastModifiedDateHeader, this, null), "lastModifiedDate", "lastModifiedDate"));
-		
-		/*String[] paramPropertyExpressions = {"learnerId", "attemptNumber", "id"};
-		
-		ActionColumn actionColumn = new ActionColumn(new StringResourceModel("column.header.attempt.number", this, null), "attemptNumber", "attemptNumber");
-		Action detailAction = new Action("attemptNumber", AttemptDetailPage.class, paramPropertyExpressions);
-		actionColumn.addAction(detailAction);
-		
-		columns.add(actionColumn);*/
-		
 		return columns;
 	}
 	
@@ -168,7 +140,9 @@ public class ResultsListPage extends ConsoleBasePage {
 		}
 	}
 	
-	
+	protected ResourceReference getPageIconReference() {
+		return PAGE_ICON;
+	}
 	
 	
 	

@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.yui.calendar.DateTimeField;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -43,6 +44,8 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 
 	private static final long serialVersionUID = 1L;
 
+	private static ResourceReference PAGE_ICON = new ResourceReference(PackageConfigurationPage.class, "res/table_edit.png");
+	
 	@SpringBean
 	LearningManagementSystem lms;
 	@SpringBean
@@ -130,7 +133,9 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 	}
 	
 	
-	
+	protected ResourceReference getPageIconReference() {
+		return PAGE_ICON;
+	}
 	
 	
 }

@@ -54,7 +54,8 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 
 	private static Log log = LogFactory.getLog(PackageListPage.class);
 	
-	private static final ResourceReference deleteIconReference = new ResourceReference(PackageListPage.class, "res/cross.png");
+	private static ResourceReference PAGE_ICON = new ResourceReference(PackageListPage.class, "res/table.png");
+	private static final ResourceReference deleteIconReference = new ResourceReference(PackageListPage.class, "res/delete.png");
 	
 	@SpringBean
 	LearningManagementSystem lms;
@@ -148,6 +149,10 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 			
 			return new ResourceModel(resourceId);
 		}
+	}
+	
+	protected ResourceReference getPageIconReference() {
+		return PAGE_ICON;
 	}
 	
 	

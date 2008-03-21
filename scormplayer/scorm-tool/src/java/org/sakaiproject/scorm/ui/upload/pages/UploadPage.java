@@ -3,6 +3,7 @@ package org.sakaiproject.scorm.ui.upload.pages;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
@@ -22,6 +23,8 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 
 	private static final long serialVersionUID = 1L;
 	
+	private static ResourceReference PAGE_ICON = new ResourceReference(ConsoleBasePage.class, "res/table_add.png");
+	
 	private static Log log = LogFactory.getLog(FileUploadForm.class);
 	
 	@SpringBean
@@ -33,6 +36,9 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 		add(new FileUploadForm("uploadForm"));
 	}
 	
+	protected ResourceReference getPageIconReference() {
+		return PAGE_ICON;
+	}
 	
 	public class FileUploadForm extends Form {
 		
