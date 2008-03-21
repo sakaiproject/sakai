@@ -7,57 +7,19 @@
 </head>
 <body>
 	<wicket:extend>
-
-<!-- 
-		<p class="shorttext">
-			<label for="content.package.name">
-				<b><wicket:message key="cp.name.label"></wicket:message></b>
-			</label>					
-			
-			<span wicket:id="content.package.name"></span>			
-		</p>
-		
-		<p class="shorttext">
-			<label for="learner.name">
-				<b><wicket:message key="learner.name.label"></wicket:message></b>
-			</label>					
-			
-			<span wicket:id="learner.name"></span>			
-		</p>
-		
-		<p class="shorttext">
-			<label for="attempt.number">
-				<b><wicket:message key="attempt.title.label"></wicket:message></b>
-			</label>					
-			
-			<span wicket:id="attempt.number"></span>			
-		</p>
-		
-		<p class="shorttext">
-			<label for="attempt.date">
-				<b><wicket:message key="attempt.date.label"></wicket:message></b>
-			</label>					
-			
-			<span wicket:id="attempt.date"></span>			
-		</p>
-		
-		<p class="shorttext">
-			<label for="attempt.suspended">
-				<b><wicket:message key="attempt.suspended.label"></wicket:message></b>
-			</label>					
-			
-			<span wicket:id="attempt.suspended"></span>			
-		</p>	
-		
-		<p class="shorttext">
-			<label for="attempt.clean.exit">
-				<b><wicket:message key="attempt.clean.exit.label"></wicket:message></b>
-			</label>					
-			
-			<span wicket:id="attempt.clean.exit"></span>			
-		</p>	
--->	
-		<br/>
+	
+		<div class="navPanel" style="height: auto;">
+			<div class="viewNav">
+				<wicket:enclosure child="previousLink">
+					<img wicket:id="previousIcon"/> <a wicket:id="previousLink"></a>	
+				</wicket:enclosure>
+			</div>
+			<div class="listNav">
+				<wicket:enclosure child="nextLink">
+					<a wicket:id="nextLink"></a> <img wicket:id="nextIcon"/> 
+				</wicket:enclosure>
+			</div>
+		</div>
 
 		<div class="navIntraTool">
 			<wicket:message key="attempt.title.label"/> &nbsp;&nbsp;&nbsp;
@@ -69,27 +31,6 @@
 		</div>
 
 		<wicket:child/>
-		
-		<!-- 
-		<table class="listHier lines">
-		<tr>
-			<th><wicket:message key="cp.name.label"></wicket:message></th>
-			<th><wicket:message key="learner.name.label"></wicket:message></th>
-			<th><wicket:message key="attempt.title.label"></wicket:message></th>
-			<th><wicket:message key="attempt.date.label"></wicket:message></th>
-			<th><wicket:message key="attempt.suspended.label"></wicket:message></th>
-			<th><wicket:message key="attempt.clean.exit.label"></wicket:message></th>
-		</tr>
-		<tr>
-			<td><span wicket:id="content.package.name"></span></td>
-			<td><span wicket:id="learner.name"></span></td>
-			<td><span wicket:id="attempt.number"></span></td>
-			<td><span wicket:id="attempt.date"></span></td>
-			<td><span wicket:id="attempt.suspended"></span></td>
-			<td><span wicket:id="attempt.clean.exit"></span></td>
-		</tr>
-		</table>
-		-->
 		
 	</wicket:extend>
 </body>

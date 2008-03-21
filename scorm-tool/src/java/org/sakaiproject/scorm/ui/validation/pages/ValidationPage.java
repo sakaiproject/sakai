@@ -26,6 +26,8 @@ public class ValidationPage extends ConsoleBasePage {
 
 	private static Log log = LogFactory.getLog(ValidationPage.class);
 	
+	private static ResourceReference PAGE_ICON = new ResourceReference(ConsoleBasePage.class, "res/table_link.png");
+
 	private static final ResourceReference validateIconReference = new ResourceReference(ValidationPage.class, "res/add.png");
 	private static final ResourceReference refreshIconReference = new ResourceReference(ValidationPage.class, "res/arrow_refresh.png");
 	
@@ -55,6 +57,9 @@ public class ValidationPage extends ConsoleBasePage {
 		add(table);
 	}
 	
+	protected ResourceReference getPageIconReference() {
+		return PAGE_ICON;
+	}
 	
 	public class ValidateLinkColumn extends AjaxImageLinkColumn {
 

@@ -25,10 +25,12 @@ import org.apache.wicket.ResourceReference;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.scorm.ui.Icon;
 import org.sakaiproject.scorm.ui.console.components.BreadcrumbPanel;
 import org.sakaiproject.scorm.ui.upload.pages.UploadPage;
 import org.sakaiproject.scorm.ui.validation.pages.ValidationPage;
@@ -40,6 +42,10 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	private static final long serialVersionUID = 1L;
 	
 	private static ResourceReference CONSOLE_CSS = new CompressedResourceReference(ConsoleBasePage.class, "res/scorm_console.css");
+	private static ResourceReference LIST_ICON = new ResourceReference(ConsoleBasePage.class, "res/table.png");
+	private static ResourceReference UPLOAD_ICON = new ResourceReference(ConsoleBasePage.class, "res/table_add.png");
+	private static ResourceReference VALIDATE_ICON = new ResourceReference(ConsoleBasePage.class, "res/table_link.png");
+
 	
 	// The feedback panel component displays dynamic messages to the user
 	protected FeedbackPanel feedback;
@@ -56,6 +62,15 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 		add(new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class));
 		add(feedback = new FeedbackPanel("feedback"));
 		add(breadcrumbs = new BreadcrumbPanel("breadcrumbs"));
+		
+		add(new Icon("listIcon", LIST_ICON));
+		add(new Icon("uploadIcon", UPLOAD_ICON));
+		add(new Icon("validateIcon", VALIDATE_ICON));
+		
+		Icon pageIcon = new Icon("pageIcon", getPageIconReference());
+		
+		pageIcon.setVisible(getPageIconReference() != null);
+		add(pageIcon);
 	}
 	
 	public void addBreadcrumb(IModel model, Class<?> pageClass, PageParameters params, boolean isEnabled) {
@@ -77,6 +92,10 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		response.renderCSSReference(CONSOLE_CSS);
+	}
+	
+	protected ResourceReference getPageIconReference() {
+		return null;
 	}
 	
 }

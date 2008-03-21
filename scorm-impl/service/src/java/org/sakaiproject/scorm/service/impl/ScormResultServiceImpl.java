@@ -142,7 +142,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 		IDataManager dataManager = dataManagerDao().find(contentPackageId, learnerId, attemptNumber, scoId);
 		
 		List<Interaction> interactions = new LinkedList<Interaction>();
-		mapInteractions(interactions, dataManager, contentPackageId, learnerId, attemptNumber);
+		mapInteractions(interactions, dataManager, contentPackageId, learnerId, attemptNumber, false);
 		
 		Interaction interaction = null;
 		
@@ -169,6 +169,89 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 		
 		return interaction;
 	}
+	
+	
+	public String[] getSiblingIds(long contentPackageId, String learnerId, long attemptNumber, String scoId, String interactionId) {
+		String[] ids = new String[2];
+		
+		String prevId = "";
+		String nextId = "";
+		
+		// Assume that minimally we have a contentPackageId, a learnerId, and an attemptNumber
+		if (scoId == null) {
+			// We just have the above ids
+			String context = lms().currentContext();
+			List<Learner> learners = learnerDao().find(context);	
+			
+			for (int i=0;i<learners.size();i++) {
+				Learner learner = learners.get(i);
+				
+				if (learner.getId().equals(learnerId)) {
+					
+					if (i-1 >= 0)
+						prevId = learners.get(i-1).getId();
+					if (i+1 < learners.size())
+						nextId = learners.get(i+1).getId();
+					
+					break;
+				}
+				
+			}
+			
+		} else if (interactionId == null) {
+			// We just have a sco id
+			List<IDataManager> dataManagers = dataManagerDao().find(contentPackageId, learnerId, attemptNumber);
+			
+			for (int i=0;i<dataManagers.size();i++) {
+				IDataManager dm = dataManagers.get(i);
+				
+				if (dm.getScoId().equals(scoId)) {
+					
+					if (i-1 >= 0) 
+						prevId = dataManagers.get(i-1).getScoId();
+					
+					if (i+1 < dataManagers.size()) 
+						nextId = dataManagers.get(i+1).getScoId();
+					
+					break;
+				}
+				
+			}
+			
+			
+		} else {
+			IDataManager dataManager = dataManagerDao().find(contentPackageId, learnerId, attemptNumber, scoId);
+			
+			// We have everything
+			List<Interaction> interactions = new LinkedList<Interaction>();
+			
+			mapInteractions(interactions, dataManager, contentPackageId, learnerId, attemptNumber, true);
+			
+			for (int i=0;i<interactions.size();i++) {
+				Interaction interaction = interactions.get(i);
+				
+				if (interaction.getInteractionId().equals(interactionId)) {
+					
+					if (i-1 >= 0) {
+						prevId = interactions.get(i-1).getInteractionId();
+					} 
+					
+					if (i+1 < interactions.size()) {
+						nextId = interactions.get(i+1).getInteractionId();
+					}
+	
+					break;
+				}
+				
+			}
+		}
+		
+		ids[0] = prevId;
+		ids[1] = nextId;
+		
+		return ids;
+	}
+	
 	
 	
 	public List<CMIData> getSummaryCMIData(Attempt attempt) {
@@ -322,7 +405,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 		
 		List<Interaction> interactions = report.getInteractions();
 		
-		mapInteractions(interactions, dataManager, contentPackageId, learnerId, attemptNumber);
+		mapInteractions(interactions, dataManager, contentPackageId, learnerId, attemptNumber, false);
 		
 		//Map<String, Objective> objectives = report.getObjectives();
 		//mapObjectives(objectives, dataManager, contentPackageId, learnerId, attemptNumber);
@@ -330,7 +413,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 	}
 	
 	
-	private void mapInteractions(List<Interaction> interactions, IDataManager dataManager, long contentPackageId, String learnerId, long attemptNumber) {
+	private void mapInteractions(List<Interaction> interactions, IDataManager dataManager, long contentPackageId, String learnerId, long attemptNumber, boolean onlyIds) {
 		int numberOfInteractions = getValueAsInt("cmi.interactions._count", dataManager);
 		
 		for (int i=0;i<numberOfInteractions;i++) {
@@ -347,47 +430,49 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 			String interactionIdName = new StringBuilder(interactionName).append("id").toString();
 			interaction.setInteractionId(getValueAsString(interactionIdName, dataManager));
 			
-			String interactionTypeName = new StringBuilder(interactionName).append("type").toString();
-			interaction.setType(getValueAsString(interactionTypeName, dataManager));
-			
-			String numberOfObjectiveIdsName = new StringBuilder(interactionName).append("objectives._count").toString();
-			int numberOfObjectiveIds = getValueAsInt(numberOfObjectiveIdsName, dataManager);
-			
-			List<String> idList = interaction.getObjectiveIds();
-			for (int j=0;j<numberOfObjectiveIds;j++) {
-				String objectiveIdName = new StringBuilder(interactionName).append("objectives.")
-					.append(j).append(".id").toString();
+			if (! onlyIds) {
+				String interactionTypeName = new StringBuilder(interactionName).append("type").toString();
+				interaction.setType(getValueAsString(interactionTypeName, dataManager));
 				
-				idList.add(getValueAsString(objectiveIdName, dataManager));
+				String numberOfObjectiveIdsName = new StringBuilder(interactionName).append("objectives._count").toString();
+				int numberOfObjectiveIds = getValueAsInt(numberOfObjectiveIdsName, dataManager);
+				
+				List<String> idList = interaction.getObjectiveIds();
+				for (int j=0;j<numberOfObjectiveIds;j++) {
+					String objectiveIdName = new StringBuilder(interactionName).append("objectives.")
+						.append(j).append(".id").toString();
+					
+					idList.add(getValueAsString(objectiveIdName, dataManager));
+				}
+				
+				String interactionTimestampName = new StringBuilder(interactionName).append("timestamp").toString();
+				interaction.setTimestamp(getValueAsString(interactionTimestampName, dataManager));
+				
+				String numCorrectResponsesName = new StringBuilder(interactionName).append("correct_responses._count").toString();
+				int numCorrectResponses = getValueAsInt(numCorrectResponsesName, dataManager);
+				
+				List<String> correctResponses = interaction.getCorrectResponses();
+				for (int n=0;n<numCorrectResponses;n++) {
+					String correctResponsePatternName = new StringBuilder(interactionName).append("correct_responses.").append(n).append(".pattern").toString();
+					String correctResponsePattern = getValueAsString(correctResponsePatternName, dataManager);
+					correctResponses.add(correctResponsePattern);
+				}
+				
+				String weightingName = new StringBuilder(interactionName).append("weighting").toString();
+				interaction.setWeighting(getRealValue(weightingName, dataManager));
+				
+				String learnerResponseName = new StringBuilder(interactionName).append("learner_response").toString();
+				interaction.setLearnerResponse(getValueAsString(learnerResponseName, dataManager));
+				
+				String resultName = new StringBuilder(interactionName).append("result").toString();
+				interaction.setResult(getValueAsString(resultName, dataManager));
+				
+				String latencyName = new StringBuilder(interactionName).append("latency").toString();
+				interaction.setLatency(getValueAsString(latencyName, dataManager));
+				
+				String descriptionName = new StringBuilder(interactionName).append("description").toString();
+				interaction.setDescription(getValueAsString(descriptionName, dataManager));
 			}
-			
-			String interactionTimestampName = new StringBuilder(interactionName).append("timestamp").toString();
-			interaction.setTimestamp(getValueAsString(interactionTimestampName, dataManager));
-			
-			String numCorrectResponsesName = new StringBuilder(interactionName).append("correct_responses._count").toString();
-			int numCorrectResponses = getValueAsInt(numCorrectResponsesName, dataManager);
-			
-			List<String> correctResponses = interaction.getCorrectResponses();
-			for (int n=0;n<numCorrectResponses;n++) {
-				String correctResponsePatternName = new StringBuilder(interactionName).append("correct_responses.").append(n).append(".pattern").toString();
-				String correctResponsePattern = getValueAsString(correctResponsePatternName, dataManager);
-				correctResponses.add(correctResponsePattern);
-			}
-			
-			String weightingName = new StringBuilder(interactionName).append("weighting").toString();
-			interaction.setWeighting(getRealValue(weightingName, dataManager));
-			
-			String learnerResponseName = new StringBuilder(interactionName).append("learner_response").toString();
-			interaction.setLearnerResponse(getValueAsString(learnerResponseName, dataManager));
-			
-			String resultName = new StringBuilder(interactionName).append("result").toString();
-			interaction.setResult(getValueAsString(resultName, dataManager));
-			
-			String latencyName = new StringBuilder(interactionName).append("latency").toString();
-			interaction.setLatency(getValueAsString(latencyName, dataManager));
-			
-			String descriptionName = new StringBuilder(interactionName).append("description").toString();
-			interaction.setDescription(getValueAsString(descriptionName, dataManager));
 			
 			interactions.add(interaction);
 		}
@@ -518,9 +603,9 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 		String context = lms().currentContext();
 		List<Learner> learners = learnerDao().find(context);
 		
-		for (Learner learner : learners) {
-			LearnerExperience experience = new LearnerExperience(learner, contentPackageId);
-			
+		for (int i=0;i<learners.size();i++) {
+			Learner learner = learners.get(i);
+			LearnerExperience experience = new LearnerExperience(learner, contentPackageId);			
 			List<Attempt> attempts = getAttempts(contentPackageId, learner.getId());
 			
 			int status = LearnerExperience.NOT_ACCESSED;

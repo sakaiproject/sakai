@@ -12,6 +12,10 @@ div.my-tree div.wicket-tree {
 	padding-right: 10px;
 }
 
+.pageIcon {
+	vertical-align:middle;
+}
+
 .smalltext {
 	font-size:9;
 	font-color:lightgray;	
