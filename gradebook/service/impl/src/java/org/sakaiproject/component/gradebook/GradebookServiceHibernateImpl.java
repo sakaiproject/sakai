@@ -2279,4 +2279,52 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 		return returnMap;
 	}
+	
+	public Map getEnteredCourseGrade(final String gradebookUid)
+	{
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				Gradebook thisGradebook = getGradebook(gradebookUid);
+
+				Long gradebookId = thisGradebook.getId();
+				CourseGrade courseGrade = getCourseGrade(gradebookId);
+
+				Map enrollmentMap;
+				String userUid = authn.getUserUid();
+
+				Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, thisGradebook.getCategory_type(), null, null);
+				enrollmentMap = new HashMap();
+
+				Map enrollmentMapUid = new HashMap();
+				for (Iterator iter = viewableEnrollmentsMap.keySet().iterator(); iter.hasNext(); ) 
+				{
+					EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+					enrollmentMap.put(enr.getUser().getUserUid(), enr);
+					enrollmentMapUid.put(enr.getUser().getUserUid(), enr);
+				}
+
+				Query q = session.createQuery("from CourseGradeRecord as cgr where cgr.gradableObject.id=:gradableObjectId");
+				q.setLong("gradableObjectId", courseGrade.getId().longValue());
+				List records = filterAndPopulateCourseGradeRecordsByStudents(courseGrade, q.list(), enrollmentMap.keySet());
+
+				Map returnMap = new HashMap();
+
+				for(int i=0; i<records.size(); i++)
+				{
+					CourseGradeRecord cgr = (CourseGradeRecord) records.get(i);
+					if(cgr.getEnteredGrade() != null && !cgr.getEnteredGrade().equalsIgnoreCase(""))
+					{		
+						EnrollmentRecord enr = (EnrollmentRecord)enrollmentMapUid.get(cgr.getStudentId());
+						if(enr != null)
+						{
+							returnMap.put(enr.getUser().getDisplayId(), cgr.getEnteredGrade());
+						}
+					}
+				}
+
+				return returnMap;
+			}
+		};
+		return (Map)getHibernateTemplate().execute(hc);		
+	}
 }

@@ -632,4 +632,12 @@ public interface GradebookService {
 	 * 
 	 */
 	public Map getOldPoint(String gradebookUid);
+
+	/**
+	 * Get a Map of overridden CourseGrade for students.
+	 * @param gradebookUid
+	 * @return Map of enrollment displayId as key, point as value string
+	 * 
+	 */
+	public Map getEnteredCourseGrade(String gradebookUid);
 }
