@@ -3423,8 +3423,8 @@ private   int   getNum(char letter,   String   a)
     {
     	setErrorMessage(getResourceBundleString(ENTER_FOLDER_NAME));
       	return null ;
-    } else if((PVTMSG_MODE_RECEIVED.toLowerCase()).equals(createFolder.toLowerCase()) || (PVTMSG_MODE_SENT.toLowerCase()).equals(createFolder.toLowerCase())|| 
-    		 (PVTMSG_MODE_DELETE.toLowerCase()).equals(createFolder.toLowerCase()) || (PVTMSG_MODE_DRAFT.toLowerCase()).equals(createFolder.toLowerCase()))
+    } else if((PVTMSG_MODE_RECEIVED.toLowerCase()).equals(createFolder.toLowerCase().trim()) || (PVTMSG_MODE_SENT.toLowerCase()).equals(createFolder.toLowerCase().trim())|| 
+    		 (PVTMSG_MODE_DELETE.toLowerCase()).equals(createFolder.toLowerCase().trim()) || (PVTMSG_MODE_DRAFT.toLowerCase()).equals(createFolder.toLowerCase().trim()))
     {
     	setErrorMessage(getResourceBundleString(CREATE_DIFF_FOLDER_NAME));
     	return null;
@@ -3469,6 +3469,17 @@ private   int   getNum(char letter,   String   a)
       setErrorMessage(getResourceBundleString(FOLDER_NAME_BLANK));
       return REVISE_FOLDER_PG;
     }
+    else if((PVTMSG_MODE_RECEIVED.toLowerCase()).equals(newTopicTitle.toLowerCase().trim()) || (PVTMSG_MODE_SENT.toLowerCase()).equals(newTopicTitle.toLowerCase().trim())|| 
+   		 (PVTMSG_MODE_DELETE.toLowerCase()).equals(newTopicTitle.toLowerCase().trim()) || (PVTMSG_MODE_DRAFT.toLowerCase()).equals(newTopicTitle.toLowerCase().trim()))
+    {
+   	  setErrorMessage(getResourceBundleString(CREATE_DIFF_FOLDER_NAME));
+   	  return REVISE_FOLDER_PG;
+    } 
+    else if(newTopicTitle.length() > 100) 
+    {
+   	  setErrorMessage(getResourceBundleString(ENTER_SHORTER_NAME));
+   	  return REVISE_FOLDER_PG;      
+    } 
     else {
       List tmpMsgList = prtMsgManager.getMessagesByType(typeManager.getCustomTopicType(prtMsgManager.getTopicByUuid(selectedTopicId).getTitle()), PrivateMessageManager.SORT_COLUMN_DATE,
           PrivateMessageManager.SORT_ASC);
@@ -3542,21 +3553,28 @@ private   int   getNum(char letter,   String   a)
     {
       setErrorMessage(getResourceBundleString(ENTER_FOLDER_NAME));
       return null ;
-    } else {
-      if(PVTMSG_MODE_RECEIVED.equals(createFolder) || PVTMSG_MODE_SENT.equals(createFolder)|| 
-          PVTMSG_MODE_DELETE.equals(createFolder) || PVTMSG_MODE_DRAFT.equals(createFolder))
-      {
-        setErrorMessage(CREATE_DIFF_FOLDER_NAME);
-      } else 
-      {
+    } 
+    else if((PVTMSG_MODE_RECEIVED.toLowerCase()).equals(createFolder.toLowerCase().trim()) || (PVTMSG_MODE_SENT.toLowerCase()).equals(createFolder.toLowerCase().trim())|| 
+   		 (PVTMSG_MODE_DELETE.toLowerCase()).equals(createFolder.toLowerCase().trim()) || (PVTMSG_MODE_DRAFT.toLowerCase()).equals(createFolder.toLowerCase().trim()))
+    {
+      setErrorMessage(getResourceBundleString(CREATE_DIFF_FOLDER_NAME));
+   	  return null;
+    } 
+    else if(createFolder.length() > 100) 
+    {
+   	  setErrorMessage(getResourceBundleString(ENTER_SHORTER_NAME));
+   	  return null;      
+    }
+    else 
+    {
         prtMsgManager.createTopicFolderInTopic(forum, parentTopic, createFolder);
       //create a typeUUID in commons
       String newTypeUuid= typeManager.getCustomTopicType(createFolder); 
-      }
+    }
       
       addFolder = "";
       return processPvtMsgReturnToMainOrHp();
-    }
+    
   } 
   ///////////////////// MOVE    //////////////////////
   private String moveToTopic="";
