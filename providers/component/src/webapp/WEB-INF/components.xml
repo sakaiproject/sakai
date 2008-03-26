@@ -29,7 +29,7 @@
 	</bean>
 -->
 
-<!-- Uncomment to use the sample AllHandsGroup Provider 
+<!-- Uncomment to use the sample AllHandsGroup Provider
      (read the code to see exactly what it does!)
 
         <bean id="org.sakaiproject.authz.api.GroupProvider"
@@ -96,7 +96,7 @@
   		</property>
   	</bean>
  -->
- 
+
 	<!--
 		CourseManagement-backed Group Provider
 	-->
@@ -108,7 +108,7 @@
                 <value>org.sakaiproject.authz.api.GroupProvider</value>
 			</list>
 		</property>
-		
+
 	</bean>
 
 <!--
@@ -120,7 +120,7 @@
 -->
 	<bean id="org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
-		singleton="true">
+		singleton="true" lazy-init="true">
 			<property name="transactionManager">
 				<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 			</property>
