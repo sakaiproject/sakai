@@ -562,8 +562,10 @@ public interface GradebookService {
 	 * @return true if the given grade is a valid grade given the gradebook's grade
 	 * entry type.  ie, if gradebook is set to grade entry by points, will check for valid point value.
 	 * if entry by letter, will check for valid letter, etc
+	 * @throws GradebookNotFoundException if no gradebook exists with given gradebookUid
 	 */
-	public boolean isGradeValid(String gradebookUuid, String grade);
+	public boolean isGradeValid(String gradebookUuid, String grade)
+		throws GradebookNotFoundException;
 	
 	/**
 	 * 
@@ -573,9 +575,11 @@ public interface GradebookService {
 	 * @return a list of the studentIds that were associated with invalid grades
 	 * given the gradebook's grade entry type. useful if validating a list
 	 * of student/grade pairs for a single gradebook (more efficient than calling
-	 * gradeIsValid repeatedly). returns null if all grades are valid
+	 * gradeIsValid repeatedly). returns empty list if all grades are valid
+	 * @throws GradebookNotFoundException if no gradebook exists with given gradebookUid
 	 */
-	public List<String> identifyStudentsWithInvalidGrades(String gradebookUid, Map<String, String> studentIdToGradeMap);
+	public List<String> identifyStudentsWithInvalidGrades(String gradebookUid, Map<String, String> studentIdToGradeMap)
+		throws GradebookNotFoundException;
 	
 	/**
 	 * Save a student score and comment for a gradebook item. The input score must
@@ -596,7 +600,7 @@ public interface GradebookService {
 	
 	/**
 	 * Given a list of GradeDefinitions for students for a given gradebook and gradable object,
-	 * will save the assciated scores and coments.  Scores must be in a format 
+	 * will save the associated scores and comments.  Scores must be in a format 
 	 * according to the gradebook's grade entry type (ie points, %, letter).
 	 * @param gradebookUid
 	 * @param gradableObjectId
@@ -607,7 +611,8 @@ public interface GradebookService {
 	 * @throws GradebookNotFoundException
 	 * @throws AssessmentNotFoundException
 	 */
-	public void saveGradesAndComments(String gradebookUid, Long gradableObjectId, List<GradeDefinition> gradeDefList);
+	public void saveGradesAndComments(String gradebookUid, Long gradableObjectId, List<GradeDefinition> gradeDefList)
+		throws InvalidGradeException, GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
 	 * Get fixed grades for students by using course grade scale.

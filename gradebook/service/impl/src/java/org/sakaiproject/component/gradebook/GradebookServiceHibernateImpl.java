@@ -1621,7 +1621,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				  Double gradeAsDouble = Double.parseDouble(grade);
 				  // grade must be greater than or equal to 0
 				  if (gradeAsDouble.doubleValue() >= 0) {
-					  gradeIsValid = true;
+					  // check that there are no more than 2 decimal places
+					  String[] splitOnDecimal = grade.split("\\.");
+					  if (splitOnDecimal == null || splitOnDecimal.length < 2) {
+						  gradeIsValid = true;
+					  } else if (splitOnDecimal.length == 2) {
+						  String decimal = splitOnDecimal[1];
+						  if (decimal.length() <= 2) {
+							  gradeIsValid = true;
+						  }
+					  }
 				  }
 			  } catch (NumberFormatException nfe) {
 				  if (log.isDebugEnabled()) log.debug("Passed grade is not a numeric value");

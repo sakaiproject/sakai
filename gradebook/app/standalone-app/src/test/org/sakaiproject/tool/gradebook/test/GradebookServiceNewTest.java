@@ -577,6 +577,8 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "0"));
 		// negative should fail
 		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "-1"));
+		// more than 2 decimal places should fail
+		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "10.125"));
 		// try non-numeric
 		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "A"));
 		
@@ -591,6 +593,8 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "0"));
 		// negative should fail
 		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "-1"));
+		// more than 2 decimal places should fail
+		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "10.125"));
 		// try non-numeric
 		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "A"));
 		
