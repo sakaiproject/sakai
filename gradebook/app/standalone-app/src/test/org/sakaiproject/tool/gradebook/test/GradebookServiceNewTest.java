@@ -852,4 +852,37 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		assertEquals(def1Grade, gradeDef.getGrade());
 		assertEquals(def1Comment, gradeDef.getGradeComment());
 	}
+	
+	public void testGetGradeEntryType() throws Exception {
+		// try passing a null gradebookUid
+		try {
+			gradebookService.getGradeEntryType(null);
+			fail("did not catch null gradebookUid passed to getGradeEntryType");
+		} catch (IllegalArgumentException iae) {}
+		
+		// try a bogus gradebookUid
+		try {
+			gradebookService.getGradeEntryType("bogus");
+			fail("did not catch gradebook that didn't exist");
+		} catch (GradebookNotFoundException gnfe) {}
+		
+		// let's start with a point gb
+		Gradebook gradebookNoCat = gradebookManager.getGradebook(GRADEBOOK_UID_NO_CAT);
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		
+		assertEquals(GradebookService.GRADE_TYPE_POINTS, gradebookService.getGradeEntryType(GRADEBOOK_UID_NO_CAT));
+		
+		// change it to %
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		
+		assertEquals(GradebookService.GRADE_TYPE_PERCENTAGE, gradebookService.getGradeEntryType(GRADEBOOK_UID_NO_CAT));
+		
+		// change it to letter
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		
+		assertEquals(GradebookService.GRADE_TYPE_LETTER, gradebookService.getGradeEntryType(GRADEBOOK_UID_NO_CAT));
+	}
 }

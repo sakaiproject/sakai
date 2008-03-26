@@ -632,6 +632,15 @@ public interface GradebookService {
 	 * 
 	 */
 	public Map getOldPoint(String gradebookUid);
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @return the constant representation of the grade entry type
+	 * (ie points, %, letter grade)
+	 * @throws GradebookNotFoundException if no gradebook exists w/ the given uid
+	 */
+	public int getGradeEntryType(String gradebookUid) throws GradebookNotFoundException;
 
 	/**
 	 * Get a Map of overridden CourseGrade for students.

@@ -1845,7 +1845,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						  (!oldCommentIsNull && !newCommentIsNull && 
 								  !gradeDef.getGradeComment().equals(comment.getCommentText()))) {
 					  // update this comment
-					  System.out.println("!!!!!!!!!!!!!!!  should be updating comment! " + gradeDef.getStudentUid() + " " + gradeDef.getGradeComment());
 					  comment.setCommentText(gradeDef.getGradeComment());
 					  comment.setGraderId(graderId);
 					  comment.setDateRecorded(now);
@@ -1856,8 +1855,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				  // if there is a comment, add it
 				  if (gradeDef.getGradeComment() != null && !gradeDef.getGradeComment().trim().equals("")) {
 					  comment = new Comment(studentId, gradeDef.getGradeComment(), assignment);
-					  
-					  System.out.println("!!!!!!!!!!!!!!!  should be updating comment!" + gradeDef.getStudentUid() + " " + gradeDef.getGradeComment());
 					  comment.setGraderId(graderId);
 					  comment.setDateRecorded(now);
 
@@ -2279,6 +2276,20 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 		return returnMap;
 	}
+	
+	public int getGradeEntryType(String gradebookUid) {
+		if (gradebookUid == null) {
+			throw new IllegalArgumentException("null gradebookUid passed to getGradeEntryType");
+		}
+		
+		try {
+			Gradebook gradebook = getGradebook(gradebookUid);
+			return gradebook.getGrade_type();
+		} catch (GradebookNotFoundException gnfe) {
+			throw new GradebookNotFoundException("No gradebook exists with the given gradebookUid: " + gradebookUid);
+		}
+	}
+
 	
 	public Map getEnteredCourseGrade(final String gradebookUid)
 	{
