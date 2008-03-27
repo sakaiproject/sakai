@@ -1540,7 +1540,10 @@ public class BaseExternalCalendarSubscriptionService implements
 
 		public void removeSubscriptionExpiredListener()
 		{
-			this.listener = null;
+			synchronized(this.listener)
+			{
+				this.listener = null;
+			}
 		}
 
 		@Override
@@ -1646,9 +1649,12 @@ public class BaseExternalCalendarSubscriptionService implements
 								m_log
 										.debug("Cleared cache for expired Calendar Subscription: "
 												+ key);
-								if (listener != null)
+								synchronized(listener)
 								{
-									listener.subscriptionExpired(key, e);
+									if (listener != null)
+									{
+										listener.subscriptionExpired(key, e);
+									}
 								}
 							}
 						}
