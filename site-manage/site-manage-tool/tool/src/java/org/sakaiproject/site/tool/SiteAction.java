@@ -809,6 +809,7 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet,
 			Context context, RunData data, SessionState state) {
+		rb = new ResourceLoader("sitesetupgeneric");
 		context.put("tlang", rb);
 		// TODO: what is all this doing? if we are in helper mode, we are
 		// already setup and don't get called here now -ggolden
