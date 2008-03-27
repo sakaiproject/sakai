@@ -6,6 +6,7 @@
       <property name="docId"><value>arkn</value></property>
       <property name="name"><value>Accessibility Information</value></property>
       <property name="location"><value>/sakai_accessibility/arkn.html</value></property>
+      <property name="defaultForTool"><value>sakai.accessibility</value></property> 
    </bean>
          
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
