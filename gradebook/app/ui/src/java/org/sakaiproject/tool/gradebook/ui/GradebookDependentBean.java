@@ -675,10 +675,10 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	public boolean getIsExistingConflictScale()
 	{
 		isExistingConflictScale = true;
-		Gradebook thisGb = getGradebook();
-		if(thisGb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+		Gradebook gb = getGradebookManager().getGradebookWithGradeMappings(getGradebookId());
+		if(gb != null && gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
 		{
-			Gradebook gb = getGradebookManager().getGradebookWithGradeMappings(thisGb.getId());
+
 			Set mappings = gb.getGradeMappings();
 			for(Iterator iter = mappings.iterator(); iter.hasNext();)
 			{
