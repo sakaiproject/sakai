@@ -9,6 +9,7 @@ import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.ui.helpers.params.GradeGradebookItemViewParams;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
+import org.sakaiproject.tool.gradebook.ui.helpers.producers.HelperAwareProducer;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -28,12 +29,15 @@ import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.DefaultView;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
+import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
+import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.flow.jsfnav.DynamicNavigationCaseReporter;
 import uk.org.ponder.rsf.viewstate.RawViewParameters;
+import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-public class GradeGradebookItemProducer implements ActionResultInterceptor,  ViewComponentProducer, ViewParamsReporter {
+public class GradeGradebookItemProducer extends HelperAwareProducer implements ViewComponentProducer, ViewParamsReporter, NavigationCaseReporter {
 
     public static final String VIEW_ID = "gradeGradebookItem";
     public String getViewID() {
@@ -144,22 +148,19 @@ public class GradeGradebookItemProducer implements ActionResultInterceptor,  Vie
     public void setMessageLocator(MessageLocator messageLocator) {
         this.messageLocator = messageLocator;
     }
-    
-    public void interceptActionResult(ARIResult result,
-			ViewParameters incoming, Object actionReturn) {
-		if (incoming instanceof GradeGradebookItemViewParams) {
-			GradeGradebookItemViewParams params = (GradeGradebookItemViewParams) incoming;
-			if (params.finishURL != null && actionReturn.equals("cancel")) {
-				result.resultingView = new RawViewParameters(params.finishURL);
-			}
-			else if (params.finishURL != null && actionReturn.equals("submit")) {
-				result.resultingView = new RawViewParameters(params.finishURL);
-			}
-		}
-	}
 
     public void setGradebookManager(GradebookManager gradebookManager) {
     	this.gradebookManager = gradebookManager;
     }
+
+	public List reportNavigationCases()
+	{
+		List<NavigationCase> nav= new ArrayList<NavigationCase>();
+		nav.add(new NavigationCase("submit", new SimpleViewParameters(
+	            FinishedHelperProducer.VIEW_ID)));
+		nav.add(new NavigationCase("cancel", new SimpleViewParameters(
+	            FinishedHelperProducer.VIEW_ID)));
+		return nav;
+	}
     
 }

@@ -23,6 +23,10 @@ public class LocalPermissionLogic {
 		} else if (GradeGradebookItemProducer.VIEW_ID.equals(incoming.viewID)) {
 			String contextId = ((GradeGradebookItemViewParams) incoming).contextId;
 			return gradebookService.currentUserHasEditPerm(contextId);
+			
+		} else if (FinishedHelperProducer.VIEW_ID.equals(incoming.viewID)) {
+			return Boolean.TRUE;
+			
 		}
 		
 		return Boolean.FALSE;

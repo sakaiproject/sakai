@@ -37,5 +37,8 @@
    	  <property name="eventTrackingService" ref="org_sakaiproject_tool_gradebook_facades_EventTrackingService" />
    	  <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
    </bean>
+   
+   <bean id="FinishedHelperProducer" class="org.sakaiproject.tool.gradebook.ui.helpers.producers.FinishedHelperProducer">
+   </bean>
 
 </beans>

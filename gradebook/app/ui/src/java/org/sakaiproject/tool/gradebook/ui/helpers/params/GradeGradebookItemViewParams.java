@@ -2,12 +2,11 @@ package org.sakaiproject.tool.gradebook.ui.helpers.params;
 
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 
-public class GradeGradebookItemViewParams extends SimpleViewParameters {
+public class GradeGradebookItemViewParams extends HelperAwareViewParams {
 	
 	public Long assignmentId;
 	public String contextId;
 	public String userId;
-	public String finishURL;
 	
 	public GradeGradebookItemViewParams(){}
 	
