@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
@@ -37,6 +38,7 @@ import org.sakaiproject.service.gradebook.shared.StaleObjectModificationExceptio
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * Provides support for the student feedback options page, which also controls
@@ -66,6 +68,8 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 
     // View into row-specific data.
     private List gradeRows;
+    
+    private boolean isValidWithLetterGrade = true;
 
     public class GradeRow implements Serializable {
     	private GradeMapping gradeMapping;
@@ -179,6 +183,13 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
         if (!isMappingValid(localGradebook.getSelectedGradeMapping())) {
             return null;
         }
+        if(!isConflictWithLetterGrade(localGradebook.getSelectedGradeMapping()))
+        {
+        	isValidWithLetterGrade = false;
+        	return null;
+        }
+        else
+        	isValidWithLetterGrade = true;
 
 		try {
 			getGradebookManager().updateGradebook(localGradebook);
@@ -232,12 +243,46 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 		}
 		return valid;
 	}
+	
+	private boolean isConflictWithLetterGrade(GradeMapping gradeMapping) {
+		boolean valid = true;
+		if(localGradebook.getGrade_type() != GradebookService.GRADE_TYPE_LETTER)
+		{
+			return valid;
+		}
+		if(!gradeMapping.getGradingScale().getUid().equals("LetterGradeMapping") && !gradeMapping.getGradingScale().getUid().equals("LetterGradePlusMinusMapping"))
+		{
+			return valid;
+		}
+		Map defaultMapping = gradeMapping.getDefaultBottomPercents();
+		for (Iterator iter = gradeMapping.getGrades().iterator(); iter.hasNext(); ) 
+		{
+			String grade = (String)iter.next();
+			Double percentage = (Double)gradeMapping.getValue(grade);
+			Double defautPercentage = (Double)defaultMapping.get(grade);
+			if (log.isDebugEnabled()) log.debug("checking if percentage is being changed for letter grade type gradebook: " + percentage + " for validity");
+			if (percentage == null) 
+			{
+				FacesUtil.addUniqueErrorMessage(getLocalizedString("feedback_options_require_all_values"));
+				valid = false;
+			}
+			else
+			{
+				if(!percentage.equals(defautPercentage))
+				{
+					valid = false;
+				}
+			}
+		}
+		return valid;
+	}
 
 	public String cancel() {
 		// Just in case we change the navigation to stay on this page,
 		// clear the work-in-progress indicator so that the user can
 		// start fresh.
 		workInProgress = false;
+		isValidWithLetterGrade = true;
 
 		return "overview";
 	}
@@ -255,4 +300,12 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
     public void setSelectedGradeMappingId(Long selectedGradeMappingId) {
         this.selectedGradeMappingId = selectedGradeMappingId;
     }
+		public boolean getIsValidWithLetterGrade()
+		{
+			return isValidWithLetterGrade;
+		}
+		public void setIsValidWithLetterGrade(boolean isValidWithLetterGrade)
+		{
+			this.isValidWithLetterGrade = isValidWithLetterGrade;
+		}
 }

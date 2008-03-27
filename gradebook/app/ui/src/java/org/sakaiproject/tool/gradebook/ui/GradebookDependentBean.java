@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 import org.apache.commons.lang.StringUtils;
@@ -40,6 +41,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
@@ -54,6 +56,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
     private Boolean editing;
     private Boolean adding;
     private Boolean middle;
+    private boolean isExistingConflictScale = false;
     
     protected final String BREADCRUMBPAGE = "breadcrumbPage";
 
@@ -667,5 +670,44 @@ public abstract class GradebookDependentBean extends InitializableBean {
 			return null;
 		
 		return new Double(FacesUtil.getRoundDown(score.doubleValue(), 2));	
+	}
+
+	public boolean getIsExistingConflictScale()
+	{
+		isExistingConflictScale = true;
+		Gradebook thisGb = getGradebook();
+		if(thisGb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+		{
+			Gradebook gb = getGradebookManager().getGradebookWithGradeMappings(thisGb.getId());
+			Set mappings = gb.getGradeMappings();
+			for(Iterator iter = mappings.iterator(); iter.hasNext();)
+			{
+				GradeMapping gm = (GradeMapping) iter.next();
+				if(gm != null)
+				{
+					if(gm.getGradingScale().getUid().equals("LetterGradeMapping") || gm.getGradingScale().getUid().equals("LetterGradePlusMinusMapping"))
+					{
+						Map defaultMapping = gm.getDefaultBottomPercents();
+						for (Iterator gradeIter = gm.getGrades().iterator(); gradeIter.hasNext(); ) 
+						{
+							String grade = (String)gradeIter.next();
+							Double percentage = (Double)gm.getValue(grade);
+							Double defautPercentage = (Double)defaultMapping.get(grade);
+							if (percentage != null && !percentage.equals(defautPercentage)) 
+							{
+								isExistingConflictScale = false;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		return isExistingConflictScale;
+	}
+
+	public void setIsExistingConflictScale(boolean isExistingConflictScale)
+	{
+		this.isExistingConflictScale = isExistingConflictScale;
 	}
 }

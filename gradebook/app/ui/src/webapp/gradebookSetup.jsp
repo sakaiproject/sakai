@@ -13,6 +13,21 @@
 			<h2><h:outputText value="#{msgs.gb_setup_title}"/></h2>
 			
 			<%@include file="/inc/globalMessages.jspf"%>
+		
+			<h:panelGroup rendered="#{!gradebookSetupBean.isExistingConflictScale}" styleClass="validation">
+			  <h:outputText value="#{msgs.feedback_options_existing_conflict1}" rendered="#{!gradebookSetupBean.isExistingConflictScale}"/>
+		  	<h:outputLink value="http://kb.iu.edu/data/aitz.html" rendered="#{!gradebookSetupBean.isExistingConflictScale}" target="support_window1">
+		  		<h:outputText value="#{msgs.feedback_options_existing_conflict2}" rendered="#{!gradebookSetupBean.isExistingConflictScale}"/>
+			  </h:outputLink>
+			  <h:outputText value="#{msgs.feedback_options_existing_conflict3}" rendered="#{!gradebookSetupBean.isExistingConflictScale}"/>
+			</h:panelGroup>
+			<h:panelGroup rendered="#{!gradebookSetupBean.isValidWithCourseGrade}" styleClass="validation">
+			  <h:outputText value="#{msgs.feedback_options_cannot_change_percentage1}" rendered="#{!gradebookSetupBean.isValidWithCourseGrade}"/>
+		  	<h:outputLink value="http://kb.iu.edu/data/aitz.html" rendered="#{!gradebookSetupBean.isValidWithCourseGrade}" target="support_window2">
+		  		<h:outputText value="#{msgs.feedback_options_cannot_change_percentage2}" rendered="#{!gradebookSetupBean.isValidWithCourseGrade}"/>
+			  </h:outputLink>
+			  <h:outputText value="#{msgs.feedback_options_cannot_change_percentage3}" rendered="#{!gradebookSetupBean.isValidWithCourseGrade}"/>
+			</h:panelGroup>
 	
 			<h4><h:outputText value="#{msgs.grade_entry_heading}"/></h4>
 			

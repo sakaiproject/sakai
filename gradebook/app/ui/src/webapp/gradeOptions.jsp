@@ -46,6 +46,21 @@
 
 		<%@include file="/inc/globalMessages.jspf"%>
 
+		<h:panelGroup rendered="#{!feedbackOptionsBean.isExistingConflictScale}" styleClass="validation">
+		  <h:outputText value="#{msgs.feedback_options_existing_conflict1}" rendered="#{!feedbackOptionsBean.isExistingConflictScale}"/>
+	  	<h:outputLink value="http://kb.iu.edu/data/aitz.html" rendered="#{!feedbackOptionsBean.isExistingConflictScale}" target="support_window1">
+	  		<h:outputText value="#{msgs.feedback_options_existing_conflict2}" rendered="#{!feedbackOptionsBean.isExistingConflictScale}"/>
+		  </h:outputLink>
+		  <h:outputText value="#{msgs.feedback_options_existing_conflict3}" rendered="#{!feedbackOptionsBean.isExistingConflictScale}"/>
+		</h:panelGroup>
+		<h:panelGroup rendered="#{!feedbackOptionsBean.isValidWithLetterGrade}" styleClass="validation">
+		  <h:outputText value="#{msgs.feedback_options_cannot_change_percentage1}" rendered="#{!feedbackOptionsBean.isValidWithLetterGrade}"/>
+		  <h:outputLink value="http://kb.iu.edu/data/aitz.html" rendered="#{!feedbackOptionsBean.isValidWithLetterGrade}" target="support_window2">
+		  	<h:outputText value="#{msgs.feedback_options_cannot_change_percentage2}" rendered="#{!feedbackOptionsBean.isValidWithLetterGrade}"/>
+		  </h:outputLink>
+		  <h:outputText value="#{msgs.feedback_options_cannot_change_percentage3}" rendered="#{!feedbackOptionsBean.isValidWithLetterGrade}"/>
+		</h:panelGroup>	
+
 <!-- RESET TO DEFAULTS LINK -->
 		<p>
 		<h:commandLink actionListener="#{feedbackOptionsBean.resetMappingValues}">
