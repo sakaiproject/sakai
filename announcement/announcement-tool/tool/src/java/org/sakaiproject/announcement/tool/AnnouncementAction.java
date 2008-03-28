@@ -212,7 +212,7 @@ public class AnnouncementAction extends PagedResourceActionII
    private static final String SYNOPTIC_ANNOUNCEMENT_TOOL = "sakai.synoptic.announcement";
  
    private static final String UPDATE_PERMISSIONS = "site.upd";
-   
+
 	/**
 	 * Used by callback to convert channel references to channels.
 	 */
@@ -1104,6 +1104,25 @@ public class AnnouncementAction extends PagedResourceActionII
 		context.put("current_page", sstate.getAttribute(STATE_CURRENT_PAGE));
 		pagingInfoToContext(sstate, context);
 
+		// SAK-9116: to use Viewing {0} - {1} of {2} items
+		// find the position of the message that is the top first on the page
+		if ((sstate.getAttribute(STATE_TOP_PAGE_MESSAGE) != null) && (sstate.getAttribute(STATE_PAGESIZE) != null))
+		{
+			int topMsgPos = ((Integer) sstate.getAttribute(STATE_TOP_PAGE_MESSAGE)).intValue() + 1;
+			int btmMsgPos = topMsgPos + ((Integer) sstate.getAttribute(STATE_PAGESIZE)).intValue() - 1;
+			int allMsgNumber = btmMsgPos;
+			if (sstate.getAttribute(STATE_NUM_MESSAGES) != null)
+			{
+				allMsgNumber = ((Integer) sstate.getAttribute(STATE_NUM_MESSAGES)).intValue();
+				if (btmMsgPos > allMsgNumber) btmMsgPos = allMsgNumber;
+			}
+
+			String [] viewValues = { (new Integer(topMsgPos)).toString(),
+									(new Integer(btmMsgPos)).toString(),
+									(new Integer(allMsgNumber)).toString() };
+
+			context.put("announcementItemRangeArray", viewValues);
+		}
 		// context.put("jsfutil", JsfUtil.this);
 
 	} // buildSortedContext

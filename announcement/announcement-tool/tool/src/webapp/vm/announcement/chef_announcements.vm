@@ -87,7 +87,8 @@
 				#if ($messageListVector.iterator().hasNext())
 					<div class="listNav">
 						<div class="instruction">
-							$tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.separator") $allMsgNumber $tlang.getString("gen.items")
+						#####SAK-9116: to use Viewing {0} - {1} of {2} items
+							$tlang.getFormattedMessage("gen.viewing.phrase", $announcementItemRangeArray)
 						</div>
 						#if ($pagesize != 0)
 							#if ($goFPButton == "true")
