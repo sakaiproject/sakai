@@ -66,7 +66,7 @@
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
 		<init-param>
 			<param-name>upload.max</param-name>
-			<param-value>50</param-value>
+			<param-value>500</param-value>
 		</init-param>
     </filter>
 
