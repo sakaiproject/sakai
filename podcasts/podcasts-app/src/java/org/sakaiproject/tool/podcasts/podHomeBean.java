@@ -44,6 +44,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
@@ -1872,5 +1873,38 @@ public class podHomeBean {
 		
 		return temp;
 		
+	}
+
+	/**
+	 * Returns whether a file too large tried to be uploaded. (SAK-9822) 
+	 */
+	public boolean getUploadStatus() {
+		LOG.info("getUploadStatus()");
+		FacesContext context = FacesContext.getCurrentInstance();
+		String status = (String) ((HttpServletRequest) context.getExternalContext().getRequest()).getAttribute("upload.status");
+
+		return "size_limit_exceeded".equals(status);
+	}
+	
+	/**
+	 * Returns the message that a file too large tried to be uploaded. (SAK-9822) 
+	 */
+	public String getMaxSizeExceededAlert() {
+		if (rb == null) {
+	          String bundle = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+	          rb = new ResourceLoader(bundle);
+		}
+
+		// TODO: pull this from the ServerConfigurationService? RequestFilter?
+		FacesContext context = FacesContext.getCurrentInstance();
+		String uploadMaxSize = ServerConfigurationService.getString("content.upload.max");
+		
+		Long override = (Long) ((HttpServletRequest) context.getExternalContext().getRequest()).getAttribute("upload.limit");
+		
+		if (override != null && ! "".equals(override)) {
+			uploadMaxSize = override.toString();
+		}
+
+		return rb.getFormattedMessage("max_size_exceeded_alert", new String [] { uploadMaxSize });
 	}
 }

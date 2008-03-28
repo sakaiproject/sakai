@@ -18,6 +18,8 @@
 
     <div>  <!-- Page title and Instructions -->
        <h3><h:outputText value="#{msgs.add_title}" /></h3>
+		<%-- SAK-9822: added error message when too large file was attempted to be uploaded  --%>
+	    <h:outputText value="#{podHomeBean.maxSizeExceededAlert}" styleClass="alertMessage" rendered="#{podHomeBean.uploadStatus}" />
        <h:outputText value="#{msgs.add_directions}" styleClass="indnt1 instruction" /><br />
        <h:outputText value="#{msgs.required_prompt}" styleClass="indnt1 instruction" />
        <span class="reqStarInline indnt1">*</span>
