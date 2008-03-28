@@ -19,6 +19,7 @@
 		  	<h:outputLink value="http://kb.iu.edu/data/aitz.html" rendered="#{!gradebookSetupBean.isExistingConflictScale}" target="support_window1">
 		  		<h:outputText value="#{msgs.feedback_options_existing_conflict2}" rendered="#{!gradebookSetupBean.isExistingConflictScale}"/>
 			  </h:outputLink>
+			  <h:outputText value=" " rendered="#{!gradebookSetupBean.isExistingConflictScale}"/>
 			  <h:outputText value="#{msgs.feedback_options_existing_conflict3}" rendered="#{!gradebookSetupBean.isExistingConflictScale}"/>
 			</h:panelGroup>
 			<h:panelGroup rendered="#{!gradebookSetupBean.isValidWithCourseGrade}" styleClass="validation">
@@ -26,6 +27,7 @@
 		  	<h:outputLink value="http://kb.iu.edu/data/aitz.html" rendered="#{!gradebookSetupBean.isValidWithCourseGrade}" target="support_window2">
 		  		<h:outputText value="#{msgs.feedback_options_cannot_change_percentage2}" rendered="#{!gradebookSetupBean.isValidWithCourseGrade}"/>
 			  </h:outputLink>
+			  <h:outputText value=" " rendered="#{!gradebookSetupBean.isValidWithCourseGrade}"/>
 			  <h:outputText value="#{msgs.feedback_options_cannot_change_percentage3}" rendered="#{!gradebookSetupBean.isValidWithCourseGrade}"/>
 			</h:panelGroup>
 	
