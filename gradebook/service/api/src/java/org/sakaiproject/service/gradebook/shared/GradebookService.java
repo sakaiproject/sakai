@@ -654,4 +654,12 @@ public interface GradebookService {
 	 * 
 	 */
 	public Map getEnteredCourseGrade(String gradebookUid);
+
+	/**
+	 * Get a Map of auto calculated CourseGrade for students.
+	 * @param gradebookUid
+	 * @return Map of enrollment displayId as key, point as value
+	 * 
+	 */
+	public Map getCalculatedCourseGrade(String gradebookUid);
 }
