@@ -139,7 +139,7 @@
     <dependency>
       <groupId>ical4j</groupId>
       <artifactId>ical4j</artifactId>
-      <version>0.9.20</version>
+      <version>1.0-beta4</version>
     </dependency>
   </dependencies>
   <build>

@@ -103,9 +103,9 @@ public class IcalendarReader extends Reader
 
 			// enable "relaxed parsing"; read file using LF instead of CRLF
 			CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_UNFOLDING, true); 
-			//CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_PARSING, true); 
+			CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_PARSING, true); 
 			CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_OUTLOOK_COMPATIBILITY, true); 
-			//CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_VALIDATION, true); 
+			CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_VALIDATION, true); 
 
 			CalendarBuilder builder = new CalendarBuilder();
 			net.fortuna.ical4j.model.Calendar calendar = builder.build(stream);
