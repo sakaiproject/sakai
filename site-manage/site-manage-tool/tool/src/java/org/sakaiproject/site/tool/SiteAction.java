@@ -8923,8 +8923,7 @@ public class SiteAction extends PagedResourceActionII {
 				role = (String) selectedRoles.get(eId);
 			}
 
-			boolean officialAccount = eId.indexOf(EMAIL_CHAR) == -1;
-			if (officialAccount) {
+			if (isOfficialAccount(eId)) {
 				// if this is a officialAccount
 				// update the hashtable
 				eIdRoles.put(eId, role);
@@ -8995,8 +8994,7 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 		// batch add and updates the successful added list
-		List addedParticipantEIds = addUsersRealm(state, eIdRoles, notify,
-				false);
+		List addedParticipantEIds = addUsersRealm(state, eIdRoles, notify);
 
 		// update the not added user list
 		String notAddedOfficialAccounts = NULL_STRING;
@@ -9004,7 +9002,7 @@ public class SiteAction extends PagedResourceActionII {
 		for (Iterator iEIds = eIdRoles.keySet().iterator(); iEIds.hasNext();) {
 			String iEId = (String) iEIds.next();
 			if (!addedParticipantEIds.contains(iEId)) {
-				if (iEId.indexOf(EMAIL_CHAR) == -1) {
+				if (isOfficialAccount(iEId)) {
 					// no email in eid
 					notAddedOfficialAccounts = notAddedOfficialAccounts
 							.concat(iEId + "\n");
@@ -9041,6 +9039,16 @@ public class SiteAction extends PagedResourceActionII {
 		return;
 
 	} // doAdd_participant
+
+
+	/**
+	 * whether the eId is considered of official account
+	 * @param eId
+	 * @return
+	 */
+	private boolean isOfficialAccount(String eId) {
+		return eId.indexOf(EMAIL_CHAR) == -1;
+	}
 
 	/**
 	 * remove related state variable for adding participants
@@ -9082,8 +9090,7 @@ public class SiteAction extends PagedResourceActionII {
 	 * not exist yet inside the user directory, assign role to it @return A list
 	 * of eids for successfully added users
 	 */
-	private List addUsersRealm(SessionState state, Hashtable eIdRoles,
-			boolean notify, boolean nonOfficialAccount) {
+	private List addUsersRealm(SessionState state, Hashtable eIdRoles, boolean notify) {
 		// return the list of user eids for successfully added user
 		List addedUserEIds = new Vector();
 
@@ -9124,7 +9131,7 @@ public class SiteAction extends PagedResourceActionII {
 									}
 									else
 									{
-										userNotificationProvider.notifyAddedParticipant(nonOfficialAccount, user, sEdit.getTitle());
+										userNotificationProvider.notifyAddedParticipant(!isOfficialAccount(eId), user, sEdit.getTitle());
 									}
 									
 								}
