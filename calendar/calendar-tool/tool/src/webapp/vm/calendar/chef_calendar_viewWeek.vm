@@ -321,7 +321,7 @@
         #set ($startTime = $dStart.get($n))
 	#end
 
-    #set ($endTime = $event.getRange().lastTime())
+    #set ($endTime = $event.getRange().lastTime(0))
     #if ($endTime.after($dEnd.get($n)))
         ## use the page end time as event's first time temporarily
         #set ($endTime = $dEnd.get($n))

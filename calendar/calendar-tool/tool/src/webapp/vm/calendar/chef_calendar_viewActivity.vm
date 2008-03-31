@@ -51,7 +51,7 @@
 			<th>$tlang.getString("gen.time")</th>
 			<td>
 					#set ($startTime = $event.getRange().firstTime().toStringLocalShort())
-					#set ($endTime = $event.getRange().lastTime().toStringLocalShort())
+					#set ($endTime = $event.getRange().lastTime(0).toStringLocalShort())
 						#if ($startTime == $endTime)
 							$startTime
 						#else

@@ -156,7 +156,7 @@
 																		## Time column
 																		<td  #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>
 																		#set ($startTime = $m.getRange().firstTime().toStringLocalShort())
-																		#set ($endTime = $m.getRange().lastTime().toStringLocalShort())
+																		#set ($endTime = $m.getRange().lastTime(0).toStringLocalShort())
 
 																		#if ($startTime == $endTime)
 																				$startTime
