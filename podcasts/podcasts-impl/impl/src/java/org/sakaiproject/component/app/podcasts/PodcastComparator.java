@@ -76,11 +76,11 @@ public class PodcastComparator implements Comparator {
 		} 
 		catch (EntityPropertyTypeException ignore) {
 			LOG.warn("EntityPropertyTypeException while comparing podcast dates. "
-							+ ignore.getMessage());
+							+ ignore.getMessage(), ignore);
 		}
 		catch (EntityPropertyNotDefinedException ignore) {
 			LOG.warn("EntityPropertyNotDefinedException while comparing podcast dates. "
-							+ ignore.getMessage());
+							+ ignore.getMessage(), ignore);
 		}
 
 		return rv;

@@ -1003,12 +1003,12 @@ public class PodcastServiceImpl implements PodcastService {
 				catch (EntityPropertyTypeException e1) {
 					// Weirdness, should have just set it
 					LOG.debug("EntityPropertyTypeException while trying to set Release Date after" +
-									"freshly setting DISPLAY_DATE");
+									" freshly setting DISPLAY_DATE", e1);
 				}
 				catch (EntityPropertyNotDefinedException e1) {
 					// Weirdness, should have just set it
 					LOG.debug("EntityPropertyNotDefinedException while trying to set Release Date after" +
-									"freshly setting DISPLAY_DATE");						
+									" freshly setting DISPLAY_DATE", e1);						
 				}
 				catch (Exception e1) {
 					// PermissionException, IdUnusedException from getAResource
@@ -1182,7 +1182,7 @@ public class PodcastServiceImpl implements PodcastService {
 				// catches EntityPropertyNotDefinedException
 				//         EntityPropertyTypeException, ParseException
 				LOG.info(e1.getMessage() + " while getting DISPLAY_DATE for "
-						+ "file in site " + getSiteId() + ". ");
+						+ "file in site " + getSiteId() + ". ", e);
 			}
 		}
 

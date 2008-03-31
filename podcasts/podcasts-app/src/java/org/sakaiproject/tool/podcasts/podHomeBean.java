@@ -278,13 +278,13 @@ public class podHomeBean {
 			} 
 			catch (PermissionException e) {
 				LOG.info("PermissionException getting file URL for "
-						+ resourceId + "while displaying podcast file for site " + podcastService.getSiteId());
+						+ resourceId + "while displaying podcast file for site " + podcastService.getSiteId(), e);
 				setErrorMessage(PERMISSION_ALERT);
 
 			} 
 			catch (IdUnusedException e) {
 				LOG.info("IdUnusedException getting file URL for " + resourceId
-						+ " while displaying podcast file for site " + podcastService.getSiteId());
+						+ " while displaying podcast file for site " + podcastService.getSiteId(), e);
 				setErrorMessage(ID_UNUSED_ALERT);
 
 			}
@@ -1879,7 +1879,7 @@ public class podHomeBean {
 	 * Returns whether a file too large tried to be uploaded. (SAK-9822) 
 	 */
 	public boolean getUploadStatus() {
-		LOG.info("getUploadStatus()");
+		LOG.debug("getUploadStatus()");
 		FacesContext context = FacesContext.getCurrentInstance();
 		String status = (String) ((HttpServletRequest) context.getExternalContext().getRequest()).getAttribute("upload.status");
 
