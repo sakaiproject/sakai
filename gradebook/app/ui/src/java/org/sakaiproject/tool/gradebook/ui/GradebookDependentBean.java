@@ -678,14 +678,18 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		Gradebook gb = getGradebookManager().getGradebookWithGradeMappings(getGradebookId());
 		if(gb != null && gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
 		{
-
+			if(gb.getSelectedGradeMapping().getGradingScale().getUid().equals("LetterGradeMapping"))
+			{
+				isExistingConflictScale = false;
+				return isExistingConflictScale;
+			}
 			Set mappings = gb.getGradeMappings();
 			for(Iterator iter = mappings.iterator(); iter.hasNext();)
 			{
 				GradeMapping gm = (GradeMapping) iter.next();
 				if(gm != null)
 				{
-					if(gm.getGradingScale().getUid().equals("LetterGradeMapping") || gm.getGradingScale().getUid().equals("LetterGradePlusMinusMapping"))
+					if(gm.getGradingScale().getUid().equals("LetterGradePlusMinusMapping"))
 					{
 						Map defaultMapping = gm.getDefaultBottomPercents();
 						for (Iterator gradeIter = gm.getGrades().iterator(); gradeIter.hasNext(); ) 

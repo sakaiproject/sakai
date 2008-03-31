@@ -760,6 +760,10 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		Gradebook gb = getGradebookManager().getGradebookWithGradeMappings(getGradebookManager().getGradebook(localGradebook.getUid()).getId());
 		if (gradeEntryMethod.equals(ENTRY_OPT_LETTER))
 		{
+			if(gb.getSelectedGradeMapping().getGradingScale().getUid().equals("LetterGradeMapping"))
+			{
+				return false;
+			}
 			Set mappings = gb.getGradeMappings();
 			for(Iterator iter = mappings.iterator(); iter.hasNext();)
 			{

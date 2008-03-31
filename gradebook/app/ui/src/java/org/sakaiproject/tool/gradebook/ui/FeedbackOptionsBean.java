@@ -158,9 +158,15 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 	 * shown mapping, but we do remember them.
 	 */
 	public void changeGradeType(ActionEvent event) {
+		isValidWithLetterGrade = true;
 		for(Iterator iter = localGradebook.getGradeMappings().iterator(); iter.hasNext();) {
             GradeMapping mapping = (GradeMapping)iter.next();
             if(mapping.getId().equals(selectedGradeMappingId)) {
+            		if(localGradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER && mapping.getGradingScale().getUid().equals("LetterGradeMapping"))
+            		{
+            			isValidWithLetterGrade = false;
+            			return;
+            		}
                 localGradebook.setSelectedGradeMapping(mapping);
                 initGradeRows();
             }
