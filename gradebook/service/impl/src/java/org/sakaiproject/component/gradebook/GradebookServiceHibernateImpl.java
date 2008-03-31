@@ -1334,48 +1334,49 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  // will send back all assignments if user can grade all
 	  if (getAuthz().isUserAbleToGradeAll(gradebookUid)) {
 		  viewableAssignments = getAssignments(gradebook.getId(), null, true);
-	  } else if (!getAuthz().isUserHasGraderPermissions(gradebookUid)) {  
-		  // user doesn't have grader permissions, so check to see if able to grade or view own grades
-		  if (getAuthz().isUserAbleToGrade(gradebookUid)) {
+	  } else if (getAuthz().isUserAbleToGrade(gradebookUid)) {
+		  // if user can grade and doesn't have grader perm restrictions, they
+		  // may view all assigns
+		  if (!getAuthz().isUserHasGraderPermissions(gradebookUid)) {
 			  viewableAssignments = getAssignments(gradebook.getId(), null, true);
-		  } else if (getAuthz().isUserAbleToViewOwnGrades(gradebookUid)) {
-			  // if user is just a student, we need to filter out unreleased items
-			  List allAssigns = getAssignments(gradebook.getId(), null, true);
-			  if (allAssigns != null) {
-				  for (Iterator aIter = allAssigns.iterator(); aIter.hasNext();) {
-					  Assignment assign = (Assignment) aIter.next();
-					  if (assign != null && assign.isReleased()) {
-						  viewableAssignments.add(assign);
+		  } else {
+			  // this user has grader perms, so we need to filter the items returned
+			  // if this gradebook has categories enabled, we need to check for category-specific restrictions
+
+			  if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
+				  assignmentsToReturn = getAssignments(gradebookUid);
+			  } else {
+
+				  String userUid = getUserUid();
+				  if (getGradebookPermissionService().getPermissionForUserForAllAssignment(gradebook.getId(), userUid)) {
+					  assignmentsToReturn = getAssignments(gradebookUid);
+				  }
+
+				  // categories are enabled, so we need to check the category restrictions
+				  List allCategories = getCategoriesWithAssignments(gradebook.getId());
+				  if (allCategories != null && !allCategories.isEmpty()) {
+					  List<Category> viewableCategories = getGradebookPermissionService().getCategoriesForUser(gradebook.getId(), userUid, allCategories, gradebook.getCategory_type());
+
+					  for (Iterator catIter = viewableCategories.iterator(); catIter.hasNext();) {
+						  Category cat = (Category) catIter.next();
+						  if (cat != null) {
+							  List assignments = cat.getAssignmentList();
+							  if (assignments != null && !assignments.isEmpty()) {
+								  viewableAssignments.addAll(assignments);
+							  }
+						  }
 					  }
 				  }
 			  }
 		  }
-	  } else {  
-		  // this user has grader perms, so we need to filter the items returned
-		  // if this gradebook has categories enabled, we need to check for category-specific restrictions
-
-		  if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
-			  assignmentsToReturn = getAssignments(gradebookUid);
-		  } else {
-
-			  String userUid = getUserUid();
-			  if (getGradebookPermissionService().getPermissionForUserForAllAssignment(gradebook.getId(), userUid)) {
-				  assignmentsToReturn = getAssignments(gradebookUid);
-			  }
-
-			  // categories are enabled, so we need to check the category restrictions
-			  List allCategories = getCategoriesWithAssignments(gradebook.getId());
-			  if (allCategories != null && !allCategories.isEmpty()) {
-				  List<Category> viewableCategories = getGradebookPermissionService().getCategoriesForUser(gradebook.getId(), userUid, allCategories, gradebook.getCategory_type());
-
-				  for (Iterator catIter = viewableCategories.iterator(); catIter.hasNext();) {
-					  Category cat = (Category) catIter.next();
-					  if (cat != null) {
-						  List assignments = cat.getAssignmentList();
-						  if (assignments != null && !assignments.isEmpty()) {
-							  viewableAssignments.addAll(assignments);
-						  }
-					  }
+	  } else if (getAuthz().isUserAbleToViewOwnGrades(gradebookUid)) {
+		  // if user is just a student, we need to filter out unreleased items
+		  List allAssigns = getAssignments(gradebook.getId(), null, true);
+		  if (allAssigns != null) {
+			  for (Iterator aIter = allAssigns.iterator(); aIter.hasNext();) {
+				  Assignment assign = (Assignment) aIter.next();
+				  if (assign != null && assign.isReleased()) {
+					  viewableAssignments.add(assign);
 				  }
 			  }
 		  }
