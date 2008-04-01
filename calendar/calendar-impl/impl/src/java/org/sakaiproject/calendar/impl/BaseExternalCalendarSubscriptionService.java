@@ -1741,8 +1741,8 @@ public class BaseExternalCalendarSubscriptionService implements
 				m_log.debug("Re-loading user-specified calendar: " + subscriptionUrl);
 				ExternalSubscription s = loadCalendarSubscriptionFromUrl(subscriptionUrl,
 						subscription.getContext());
-				if (subscription != null)
-					userSubscriptions.put(subscriptionUrl, subscription);
+				if (s != null)
+					userSubscriptions.put(subscriptionUrl, s);
 			}
 		}
 	}
