@@ -1535,7 +1535,10 @@ public class BaseExternalCalendarSubscriptionService implements
 
 		public void setSubscriptionExpiredListener(SubscriptionExpiredListener listener)
 		{
-			this.listener = listener;
+			synchronized(this.listener)
+			{
+				this.listener = listener;
+			}
 		}
 
 		public void removeSubscriptionExpiredListener()
