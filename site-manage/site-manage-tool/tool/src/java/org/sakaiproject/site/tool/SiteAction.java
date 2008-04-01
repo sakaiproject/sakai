@@ -5068,7 +5068,7 @@ public class SiteAction extends PagedResourceActionII {
 						try {
 							User instructor = UserDirectoryService.getUserByEid(instructorId);
 							
-							rb = new ResourceLoader(instructor.getId(), "sitesetupgeneric");
+							rb.setContextLocale(rb.getLocale(instructor.getId()));
 							
 							// reset 
 							buf.setLength(0);
@@ -5116,7 +5116,7 @@ public class SiteAction extends PagedResourceActionII {
 							EmailService.send(from, to, message_subject, content,
 									headerTo, replyTo, null);
 							// revert back the local setting to default
-							rb = new ResourceLoader("sitesetupgeneric");
+							rb.setContextLocale(Locale.getDefault());
 						}
 						catch (Exception e)
 						{
@@ -5203,7 +5203,7 @@ public class SiteAction extends PagedResourceActionII {
 			from = requestEmail;
 			to = cUser.getEmail();
 			// set the locale to individual receipient's setting
-			rb = new ResourceLoader(cUser.getId(), "sitesetupgeneric");
+			rb.setContextLocale(rb.getLocale(cUser.getId()));
 			headerTo = to;
 			replyTo = to;
 			buf.setLength(0);
@@ -5216,7 +5216,7 @@ public class SiteAction extends PagedResourceActionII {
 			EmailService.send(from, to, message_subject, content, headerTo,
 					replyTo, null);
 			// revert the locale to system default
-			rb = new ResourceLoader("sitesetupgeneric");
+			rb.setContextLocale(Locale.getDefault());
 			state.setAttribute(REQUEST_SENT, new Boolean(true));
 
 		} // if
