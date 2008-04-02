@@ -921,7 +921,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			try
 			{
 				// Use page#{siteId}:{pageAlias} So we can scan for fist colon and alias can contain any character 
-				String refString = AliasService.getTarget(PAGE_ALIAS+site.getId()+Entity.SEPARATOR+alias);
+				String refString = AliasService.getTarget(buildAlias(alias, site));
 				String aliasPageId = EntityManager.newReference(refString).getId();
 				page = (SitePage) site.getPage(aliasPageId);
 			}
@@ -946,29 +946,48 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			{
 				log.warn("More than one alias for: "+site.getId()+ ":"+ page.getId());
 				// Sort on ID so it is consistent in the alias it uses.
-				Collections.sort(aliases, new Comparator<Alias>() {
-					public int compare(Alias o1, Alias o2)
-					{
-						return o1.getId().compareTo(o2.getId());
-					}
-					
-				});
+				Collections.sort(aliases, getAliasComparator());
 			}
 			alias = aliases.get(0).getId();
-			int delim = alias.lastIndexOf(Entity.SEPARATOR);
-			if (delim > 0)
-			{
-				alias = alias.substring(delim+1);
-			}
-			else
-			{
-				alias = null;
-			}
+			alias = parseAlias(alias, site);
 		}
 		return alias;
 	}
 
+	/**
+	 * Find the short alias.
+	 * @param alias
+	 * @return
+	 */
+	private String parseAlias(String aliasId, Site site)
+	{
+		String prefix = PAGE_ALIAS+ site.getId()+ Entity.SEPARATOR;
+		String alias = null;
+		if (aliasId.startsWith(prefix))
+		{
+			alias = aliasId.substring(prefix.length());
+		}
+		return alias;
+	}
 
+	private String buildAlias(String alias, Site site)
+	{
+		return PAGE_ALIAS+site.getId()+Entity.SEPARATOR+alias;
+	}
+
+	private Comparator<Alias> getAliasComparator()
+	{
+		return new Comparator<Alias>() {
+			public int compare(Alias o1, Alias o2)
+			{
+				// Sort by date, then by ID to assure consistent order.
+				return o1.getCreatedTime().compareTo(o2.getCreatedTime()) * 10 +
+					o1.getId().compareTo(o2.getId());
+			}
+			
+		};
+	}
+	
 	/**
 	 * @see org.sakaiproject.portal.api.PortalSiteHelper#allowTool(org.sakaiproject.site.api.Site,
 	 *      org.sakaiproject.tool.api.Placement)

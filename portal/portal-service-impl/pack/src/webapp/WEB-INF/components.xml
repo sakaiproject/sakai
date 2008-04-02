@@ -33,5 +33,17 @@
 	       <property name="serverConfigurationService" ><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
 	       <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService" /></property>
     </bean>
+    
+    <bean class="org.sakaiproject.portal.service.AliasingSiteAdvisor" singleton="true" init-method="init">
+        <property name="siteService">
+            <ref bean="org.sakaiproject.site.api.SiteService" />
+        </property>
+        <property name="aliasService">
+            <ref bean="org.sakaiproject.alias.api.AliasService" />
+        </property>
+        <property name="serverConfigurationService">
+            <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+        </property>
+    </bean>
 
 </beans>
