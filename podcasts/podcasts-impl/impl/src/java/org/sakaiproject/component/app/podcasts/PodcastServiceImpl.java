@@ -233,7 +233,7 @@ public class PodcastServiceImpl implements PodcastService {
 			catch (Exception e) {
 				// catches EntityPropertyNotDefinedException, EntityPropertyTypeException
 				// any problems, skip this one
-				LOG.warn(e.getMessage() + " for podcast item: " + aResource.getId() + ". SKIPPING...");
+				LOG.warn(e.getMessage() + " for podcast item: " + aResource.getId() + ". SKIPPING...", e);
 			} 
 		}
 
@@ -403,7 +403,7 @@ public class PodcastServiceImpl implements PodcastService {
 				}
 			}
 			catch (ClassCastException e) {
-				LOG.info("Non-file resource in podcasts folder, so ignoring. ");				
+				LOG.info("Non-file resource in podcasts folder at site " + siteId + ", so ignoring. ");				
 			}
 		}
 
@@ -465,7 +465,7 @@ public class PodcastServiceImpl implements PodcastService {
 			catch (PermissionException e1) {
 				// If thrown here, it truly is a PermissionException, so log and rethrow
 				LOG.warn("PermissionException while trying to determine correct podcast folder Id String "
-								+ " for site: " + siteId + ". NOTE: folder may be HIDDEN may cause this.");
+								+ " for site: " + siteId + ". NOTE: folder may be HIDDEN may cause this.", e1);
 				throw e1; 
 			}
 		} 
@@ -1019,7 +1019,7 @@ public class PodcastServiceImpl implements PodcastService {
 				// not a file, skip over it
 				LOG.debug("EntityPropertyTypeException while checking for DISPLAY_DATE. "
 							+ " Possible non-resource (aka a folder) exists in podcasts folder. " 
-							+ "SKIPPING..." + e.getMessage());
+							+ "SKIPPING..." + e.getMessage(), e);
 
 			}
 			finally {

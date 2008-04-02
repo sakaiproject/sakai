@@ -600,7 +600,7 @@ public class BasicPodfeedService implements PodfeedService {
 				catch (Exception e) {
 					// catches EntityPropertyNotDefinedException, EntityPropertyTypeException
 					LOG.warn(e.getMessage() + " generating podfeed getting DISPLAY_DATE for entry for site: "
-									+ siteId + "while building feed. SKIPPING... " + e.getMessage());
+									+ siteId + "while building feed. SKIPPING... " + e.getMessage(), e);
 				}
 				
 				// if getting the date generates an error, skip this podcast.
