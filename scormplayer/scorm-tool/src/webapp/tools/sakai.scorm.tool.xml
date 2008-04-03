@@ -4,10 +4,8 @@
 		description="For playing SCORM content">
 		<category name="course" />
 		<category name="project" />
-		<configuration name="functions.require" value="scorm.visible" />
 	</tool>
 	
-	<function name="scorm.visible" />
 	<function name="scorm.launch" />
 	<function name="scorm.delete" />
 	<function name="scorm.configure" />
