@@ -973,12 +973,29 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		SummaryVisitsTotals svt = new SummaryVisitsTotalsImpl();
 		
 		Date now = new Date();
-		long weekDiff = 604800000l;
-		long monthDiff = 2592000000l;
-		long yearDiff = 31536000000l;
-		Date lastWeek = new Date(now.getTime() - weekDiff);
-		Date lastMonth = new Date(now.getTime() - monthDiff);
-		Date lastYear = new Date(now.getTime() - yearDiff);
+		
+		Calendar c = Calendar.getInstance();
+		Calendar cl = null;
+		c.set(Calendar.HOUR_OF_DAY, 23);
+		c.set(Calendar.MINUTE, 59);
+		c.set(Calendar.SECOND, 59);
+		
+		cl = (Calendar) c.clone();		
+		cl.add(Calendar.DATE, -6);
+		Date lastWeek = cl.getTime();
+		cl = (Calendar) c.clone();		
+		cl.add(Calendar.DATE, -29);
+		Date lastMonth = cl.getTime();
+		cl = (Calendar) c.clone();		
+		c.add(Calendar.MONTH, -11);
+		Date lastYear = cl.getTime();
+		
+//		long weekDiff = 604800000l;
+//		long monthDiff = 2592000000l;
+//		long yearDiff = 31536000000l;
+//		Date lastWeek = new Date(now.getTime() - weekDiff);
+//		Date lastMonth = new Date(now.getTime() - monthDiff);
+//		Date lastYear = new Date(now.getTime() - yearDiff);
 		
 		double last7DaysVisitsAverage = round(getTotalSiteVisits(siteId, lastWeek, now) / 7.0, 1);
 		double last30DaysVisitsAverage = round(getTotalSiteVisits(siteId, lastMonth, now) / 30.0, 1);
@@ -1014,12 +1031,29 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		SummaryActivityTotals sat = new SummaryActivityTotalsImpl();
 		
 		Date now = new Date();
-		long weekDiff = 604800000l;
-		long monthDiff = 2592000000l;
-		long yearDiff = 31536000000l;
-		Date lastWeek = new Date(now.getTime() - weekDiff);
-		Date lastMonth = new Date(now.getTime() - monthDiff);
-		Date lastYear = new Date(now.getTime() - yearDiff);
+		
+		Calendar c = Calendar.getInstance();
+		Calendar cl = null;
+		c.set(Calendar.HOUR_OF_DAY, 23);
+		c.set(Calendar.MINUTE, 59);
+		c.set(Calendar.SECOND, 59);
+		
+		cl = (Calendar) c.clone();		
+		cl.add(Calendar.DATE, -6);
+		Date lastWeek = cl.getTime();
+		cl = (Calendar) c.clone();		
+		cl.add(Calendar.DATE, -29);
+		Date lastMonth = cl.getTime();
+		cl = (Calendar) c.clone();		
+		c.add(Calendar.MONTH, -11);
+		Date lastYear = cl.getTime();
+		
+//		long weekDiff = 604800000l;
+//		long monthDiff = 2592000000l;
+//		long yearDiff = 31536000000l;
+//		Date lastWeek = new Date(now.getTime() - weekDiff);
+//		Date lastMonth = new Date(now.getTime() - monthDiff);
+//		Date lastYear = new Date(now.getTime() - yearDiff);
 		
 		double last7DaysActivityAverage = round(getTotalSiteActivity(siteId, prefsdata.getToolEventsStringList(), lastWeek, now) / 7.0, 1);
 		double last30DaysActivityAverage = round(getTotalSiteActivity(siteId, prefsdata.getToolEventsStringList(), lastMonth, now) / 30.0, 1);
@@ -1162,13 +1196,25 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if (params.getWhen().equals(WHEN_ALL)) {
 			from =getInitialActivityDate(siteId);
 		} else if (params.getWhen().equals(WHEN_LAST7DAYS)) {
-			Date now = new Date();
-			long int7Days = 604800000l; // 1000ms * 60s * 60m * 24h * 7d
-			from = new Date(now.getTime() - int7Days);
+			Calendar c = Calendar.getInstance();
+			c.set(Calendar.HOUR_OF_DAY, 00);
+			c.set(Calendar.MINUTE, 00);
+			c.set(Calendar.SECOND, 00);
+			c.add(Calendar.DATE, -6);
+			from = c.getTime();
+//			Date now = new Date();
+//			long int7Days = 604800000l; // 1000ms * 60s * 60m * 24h * 7d
+//			from = new Date(now.getTime() - int7Days);
 		} else if (params.getWhen().equals(WHEN_LAST30DAYS)) {
-			Date now = new Date();
-			long int30Days = 2592000000l; // 1000ms * 60s * 60m * 24h * 30d
-			from = new Date(now.getTime() - int30Days);
+			Calendar c = Calendar.getInstance();
+			c.set(Calendar.HOUR_OF_DAY, 00);
+			c.set(Calendar.MINUTE, 00);
+			c.set(Calendar.SECOND, 00);
+			c.add(Calendar.DATE, -29);
+			from = c.getTime();
+//			Date now = new Date();
+//			long int30Days = 2592000000l; // 1000ms * 60s * 60m * 24h * 30d
+//			from = new Date(now.getTime() - int30Days);
 		}
 		params.setWhenFrom(from);
 		params.setWhenTo(to);
