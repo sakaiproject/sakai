@@ -309,6 +309,9 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	protected String newFolder(String uuid, ZipEntry entry) {
 		String entryName = entry.getName();
 		
+		if (entryName.indexOf('\\') != -1)
+			entryName = entryName.replace('\\', '/');
+		
 		ContentCollectionEdit collection = null;
 		
 		String collectionId = getResourcePath(uuid, entryName);
@@ -343,6 +346,9 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	
 	protected String newItem(String uuid, ZipInputStream zipStream, ZipEntry entry) {
 		String entryName = entry.getName();
+		
+		if (entryName.indexOf('\\') != -1)
+			entryName = entryName.replace('\\', '/');
 		
 		String resourceId = getResourcePath(uuid, entryName);
 
