@@ -181,13 +181,18 @@ public class StatsAggregateJobImpl implements Job {
 				
 				while(rs.next()){
 					abortIteration = false;
+					Date date = null;
+					String event = null;
+					String ref = null;
+					String sessionUser = null;
+					String sessionId = null;
 					try{
 						//If an exception is launched, iteration is not aborted but no event is added to event queue
-						Date date = new Date(rs.getDate("EVENT_DATE").getTime());
-						String event = rs.getString("EVENT");
-						String ref = rs.getString("REF");
-						String sessionUser = rs.getString("SESSION_USER");
-						String sessionId = rs.getString("SESSION_ID");
+						date = new Date(rs.getDate("EVENT_DATE").getTime());
+						event = rs.getString("EVENT");
+						ref = rs.getString("REF");
+						sessionUser = rs.getString("SESSION_USER");
+						sessionId = rs.getString("SESSION_ID");
 						eventsQueue.add( statsUpdateManager.buildEvent(date, event, ref, sessionUser, sessionId) );
 						
 						counter++;					
@@ -198,7 +203,8 @@ public class StatsAggregateJobImpl implements Job {
 						if(firstEventIdProcessedInBlock == -1)
 							firstEventIdProcessedInBlock = lastProcessedEventId;
 					}catch(Exception e){
-						//ignore
+						if(LOG.isDebugEnabled())
+							LOG.debug("Ignoring "+event+", "+ref+", "+date+", "+sessionUser+", "+sessionId+" due to: "+e.toString());
 					}
 				}
 				rs.close();
@@ -239,6 +245,11 @@ public class StatsAggregateJobImpl implements Job {
 			e.printStackTrace();
 			closeEventDbConnection(connection);
 			LOG.error("Unable to retrieve events", e);
+			return "Unable to retrieve events due to: " + e.getMessage(); 
+		}catch(Exception e){
+			e.printStackTrace();
+			closeEventDbConnection(connection);
+			LOG.error("Unable to retrieve events due to an unknown cause", e);
 			return "Unable to retrieve events due to: " + e.getMessage(); 
 		}
 		
