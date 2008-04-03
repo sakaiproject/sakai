@@ -25,7 +25,7 @@
 		<property name="owner" type="string" length="255" not-null="true">
             <column name="POLL_OWNER"/>
         </property>
-		<property name="siteId" type="string" length="255" not-null="true">
+		<property name="siteId" type="text" not-null="true">
             <column name="POLL_SITE_ID"/>
         </property>
    		<property name="details" type="string" length="255" not-null="false">
