@@ -15,13 +15,16 @@ import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.SchedulerException;
+import org.quartz.StatefulJob;
+import org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.sitestats.api.JobRun;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
 
 
-public class StatsAggregateJobImpl implements Job {
+public class StatsAggregateJobImpl implements StatefulJob {
 	private Log					LOG					= LogFactory.getLog(StatsAggregateJobImpl.class);
 
 	// Spring fields
@@ -91,6 +94,25 @@ public class StatsAggregateJobImpl implements Job {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		String result = null;
 		String jobName = context.getJobDetail().getFullName();
+		
+		// WAIT if job is currently running in this cluster node.
+		//  -> Required as StatefullJob is only correctly supported in trunk!
+		// WARNING: I cannot currently check if this is running in OTHER cluster nodes!!!
+		try{
+			long sleepTime = 10 * 60 * 1000; // 10 min
+			while(isJobCurrentlyRunning(context)) {
+				String beanId = context.getJobDetail().getJobDataMap().getString(SpringJobBeanWrapper.SPRING_BEAN_NAME);
+				LOG.warn("An instance of "+beanId+" is currently running. Trying again in 10min...");
+				Thread.sleep(sleepTime);
+			}
+		}catch(SchedulerException e){
+			LOG.error("Aborting job execution due to "+e.toString(), e);
+			return;
+		}catch(InterruptedException e){
+			LOG.error("Aborting job execution due to "+e.toString(), e);
+			return;
+		}
+		
 		LOG.info("Starting job: " + jobName);
 
 		// configure job
@@ -121,6 +143,20 @@ public class StatsAggregateJobImpl implements Job {
 		// persist job info
 		saveJobRun(jobRun);
 		LOG.info("Finishing job: " + jobName);
+	}
+
+	private boolean isJobCurrentlyRunning(JobExecutionContext context) throws SchedulerException {
+		String beanId = context.getJobDetail().getJobDataMap().getString(SpringJobBeanWrapper.SPRING_BEAN_NAME);
+		List<JobExecutionContext> jobsRunning = context.getScheduler().getCurrentlyExecutingJobs();
+		
+		int jobsCount = 0;
+		for(JobExecutionContext j : jobsRunning)
+			if(beanId.equals(j.getJobDetail().getJobDataMap().getString(SpringJobBeanWrapper.SPRING_BEAN_NAME))) {
+				jobsCount++;
+			}
+		if(jobsCount > 1)
+			return true;
+		return false;
 	}
 
 	private long getLastEventIdInTable() {
