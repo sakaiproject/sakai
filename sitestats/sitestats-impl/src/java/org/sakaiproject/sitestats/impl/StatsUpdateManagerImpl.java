@@ -563,7 +563,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			else
 				eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
 
-			session.saveOrUpdate(eExisting);
+			String eExistingSiteId = eExisting.getSiteId();
+			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
+					session.saveOrUpdate(eExisting);
 		}
 	}
 
@@ -590,7 +592,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			else
 				eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
 
-			session.saveOrUpdate(eExisting);
+			String eExistingSiteId = eExisting.getSiteId();
+			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
+					session.saveOrUpdate(eExisting);
 		}
 	}
 	
@@ -615,7 +619,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			else
 				eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
 
-			session.saveOrUpdate(eExisting);
+			String eExistingSiteId = eExisting.getSiteId();
+			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
+					session.saveOrUpdate(eExisting);
 		}
 	}
 	
@@ -642,7 +648,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			Integer mapUV = map.get(new UniqueVisitsKey(eExisting.getSiteId(), eExisting.getDate()));
 			eExisting.setTotalUnique(mapUV == null? 1 : mapUV.longValue());
 
-			session.saveOrUpdate(eExisting);
+			String eExistingSiteId = eExisting.getSiteId();
+			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
+					session.saveOrUpdate(eExisting);
 		}
 	}
 	
@@ -746,9 +754,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				ToolInfo toolInfo = eventIdToolMap.get(eventId);
 				EventParserTip parserTip = toolInfo.getEventParserTip();
 				if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)) {
-					int index = Integer.parseInt(parserTip.getIndex());
-					return eventRef.split(parserTip.getSeparator())[index];
-					
+					if (eventRef!=null){
+						int index = Integer.parseInt(parserTip.getIndex());
+						return eventRef.split(parserTip.getSeparator())[index];
+					}else{
+						return null;
+					}
 				}else {
 					// try with most common syntax (/abc/cde/SITE_ID/...)
 					return eventRef.split("/")[3];
