@@ -19,11 +19,5 @@
   <properties>
     <deploy.target>components</deploy.target>
   </properties>
-  <dependencies>
-    	<dependency>
-  		<groupId>openldap</groupId>
-  		<artifactId>ldap</artifactId>
-  		<version>2005.03.29</version>
-  	</dependency>
-  	</dependencies>
+  <dependencies/>
 </project>
