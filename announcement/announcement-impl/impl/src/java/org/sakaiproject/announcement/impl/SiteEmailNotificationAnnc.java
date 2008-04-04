@@ -356,13 +356,13 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 			noti = NotificationService.NOTI_NONE;
 		}
 			
-//		final Event event = EventTrackingService.newEvent("annc.schInv.notify", msg.getReference(), true, noti);
+		final Event delayedNotificationEvent = EventTrackingService.newEvent("annc.schInv.notify", msg.getReference(), true, noti);
 //		EventTrackingService.post(event);
 
 		final NotificationService notificationService = (NotificationService) ComponentManager.get(org.sakaiproject.event.api.NotificationService.class);
 		NotificationEdit notify = notificationService.addTransientNotification();
 		
-		super.notify(notify, event);
+		super.notify(notify, delayedNotificationEvent);
 
 		// since we build the notification by accessing the
 		// message within the super class, can't remove the
