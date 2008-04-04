@@ -241,6 +241,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     		assignmentDefinition.setCategoryName(internalAssignment.getCategory().getName());
     		assignmentDefinition.setWeight(internalAssignment.getCategory().getWeight());
     	}
+    	assignmentDefinition.setUngraded(internalAssignment.getUngraded());
     	return assignmentDefinition;
     }   
 
@@ -822,21 +823,30 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             throws ConflictingAssignmentNameException, ConflictingExternalIdException, GradebookNotFoundException {
 		externalAssessmentService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription);
 	}
+	public void addExternalAssessment(String gradebookUid, String externalId, String externalUrl,
+			String title, Double points, Date dueDate, String externalServiceDescription, Boolean ungraded)
+            throws ConflictingAssignmentNameException, ConflictingExternalIdException, GradebookNotFoundException {
+		externalAssessmentService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, ungraded);
+	}
     public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl,
                                          String title, double points, Date dueDate) throws GradebookNotFoundException, AssessmentNotFoundException,AssignmentHasIllegalPointsException {
-    	externalAssessmentService.updateExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate);
+    	externalAssessmentService.updateExternalAssessment(gradebookUid, externalId, externalUrl, title, new Double(points), dueDate, new Boolean(false));
 	}
+    public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl,
+        String title, Double points, Date dueDate) throws GradebookNotFoundException, AssessmentNotFoundException,AssignmentHasIllegalPointsException {
+    	externalAssessmentService.updateExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, new Boolean(false));
+    }
 	public void removeExternalAssessment(String gradebookUid,
             String externalId) throws GradebookNotFoundException, AssessmentNotFoundException {
 		externalAssessmentService.removeExternalAssessment(gradebookUid, externalId);
 	}
 	public void updateExternalAssessmentScore(String gradebookUid, String externalId,
 			String studentUid, Double points) throws GradebookNotFoundException, AssessmentNotFoundException {
-		externalAssessmentService.updateExternalAssessmentScore(gradebookUid, externalId, studentUid, points);
+		externalAssessmentService.updateExternalAssessmentScore(gradebookUid, externalId, studentUid, points.toString());
 	}
 	public void updateExternalAssessmentScores(String gradebookUid, String externalId, Map studentUidsToScores)
 		throws GradebookNotFoundException, AssessmentNotFoundException {
-		externalAssessmentService.updateExternalAssessmentScores(gradebookUid, externalId, studentUidsToScores);
+		externalAssessmentService.updateExternalAssessmentScoresString(gradebookUid, externalId, studentUidsToScores);
 	}
 	public boolean isExternalAssignmentDefined(String gradebookUid, String externalId) throws GradebookNotFoundException {
 		return externalAssessmentService.isExternalAssignmentDefined(gradebookUid, externalId);
@@ -2394,5 +2404,110 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			e.printStackTrace();
 		}
 		return returnMap;
+	}
+
+  public String getAssignmentScoreString(final String gradebookUid, final String assignmentName, final String studentUid) 
+  throws GradebookNotFoundException, AssessmentNotFoundException
+  {
+  	final boolean studentRequestingOwnScore = authn.getUserUid().equals(studentUid);
+
+  	Double assignmentScore = (Double)getHibernateTemplate().execute(new HibernateCallback() {
+  		public Object doInHibernate(Session session) throws HibernateException {
+  			Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentName, session);
+  			if (assignment == null) {
+  				throw new AssessmentNotFoundException("There is no assignment named " + assignmentName + " in gradebook " + gradebookUid);
+  			}
+
+  			if (!studentRequestingOwnScore && !isUserAbleToViewItemForStudent(gradebookUid, assignment.getId(), studentUid)) {
+  				log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to retrieve grade for student " + studentUid + " for assignment " + assignmentName);
+  				throw new SecurityException("You do not have permission to perform this operation");
+  			}
+
+  			// If this is the student, then the assignment needs to have
+  			// been released.
+  			if (studentRequestingOwnScore && !assignment.isReleased()) {
+  				log.error("AUTHORIZATION FAILURE: Student " + getUserUid() + " in gradebook " + gradebookUid + " attempted to retrieve score for unreleased assignment " + assignment.getName());
+  				throw new SecurityException("You do not have permission to perform this operation");					
+  			}
+
+  			AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid, session);
+  			if (log.isDebugEnabled()) log.debug("gradeRecord=" + gradeRecord);
+  			if (gradeRecord == null) {
+  				return null;
+  			} else {
+  				return gradeRecord.getPointsEarned();
+  			}
+  		}
+  	});
+  	if (log.isDebugEnabled()) log.debug("returning " + assignmentScore);
+  	
+  	//TODO: when ungraded items is considered, change column to ungraded-grade 
+  	
+  	return new Double(assignmentScore).toString();
+  }
+
+  public String getAssignmentScoreString(final String gradebookUid, final Long gbItemId, String studentUid) 
+  throws GradebookNotFoundException, AssessmentNotFoundException
+  {
+		if (gradebookUid == null || gbItemId == null || studentUid == null) {
+			throw new IllegalArgumentException("null parameter passed to getAssignmentScore");
+		}
+		
+		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return getAssignmentWithoutStats(gradebookUid, gbItemId, session);
+			}
+		});
+		if (assignment == null) {
+			throw new AssessmentNotFoundException("There is no assignment with the gbItemId " + gbItemId);
+		}
+		
+		return getAssignmentScoreString(gradebookUid, assignment.getName(), studentUid);
+  }
+
+	public void setAssignmentScoreString(final String gradebookUid, final String assignmentName, final String studentUid, final String score, final String clientServiceDescription) 
+	throws GradebookNotFoundException, AssessmentNotFoundException 
+	{
+		getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentName, session);
+				if (assignment == null) {
+					throw new AssessmentNotFoundException("There is no assignment named " + assignmentName + " in gradebook " + gradebookUid);
+				}
+				if (assignment.isExternallyMaintained()) {
+					log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to grade externally maintained assignment " + assignmentName + " from " + clientServiceDescription);
+					throw new SecurityException("You do not have permission to perform this operation");
+				}
+
+				if (!isUserAbleToGradeItemForStudent(gradebookUid, assignment.getId(), studentUid)) {
+					log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to grade student " + studentUid + " from " + clientServiceDescription + " for item " + assignmentName);
+					throw new SecurityException("You do not have permission to perform this operation");
+				}
+
+				Date now = new Date();
+				String graderId = getAuthn().getUserUid();
+				AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid, session);
+				if (gradeRecord == null) {
+					// Creating a new grade record.
+					gradeRecord = new AssignmentGradeRecord(assignment, studentUid, new Double(score));
+					//TODO: test if it's ungraded item or not. if yes, set ungraded grade for this record. if not, need validation??
+				} else {
+					//TODO: test if it's ungraded item or not. if yes, set ungraded grade for this record. if not, need validation??
+					gradeRecord.setPointsEarned(new Double(score));
+				}
+				gradeRecord.setGraderId(graderId);
+				gradeRecord.setDateRecorded(now);
+				session.saveOrUpdate(gradeRecord);
+				
+				session.save(new GradingEvent(assignment, graderId, studentUid, score));
+				
+				// Sync database.
+				session.flush();
+				session.clear();
+				return null;
+			}
+		});
+
+		if (log.isInfoEnabled()) log.info("Score updated in gradebookUid=" + gradebookUid + ", assignmentName=" + assignmentName + " by userUid=" + getUserUid() + " from client=" + clientServiceDescription + ", new score=" + score);
 	}
 }

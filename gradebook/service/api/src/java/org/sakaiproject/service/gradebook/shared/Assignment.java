@@ -44,6 +44,7 @@ public class Assignment implements Serializable {
     private boolean released;
     private String categoryName;
     private Double weight;
+    private boolean ungraded;
     
 
     public Assignment() {
@@ -169,6 +170,16 @@ public class Assignment implements Serializable {
 		
 	public void setWeight(Double weight) {
 		this.weight = weight;
+	}
+
+	public boolean getUngraded()
+	{
+		return ungraded;
+	}
+
+	public void setUngraded(boolean ungraded)
+	{
+		this.ungraded = ungraded;
 	}
 
 }

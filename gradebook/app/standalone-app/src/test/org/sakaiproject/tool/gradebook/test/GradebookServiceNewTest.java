@@ -211,7 +211,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		setAuthnId(INSTRUCTOR_UID);
 
 		// Score the unreleased assignment.
-		gradebookService.setAssignmentScore(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_IN_SECTION_UID1, new Double(39), "Service Test");
+		gradebookService.setAssignmentScoreString(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_IN_SECTION_UID1, new String("39"), "Service Test");
 
 		// Try to get a list of assignments as the student.
 		setAuthnId(STUDENT_IN_SECTION_UID1);
@@ -225,7 +225,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		// And then try to get the score.
 		Double score;
 		try {
-			score = gradebookService.getAssignmentScore(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
+			score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1));
 			fail();
 		} catch (SecurityException e) {
 		}
@@ -254,7 +254,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 
 		// Now see if the student gets lucky.
 		setAuthnId(STUDENT_IN_SECTION_UID1);
-		score = gradebookService.getAssignmentScore(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
+		score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1));
 		Assert.assertTrue(score.doubleValue() == 39.0);
 		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
 		Assert.assertTrue(gradeDef.getGrade().equals((new Double(39).toString())));
@@ -281,7 +281,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertNull(gradeDef.getGraderUid());
 		Assert.assertNull(gradeDef.getDateRecorded());
 
-		gradebookService.setAssignmentScore(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_IN_SECTION_UID1, new Double(35), "Service Test");
+		gradebookService.setAssignmentScoreString(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_IN_SECTION_UID1, new String("35"), "Service Test");
 		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
 		Assert.assertTrue(gradeDef != null);
 		Assert.assertEquals(GradebookService.GRADE_TYPE_POINTS, gradeDef.getGradeEntryType());
@@ -488,7 +488,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertTrue(gradeDefs.size() == 0);
 		
 		// add a score to the gb
-		gradebookService.setAssignmentScore(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_IN_SECTION_UID1, new Double(35), "Service Test");
+		gradebookService.setAssignmentScoreString(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_IN_SECTION_UID1, new String("35"), "Service Test");
 		gradeDefs = gradebookService.getGradesForStudentsForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, studentIds);
 		Assert.assertTrue(gradeDefs.size() == 1);
 		GradeDefinition gradeForS1 = (GradeDefinition)gradeDefs.get(0);
@@ -501,7 +501,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertNotNull(gradeForS1.getDateRecorded());
 		
 		// add another score to gb
-		gradebookService.setAssignmentScore(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_NOT_IN_SECTION_UID1, new Double(40), "Service Test");
+		gradebookService.setAssignmentScoreString(GRADEBOOK_UID_NO_CAT, ASN_TITLE1, STUDENT_NOT_IN_SECTION_UID1, new String("40"), "Service Test");
 		gradeDefs = gradebookService.getGradesForStudentsForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, studentIds);
 		Assert.assertTrue(gradeDefs.size() == 2);
 		

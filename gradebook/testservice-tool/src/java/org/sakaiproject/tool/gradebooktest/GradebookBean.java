@@ -60,11 +60,12 @@ public class GradebookBean {
 	}
 
 	public void addAssignment(ActionEvent event) {
-		getGradebookService().addExternalAssessment(uid, "External-" + assignmentName, null, assignmentName, 10, new Date(), "Gradebook Service Test");
+		getGradebookService().addExternalAssessment(uid, "External-" + assignmentName, null, assignmentName, new Double(10), new Date(), "Gradebook Service Test", new Boolean(false));
 	}
 
 	public void addAssignmentExternal(ActionEvent event) {
-		getGradebookExternalAssessmentService().addExternalAssessment(uid, "External-" + assignmentName, null, assignmentName, 10, new Date(), "Gradebook Service Test");
+		//getGradebookExternalAssessmentService().addExternalAssessment(uid, "External-" + assignmentName, null, assignmentName, 10, new Date(), "Gradebook Service Test");
+		getGradebookExternalAssessmentService().addExternalAssessment(uid, "External-" + assignmentName, null, assignmentName, new Double(10), new Date(), "Gradebook Service Test", new Boolean(false));
 	}
 
 	public void search(ActionEvent event) {

@@ -653,7 +653,6 @@ public interface GradebookManager {
      *
      * @param gradebookId The gradebook ID to which this new assignment belongs
      * @param name The assignment's name (must be unique in the gradebook and not be null)
-     * @param points The number of points possible for this assignment (must not be null)
      * @param dueDate The due date for the assignment (optional)
      * @param isNotCounted True if the assignment should not count towards the final course grade (optional)
      * @param isReleased  True if the assignment should be release/ or visble to students
@@ -668,7 +667,6 @@ public interface GradebookManager {
      * @param gradebookId The gradebook ID to which this new assignment belongs
      * @param categoryId The category ID to which this new assignment belongs
      * @param name The assignment's name (must be unique in the gradebook and not be null)
-     * @param points The number of points possible for this assignment (must not be null)
      * @param dueDate The due date for the assignment (optional)
      * @param isNotCounted True if the assignment should not count towards the final course grade (optional)
      * @param isReleased  True if the assignment should be release/ or visble to students

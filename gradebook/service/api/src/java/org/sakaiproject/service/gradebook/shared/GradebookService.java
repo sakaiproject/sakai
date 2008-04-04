@@ -197,28 +197,16 @@ public interface GradebookService {
 		throws AssessmentNotFoundException;
 
 	/**
-	 * Besides the declared exceptions, possible runtime exceptions include:
-	 * <ul>
-	 * <li> SecurityException - If the current user is not authorized to view
-	 * the student's score
-	 * </ul>
-	 * 
-	 * @return Returns the current score for the student, or null if no score
-	 *         has been assigned yet.
+	 * @deprecated Replaced by
+	 *             {@link getAssignmentScoreString(String, String, String)}
 	 */
 	public Double getAssignmentScore(String gradebookUid,
 			String assignmentName, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 	
 	/**
-	 * Besides the declared exceptions, possible runtime exceptions include:
-	 * <ul>
-	 * <li> SecurityException - If the current user is not authorized to view
-	 * the student's score
-	 * </ul>
-	 * 
-	 * @return Returns the current score for the student, or null if no score
-	 *         has been assigned yet.
+	 * @deprecated Replaced by
+	 *             {@link getAssignmentScoreString(String, Long, String)}
 	 */
 	public Double getAssignmentScore(String gradebookUid, 
 			Long gbItemId, String studentUid)
@@ -270,17 +258,10 @@ public interface GradebookService {
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
-	 * Besides the declared exceptions, possible runtime exceptions include:
-	 * <ul>
-	 * <li> SecurityException - If the current user is not authorized to grade
-	 * the student, or if the assignment is externally maintained.
-	 * <li> StaleObjectModificationException - If the student's scores have been
-	 * edited by someone else during this transaction.
-	 * </ul>
 	 * 
-	 * @param clientServiceDescription
-	 *            What to display as the programmatic source of the score (e.g.,
-	 *            "Message Center").
+	 * @deprecated Replaced by
+	 *		{@link setAssignmentScoreString(String, String, String, String, String)}
+	 *
 	 */
 	public void setAssignmentScore(String gradebookUid, String assignmentName,
 			String studentUid, Double score, String clientServiceDescription)
@@ -452,7 +433,17 @@ public interface GradebookService {
 	// External assessment management hooks.
 
 	/**
-	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#addExternalAssessment(String, String, String, String, double, Date, String)}
+	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#addExternalAssessment(String, String, String, String, Double, Date, String, Boolean)}
+	 */
+	public void addExternalAssessment(String gradebookUid, String externalId,
+			String externalUrl, String title, Double points, Date dueDate,
+			String externalServiceDescription, Boolean ungraded)
+			throws GradebookNotFoundException,
+			ConflictingAssignmentNameException, ConflictingExternalIdException,
+			AssignmentHasIllegalPointsException;
+
+	/**
+	 * @deprecated Replaced by {@link addExternalAssessment(String, String, String, Boolean)}
 	 */
 	public void addExternalAssessment(String gradebookUid, String externalId,
 			String externalUrl, String title, double points, Date dueDate,
@@ -462,10 +453,19 @@ public interface GradebookService {
 			AssignmentHasIllegalPointsException;
 
 	/**
-	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#updateExternalAssessment(String, String, String, String, double, Date)}
+	 * @deprecated Replaced by {@link updateExternalAssessment(String, String, String, String, Double, Date)}
 	 */
 	public void updateExternalAssessment(String gradebookUid,
 			String externalId, String externalUrl, String title, double points,
+			Date dueDate) throws GradebookNotFoundException,
+			AssessmentNotFoundException, ConflictingAssignmentNameException,
+			AssignmentHasIllegalPointsException;
+
+	/**
+	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#updateExternalAssessment(String, String, String, String, Double, Date, Boolean)}
+	 */
+	public void updateExternalAssessment(String gradebookUid,
+			String externalId, String externalUrl, String title, Double points,
 			Date dueDate) throws GradebookNotFoundException,
 			AssessmentNotFoundException, ConflictingAssignmentNameException,
 			AssignmentHasIllegalPointsException;
@@ -484,7 +484,7 @@ public interface GradebookService {
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
-	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#updateExternalAssessmentScores(String, String, Map)}
+	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#updateExternalAssessmentScoresString(String, String, Map)}
 	 */
 	public void updateExternalAssessmentScores(String gradebookUid,
 			String externalId, Map studentUidsToScores)
@@ -662,4 +662,41 @@ public interface GradebookService {
 	 * 
 	 */
 	public Map getCalculatedCourseGrade(String gradebookUid);
+	
+	/**
+	 * Get student's assignment's score as string.
+	 * @param gradebookUid
+	 * @param assignmentName
+	 * @param studentUid
+	 * @return String of score
+	 */
+	public String getAssignmentScoreString(String gradebookUid,
+			String assignmentName, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+	
+	/**
+	 * Get student's assignment's score as string.
+	 * @param gradebookUid
+	 * @param gbItemId
+	 * @param studentUid
+	 * @return String of score
+	 */
+	public String getAssignmentScoreString(String gradebookUid, 
+			Long gbItemId, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+	
+	/**
+	 * set student's score for assignment.
+	 * @param gradebookUid
+	 * @param assignmentName
+	 * @param studentUid
+	 * @param score
+	 * @param clientServiceDescription
+	 * 
+	 */
+	public void setAssignmentScoreString(String gradebookUid, String assignmentName,
+			String studentUid, String score, String clientServiceDescription)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+
+
 }

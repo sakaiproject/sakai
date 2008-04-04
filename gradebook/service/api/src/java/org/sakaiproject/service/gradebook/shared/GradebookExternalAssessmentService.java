@@ -41,40 +41,62 @@ import java.util.Map;
 
 public interface GradebookExternalAssessmentService {
 	/**
-	 * Add an externally-managed assessment to a gradebook to be treated as a
-	 * read-only assignment. The gradebook application will not modify the
-	 * assessment properties or create any scores for the assessment.
-     * Since each assignment in a given gradebook must have a unique name,
-     * conflicts are possible.
-     *
-     * @param externalId
-     *            some unique identifier which Samigo uses for the assessment.
-     *            The externalId is globally namespaced within the gradebook, so
-     *            if other apps decide to put assessments into the gradebook,
-     *            they should prefix their externalIds with a well known (and
-     *            unique within sakai) string.
-	 * @param externalUrl
-	 *            a link to go to if the instructor or student wants to look at the assessment
-	 *            in Samigo; if null, no direct link will be provided in the
-	 *            gradebook, and the user will have to navigate to the assessment
-	 *            within the other application
-     * @param points
-     *            this is the total amount of points available and must be greater than zero
-     *
-	 * @param externalServiceDescription
-	 *            what to display as the source of the assignment (e.g., "from Samigo")
-     *
+ 	 * @deprecated Replaced by
+	 *		{@link addExternalAssessment(String, String, String, String, Double, Date, String, Boolean)}
 	 */
 	public void addExternalAssessment(String gradebookUid, String externalId, String externalUrl,
 			String title, double points, Date dueDate, String externalServiceDescription)
             throws GradebookNotFoundException, ConflictingAssignmentNameException,
             ConflictingExternalIdException, AssignmentHasIllegalPointsException;
 
+	/**
+	 * Add an externally-managed assessment to a gradebook to be treated as a
+	 * read-only assignment. The gradebook application will not modify the
+	 * assessment properties or create any scores for the assessment.
+     * Since each assignment in a given gradebook must have a unique name,
+     * conflicts are possible.
+     *
+     * @param gradebookUid
+     * @param externalId
+     *            some unique identifier which Samigo uses for the assessment.
+     *            The externalId is globally namespaced within the gradebook, so
+     *            if other apps decide to put assessments into the gradebook,
+     *            they should prefix their externalIds with a well known (and
+     *            unique within sakai) string.
+     * @param externalUrl
+     *            a link to go to if the instructor or student wants to look at the assessment
+     *            in Samigo; if null, no direct link will be provided in the
+     *            gradebook, and the user will have to navigate to the assessment
+     *            within the other application
+     * @param title          
+     * @param points
+     *            this is the total amount of points available and must be greater than zero.
+     *            it could be null if it's an ungraded item.
+     * @param dueDate
+     * @param externalServiceDescription
+     * @param ungraded
+     *
+	 * @param externalServiceDescription
+	 *            what to display as the source of the assignment (e.g., "from Samigo")
+     *
+	 */
+	public void addExternalAssessment(String gradebookUid, String externalId, String externalUrl,
+			String title, Double points, Date dueDate, String externalServiceDescription, Boolean ungraded)
+            throws GradebookNotFoundException, ConflictingAssignmentNameException,
+            ConflictingExternalIdException, AssignmentHasIllegalPointsException;
 
+		/**
+		 * @deprecated Replaced by
+		 *		{@link updateExternalAssessment(String, String, String, String, Double, Date, Boolean)}
+		 */
     public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl,
 			String title, double points, Date dueDate)
 	        throws GradebookNotFoundException, AssessmentNotFoundException,
             ConflictingAssignmentNameException, AssignmentHasIllegalPointsException;
+    public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl,
+  			String title, Double points, Date dueDate, Boolean ungraded)
+  	        throws GradebookNotFoundException, AssessmentNotFoundException,
+              ConflictingAssignmentNameException, AssignmentHasIllegalPointsException;
 
 	/**
 	 * Remove the assessment reference from the gradebook. Although Samigo
@@ -102,25 +124,49 @@ public interface GradebookExternalAssessmentService {
 	 *	The number of points earned on this assessment, or null if a score
 	 *	should be removed
 	 */
-    public void updateExternalAssessmentScore(String gradebookUid, String externalId,
-			String studentUid, Double points)
+//    public void updateExternalAssessmentScore(String gradebookUid, String externalId,
+//			String studentUid, Double points)
+//            throws GradebookNotFoundException, AssessmentNotFoundException;
+	/**
+   * Updates an external score for an external assignment in the gradebook.
+   *
+   * @param gradebookUid
+   *	The Uid of the gradebook
+   * @param externalId
+   *	The external ID of the assignment/assessment
+   * @param studentUid
+   *	The unique id of the student
+   * @param points
+   *	The number of points earned on this assessment, or null if a score
+   *	should be removed
+   */
+  public void updateExternalAssessmentScore(String gradebookUid, String externalId,
+			String studentUid, String points)
             throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
-     * Updates a set of external scores for an external assignment in the gradebook.
-     *
+	 * @deprecated Replaced by
+	 *		{@link updateExternalAssessmentScoresString(String, String, Map)}
+	 */
+	public void updateExternalAssessmentScores(String gradebookUid,
+		String externalId, Map studentUidsToScores)
+		throws GradebookNotFoundException, AssessmentNotFoundException;
+
+	/**
+	 * Updates a set of external scores for an external assignment in the gradebook.
+	 *
 	 * @param gradebookUid
 	 *	The Uid of the gradebook
 	 * @param externalId
 	 *	The external ID of the assignment/assessment
 	 * @param studentUidsToScores
 	 *	A map whose String keys are the unique ID strings of the students and whose
-	 *  Double values are points earned on this assessment or null if the score
+	 *  String values are points earned on this assessment or null if the score
 	 *  should be removed.
 	 */
-	public void updateExternalAssessmentScores(String gradebookUid,
-		String externalId, Map studentUidsToScores)
-		throws GradebookNotFoundException, AssessmentNotFoundException;
+	public void updateExternalAssessmentScoresString(String gradebookUid,
+			String externalId, Map studentUidsToScores)
+	throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
 	 * Check to see if an assignment with the given name already exists

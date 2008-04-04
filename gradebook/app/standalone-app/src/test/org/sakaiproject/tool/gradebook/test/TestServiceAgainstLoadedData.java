@@ -84,12 +84,12 @@ public class TestServiceAgainstLoadedData extends GradebookLoaderBase {
 		int scoreGoRound = -1;
 		for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
 			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-			Double score = (scoreGoRound == -1) ? null : new Double(scoreGoRound);
+			String score = (scoreGoRound == -1) ? null : new Integer(scoreGoRound).toString();
 			scoreGoRound = (scoreGoRound < 11) ? (scoreGoRound + 1) : -1;
 			studentUidsToScores.put(enr.getUser().getUserUid(), score);
 		}
 		log.warn("about to updateExternalAssessmentScores with " + enrollments.size() + " scores for " + asn.getExternalId());
-		gradebookExternalAssessmentService.updateExternalAssessmentScores(gradebook.getUid(), asn.getExternalId(), studentUidsToScores);
+		gradebookExternalAssessmentService.updateExternalAssessmentScoresString(gradebook.getUid(), asn.getExternalId(), studentUidsToScores);
 	}
 
 	public void testUpdateExternalScore() throws Exception {
@@ -103,7 +103,7 @@ public class TestServiceAgainstLoadedData extends GradebookLoaderBase {
 			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
 			Double score = (scoreGoRound == -1) ? null : new Double(scoreGoRound);
 			scoreGoRound = (scoreGoRound < 11) ? (scoreGoRound + 1) : -1;
-			gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebook.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), score);
+			gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebook.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), score.toString());
 		}
 	}
 
@@ -117,12 +117,12 @@ public class TestServiceAgainstLoadedData extends GradebookLoaderBase {
 		int scoreGoRound = -1;
 		for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
 			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-			Double score = (scoreGoRound == -1) ? null : new Double(scoreGoRound);
+			String score = (scoreGoRound == -1) ? null : new Double(scoreGoRound).toString();
 			scoreGoRound = (scoreGoRound < 11) ? (scoreGoRound + 1) : -1;
 			studentUidsToScores.put(enr.getUser().getUserUid(), score);
 		}
 		log.warn("about to updateExternalAssessmentScores with " + enrollments.size() + " scores for " + asn.getExternalId());
-		gradebookExternalAssessmentService.updateExternalAssessmentScores(gradebook.getUid(), asn.getExternalId(), studentUidsToScores);
+		gradebookExternalAssessmentService.updateExternalAssessmentScoresString(gradebook.getUid(), asn.getExternalId(), studentUidsToScores);
 	}
 
 	public void testUpdateExternalScore2() throws Exception {
@@ -136,7 +136,7 @@ public class TestServiceAgainstLoadedData extends GradebookLoaderBase {
 			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
 			Double score = (scoreGoRound == -1) ? null : new Double(scoreGoRound);
 			scoreGoRound = (scoreGoRound < 11) ? (scoreGoRound + 1) : -1;
-			gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebook.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), score);
+			gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebook.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), score.toString());
 		}
 	}
 
@@ -150,12 +150,12 @@ public class TestServiceAgainstLoadedData extends GradebookLoaderBase {
 		int scoreGoRound = -1;
 		for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
 			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-			Double score = (scoreGoRound == -1) ? null : new Double(scoreGoRound);
+			String score = (scoreGoRound == -1) ? null : new Double(scoreGoRound).toString();
 			scoreGoRound = (scoreGoRound < 11) ? (scoreGoRound + 1) : -1;
 			studentUidsToScores.put(enr.getUser().getUserUid(), score);
 		}
 		log.warn("about to updateExternalAssessmentScores with " + enrollments.size() + " scores for " + asn.getExternalId());
-		gradebookExternalAssessmentService.updateExternalAssessmentScores(gradebook.getUid(), asn.getExternalId(), studentUidsToScores);
+		gradebookExternalAssessmentService.updateExternalAssessmentScoresString(gradebook.getUid(), asn.getExternalId(), studentUidsToScores);
 	}
 }
 
