@@ -1,5 +1,15 @@
 /**
- * DirectServlet.java - created by someone on 31 May 2007
+ * $Id$
+ * $URL$
+ * Example.java - entity-broker - 31 May 2007 7:01:11 PM - azeckoski
+ **************************************************************************
+ * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
+ * Licensed under the Educational Community License version 1.0
+ * 
+ * A copy of the Educational Community License has been included in this 
+ * distribution and is available at: http://www.opensource.org/licenses/ecl1.php
+ *
+ * Aaron Zeckoski (azeckoski@gmail.com) (aaronz@vt.edu) (aaron@caret.cam.ac.uk)
  */
 
 package org.sakaiproject.entitybroker.servlet;
@@ -19,7 +29,6 @@ import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
@@ -36,7 +45,8 @@ import org.sakaiproject.util.Web;
  * from the access servlet in that it allows posts to work and removes most of the proprietary
  * checks
  * 
- * @author someone crazy... quit looking at me!
+ * @author Antranig Basman (antranig@caret.cam.ac.uk)
+ * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  * @author Sakai Software Development Team
  */
 public class DirectServlet extends HttpServlet {
@@ -134,7 +144,7 @@ public class DirectServlet extends HttpServlet {
          path = "";
       }
 
-      if (!initComplete) {
+      if (! initComplete) {
          sendError(res, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
          return;
       }
