@@ -14,9 +14,8 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
-import java.util.List;
-
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.extension.TagSearchProvider;
 
 
 /**
@@ -25,14 +24,8 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface TagSearchable extends Taggable {
+public interface TagSearchable extends Taggable, TagSearchProvider {
 
-   /**
-    * Search for all entities with a set of tags (as defined by the {@link Taggable} interface)
-    * 
-    * @param tags a set of tags defined on these entities in the {@link Taggable} interface
-    * @return a list of globally unique references to entities with these tags
-    */
-   public List<String> findEntityRefsByTags(String[] tags);
+   // this space intentionally blank
 
 }

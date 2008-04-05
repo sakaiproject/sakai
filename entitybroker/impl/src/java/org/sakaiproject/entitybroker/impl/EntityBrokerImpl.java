@@ -7,6 +7,7 @@ package org.sakaiproject.entitybroker.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +26,8 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Propertyable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -313,6 +316,64 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
             }
          }
       }
+   }
+
+   public Set<String> getTags(String reference) {
+      if (!entityExists(reference)) {
+         throw new IllegalArgumentException("Invalid reference (" + reference
+               + "), entity does not exist");
+      }
+
+      EntityProvider provider = entityProviderManager.getProviderByReference(reference);
+      Set<String> tags = new HashSet<String>();
+      if (provider instanceof Taggable) {
+         tags.addAll( ((Taggable) provider).getTags(reference) );
+      } else {
+         // put in call to central tag system here if desired
+      }
+      return tags;
+   }
+
+   public void setTags(String reference, Set<String> tags) {
+      if (tags == null) {
+         throw new IllegalArgumentException(
+               "Invalid params, tags cannot be null");
+      }
+
+      if (!entityExists(reference)) {
+         throw new IllegalArgumentException("Invalid reference (" + reference
+               + "), entity does not exist");
+      }
+
+      EntityProvider provider = entityProviderManager.getProviderByReference(reference);
+      if (provider instanceof Taggable) {
+         ((Taggable) provider).setTags(reference, tags);
+      } else {
+         // put in call to central tag system here if desired
+      }
+   }
+
+   public List<String> findEntityRefsByTags(String[] tags) {
+      // check for valid inputs
+      if (tags == null || tags.length == 0) {
+         throw new IllegalArgumentException(
+               "At least one tag must be supplied to this search, tags cannot be null or empty");
+      }
+
+      Set<String> results = new HashSet<String>();
+
+      // get the results from any entity providers which supply tag search results
+      Set<String> prefixes = entityProviderManager.getRegisteredPrefixes();
+      for (String prefix : prefixes) {
+         EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
+         if (provider instanceof TagSearchable) {
+            results.addAll( ((TagSearchable) provider).findEntityRefsByTags(tags) );
+         }
+      }
+
+      // fetch results from a central system instead here if desired
+
+      return new ArrayList<String>( results );
    }
 
 }

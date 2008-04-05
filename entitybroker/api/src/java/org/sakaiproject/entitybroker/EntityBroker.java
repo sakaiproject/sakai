@@ -20,7 +20,11 @@ import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ParseSpecParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
+import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
+import org.sakaiproject.entitybroker.entityprovider.extension.TagSearchProvider;
 
 /**
  * This service interface defines the capabilities of the entity broker system<br/> It allows sakai
@@ -29,7 +33,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider
  * @author Aaron Zeckoski (aaronz@vt.edu)
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
-public interface EntityBroker extends PropertiesProvider {
+public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearchProvider {
 
    /**
     * Check if an entity exists by the globally unique reference string, (the global reference

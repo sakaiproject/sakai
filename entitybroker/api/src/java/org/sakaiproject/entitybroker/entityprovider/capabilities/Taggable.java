@@ -14,9 +14,8 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
-import java.util.Set;
-
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
 
 /**
  * Allows an entity to have tags associated with it which can be searched for or simply used as a
@@ -25,26 +24,8 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface Taggable extends EntityProvider {
+public interface Taggable extends EntityProvider, TagProvider {
 
-   /**
-    * Get the set of tags which are associated with this entity
-    * 
-    * @param reference
-    *           a globally unique reference to an entity
-    * @return a set of the tags which are associated with this entity
-    */
-   public Set<String> getTags(String reference);
-
-   /**
-    * Set the set of tags which are associated with this entity
-    * 
-    * @param reference
-    *           a globally unique reference to an entity
-    * @param tags
-    *           a set of the tags to associate with this entity, setting this to an empty set will
-    *           remove all tags from this entity
-    */
-   public void setTags(String reference, Set<String> tags);
+   // this space left blank intentionally
 
 }
