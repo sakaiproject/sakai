@@ -64,6 +64,13 @@
          <scope>provided</scope>
       </dependency>
 
+      <!-- Data processing -->
+      <dependency>
+         <groupId>xstream</groupId>
+         <artifactId>xstream</artifactId>
+         <version>1.2</version>
+      </dependency>
+
       <!-- Required for hibernate 3 HQL queries -->
       <dependency>
          <groupId>antlr</groupId>

@@ -120,6 +120,14 @@
          <version>${sakai.hibernate.version}</version>
       </dependency>
 
+      <!-- Data processing -->
+      <dependency>
+         <groupId>xstream</groupId>
+         <artifactId>xstream</artifactId>
+         <version>1.2</version>
+         <type>jar</type>
+      </dependency>
+
       <!-- Required for hibernate 3 HQL queries -->
       <dependency>
          <groupId>antlr</groupId>
@@ -137,7 +145,7 @@
       <dependency>
          <groupId>servletapi</groupId>
          <artifactId>servletapi</artifactId>
-         <version>2.3</version>
+         <version>2.4</version>
          <type>jar</type>
       </dependency>
       

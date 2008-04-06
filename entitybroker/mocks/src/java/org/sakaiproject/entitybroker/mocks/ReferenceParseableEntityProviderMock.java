@@ -29,7 +29,6 @@ public class ReferenceParseableEntityProviderMock extends CoreEntityProviderMock
 
    /*
     * (non-Javadoc)
-    * 
     * @see org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable#getParsedExemplar()
     */
    public EntityReference getParsedExemplar() {

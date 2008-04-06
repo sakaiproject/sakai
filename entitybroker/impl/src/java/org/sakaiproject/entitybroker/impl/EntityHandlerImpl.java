@@ -14,29 +14,41 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.IdEntityReference;
-import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.HTMLable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.JSONable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.JSONdefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.XMLable;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.json.JsonHierarchicalStreamDriver;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 /**
  * Common implementation of the handler for the EntityBroker system. This should be used in
  * preference to the EntityBroker directly by implementation classes part of the EntityBroker
  * scheme, rather than the user-facing EntityBroker directly.
  * 
- * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * @author Aaron Zeckoski (aaronz@vt.edu)
+ * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
 public class EntityHandlerImpl implements EntityRequestHandler {
 
@@ -85,36 +97,76 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          throw new EntityException( message, ref.toString(), HttpServletResponse.SC_NOT_FOUND );
       } else {
          // reference successfully parsed
-         
-         // TODO check for special handling
 
-         // no special handling so send on to the standard access provider if one can be found
-         HttpServletAccessProvider accessProvider = 
-            accessProviderManager.getProvider(ref.prefix);
-         if (accessProvider == null) {
-            String message = "Attempted to access an entity URL path ("
-                        + path + ") for an entity (" + ref.toString()
-                        + ") when there is no HttpServletAccessProvider to handle the request for prefix ("
-                        + ref.prefix + ")";
-            throw new EntityException( message, ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
-         } else {
-            ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-            try {
-               ClassLoader newClassLoader = accessProvider.getClass().getClassLoader();
-               // check to see if this access provider reports the correct classloader
-               if (accessProvider instanceof ClassLoaderReporter) {
-                  newClassLoader = ((ClassLoaderReporter) accessProvider).getSuitableClassLoader();
+         // check for extensions
+         String extension = getExtension(path);
+         if (extension == null) {
+            extension = HTMLable.EXTENSION;
+         }
+
+         // now handle the extensions
+         if (JSONable.EXTENSION.equals(extension)) {
+            EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, JSONable.class);
+            if (provider != null) {
+               JSONdefineable def = (JSONdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, JSONdefineable.class);
+               if (def != null) {
+                  def.makeData(ref, req, res);
+               } else {
+                  // internally handle this request
+                  
                }
-               Thread.currentThread().setContextClassLoader(newClassLoader);
-               // send request to the access provider which will route it on to the correct entity world
-               accessProvider.handleAccess(req, res, ref);
-            } finally {
-               Thread.currentThread().setContextClassLoader(currentClassLoader);
+            } else {
+               throw new EntityException( "Cannot access JSON for this path (" + path + ") for prefix ("
+                  + ref.prefix + ") for entity (" + ref.toString() + ")", ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+            }
+         } else if (XMLable.EXTENSION.equals(extension)) {
+            
+         } else if (HTMLable.EXTENSION.equals(extension)) {
+            
+            // no special handling so send on to the standard access provider if one can be found
+            HttpServletAccessProvider accessProvider = 
+               accessProviderManager.getProvider(ref.prefix);
+            if (accessProvider == null) {
+               String message = "Attempted to access an entity URL path ("
+                           + path + ") for an entity (" + ref.toString()
+                           + ") when there is no HttpServletAccessProvider to handle the request for prefix ("
+                           + ref.prefix + ")";
+               throw new EntityException( message, ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+            } else {
+               ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+               try {
+                  ClassLoader newClassLoader = accessProvider.getClass().getClassLoader();
+                  // check to see if this access provider reports the correct classloader
+                  if (accessProvider instanceof ClassLoaderReporter) {
+                     newClassLoader = ((ClassLoaderReporter) accessProvider).getSuitableClassLoader();
+                  }
+                  Thread.currentThread().setContextClassLoader(newClassLoader);
+                  // send request to the access provider which will route it on to the correct entity world
+                  accessProvider.handleAccess(req, res, ref);
+               } finally {
+                  Thread.currentThread().setContextClassLoader(currentClassLoader);
+               }
             }
          }
+
       }
 
       return ref.toString();
+   }
+
+
+   /**
+    * @param path
+    * @return the extension or null if none can be found
+    */
+   public String getExtension(String path) {
+      String extension = null;
+      int extensionLoc = path.lastIndexOf('.', path.length());
+      if (extensionLoc > 0 
+            && extensionLoc < path.length()-1) {
+         extension = path.substring(extensionLoc + 1);
+      }
+      return extension;
    }
 
    /**
@@ -137,8 +189,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    }
 
    /**
-    * Creates the full URL to an entity using the sakai {@link ServerConfigurationService}, (e.g.
-    * http://server:8080/direct/entity/123/)<br/>
+    * Creates the full URL to an entity using the sakai {@link ServerConfigurationService}, 
+    * (e.g. http://server:8080/direct/entity/123/)<br/>
     * <br/>
     * <b>Note:</b> the webapp name (relative URL path) of the direct servlet, of "/direct" 
     * is hardcoded into this method, and the
@@ -146,7 +198,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * server.
     * 
     * @param reference a globally unique reference to an entity, 
-    * consists of the entity prefix and optionaly the local id
+    * consists of the entity prefix and optionally the local id
     * @return the full URL to a specific entity
     */
    public String getEntityURL(String reference) {
@@ -158,7 +210,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    }
 
    /**
-    * Returns the provider, if any, responsible for handling a reference
+    * Returns the provider, if any, responsible for handling a reference,
+    * this will be the core provider only
     */
    public EntityProvider getProvider(String reference) {
       String prefix = EntityReference.getPrefix(reference);
@@ -216,5 +269,124 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       return ref;
    }
 
+   private XStream xstreamJSON = null;
+   /**
+    * @param ref
+    * @param req
+    * @param res
+    * @return the entity that was encoded
+    * @throws RuntimeException if this fails for any reason
+    */
+   public Object makeJSONData(EntityReference ref, HttpServletRequest req, HttpServletResponse res) {
+      if (xstreamJSON == null) {
+         xstreamJSON = new XStream(new JsonHierarchicalStreamDriver());
+      }
+      Object entity = getEntityObject(ref);
+      if (entity == null) {
+         throw new RuntimeException("Failed to encode JSON data for entity (" + ref + "), could not locate entity data");
+      } else {
+         xstreamJSON.alias(ref.prefix, entity.getClass()); // add alias for the current entity prefix
+         try {
+            byte[] b = xstreamJSON.toXML(entity).getBytes("UTF-8");
+            res.setContentType("text/javascript");
+            res.setCharacterEncoding("UTF-8");
+            res.setContentLength(b.length);
+            res.getOutputStream().write(b);
+         } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Failed to encode UTF-8 JSON: " + ref, e);
+         } catch (IOException e) {
+            throw new RuntimeException("Failed to encode JSON into response: " + ref, e);
+         }         
+      }
+      return entity;
+   }
+
+   private XStream xstreamXML = null;
+   /**
+    * @param ref
+    * @param req
+    * @param res
+    * @return the entity that was encoded
+    * @throws RuntimeException if this fails for any reason
+    */
+   public Object makeXMLData(EntityReference ref, HttpServletRequest req, HttpServletResponse res) {
+      if (xstreamXML == null) {
+         xstreamXML = new XStream(new DomDriver());
+      }
+      Object entity = getEntityObject(ref);
+      if (entity == null) {
+         throw new RuntimeException("Failed to encode XML data for entity (" + ref + "), could not locate entity data");
+      } else {
+         xstreamXML.alias(ref.prefix, entity.getClass()); // add alias for the current entity prefix
+         try {
+            byte[] b = xstreamXML.toXML(entity).getBytes("UTF-8");
+            res.setContentType("text/xml");
+            res.setCharacterEncoding("UTF-8");
+            res.setContentLength(b.length);
+            res.getOutputStream().write(b);
+         } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Failed to encode UTF-8 XML: " + ref, e);
+         } catch (IOException e) {
+            throw new RuntimeException("Failed to encode XML into response: " + ref, e);
+         }         
+      }
+      return entity;
+   }
+
+
+   /**
+    * Get an entity object of some kind for this reference,
+    * will create a {@link BasicEntity} if this entity type is not resolveable
+    * @param ref an entity reference
+    * @return the entity object for this reference or null if none can be retrieved
+    */
+   public Object getEntityObject(EntityReference ref) {
+      Object entity = null;
+      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, Resolvable.class);
+      if (provider != null) {
+         // TODO - what about the case of multiple entities to return?
+         entity = ((Resolvable)provider).getEntity(ref);
+      } else {
+         entity = new BasicEntity(ref);
+      }
+      return entity;
+   }
+
+   /**
+    * Very basic entity object, used when there is no Resolveable entity
+    * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
+    */
+   public class BasicEntity {
+      public String reference;
+      public String prefix;
+      public String id;
+      public boolean exists = true;
+      public boolean resolved = false;
+      public String message = "Could not resolve entity object, returning known metadata";
+
+      public BasicEntity(EntityReference ref) {
+         this.reference = ref.toString();
+         this.prefix = ref.prefix;
+         if (ref instanceof IdEntityReference) {
+            this.id = ((IdEntityReference)ref).id;
+         }
+      }
+      
+      public String getReference() {
+         return reference;
+      }
+      
+      public String getPrefix() {
+         return prefix;
+      }
+      
+      public String getId() {
+         return id;
+      }
+      
+      public boolean isExists() {
+         return exists;
+      }
+   }
 
 }

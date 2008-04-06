@@ -28,9 +28,11 @@ public interface Resolvable extends EntityProvider {
 
    /**
     * Allows Sakai to fetch your entity based on the local id<br/> (the global reference string
-    * will consist of the entity prefix and the local id) <br/> <b>Note:</b> This class type needs
+    * will consist of the entity prefix and the local id) <br/> 
+    * <b>Note:</b> This class type needs
     * to be resolveable from the ClassLoader of the EntityBrokerManager (currently this means
-    * deployed into shared) <br/> <br/>This does not have to be a model object itself and may simply
+    * deployed into shared) <br/> 
+    * <br/>This does not have to be a model object itself and may simply
     * be something created to give to anyone calling this method.
     * 
     * @param reference

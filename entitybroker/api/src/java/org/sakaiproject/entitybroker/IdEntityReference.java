@@ -25,17 +25,15 @@ package org.sakaiproject.entitybroker;
 public class IdEntityReference extends EntityReference {
 
    /**
-    * A local entity id, represent an entity uniquely in a tool/webapp, could match with the actual
-    * id of a model data object
+    * A local entity id, represent an entity uniquely in a tool/webapp, 
+    * could match with the actual id of a model data object
     */
    public String id;
 
    /**
     * Constructor which takes an entity reference
-    * 
-    * @param reference
-    *           a globally unique reference to an entity, consists of the entity prefix and the
-    *           local id
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and the local id
     */
    public IdEntityReference(String reference) {
       prefix = getPrefix(reference);
@@ -44,11 +42,8 @@ public class IdEntityReference extends EntityReference {
 
    /**
     * Full constructor
-    * 
-    * @param prefix
-    *           the entity prefix
-    * @param id
-    *           the local entity id
+    * @param prefix the entity prefix
+    * @param id the local entity id
     */
    public IdEntityReference(String prefix, String id) {
       checkPrefixId(prefix, id);
@@ -58,10 +53,10 @@ public class IdEntityReference extends EntityReference {
 
    /**
     * Get the full entity reference (only works if id and prefix are set)
-    * 
     * @return the full entity reference or throw error if there is not enough information (prefix
     *         and id) to build it
     */
+   @Override
    public String toString() {
       checkPrefixId(prefix, id);
       return EntityReference.SEPARATOR + prefix + EntityReference.SEPARATOR + id;
@@ -72,9 +67,8 @@ public class IdEntityReference extends EntityReference {
    /**
     * Get the local entity id based on a full entity reference
     * 
-    * @param reference
-    *           a globally unique reference to an entity, consists of the entity prefix and the
-    *           local id
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and the local id
     * @return the local entity id
     */
    public static String getID(String reference) {

@@ -19,4 +19,29 @@ public class MyEntity {
       this.id = id;
    }
 
+   @Override
+   public boolean equals(Object obj) {
+      if (null == obj) return false;
+      if (!(obj instanceof MyEntity)) return false;
+      else {
+         MyEntity castObj = (MyEntity) obj;
+         if (null == this.id || null == castObj.id) return false;
+         else return (
+               this.id.equals(castObj.id)
+         );
+      }
+   }
+
+   @Override
+   public int hashCode() {
+      if (null == this.id) return super.hashCode();
+      String hashStr = this.getClass().getName() + ":" + this.id.hashCode();
+      return hashStr.hashCode();
+   }
+
+   @Override
+   public String toString() {
+      return "id:" + this.id;
+   }
+
 }

@@ -69,16 +69,24 @@ public class EntityReference {
       return spos == -1 ? reference.substring(1) : reference.substring(1, spos);
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.lang.Object#toString()
+   /**
+    * returns the string version of this entity reference,
+    * example: /entity-prefix
     */
+   @Override
    public String toString() {
+      return getPrefixReference();
+   }
+
+   /**
+    * @return the prefix reference only,
+    * leaves off everything except the prefix for the entity
+    */
+   public String getPrefixReference() {
       checkPrefix(prefix);
       return SEPARATOR + prefix;
    }
-
+   
    /**
     * Checks this prefix to see if it is valid format, throw exceptions if not
     * 

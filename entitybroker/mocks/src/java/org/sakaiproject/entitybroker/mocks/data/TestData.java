@@ -86,6 +86,9 @@ public class TestData {
          + EntityReference.SEPARATOR + IDS4[0];
    public final static String REF4_two = EntityReference.SEPARATOR + PREFIX4
          + EntityReference.SEPARATOR + IDS4[1];
+   // sample entity objects
+   public final static MyEntity entity4 = new MyEntity(IDS4[0]);
+   public final static MyEntity entity4_two = new MyEntity(IDS4[1]);
 
    public final static String PREFIX5 = "myPrefix5";
    public final static String[] IDS5 = new String[] { "fiver", "50" };
