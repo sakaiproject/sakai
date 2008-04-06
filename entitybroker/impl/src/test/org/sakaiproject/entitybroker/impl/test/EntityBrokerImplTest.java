@@ -19,6 +19,7 @@ import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerIm
 import org.sakaiproject.entitybroker.impl.test.data.TestDataPreload;
 import org.sakaiproject.entitybroker.impl.test.mocks.FakeEvent;
 import org.sakaiproject.entitybroker.impl.test.mocks.FakeServerConfigurationService;
+import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -93,18 +94,13 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       // setup fake internal services
 
       // Fully functional entity provider manager
-      EntityProviderManagerImpl entityProviderManagerImpl = new EntityProviderManagerImpl();
-      entityProviderManagerImpl.init();
-      entityProviderManagerImpl.registerEntityProvider(td.entityProvider1);
-      entityProviderManagerImpl.registerEntityProvider(td.entityProvider2);
-      entityProviderManagerImpl.registerEntityProvider(td.entityProvider3);
-      entityProviderManagerImpl.registerEntityProvider(td.entityProvider4);
-      entityProviderManagerImpl.registerEntityProvider(td.entityProvider5);
+      EntityProviderManagerImpl entityProviderManagerImpl = new EntityProviderManagerImplTest().makeEntityProviderManager(td);
 
       // Fully functional entity handler
       EntityHandlerImpl entityHandler = new EntityHandlerImpl();
-      entityHandler.setEntityProviderManager(entityProviderManagerImpl);
-      entityHandler.setServerConfigurationService(new FakeServerConfigurationService());
+      entityHandler.setAccessProviderManager( new HttpServletAccessProviderManagerMock() );
+      entityHandler.setEntityProviderManager( entityProviderManagerImpl );
+      entityHandler.setServerConfigurationService( new FakeServerConfigurationService() );
 
       // create and setup the object to be tested
       entityBroker = new EntityBrokerImpl();
@@ -169,7 +165,6 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());
       }
-
    }
 
    /**
@@ -274,9 +269,6 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());
       }
-
-    
-
    }
 
    /**
@@ -579,6 +571,75 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
          assertNotNull(e.getMessage());
       }
 
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#getTags(java.lang.String)}.
+    */
+   public void testGetTags() {
+      Set<String> tags = null;
+
+      tags = entityBroker.getTags(TestData.REF1);
+      assertNotNull(tags);
+      assertEquals(2, tags.size());
+      assertTrue(tags.contains("test"));
+      assertTrue(tags.contains("aaronz"));
+
+      tags = entityBroker.getTags(TestData.REF1_1);
+      assertNotNull(tags);
+      assertEquals(0, tags.size());
+
+      // check that we cannot get tags for those which do not support it
+      try {
+         tags = entityBroker.getTags(TestData.REF2);
+         fail("Should have thrown exception");
+      } catch (UnsupportedOperationException e) {
+         assertNotNull(e.getMessage());
+      }
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#setTags(java.lang.String, java.util.Set)}.
+    */
+   public void testSetTags() {
+      // test adding new tags
+      entityBroker.setTags(TestData.REF1_1, new String[] {"test"});
+      assertEquals(1, entityBroker.getTags(TestData.REF1_1).size() );
+
+      // test clearing tags
+      entityBroker.setTags(TestData.REF1, new String[] {});
+      assertEquals(0, entityBroker.getTags(TestData.REF1).size() );
+
+      // test cannot add tags to refs that do not support it
+      try {
+         entityBroker.setTags(TestData.REF2, new String[] {"test"});
+         fail("Should have thrown exception");
+      } catch (UnsupportedOperationException e) {
+         assertNotNull(e.getMessage());
+      }
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityBrokerImpl#findEntityRefsByTags(java.lang.String[])}.
+    */
+   public void testFindEntityRefsByTags() {
+      List<String> refs = null;
+
+      refs = entityBroker.findEntityRefsByTags( new String[] {"aaronz"} );
+      assertNotNull(refs);
+      assertEquals(1, refs.size());
+      assertEquals(TestData.REF1, refs.get(0));
+
+      refs = entityBroker.findEntityRefsByTags( new String[] {"test"} );
+      assertNotNull(refs);
+      assertEquals(1, refs.size());
+      assertEquals(TestData.REF1, refs.get(0));
+
+      entityBroker.setTags(TestData.REF1_1, new String[] {"test"});
+
+      refs = entityBroker.findEntityRefsByTags( new String[] {"test"} );
+      assertNotNull(refs);
+      assertEquals(2, refs.size());
    }
 
 }

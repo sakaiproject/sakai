@@ -27,7 +27,7 @@ import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
-import org.sakaiproject.entitybroker.exception.EntityExistsException;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 
 /**
@@ -63,17 +63,26 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       // get the path info if not set
       if (path == null) {
          path = req.getPathInfo();
-         if (path == null) {
-            path = "";
-         }
       }
 
-      EntityReference ref = parseReference(path);
-      if (ref == null || ! entityExists(ref.toString())) {
+      
+      EntityReference ref;
+      try {
+         ref = parseReference(path);
+      } catch (IllegalArgumentException e) {
+         // indicates we could not parse the reference
+         throw new EntityException("Could not parse entity path ("+path+"): " + e.getMessage(), path, HttpServletResponse.SC_BAD_REQUEST);
+      }
+
+      if (ref == null) {
+         // no provider for this entity prefix
+         throw new EntityException( "No entity provider could be found to handle the prefix in this path: " + path, 
+               path, HttpServletResponse.SC_NOT_IMPLEMENTED );
+      } else if (! entityExists(ref.toString())) {
          // reference parsing failure
          String message = "Attempted to access an entity URL path (" + path + ") for an entity ("
-            + (ref == null ? "null" : ref.toString()) + ") that does not exist";
-         throw new EntityExistsException( message, ref == null ? "null" : ref.toString() );
+            + ref.toString() + ") that does not exist";
+         throw new EntityException( message, ref.toString(), HttpServletResponse.SC_NOT_FOUND );
       } else {
          // reference successfully parsed
          
@@ -87,7 +96,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                         + path + ") for an entity (" + ref.toString()
                         + ") when there is no HttpServletAccessProvider to handle the request for prefix ("
                         + ref.prefix + ")";
-            throw new EntityExistsException( message, ref.toString() );
+            throw new EntityException( message, ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
          } else {
             ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
             try {
@@ -157,20 +166,12 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       return provider;
    }
 
-   private EntityReference parseDefaultReference(String prefix, String reference) {
-      EntityReference ref = null;
-      try {
-         ref = new IdEntityReference(reference);
-      }
-      catch (IllegalArgumentException e) {
-         // fall back to the simplest reference type
-         ref = new EntityReference(prefix);
-      }
-      return ref;
-   }
-
    /**
     * Parses an entity reference into the appropriate reference form
+    * 
+    * @param reference a unique entity reference
+    * @return null if there is no provider found for the prefix parsed out
+    * @throws IllegalArgumentException if there is a failure during parsing
     */
    public EntityReference parseReference(String reference) {
       String prefix = EntityReference.getPrefix(reference);
@@ -193,7 +194,27 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                   "Support for custom EntityReference classes is not yet supported");
          }
       }
-
    }
+
+   /**
+    * Standard way to parse the reference, attempts to get the id and
+    * if fails then just uses the prefix only
+    * 
+    * @param prefix only pass valid prefixes to this method
+    * @param reference a unique entity reference
+    * @return an {@link EntityReference}
+    */
+   private EntityReference parseDefaultReference(String prefix, String reference) {
+      EntityReference ref = null;
+      try {
+         ref = new IdEntityReference(reference);
+      }
+      catch (IllegalArgumentException e) {
+         // fall back to the simplest reference type
+         ref = new EntityReference(prefix);
+      }
+      return ref;
+   }
+
 
 }

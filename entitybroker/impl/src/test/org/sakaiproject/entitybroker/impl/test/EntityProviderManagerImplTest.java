@@ -1,5 +1,15 @@
 /**
- * EntityProviderManagerImplTest.java - created by aaronz on Jul 26, 2007
+ * $Id$
+ * $URL$
+ * EntityHandlerImplTest.java - entity-broker - Apr 6, 2008 12:08:39 PM - azeckoski
+ **************************************************************************
+ * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
+ * Licensed under the Educational Community License version 1.0
+ * 
+ * A copy of the Educational Community License has been included in this 
+ * distribution and is available at: http://www.opensource.org/licenses/ecl1.php
+ *
+ * Aaron Zeckoski (azeckoski@gmail.com) (aaronz@vt.edu) (aaron@caret.cam.ac.uk)
  */
 
 package org.sakaiproject.entitybroker.impl.test;
@@ -30,18 +40,23 @@ public class EntityProviderManagerImplTest extends TestCase {
       super.setUp();
       // setup things
       td = new TestData();
+      entityProviderManager = makeEntityProviderManager(td);
+   }
 
-      entityProviderManager = new EntityProviderManagerImpl();
+   public EntityProviderManagerImpl makeEntityProviderManager(TestData td) {
+      EntityProviderManagerImpl entityProviderManager = new EntityProviderManagerImpl();
       entityProviderManager.init();
       entityProviderManager.registerEntityProvider(td.entityProvider1);
       entityProviderManager.registerEntityProvider(td.entityProvider2);
       entityProviderManager.registerEntityProvider(td.entityProvider3);
       entityProviderManager.registerEntityProvider(td.entityProvider4);
+      entityProviderManager.registerEntityProvider(td.entityProvider5);
 
       entityProviderManager.registerEntityProvider(td.entityProvider1T);
-
+      
+      return entityProviderManager;
    }
-
+   
    /**
     * Test method for
     * {@link org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl#init()}.

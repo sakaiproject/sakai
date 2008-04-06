@@ -17,7 +17,7 @@ package org.sakaiproject.entitybroker;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.entitybroker.exception.EntityExistsException;
+import org.sakaiproject.entitybroker.exception.EntityException;
 
 /**
  * Handles the URL/request processing for an entity in a central location
@@ -36,7 +36,7 @@ public interface EntityRequestHandler {
     * @param res the servlet response
     * @param path the path from the request (if null it will be generated from the req)
     * @return the entity reference that was handled as part of this request
-    * @throws EntityExistsException if entity could not be found or failure parsing
+    * @throws EntityException if entity could not be found or failure parsing
     */
    public String handleEntityAccess(HttpServletRequest req, HttpServletResponse res, String path);
 

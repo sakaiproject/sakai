@@ -26,7 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
-import org.sakaiproject.entitybroker.exception.EntityExistsException;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -38,12 +38,12 @@ import org.sakaiproject.util.Web;
 
 /**
  * Direct servlet allows unfettered access to entity URLs within Sakai, it also handles
- * authentication (login) if required (without breaking an entity URL)<br/> This primarily differs
- * from the access servlet in that it allows posts to work and removes most of the proprietary
- * checks
+ * authentication (login) if required (without breaking an entity URL)<br/>
+ * This primarily differs from the access servlet in that it allows posts to work 
+ * and removes most of the proprietary checks
  * 
- * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
+ * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * @author Sakai Software Development Team
  */
 public class DirectServlet extends HttpServlet {
@@ -141,11 +141,18 @@ public class DirectServlet extends HttpServlet {
          return;
       }
 
-      // logically, we only want to let this request continue on if the entity exists AND
-      // there is an http access provider to handle it AND the user can access it
-      // (there is some auth completed already or no auth is required)
+      // just handle the request if possible or pass along the failure codes so it can be understood
       try {
-         entityRequestHandler.handleEntityAccess(req, res, path);
+         try {
+            entityRequestHandler.handleEntityAccess(req, res, path);
+         } catch (EntityException e) {
+            log.warn("Could not process entity: " + e.entityReference);
+            if (e.responseCode == HttpServletResponse.SC_UNAUTHORIZED ||
+                  e.responseCode == HttpServletResponse.SC_FORBIDDEN) {
+               throw new SecurityException(e.getMessage(), e);
+            }
+            sendError(res, e.responseCode);
+         }
       } catch (SecurityException e) {
          // the end user does not have permission - offer a login if there is no user id yet
          // established,  if not permitted, and the user is the anon user, let them login
@@ -157,12 +164,9 @@ public class DirectServlet extends HttpServlet {
          // otherwise reject the request
          log.warn("Security exception accessing entity URL: " + path + " :: " + e.getMessage());
          sendError(res, HttpServletResponse.SC_FORBIDDEN);
-      } catch (EntityExistsException e) {
-         log.warn("Could not find entity by reference: " + e.entityReference);
-         sendError(res, HttpServletResponse.SC_NOT_FOUND);
       } catch (Exception e) {
          // all other cases
-         log.warn("Unknown exception with direct entity URL: dispatch(): exception: ", e);
+         log.warn("Unknown exception with direct entity URL: dispatch(): exception: " + e.getMessage(), e);
          sendError(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
 

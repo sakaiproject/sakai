@@ -62,6 +62,7 @@ public class BeanCollectorAutoRegistrar implements ApplicationListener, Applicat
       ConfigurableBeanFactory cbf = (ConfigurableBeanFactory) cac.getBeanFactory();
 
       cbf.addBeanPostProcessor(new BeanPostProcessor() {
+         @SuppressWarnings("unchecked")
          public Object postProcessBeforeInitialization(Object bean, String beanName) {
             if (bean instanceof BeanCollector<?>) {
                BeanCollector<Object> bc = (BeanCollector<Object>) bean;

@@ -35,6 +35,20 @@
          <version>${sakai.version}</version>
       </dependency>
 
+      <!-- external dependencies -->
+      <dependency>
+         <groupId>${sakai.spring.groupId}</groupId>
+         <artifactId>${sakai.spring.mock.artifactId}</artifactId>
+         <version>${sakai.spring.mock.version}</version>
+      </dependency>
+
+    <dependency>
+      <groupId>servletapi</groupId>
+      <artifactId>servletapi</artifactId>
+      <version>2.3</version>
+      <type>jar</type>
+    </dependency>
+
       <!-- Various Sakai dependencies -->
 
    </dependencies>

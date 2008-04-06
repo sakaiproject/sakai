@@ -4,11 +4,14 @@
 
 package org.sakaiproject.entitybroker.mocks;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
 
 /**
@@ -16,7 +19,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class TaggableEntityProviderMock extends EntityProviderMock implements Taggable {
+public class TaggableEntityProviderMock extends EntityProviderMock implements Taggable, TagSearchable {
 
    public Map<String, Set<String>> entityTags = new HashMap<String, Set<String>>();
 
@@ -40,23 +43,40 @@ public class TaggableEntityProviderMock extends EntityProviderMock implements Ta
     */
    public TaggableEntityProviderMock(String prefix, String reference, String[] tags) {
       super(prefix);
-      Set<String> s = new HashSet<String>();
-      for (int i = 0; i < tags.length; i++) {
-         s.add(tags[i]);
-      }
-      setTags(reference, s);
+      setTags(reference, tags);
    }
 
    public Set<String> getTags(String reference) {
       Set<String> tags = entityTags.get(reference);
       if (tags == null) {
-         entityTags.put(reference.toString(), new HashSet<String>());
+         return new HashSet<String>();
       }
-      return entityTags.get(reference.toString());
+      return entityTags.get(reference);
    }
 
-   public void setTags(String reference, Set<String> tags) {
-      entityTags.put(reference, tags);
+   public void setTags(String reference, String[] tags) {
+      if (tags.length == 0) {
+         entityTags.remove(reference);
+      } else {
+         Set<String> s = new HashSet<String>();
+         for (int i = 0; i < tags.length; i++) {
+            s.add(tags[i]);
+         }
+         entityTags.put(reference, s);
+      }
+   }
+
+   public List<String> findEntityRefsByTags(String[] tags) {
+      Set<String> refs = new HashSet<String>();
+      for (String key : entityTags.keySet()) {
+         Set<String> s = entityTags.get(key);
+         for (int i = 0; i < tags.length; i++) {
+            if (s.contains(tags[i])) {
+               refs.add(key);
+            }
+         }
+      }
+      return new ArrayList<String>(refs);
    }
 
 }

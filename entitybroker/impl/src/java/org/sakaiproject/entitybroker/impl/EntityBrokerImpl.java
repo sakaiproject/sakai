@@ -27,10 +27,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.IdEntityReference;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.dao.model.EntityProperty;
-import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
@@ -83,44 +81,35 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       log.info("init");
    }
 
-   /*
-    * (non-Javadoc)
-    * 
+   /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityBroker#entityExists(java.lang.String)
     */
    public boolean entityExists(String reference) {
-      String prefix = IdEntityReference.getPrefix(reference);
-      EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
-      if (provider == null) {
-         // no provider found so no entity can exist
-         return false;
-      } else if (!(provider instanceof CoreEntityProvider)) {
-         return true;
-      }
-      return ((CoreEntityProvider) provider).entityExists(IdEntityReference.getID(reference));
+      return entityHandler.entityExists(reference);
    }
 
-   /*
-    * (non-Javadoc)
-    * 
+   /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityBroker#getEntityURL(java.lang.String)
     */
    public String getEntityURL(String reference) {
       return entityHandler.getEntityURL(reference);
    }
 
-   /*
-    * (non-Javadoc)
-    * 
+   /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityBroker#getRegisteredPrefixes()
     */
    public Set<String> getRegisteredPrefixes() {
       return entityProviderManager.getRegisteredPrefixes();
    }
 
-   /*
-    * (non-Javadoc)
-    * 
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.EntityBroker#parseReference(java.lang.String)
+    */
+   public EntityReference parseReference(String reference) {
+      return entityHandler.parseReference(reference);
+   }
+
+   /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityBroker#fireEvent(java.lang.String, java.lang.String)
     */
    public void fireEvent(String eventName, String reference) {
@@ -136,20 +125,15 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       eventTrackingService.post(event);
    }
 
-   public EntityReference parseReference(String reference) {
-      return entityHandler.parseReference(reference);
-   }
-
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.EntityBroker#fetchEntity(java.lang.String)
+    */
    public Object fetchEntity(String reference) {
-      String prefix = IdEntityReference.getPrefix(reference);
-      EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
-      if (provider instanceof Resolvable) {
+      String prefix = EntityReference.getPrefix(reference);
+      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, Resolvable.class);
+      if (provider != null) {
          EntityReference ref = entityHandler.parseReference(reference);
          return ((Resolvable) provider).getEntity(ref);
-      } else if (provider != null) {
-         throw new IllegalArgumentException("Unable to look up reference '" + reference
-               + "' to EntityProvider " + provider.getClass()
-               + " which does not implement the Resolvable capability");
       } else {
          try {
             // cannot test this in a meaningful way so the tests are designed to not get here -AZ
@@ -160,6 +144,9 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
          }
       }
    }
+
+
+   // PROPERTIES
 
    public List<String> findEntityRefs(String[] prefixes, String[] name, String[] searchValue,
          boolean exactMatch) {
@@ -175,25 +162,27 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       List<String> prefixList = new ArrayList<String>(Arrays.asList(prefixes));
       for (int i = prefixList.size() - 1; i >= 0; i--) {
          String prefix = (String) prefixList.get(i);
-         EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
-         if (provider instanceof PropertyProvideable) {
-            results.addAll(((PropertyProvideable) provider).findEntityRefs(new String[] { prefix },
-                  name, searchValue, exactMatch));
+         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, PropertyProvideable.class);
+         if (provider != null) {
+            results.addAll( ((PropertyProvideable) provider).findEntityRefs(new String[] { prefix },
+                  name, searchValue, exactMatch) );
             prefixList.remove(i);
          }
       }
 
       // now fetch any remaining items if prefixes remain
-      if (!prefixList.isEmpty()) {
+      if (! prefixList.isEmpty()) {
          for (int i = prefixList.size() - 1; i >= 0; i--) {
             String prefix = (String) prefixList.get(i);
-            EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
-            if (!(provider instanceof Propertyable)) {
+            // check to see if any of the remaining prefixes use Propertyable, if they do not then remove them
+            EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, Propertyable.class);
+            if (provider == null) {
                prefixList.remove(i);
             }
          }
 
-         if (!prefixList.isEmpty()) {
+         // now search the internal list of properties if any prefixes remain
+         if (! prefixList.isEmpty()) {
             prefixes = prefixList.toArray(new String[prefixList.size()]);
 
             List<String> props = new ArrayList<String>();
@@ -244,13 +233,14 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
 
    @SuppressWarnings("unchecked")
    public Map<String, String> getProperties(String reference) {
-      if (!entityExists(reference)) {
+      if (! entityExists(reference)) {
          throw new IllegalArgumentException("Invalid reference (" + reference
                + "), entity does not exist");
       }
 
-      EntityProvider provider = entityProviderManager.getProviderByReference(reference);
-      if (provider instanceof PropertyProvideable) {
+      String prefix = EntityReference.getPrefix(reference);
+      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, PropertyProvideable.class);
+      if (provider != null) {
          return ((PropertyProvideable) provider).getProperties(reference);
       }
 
@@ -274,8 +264,9 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
                + "), entity does not exist");
       }
 
-      EntityProvider provider = entityProviderManager.getProviderByReference(reference);
-      if (provider instanceof PropertyProvideable) {
+      String prefix = EntityReference.getPrefix(reference);
+      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, PropertyProvideable.class);
+      if (provider != null) {
          return ((PropertyProvideable) provider).getPropertyValue(reference, name);
       }
 
@@ -299,8 +290,9 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
                + "), entity does not exist");
       }
 
-      EntityProvider provider = entityProviderManager.getProviderByReference(reference);
-      if (provider instanceof PropertyProvideable) {
+      String prefix = EntityReference.getPrefix(reference);
+      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, PropertyProvideable.class);
+      if (provider != null) {
          ((PropertyProvideable) provider).setPropertyValue(reference, name, value);
       } else {
          if (value == null) {
@@ -309,7 +301,6 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
             dao.deleteProperties(reference, name);
          } else {
             // add or update property
-            String prefix = EntityReference.getPrefix(reference);
             List<EntityProperty> properties = dao.findByProperties(EntityProperty.class,
                   new String[] { "entityRef", "propertyName" }, new Object[] { reference, name });
             if (properties.isEmpty()) {
@@ -323,23 +314,30 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       }
    }
 
+   
+   // TAGS
+
    public Set<String> getTags(String reference) {
       if (!entityExists(reference)) {
          throw new IllegalArgumentException("Invalid reference (" + reference
                + "), entity does not exist");
       }
 
-      EntityProvider provider = entityProviderManager.getProviderByReference(reference);
       Set<String> tags = new HashSet<String>();
-      if (provider instanceof Taggable) {
+
+      String prefix = EntityReference.getPrefix(reference);
+      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, Taggable.class);
+      if (provider != null) {
          tags.addAll( ((Taggable) provider).getTags(reference) );
       } else {
          // put in call to central tag system here if desired
+
+         throw new UnsupportedOperationException("Cannot get tags from this entity ("+reference+"), it has no support for tagging in its entity provider");
       }
       return tags;
    }
 
-   public void setTags(String reference, Set<String> tags) {
+   public void setTags(String reference, String[] tags) {
       if (tags == null) {
          throw new IllegalArgumentException(
                "Invalid params, tags cannot be null");
@@ -350,11 +348,14 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
                + "), entity does not exist");
       }
 
-      EntityProvider provider = entityProviderManager.getProviderByReference(reference);
-      if (provider instanceof Taggable) {
+      String prefix = EntityReference.getPrefix(reference);
+      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, Taggable.class);
+      if (provider != null) {
          ((Taggable) provider).setTags(reference, tags);
       } else {
          // put in call to central tag system here if desired
+
+         throw new UnsupportedOperationException("Cannot set tags for this entity ("+reference+"), it has no support for tagging in its entity provider");
       }
    }
 
@@ -370,8 +371,8 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       // get the results from any entity providers which supply tag search results
       Set<String> prefixes = entityProviderManager.getRegisteredPrefixes();
       for (String prefix : prefixes) {
-         EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
-         if (provider instanceof TagSearchable) {
+         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, TagSearchable.class);
+         if (provider != null) {
             results.addAll( ((TagSearchable) provider).findEntityRefsByTags(tags) );
          }
       }

@@ -27,21 +27,22 @@ public interface TagProvider {
    /**
     * Get the set of tags which are associated with this entity
     * 
-    * @param reference
-    *           a globally unique reference to an entity
+    * @param reference a globally unique reference to an entity
     * @return a set of the tags which are associated with this entity
+    * @throws UnsupportedOperationException if this reference cannot be tagged
     */
    public Set<String> getTags(String reference);
 
    /**
-    * Set the set of tags which are associated with this entity
+    * Sets the tags which are associated with this entity,
+    * this overwrites any current tags and makes the input
+    * tags the only current tags for this entity
     * 
-    * @param reference
-    *           a globally unique reference to an entity
-    * @param tags
-    *           a set of the tags to associate with this entity, setting this to an empty set will
-    *           remove all tags from this entity
+    * @param reference a globally unique reference to an entity
+    * @param tags a set of the tags to associate with this entity, 
+    * setting this to an empty set will remove all tags from this entity
+    * @throws UnsupportedOperationException if this reference cannot be tagged
     */
-   public void setTags(String reference, Set<String> tags);
+   public void setTags(String reference, String[] tags);
 
 }

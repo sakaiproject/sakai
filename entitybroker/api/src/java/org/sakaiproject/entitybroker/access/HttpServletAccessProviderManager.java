@@ -26,6 +26,10 @@ public interface HttpServletAccessProviderManager {
 
    public void unregisterProvider(String prefix, HttpServletAccessProvider provider);
 
+   /**
+    * @param prefix an entity prefix
+    * @return the provider related to this prefix or null if no provider can be found
+    */
    public HttpServletAccessProvider getProvider(String prefix);
 
 }
