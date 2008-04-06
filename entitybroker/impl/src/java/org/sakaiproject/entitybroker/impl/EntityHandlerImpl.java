@@ -30,11 +30,13 @@ import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.HTMLable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.HTMLdefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.JSONable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.JSONdefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.XMLable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.XMLdefineable;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 
@@ -113,42 +115,58 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                   def.makeData(ref, req, res);
                } else {
                   // internally handle this request
-                  
+                  makeJSONData(ref, req, res);
                }
             } else {
                throw new EntityException( "Cannot access JSON for this path (" + path + ") for prefix ("
                   + ref.prefix + ") for entity (" + ref.toString() + ")", ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
             }
          } else if (XMLable.EXTENSION.equals(extension)) {
-            
-         } else if (HTMLable.EXTENSION.equals(extension)) {
-            
-            // no special handling so send on to the standard access provider if one can be found
-            HttpServletAccessProvider accessProvider = 
-               accessProviderManager.getProvider(ref.prefix);
-            if (accessProvider == null) {
-               String message = "Attempted to access an entity URL path ("
-                           + path + ") for an entity (" + ref.toString()
-                           + ") when there is no HttpServletAccessProvider to handle the request for prefix ("
-                           + ref.prefix + ")";
-               throw new EntityException( message, ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+            EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, XMLable.class);
+            if (provider != null) {
+               XMLdefineable def = (XMLdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, XMLdefineable.class);
+               if (def != null) {
+                  def.makeData(ref, req, res);
+               } else {
+                  // internally handle this request
+                  makeXMLData(ref, req, res);
+               }
             } else {
-               ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-               try {
-                  ClassLoader newClassLoader = accessProvider.getClass().getClassLoader();
-                  // check to see if this access provider reports the correct classloader
-                  if (accessProvider instanceof ClassLoaderReporter) {
-                     newClassLoader = ((ClassLoaderReporter) accessProvider).getSuitableClassLoader();
+               throw new EntityException( "Cannot access XML for this path (" + path + ") for prefix ("
+                  + ref.prefix + ") for entity (" + ref.toString() + ")", ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+            }            
+         } else if (HTMLable.EXTENSION.equals(extension)) {
+            // currently we assume everyone handles HTML, maybe we shouldn't?
+            HTMLdefineable def = (HTMLdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, HTMLdefineable.class);
+            if (def != null) {
+               def.makeData(ref, req, res);
+            } else {
+               // no special handling so send on to the standard access provider if one can be found
+               HttpServletAccessProvider accessProvider = 
+                  accessProviderManager.getProvider(ref.prefix);
+               if (accessProvider == null) {
+                  String message = "Attempted to access an entity URL path ("
+                              + path + ") for an entity (" + ref.toString()
+                              + ") when there is no HttpServletAccessProvider to handle the request for prefix ("
+                              + ref.prefix + ")";
+                  throw new EntityException( message, ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+               } else {
+                  ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+                  try {
+                     ClassLoader newClassLoader = accessProvider.getClass().getClassLoader();
+                     // check to see if this access provider reports the correct classloader
+                     if (accessProvider instanceof ClassLoaderReporter) {
+                        newClassLoader = ((ClassLoaderReporter) accessProvider).getSuitableClassLoader();
+                     }
+                     Thread.currentThread().setContextClassLoader(newClassLoader);
+                     // send request to the access provider which will route it on to the correct entity world
+                     accessProvider.handleAccess(req, res, ref);
+                  } finally {
+                     Thread.currentThread().setContextClassLoader(currentClassLoader);
                   }
-                  Thread.currentThread().setContextClassLoader(newClassLoader);
-                  // send request to the access provider which will route it on to the correct entity world
-                  accessProvider.handleAccess(req, res, ref);
-               } finally {
-                  Thread.currentThread().setContextClassLoader(currentClassLoader);
                }
             }
          }
-
       }
 
       return ref.toString();
