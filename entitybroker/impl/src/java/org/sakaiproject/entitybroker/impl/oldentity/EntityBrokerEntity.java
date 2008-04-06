@@ -9,15 +9,15 @@ import java.util.Stack;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entitybroker.impl.EntityHandler;
+import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class EntityBrokerEntity implements Entity {
 
-   private EntityHandler entityHandler;
+   private EntityHandlerImpl entityHandler;
 
-   public void setEntityHandler(EntityHandler entityHandler) {
+   public void setEntityHandler(EntityHandlerImpl entityHandler) {
       this.entityHandler = entityHandler;
    }
 

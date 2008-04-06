@@ -1,6 +1,16 @@
 /**
- * EntityBrokerManagerImpl.java - created by antranig on 12 May 2007
- **/
+ * $Id$
+ * $URL$
+ * EntityBrokerImpl.java - entity-broker - Apr 6, 2008 9:03:03 AM - azeckoski
+ **************************************************************************
+ * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
+ * Licensed under the Educational Community License version 1.0
+ * 
+ * A copy of the Educational Community License has been included in this 
+ * distribution and is available at: http://www.opensource.org/licenses/ecl1.php
+ *
+ * Aaron Zeckoski (azeckoski@gmail.com) (aaronz@vt.edu) (aaron@caret.cam.ac.uk)
+ */
 
 package org.sakaiproject.entitybroker.impl;
 
@@ -45,31 +55,26 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
    private static Log log = LogFactory.getLog(EntityBrokerImpl.class);
 
    private EntityProviderManager entityProviderManager;
-
    public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
       this.entityProviderManager = entityProviderManager;
    }
 
    private EventTrackingService eventTrackingService;
-
    public void setEventTrackingService(EventTrackingService eventTrackingService) {
       this.eventTrackingService = eventTrackingService;
    }
 
-   private EntityHandler entityHandler;
-
-   public void setEntityHandler(EntityHandler entityHandler) {
+   private EntityHandlerImpl entityHandler;
+   public void setEntityHandler(EntityHandlerImpl entityHandler) {
       this.entityHandler = entityHandler;
    }
 
    private EntityManager entityManager;
-
    public void setEntityManager(EntityManager entityManager) {
       this.entityManager = entityManager;
    }
 
    private EntityBrokerDao dao;
-
    public void setDao(EntityBrokerDao dao) {
       this.dao = dao;
    }

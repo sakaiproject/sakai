@@ -25,11 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.entitybroker.EntityBroker;
-import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
-import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
-import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
+import org.sakaiproject.entitybroker.EntityRequestHandler;
+import org.sakaiproject.entitybroker.exception.EntityExistsException;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -60,9 +57,7 @@ public class DirectServlet extends HttpServlet {
 
    private BasicAuth basicAuth;
 
-   private HttpServletAccessProviderManager accessProviderManager;
-
-   private EntityBroker entityBroker;
+   private EntityRequestHandler entityRequestHandler;
 
    /**
     * Checks dependencies and loads/inits them if needed<br/> <br/> Note: There is currently no way
@@ -75,11 +70,8 @@ public class DirectServlet extends HttpServlet {
       try {
          basicAuth = new BasicAuth();
          basicAuth.init();
-         accessProviderManager = (HttpServletAccessProviderManager) ComponentManager
-               .get("org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager");
-         entityBroker = (EntityBroker) ComponentManager
-               .get("org.sakaiproject.entitybroker.EntityBroker");
-         if (accessProviderManager != null || entityBroker != null) {
+         entityRequestHandler = (EntityRequestHandler) ComponentManager.get("org.sakaiproject.entitybroker.EntityRequestHandler");
+         if (entityRequestHandler != null) {
             initComplete = true;
          }
       } catch (Exception e) {
@@ -153,50 +145,24 @@ public class DirectServlet extends HttpServlet {
       // there is an http access provider to handle it AND the user can access it
       // (there is some auth completed already or no auth is required)
       try {
-         EntityReference ref = entityBroker.parseReference(path);
-         if (ref == null || !entityBroker.entityExists(ref.toString())) {
-            log.warn("Attempted to access an entity URL path (" + path + ") for an entity ("
-                  + (ref == null? "null" : ref.toString()) + ") that does not exist");
-            sendError(res, HttpServletResponse.SC_NOT_FOUND);
-         } else {
-            HttpServletAccessProvider accessProvider = accessProviderManager
-                  .getProvider(ref.prefix);
-            if (accessProvider == null) {
-               log.warn("Attempted to access an entity URL path ("
-                           + path + ") for an entity (" + ref.toString()
-                           + ") when there is no HttpServletAccessProvider to handle the request for prefix ("
-                           + ref.prefix + ")");
-               sendError(res, HttpServletResponse.SC_NOT_FOUND);
-            } else {
-               ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-               try {
-                  ClassLoader newClassLoader = accessProvider.getClass().getClassLoader();
-                  // check to see if this access provider reports the correct classloader
-                  if (accessProvider instanceof ClassLoaderReporter) {
-                     newClassLoader = ((ClassLoaderReporter) accessProvider).getSuitableClassLoader();
-                  }
-                  Thread.currentThread().setContextClassLoader(newClassLoader);
-                  // send request to the access provider which will route it on to the correct entity world
-                  accessProvider.handleAccess(req, res, ref);
-               } finally {
-                  Thread.currentThread().setContextClassLoader(currentClassLoader);
-               }
-            }
-         }
+         entityRequestHandler.handleEntityAccess(req, res, path);
       } catch (SecurityException e) {
          // the end user does not have permission - offer a login if there is no user id yet
-         // established,
-         // if not permitted, and the user is the anon user, let them login
+         // established,  if not permitted, and the user is the anon user, let them login
          if (SessionManager.getCurrentSessionUserId() == null) {
             log.debug("Attempted to access an entity URL path (" + path
                   + ") for a resource which requires authentication without a session", e);
             doLogin(req, res, path);
          }
          // otherwise reject the request
+         log.warn("Security exception accessing entity URL: " + path + " :: " + e.getMessage());
          sendError(res, HttpServletResponse.SC_FORBIDDEN);
+      } catch (EntityExistsException e) {
+         log.warn("Could not find entity by reference: " + e.entityReference);
+         sendError(res, HttpServletResponse.SC_NOT_FOUND);
       } catch (Exception e) {
          // all other cases
-         log.warn("dispatch(): exception: ", e);
+         log.warn("Unknown exception with direct entity URL: dispatch(): exception: ", e);
          sendError(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
 

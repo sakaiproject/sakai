@@ -21,7 +21,7 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
-import org.sakaiproject.entitybroker.impl.EntityHandler;
+import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -45,9 +45,9 @@ public class EntityBrokerEntityProducer implements EntityProducer {
       this.entityProviderManager = entityProviderManager;
    }
 
-   private EntityHandler entityHandler;
+   private EntityHandlerImpl entityHandler;
 
-   public void setEntityHandler(EntityHandler entityHandler) {
+   public void setEntityHandler(EntityHandlerImpl entityHandler) {
       this.entityHandler = entityHandler;
    }
 

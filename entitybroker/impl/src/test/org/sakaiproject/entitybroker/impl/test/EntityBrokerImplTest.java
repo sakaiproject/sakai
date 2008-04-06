@@ -14,7 +14,7 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.IdEntityReference;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.impl.EntityBrokerImpl;
-import org.sakaiproject.entitybroker.impl.EntityHandler;
+import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.impl.test.data.TestDataPreload;
 import org.sakaiproject.entitybroker.impl.test.mocks.FakeEvent;
@@ -102,7 +102,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       entityProviderManagerImpl.registerEntityProvider(td.entityProvider5);
 
       // Fully functional entity handler
-      EntityHandler entityHandler = new EntityHandler();
+      EntityHandlerImpl entityHandler = new EntityHandlerImpl();
       entityHandler.setEntityProviderManager(entityProviderManagerImpl);
       entityHandler.setServerConfigurationService(new FakeServerConfigurationService());
 

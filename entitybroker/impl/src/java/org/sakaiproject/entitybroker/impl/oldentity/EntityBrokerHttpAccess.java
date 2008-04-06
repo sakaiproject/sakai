@@ -18,7 +18,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
-import org.sakaiproject.entitybroker.impl.EntityHandler;
+import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
 import org.sakaiproject.tool.api.SessionManager;
 
 /**
@@ -44,9 +44,9 @@ public class EntityBrokerHttpAccess implements HttpAccess {
       this.sessionManager = sessionManager;
    }
 
-   private EntityHandler entityHandler;
+   private EntityHandlerImpl entityHandler;
 
-   public void setEntityHandler(EntityHandler entityHandler) {
+   public void setEntityHandler(EntityHandlerImpl entityHandler) {
       this.entityHandler = entityHandler;
    }
 
