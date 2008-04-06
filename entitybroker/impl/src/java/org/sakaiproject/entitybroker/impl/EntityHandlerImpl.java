@@ -99,6 +99,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          throw new EntityException( message, ref.toString(), HttpServletResponse.SC_NOT_FOUND );
       } else {
          // reference successfully parsed
+         res.setStatus(HttpServletResponse.SC_OK); // other things can switch this later on
 
          // check for extensions
          String extension = getExtension(path);
