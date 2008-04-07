@@ -32,6 +32,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -314,5 +315,19 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 				setBreadcrumbPage("overview");
 			}
 		}
+	}
+	
+	public boolean getIsLetterGrade()
+	{
+		if(isUserAbleToEditAssessments())
+		{
+			Gradebook gb = getGradebookManager().getGradebookWithGradeMappings(getGradebookId());
+			if(gb != null && gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+			{
+				return true;
+			}
+			return false;
+		}
+		return false;
 	}
 }
