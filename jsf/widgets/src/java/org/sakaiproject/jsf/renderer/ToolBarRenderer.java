@@ -106,15 +106,16 @@ public class ToolBarRenderer extends Renderer
     for (Iterator iter = children.iterator(); iter.hasNext();)
     {
       UIComponent child = (UIComponent)iter.next();
-       
+      // should instead leave the span open, and the item should then add class and aria attributes
+      // depending on the item is (disabled or not) and then close
       if (child.isRendered()) {
          if (!first)   
          {
-        	 writer.write("<li role=\"menuitem\"><span");
+        	 writer.write("<li role=\"menuitem\"><span>");
          }
          else
          {
-        	 writer.write("<li role=\"menuitem\" class=\"firstToolBarItem\"><span");
+        	 writer.write("<li role=\"menuitem\" class=\"firstToolBarItem\"><span>");
          }
          RendererUtil.encodeRecursive(context, child);
     	 writer.write("</span></li> ");
