@@ -388,6 +388,7 @@ h4 + div.itemAction{
 	display: inline;
 	margin:0 !important;
 	padding:0 !important;
+	color: #777
 }
 
 .navIntraTool li span a{
