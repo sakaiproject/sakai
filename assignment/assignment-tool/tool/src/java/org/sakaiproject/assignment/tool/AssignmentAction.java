@@ -1791,6 +1791,10 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					context.put("value_allowResubmitNumber", Integer.valueOf((String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER)));
 					String allowResubmitTimeString =p.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+					if (allowResubmitTimeString == null)
+					{
+						allowResubmitTimeString = (String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+					}
 					Time allowResubmitTime = null;
 					if (allowResubmitTimeString != null)
 					{
@@ -2960,13 +2964,35 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		// reset the assignment object
-		// resetAssignment (state);
+		// reset the grading page
+		resetGradeSubmission(state);
 
 		// back to the student list view of assignments
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
 
 	} // doCancel_grade_submission
+
+	/**
+	 * clean the state variables related to grading page
+	 * @param state
+	 */
+	private void resetGradeSubmission(SessionState state) {
+		// reset the grade parameters
+		state.removeAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT);
+		state.removeAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT);
+		state.removeAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
+		state.removeAttribute(GRADE_SUBMISSION_GRADE);
+		state.removeAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
+		state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
+		state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+		state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+		state.removeAttribute(ALLOW_RESUBMIT_CLOSEMONTH);
+		state.removeAttribute(ALLOW_RESUBMIT_CLOSEDAY);
+		state.removeAttribute(ALLOW_RESUBMIT_CLOSEYEAR);
+		state.removeAttribute(ALLOW_RESUBMIT_CLOSEHOUR);
+		state.removeAttribute(ALLOW_RESUBMIT_CLOSEMIN);
+		state.removeAttribute(ALLOW_RESUBMIT_CLOSEAMPM);
+	}
 
 	/**
 	 * Action is to cancel the preview grade process
