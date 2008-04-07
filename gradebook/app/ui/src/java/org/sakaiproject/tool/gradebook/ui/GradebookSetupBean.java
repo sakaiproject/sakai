@@ -760,7 +760,8 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		Gradebook gb = getGradebookManager().getGradebookWithGradeMappings(getGradebookManager().getGradebook(localGradebook.getUid()).getId());
 		if (gradeEntryMethod.equals(ENTRY_OPT_LETTER))
 		{
-			if(gb.getSelectedGradeMapping().getGradingScale().getUid().equals("LetterGradeMapping"))
+			if((gb.getSelectedGradeMapping().getGradingScale() != null && gb.getSelectedGradeMapping().getGradingScale().getUid().equals("LetterGradeMapping"))
+					|| (gb.getSelectedGradeMapping().getGradingScale() == null && gb.getSelectedGradeMapping().getName().equals("Letter Grades")))
 			{
 				return false;
 			}
@@ -771,7 +772,8 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				
 				if(gm != null)
 				{
-					if(gm.getGradingScale().getUid().equals("LetterGradeMapping") || gm.getGradingScale().getUid().equals("LetterGradePlusMinusMapping"))
+					if((gm.getGradingScale() != null && (gm.getGradingScale().getUid().equals("LetterGradeMapping") || gm.getGradingScale().getUid().equals("LetterGradePlusMinusMapping")))
+							|| (gm.getGradingScale() == null && (gb.getSelectedGradeMapping().getName().equals("Letter Grades") || gb.getSelectedGradeMapping().getName().equals("Letter Grades with +/-"))))
 					{
 						Map defaultMapping = gm.getDefaultBottomPercents();
 						for (Iterator gradeIter = gm.getGrades().iterator(); gradeIter.hasNext(); ) 

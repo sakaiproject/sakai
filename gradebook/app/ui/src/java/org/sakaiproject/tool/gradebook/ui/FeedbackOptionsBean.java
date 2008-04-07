@@ -256,7 +256,8 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 		{
 			return valid;
 		}
-		if(!gradeMapping.getGradingScale().getUid().equals("LetterGradeMapping") && !gradeMapping.getGradingScale().getUid().equals("LetterGradePlusMinusMapping"))
+		if((gradeMapping.getGradingScale() != null && (!gradeMapping.getGradingScale().getUid().equals("LetterGradeMapping") && !gradeMapping.getGradingScale().getUid().equals("LetterGradePlusMinusMapping")))
+				|| (gradeMapping.getGradingScale() == null && (!gradeMapping.getName().equals("Letter Grades") && !gradeMapping.getName().equals("Letter Grades with +/-"))))
 		{
 			return valid;
 		}
