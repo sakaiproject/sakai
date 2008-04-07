@@ -971,7 +971,7 @@ public class PrivateMessagesTool
     try
     {
       User user=UserDirectoryService.getUser(id) ;
-      userName= user.getSortName();
+      userName= user.getSortName() + " (" + user.getDisplayId() + ")";
     }
     catch (UserNotDefinedException e) {
 		// TODO Auto-generated catch block
@@ -985,7 +985,7 @@ public class PrivateMessagesTool
    try
    {
      User user=UserDirectoryService.getUser(userId) ;
-     userName= user.getDisplayName();
+     userName= user.getDisplayName() + " (" + user.getDisplayId() + ")";
    }
    catch (UserNotDefinedException e) {
 	// TODO Auto-generated catch block
@@ -4313,7 +4313,8 @@ private   int   getNum(char letter,   String   a)
        
        try
        {
-         authorString = UserDirectoryService.getUser(getUserId()).getSortName();
+    	 User user = UserDirectoryService.getUser(getUserId());
+         authorString = user.getSortName() + " (" + user.getDisplayId() + ")";
 
        }
        catch(Exception e)

@@ -5847,15 +5847,17 @@ public class DiscussionForumTool
   	    
 		  String userString = "";
 		  userString = UserDirectoryService.getUser(currentUserId).getDisplayName();
+		  String userEidString = "";
+		  userEidString = UserDirectoryService.getUser(currentUserId).getDisplayId();
 		  
 		  if((userString != null && userString.length() > 0))
 		  {
 
-			return userString;
+			return userString + " (" + userEidString + ")";
 		  }
 		  else
 		  {
-			return UserDirectoryService.getUser(currentUserId).getDisplayId();
+			return userEidString;
 		  }
 		
 	  }

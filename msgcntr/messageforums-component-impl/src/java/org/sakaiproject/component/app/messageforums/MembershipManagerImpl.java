@@ -263,7 +263,7 @@ public class MembershipManagerImpl implements MembershipManager{
       {
       	MembershipItem memberItem = MembershipItem.getInstance();
       	memberItem.setType(MembershipItem.TYPE_USER);
-      	memberItem.setName(user.getSortName());
+      	memberItem.setName(user.getSortName() + " (" + user.getDisplayId() + ")");
       	memberItem.setUser(user);
       	memberItem.setRole(userRole);             
 
