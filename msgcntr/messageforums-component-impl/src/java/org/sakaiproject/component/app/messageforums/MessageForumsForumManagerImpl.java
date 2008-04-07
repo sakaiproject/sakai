@@ -106,7 +106,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
            
     private static final String QUERY_TOPIC_WITH_MESSAGES_AND_ATTACHMENTS = "findTopicByIdWithMessagesAndAttachments";        
-    private static final String QUERY_TOPIC_WITH_MESSAGES = "findTopicByIdWithMessages";        
+    private static final String QUERY_TOPIC_WITH_MESSAGES = "findTopicByIdWithMessages";  
+    private static final String QUERY_TOPIC_WITH_ATTACHMENTS = "findTopicWithAttachmentsById"; 
         
     private static final String QUERY_TOPICS_WITH_MESSAGES_FOR_FORUM = "findTopicsWithMessagesForForum";
     private static final String QUERY_TOPICS_WITH_MESSAGES_AND_ATTACHMENTS_FOR_FORUM = "findTopicsWithMessagesAndAttachmentsForForum";
@@ -361,10 +362,26 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
               return q.uniqueResult();
           }
       };
-     
-
+      
       return (Topic) getHibernateTemplate().execute(hcb);
     }
+    
+    public Topic getTopicWithAttachmentsById(final Long topicId) {
+
+        if (topicId == null) {
+            throw new IllegalArgumentException("Null Argument");
+        }      
+
+       HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_TOPIC_WITH_ATTACHMENTS);
+                q.setParameter("id", topicId, Hibernate.LONG);              
+                return q.uniqueResult();
+            }
+        };
+        
+        return (Topic) getHibernateTemplate().execute(hcb);
+      }
             
     public BaseForum getForumByIdWithTopics(final Long forumId) {
 

@@ -206,6 +206,14 @@
     ]]>
   </query>
   
+  <query name="findTopicWithAttachmentsById">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             left join fetch topic.messagesSet message
+             left join fetch topic.attachmentsSet
+             where topic.id = :id
+    ]]>
+  </query>
+  
   <query name="findTopicsWithMessagesForForum">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
              join topic.openForum forum

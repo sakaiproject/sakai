@@ -29,13 +29,15 @@ public interface MessageForumsForumManager {
 	
     public List searchTopicMessages(Long topicId, String searchText);
     
-    public List getTopicsByIdWithMessages(final Long forumId);
+     public List getTopicsByIdWithMessages(final Long forumId);
   
     public List getTopicsByIdWithMessagesAndAttachments(final Long forumId);
     
     public List getTopicsByIdWithMessagesMembershipAndAttachments(final Long forumId);
   
     public Topic getTopicByIdWithMessages(final Long topicId);
+    
+    public Topic getTopicWithAttachmentsById(final Long topicId);
           
     public Topic getTopicByIdWithMessagesAndAttachments(final Long topicId);
      
