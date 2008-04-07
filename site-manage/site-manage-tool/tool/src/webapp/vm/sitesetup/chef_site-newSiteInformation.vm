@@ -176,7 +176,8 @@
 			<textarea  name="short_description" id="short_description" rows="2" cols="45" onkeyup="LimitText(this,80)" wrap="hard">$validator.escapeHtmlTextarea($form_short_description)</textarea>
 			
 		</p>
-		#if ($!isCourseSite && $!skins.size() > 0)
+		#if ($!isCourseSite) 
+			#if (!$!disableCourseSelection && $!skins.size() > 0)
 			<p class="shorttext">
 				<label for="skin">
 					$tlang.getString("sinfo.appear")
@@ -186,7 +187,7 @@
 						#set($url="")
 						#set($url=$!skin.Url)
 						<option value ="$url"
-							#if($selectedSkin == $url)
+							#if($selectedIcon == $url)
 								selected="selected"
 							#end
 						>
@@ -195,6 +196,7 @@
 					#end
 				</select>
 			</p>
+			#end
 		#else
 			<div class="shorttext">
 				<label for="iconUrl">$tlang.getString("newsc.icon")</label>

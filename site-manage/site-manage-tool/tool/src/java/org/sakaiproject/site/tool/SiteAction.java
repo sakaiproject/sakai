@@ -1166,10 +1166,9 @@ public class SiteAction extends PagedResourceActionII {
 					}
 				}
 
-				context.put("skins", state.getAttribute(STATE_ICONS));
-				if (StringUtil.trimToNull(siteInfo.getIconUrl()) != null) {
-					context.put("selectedIcon", siteInfo.getIconUrl());
-				}
+				// whether to show course skin selection choices or not
+				courseSkinSelection(context, state, null, siteInfo);
+				
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
 				if (siteType.equalsIgnoreCase("project")) {
@@ -1418,6 +1417,7 @@ public class SiteAction extends PagedResourceActionII {
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
+				context.put("disableCourseSelection", ServerConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true")?Boolean.TRUE:Boolean.FALSE);
 				context.put("isProjectSite", Boolean.FALSE);
 				if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null) {
 					context.put("selectedProviderCourse", state
@@ -1792,13 +1792,9 @@ public class SiteAction extends PagedResourceActionII {
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
-				context.put("skins", state.getAttribute(STATE_ICONS));
-				if (state.getAttribute(FORM_SITEINFO_SKIN) != null) {
-					context.put("selectedIcon", state
-							.getAttribute(FORM_SITEINFO_SKIN));
-				} else if (site.getIconUrl() != null) {
-					context.put("selectedIcon", site.getIconUrl());
-				}
+				
+				// whether to show course skin selection choices or not
+				courseSkinSelection(context, state, site, null);
 
 				setTermListForContext(context, state, true); // true->only future terms
 
@@ -1832,15 +1828,6 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("form_site_contact_email", state
 					.getAttribute(FORM_SITEINFO_CONTACT_EMAIL));
 
-			// Display of appearance icon/url list with course site based on
-			// "disable.course.site.skin.selection" value set with
-			// sakai.properties file.
-			if ((ServerConfigurationService
-					.getString("disable.course.site.skin.selection"))
-					.equals("true")) {
-				context.put("disableCourseSelection", Boolean.TRUE);
-			}
-
 			return (String) getContext(data).get("template") + TEMPLATE[13];
 		case 14:
 			/*
@@ -1851,6 +1838,7 @@ public class SiteAction extends PagedResourceActionII {
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
+				context.put("disableCourseSelection", ServerConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true")?Boolean.TRUE:Boolean.FALSE);
 				context.put("siteTerm", state.getAttribute(FORM_SITEINFO_TERM));
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
@@ -2742,6 +2730,36 @@ public class SiteAction extends PagedResourceActionII {
 		return (String) getContext(data).get("template") + TEMPLATE[0];
 
 	} // buildContextForTemplate
+
+
+	/**
+	 * show course site skin selection or not
+	 * @param context
+	 * @param state
+	 * @param site
+	 * @param siteInfo
+	 */
+	private void courseSkinSelection(Context context, SessionState state, Site site, SiteInfo siteInfo) {
+		// Display of appearance icon/url list with course site based on
+		// "disable.course.site.skin.selection" value set with
+		// sakai.properties file.
+		// The setting defaults to be false.
+		context.put("disableCourseSelection", ServerConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true")?Boolean.TRUE:Boolean.FALSE);
+		context.put("skins", state.getAttribute(STATE_ICONS));
+		if (state.getAttribute(FORM_SITEINFO_SKIN) != null) {
+			context.put("selectedIcon", state.getAttribute(FORM_SITEINFO_SKIN));
+		} else 
+		{
+			if (site != null && site.getIconUrl() != null) 
+			{
+				context.put("selectedIcon", site.getIconUrl());
+			}
+			else if (siteInfo != null && StringUtil.trimToNull(siteInfo.getIconUrl()) != null) 
+			{
+				context.put("selectedIcon", siteInfo.getIconUrl());
+			}
+		}
+	}
 
 	/**
 	 * Launch the Page Order Helper Tool -- for ordering, adding and customizing
@@ -5377,6 +5395,7 @@ public class SiteAction extends PagedResourceActionII {
 			state.removeAttribute(FORM_SITEINFO_SHORT_DESCRIPTION);
 			state.removeAttribute(FORM_SITEINFO_SKIN);
 			state.removeAttribute(FORM_SITEINFO_INCLUDE);
+			state.removeAttribute(FORM_SITEINFO_ICON_URL);
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		} else if (currentIndex.equals("15")) {
 			params = data.getParameters();

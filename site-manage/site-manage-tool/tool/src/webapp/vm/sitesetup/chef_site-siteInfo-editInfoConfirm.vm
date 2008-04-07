@@ -59,7 +59,7 @@
 					</td>
 				</tr>
 			#end	
-			#if ($!isCourseSite)
+			#if ($!isCourseSite	&& !$!disableCourseSelection)
 				<tr>
 					<th>
 						$tlang.getString("sitediconf.app")
@@ -83,6 +83,7 @@
 					</td>
 				</tr>
 			#else
+			<br />
 				#if ($!icon)
 					<tr>
 						<th>

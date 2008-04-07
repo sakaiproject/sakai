@@ -68,17 +68,11 @@ function LimitText(fieldObj,maxChars)
 			<textarea  name="short_description" id="short_description" tabindex="2" rows="2" cols="45" onkeyup="LimitText(this,80)">$validator.escapeHtmlTextarea($!short_description)</textarea>
 		</div>	
 		#if ($!isCourseSite)
+			#if (!$!disableCourseSelection && $!skins.size() > 0)
 			<p class ="shorttext">
 				<label for="skin">
 					$tlang.getString("sitediinf.app")
-				</label>			
-				#if($!disableCourseSelection)
-					#foreach ($s in $skins)
-						#set($url="")
-						#set($url=$!s.Url)
-							#if ($url == $selectedIcon)$s.Name#end
-					#end
-				#else		
+				</label>
 					<select name="skin" id="skin">
 						#foreach ($s in $skins)
 							#set($url="")
@@ -86,6 +80,7 @@ function LimitText(fieldObj,maxChars)
 							<option value="$url" #if ($url == $selectedIcon)selected="selected"#end>$s.Name</option>
 						#end
 					</select>
+					</p>
 					<div class="labelindnt"
 						<span class="instruction textPanelFooter">
 							$tlang.getString("sitediinf.sit")
