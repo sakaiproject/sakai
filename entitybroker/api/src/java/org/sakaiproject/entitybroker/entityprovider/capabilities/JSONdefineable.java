@@ -14,7 +14,7 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
-import org.sakaiproject.entitybroker.entityprovider.extension.DataResponseProvider;
+import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 
 /**
  * Allows this entity to define the JSON data that is returned for it,
@@ -23,7 +23,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.DataResponseProvid
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface JSONdefineable extends JSONable, DataResponseProvider {
+public interface JSONdefineable extends JSONable, HttpServletAccessProvider {
 
    // this space intentionally left blank
 

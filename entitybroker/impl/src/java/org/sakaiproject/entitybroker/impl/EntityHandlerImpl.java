@@ -70,123 +70,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    }
 
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.EntityRequestHandler#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-    */
-   public String handleEntityAccess(HttpServletRequest req, HttpServletResponse res, String path) {
-      // get the path info if not set
-      if (path == null) {
-         path = req.getPathInfo();
-      }
-
-      
-      EntityReference ref;
-      try {
-         ref = parseReference(path);
-      } catch (IllegalArgumentException e) {
-         // indicates we could not parse the reference
-         throw new EntityException("Could not parse entity path ("+path+"): " + e.getMessage(), path, HttpServletResponse.SC_BAD_REQUEST);
-      }
-
-      if (ref == null) {
-         // no provider for this entity prefix
-         throw new EntityException( "No entity provider could be found to handle the prefix in this path: " + path, 
-               path, HttpServletResponse.SC_NOT_IMPLEMENTED );
-      } else if (! entityExists(ref.toString())) {
-         // reference parsing failure
-         String message = "Attempted to access an entity URL path (" + path + ") for an entity ("
-            + ref.toString() + ") that does not exist";
-         throw new EntityException( message, ref.toString(), HttpServletResponse.SC_NOT_FOUND );
-      } else {
-         // reference successfully parsed
-         res.setStatus(HttpServletResponse.SC_OK); // other things can switch this later on
-
-         // check for extensions
-         String extension = getExtension(path);
-         if (extension == null) {
-            extension = HTMLable.EXTENSION;
-         }
-
-         // now handle the extensions
-         if (JSONable.EXTENSION.equals(extension)) {
-            EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, JSONable.class);
-            if (provider != null) {
-               JSONdefineable def = (JSONdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, JSONdefineable.class);
-               if (def != null) {
-                  def.makeData(ref, req, res);
-               } else {
-                  // internally handle this request
-                  makeJSONData(ref, req, res);
-               }
-            } else {
-               throw new EntityException( "Cannot access JSON for this path (" + path + ") for prefix ("
-                  + ref.prefix + ") for entity (" + ref.toString() + ")", ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
-            }
-         } else if (XMLable.EXTENSION.equals(extension)) {
-            EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, XMLable.class);
-            if (provider != null) {
-               XMLdefineable def = (XMLdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, XMLdefineable.class);
-               if (def != null) {
-                  def.makeData(ref, req, res);
-               } else {
-                  // internally handle this request
-                  makeXMLData(ref, req, res);
-               }
-            } else {
-               throw new EntityException( "Cannot access XML for this path (" + path + ") for prefix ("
-                  + ref.prefix + ") for entity (" + ref.toString() + ")", ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
-            }            
-         } else if (HTMLable.EXTENSION.equals(extension)) {
-            // currently we assume everyone handles HTML, maybe we shouldn't?
-            HTMLdefineable def = (HTMLdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, HTMLdefineable.class);
-            if (def != null) {
-               def.makeData(ref, req, res);
-            } else {
-               // no special handling so send on to the standard access provider if one can be found
-               HttpServletAccessProvider accessProvider = 
-                  accessProviderManager.getProvider(ref.prefix);
-               if (accessProvider == null) {
-                  String message = "Attempted to access an entity URL path ("
-                              + path + ") for an entity (" + ref.toString()
-                              + ") when there is no HttpServletAccessProvider to handle the request for prefix ("
-                              + ref.prefix + ")";
-                  throw new EntityException( message, ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
-               } else {
-                  ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-                  try {
-                     ClassLoader newClassLoader = accessProvider.getClass().getClassLoader();
-                     // check to see if this access provider reports the correct classloader
-                     if (accessProvider instanceof ClassLoaderReporter) {
-                        newClassLoader = ((ClassLoaderReporter) accessProvider).getSuitableClassLoader();
-                     }
-                     Thread.currentThread().setContextClassLoader(newClassLoader);
-                     // send request to the access provider which will route it on to the correct entity world
-                     accessProvider.handleAccess(req, res, ref);
-                  } finally {
-                     Thread.currentThread().setContextClassLoader(currentClassLoader);
-                  }
-               }
-            }
-         }
-      }
-
-      return ref.toString();
-   }
-
-
-   /**
-    * @param path
-    * @return the extension or null if none can be found
-    */
-   public String getExtension(String path) {
-      String extension = null;
-      int extensionLoc = path.lastIndexOf('.', path.length());
-      if (extensionLoc > 0 
-            && extensionLoc < path.length()-1) {
-         extension = path.substring(extensionLoc + 1);
-      }
-      return extension;
-   }
 
    /**
     * Determines if an entity exists based on the reference
@@ -288,15 +171,148 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       return ref;
    }
 
-   private XStream xstreamJSON = null;
+
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.EntityRequestHandler#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+    */
+   public String handleEntityAccess(HttpServletRequest req, HttpServletResponse res, String path) {
+      // get the path info if not set
+      if (path == null) {
+         path = req.getPathInfo();
+      }
+
+      EntityReference ref;
+      try {
+         ref = parseReference(path);
+      } catch (IllegalArgumentException e) {
+         // indicates we could not parse the reference
+         throw new EntityException("Could not parse entity path ("+path+"): " + e.getMessage(), path, HttpServletResponse.SC_BAD_REQUEST);
+      }
+
+      if (ref == null) {
+         // no provider for this entity prefix
+         throw new EntityException( "No entity provider could be found to handle the prefix in this path: " + path, 
+               path, HttpServletResponse.SC_NOT_IMPLEMENTED );
+      } else if (! entityExists(ref.toString())) {
+         // reference parsing failure
+         String message = "Attempted to access an entity URL path (" + path + ") for an entity ("
+            + ref.toString() + ") that does not exist";
+         throw new EntityException( message, ref.toString(), HttpServletResponse.SC_NOT_FOUND );
+      } else {
+         // reference successfully parsed
+         res.setStatus(HttpServletResponse.SC_OK); // other things can switch this later on
+
+         // check for extensions
+         String extension = getExtension(path);
+         if (extension == null) {
+            extension = HTMLable.EXTENSION;
+         }
+
+         // now handle the extensions
+         if (JSONable.EXTENSION.equals(extension)) {
+            EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, JSONable.class);
+            if (provider != null) {
+               JSONdefineable def = (JSONdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, JSONdefineable.class);
+               if (def != null) {
+                  handleClassLoaderAccess(def, req, res, ref);
+               } else {
+                  // internally handle this request
+                  makeJSONData(req, res, ref);
+               }
+            } else {
+               throw new EntityException( "Cannot access JSON for this path (" + path + ") for prefix ("
+                  + ref.prefix + ") for entity (" + ref.toString() + ")", ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+            }
+         } else if (XMLable.EXTENSION.equals(extension)) {
+            EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, XMLable.class);
+            if (provider != null) {
+               XMLdefineable def = (XMLdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, XMLdefineable.class);
+               if (def != null) {
+                  handleClassLoaderAccess(def, req, res, ref);
+               } else {
+                  // internally handle this request
+                  makeXMLData(req, res, ref);
+               }
+            } else {
+               throw new EntityException( "Cannot access XML for this path (" + path + ") for prefix ("
+                  + ref.prefix + ") for entity (" + ref.toString() + ")", ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+            }            
+         } else if (HTMLable.EXTENSION.equals(extension)) {
+            // currently we assume everyone handles HTML, maybe we shouldn't?
+            HTMLdefineable def = (HTMLdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, HTMLdefineable.class);
+            if (def != null) {
+               handleClassLoaderAccess(def, req, res, ref);
+            } else {
+               // no special handling so send on to the standard access provider if one can be found
+               HttpServletAccessProvider accessProvider = accessProviderManager.getProvider(ref.prefix);
+               if (accessProvider == null) {
+                  String message = "Attempted to access an entity URL path ("
+                              + path + ") for an entity (" + ref.toString()
+                              + ") when there is no HttpServletAccessProvider to handle the request for prefix ("
+                              + ref.prefix + ")";
+                  throw new EntityException( message, ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+               } else {
+                  handleClassLoaderAccess(accessProvider, req, res, ref);
+               }
+            }
+         }
+      }
+
+      return ref.toString();
+   }
+
+
+
    /**
-    * @param ref
+    * Wrap this in appropriate classloader before handling the request to ensure we
+    * do not get ugly classloader failures
+    * 
+    * @param accessProvider
     * @param req
     * @param res
+    * @param ref
+    */
+   private void handleClassLoaderAccess(HttpServletAccessProvider accessProvider,
+         HttpServletRequest req, HttpServletResponse res, EntityReference ref) {
+      ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+      try {
+         ClassLoader newClassLoader = accessProvider.getClass().getClassLoader();
+         // check to see if this access provider reports the correct classloader
+         if (accessProvider instanceof ClassLoaderReporter) {
+            newClassLoader = ((ClassLoaderReporter) accessProvider).getSuitableClassLoader();
+         }
+         Thread.currentThread().setContextClassLoader(newClassLoader);
+         // send request to the access provider which will route it on to the correct entity world
+         accessProvider.handleAccess(req, res, ref);
+      } finally {
+         Thread.currentThread().setContextClassLoader(currentClassLoader);
+      }
+   }
+
+
+   /**
+    * @param path
+    * @return the extension or null if none can be found
+    */
+   public String getExtension(String path) {
+      String extension = null;
+      int extensionLoc = path.lastIndexOf('.', path.length());
+      if (extensionLoc > 0 
+            && extensionLoc < path.length()-1) {
+         extension = path.substring(extensionLoc + 1);
+      }
+      return extension;
+   }
+
+   private XStream xstreamJSON = null;
+   /**
+    * @param req
+    * @param res
+    * @param ref
     * @return the entity that was encoded
     * @throws RuntimeException if this fails for any reason
     */
-   public Object makeJSONData(EntityReference ref, HttpServletRequest req, HttpServletResponse res) {
+   public Object makeJSONData(HttpServletRequest req, HttpServletResponse res, EntityReference ref) {
       if (xstreamJSON == null) {
          xstreamJSON = new XStream(new JsonHierarchicalStreamDriver());
       }
@@ -322,13 +338,13 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
    private XStream xstreamXML = null;
    /**
-    * @param ref
     * @param req
     * @param res
+    * @param ref
     * @return the entity that was encoded
     * @throws RuntimeException if this fails for any reason
     */
-   public Object makeXMLData(EntityReference ref, HttpServletRequest req, HttpServletResponse res) {
+   public Object makeXMLData(HttpServletRequest req, HttpServletResponse res, EntityReference ref) {
       if (xstreamXML == null) {
          xstreamXML = new XStream(new DomDriver());
       }

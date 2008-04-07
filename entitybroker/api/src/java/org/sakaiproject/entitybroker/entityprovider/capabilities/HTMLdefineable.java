@@ -14,9 +14,8 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
+import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.extension.DataResponseProvider;
-
 
 /**
  * Allows this entity to define the HTML data that is returned for it,
@@ -25,7 +24,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.DataResponseProvid
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface HTMLdefineable extends HTMLable, DataResponseProvider {
+public interface HTMLdefineable extends HTMLable, HttpServletAccessProvider {
 
    // this space intentionally left blank
 

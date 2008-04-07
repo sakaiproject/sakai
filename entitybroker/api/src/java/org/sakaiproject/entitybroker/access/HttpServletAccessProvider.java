@@ -31,19 +31,18 @@ import org.sakaiproject.entitybroker.EntityReference;
  * tool.
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
+ * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
 public interface HttpServletAccessProvider {
 
    /**
-    * Define the way that access is handled for your entities
+    * Make and return the data responses for this type of data provider for a specific entity reference,
+    * use the request to get any additional sent in information you may need or want
+    * and use the response to hold the output you generate
     * 
-    * @param req
-    *           the servlet request
-    * @param res
-    *           the servlet response
-    * @param reference
-    *           a globally unique reference to an entity, consists of the entity prefix and the
-    *           local id
+    * @param ref an entity reference
+    * @param req the servlet request (available in case you need to get anything out of it)
+    * @param res the servlet response, put the correct data response into the outputstream
     */
    public void handleAccess(HttpServletRequest req, HttpServletResponse res, EntityReference ref);
 

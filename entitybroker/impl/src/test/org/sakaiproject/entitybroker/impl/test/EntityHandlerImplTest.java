@@ -220,7 +220,7 @@ public class EntityHandlerImplTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#makeJSONData(org.sakaiproject.entitybroker.EntityReference, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.
+    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#makeJSONData(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.sakaiproject.entitybroker.EntityReference)}.
     */
    public void testMakeJSONData() {
       Object entity = null;
@@ -233,7 +233,7 @@ public class EntityHandlerImplTest extends TestCase {
       res = new MockHttpServletResponse();
       ref = entityHandler.parseReference(TestData.REF4);
       assertNotNull(ref);
-      entity = entityHandler.makeJSONData(ref, req, res);
+      entity = entityHandler.makeJSONData(req, res, ref);
       assertNotNull(entity);
       assertNotNull(res.getOutputStream());
       try {
@@ -249,7 +249,7 @@ public class EntityHandlerImplTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#makeXMLData(org.sakaiproject.entitybroker.EntityReference, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.
+    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#makeXMLData(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.sakaiproject.entitybroker.EntityReference)}.
     */
    public void testMakeXMLData() {
 
@@ -263,7 +263,7 @@ public class EntityHandlerImplTest extends TestCase {
       res = new MockHttpServletResponse();
       ref = entityHandler.parseReference(TestData.REF4);
       assertNotNull(ref);
-      entity = entityHandler.makeXMLData(ref, req, res);
+      entity = entityHandler.makeXMLData(req, res, ref);
       assertNotNull(entity);
       assertNotNull(res.getOutputStream());
       try {
