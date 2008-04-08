@@ -278,7 +278,7 @@ public class EntityHandlerImplTest extends TestCase {
       // JSON test valid resolveable entity
       req = new MockHttpServletRequest("GET", TestData.REF4);
       res = new MockHttpServletResponse();
-      ref = entityHandler.parseReference(TestData.REF4);
+      ref = entityHandler.parseReference(req.getPathInfo());
       assertNotNull(ref);
       entityHandler.encodeToResponse(req, res, ref, OutputJSONable.EXTENSION);
       assertNotNull(res.getOutputStream());
@@ -295,7 +295,7 @@ public class EntityHandlerImplTest extends TestCase {
       // XML test valid resolveable entity
       req = new MockHttpServletRequest("GET", TestData.REF4);
       res = new MockHttpServletResponse();
-      ref = entityHandler.parseReference(TestData.REF4);
+      ref = entityHandler.parseReference(req.getPathInfo());
       assertNotNull(ref);
       entityHandler.encodeToResponse(req, res, ref, OutputXMLable.EXTENSION);
       assertNotNull(res.getOutputStream());
@@ -312,7 +312,7 @@ public class EntityHandlerImplTest extends TestCase {
       // HTML test valid resolveable entity
       req = new MockHttpServletRequest("GET", TestData.REF4);
       res = new MockHttpServletResponse();
-      ref = entityHandler.parseReference(TestData.REF4);
+      ref = entityHandler.parseReference(req.getPathInfo());
       assertNotNull(ref);
       entityHandler.encodeToResponse(req, res, ref, OutputHTMLable.EXTENSION);
       assertNotNull(res.getOutputStream());
@@ -331,7 +331,7 @@ public class EntityHandlerImplTest extends TestCase {
       // JSON test valid resolveable entity
       req = new MockHttpServletRequest("GET", TestData.REF1);
       res = new MockHttpServletResponse();
-      ref = entityHandler.parseReference(TestData.REF1);
+      ref = entityHandler.parseReference(req.getPathInfo());
       assertNotNull(ref);
       entityHandler.encodeToResponse(req, res, ref, OutputJSONable.EXTENSION);
       assertNotNull(res.getOutputStream());
@@ -348,8 +348,7 @@ public class EntityHandlerImplTest extends TestCase {
       // XML test valid resolveable entity
       req = new MockHttpServletRequest("GET", TestData.REF1);
       res = new MockHttpServletResponse();
-      ref = entityHandler.parseReference(TestData.REF1);
-      assertNotNull(ref);
+      ref = entityHandler.parseReference(req.getPathInfo());
       entityHandler.encodeToResponse(req, res, ref, OutputXMLable.EXTENSION);
       assertNotNull(res.getOutputStream());
       try {
@@ -365,7 +364,7 @@ public class EntityHandlerImplTest extends TestCase {
       // HTML test valid resolveable entity
       req = new MockHttpServletRequest("GET", TestData.REF1);
       res = new MockHttpServletResponse();
-      ref = entityHandler.parseReference(TestData.REF1);
+      ref = entityHandler.parseReference(req.getPathInfo());
       assertNotNull(ref);
       entityHandler.encodeToResponse(req, res, ref, OutputHTMLable.EXTENSION);
       assertNotNull(res.getOutputStream());
@@ -380,8 +379,56 @@ public class EntityHandlerImplTest extends TestCase {
       assertEquals(100, res.getContentLength());
 
       // test resolveable collections
+      // XML
+      req = new MockHttpServletRequest("GET", TestData.SPACE4);
+      res = new MockHttpServletResponse();
+      ref = entityHandler.parseReference(req.getPathInfo());
+      assertNotNull(ref);
+      entityHandler.encodeToResponse(req, res, ref, OutputXMLable.EXTENSION);
+      assertNotNull(res.getOutputStream());
+      try {
+         String xml = res.getContentAsString();
+         assertNotNull(xml);
+         assertTrue(xml.length() > 20);
+         assertTrue(xml.contains(TestData.PREFIX4));
+         assertTrue(xml.contains(TestData.IDS4[0]));
+         assertTrue(xml.contains(TestData.IDS4[1]));
+         assertTrue(xml.contains(TestData.IDS4[2]));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      // JSON
+      req = new MockHttpServletRequest("GET", TestData.SPACE4);
+      res = new MockHttpServletResponse();
+      ref = entityHandler.parseReference(req.getPathInfo());
+      assertNotNull(ref);
+      entityHandler.encodeToResponse(req, res, ref, OutputJSONable.EXTENSION);
+      assertNotNull(res.getOutputStream());
+      try {
+         String json = res.getContentAsString();
+         assertNotNull(json);
+         assertTrue(json.length() > 20);
+         //assertTrue(json.contains(TestData.PREFIX4));
+         assertTrue(json.contains(TestData.IDS4[0]));
+         assertTrue(json.contains(TestData.IDS4[1]));
+         assertTrue(json.contains(TestData.IDS4[2]));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
 
       // test for invalid refs
+      req = new MockHttpServletRequest("GET", "/fakey/fake");
+      res = new MockHttpServletResponse();
+      ref = new EntityReference("fakey");
+      assertNotNull(ref);
+      try {
+         entityHandler.encodeToResponse(req, res, ref, OutputHTMLable.EXTENSION);
+         fail("Should have thrown exception");
+      } catch (RuntimeException e) {
+         assertNotNull(e.getMessage());
+      }
+      assertNotNull(res.getOutputStream());
 
    }
 
@@ -442,6 +489,7 @@ public class EntityHandlerImplTest extends TestCase {
 
       // types that cannot handle the return requested
 
+      // test the REST and CRUD methods
    }
 
 }

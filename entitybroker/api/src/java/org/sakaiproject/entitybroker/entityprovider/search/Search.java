@@ -412,6 +412,20 @@ public class Search {
    }
 
    /**
+    * @return true if this search has no defined restrictions and no orders
+    * (i.e. this is a default search so return everything in default order),
+    * false if there are any defined restrictions or orders
+    */
+   public boolean isEmpty() {
+      boolean empty = false;
+      if ((restrictions == null || restrictions.length == 0) 
+            && (orders == null || orders.length == 0) ) {
+         empty = true;
+      }
+      return empty;
+   }
+
+   /**
     * Checks to see if an array contains a value,
     * will return the position of the value or -1 if not found
     * 

@@ -7,6 +7,7 @@ package org.sakaiproject.entitybroker.mocks.data;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Propertyable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.mocks.CoreEntityProviderMock;
@@ -81,14 +82,18 @@ public class TestData {
          + EntityReference.SEPARATOR + IDS3[0];
 
    public final static String PREFIX4 = "myPrefix4";
-   public final static String[] IDS4 = new String[] { "4-one", "4-two" };
+   public final static String[] IDS4 = new String[] { "4-one", "4-two", "4-three" };
+   public final static String SPACE4 = EntityReference.SEPARATOR + PREFIX4;
    public final static String REF4 = EntityReference.SEPARATOR + PREFIX4
          + EntityReference.SEPARATOR + IDS4[0];
    public final static String REF4_two = EntityReference.SEPARATOR + PREFIX4
          + EntityReference.SEPARATOR + IDS4[1];
+   public final static String REF4_3 = EntityReference.SEPARATOR + PREFIX4
+         + EntityReference.SEPARATOR + IDS4[2];
    // sample entity objects
    public final static MyEntity entity4 = new MyEntity(IDS4[0]);
    public final static MyEntity entity4_two = new MyEntity(IDS4[1]);
+   public final static MyEntity entity4_3 = new MyEntity(IDS4[2]);
 
    public final static String PREFIX5 = "myPrefix5";
    public final static String[] IDS5 = new String[] { "fiver", "50" };
@@ -150,7 +155,7 @@ public class TestData {
     */
    public EntityProvider entityProvider3 = new ReferenceParseableEntityProviderMock(PREFIX3, IDS3);
    /**
-    * Registered provider that implements {@link CoreEntityProvider} and {@link Resolvable}
+    * Registered provider that implements {@link CoreEntityProvider} and {@link Resolvable} and {@link CollectionResolvable}
     */
    public EntityProvider entityProvider4 = new ResolvableEntityProviderMock(PREFIX4, IDS4);
    /**

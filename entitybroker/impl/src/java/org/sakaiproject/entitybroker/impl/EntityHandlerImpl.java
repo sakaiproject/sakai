@@ -351,7 +351,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       Object toEncode = getEntityObject(ref);
       if (toEncode == null) {
          collection = true;
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, Resolvable.class);
+         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, CollectionResolvable.class);
          if (provider != null) {
             Search search = makeSearchFromRequest(req);
             toEncode = ((CollectionResolvable)provider).getEntities(ref, search);
@@ -371,9 +371,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             encoder = xstreams.get(extension);
             encoding = "text/javascript";
          } else if (OutputXMLable.EXTENSION.equals(extension)) {
-            XStream x = new XStream(new DomDriver());
-            x.registerConverter(new MapConverter(), 3);
-            xstreams.put( extension, x );
+            if (! xstreams.containsKey(extension)) {
+               XStream x = new XStream(new DomDriver());
+               x.registerConverter(new MapConverter(), 3);
+               xstreams.put( extension, x );
+            }
             encoder = xstreams.get(extension);
             encoding = "text/xml";
          } else {
@@ -383,12 +385,16 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          if (encoder != null) {
             if (collection) {
                // this is a collection of some kind so handle it specially
-               encoder.alias("entities", toEncode.getClass());
-               if (toEncode.getClass().isAssignableFrom(Collection.class)) {
-                  encoder.alias(ref.prefix, getClassFromCollection((Collection<?>)toEncode));
+               Class<?> encodeClass = toEncode.getClass();
+               encoder.alias("entities", encodeClass);
+               boolean isCollection = Collection.class.isAssignableFrom(encodeClass);
+               if (isCollection) {
+                  Class<?> entityClass = getClassFromCollection((Collection<?>)toEncode);
+                  encoder.alias(ref.prefix, entityClass);
                }
             } else {
-               encoder.alias(ref.prefix, toEncode.getClass()); // add alias for the current entity prefix
+               Class<?> encodeClass = toEncode.getClass();
+               encoder.alias(ref.prefix, encodeClass); // add alias for the current entity prefix
             }
          }
          try {
