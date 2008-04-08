@@ -14,6 +14,10 @@
 
 package org.sakaiproject.entitybroker.entityprovider.search;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This is a simple pea which allows the passing of a set of search parameters in a nice way
  * 
@@ -40,16 +44,23 @@ public class Search {
     * Restrictions define limitations on the results of a search, e.g. propertyA > 100 or property B = 'jump'<br/> You
     * can add as many restrictions as you like and they will be applied in the array order
     */
-   public Restriction[] restrictions;
+   public Restriction[] restrictions = new Restriction[] {};
 
    /**
     * Orders define the order of the returned results of a search, You can add as many orders as you like and they will
     * be applied in the array order
     */
-   public Order[] orders;
+   public Order[] orders = new Order[] {};
 
 
    // CONSTRUCTORS
+
+   /**
+    * Empty constructor, 
+    * if nothing is changed then this indicates that the search should return
+    * all items in default order
+    */
+   public Search() {}
 
    /**
     * Do a simple search of a single property which must equal a single value
@@ -332,6 +343,110 @@ public class Search {
       this.start = start;
       this.limit = limit;
       this.conjunction = conjunction;
+   }
+
+   // HELPER methods
+
+   /**
+    * @param restriction add this restriction to the search filter,
+    * will replace an existing restriction for a similar property
+    */
+   public void addRestriction(Restriction restriction) {
+      if (restrictions != null) {
+         int location = contains(restrictions, restriction);
+         if (location >= 0 && location < restrictions.length) {
+            restrictions[location] = restriction;
+         }
+      } else {
+         restrictions = new Restriction[] {restriction};
+      }
+   }
+
+   /**
+    * @param restriction add this order to the search filter,
+    * will replace an existing order for a similar property
+    */
+   public void addOrder(Order order) {
+      if (orders != null) {
+         int location = contains(orders, order);
+         if (location >= 0 && location < orders.length) {
+            orders[location] = order;
+         }
+      } else {
+         orders = new Order[] {order};
+      }
+   }
+
+   /**
+    * Convenient method to find restrictions by their property,
+    * if there happens to be more than one restriction with a property then
+    * only the first one will be returned (since that is an invalid state)
+    * 
+    * @param property the property to match
+    * @return the Restriction with this property or null if none found
+    */
+   public Restriction getRestrictionByProperty(String property) {
+      Restriction r = null;
+      if (restrictions != null && property != null) {
+         for (int i = 0; i < restrictions.length; i++) {
+            if (property.equals(restrictions[i].property)) {
+               r = restrictions[i];
+               break;
+            }
+         }         
+      }
+      return r;
+   }
+
+   /**
+    * @return a list of all the properties on all restrictions in this search filter object
+    */
+   public List<String> getRestrictionsProperties() {
+      List<String> l = new ArrayList<String>();
+      if (restrictions != null) {
+         for (int i = 0; i < restrictions.length; i++) {
+            l.add(restrictions[i].property);
+         }         
+      }      
+      return l;
+   }
+
+   /**
+    * Checks to see if an array contains a value,
+    * will return the position of the value or -1 if not found
+    * 
+    * @param <T>
+    * @param array any array of objects
+    * @param value the value to check for
+    * @return array position if found, -1 if not found
+    */
+   public static <T> int contains(T[] array, T value) {
+      int position = -1;
+      if (value != null) {
+         for (int i = 0; i < array.length; i++) {
+            if (value.equals(array[i])) {
+               position = i;
+               break;
+            }
+         }
+      }
+      return position;
+   }
+
+   /**
+    * Append an item to the end of an array and return the new array
+    * 
+    * @param array an array of items
+    * @param value the item to append to the end of the new array
+    * @return a new array with value in the last spot
+    */
+   @SuppressWarnings("unchecked")
+   public static <T> T[] appendArray(T[] array, T value) {
+      Class<?> type = array.getClass().getComponentType();
+      T[] newArray = (T[]) Array.newInstance(type, array.length + 1);
+      System.arraycopy( array, 0, newArray, 0, array.length );
+      newArray[newArray.length-1] = value;
+      return newArray;
    }
 
 }

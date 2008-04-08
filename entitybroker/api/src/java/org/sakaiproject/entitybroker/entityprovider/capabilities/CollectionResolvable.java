@@ -31,7 +31,8 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 public interface CollectionResolvable extends EntityProvider {
 
    /**
-    * Allows these entities to be fetched based on search parameters<br/>
+    * Allows these entities to be fetched based on search parameters,
+    * this should never return null and if there are no entities then the list should be empty<br/>
     * <b>Note:</b> The entity class types in the list need to be able to be 
     * resolved from the ClassLoader of the EntityBrokerManager (currently this means deployed into shared)<br/> 
     * <br/>These do not have to be model objects and may simply
@@ -41,8 +42,8 @@ public interface CollectionResolvable extends EntityProvider {
     * only the prefix will be used from this reference (since that identifies the space)
     * @param search a search object which can define the order to return entities,
     * search filters, and total number of entities returned
-    * @return a list of entity objects of the type handled by this provider based on the search
+    * @return a list of entity objects of the type handled by this provider based on the search or empty if none found
     */
-   public List<?> getEntity(EntityReference reference, Search search);
+   public List<?> getEntities(EntityReference reference, Search search);
 
 }

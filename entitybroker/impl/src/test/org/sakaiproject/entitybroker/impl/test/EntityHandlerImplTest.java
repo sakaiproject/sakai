@@ -15,6 +15,10 @@
 package org.sakaiproject.entitybroker.impl.test;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -23,9 +27,12 @@ import junit.framework.TestCase;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.IdEntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputHTMLable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputJSONable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputXMLable;
+import org.sakaiproject.entitybroker.entityprovider.extension.BasicEntity;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
-import org.sakaiproject.entitybroker.impl.EntityHandlerImpl.BasicEntity;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.impl.test.mocks.FakeServerConfigurationService;
 import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
@@ -191,6 +198,7 @@ public class EntityHandlerImplTest extends TestCase {
    }
 
 
+   @SuppressWarnings("unchecked")
    public void testGetEntityObject() {
       Object entity = null;
       EntityReference ref = null;
@@ -216,69 +224,166 @@ public class EntityHandlerImplTest extends TestCase {
       entity = entityHandler.getEntityObject(ref);
       assertNotNull(entity);
       assertEquals(BasicEntity.class, entity.getClass());
-      BasicEntity be = (BasicEntity) entity;
-      assertEquals(TestData.REF5, be.reference);
+      assertEquals(TestData.REF5, ((BasicEntity)entity).getReference());
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#makeJSONData(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.sakaiproject.entitybroker.EntityReference)}.
+    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#getClassFromCollection(java.util.Collection)}.
     */
-   public void testMakeJSONData() {
-      Object entity = null;
+   @SuppressWarnings("unchecked")
+   public void testGetClassFromCollection() {
+      Class<?> result = null;
+
+      // null returns object class
+      result = entityHandler.getClassFromCollection(null);
+      assertNotNull(result);
+      assertEquals(Object.class, result);
+
+      // empty collection is always object
+      result = entityHandler.getClassFromCollection( new ArrayList<String>() );
+      assertNotNull(result);
+      assertEquals(Object.class, result);
+
+      // NOTE: Cannot get real type from empty collections
+
+      // try with collections that have things in them
+      List<Object> l = new ArrayList<Object>();
+      l.add(new String("testing"));
+      result = entityHandler.getClassFromCollection(l);
+      assertNotNull(result);
+      assertEquals(String.class, result);
+
+      HashSet<Object> s = new HashSet<Object>();
+      s.add(new Double(22.0));
+      result = entityHandler.getClassFromCollection(s);
+      assertNotNull(result);
+      assertEquals(Double.class, result);
+
+      List v = new Vector<Object>();
+      v.add( new Integer(30) );
+      result = entityHandler.getClassFromCollection(v);
+      assertNotNull(result);
+      assertEquals(Integer.class, result);
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#encodeToResponse(java.lang.Object, java.lang.String, java.lang.String, javax.servlet.http.HttpServletResponse)}.
+    */
+   public void testEncodeToResponse() {
+
       EntityReference ref = null;
       MockHttpServletRequest req = null;
       MockHttpServletResponse res = null;
 
-      // test valid resolveable entity
+      // JSON test valid resolveable entity
       req = new MockHttpServletRequest("GET", TestData.REF4);
       res = new MockHttpServletResponse();
       ref = entityHandler.parseReference(TestData.REF4);
       assertNotNull(ref);
-      entity = entityHandler.makeJSONData(req, res, ref);
-      assertNotNull(entity);
+      entityHandler.encodeToResponse(req, res, ref, OutputJSONable.EXTENSION);
       assertNotNull(res.getOutputStream());
       try {
          String json = res.getContentAsString();
          assertNotNull(json);
          assertTrue(json.length() > 20);
+         assertTrue(json.contains(TestData.PREFIX4));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
       assertEquals(58, res.getContentLength());
 
-      // TODO test failure cases
-   }
-
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#makeXMLData(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.sakaiproject.entitybroker.EntityReference)}.
-    */
-   public void testMakeXMLData() {
-
-      Object entity = null;
-      EntityReference ref = null;
-      MockHttpServletRequest req = null;
-      MockHttpServletResponse res = null;
-
-      // test valid resolveable entity
+      // XML test valid resolveable entity
       req = new MockHttpServletRequest("GET", TestData.REF4);
       res = new MockHttpServletResponse();
       ref = entityHandler.parseReference(TestData.REF4);
       assertNotNull(ref);
-      entity = entityHandler.makeXMLData(req, res, ref);
-      assertNotNull(entity);
+      entityHandler.encodeToResponse(req, res, ref, OutputXMLable.EXTENSION);
       assertNotNull(res.getOutputStream());
       try {
-         String json = res.getContentAsString();
-         assertNotNull(json);
-         assertTrue(json.length() > 20);
+         String xml = res.getContentAsString();
+         assertNotNull(xml);
+         assertTrue(xml.length() > 20);
+         assertTrue(xml.contains(TestData.PREFIX4));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
       assertEquals(68, res.getContentLength());
 
-      // TODO test failure cases
-   }
+      // HTML test valid resolveable entity
+      req = new MockHttpServletRequest("GET", TestData.REF4);
+      res = new MockHttpServletResponse();
+      ref = entityHandler.parseReference(TestData.REF4);
+      assertNotNull(ref);
+      entityHandler.encodeToResponse(req, res, ref, OutputHTMLable.EXTENSION);
+      assertNotNull(res.getOutputStream());
+      try {
+         String html = res.getContentAsString();
+         assertNotNull(html);
+         assertTrue(html.length() > 20);
+         assertTrue(html.contains(TestData.PREFIX4));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+      assertEquals(43, res.getContentLength());
 
+      // test for unresolvable entities
+
+      // JSON test valid resolveable entity
+      req = new MockHttpServletRequest("GET", TestData.REF1);
+      res = new MockHttpServletResponse();
+      ref = entityHandler.parseReference(TestData.REF1);
+      assertNotNull(ref);
+      entityHandler.encodeToResponse(req, res, ref, OutputJSONable.EXTENSION);
+      assertNotNull(res.getOutputStream());
+      try {
+         String json = res.getContentAsString();
+         assertNotNull(json);
+         assertTrue(json.length() > 20);
+         assertTrue(json.contains(TestData.PREFIX1));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+      assertEquals(167, res.getContentLength());
+
+      // XML test valid resolveable entity
+      req = new MockHttpServletRequest("GET", TestData.REF1);
+      res = new MockHttpServletResponse();
+      ref = entityHandler.parseReference(TestData.REF1);
+      assertNotNull(ref);
+      entityHandler.encodeToResponse(req, res, ref, OutputXMLable.EXTENSION);
+      assertNotNull(res.getOutputStream());
+      try {
+         String xml = res.getContentAsString();
+         assertNotNull(xml);
+         assertTrue(xml.length() > 20);
+         assertTrue(xml.contains(TestData.PREFIX1));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+      assertEquals(195, res.getContentLength());
+
+      // HTML test valid resolveable entity
+      req = new MockHttpServletRequest("GET", TestData.REF1);
+      res = new MockHttpServletResponse();
+      ref = entityHandler.parseReference(TestData.REF1);
+      assertNotNull(ref);
+      entityHandler.encodeToResponse(req, res, ref, OutputHTMLable.EXTENSION);
+      assertNotNull(res.getOutputStream());
+      try {
+         String html = res.getContentAsString();
+         assertNotNull(html);
+         assertTrue(html.length() > 20);
+         assertTrue(html.contains(TestData.PREFIX1));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+      assertEquals(100, res.getContentLength());
+
+      // test resolveable collections
+
+      // test for invalid refs
+
+   }
 
    /**
     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.String)}.

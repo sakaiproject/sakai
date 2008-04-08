@@ -50,5 +50,30 @@ public class Order {
 		this.property = property;
 		this.ascending = ascending;
 	}
-	
+
+   @Override
+   public boolean equals(Object obj) {
+      if (null == obj) return false;
+      if (!(obj instanceof Order)) return false;
+      else {
+         Order castObj = (Order) obj;
+         if (null == this.property || null == castObj.property) return false;
+         else return (
+               this.property.equals(castObj.property)
+         );
+      }
+   }
+
+   @Override
+   public int hashCode() {
+      if (null == this.property) return super.hashCode();
+      String hashStr = this.getClass().getName() + ":" + this.property.hashCode();
+      return hashStr.hashCode();
+   }
+
+   @Override
+   public String toString() {
+      return "property:" + this.property + ", ascending:" + this.ascending;
+   }
+
 }

@@ -16,6 +16,9 @@ package org.sakaiproject.entitybroker.impl;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,18 +32,23 @@ import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputHTMLable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputHTMLdefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputJSONable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputJSONdefineable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputXMLable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputXMLdefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestInterceptor;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputXMLable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputXMLdefineable;
+import org.sakaiproject.entitybroker.entityprovider.extension.BasicEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
+import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
+import org.sakaiproject.entitybroker.impl.util.MapConverter;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 
 import com.thoughtworks.xstream.XStream;
@@ -234,7 +242,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                   handleClassLoaderAccess(def, req, res, ref);
                } else {
                   // internally handle this request
-                  makeJSONData(req, res, ref);
+                  encodeToResponse(req, res, ref, OutputJSONable.EXTENSION);
                }
             } else {
                throw new EntityException( "Cannot access JSON for this path (" + path + ") for prefix ("
@@ -248,7 +256,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                   handleClassLoaderAccess(def, req, res, ref);
                } else {
                   // internally handle this request
-                  makeXMLData(req, res, ref);
+                  encodeToResponse(req, res, ref, OutputXMLable.EXTENSION);
                }
             } else {
                throw new EntityException( "Cannot access XML for this path (" + path + ") for prefix ("
@@ -264,14 +272,18 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                HttpServletAccessProvider accessProvider = accessProviderManager.getProvider(ref.prefix);
                if (accessProvider == null) {
                   String message = "Attempted to access an entity URL path ("
-                              + path + ") for an entity (" + ref.toString()
-                              + ") when there is no HttpServletAccessProvider to handle the request for prefix ("
-                              + ref.prefix + ")";
+                              + path + ") for an entity (" + ref.toString() + ") when there is no " 
+                              + "HttpServletAccessProvider to handle the request for prefix (" + ref.prefix + ")";
                   throw new EntityException( message, ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
                } else {
                   handleClassLoaderAccess(accessProvider, req, res, ref);
                }
             }
+         } else {
+            String message = "Attempted to access an entity URL path ("
+               + path + ") for an entity (" + ref.toString()
+               + ") with extension (" + extension + ") when extension is of unknown type";
+            throw new EntityException( message, ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );            
          }
 
          // handle the after interceptor
@@ -282,7 +294,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
       return ref.toString();
    }
-
 
 
    /**
@@ -326,124 +337,144 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       return extension;
    }
 
-   private XStream xstreamJSON = null;
+
    /**
-    * @param req
-    * @param res
-    * @param ref
-    * @return the entity that was encoded
-    * @throws RuntimeException if this fails for any reason
+    * stores the various xstream processors for handling the different types of data
     */
-   public Object makeJSONData(HttpServletRequest req, HttpServletResponse res, EntityReference ref) {
-      if (xstreamJSON == null) {
-         xstreamJSON = new XStream(new JsonHierarchicalStreamDriver());
+   private Map<String, XStream> xstreams = new HashMap<String, XStream>();
+   /**
+    * Internal method for processing an entity or collection into an output format,
+    * Currently only handles JSON and XML correctly
+    */
+   public void encodeToResponse(HttpServletRequest req, HttpServletResponse res, EntityReference ref, String extension) {
+      boolean collection = false;
+      Object toEncode = getEntityObject(ref);
+      if (toEncode == null) {
+         collection = true;
+         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, Resolvable.class);
+         if (provider != null) {
+            Search search = makeSearchFromRequest(req);
+            toEncode = ((CollectionResolvable)provider).getEntities(ref, search);
+         }
       }
-      Object entity = getEntityObject(ref);
-      if (entity == null) {
-         throw new RuntimeException("Failed to encode JSON data for entity (" + ref + "), could not locate entity data");
+      if (toEncode == null) {
+         throw new RuntimeException("Failed to encode data for entity (" + ref.toString() + "), entity object to encode could not be found");
       } else {
-         xstreamJSON.alias(ref.prefix, entity.getClass()); // add alias for the current entity prefix
+         String encoding = "text/plain";
+         XStream encoder = null;
+         if (OutputJSONable.EXTENSION.equals(extension)) {
+            if (! xstreams.containsKey(extension)) {
+               XStream x = new XStream(new JsonHierarchicalStreamDriver());
+               x.registerConverter(new MapConverter(), 3);
+               xstreams.put( extension, x );
+            }
+            encoder = xstreams.get(extension);
+            encoding = "text/javascript";
+         } else if (OutputXMLable.EXTENSION.equals(extension)) {
+            XStream x = new XStream(new DomDriver());
+            x.registerConverter(new MapConverter(), 3);
+            xstreams.put( extension, x );
+            encoder = xstreams.get(extension);
+            encoding = "text/xml";
+         } else {
+            encoder = null;
+         }
+
+         if (encoder != null) {
+            if (collection) {
+               // this is a collection of some kind so handle it specially
+               encoder.alias("entities", toEncode.getClass());
+               if (toEncode.getClass().isAssignableFrom(Collection.class)) {
+                  encoder.alias(ref.prefix, getClassFromCollection((Collection<?>)toEncode));
+               }
+            } else {
+               encoder.alias(ref.prefix, toEncode.getClass()); // add alias for the current entity prefix
+            }
+         }
          try {
-            byte[] b = xstreamJSON.toXML(entity).getBytes("UTF-8");
-            res.setContentType("text/javascript");
+            byte[] b = null;
+            if (encoder != null) {
+               b = encoder.toXML(toEncode).getBytes("UTF-8");
+            } else {
+               // just to string this and dump it out
+               String s = "<b>" + ref.prefix + "</b>: " + toEncode.toString();
+               b = s.getBytes("UTF-8");
+            }
+            res.setContentType(encoding);
             res.setCharacterEncoding("UTF-8");
             res.setContentLength(b.length);
             res.getOutputStream().write(b);
          } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("Failed to encode UTF-8 JSON: " + ref, e);
+            throw new RuntimeException("Failed to encode UTF-8: " + ref.toString(), e);
          } catch (IOException e) {
-            throw new RuntimeException("Failed to encode JSON into response: " + ref, e);
-         }         
+            throw new RuntimeException("Failed to encode into response: " + ref.toString(), e);
+         }
       }
-      return entity;
    }
 
-   private XStream xstreamXML = null;
    /**
-    * @param req
-    * @param res
-    * @param ref
-    * @return the entity that was encoded
-    * @throws RuntimeException if this fails for any reason
+    * This looks at search parameters and returns anything it finds in the
+    * request parameters that can be put into the search
+    * 
+    * @param req a servlet request
+    * @return a search filter object
     */
-   public Object makeXMLData(HttpServletRequest req, HttpServletResponse res, EntityReference ref) {
-      if (xstreamXML == null) {
-         xstreamXML = new XStream(new DomDriver());
+   @SuppressWarnings("unchecked")
+   public Search makeSearchFromRequest(HttpServletRequest req) {
+      Search search = new Search();
+      if (req != null) {
+         Map<String, String[]> params = req.getParameterMap();
+         if (params != null) {
+            for (String key : params.keySet()) {
+               search.addRestriction( new Restriction("key", req.getParameter(key)) );
+            }
+         }
       }
-      Object entity = getEntityObject(ref);
-      if (entity == null) {
-         throw new RuntimeException("Failed to encode XML data for entity (" + ref + "), could not locate entity data");
-      } else {
-         xstreamXML.alias(ref.prefix, entity.getClass()); // add alias for the current entity prefix
-         try {
-            byte[] b = xstreamXML.toXML(entity).getBytes("UTF-8");
-            res.setContentType("text/xml");
-            res.setCharacterEncoding("UTF-8");
-            res.setContentLength(b.length);
-            res.getOutputStream().write(b);
-         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("Failed to encode UTF-8 XML: " + ref, e);
-         } catch (IOException e) {
-            throw new RuntimeException("Failed to encode XML into response: " + ref, e);
-         }         
+      return search;
+   }
+
+   /**
+    * Finds a class type that is in the containing collection,
+    * will always return something (failsafe to Object.class)
+    * @param collection
+    * @return the class type contained in this collecion
+    */
+   @SuppressWarnings("unchecked")
+   public Class<?> getClassFromCollection(Collection collection) {
+      // try to get the type of entities out of this collection
+      Class<?> c = Object.class;
+      if (collection != null) {
+         if (! collection.isEmpty()) {
+            c = collection.iterator().next().getClass();
+         } else {
+            // this always gets Object.class -AZ
+            c = collection.toArray().getClass().getComponentType();                     
+         }
       }
-      return entity;
+      return c;
    }
 
 
    /**
-    * Get an entity object of some kind for this reference,
-    * will create a {@link BasicEntity} if this entity type is not resolveable
+    * Get an entity object of some kind for this reference if it has an id,
+    * will create a {@link BasicEntity} if this entity type is not resolveable,
+    * will simply return null if no id is available in this reference
     * @param ref an entity reference
     * @return the entity object for this reference or null if none can be retrieved
     */
    public Object getEntityObject(EntityReference ref) {
       Object entity = null;
-      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, Resolvable.class);
-      if (provider != null) {
-         // TODO - what about the case of multiple entities to return?
-         entity = ((Resolvable)provider).getEntity(ref);
-      } else {
-         entity = new BasicEntity(ref);
-      }
-      return entity;
-   }
-
-   /**
-    * Very basic entity object, used when there is no Resolveable entity
-    * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
-    */
-   public class BasicEntity {
-      public String reference;
-      public String prefix;
-      public String id;
-      public boolean exists = true;
-      public boolean resolved = false;
-      public String message = "Could not resolve entity object, returning known metadata";
-
-      public BasicEntity(EntityReference ref) {
-         this.reference = ref.toString();
-         this.prefix = ref.prefix;
-         if (ref instanceof IdEntityReference) {
-            this.id = ((IdEntityReference)ref).id;
+      if (ref instanceof IdEntityReference 
+            && ((IdEntityReference)ref).id != null) {
+         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, Resolvable.class);
+         if (provider != null) {
+            entity = ((Resolvable)provider).getEntity(ref);
+         } else {
+            // return basic entity information
+            entity = new BasicEntity(ref);
          }
       }
-      
-      public String getReference() {
-         return reference;
-      }
-      
-      public String getPrefix() {
-         return prefix;
-      }
-      
-      public String getId() {
-         return id;
-      }
-      
-      public boolean isExists() {
-         return exists;
-      }
+      return entity;
    }
 
 }

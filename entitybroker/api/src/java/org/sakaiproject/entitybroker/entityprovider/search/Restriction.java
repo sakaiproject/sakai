@@ -14,6 +14,8 @@
 
 package org.sakaiproject.entitybroker.entityprovider.search;
 
+import java.util.Collection;
+
 /**
  * Defines a restriction in a search, this is like saying:
  * where userId = '123'; OR where userId like '%aaronz%';
@@ -47,7 +49,7 @@ public class Restriction {
 	/**
 	 * Simple restriction where the property must equal the value
 	 * @param property the name of the field (property) in the persisted object
-	 * @param value the value of the {@link #property} (can be an array of items)
+	 * @param value the value of the {@link #property} (can be an array of items or list)
 	 */
 	public Restriction(String property, Object value) {
 		this.property = property;
@@ -57,7 +59,7 @@ public class Restriction {
 	/**
 	 * Restriction which defines the type of comparison to make between a property and value
 	 * @param property the name of the field (property) in the persisted object
-	 * @param value the value of the {@link #property} (can be an array of items)
+	 * @param value the value of the {@link #property} (can be an array of items or list)
 	 * @param comparison the comparison to make between the property and the value,
 	 * use the defined constants: e.g. EQUALS, LIKE, etc...
 	 */
@@ -66,5 +68,74 @@ public class Restriction {
 		this.value = value;
 		this.comparison = comparison;
 	}
-	
+
+	// HELPER methods
+
+	/**
+	 * @return the value if it is not an array or collection,
+	 * if it is then return the first object in the array or collection,
+	 * otherwise return null (including when value is null)
+	 */
+	@SuppressWarnings("unchecked")
+   public Object getSingleValue() {
+	   Object result = null;
+	   if (value != null) {
+   	   if (value.getClass().isArray()) {
+   	      if (((Object[])value).length > 0) {
+   	         result = ((Object[])value)[0];
+   	      }
+   	   } else if (value.getClass().isAssignableFrom(Collection.class)) {
+            if (! ((Collection)value).isEmpty()) {
+               result = ((Collection)value).iterator().next();
+            }
+   	   } else {
+   	      result = value;
+   	   }
+	   }
+	   return result;
+	}
+
+   /**
+    * @return the value as an array if it is an array or a collection,
+    * if it is a single value then return null (also when value is null)
+    */
+   @SuppressWarnings("unchecked")
+   public Object[] getArrayValue() {
+      Object[] result = null;
+      if (value != null) {
+         if (value.getClass().isArray()) {
+            result = (Object[])value;
+         } else if (value.getClass().isAssignableFrom(Collection.class)) {
+            result = ((Collection)value).toArray();
+         }
+      }      
+      return result;
+   }
+
+
+   @Override
+   public boolean equals(Object obj) {
+      if (null == obj) return false;
+      if (!(obj instanceof Restriction)) return false;
+      else {
+         Restriction castObj = (Restriction) obj;
+         if (null == this.property || null == castObj.property) return false;
+         else return (
+               this.property.equals(castObj.property)
+         );
+      }
+   }
+
+   @Override
+   public int hashCode() {
+      if (null == this.property) return super.hashCode();
+      String hashStr = this.getClass().getName() + ":" + this.property.hashCode();
+      return hashStr.hashCode();
+   }
+
+   @Override
+   public String toString() {
+      return "property:" + this.property + ", value:" + this.value + ", comparison:" + this.comparison;
+   }
+
 }

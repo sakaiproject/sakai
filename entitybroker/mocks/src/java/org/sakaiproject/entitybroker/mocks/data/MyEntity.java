@@ -41,7 +41,7 @@ public class MyEntity {
 
    @Override
    public String toString() {
-      return "id:" + this.id;
+      return "id:" + this.id + ", stuff:" + stuff;
    }
 
 }
