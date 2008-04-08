@@ -1,7 +1,7 @@
 /**
  * $Id$
  * $URL$
- * HTMLable.java - entity-broker - Apr 6, 2008 7:37:54 PM - azeckoski
+ * XMLable.java - entity-broker - Apr 6, 2008 7:46:42 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
  * Licensed under the Educational Community License version 1.0
@@ -14,24 +14,23 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
-import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 
+
 /**
- * The entity can be returned as HTML and will automatically be handled using
- * the available {@link HttpServletAccessProviderManager}<br/>
- * If you want to define the HTML that is returned instead of allowing the redirect
- * to the servlet access provider then use {@link HTMLdefineable}
+ * The entity can be returned as XML and will automatically be returned using
+ * the internal XML methods, if this entity is not {@link Resolvable} then
+ * the entity meta data will be returned only (e.g. prefix/id/reference/exists)<br/>
+ * If you want to define the XML that is returned then use {@link OutputXMLdefineable}
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface HTMLable extends EntityProvider {
+public interface OutputXMLable extends EntityProvider {
 
    /**
-    * the extension which goes on this entity URL (after a ".") to indicate the return should be HTML data,
-    * no extension will do the same thing
+    * the extension which goes on this entity URL (after a ".") to indicate the return should be XML data
     */
-   public final String EXTENSION = "html";
+   public final String EXTENSION = "xml";
 
    // this space intentionally left blank
 

@@ -16,7 +16,7 @@ package org.sakaiproject.entitybroker.entityprovider;
 
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.HTMLable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputHTMLable;
 
 /**
  * This is the base unit for working with Sakai entities, by implementing this interface and
@@ -63,7 +63,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.HTMLable;
  * @author Aaron Zeckoski (aaronz@vt.edu)
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
-public interface CoreEntityProvider extends EntityProvider, HTMLable {
+public interface CoreEntityProvider extends EntityProvider, OutputHTMLable {
 
    /**
     * Check if a specific entity managed by this provider exists.

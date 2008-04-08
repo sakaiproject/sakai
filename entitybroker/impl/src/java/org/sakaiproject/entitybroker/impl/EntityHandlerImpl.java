@@ -29,15 +29,15 @@ import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.HTMLable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.HTMLdefineable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.JSONable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.JSONdefineable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputHTMLable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputHTMLdefineable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputJSONable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputJSONdefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestInterceptor;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.XMLable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.XMLdefineable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputXMLable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputXMLdefineable;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
@@ -215,7 +215,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          // check for extensions
          String extension = getExtension(path);
          if (extension == null) {
-            extension = HTMLable.EXTENSION;
+            extension = OutputHTMLable.EXTENSION;
          }
          req.setAttribute("extension", extension);
 
@@ -226,10 +226,10 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          }
 
          // now handle the extensions
-         if (JSONable.EXTENSION.equals(extension)) {
-            EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, JSONable.class);
+         if (OutputJSONable.EXTENSION.equals(extension)) {
+            EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, OutputJSONable.class);
             if (provider != null) {
-               JSONdefineable def = (JSONdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, JSONdefineable.class);
+               OutputJSONdefineable def = (OutputJSONdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, OutputJSONdefineable.class);
                if (def != null) {
                   handleClassLoaderAccess(def, req, res, ref);
                } else {
@@ -240,10 +240,10 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                throw new EntityException( "Cannot access JSON for this path (" + path + ") for prefix ("
                   + ref.prefix + ") for entity (" + ref.toString() + ")", ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
             }
-         } else if (XMLable.EXTENSION.equals(extension)) {
-            EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, XMLable.class);
+         } else if (OutputXMLable.EXTENSION.equals(extension)) {
+            EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, OutputXMLable.class);
             if (provider != null) {
-               XMLdefineable def = (XMLdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, XMLdefineable.class);
+               OutputXMLdefineable def = (OutputXMLdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, OutputXMLdefineable.class);
                if (def != null) {
                   handleClassLoaderAccess(def, req, res, ref);
                } else {
@@ -254,9 +254,9 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                throw new EntityException( "Cannot access XML for this path (" + path + ") for prefix ("
                   + ref.prefix + ") for entity (" + ref.toString() + ")", ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
             }            
-         } else if (HTMLable.EXTENSION.equals(extension)) {
+         } else if (OutputHTMLable.EXTENSION.equals(extension)) {
             // currently we assume everyone handles HTML, maybe we shouldn't?
-            HTMLdefineable def = (HTMLdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, HTMLdefineable.class);
+            OutputHTMLdefineable def = (OutputHTMLdefineable) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, OutputHTMLdefineable.class);
             if (def != null) {
                handleClassLoaderAccess(def, req, res, ref);
             } else {
@@ -286,7 +286,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
 
    /**
-    * Wrap this in appropriate classloader before handling the request to ensure we
+    * Wrap this in an appropriate classloader before handling the request to ensure we
     * do not get ugly classloader failures
     * 
     * @param accessProvider

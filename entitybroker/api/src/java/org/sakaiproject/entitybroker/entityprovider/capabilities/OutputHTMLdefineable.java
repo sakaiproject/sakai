@@ -1,7 +1,7 @@
 /**
  * $Id$
  * $URL$
- * JSONable.java - entity-broker - Apr 6, 2008 6:23:55 PM - azeckoski
+ * HTMLdefineable.java - entity-broker - Apr 6, 2008 7:44:11 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
  * Licensed under the Educational Community License version 1.0
@@ -14,23 +14,17 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
-
+import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
+import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 
 /**
- * The entity can be returned as JSON and will automatically be returned using
- * the internal JSON methods, if this entity is not {@link Resolvable} then
- * the entity meta data will be returned only (e.g. prefix/id/reference/exists)<br/>
- * If you want to define the JSON that is returned then use {@link JSONdefineable}
+ * Allows this entity to define the HTML data that is returned for it,
+ * if you just want to use the internal methods to turn your entity into HTML
+ * then simply use {@link OutputHTMLable} (automatic on {@link CoreEntityProvider}
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface JSONable extends EntityProvider {
-
-   /**
-    * the extension which goes on this entity URL (after a ".") to indicate the return should be JSON data
-    */
-   public final String EXTENSION = "json";
+public interface OutputHTMLdefineable extends OutputHTMLable, HttpServletAccessProvider {
 
    // this space intentionally left blank
 

@@ -1,7 +1,7 @@
 /**
  * $Id$
  * $URL$
- * XMLable.java - entity-broker - Apr 6, 2008 7:46:42 PM - azeckoski
+ * JSONable.java - entity-broker - Apr 6, 2008 6:23:55 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
  * Licensed under the Educational Community License version 1.0
@@ -18,19 +18,19 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 
 
 /**
- * The entity can be returned as XML and will automatically be returned using
- * the internal XML methods, if this entity is not {@link Resolvable} then
+ * The entity can be returned as JSON and will automatically be returned using
+ * the internal JSON methods, if this entity is not {@link Resolvable} then
  * the entity meta data will be returned only (e.g. prefix/id/reference/exists)<br/>
- * If you want to define the XML that is returned then use {@link XMLdefineable}
+ * If you want to define the JSON that is returned then use {@link OutputJSONdefineable}
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface XMLable extends EntityProvider {
+public interface OutputJSONable extends EntityProvider {
 
    /**
-    * the extension which goes on this entity URL (after a ".") to indicate the return should be XML data
+    * the extension which goes on this entity URL (after a ".") to indicate the return should be JSON data
     */
-   public final String EXTENSION = "xml";
+   public final String EXTENSION = "json";
 
    // this space intentionally left blank
 

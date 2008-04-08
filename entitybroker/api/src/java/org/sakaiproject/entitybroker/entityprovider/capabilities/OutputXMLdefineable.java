@@ -1,7 +1,7 @@
 /**
  * $Id$
  * $URL$
- * HTMLdefineable.java - entity-broker - Apr 6, 2008 7:44:11 PM - azeckoski
+ * XMLdefineable.java - entity-broker - Apr 6, 2008 7:48:37 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
  * Licensed under the Educational Community License version 1.0
@@ -15,16 +15,15 @@
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
-import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 
 /**
- * Allows this entity to define the HTML data that is returned for it,
- * if you just want to use the internal methods to turn your entity into HTML
- * then simply use {@link HTMLable} (automatic on {@link CoreEntityProvider}
+ * Allows this entity to define the XML data that is returned for it,
+ * if you just want to use the internal methods to turn your entity into XML
+ * then simply use {@link OutputXMLable}
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface HTMLdefineable extends HTMLable, HttpServletAccessProvider {
+public interface OutputXMLdefineable extends OutputXMLable, HttpServletAccessProvider {
 
    // this space intentionally left blank
 

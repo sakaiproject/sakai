@@ -20,7 +20,6 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
-
 /**
  * This type of entity supports retrieval of entities in a collection based on a search,
  * this will be invoked when an entity space is accessed (/prefix) rather than accessing an individual

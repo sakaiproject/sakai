@@ -16,16 +16,16 @@ package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 
-
 /**
  * Indicates that entities handled by this provider are RESTful as defined by the REST microformat:<br/>
  * <a href="http://microformats.org/wiki/rest/urls">http://microformats.org/wiki/rest/urls</a><br/>
- * Requires all CRUD functionality and 
- * 
+ * Requires all CRUD functionality, Collection handling, HTML handling, and ability to support output formats<br/>
+ * This is mostly a convenience interface to make sure that everything needed to support REST has been 
+ * implemented, it also is a marker to indicate that RESTful URLs should work for entities of this type
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface RESTful extends EntityProvider, CRUDable, HTMLable, OutputFormatable {
+public interface RESTful extends EntityProvider, CRUDable, CollectionResolvable, OutputHTMLable, OutputFormatable {
 
    // this space left blank intentionally
 
