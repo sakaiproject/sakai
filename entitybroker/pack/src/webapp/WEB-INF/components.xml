@@ -15,6 +15,7 @@
    <!-- Public beans -->
    <bean id="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager"
       class="org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl" init-method="init">
+      <property name="requestGetter" ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter" />
    </bean>
 
    <bean id="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager"
@@ -53,6 +54,7 @@
       <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
       <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
       <property name="accessProviderManager" ref="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager" />
+      <property name="requestGetter" ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter" />
    </bean>
 
    <bean id="org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderAutoRegistrar"
@@ -71,6 +73,10 @@
    <bean id="org.sakaiproject.entitybroker.impl.collector.BeanCollectorAutoRegistrar"
       class="org.sakaiproject.entitybroker.impl.collector.BeanCollectorAutoRegistrar"
       init-method="init">
+   </bean>
+
+   <bean id="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter"
+      class="org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl">
    </bean>
 
 </beans>

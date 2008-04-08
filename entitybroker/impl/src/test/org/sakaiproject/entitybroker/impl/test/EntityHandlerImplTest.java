@@ -54,8 +54,9 @@ public class EntityHandlerImplTest extends TestCase {
       EntityProviderManagerImpl epm = new EntityProviderManagerImplTest().makeEntityProviderManager(td);
 
       entityHandler = new EntityHandlerImpl();
-      entityHandler.setAccessProviderManager( new HttpServletAccessProviderManagerMock() );
       entityHandler.setEntityProviderManager( epm );
+      entityHandler.setAccessProviderManager( new HttpServletAccessProviderManagerMock() );
+      entityHandler.setRequestGetter( epm.getRequestGetter() );
       entityHandler.setServerConfigurationService( new FakeServerConfigurationService() );
 
    }

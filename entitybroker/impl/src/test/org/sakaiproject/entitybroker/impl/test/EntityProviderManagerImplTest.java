@@ -16,14 +16,15 @@ package org.sakaiproject.entitybroker.impl.test;
 
 import java.util.Set;
 
+import junit.framework.TestCase;
+
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
+import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
-
-import junit.framework.TestCase;
 
 /**
  * Testing the entity provider manager
@@ -45,7 +46,10 @@ public class EntityProviderManagerImplTest extends TestCase {
 
    public EntityProviderManagerImpl makeEntityProviderManager(TestData td) {
       EntityProviderManagerImpl entityProviderManager = new EntityProviderManagerImpl();
+      entityProviderManager.setRequestGetter( new RequestGetterImpl() );
+
       entityProviderManager.init();
+
       entityProviderManager.registerEntityProvider(td.entityProvider1);
       entityProviderManager.registerEntityProvider(td.entityProvider2);
       entityProviderManager.registerEntityProvider(td.entityProvider3);

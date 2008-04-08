@@ -34,10 +34,13 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.HTMLdefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.JSONable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.JSONdefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestInterceptor;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.XMLable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.XMLdefineable;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 
 import com.thoughtworks.xstream.XStream;
@@ -64,11 +67,15 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       this.accessProviderManager = accessProviderManager;
    }
 
+   private RequestGetter requestGetter;
+   public void setRequestGetter(RequestGetter requestGetter) {
+      this.requestGetter = requestGetter;
+   }
+
    private ServerConfigurationService serverConfigurationService;
    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
       this.serverConfigurationService = serverConfigurationService;
    }
-
 
 
    /**
@@ -159,7 +166,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * @param reference a unique entity reference
     * @return an {@link EntityReference}
     */
-   private EntityReference parseDefaultReference(String prefix, String reference) {
+   protected EntityReference parseDefaultReference(String prefix, String reference) {
       EntityReference ref = null;
       try {
          ref = new IdEntityReference(reference);
@@ -170,7 +177,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       }
       return ref;
    }
-
 
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityRequestHandler#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
@@ -202,10 +208,21 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          // reference successfully parsed
          res.setStatus(HttpServletResponse.SC_OK); // other things can switch this later on
 
+         // store the current request and response
+         ((RequestGetterImpl) requestGetter).setRequest(req);
+         ((RequestGetterImpl) requestGetter).setResponse(res);
+
          // check for extensions
          String extension = getExtension(path);
          if (extension == null) {
             extension = HTMLable.EXTENSION;
+         }
+         req.setAttribute("extension", extension);
+
+         // handle the before interceptor
+         RequestInterceptor interceptor = (RequestInterceptor) entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, RequestInterceptor.class);
+         if (interceptor != null) {
+            interceptor.before(req, res, ref);
          }
 
          // now handle the extensions
@@ -255,6 +272,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                   handleClassLoaderAccess(accessProvider, req, res, ref);
                }
             }
+         }
+
+         // handle the after interceptor
+         if (interceptor != null) {
+            interceptor.after(req, res, ref);
          }
       }
 

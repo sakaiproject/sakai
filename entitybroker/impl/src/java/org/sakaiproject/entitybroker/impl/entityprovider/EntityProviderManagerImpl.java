@@ -18,6 +18,8 @@ import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.impl.BlankReferenceParseable;
 import org.sakaiproject.entitybroker.impl.util.ReflectUtil;
 
@@ -31,13 +33,23 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
    private static Log log = LogFactory.getLog(EntityProviderManagerImpl.class);
 
+   private RequestGetter requestGetter;
+   public void setRequestGetter(RequestGetter requestGetter) {
+      this.requestGetter = requestGetter;
+   }
+   public RequestGetter getRequestGetter() {
+      return requestGetter;
+   }
+
+
    // placeholder value indicating that this reference is parsed internally
    private static ReferenceParseable internalRP = new BlankReferenceParseable();
    
    private ConcurrentMap<String, EntityProvider> prefixMap = new ConcurrentHashMap<String, EntityProvider>();
 
    private ConcurrentMap<String, ReferenceParseable> parseMap = new ConcurrentHashMap<String, ReferenceParseable>();
-   
+
+
    public void init() {
       log.info("init");
    }
@@ -53,7 +65,6 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
    /*
     * (non-Javadoc)
-    * 
     * @see org.sakaiproject.entitybroker.EntityProviderManager#getProviderByReference(java.lang.String)
     */
    public EntityProvider getProviderByReference(String reference) {
@@ -63,7 +74,6 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
    /*
     * (non-Javadoc)
-    * 
     * @see org.sakaiproject.entitybroker.managers.EntityProviderManager#getProviderByPrefix(java.lang.String)
     */
    public EntityProvider getProviderByPrefix(String prefix) {
@@ -126,7 +136,6 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
    /*
     * (non-Javadoc)
-    * 
     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#registerEntityProvider(org.sakaiproject.entitybroker.entityprovider.EntityProvider)
     */
    public void registerEntityProvider(EntityProvider entityProvider) {
@@ -134,15 +143,18 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       List<Class<? extends EntityProvider>> superclasses = getCapabilities(entityProvider);
       for (Class<? extends EntityProvider> superclazz : superclasses) {
          registerPrefixCapability(prefix, superclazz, entityProvider);
+         // special handling for certain EPs if needed
+         if (superclazz.equals(RequestAware.class)) {
+            ((RequestAware)entityProvider).setRequestGetter(requestGetter);
+         }
       }
-      if (!superclasses.contains(ReferenceParseable.class)) {
+      if (! superclasses.contains(ReferenceParseable.class)) {
         registerPrefixCapability(prefix, ReferenceParseable.class, internalRP);
       }
    }
 
    /*
     * (non-Javadoc)
-    * 
     * @see org.sakaiproject.entitybroker.EntityProviderManager#unregisterEntityBroker(org.sakaiproject.entitybroker.EntityProvider)
     */
    public void unregisterEntityProvider(EntityProvider entityProvider) {
