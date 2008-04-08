@@ -69,6 +69,8 @@ import org.sakaiproject.taggable.api.TaggingProvider;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -675,6 +677,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		FunctionManager.registerFunction(SECURE_UPDATE_ASSIGNMENT);
 		FunctionManager.registerFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION);
 		FunctionManager.registerFunction(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS);
+		FunctionManager.registerFunction(SECURE_SHARE_DRAFTS);
 		
  		//if no contentReviewService was set try discovering it
  		if (contentReviewService == null)
@@ -2580,9 +2583,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						// not deleted, show it
 						if (tempAssignment.getDraft())
 						{
-							// for draft assignment, only admin users or the creator can see it
-							if (SecurityService.isSuperUser()
-									|| tempAssignment.getCreator().equals(UserDirectoryService.getCurrentUser().getId()))
+							// who can see the draft assigment
+							if (isDraftAssignmentVisible(tempAssignment, context))
 							{
 								retVal.add(tempAssignment);
 							}
@@ -2598,6 +2600,45 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		return retVal;
 
+	}
+	
+	/**
+	 * who can see the draft assignment
+	 * @param assignment
+	 * @param context
+	 * @return
+	 */
+	private boolean isDraftAssignmentVisible(Assignment assignment, String context) 
+	{
+		return SecurityService.isSuperUser() // super user can always see it
+			|| assignment.getCreator().equals(UserDirectoryService.getCurrentUser().getId()) // the creator can see it
+			|| (unlockCheck(SECURE_SHARE_DRAFTS, SiteService.siteReference(context)) && isCurrentUserInSameRoleAsCreator(assignment.getCreator(), context)); // same role user with share draft permission
+	}
+	
+	/**
+	 * is current user has same role as the specified one?
+	 * @param assignment
+	 * @param context
+	 * @return
+	 */
+	private boolean isCurrentUserInSameRoleAsCreator(String creatorUserId, String context) 
+	{	
+		try {
+			User currentUser = UserDirectoryService.getCurrentUser();
+			
+			AuthzGroup group = AuthzGroupService.getAuthzGroup(SiteService.siteReference(context));
+			
+			Member currentUserMember = group.getMember(currentUser.getId());
+			Member creatorMember = group.getMember(creatorUserId);
+			Role role = currentUserMember.getRole();
+		
+			return role != null && role.getId().equals(creatorMember.getRole().getId());
+		
+		} catch (GroupNotDefinedException gnde) {
+			M_log.warn("No group defined for this site " + context);
+		}
+		
+		return false;
 	}
 	
 	/**

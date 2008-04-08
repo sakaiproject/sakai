@@ -95,6 +95,9 @@ public interface AssignmentService extends EntityProducer
 
 	/** Security function giving the user permission to all groups, if granted to at the site level. */
 	public static final String SECURE_ALL_GROUPS = "asn.all.groups";
+	
+	/** Security function giving the user permission to share drafts within his/her role for a given site */
+	public static final String SECURE_SHARE_DRAFTS = "asn.share.drafts";
 
 	/** The Reference type for a site where site groups are to be considered in security computation. */
 	public static final String REF_TYPE_SITE_GROUPS = "site-groups";
