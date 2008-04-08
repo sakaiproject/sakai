@@ -138,7 +138,11 @@ public class DbContentService extends BaseContentService
 	 */
 	protected static final String[] RESOURCE_FIELDS_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID"};
 
-	
+	/**
+	 * The ID that is used in the content_resource table to test UTF8
+	 */
+	private static final String UTF8TESTID = "UTF8TEST";
+
 	private static final String[] BASE_COLLECTION_IDS = new String[]{
 		"/","/attachment/","/group-user/","/group/","/private/","/public/","/user/"   
 	};
@@ -316,43 +320,11 @@ public class DbContentService extends BaseContentService
 	public void init()
 	{
 
-		if ( m_sqlService != null ) {
-			setContentServiceSql(m_sqlService.getVendor());
-			try
-			{
-				validateUTF8Db();
-			}
-			catch (Exception ex)
-			{
-				M_log.fatal("Check on Database Failed ", ex);
-				M_log
-						.fatal("===========================================================");
-				M_log
-						.fatal("WARNING \n"
-								+ "  The connection from this instance of Sakai to the database\n"
-								+ "  has been tested and found to corrupt UTF-8 Data. \n"
-								+ "  In order for Sakai to operate correctly you must ensure that your \n"
-								+ "  database setup is correct for UTF-8 data. This includes both the \n"
-								+ "  JDBC connection to the database and the underlying storage in the \n"
-								+ "  database.\n"
-								+ "  The test that was performed on your database create a table\n"
-								+ "  wrote some data to that table and read it back again. On reading \n"
-								+ "  that data back it found some form of corruption, reported above.\n"
-								+ "\n"
-								+ " More information on database setup for sakai can be found at \n"
-								+ " http://bugs.sakaiproject.org/confluence/display/DOC/Install+Guide+-+DB+(2.4) \n"
-								+ "\n"
-								+ " Sakai Startup will continue but you might want to address this issue ASAP.\n");
-			}
-			if ( migrateData ) {
-				M_log.info("Migration of data to the Binary format will be performed by this node ");
-			} else {
-				M_log.info("Migration of data to the Binary format will NOT be performed by this node ");
-				
-			}
-		}
 		try
 		{
+			if ( m_sqlService != null ) {
+				setContentServiceSql(m_sqlService.getVendor());
+			}
 			// if we are auto-creating our schema, check and create
 			if ( m_sqlService != null && m_autoDdl)
 			{
@@ -381,8 +353,39 @@ public class DbContentService extends BaseContentService
 					}
 				}
 			}
-
 			if ( m_sqlService != null ) {
+				try
+				{
+					validateUTF8Db();
+				}
+				catch (Exception ex)
+				{
+					M_log.fatal("Check on Database Failed ", ex);
+					M_log
+							.fatal("===========================================================");
+					M_log
+							.fatal("WARNING \n"
+									+ "  The connection from this instance of Sakai to the database\n"
+									+ "  has been tested and found to corrupt UTF-8 Data. \n"
+									+ "  In order for Sakai to operate correctly you must ensure that your \n"
+									+ "  database setup is correct for UTF-8 data. This includes both the \n"
+									+ "  JDBC connection to the database and the underlying storage in the \n"
+									+ "  database.\n"
+									+ "  The test that was performed on your database create a table\n"
+									+ "  wrote some data to that table and read it back again. On reading \n"
+									+ "  that data back it found some form of corruption, reported above.\n"
+									+ "\n"
+									+ " More information on database setup for sakai can be found at \n"
+									+ " http://bugs.sakaiproject.org/confluence/display/DOC/Install+Guide+-+DB+(2.4) \n"
+									+ "\n"
+									+ " Sakai Startup will continue but you might want to address this issue ASAP.\n");
+				}
+				if ( migrateData ) {
+					M_log.info("Migration of data to the Binary format will be performed by this node ");
+				} else {
+					M_log.info("Migration of data to the Binary format will NOT be performed by this node ");
+					
+				}
 				filesizeColumnExists = filesizeColumnExists();
 			}
 
@@ -2510,6 +2513,7 @@ public class DbContentService extends BaseContentService
 	/** We allow these characters to go un-escaped into the file name. */
 	static protected final String VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.";
 
+
 	/**
 	 * Return file system safe escaped name, that's also unique if the initial id is unique. * Use only the name, not the path part of the id
 	 * 
@@ -3062,19 +3066,10 @@ public class DbContentService extends BaseContentService
 			String tempTableName = "utf8test"+System.currentTimeMillis();
 			try
 			{
-				statement = connection.createStatement();
-				statement.execute(contentServiceSql.getCreateTemporaryUTF8TestTable(tempTableName));
-				testUTF8Transport(connection,tempTableName);
+				testUTF8Transport(connection);
 			}
 			finally
 			{
-				try
-				{
-					statement.execute(contentServiceSql.getDropTemporaryUTF8TestTable(tempTableName));
-				}
-				catch (Exception ex)
-				{
-				}
 				
 				try
 				{
@@ -3096,7 +3091,7 @@ public class DbContentService extends BaseContentService
 
 		}	
 	
-	public void testUTF8Transport(Connection connection, String testtable) throws Exception
+	public void testUTF8Transport(Connection connection) throws Exception
 	{
 		/*
 		 * byte[] b = new byte[102400]; byte[] b2 = new byte[102400]; byte[] b3 =
@@ -3131,26 +3126,40 @@ public class DbContentService extends BaseContentService
 
 		PreparedStatement statement = null;
 		PreparedStatement statement2 = null;
+		PreparedStatement statement3 = null;
 		ResultSet rs = null;
 		try
 		{
+			statement3 = connection
+			.prepareStatement("delete from CONTENT_RESOURCE where  RESOURCE_ID =  ?");
+			statement3.clearParameters();
+			statement3.setString(1, UTF8TESTID);
+			statement3.executeUpdate();
+			
 			statement = connection
-					.prepareStatement("insert into "+testtable+" ( id, bval ) values ( ?, ? )");
+					.prepareStatement("insert into CONTENT_RESOURCE ( RESOURCE_ID, XML ) values ( ?, ? )");
 			statement.clearParameters();
-			statement.setInt(1, 20);
+			statement.setString(1, UTF8TESTID);
 			statement.setString(2, sin);
 			statement.executeUpdate();
 
 			statement2 = connection
-					.prepareStatement("select bval from "+testtable+" where id =  ? ");
+					.prepareStatement("select XML from CONTENT_RESOURCE where RESOURCE_ID = ? ");
 			statement2.clearParameters();
-			statement2.setInt(1, 20);
+			statement2.setString(1, UTF8TESTID);
 			rs = statement2.executeQuery();
 			String sout = null;
 			if (rs.next())
 			{
 				sout = rs.getString(1);
 			}
+			rs.close();
+			
+			
+			statement3.clearParameters();
+			statement3.setString(1, UTF8TESTID);
+			statement3.executeUpdate();
+
 
 			cout = sout.toCharArray();
 			ByteStorageConversion.toByte(cout, 0, bout, 0, cout.length);
@@ -3181,6 +3190,14 @@ public class DbContentService extends BaseContentService
 			try
 			{
 				rs.close();
+			}
+			catch (Exception ex)
+			{
+
+			}
+			try
+			{
+				statement3.close();
 			}
 			catch (Exception ex)
 			{
