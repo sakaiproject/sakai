@@ -21,11 +21,11 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * <a href="http://microformats.org/wiki/rest/urls">http://microformats.org/wiki/rest/urls</a><br/>
  * Requires all CRUD functionality, Collection handling, HTML handling, and ability to support output formats<br/>
  * This is mostly a convenience interface to make sure that everything needed to support REST has been 
- * implemented, it also is a marker to indicate that RESTful URLs should work for entities of this type
+ * implemented, it also includes the marker to indicate that RESTful URLs should work for entities of this type
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface RESTful extends EntityProvider, CRUDable, CollectionResolvable, OutputHTMLable, OutputFormatable {
+public interface RESTful extends EntityProvider, RESTfulUrlHandleable, CRUDable, CollectionResolvable, OutputHTMLable, OutputFormatable {
 
    // this space left blank intentionally
 
