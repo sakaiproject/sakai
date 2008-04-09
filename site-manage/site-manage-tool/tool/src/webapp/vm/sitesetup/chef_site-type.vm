@@ -14,6 +14,21 @@
  			}
  		}
  	}
+ 	
+ 	function selectTemplateSite ()
+ 	{
+ 		for (var i=0; i<document.typeform.itemType.length; i++)
+ 		{
+ 			if (document.typeform.itemType[i].value=="template")
+ 			{
+ 				document.typeform.itemType[i].checked=true;
+ 			}
+ 			else
+ 			{
+ 				document.typeform.itemType[i].checked=false;
+ 			}
+ 		}
+ 	}
 </script>
 <div class ="portletBody">
 
@@ -64,9 +79,22 @@
 								</p>	
 							</div>	
 						#end
-	
 			#end
 		#end
+		#if ($templateList.size() > 0)
+							<p class="checkbox indnt1">
+							<input type="radio" name="itemType" id="template" value="template"/>
+							<label for = "selectTemplate">$tlang.getString("sitetype.templatebased")</label>
+							&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+							<select name="selectTemplate" id="selectTemplate" onchange="javascript:selectTemplateSite();">
+								#foreach($template in $templateList)
+									<option value ="$template.getId()">
+										$template.getTitle()
+									</option>
+								#end
+							</select> 
+						</p>
+					#end
 		<input type="hidden" name="back" value="0" />
 		<input type="hidden" name="template-index" value="1" />
 		<div class ="act">

@@ -409,6 +409,9 @@ public class SiteAction extends PagedResourceActionII {
 	/** State attribute for state initialization. */
 	private static final String STATE_INITIALIZED = "site.initialized";
 
+	/** State attribute for state initialization. */
+	private static final String STATE_TEMPLATE_SITE = "site.templateSite";
+
 	/** The action for menu */
 	private static final String STATE_ACTION = "site.action";
 
@@ -762,7 +765,8 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_CM_AUTHORIZER_SECTIONS);
 		state.removeAttribute(FORM_ADDITIONAL); // don't we need to clena this
 		// too? -daisyf
-
+		state.removeAttribute(STATE_TEMPLATE_SITE);
+		
 	} // cleanState
 
 	/**
@@ -1112,6 +1116,10 @@ public class SiteAction extends PagedResourceActionII {
 			setTermListForContext(context, state, true); // true => only
 			// upcoming terms
 			setSelectedTermForContext(context, state, STATE_TERM_SELECTED);
+			
+			// template site - Denny
+			setTemplateListForContext(context, state);
+			
 			return (String) getContext(data).get("template") + TEMPLATE[1];
 
 		case 2:
@@ -2015,7 +2023,13 @@ public class SiteAction extends PagedResourceActionII {
 
 				// new site, go to confirmation page
 				context.put("continue", "10");
-				if (fromENWModifyView(state)) {
+				
+				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
+				// if create based on template, back to 2
+				if (templateSite != null) 
+				{
+					context.put("back", "2");					
+				} else if (fromENWModifyView(state)) {
 					context.put("back", "26");
 				} else if (state.getAttribute(STATE_IMPORT) != null) {
 					context.put("back", "27");
@@ -3526,22 +3540,9 @@ public class SiteAction extends PagedResourceActionII {
 		cleanState(state);
 
 		List siteTypes = (List) state.getAttribute(STATE_SITE_TYPES);
-		if (siteTypes != null) {
-			if (siteTypes.size() == 1) {
-				String siteType = (String) siteTypes.get(0);
-				if (!siteType.equals(ServerConfigurationService.getString(
-						"courseSiteType", (String) state.getAttribute(STATE_COURSE_SITE_TYPE)))) {
-					// if only one site type is allowed and the type isn't
-					// course type
-					// skip the select site type step
-					setNewSiteType(state, siteType);
-					state.setAttribute(STATE_TEMPLATE_INDEX, "2");
-				} else {
-					state.setAttribute(STATE_TEMPLATE_INDEX, "1");
-				}
-			} else {
-				state.setAttribute(STATE_TEMPLATE_INDEX, "1");
-			}
+		if (siteTypes != null) 
+		{
+			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
 		}
 
 	} // doNew_site
@@ -3818,9 +3819,8 @@ public class SiteAction extends PagedResourceActionII {
 		if (type == null) {
 			addAlert(state, rb.getString("java.select") + " ");
 		} else {
-			setNewSiteType(state, type);
-
 			if (type.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
+				setNewSiteType(state, type);
 				User user = UserDirectoryService.getCurrentUser();
 				String currentUserId = user.getEid();
 
@@ -3869,9 +3869,11 @@ public class SiteAction extends PagedResourceActionII {
 					totalSteps = 5;
 				}
 			} else if (type.equals("project")) {
+				setNewSiteType(state, type);
 				totalSteps = 4;
 				state.setAttribute(STATE_TEMPLATE_INDEX, "2");
 			} else if (type.equals(SITE_TYPE_GRADTOOLS_STUDENT)) {
+				setNewSiteType(state, type);
 				// if a GradTools site use pre-defined site info and exclude
 				// from public listing
 				SiteInfo siteInfo = new SiteInfo();
@@ -3890,15 +3892,46 @@ public class SiteAction extends PagedResourceActionII {
 
 				// skip directly to confirm creation of site
 				state.setAttribute(STATE_TEMPLATE_INDEX, "42");
+			} else if (type.equals("template")) {				
+				String templateSiteId = params.getString("selectTemplate");
+				Site templateSite = null;
+				try
+				{
+					templateSite = SiteService.getSite(templateSiteId);
+					// save the template site in state
+					state.setAttribute(STATE_TEMPLATE_SITE, templateSite);
+				     
+					// the new site type is based on the template site
+					setNewSiteType(state, templateSite.getType());
+				}catch (Exception e) {  
+					// should never happened, as the list of templates are generated
+					// from existing sites
+					M_log.warn(this + e.getClass().getName() + " : " + e.getMessage());
+				}
+				
+				// grab site info from template
+				SiteInfo siteInfo = new SiteInfo();
+				if (state.getAttribute(STATE_SITE_INFO) != null) {
+					siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
+				}
+				
+				// default site information. copied from the template site
+				siteInfo.description = templateSite.getDescription();
+				siteInfo.short_description = templateSite.getShortDescription();
+				//siteInfo.iconUrl = templateSite.getIconUrl();
+				//siteInfo.include = false;
+				state.setAttribute(STATE_SITE_INFO, siteInfo);
+
+				totalSteps = 3;
+				state.setAttribute(STATE_TEMPLATE_INDEX, "2");
 			} else {
+				setNewSiteType(state, type);
 				state.setAttribute(STATE_TEMPLATE_INDEX, "2");
 			}
 		}
 
 		if (state.getAttribute(SITE_CREATE_TOTAL_STEPS) == null) {
-			state
-					.setAttribute(SITE_CREATE_TOTAL_STEPS, new Integer(
-							totalSteps));
+			state.setAttribute(SITE_CREATE_TOTAL_STEPS, new Integer(totalSteps));
 		}
 
 		if (state.getAttribute(SITE_CREATE_CURRENT_STEP) == null) {
@@ -4380,6 +4413,12 @@ public class SiteAction extends PagedResourceActionII {
 		if (option.equalsIgnoreCase("continue"))
 		{
 			doContinue(data);
+			// if create based on template, skip the feature selection
+			Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
+			if (templateSite != null) 
+			{
+				state.setAttribute(STATE_TEMPLATE_INDEX, "18");
+			}
 		} else if (option.equalsIgnoreCase("back")) {
 			doBack(data);
 		} else if (option.equalsIgnoreCase("cancel")) {
@@ -4691,6 +4730,12 @@ public class SiteAction extends PagedResourceActionII {
 		String option = data.getParameters().getString("option");
 		if (option.equals("continue")) {
 			doContinue(data);
+			
+			// if create based on template, skip the feature selection
+			Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
+			if (templateSite != null) {
+				state.setAttribute(STATE_TEMPLATE_INDEX, "18");
+			}
 		} else if (option.equals("cancel")) {
 			doCancel_create(data);
 		} else if (option.equals("back")) {
@@ -4753,7 +4798,10 @@ public class SiteAction extends PagedResourceActionII {
 
 			addNewSite(params, state);
 
-			addFeatures(state);
+			// if create based on template, skip add features
+			if ((Site) state.getAttribute(STATE_TEMPLATE_SITE) == null) {
+				addFeatures(state);
+			}
 
 			Site site = getStateSite(state);
 
@@ -6460,7 +6508,11 @@ public class SiteAction extends PagedResourceActionII {
 					state.setAttribute(STATE_TEMPLATE_INDEX, "2");
 					return;
 				}
+			} else {
+				// removing previously selected template site
+					state.removeAttribute(STATE_TEMPLATE_SITE);				
 			}
+			
 			updateSiteAttributes(state);
 
 			if (state.getAttribute(STATE_MESSAGE) == null) {
@@ -8595,7 +8647,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 
-			// ijmport other tools then
+			// import other tools then
 			for (int i = 0; i < toolIds.size(); i++) {
 				String toolId = (String) toolIds.get(i);
 				if (!toolId.equalsIgnoreCase("sakai.resources")
@@ -9211,7 +9263,17 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
-				Site site = SiteService.addSite(id, siteInfo.site_type);
+				Site site = null;
+				// add current user as the maintainer
+				User currentUser = UserDirectoryService.getCurrentUser();						
+								
+				// if create based on template,
+				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
+				if (templateSite != null) {
+					site = SiteService.addSite(id, templateSite);
+				} else {
+					site = SiteService.addSite(id, siteInfo.site_type);
+				}
 
 				String title = StringUtil.trimToNull(siteInfo.title);
 				String description = siteInfo.description;
@@ -9239,6 +9301,47 @@ public class SiteAction extends PagedResourceActionII {
 
 				// commit newly added site in order to enable related realm
 				commitSite(site);
+				
+				// transfer site content from template site
+				if (templateSite != null) {
+					transferSiteContent (site, templateSite);
+					
+					// send an email to track who are using the template
+					String from = getSetupRequestEmailAddress();
+				 
+					// send it to the email archive of the template site
+					// TODO: need a better way to get the email archive address
+					//String domain = from.substring(from.indexOf('@'));
+					String templateEmailArchive = templateSite.getId() 
+						+ "@" + ServerConfigurationService.getServerName();
+					String to = templateEmailArchive;
+					String headerTo = templateEmailArchive;
+					String replyTo = templateEmailArchive;
+					String message_subject = templateSite.getId() + ": copied by " + currentUser.getDisplayId ();					
+				
+					if (from != null && templateEmailArchive != null) {
+						StringBuffer buf = new StringBuffer();
+						buf.setLength(0);
+				
+						// email body
+						buf.append("Dear template maintainer,\n\n");
+						buf.append("Congratulations!\n\n");
+						buf.append("The following user just created a new site based on your template.\n\n");
+						buf.append("Template name: " + templateSite.getTitle() + "\n");
+						buf.append("User         : " + currentUser.getDisplayName() + " (" 
+								+ currentUser.getDisplayId () + ")\n");
+						buf.append("Date         : " + new java.util.Date() + "\n");
+						buf.append("New site Id  : " + site.getId() + "\n");
+						buf.append("New site name: " + site.getTitle() + "\n\n");
+						buf.append("Cheers,\n");
+						buf.append("Alliance Team\n");
+						String content = buf.toString();
+						
+						EmailService.send(from, to, message_subject, content, headerTo,
+								replyTo, null);
+					}					
+				}
+				commitSite(site);
 
 			} catch (IdUsedException e) {
 				addAlert(state, rb.getString("java.sitewithid") + " " + id
@@ -9262,6 +9365,107 @@ public class SiteAction extends PagedResourceActionII {
 		}
 	} // addNewSite
 
+	/**
+	 * 
+	 * @param toSite
+	 * @param fromSite
+	 * @throws IdInvalidException
+	 * @throws IdUsedException
+	 * @throws PermissionException
+	 */
+	private void transferSiteContent(Site toSite, Site fromSite)
+			throws IdInvalidException, IdUsedException, PermissionException {
+		String id = toSite.getId ();
+		String templateSiteId = fromSite.getId();
+	//		// do copy template using archiving method
+	//		org.sakaiproject.archive.api.ArchiveService archiveService = 
+	//			(org.sakaiproject.archive.api.ArchiveService) ComponentManager.get(
+	//					"org.sakaiproject.archive.api.ArchiveService");
+	//		archiveService.archive (templateSiteId);
+	//		archiveService.merge (templateSiteId + "-archive", id, null);
+			
+		// a direct transfer if the tool support entity transfer
+		String templateSiteCollectionId = 
+			ContentHostingService.getSiteCollection(templateSiteId);
+		String toSiteCollectionId = 
+			ContentHostingService.getSiteCollection(id);
+	
+		// get a list of tools that support tranfer copy
+		Set importCapableTools = importTools ();
+	//		System.out.println ("Transfer supported tools: " 
+	//				+ Arrays.toString (importCapableTools.toArray()));
+		
+		// get tools used in the template site
+		Set templateTools = new HashSet ();
+		List pageList = fromSite.getPages();
+		if ((pageList != null) && ! pageList.isEmpty()) {
+			for (Object objPage : pageList) {
+				SitePage page = (SitePage) objPage;
+				List pageToolList = page.getTools();
+				
+				if (pageToolList != null) {								
+					for (Object objToolConf : pageToolList) {
+						if (objToolConf != null) {
+							ToolConfiguration toolConf = (ToolConfiguration) objToolConf;
+							templateTools.add((toolConf.getTool().getId()));
+						}
+					}
+				}
+			}
+		}
+		
+	//		System.out.println ("Template tools: " + 
+	//				Arrays.toString (templateTools.toArray()));
+		
+		// transfer resources first. is this necessary?
+		if (templateTools.contains("sakai.resources")) {
+			transferCopyEntities("sakai.resources", templateSiteCollectionId,
+					toSiteCollectionId);		
+			templateTools.remove("sakai.resources");
+		}
+		
+		// commit changes, it might be needed?
+		commitSite (toSite);
+		
+		for (Object objToolId : templateTools) {
+			String toolId = (String) objToolId;
+			// System.out.println ("Transferring " + toolId);
+			
+			// transfer copy if the tool support EntityTransfer
+			transferCopyEntities(toolId, templateSiteId,
+					id);			        
+		}
+	}
+	
+	/**
+	 * created based on setTermListForContext - Denny
+	 * @param context
+	 * @param state
+	 */
+	private void setTemplateListForContext(Context context, SessionState state)
+	{   
+		// find all template sites.
+		List templateSites = SiteService.getSites(
+				org.sakaiproject.site.api.SiteService.SelectionType.ANY, 
+				null, null, null,
+				org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null); 
+		
+		for (Iterator itr = templateSites.iterator(); itr.hasNext(); ) {
+			Site site = (Site) itr.next();
+			// convention: template site should use site id "template*"
+			// so, only administrator can create a site with a custom site id
+			if (!site.getId().startsWith("template")) {
+				// remove non-template sites
+				itr.remove();				
+			} else if (!site.isPublished()) {
+				// remove unpublished template
+				itr.remove();				
+			}
+		}
+		
+	    context.put("templateList", templateSites);
+	} // setTemplateListForContext
+	
 	/**
 	 * %%% legacy properties, to be cleaned up
 	 * 
