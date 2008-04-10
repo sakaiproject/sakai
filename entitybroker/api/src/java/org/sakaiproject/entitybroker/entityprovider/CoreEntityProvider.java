@@ -68,8 +68,8 @@ public interface CoreEntityProvider extends EntityProvider, OutputHTMLable {
    /**
     * Check if a specific entity managed by this provider exists.
     * 
-    * @param id
-    *           a locally unique id for an entity managed by this provider
+    * @param id a locally unique id for an entity managed by this provider,
+    * this will be an empty string if this is an entity space (singleton entity) without an id available
     * @return true if an entity with given local id exists, false otherwise
     */
    public boolean entityExists(String id);

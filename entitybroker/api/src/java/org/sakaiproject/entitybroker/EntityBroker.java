@@ -25,8 +25,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagSearchProvider;
 
 /**
- * This service interface defines the capabilities of the entity broker system<br/> It allows sakai
- * system methods, developers, etc. to access Sakai entity information (new and old)
+ * This service interface defines the capabilities of the entity broker system<br/> 
+ * It allows sakai system methods, developers, etc. to access Sakai entity information (new and old)
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
@@ -39,9 +39,8 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * the reference is found which implements {@link CoreEntityProvider}, this method will return
     * <code>true</code>
     * 
-    * @param reference
-    *           a globally unique reference to an entity, consists of the entity prefix and any
-    *           local ID.
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and optional segments (normally the id at least)
     * @return true if the entity exists, false otherwise
     */
    public boolean entityExists(String reference);
@@ -58,9 +57,8 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * from a direct URL (if one is defined) all the way down to simply a URL to the sakai server if
     * nothing better can be determined
     * 
-    * @param a
-    *           globally unique reference to an entity, consists of the entity prefix and optional
-    *           segments
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and optional segments
     * @return a full URL string
     */
    public String getEntityURL(String reference);
@@ -71,9 +69,8 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * 
     * @param eventName
     *           a string which represents the name of the event (e.g. announcement.create)
-    * @param reference
-    *           a globally unique reference to an entity, consists of the entity prefix and optional
-    *           segments
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and optional segments
     */
    public void fireEvent(String eventName, String reference);
 
@@ -82,12 +79,11 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * class derived from it, for example {@link IdEntityReference} or some other class of object
     * which is returned from {@link ParseSpecParseable}.
     * 
-    * @param reference
-    *           a globally unique reference to an entity, consists of the entity prefix and optional
-    *           segments
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and optional segments
     * @return an entity reference object which will contain the entity prefix and any optional
-    *         segments, or <code>null</code> if the reference was not recognised as a valid entity
-    *         handled by the broker
+    *         segments, or <code>null</code> if the reference was not recognized as a valid entity
+    *         handled by the broker (will be an {@link IdEntityReference} if there is an id set)
     */
    public EntityReference parseReference(String reference);
 
@@ -96,10 +92,9 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
     * {@link Resolvable} capability if implemented by the responsible {@link EntityProvider}, or
     * else from the underlying Sakai entity system.
     * 
-    * @param reference
-    *           a globally unique reference to an entity, consists of the entity prefix and optional
-    *           segments
-    * @return an object which represents the entity
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and optional segments
+    * @return an object which represents the entity or null if none can be found
     */
    public Object fetchEntity(String reference);
 

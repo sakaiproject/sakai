@@ -63,13 +63,12 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       return bikey.substring(0, slashpos);
    }
 
-   /*
-    * (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.EntityProviderManager#getProviderByReference(java.lang.String)
+   /**
+    * @deprecated
     */
    public EntityProvider getProviderByReference(String reference) {
-      String prefix = EntityReference.getPrefix(reference);
-      return getProviderByPrefix(prefix);
+      EntityReference ref = new EntityReference(reference);
+      return getProviderByPrefix(ref.prefix);
    }
 
    /*

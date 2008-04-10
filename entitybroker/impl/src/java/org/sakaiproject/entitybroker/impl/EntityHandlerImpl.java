@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
-import org.sakaiproject.entitybroker.IdEntityReference;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -94,15 +93,22 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * @return true if entity exists, false otherwise
     */
    public boolean entityExists(String reference) {
-      String prefix = IdEntityReference.getPrefix(reference);
-      EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
-      if (provider == null) {
-         // no provider found so no entity can exist
-         return false;
-      } else if (!(provider instanceof CoreEntityProvider)) {
-         return true;
+      // FIXME make this take a reference object instead
+      boolean exists = false;
+      EntityReference ref = parseReference(reference);
+      if (ref != null) {
+         EntityProvider provider = entityProviderManager.getProviderByPrefix(ref.prefix);
+         if (provider == null) {
+            // no provider found so no entity can't exist
+            exists = false;
+         } else if (!(provider instanceof CoreEntityProvider)) {
+            // no core provider so assume it does exist
+            exists = true;
+         } else {
+            exists = ((CoreEntityProvider) provider).entityExists(ref.id);
+         }
       }
-      return ((CoreEntityProvider) provider).entityExists(IdEntityReference.getID(reference));
+      return exists;
    }
 
    /**
@@ -119,9 +125,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * @return the full URL to a specific entity
     */
    public String getEntityURL(String reference) {
-      // try to get the prefix to ensure this is at least a valid formatted reference, should this
-      // make sure the entity exists?
-      EntityReference.getPrefix(reference);
+      // try to parse to ensure this is at least a valid formatted reference
+      parseReference(reference);
       String togo = serverConfigurationService.getServerUrl() + "/direct" + reference;
       return togo;
    }
@@ -131,8 +136,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * this will be the core provider only
     */
    public EntityProvider getProvider(String reference) {
-      String prefix = EntityReference.getPrefix(reference);
-      EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
+      EntityProvider provider = null;
+      EntityReference ref = parseReference(reference);
+      if (ref != null) {
+         provider = entityProviderManager.getProviderByPrefix(ref.prefix);
+      }
       return provider;
    }
 
@@ -144,19 +152,19 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * @throws IllegalArgumentException if there is a failure during parsing
     */
    public EntityReference parseReference(String reference) {
-      String prefix = EntityReference.getPrefix(reference);
-      ReferenceParseable provider = (ReferenceParseable) entityProviderManager
-            .getProviderByPrefixAndCapability(prefix, ReferenceParseable.class);
+      EntityReference ref = new EntityReference(reference);
+      ReferenceParseable provider = (ReferenceParseable) 
+            entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, ReferenceParseable.class);
       if (provider == null) {
          return null;
       }
       else if (provider instanceof BlankReferenceParseable) {
-         return parseDefaultReference(prefix, reference);
+         return ref;
       }
       else {
          Object exemplar = provider.getParsedExemplar();
          if (exemplar.getClass() == EntityReference.class) {
-            return new EntityReference(provider.getEntityPrefix());
+            return ref;
          }
          else {
             // cannot test this in a meaningful way so the tests are designed to not get here -AZ
@@ -167,24 +175,22 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    }
 
    /**
-    * Standard way to parse the reference, attempts to get the id and
-    * if fails then just uses the prefix only
+    * Get an entity object of some kind for this reference if it has an id,
+    * will simply return null if no id is available in this reference
     * 
-    * @param prefix only pass valid prefixes to this method
-    * @param reference a unique entity reference
-    * @return an {@link EntityReference}
+    * @param reference a unique string representing an entity
+    * @return the entity object for this reference or null if none can be retrieved
     */
-   protected EntityReference parseDefaultReference(String prefix, String reference) {
-      EntityReference ref = null;
-      try {
-         ref = new IdEntityReference(reference);
+   public Object getEntityObject(EntityReference ref) {
+      Object entity = null;
+      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, Resolvable.class);
+      if (provider != null) {
+         entity = ((Resolvable)provider).getEntity(ref);
       }
-      catch (IllegalArgumentException e) {
-         // fall back to the simplest reference type
-         ref = new EntityReference(prefix);
-      }
-      return ref;
+      return entity;
    }
+
+
 
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityRequestHandler#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
@@ -348,14 +354,17 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     */
    public void encodeToResponse(HttpServletRequest req, HttpServletResponse res, EntityReference ref, String extension) {
       boolean collection = false;
-      Object toEncode = getEntityObject(ref);
-      if (toEncode == null) {
+
+      Object toEncode = null;
+      if (ref.id == null) {
          collection = true;
          EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, CollectionResolvable.class);
          if (provider != null) {
             Search search = makeSearchFromRequest(req);
             toEncode = ((CollectionResolvable)provider).getEntities(ref, search);
-         }
+         }         
+      } else {
+         toEncode = getEntityObjectOrBasic(ref);
       }
       if (toEncode == null) {
          throw new RuntimeException("Failed to encode data for entity (" + ref.toString() + "), entity object to encode could not be found");
@@ -460,25 +469,19 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       return c;
    }
 
-
    /**
     * Get an entity object of some kind for this reference if it has an id,
     * will create a {@link BasicEntity} if this entity type is not resolveable,
     * will simply return null if no id is available in this reference
-    * @param ref an entity reference
+    * 
+    * @param reference a unique string representing an entity
     * @return the entity object for this reference or null if none can be retrieved
     */
-   public Object getEntityObject(EntityReference ref) {
-      Object entity = null;
-      if (ref instanceof IdEntityReference 
-            && ((IdEntityReference)ref).id != null) {
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, Resolvable.class);
-         if (provider != null) {
-            entity = ((Resolvable)provider).getEntity(ref);
-         } else {
-            // return basic entity information
-            entity = new BasicEntity(ref);
-         }
+   public Object getEntityObjectOrBasic(EntityReference ref) {
+      Object entity = getEntityObject(ref);
+      if (entity == null) {
+         // return basic entity information
+         entity = new BasicEntity(ref);
       }
       return entity;
    }

@@ -33,7 +33,7 @@ public class ReferenceParseableEntityProviderMock extends CoreEntityProviderMock
     */
    public EntityReference getParsedExemplar() {
       // super simple result for now -AZ
-      return new EntityReference(getEntityPrefix());
+      return new EntityReference();
    }
 
 }

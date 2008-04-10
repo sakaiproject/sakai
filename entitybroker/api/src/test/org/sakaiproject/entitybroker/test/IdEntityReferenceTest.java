@@ -90,13 +90,6 @@ public class IdEntityReferenceTest extends TestCase {
       }
 
       try {
-         ider = new IdEntityReference(REF3);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      try {
          ider = new IdEntityReference("");
          fail("Should have thrown exception");
       } catch (IllegalArgumentException e) {

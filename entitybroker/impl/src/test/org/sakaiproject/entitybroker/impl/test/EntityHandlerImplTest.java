@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.IdEntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputHTMLable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputJSONable;
@@ -159,19 +158,16 @@ public class EntityHandlerImplTest extends TestCase {
       er = entityHandler.parseReference(TestData.REF1);
       assertNotNull(er);
       assertEquals(TestData.PREFIX1, er.prefix);
-      assertTrue(er instanceof IdEntityReference);
-      assertEquals(TestData.IDS1[0], ((IdEntityReference) er).id);
+      assertEquals(TestData.IDS1[0], er.id);
 
       er = entityHandler.parseReference(TestData.REF2);
       assertNotNull(er);
       assertEquals(TestData.PREFIX2, er.prefix);
-      assertFalse(er instanceof IdEntityReference);
 
       // test parsing a defined reference
       er = entityHandler.parseReference(TestData.REF3);
       assertNotNull(er);
       assertEquals(TestData.PREFIX3, er.prefix);
-      assertFalse(er instanceof IdEntityReference);
 
       // parsing of unregistered entity references returns null
       er = entityHandler.parseReference(TestData.REF9);
@@ -222,6 +218,33 @@ public class EntityHandlerImplTest extends TestCase {
       ref = entityHandler.parseReference(TestData.REF5);
       assertNotNull(ref);
       entity = entityHandler.getEntityObject(ref);
+      assertNull(entity);
+   }
+
+   @SuppressWarnings("unchecked")
+   public void testGetEntityObjectOrBasic() {
+      Object entity = null;
+      EntityReference ref = null;
+
+      // first for resolveable
+      ref = entityHandler.parseReference(TestData.REF4);
+      assertNotNull(ref);
+      entity = entityHandler.getEntityObjectOrBasic(ref);
+      assertNotNull(entity);
+      assertEquals(MyEntity.class, entity.getClass());
+      assertEquals(TestData.entity4, entity);
+
+      ref = entityHandler.parseReference(TestData.REF4_two);
+      assertNotNull(ref);
+      entity = entityHandler.getEntityObjectOrBasic(ref);
+      assertNotNull(entity);
+      assertEquals(MyEntity.class, entity.getClass());
+      assertEquals(TestData.entity4_two, entity);
+
+      // now for non-resolveable
+      ref = entityHandler.parseReference(TestData.REF5);
+      assertNotNull(ref);
+      entity = entityHandler.getEntityObjectOrBasic(ref);
       assertNotNull(entity);
       assertEquals(BasicEntity.class, entity.getClass());
       assertEquals(TestData.REF5, ((BasicEntity)entity).getReference());
@@ -420,13 +443,13 @@ public class EntityHandlerImplTest extends TestCase {
       // test for invalid refs
       req = new MockHttpServletRequest("GET", "/fakey/fake");
       res = new MockHttpServletResponse();
-      ref = new EntityReference("fakey");
+      ref = new EntityReference();
       assertNotNull(ref);
       try {
          entityHandler.encodeToResponse(req, res, ref, OutputHTMLable.EXTENSION);
          fail("Should have thrown exception");
       } catch (RuntimeException e) {
-         assertNotNull(e.getMessage());
+         assertNotNull(e);
       }
       assertNotNull(res.getOutputStream());
 

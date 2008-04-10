@@ -43,6 +43,7 @@ public interface EntityProviderManager {
     *           a globally unique reference to an entity
     * @return the {@link EntityProvider} which handles this entity or null if none exists, fails if
     *         the reference is invalid
+    * @deprecated this method is no longer functional or supported
     */
    public EntityProvider getProviderByReference(String reference);
 

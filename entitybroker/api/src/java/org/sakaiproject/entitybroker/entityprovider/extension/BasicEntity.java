@@ -15,7 +15,6 @@
 package org.sakaiproject.entitybroker.entityprovider.extension;
 
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.IdEntityReference;
 
 /**
  * BasicEntity object for when one cannot be found
@@ -32,9 +31,7 @@ public class BasicEntity {
    public BasicEntity(EntityReference ref) {
       this.reference = ref.toString();
       this.prefix = ref.prefix;
-      if (ref instanceof IdEntityReference) {
-         this.id = ((IdEntityReference) ref).id;
-      }
+      this.id = ref.id;
    }
 
    @Override

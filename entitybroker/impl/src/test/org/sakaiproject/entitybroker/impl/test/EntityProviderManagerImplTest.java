@@ -55,6 +55,7 @@ public class EntityProviderManagerImplTest extends TestCase {
       entityProviderManager.registerEntityProvider(td.entityProvider3);
       entityProviderManager.registerEntityProvider(td.entityProvider4);
       entityProviderManager.registerEntityProvider(td.entityProvider5);
+      entityProviderManager.registerEntityProvider(td.entityProvider6);
 
       entityProviderManager.registerEntityProvider(td.entityProvider1T);
       

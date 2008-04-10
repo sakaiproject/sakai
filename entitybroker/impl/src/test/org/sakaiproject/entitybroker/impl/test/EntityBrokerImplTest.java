@@ -11,7 +11,6 @@ import java.util.Set;
 import org.easymock.MockControl;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.IdEntityReference;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.impl.EntityBrokerImpl;
 import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
@@ -241,19 +240,16 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       er = entityBroker.parseReference(TestData.REF1);
       assertNotNull(er);
       assertEquals(TestData.PREFIX1, er.prefix);
-      assertTrue(er instanceof IdEntityReference);
-      assertEquals(TestData.IDS1[0], ((IdEntityReference) er).id);
+      assertEquals(TestData.IDS1[0], er.id);
 
       er = entityBroker.parseReference(TestData.REF2);
       assertNotNull(er);
       assertEquals(TestData.PREFIX2, er.prefix);
-      assertFalse(er instanceof IdEntityReference);
 
       // test parsing a defined reference
       er = entityBroker.parseReference(TestData.REF3);
       assertNotNull(er);
       assertEquals(TestData.PREFIX3, er.prefix);
-      assertFalse(er instanceof IdEntityReference);
 
       // parsing of unregistered entity references returns null
       er = entityBroker.parseReference(TestData.REF9);
@@ -290,24 +286,16 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       MyEntity entity2 = (MyEntity) obj;
       assertEquals(entity2.id, TestData.IDS4[1]);
 
+      // no object available should cause failure
+      obj = entityBroker.fetchEntity(TestData.REF1);
+      assertNull(obj);
+
+      obj = entityBroker.fetchEntity(TestData.REF2);
+      assertNull(obj);
+
       // use an unregistered provider to trigger the attempt to do a legacy lookup
       try {
          obj = entityBroker.fetchEntity(TestData.REF9);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      // no object available should cause failure
-      try {
-         obj = entityBroker.fetchEntity(TestData.REF1);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      try {
-         obj = entityBroker.fetchEntity(TestData.REF2);
          fail("Should have thrown exception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());

@@ -102,6 +102,18 @@ public class TestData {
    public final static String REF5_2 = EntityReference.SEPARATOR + PREFIX5
          + EntityReference.SEPARATOR + IDS5[1];
 
+   public final static String PREFIX6 = "myPrefix6";
+   public final static String[] IDS6 = new String[] { "6-one", "6-two", "6-three", "6-four" };
+   public final static String SPACE6 = EntityReference.SEPARATOR + PREFIX6;
+   public final static String REF6 = EntityReference.SEPARATOR + PREFIX6
+         + EntityReference.SEPARATOR + IDS6[0];
+   public final static String REF6_2 = EntityReference.SEPARATOR + PREFIX6
+         + EntityReference.SEPARATOR + IDS6[1];
+   public final static String REF6_3 = EntityReference.SEPARATOR + PREFIX6
+         + EntityReference.SEPARATOR + IDS6[2];
+   public final static String REF6_4 = EntityReference.SEPARATOR + PREFIX6
+         + EntityReference.SEPARATOR + IDS6[3];
+
    public final static String PREFIX9 = "unregPrefix9";
    public final static String[] IDS9 = new String[] { "ninety", "9and1" };
    public final static String REF9 = EntityReference.SEPARATOR + PREFIX9
@@ -162,6 +174,10 @@ public class TestData {
     * Registered provider which implements {@link CoreEntityProvider} and {@link Propertyable}
     */
    public EntityProvider entityProvider5 = new PropertyableEntityProviderMock(PREFIX5, IDS5);
+   /**
+    * Registered provider which implements {@link CoreEntityProvider} and {@link Propertyable}
+    */
+   public EntityProvider entityProvider6 = new PropertyableEntityProviderMock(PREFIX6, IDS6);
 
    /**
     * Unregistered provider

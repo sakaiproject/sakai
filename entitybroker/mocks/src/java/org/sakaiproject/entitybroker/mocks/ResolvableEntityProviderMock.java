@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.IdEntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
@@ -41,7 +40,7 @@ public class ResolvableEntityProviderMock extends CoreEntityProviderMock impleme
     * @see org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable#getEntity(org.sakaiproject.entitybroker.EntityReference)
     */
    public Object getEntity(EntityReference reference) {
-      return new MyEntity(((IdEntityReference) reference).id);
+      return new MyEntity(reference.id);
    }
 
    /* (non-Javadoc)

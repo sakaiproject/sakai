@@ -14,14 +14,13 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
-import org.sakaiproject.entitybroker.IdEntityReference;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 
 /**
  * Indicates an entity provider has the capability of parsing its own reference string. An entity
  * that does not implement this interface is assumed to deal in references of type
- * {@link IdEntityReference}. <br/> This is one of the capability extensions for the
+ * {@link EntityReference}. <br/> This is one of the capability extensions for the
  * {@link EntityProvider} interface<br/>
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
