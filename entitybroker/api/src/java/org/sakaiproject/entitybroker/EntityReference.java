@@ -18,10 +18,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil.PreProcessedTemplate;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil.ProcessedTemplate;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil.Template;
 
 /**
  * The base class of all Entity references handled by the EntityBroker system. This provides the
@@ -30,53 +32,13 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * entity references and can provide the complete set of path segments in a reference
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
- * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
 public class EntityReference {
 
-   public static final char SEPARATOR = '/';
+   public static final char SEPARATOR = TemplateParseUtil.SEPARATOR;
 
-   public static final String PREFIX = "prefix";
-   public static final String ID = "id";
-
-   public static final String TEMPLATEKEY = "+templateKey";
-
-   /**
-    * Defines the parse template for the "new" operation,
-    * return a form for creating a new record,
-    * typically /{prefix}/new
-    */
-   public static final String TEMPLATE_NEW  = "new";
-   /**
-    * Defines the parse template for the "list" operation,
-    * return a list of all records,
-    * typically /{prefix}
-    */
-   public static final String TEMPLATE_LIST = "list";
-   /**
-    * Defines the parse template for the "show" operation,
-    * access a record OR POST operations related to a record,
-    * typically /{prefix}/{id}
-    */
-   public static final String TEMPLATE_SHOW = "show";
-   /**
-    * Defines the parse template for the "edit" operation,
-    * access the data to modify a record,
-    * typically /{prefix}/{id}/edit
-    */
-   public static final String TEMPLATE_EDIT = "edit";
-
-   /**
-    * Defines the order that parse templates will be processed in and
-    * the set of parse template types (keys) which must be defined,
-    * the first one to match will be used when parsing in a path
-    */
-   public static String[] PARSE_TEMPLATE_KEYS = {
-      TEMPLATE_EDIT,
-      TEMPLATE_SHOW,
-      TEMPLATE_NEW,
-      TEMPLATE_LIST
-   };
+   public static final String PREFIX = TemplateParseUtil.PREFIX;
+   public static final String ID = TemplateParseUtil.ID;
 
    /**
     * An entity prefix, should match with the prefix handled in an {@link EntityProvider}
@@ -105,7 +67,11 @@ public class EntityReference {
    /**
     * Contains the parsing templates for this entity reference
     */
-   private Map<String, String> parseTemplates;
+   private List<Template> parseTemplates;
+   /**
+    * Cache the parsed templates for this EB
+    */
+   private List<PreProcessedTemplate> anazlyzedTemplates;
 
 
    // CONSTRUCTORS
@@ -122,17 +88,14 @@ public class EntityReference {
    public EntityReference(String reference) {
       this();
       checkReference(reference);
-      Map<String, String> segments = parseTemplate(reference, parseTemplates);
+      ProcessedTemplate parsed = TemplateParseUtil.parseTemplate(reference, anazlyzedTemplates);
 
-      if (segments.isEmpty()) {
+      if (parsed == null) {
          throw new IllegalArgumentException("Could not parse reference against any known templates: " + reference);
       }
 
-      String templateKey = segments.remove(TEMPLATEKEY);
-      if (templateKey == null) {
-         throw new IllegalStateException("Invalid state of segments map, could not retrieve the templateKey");
-      }
-      populateInternals(templateKey, segments);
+      String templateKey = parsed.templateKey;
+      populateInternals(templateKey, new HashMap<String, String>(parsed.segmentValues) );
    }
 
    /**
@@ -147,7 +110,7 @@ public class EntityReference {
       if (segments == null || segments.isEmpty()) {
          throw new IllegalArgumentException("segments map cannot be null or empty");
       }
-      checkTemplateKey(templateKey);
+      TemplateParseUtil.checkTemplateKey(templateKey);
       populateInternals(templateKey, segments);
    }
 
@@ -180,12 +143,20 @@ public class EntityReference {
     */
    public EntityReference(String prefix, String id) {
       this();
-      checkPrefixId(prefix, id);
+      if (prefix == null || prefix.equals("") || id == null) {
+         throw new IllegalArgumentException("prefix and id cannot be null (prefix cannot be empty) to get entity reference");
+      }
+      if (! prefix.matches(TemplateParseUtil.VALID_VAR_CHARS+"+") 
+            || ! id.matches(TemplateParseUtil.VALID_VAR_CHARS+"+") ) {
+         throw new IllegalArgumentException("prefix and id must contain only valid chars: " + TemplateParseUtil.VALID_VAR_CHARS);
+      }
+
       this.prefix = prefix;
+      if ("".equals(id)) { id = null; }
       this.id = id;
 
       // we know we are using the show template
-      this.templateKey = TEMPLATE_SHOW;
+      this.templateKey = TemplateParseUtil.TEMPLATE_SHOW;
 
       this.pathSegments = new HashMap<String, String>();
       this.pathSegments.put(PREFIX, prefix);
@@ -206,54 +177,63 @@ public class EntityReference {
     * 2) Must begin with a {@link #SEPARATOR}, must not end with a {@link #SEPARATOR}
     * 3) each {var} can only be used once in a template
     * 4) {var} can never touch each other (i.e /{var1}{var2}/{id} is invalid)
+    * 5) each {var} can only have the chars from {@link TemplateParseUtil#VALID_VAR_CHARS}
+    * 6) parse templates can only have the chars from {@link TemplateParseUtil#VALID_TEMPLATE_CHARS}
+    * 7) Empty braces ({}) cannot appear in the template
     */
-   public void loadParseTemplates(Map<String, String> templates) {
+   public void loadParseTemplates(List<Template> templates) {
       if (parseTemplates == null) {
-         parseTemplates = new HashMap<String, String>();
+         parseTemplates = new ArrayList<Template>();
       }
       if (templates == null) {
-         templates = new HashMap<String, String>();
+         templates = new ArrayList<Template>();
       }
-      for (int i = 0; i < PARSE_TEMPLATE_KEYS.length; i++) {
-         String key = PARSE_TEMPLATE_KEYS[i];
-         if (templates.containsKey(key)) {
-            String template = templates.get(key);
-            validateTemplate(template);
-            parseTemplates.put(key, template);
-         } else {
-            // load a default template
-            parseTemplates.put(key, getDefaultTemplate(key));
+      for (int i = 0; i < TemplateParseUtil.PARSE_TEMPLATE_KEYS.length; i++) {
+         String key = TemplateParseUtil.PARSE_TEMPLATE_KEYS[i];
+         String template = null;
+         for (Template t : templates) {
+            if (key.equals(t.templateKey)) {
+               template = t.template;
+               break;
+            }
          }
+         if (template == null) {
+            // load a default template
+            template = TemplateParseUtil.getDefaultTemplate(key);
+         }
+         TemplateParseUtil.validateTemplate(template);
+         parseTemplates.add( new Template(key, template) );
       }
+      anazlyzedTemplates = TemplateParseUtil.preprocessTemplates(parseTemplates);
    }
 
    /**
-    * @return the string version of this "show" entity reference,
+    * @return the string version of this {@link TemplateParseUtil#TEMPLATE_SHOW} entity reference or 
+    * the {@link TemplateParseUtil#TEMPLATE_LIST} one if there is no id,
     * example: /prefix if there is no id or /prefix/id if there is an id
     */
    @Override
    public String toString() {
       String ref = null;
       if (id == null || "".equals(id)) {
-         ref = getReference(TEMPLATE_LIST);
+         ref = getReference(TemplateParseUtil.TEMPLATE_LIST);
       } else {
-         ref = getReference(TEMPLATE_SHOW);
+         ref = getReference(TemplateParseUtil.TEMPLATE_SHOW);
       }
       return ref;
    }
 
    /**
-    * @param templateKey
-    * @return
+    * Get a reference by merging a specific template with the data in this EB object
+    * @param templateKey a key from the set of template keys {@link #PARSE_TEMPLATE_KEYS}
+    * @return the reference that matches this
     */
    public String getReference(String templateKey) {
-      checkTemplateKey(templateKey);
-      if (parseTemplates.containsKey(templateKey)) {
-         String template = parseTemplates.get(templateKey);
-         return mergeTemplate(template, pathSegments);
-      } else {
+      String template = getParseTemplate(templateKey);
+      if (template == null) {
          throw new IllegalStateException("parseTemplates contains no template for key: " + templateKey);
       }
+      return TemplateParseUtil.mergeTemplate(template, pathSegments);
    }
 
    /**
@@ -270,143 +250,18 @@ public class EntityReference {
     * @return the template being used by this entity reference for this key or null if none found
     */
    public String getParseTemplate(String templateKey) {
-      checkTemplateKey(templateKey);
-      return parseTemplates.get(templateKey);
-   }
-
-
-   // STATIC METHODS
-
-   /**
-    * Check if a templateKey is valid, if not then throws {@link IllegalArgumentException}
-    * @param templateKey a key from the set of template keys {@link #PARSE_TEMPLATE_KEYS}
-    */
-   public static void checkTemplateKey(String templateKey) {
-      boolean found = false;
-      for (int i = 0; i < PARSE_TEMPLATE_KEYS.length; i++) {
-         if (PARSE_TEMPLATE_KEYS[i].equals(templateKey)) {
-            found = true;
-            break;
-         }
-      }
-      if (! found) {
-         throw new IllegalArgumentException("Invalid parse template key: " + templateKey);
-      }
-   }
-
-   /**
-    * Takes a template and replaces the segment keys with the segment values,
-    * keys should not have {} around them yet as these will be added around each key
-    * in the segments map
-    * 
-    * @param template a parse template with {variables} in it
-    * @param segments a map of all possible segment keys and values,
-    * unused keys will be ignored
-    * @return the template with replacement values filled in
-    */
-   public static String mergeTemplate(String template, Map<String, String> segments) {
-      String reference = template;
-      for (String key : segments.keySet()) {
-         String keyBraces = "{"+key+"}";
-         if (reference.contains(keyBraces)) {
-            reference = reference.replace(keyBraces, segments.get(key));
-         }
-      }
-      return reference;
-   }
-
-   /**
-    * Get a default template for a specific template key
-    * @param templateKey a key from the set of template keys {@link #PARSE_TEMPLATE_KEYS}
-    * @return the template
-    * @throws IllegalArgumentException if the template key is invalid
-    */
-   public static String getDefaultTemplate(String templateKey) {
+      TemplateParseUtil.checkTemplateKey(templateKey);
       String template = null;
-      if (TEMPLATE_EDIT.equals(templateKey)) {
-         template = SEPARATOR + "{"+PREFIX+"}" + SEPARATOR + "{"+ID+"}" + SEPARATOR + "edit";
-      } else if (TEMPLATE_LIST.equals(templateKey)) {
-         template = SEPARATOR + "{"+PREFIX+"}";
-      } else if (TEMPLATE_NEW.equals(templateKey)) {
-         template = SEPARATOR + "{"+PREFIX+"}" + SEPARATOR + "new";
-      } else if (TEMPLATE_SHOW.equals(templateKey)) {
-         template = SEPARATOR + "{"+PREFIX+"}" + SEPARATOR + "{"+ID+"}";
-      } else {
-         throw new IllegalArgumentException("No default template available for this key: " + templateKey);
+      for (Template t : parseTemplates) {
+         if (templateKey.equals(t.templateKey)) {
+            template = t.template;
+         }
       }
       return template;
    }
 
-   /**
-    * Parse a string and attempt to match it to a template and then 
-    * return the key of the matching template
-    * in the map as {@value #TEMPLATEKEY} -> key, 
-    * along with all the parsed out keys and values<br/>
-    * 
-    * @param input a string which we want to attempt to match to one of the templates
-    * @param templates the templates (templateKey -> template) to attempt to match, can be a single template or multiples
-    * @return a map containing the matching template, templateKey, and all the replacement 
-    * variable names and values OR empty map if no templates matched
-    */
-   public static Map<String, String> parseTemplate(String input, Map<String, String> templates) {
-      Map<String, String> segments = new HashMap<String, String>();
-      List<String> vars = new ArrayList<String>();
-      for (int i = 0; i < PARSE_TEMPLATE_KEYS.length; i++) {
-         vars.clear();
-         String templateKey = PARSE_TEMPLATE_KEYS[i];
-         if (templates.containsKey(templateKey)) {
-            StringBuilder regex = new StringBuilder();
-            String template = templates.get(templateKey);
-            String[] parts = template.split("[\\{\\}]");
-            for (int j = 0; j < parts.length; j++) {
-               String part = parts[j];
-               if (j % 2 == 0) {
-                  // odd parts are textual breaks
-                  regex.append(part);
-               } else {
-                  // even parts are replacement vars
-                  vars.add(part);
-                  regex.append("(.+)");
-               }
-            }
-            Pattern p = Pattern.compile(regex.toString());
-            Matcher m = p.matcher(input);
-            if (m.matches() 
-                  && m.groupCount() == vars.size()) {
-               for (int j = 0; j < m.groupCount(); j++) {
-                  String subseq = m.group(j+1);
-                  if (subseq != null) {
-                     segments.put(vars.get(j), subseq);
-                  }
-               }
-               segments.put(TEMPLATEKEY, templateKey);
-               //segments.put(TEMPLATE, template);
-               break;
-            }
-         }
-      }      
-      return segments;
-   }
 
-   private static String VALID_CHARS = "[A-Za-z0-9_-="+SEPARATOR+"]+";
-   /**
-    * Validate a template, if invalid then an exception is thrown
-    * @param template a parse template
-    */
-   public static void validateTemplate(String template) {
-      if (! template.replace("{", "").replace("}", "").matches(VALID_CHARS)) {
-         throw new IllegalArgumentException("Template can only contain the special chars (/{})," +
-         		"and the following [A-Za-z0-9_-=]");
-      } else if (template.charAt(0) != SEPARATOR) {
-         throw new IllegalArgumentException("Template must start with " + SEPARATOR);
-      } else if (template.charAt(template.length()) == SEPARATOR) {
-         throw new IllegalArgumentException("Template cannot end with " + SEPARATOR);
-      } else if (template.indexOf("}{") != -1) {
-         throw new IllegalArgumentException("Template replacement variables ({var}) " +
-         		"cannot be next to each other, " +
-         		"there must be something between each template variable");
-      }
-   }
+   // STATIC METHODS
 
    /**
     * @param reference
@@ -428,26 +283,6 @@ public class EntityReference {
             || SEPARATOR != reference.charAt(0) )
       throw new IllegalArgumentException("Invalid entity reference for EntityBroker: "
             + reference + " - these begin with " + SEPARATOR + " and cannot be null");      
-   }
-
-   /**
-    * Checks this prefix to see if it is valid format, throw exceptions if not
-    * 
-    * @param prefix
-    */
-   protected static void checkPrefixId(String prefix, String id) {
-      if (prefix == null || id == null) {
-         throw new IllegalArgumentException("prefix and id cannot be null to get entity reference");
-      }
-      if (prefix.equals("")) {
-         throw new IllegalArgumentException(
-               "prefix cannot be empty strings to get entity reference");
-      }
-      if (prefix.indexOf(EntityReference.SEPARATOR) != -1
-            || id.indexOf(EntityReference.SEPARATOR) != -1) {
-         throw new IllegalArgumentException("prefix and id cannot contain separator: "
-               + EntityReference.SEPARATOR);
-      }
    }
 
 }

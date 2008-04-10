@@ -73,7 +73,7 @@ public class EntityReferenceTest extends TestCase {
       try {
          er.toString();
          fail("Should have thrown exception");
-      } catch (NullPointerException e) {
+      } catch (IllegalArgumentException e) {
          assertNotNull(e);
       }
    }
