@@ -1837,7 +1837,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		AssignmentSubmissionEdit submission = m_submissionStorage.put(	submissionFromXml.getId(), 
 																		submissionFromXml.getAssignmentId(),
 																		submissionFromXml.getSubmitterIdString(),
-																		submissionFromXml.getTimeSubmittedString(),
+																		(submissionFromXml.getTimeSubmitted() != null)?String.valueOf(submissionFromXml.getTimeSubmitted().getTime()):null,
 																		Boolean.valueOf(submissionFromXml.getSubmitted()).toString(),
 																		Boolean.valueOf(submissionFromXml.getGraded()).toString());
 		if (submission == null)
@@ -10651,7 +10651,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				M_log.error(new Exception(this + " AssignmentSubmissionStorageUser storageFields Unique constraint is in force -- submitter[0] cannot be null"));
  			}
 			
-			rv[2] = ((AssignmentSubmission) r).getTimeSubmittedString();
+			Time submitTime = ((AssignmentSubmission) r).getTimeSubmitted();
+			rv[2] = (submitTime != null)?String.valueOf(submitTime.getTime()):null;
 			
 			rv[3] = Boolean.valueOf(((AssignmentSubmission) r).getSubmitted()).toString();
 			
