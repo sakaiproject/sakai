@@ -18,13 +18,11 @@ public class IdEntityReferenceTest extends TestCase {
 
    private final String PREFIX1 = "prefix1";
    private final String ID1 = "111";
-   private final String REF1 = EntityReference.SEPARATOR + PREFIX1 + EntityReference.SEPARATOR
-         + ID1;
+   private final String REF1 = EntityReference.SEPARATOR + PREFIX1 + EntityReference.SEPARATOR + ID1;
 
    private final String PREFIX2 = "longprefix2";
    private final String ID2 = "22222";
-   private final String REF2 = EntityReference.SEPARATOR + PREFIX2 + EntityReference.SEPARATOR
-         + ID2;
+   private final String REF2 = EntityReference.SEPARATOR + PREFIX2 + EntityReference.SEPARATOR + ID2;
 
    private final String PREFIX3 = "prefix3";
    private final String REF3 = EntityReference.SEPARATOR + PREFIX3;

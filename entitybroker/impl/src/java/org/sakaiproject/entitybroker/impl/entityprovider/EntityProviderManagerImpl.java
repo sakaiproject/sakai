@@ -179,7 +179,6 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
    /*
     * (non-Javadoc)
-    * 
     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#unregisterEntityProviderCapability(java.lang.String,
     *      java.lang.Class)
     */
@@ -194,7 +193,6 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
    /*
     * (non-Javadoc)
-    * 
     * @see org.sakaiproject.entitybroker.EntityProviderManager#unregisterEntityProviderByPrefix(java.lang.String)
     */
    public void unregisterEntityProviderByPrefix(String prefix) {

@@ -4,9 +4,12 @@
 
 package org.sakaiproject.entitybroker.test;
 
+import java.util.HashMap;
+
 import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
 /**
  * Testing the Entity Reference static methods
@@ -68,15 +71,19 @@ public class EntityReferenceTest extends TestCase {
       er = new EntityReference(REF3);
       assertEquals(REF3, er.toString());
 
+      er = new EntityReference(REF1);
+      assertEquals(REF1, er.toString());
+
       // Invalid formed ER will not return a ref string
       er = new EntityReference();
       try {
          er.toString();
          fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
+      } catch (IllegalStateException e) {
          assertNotNull(e);
       }
    }
+
 
    /**
     * Test method for {@link org.sakaiproject.entitybroker.EntityReference#EntityReference()}.
@@ -96,8 +103,22 @@ public class EntityReferenceTest extends TestCase {
    public void testEntityReferenceString() {
       EntityReference er = null;
 
+      er = new EntityReference(REF1);
+      assertNotNull(er);
+      assertEquals(PREFIX1, er.prefix);
+      assertEquals("111", er.id);
+      assertEquals(REF1, er.toString());
+
+      er = new EntityReference(REF2);
+      assertNotNull(er);
+      assertEquals(PREFIX2, er.prefix);
+      assertEquals("222222", er.id);
+      assertEquals(REF2, er.toString());
+
       er = new EntityReference(REF3);
       assertNotNull(er);
+      assertEquals(PREFIX3, er.prefix);
+      assertEquals(null, er.id);
       assertEquals(REF3, er.toString());
 
       // test invalid prefix throws exception
@@ -117,6 +138,33 @@ public class EntityReferenceTest extends TestCase {
 
       try {
          er = new EntityReference(null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityReference#EntityReference(java.lang.String, java.lang.String)}.
+    */
+   public void testEntityReferenceStringString() {
+      EntityReference er = null;
+
+      er = new EntityReference(PREFIX1, "111");
+      assertNotNull(er);
+      assertEquals(PREFIX1, er.prefix);
+      assertEquals("111", er.id);
+      assertEquals(REF1, er.toString());
+
+      er = new EntityReference(PREFIX3, "");
+      assertNotNull(er);
+      assertEquals(PREFIX3, er.prefix);
+      assertEquals(null, er.id);
+      assertEquals(REF3, er.toString());
+
+      // test invalid prefix throws exception
+      try {
+         er = new EntityReference(PREFIX1);
          fail("Should have thrown exception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());
