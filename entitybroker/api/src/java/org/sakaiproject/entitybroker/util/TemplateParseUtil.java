@@ -120,7 +120,7 @@ public class TemplateParseUtil {
     * Check if a templateKey is valid, if not then throws {@link IllegalArgumentException}
     * @param templateKey a key from the set of template keys {@link #PARSE_TEMPLATE_KEYS}
     */
-   public static void checkTemplateKey(String templateKey) {
+   public static void validateTemplateKey(String templateKey) {
       boolean found = false;
       for (int i = 0; i < PARSE_TEMPLATE_KEYS.length; i++) {
          if (PARSE_TEMPLATE_KEYS[i].equals(templateKey)) {
@@ -163,6 +163,9 @@ public class TemplateParseUtil {
          throw new IllegalArgumentException("Template must start with " + SEPARATOR);
       } else if (template.charAt(template.length()-1) == SEPARATOR) {
          throw new IllegalArgumentException("Template cannot end with " + SEPARATOR);
+      } else if (! template.startsWith(SEPARATOR + "{"+PREFIX+"}")) {
+         throw new IllegalArgumentException("Template must start with: " + SEPARATOR + "{"+PREFIX+"}" 
+               + " :: that is SEPARATOR + \"{\"+PREFIX+\"}\"");
       } else if (template.indexOf("}{") != -1) {
          throw new IllegalArgumentException("Template replacement variables ({var}) " +
                "cannot be next to each other, " +
@@ -309,10 +312,11 @@ public class TemplateParseUtil {
          templates = defaultTemplates;
       }
       List<PreProcessedTemplate> analyzedTemplates = new ArrayList<PreProcessedTemplate>();
-      for (Template template : templates) {
+      for (Template t : templates) {
+         TemplateParseUtil.validateTemplate(t.template);
          List<String> vars = new ArrayList<String>();
          StringBuilder regex = new StringBuilder();
-         String[] parts = template.template.split(BRACES);
+         String[] parts = t.template.split(BRACES);
          for (int j = 0; j < parts.length; j++) {
             String part = parts[j];
             if (j % 2 == 0) {
@@ -326,14 +330,24 @@ public class TemplateParseUtil {
                regex.append("+)");
             }
          }
-         analyzedTemplates.add(new PreProcessedTemplate(template.templateKey, 
-               template.template, regex.toString(), new ArrayList<String>(vars)) );
+         analyzedTemplates.add(new PreProcessedTemplate(t.templateKey, 
+               t.template, regex.toString(), new ArrayList<String>(vars)) );
       }      
       return analyzedTemplates;
    }
 
    /**
-    * Represents a parseable template
+    * Represents a parseable template (which is basically a key and the template string),
+    * the array which defines the set of template keys is {@link #PARSE_TEMPLATE_KEYS}<br/>
+    * Rules for parse templates:
+    * 1) "{","}", and {@link #SEPARATOR} are special characters and must be used as indicated only
+    * 2) Must begin with a {@link #SEPARATOR}, must not end with a {@link #SEPARATOR}
+    * 3) must begin with "/{prefix}" (use the {@link #SEPARATOR} and {@link #PREFIX} constants)
+    * 3) each {var} can only be used once in a template
+    * 4) {var} can never touch each other (i.e /{var1}{var2}/{id} is invalid)
+    * 5) each {var} can only have the chars from {@link TemplateParseUtil#VALID_VAR_CHARS}
+    * 6) parse templates can only have the chars from {@link TemplateParseUtil#VALID_TEMPLATE_CHARS}
+    * 7) Empty braces ({}) cannot appear in the template
     * 
     * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
     */
@@ -355,6 +369,26 @@ public class TemplateParseUtil {
       public Template(String templateKey, String template) {
          this.templateKey = templateKey;
          this.template = template;
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+         if (null == obj) return false;
+         if (!(obj instanceof Template)) return false;
+         else {
+            Template castObj = (Template) obj;
+            if (null == this.templateKey || null == castObj.templateKey) return false;
+            else return (
+                  this.templateKey.equals(castObj.templateKey)
+            );
+         }
+      }
+
+      @Override
+      public int hashCode() {
+         if (null == this.templateKey) return super.hashCode();
+         String hashStr = this.getClass().getName() + ":" + this.templateKey.hashCode();
+         return hashStr.hashCode();
       }
    }
 

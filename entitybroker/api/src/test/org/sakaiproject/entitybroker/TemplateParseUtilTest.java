@@ -73,17 +73,17 @@ public class TemplateParseUtilTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.util.TemplateParseUtil#checkTemplateKey(java.lang.String)}.
+    * Test method for {@link org.sakaiproject.entitybroker.util.TemplateParseUtil#validateTemplateKey(java.lang.String)}.
     */
    public void testCheckTemplateKey() {
       for (int i = 0; i < TemplateParseUtil.PARSE_TEMPLATE_KEYS.length; i++) {
          // should simply not throw exception
-         TemplateParseUtil.checkTemplateKey(TemplateParseUtil.PARSE_TEMPLATE_KEYS[i]);
+         TemplateParseUtil.validateTemplateKey(TemplateParseUtil.PARSE_TEMPLATE_KEYS[i]);
       }
 
       // test invalid key throws exception
       try {
-         TemplateParseUtil.checkTemplateKey("xxxxxxxxxxxxxxxxxxxxxxx");
+         TemplateParseUtil.validateTemplateKey("xxxxxxxxxxxxxxxxxxxxxxx");
          fail("Should have thrown exception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());
@@ -127,13 +127,13 @@ public class TemplateParseUtilTest extends TestCase {
       }
 
       // now make sure a few seemingly valid ones are also valid
-      template = "/mystuff/{prefix}/other";
+      template = "/{prefix}/mystuff/other";
       TemplateParseUtil.validateTemplate(template);
 
       template = "/{prefix}/other/{id}";
       TemplateParseUtil.validateTemplate(template);
 
-      template = "/mystuff";
+      template = "/{prefix}/other/{id}/morestuff";
       TemplateParseUtil.validateTemplate(template);
 
       template = "/{prefix}/{thing}/{id}";
@@ -147,6 +147,10 @@ public class TemplateParseUtilTest extends TestCase {
 
       template = "/{prefix}/{id}/special=.-/:;_";
       TemplateParseUtil.validateTemplate(template);
+
+      template = "/{prefix}stuff";
+      TemplateParseUtil.validateTemplate(template);
+
 
       // now check ones that invalid
       template = "";

@@ -187,12 +187,13 @@ public class EntityReference {
    // STATIC METHODS
 
    /**
-    * Get the entity prefix based on a full entity reference
+    * Get the entity prefix based on an entity reference string,
+    * <b>WARNING:</b> this is meant for internal use,
+    * use {@link EntityReference#EntityReference(String)} and
+    * the methods in {@link EntityBroker} to parse references
     * 
-    * @param reference a globally unique reference to an entity, 
-    * consists of the entity prefix and optional id
+    * @param reference an entity reference or entity url
     * @return the entity prefix
-    * @deprecated Do not use this anymore, use {@link #EntityReference(String, String)}
     */
    public static String getPrefix(String reference) {
       return findPrefix(reference);

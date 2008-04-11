@@ -53,8 +53,7 @@ public interface EntityProviderManager {
     * may handle many other things as well), the basic {@link EntityProvider} if there is no
     * {@link CoreEntityProvider}, OR null if neither exists
     * 
-    * @param prefix
-    *           the string which represents a type of entity handled by an entity provider
+    * @param prefix the string which represents a type of entity handled by an entity provider
     * @return the {@link EntityProvider} which handles this entity or null if none exists (only if
     *         prefix is not used)
     */

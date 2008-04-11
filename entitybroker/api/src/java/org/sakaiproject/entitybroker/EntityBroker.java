@@ -18,7 +18,6 @@ import java.util.Set;
 
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.ParseSpecParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;

@@ -146,19 +146,10 @@ public class EntityView {
     * 
     * @param entityURL a URL path which goes to a specific entity view,
     * consists of path segments defined by path templates and includes an option extension
-    * and 
     */
    public EntityView(String entityURL) {
       this();
-      this.originalEntityURL = entityURL;
-      checkEntityUrl(entityURL);
-      ProcessedTemplate parsed = TemplateParseUtil.parseTemplate(entityURL, anazlyzedTemplates);
-
-      if (parsed == null) {
-         throw new IllegalArgumentException("Could not parse entityURL against any known templates: " + entityURL);
-      }
-
-      populateInternals(parsed.templateKey, new HashMap<String, String>(parsed.segmentValues), parsed.extension);
+      parseEntityUrl(entityURL);
    }
 
    /**
@@ -177,7 +168,7 @@ public class EntityView {
       if (segments == null || segments.isEmpty()) {
          throw new IllegalArgumentException("segments map cannot be null or empty");
       }
-      TemplateParseUtil.checkTemplateKey(viewKey);
+      TemplateParseUtil.validateTemplateKey(viewKey);
       populateInternals(viewKey, segments, extension);
    }
 
@@ -209,13 +200,31 @@ public class EntityView {
    // METHODS
 
    /**
-    * Override this method if creating a custom EntityReference object
+    * Used to build this object after it has already been created (typically so custom templates can be inserted)
+    * @param entityURL a URL path which goes to a specific entity view,
+    * consists of path segments defined by path templates and includes an option extension
+    */
+   public void parseEntityUrl(String entityURL) {
+      this.originalEntityURL = entityURL;
+      checkEntityUrl(entityURL);
+      ProcessedTemplate parsed = TemplateParseUtil.parseTemplate(entityURL, anazlyzedTemplates);
+
+      if (parsed == null) {
+         throw new IllegalArgumentException("Could not parse entityURL against any known templates: " + entityURL);
+      }
+
+      populateInternals(parsed.templateKey, new HashMap<String, String>(parsed.segmentValues), parsed.extension);
+   }
+
+   /**
+    * Override this method if creating a custom {@link EntityView} object
     * 
-    * @param segments a map of template constants -> parse templates,
+    * @param templates a list of template constants -> parse templates,
     * the array which defines the set of template keys is {@link #PARSE_TEMPLATE_KEYS}<br/>
     * Rules for parse templates:
     * 1) "{","}", and {@link #SEPARATOR} are special characters and must be used as indicated only
     * 2) Must begin with a {@link #SEPARATOR}, must not end with a {@link #SEPARATOR}
+    * 3) must begin with "/{prefix}" (use the {@link #SEPARATOR} and {@link #PREFIX} constants)
     * 3) each {var} can only be used once in a template
     * 4) {var} can never touch each other (i.e /{var1}{var2}/{id} is invalid)
     * 5) each {var} can only have the chars from {@link TemplateParseUtil#VALID_VAR_CHARS}
@@ -225,25 +234,23 @@ public class EntityView {
    public void loadParseTemplates(List<Template> templates) {
       if (parseTemplates == null) {
          parseTemplates = new ArrayList<Template>();
+      } else {
+         parseTemplates.clear();
       }
-      if (templates == null) {
-         templates = new ArrayList<Template>();
-      }
-      for (int i = 0; i < TemplateParseUtil.PARSE_TEMPLATE_KEYS.length; i++) {
-         String key = TemplateParseUtil.PARSE_TEMPLATE_KEYS[i];
-         String template = null;
+      if (templates == null || templates.isEmpty()) {
+         parseTemplates.addAll(TemplateParseUtil.defaultTemplates);
+      } else {
          for (Template t : templates) {
-            if (key.equals(t.templateKey)) {
-               template = t.template;
-               break;
+            TemplateParseUtil.validateTemplateKey(t.templateKey);
+            TemplateParseUtil.validateTemplate(t.template);
+            parseTemplates.add(t);
+         }
+         // now add in the default templates that are not already there
+         for (Template t : TemplateParseUtil.defaultTemplates) {
+            if (! parseTemplates.contains(t)) {
+               parseTemplates.add(t);
             }
          }
-         if (template == null) {
-            // load a default template
-            template = TemplateParseUtil.getDefaultTemplate(key);
-         }
-         TemplateParseUtil.validateTemplate(template);
-         parseTemplates.add( new Template(key, template) );
       }
       anazlyzedTemplates = TemplateParseUtil.preprocessTemplates(parseTemplates);
    }
@@ -298,7 +305,7 @@ public class EntityView {
     * @return the template being used by this entity view for this key or null if none found
     */
    public String getParseTemplate(String templateKey) {
-      TemplateParseUtil.checkTemplateKey(templateKey);
+      TemplateParseUtil.validateTemplateKey(templateKey);
       String template = null;
       for (Template t : parseTemplates) {
          if (templateKey.equals(t.templateKey)) {

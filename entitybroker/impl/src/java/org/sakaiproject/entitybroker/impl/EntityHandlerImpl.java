@@ -16,6 +16,7 @@ package org.sakaiproject.entitybroker.impl;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,7 @@ import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputDefineable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
@@ -133,7 +135,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * @return the full URL to a specific entity
     */
    public String getEntityURL(String reference) {
-      // try to parse to ensure this is at least a valid formatted reference
+      // ensure this is a valid reference first
       EntityReference ref = parseReference(reference);
       String togo = serverConfigurationService.getServerUrl() + "/direct" + ref.toString();
       return togo;
@@ -145,10 +147,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     */
    public EntityProvider getProvider(String reference) {
       EntityProvider provider = null;
-      EntityReference ref = parseReference(reference);
-      if (ref != null) {
-         provider = entityProviderManager.getProviderByPrefix(ref.getPrefix());
-      }
+      String prefix = EntityReference.getPrefix(reference);
+      provider = entityProviderManager.getProviderByPrefix(prefix);
       return provider;
    }
 
@@ -161,51 +161,57 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * @throws IllegalArgumentException if there is a failure during parsing
     */
    public EntityReference parseReference(String reference) {
-      EntityReference ref = new EntityReference(reference);
+      String prefix = EntityReference.getPrefix(reference);
+      EntityReference ref = null;
       ReferenceParseable provider = (ReferenceParseable) 
-            entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), ReferenceParseable.class);
+            entityProviderManager.getProviderByPrefixAndCapability(prefix, ReferenceParseable.class);
       if (provider == null) {
          ref = null;
       } else if (provider instanceof BlankReferenceParseable) {
-         // do nothing, just return the current reference
+         ref = new EntityReference(reference);
       } else {
-         Object exemplar = provider.getParsedExemplar();
+         EntityReference exemplar = provider.getParsedExemplar();
          if (exemplar.getClass() == EntityReference.class) {
-            // do nothing, just return the current reference
+            ref = new EntityReference(reference);
          } else {
-            // cannot test this in a meaningful way so the tests are designed to not get here -AZ
-            throw new UnsupportedOperationException("Support for custom EntityReference classes is not yet provided");
+            // construct the custom class and then return it
+            try {
+               Constructor<? extends Object> m = exemplar.getClass().getConstructor(String.class);
+               ref = (EntityReference) m.newInstance(reference);
+            } catch (Exception e) {
+               throw new RuntimeException("Failed to invoke a constructor which takes a single string "
+               		+ "(reference="+reference+") for class: " + exemplar.getClass());
+            }
          }
       }
       return ref;
    }
 
    /**
-    * Parses an entity Url into an entity view object,
-    * handles custom parsing classes
+    * Parses an entity URL into an entity view object,
+    * handles custom parsing templates
     * 
-    * @param entityUrl an entity Url
+    * @param entityURL an entity URL
     * @return the entity view object representing this URL or 
     * null if there is no provider found for the prefix parsed out
     * @throws IllegalArgumentException if there is a failure during parsing
     */
-   public EntityView parseEntityUrl(String entityUrl) {
-      EntityView view = new EntityView(entityUrl);
-      String prefix = view.getEntityReference().getPrefix();
-      // TODO fix this - how to handle custom parsing classes?
-      ReferenceParseable provider = (ReferenceParseable) 
-            entityProviderManager.getProviderByPrefixAndCapability(prefix, ReferenceParseable.class);
-      if (provider == null) {
-         view = null;
-      } else if (provider instanceof BlankReferenceParseable) {
-         // do nothing, just return the current view
-      } else {
-         Object exemplar = provider.getParsedExemplar();
-         if (exemplar.getClass() == EntityView.class) {
-            // do nothing, just return the current reference
+   public EntityView parseEntityUrl(String entityURL) {
+      EntityView view = null;
+      // first get the prefix
+      String prefix = EntityReference.getPrefix(entityURL);
+      // get the basic provider to see if this prefix is valid
+      EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
+      if (provider != null) {
+         // this prefix is valid so check for custom entity templates
+         EntityUrlCustomizable custom = (EntityUrlCustomizable) entityProviderManager.getProviderByPrefixAndCapability(prefix, EntityUrlCustomizable.class);
+         if (custom == null) {
+            view = new EntityView(entityURL);
          } else {
-            // cannot test this in a meaningful way so the tests are designed to not get here -AZ
-            throw new UnsupportedOperationException("Support for custom EntityView classes is not yet provided");
+            // use the custom parsing templates to build the object
+            view = new EntityView();
+            view.loadParseTemplates( custom.getParseTemplates() );
+            view.parseEntityUrl(entityURL);
          }
       }
       return view;

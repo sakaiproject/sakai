@@ -14,6 +14,7 @@ import junit.framework.TestCase;
  * 
  * @author Aaron Zeckoski (azeckoski@gmail.com)
  */
+@SuppressWarnings("deprecation")
 public class IdEntityReferenceTest extends TestCase {
 
    private final String PREFIX1 = "prefix1";
@@ -23,9 +24,6 @@ public class IdEntityReferenceTest extends TestCase {
    private final String PREFIX2 = "longprefix2";
    private final String ID2 = "22222";
    private final String REF2 = EntityReference.SEPARATOR + PREFIX2 + EntityReference.SEPARATOR + ID2;
-
-   private final String PREFIX3 = "prefix3";
-   private final String REF3 = EntityReference.SEPARATOR + PREFIX3;
 
    private final String INVALID_REF = "invalid_reference-1";
 
