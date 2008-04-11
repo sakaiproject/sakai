@@ -84,11 +84,18 @@ public class EntityView {
 
    private String extension;
    /**
+    * The extension for this view which defines the type of data that will be returned for this view,
+    * examples: html, xml, json
+    * <b>NOTE:</b> you should assume html return format when this is null
+    * 
     * @return the extension for this view if there is one,
     * this will be null if there was no extension in the original entityUrl
     */
    public String getExtension() {
       return extension;
+   }
+   public void setExtension(String extension) {
+      this.extension = extension;
    }
 
    private String viewKey;

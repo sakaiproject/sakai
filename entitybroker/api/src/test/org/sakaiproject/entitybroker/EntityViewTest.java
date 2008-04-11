@@ -75,8 +75,8 @@ public class EntityViewTest extends TestCase {
       ev = new EntityView(TemplateParseUtil.TEMPLATE_SHOW, m, EXTENSION1);
       assertNotNull(ev);
       assertEquals(TemplateParseUtil.TEMPLATE_SHOW, ev.getViewKey());
-      assertEquals(PREFIX1, ev.getEntityReference().prefix);
-      assertEquals(ID1, ev.getEntityReference().id);
+      assertEquals(PREFIX1, ev.getEntityReference().getPrefix());
+      assertEquals(ID1, ev.getEntityReference().getId());
       assertEquals(EXTENSION1, ev.getExtension());
       assertEquals(URL1, ev.toString());
       assertEquals(null, ev.getOriginalEntityUrl());
@@ -87,8 +87,8 @@ public class EntityViewTest extends TestCase {
       ev = new EntityView(TemplateParseUtil.TEMPLATE_SHOW, m, EXTENSION2);
       assertNotNull(ev);
       assertEquals(TemplateParseUtil.TEMPLATE_SHOW, ev.getViewKey());
-      assertEquals(PREFIX2, ev.getEntityReference().prefix);
-      assertEquals(ID2, ev.getEntityReference().id);
+      assertEquals(PREFIX2, ev.getEntityReference().getPrefix());
+      assertEquals(ID2, ev.getEntityReference().getId());
       assertEquals(EXTENSION2, ev.getExtension());
       assertEquals(URL2, ev.toString());
       assertEquals(null, ev.getOriginalEntityUrl());
@@ -103,8 +103,8 @@ public class EntityViewTest extends TestCase {
       ev = new EntityView(INPUT_URL1);
       assertNotNull(ev);
       assertEquals(TemplateParseUtil.TEMPLATE_SHOW, ev.getViewKey());
-      assertEquals(PREFIX1, ev.getEntityReference().prefix);
-      assertEquals(ID1, ev.getEntityReference().id);
+      assertEquals(PREFIX1, ev.getEntityReference().getPrefix());
+      assertEquals(ID1, ev.getEntityReference().getId());
       assertEquals(EXTENSION1, ev.getExtension());
       assertEquals(URL1, ev.toString());
       assertEquals(INPUT_URL1, ev.getOriginalEntityUrl());
@@ -112,8 +112,8 @@ public class EntityViewTest extends TestCase {
       ev = new EntityView(INPUT_URL2);
       assertNotNull(ev);
       assertEquals(TemplateParseUtil.TEMPLATE_SHOW, ev.getViewKey());
-      assertEquals(PREFIX2, ev.getEntityReference().prefix);
-      assertEquals(ID2, ev.getEntityReference().id);
+      assertEquals(PREFIX2, ev.getEntityReference().getPrefix());
+      assertEquals(ID2, ev.getEntityReference().getId());
       assertEquals(EXTENSION2, ev.getExtension());
       assertEquals(URL2, ev.toString());
       assertEquals(INPUT_URL2, ev.getOriginalEntityUrl());
@@ -121,8 +121,8 @@ public class EntityViewTest extends TestCase {
       ev = new EntityView(INPUT_URL3);
       assertNotNull(ev);
       assertEquals(TemplateParseUtil.TEMPLATE_LIST, ev.getViewKey());
-      assertEquals(PREFIX3, ev.getEntityReference().prefix);
-      assertEquals(null, ev.getEntityReference().id);
+      assertEquals(PREFIX3, ev.getEntityReference().getPrefix());
+      assertEquals(null, ev.getEntityReference().getId());
       assertEquals(EXTENSION3, ev.getExtension());
       assertEquals(URL3, ev.toString());
       assertEquals(INPUT_URL3, ev.getOriginalEntityUrl());

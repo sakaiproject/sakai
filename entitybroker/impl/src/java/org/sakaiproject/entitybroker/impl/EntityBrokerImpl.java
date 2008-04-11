@@ -85,7 +85,8 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     * @see org.sakaiproject.entitybroker.EntityBroker#entityExists(java.lang.String)
     */
    public boolean entityExists(String reference) {
-      return entityHandler.entityExists(reference);
+      EntityReference ref = new EntityReference(reference);
+      return entityHandler.entityExists(ref);
    }
 
    /* (non-Javadoc)
@@ -132,24 +133,20 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       Object entity = null;
       EntityReference ref = entityHandler.parseReference(reference);
       if (ref == null) {
-         throw new IllegalArgumentException("Invalid reference (" + reference + "), entity type not handled");
+         // not handled in EB so attempt to parse out a prefix and try to get entity from the legacy system
+         try {
+            // cannot test this in a meaningful way so the tests are designed to not get here -AZ
+            entity = entityManager.newReference(reference).getEntity();
+         } catch (Exception e) {
+            log.warn("Failed to look up reference '" + reference
+                  + "' to an entity in legacy entity system", e);
+         }
       } else {
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, Resolvable.class);
+         // this is a registered prefix
+         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Resolvable.class);
          if (provider != null) {
-            if (entityExists(reference)) { // should we have this exists check?
-               if (ref.id != null ) {
-                  entity = ((Resolvable) provider).getEntity(ref);
-               }
-            }
-         } else {
-            // get the entity from the legacy system
-            try {
-               // cannot test this in a meaningful way so the tests are designed to not get here -AZ
-               entity = entityManager.newReference(reference).getEntity();
-            } catch (Exception e) {
-               log.warn("Failed to look up reference '" + reference
-                     + "' to an entity in legacy entity system", e);
-            }
+            // no exists check here since we are trying to reduce extra load
+            entity = ((Resolvable) provider).getEntity(ref);
          }
       }
       return entity;

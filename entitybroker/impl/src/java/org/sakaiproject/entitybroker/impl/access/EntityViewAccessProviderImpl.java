@@ -1,7 +1,7 @@
 /**
  * $Id$
  * $URL$
- * OutputFormatable.java - entity-broker - Apr 8, 2008 12:17:21 PM - azeckoski
+ * EntityViewAccessProviderImpl.java - entity-broker - Apr 11, 2008 11:55:45 AM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
  * Licensed under the Educational Community License version 1.0
@@ -12,17 +12,19 @@
  * Aaron Zeckoski (azeckoski@gmail.com) (aaronz@vt.edu) (aaron@caret.cam.ac.uk)
  */
 
-package org.sakaiproject.entitybroker.entityprovider.capabilities;
+package org.sakaiproject.entitybroker.impl.access;
 
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
+import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
 
 /**
- * Convenience method to indicate that this type of entity can be 
- * resolved and formatted in the various types available internally
+ * Implementation for managing EntityView providers
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface OutputFormatable extends EntityProvider, Resolvable, OutputJSONable, OutputXMLable {
+public class EntityViewAccessProviderImpl 
+   extends AccessProviderManagerImpl<EntityViewAccessProvider> 
+      implements EntityViewAccessProviderManager {
 
    // this space intentionally left blank
 

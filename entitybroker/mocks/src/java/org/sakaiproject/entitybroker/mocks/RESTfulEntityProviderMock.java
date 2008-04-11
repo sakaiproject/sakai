@@ -23,6 +23,7 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
@@ -50,18 +51,16 @@ public class RESTfulEntityProviderMock extends EntityProviderMock implements Cor
       }
    }
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider#entityExists(java.lang.String)
-    */
+   public String[] getHandledExtensions() {
+      return new String[] {Outputable.HTML, Outputable.JSON, Outputable.XML};
+   }
+
    public boolean entityExists(String id) {
       return myEntities.containsKey(id);
    }
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable#getEntity(org.sakaiproject.entitybroker.EntityReference)
-    */
    public Object getEntity(EntityReference reference) {
-      return myEntities.get( reference.id );
+      return myEntities.get( reference.getId() );
    }
 
    public List<?> getEntities(EntityReference reference, Search search) {
@@ -80,26 +79,49 @@ public class RESTfulEntityProviderMock extends EntityProviderMock implements Cor
       return entities;
    }
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.entityprovider.capabilities.Createable#getSampleEntity()
+   /**
+    * Expects {@link MyEntity} objects
+    * {@inheritDoc}
+    */
+   public String createEntity(EntityReference reference, Object entity) {
+      MyEntity me = (MyEntity) entity;
+      String newId = null;
+      int counter = 0;
+      while (newId == null) {
+         if (! myEntities.containsKey("my"+counter)) {
+            newId = "my"+counter;
+         }
+      }
+      me.id = newId;
+      myEntities.put(newId, me);
+      return newId;
+   }
+
+   /**
+    * Returns {@link MyEntity} objects with no id
+    * {@inheritDoc}
     */
    public Object getSampleEntity() {
       return new MyEntity(null);
    }
 
-   public String createEntity(EntityReference reference, Object entity) {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
+   /**
+    * Expects {@link MyEntity} objects
+    * {@inheritDoc}
+    */
    public void updateEntity(EntityReference reference, Object entity) {
-      // TODO Auto-generated method stub
-      
+      MyEntity me = (MyEntity) entity;
+      MyEntity current = myEntities.get(reference.getId());
+      if (current == null) {
+         throw new IllegalArgumentException("Invalid update, cannot find entity");
+      }
+      myEntities.get(reference.getId()).stuff = me.stuff;
    }
 
    public void deleteEntity(EntityReference reference) {
-      // TODO Auto-generated method stub
-      
+      if (myEntities.remove(reference.getId()) == null) {
+         throw new IllegalArgumentException("Invalid entity id, cannot find entity to remove: " + reference.toString());
+      }
    }
 
 }

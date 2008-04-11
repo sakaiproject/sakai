@@ -28,6 +28,7 @@ import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
+@SuppressWarnings("deprecation")
 public class HttpServletAccessProviderManagerMock implements HttpServletAccessProviderManager {
 
    public Set<String> invalidPrefixes = new HashSet<String>();

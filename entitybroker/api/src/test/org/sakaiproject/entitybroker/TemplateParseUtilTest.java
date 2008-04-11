@@ -62,6 +62,14 @@ public class TemplateParseUtilTest extends TestCase {
       assertEquals("/complex/stuff/test.other", output[1]);
       assertEquals("json", output[2]);
 
+      input = "test.";
+      output = TemplateParseUtil.findExtension(input);
+      assertNotNull(output);
+      assertEquals(3, output.length);
+      assertEquals(input, output[0]);
+      assertEquals("test", output[1]);
+      assertEquals(null, output[2]);
+
    }
 
    /**

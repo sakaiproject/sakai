@@ -27,30 +27,31 @@ package org.sakaiproject.entitybroker;
 public class IdEntityReference extends EntityReference {
 
    /**
-    * Constructor which takes an entity reference
-    * @param reference a globally unique reference to an entity, 
-    * consists of the entity prefix and the local id
+    * @deprecated use {@link #getId()} to get the id 
+    */
+   public String id;
+
+   /**
+    * @deprecated use {@link EntityReference#EntityReference(String)}
     */
    public IdEntityReference(String reference) {
       super(reference);
+      this.id = getId();
    }
 
    /**
-    * Full constructor
-    * @param prefix the entity prefix
-    * @param id the local entity id
+    * @deprecated use {@link EntityReference#EntityReference(String, String)}
     */
    public IdEntityReference(String prefix, String id) {
       super(prefix, id);
+      this.id = getId();
    }
 
    /**
-    * @param reference
-    * @return
-    * @deprecated do not use this method anymore
+    * @deprecated do not use this method anymore, use the constructors for {@link EntityReference}
     */
    public static String getID(String reference) {
-      return new EntityReference(reference).id;
+      return new EntityReference(reference).getId();
    }
 
 }

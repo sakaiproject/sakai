@@ -35,7 +35,7 @@ public interface Updateable extends Resolvable {
     * 
     * @param reference the parsed reference object which uniquely represents this entity
     * @param entity an entity object
-    * @throws IllegalArgumentException if the entity could not be updated because of missing or invalid data
+    * @throws IllegalArgumentException if the entity could not be updated because of missing or invalid data or could not find entity to update
     * @throws SecurityException if permissions prevented this entity from being updated
     * @throws IllegalStateException for all other failures
     */

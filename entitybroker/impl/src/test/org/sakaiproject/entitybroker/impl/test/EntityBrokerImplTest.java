@@ -239,17 +239,17 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
 
       er = entityBroker.parseReference(TestData.REF1);
       assertNotNull(er);
-      assertEquals(TestData.PREFIX1, er.prefix);
-      assertEquals(TestData.IDS1[0], er.id);
+      assertEquals(TestData.PREFIX1, er.getPrefix());
+      assertEquals(TestData.IDS1[0], er.getId());
 
       er = entityBroker.parseReference(TestData.REF2);
       assertNotNull(er);
-      assertEquals(TestData.PREFIX2, er.prefix);
+      assertEquals(TestData.PREFIX2, er.getPrefix());
 
       // test parsing a defined reference
-      er = entityBroker.parseReference(TestData.REF3);
+      er = entityBroker.parseReference(TestData.REF3A);
       assertNotNull(er);
-      assertEquals(TestData.PREFIX3, er.prefix);
+      assertEquals(TestData.PREFIX3, er.getPrefix());
 
       // parsing of unregistered entity references returns null
       er = entityBroker.parseReference(TestData.REF9);
@@ -293,13 +293,9 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       obj = entityBroker.fetchEntity(TestData.REF2);
       assertNull(obj);
 
-      // use an unregistered provider to trigger the attempt to do a legacy lookup
-      try {
-         obj = entityBroker.fetchEntity(TestData.REF9);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
+      // use an unregistered provider to trigger the attempt to do a legacy lookup which will fail and return null
+      obj = entityBroker.fetchEntity(TestData.REF9);
+      assertNull(obj);
 
       // expect invalid reference to fail
       try {

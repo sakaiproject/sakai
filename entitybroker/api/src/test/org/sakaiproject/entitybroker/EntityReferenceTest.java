@@ -58,8 +58,8 @@ public class EntityReferenceTest extends TestCase {
       assertEquals(INPUT_REF2, er.getOriginalReference());
 
       er = new EntityReference("/myprefix/myid/extra");
-      assertEquals("myprefix", er.prefix);
-      assertEquals("myid", er.id);
+      assertEquals("myprefix", er.getPrefix());
+      assertEquals("myid", er.getId());
       assertEquals("/myprefix/myid", er.toString());
       assertEquals("/myprefix/myid/extra", er.getOriginalReference());
    }
@@ -109,31 +109,31 @@ public class EntityReferenceTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.EntityReference#makeReference(boolean)}.
+    * Test method for {@link org.sakaiproject.entitybroker.EntityReference#makeEntityReference(boolean)}.
     */
    public void testMakeReference() {
       EntityReference er = null;
 
       er = new EntityReference(INPUT_REF1);
-      assertEquals(REF1, er.makeReference(false));
+      assertEquals(REF1, er.makeEntityReference(false));
 
       er = new EntityReference(INPUT_REF2);
-      assertEquals(REF2, er.makeReference(false));
+      assertEquals(REF2, er.makeEntityReference(false));
 
       er = new EntityReference(INPUT_REF3);
-      assertEquals(REF3, er.makeReference(false));
+      assertEquals(REF3, er.makeEntityReference(false));
 
       er = new EntityReference(INPUT_REF2);
-      assertEquals(EntityReference.SEPARATOR + PREFIX2, er.makeReference(true));
+      assertEquals(EntityReference.SEPARATOR + PREFIX2, er.makeEntityReference(true));
 
       er = new EntityReference(INPUT_REF3);
-      assertEquals(REF3, er.makeReference(true));
+      assertEquals(REF3, er.makeEntityReference(true));
 
       
       // Invalid formed ER will not return a ref string
       er = new EntityReference();
       try {
-         er.makeReference(false);
+         er.makeEntityReference(false);
          fail("Should have thrown exception");
       } catch (IllegalStateException e) {
          assertNotNull(e);
@@ -227,20 +227,20 @@ public class EntityReferenceTest extends TestCase {
 
       er = new EntityReference(INPUT_REF1);
       assertNotNull(er);
-      assertEquals(PREFIX1, er.prefix);
-      assertEquals(ID1, er.id);
+      assertEquals(PREFIX1, er.getPrefix());
+      assertEquals(ID1, er.getId());
       assertEquals(REF1, er.toString());
 
       er = new EntityReference(INPUT_REF2);
       assertNotNull(er);
-      assertEquals(PREFIX2, er.prefix);
-      assertEquals(ID2, er.id);
+      assertEquals(PREFIX2, er.getPrefix());
+      assertEquals(ID2, er.getId());
       assertEquals(REF2, er.toString());
 
       er = new EntityReference(INPUT_REF3);
       assertNotNull(er);
-      assertEquals(PREFIX3, er.prefix);
-      assertEquals(null, er.id);
+      assertEquals(PREFIX3, er.getPrefix());
+      assertEquals(null, er.getId());
       assertEquals(REF3, er.toString());
 
       // test invalid prefix throws exception
@@ -274,14 +274,14 @@ public class EntityReferenceTest extends TestCase {
 
       er = new EntityReference(PREFIX1, ID1);
       assertNotNull(er);
-      assertEquals(PREFIX1, er.prefix);
-      assertEquals(ID1, er.id);
+      assertEquals(PREFIX1, er.getPrefix());
+      assertEquals(ID1, er.getId());
       assertEquals(REF1, er.toString());
 
       er = new EntityReference(PREFIX3, "");
       assertNotNull(er);
-      assertEquals(PREFIX3, er.prefix);
-      assertEquals(null, er.id);
+      assertEquals(PREFIX3, er.getPrefix());
+      assertEquals(null, er.getId());
       assertEquals(REF3, er.toString());
 
       // test invalid prefix throws exception

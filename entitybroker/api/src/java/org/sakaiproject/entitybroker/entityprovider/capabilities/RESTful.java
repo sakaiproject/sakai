@@ -25,7 +25,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface RESTful extends EntityProvider, RESTfulUrlHandleable, CRUDable, CollectionResolvable, OutputHTMLable, OutputFormatable {
+public interface RESTful extends EntityProvider, RESTfulUrlHandleable, CRUDable, CollectionResolvable, Outputable {
 
    // this space left blank intentionally
 

@@ -53,6 +53,7 @@ public class EntityBrokerEntity implements Entity {
       return entityHandler.getEntityURL(reference.getReference());
    }
 
+   @SuppressWarnings("unchecked")
    public Element toXml(Document doc, Stack stack) {
       // TODO Auto-generated method stub
       return null;

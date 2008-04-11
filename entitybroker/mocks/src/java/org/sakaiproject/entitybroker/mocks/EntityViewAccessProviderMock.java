@@ -1,7 +1,7 @@
 /**
  * $Id$
  * $URL$
- * HttpServletAccessProviderMock.java - entity-broker - Apr 6, 2008 12:18:50 PM - azeckoski
+ * EntityViewAccessProviderMock.java - entity-broker - Apr 11, 2008 4:31:51 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
  * Licensed under the Educational Community License version 1.0
@@ -17,10 +17,9 @@ package org.sakaiproject.entitybroker.mocks;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
+import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
 import org.springframework.mock.web.MockHttpServletResponse;
-
 
 /**
  * Pretends to be an access servlet provider for things that use them,
@@ -28,13 +27,12 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-@SuppressWarnings("deprecation")
-public class HttpServletAccessProviderMock implements HttpServletAccessProvider {
+public class EntityViewAccessProviderMock implements EntityViewAccessProvider {
 
    /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.access.HttpServletAccessProvider#handleAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.sakaiproject.entitybroker.EntityReference)
+    * @see org.sakaiproject.entitybroker.access.EntityViewAccessProvider#handleAccess(org.sakaiproject.entitybroker.EntityView, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
     */
-   public void handleAccess(HttpServletRequest req, HttpServletResponse res, EntityReference ref) {
+   public void handleAccess(EntityView view, HttpServletRequest req, HttpServletResponse res) {
       // Okey dokey, do nothing but say all is well
       ((MockHttpServletResponse) res).setStatus(HttpServletResponse.SC_OK);
    }

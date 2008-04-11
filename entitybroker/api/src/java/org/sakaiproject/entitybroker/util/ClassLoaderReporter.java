@@ -14,7 +14,7 @@
 
 package org.sakaiproject.entitybroker.util;
 
-import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
+import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
 
 /**
  * Allows a bean to report the classloader that is appropriate for it and will be used
@@ -22,9 +22,10 @@ import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
  * cases and should not normally be implemented<br/>
  * The primary use case here is to allow someone to set their classloader when they
  * are using a proxied bean or the implementation class is in the wrong classloader<br/>
- * This is primarily used in the case of the {@link HttpServletAccessProvider} and the
- * implementation of that should also implement this interface to be able to specify the 
- * classloader
+ * This is primarily used in the case of the {@link HttpServletAccessProvider}
+ * or {@link EntityViewAccessProvider} 
+ * and the implementations of those should also implement this interface 
+ * to be able to specify the classloader
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */

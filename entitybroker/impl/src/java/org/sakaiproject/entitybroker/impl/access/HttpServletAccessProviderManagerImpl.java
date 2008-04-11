@@ -12,6 +12,7 @@ import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
+@SuppressWarnings("deprecation")
 public class HttpServletAccessProviderManagerImpl extends
       AccessProviderManagerImpl<HttpServletAccessProvider> implements
       HttpServletAccessProviderManager {

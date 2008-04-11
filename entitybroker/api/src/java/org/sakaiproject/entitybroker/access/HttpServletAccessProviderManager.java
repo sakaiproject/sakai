@@ -19,6 +19,7 @@ package org.sakaiproject.entitybroker.access;
  * the tool webapps and will come and go unpredictably.
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
+ * @deprecated Use {@link EntityViewAccessProviderManager} instead
  */
 public interface HttpServletAccessProviderManager {
 

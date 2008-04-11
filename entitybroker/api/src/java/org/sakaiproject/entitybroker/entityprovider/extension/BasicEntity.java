@@ -30,8 +30,8 @@ public class BasicEntity {
 
    public BasicEntity(EntityReference ref) {
       this.reference = ref.toString();
-      this.prefix = ref.prefix;
-      this.id = ref.id;
+      this.prefix = ref.getPrefix();
+      this.id = ref.getId();
    }
 
    @Override

@@ -28,35 +28,31 @@ import org.sakaiproject.tool.api.SessionManager;
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
+@SuppressWarnings("deprecation")
 public class EntityBrokerHttpAccess implements HttpAccess {
 
    private static Log log = LogFactory.getLog(EntityBrokerHttpAccess.class);
 
    private HttpServletAccessProviderManager accessProviderManager;
-
    public void setAccessProviderManager(HttpServletAccessProviderManager accessProviderManager) {
       this.accessProviderManager = accessProviderManager;
    }
 
    private SessionManager sessionManager;
-
    public void setSessionManager(SessionManager sessionManager) {
       this.sessionManager = sessionManager;
    }
 
    private EntityHandlerImpl entityHandler;
-
    public void setEntityHandler(EntityHandlerImpl entityHandler) {
       this.entityHandler = entityHandler;
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see org.sakaiproject.entity.api.HttpAccess#handleAccess(javax.servlet.http.HttpServletRequest,
-    *      javax.servlet.http.HttpServletResponse, org.sakaiproject.entity.api.Reference,
-    *      java.util.Collection)
+
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entity.api.HttpAccess#handleAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.sakaiproject.entity.api.Reference, java.util.Collection)
     */
+   @SuppressWarnings("unchecked")
    public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref,
          Collection copyrightAcceptedRefs) throws EntityPermissionException,
          EntityNotDefinedException {
@@ -82,10 +78,8 @@ public class EntityBrokerHttpAccess implements HttpAccess {
       try {
          provider.handleAccess(req, res, entityref);
       } catch (SecurityException e) {
-         throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "read",
-               reference);
+         throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "read", reference);
       }
-
    }
 
 }

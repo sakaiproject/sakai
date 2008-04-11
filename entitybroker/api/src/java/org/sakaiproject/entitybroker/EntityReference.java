@@ -48,16 +48,30 @@ public class EntityReference {
 
    /**
     * An entity prefix, should match with the prefix handled in an {@link EntityProvider},
-    * uniquely identifies an entity space or entity type
+    * uniquely identifies an entity space or entity type<br/>
+    * <b>WARNING:</b> use the {@link #getPrefix()} method rather than referring to this directly
     */
    public String prefix;
+   /**
+    * @return the entity prefix (uniquely identifies an entity space or entity type),
+    * this should never be null
+    */
+   public String getPrefix() {
+      return makeEntityPrefix();
+   }
 
+   private String entityId;
    /**
     * A local entity id, represents an entity uniquely in a tool/webapp, 
     * could match with the actual id of a model data object,
     * this will be null if this reference refers to an entity space only
+    * 
+    * @return the entity id (locally unique id for an entity of this entity type)
+    * or null if this this reference refers to an entity space only
     */
-   public String id;
+   public String getId() {
+      return makeEntityId();
+   }
 
 
    // CONSTRUCTORS
@@ -72,11 +86,12 @@ public class EntityReference {
     * consists of the entity prefix and optional path segments
     */
    public EntityReference(String reference) {
+      // OVERRIDE THIS when creating your own EntityReference
       this();
       checkReference(reference);
-      originalReference = reference;
-      prefix = findPrefix(reference);
-      id = findId(reference);
+      this.originalReference = reference;
+      this.prefix = findPrefix(reference);
+      this.entityId = findId(reference);
    }
 
    /**
@@ -86,16 +101,61 @@ public class EntityReference {
     * @param id the local entity id (can be empty string if there is no id)
     */
    public EntityReference(String prefix, String id) {
+      // OVERRIDE THIS when creating your own EntityReference
       this();
       checkPrefixId(prefix, id);
 
       this.prefix = prefix;
       if ("".equals(id)) { id = null; }
-      this.id = id;
+      this.entityId = id;
    }
 
 
    // METHODS
+
+   /**
+    * Override this if you are making a new class to define your entity reference
+    * 
+    * @param spaceOnly if this is true then only return the entity space reference (e.g. /prefix),
+    * otherwise return the full reference (e.g. /prefix/id)
+    * @return an entity reference string
+    */
+   protected String makeEntityReference(boolean spaceOnly) {
+      // OVERRIDE THIS when creating your own EntityReference
+      if (getPrefix() == null) {
+         throw new IllegalStateException("prefix is null, cannot generate the string reference");
+      }
+      String ref = null;
+      if (spaceOnly || getId() == null) {
+         ref = SEPARATOR + getPrefix();
+      } else {
+         ref = SEPARATOR + getPrefix() + SEPARATOR + getId();
+      }
+      return ref;
+   }
+
+   /**
+    * Override this if you are making a new class to define your entity reference,
+    * called by public {@link #getPrefix()} method
+    * 
+    * @return the prefix for the current entity reference
+    */
+   protected String makeEntityPrefix() {
+      prefix = "".equals(prefix) ? null : prefix; // fix empty prefix to null
+      return prefix;
+   }
+
+   /**
+    * Override this if you are making a new class to define your entity reference,
+    * called by public {@link #getId()} method
+    * 
+    * @return the prefix for the current entity reference
+    */
+   protected String makeEntityId() {
+      entityId = "".equals(entityId) ? null : entityId; // fix empty id to null
+      return entityId;
+   }
+
 
    /**
     * Get the string reference for this entity reference object,
@@ -112,7 +172,7 @@ public class EntityReference {
     * @return the entity space reference (e.g. /myPrefix)
     */
    public String getSpaceReference() {
-      return makeReference(true);
+      return makeEntityReference(true);
    }
 
    /**
@@ -121,27 +181,7 @@ public class EntityReference {
     */
    @Override
    public String toString() {
-      return makeReference(false);
-   }
-
-   /**
-    * Override this if you are making a new class to define your entity reference
-    * 
-    * @param spaceOnly if this is true then only return the entity space reference (e.g. /prefix),
-    * otherwise return the full reference (e.g. /prefix/id)
-    * @return an entity reference string
-    */
-   protected String makeReference(boolean spaceOnly) {
-      if (prefix == null) {
-         throw new IllegalStateException("prefix is null, cannot generate the string reference");
-      }
-      String ref = null;
-      if (spaceOnly || id == null || "".equals(id)) {
-         ref = SEPARATOR + prefix;
-      } else {
-         ref = SEPARATOR + prefix + SEPARATOR + id;
-      }
-      return ref;
+      return makeEntityReference(false);
    }
 
    // STATIC METHODS

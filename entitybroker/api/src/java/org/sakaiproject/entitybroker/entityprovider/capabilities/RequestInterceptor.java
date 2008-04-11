@@ -17,10 +17,9 @@ package org.sakaiproject.entitybroker.entityprovider.capabilities;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.exception.EntityException;
-
 
 /**
  * Allows actions to be taken before a direct request is handled or after it has been handled,
@@ -39,11 +38,11 @@ public interface RequestInterceptor extends EntityProvider {
     * {@link EntityException} and include the type of response you would like to return in the exception
     * (this can be a success or failure response status)
     * 
-    * @param ref an entity reference
+    * @param view an entity view, should contain all the information related to the incoming entity URL
     * @param req the servlet request (available in case you need to get anything out of it)
     * @param res the servlet response, put the correct data response into the outputstream
     */
-   public void before(HttpServletRequest req, HttpServletResponse res, EntityReference ref);
+   public void before(EntityView view, HttpServletRequest req, HttpServletResponse res);
 
    /**
     * Take actions after the request is handled,
@@ -51,10 +50,10 @@ public interface RequestInterceptor extends EntityProvider {
     * normally this would be used to add something to the response as it is getting ready to be
     * sent back to the requester
     * 
-    * @param ref an entity reference
+    * @param view an entity view, should contain all the information related to the incoming entity URL
     * @param req the servlet request (available in case you need to get anything out of it)
     * @param res the servlet response, put the correct data response into the outputstream
     */
-   public void after(HttpServletRequest req, HttpServletResponse res, EntityReference ref);
+   public void after(EntityView view, HttpServletRequest req, HttpServletResponse res);
 
 }

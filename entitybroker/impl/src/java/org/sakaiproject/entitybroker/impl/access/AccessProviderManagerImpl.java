@@ -35,6 +35,10 @@ public class AccessProviderManagerImpl<T> {
       prefixMap.remove(prefix);
    }
 
+   public void unregisterProvider(String prefix) {
+      prefixMap.remove(prefix);
+   }
+
    public T getProvider(String prefix) {
       WeakReference<T> value = prefixMap.get(prefix);
       return value == null ? null : value.get();

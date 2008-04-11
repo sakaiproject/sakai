@@ -75,6 +75,7 @@ public class EntityProviderManagerImplTest extends TestCase {
     * Test method for
     * {@link org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl#getProviderByReference(java.lang.String)}.
     */
+   @SuppressWarnings("deprecation")
    public void testGetProviderByReference() {
       EntityProvider ep = null;
 
@@ -83,7 +84,7 @@ public class EntityProviderManagerImplTest extends TestCase {
       assertNotNull(ep);
       assertEquals(td.entityProvider1, ep);
 
-      ep = entityProviderManager.getProviderByReference(TestData.REF3);
+      ep = entityProviderManager.getProviderByReference(TestData.REF3A);
       assertNotNull(ep);
       assertEquals(td.entityProvider3, ep);
 

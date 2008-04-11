@@ -14,9 +14,7 @@
 
 package org.sakaiproject.entitybroker.entityprovider.capabilities;
 
-import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
-
 
 /**
  * This entity provider will allow for RESTful URLs to be handled by it (i.e be handled by the provider

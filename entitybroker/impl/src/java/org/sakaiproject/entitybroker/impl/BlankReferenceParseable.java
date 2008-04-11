@@ -11,7 +11,6 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParsea
  * 
  * @author Antranig Basman (amb26@ponder.org.uk)
  */
-
 public class BlankReferenceParseable implements ReferenceParseable {
 
   public EntityReference getParsedExemplar() {
