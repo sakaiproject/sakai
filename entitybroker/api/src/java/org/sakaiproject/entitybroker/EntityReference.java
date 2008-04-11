@@ -45,8 +45,9 @@ public class EntityReference {
       }
       return ref;
    }
-   protected void setOriginalReference(String originalReference) {
-      this.originalReference = originalReference;
+   protected void setOriginalReference(String reference) {
+      checkReference(reference);
+      this.originalReference = reference;
    }
 
    /**
@@ -139,7 +140,7 @@ public class EntityReference {
          throw new IllegalStateException("prefix is null, cannot generate the string reference");
       }
       String ref = null;
-      if (id == null || "".equals(id)) {
+      if (spaceOnly || id == null || "".equals(id)) {
          ref = SEPARATOR + prefix;
       } else {
          ref = SEPARATOR + prefix + SEPARATOR + id;
@@ -169,7 +170,7 @@ public class EntityReference {
     * @return the entity prefix
     */
    protected static String findPrefix(String reference) {
-      int spos = getSeparatorPos(reference);
+      int spos = getSeparatorPos(reference, 1);
       return spos == -1 ? reference.substring(1) : reference.substring(1, spos);
    }
 
@@ -182,10 +183,10 @@ public class EntityReference {
     */
    protected static String findId(String reference) {
       String id = null;
-      int spos = getSeparatorPos(reference);
+      int spos = getSeparatorPos(reference, 1);
       if (spos != -1) {
-         int lspos = (reference.indexOf(EntityReference.SEPARATOR, spos + 1));
-         id = lspos == -1 ? reference.substring(spos + 1) : reference.substring(spos + 1, lspos);
+         int spos2 = getSeparatorPos(reference, 2);
+         id = spos2 == -1 ? reference.substring(spos + 1) : reference.substring(spos + 1, spos2);
       }
       return id;
    }
@@ -193,15 +194,20 @@ public class EntityReference {
    /**
     * @param reference a globally unique reference to an entity, 
     * consists of the entity prefix and optional id
+    * @param number this is the separator to get,
+    * 0 would return the first one found, 1 would return the second
     * @return the location of the separator between the entity and the id or -1 if none found
     */
-   protected static int getSeparatorPos(String reference) {
-      if (reference == null || reference.length() == 0 || reference.charAt(0) != SEPARATOR) {
-         throw new IllegalArgumentException("Invalid entity reference for EntityBroker: "
-               + reference + " - these begin with /prefix, e.g. " + SEPARATOR + "myentity"
-               + SEPARATOR + "3 OR " + SEPARATOR + "myentity");
+   protected static int getSeparatorPos(String reference, int number) {
+      checkReference(reference);
+      int position = 0;
+      for (int i = 0; i < number; i++) {
+         position = reference.indexOf(SEPARATOR, position+1);
+         if (position < 0) {
+            break;
+         }
       }
-      return reference.indexOf(SEPARATOR, 1);
+      return position;
    }
 
    /**
@@ -214,7 +220,8 @@ public class EntityReference {
             || "".equals(reference)
             || SEPARATOR != reference.charAt(0) )
          throw new IllegalArgumentException("Invalid entity reference for EntityBroker: "
-               + reference + " - these begin with " + SEPARATOR + " and cannot be null");      
+               + reference + " - these begin with /prefix, e.g. " + SEPARATOR + "myentity"
+               + SEPARATOR + "3 OR " + SEPARATOR + "myentity");
    }
 
    /**
