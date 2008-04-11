@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://sakai21-dev.its.yale.edu/svn/signup/branches/2-5/api/src/java/org/sakaiproject/signup/logic/SignupUser.java $
- * $Id: SignupUser.java 2973 2008-04-10 18:05:19Z gl256 $
+ * $URL$
+ * $Id$
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008 Yale University

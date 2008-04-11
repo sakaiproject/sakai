@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://sakai21-dev.its.yale.edu/svn/signup/branches/2-5/impl/src/java/org/sakaiproject/signup/logic/messages/SwapAttendeeEmail.java $
- * $Id: SwapAttendeeEmail.java 2975 2008-04-11 16:01:29Z gl256 $
+ * $URL$
+ * $Id$
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008 Yale University

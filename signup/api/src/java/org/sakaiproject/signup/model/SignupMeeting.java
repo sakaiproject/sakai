@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://sakai21-dev.its.yale.edu/svn/signup/branches/2-5/api/src/java/org/sakaiproject/signup/model/SignupMeeting.java $
- * $Id: SignupMeeting.java 2971 2008-04-10 17:43:22Z gl256 $
+ * $URL$
+ * $Id$
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008 Yale University
