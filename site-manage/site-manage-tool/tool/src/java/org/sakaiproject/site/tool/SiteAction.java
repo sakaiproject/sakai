@@ -7779,6 +7779,12 @@ public class SiteAction extends PagedResourceActionII {
 				for (Iterator eIterator = enrollments.iterator();eIterator.hasNext();)
 				{
 					Enrollment e = (Enrollment) eIterator.next();
+					
+					// ignore the dropped enrollments
+					if(e.isDropped()){
+						continue;
+					}
+					
 					try 
 					{
 						User user = UserDirectoryService.getUserByEid(e.getUserId());
