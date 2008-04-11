@@ -9,7 +9,7 @@
  * 
  *****************************************************************************/
 
-package org.sakaiproject.entitybroker.test;
+package org.sakaiproject.entitybroker;
 
 import org.sakaiproject.entitybroker.dao.model.EntityProperty;
 

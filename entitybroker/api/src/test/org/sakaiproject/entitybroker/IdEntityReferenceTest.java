@@ -2,7 +2,7 @@
  * IdEntityReferenceTest.java - 2007 Jul 21, 2007 3:15:08 PM - entity-broker - AZ
  */
 
-package org.sakaiproject.entitybroker.test;
+package org.sakaiproject.entitybroker;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.IdEntityReference;

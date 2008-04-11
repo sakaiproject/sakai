@@ -31,6 +31,24 @@ public class EntityReference {
 
    public static final char SEPARATOR = TemplateParseUtil.SEPARATOR;
 
+   protected String originalReference;
+   /**
+    * This is a special method and should not normally be used,
+    * use {@link #toString()}
+    * @return the reference string used to create this object or
+    * the string version of this object if it is null
+    */
+   public String getOriginalReference() {
+      String ref = originalReference;
+      if (ref == null) {
+         ref = this.toString();
+      }
+      return ref;
+   }
+   protected void setOriginalReference(String originalReference) {
+      this.originalReference = originalReference;
+   }
+
    /**
     * An entity prefix, should match with the prefix handled in an {@link EntityProvider},
     * uniquely identifies an entity space or entity type
@@ -59,8 +77,9 @@ public class EntityReference {
    public EntityReference(String reference) {
       this();
       checkReference(reference);
-      prefix = getPrefix(reference);
-      id = getID(reference);
+      originalReference = reference;
+      prefix = findPrefix(reference);
+      id = findId(reference);
    }
 
    /**
@@ -82,11 +101,40 @@ public class EntityReference {
    // METHODS
 
    /**
+    * Get the string reference for this entity reference object,
+    * same as calling {@link #toString()}
+    * @return the full entity reference
+    */
+   public String getReference() {
+      return this.toString();
+   }
+
+   /**
+    * Get the space reference for this entity reference,
+    * this ignored any id and only returns the reference to the entity space
+    * @return the entity space reference (e.g. /myPrefix)
+    */
+   public String getSpaceReference() {
+      return makeReference(true);
+   }
+
+   /**
     * @return the string version of this entity reference,
     * example: /prefix if there is no id or /prefix/id if there is an id
     */
    @Override
    public String toString() {
+      return makeReference(false);
+   }
+
+   /**
+    * Override this if you are making a new class to define your entity reference
+    * 
+    * @param spaceOnly if this is true then only return the entity space reference (e.g. /prefix),
+    * otherwise return the full reference (e.g. /prefix/id)
+    * @return an entity reference string
+    */
+   protected String makeReference(boolean spaceOnly) {
       if (prefix == null) {
          throw new IllegalStateException("prefix is null, cannot generate the string reference");
       }
@@ -99,15 +147,6 @@ public class EntityReference {
       return ref;
    }
 
-   /**
-    * Get the space reference for this entity reference,
-    * this ignored any id and only returns the reference to the entity space
-    * @return the entity space reference (e.g. /myPrefix)
-    */
-   public String getSpaceReference() {
-      return SEPARATOR + prefix;
-   }
-
    // STATIC METHODS
 
    /**
@@ -116,8 +155,20 @@ public class EntityReference {
     * @param reference a globally unique reference to an entity, 
     * consists of the entity prefix and optional id
     * @return the entity prefix
+    * @deprecated Do not use this anymore, use {@link #EntityReference(String, String)}
     */
    public static String getPrefix(String reference) {
+      return findPrefix(reference);
+   }
+
+   /**
+    * Get the entity prefix based on an entity reference
+    * 
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and optional id
+    * @return the entity prefix
+    */
+   protected static String findPrefix(String reference) {
       int spos = getSeparatorPos(reference);
       return spos == -1 ? reference.substring(1) : reference.substring(1, spos);
    }
@@ -129,7 +180,7 @@ public class EntityReference {
     * consists of the entity prefix and optional id
     * @return the local entity id or null if none can be found
     */
-   public static String getID(String reference) {
+   protected static String findId(String reference) {
       String id = null;
       int spos = getSeparatorPos(reference);
       if (spos != -1) {

@@ -2,14 +2,11 @@
  * EntityReferenceTest.java - 2007 Jul 21, 2007 3:11:31 PM - entity-broker - AZ
  */
 
-package org.sakaiproject.entitybroker.test;
-
-import java.util.HashMap;
+package org.sakaiproject.entitybroker;
 
 import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
 /**
  * Testing the Entity Reference static methods
@@ -19,12 +16,10 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 public class EntityReferenceTest extends TestCase {
 
    private final String PREFIX1 = "prefix1";
-   private final String REF1 = EntityReference.SEPARATOR + PREFIX1 + EntityReference.SEPARATOR
-         + "111";
+   private final String REF1 = EntityReference.SEPARATOR + PREFIX1 + EntityReference.SEPARATOR + "111";
 
    private final String PREFIX2 = "longprefix2";
-   private final String REF2 = EntityReference.SEPARATOR + PREFIX2 + EntityReference.SEPARATOR
-         + "222222";
+   private final String REF2 = EntityReference.SEPARATOR + PREFIX2 + EntityReference.SEPARATOR + "222222";
 
    private final String PREFIX3 = "prefix3";
    private final String REF3 = EntityReference.SEPARATOR + PREFIX3;
@@ -33,33 +28,105 @@ public class EntityReferenceTest extends TestCase {
 
 
    /**
-    * Test method for
-    * {@link org.sakaiproject.entitybroker.EntityReference#getPrefix(java.lang.String)}.
+    * Test method for {@link org.sakaiproject.entitybroker.EntityReference#getOriginalReference()}.
     */
-   public void testGetPrefix() {
+   public void testGetOriginalReference() {
+      EntityReference er = null;
+
+      er = new EntityReference("/myprefix/myid/extra");
+      assertEquals("myprefix", er.prefix);
+      assertEquals("myid", er.id);
+      assertEquals("/myprefix/myid", er.toString());
+      assertEquals("/myprefix/myid/extra", er.getOriginalReference());
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityReference#setOriginalReference(java.lang.String)}.
+    */
+   public void testSetOriginalReference() {
+      EntityReference er = null;
+
+      er = new EntityReference("/myprefix/myid/extra");
+      assertEquals("/myprefix/myid/extra", er.getOriginalReference());
+      
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityReference#getReference()}.
+    */
+   public void testGetReference() {
+      //fail("Not yet implemented");
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityReference#getSpaceReference()}.
+    */
+   public void testGetSpaceReference() {
+      //fail("Not yet implemented");
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityReference#makeReference(boolean)}.
+    */
+   public void testMakeReference() {
+      //fail("Not yet implemented");
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityReference#findPrefix(java.lang.String)}.
+    */
+   public void testFindPrefix() {
       String prefix = null;
 
       // test 2 part ref
-      prefix = EntityReference.getPrefix(REF1);
+      prefix = EntityReference.findPrefix(REF1);
       assertNotNull(prefix);
       assertEquals(PREFIX1, prefix);
 
-      prefix = EntityReference.getPrefix(REF2);
+      prefix = EntityReference.findPrefix(REF2);
       assertNotNull(prefix);
       assertEquals(PREFIX2, prefix);
 
       // test 1 part ref
-      prefix = EntityReference.getPrefix(REF3);
+      prefix = EntityReference.findPrefix(REF3);
       assertNotNull(prefix);
       assertEquals(PREFIX3, prefix);
 
       // test invalid reference throws exception
       try {
-         prefix = EntityReference.getPrefix(INVALID_REF);
+         prefix = EntityReference.findPrefix(INVALID_REF);
          fail("Should have thrown exception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());
       }
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityReference#findId(java.lang.String)}.
+    */
+   public void testFindId() {
+      //fail("Not yet implemented");
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityReference#getSeparatorPos(java.lang.String)}.
+    */
+   public void testGetSeparatorPos() {
+      //fail("Not yet implemented");
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityReference#checkReference(java.lang.String)}.
+    */
+   public void testCheckReference() {
+      //fail("Not yet implemented");
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityReference#checkPrefixId(java.lang.String, java.lang.String)}.
+    */
+   public void testCheckPrefixId() {
+      //fail("Not yet implemented");
    }
 
    /**
