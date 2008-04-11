@@ -183,10 +183,10 @@ public class EntityViewTest extends TestCase {
 
       ev = new EntityView(INPUT_URL1);
       assertNotNull(ev);
-      assertEquals("/" + PREFIX1, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_LIST, null));
-      assertEquals(URL1, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_SHOW, null));
-      assertEquals(URL1 + "/edit", ev.getEntityUrl(TemplateParseUtil.TEMPLATE_EDIT, null));
-      assertEquals("/" + PREFIX1 + "/new", ev.getEntityUrl(TemplateParseUtil.TEMPLATE_NEW, null));
+      assertEquals("/" + PREFIX1, ev.getEntityURL(TemplateParseUtil.TEMPLATE_LIST, null));
+      assertEquals(URL1, ev.getEntityURL(TemplateParseUtil.TEMPLATE_SHOW, null));
+      assertEquals(URL1 + "/edit", ev.getEntityURL(TemplateParseUtil.TEMPLATE_EDIT, null));
+      assertEquals("/" + PREFIX1 + "/new", ev.getEntityURL(TemplateParseUtil.TEMPLATE_NEW, null));
    }
 
    /**
@@ -239,24 +239,24 @@ public class EntityViewTest extends TestCase {
 
       ev = new EntityView(INPUT_URL1);
       assertNotNull(ev);
-      assertEquals("/" + PREFIX1, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_LIST, null));
-      assertEquals(URL1, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_SHOW, null));
-      assertEquals(URL1 + "/edit", ev.getEntityUrl(TemplateParseUtil.TEMPLATE_EDIT, null));
-      assertEquals("/" + PREFIX1 + "/new", ev.getEntityUrl(TemplateParseUtil.TEMPLATE_NEW, null));
+      assertEquals("/" + PREFIX1, ev.getEntityURL(TemplateParseUtil.TEMPLATE_LIST, null));
+      assertEquals(URL1, ev.getEntityURL(TemplateParseUtil.TEMPLATE_SHOW, null));
+      assertEquals(URL1 + "/edit", ev.getEntityURL(TemplateParseUtil.TEMPLATE_EDIT, null));
+      assertEquals("/" + PREFIX1 + "/new", ev.getEntityURL(TemplateParseUtil.TEMPLATE_NEW, null));
 
       ev = new EntityView(INPUT_URL3);
       assertNotNull(ev);
-      assertEquals(URL3, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_LIST, EXTENSION3));
-      assertEquals("/" + PREFIX3, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_LIST, null));
+      assertEquals(URL3, ev.getEntityURL(TemplateParseUtil.TEMPLATE_LIST, EXTENSION3));
+      assertEquals("/" + PREFIX3, ev.getEntityURL(TemplateParseUtil.TEMPLATE_LIST, null));
       try {
-         ev.getEntityUrl(TemplateParseUtil.TEMPLATE_SHOW, null);
+         ev.getEntityURL(TemplateParseUtil.TEMPLATE_SHOW, null);
          fail("Should have thrown exception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e);
       }
       
       try {
-         ev.getEntityUrl("xxxxxxxxxxxxxxxxxx", null);
+         ev.getEntityURL("xxxxxxxxxxxxxxxxxx", null);
          fail("Should have thrown exception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e);

@@ -222,7 +222,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             // use the custom parsing templates to build the object
             view = new EntityView();
             view.loadParseTemplates( custom.getParseTemplates() );
-            view.parseEntityUrl(entityURL);
+            view.parseEntityURL(entityURL);
          }
       }
       return view;

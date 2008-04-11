@@ -68,7 +68,7 @@ public class EntityView {
    private String originalEntityURL;
    /**
     * Special use only, 
-    * normally you should use {@link #toString()} or {@link #getEntityUrl(String, String)}
+    * normally you should use {@link #toString()} or {@link #getEntityURL(String, String)}
     * 
     * @return the original entity URL which was used to create this entity view,
     * includes the optional pieces from the URL, will be null if this was created
@@ -78,7 +78,7 @@ public class EntityView {
       return originalEntityURL;
    }
    protected void setOriginalEntityURL(String entityUrl) {
-      checkEntityUrl(entityUrl);
+      checkEntityURL(entityUrl);
       this.originalEntityURL = entityUrl;
    }
 
@@ -167,7 +167,7 @@ public class EntityView {
     */
    public EntityView(String entityURL) {
       this();
-      parseEntityUrl(entityURL);
+      parseEntityURL(entityURL);
    }
 
    /**
@@ -222,9 +222,9 @@ public class EntityView {
     * @param entityURL a URL path which goes to a specific entity view,
     * consists of path segments defined by path templates and includes an option extension
     */
-   public void parseEntityUrl(String entityURL) {
+   public void parseEntityURL(String entityURL) {
       this.originalEntityURL = entityURL;
-      checkEntityUrl(entityURL);
+      checkEntityURL(entityURL);
       ProcessedTemplate parsed = TemplateParseUtil.parseTemplate(entityURL, anazlyzedTemplates);
 
       if (parsed == null) {
@@ -283,7 +283,7 @@ public class EntityView {
     */
    @Override
    public String toString() {
-      String ref = getEntityUrl(this.viewKey, this.extension);
+      String ref = getEntityURL(this.viewKey, this.extension);
       return ref;
    }
 
@@ -298,7 +298,7 @@ public class EntityView {
     * @throws IllegalArgumentException if there is not enough information 
     * in the path segments to generate the requested URL
     */
-   public String getEntityUrl(String viewKey, String extension) {
+   public String getEntityURL(String viewKey, String extension) {
       String template = getParseTemplate(viewKey);
       if (template == null) {
          throw new IllegalStateException("parseTemplates contains no template for key: " + viewKey);
@@ -340,15 +340,15 @@ public class EntityView {
 
    /**
     * Check if an entityUrl is basically valid
-    * @param entityUrl
+    * @param entityURL
     * @throws IllegalArgumentException if the entityUrl is not even basically valid
     */
-   protected static void checkEntityUrl(String entityUrl) {
-      if (entityUrl == null 
-            || "".equals(entityUrl)
-            || SEPARATOR != entityUrl.charAt(0) )
+   protected static void checkEntityURL(String entityURL) {
+      if (entityURL == null 
+            || "".equals(entityURL)
+            || SEPARATOR != entityURL.charAt(0) )
       throw new IllegalArgumentException("Invalid entity Url for EntityBroker: "
-            + entityUrl + " - these begin with " + SEPARATOR + " and cannot be null");      
+            + entityURL + " - these begin with " + SEPARATOR + " and cannot be null");      
    }
 
 }
