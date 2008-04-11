@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
+	
+	Licensed under the Educational Community License, Version 1.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+	
+	http://www.opensource.org/licenses/ecl1.php
+	
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>signup-base</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>M2</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<name>Sakai Signup Tool</name>
+	<groupId>org.sakaiproject</groupId>
+	<artifactId>sakai-signup-tool</artifactId>
+	<description>Signup webapp (tool) for Sakai</description>
+	<packaging>war</packaging>
+	<build>
+		<sourceDirectory>src/java</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>${basedir}/src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+	<dependencies>
+
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-signup-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-signup-impl</artifactId>
+			<version>${sakai.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-authz-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>generic-dao</artifactId>
+			<version>${sakai.generic-dao.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>${sakai.spring.version}</version>
+			<type>jar</type>
+		</dependency>
+		<!-- we are running a webapp in tomcat so we need the servlet api -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>${sakai.servletapi.version}</version>
+		</dependency>
+
+		<!-- Sakai util dependency (required for JSF in Sakai) -->
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
+			<version>${sakai.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-util-api</artifactId>
+			<version>${sakai.version}</version>
+			
+		</dependency>
+
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<!-- Sakai JSF dependencies -->
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-jsf-tool</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-jsf-app</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>jsf</groupId>
+			<artifactId>jsf-api</artifactId>
+			<version>1.1.01</version>
+		</dependency>
+		<dependency>
+			<groupId>jsf</groupId>
+			<artifactId>jsf-impl</artifactId>
+			<version>1.1.01</version>
+		</dependency>
+		<!-- tomahawk tags are being used, so we have to pull them seperately -->
+		<dependency>
+			<groupId>org.apache.myfaces.tomahawk</groupId>
+			<artifactId>tomahawk</artifactId>
+			<version>1.1.6</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- standard tag libraries -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>taglibs</groupId>
+			<artifactId>standard</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<!-- this will pull the correct dependency set for a Sun Widget Set -->
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-depend-jsf-widgets-sun</artifactId>
+			<version>${sakai.version}</version>
+			<type>pom</type>
+		</dependency>
+		<!-- jars required for JSF -->
+		<dependency>
+			<groupId>commons-validator</groupId>
+			<artifactId>commons-validator</artifactId>
+			<version>1.3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>oro</groupId>
+			<artifactId>oro</artifactId>
+			<version>2.0.8</version>
+		</dependency>
+
+		<!-- apache commons logging -->
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>${sakai.commons.lang.version}</version>
+		</dependency>
+
+	</dependencies>
+</project>
+

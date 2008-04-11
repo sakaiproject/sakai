@@ -1,0 +1,13 @@
+body {
+background-color: #fff;
+color: #000;
+font-family: "Times New Roman", Garamond, serif;
+}
+
+img{
+	display: none;
+}
+
+.addAttendee{
+	display: none;
+}
