@@ -32,6 +32,39 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil.ProcessedTemplate;
 public class TemplateParseUtilTest extends TestCase {
 
    /**
+    * Test extension finder method
+    */
+   public void testFindExtension() {
+      String input = null;
+      String[] output = null;
+
+      input = "noextension";
+      output = TemplateParseUtil.findExtension(input);
+      assertNotNull(output);
+      assertEquals(3, output.length);
+      assertEquals(input, output[0]);
+      assertEquals(input, output[1]);
+      assertEquals(null, output[2]);
+
+      input = "test.xml";
+      output = TemplateParseUtil.findExtension(input);
+      assertNotNull(output);
+      assertEquals(3, output.length);
+      assertEquals(input, output[0]);
+      assertEquals("test", output[1]);
+      assertEquals("xml", output[2]);
+
+      input = "/complex/stuff/test.other.json";
+      output = TemplateParseUtil.findExtension(input);
+      assertNotNull(output);
+      assertEquals(3, output.length);
+      assertEquals(input, output[0]);
+      assertEquals("/complex/stuff/test.other", output[1]);
+      assertEquals("json", output[2]);
+
+   }
+
+   /**
     * Test method for {@link org.sakaiproject.entitybroker.util.TemplateParseUtil#checkTemplateKey(java.lang.String)}.
     */
    public void testCheckTemplateKey() {

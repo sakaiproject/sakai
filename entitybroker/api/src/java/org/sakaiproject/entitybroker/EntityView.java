@@ -33,12 +33,54 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil.Template;
  */
 public class EntityView {
 
-   public static final char SEPARATOR = TemplateParseUtil.SEPARATOR;
+   public static final char SEPARATOR = '/';
 
-   public static final String PREFIX = TemplateParseUtil.PREFIX;
-   public static final String ID = TemplateParseUtil.ID;
+   public static final String PREFIX = "prefix";
+   public static final String ID = "id";
 
-   private String entityURL;
+   /**
+    * Defines the view for the "list" operation,
+    * access a list of all entities of a type (possibly filtered by search params)
+    */
+   public static final String VIEW_LIST = "list";
+   /**
+    * Defines the view for the "show" (read) operation,
+    * access a view of an entity OR POST (CRUD) operations related to a record
+    */
+   public static final String VIEW_SHOW = "show";
+   /**
+    * Defines the view for the "new" (create) operation,
+    * access a form for creating a new record
+    */
+   public static final String VIEW_NEW  = "new";
+   /**
+    * Defines the view for the "edit" operation,
+    * access the data to modify a record
+    */
+   public static final String VIEW_EDIT = "edit";
+   /**
+    * Defines the view for the "delete" operation,
+    * access a form for removing a record
+    */
+   public static final String VIEW_DELETE = "delete";
+
+
+   private String originalEntityURL;
+   /**
+    * Special use only, 
+    * normally you should use {@link #toString()} or {@link #getEntityUrl(String, String)}
+    * 
+    * @return the original entity URL which was used to create this entity view,
+    * includes the optional pieces from the URL, will be null if this was created
+    * without using a constructor that takes an entityUrl
+    */
+   public String getOriginalEntityUrl() {
+      return originalEntityURL;
+   }
+   protected void setOriginalEntityURL(String entityUrl) {
+      checkEntityUrl(entityUrl);
+      this.originalEntityURL = entityUrl;
+   }
 
    private String extension;
    /**
@@ -82,6 +124,8 @@ public class EntityView {
     */
    private List<PreProcessedTemplate> anazlyzedTemplates;
 
+
+
    public EntityView() {
       loadParseTemplates(null);
    }
@@ -99,7 +143,7 @@ public class EntityView {
     */
    public EntityView(String entityURL) {
       this();
-      this.entityURL = entityURL;
+      this.originalEntityURL = entityURL;
       checkEntityUrl(entityURL);
       ProcessedTemplate parsed = TemplateParseUtil.parseTemplate(entityURL, anazlyzedTemplates);
 
@@ -107,8 +151,7 @@ public class EntityView {
          throw new IllegalArgumentException("Could not parse entityURL against any known templates: " + entityURL);
       }
 
-      String viewKey = parsed.templateKey;
-      populateInternals(viewKey, new HashMap<String, String>(parsed.segmentValues), null );
+      populateInternals(parsed.templateKey, new HashMap<String, String>(parsed.segmentValues), parsed.extension);
    }
 
    /**
@@ -202,6 +245,7 @@ public class EntityView {
     * @return the string version of this {@link TemplateParseUtil#TEMPLATE_SHOW} entity reference or 
     * the {@link TemplateParseUtil#TEMPLATE_LIST} one if there is no id,
     * example: /prefix if there is no id or /prefix/id if there is an id
+    * @throws IllegalArgumentException if there is not enough information to generate a URL
     */
    @Override
    public String toString() {
@@ -225,17 +269,9 @@ public class EntityView {
       if (template == null) {
          throw new IllegalStateException("parseTemplates contains no template for key: " + viewKey);
       }
-      return TemplateParseUtil.mergeTemplate(template, pathSegments);
-   }
-
-   /**
-    * @return the original entity URL which was used to create this entity view,
-    * includes the optional pieces from the URL
-    */
-   public String getOriginalEntityUrl() {
-      String url = this.entityURL;
-      if (url == null) {
-         url = toString();
+      String url = TemplateParseUtil.mergeTemplate(template, pathSegments);
+      if (extension != null && ! "".equals(extension)) {
+         url += "." + extension;
       }
       return url;
    }

@@ -15,13 +15,13 @@ import org.sakaiproject.entitybroker.EntityReference;
  */
 public class EntityReferenceTest extends TestCase {
 
-   private static final String ID1 = "111";
-   private static final String ID2 = "222222";
    private final String PREFIX1 = "prefix1";
+   private static final String ID1 = "111";
    private final String REF1 = EntityReference.SEPARATOR + PREFIX1 + EntityReference.SEPARATOR + ID1;
    private final String INPUT_REF1 = REF1;
 
    private final String PREFIX2 = "longprefix2";
+   private static final String ID2 = "222222";
    private final String REF2 = EntityReference.SEPARATOR + PREFIX2 + EntityReference.SEPARATOR + ID2;
    private final String INPUT_REF2 = EntityReference.SEPARATOR + PREFIX2 + EntityReference.SEPARATOR + ID2 + EntityReference.SEPARATOR + "extrajunk";
 

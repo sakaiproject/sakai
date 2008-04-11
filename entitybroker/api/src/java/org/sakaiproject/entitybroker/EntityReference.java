@@ -34,16 +34,12 @@ public class EntityReference {
    protected String originalReference;
    /**
     * This is a special method and should not normally be used,
-    * use {@link #toString()}
+    * use {@link #toString()} or {@link #getReference()}
     * @return the reference string used to create this object or
-    * the string version of this object if it is null
+    * null if this was created using a constructor which does not supply a reference
     */
    public String getOriginalReference() {
-      String ref = originalReference;
-      if (ref == null) {
-         ref = this.toString();
-      }
-      return ref;
+      return originalReference;
    }
    protected void setOriginalReference(String reference) {
       checkReference(reference);

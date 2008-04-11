@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.sakaiproject.entitybroker.EntityView;
+
 /**
  * Utility class to handle the URL template parsing (entity template parsing)
  * 
@@ -28,38 +30,42 @@ import java.util.regex.Pattern;
  */
 public class TemplateParseUtil {
 
-   public static final char SEPARATOR = '/';
+   public static final char SEPARATOR = EntityView.SEPARATOR;
    public static final String BRACES = "[\\{\\}]";
 
-   public static final String PREFIX = "prefix";
-   public static final String ID = "id";
-
-   public static final String TEMPLATEKEY = "+templateKey";
+   public static final String PREFIX = EntityView.PREFIX;
+   public static final String ID = EntityView.ID;
 
    /**
     * Defines the parse template for the "list" operation,
     * return a list of all records,
     * typically /{prefix}
     */
-   public static final String TEMPLATE_LIST = "list";
+   public static final String TEMPLATE_LIST = EntityView.VIEW_LIST;
    /**
     * Defines the parse template for the "show" operation,
     * access a record OR POST operations related to a record,
     * typically /{prefix}/{id}
     */
-   public static final String TEMPLATE_SHOW = "show";
+   public static final String TEMPLATE_SHOW = EntityView.VIEW_SHOW;
    /**
     * Defines the parse template for the "new" operation,
     * return a form for creating a new record,
     * typically /{prefix}/new
     */
-   public static final String TEMPLATE_NEW  = "new";
+   public static final String TEMPLATE_NEW  = EntityView.VIEW_NEW;
    /**
     * Defines the parse template for the "edit" operation,
     * access the data to modify a record,
     * typically /{prefix}/{id}/edit
     */
-   public static final String TEMPLATE_EDIT = "edit";
+   public static final String TEMPLATE_EDIT = EntityView.VIEW_EDIT;
+   /**
+    * Defines the parse template for the "delete" operation,
+    * access the data to remove a record,
+    * typically /{prefix}/{id}/delete
+    */
+   public static final String TEMPLATE_DELETE = EntityView.VIEW_DELETE;
 
    /**
     * Defines the order that parse templates will be processed in and
@@ -68,6 +74,7 @@ public class TemplateParseUtil {
     */
    public static String[] PARSE_TEMPLATE_KEYS = {
       TEMPLATE_EDIT,
+      TEMPLATE_DELETE,
       TEMPLATE_NEW,
       TEMPLATE_SHOW,
       TEMPLATE_LIST
@@ -101,6 +108,7 @@ public class TemplateParseUtil {
       defaultTemplates = new ArrayList<Template>();
       // this load order should match the array above
       defaultTemplates.add( new Template(TEMPLATE_EDIT, SEPARATOR + "{"+PREFIX+"}" + SEPARATOR + "{"+ID+"}" + SEPARATOR + "edit") );
+      defaultTemplates.add( new Template(TEMPLATE_DELETE, SEPARATOR + "{"+PREFIX+"}" + SEPARATOR + "{"+ID+"}" + SEPARATOR + "delete") );
       defaultTemplates.add( new Template(TEMPLATE_NEW,  SEPARATOR + "{"+PREFIX+"}" + SEPARATOR + "new") );
       defaultTemplates.add( new Template(TEMPLATE_SHOW, SEPARATOR + "{"+PREFIX+"}" + SEPARATOR + "{"+ID+"}") );
       defaultTemplates.add( new Template(TEMPLATE_LIST, SEPARATOR + "{"+PREFIX+"}") );
@@ -210,20 +218,27 @@ public class TemplateParseUtil {
 
 
    /**
-    * Strip off the extension from a string and return the string without the extension,
-    * an extension is a period (".") followed by any number of non-periods
-    * @param string any string
-    * @return the string without the extension or the original if it has none
+    * Find the extension from a string and return the string without the extension and the extension,
+    * an extension is a period (".") followed by any number of non-periods,
+    * the original input is returned as the 0th item in the array
+    * 
+    * @param input any string
+    * @return an array with the string without the extension or the original if it has none in position 1
+    * and the extension in the position 2, position 0 holds the original input string
     */
-   public static String stripExtension(String string) {
+   public static String[] findExtension(String input) {
       // regex pattern: ".*(\\.[^.]+|$)"
-      String stripped = string;
-      int extensionLoc = string.lastIndexOf('.', string.length());
+      String stripped = input;
+      String extension = null;
+      int extensionLoc = input.lastIndexOf('.', input.length());
       if (extensionLoc > 0 
-            && extensionLoc < string.length()-1) {
-         stripped = string.substring(0, extensionLoc);
+            && extensionLoc < input.length()-1) {
+         stripped = input.substring(0, extensionLoc);
+         if (input.length() > extensionLoc) {
+            extension = input.substring(extensionLoc + 1);
+         }
       }
-      return stripped;
+      return new String[] {input, stripped, extension};
    }
 
    /**
@@ -252,7 +267,9 @@ public class TemplateParseUtil {
       ProcessedTemplate analysis = null;
       Map<String, String> segments = new HashMap<String, String>();
       // strip off the extension if there is one
-      input = stripExtension(input);
+      String[] ext = findExtension(input);
+      input = ext[1];
+      String extension = ext[2];
       // try to get matches
       for (PreProcessedTemplate ppt : preprocessed) {
          segments.clear();
@@ -269,7 +286,8 @@ public class TemplateParseUtil {
                }
                // fill in the analysis object
                analysis = new ProcessedTemplate(ppt.templateKey, ppt.template, regex, 
-                     new ArrayList<String>(ppt.variableNames), new HashMap<String, String>(segments));
+                     new ArrayList<String>(ppt.variableNames), 
+                     new HashMap<String, String>(segments), extension);
                break;
             }
          }
@@ -356,12 +374,6 @@ public class TemplateParseUtil {
        * The list of variable names found in this template
        */
       public List<String> variableNames;
-      /**
-       * The list of segment values (variableName -> matched value),
-       * this will be filled in by the {@link TemplateParseUtil#parseTemplate(String, Map)} method
-       * and will be null otherwise
-       */
-      public Map<String, String> segmentValues;
 
       protected PreProcessedTemplate(String templateKey, String template, String regex, List<String> variableNames) {
          super(templateKey, template);
@@ -383,11 +395,17 @@ public class TemplateParseUtil {
        * and will be null otherwise
        */
       public Map<String, String> segmentValues;
+      /**
+       * The extension found while processing the input string,
+       * null if none could be found
+       */
+      public String extension;
 
       public ProcessedTemplate(String templateKey, String template, String regex,
-            List<String> variableNames, Map<String, String> segmentValues) {
+            List<String> variableNames, Map<String, String> segmentValues, String extension) {
          super(templateKey, template, regex, variableNames);
          this.segmentValues = segmentValues;
+         this.extension = extension;
       }
    }
 

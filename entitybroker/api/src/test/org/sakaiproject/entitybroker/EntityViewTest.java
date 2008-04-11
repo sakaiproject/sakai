@@ -30,91 +30,25 @@ import junit.framework.TestCase;
 public class EntityViewTest extends TestCase {
 
    private final String PREFIX1 = "prefix1";
-   private final String REF1 = EntityReference.SEPARATOR + PREFIX1 + EntityReference.SEPARATOR + "111";
+   private final String EXTENSION1 = null;
+   private static final String ID1 = "111";
+   private final String URL1 = EntityReference.SEPARATOR + PREFIX1 + EntityReference.SEPARATOR + ID1;
+   private final String INPUT_URL1 = URL1;
 
    private final String PREFIX2 = "longprefix2";
-   private final String REF2 = EntityReference.SEPARATOR + PREFIX2 + EntityReference.SEPARATOR + "222222";
+   private final String EXTENSION2 = "html";
+   private static final String ID2 = "222222";
+   private final String URL2 = EntityReference.SEPARATOR + PREFIX2 + EntityReference.SEPARATOR + ID2 + "." + EXTENSION2;
+   private final String INPUT_URL2 = EntityReference.SEPARATOR + PREFIX2 + EntityReference.SEPARATOR + ID2 
+         + EntityReference.SEPARATOR + "extra/junk" + "." + EXTENSION2;
 
    private final String PREFIX3 = "prefix3";
-   private final String REF3 = EntityReference.SEPARATOR + PREFIX3;
+   private final String EXTENSION3 = "xml";
+   private final String URL3 = EntityReference.SEPARATOR + PREFIX3 + "." + EXTENSION3;
+   private final String INPUT_URL3 = URL3;
 
-   private final String INVALID_REF = "invalid_reference-1";
+   private final String INVALID_URL = "invalid_reference-1";
 
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.EntityView#getParseTemplate(java.lang.String)}.
-    */
-   public void testGetParseTemplate() {
-      EntityView ev = null;
-
-      ev = new EntityView(REF1);
-      assertNotNull(ev);
-      String template = ev.getParseTemplate(TemplateParseUtil.TEMPLATE_SHOW);
-      assertNotNull(template);
-      assertEquals(TemplateParseUtil.getDefaultTemplate(TemplateParseUtil.TEMPLATE_SHOW), template);
-   }
-
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.EntityView#loadParseTemplates(java.util.List)}.
-    */
-   public void testLoadParseTemplates() {
-      EntityView ev = null;
-
-      ev = new EntityView(REF1);
-      assertNotNull(ev);
-      for (int i = 0; i < TemplateParseUtil.PARSE_TEMPLATE_KEYS.length; i++) {
-         String template = ev.getParseTemplate(TemplateParseUtil.PARSE_TEMPLATE_KEYS[i]);
-         assertNotNull( template );
-      }
-   }
-
-
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.EntityView#getPathSegment(java.lang.String)}.
-    */
-   public void testGetPathSegment() {
-      EntityView ev = null;
-
-      ev = new EntityView(REF1);
-      assertNotNull(ev);
-      assertNotNull( ev.getPathSegment(EntityView.PREFIX) );
-      assertEquals(PREFIX1, ev.getPathSegment(EntityView.PREFIX) );
-      assertNotNull( ev.getPathSegment(EntityView.ID) );
-      assertEquals("111", ev.getPathSegment(EntityView.ID) );
-   }
-
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.EntityView#getReference(java.lang.String)}.
-    */
-   public void testGetEntityUrl() {
-      EntityView ev = null;
-
-      ev = new EntityView(REF1);
-      assertNotNull(ev);
-      assertEquals("/" + PREFIX1, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_LIST, null));
-      assertEquals(REF1, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_SHOW, null));
-      assertEquals(REF1 + "/edit", ev.getEntityUrl(TemplateParseUtil.TEMPLATE_EDIT, null));
-      assertEquals("/" + PREFIX1 + "/new", ev.getEntityUrl(TemplateParseUtil.TEMPLATE_NEW, null));
-
-      ev = new EntityView(REF3);
-      assertNotNull(ev);
-      assertEquals(REF3, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_LIST, null));
-      try {
-         assertEquals("/" + PREFIX3, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_SHOW, null));
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e);
-      }
-
-      // TODO test extension
-      
-      try {
-         ev.getEntityUrl("xxxxxxxxxxxxxxxxxx", null);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e);
-      }
-
-   }
 
    /**
     * Test method for {@link org.sakaiproject.entitybroker.EntityView#EntityView()}.
@@ -130,13 +64,6 @@ public class EntityViewTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.EntityView#EntityView(java.lang.String)}.
-    */
-   public void testEntityViewString() {
-      //fail("Not yet implemented");
-   }
-
-   /**
     * Test method for {@link org.sakaiproject.entitybroker.EntityView#EntityView(java.lang.String, java.util.Map, java.lang.String)}.
     */
    public void testEntityViewStringMapOfStringStringString() {
@@ -144,27 +71,171 @@ public class EntityViewTest extends TestCase {
 
       HashMap<String, String> m = new HashMap<String, String>();
       m.put(TemplateParseUtil.PREFIX, PREFIX1);
-      m.put(TemplateParseUtil.ID, "111");
-      ev = new EntityView(TemplateParseUtil.TEMPLATE_SHOW, m, null);
+      m.put(TemplateParseUtil.ID, ID1);
+      ev = new EntityView(TemplateParseUtil.TEMPLATE_SHOW, m, EXTENSION1);
       assertNotNull(ev);
+      assertEquals(TemplateParseUtil.TEMPLATE_SHOW, ev.getViewKey());
       assertEquals(PREFIX1, ev.getEntityReference().prefix);
-      assertEquals("111", ev.getEntityReference().id);
-      assertEquals(null, ev.getExtension());
-      assertEquals(REF1, ev.toString());
+      assertEquals(ID1, ev.getEntityReference().id);
+      assertEquals(EXTENSION1, ev.getExtension());
+      assertEquals(URL1, ev.toString());
+      assertEquals(null, ev.getOriginalEntityUrl());
+
+      m = new HashMap<String, String>();
+      m.put(TemplateParseUtil.PREFIX, PREFIX2);
+      m.put(TemplateParseUtil.ID, ID2);
+      ev = new EntityView(TemplateParseUtil.TEMPLATE_SHOW, m, EXTENSION2);
+      assertNotNull(ev);
+      assertEquals(TemplateParseUtil.TEMPLATE_SHOW, ev.getViewKey());
+      assertEquals(PREFIX2, ev.getEntityReference().prefix);
+      assertEquals(ID2, ev.getEntityReference().id);
+      assertEquals(EXTENSION2, ev.getExtension());
+      assertEquals(URL2, ev.toString());
+      assertEquals(null, ev.getOriginalEntityUrl());
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityView#EntityView(java.lang.String)}.
+    */
+   public void testEntityViewString() {
+      EntityView ev = null;
+
+      ev = new EntityView(INPUT_URL1);
+      assertNotNull(ev);
+      assertEquals(TemplateParseUtil.TEMPLATE_SHOW, ev.getViewKey());
+      assertEquals(PREFIX1, ev.getEntityReference().prefix);
+      assertEquals(ID1, ev.getEntityReference().id);
+      assertEquals(EXTENSION1, ev.getExtension());
+      assertEquals(URL1, ev.toString());
+      assertEquals(INPUT_URL1, ev.getOriginalEntityUrl());
+
+      ev = new EntityView(INPUT_URL2);
+      assertNotNull(ev);
+      assertEquals(TemplateParseUtil.TEMPLATE_SHOW, ev.getViewKey());
+      assertEquals(PREFIX2, ev.getEntityReference().prefix);
+      assertEquals(ID2, ev.getEntityReference().id);
+      assertEquals(EXTENSION2, ev.getExtension());
+      assertEquals(URL2, ev.toString());
+      assertEquals(INPUT_URL2, ev.getOriginalEntityUrl());
+
+      ev = new EntityView(INPUT_URL3);
+      assertNotNull(ev);
+      assertEquals(TemplateParseUtil.TEMPLATE_LIST, ev.getViewKey());
+      assertEquals(PREFIX3, ev.getEntityReference().prefix);
+      assertEquals(null, ev.getEntityReference().id);
+      assertEquals(EXTENSION3, ev.getExtension());
+      assertEquals(URL3, ev.toString());
+      assertEquals(INPUT_URL3, ev.getOriginalEntityUrl());
+
+      // invalid url causes exception
+      try {
+         ev = new EntityView(INVALID_URL);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e);
+      }
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityView#loadParseTemplates(java.util.List)}.
+    */
+   public void testLoadParseTemplates() {
+      EntityView ev = null;
+
+      ev = new EntityView(INPUT_URL1);
+      assertNotNull(ev);
+      for (int i = 0; i < TemplateParseUtil.PARSE_TEMPLATE_KEYS.length; i++) {
+         String template = ev.getParseTemplate(TemplateParseUtil.PARSE_TEMPLATE_KEYS[i]);
+         assertNotNull( template );
+      }
    }
 
    /**
     * Test method for {@link org.sakaiproject.entitybroker.EntityView#toString()}.
     */
    public void testToString() {
-      //fail("Not yet implemented");
+      EntityView ev = null;
+
+      ev = new EntityView(INPUT_URL1);
+      assertNotNull(ev);
+      assertEquals("/" + PREFIX1, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_LIST, null));
+      assertEquals(URL1, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_SHOW, null));
+      assertEquals(URL1 + "/edit", ev.getEntityUrl(TemplateParseUtil.TEMPLATE_EDIT, null));
+      assertEquals("/" + PREFIX1 + "/new", ev.getEntityUrl(TemplateParseUtil.TEMPLATE_NEW, null));
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityView#getParseTemplate(java.lang.String)}.
+    */
+   public void testGetParseTemplate() {
+      EntityView ev = null;
+
+      ev = new EntityView(INPUT_URL1);
+      assertNotNull(ev);
+      String template = ev.getParseTemplate(TemplateParseUtil.TEMPLATE_SHOW);
+      assertNotNull(template);
+      assertEquals(TemplateParseUtil.getDefaultTemplate(TemplateParseUtil.TEMPLATE_SHOW), template);
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityView#getPathSegment(java.lang.String)}.
+    */
+   public void testGetPathSegment() {
+      EntityView ev = null;
+
+      ev = new EntityView(INPUT_URL1);
+      assertNotNull(ev);
+      assertNotNull( ev.getPathSegment(EntityView.PREFIX) );
+      assertEquals(PREFIX1, ev.getPathSegment(EntityView.PREFIX) );
+      assertNotNull( ev.getPathSegment(EntityView.ID) );
+      assertEquals(ID1, ev.getPathSegment(EntityView.ID) );
    }
 
    /**
     * Test method for {@link org.sakaiproject.entitybroker.EntityView#getOriginalEntityUrl()}.
     */
    public void testGetOriginalEntityUrl() {
-      //fail("Not yet implemented");
+      EntityView ev = null;
+
+      ev = new EntityView(INPUT_URL2);
+      assertEquals(URL2, ev.toString());
+      assertEquals(INPUT_URL2, ev.getOriginalEntityUrl());
+
+      ev = new EntityView("/myprefix/myid/extra");
+      assertEquals("/myprefix/myid", ev.toString());
+      assertEquals("/myprefix/myid/extra", ev.getOriginalEntityUrl());
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.EntityView#getReference(java.lang.String)}.
+    */
+   public void testGetEntityUrl() {
+      EntityView ev = null;
+
+      ev = new EntityView(INPUT_URL1);
+      assertNotNull(ev);
+      assertEquals("/" + PREFIX1, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_LIST, null));
+      assertEquals(URL1, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_SHOW, null));
+      assertEquals(URL1 + "/edit", ev.getEntityUrl(TemplateParseUtil.TEMPLATE_EDIT, null));
+      assertEquals("/" + PREFIX1 + "/new", ev.getEntityUrl(TemplateParseUtil.TEMPLATE_NEW, null));
+
+      ev = new EntityView(INPUT_URL3);
+      assertNotNull(ev);
+      assertEquals(URL3, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_LIST, EXTENSION3));
+      assertEquals("/" + PREFIX3, ev.getEntityUrl(TemplateParseUtil.TEMPLATE_LIST, null));
+      try {
+         ev.getEntityUrl(TemplateParseUtil.TEMPLATE_SHOW, null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e);
+      }
+      
+      try {
+         ev.getEntityUrl("xxxxxxxxxxxxxxxxxx", null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e);
+      }
    }
 
 }
