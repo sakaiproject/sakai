@@ -1,0 +1,112 @@
+alter table signup_site_groups drop foreign key FKC72B75255084316;
+alter table signup_sites drop foreign key FKCCD4AC25CB1E8A17;
+alter table signup_ts drop foreign key FK41154B06CB1E8A17;
+alter table signup_ts_attendees drop foreign key FKBAB08100CDB30B3D;
+alter table signup_ts_waitinglist drop foreign key FK3AB9A8B2CDB30B3D;
+drop table if exists signup_meetings;
+drop table if exists signup_site_groups;
+drop table if exists signup_sites;
+drop table if exists signup_ts;
+drop table if exists signup_ts_attendees;
+drop table if exists signup_ts_waitinglist;
+
+create table signup_meetings (
+	id bigint not null auto_increment, 
+	version integer not null, 
+	title varchar(255) not null, 
+	description text, 
+	location varchar(255) not null, 
+	meeting_type varchar(50) not null, 
+	creator_user_id varchar(255) not null, 
+	start_time datetime not null, 
+	end_time datetime not null, 
+	signup_begins datetime, 
+	signup_deadline datetime, 
+	canceled bit, locked bit, 
+	receive_email_owner bit default false, 
+	recurrence_id bigint, 
+	primary key (id)
+) type=InnoDB;
+
+create table signup_site_groups (
+	signup_site_id bigint not null, 
+	title varchar(255), 
+	group_id varchar(255) not null, 
+	calendar_event_id varchar(255), 
+	calendar_id varchar(255), 
+	list_index integer not null, 
+	primary key (signup_site_id, list_index)
+) type=InnoDB;
+
+create table signup_sites (
+	id bigint not null auto_increment, 
+	version integer not null, 
+	title varchar(255), 
+	site_id varchar(255) not null, 
+	calendar_event_id varchar(255), 
+	calendar_id varchar(255), 
+	meeting_id bigint not null, 
+	list_index integer, 
+	primary key (id)
+) type=InnoDB;
+
+create table signup_ts (
+	id bigint not null auto_increment, 
+	version integer not null, 
+	start_time datetime not null, 
+	end_time datetime not null, 
+	max_no_of_attendees integer, 
+	display_attendees bit, 
+	canceled bit, locked bit, 
+	meeting_id bigint not null, 
+	list_index integer, 
+	primary key (id)
+) type=InnoDB;
+
+create table signup_ts_attendees (
+	timeslot_id bigint not null, 
+	attendee_user_id varchar(255) not null, 
+	comments text, 
+	signup_site_id varchar(255) not null, 
+	calendar_event_id varchar(255), 
+	calendar_id varchar(255), 
+	list_index integer not null, 
+	primary key (timeslot_id, list_index)
+) type=InnoDB;
+
+create table signup_ts_waitinglist (
+	timeslot_id bigint not null, 
+	attendee_user_id varchar(255) not null, 
+	comments text, 
+	signup_site_id varchar(255) not null, 
+	calendar_event_id varchar(255), 
+	calendar_id varchar(255), 
+	list_index integer not null, 
+	primary key (timeslot_id, list_index)
+) type=InnoDB;
+
+alter table signup_site_groups 
+	add index FKC72B75255084316 (signup_site_id), 
+	add constraint FKC72B75255084316 
+	foreign key (signup_site_id) 
+	references signup_sites (id);
+alter table signup_sites 
+	add index FKCCD4AC25CB1E8A17 (meeting_id), 
+	add constraint FKCCD4AC25CB1E8A17 
+	foreign key (meeting_id) 
+	references signup_meetings (id);
+alter table signup_ts 
+	add index FK41154B06CB1E8A17 (meeting_id), 
+	add constraint FK41154B06CB1E8A17 
+	foreign key (meeting_id) 
+	references signup_meetings (id);
+alter table signup_ts_attendees 
+	add index FKBAB08100CDB30B3D (timeslot_id), 
+	add constraint FKBAB08100CDB30B3D 
+	foreign key (timeslot_id) 
+	references signup_ts (id);
+alter table signup_ts_waitinglist 
+	add index FK3AB9A8B2CDB30B3D (timeslot_id), 
+	add constraint FK3AB9A8B2CDB30B3D 
+	foreign key (timeslot_id) 
+	references signup_ts (id);
