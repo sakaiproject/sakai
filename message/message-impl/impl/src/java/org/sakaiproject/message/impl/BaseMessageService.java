@@ -2032,11 +2032,15 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// transfer the synoptic tool options
 			Site fromSite = m_siteService.getSite(fromContext);
 			ToolConfiguration fromSynTool = fromSite.getToolForCommonId("sakai.synoptic." + getLabel());
-			Properties fromSynProp = fromSynTool.getPlacementConfig();
+			Properties fromSynProp = null;
+			if (fromSynTool != null) 
+				fromSynProp = fromSynTool.getPlacementConfig();
 
 			Site toSite = m_siteService.getSite(toContext);
 			ToolConfiguration toSynTool = toSite.getToolForCommonId("sakai.synoptic." + getLabel());
-			Properties toSynProp = toSynTool.getPlacementConfig();
+			Properties toSynProp = null;
+			if (toSynTool != null)
+				toSynProp = toSynTool.getPlacementConfig();
 
 			if (fromSynProp != null && !fromSynProp.isEmpty()) 
 			{
