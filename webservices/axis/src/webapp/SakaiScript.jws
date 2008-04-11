@@ -636,7 +636,7 @@ public String addNewToolToPage( String sessionid, String siteid, String pagetitl
 				tool.setTitle(tooltitle);
 				//toolEdit.setTitle(tooltitle);
 				//toolEdit.setToolId(toolid);
-				//toolEdit.setLayoutHints(layouthints);
+				tool.setLayoutHints(layouthints);
 			}
 		}
 		SiteService.save(siteEdit);
