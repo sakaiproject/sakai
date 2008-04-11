@@ -256,7 +256,9 @@ public class EntityView {
          parseTemplates.clear();
       }
       if (templates == null || templates.isEmpty()) {
+         // just load in the already processed and made templates and preproced templates for efficiency
          parseTemplates.addAll(TemplateParseUtil.defaultTemplates);
+         anazlyzedTemplates = new ArrayList<PreProcessedTemplate>(TemplateParseUtil.defaultPreprocessedTemplates);
       } else {
          for (Template t : templates) {
             TemplateParseUtil.validateTemplateKey(t.templateKey);

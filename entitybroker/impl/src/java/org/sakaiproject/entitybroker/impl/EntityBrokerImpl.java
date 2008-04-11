@@ -85,7 +85,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     * @see org.sakaiproject.entitybroker.EntityBroker#entityExists(java.lang.String)
     */
    public boolean entityExists(String reference) {
-      EntityReference ref = new EntityReference(reference);
+      EntityReference ref = entityHandler.parseReference(reference);
       return entityHandler.entityExists(ref);
    }
 
@@ -93,7 +93,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
     * @see org.sakaiproject.entitybroker.EntityBroker#getEntityURL(java.lang.String)
     */
    public String getEntityURL(String reference) {
-      return entityHandler.getEntityURL(reference);
+      return entityHandler.getEntityURL(reference, null, null);
    }
 
    /* (non-Javadoc)
@@ -117,11 +117,10 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       if (eventName == null || "".equals(eventName)) {
          throw new IllegalArgumentException("Cannot fire event if name is null or empty");
       }
-      // had to take out this check because it makes firing events for removing entities very annoying -AZ
-//    if (!entityExists(reference)) {
-//       throw new IllegalArgumentException("Cannot fire event for nonexistent entity " + reference);
-//    }
-      Event event = eventTrackingService.newEvent(eventName, reference, true,
+      // parse the reference string to validate it and remove any extra bits
+      EntityReference ref = entityHandler.parseReference(reference);
+      // had to take out the exists check because it makes firing events for removing entities very annoying -AZ
+      Event event = eventTrackingService.newEvent(eventName, ref.toString(), true,
             NotificationService.PREF_IMMEDIATE);
       eventTrackingService.post(event);
    }
@@ -248,7 +247,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       Map<String, String> m = new HashMap<String, String>();
       EntityReference ref = entityHandler.parseReference(reference);
       if (ref != null) {
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, PropertyProvideable.class);
+         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), PropertyProvideable.class);
          if (provider != null) {
             m = ((PropertyProvideable) provider).getProperties(reference);
          } else {
@@ -268,7 +267,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
          throw new IllegalArgumentException("Invalid name argument, name must not be null or empty");
       }
 
-      if (!entityExists(reference)) {
+      if (! entityExists(reference)) {
          throw new IllegalArgumentException("Invalid reference (" + reference
                + "), entity does not exist");
       }
@@ -276,7 +275,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       String value = null;
       EntityReference ref = entityHandler.parseReference(reference);
       if (ref != null) {
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, PropertyProvideable.class);
+         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), PropertyProvideable.class);
          if (provider != null) {
             value = ((PropertyProvideable) provider).getPropertyValue(reference, name);
          } else {
@@ -307,7 +306,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
          throw new IllegalArgumentException("Invalid reference (" + reference
                + "), entity type not handled");
       } else {
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, PropertyProvideable.class);
+         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), PropertyProvideable.class);
          if (provider != null) {
             ((PropertyProvideable) provider).setPropertyValue(reference, name, value);
          } else {
@@ -320,7 +319,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
                List<EntityProperty> properties = dao.findByProperties(EntityProperty.class,
                      new String[] { "entityRef", "propertyName" }, new Object[] { reference, name });
                if (properties.isEmpty()) {
-                  dao.create(new EntityProperty(reference, ref.prefix, name, value));
+                  dao.create(new EntityProperty(reference, ref.getPrefix(), name, value));
                } else {
                   EntityProperty property = properties.get(0);
                   property.setPropertyValue(value);
@@ -344,7 +343,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
 
       EntityReference ref = entityHandler.parseReference(reference);
       if (ref != null) {
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, Taggable.class);
+         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Taggable.class);
          if (provider != null) {
             tags.addAll( ((Taggable) provider).getTags(reference) );
          } else {
@@ -369,7 +368,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
 
       EntityReference ref = entityHandler.parseReference(reference);
       if (ref != null) {
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, Taggable.class);
+         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Taggable.class);
          if (provider != null) {
             ((Taggable) provider).setTags(reference, tags);
          } else {

@@ -46,11 +46,11 @@ public class EntityBrokerEntity implements Entity {
    }
 
    public String getUrl() {
-      return entityHandler.getEntityURL(reference.getReference());
+      return entityHandler.getEntityURL(reference.getReference(), null, null);
    }
 
    public String getUrl(String rootProperty) {
-      return entityHandler.getEntityURL(reference.getReference());
+      return entityHandler.getEntityURL(reference.getReference(), null, null);
    }
 
    @SuppressWarnings("unchecked")

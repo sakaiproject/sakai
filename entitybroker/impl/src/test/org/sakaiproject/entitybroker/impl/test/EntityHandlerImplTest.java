@@ -26,7 +26,6 @@ import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.BasicEntity;
 import org.sakaiproject.entitybroker.exception.EntityException;
@@ -103,16 +102,16 @@ public class EntityHandlerImplTest extends TestCase {
    public void testGetEntityURL() {
       String url = null;
 
-      url = entityHandler.getEntityURL(TestData.REF1);
+      url = entityHandler.getEntityURL(TestData.REF1, null, null);
       assertEquals(TestData.URL1, url);
 
-      url = entityHandler.getEntityURL(TestData.REF2);
+      url = entityHandler.getEntityURL(TestData.REF2, null, null);
       assertEquals(TestData.URL2, url);
 
-      url = entityHandler.getEntityURL(TestData.REF1_INVALID);
+      url = entityHandler.getEntityURL(TestData.REF1_INVALID, null, null);
 
       try {
-         url = entityHandler.getEntityURL(TestData.INVALID_REF);
+         url = entityHandler.getEntityURL(TestData.INVALID_REF, null, null);
          fail("Should have thrown exception");
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());

@@ -92,7 +92,7 @@ public class EntityBrokerEntityProducer implements EntityProducer {
     * @see org.sakaiproject.entity.api.EntityProducer#getEntityUrl(org.sakaiproject.entity.api.Reference)
     */
    public String getEntityUrl(Reference ref) {
-      return entityHandler.getEntityURL(ref.getReference());
+      return entityHandler.getEntityURL(ref.getReference(), null, null);
    }
 
    /*

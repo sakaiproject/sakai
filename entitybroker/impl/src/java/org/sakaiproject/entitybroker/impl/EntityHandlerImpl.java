@@ -132,9 +132,13 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * 
     * @param reference a globally unique reference to an entity, 
     * consists of the entity prefix and optionally the local id
+    * @param viewKey the specific view type to get the URL for,
+    * can be null to determine the key automatically
+    * @param extension the optional extension to add to the end,
+    * can be null to use no extension
     * @return the full URL to a specific entity or space
     */
-   public String getEntityURL(String reference) {
+   public String getEntityURL(String reference, String viewKey, String extension) {
       // ensure this is a valid reference first
       EntityReference ref = parseReference(reference);
       EntityView view = new EntityView();
@@ -147,9 +151,16 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          view.loadParseTemplates( custom.getParseTemplates() );
       }
       view.setEntityReference(ref);
+      if (viewKey != null) {
+         view.setViewKey(viewKey);
+      }
+      if (extension != null) {
+         view.setExtension(extension);
+      }
       String url = serverConfigurationService.getServerUrl() + "/direct" + view.toString();
       return url;
    }
+
 
    /**
     * Parses an entity reference into the appropriate reference form

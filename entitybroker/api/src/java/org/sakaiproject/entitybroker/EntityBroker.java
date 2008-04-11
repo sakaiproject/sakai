@@ -25,7 +25,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.TagSearchProvider;
 
 /**
  * This service interface defines the capabilities of the entity broker system<br/> 
- * It allows sakai system methods, developers, etc. to access Sakai entity information (new and old)
+ * It allows Sakai system methods, developers, etc. to access Sakai entity information (new and old)
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
@@ -53,12 +53,11 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
 
    /**
     * Get the full absolute URL to the entity defined by this entity reference, this will fail-safe
-    * from a direct URL (if one is defined) all the way down to simply a URL to the sakai server if
-    * nothing better can be determined
+    * from a direct URL to an entity space URL if that is all that is available
     * 
     * @param reference a globally unique reference to an entity, 
     * consists of the entity prefix and optional segments
-    * @return a full URL string
+    * @return a full URL string (e.g. http://server/direct/prefix/id)
     */
    public String getEntityURL(String reference);
 
