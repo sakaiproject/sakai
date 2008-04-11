@@ -201,6 +201,14 @@ public interface DiscussionForumManager
    * @return
    */
   public boolean isInstructor();
+  
+  /**
+   * Tests if the user has instructor privileges to the site 
+   * @param userId
+   * @param siteId
+   * @return true, only if user has site.upd
+   */
+  public boolean isInstructor(String userId, String siteId);
 
   /**
    * @return
@@ -432,4 +440,32 @@ public interface DiscussionForumManager
    * @return
    */
   public DiscussionForum getForumByIdWithTopicsAttachmentsAndMessages(Long forumId);
+
+  /**
+   * Returns the context (siteId) for a given topic
+   * @param topicId
+   * @return context (siteId)
+   */
+  public String getContextForTopicById(Long topicId);
+  
+  /**
+   * Returns the context (siteId) for a given forum
+   * @param forumId
+   * @return context (siteId)
+   */
+  public String getContextForForumById(Long forumId);
+  
+  /**
+   * Returns the context (siteId) for a given message
+   * @param messageId
+   * @return context (siteId)
+   */
+  public String getContextForMessageById(Long messageId);
+
+  /**
+   * Returns the id of the Forum containing a given Message
+   * @param messageId
+   * @return forumId
+   */
+  public String ForumIdForMessage(Long messageId);
 }

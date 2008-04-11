@@ -21,18 +21,28 @@
 package org.sakaiproject.tool.messageforums;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Enumeration;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ActiveToolManager;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
+import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.tool.api.ToolException;
@@ -42,10 +52,15 @@ import org.sakaiproject.tool.api.ToolException;
  * @version $Id$
  * 
  */
-public class MessageForumsFilePickerServlet extends JsfTool {
+public class MessageForumsFilePickerServlet extends JsfTool  implements HttpServletAccessProvider {
     private static final String HELPER_EXT = ".helper";
 
     private static final String HELPER_SESSION_PREFIX = "session.";
+    
+    private boolean initComplete = false;
+    private SiteService siteService;
+    private HttpServletAccessProviderManager accessProviderManager;
+    private DiscussionForumManager forumManager;
 
     protected void dispatch(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         // NOTE: this is a simple path dispatching, taking the path as the view
@@ -239,5 +254,125 @@ public class MessageForumsFilePickerServlet extends JsfTool {
         }
 
         return target;
+    }
+
+    /**
+     * Initialize the servlet.
+     * 
+     * @param config
+     *        The servlet config.
+     * @throws ServletException
+     */
+    public void init(ServletConfig config) throws ServletException {
+      super.init(config);
+      
+      try {
+        //load service level dependecies from the ComponentManager
+        siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
+        accessProviderManager = (HttpServletAccessProviderManager) ComponentManager
+          .get("org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager");
+        forumManager = (DiscussionForumManager) ComponentManager
+          .get("org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager");
+        
+        //register forum Entity prefixes for direct servlet request handling
+        if (accessProviderManager != null) {
+          accessProviderManager.registerProvider("forum_topic", this);
+          accessProviderManager.registerProvider("forum", this);
+          accessProviderManager.registerProvider("forum_message", this);
+        }
+        //mark initialization of dependecies as complete
+        if (siteService != null && forumManager != null)
+          initComplete = true;
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    
+    
+    public void handleAccess(HttpServletRequest req, HttpServletResponse res, EntityReference ref) {
+        //don't bother if the user is not logged in
+        if (req.getRemoteUser() == null) {
+            try {
+                String url = req.getRequestURL().toString();
+                String context = req.getContextPath();
+                String prefix = url.substring(0,url.lastIndexOf(context));
+      
+                res.sendRedirect(prefix + "/authn/login?url="
+                                 + URLEncoder.encode(req.getRequestURL().toString(), "UTF-8"));
+                return;
+            }
+            catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+      
+        String[] parts = req.getPathInfo().split("/");
+        //ensure we have our dependencies and something reassembling proper input
+        if (initComplete && parts.length > 2) {
+            String context = "";
+            if ("forum_topic".equals(parts[1]))
+              context = forumManager.getContextForTopicById(new Long(parts[2]));
+            else if ("forum".equals(parts[1]))
+              context = forumManager.getContextForForumById(new Long(parts[2]));
+            else if ("forum_message".equals(parts[1]))
+              context = forumManager.getContextForMessageById(new Long(parts[2]));
+
+            String placementId = "";
+            String target = "";
+    
+            //Calculate the placement for the Entity... if you know of a better way, please
+            //replace this!
+            try {
+                if (siteService.getSite(context).getToolForCommonId("sakai.forums") != null) {
+                    placementId = siteService.getSite(context)
+                                         .getToolForCommonId("sakai.forums").getId();
+                }
+                else {
+                    placementId = siteService.getSite(context)
+                                         .getToolForCommonId("sakai.messagecenter").getId();
+                }
+            }
+            catch (IdUnusedException iue) {
+                iue.printStackTrace();
+            }
+    
+            //TODO: I've tried (and failed) a number of things here to try to get this to work
+            //without a redirect using a block of setting all the placement and session things
+            //into the the threadlocal manager here resulted in the closest thing... rendered
+            //the page, but links were broken, might be doable with more time or fresh eyes
+            //though.
+
+            //direct the request to the proper 'direct' view with needed parameters
+            if ("forum_topic".equals(parts[1])) {
+                req.setAttribute("topicId", parts[2]);
+                target = "/jsp/discussionForum/message/dfAllMessagesDirect.jsf?topicId="
+                       + parts[2] + "&placementId=" + placementId;
+            }
+            else if ("forum".equals(parts[1])) {
+                target = "/jsp/discussionForum/forum/dfForumDirect.jsf?forumId="
+                       + parts[2] + "&placementId=" + placementId;
+            }
+            else if ("forum_message".equals(parts[1])) {
+                target = "/jsp/discussionForum/message/dfViewThreadDirect.jsf?messageId="
+                       + parts[2] + "&placementId=" + placementId + "&topicId="
+                       + forumManager.getMessageById(new Long(parts[2])).getTopic().getId()
+                       + "&forumId=" + forumManager.ForumIdForMessage(new Long(parts[2]));
+            }
+
+            // dispatch to the target
+            RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
+            try {
+                dispatcher.forward(req, res);
+            }
+            catch (ServletException e) {
+                e.printStackTrace();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }        
+        }
     }
 }

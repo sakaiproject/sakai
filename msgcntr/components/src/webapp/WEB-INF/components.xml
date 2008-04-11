@@ -449,4 +449,17 @@
             </props>
         </property> 
     </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.ForumTopicEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumTopicEntityProviderImpl">
+		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.ForumEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumEntityProviderImpl">
+		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.messageforums.ForumMessageEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumMessageEntityProviderImpl">
+		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+    </bean>
+    
 </beans>

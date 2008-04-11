@@ -8,7 +8,7 @@
 <f:view>
   <sakai:view>
 
-    <h:form id="msgForum">
+    <h:form id="msgForum" rendered="#{!ForumTool.selectedForum.forum.draft || ForumTool.selectedForum.forum.createdBy == ForumTool.userId}">
   		<script type="text/javascript" src="/library/js/jquery.js"></script>
   		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
     	<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
@@ -172,6 +172,7 @@
   			}
 			</script> 
 	 </h:form>
+	 <h:outputText value="#{msgs.cdfm_insufficient_privileges_view_forum}" rendered="#{ForumTool.selectedForum.forum.draft && ForumTool.selectedForum.forum.createdBy != ForumTool.userId}" />
     </sakai:view>
 </f:view>
 

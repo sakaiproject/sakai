@@ -15,7 +15,7 @@
 		window.open(url,'mywindow','width=960,height=1100'); 		
 	}
 </script>
-	<h:form id="msgForum">
+	<h:form id="msgForum" rendered="#{!ForumTool.selectedTopic.topic.draft || ForumTool.selectedTopic.topic.createdBy == ForumTool.userId}">
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
        		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
@@ -113,5 +113,6 @@
 	</script> 
 	
 	</h:form>
+	<h:outputText value="#{msgs.cdfm_insufficient_privileges_view_topic}" rendered="#{ForumTool.selectedTopic.topic.draft && ForumTool.selectedTopic.topic.createdBy != ForumTool.userId}" />
 </sakai:view>
 </f:view>

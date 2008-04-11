@@ -809,6 +809,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return isInstructor(userDirectoryService.getCurrentUser());
   }
 
+  public boolean isInstructor(String userId, String siteId) {
+    LOG.debug("isInstructor(String " + userId + ", " + siteId + ")");
+    return isInstructor(userDirectoryService.getCurrentUser(), siteId);
+  }
+
   /**
    * Check if the given user has site.upd access
    * 
@@ -822,7 +827,26 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       LOG.debug("isInstructor(User " + user + ")");
     }
     if (user != null)
-      return securityService.unlock(user, "site.upd", getContextSiteId());
+      return isInstructor(user, getContextSiteId());
+    else
+      return false;
+  }
+
+  /**
+   * Check if the given user has site.upd access
+   * 
+   * @param user
+   * @param siteId
+   * @return
+   */
+  private boolean isInstructor(User user, String siteId)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isInstructor(User " + user + ", " + siteId + ")");
+    }
+    if (user != null)
+      return securityService.unlock(user, "site.upd", siteId);
     else
       return false;
   }
@@ -2109,6 +2133,21 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     	
     	return eventMessagePrefix + getContextSiteId() + "/" + object.toString() + "/" + sessionManager.getCurrentSessionUserId();
     }
+
+    public String getContextForTopicById(Long topicId) {
+      return getTopicById(topicId).getOpenForum().getArea().getContextId();
+    }
+
+    public String getContextForForumById(Long forumId) {
+      return getForumById(forumId).getArea().getContextId();
+    }
     
+    public String getContextForMessageById(Long messageId) {
+      return getMessageById(messageId).getTopic().getOpenForum().getArea().getContextId();
+    }
+
+    public String ForumIdForMessage(Long messageId) {
+      return getMessageById(messageId).getTopic().getOpenForum().getId().toString();
+    }
     
 }
