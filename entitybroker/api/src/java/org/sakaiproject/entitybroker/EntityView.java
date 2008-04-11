@@ -105,6 +105,10 @@ public class EntityView {
    public String getViewKey() {
       return viewKey;
    }
+   public void setViewKey(String viewKey) {
+      TemplateParseUtil.validateTemplateKey(viewKey);
+      this.viewKey = viewKey;
+   }
 
    private EntityReference entityReference;
    /**
@@ -112,6 +116,20 @@ public class EntityView {
     */
    public EntityReference getEntityReference() {
       return entityReference;
+   }
+   public void setEntityReference(EntityReference ref) {
+      if (ref == null) {
+         throw new IllegalArgumentException("ref cannot be null");
+      }
+      Map<String, String> segments = new HashMap<String, String>();
+      segments.put(PREFIX, ref.getPrefix());
+      String viewKey = VIEW_LIST;
+      if (ref.getId() != null) {
+         segments.put(ID, ref.getId());
+         viewKey = VIEW_SHOW;
+      }
+      populateInternals(viewKey, segments, null);
+      this.entityReference = ref;
    }
 
    /**

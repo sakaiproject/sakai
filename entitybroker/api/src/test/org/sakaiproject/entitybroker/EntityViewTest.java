@@ -63,6 +63,31 @@ public class EntityViewTest extends TestCase {
       assertNotNull(ev.getParseTemplate(TemplateParseUtil.TEMPLATE_SHOW));
    }
 
+   public void testEntityViewReference() {
+      EntityView ev = null;
+
+      // make sure this does not die
+      ev = new EntityView();
+      ev.setEntityReference( new EntityReference("/mystuff") );
+      assertNotNull(ev);
+      assertEquals(EntityView.VIEW_LIST, ev.getViewKey());
+      assertEquals("mystuff", ev.getEntityReference().getPrefix());
+      assertEquals(null, ev.getEntityReference().getId());
+      assertEquals(null, ev.getExtension());
+      assertEquals("/mystuff", ev.toString());
+      assertEquals(null, ev.getOriginalEntityUrl());
+
+      ev = new EntityView();
+      ev.setEntityReference( new EntityReference("/mystuff/myid") );
+      assertNotNull(ev);
+      assertEquals(EntityView.VIEW_SHOW, ev.getViewKey());
+      assertEquals("mystuff", ev.getEntityReference().getPrefix());
+      assertEquals("myid", ev.getEntityReference().getId());
+      assertEquals(null, ev.getExtension());
+      assertEquals("/mystuff/myid", ev.toString());
+      assertEquals(null, ev.getOriginalEntityUrl());
+   }
+
    /**
     * Test method for {@link org.sakaiproject.entitybroker.EntityView#EntityView(java.lang.String, java.util.Map, java.lang.String)}.
     */

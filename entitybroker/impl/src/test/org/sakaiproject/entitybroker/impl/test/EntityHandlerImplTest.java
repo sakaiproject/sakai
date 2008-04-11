@@ -120,34 +120,6 @@ public class EntityHandlerImplTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#getProvider(java.lang.String)}.
-    */
-   public void testGetProvider() {
-      EntityProvider ep = null;
-
-      // get valid providers
-      ep = entityHandler.getProvider(TestData.REF1);
-      assertNotNull(ep);
-      assertEquals(td.entityProvider1, ep);
-
-      ep = entityHandler.getProvider(TestData.REF3A);
-      assertNotNull(ep);
-      assertEquals(td.entityProvider3, ep);
-
-      // test unregistered provider returns null
-      ep = entityHandler.getProvider(TestData.REF9);
-      assertNull(ep);
-
-      // ensure invalid prefix dies
-      try {
-         ep = entityHandler.getProvider(TestData.INVALID_REF);
-         fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
-         assertNotNull(e.getMessage());
-      }
-   }
-
-   /**
     * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#parseReference(java.lang.String)}.
     */
    public void testParseReference() {

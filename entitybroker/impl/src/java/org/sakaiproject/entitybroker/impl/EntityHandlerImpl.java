@@ -132,24 +132,23 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * 
     * @param reference a globally unique reference to an entity, 
     * consists of the entity prefix and optionally the local id
-    * @return the full URL to a specific entity
+    * @return the full URL to a specific entity or space
     */
    public String getEntityURL(String reference) {
       // ensure this is a valid reference first
       EntityReference ref = parseReference(reference);
-      String togo = serverConfigurationService.getServerUrl() + "/direct" + ref.toString();
-      return togo;
-   }
-
-   /**
-    * Returns the provider, if any, responsible for handling a reference,
-    * this will be the core provider only
-    */
-   public EntityProvider getProvider(String reference) {
-      EntityProvider provider = null;
-      String prefix = EntityReference.getPrefix(reference);
-      provider = entityProviderManager.getProviderByPrefix(prefix);
-      return provider;
+      EntityView view = new EntityView();
+      EntityUrlCustomizable custom = (EntityUrlCustomizable) entityProviderManager
+            .getProviderByPrefixAndCapability(ref.getPrefix(), EntityUrlCustomizable.class);
+      if (custom == null) {
+         view.setEntityReference(ref);
+      } else {
+         // use the custom parsing templates
+         view.loadParseTemplates( custom.getParseTemplates() );
+      }
+      view.setEntityReference(ref);
+      String url = serverConfigurationService.getServerUrl() + "/direct" + view.toString();
+      return url;
    }
 
    /**
@@ -180,7 +179,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                ref = (EntityReference) m.newInstance(reference);
             } catch (Exception e) {
                throw new RuntimeException("Failed to invoke a constructor which takes a single string "
-               		+ "(reference="+reference+") for class: " + exemplar.getClass());
+               		+ "(reference="+reference+") for class: " + exemplar.getClass(), e);
             }
          }
       }
@@ -204,7 +203,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
       if (provider != null) {
          // this prefix is valid so check for custom entity templates
-         EntityUrlCustomizable custom = (EntityUrlCustomizable) entityProviderManager.getProviderByPrefixAndCapability(prefix, EntityUrlCustomizable.class);
+         EntityUrlCustomizable custom = (EntityUrlCustomizable) entityProviderManager
+               .getProviderByPrefixAndCapability(prefix, EntityUrlCustomizable.class);
          if (custom == null) {
             view = new EntityView(entityURL);
          } else {
@@ -226,7 +226,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     */
    public Object getEntityObject(EntityReference ref) {
       Object entity = null;
-      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, Resolvable.class);
+      EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Resolvable.class);
       if (provider != null) {
          entity = ((Resolvable)provider).getEntity(ref);
       }
