@@ -73,4 +73,10 @@ public interface Formats {
    public static String ATOM = "atom";
    public static String ATOM_MIME_TYPE = "application/atom+xml";
 
+   /**
+    * All character data should be encoded and decoded as UTF-8,
+    * this constant is the proper encoding string to use
+    */
+   public static final String UTF_8 = "UTF-8";
+
 }

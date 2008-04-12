@@ -47,6 +47,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestInterceptor;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.BasicEntity;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
@@ -96,6 +97,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       this.serverConfigurationService = serverConfigurationService;
    }
 
+   public static final String UTF_8 = Formats.UTF_8;
 
    /**
     * Determines if an entity exists based on the reference
@@ -352,7 +354,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                if (outputable != null) {
                   if ( contains(outputable.getHandledOutputFormats(), view.getExtension()) ) {
                      // we are handling this type of format for this entity
-                     res.setCharacterEncoding("UTF-8");
+                     res.setCharacterEncoding(UTF_8);
                      String encoding = null;
                      if (Outputable.XML.equals(view.getExtension())) {
                         encoding = Outputable.XML_MIME_TYPE;
@@ -573,7 +575,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       if (toEncode == null) {
          throw new RuntimeException("Failed to encode data for entity (" + ref.toString() + "), entity object to encode could not be found");
       } else {
-         String encoding = "text/plain";
          XStream encoder = null;
          if (Outputable.JSON.equals(extension)) {
             if (! xstreams.containsKey(extension)) {
@@ -582,7 +583,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                xstreams.put( extension, x );
             }
             encoder = xstreams.get(extension);
-            encoding = "application/json";
          } else if (Outputable.XML.equals(extension)) {
             if (! xstreams.containsKey(extension)) {
                XStream x = new XStream(new DomDriver());
@@ -590,7 +590,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                xstreams.put( extension, x );
             }
             encoder = xstreams.get(extension);
-            encoding = "application/xml";
          } else {
             encoder = null;
          }
@@ -613,14 +612,12 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          try {
             byte[] b = null;
             if (encoder != null) {
-               b = encoder.toXML(toEncode).getBytes("UTF-8");
+               b = encoder.toXML(toEncode).getBytes(UTF_8);
             } else {
                // just to string this and dump it out
                String s = "<b>" + ref.prefix + "</b>: " + toEncode.toString();
-               b = s.getBytes("UTF-8");
+               b = s.getBytes(UTF_8);
             }
-            res.setContentType(encoding);
-            res.setCharacterEncoding("UTF-8");
             res.setContentLength(b.length);
             res.getOutputStream().write(b);
          } catch (UnsupportedEncodingException e) {
