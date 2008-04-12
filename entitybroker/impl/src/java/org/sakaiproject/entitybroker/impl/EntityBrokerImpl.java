@@ -97,6 +97,13 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
    }
 
    /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.EntityBroker#getEntityURL(java.lang.String, java.lang.String, java.lang.String)
+    */
+   public String getEntityURL(String reference, String viewKey, String extension) {
+      return entityHandler.getEntityURL(reference, viewKey, extension);
+   }
+
+   /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityBroker#getRegisteredPrefixes()
     */
    public Set<String> getRegisteredPrefixes() {

@@ -11,6 +11,7 @@ import java.util.Set;
 import org.easymock.MockControl;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.impl.EntityBrokerImpl;
 import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
@@ -188,6 +189,43 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
          assertNotNull(e.getMessage());
       }
 
+   }
+
+   public void testGetEntityURLStringStringString() {
+      String url = null;
+
+      url = entityBroker.getEntityURL(TestData.REF1, null, null);
+      assertEquals(TestData.URL1, url);
+
+      url = entityBroker.getEntityURL(TestData.REF2, null, null);
+      assertEquals(TestData.URL2, url);
+
+      // test adding viewkey
+      url = entityBroker.getEntityURL(TestData.REF1, EntityView.VIEW_SHOW, null);
+      assertEquals(TestData.URL1, url);
+
+      url = entityBroker.getEntityURL(TestData.REF1, EntityView.VIEW_LIST, null);
+      assertEquals(TestData.SPACE_URL1, url);
+
+      url = entityBroker.getEntityURL(TestData.REF1, EntityView.VIEW_NEW, null);
+      assertEquals(TestData.SPACE_URL1 + "/new", url);
+
+      url = entityBroker.getEntityURL(TestData.REF1, EntityView.VIEW_EDIT, null);
+      assertEquals(TestData.URL1 + "/edit", url);
+
+      url = entityBroker.getEntityURL(TestData.REF1, EntityView.VIEW_DELETE, null);
+      assertEquals(TestData.URL1 + "/delete", url);
+
+      // test extension
+      url = entityBroker.getEntityURL(TestData.REF1, null, "xml");
+      assertEquals(TestData.URL1 + ".xml", url);
+
+      url = entityBroker.getEntityURL(TestData.REF2, null, "json");
+      assertEquals(TestData.URL2 + ".json", url);
+
+      // test both
+      url = entityBroker.getEntityURL(TestData.REF1, EntityView.VIEW_EDIT, "xml");
+      assertEquals(TestData.URL1 + "/edit.xml", url);
    }
 
    /**

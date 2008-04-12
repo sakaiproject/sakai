@@ -18,6 +18,7 @@ import java.util.Set;
 
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
@@ -53,13 +54,33 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
 
    /**
     * Get the full absolute URL to the entity defined by this entity reference, this will fail-safe
-    * from a direct URL to an entity space URL if that is all that is available
+    * to a direct URL to an entity space URL if that is all that is available
     * 
     * @param reference a globally unique reference to an entity, 
     * consists of the entity prefix and optional segments
     * @return a full URL string (e.g. http://server/direct/prefix/id)
     */
    public String getEntityURL(String reference);
+
+   /**
+    * Get the full absolute URL to the entity view defined by these params, this will fail-safe
+    * to a direct URL to an entity space URL if that is all that is available,
+    * this will use the default entity URL template associated with the viewKey and include
+    * an optional extension if specified (these will be inferred if they are missing)
+    * 
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and optionally the local id
+    * @param viewKey the specific view type to get the URL for,
+    * use the VIEW_* constants from {@link EntityView} (e.g. {@link EntityView#VIEW_LIST}),
+    * can be null to determine the key automatically
+    * @param extension the optional extension to add to the end 
+    * which defines the expected data which is returned,
+    * use constants in {@link Outputable} (e.g. {@link Outputable#XML}),
+    * can be null to use no extension,  default is assumed to be html if none is set
+    * @return the full URL string to a specific entity or space,
+    * (e.g. http://server/direct/prefix/id)
+    */
+   public String getEntityURL(String reference, String viewKey, String extension);
 
    /**
     * Fire an event to Sakai with the specified name, targetted at the supplied reference, which

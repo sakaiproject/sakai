@@ -75,6 +75,7 @@ public class TestData {
    public static String REF1_INVALID = EntityReference.SEPARATOR + PREFIX1
          + EntityReference.SEPARATOR + "XXXXXX";
    public static String URL1 = SERVER_URL + DIRECT + REF1;
+   public static String SPACE_URL1 = SERVER_URL + DIRECT + EntityReference.SEPARATOR + PREFIX1;
    public static String EXTENSION1 = Outputable.HTML;
    public static String ENTITY_URL1 = EntityReference.SEPARATOR + PREFIX1 + EntityReference.SEPARATOR + IDS1[0] + "." + EXTENSION1;
    public static String INPUT_URL1 = ENTITY_URL1;

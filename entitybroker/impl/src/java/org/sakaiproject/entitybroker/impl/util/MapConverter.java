@@ -24,12 +24,12 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
-
 /**
  * A custom converter to make the map output look nicer
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
+@SuppressWarnings("unchecked")
 public class MapConverter implements Converter {
 
    public boolean canConvert(Class clazz) {
