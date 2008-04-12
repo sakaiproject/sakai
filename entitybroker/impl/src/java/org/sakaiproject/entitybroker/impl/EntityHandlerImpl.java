@@ -206,7 +206,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * null if there is no provider found for the prefix parsed out
     * @throws IllegalArgumentException if there is a failure during parsing
     */
-   public EntityView parseEntityUrl(String entityURL) {
+   public EntityView parseEntityURL(String entityURL) {
       EntityView view = null;
       // first get the prefix
       String prefix = EntityReference.getPrefix(entityURL);
@@ -257,7 +257,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
       EntityView view;
       try {
-         view = parseEntityUrl(path);
+         view = parseEntityURL(path);
       } catch (IllegalArgumentException e) {
          // indicates we could not parse the reference
          throw new EntityException("Could not parse entity path ("+path+"): " + e.getMessage(), path, HttpServletResponse.SC_BAD_REQUEST);
