@@ -51,7 +51,7 @@ public class RESTfulEntityProviderMock extends EntityProviderMock implements Cor
       }
    }
 
-   public String[] getHandledExtensions() {
+   public String[] getHandledOutputFormats() {
       return new String[] {Outputable.HTML, Outputable.JSON, Outputable.XML};
    }
 

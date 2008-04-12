@@ -20,9 +20,8 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 /**
  * Indicates an entity provider has the capability of parsing its own reference string. An entity
  * that does not implement this interface is assumed to deal in references of type
- * {@link EntityReference}. <br/> 
- * This is one of the capability extensions for the
- * {@link EntityProvider} interface<br/>
+ * {@link EntityReference} (/prefix/id or /prefix) <br/> 
+ * This is one of the capability extensions for the {@link EntityProvider} interface<br/>
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  * @author Antranig Basman (antranig@caret.cam.ac.uk)

@@ -36,10 +36,14 @@ import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityUrlCustomizable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputDefineable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputFormattable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestInterceptor;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.BasicEntity;
@@ -142,8 +146,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       // ensure this is a valid reference first
       EntityReference ref = parseReference(reference);
       EntityView view = new EntityView();
-      EntityUrlCustomizable custom = (EntityUrlCustomizable) entityProviderManager
-            .getProviderByPrefixAndCapability(ref.getPrefix(), EntityUrlCustomizable.class);
+      EntityViewUrlCustomizable custom = (EntityViewUrlCustomizable) entityProviderManager
+            .getProviderByPrefixAndCapability(ref.getPrefix(), EntityViewUrlCustomizable.class);
       if (custom == null) {
          view.setEntityReference(ref);
       } else {
@@ -214,8 +218,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       EntityProvider provider = entityProviderManager.getProviderByPrefix(prefix);
       if (provider != null) {
          // this prefix is valid so check for custom entity templates
-         EntityUrlCustomizable custom = (EntityUrlCustomizable) entityProviderManager
-               .getProviderByPrefixAndCapability(prefix, EntityUrlCustomizable.class);
+         EntityViewUrlCustomizable custom = (EntityViewUrlCustomizable) entityProviderManager
+               .getProviderByPrefixAndCapability(prefix, EntityViewUrlCustomizable.class);
          if (custom == null) {
             view = new EntityView(entityURL);
          } else {
@@ -293,36 +297,169 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             interceptor.before(view, req, res);
          }
 
-         // now handle the extensions
-         Outputable output = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
-         if (output == null) {
-            // default output handling, send to the access provider if there is one
-            handleAccessProvider(view, req, res);
+         // check for provider handling of this request
+         RequestHandler handler = (RequestHandler) entityProviderManager.getProviderByPrefixAndCapability(prefix, RequestHandler.class);
+         if (handler != null) {
+            // provider is handling this request
+            handleClassLoaderAccess(handler, req, res, view);
          } else {
-            OutputDefineable def = (OutputDefineable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputDefineable.class);
-            if (def == null) {
-               // internally handle this request if allowed
-               if ( contains(output.getHandledExtensions(), view.getExtension()) ) {
-                  if (Outputable.HTML.equals(view.getExtension())) {
-                     // Special handling for HTML: send to access provider
-                     handleAccessProvider(view, req, res);
+            // handle the request internally if possible
+
+            // identify the type of request (input or output) and the action (will be encoded in the viewKey)
+            boolean output = false;
+            String method = req.getMethod() == null ? "GET" : req.getMethod().toUpperCase().trim();
+            if ("GET".equals(method)) {
+               output = true;
+            } else {
+               // identify the action based on the method type or "_method" attribute
+               if ("DELETE".equals(method)) {
+                  view.setViewKey(EntityView.VIEW_DELETE);
+               } else if ("PUT".equals(method)) {
+                  view.setViewKey(EntityView.VIEW_EDIT);
+               } else if ("POST".equals(method)) {
+                  String _method = req.getParameter("_method");
+                  if (_method == null) {
+                     // this better be a create request
+                     view.setViewKey(EntityView.VIEW_NEW);
                   } else {
-                     // use internal processor
-                     encodeToResponse(req, res, view);
+                     _method = _method.toUpperCase().trim();
+                     if ("DELETE".equals(_method)) {
+                        view.setViewKey(EntityView.VIEW_DELETE);
+                     } else if ("PUT".equals(_method)) {
+                        view.setViewKey(EntityView.VIEW_EDIT);
+                     } else {
+                        throw new EntityException("Unable to handle POST request with _method, unknown method (only PUT/DELETE allowed): " + _method, 
+                              view.toString(), HttpServletResponse.SC_BAD_REQUEST);                        
+                     }
                   }
                } else {
-                  throw new EntityException( "Will not handle internal access to  "+view.getExtension()+" for this path (" 
-                        + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference().toString() + ")", 
-                        view.getEntityReference().toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                  throw new EntityException("Unable to handle request method, unknown method (only GET/POST/PUT/DELETE allowed): " + method, 
+                        view.toString(), HttpServletResponse.SC_BAD_REQUEST);
+               }
+
+               // check that the request is valid (edit and delete require an entity id)
+               if ( (EntityView.VIEW_EDIT.equals(view.getViewKey()) || EntityView.VIEW_DELETE.equals(view.getViewKey()) )
+                     && view.getEntityReference().getId() == null) {
+                  throw new EntityException("Unable to handle entity ("+prefix+") edit or delete request without entity id", 
+                        view.toString(), HttpServletResponse.SC_BAD_REQUEST);                     
+               }
+            }
+
+            boolean handled = false;
+            if (output) {
+               // output request
+               Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
+               if (outputable != null) {
+                  if ( contains(outputable.getHandledOutputFormats(), view.getExtension()) ) {
+                     // we are handling this type of format for this entity
+                     res.setCharacterEncoding("UTF-8");
+                     String encoding = null;
+                     if (Outputable.XML.equals(view.getExtension())) {
+                        encoding = Outputable.XML_MIME_TYPE;
+                     } else if (Outputable.HTML.equals(view.getExtension())) {
+                        encoding = Outputable.HTML_MIME_TYPE;
+                     } else if (Outputable.JSON.equals(view.getExtension())) {
+                        encoding = Outputable.JSON_MIME_TYPE;
+                     } else if (Outputable.RSS.equals(view.getExtension())) {
+                        encoding = Outputable.RSS_MIME_TYPE;                        
+                     } else if (Outputable.ATOM.equals(view.getExtension())) {
+                        encoding = Outputable.ATOM_MIME_TYPE;                        
+                     } else {
+                        encoding = Outputable.TXT_MIME_TYPE;
+                     }
+                     res.setContentType(encoding);
+
+                     OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
+                     if (formattable == null) {
+                        // handle internally or fail
+                        encodeToResponse(view, req, res);
+                     } else {
+                        // use provider's formatter
+                        try {
+                           formattable.formatOutput(view.getEntityReference(), view.getExtension(), res.getOutputStream());
+                        } catch (IOException e) {
+                           throw new RuntimeException("Failed to get outputstream from response: " + view.toString() + ":" + e.getMessage(), e);
+                        }
+                     }
+                     res.setStatus(HttpServletResponse.SC_OK);
+                     handled = true;
+                  } else {
+                     // will not handle this format type
+                     throw new EntityException( "Will not handle output request for format  "+view.getExtension()+" for this path (" 
+                           + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference().toString() + ")", 
+                           view.getEntityReference().toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                  }
                }
             } else {
-               if ( contains(output.getHandledExtensions(), view.getExtension()) ) {
-                  handleClassLoaderAccess(def, req, res, view);
+               // input request
+               if (EntityView.VIEW_DELETE.equals(view.getViewKey())) {
+                  // delete request
+                  Deleteable deleteable = (Deleteable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Deleteable.class);
+                  if (deleteable != null) {
+                     deleteable.deleteEntity(view.getEntityReference());
+                     res.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                     handled = true;
+                  }
                } else {
-                  throw new EntityException( "Will not handle defined access to  "+view.getExtension()+" for this path (" 
-                        + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference().toString() + ")", 
-                        view.getEntityReference().toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                  // save request
+                  Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
+                  if (inputable != null) {
+                     if ( contains(inputable.getHandledInputFormats(), view.getExtension()) ) {
+                        // we are handling this type of format for this entity
+                        InputTranslatable translatable = (InputTranslatable) entityProviderManager.getProviderByPrefixAndCapability(prefix, InputTranslatable.class);
+                        Object entity = null;
+                        if (translatable == null) {
+                           // use internal translators or fail
+                           // TODO add internal translators
+                           throw new UnsupportedOperationException("Not implemented yet");
+                        } else {
+                           // use provider's translator
+                           try {
+                              entity = translatable.translateFormattedData(view.getEntityReference(), 
+                                    view.getExtension(), req.getInputStream());
+                           } catch (IOException e) {
+                              throw new RuntimeException("Failed to get inputstream from request: " + view.toString() + ":" + e.getMessage(), e);
+                           }
+                        }
+
+                        if (entity == null) {
+                           throw new EntityException("Unable to save entity ("+view.getEntityReference()+"), entity object was null", 
+                                 view.toString(), HttpServletResponse.SC_BAD_REQUEST);
+                        } else {
+                           if (EntityView.VIEW_NEW.equals(view.getViewKey())) {
+                              String createdId = inputable.createEntity(view.getEntityReference(), entity);
+                              view.setEntityReference( new EntityReference(prefix, createdId) ); // update the entity view
+                              res.setStatus(HttpServletResponse.SC_CREATED);
+                           } else if (EntityView.VIEW_EDIT.equals(view.getViewKey())) {
+                              inputable.updateEntity(view.getEntityReference(), entity);
+                              res.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                           } else {
+                              throw new EntityException("Unable to handle entity input ("+view.getEntityReference()+"), " +
+                              		"action was not understood: " + view.getViewKey(), 
+                                    view.toString(), HttpServletResponse.SC_BAD_REQUEST);
+                           }
+                           // return the location of this updated or created entity (without any extension)
+                           res.setHeader("Location", view.getEntityURL(EntityView.VIEW_SHOW, null));
+                           handled = true;
+                        }
+                     } else {
+                        // will not handle this format type
+                        throw new EntityException( "Will not handle input request for format  "+view.getExtension()+" for this path (" 
+                              + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference().toString() + ")", 
+                              view.getEntityReference().toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                     }
+                  }
                }
+            }
+
+            if (! handled) {
+               // default handling, send to the access provider if there is one
+               handleAccessProvider(view, req, res);
+            } else {
+               // cannot handle this request
+               throw new EntityException( "Will not handle request for format  "+view.getExtension()+" for this path (" 
+                     + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference().toString() + ")", 
+                     view.getEntityReference().toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
             }
          }
 
@@ -412,14 +549,14 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * Internal method for processing an entity or collection into an output format,
     * Currently only handles JSON and XML correctly
     */
-   public void encodeToResponse(HttpServletRequest req, HttpServletResponse res, EntityView ev) {
+   public void encodeToResponse(EntityView ev, HttpServletRequest req, HttpServletResponse res) {
       String extension = ev.getExtension();
       if (extension == null) { extension = Outputable.HTML; }
       EntityReference ref = ev.getEntityReference();
 
       Object toEncode = null;
       boolean collection = false;
-      if (ref.getId() == null) {
+      if (EntityView.VIEW_LIST.equals(ev.getViewKey())) {
          collection = true;
          EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, CollectionResolvable.class);
          if (provider != null) {
@@ -427,7 +564,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             toEncode = ((CollectionResolvable)provider).getEntities(ref, search);
          }         
       } else {
-         toEncode = getEntityObjectOrBasic(ref);
+         toEncode = getEntityObject(ref);
+         if (toEncode == null) {
+            // return basic entity information
+            toEncode = new BasicEntity(ref);
+         }
       }
       if (toEncode == null) {
          throw new RuntimeException("Failed to encode data for entity (" + ref.toString() + "), entity object to encode could not be found");
@@ -441,7 +582,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                xstreams.put( extension, x );
             }
             encoder = xstreams.get(extension);
-            encoding = "text/javascript";
+            encoding = "application/json";
          } else if (Outputable.XML.equals(extension)) {
             if (! xstreams.containsKey(extension)) {
                XStream x = new XStream(new DomDriver());
@@ -449,7 +590,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                xstreams.put( extension, x );
             }
             encoder = xstreams.get(extension);
-            encoding = "text/xml";
+            encoding = "application/xml";
          } else {
             encoder = null;
          }
@@ -533,23 +674,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    }
 
    /**
-    * Get an entity object of some kind for this reference if it has an id,
-    * will create a {@link BasicEntity} if this entity type is not resolveable,
-    * will simply return null if no id is available in this reference
-    * 
-    * @param reference a unique string representing an entity
-    * @return the entity object for this reference or null if none can be retrieved
-    */
-   public Object getEntityObjectOrBasic(EntityReference ref) {
-      Object entity = getEntityObject(ref);
-      if (entity == null) {
-         // return basic entity information
-         entity = new BasicEntity(ref);
-      }
-      return entity;
-   }
-
-   /**
     * Checks to see if an array contains a value,
     * will return false if a null value is supplied
     * 
@@ -570,5 +694,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       }
       return foundValue;
    }
+
+//   public class InternalOutputTranslator implements 
 
 }

@@ -30,10 +30,10 @@ public interface Deleteable extends EntityProvider {
     * Deletes the entity identified by this entity reference,
     * if the entity cannot be found then nothing happens
     * 
-    * @param reference the parsed reference object which uniquely represents this entity
+    * @param ref the parsed reference object which uniquely represents this entity
     * @throws SecurityException if permissions prevented this entity from being created
     * @throws IllegalStateException for all other failures
     */
-   public void deleteEntity(EntityReference reference);
+   public void deleteEntity(EntityReference ref);
 
 }

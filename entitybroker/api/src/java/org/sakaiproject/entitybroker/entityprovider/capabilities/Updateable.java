@@ -33,12 +33,12 @@ public interface Updateable extends Resolvable {
     * Typically the entity will be retrieved first using {@link Resolvable#getEntity(EntityReference)}
     * and the the fields will be updated and it will be passed into this method
     * 
-    * @param reference the parsed reference object which uniquely represents this entity
+    * @param ref the parsed reference object which uniquely represents this entity
     * @param entity an entity object
     * @throws IllegalArgumentException if the entity could not be updated because of missing or invalid data or could not find entity to update
     * @throws SecurityException if permissions prevented this entity from being updated
     * @throws IllegalStateException for all other failures
     */
-   public void updateEntity(EntityReference reference, Object entity);
+   public void updateEntity(EntityReference ref, Object entity);
 
 }

@@ -30,7 +30,7 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 public interface RequestInterceptor extends EntityProvider {
 
    /**
-    * Take actions before the request is handled,
+    * Take actions before the request is handled for an entity view,
     * this will be called just before each request is sent to the correct request handler,
     * this might be used to add information to the response before it goes on to be handled
     * or to take some action as a result of information in the request or reference,<br/>
@@ -45,7 +45,7 @@ public interface RequestInterceptor extends EntityProvider {
    public void before(EntityView view, HttpServletRequest req, HttpServletResponse res);
 
    /**
-    * Take actions after the request is handled,
+    * Take actions after the request is handled for an entity view,
     * this will be called just before each response is sent back to the requester,
     * normally this would be used to add something to the response as it is getting ready to be
     * sent back to the requester

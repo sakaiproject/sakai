@@ -16,6 +16,7 @@ import org.sakaiproject.entitybroker.mocks.data.TestData;
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
+@SuppressWarnings("unchecked")
 public class FakeServerConfigurationService implements ServerConfigurationService {
 
    /*

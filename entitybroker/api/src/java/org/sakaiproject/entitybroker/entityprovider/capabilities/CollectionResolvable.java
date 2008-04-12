@@ -38,12 +38,12 @@ public interface CollectionResolvable extends EntityProvider {
     * <br/>These do not have to be model objects and may simply
     * be something created (e.g. String, Map, etc.) to give to anyone calling this method
     * 
-    * @param reference the parsed reference object which uniquely represents this entity,
-    * only the prefix will be used from this reference (since that identifies the space)
+    * @param ref the parsed reference object which uniquely represents this entity,
+    * only the prefix will be used from this reference (since that identifies the space and collection)
     * @param search a search object which can define the order to return entities,
     * search filters, and total number of entities returned
     * @return a list of entity objects of the type handled by this provider based on the search or empty if none found
     */
-   public List<?> getEntities(EntityReference reference, Search search);
+   public List<?> getEntities(EntityReference ref, Search search);
 
 }

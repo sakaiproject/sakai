@@ -28,7 +28,7 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil.Template;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface EntityUrlCustomizable extends EntityProvider {
+public interface EntityViewUrlCustomizable extends EntityProvider {
 
    /**
     * Defines a set of parseable templates to use with entity url processing for this template 

@@ -30,14 +30,14 @@ public interface Createable extends EntityProvider {
     * Create a new entity and return the unique local id of the entity,
     * the object should contain the data needed to create the entity or this will fail
     * 
-    * @param reference the parsed reference object which uniquely represents this entity
+    * @param ref the parsed reference object which uniquely represents this entity
     * @param entity an entity object
     * @return the locally unique id of the new object
     * @throws IllegalArgumentException if the entity could not be created because of missing or invalid data
     * @throws SecurityException if permissions prevented this entity from being created
     * @throws IllegalStateException for all other failures
     */
-   public String createEntity(EntityReference reference, Object entity);
+   public String createEntity(EntityReference ref, Object entity);
 
    /**
     * Provides a sample entity object which can be populated with data and then passed to 

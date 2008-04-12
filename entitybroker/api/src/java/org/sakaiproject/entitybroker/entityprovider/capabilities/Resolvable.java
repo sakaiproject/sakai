@@ -35,9 +35,9 @@ public interface Resolvable extends EntityProvider {
     * <br/>The entity object does not have to be a model object itself and may simply
     * be something created (e.g. String, Map, etc.) to give to anyone calling this method.
     * 
-    * @param reference the parsed reference object which uniquely represents this entity
-    * @return an entity object
+    * @param ref the parsed reference object which uniquely represents this entity
+    * @return an entity object of the type used for these entities
     */
-   public Object getEntity(EntityReference reference);
+   public Object getEntity(EntityReference ref);
 
 }
