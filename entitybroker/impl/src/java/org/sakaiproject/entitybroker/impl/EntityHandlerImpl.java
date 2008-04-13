@@ -54,6 +54,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
 import org.sakaiproject.entitybroker.impl.util.MapConverter;
+import org.sakaiproject.entitybroker.impl.util.ReflectUtil;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 
 import com.thoughtworks.xstream.XStream;
@@ -352,7 +353,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                // output request
                Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
                if (outputable != null) {
-                  if ( contains(outputable.getHandledOutputFormats(), view.getExtension()) ) {
+                  if ( ReflectUtil.contains(outputable.getHandledOutputFormats(), view.getExtension()) ) {
                      // we are handling this type of format for this entity
                      res.setCharacterEncoding(UTF_8);
                      String encoding = null;
@@ -374,7 +375,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                      OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
                      if (formattable == null) {
                         // handle internally or fail
-                        encodeToResponse(view, req, res);
+                        internalOutputFormatter(view, req, res);
                      } else {
                         // use provider's formatter
                         try {
@@ -406,7 +407,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                   // save request
                   Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
                   if (inputable != null) {
-                     if ( contains(inputable.getHandledInputFormats(), view.getExtension()) ) {
+                     if ( ReflectUtil.contains(inputable.getHandledInputFormats(), view.getExtension()) ) {
                         // we are handling this type of format for this entity
                         InputTranslatable translatable = (InputTranslatable) entityProviderManager.getProviderByPrefixAndCapability(prefix, InputTranslatable.class);
                         Object entity = null;
@@ -551,7 +552,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * Internal method for processing an entity or collection into an output format,
     * Currently only handles JSON and XML correctly
     */
-   public void encodeToResponse(EntityView ev, HttpServletRequest req, HttpServletResponse res) {
+   public void internalOutputFormatter(EntityView ev, HttpServletRequest req, HttpServletResponse res) {
       String extension = ev.getExtension();
       if (extension == null) { extension = Outputable.HTML; }
       EntityReference ref = ev.getEntityReference();
@@ -572,6 +573,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             toEncode = new BasicEntity(ref);
          }
       }
+
       if (toEncode == null) {
          throw new RuntimeException("Failed to encode data for entity (" + ref.toString() + "), entity object to encode could not be found");
       } else {
@@ -601,7 +603,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                encoder.alias("entities", encodeClass);
                boolean isCollection = Collection.class.isAssignableFrom(encodeClass);
                if (isCollection) {
-                  Class<?> entityClass = getClassFromCollection((Collection<?>)toEncode);
+                  Class<?> entityClass = ReflectUtil.getClassFromCollection((Collection<?>)toEncode);
                   encoder.alias(ref.prefix, entityClass);
                }
             } else {
@@ -647,49 +649,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          }
       }
       return search;
-   }
-
-   /**
-    * Finds a class type that is in the containing collection,
-    * will always return something (failsafe to Object.class)
-    * @param collection
-    * @return the class type contained in this collecion
-    */
-   @SuppressWarnings("unchecked")
-   public Class<?> getClassFromCollection(Collection collection) {
-      // try to get the type of entities out of this collection
-      Class<?> c = Object.class;
-      if (collection != null) {
-         if (! collection.isEmpty()) {
-            c = collection.iterator().next().getClass();
-         } else {
-            // this always gets Object.class -AZ
-            c = collection.toArray().getClass().getComponentType();                     
-         }
-      }
-      return c;
-   }
-
-   /**
-    * Checks to see if an array contains a value,
-    * will return false if a null value is supplied
-    * 
-    * @param <T>
-    * @param array any array of objects
-    * @param value the value to check for
-    * @return true if the value is found, false otherwise
-    */
-   public static <T> boolean contains(T[] array, T value) {
-      boolean foundValue = false;
-      if (value != null) {
-         for (int i = 0; i < array.length; i++) {
-            if (value.equals(array[i])) {
-               foundValue = true;
-               break;
-            }
-         }
-      }
-      return foundValue;
    }
 
 //   public class InternalOutputTranslator implements 

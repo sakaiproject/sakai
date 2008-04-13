@@ -55,6 +55,10 @@ public class RESTfulEntityProviderMock extends EntityProviderMock implements Cor
       return new String[] {Outputable.HTML, Outputable.JSON, Outputable.XML};
    }
 
+   public String[] getHandledInputFormats() {
+      return new String[] {Outputable.HTML, Outputable.JSON, Outputable.XML};
+   }
+
    public boolean entityExists(String id) {
       return myEntities.containsKey(id);
    }

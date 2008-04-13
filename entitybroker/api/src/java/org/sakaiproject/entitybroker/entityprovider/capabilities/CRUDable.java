@@ -23,7 +23,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public interface CRUDable extends EntityProvider, Createable, Resolvable, Updateable, Deleteable {
+public interface CRUDable extends EntityProvider, Saveable, Createable, Resolvable, Updateable, Deleteable {
 
    // this space intentionally left blank
 

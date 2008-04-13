@@ -15,10 +15,6 @@
 package org.sakaiproject.entitybroker.impl.test;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Vector;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -211,47 +207,8 @@ public class EntityHandlerImplTest extends TestCase {
    }
 
    /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#getClassFromCollection(java.util.Collection)}.
-    */
-   @SuppressWarnings("unchecked")
-   public void testGetClassFromCollection() {
-      Class<?> result = null;
-
-      // null returns object class
-      result = entityHandler.getClassFromCollection(null);
-      assertNotNull(result);
-      assertEquals(Object.class, result);
-
-      // empty collection is always object
-      result = entityHandler.getClassFromCollection( new ArrayList<String>() );
-      assertNotNull(result);
-      assertEquals(Object.class, result);
-
-      // NOTE: Cannot get real type from empty collections
-
-      // try with collections that have things in them
-      List<Object> l = new ArrayList<Object>();
-      l.add(new String("testing"));
-      result = entityHandler.getClassFromCollection(l);
-      assertNotNull(result);
-      assertEquals(String.class, result);
-
-      HashSet<Object> s = new HashSet<Object>();
-      s.add(new Double(22.0));
-      result = entityHandler.getClassFromCollection(s);
-      assertNotNull(result);
-      assertEquals(Double.class, result);
-
-      List v = new Vector<Object>();
-      v.add( new Integer(30) );
-      result = entityHandler.getClassFromCollection(v);
-      assertNotNull(result);
-      assertEquals(Integer.class, result);
-   }
-
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#encodeToResponse(java.lang.Object, java.lang.String, java.lang.String, javax.servlet.http.HttpServletResponse)}.
-    */
+    * Test method for {@link EntityHandlerImpl#internalOutputFormatter(EntityView, javax.servlet.http.HttpServletRequest, HttpServletResponse)}
+    **/
    public void testEncodeToResponse() {
 
       EntityView view = null;
@@ -263,7 +220,7 @@ public class EntityHandlerImplTest extends TestCase {
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
-      entityHandler.encodeToResponse(view, req, res);
+      entityHandler.internalOutputFormatter(view, req, res);
       assertNotNull(res.getOutputStream());
       try {
          String json = res.getContentAsString();
@@ -280,7 +237,7 @@ public class EntityHandlerImplTest extends TestCase {
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
-      entityHandler.encodeToResponse(view, req, res);
+      entityHandler.internalOutputFormatter(view, req, res);
       assertNotNull(res.getOutputStream());
       try {
          String xml = res.getContentAsString();
@@ -297,7 +254,7 @@ public class EntityHandlerImplTest extends TestCase {
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
-      entityHandler.encodeToResponse(view, req, res);
+      entityHandler.internalOutputFormatter(view, req, res);
       assertNotNull(res.getOutputStream());
       try {
          String html = res.getContentAsString();
@@ -316,7 +273,7 @@ public class EntityHandlerImplTest extends TestCase {
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
-      entityHandler.encodeToResponse(view, req, res);
+      entityHandler.internalOutputFormatter(view, req, res);
       assertNotNull(res.getOutputStream());
       try {
          String json = res.getContentAsString();
@@ -333,7 +290,7 @@ public class EntityHandlerImplTest extends TestCase {
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
-      entityHandler.encodeToResponse(view, req, res);
+      entityHandler.internalOutputFormatter(view, req, res);
       assertNotNull(res.getOutputStream());
       try {
          String xml = res.getContentAsString();
@@ -350,7 +307,7 @@ public class EntityHandlerImplTest extends TestCase {
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
-      entityHandler.encodeToResponse(view, req, res);
+      entityHandler.internalOutputFormatter(view, req, res);
       assertNotNull(res.getOutputStream());
       try {
          String html = res.getContentAsString();
@@ -368,7 +325,7 @@ public class EntityHandlerImplTest extends TestCase {
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
-      entityHandler.encodeToResponse(view, req, res);
+      entityHandler.internalOutputFormatter(view, req, res);
       assertNotNull(res.getOutputStream());
       try {
          String xml = res.getContentAsString();
@@ -387,7 +344,7 @@ public class EntityHandlerImplTest extends TestCase {
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
-      entityHandler.encodeToResponse(view, req, res);
+      entityHandler.internalOutputFormatter(view, req, res);
       assertNotNull(res.getOutputStream());
       try {
          String json = res.getContentAsString();
@@ -407,7 +364,7 @@ public class EntityHandlerImplTest extends TestCase {
       view = new EntityView();
       assertNotNull(view);
       try {
-         entityHandler.encodeToResponse(view, req, res);
+         entityHandler.internalOutputFormatter(view, req, res);
          fail("Should have thrown exception");
       } catch (RuntimeException e) {
          assertNotNull(e);
