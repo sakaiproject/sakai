@@ -16,8 +16,6 @@ package org.sakaiproject.entitybroker;
 
 import java.util.Locale;
 
-import org.sakaiproject.tool.api.Session;
-
 /**
  * Includes methods which are likely to be helpful to developers who are implementing
  * entity providers in Sakai and working with references
@@ -46,11 +44,6 @@ public interface DeveloperHelperService {
     * @return the Locale for the current user or the system set locale
     */
    public Locale getCurrentLocale();
-
-   /**
-    * @return the current user session or null if there is not one
-    */
-   public Session getCurrentSession();
 
    // PERMISSIONS
 

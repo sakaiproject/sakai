@@ -55,7 +55,7 @@
 
    <!-- Create a test data preload bean -->
    <bean id="org.sakaiproject.entitybroker.impl.test.data.TestDataPreload" 
-         class="org.sakaiproject.entitybroker.impl.test.data.TestDataPreload"
+         class="org.sakaiproject.entitybroker.impl.data.TestDataPreload"
          init-method="init">
       <property name="dao" ref="org.sakaiproject.entitybroker.dao.EntityBrokerDao" />
    </bean>
