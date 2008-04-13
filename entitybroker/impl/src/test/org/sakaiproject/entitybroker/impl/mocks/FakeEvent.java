@@ -2,7 +2,7 @@
  * FakeEvent.java - created by aaronz on Jul 25, 2007
  */
 
-package org.sakaiproject.entitybroker.impl.test.mocks;
+package org.sakaiproject.entitybroker.impl.mocks;
 
 import org.sakaiproject.event.api.Event;
 

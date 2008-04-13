@@ -12,7 +12,7 @@
  * Aaron Zeckoski (azeckoski@gmail.com) (aaronz@vt.edu) (aaron@caret.cam.ac.uk)
  */
 
-package org.sakaiproject.entitybroker.impl.test;
+package org.sakaiproject.entitybroker.impl;
 
 import java.io.UnsupportedEncodingException;
 
@@ -26,7 +26,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
-import org.sakaiproject.entitybroker.impl.test.mocks.FakeServerConfigurationService;
+import org.sakaiproject.entitybroker.impl.mocks.FakeServerConfigurationService;
 import org.sakaiproject.entitybroker.mocks.EntityViewAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.MockHttpServletRequest;

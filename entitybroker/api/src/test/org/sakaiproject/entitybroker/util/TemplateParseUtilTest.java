@@ -12,7 +12,7 @@
  * Aaron Zeckoski (azeckoski@gmail.com) (aaronz@vt.edu) (aaron@caret.cam.ac.uk)
  */
 
-package org.sakaiproject.entitybroker;
+package org.sakaiproject.entitybroker.util;
 
 import java.util.HashMap;
 import java.util.List;

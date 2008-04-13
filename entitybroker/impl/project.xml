@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/3.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://maven.apache.org/POM/3.0.0 http://maven.apache.org/maven-v3_0_0.xsd">
    <pomVersion>3</pomVersion>
    <extend>../../master/project.xml</extend>
@@ -29,7 +30,7 @@
       </dependency>
 
       <!-- internal dependencies -->
-      
+
       <dependency>
          <groupId>sakaiproject</groupId>
          <artifactId>sakai-entitybroker-api</artifactId>
@@ -128,13 +129,26 @@
          <type>jar</type>
       </dependency>
 
+      <!-- required for bean cloning -->
+      <dependency>
+         <groupId>commons-beanutils</groupId>
+         <artifactId>commons-beanutils</artifactId>
+         <version>1.7.0</version>
+      </dependency>
+
+      <dependency>
+         <groupId>commons-collections</groupId>
+         <artifactId>commons-collections</artifactId>
+         <version>3.1</version>
+      </dependency>
+
       <!-- Required for hibernate 3 HQL queries -->
       <dependency>
          <groupId>antlr</groupId>
          <artifactId>antlr</artifactId>
          <version>2.7.6</version>
       </dependency>
-  
+
       <!-- Apache commons dependencies -->
       <dependency>
          <groupId>commons-logging</groupId>
@@ -148,7 +162,7 @@
          <version>2.4</version>
          <type>jar</type>
       </dependency>
-      
+
       <dependency>
          <artifactId>portlet-api</artifactId>
          <groupId>portlet-api</groupId>

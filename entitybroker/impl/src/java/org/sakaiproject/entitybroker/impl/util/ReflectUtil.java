@@ -14,15 +14,20 @@
 
 package org.sakaiproject.entitybroker.impl.util;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Reflection utilities and utilities related to working with classes
  * 
- * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
+ * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
 public class ReflectUtil {
 
@@ -103,6 +108,168 @@ public class ReflectUtil {
          }
       }
       return foundValue;
+   }
+
+   /**
+    * Get a map of all fieldName -> value and all getterMethodName -> value without the word "get"
+    * where the method takes no arguments, in other words, all values available from an object
+    * @param object any object
+    * @return a map of name -> value
+    */
+   public static Map<String, Object> getObjectValues(Object object) {
+      Map<String, Object> values = new HashMap<String, Object>();
+      Class<?> elementClass = object.getClass();
+      for (Field field : elementClass.getFields()) {
+         Object value;
+         try {
+            value = field.get(object);
+            values.put(field.getName(), value);
+         } catch (Exception e) {
+            // nothing to do here but move on
+         }
+      }
+      for (Method method : elementClass.getMethods()) {
+         String name = method.getName();
+         if (name.startsWith("get") 
+               && ! "getClass".equals(name)) {
+            if (method.getParameterTypes().length == 0) {
+               try {
+                  Object value = method.invoke(object, (Object[])null);
+                  values.put(unCapitalize(method.getName().substring(3)), value);
+               } catch (Exception e) {
+                  // nothing to do here but move on
+               }
+            }
+         }
+      }
+      return values;
+   }
+
+   /**
+    * Get the string value of a field or getter method from an object 
+    * if the field or getter method exists on the object,
+    * if not then return null
+    * 
+    * @param object any object
+    * @param fieldName the name of the field (property) to get the value of or the getter method without the "get" and lowercase first char
+    * @param annotationClass if the annotation class is set then we will attempt to get the value from the annotated field or getter method first
+    * @return the string value of the field or null if no field or null if the value is null
+    */
+   public static String getFieldValueAsString(Object object, String fieldName, Class<? extends Annotation> annotationClass) {
+      String value = null;
+      Class<?> elementClass = object.getClass();
+      boolean found = false;
+      // try to get value from pea
+      try {
+         Field field;
+         if (annotationClass != null) {
+            field = getFieldWithAnnotation(elementClass, annotationClass);
+         } else {
+            field = elementClass.getDeclaredField(fieldName);               
+         }
+         Object fieldValue = field.get(object);
+         found = true;
+         if (fieldValue != null) {
+            value = fieldValue.toString();
+         }
+      } catch (Exception e) {
+         found = false;
+      }
+      if (found == false) {
+         // try to get value from method
+         try {
+            Method getMethod;
+            if (annotationClass != null) {
+               getMethod = getMethodWithAnnotation(elementClass, annotationClass);
+            } else {
+               getMethod = elementClass.getMethod("get" + capitalize(fieldName), new Class[] {});
+            }
+            Object getValue = getMethod.invoke(object, (Object[])null);
+            found = true;
+            if (getValue != null) {
+               value = getValue.toString();
+            }
+         } catch (Exception e) {
+            found = false;
+         }
+      }
+      return value;
+   }
+
+   /**
+    * Find a method with an annotation on a class if there is one
+    * @param c
+    * @param annotationClass
+    * @return the method
+    * @throws NoSuchMethodException if no method can be found
+    */
+   public static Method getMethodWithAnnotation(Class<?> c, Class<? extends Annotation> annotationClass) throws NoSuchMethodException {
+      Method m = null;
+      for (Method method : c.getMethods()) {
+         if (method.isAnnotationPresent(annotationClass)) {
+            m = method;
+            break;
+         }
+      }
+      if (m == null) {
+         throw new NoSuchMethodException("No methods found with annotation: " + annotationClass.getCanonicalName());
+      }
+      return m;
+   }
+
+   /**
+    * Find a field with an annotation on a class if there is one
+    * @param c
+    * @param annotationClass
+    * @return the field
+    * @throws NoSuchFieldException if no field can be found
+    */
+   public static Field getFieldWithAnnotation(Class<?> c, Class<? extends Annotation> annotationClass) throws NoSuchFieldException {
+      Field f = null;
+      for (Field field : c.getFields()) {
+         if (field.isAnnotationPresent(annotationClass)) {
+            f = field;
+            break;
+         }
+      }
+      if (f == null) {
+         throw new NoSuchFieldException("No fields found with annotation: " + annotationClass.getCanonicalName());
+      }
+      return f;
+   }
+
+   /**
+    * Capitalize a string
+    * @param input any string
+    * @return the string capitalized (e.g. myString -> MyString)
+    */
+   public static String capitalize(String input) {
+      String cap = null;
+      if (input.length() == 0) {
+         cap = "";
+      } else if (input.length() == 1) {
+         cap = input.toUpperCase();
+      } else {
+         cap = input.substring(0, 1).toUpperCase() + input.substring(1);
+      }
+      return cap;
+   }
+
+   /**
+    * undo string capitalization
+    * @param input any string
+    * @return the string uncapitalized (e.g. MyString -> myString)
+    */
+   public static String unCapitalize(String input) {
+      String cap = null;
+      if (input.length() == 0) {
+         cap = "";
+      } else if (input.length() == 1) {
+         cap = input.toLowerCase();
+      } else {
+         cap = input.substring(0, 1).toLowerCase() + input.substring(1);
+      }
+      return cap;
    }
 
 }

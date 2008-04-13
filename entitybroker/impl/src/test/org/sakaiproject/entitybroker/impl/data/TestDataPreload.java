@@ -2,7 +2,7 @@
  * TestDataPreload.java - created by Sakai App Builder -AZ
  */
 
-package org.sakaiproject.entitybroker.impl.test.data;
+package org.sakaiproject.entitybroker.impl.data;
 
 import org.sakaiproject.entitybroker.dao.model.EntityProperty;
 import org.sakaiproject.entitybroker.mocks.data.TestData;

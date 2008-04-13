@@ -2,12 +2,12 @@
  * CoverageCatchAllTest.java - created by aaronz on Jul 25, 2007
  */
 
-package org.sakaiproject.entitybroker.impl.test;
+package org.sakaiproject.entitybroker.impl;
 
 import junit.framework.TestCase;
 
-import org.sakaiproject.entitybroker.impl.test.mocks.FakeEvent;
-import org.sakaiproject.entitybroker.impl.test.mocks.FakeServerConfigurationService;
+import org.sakaiproject.entitybroker.impl.mocks.FakeEvent;
+import org.sakaiproject.entitybroker.impl.mocks.FakeServerConfigurationService;
 
 /**
  * this test class is simply here to make it easier to tell what REAL methods we have missed in the

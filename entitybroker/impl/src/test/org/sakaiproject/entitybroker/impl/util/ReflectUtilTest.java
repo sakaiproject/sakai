@@ -14,13 +14,17 @@
 
 package org.sakaiproject.entitybroker.impl.util;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
@@ -30,42 +34,86 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 
 import junit.framework.TestCase;
 
-
 /**
- * Testing the utils
+ * Testing the reflection utils
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
 public class ReflectUtilTest extends TestCase {
 
+   class TestNone { }
+   class TestProvider implements EntityProvider {
+      public String getEntityPrefix() {
+         return "provider";
+      }
+   }
+   class TestCrud implements CRUDable {
+      public String getEntityPrefix() {
+         return "crud";
+      }
+      public String createEntity(EntityReference ref, Object entity) {
+         return "1";
+      }
+      public Object getSampleEntity() {
+         return new String();
+      }
+      public void updateEntity(EntityReference ref, Object entity) {
+      }
+      public Object getEntity(EntityReference ref) {
+         return "one";
+      }
+      public void deleteEntity(EntityReference ref) {
+      }         
+   }
+   class TestPea {
+      public String id = "id";
+      @EntityId
+      public String entityId = "EID";
+      protected String prot = "prot";
+      @SuppressWarnings("unused")
+      private String priv = "priv";
+      public TestPea() {}
+   }
+   class TestBean {
+      private int myInt = 0;
+      private String myString = "woot";
+      public int getMyInt() {
+         return myInt;
+      }
+      public void setMyInt(int myInt) {
+         this.myInt = myInt;
+      }
+      public String getMyString() {
+         return myString;
+      }
+      public void setMyString(String myString) {
+         this.myString = myString;
+      }
+   }
+   class TestEntity {
+      private Long id = new Long(3);
+      public Long getId() {
+         return new Long(5);
+      }
+      @EntityId
+      public String getEntityId() {
+         return "33";
+      }
+      public String getPrefix() {
+         return "crud";
+      }
+      public Long getInternalId() {
+         return id;
+      }
+      public String createEntity(Object entity) {
+         return "1";
+      }
+   }
+
    /**
     * Test method for {@link org.sakaiproject.entitybroker.impl.util.ReflectUtil#getSuperclasses(java.lang.Class)}.
     */
    public void testGetSuperclasses() {
-      class TestNone { }
-      class TestProvider implements EntityProvider {
-         public String getEntityPrefix() {
-            return "provider";
-         }
-      }
-      class TestCrud implements CRUDable {
-         public String getEntityPrefix() {
-            return "crud";
-         }
-         public String createEntity(EntityReference ref, Object entity) {
-            return "1";
-         }
-         public Object getSampleEntity() {
-            return new String();
-         }
-         public void updateEntity(EntityReference ref, Object entity) {
-         }
-         public Object getEntity(EntityReference ref) {
-            return "one";
-         }
-         public void deleteEntity(EntityReference ref) {
-         }         
-      }
       List<Class<?>> superClasses = null;
 
       superClasses = ReflectUtil.getSuperclasses(TestNone.class);
@@ -139,6 +187,130 @@ public class ReflectUtilTest extends TestCase {
       assertFalse( ReflectUtil.contains(new String[] {"apple"}, "stuff") );
       assertTrue( ReflectUtil.contains(new String[] {"stuff"}, "stuff") );
       assertTrue( ReflectUtil.contains(new String[] {"stuff","other","apple"}, "stuff") );
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.util.ReflectUtil#getObjectValues(java.lang.Object)}.
+    */
+   public void testGetObjectValues() {
+      Map<String, Object> m = null;
+
+      m = ReflectUtil.getObjectValues( new TestNone() );
+      assertNotNull(m);
+      assertEquals(0, m.size());
+
+      m = ReflectUtil.getObjectValues( new TestPea() );
+      assertNotNull(m);
+      assertEquals(2, m.size());
+      assertTrue(m.containsKey("id"));
+      assertEquals("id", m.get("id"));
+      assertTrue(m.containsKey("entityId"));
+      assertEquals("EID", m.get("entityId"));
+
+      m = ReflectUtil.getObjectValues( new TestBean() );
+      assertNotNull(m);
+      assertEquals(2, m.size());
+      assertTrue(m.containsKey("myInt"));
+      assertTrue(m.containsKey("myString"));
+      assertEquals(0, m.get("myInt"));
+      assertEquals("woot", m.get("myString"));
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.util.ReflectUtil#getMethodWithAnnotation(java.lang.Class, java.lang.Class)}.
+    */
+   public void testGetMethodWithAnnotation() {
+      Method m = null;
+
+      // no annotation
+      try {
+         m = ReflectUtil.getMethodWithAnnotation(TestBean.class, EntityId.class);
+      } catch (NoSuchMethodException e) {
+         assertNotNull(e.getMessage());
+      }
+
+      try {
+         m = ReflectUtil.getMethodWithAnnotation(TestEntity.class, EntityId.class);
+      } catch (NoSuchMethodException e) {
+         fail("Should not have thrown exception");
+      }
+      assertNotNull(m);
+      assertEquals("getEntityId", m.getName());
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.util.ReflectUtil#getFieldWithAnnotation(java.lang.Class, java.lang.Class)}.
+    */
+   public void testGetFieldWithAnnotation() {
+      Field f = null;
+      // no annotation
+      try {
+         f = ReflectUtil.getFieldWithAnnotation(TestBean.class, EntityId.class);
+      } catch (NoSuchFieldException e) {
+         assertNotNull(e.getMessage());
+      }
+
+      try {
+         f = ReflectUtil.getFieldWithAnnotation(TestPea.class, EntityId.class);
+      } catch (NoSuchFieldException e) {
+         fail("Should not have thrown exception");
+      }
+      assertNotNull(f);
+      assertEquals("entityId", f.getName());
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.util.ReflectUtil#getFieldValueAsString(java.lang.Object, java.lang.String, java.lang.Class)}.
+    */
+   public void testGetFieldValueAsString() {
+      String value = null;
+
+      value = ReflectUtil.getFieldValueAsString( new TestBean(), "id", null);
+      assertNull(value);
+
+      value = ReflectUtil.getFieldValueAsString( new TestPea(), "id", null);
+      assertNotNull(value);
+      assertEquals("id", value);
+
+      value = ReflectUtil.getFieldValueAsString( new TestEntity(), "id", null);
+      assertNotNull(value);
+      assertEquals("5", value);
+
+      value = ReflectUtil.getFieldValueAsString( new TestBean(), "id", EntityId.class);
+      assertNull(value);
+
+      value = ReflectUtil.getFieldValueAsString( new TestPea(), "id", EntityId.class);
+      assertNotNull(value);
+      assertEquals("EID", value);
+
+      value = ReflectUtil.getFieldValueAsString( new TestEntity(), "id", EntityId.class);
+      assertNotNull(value);
+      assertEquals("33", value);
+
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.util.ReflectUtil#capitalize(java.lang.String)}.
+    */
+   public void testCapitalize() {
+      assertTrue( ReflectUtil.capitalize("lower").equals("Lower") );
+      assertTrue( ReflectUtil.capitalize("UPPER").equals("UPPER") );
+      assertTrue( ReflectUtil.capitalize("myStuff").equals("MyStuff") );
+      assertTrue( ReflectUtil.capitalize("MyStuff").equals("MyStuff") );
+      assertTrue( ReflectUtil.capitalize("").equals("") );
+      assertTrue( ReflectUtil.capitalize("m").equals("M") );
+   }
+
+   /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.util.ReflectUtil#unCapitalize(java.lang.String)}.
+    */
+   public void testUnCapitalize() {
+      assertTrue( ReflectUtil.unCapitalize("lower").equals("lower") );
+      assertTrue( ReflectUtil.unCapitalize("UPPER").equals("uPPER") );
+      assertTrue( ReflectUtil.unCapitalize("MyStuff").equals("myStuff") );
+      assertTrue( ReflectUtil.unCapitalize("myStuff").equals("myStuff") );
+      assertTrue( ReflectUtil.unCapitalize("").equals("") );
+      assertTrue( ReflectUtil.unCapitalize("M").equals("m") );
    }
 
 }

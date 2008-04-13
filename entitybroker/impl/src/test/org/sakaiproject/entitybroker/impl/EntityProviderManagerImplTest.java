@@ -12,7 +12,7 @@
  * Aaron Zeckoski (azeckoski@gmail.com) (aaronz@vt.edu) (aaron@caret.cam.ac.uk)
  */
 
-package org.sakaiproject.entitybroker.impl.test;
+package org.sakaiproject.entitybroker.impl;
 
 import java.util.Set;
 

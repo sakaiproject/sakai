@@ -2,7 +2,7 @@
  * EntityBrokerImplTest.java - 2007 Jul 21, 2007 3:04:55 PM - entity-broker - AZ
  */
 
-package org.sakaiproject.entitybroker.impl.test;
+package org.sakaiproject.entitybroker.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -15,10 +15,10 @@ import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.impl.EntityBrokerImpl;
 import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
+import org.sakaiproject.entitybroker.impl.data.TestDataPreload;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
-import org.sakaiproject.entitybroker.impl.test.data.TestDataPreload;
-import org.sakaiproject.entitybroker.impl.test.mocks.FakeEvent;
-import org.sakaiproject.entitybroker.impl.test.mocks.FakeServerConfigurationService;
+import org.sakaiproject.entitybroker.impl.mocks.FakeEvent;
+import org.sakaiproject.entitybroker.impl.mocks.FakeServerConfigurationService;
 import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;

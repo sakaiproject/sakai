@@ -2,14 +2,14 @@
  * EntityBrokerDaoImplTest.java - created by aaronz on Jul 26, 2007
  */
 
-package org.sakaiproject.entitybroker.impl.test.dao;
+package org.sakaiproject.entitybroker.impl.dao;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoImpl;
-import org.sakaiproject.entitybroker.impl.test.data.TestDataPreload;
+import org.sakaiproject.entitybroker.impl.data.TestDataPreload;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.genericdao.api.finders.ByPropsFinder;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
