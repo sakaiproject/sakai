@@ -141,6 +141,9 @@ public class DirectServlet extends HttpServlet {
          return;
       }
 
+      // mark the direct entity request for this session
+      SessionManager.getCurrentSession().setAttribute("sakaiEntity-direct", path);
+
       // just handle the request if possible or pass along the failure codes so it can be understood
       try {
          try {
