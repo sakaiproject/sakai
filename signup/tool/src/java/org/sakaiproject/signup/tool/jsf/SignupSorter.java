@@ -16,6 +16,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
  * See the License for the specific language governing permissions and 
  * limitations under the License.
+ *   
+ * See the LICENSE.txt distributed with this file.
  *
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf;
@@ -133,7 +135,7 @@ public class SignupSorter {
 
 	/**
 	 * This will sort the SignupMeetingWrapper objects list according to user's
-	 * seletion.
+	 * selection.
 	 * 
 	 * @param list
 	 *            A SingupMeetingWrapper object list.
