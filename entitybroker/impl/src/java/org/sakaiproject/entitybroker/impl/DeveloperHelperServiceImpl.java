@@ -14,8 +14,13 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -35,6 +40,11 @@ import org.sakaiproject.util.ResourceLoader;
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
 public class DeveloperHelperServiceImpl implements DeveloperHelperService {
+
+   private AuthzGroupService authzGroupService;
+   public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+      this.authzGroupService = authzGroupService;
+   }
 
    private SecurityService securityService;
    public void setSecurityService(SecurityService securityService) {
@@ -166,12 +176,15 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
     * @see org.sakaiproject.entitybroker.DeveloperHelperService#isUserAllowedInReference(java.lang.String, java.lang.String, java.lang.String)
     */
    public boolean isUserAllowedInEntityReference(String userReference, String permission, String reference) {
+      if (userReference == null || permission == null) {
+         throw new IllegalArgumentException("userReference and permission must both be set");
+      }
       boolean allowed = false;
       String userId = getUserIdFromRef(userReference);
       if (userId != null) {
          if (reference == null) {
             // special check for the admin user
-            if (isUserAdmin(userId)) {
+            if ( securityService.isSuperUser(userId) ) {
                allowed = true;
             }
          } else {
@@ -181,6 +194,46 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
          }
       }
       return allowed;
+   }
+
+   @SuppressWarnings("unchecked")
+   public Set<String> getEntityReferencesForUserAndPermission(String userReference, String permission) {
+      if (userReference == null || permission == null) {
+         throw new IllegalArgumentException("userReference and permission must both be set");
+      }
+
+      Set<String> s = new HashSet<String>();
+      // get the groups from Sakai
+      String userId = getUserIdFromRef(userReference);
+      if (userId != null) {
+         Set<String> authzGroupIds = 
+            authzGroupService.getAuthzGroupsIsAllowed(userId, permission, null);
+         if (authzGroupIds != null) {
+            s.addAll(authzGroupIds);
+         }
+      }
+      return s;
+   }
+
+   @SuppressWarnings("unchecked")
+   public Set<String> getUserReferencesForEntityReference(String reference, String permission) {
+      if (reference == null || permission == null) {
+         throw new IllegalArgumentException("reference and permission must both be set");
+      }
+      List<String> azGroups = new ArrayList<String>();
+      azGroups.add(reference);
+      Set<String> userIds = authzGroupService.getUsersIsAllowed(permission, azGroups);
+      // need to remove the admin user or else they show up in unwanted places (I think, maybe this is not needed)
+      if (userIds.contains(ADMIN_USER_ID)) {
+         userIds.remove(ADMIN_USER_ID);
+      }
+
+      // now convert to userRefs
+      Set<String> userRefs = new HashSet<String>();
+      for (String userId : userIds) {
+         userRefs.add( getUserRefFromUserId(userId) );
+      }
+      return userRefs;
    }
 
 }

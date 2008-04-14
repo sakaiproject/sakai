@@ -15,6 +15,7 @@
 package org.sakaiproject.entitybroker;
 
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Includes methods which are likely to be helpful to developers who are implementing
@@ -101,6 +102,30 @@ public interface DeveloperHelperService {
     * @return true if allowed, false otherwise
     */
    public boolean isUserAllowedInEntityReference(String userReference, String permission, String reference);
+
+   /**
+    * Find the entity references which a user has a specific permission in,
+    * this is most commonly used to get the list of sites which a user has a permission in but
+    * it will work for any entity type which uses Sakai permissions
+    * 
+    * @param userReference the user entity reference (e.g. /user/{userId} - not id, eid, or username)
+    * @param permission a permission string constant
+    * @return a set of entity references - a globally unique reference to an entity, 
+    * consists of the entity prefix and optional segments (normally the id at least)
+    */
+   public Set<String> getEntityReferencesForUserAndPermission(String userReference, String permission);
+
+   /**
+    * Get the user references which have the given permission in the given entity reference,
+    * this is most commonly used to get the users which have a permission in a site but it should
+    * work for any entity type which uses Sakai permissions
+    * 
+    * @param reference a globally unique reference to an entity, 
+    * consists of the entity prefix and optional segments (normally the id at least)
+    * @param permission a permission string constant
+    * @return a set of user entity references (e.g. /user/{userId} - not id, eid, or username)
+    */
+   public Set<String> getUserReferencesForEntityReference(String reference, String permission);
 
    // BEANS
 
