@@ -14,6 +14,8 @@
 
 package org.sakaiproject.entitybroker.mocks;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,6 +38,11 @@ public class HttpServletAccessProviderMock implements HttpServletAccessProvider 
     */
    public void handleAccess(HttpServletRequest req, HttpServletResponse res, EntityReference ref) {
       // Okey dokey, do nothing but say all is well
+      try {
+         res.getWriter().print("HttpServletAccessProviderMock");
+      } catch (IOException e) {
+         // nothing to do here
+      }
       ((MockHttpServletResponse) res).setStatus(HttpServletResponse.SC_OK);
    }
 

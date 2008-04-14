@@ -10,7 +10,9 @@ import java.util.List;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 
@@ -19,12 +21,13 @@ import org.sakaiproject.entitybroker.mocks.data.MyEntity;
  * actual class so it can be reliably used for testing<br/> 
  * Returns {@link MyEntity} objects<br/>
  * Allows for testing {@link CollectionResolvable} as well, returns 3 {@link MyEntity} objects 
- * if no search restrictions, 1 if "stuff" property is set, none if other properties are set
+ * if no search restrictions, 1 if "stuff" property is set, none if other properties are set<br/>
+ * Finally, this allows us to test the outputting of data because it implements outputable
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
 public class ResolvableEntityProviderMock extends CoreEntityProviderMock implements
-      CoreEntityProvider, Resolvable, CollectionResolvable {
+      CoreEntityProvider, Resolvable, CollectionResolvable, Outputable {
 
    /**
     * TEST Constructor: allows for easy setup of this stub for testing
@@ -34,6 +37,10 @@ public class ResolvableEntityProviderMock extends CoreEntityProviderMock impleme
     */
    public ResolvableEntityProviderMock(String prefix, String[] ids) {
       super(prefix, ids);
+   }
+
+   public String[] getHandledOutputFormats() {
+      return new String[] {Formats.HTML, Formats.JSON, Formats.XML};
    }
 
    /* (non-Javadoc)

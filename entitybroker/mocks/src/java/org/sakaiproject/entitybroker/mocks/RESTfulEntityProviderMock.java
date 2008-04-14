@@ -23,9 +23,9 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 
@@ -52,11 +52,11 @@ public class RESTfulEntityProviderMock extends EntityProviderMock implements Cor
    }
 
    public String[] getHandledOutputFormats() {
-      return new String[] {Outputable.HTML, Outputable.JSON, Outputable.XML};
+      return new String[] {Formats.JSON, Formats.XML};
    }
 
    public String[] getHandledInputFormats() {
-      return new String[] {Outputable.HTML, Outputable.JSON, Outputable.XML};
+      return new String[] {Formats.HTML, Formats.JSON, Formats.XML};
    }
 
    public boolean entityExists(String id) {

@@ -496,11 +496,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             if (! handled) {
                // default handling, send to the access provider if there is one
                handleAccessProvider(view, req, res);
-            } else {
-               // cannot handle this request
-               throw new EntityException( "Will not handle request for format  "+view.getExtension()+" for this path (" 
-                     + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference().toString() + ")", 
-                     view.getEntityReference().toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
             }
          }
 

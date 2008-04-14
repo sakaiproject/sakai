@@ -475,13 +475,69 @@ public class EntityHandlerImplTest extends TestCase {
          assertEquals(HttpServletResponse.SC_BAD_REQUEST, e.responseCode);
       }
 
-      // TODO test JSON data return
+      // XML test valid resolveable entity
+      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Formats.XML);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String xml = res.getContentAsString();
+         assertNotNull(xml);
+         assertTrue(xml.length() > 20);
+         assertTrue(xml.contains(TestData.PREFIX4));
+         assertTrue(xml.contains("<id>4-one</id>"));
+         assertTrue(xml.contains(EntityXStream.SAKAI_ENTITY));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
 
-      // test XML data return
+      // JSON test valid resolveable entity
+      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Formats.JSON);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String json = res.getContentAsString();
+         assertNotNull(json);
+         assertTrue(json.length() > 20);
+         assertTrue(json.contains(TestData.PREFIX4));
+         assertTrue(json.contains("\"id\": \"4-one\","));
+         assertTrue(json.contains(EntityXStream.SAKAI_ENTITY));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      // HTML test valid resolveable entity
+      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Formats.HTML);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String html = res.getContentAsString();
+         assertNotNull(html);
+         assertTrue(html.length() > 20);
+         assertTrue(html.contains(TestData.PREFIX4));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
 
       // types that cannot handle the return requested
+      req = new MockHttpServletRequest("GET", TestData.REF4 + ".xxxx");
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("Should have thrown exception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+         assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.responseCode);
+      }
 
       // test the REST and CRUD methods
+      // TODO
+
    }
 
 }
