@@ -16,9 +16,11 @@ package org.sakaiproject.entitybroker.impl.util;
 
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Map;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.core.MapBackedDataHolder;
 import com.thoughtworks.xstream.io.HierarchicalStreamDriver;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
@@ -28,15 +30,20 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class EntityXstream extends XStream {
+public class EntityXStreams extends XStream {
+
+   public static String EXTRA_DATA_CLASS = "extra.data.class";
+   public static String SAKAI_ENTITY = "sakaiEntity";
+   public static String SAKAI_ENTITY_DOT = SAKAI_ENTITY + ".";
 
    protected HierarchicalStreamDriver visibleHSD;
 
    /**
     * This will let us get to the hierarchicalStreamDriver used since it is stupidly private
     */
-   public EntityXstream(HierarchicalStreamDriver hierarchicalStreamDriver) {
+   public EntityXStreams(HierarchicalStreamDriver hierarchicalStreamDriver) {
       super(hierarchicalStreamDriver);
+      super.setMarshallingStrategy( new ReferenceEntityMarshaller(ReferenceEntityMarshaller.RELATIVE) );
       visibleHSD = hierarchicalStreamDriver;
    }
 
@@ -44,15 +51,21 @@ public class EntityXstream extends XStream {
     * Convert this object to XML and add in additional information in the data holder
     * 
     * @param obj
-    * @param holder
+    * @param entityData any additional XML data to add in,
+    * will only be added to the class type that is included with the key {@link #EXTRA_DATA_CLASS}
     * @return the string version of the xml
     */
-   public String toXml(Object obj, DataHolder holder) {
+   public String toXml(Object obj, Map<String, Object> entityData) {
       Writer w = new StringWriter();
       HierarchicalStreamWriter writer = visibleHSD.createWriter(w);
-      marshal(obj, writer, holder);
+      marshal(obj, writer, makeDataHolder(entityData) );
       writer.flush();
       return writer.toString();
+   }
+
+   protected DataHolder makeDataHolder(Map<String, Object> data) {
+      DataHolder holder = new MapBackedDataHolder(data);
+      return holder;
    }
 
 }
