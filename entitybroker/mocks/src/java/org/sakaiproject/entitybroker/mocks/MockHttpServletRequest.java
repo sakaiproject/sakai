@@ -36,4 +36,23 @@ public class MockHttpServletRequest extends org.springframework.mock.web.MockHtt
       super.setPathInfo(pathInfo);
    }
 
+   /**
+    * @param method GET, POST, PUT, DELETE (PUT and DELETE not supported by browsers),
+    * this will be set to POST if null or unset
+    * @param params alternating keys and values (starting with keys) to place into the request parameters
+    */
+   public MockHttpServletRequest(String method, String... params) {
+      super(method, "");
+      if (method == null || method == "") {
+         super.setMethod("POST");
+      }
+      for (int i = 0; i < params.length; i++) {
+         if (params.length < i + 1) {
+            break;
+         }
+         this.addParameter(params[i], params[i+1]);
+         i++;
+      }
+   }
+
 }

@@ -24,6 +24,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityRequestHandler;
@@ -71,6 +73,8 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
  */
 @SuppressWarnings("deprecation")
 public class EntityHandlerImpl implements EntityRequestHandler {
+
+   private static Log log = LogFactory.getLog(EntityHandlerImpl.class);
 
    private EntityProviderManager entityProviderManager;
    public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
@@ -640,13 +644,32 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    @SuppressWarnings("unchecked")
    public Search makeSearchFromRequest(HttpServletRequest req) {
       Search search = new Search();
-      if (req != null) {
-         Map<String, String[]> params = req.getParameterMap();
-         if (params != null) {
-            for (String key : params.keySet()) {
-               search.addRestriction( new Restriction("key", req.getParameter(key)) );
+      try {
+         if (req != null) {
+            Map<String, String[]> params = req.getParameterMap();
+            if (params != null) {
+               for (String key : params.keySet()) {
+                  if ("_method".equals(key)) {
+                     // skip the method
+                     continue;
+                  }
+                  Object value = null;
+                  String[] values = req.getParameterValues(key);
+                  if (values == null) {
+                     // in theory this should not happen
+                     continue;
+                  } else if (values.length > 1) {
+                     value = values;
+                  } else if (values.length == 1) {
+                     value = values[0];
+                  }
+                  search.addRestriction( new Restriction(key, value) );
+               }
             }
          }
+      } catch (Exception e) {
+         // failed to translate the request to a search, not really much to do here
+         log.warn("Could not translate entity request into search params: " + e.getMessage(), e);
       }
       return search;
    }

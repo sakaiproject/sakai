@@ -23,6 +23,8 @@ import junit.framework.TestCase;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.search.Order;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
@@ -153,7 +155,7 @@ public class EntityHandlerImplTest extends TestCase {
    /**
     * Test method for {@link EntityHandlerImpl#parseEntityURL(String)}
     */
-   public void testParseEntityUrl() {
+   public void testParseEntityURL() {
       EntityView view = null;
 
       view = entityHandler.parseEntityURL(TestData.INPUT_URL1);
@@ -207,9 +209,52 @@ public class EntityHandlerImplTest extends TestCase {
    }
 
    /**
+    * Test method for {@link org.sakaiproject.entitybroker.impl.EntityHandlerImpl#makeSearchFromRequest(javax.servlet.http.HttpServletRequest)}.
+    */
+   public void testMakeSearchFromRequest() {
+      Search search = null;
+      MockHttpServletRequest req = null;
+
+      req = new MockHttpServletRequest("GET", new String[] {});
+      search = entityHandler.makeSearchFromRequest(req);
+      assertNotNull(search);
+      assertTrue( search.isEmpty() );
+      assertEquals(0, search.restrictions.length);
+      search.addOrder( new Order("test") );
+
+      req = new MockHttpServletRequest("GET", "test", "stuff");
+      search = entityHandler.makeSearchFromRequest(req);
+      assertNotNull(search);
+      assertFalse( search.isEmpty() );
+      assertEquals(1, search.restrictions.length);
+      assertNotNull( search.getRestrictionByProperty("test") );
+      assertEquals("stuff", search.getRestrictionByProperty("test").value);
+
+      // make sure _method is ignored
+      req = new MockHttpServletRequest("GET", "test", "stuff", "_method", "PUT");
+      search = entityHandler.makeSearchFromRequest(req);
+      assertNotNull(search);
+      assertFalse( search.isEmpty() );
+      assertEquals(1, search.restrictions.length);
+      assertNotNull( search.getRestrictionByProperty("test") );
+      assertEquals("stuff", search.getRestrictionByProperty("test").value);
+
+      req = new MockHttpServletRequest("GET", "test", "stuff", "other", "more");
+      search = entityHandler.makeSearchFromRequest(req);
+      assertNotNull(search);
+      assertFalse( search.isEmpty() );
+      assertEquals(2, search.restrictions.length);
+      assertNotNull( search.getRestrictionByProperty("test") );
+      assertEquals("stuff", search.getRestrictionByProperty("test").value);
+      assertNotNull( search.getRestrictionByProperty("other") );
+      assertEquals("more", search.getRestrictionByProperty("other").value);
+   }
+
+
+   /**
     * Test method for {@link EntityHandlerImpl#internalOutputFormatter(EntityView, javax.servlet.http.HttpServletRequest, HttpServletResponse)}
     **/
-   public void testEncodeToResponse() {
+   public void testInternalOutputFormatter() {
 
       EntityView view = null;
       MockHttpServletRequest req = null;

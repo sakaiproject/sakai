@@ -354,8 +354,11 @@ public class Search {
    public void addRestriction(Restriction restriction) {
       if (restrictions != null) {
          int location = contains(restrictions, restriction);
-         if (location >= 0 && location < restrictions.length) {
+         if (location >= 0 
+               && location < restrictions.length) {
             restrictions[location] = restriction;
+         } else {
+            restrictions = appendArray(restrictions, restriction);
          }
       } else {
          restrictions = new Restriction[] {restriction};
@@ -369,8 +372,11 @@ public class Search {
    public void addOrder(Order order) {
       if (orders != null) {
          int location = contains(orders, order);
-         if (location >= 0 && location < orders.length) {
+         if (location >= 0 
+               && location < orders.length) {
             orders[location] = order;
+         } else {
+            orders = appendArray(orders, order);
          }
       } else {
          orders = new Order[] {order};
