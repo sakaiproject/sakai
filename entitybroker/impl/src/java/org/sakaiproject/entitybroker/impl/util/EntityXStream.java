@@ -34,7 +34,7 @@ public class EntityXStream extends XStream {
 
    public static String EXTRA_DATA_CLASS = "extra.data.class";
    public static String SAKAI_ENTITY = "sakaiEntity";
-   public static String SAKAI_ENTITY_DOT = SAKAI_ENTITY + ".";
+   public static String SAKAI_ENTITY_DASH = SAKAI_ENTITY + "-";
 
    protected HierarchicalStreamDriver visibleHSD;
 
@@ -55,16 +55,19 @@ public class EntityXStream extends XStream {
     * will only be added to the class type that is included with the key {@link #EXTRA_DATA_CLASS}
     * @return the string version of the xml
     */
-   public String toXml(Object obj, Map<String, Object> entityData) {
-      Writer w = new StringWriter();
-      HierarchicalStreamWriter writer = visibleHSD.createWriter(w);
+   public String toXML(Object obj, Map<String, Object> entityData) {
+      Writer out = new StringWriter();
+      HierarchicalStreamWriter writer = visibleHSD.createWriter(out);
       marshal(obj, writer, makeDataHolder(entityData) );
       writer.flush();
-      return writer.toString();
+      return out.toString();
    }
 
    protected DataHolder makeDataHolder(Map<String, Object> data) {
-      DataHolder holder = new MapBackedDataHolder(data);
+      DataHolder holder = null;
+      if (data != null) {
+         holder = new MapBackedDataHolder(data);
+      }
       return holder;
    }
 

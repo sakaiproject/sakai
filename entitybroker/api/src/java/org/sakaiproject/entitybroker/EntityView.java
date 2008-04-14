@@ -34,6 +34,7 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil.Template;
 public class EntityView {
 
    public static final char SEPARATOR = '/';
+   public static final char PERIOD = '.';
 
    public static final String PREFIX = "prefix";
    public static final String ID = "id";
@@ -144,11 +145,16 @@ public class EntityView {
     * Contains the parsing templates for this entity reference
     */
    private List<Template> parseTemplates;
+   public List<Template> getParseTemplates() {
+      return parseTemplates;
+   }
    /**
     * Cache the parsed templates for this EB
     */
    private List<PreProcessedTemplate> anazlyzedTemplates;
-
+   public List<PreProcessedTemplate> getAnazlyzedTemplates() {
+      return anazlyzedTemplates;
+   }
 
 
    public EntityView() {
@@ -276,6 +282,25 @@ public class EntityView {
    }
 
    /**
+    * Special efficiency method to reduce reloading of custom templates,
+    * do not use this unless you wrote it or REALLY know what you are doing
+    */
+   public void preloadParseTemplates(List<PreProcessedTemplate> preprocessedTemplates) {
+      // remake the internal lists and copy in the preprocessed templates
+      parseTemplates = new ArrayList<Template>();
+      anazlyzedTemplates = new ArrayList<PreProcessedTemplate>();
+      if (preprocessedTemplates == null || preprocessedTemplates.isEmpty()) {
+         // just load in the already processed and made templates and preproced templates for efficiency
+         parseTemplates.addAll(TemplateParseUtil.defaultTemplates);
+         anazlyzedTemplates = new ArrayList<PreProcessedTemplate>(TemplateParseUtil.defaultPreprocessedTemplates);
+      }
+      for (PreProcessedTemplate preProcessedTemplate : preprocessedTemplates) {
+         anazlyzedTemplates.add(preProcessedTemplate);
+         parseTemplates.add( new Template(preProcessedTemplate.templateKey, preProcessedTemplate.template) );
+      }
+   }
+
+   /**
     * @return the string version of this {@link TemplateParseUtil#TEMPLATE_SHOW} entity reference or 
     * the {@link TemplateParseUtil#TEMPLATE_LIST} one if there is no id,
     * example: /prefix if there is no id or /prefix/id if there is an id
@@ -305,7 +330,7 @@ public class EntityView {
       }
       String url = TemplateParseUtil.mergeTemplate(template, pathSegments);
       if (extension != null && ! "".equals(extension)) {
-         url += "." + extension;
+         url += PERIOD + extension;
       }
       return url;
    }

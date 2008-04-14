@@ -29,7 +29,8 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
  */
 public class EntityReference {
 
-   public static final char SEPARATOR = TemplateParseUtil.SEPARATOR;
+   public static final char SEPARATOR = EntityView.SEPARATOR;
+   public static final char PERIOD = EntityView.PERIOD;
 
    protected String originalReference;
    /**
@@ -208,6 +209,10 @@ public class EntityReference {
     */
    protected static String findPrefix(String reference) {
       int spos = getSeparatorPos(reference, 1);
+      if (spos == -1) {
+         // trim off the extension from the end
+         spos = reference.lastIndexOf(PERIOD);
+      }
       return spos == -1 ? reference.substring(1) : reference.substring(1, spos);
    }
 
@@ -223,6 +228,10 @@ public class EntityReference {
       int spos = getSeparatorPos(reference, 1);
       if (spos != -1) {
          int spos2 = getSeparatorPos(reference, 2);
+         if (spos2 == -1) {
+            // trim off the extension from the end
+            spos2 = reference.lastIndexOf(PERIOD);
+         }
          id = spos2 == -1 ? reference.substring(spos + 1) : reference.substring(spos + 1, spos2);
       }
       return id;

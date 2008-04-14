@@ -20,8 +20,10 @@ import com.thoughtworks.xstream.alias.ClassMapper;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.ConverterLookup;
 import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.core.ReferenceByXPathMarshaller;
+import com.thoughtworks.xstream.core.AbstractReferenceMarshaller;
+import com.thoughtworks.xstream.core.ReferenceByXPathMarshallingStrategy;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import com.thoughtworks.xstream.io.path.Path;
 import com.thoughtworks.xstream.mapper.Mapper;
 
 /**
@@ -30,20 +32,32 @@ import com.thoughtworks.xstream.mapper.Mapper;
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
 @SuppressWarnings({"deprecation","unchecked"})
-public class EntityMarshaller extends ReferenceByXPathMarshaller implements MarshallingContext {
+public class EntityMarshaller extends AbstractReferenceMarshaller implements MarshallingContext {
 
-   // CONSTRUCTORS copied from ReferenceByXPathMarshaller
+   // START COPY from ReferenceByXPathMarshaller
    protected final int mode;
 
    public EntityMarshaller(HierarchicalStreamWriter writer, ConverterLookup converterLookup, Mapper mapper, int mode) {
-       super(writer, converterLookup, (ClassMapper) mapper);
-       this.mode = mode;
+      super(writer, converterLookup, mapper);
+      this.mode = mode;
    }
 
    public EntityMarshaller(HierarchicalStreamWriter writer, ConverterLookup converterLookup, ClassMapper classMapper) {
       this(writer, converterLookup, classMapper, ReferenceEntityMarshaller.RELATIVE);
    }
-   // END copy
+
+   protected String createReference(Path currentPath, Object existingReferenceKey) {
+      return (mode == ReferenceByXPathMarshallingStrategy.RELATIVE ? currentPath.relativeTo((Path)existingReferenceKey) : existingReferenceKey).toString();
+   }
+
+   protected Object createReferenceKey(Path currentPath) {
+      return currentPath;
+   }
+
+   protected void fireValidReference(Object referenceKey) {
+      // nothing to do
+   }
+   // END COPY
 
    @Override
    public void convert(Object item, Converter converter) {
@@ -54,7 +68,9 @@ public class EntityMarshaller extends ReferenceByXPathMarshaller implements Mars
       if (entityClass != null) {
          if (item.getClass().isAssignableFrom(entityClass)) {
             // this is a sakai entity so add the attributes
-            super.writer.addAttribute(EntityXStream.SAKAI_ENTITY, "true");
+            super.writer.startNode(EntityXStream.SAKAI_ENTITY);
+            super.writer.setValue("true");
+            super.writer.endNode();
             for (Iterator<String> iterator = super.keys(); iterator.hasNext();) {
                String key = iterator.next();
                if (! EntityXStream.EXTRA_DATA_CLASS.equals(key)) {
@@ -62,7 +78,9 @@ public class EntityMarshaller extends ReferenceByXPathMarshaller implements Mars
                   if (o != null) {
                      String value = o.toString();
                      if (! "".equals(value)) {
-                        super.writer.addAttribute(EntityXStream.SAKAI_ENTITY_DOT + key, value);
+                        super.writer.startNode(EntityXStream.SAKAI_ENTITY_DASH + key);
+                        super.writer.setValue(value);
+                        super.writer.endNode();
                      }
                   }
                }

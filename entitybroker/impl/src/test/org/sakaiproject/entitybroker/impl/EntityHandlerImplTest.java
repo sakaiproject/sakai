@@ -22,13 +22,13 @@ import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Order;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
-import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.impl.mocks.FakeServerConfigurationService;
+import org.sakaiproject.entitybroker.impl.util.EntityXStream;
 import org.sakaiproject.entitybroker.mocks.EntityViewAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.MockHttpServletRequest;
@@ -260,25 +260,8 @@ public class EntityHandlerImplTest extends TestCase {
       MockHttpServletRequest req = null;
       MockHttpServletResponse res = null;
 
-      // JSON test valid resolveable entity
-      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Outputable.JSON);
-      res = new MockHttpServletResponse();
-      view = entityHandler.parseEntityURL(req.getPathInfo());
-      assertNotNull(view);
-      entityHandler.internalOutputFormatter(view, req, res);
-      assertNotNull(res.getOutputStream());
-      try {
-         String json = res.getContentAsString();
-         assertNotNull(json);
-         assertTrue(json.length() > 20);
-         assertTrue(json.contains(TestData.PREFIX4));
-      } catch (UnsupportedEncodingException e) {
-         fail("failure trying to get string content");
-      }
-      assertEquals(58, res.getContentLength());
-
       // XML test valid resolveable entity
-      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Outputable.XML);
+      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Formats.XML);
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
@@ -289,13 +272,34 @@ public class EntityHandlerImplTest extends TestCase {
          assertNotNull(xml);
          assertTrue(xml.length() > 20);
          assertTrue(xml.contains(TestData.PREFIX4));
+         assertTrue(xml.contains("<id>4-one</id>"));
+         assertTrue(xml.contains(EntityXStream.SAKAI_ENTITY));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
-      assertEquals(68, res.getContentLength());
+      //assertEquals(68, res.getContentLength());
+
+      // JSON test valid resolveable entity
+      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Formats.JSON);
+      res = new MockHttpServletResponse();
+      view = entityHandler.parseEntityURL(req.getPathInfo());
+      assertNotNull(view);
+      entityHandler.internalOutputFormatter(view, req, res);
+      assertNotNull(res.getOutputStream());
+      try {
+         String json = res.getContentAsString();
+         assertNotNull(json);
+         assertTrue(json.length() > 20);
+         assertTrue(json.contains(TestData.PREFIX4));
+         assertTrue(json.contains("\"id\": \"4-one\","));
+         assertTrue(json.contains(EntityXStream.SAKAI_ENTITY));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+      //assertEquals(58, res.getContentLength());
 
       // HTML test valid resolveable entity
-      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Outputable.HTML);
+      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Formats.HTML);
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
@@ -309,12 +313,12 @@ public class EntityHandlerImplTest extends TestCase {
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
-      assertEquals(43, res.getContentLength());
+      //assertEquals(43, res.getContentLength());
 
       // test for unresolvable entities
 
       // JSON test valid unresolvable entity
-      req = new MockHttpServletRequest("GET", TestData.REF1 + "." + Outputable.JSON);
+      req = new MockHttpServletRequest("GET", TestData.REF1 + "." + Formats.JSON);
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
@@ -328,10 +332,10 @@ public class EntityHandlerImplTest extends TestCase {
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
-      assertEquals(167, res.getContentLength());
+      //assertEquals(167, res.getContentLength());
 
       // XML test valid unresolvable entity
-      req = new MockHttpServletRequest("GET", TestData.REF1 + "." + Outputable.XML);
+      req = new MockHttpServletRequest("GET", TestData.REF1 + "." + Formats.XML);
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
@@ -345,7 +349,7 @@ public class EntityHandlerImplTest extends TestCase {
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
-      assertEquals(195, res.getContentLength());
+      //assertEquals(195, res.getContentLength());
 
       // HTML test valid unresolvable entity
       req = new MockHttpServletRequest("GET", TestData.REF1); // blank should default to html
@@ -362,11 +366,11 @@ public class EntityHandlerImplTest extends TestCase {
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
-      assertEquals(100, res.getContentLength());
+      //assertEquals(100, res.getContentLength());
 
       // test resolveable collections
       // XML
-      req = new MockHttpServletRequest("GET", TestData.SPACE4);
+      req = new MockHttpServletRequest("GET", TestData.SPACE4 + "." + Formats.XML);
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
@@ -380,12 +384,13 @@ public class EntityHandlerImplTest extends TestCase {
          assertTrue(xml.contains(TestData.IDS4[0]));
          assertTrue(xml.contains(TestData.IDS4[1]));
          assertTrue(xml.contains(TestData.IDS4[2]));
+         assertTrue(xml.contains(EntityXStream.SAKAI_ENTITY));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }
 
       // JSON
-      req = new MockHttpServletRequest("GET", TestData.SPACE4);
+      req = new MockHttpServletRequest("GET", TestData.SPACE4 + "." + Formats.JSON);
       res = new MockHttpServletResponse();
       view = entityHandler.parseEntityURL(req.getPathInfo());
       assertNotNull(view);
@@ -395,10 +400,11 @@ public class EntityHandlerImplTest extends TestCase {
          String json = res.getContentAsString();
          assertNotNull(json);
          assertTrue(json.length() > 20);
-         //assertTrue(json.contains(TestData.PREFIX4));
+         assertTrue(json.contains(TestData.PREFIX4));
          assertTrue(json.contains(TestData.IDS4[0]));
          assertTrue(json.contains(TestData.IDS4[1]));
          assertTrue(json.contains(TestData.IDS4[2]));
+         assertTrue(json.contains(EntityXStream.SAKAI_ENTITY));
       } catch (UnsupportedEncodingException e) {
          fail("failure trying to get string content");
       }

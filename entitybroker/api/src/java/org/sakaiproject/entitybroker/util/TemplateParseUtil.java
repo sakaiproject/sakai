@@ -31,6 +31,7 @@ import org.sakaiproject.entitybroker.EntityView;
 public class TemplateParseUtil {
 
    public static final char SEPARATOR = EntityView.SEPARATOR;
+   public static final char PERIOD = EntityView.PERIOD;
    public static final String BRACES = "[\\{\\}]";
 
    public static final String PREFIX = EntityView.PREFIX;
@@ -84,7 +85,7 @@ public class TemplateParseUtil {
    /**
     * Defines the valid chars for a replacement variable
     */
-   public static String VALID_VAR_CHARS = "[A-Za-z0-9_\\-\\.=:;]";
+   public static String VALID_VAR_CHARS = "[A-Za-z0-9_\\-=:;]";
    /**
     * Defines the valid chars for a parser input (e.g. entity reference)
     */
@@ -233,7 +234,7 @@ public class TemplateParseUtil {
       // regex pattern: ".*(\\.[^.]+|$)"
       String stripped = input;
       String extension = null;
-      int extensionLoc = input.lastIndexOf('.', input.length());
+      int extensionLoc = input.lastIndexOf(PERIOD, input.length());
       if (extensionLoc > 0) {
          stripped = input.substring(0, extensionLoc);
          if ( (input.length() - 1) > extensionLoc) {

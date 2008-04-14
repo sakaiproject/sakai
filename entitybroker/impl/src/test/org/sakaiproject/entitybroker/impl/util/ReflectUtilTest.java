@@ -43,6 +43,7 @@ public class ReflectUtilTest extends TestCase {
 
    class TestNone { }
    class TestProvider implements EntityProvider {
+      public String id = "identity";
       public String getEntityPrefix() {
          return "provider";
       }
@@ -287,6 +288,10 @@ public class ReflectUtilTest extends TestCase {
       assertNotNull(value);
       assertEquals("33", value);
 
+      value = ReflectUtil.getFieldValueAsString( new TestProvider(), "id", EntityId.class);
+      assertNotNull(value);
+      assertEquals("identity", value);
+      
    }
 
    /**

@@ -139,6 +139,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     */
    public void registerEntityProvider(EntityProvider entityProvider) {
       String prefix = entityProvider.getEntityPrefix();
+      new EntityReference(prefix, ""); // this checks the prefix is valid
       List<Class<? extends EntityProvider>> superclasses = getCapabilities(entityProvider);
       for (Class<? extends EntityProvider> superclazz : superclasses) {
          registerPrefixCapability(prefix, superclazz, entityProvider);

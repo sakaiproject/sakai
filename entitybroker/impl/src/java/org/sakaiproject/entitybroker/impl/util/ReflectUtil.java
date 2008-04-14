@@ -162,10 +162,10 @@ public class ReflectUtil {
       // try to get value from pea
       try {
          Field field;
-         if (annotationClass != null) {
+         try {
             field = getFieldWithAnnotation(elementClass, annotationClass);
-         } else {
-            field = elementClass.getDeclaredField(fieldName);               
+         } catch (NoSuchFieldException e) {
+            field = elementClass.getDeclaredField(fieldName);
          }
          Object fieldValue = field.get(object);
          found = true;
@@ -179,9 +179,9 @@ public class ReflectUtil {
          // try to get value from method
          try {
             Method getMethod;
-            if (annotationClass != null) {
+            try {
                getMethod = getMethodWithAnnotation(elementClass, annotationClass);
-            } else {
+            } catch (NoSuchMethodException e) {
                getMethod = elementClass.getMethod("get" + capitalize(fieldName), new Class[] {});
             }
             Object getValue = getMethod.invoke(object, (Object[])null);
@@ -205,14 +205,16 @@ public class ReflectUtil {
     */
    public static Method getMethodWithAnnotation(Class<?> c, Class<? extends Annotation> annotationClass) throws NoSuchMethodException {
       Method m = null;
-      for (Method method : c.getMethods()) {
-         if (method.isAnnotationPresent(annotationClass)) {
-            m = method;
-            break;
+      if (annotationClass != null) {
+         for (Method method : c.getMethods()) {
+            if (method.isAnnotationPresent(annotationClass)) {
+               m = method;
+               break;
+            }
          }
       }
       if (m == null) {
-         throw new NoSuchMethodException("No methods found with annotation: " + annotationClass.getCanonicalName());
+         throw new NoSuchMethodException("No methods found with annotation: " + annotationClass);
       }
       return m;
    }
@@ -226,14 +228,16 @@ public class ReflectUtil {
     */
    public static Field getFieldWithAnnotation(Class<?> c, Class<? extends Annotation> annotationClass) throws NoSuchFieldException {
       Field f = null;
-      for (Field field : c.getFields()) {
-         if (field.isAnnotationPresent(annotationClass)) {
-            f = field;
-            break;
+      if (annotationClass != null) {
+         for (Field field : c.getFields()) {
+            if (field.isAnnotationPresent(annotationClass)) {
+               f = field;
+               break;
+            }
          }
       }
       if (f == null) {
-         throw new NoSuchFieldException("No fields found with annotation: " + annotationClass.getCanonicalName());
+         throw new NoSuchFieldException("No fields found with annotation: " + annotationClass);
       }
       return f;
    }
