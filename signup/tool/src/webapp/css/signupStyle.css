@@ -1,0 +1,219 @@
+table.signupTable{
+	text-align: left;
+}	
+table.signupTable th {
+	background-color: #ddd;
+	padding: .3em 1em;
+}
+
+table.signupTable tr.evenRow {
+   background: #f8f8f8;
+}
+
+table.signupTable td {
+   padding: .3em 1em;
+}
+
+.titleColumn{
+	vertical-align: top;
+	text-align:right;
+	font-weight: bold;
+	padding: 0.2em 1em;
+	white-space: nowrap;
+}
+
+.plainTitleColumn{
+	vertical-align: top;
+	padding: 0.2em 1em;
+}
+
+.valueColumn{
+	vertical-align: top;
+	padding: 0.2em 1em;
+}
+	
+.titleText {
+
+}
+
+.longtext {
+	border: 0px;
+	margin: 0px;
+}
+
+.editText {
+}
+
+.oddTimeSlotRow{
+	height: 50px;
+	}
+
+.evenTimeSlotRow{
+	height: 50px;
+	background: rgb(248, 248, 248);
+	}
+
+.addButton{
+	padding-left: 15px;
+	}
+	
+.timeslotCol{
+	white-space: nowrap;
+	text-align: left;
+	width: 30%;
+	}
+
+.assignStudentsCol{
+	text-align: left;	
+	width: 70%;	
+	}
+
+table.organizerAction{
+	text-align: left;
+	}
+
+table.organizerAction td {
+   padding: 0em 0em;
+}
+
+.orgTimeslotCol {
+	width: 26%;
+	white-space: nowrap;
+}
+
+.orgMaxAttsCol {
+	width: 10%;
+}
+
+.orgSlotStatusCol {
+	width: 32%;
+}
+
+.orgWaiterStatusCo {
+	width: 32%;
+}
+.attendeeSignupTSCol{
+	width: 25%;
+	}
+.attendeeSignupAvailCol{
+	width: 15%;
+	}
+.attendeeSignupCol{
+	width: 20%;
+	}
+.attendeeInfoCol{
+	width: 20%
+	}	
+
+.actButton {
+	padding: .2em 1;
+	text-align: center;
+}
+
+.attendee_status {
+	border: 1px solid #fff;
+	color: blue;
+}
+
+.signedUpList {
+	margin: .4em 1em;
+	border: 1px solid #fff;
+	cursor: pointer;
+	line-height: .8em;
+	color: darkred;
+	/*background: rgb(255,102,153);*/
+}
+
+.waitingList {
+	margin: .4em 1em;
+	border: 1px solid #fff;
+	cursor: pointer;
+	line-height: .8em;
+	background: rgb(221, 221, 221);
+}
+
+
+.evenRow {
+	background: rgb(248, 248, 248);
+}
+
+table.organizer td {
+	padding: .15em 0em 0em 1em;
+	text-align: left;
+	white-space: nowrap;
+}
+
+.organizer_canceled {
+	padding: .15em 0em 0em 1.8em;
+	font-weight: bold;
+	color: red;
+}
+.attendee_canceled {
+	font-weight: bold;
+	color: red;
+}
+
+.meetingTypeTable {
+	margin:5px 5px 5px 20px;		
+}
+
+.meetingMaxAttd {
+	margin: 5px 5px 5px 30px;	
+}
+
+.grouptitle {
+	margin: .3em 1em;
+	border: 1px solid #fff;
+	line-height: 90%;
+	font-size: 85%
+}
+
+.sitetitle {
+	margin: .1em 0em;
+	border: 1px solid #fff;
+	line-height: 100%;
+}
+
+table.sitegroup td {
+	padding: .1em 0em 0em 0em;
+	text-align: left;
+	white-space: nowrap;
+}
+
+table.preSignTable td {
+	padding: .15em 0em 0em 1em;
+	text-align: left;
+	white-space: nowrap;
+}
+
+.annoncement {
+	margin: 3em 5em;
+	font-weight: bold;
+	text-align: center
+}
+
+.timeSelectTab {
+	text-align: left;
+	padding: 4px 3px 4px 20px;
+}
+
+.instruction{
+	margin-left: 10px;
+	line-height: 130%;
+	font-size: 90%;
+}
+
+.alertMessageInline{	
+	width: 80%;
+	font-size: 1em;
+	color: #b11;
+	margin: 5px 0px 5px 0;	
+	padding: 3px 3px 3px 25px;
+}
+
+.noMeetingsWarn{
+	margin-left: 2em;
+}
+.organizerToplevelTable{
+	width: 100%;
+	}
