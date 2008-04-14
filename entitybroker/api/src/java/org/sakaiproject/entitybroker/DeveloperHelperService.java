@@ -26,46 +26,81 @@ public interface DeveloperHelperService {
 
    public static final String ADMIN_USER_ID = "admin";
 
+   // USER
+
    /**
-    * Get the user reference (not username or eid) of the current user if there is one,
-    * this should also be equivalent to the current user id
+    * Get the user entity reference (e.g. /user/{userId} - not id, eid, or username) 
+    * of the current user if there is one,
+    * this is not equivalent to the current user id
     * 
-    * @return the internal unique user reference of the current user (not username)
+    * @return the user entity reference (e.g. /user/{userId} - not id, eid, or username)
     */
    public String getCurrentUserReference();
 
    /**
-    * @return the current location for the current session
-    * (represents the current site/group of the current user in the system)
+    * Translate the userId into a user entity reference
+    * 
+    * @param userReference the user entity reference (e.g. /user/{userId} - not id, eid, or username)
+    * @return the userId as extracted from this user entity reference
     */
-   public String getCurrentLocationReference();
+   public String getUserIdFromRef(String userReference);
+
+   /**
+    * Translate the user entity reference into a userId
+    * 
+    * @param userId the internal user Id (needed from some Sakai API operations) (not the eid or username)
+    * @return the user entity reference (e.g. /user/{userId})
+    */
+   public String getUserRefFromUserId(String userId);
 
    /**
     * @return the Locale for the current user or the system set locale
     */
    public Locale getCurrentLocale();
 
+   // LOCATION
+
+   /**
+    * @return the entity reference of the current location for the current session
+    * (represents the current site/group of the current user in the system)
+    */
+   public String getCurrentLocationReference();
+
+   /**
+    * @return the entity reference of the current active tool for the current session
+    * (represents the tool that is currently being used by the current user in the system)
+    */
+   public String getCurrentToolReference();
+
+   /**
+    * Translate a tool entity reference into a tool Id 
+    * 
+    * @param toolReference the entity reference of a tool (e.g. /tool/{toolId})
+    * @return the toolId (needed for other Sakai API operations)
+    */
+   public String getToolIdFromToolRef(String toolReference);
+
    // PERMISSIONS
 
    /**
     * Check if this user has super admin level access (permissions)
     * 
-    * @param userId the internal user id (not eid or username)
+    * @param userReference the user entity reference (e.g. /user/{userId} - not id, eid, or username)
     * @return true if the user has admin access, false otherwise
     */
-   public boolean isUserAdmin(String userId);
+   public boolean isUserAdmin(String userReference);
 
    /**
     * Check if a user has a specified permission for the entity reference, 
     * primarily a convenience method for checking location permissions
     * 
-    * @param userId the internal user id (not eid or username)
+    * @param userReference the user entity reference (e.g. /user/{userId} - not id, eid, or username)
     * @param permission a permission string constant
     * @param reference a globally unique reference to an entity, 
     * consists of the entity prefix and optional segments (normally the id at least)
     * @return true if allowed, false otherwise
     */
-   public boolean isUserAllowedInReference(String userId, String permission, String reference);
+   public boolean isUserAllowedInEntityReference(String userReference, String permission, String reference);
 
    // BEANS
 
