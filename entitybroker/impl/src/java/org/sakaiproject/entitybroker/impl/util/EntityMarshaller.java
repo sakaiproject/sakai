@@ -50,19 +50,19 @@ public class EntityMarshaller extends ReferenceByXPathMarshaller implements Mars
       super.convert(item, converter);
 
       // add in the sakai entity values if they can be found and are not null
-      Class<?> entityClass = (Class<?>) super.get(EntityXStreams.EXTRA_DATA_CLASS);
+      Class<?> entityClass = (Class<?>) super.get(EntityXStream.EXTRA_DATA_CLASS);
       if (entityClass != null) {
          if (item.getClass().isAssignableFrom(entityClass)) {
             // this is a sakai entity so add the attributes
-            super.writer.addAttribute(EntityXStreams.SAKAI_ENTITY, "true");
+            super.writer.addAttribute(EntityXStream.SAKAI_ENTITY, "true");
             for (Iterator<String> iterator = super.keys(); iterator.hasNext();) {
                String key = iterator.next();
-               if (! EntityXStreams.EXTRA_DATA_CLASS.equals(key)) {
+               if (! EntityXStream.EXTRA_DATA_CLASS.equals(key)) {
                   Object o = super.get(key);
                   if (o != null) {
                      String value = o.toString();
                      if (! "".equals(value)) {
-                        super.writer.addAttribute(EntityXStreams.SAKAI_ENTITY_DOT + key, value);
+                        super.writer.addAttribute(EntityXStream.SAKAI_ENTITY_DOT + key, value);
                      }
                   }
                }

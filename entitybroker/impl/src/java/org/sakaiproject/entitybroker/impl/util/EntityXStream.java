@@ -30,7 +30,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public class EntityXStreams extends XStream {
+public class EntityXStream extends XStream {
 
    public static String EXTRA_DATA_CLASS = "extra.data.class";
    public static String SAKAI_ENTITY = "sakaiEntity";
@@ -41,7 +41,7 @@ public class EntityXStreams extends XStream {
    /**
     * This will let us get to the hierarchicalStreamDriver used since it is stupidly private
     */
-   public EntityXStreams(HierarchicalStreamDriver hierarchicalStreamDriver) {
+   public EntityXStream(HierarchicalStreamDriver hierarchicalStreamDriver) {
       super(hierarchicalStreamDriver);
       super.setMarshallingStrategy( new ReferenceEntityMarshaller(ReferenceEntityMarshaller.RELATIVE) );
       visibleHSD = hierarchicalStreamDriver;
