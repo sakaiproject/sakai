@@ -25,8 +25,6 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.impl.util.BeanCloner;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -100,15 +98,8 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
       String location = null;
       try {
          String context = toolManager.getCurrentPlacement().getContext();
-         try {
-            Site s = siteService.getSite( context );
-            location = s.getReference(); // get the entity reference to the site
-         } catch (IdUnusedException e1) {
-           Group group = siteService.findGroup( context );
-           if ( group != null ) {
-              location = group.getReference();
-           }
-         }
+         Site s = siteService.getSite( context );
+         location = s.getReference(); // get the entity reference to the site
       } catch (Exception e) {
          // sakai failed to get us a location so we can assume we are not inside the portal
          location = null;
