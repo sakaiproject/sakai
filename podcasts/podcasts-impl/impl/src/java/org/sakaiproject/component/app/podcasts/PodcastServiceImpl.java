@@ -678,12 +678,39 @@ public class PodcastServiceImpl implements PodcastService {
 			InconsistentException, IdInvalidException, IdLengthException,
 			PermissionException, IdUniquenessException {
 
-		final int idVariationLimit = 0;
-		
-		final ResourcePropertiesEdit resourceProperties = contentHostingService
-				.newResourceProperties();
-
+		final int idVariationLimit = 100;	// actually is checked against
+											// if they need more than 100 copies, too bad
 		final String resourceCollection = retrievePodcastFolderId(getSiteId());
+		
+		String basename, extension = "";
+		int dot = filename.lastIndexOf('.');
+		if (dot != -1) {
+			basename = filename.substring(0, dot);
+			extension = filename.substring(dot);
+		}
+		else {
+			basename = filename;
+		}
+		
+		// Method: create a resource, fill in its properties,
+		//			commit to officially save it
+		ContentResourceEdit cr = null;
+		try {
+			// create the initial object
+			cr = contentHostingService.addResource(resourceCollection, basename, extension, idVariationLimit);
+		} 
+		catch (IdUnusedException e) {
+			LOG.error("IdUnusedException trying to add a podcast to Podcasts folder in Resources", e);
+			throw new InconsistentException("Could not find the collection " + resourceCollection + " while attempting to " +
+					"add the podcast " + filename);
+		}
+		
+		// Add the actual contents of the file and content type
+		cr.setContent(body);
+		cr.setContentType(contentType);
+
+		// fill up its properties
+		final ResourcePropertiesEdit resourceProperties = cr.getPropertiesEdit();
 
 		resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION,
 				Boolean.FALSE.toString());
@@ -700,34 +727,11 @@ public class PodcastServiceImpl implements PodcastService {
 		resourceProperties.addProperty(DISPLAY_DATE, formatter
 				.format(displayDate));
 
-/* Removed since can get filename from resource url, was actually overwriting
-   title
- 		resourceProperties.addProperty(
-				ResourceProperties.PROP_ORIGINAL_FILENAME, filename);
-*/
 		resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH,
 				new Integer(body.length).toString());
 
-		// TODO: change NotificationService based on user input
-		/**
-		 *  Parameters:
-		 *  	name of resource (filename)
-		 *  	id of parent collection
-		 *  	num attempts to create unique id for this resource
-		 *  	type of content
-		 *  	actual contents
-		 *  	collection of default ResourceProperties and/or custom properties
-		 *  	groups if only for specific groups (empty because inherits from parent collection)
-		 *  	is this resource hidden
-		 *  	release date
-		 *  	retract date (currently only release date supported in UI)
-		 *  	notification level
-		 */
-		ContentResource cr = contentHostingService.addResource(Validator
-				.escapeResourceName(filename), resourceCollection, idVariationLimit,
-				contentType, body, resourceProperties, (Collection) new ArrayList(), false, 
-				TimeService.newTime(displayDate.getTime()), null,
-				NotificationService.NOTI_NONE);
+		// now to commit the changes
+		contentHostingService.commitResource(cr, NotificationService.NOTI_NONE);
 		
 		// add entry for event tracking
 		final Event event = EventTrackingService.newEvent(EVENT_ADD_PODCAST,
