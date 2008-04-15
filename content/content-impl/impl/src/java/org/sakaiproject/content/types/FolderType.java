@@ -44,6 +44,7 @@ import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
+import org.sakaiproject.content.impl.util.ZipContentUtil;
 import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -90,6 +91,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 		actions.put(ResourceToolAction.PERMISSIONS, new FolderPermissionsAction());
 		actions.put(ResourceToolAction.EXPAND, new FolderExpandAction());
 		actions.put(ResourceToolAction.COLLAPSE, new FolderCollapseAction());
+		actions.put(ResourceToolAction.COMPRESS_ZIP_FOLDER, new FolderCompressAction());
 		
 		// initialize actionMap with an empty List for each ActionType
 		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
@@ -1390,6 +1392,52 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 	        return typeId;
         }
 		
+	}
+	
+	public class FolderCompressAction implements ServiceLevelAction {
+				
+		private ZipContentUtil zipUtil = new ZipContentUtil();
+				
+		public void cancelAction(Reference reference) {
+			// TODO Auto-generated method stub
+		}
+		
+		public void finalizeAction(Reference reference) {
+			// TODO Auto-generated method stub		
+		}
+		
+		public void initializeAction(Reference reference) {
+			try {
+				zipUtil.compressFolder(reference);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}			
+		}
+		
+		public boolean isMultipleItemAction() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+		
+		public boolean available(ContentEntity entity) {
+			return true;
+		}
+		
+		public ActionType getActionType() {
+			return ResourceToolAction.ActionType.COMPRESS_ZIP_FOLDER;
+		}
+		
+		public String getId() {
+			return ResourceToolAction.COMPRESS_ZIP_FOLDER;
+		}
+		
+		public String getLabel() {
+			return rb.getString("action.compresszipfolder"); 
+		}
+		
+		public String getTypeId() {
+			return typeId;
+		}
 	}
 	
 	public ResourceToolAction getAction(String actionId) 
