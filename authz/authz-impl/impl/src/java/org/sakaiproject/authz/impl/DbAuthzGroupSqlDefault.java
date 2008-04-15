@@ -378,6 +378,18 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		return sqlBuf.toString();
 	}
 
+	public String getSelectRealmUserGroupSql( String inClause )
+	{
+		StringBuilder sqlBuf = new StringBuilder();
+		sqlBuf.append("select SAKAI_REALM.REALM_ID FROM SAKAI_REALM, SAKAI_REALM_RL_GR WHERE ");
+		sqlBuf.append("SAKAI_REALM.REALM_KEY=SAKAI_REALM_RL_GR.REALM_KEY ");
+		sqlBuf.append("and SAKAI_REALM_RL_GR.REALM_KEY=SAKAI_REALM.REALM_KEY ");
+		sqlBuf.append("and " );
+		sqlBuf.append( inClause );
+		sqlBuf.append(" and SAKAI_REALM_RL_GR.USER_ID = ?");
+		return sqlBuf.toString();
+	}
+	
 	public String getSelectRealmRoleGroupUserIdSql(String inClause1, String inClause2)
 	{
 		StringBuilder sqlBuf = new StringBuilder();

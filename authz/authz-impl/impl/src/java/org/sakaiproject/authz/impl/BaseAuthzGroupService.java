@@ -22,6 +22,7 @@
 package org.sakaiproject.authz.impl;
 
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -308,6 +309,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		return m_storage.getAuthzGroups(criteria, page);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public List getAuthzUserGroupIds(String siteid, ArrayList groupids, String userid)
+	{
+		return m_storage.getAuthzUserGroupIds(siteid, groupids, userid);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1196,6 +1205,19 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		 * @return The List (AuthzGroup) of AuthzGroups that meet specified criteria.
 		 */
 		List getAuthzGroups(String criteria, PagingPosition page);
+
+		/**
+		 * Access a list of AuthzGroups that meet specified criteria for a specified user_id
+		 * 
+		 * @param siteid
+		 *        AuthzGroup selection criteria (site id)
+		 * @param groupids
+		 *        AuthzGroup selection criteria (list of group ids)
+		 * @param user_id
+		 *        Return only groups with user_id as a member
+		 * @return The List (AuthzGroup) that meet specified criteria.
+		 */
+		List getAuthzUserGroupIds(String siteid, ArrayList groupids, String user_id);
 
 		/**
 		 * Count the AuthzGroup objets that meet specified criteria.
