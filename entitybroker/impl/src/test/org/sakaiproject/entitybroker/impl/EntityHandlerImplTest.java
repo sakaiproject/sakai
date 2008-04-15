@@ -14,7 +14,10 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -256,171 +259,145 @@ public class EntityHandlerImplTest extends TestCase {
     **/
    public void testInternalOutputFormatter() {
 
+      String fo = null;
       EntityView view = null;
-      MockHttpServletRequest req = null;
-      MockHttpServletResponse res = null;
+      OutputStream output = null;
 
       // XML test valid resolveable entity
-      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Formats.XML);
-      res = new MockHttpServletResponse();
-      view = entityHandler.parseEntityURL(req.getPathInfo());
+      output = new ByteArrayOutputStream();
+      view = entityHandler.parseEntityURL(TestData.REF4 + "." + Formats.XML);
       assertNotNull(view);
-      entityHandler.internalOutputFormatter(view, req, res);
-      assertNotNull(res.getOutputStream());
-      try {
-         String xml = res.getContentAsString();
-         assertNotNull(xml);
-         assertTrue(xml.length() > 20);
-         assertTrue(xml.contains(TestData.PREFIX4));
-         assertTrue(xml.contains("<id>4-one</id>"));
-         assertTrue(xml.contains(EntityXStream.SAKAI_ENTITY));
-      } catch (UnsupportedEncodingException e) {
-         fail("failure trying to get string content");
-      }
-      //assertEquals(68, res.getContentLength());
+      entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+      fo = output.toString();
+      assertNotNull(fo);
+      assertTrue(fo.length() > 20);
+      assertTrue(fo.contains(TestData.PREFIX4));
+      assertTrue(fo.contains("<id>4-one</id>"));
+      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+
+      // test null view
+      output = new ByteArrayOutputStream();
+      entityHandler.internalOutputFormatter(new EntityReference(TestData.REF4), Formats.XML, null, output, null);
+      fo = output.toString();
+      assertNotNull(fo);
+      assertTrue(fo.length() > 20);
+      assertTrue(fo.contains(TestData.PREFIX4));
+      assertTrue(fo.contains("<id>4-one</id>"));
+      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+      
+      // test list of entities
+      ArrayList<MyEntity> testEntities = new ArrayList<MyEntity>();
+      testEntities.add(TestData.entity4);
+      testEntities.add(TestData.entity4_two);
+      output = new ByteArrayOutputStream();
+      entityHandler.internalOutputFormatter(new EntityReference(TestData.PREFIX4, ""), Formats.XML, testEntities, output, null);
+      fo = output.toString();
+      assertNotNull(fo);
+      assertTrue(fo.length() > 20);
+      assertTrue(fo.contains(TestData.PREFIX4));
+      assertTrue(fo.contains("<id>4-one</id>"));
+      assertTrue(fo.contains("<id>4-two</id>"));
+      assertFalse(fo.contains("<id>4-three</id>"));
+      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+
+      // test single entity
+      testEntities.clear();
+      testEntities.add(TestData.entity4_3);
+      output = new ByteArrayOutputStream();
+      entityHandler.internalOutputFormatter(new EntityReference(TestData.REF4_3), Formats.XML, testEntities, output, null);
+      fo = output.toString();
+      assertNotNull(fo);
+      assertTrue(fo.length() > 20);
+      assertTrue(fo.contains(TestData.PREFIX4));
+      assertTrue(fo.contains("<id>4-three</id>"));
+      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+
 
       // JSON test valid resolveable entity
-      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Formats.JSON);
-      res = new MockHttpServletResponse();
-      view = entityHandler.parseEntityURL(req.getPathInfo());
+      output = new ByteArrayOutputStream();
+      view = entityHandler.parseEntityURL(TestData.REF4 + "." + Formats.JSON);
       assertNotNull(view);
-      entityHandler.internalOutputFormatter(view, req, res);
-      assertNotNull(res.getOutputStream());
-      try {
-         String json = res.getContentAsString();
-         assertNotNull(json);
-         assertTrue(json.length() > 20);
-         assertTrue(json.contains(TestData.PREFIX4));
-         assertTrue(json.contains("\"id\": \"4-one\","));
-         assertTrue(json.contains(EntityXStream.SAKAI_ENTITY));
-      } catch (UnsupportedEncodingException e) {
-         fail("failure trying to get string content");
-      }
-      //assertEquals(58, res.getContentLength());
+      entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+      fo = output.toString();
+      assertNotNull(fo);
+      assertTrue(fo.length() > 20);
+      assertTrue(fo.contains(TestData.PREFIX4));
+      assertTrue(fo.contains("\"id\": \"4-one\","));
+      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
 
       // HTML test valid resolveable entity
-      req = new MockHttpServletRequest("GET", TestData.REF4 + "." + Formats.HTML);
-      res = new MockHttpServletResponse();
-      view = entityHandler.parseEntityURL(req.getPathInfo());
+      output = new ByteArrayOutputStream();
+      view = entityHandler.parseEntityURL(TestData.REF4 + "." + Formats.HTML);
       assertNotNull(view);
-      entityHandler.internalOutputFormatter(view, req, res);
-      assertNotNull(res.getOutputStream());
-      try {
-         String html = res.getContentAsString();
-         assertNotNull(html);
-         assertTrue(html.length() > 20);
-         assertTrue(html.contains(TestData.PREFIX4));
-      } catch (UnsupportedEncodingException e) {
-         fail("failure trying to get string content");
-      }
-      //assertEquals(43, res.getContentLength());
+      entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+      fo = output.toString();
+      assertNotNull(fo);
+      assertTrue(fo.length() > 20);
+      assertTrue(fo.contains(TestData.PREFIX4));
 
       // test for unresolvable entities
 
       // JSON test valid unresolvable entity
-      req = new MockHttpServletRequest("GET", TestData.REF1 + "." + Formats.JSON);
-      res = new MockHttpServletResponse();
-      view = entityHandler.parseEntityURL(req.getPathInfo());
+      output = new ByteArrayOutputStream();
+      view = entityHandler.parseEntityURL(TestData.REF1 + "." + Formats.JSON);
       assertNotNull(view);
-      entityHandler.internalOutputFormatter(view, req, res);
-      assertNotNull(res.getOutputStream());
       try {
-         String json = res.getContentAsString();
-         assertNotNull(json);
-         assertTrue(json.length() > 20);
-         assertTrue(json.contains(TestData.PREFIX1));
-      } catch (UnsupportedEncodingException e) {
-         fail("failure trying to get string content");
+         entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+         fail("Should have thrown exception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+         assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.responseCode);
       }
-      //assertEquals(167, res.getContentLength());
-
-      // XML test valid unresolvable entity
-      req = new MockHttpServletRequest("GET", TestData.REF1 + "." + Formats.XML);
-      res = new MockHttpServletResponse();
-      view = entityHandler.parseEntityURL(req.getPathInfo());
-      assertNotNull(view);
-      entityHandler.internalOutputFormatter(view, req, res);
-      assertNotNull(res.getOutputStream());
-      try {
-         String xml = res.getContentAsString();
-         assertNotNull(xml);
-         assertTrue(xml.length() > 20);
-         assertTrue(xml.contains(TestData.PREFIX1));
-      } catch (UnsupportedEncodingException e) {
-         fail("failure trying to get string content");
-      }
-      //assertEquals(195, res.getContentLength());
 
       // HTML test valid unresolvable entity
-      req = new MockHttpServletRequest("GET", TestData.REF1); // blank should default to html
-      res = new MockHttpServletResponse();
-      view = entityHandler.parseEntityURL(req.getPathInfo());
+      output = new ByteArrayOutputStream();
+      view = entityHandler.parseEntityURL(TestData.REF1); // blank
       assertNotNull(view);
-      entityHandler.internalOutputFormatter(view, req, res);
-      assertNotNull(res.getOutputStream());
       try {
-         String html = res.getContentAsString();
-         assertNotNull(html);
-         assertTrue(html.length() > 20);
-         assertTrue(html.contains(TestData.PREFIX1));
-      } catch (UnsupportedEncodingException e) {
-         fail("failure trying to get string content");
+         entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+         fail("Should have thrown exception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+         assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.responseCode);
       }
-      //assertEquals(100, res.getContentLength());
 
       // test resolveable collections
       // XML
-      req = new MockHttpServletRequest("GET", TestData.SPACE4 + "." + Formats.XML);
-      res = new MockHttpServletResponse();
-      view = entityHandler.parseEntityURL(req.getPathInfo());
+      output = new ByteArrayOutputStream();
+      view = entityHandler.parseEntityURL(TestData.SPACE4 + "." + Formats.XML);
       assertNotNull(view);
-      entityHandler.internalOutputFormatter(view, req, res);
-      assertNotNull(res.getOutputStream());
-      try {
-         String xml = res.getContentAsString();
-         assertNotNull(xml);
-         assertTrue(xml.length() > 20);
-         assertTrue(xml.contains(TestData.PREFIX4));
-         assertTrue(xml.contains(TestData.IDS4[0]));
-         assertTrue(xml.contains(TestData.IDS4[1]));
-         assertTrue(xml.contains(TestData.IDS4[2]));
-         assertTrue(xml.contains(EntityXStream.SAKAI_ENTITY));
-      } catch (UnsupportedEncodingException e) {
-         fail("failure trying to get string content");
-      }
+      entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+      fo = output.toString();
+      assertNotNull(fo);
+      assertTrue(fo.length() > 20);
+      assertTrue(fo.contains(TestData.PREFIX4));
+      assertTrue(fo.contains(TestData.IDS4[0]));
+      assertTrue(fo.contains(TestData.IDS4[1]));
+      assertTrue(fo.contains(TestData.IDS4[2]));
+      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
 
       // JSON
-      req = new MockHttpServletRequest("GET", TestData.SPACE4 + "." + Formats.JSON);
-      res = new MockHttpServletResponse();
-      view = entityHandler.parseEntityURL(req.getPathInfo());
+      output = new ByteArrayOutputStream();
+      view = entityHandler.parseEntityURL(TestData.SPACE4 + "." + Formats.JSON);
       assertNotNull(view);
-      entityHandler.internalOutputFormatter(view, req, res);
-      assertNotNull(res.getOutputStream());
-      try {
-         String json = res.getContentAsString();
-         assertNotNull(json);
-         assertTrue(json.length() > 20);
-         assertTrue(json.contains(TestData.PREFIX4));
-         assertTrue(json.contains(TestData.IDS4[0]));
-         assertTrue(json.contains(TestData.IDS4[1]));
-         assertTrue(json.contains(TestData.IDS4[2]));
-         assertTrue(json.contains(EntityXStream.SAKAI_ENTITY));
-      } catch (UnsupportedEncodingException e) {
-         fail("failure trying to get string content");
-      }
+      entityHandler.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, output, view);
+      fo = output.toString();
+      assertNotNull(fo);
+      assertTrue(fo.length() > 20);
+      assertTrue(fo.contains(TestData.PREFIX4));
+      assertTrue(fo.contains(TestData.IDS4[0]));
+      assertTrue(fo.contains(TestData.IDS4[1]));
+      assertTrue(fo.contains(TestData.IDS4[2]));
+      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
 
       // test for invalid refs
-      req = new MockHttpServletRequest("GET", "/fakey/fake");
-      res = new MockHttpServletResponse();
-      view = new EntityView();
-      assertNotNull(view);
       try {
-         entityHandler.internalOutputFormatter(view, req, res);
+         entityHandler.internalOutputFormatter( new EntityReference("/fakey/fake"), null, null, output, null);
          fail("Should have thrown exception");
-      } catch (RuntimeException e) {
-         assertNotNull(e);
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+         assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.responseCode);
       }
-      assertNotNull(res.getOutputStream());
 
    }
 

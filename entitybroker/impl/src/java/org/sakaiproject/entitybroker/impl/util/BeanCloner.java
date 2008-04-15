@@ -1,4 +1,4 @@
-/*
+/**
  *  Copyright 2007 CodersLog.com 
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,7 @@
  */
 
 /*
+ * NOTE:
  * This code is from: http://www.coderslog.com/Main_Page
  * Imported here since I could not find a jar out in the maven repositories,
  * if anyone else knows where to find a jar for this code I would perfer

@@ -30,7 +30,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 public interface InputTranslatable extends Inputable {
 
    /**
-    * Translates the input data stream into an entity object for this
+    * Translates the input data stream in the supplied format into an entity object for this reference
     * 
     * @param ref the parsed reference object which uniquely represents this entity
     * @param format a string constant indicating the extension format (from {@link Formats}) 

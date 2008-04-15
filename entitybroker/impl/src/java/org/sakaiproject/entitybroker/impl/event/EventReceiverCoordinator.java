@@ -1,5 +1,15 @@
 /**
- * EventReceiverCoordinator.java - created by antranig on 15 May 2007
+ * $Id$
+ * $URL$
+ * EBlogic.java - entity-broker - Apr 15, 2008 4:29:18 PM - azeckoski
+ **************************************************************************
+ * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
+ * Licensed under the Educational Community License version 1.0
+ * 
+ * A copy of the Educational Community License has been included in this 
+ * distribution and is available at: http://www.opensource.org/licenses/ecl1.php
+ *
+ * Aaron Zeckoski (azeckoski@gmail.com) (aaronz@vt.edu) (aaron@caret.cam.ac.uk)
  */
 
 package org.sakaiproject.entitybroker.impl.event;

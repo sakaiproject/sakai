@@ -15,8 +15,10 @@
 package org.sakaiproject.entitybroker.impl;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -273,6 +275,49 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       return view;
    }
 
+
+
+   /**
+    * This looks at search parameters and returns anything it finds in the
+    * request parameters that can be put into the search
+    * 
+    * @param req a servlet request
+    * @return a search filter object
+    */
+   @SuppressWarnings("unchecked")
+   public Search makeSearchFromRequest(HttpServletRequest req) {
+      Search search = new Search();
+      try {
+         if (req != null) {
+            Map<String, String[]> params = req.getParameterMap();
+            if (params != null) {
+               for (String key : params.keySet()) {
+                  if ("_method".equals(key)) {
+                     // skip the method
+                     continue;
+                  }
+                  Object value = null;
+                  String[] values = req.getParameterValues(key);
+                  if (values == null) {
+                     // in theory this should not happen
+                     continue;
+                  } else if (values.length > 1) {
+                     value = values;
+                  } else if (values.length == 1) {
+                     value = values[0];
+                  }
+                  search.addRestriction( new Restriction(key, value) );
+               }
+            }
+         }
+      } catch (Exception e) {
+         // failed to translate the request to a search, not really much to do here
+         log.warn("Could not translate entity request into search params: " + e.getMessage(), e);
+      }
+      return search;
+   }
+
+
    /**
     * Get an entity object of some kind for this reference if it has an id,
     * will simply return null if no id is available in this reference
@@ -287,6 +332,36 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          entity = ((Resolvable)provider).getEntity(ref);
       }
       return entity;
+   }
+
+   /**
+    * Get the list of entities based on a reference and supplied search,
+    * passes through to the EP methods if available
+    * 
+    * @param ref an entity reference
+    * @param search an optional search
+    * @return the list of entities if they can be retrieved or null these entities cannot be resolved
+    */
+   @SuppressWarnings("unchecked")
+   protected List<?> fetchEntityList(EntityReference ref, Search search) {
+      List entities = null;
+      if (ref.getId() == null) {
+         // encoding a collection of entities
+         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), CollectionResolvable.class);
+         if (provider != null) {
+            entities = new ArrayList( ((CollectionResolvable)provider).getEntities(ref, search) );
+         }
+      } else {
+         // encoding a single entity
+         Object entity = getEntityObject(ref);
+         if (entity == null) {
+            throw new EntityException("Failed to retrieve entity (" + ref + "), entity object could not be found",
+                  ref.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+         }
+         entities = new ArrayList();
+         entities.add(entity);
+      }
+      return entities;
    }
 
 
@@ -413,11 +488,17 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                      OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
                      if (formattable == null) {
                         // handle internally or fail
-                        internalOutputFormatter(view, req, res);
+                        Search search = makeSearchFromRequest(req);
+                        List<?> entities = fetchEntityList(view.getEntityReference(), search);
+                        try {
+                           internalOutputFormatter(view.getEntityReference(), view.getExtension(), entities, res.getOutputStream(), view);
+                        } catch (IOException e) {
+                           throw new RuntimeException("Failed to get output stream from response: " + view.getEntityReference(), e);
+                        }
                      } else {
                         // use provider's formatter
                         try {
-                           formattable.formatOutput(view.getEntityReference(), view.getExtension(), res.getOutputStream());
+                           formattable.formatOutput(view.getEntityReference(), view.getExtension(), null, res.getOutputStream());
                         } catch (IOException e) {
                            throw new RuntimeException("Failed to get outputstream from response: " + view.toString() + ":" + e.getMessage(), e);
                         }
@@ -578,133 +659,84 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
 
    /**
-    * This looks at search parameters and returns anything it finds in the
-    * request parameters that can be put into the search
+    * Format entities for output based on the reference into a format,
+    * use the provided list or get the entities
     * 
-    * @param req a servlet request
-    * @return a search filter object
+    * @param ref the entity reference for this, 
+    * if this is a reference to a collection then this will be rendered as a collection of entities,
+    * if a reference to a single entity then only the matching one from the collection will be used
+    * @param format the format to use for the output data
+    * @param entities (optional) if this is null then the entities will be fetched
+    * @param output the outputstream to place the encoded data into
+    * @param view (optional) 
     */
-   @SuppressWarnings("unchecked")
-   public Search makeSearchFromRequest(HttpServletRequest req) {
-      Search search = new Search();
-      try {
-         if (req != null) {
-            Map<String, String[]> params = req.getParameterMap();
-            if (params != null) {
-               for (String key : params.keySet()) {
-                  if ("_method".equals(key)) {
-                     // skip the method
-                     continue;
-                  }
-                  Object value = null;
-                  String[] values = req.getParameterValues(key);
-                  if (values == null) {
-                     // in theory this should not happen
-                     continue;
-                  } else if (values.length > 1) {
-                     value = values;
-                  } else if (values.length == 1) {
-                     value = values[0];
-                  }
-                  search.addRestriction( new Restriction(key, value) );
-               }
-            }
-         }
-      } catch (Exception e) {
-         // failed to translate the request to a search, not really much to do here
-         log.warn("Could not translate entity request into search params: " + e.getMessage(), e);
+   public void internalOutputFormatter(EntityReference ref, String format, List<?> entities, OutputStream output, EntityView view) {
+      if (format == null) { format = Outputable.HTML; }
+      if (view == null) {
+         view = makeEntityView(ref, null, null);
       }
-      return search;
-   }
-
-
-   /**
-    * stores the various xstream processors for handling the different types of data
-    */
-   private Map<String, EntityXStream> xstreams = new HashMap<String, EntityXStream>();
-   /**
-    * Internal method for processing an entity or collection into an output format,
-    * Currently only handles JSON and XML correctly
-    */
-   public void internalOutputFormatter(EntityView ev, HttpServletRequest req, HttpServletResponse res) {
-      String extension = ev.getExtension();
-      if (extension == null) { extension = Outputable.HTML; }
-      EntityReference ref = ev.getEntityReference();
       // create a scrap view from the current view, this should be more efficient
-      EntityView workingView = makeEVfromEV(ev);
+      EntityView workingView = makeEVfromEV(view);
+
+      // get the entities if not supplied
+      if (entities == null) {
+         entities = fetchEntityList(ref, new Search());
+      }
 
       // get the encoder to use
-      EntityXStream encoder = null;
-      if (Formats.JSON.equals(extension)) {
-         if (! xstreams.containsKey(extension)) {
-            xstreams.put( extension, new EntityXStream(new JsonHierarchicalStreamDriver()) );
-         }
-         encoder = xstreams.get(extension);
-      } else if (Formats.XML.equals(extension)) {
-         if (! xstreams.containsKey(extension)) {
-            xstreams.put( extension, new EntityXStream(new DomDriver()) );
-         }
-         encoder = xstreams.get(extension);
-      } else {
-         encoder = null; // do a toString dump
-      }
+      EntityXStream encoder = getEncoderForExtension(format);
 
       String encoded = null;
-      if (EntityView.VIEW_LIST.equals(ev.getViewKey())) {
+      if (entities.isEmpty()) {
+         // nothing to do here but warn
+         log.warn("No entities to format ("+format+") and output for: " + ref);
+      } else if (EntityView.VIEW_LIST.equals(view.getViewKey()) 
+            || ref.getId() == null) {
          // encoding a collection of entities
-         EntityProvider provider = entityProviderManager.getProviderByPrefixAndCapability(ref.prefix, CollectionResolvable.class);
-         if (provider != null) {
-            Search search = makeSearchFromRequest(req);
-            List<?> entities = ((CollectionResolvable)provider).getEntities(ref, search);
-            if (encoder != null) {
-               Class<?> entityClass = ReflectUtil.getClassFromCollection((Collection<?>)entities);
-               encoder.alias(ref.prefix, entityClass);
-               StringBuilder sb = new StringBuilder();
-               // make header
-               if (Formats.JSON.equals(extension)) {
-                  sb.append("{\""+ENTITY_PREFIX+"\": "+ref.getPrefix() + ", \"" + ref.getPrefix() + COLLECTION + "\": [\n");
-               } else { // assume XML
-                  sb.append("<" + ref.getPrefix() + COLLECTION + " " + ENTITY_PREFIX + "=\"" + ref.getPrefix() + "\">\n");
-               }
-               // loop through and encode items
-               int encodedEntities = 0;
-               for (Object entity : entities) {
-                  String encode = encodeEntity(ref, workingView, entity, encoder);
-                  if (encode.length() > 3) {
-                     if (Formats.JSON.equals(extension)) {
-                        if (encodedEntities > 0) {
-                           sb.append(",\n");
-                        }
-                        // special JSON cleanup (strips off the {"stuff": ... })
-                        encode = encode.substring(encode.indexOf(':')+1, encode.length()-1);
-                     } else {
-                        if (encodedEntities > 0) {
-                           sb.append("\n");
-                        }
-                     }
-                     sb.append(encode);                     
-                     encodedEntities++;
-                  }
-               }
-               // make footer
-               if (Formats.JSON.equals(extension)) {
-                  sb.append("\n]}");
-               } else { // assume XML
-                  sb.append("\n</" + ref.getPrefix() + COLLECTION + ">");
-               }
-               encoded = sb.toString();
-            } else {
-               // just dump the whole thing to a string
-               encoded = encodeEntity(ref, workingView, entities, null);
+         if (encoder != null) {
+            Class<?> entityClass = ReflectUtil.getClassFromCollection((Collection<?>)entities);
+            encoder.alias(ref.prefix, entityClass);
+            StringBuilder sb = new StringBuilder();
+            // make header
+            if (Formats.JSON.equals(format)) {
+               sb.append("{\""+ENTITY_PREFIX+"\": "+ref.getPrefix() + ", \"" + ref.getPrefix() + COLLECTION + "\": [\n");
+            } else { // assume XML
+               sb.append("<" + ref.getPrefix() + COLLECTION + " " + ENTITY_PREFIX + "=\"" + ref.getPrefix() + "\">\n");
             }
+            // loop through and encode items
+            int encodedEntities = 0;
+            for (Object entity : entities) {
+               String encode = encodeEntity(ref, workingView, entity, encoder);
+               if (encode.length() > 3) {
+                  if (Formats.JSON.equals(format)) {
+                     if (encodedEntities > 0) {
+                        sb.append(",\n");
+                     }
+                     // special JSON cleanup (strips off the {"stuff": ... })
+                     encode = encode.substring(encode.indexOf(':')+1, encode.length()-1);
+                  } else {
+                     if (encodedEntities > 0) {
+                        sb.append("\n");
+                     }
+                  }
+                  sb.append(encode);                     
+                  encodedEntities++;
+               }
+            }
+            // make footer
+            if (Formats.JSON.equals(format)) {
+               sb.append("\n]}");
+            } else { // assume XML
+               sb.append("\n</" + ref.getPrefix() + COLLECTION + ">");
+            }
+            encoded = sb.toString();
+         } else {
+            // just dump the whole thing to a string
+            encoded = encodeEntity(ref, workingView, entities, null);
          }
       } else {
          // encoding a single entity
-         Object toEncode = getEntityObject(ref);
-         if (toEncode == null) {
-            // get basic entity information
-            toEncode = new BasicEntity(ref);
-         }
+         Object toEncode = entities.get(0);
          if (toEncode == null) {
             throw new RuntimeException("Failed to encode data for entity (" + ref.toString() + "), entity object to encode could not be found");
          } else {
@@ -715,16 +747,42 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             encoded = encodeEntity(ref, workingView, toEncode, encoder);
          }
       }
-      // put the encoded data into the response
+      // put the encoded data into the OS
       try {
          byte[] b = encoded.getBytes(UTF_8);
-         res.setContentLength(b.length);
-         res.getOutputStream().write(b);
+         output.write(b);
       } catch (UnsupportedEncodingException e) {
          throw new RuntimeException("Failed to encode UTF-8: " + ref.toString(), e);
       } catch (IOException e) {
-         throw new RuntimeException("Failed to encode into response: " + ref.toString(), e);
+         throw new RuntimeException("Failed to encode into output stream: " + ref.toString(), e);
       }
+   }
+
+
+   /**
+    * stores the various xstream processors for handling the different types of data
+    */
+   private Map<String, EntityXStream> xstreams = new HashMap<String, EntityXStream>();
+   /**
+    * @param format
+    * @return the appropriate encoder for the format
+    */
+   private EntityXStream getEncoderForExtension(String format) {
+      EntityXStream encoder = null;
+      if (Formats.JSON.equals(format)) {
+         if (! xstreams.containsKey(format)) {
+            xstreams.put( format, new EntityXStream(new JsonHierarchicalStreamDriver()) );
+         }
+         encoder = xstreams.get(format);
+      } else if (Formats.XML.equals(format)) {
+         if (! xstreams.containsKey(format)) {
+            xstreams.put( format, new EntityXStream(new DomDriver()) );
+         }
+         encoder = xstreams.get(format);
+      } else {
+         encoder = null; // do a toString dump
+      }
+      return encoder;
    }
 
    /**
@@ -769,6 +827,18 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       return encoded;
    }
 
-//   public class InternalOutputTranslator implements 
+   /**
+    * Handled the internal encoding of data into an entity object
+    * 
+    * @param ev
+    * @param req
+    * @param res
+    * @return
+    * @throws EntityException if there is a failure in translation
+    */
+   public Object internalInputTranslator(EntityView ev, HttpServletRequest req, HttpServletResponse res) {
+      Object entity = null;
+      return entity;
+   }
 
 }
