@@ -22,6 +22,7 @@
 package org.sakaiproject.site.impl;
 
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -831,16 +832,22 @@ public class BaseSite implements Site
 	 */
 	public Collection getGroupsWithMember(String userId)
 	{
-		Collection groups = getGroups();
+		Collection siteGroups = getGroups();
+		ArrayList siteGroupIds = new ArrayList(siteGroups.size());
+		for ( Iterator it=siteGroups.iterator(); it.hasNext(); )
+			siteGroupIds.add( ((Group)it.next()).getId() );
+			
+		List groups = AuthzGroupService.getAuthzUserGroupIds(getId(), siteGroupIds, userId);
 		Collection rv = new Vector();
 		for (Iterator i = groups.iterator(); i.hasNext();)
 		{
-			Group g = (Group) i.next();
-			Member m = g.getMember(userId);
+			Member m = null;
+			Group g = getGroup( (String)i.next() );
+			
+			if ( g != null )
+				m = g.getMember(userId);
 			if ((m != null) && (m.isActive()))
-			{
 				rv.add(g);
-			}
 		}
 
 		return rv;
@@ -851,16 +858,21 @@ public class BaseSite implements Site
 	 */
 	public Collection getGroupsWithMemberHasRole(String userId, String role)
 	{
-		Collection groups = getGroups();
+		Collection siteGroups = getGroups();
+		ArrayList siteGroupIds = new ArrayList(siteGroups.size());
+		for ( Iterator it=siteGroups.iterator(); it.hasNext(); )
+			siteGroupIds.add( it.next() );
+			
+		List groups = AuthzGroupService.getAuthzUserGroupIds(getId(), siteGroupIds, userId);
 		Collection rv = new Vector();
 		for (Iterator i = groups.iterator(); i.hasNext();)
 		{
-			Group g = (Group) i.next();
-			Member m = g.getMember(userId);
+			Member m = null;
+			Group g = getGroup( (String)i.next() );
+			if ( g != null )
+				m = g.getMember(userId);
 			if ((m != null) && (m.isActive()) && (m.getRole().getId().equals(role)))
-			{
 				rv.add(g);
-			}
 		}
 
 		return rv;
