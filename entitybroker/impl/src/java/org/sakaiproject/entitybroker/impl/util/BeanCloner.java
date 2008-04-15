@@ -172,8 +172,9 @@ public class BeanCloner implements Transformer {
          if (patternArray.length >= pathArray.length) {
             String ptrn = patternArray[pathArray.length - 1];
             String pth = pathArray[pathArray.length - 1];
-            if (ptrn.equals("**") || ptrn.equals(pth)
-                  || (ptrn.equals("*") && !Collection.class.isAssignableFrom(type)))
+            // http://jira.sakaiproject.org/jira/browse/SAK-13291
+            if ("**".equals(ptrn) || ptrn.equals(pth)
+                  || ("*".equals(ptrn) && !Collection.class.isAssignableFrom(type)))
                return true;
          }
       }
