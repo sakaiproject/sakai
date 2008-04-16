@@ -4,7 +4,11 @@ The current Sign-up tool is a beta version.
  
 Section A: Installation
 -----------------------
- The Sign-up Tool is integrated into Sakai and it is not a standalone application. The source code of the Sign-up Tool can be placed in your Sakai source tree and built using Maven. If unfamiliar with installation of Sakai, please check the following links for installation documentation of Sakai application:
+ 
+ The Sign-up Tool is integrated into Sakai and it is not a standalone application. 
+ The source code of the Sign-up Tool can be placed in your Sakai source tree and built 
+ using Maven. If unfamiliar with installation of Sakai, please check the following links 
+ for installation documentation of Sakai application:
 
 	Sakai 2.3.1	
 		http://source.sakaiproject.org/release/2.3.1/install-overview.html
@@ -96,11 +100,7 @@ Permission levels
 
 	*Guest
 		-signup.view or signup.view.all
-
-	*Shopper
-		-signup.attend
-		-signup.view
-
+	
 	*Auditor
 		-signup.attend
 		-signup.view
@@ -119,13 +119,13 @@ Permission levels
 		-signup.view
 		-signup.attend
 
-Important: The signup.view permission is required to use the tool.
+*Important: The signup.view permission is required to use the tool.
 
 
 Here is the summary of the possible permission settings for the corresponding roles:
-----------------------------------------------------------------------------------------------------------------------------------
-Permissions				instructor	maintain	tf		student	shopper	shopper_ws	auditor	guest	view_only
-----------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+Permissions				Instructor	Maintain	TF		Student		Auditor		Guest	
+---------------------------------------------------------------------------------------------
 signup.create.group								X							
 signup.create.group.all							(or X)							
 signup.create.site			X			X								
@@ -136,9 +136,12 @@ signup.update.group								X
 signup.update.group.all							(or X)							
 signup.update.site			X			X								
 											
-signup.attend												X		X		X		X		X	
+signup.attend												X			X				
 signup.attend.all								X							
-signup.view					X			X		X			X		X		X		X		X			X
-signup.view.all				X			X		(X)											(X)	  		(X)
-----------------------------------------------------------------------------------------------------------------------------------
-	
+signup.view					X			X		X			X			X			X			
+signup.view.all				X			X		(X)									(X)		 		
+---------------------------------------------------------------------------------------------
+
+*Note:	It is a good idea to set these permissions for the !site.template and !group.template.course 
+ 		so they will be inherited in any created new-sites or new-groups.
+ 
