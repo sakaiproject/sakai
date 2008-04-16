@@ -76,7 +76,7 @@ public class EventSummary implements Serializable {
 	public void setDate(TimeRange range) {
 		StringBuilder tmp = new StringBuilder();
 		Time firstTime = range.firstTime();
-		Time lastTime = range.lastTime();
+		Time lastTime = range.lastTime(0);
 		if(isSameDay(firstTime.getTime(), lastTime.getTime())) {
 			tmp.append(getDateStr(firstTime));
 			tmp.append(" ");
