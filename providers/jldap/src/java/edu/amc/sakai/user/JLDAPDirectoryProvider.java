@@ -79,6 +79,10 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	public static final int DEFAULT_POOL_MAX_CONNS = 10;
 
 	public static final boolean DEFAULT_CASE_SENSITIVE_CACHE_KEYS = false;
+	
+	public static final boolean DEFAULT_ALLOW_AUTHENTICATION = true;
+	
+	public static final boolean DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST = false;
 
 	/** Class-specific logger */
 	private static Log M_log = LogFactory.getLog(JLDAPDirectoryProvider.class);
@@ -184,6 +188,17 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	};
 
 	private boolean caseSensitiveCacheKeys = DEFAULT_CASE_SENSITIVE_CACHE_KEYS;
+	
+	/**
+	 * Flag for allowing/disallowing authentication on a global basis
+	 */
+	private boolean allowAuthentication = DEFAULT_ALLOW_AUTHENTICATION;
+	
+	/**
+	 * Flag for controlling the return value of 
+	 * {@link #authenticateWithProviderFirst(String)} on a global basis.
+	 */
+	private boolean authenticateWithProviderFirst = DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST;
 
 	public JLDAPDirectoryProvider() {
 		if ( M_log.isDebugEnabled() ) {
@@ -354,6 +369,11 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			M_log.debug("authenticateUser(): [userLogin = " + userLogin + "]");
 		}
 
+		if ( !(allowAuthentication) ) {
+			M_log.debug("authenticateUser(): denying authentication attempt [userLogin = " + userLogin + "]. All authentication has been disabled via configuration");
+			return false;
+		}
+		
 		boolean isPassword = (password != null) && (password.trim().length() > 0);
 		if ( !(isPassword) )
 		{
@@ -652,11 +672,12 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	}
 
 	/**
-	 * Always returns false
+	 * By default returns the global boolean setting configured
+	 * via {@link #setAuthenticateWithProviderFirst(boolean)}.
 	 */
 	public boolean authenticateWithProviderFirst(String id)
 	{
-		return false;
+		return authenticateWithProviderFirst;
 	}
 
 	/**
@@ -1466,6 +1487,75 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 */
 	public void setEidValidator(EidValidator eidValidator) {
 		this.eidValidator = eidValidator;
+	}
+
+	/**
+	 * Access the current global authentication "on/off"
+	 * switch.
+	 * 
+	 * @see #setAllowAuthentication(boolean)
+	 * 
+	 * @return
+	 */
+	public boolean isAllowAuthentication() {
+		return allowAuthentication;
+	}
+
+	/**
+	 * Access the current global authentication "on/off" switch.
+	 * <code>false</code> completely disables 
+	 * {@link #authenticateUser(String, UserEdit, String)} (regardless of
+	 * the value returned from 
+	 * {@link #authenticateWithProviderFirst(String)}). <code>true</code>
+	 * enables the {@link #authenticateUser(String, UserEdit, String)}
+	 * algorithm. To simply authenticate all users without
+	 * checking credentials, e.g. in a test environment, consider overriding
+	 * {@link #authenticateUser(String, UserEdit, String)} altogether.
+	 * 
+	 * <p>Defaults to {@link #DEFAULT_ALLOW_AUTHENTICATION}</p>
+	 * 
+	 * @param allowAuthentication
+	 */
+	public void setAllowAuthentication(boolean allowAuthentication) {
+		this.allowAuthentication = allowAuthentication;
+	}
+	
+	/**
+	 * An alias of {@link #setAllowAuthentication(boolean)} for backward
+	 * compatibility with existing customized deployments of this provider
+	 * which had already implemented this feature.
+	 * 
+	 * @param authenticateAllowed
+	 */
+	public void setAuthenticateAllowed(boolean authenticateAllowed) {
+		setAllowAuthentication(authenticateAllowed);
+	}
+
+	/**
+	 * Access the configured global return value for 
+	 * {@link #authenticateWithProviderFirst(String)}. See
+	 * {@link #setAuthenticateWithProviderFirst(boolean)} for
+	 * additional semantics.
+	 * 
+	 * @return
+	 */
+	public boolean isAuthenticateWithProviderFirst() {
+		return authenticateWithProviderFirst;
+	}
+
+	/**
+	 * Configure the global return value of 
+	 * {@link #authenticateWithProviderFirst(String)}. Be aware that
+	 * future development may expose a first-class extension point
+	 * for custom implementations of {@link #authenticateWithProviderFirst(String)},
+	 * in which case the value configured here will be treated as a default
+	 * rather than an override.
+	 * 
+	 * @param authenticateWithProviderFirst
+	 */
+	public void setAuthenticateWithProviderFirst(
+			boolean authenticateWithProviderFirst) {
+		this.authenticateWithProviderFirst = authenticateWithProviderFirst;
 	}
 	
 }

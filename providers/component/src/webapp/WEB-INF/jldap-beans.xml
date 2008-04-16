@@ -96,6 +96,24 @@
 			<value>false</value>
 		</property>
 		
+		<!--  Optional. Control the return value of 
+		      JLDAPDirectoryProvider.authenticateWithProviderFirst(String)
+		      on a global basis. Defaults to
+		      JLDAPDirectoryProvider.DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST.  -->
+		<!--  property name="authenticateWithProviderFirst">
+			<value>false</value>
+		</property -->
+		
+		<!--  Optional. Control whether or not authentication is attempted
+		      on a global basis. "true" enables authentication attempts (but
+		      does not automatically grant all authN attempts), "false" 
+		      short-circuits that process and refuses all authN
+		      attempts.  Defaults to 
+		      JLDAPDirectoryProvider.DEFAULT_ALLOW_AUTHENTICATION  -->
+		<!--  property name="allowAuthentication">
+			<value>true</value>
+		</property -->
+		
 		<!-- Optional. Defaults to an instance of 
 		edu.amc.sakai.user.SimpleLdapConnectionManager -->
 		<!-- property name="ldapConnectionManager">

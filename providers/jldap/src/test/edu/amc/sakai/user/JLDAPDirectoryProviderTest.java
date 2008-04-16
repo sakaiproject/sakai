@@ -282,14 +282,24 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 	}
 	
 	public void testGetUserDispatch() {
+		// special treatment of the actual test impl so it
+		// can be reused for other provider config tests, e.g
+		// testDisallowingAuthenticationStillAllowsUserLookup()
+		doTestGetUserDispatch(null);
+	}
+	
+	protected void doTestGetUserDispatch(Runnable providerConfigCallback) {
 		final Mock mockDoGetUserByEid = mock(VarargsMethod.class);
         final VarargsMethod doGetUserByEid = (VarargsMethod)mockDoGetUserByEid.proxy();
-		JLDAPDirectoryProvider provider = new JLDAPDirectoryProvider() {
+		provider = new JLDAPDirectoryProvider() {
 			protected boolean getUserByEid(UserEdit userToUpdate, String eid, LDAPConnection conn) 
 			throws LDAPException {
 				return (Boolean)doGetUserByEid.call(userToUpdate, eid, conn);
 			}
 		};
+		if ( providerConfigCallback != null ) {
+			providerConfigCallback.run();
+		}
 		UserEditStub userEdit = new UserEditStub();
 		userEdit.setEid("some-eid");
 		mockDoGetUserByEid.expects(once()).method("call").
@@ -298,13 +308,13 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		assertTrue(provider.getUser(userEdit));
 		mockDoGetUserByEid.verify();
 	}
-	
+
 	public void testGetUserByEidDispatch() throws LDAPException {
 		final Mock mockDoGetUserByEid = mock(VarargsMethod.class);
         final VarargsMethod doGetUserByEid = (VarargsMethod)mockDoGetUserByEid.proxy();
         final Mock mockDoMapUserDataOntoUserEdit = mock(VarargsMethod.class);
         final VarargsMethod doMapUserDataOntoUserEdit = (VarargsMethod)mockDoMapUserDataOntoUserEdit.proxy();
-		JLDAPDirectoryProvider provider = new JLDAPDirectoryProvider() {
+		provider = new JLDAPDirectoryProvider() {
 			protected LdapUserData getUserByEid(String eid, LDAPConnection conn) 
 			throws LDAPException {
 				return (LdapUserData)doGetUserByEid.call(eid, conn);
@@ -348,7 +358,7 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		final VarargsMethod doIsSearchableEid = (VarargsMethod)mockDoIsSearchableEid.proxy();
 		final Mock mockDoSearchDirectoryForSingleEntry = mock(VarargsMethod.class);
 		final VarargsMethod doSearchDirectoryForSingleEntry = (VarargsMethod)mockDoSearchDirectoryForSingleEntry.proxy();
-		JLDAPDirectoryProvider provider = new JLDAPDirectoryProvider() {
+		provider = new JLDAPDirectoryProvider() {
 			protected LdapUserData getCachedUserEntry(String eid) {
 				return (LdapUserData)doGetCachedUserEntry.call(eid);
 			}
@@ -395,7 +405,7 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		final Mock mockDoGetUserByEid = mock(VarargsMethod.class);
         final VarargsMethod doGetUserByEid = (VarargsMethod)mockDoGetUserByEid.proxy();
 		
-		JLDAPDirectoryProvider provider = new JLDAPDirectoryProvider() {
+		provider = new JLDAPDirectoryProvider() {
 			protected boolean getUserByEid(UserEdit userToUpdate, String eid, LDAPConnection conn) 
 			throws LDAPException {
 				return (Boolean) doGetUserByEid.call(userToUpdate, eid, conn);
@@ -439,7 +449,7 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		final Mock mockDoMapUserDataOntoUserEdit = mock(VarargsMethod.class);
         final VarargsMethod doMapUserDataOntoUserEdit = (VarargsMethod)mockDoMapUserDataOntoUserEdit.proxy();
 		
-		JLDAPDirectoryProvider provider = new JLDAPDirectoryProvider() {
+		provider = new JLDAPDirectoryProvider() {
 			protected Object searchDirectoryForSingleEntry(String filter, 
 					LDAPConnection conn,
 					LdapEntryMapper mapper,
@@ -495,7 +505,7 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
         this.mockAttributeMapper = mock(SyntheticEmailLdapAttributeMapper.class);
         this.attributeMapper = (LdapAttributeMapper) this.mockAttributeMapper.proxy();
 		
-		JLDAPDirectoryProvider provider = new JLDAPDirectoryProvider() {
+		provider = new JLDAPDirectoryProvider() {
 			protected LdapUserData getUserByEid(String eid, LDAPConnection conn) 
 			throws LDAPException {
 				return (LdapUserData)doGetUserByEid.call(eid, conn);
@@ -546,7 +556,7 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		final Mock mockDoMapUserDataOntoUserEdit = mock(VarargsMethod.class);
         final VarargsMethod doMapUserDataOntoUserEdit = (VarargsMethod)mockDoMapUserDataOntoUserEdit.proxy();
 		
-		JLDAPDirectoryProvider provider = new JLDAPDirectoryProvider() {
+		provider = new JLDAPDirectoryProvider() {
 			protected Object searchDirectoryForSingleEntry(String filter, 
 					LDAPConnection conn,
 					LdapEntryMapper mapper,
@@ -610,7 +620,7 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		final Mock mockDoMapUserDataOntoUserEdit = mock(VarargsMethod.class);
         final VarargsMethod doMapUserDataOntoUserEdit = (VarargsMethod)mockDoMapUserDataOntoUserEdit.proxy();
 		
-		JLDAPDirectoryProvider provider = new JLDAPDirectoryProvider() {
+		provider = new JLDAPDirectoryProvider() {
 			protected Object searchDirectoryForSingleEntry(String filter, 
 					LDAPConnection conn,
 					LdapEntryMapper mapper,
@@ -664,7 +674,7 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
         this.mockAttributeMapper = mock(SyntheticEmailLdapAttributeMapper.class);
         this.attributeMapper = (LdapAttributeMapper) this.mockAttributeMapper.proxy();
         
-        JLDAPDirectoryProvider provider = new JLDAPDirectoryProvider() {
+        provider = new JLDAPDirectoryProvider() {
 			protected LdapUserData getUserByEid(String eid, LDAPConnection conn) 
 			throws LDAPException {
 				return null;
@@ -680,6 +690,81 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		mockAttributeMapper.expects(once()).method("unpackEidFromAddress").
 			with(eq(email)).will(returnValue(eid));
 		assertFalse(provider.findUserByEmail(userEdit, email));
+	}
+	
+	public void testAuthenticateUserDispatch() {
+		final Mock mockLookupUserBindDn = mock(VarargsMethod.class);
+		final VarargsMethod doLookupUserBindDn = (VarargsMethod)mockLookupUserBindDn.proxy();
+		provider = new JLDAPDirectoryProvider() {
+			protected String lookupUserBindDn(String eid, LDAPConnection conn) 
+			throws LDAPException {
+				return (String)doLookupUserBindDn.call(eid, conn);
+			}
+		};
+		
+		provider.setLdapConnectionManager(connManager);
+		
+		final String eid = "some-eid";
+		final String dn = "cn=some-cn, ou=some-ou";
+		final String password = "some-password";
+		final UserEdit userEdit = new UserEditStub();
+		userEdit.setEid(eid);
+		mockConnManager.expects(once()).method("getConnection").will(returnValue(conn));
+		mockLookupUserBindDn.expects(once()).method("call").
+			with(eq(new Object[] {eid, conn})).
+			after(mockConnManager, "getConnection").
+			will(returnValue(dn));
+		mockConnManager.expects(once()).method("returnConnection").with(same(conn)).
+			after(mockLookupUserBindDn, "call");
+		mockConnManager.expects(once()).method("getBoundConnection").
+			with(eq(dn), eq(password)).after(mockConnManager, "returnConnection").
+			will(returnValue(conn));
+		mockConnManager.expects(once()).method("returnConnection").with(same(conn)).
+			after(mockConnManager, "getBoundConnection");
+		
+		// implicitly tests that allowAuthentication defaults to true
+		assertTrue(provider.authenticateUser(eid, userEdit, password));
+		mockLookupUserBindDn.verify();
+	}
+	
+	public void testDisallowingAuthenticationShortCircuitsAuthenticateUser() {
+		provider.setAllowAuthentication(false);
+		// the UserEdit arg could be null, but we go ahead and pass one
+		// to ensure we're not accidentally testing the wrong behavior
+		final String eid = "some-eid";
+		final String password = "some-password";
+		UserEdit userEdit = new UserEditStub();
+		userEdit.setEid(eid);
+		assertFalse("Should have refused to authenticate user",
+				provider.authenticateUser(eid, userEdit, password));
+		// we rely on mocks reacting angrily if the authentication attempt
+		// actually attempts any sort of LDAP interaction
+	}
+	
+	public void testDisallowingAuthenticationStillAllowsUserLookup() {
+		doTestGetUserDispatch(new Runnable() {
+			public void run() {
+				provider.setAllowAuthentication(false);
+			}
+		});
+	}
+	
+	public void testSetAuthenticateAllowedAliasesSetAllowAuthentication() {
+		boolean prevState = provider.isAllowAuthentication();
+		provider.setAuthenticateAllowed(!(prevState));
+		boolean newState = provider.isAllowAuthentication();
+		assertFalse(prevState == newState);
+	}
+	
+	public void testSetAuthenticateWithProviderFirst() {
+		final String eid1 = "some-eid-1";
+		final String eid2 = "some-eid-2";
+		provider.setAuthenticateWithProviderFirst(true);
+		assertTrue(provider.authenticateWithProviderFirst(eid1));
+		assertTrue(provider.authenticateWithProviderFirst(eid2));
+		provider.setAuthenticateWithProviderFirst(false);
+		assertFalse(provider.authenticateWithProviderFirst(eid1));
+		assertFalse(provider.authenticateWithProviderFirst(eid2));
 	}
 	
 	
