@@ -37,7 +37,7 @@ import com.novell.ldap.LDAPEntry;
  *
  */
 public interface LdapAttributeMapper {
-	
+
 	/**
 	 * Complete internal configuration. Typical called by Spring.
 	 */
@@ -51,7 +51,7 @@ public interface LdapAttributeMapper {
 	 * @return an LDAP search filter
 	 */
 	public String getFindUserByEmailFilter(String emailAddr);
-	
+
 	/**
 	 * Output a filter string for searching the directory with
 	 * the specified user eid as a key.
@@ -60,7 +60,7 @@ public interface LdapAttributeMapper {
 	 * @return an LDAP search filter
 	 */
 	public String getFindUserByEidFilter(String eid);
-	
+
 	/**
 	 * Maps attribites from the specified <code>LDAPEntry</code> onto
 	 * a {@link LdapUserData}.
@@ -69,7 +69,7 @@ public interface LdapAttributeMapper {
 	 * @param userData a non-null user cache entry
 	 */
 	public void mapLdapEntryOntoUserData(LDAPEntry ldapEntry, LdapUserData userData);
-	
+
 	/**
 	 * Maps attribites from the specified {@link LdapUserData} onto
 	 * a {@link org.sakaiproject.user.api.UserEdit}.
@@ -78,7 +78,7 @@ public interface LdapAttributeMapper {
 	 * @param userEdit a non-null user domain object
 	 */
 	public void mapUserDataOntoUserEdit(LdapUserData userData, UserEdit userEdit);
-	
+
 	/**
 	 * Access the standard attributes returned from any given
 	 * directory search.
@@ -86,7 +86,7 @@ public interface LdapAttributeMapper {
 	 * @return an array of directory attribute names
 	 */
 	public String[] getSearchResultAttributes();
-	
+
 	/**
 	 * Access the current directory attribute map. Keys
 	 * are logical names, values are physical names.
@@ -103,17 +103,40 @@ public interface LdapAttributeMapper {
 	 */
 	public void setAttributeMappings(Map<String,String> attributeMappings);
 
-    /**
-     * Map the given logical attribute name to a physical attribute name.
-     * 
-     * @param key the logical attribute name
-     * @return the corresponding physical attribute name, or null
-     *   if no mapping exists.
-     */
-    public String getAttributeMapping(String key);
-    
-    public String escapeSearchFilterTerm(String term);
-    
-    public String getUserBindDn(LdapUserData userData);
-	
+	/**
+	 * Map the given logical attribute name to a physical attribute name.
+	 * 
+	 * @param key the logical attribute name
+	 * @return the corresponding physical attribute name, or null
+	 *   if no mapping exists.
+	 */
+	public String getAttributeMapping(String key);
+
+	/**
+	 * Scrubs the given search filter term (i.e. a value to be matched, or not,
+	 * in a search predicate) for reserved characters. I.e. protects against 
+	 * query injection.
+	 * 
+	 * @param term The string value to be scrubbed
+	 * @return <code>null</code> if the received String is null, otherwise
+	 *   a copy of the received String with reserved characters escaped.
+	 */
+	public String escapeSearchFilterTerm(String term);
+
+	/**
+	 * Determine the DN to which to bind when executing an authentication
+	 * attempt for the given user. An invocation implies that the DN can
+	 * be derived from attributes already mapped onto the given {@link LdapUserData}
+	 * by this <code>LdapAttributeMapper</code>. For example, the mapper
+	 * could have cached the DN in the user's property map, or the bind DN could
+	 * be reliably calculated from a combination of the user's <code>eid</code>
+	 * and some other configured RDN string.
+	 * 
+	 * @param userData a mapped collection of user attributes from which
+	 *   to derive a bindable DN. Should not be <code>null</code>
+	 * @return a bindable DN derived from <code>userData</code> or 
+	 *   <code>null</null> if the DN is not known.
+	 */
+	public String getUserBindDn(LdapUserData userData);
+
 }
