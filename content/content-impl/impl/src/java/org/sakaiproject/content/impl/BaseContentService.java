@@ -12135,5 +12135,78 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return 0;
 	}
 
+	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{	
+		try
+		{
+			if(cleanup == true)
+			{
+				// Get the root collection
+				ContentCollection oCollection = getCollection(toContext);
+				
+				if(oCollection != null)
+				{
+					// Get the collection members from the old collection
+					List oResources = oCollection.getMemberResources();
+				
+					for (int i = 0; i < oResources.size(); i++)
+					{
+						// Get the original resource
+						Entity oResource = (Entity) oResources.get(i);
+					
+						String oId = oResource.getId();
+						
+						ResourceProperties oProperties = oResource.getProperties();
+						
+						boolean isCollection = false;
+						
+						try
+						{
+							isCollection = oProperties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
+						}
+						catch (Exception e)
+						{
+							M_log.debug("Get Folder Collection" + e);
+						}
+						
+						if (isCollection)
+						{
+							try
+							{
+								ContentCollectionEdit edit = editCollection(oId);
+						
+								m_storage.removeCollection(edit);
+							}
+							catch (Exception ee)
+							{
+								M_log.debug("remove folders resources" + ee);
+							}
+						}
+						else 
+						{
+							try
+							{
+								BaseResourceEdit edit = (BaseResourceEdit) editResourceForDelete(oId);
+											
+								m_storage.removeResource(edit);
+							}
+							catch (Exception ee)
+							{
+								M_log.debug("remove others resources" + ee);
+							}
+						}
+						
+					}
+					
+					
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			M_log.debug("BaseContentService Resources transferCopyEntities Error" + e);
+			}
+		transferCopyEntities(fromContext, toContext, ids);
+	}
 } // BaseContentService
 
