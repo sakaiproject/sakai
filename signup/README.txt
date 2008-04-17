@@ -104,7 +104,14 @@ Permission levels
 	*Auditor
 		-signup.attend
 		-signup.view
-
+		
+	*Study-Group Organizer Role (student)
+		-signup.create.group 
+		-signup.delete.group 
+		-signup.update.group 
+		-signup.view
+		-signup.attend
+		
 	*Maintain
 		-signup.create.site
 		-signup.delete.site
@@ -112,36 +119,33 @@ Permission levels
 		-signup.view
 		-signup.view.all
 
-	*Study-Group Organizer Role (student)
-		-signup.create.group 
-		-signup.delete.group 
-		-signup.update.group 
-		-signup.view
+	*Access
 		-signup.attend
+		-signup.view
 
 *Important: The signup.view permission is required to use the tool.
 
 
 Here is the summary of the possible permission settings for the corresponding roles:
----------------------------------------------------------------------------------------------
-Permissions				Instructor	Maintain	TF		Student		Auditor		Guest	
----------------------------------------------------------------------------------------------
-signup.create.group								X							
-signup.create.group.all							(or X)							
-signup.create.site			X			X								
-signup.delete.group								X							
-signup.delete.group.all							(or X)							
-signup.delete.site			X			X								
-signup.update.group								X							
-signup.update.group.all							(or X)							
-signup.update.site			X			X								
+---------------------------------------------------------------------------------------------------------------
+Permissions				Instructor		TF		Student		Auditor		Guest	Maintain     Access
+---------------------------------------------------------------------------------------------------------------
+signup.create.group						X							
+signup.create.group.all					(or X)							
+signup.create.site			X			                                            X								
+signup.delete.group						X							
+signup.delete.group.all					(or X)							
+signup.delete.site			X			 											X								
+signup.update.group						X							
+signup.update.group.all					(or X)							
+signup.update.site			X			                                            X								
 											
-signup.attend												X			X				
-signup.attend.all								X							
-signup.view					X			X		X			X			X			X			
-signup.view.all				X			X		(X)									(X)		 		
----------------------------------------------------------------------------------------------
+signup.attend										X			X			                   X	
+signup.attend.all						X							
+signup.view					X			X			X			X			X		 X	       X		
+signup.view.all				X			X									(X)      X		 		
+----------------------------------------------------------------------------------------------------------------
 
 *Note:	It is a good idea to set these permissions for the !site.template and !group.template.course 
- 		so they will be inherited in any created new-sites or new-groups.
+ 		so they will be inherited in any new created sites or groups.
  
