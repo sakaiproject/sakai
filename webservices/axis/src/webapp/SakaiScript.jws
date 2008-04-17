@@ -11,16 +11,19 @@ import java.util.Set;
 import java.util.Collection;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.exception.IdUnusedException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.authz.cover.AuthzGroupService;
@@ -238,6 +241,77 @@ public String getUserDisplayName( String sessionid ) throws AxisFault
 	Session session = establishSession(sessionid);
 	User user = UserDirectoryService.getCurrentUser();
 	return user.getDisplayName();
+}
+
+/**
+ ** Create user-group to specified worksite (as if it had been added in Worksite Setup)
+ **
+ ** @param sessionId valid sessionId
+ ** @param siteId specified worksite id
+ ** @param groupTitle Name of group
+ ** @param groupDesc Description of group
+ ** @return groupId if successful
+ **/
+private static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
+public String addGroupToSite( String sessionId, 
+										String siteId,
+										String groupTitle, 
+										String groupDesc )
+	throws AxisFault
+{
+	Session session = establishSession(sessionId);
+	try
+	{
+		Site site = SiteService.getSite(siteId);
+		Group group = site.addGroup();
+		group.setTitle(groupTitle);
+		group.setDescription(groupDesc);
+		group.getProperties().addProperty(
+							GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+
+		SiteService.save(site);
+		return group.getId();
+	}
+	catch (Exception e)
+	{
+		throw new AxisFault(e.toString());
+	}
+} 
+
+/**
+ ** Add member to specified worksite group
+ **
+ ** @param sessionId valid sessionId
+ ** @param siteId specified worksite id
+ ** @param groupId specified group id
+ ** @param userId userid of member to add
+ ** @return true if successful
+ **/
+public Boolean addMemberToGroup( String sessionId, 
+											String siteId, 
+											String groupId,
+											String userId ) 
+	throws AxisFault
+{
+	Session session = establishSession(sessionId);
+	try
+	{
+		Site site = SiteService.getSite(siteId);
+		Group group = site.getGroup(groupId);
+		if ( group == null )
+			return false;
+	
+		Role r = site.getUserRole(userId);
+		Member m = site.getMember(userId);
+		group.addMember(userId, r != null ? r.getId()	: "", 
+							 m != null ? m.isActive() : true,	false);
+		SiteService.save(site);
+		return true;
+	}
+	catch (Exception e)
+	{
+		throw new AxisFault(e.toString());
+	}
 }
 
 //addNewRealm
