@@ -1709,5 +1709,20 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	{
 		this.aliasService = aliasService;
 	}
-
+	
+	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{	
+		try
+		{
+			if(cleanup == true)
+			{
+				//TODO
+			}
+		}
+		catch (Exception e)
+		{
+			log.info("Rwiki transferCopyEntities Error" + e);
+		}
+		transferCopyEntities(fromContext, toContext, ids);
+	}
 }
