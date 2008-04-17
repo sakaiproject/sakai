@@ -334,8 +334,8 @@ function redirectBasedOnSelection(){
 		#end
 
 
-		<input id="index" type="hidden" name="template-index" value="36" />
-		<input type="hidden" name="back" value="1" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input id="index" type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="option" id="option" value="x" />
 		<input type="hidden" name="eventSubmit_doContinue_new_course" value="x" />
 			#if (!$site)

@@ -106,8 +106,8 @@
 			</p>
 		#end
 		<input type="hidden" name="continue" value="$!continue" />
-		<input type="hidden" name="template-index" value="18" />
-		<input type="hidden" name="back" value="$!back" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<div class ="act">
 			#if($!site)
 				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.upd")" />

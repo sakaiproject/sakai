@@ -91,8 +91,8 @@
 				</tr>
 			#end
 		</table>
-		<input type="hidden" name="back" value="$backIndex" />
-		<input type="hidden" name="template-index" value="4" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="45" />
 		<div class="act">
 			<input type="button" name="Continue" 

@@ -197,8 +197,8 @@
 
 				#end
 			#set ($count = $count + 1)
-			<input type="hidden" name="back" value="$back" />
-			<input type="hidden" name="template-index" value="37"  />
+			<input type="hidden" name="back" value="$!backIndex" />
+			<input type="hidden" name="templateIndex" value="$!templateIndex" />
 			<input type="hidden" name="continue" value="4" />
 			<p class="act">
 				<input type="button" name="Add" id="addButton"

@@ -90,8 +90,8 @@
 			</tr>
 </tbody>
 		</table>		
-		<input type="hidden" name="template-index" value="50" />
-		<input type="hidden" name="back" value="49" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<div class ="act">
 				<input type="button" accesskey="s" class="active" name="$tlang.getString('editgroup.update')" value="$tlang.getString('editgroup.update')" onclick="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=save')';submitform('groupForm');" />
 				<input type="button" accesskey="x" name="eventSubmit_doBack" value="$tlang.getString('editgroup.cancel')" onclick="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=cancel')';submitform('groupForm');" />

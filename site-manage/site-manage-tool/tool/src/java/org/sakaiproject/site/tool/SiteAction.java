@@ -614,11 +614,14 @@ public class SiteAction extends PagedResourceActionII {
 	// the template index after exist the question mode
 	private static final String STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE = "state_site_setup_question_next_template";
 	
-	// the answers to site setup questions
+	// SAK-12912, the answers to site setup questions
 	private static final String STATE_SITE_SETUP_QUESTION_ANSWER = "state_site_setup_question_answer";
 	
-	// the non-official participant
+	// SAK-13389, the non-official participant
 	private static final String ADD_NON_OFFICIAL_PARTICIPANT = "add_non_official_participant";
+	
+	// the list of visited templates
+	private static final String STATE_VISITED_TEMPLATES = "state_visited_templates";
 
 	/**
 	 * Populate the state object, if needed.
@@ -797,7 +800,8 @@ public class SiteAction extends PagedResourceActionII {
 		// too? -daisyf
 		state.removeAttribute(STATE_TEMPLATE_SITE);
 		state.removeAttribute(STATE_TYPE_SELECTED);
-		state.removeAttribute(STATE_SITE_SETUP_QUESTION_ANSWER);
+		state.removeAttribute(STATE_SITE_SETUP_QUESTION_ANSWER);					
+		state.removeAttribute(STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE);
 
 	} // cleanState
 
@@ -875,10 +879,42 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		int index = Integer.valueOf(
 				(String) state.getAttribute(STATE_TEMPLATE_INDEX)).intValue();
-		template = buildContextForTemplate(index, portlet, context, data, state);
+		
+		// update the visited template list with the current template index
+		updateStateVisitedTemplates(state, index);
+		
+		template = buildContextForTemplate(getPrevVisitedTemplate(state), index, portlet, context, data, state);
 		return template;
 
 	} // buildMainPanelContext
+
+	/**
+	 * update the visited template indices list
+	 * @param state
+	 * @param index
+	 */
+	private void updateStateVisitedTemplates(SessionState state, int index) {
+		List<String> templateIndices = (List<String>) state.getAttribute(STATE_VISITED_TEMPLATES);
+		String indexString = String.valueOf(index);
+		if (templateIndices.size() == 0 || !templateIndices.get(templateIndices.size()-1).equals(indexString))
+		{
+			// this is to prevent from page refreshing accidentally updates the list
+			templateIndices.add(String.valueOf(index));
+			state.setAttribute(STATE_VISITED_TEMPLATES, templateIndices);
+		}
+	}
+	
+	private String getPrevVisitedTemplate(SessionState state) {
+		List<String> templateIndices = (List<String>) state.getAttribute(STATE_VISITED_TEMPLATES);
+		if (templateIndices != null && templateIndices.size() >1 )
+		{
+			return templateIndices.get(templateIndices.size()-2);
+		}
+		else
+		{
+			return null;
+		}
+	}
 
 	/**
 	 * Build the context for each template using template_index parameter passed
@@ -889,7 +925,7 @@ public class SiteAction extends PagedResourceActionII {
 	 *            is the number contained in the template's template_index
 	 */
 
-	private String buildContextForTemplate(int index, VelocityPortlet portlet,
+	private String buildContextForTemplate(String preIndex, int index, VelocityPortlet portlet,
 			Context context, RunData data, SessionState state) {
 		String realmId = "";
 		String site_type = "";
@@ -898,6 +934,12 @@ public class SiteAction extends PagedResourceActionII {
 		ParameterParser params = data.getParameters();
 		context.put("tlang", rb);
 		context.put("alertMessage", state.getAttribute(STATE_MESSAGE));
+		
+		// the last visited template index
+		if (preIndex != null)
+			context.put("backIndex", preIndex);
+		
+		context.put("templateIndex", String.valueOf(index));
 		
 		
 		// If cleanState() has removed SiteInfo, get a new instance into state
@@ -1174,7 +1216,6 @@ public class SiteAction extends PagedResourceActionII {
 
 				if (cmRequestedList != null) {
 					context.put("cmRequestedSections", cmRequestedList);
-					context.put("back", "53");
 				}
 
 				List<SectionObject> cmAuthorizerSectionList = (List<SectionObject>) state
@@ -1183,7 +1224,6 @@ public class SiteAction extends PagedResourceActionII {
 					context
 							.put("cmAuthorizerSections",
 									cmAuthorizerSectionList);
-					context.put("back", "36");
 				}
 
 				if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
@@ -1193,13 +1233,10 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("manualAddNumber", new Integer(number - 1));
 					context.put("manualAddFields", state
 							.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
-					context.put("back", "37");
 				} else {
 					if (courseManagementIsImplemented()) {
-						context.put("back", "36");
 					} else {
-						context.put("back", "0");
-						context.put("template-index", "37");
+						context.put("templateIndex", "37");
 					}
 				}
 
@@ -1215,8 +1252,6 @@ public class SiteAction extends PagedResourceActionII {
 				if (StringUtil.trimToNull(siteInfo.iconUrl) != null) {
 					context.put(FORM_ICON_URL, siteInfo.iconUrl);
 				}
-
-				context.put("back", "1");
 			}
 
 			context.put(FORM_TITLE, siteInfo.title);
@@ -1528,9 +1563,6 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("published", new Boolean(siteInfo.published));
 			context.put("joinable", new Boolean(siteInfo.joinable));
 			context.put("joinerRole", siteInfo.joinerRole);
-
-			// back to edit access page
-			context.put("back", "18");
 
 			context.put("importSiteTools", state
 					.getAttribute(STATE_IMPORT_SITE_TOOL));
@@ -1956,12 +1988,6 @@ public class SiteAction extends PagedResourceActionII {
 			// titles for multiple tool instances
 			context.put(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP ));
 
-			if (fromENWModifyView(state)) {
-				context.put("back", "26");
-			} else {
-				context.put("back", "4");
-			}
-
 			return (String) getContext(data).get("template") + TEMPLATE[15];
 		case 18:
 			/*
@@ -2017,7 +2043,6 @@ public class SiteAction extends PagedResourceActionII {
 				}
 
 				context.put("roles", getRoles(state));
-				context.put("back", "12");
 			} else {
 				siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 
@@ -2065,17 +2090,6 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("continue", "10");
 				
 				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
-				// if create based on template, back to 2
-				if (templateSite != null) 
-				{
-					context.put("back", "2");					
-				} else if (fromENWModifyView(state)) {
-					context.put("back", "26");
-				} else if (state.getAttribute(STATE_IMPORT) != null) {
-					context.put("back", "27");
-				} else {
-					context.put("back", "3");
-				}
 
 				siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 				if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
@@ -2160,19 +2174,12 @@ public class SiteAction extends PagedResourceActionII {
 			if (existingSite) {
 				// revising a existing site's tool
 				context.put("existingSite", Boolean.TRUE);
-				context.put("back", "4");
 				context.put("continue", "15");
 				context.put("function", "eventSubmit_doAdd_remove_features");
 			} else {
 				// new site
 				context.put("existingSite", Boolean.FALSE);
 				context.put("function", "eventSubmit_doAdd_features");
-				if (state.getAttribute(STATE_IMPORT) != null) {
-					context.put("back", "27");
-				} else {
-					// new site, go to edit access page
-					context.put("back", "3");
-				}
 				context.put("continue", "18");
 			}
 
@@ -2208,19 +2215,18 @@ public class SiteAction extends PagedResourceActionII {
 			if (existingSite) {
 				// revising a existing site's tool
 				context.put("continue", "12");
-				context.put("back", "28");
 				context.put("totalSteps", "2");
 				context.put("step", "2");
 				context.put("currentSite", site);
 			} else {
 				// new site, go to edit access page
-				context.put("back", "3");
 				if (fromENWModifyView(state)) {
 					context.put("continue", "26");
 				} else {
 					context.put("continue", "18");
 				}
 			}
+			context.put("existingSite", Boolean.valueOf(existingSite));
 			context.put(STATE_TOOL_REGISTRATION_LIST, state
 					.getAttribute(STATE_TOOL_REGISTRATION_LIST));
 			context.put("selectedTools", orderToolIds(state, site_type,
@@ -2439,23 +2445,9 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			if (site == null) {
-				// v2.4 - added & modified by daisyf
-				if (courseManagementIsImplemented() && state.getAttribute(STATE_TERM_COURSE_LIST) != null)
-				{
-					// back to the list view of sections
-					context.put("back", "36");
-				} else {
-					context.put("back", "1");
-				}
 				if (state.getAttribute(STATE_AUTO_ADD) != null) {
 					context.put("autoAdd", Boolean.TRUE);
-					// context.put("back", "36");
 				}
-			}
-			else
-			{
-				// editing site
-				context.put("back", "36");
 			}
 			
 			isFutureTermSelected(state);
@@ -3850,7 +3842,7 @@ public class SiteAction extends PagedResourceActionII {
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		ParameterParser params = data.getParameters();
-		int index = Integer.valueOf(params.getString("template-index"))
+		int index = Integer.valueOf(params.getString("templateIndex"))
 				.intValue();
 		actionForTemplate("continue", index, params, state);
 
@@ -4791,7 +4783,7 @@ public class SiteAction extends PagedResourceActionII {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
-		int index = Integer.valueOf(params.getString("template-index"))
+		int index = Integer.valueOf(params.getString("templateIndex"))
 				.intValue();
 
 		// Let actionForTemplate know to make any permanent changes before
@@ -4885,7 +4877,7 @@ public class SiteAction extends PagedResourceActionII {
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, params
 					.getString("continue"));
-			int index = Integer.valueOf(params.getString("template-index"))
+			int index = Integer.valueOf(params.getString("templateIndex"))
 					.intValue();
 			actionForTemplate("continue", index, params, state);
 
@@ -5008,7 +5000,6 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	/**
->>>>>>> .merge-right.r45468
 	 * Update course site and related realm based on the roster chosen or requested
 	 * @param state
 	 * @param siteId
@@ -5554,7 +5545,7 @@ public class SiteAction extends PagedResourceActionII {
 	/**
 	 * doCancel called when "eventSubmit_doCancel" is in the request parameters
 	 * to c int index = Integer.valueOf(params.getString
-	 * ("template-index")).intValue();
+	 * ("templateIndex")).intValue();
 	 */
 	public void doCancel(RunData data) {
 		// Don't put current form data in state, just return to the previous
@@ -5580,7 +5571,7 @@ public class SiteAction extends PagedResourceActionII {
 			removeAddParticipantContext(state);
 
 			params = data.getParameters();
-			state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("back"));
+			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
 		} else if (currentIndex.equals("13") || currentIndex.equals("14")) {
 			// clean state attributes
 			state.removeAttribute(FORM_SITEINFO_TITLE);
@@ -5651,6 +5642,14 @@ public class SiteAction extends PagedResourceActionII {
 			removeAddClassContext(state);
 			state.setAttribute(STATE_TEMPLATE_INDEX, "43");
 		}
+		// if all fails to match
+		else if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITESETUP)) {
+			// go to WSetup list view
+			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
+		} else if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITEINFO)) {
+			// go to Site Info list view
+			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+		}
 		
 
 	} // doCancel
@@ -5718,7 +5717,7 @@ public class SiteAction extends PagedResourceActionII {
 		} else {
 			addAlert(state, rb.getString("java.reqmiss"));
 			state.setAttribute(STATE_TEMPLATE_INDEX, params
-					.getString("template-index"));
+					.getString("templateIndex"));
 		}
 
 	} // doAdd_custom_link
@@ -6243,6 +6242,11 @@ public class SiteAction extends PagedResourceActionII {
 		if (state.getAttribute(ADD_NON_OFFICIAL_PARTICIPANT) == null)
 		{
 			state.setAttribute(ADD_NON_OFFICIAL_PARTICIPANT, ServerConfigurationService.getString("nonOfficialAccount", "true"));
+		}
+		
+		if (state.getAttribute(STATE_VISITED_TEMPLATES) == null)
+		{
+			state.setAttribute(STATE_VISITED_TEMPLATES, new Vector<String>());
 		}
 	} // init
 
@@ -7236,7 +7240,6 @@ public class SiteAction extends PagedResourceActionII {
 				if (getAnswersToSetupQuestions(params, state))
 				{
 					state.setAttribute(STATE_TEMPLATE_INDEX, state.getAttribute(STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE));
-					state.removeAttribute(STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE);
 				}
 			}
 			break;
@@ -9569,17 +9572,17 @@ public class SiteAction extends PagedResourceActionII {
 			} catch (IdUsedException e) {
 				addAlert(state, rb.getString("java.sitewithid") + " " + id + " " + rb.getString("java.exists"));
 				M_log.warn(this + ".addNewSite: " + rb.getString("java.sitewithid") + " " + id + " " + rb.getString("java.exists"), e);
-				state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("template-index"));
+				state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("templateIndex"));
 				return;
 			} catch (IdInvalidException e) {
 				addAlert(state, rb.getString("java.thesiteid") + " " + id + " " + rb.getString("java.notvalid"));
 				M_log.warn(this + ".addNewSite: " + rb.getString("java.thesiteid") + " " + id + " " + rb.getString("java.notvalid"), e);
-				state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("template-index"));
+				state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("templateIndex"));
 				return;
 			} catch (PermissionException e) {
 				addAlert(state, rb.getString("java.permission") + " " + id + ".");
 				M_log.warn(this + ".addNewSite: " + rb.getString("java.permission") + " " + id + ".", e);
-				state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("template-index"));
+				state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("templateIndex"));
 				return;
 			}
 		}
@@ -10887,7 +10890,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		// set up for the coming template
 		state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("continue"));
-		int index = Integer.valueOf(params.getString("template-index"))
+		int index = Integer.valueOf(params.getString("templateIndex"))
 				.intValue();
 		actionForTemplate("continue", index, params, state);
 

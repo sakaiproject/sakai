@@ -91,8 +91,8 @@
 	</p>
 	<form name="addRemoveFeaturnConfirmForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="cancelIndex" value="$continueIndex" />
-		<input type="hidden" name="back" value="$back" />
-		<input type="hidden" name="template-index" value="15" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="$continueIndex" />
 		<p class="act">
 			<input type="submit" accesskey="s" class="active" name="eventSubmit_doSave_revised_features" value="$tlang.getString('gen.finish')" />

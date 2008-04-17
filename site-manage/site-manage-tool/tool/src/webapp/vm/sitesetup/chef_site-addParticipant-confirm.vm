@@ -83,8 +83,8 @@
 				#set($count = $count + 1)
 			#end
 		</table>
-		<input type="hidden" name="back" value="21" />
-		<input type="hidden" name="template-index" value="22" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<p class ="act">
 			<input type="submit" accesskey="s" class="active" name="eventSubmit_doAdd_participant" value="$tlang.getString('gen.finish')" />
 			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />

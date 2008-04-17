@@ -33,8 +33,8 @@
 			</tr>
 		</table>
 
-		<input type="hidden" name="back" value="0" />
-		<input type="hidden" name="template-index" value="42"/>
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="0" />
 		<p class="act">
 			<input type="submit" class="active" name="eventSubmit_doFinish_grad_tools" value="$tlang.getString('gradt.create')" />

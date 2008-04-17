@@ -135,8 +135,8 @@
 				</td>					
 			</tr>
 		</table>
-		<input type="hidden" name="back" value="13" />
-		<input type="hidden" name="template-index" value="14" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="12" />
 		<p class="act">
 			<input type="submit" accesskey="s" class="active" name="eventSubmit_doSave_siteInfo" value="$tlang.getString("sitediconf.fin")" />

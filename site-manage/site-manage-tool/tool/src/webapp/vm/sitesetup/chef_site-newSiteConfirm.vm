@@ -220,8 +220,8 @@
 					</td>
 			</tr>	
 		</table>	
-		<input type="hidden" name="back" value="18" />
-		<input type="hidden" name="template-index" value="10" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="0" />
 		<div class="act">
 			<input

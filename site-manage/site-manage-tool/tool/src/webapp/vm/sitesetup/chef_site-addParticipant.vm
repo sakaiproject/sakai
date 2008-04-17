@@ -72,11 +72,10 @@
 				$tlang.getString("add.assign2")
 			</label>
 		</p>	
-		<input type="hidden" name="back" value="$backIndex" />
-		<input type="hidden" name="template-index" value="5" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<div class ="act">
 			<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
-			<input type="submit" accesskey="b" name="eventSubmit_doCancel" value="$tlang.getString('gen.back')" />
 			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
 		</div>
 	</form>

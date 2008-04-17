@@ -24,8 +24,8 @@
 				<br />
 			#end
 		#end
-		<input type="hidden" name="back" value="1" />
-		<input type="hidden" name="template-index" value="54" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="$continueIndex" />
 					
 		<p class="act">

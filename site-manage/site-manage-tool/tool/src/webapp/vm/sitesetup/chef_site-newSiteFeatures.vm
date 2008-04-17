@@ -122,8 +122,8 @@
 				$tlang.getString("feat.note")
 			</p>
 		#end
-		<input type="hidden" name="back" value="2" />
-		<input type="hidden" name="template-index" value="3" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<p class="act">
 			<input type="button" name="Continue" 
 					value="$tlang.getString('gen.continue')"

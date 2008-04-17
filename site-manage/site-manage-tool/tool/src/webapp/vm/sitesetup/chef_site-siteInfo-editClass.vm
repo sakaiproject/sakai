@@ -70,9 +70,9 @@
 				#end
 			</table>
 			<p class="act">
-				<input type="hidden" name="back" value="12" />
 				<input type="hidden" name="continue" value="12" />
-				<input type="hidden" name="template-index" value="43" />
+				<input type="hidden" name="back" value="$!backIndex" />
+				<input type="hidden" name="templateIndex" value="$!templateIndex" />
 				<input type="submit" accesskey="s"  class="active" name="eventSubmit_doContinue" value="$tlang.getString("sitedicla.upd")" />
 				<input type="submit" accesskey="x"  name="eventSubmit_doBack" value="$tlang.getString("sitedicla.can")" />
 			</p>
@@ -80,8 +80,8 @@
 	#else
 		$tlang.getString("sitedicla.theis") $!siteTitle $tlang.getString("sitedicla.yet")
 		<p class="act">
-			<input type="hidden" name="back" value="12" />
-				<input type="hidden" name="template-index" value="43" />
+			<input type="hidden" name="back" value="$!backIndex" />
+			<input type="hidden" name="templateIndex" value="$!templateIndex" />
 			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("sitedicla.can")"/>
 		</p>
 		

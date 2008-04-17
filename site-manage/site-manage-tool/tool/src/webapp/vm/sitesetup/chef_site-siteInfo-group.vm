@@ -71,13 +71,13 @@
 		#else	
 			<p class="instruction">$tlang.getString("group.nogroup")</p>
 		#end		
-		<input type="hidden" name="template-index" value="49" />
-		<input type="hidden" name="back" value="12" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<div class ="act">
 				#if ($hasgroup)
 					<input type="submit" accesskey ="s" class="active" name="eventSubmit_doGroup_remove_prep" id="removeButton" value="$tlang.getString("editgroup.removechecked")" disabled="disabled" />
 				#end
-					<input type="submit" accesskey ="x"  name="eventSubmit_doBack" value="$tlang.getString('editgroup.back')" />
+					<input type="submit" accesskey ="x"  name="eventSubmit_doCancel" value="$tlang.getString('editgroup.cancel')" />
 		</div>
 		<input type="hidden" id="removeCount" value="0" />
 	</form>

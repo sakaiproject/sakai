@@ -52,8 +52,8 @@
 			</tr>
 		</table>
 		#end
-		<input type="hidden" name="template-index" value="45" />
-		<input type="hidden" name="back" value="45" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		
 		<p class="act">
 			<input type="submit" class="active" name="eventSubmit_doCopyMtrlSite" value="$tlang.getString("sitedicla.copybtn")" accesskey="s" />

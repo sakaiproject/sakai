@@ -213,8 +213,8 @@
 			</div>
 			<a href="#" onclick="javascript:blur();document.findCourseForm.option.value='add';document.findCourseForm.submit();">$tlang.getString('nscourse.findCourse.addAnotherSection')</a>				
 
-		<input id="index" type="hidden" name="template-index" value="53" />
-		<input type="hidden" name="back" value="$backIndex" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input id="index" type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="eventSubmit_doFind_course" value="x" />
 		<input type="hidden" name="option" value="find"/>
 		<p class="act">

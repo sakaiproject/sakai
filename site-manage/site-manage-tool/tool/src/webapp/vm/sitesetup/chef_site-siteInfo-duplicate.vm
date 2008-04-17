@@ -55,7 +55,7 @@
 					$tlang.getString("sitdup.dupsit2") "$!duplicatedName" $tlang.getString("sitdup.hasbeedup")
 				</p>
 			#end
-		<input type="hidden" name="template-index" value="29" />
+		<input type="hidden" name="templateIndex" value="29" />
 		<div class="act">
 			#if (!$!siteDuplicated)
 				<input
