@@ -95,4 +95,8 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 		return false;
 	}
 
+	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{	
+		//TODO
+	}
 }
