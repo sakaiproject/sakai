@@ -107,6 +107,7 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 
 		String availableStatus = Utilities.rb.getString("event.unavailable");
 		boolean isSignupBegin=true;
+		boolean isOnWaitList=false;
 		if (meetingSignupBegin > curTime) {
 			isSignupBegin=false;
 			availableStatus = Utilities.rb.getString("event.Signup.not.started.yet") + " "
@@ -123,13 +124,15 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 
 			List<SignupAttendee> waiters = timeslot.getWaitingList();
 			for (SignupAttendee waiter : waiters) {
-				if (waiter.getAttendeeUserId().equals(currentUserId))
-					return Utilities.rb.getString("event.youOnWaitList");
+				if (waiter.getAttendeeUserId().equals(currentUserId)){
+					availableStatus = Utilities.rb.getString("event.youOnWaitList");
+					isOnWaitList =true;
+				}
 			}
 
 			int size = (attendees == null) ? 0 : attendees.size();
-			if (isSignupBegin && (size < timeslot.getMaxNoOfAttendees() || timeslot.getMaxNoOfAttendees() == SignupTimeslot.UNLIMITED)) {
-				availableStatus = Utilities.rb.getString("event.available");
+			if (!isOnWaitList && isSignupBegin && (size < timeslot.getMaxNoOfAttendees() || timeslot.getMaxNoOfAttendees() == SignupTimeslot.UNLIMITED)) {			 
+					availableStatus = Utilities.rb.getString("event.available");
 			}
 		}
 

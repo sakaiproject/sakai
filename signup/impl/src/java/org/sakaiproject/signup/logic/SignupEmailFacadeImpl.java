@@ -139,8 +139,11 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		}
 
 		/* send one email to organizer about the update status */
+		if (!signupEventTrackingInfo.getMeeting().isReceiveEmailByOwner())
+			return;
+		
 		User organizer = null;
-		User initiator = null;
+		User initiator = null;		
 		try {
 			organizer = userDirectoryService.getUser(signupEventTrackingInfo.getMeeting().getCreatorUserId());
 			initiator = userDirectoryService.getUser(signupEventTrackingInfo.getInitiatorAllocationInfo().getAttendee()

@@ -1,7 +1,7 @@
 /**********************************************************************************
  * $URL$
  * $Id$
-***********************************************************************************
+ ***********************************************************************************
  *
  * Copyright (c) 2007, 2008 Yale University
  * 
@@ -114,14 +114,12 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 			CancelAttendee signup = new CancelAttendee(signupMeetingService, currentUserId(), currentSiteId(), false);
 			SignupAttendee removedAttendee = new SignupAttendee(currentUserId(), currentSiteId());
 			meeting = signup.cancelSignup(meetingWrapper.getMeeting(), timeslotWrapper.getTimeSlot(), removedAttendee);
-			/* send notification to organizer */
-			if (meeting.isReceiveEmailByOwner()) {
-				try {
-					signupMeetingService.sendCancellationEmail(signup.getSignupEventTrackingInfo());
-				} catch (Exception e) {
-					logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
-					Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
-				}
+			/* send notification to organizer and possible promoted participants*/
+			try {
+				signupMeetingService.sendCancellationEmail(signup.getSignupEventTrackingInfo());
+			} catch (Exception e) {
+				logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
+				Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 			}
 		} catch (SignupUserActionException ue) {
 			Utilities.addErrorMessage(ue.getMessage());
@@ -145,7 +143,8 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 		this.timeslotWrapper = (TimeslotWrapper) timeslotWrapperTable.getRowData();
 		SignupMeeting meeting = null;
 		try {
-			AddWaiter addWaiter = new AddWaiter(signupMeetingService, currentUserId(), currentSiteId(), ON_BOTTOM_LIST, false);
+			AddWaiter addWaiter = new AddWaiter(signupMeetingService, currentUserId(), currentSiteId(), ON_BOTTOM_LIST,
+					false);
 			SignupAttendee newWaiter = new SignupAttendee();
 			newWaiter.setAttendeeUserId(sakaiFacade.getCurrentUserId());
 			newWaiter.setSignupSiteId(sakaiFacade.getCurrentLocationId());
