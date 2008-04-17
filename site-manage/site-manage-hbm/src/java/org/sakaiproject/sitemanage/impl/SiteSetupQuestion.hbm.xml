@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+          
+<hibernate-mapping package="org.sakaiproject.sitemanage.impl" default-lazy="false">
+	<class name="SiteSetupQuestionImpl"
+		table="SSQ_QUESTION">
+		
+		<comment>This table stores site setup questions</comment>
+		
+		<id name="id" length="99" column="ID">
+			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
+		</id>
+		
+		<property name="question" type="string" not-null="false">
+            <column name="QUESTION"/>
+        </property>
+        
+        <property name="required" type="boolean" not-null="true">
+            <column name="REQUIRED"/>
+        </property>
+        
+        <property name="isMultipleAnswers" type="boolean" not-null="true">
+            <column name="MULTIPLE_ANSWERS"/>
+        </property>
+        
+        <set name="answers" cascade="all-delete-orphan" inverse="false">
+			<key column="QUESTION_ID" />
+			<one-to-many class="SiteSetupQuestionAnswerImpl" />
+		</set>
+		
+		<many-to-one name="siteTypeQuestions" column="SITETYPE_ID"
+			class="SiteTypeQuestionsImpl" index="SSQ_QUESTION_SITETYPE_I" />
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+          
+<hibernate-mapping package="org.sakaiproject.sitemanage.impl" default-lazy="false">
+	<class name="SiteSetupUserAnswerImpl"
+		table="SSQ_USER_ANSWER">
+		
+		<id name="id" length="99" column="ID">
+			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
+		</id>
+		
+		<property name="siteId" type="string" not-null="true">
+            <column name="SITE_ID"/>
+        </property>
+        
+        <property name="userId" type="string" not-null="true">
+            <column name="USER_ID"/>
+        </property>
+        
+        <property name="answerString" type="string" not-null="false">
+            <column name="ANSWER_STRING"/>
+        </property>
+        
+        <property name="answerId" type="string" not-null="false">
+            <column name="ANSWER_ID"/>
+        </property>
+			
+		<property name="questionId" type="string" not-null="false">
+            <column name="QUESTION_ID"/>
+        </property>
+        
+    </class>
+</hibernate-mapping>

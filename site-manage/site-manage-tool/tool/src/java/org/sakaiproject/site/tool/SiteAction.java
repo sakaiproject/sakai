@@ -74,6 +74,9 @@ import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.CourseSet;
@@ -98,6 +101,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportService;
@@ -109,7 +114,8 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
-//import org.sakaiproject.site.impl.BaseGroup;
+import org.sakaiproject.sitemanage.api.model.*;
+import org.sakaiproject.site.util.SiteSetupQuestionFileParser;
 import org.sakaiproject.sitemanage.api.SectionField;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -167,6 +173,11 @@ public class SiteAction extends PagedResourceActionII {
 
 	private org.sakaiproject.sitemanage.api.UserNotificationProvider userNotificationProvider = (org.sakaiproject.sitemanage.api.UserNotificationProvider) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.UserNotificationProvider.class);
+	
+	private ContentHostingService contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+	
+	private static org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService questionService = (org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService) ComponentManager
+	.get(org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService.class);
 	
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 
@@ -229,7 +240,8 @@ public class SiteAction extends PagedResourceActionII {
 			"-siteInfo-groupedit", // 50
 			"-siteInfo-groupDeleteConfirm", // 51,
 			"",
-			"-findCourse" // 53
+			"-findCourse", // 53
+			"-questions" // 54
 	};
 
 	/** Name of state attribute for Site instance id */
@@ -241,7 +253,7 @@ public class SiteAction extends PagedResourceActionII {
 	/** Name of state attribute for CHEF site type */
 	private static final String STATE_SITE_TYPE = "site-type";
 
-	/** Name of state attribute for poissible site types */
+	/** Name of state attribute for possible site types */
 	private static final String STATE_SITE_TYPES = "site_types";
 
 	private static final String STATE_DEFAULT_SITE_TYPE = "default_site_type";
@@ -598,7 +610,13 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String SITE_TEMPLATE_PREFIX = "!template";
 	
 	private static final String STATE_TYPE_SELECTED = "state_type_selected";
+
+	// the template index after exist the question mode
+	private static final String STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE = "state_site_setup_question_next_template";
 	
+	// the answers to site setup questions
+	private static final String STATE_SITE_SETUP_QUESTION_ANSWER = "state_site_setup_question_answer";
+
 	/**
 	 * Populate the state object, if needed.
 	 */
@@ -772,11 +790,12 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_CM_CURRENT_USERID);
 		state.removeAttribute(STATE_CM_AUTHORIZER_LIST);
 		state.removeAttribute(STATE_CM_AUTHORIZER_SECTIONS);
-		state.removeAttribute(FORM_ADDITIONAL); // don't we need to clena this
+		state.removeAttribute(FORM_ADDITIONAL); // don't we need to clean this
 		// too? -daisyf
 		state.removeAttribute(STATE_TEMPLATE_SITE);
 		state.removeAttribute(STATE_TYPE_SELECTED);
-		
+		state.removeAttribute(STATE_SITE_SETUP_QUESTION_ANSWER);
+
 	} // cleanState
 
 	/**
@@ -2742,6 +2761,17 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("authzGroupService", AuthzGroupService.getInstance());
 			return (String) getContext(data).get("template") + TEMPLATE[53];
 		}
+		case 54:
+			/*
+			 * build context for chef_site-questions.vm
+			 */
+			SiteTypeQuestions siteTypeQuestions = questionService.getSiteTypeQuestions((String) state.getAttribute(STATE_SITE_TYPE));
+			if (siteTypeQuestions != null)
+			{
+				context.put("questionSet", siteTypeQuestions);
+			}
+			context.put("continueIndex", state.getAttribute(STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE));
+			return (String) getContext(data).get("template") + TEMPLATE[54];
 
 		}
 		// should never be reached
@@ -3900,6 +3930,8 @@ public class SiteAction extends PagedResourceActionII {
 		if (state.getAttribute(SITE_CREATE_CURRENT_STEP) == null) {
 			state.setAttribute(SITE_CREATE_CURRENT_STEP, new Integer(1));
 		}
+		
+		redirectToQuestionVM(state, type);
 
 	} // doSite_type
 	
@@ -3955,6 +3987,29 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, toolIdsSelected);
 			state.setAttribute(STATE_SITE_INFO, siteInfo);
+		}
+	}
+
+	/**
+	 * Depend on the setup question setting, redirect the site setup flow
+	 * @param state
+	 * @param type
+	 */
+	private void redirectToQuestionVM(SessionState state, String type) {
+		// SAK-12912: check whether there is any setup question defined
+		SiteTypeQuestions siteTypeQuestions = questionService.getSiteTypeQuestions(type);
+		if (siteTypeQuestions != null)
+		{
+			Set questionSet = siteTypeQuestions.getQuestions();
+			if (questionSet != null && questionSet.size() > 0)
+			{
+				// there is at least one question defined for this type
+				if (state.getAttribute(STATE_MESSAGE) == null)
+				{
+					state.setAttribute(STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE, state.getAttribute(STATE_TEMPLATE_INDEX));
+					state.setAttribute(STATE_TEMPLATE_INDEX, "54");
+				}
+			}
 		}
 	}
 
@@ -4866,6 +4921,10 @@ public class SiteAction extends PagedResourceActionII {
 			// now that the site exists, we can set the email alias when an
 			// Email Archive tool has been selected
 			setSiteAlias(state, siteId);
+			
+			// save user answers
+			saveSiteSetupQuestionUserAnswers(state, siteId);
+			
 			// TODO: hard coding this frame id is fragile, portal dependent, and
 			// needs to be fixed -ggolden
 			// schedulePeerFrameRefresh("sitenav");
@@ -4911,6 +4970,28 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	/**
+	 * save user answers
+	 * @param state
+	 * @param siteId
+	 */
+	private void saveSiteSetupQuestionUserAnswers(SessionState state,
+			String siteId) {
+		// update the database with user answers to SiteSetup questions
+		if (state.getAttribute(STATE_SITE_SETUP_QUESTION_ANSWER) != null)
+		{
+			Set<SiteSetupUserAnswer> userAnswers = (Set<SiteSetupUserAnswer>) state.getAttribute(STATE_SITE_SETUP_QUESTION_ANSWER);
+			for(Iterator<SiteSetupUserAnswer> aIterator = userAnswers.iterator(); aIterator.hasNext();)
+			{
+				SiteSetupUserAnswer userAnswer = aIterator.next();
+				userAnswer.setSiteId(siteId);
+				// save to db
+				questionService.saveSiteSetupUserAnswer(userAnswer);
+			}
+		}
+	}
+
+	/**
+>>>>>>> .merge-right.r45468
 	 * Update course site and related realm based on the roster chosen or requested
 	 * @param state
 	 * @param siteId
@@ -6126,6 +6207,18 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_SITE_TYPES, new Vector());
 			}
 		}
+		
+		/*<p>
+		 * This is a change related to SAK-12912
+		 * initialize the question list
+		 */
+		if (!questionService.hasAnySiteTypeQuestions())
+		{
+			if (SiteSetupQuestionFileParser.isConfigurationXmlAvailable())
+			{
+				SiteSetupQuestionFileParser.updateConfig();
+			}
+		}
 	} // init
 
 	public void doNavigate_to_site(RunData data) {
@@ -6859,6 +6952,7 @@ public class SiteAction extends PagedResourceActionII {
 								
 								// import tool content
 								importToolContent(nSiteId, oSiteId, site, false);
+
 							} catch (Exception e1) {
 								// if goes here, IdService
 								// or SiteService has done
@@ -7110,6 +7204,17 @@ public class SiteAction extends PagedResourceActionII {
 				state.removeAttribute(SORTED_ASC);
 			}
 			break;
+		case 54:
+			if (forward) {
+				
+				// store answers to site setup questions
+				if (getAnswersToSetupQuestions(params, state))
+				{
+					state.setAttribute(STATE_TEMPLATE_INDEX, state.getAttribute(STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE));
+					state.removeAttribute(STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE);
+				}
+			}
+			break;
 		}
 
 	}// actionFor Template
@@ -7171,7 +7276,76 @@ public class SiteAction extends PagedResourceActionII {
 			SecurityService.clearAdvisors();
 		}
 	}
-
+	/**
+	 * get user answers to setup questions
+	 * @param params
+	 * @param state
+	 * @return
+	 */
+	protected boolean getAnswersToSetupQuestions(ParameterParser params, SessionState state)
+	{
+		boolean rv = true;
+		String answerString = null;
+		String answerId = null;
+		Set userAnswers = new HashSet();
+		
+		SiteTypeQuestions siteTypeQuestions = questionService.getSiteTypeQuestions((String) state.getAttribute(STATE_SITE_TYPE));
+		if (siteTypeQuestions != null)
+		{
+			Set<SiteSetupQuestion> questions = siteTypeQuestions.getQuestions();
+			for (Iterator i = questions.iterator(); i.hasNext();)
+			{
+				SiteSetupQuestion question = (SiteSetupQuestion) i.next();
+				// get the selected answerId
+				answerId = params.get(question.getId());
+				if (question.isRequired() && answerId == null)
+				{
+					rv = false;
+					addAlert(state, rb.getString("sitesetupquestion.alert"));
+				}
+				else if (answerId != null)
+				{
+					SiteSetupQuestionAnswer answer = questionService.getSiteSetupQuestionAnswer(answerId);
+					if (answer != null)
+					{
+						if (answer.getIsFillInBlank())
+						{
+							// need to read the text input instead
+							answerString = params.get("fillInBlank_" + answerId);
+						}
+						
+						SiteSetupUserAnswer uAnswer = questionService.newSiteSetupUserAnswer();
+						uAnswer.setAnswerId(answerId);
+						uAnswer.setQuestionId(question.getId());
+						uAnswer.setUserId(SessionManager.getCurrentSessionUserId());
+						//update the state variable
+						userAnswers.add(uAnswer);
+					}
+				}
+			}
+			state.setAttribute(STATE_SITE_SETUP_QUESTION_ANSWER, userAnswers);	
+		}
+		return rv;
+	}
+	
+	/**
+	 * get user answers to setup questions
+	 * @param params
+	 * @return
+	 */
+	protected void saveAnswersToSetupQuestions(SessionState state)
+	{
+		String answerFolderReference = SiteSetupQuestionFileParser.getAnswerFolderReference();
+		try
+		{
+			contentHostingService.addResource(answerFolderReference + "");
+		}
+		catch (Exception e)
+		{
+			M_log.warn(this + e.getMessage());
+		}
+	}
+	
 	/**
 	 * update current step index within the site creation wizard
 	 * 
@@ -8707,6 +8881,7 @@ public class SiteAction extends PagedResourceActionII {
 								.getSiteCollection(fromSiteId);
 						String toSiteCollectionId = m_contentHostingService
 								.getSiteCollection(toSiteId);
+
 						transferCopyEntities(toolId, fromSiteCollectionId,
 								toSiteCollectionId);
 						resourcesImported = true;

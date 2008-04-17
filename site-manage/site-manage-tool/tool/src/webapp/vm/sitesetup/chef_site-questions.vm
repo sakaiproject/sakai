@@ -1,0 +1,38 @@
+<script type="text/javascript">
+<!-- hide from non-JS browsers
+
+// -->
+</script>
+
+<div class="portletBody">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<h4>$questionSet.getInstruction()</h4>
+	<form name = "removeSectionForm" method="post" action="#toolForm($action)">
+		#foreach ($question in $questionSet.getQuestions())
+			<h5>
+				#if ($question.required)
+					<span class ="reqStarInline">*</span>
+				#end
+				$question.getQuestion()
+			</h5>
+			#foreach($answer in $question.getAnswers())
+				<input #if ($question.isMultipleAnswsers())type="checkbox"#else type="radio" #end name="$question.getId()" value="$answer.getId()" id="$question.getId()" />
+				$answer.getAnswer()
+				#if ($answer.getIsFillInBlank())
+					<input type="text" name="fillInBlank_$answer.getId()" value="" id="fillInBlank_$answer.getId()" />
+				#end
+				<br />
+			#end
+		#end
+		<input type="hidden" name="back" value="1" />
+		<input type="hidden" name="template-index" value="54" />
+		<input type="hidden" name="continue" value="$continueIndex" />
+					
+		<p class="act">
+			<input type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')"  />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+		</p>
+
+	</form>
+</div>
