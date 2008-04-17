@@ -106,8 +106,9 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 
 	public void notifyNewUserEmail(User user, String newUserPassword,
 			String siteTitle) {
-		
-		rb = new ResourceLoader(user.getId(), "UserNotificationProvider");
+		rb = new ResourceLoader("UserNotificationProvider");
+		// set the locale to individual receipient's setting
+		rb.setContextLocale(rb.getLocale(user.getId()));
 		
 		String from = getSetupRequestEmailAddress();
 		String productionSiteName = serverConfigurationService.getString(

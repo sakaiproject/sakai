@@ -616,6 +616,9 @@ public class SiteAction extends PagedResourceActionII {
 	
 	// the answers to site setup questions
 	private static final String STATE_SITE_SETUP_QUESTION_ANSWER = "state_site_setup_question_answer";
+	
+	// the non-official participant
+	private static final String ADD_NON_OFFICIAL_PARTICIPANT = "add_non_official_participant";
 
 	/**
 	 * Populate the state object, if needed.
@@ -1371,21 +1374,35 @@ public class SiteAction extends PagedResourceActionII {
 					.getString("officialAccountName"));
 			context.put("officialAccountLabel", ServerConfigurationService
 					.getString("officialAccountLabel"));
-			context.put("nonOfficialAccountSectionTitle", ServerConfigurationService
-					.getString("nonOfficialAccountSectionTitle"));
-			context.put("nonOfficialAccountName", ServerConfigurationService
-					.getString("nonOfficialAccountName"));
-			context.put("nonOfficialAccountLabel", ServerConfigurationService
-					.getString("nonOfficialAccountLabel"));
-
 			if (state.getAttribute("officialAccountValue") != null) {
 				context.put("officialAccountValue", (String) state
 						.getAttribute("officialAccountValue"));
 			}
-			if (state.getAttribute("nonOfficialAccountValue") != null) {
-				context.put("nonOfficialAccountValue", (String) state
-						.getAttribute("nonOfficialAccountValue"));
+			
+			// whether to show the non-official participant section or not
+			String addNonOfficialParticipant = (String) state.getAttribute(ADD_NON_OFFICIAL_PARTICIPANT);
+			if (addNonOfficialParticipant != null)
+			{
+				if (addNonOfficialParticipant.equalsIgnoreCase("true"))
+				{
+					context.put("nonOfficialAccount", Boolean.TRUE);
+					context.put("nonOfficialAccountSectionTitle", ServerConfigurationService
+							.getString("nonOfficialAccountSectionTitle"));
+					context.put("nonOfficialAccountName", ServerConfigurationService
+							.getString("nonOfficialAccountName"));
+					context.put("nonOfficialAccountLabel", ServerConfigurationService
+							.getString("nonOfficialAccountLabel"));
+					if (state.getAttribute("nonOfficialAccountValue") != null) {
+						context.put("nonOfficialAccountValue", (String) state
+								.getAttribute("nonOfficialAccountValue"));
+					}
+				}
+				else
+				{
+					context.put("nonOfficialAccount", Boolean.FALSE);
+				}
 			}
+
 
 			if (state.getAttribute("form_same_role") != null) {
 				context.put("form_same_role", ((Boolean) state
@@ -6218,6 +6235,14 @@ public class SiteAction extends PagedResourceActionII {
 			{
 				SiteSetupQuestionFileParser.updateConfig();
 			}
+		}
+		
+		// show UI for adding non-official participant(s) or not
+		// if nonOfficialAccount variable is set to be false inside sakai.properties file, do not show the UI section for adding them.
+		// the setting defaults to be true
+		if (state.getAttribute(ADD_NON_OFFICIAL_PARTICIPANT) == null)
+		{
+			state.setAttribute(ADD_NON_OFFICIAL_PARTICIPANT, ServerConfigurationService.getString("nonOfficialAccount", "true"));
 		}
 	} // init
 

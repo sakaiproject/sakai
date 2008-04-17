@@ -34,19 +34,21 @@
 				$tlang.getString("add.multiple")
 			</div>
 		</div>
-		<div class="instruction">
-			<h4>$!nonOfficialAccountSectionTitle</h4>
-		</div>
-		<div class="indnt1">
-			<label for="nonOfficialAccount" class="block">
-				$!nonOfficialAccountLabel
-			</label>
-			<textarea  id="nonOfficialAccount" name="nonOfficialAccount"  cols="35" rows="4" wrap="virtual">$!validator.escapeHtmlTextarea($!nonOfficialAccountValue)</textarea>
-			<div class="instruction textPanelFooter">
-				$tlang.getString("add.multiple")
+		## whether to show the section for adding non-official account or not
+		#if ($!nonOfficialAccount)
+			<div class="instruction">
+				<h4>$!nonOfficialAccountSectionTitle</h4>
 			</div>
-		</div>
-		
+			<div class="indnt1">
+				<label for="nonOfficialAccount" class="block">
+					$!nonOfficialAccountLabel
+				</label>
+				<textarea  id="nonOfficialAccount" name="nonOfficialAccount"  cols="35" rows="4" wrap="virtual">$!validator.escapeHtmlTextarea($!nonOfficialAccountValue)</textarea>
+				<div class="instruction textPanelFooter">
+					$tlang.getString("add.multiple")
+				</div>
+			</div>
+		#end
 		<h4>
 			$tlang.getString("add.participants")
 		</h4>
