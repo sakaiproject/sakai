@@ -64,7 +64,7 @@ import org.sakaiproject.entitybroker.impl.util.ReflectUtil;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 
 import com.thoughtworks.xstream.io.json.JsonHierarchicalStreamDriver;
-import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.thoughtworks.xstream.io.xml.XppDomDriver;
 
 /**
  * Common implementation of the handler for the EntityBroker system. This should be used in
@@ -485,23 +485,23 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                      }
                      res.setContentType(encoding);
 
+                     // get the entities to output
+                     Search search = makeSearchFromRequest(req);
+                     List<?> entities = fetchEntityList(view.getEntityReference(), search);
+                     OutputStream outputStream = null;
+                     try {
+                        outputStream = res.getOutputStream();
+                     } catch (IOException e) {
+                        throw new RuntimeException("Failed to get output stream from response: " + view.getEntityReference(), e);
+                     }
+
                      OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
                      if (formattable == null) {
                         // handle internally or fail
-                        Search search = makeSearchFromRequest(req);
-                        List<?> entities = fetchEntityList(view.getEntityReference(), search);
-                        try {
-                           internalOutputFormatter(view.getEntityReference(), view.getExtension(), entities, res.getOutputStream(), view);
-                        } catch (IOException e) {
-                           throw new RuntimeException("Failed to get output stream from response: " + view.getEntityReference(), e);
-                        }
+                        internalOutputFormatter(view.getEntityReference(), view.getExtension(), entities, outputStream, view);
                      } else {
                         // use provider's formatter
-                        try {
-                           formattable.formatOutput(view.getEntityReference(), view.getExtension(), null, res.getOutputStream());
-                        } catch (IOException e) {
-                           throw new RuntimeException("Failed to get outputstream from response: " + view.toString() + ":" + e.getMessage(), e);
-                        }
+                        formattable.formatOutput(view.getEntityReference(), view.getExtension(), entities, outputStream);
                      }
                      res.setStatus(HttpServletResponse.SC_OK);
                      handled = true;
@@ -684,7 +684,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       }
 
       // get the encoder to use
-      EntityXStream encoder = getEncoderForExtension(format);
+      EntityXStream encoder = getEncoderForFormat(format);
 
       String encoded = null;
       if (entities.isEmpty()) {
@@ -767,7 +767,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * @param format
     * @return the appropriate encoder for the format
     */
-   private EntityXStream getEncoderForExtension(String format) {
+   private EntityXStream getEncoderForFormat(String format) {
       EntityXStream encoder = null;
       if (Formats.JSON.equals(format)) {
          if (! xstreams.containsKey(format)) {
@@ -776,7 +776,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          encoder = xstreams.get(format);
       } else if (Formats.XML.equals(format)) {
          if (! xstreams.containsKey(format)) {
-            xstreams.put( format, new EntityXStream(new DomDriver()) );
+            xstreams.put( format, new EntityXStream(new XppDomDriver()) );
          }
          encoder = xstreams.get(format);
       } else {

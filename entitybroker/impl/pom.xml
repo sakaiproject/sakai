@@ -1,288 +1,299 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-   <name>Sakai Entity Broker Implementation</name>
-   <groupId>org.sakaiproject.entitybroker</groupId>
-   <artifactId>entitybroker-impl</artifactId>
-   <organization>
-      <name>CARET, University of Cambridge</name>
-      <url>http://www.caret.cam.ac.uk/</url>
-   </organization>
-   <inceptionYear>2007</inceptionYear>
-   <packaging>jar</packaging>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<name>Sakai Entity Broker Implementation</name>
+	<groupId>org.sakaiproject.entitybroker</groupId>
+	<artifactId>entitybroker-impl</artifactId>
+	<organization>
+		<name>CARET, University of Cambridge</name>
+		<url>http://www.caret.cam.ac.uk/</url>
+	</organization>
+	<inceptionYear>2007</inceptionYear>
+	<packaging>jar</packaging>
 
-   <!-- the base is parent -->
-   <parent>
-      <artifactId>entitybroker</artifactId>
-      <groupId>org.sakaiproject</groupId>
-      <version>1.3.0</version><!--entitybroker.version-->
-   </parent>
+	<!-- the base is parent -->
+	<parent>
+		<artifactId>entitybroker</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>1.3.0</version><!--entitybroker.version-->
+	</parent>
 
-   <dependencies>
-      <!-- internal dependencies -->
-      <dependency>
-         <groupId>org.sakaiproject.entitybroker</groupId>
-         <artifactId>entitybroker-api</artifactId>
-         <version>1.3.0</version><!--entitybroker.version-->
-         <scope>provided</scope>
-      </dependency>
+	<dependencies>
+		<!-- internal dependencies -->
+		<dependency>
+			<groupId>org.sakaiproject.entitybroker</groupId>
+			<artifactId>entitybroker-api</artifactId>
+			<version>1.3.0</version><!--entitybroker.version-->
+			<scope>provided</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>org.sakaiproject.entitybroker</groupId>
-         <artifactId>entitybroker-mocks</artifactId>
-         <version>1.3.0</version><!--entitybroker.version-->
-         <scope>provided</scope>
-      </dependency>
+		<dependency>
+			<groupId>org.sakaiproject.entitybroker</groupId>
+			<artifactId>entitybroker-mocks</artifactId>
+			<version>1.3.0</version><!--entitybroker.version-->
+			<scope>provided</scope>
+		</dependency>
 
-      <!-- external dependencies -->
-      <dependency>
-         <groupId>javax.servlet</groupId>
-         <artifactId>servlet-api</artifactId>
-         <version>2.4</version>
-         <scope>provided</scope>
-      </dependency>
-      
-      <dependency>
-         <artifactId>portlet-api</artifactId>
-         <groupId>portlet-api</groupId>
-         <version>1.0</version>
-         <scope>provided</scope>
-      </dependency>
+		<!-- external dependencies -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.4</version>
+			<scope>provided</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>${sakai.spring.groupId}</groupId>
-         <artifactId>${sakai.spring.artifactId}</artifactId>
-         <version>${sakai.spring.version}</version>
-         <scope>provided</scope>
-      </dependency>
+		<dependency>
+			<artifactId>portlet-api</artifactId>
+			<groupId>portlet-api</groupId>
+			<version>1.0</version>
+			<scope>provided</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>${sakai.hibernate.groupId}</groupId>
-         <artifactId>${sakai.hibernate.artifactId}</artifactId>
-         <version>${sakai.hibernate.version}</version>
-         <scope>provided</scope>
-      </dependency>
+		<dependency>
+			<groupId>${sakai.spring.groupId}</groupId>
+			<artifactId>${sakai.spring.artifactId}</artifactId>
+			<version>${sakai.spring.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
-      <!-- Data processing -->
-      <dependency>
-         <groupId>xstream</groupId>
-         <artifactId>xstream</artifactId>
-         <version>1.2.2</version>
-      </dependency>
+		<dependency>
+			<groupId>${sakai.hibernate.groupId}</groupId>
+			<artifactId>${sakai.hibernate.artifactId}</artifactId>
+			<version>${sakai.hibernate.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
-    <!-- required for bean cloning -->
-      <dependency>
-         <groupId>commons-beanutils</groupId>
-         <artifactId>commons-beanutils</artifactId>
-         <version>1.7.0</version>
-      </dependency>
+		<!-- Data processing -->
+		<dependency>
+			<groupId>xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.2.2</version>
+            <type>jar</type>
+		</dependency>
 
-      <dependency>
-         <groupId>commons-collections</groupId>
-         <artifactId>commons-collections</artifactId>
-         <version>3.2</version>
-      </dependency>
+		<dependency>
+			<groupId>xpp3</groupId>
+			<artifactId>xpp3</artifactId>
+			<version>1.1.3.3</version>
+            <type>jar</type>
+		</dependency>
 
-      <!-- Required for hibernate 3 HQL queries -->
-      <dependency>
-         <groupId>antlr</groupId>
-         <artifactId>antlr</artifactId>
-         <version>2.7.6</version>
-      </dependency>
+		<!-- required for bean cloning -->
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.7.0</version>
+		</dependency>
 
-      <!-- generic DAO -->
-      <dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>generic-dao</artifactId>
-         <version>${sakai.generic-dao.version}</version>
-         <scope>provided</scope>
-      </dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2</version>
+		</dependency>
 
-      <!-- Commons JARS put in shared/lib by Sakai -->
-      <dependency>
-         <groupId>commons-logging</groupId>
-         <artifactId>commons-logging</artifactId>
-         <version>1.1</version>
-         <scope>provided</scope>
-      </dependency>
+		<!-- Required for hibernate 3 HQL queries -->
+		<dependency>
+			<groupId>antlr</groupId>
+			<artifactId>antlr</artifactId>
+			<version>2.7.6</version>
+		</dependency>
 
-      <!-- Sakai dependencies -->
-      <dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>sakai-authz-api</artifactId>
-         <version>${sakai.version}</version>
-         <scope>provided</scope>
-      </dependency>
+		<!-- generic DAO -->
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>generic-dao</artifactId>
+			<version>${sakai.generic-dao.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>sakai-component-api</artifactId>
-         <version>${sakai.version}</version>
-         <scope>provided</scope>
-      </dependency>
+		<!-- Commons JARS put in shared/lib by Sakai -->
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1</version>
+			<scope>provided</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>sakai-entity-api</artifactId>
-         <version>${sakai.version}</version>
-         <scope>provided</scope>
-      </dependency>
+		<!-- Sakai dependencies -->
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-authz-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>sakai-event-api</artifactId>
-         <version>${sakai.version}</version>
-         <scope>provided</scope>
-      </dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-component-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>sakai-site-api</artifactId>
-         <version>${sakai.version}</version>
-         <scope>provided</scope>
-      </dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>sakai-tool-api</artifactId>
-         <version>${sakai.version}</version>
-         <scope>provided</scope>
-      </dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-event-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>sakai-user-api</artifactId>
-         <version>${sakai.version}</version>
-         <scope>provided</scope>
-      </dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-site-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>sakai-util-api</artifactId>
-         <version>${sakai.version}</version>
-         <scope>provided</scope>
-      </dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-tool-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>sakai-entity-util</artifactId>
-         <version>${sakai.version}</version>
-      </dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
-      <!-- testing dependencies -->
-      <dependency>
-         <groupId>${sakai.spring.groupId}</groupId>
-         <artifactId>${sakai.spring.mock.artifactId}</artifactId>
-         <version>${sakai.spring.mock.version}</version>
-         <scope>test</scope>
-      </dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-util-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>hsqldb</groupId>
-         <artifactId>hsqldb</artifactId>
-         <version>1.8.0.5</version>
-         <scope>test</scope>
-      </dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-entity-util</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
 
-      <dependency>
-         <groupId>dom4j</groupId>
-         <artifactId>dom4j</artifactId>
-         <version>1.6.1</version>
-         <scope>test</scope>
-      </dependency>
+		<!-- testing dependencies -->
+		<dependency>
+			<groupId>${sakai.spring.groupId}</groupId>
+			<artifactId>${sakai.spring.mock.artifactId}</artifactId>
+			<version>${sakai.spring.mock.version}</version>
+			<scope>test</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>jta</groupId>
-         <artifactId>jta</artifactId>
-         <version>h2.1.8</version>
-         <scope>test</scope>
-      </dependency>
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.8.0.5</version>
+			<scope>test</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>cglib</groupId>
-         <artifactId>cglib-nodep</artifactId>
-         <version>2.1_3</version>
-         <scope>test</scope>
-      </dependency>
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+			<scope>test</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>commons-codec</groupId>
-         <artifactId>commons-codec</artifactId>
-         <version>1.3</version>
-         <scope>test</scope>
-      </dependency>
+		<dependency>
+			<groupId>jta</groupId>
+			<artifactId>jta</artifactId>
+			<version>h2.1.8</version>
+			<scope>test</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>net.sf.ehcache</groupId>
-         <artifactId>ehcache</artifactId>
-         <version>1.3.0</version>
-         <scope>test</scope>
-      </dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-nodep</artifactId>
+			<version>2.1_3</version>
+			<scope>test</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>easymock</groupId>
-         <artifactId>easymock</artifactId>
-         <version>1.2_Java1.3</version>
-         <scope>test</scope>
-      </dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.3</version>
+			<scope>test</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>commons-lang</groupId>
-         <artifactId>commons-lang</artifactId>
-         <version>2.1</version>
-         <scope>test</scope>
-      </dependency>
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>1.3.0</version>
+			<scope>test</scope>
+		</dependency>
 
-   </dependencies>
+		<dependency>
+			<groupId>easymock</groupId>
+			<artifactId>easymock</artifactId>
+			<version>1.2_Java1.3</version>
+			<scope>test</scope>
+		</dependency>
 
-   <build>
-      <resources>
-         <resource>
-            <directory>${basedir}/src/bundle</directory>
-            <includes>
-               <include>**/*.properties</include>
-            </includes>
-            <filtering>false</filtering>
-         </resource>
-         <resource>
-            <directory>${basedir}/src/java</directory>
-            <includes>
-               <include>**/*.xml</include>
-            </includes>
-            <filtering>false</filtering>
-         </resource>
-      </resources>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.1</version>
+			<scope>test</scope>
+		</dependency>
 
-      <!-- unit testing -->
-      <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <!-- 
-               By default, the surefire plugin will automatically include all test classes with the following wildcard patterns:
-               "**/Test*.java" - includes all of its subdirectory and all java filenames that start with "Test".
-               "**/*Test.java" - includes all of its subdirectory and all java filenames that end with "Test".
-               "**/*TestCase.java" - includes all of its subdirectory and all java filenames that end with "TestCase".
-            -->
-         </plugin>
-      </plugins>
-      <testResources>
-         <testResource>
-            <directory>${basedir}/../pack/src/webapp/WEB-INF</directory>
-            <includes>
-               <include>spring-hibernate.xml</include>
-               <include>logic-support.xml</include>
-            </includes>
-         </testResource>
-         <testResource>
-            <directory>${basedir}/src/test</directory>
-            <includes>
-               <include>hibernate-test.xml</include>
-               <include>hibernate.properties</include>
-            </includes>
-         </testResource>
-      </testResources>
-   </build>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+			<resource>
+				<directory>${basedir}/src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+
+		<!-- unit testing -->
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<!-- 
+					By default, the surefire plugin will automatically include all test classes with the following wildcard patterns:
+					"**/Test*.java" - includes all of its subdirectory and all java filenames that start with "Test".
+					"**/*Test.java" - includes all of its subdirectory and all java filenames that end with "Test".
+					"**/*TestCase.java" - includes all of its subdirectory and all java filenames that end with "TestCase".
+				-->
+			</plugin>
+		</plugins>
+		<testResources>
+			<testResource>
+				<directory>
+					${basedir}/../pack/src/webapp/WEB-INF
+				</directory>
+				<includes>
+					<include>spring-hibernate.xml</include>
+					<include>logic-support.xml</include>
+				</includes>
+			</testResource>
+			<testResource>
+				<directory>${basedir}/src/test</directory>
+				<includes>
+					<include>hibernate-test.xml</include>
+					<include>hibernate.properties</include>
+				</includes>
+			</testResource>
+		</testResources>
+	</build>
 
 </project>
