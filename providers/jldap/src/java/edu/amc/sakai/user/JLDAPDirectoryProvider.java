@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -154,7 +155,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 * is completely isolated on each app node.
 	 */
 	private Map<String,LdapUserData> userCache = 
-		Collections.synchronizedMap(new HashMap<String,LdapUserData>());
+		new ConcurrentHashMap<String, LdapUserData>();
 
 	/** TTL for cachedUsers. Defaults to {@link #DEFAULT_CACHE_TTL} */
 	private long cacheTtl = DEFAULT_CACHE_TTL;
