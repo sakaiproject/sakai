@@ -195,12 +195,13 @@ public class ReflectUtilTest extends TestCase {
     */
    public void testGetObjectValues() {
       Map<String, Object> m = null;
+      ReflectUtil reflectUtil = new ReflectUtil();
 
-      m = ReflectUtil.getObjectValues( new TestNone() );
+      m = reflectUtil.getObjectValues( new TestNone() );
       assertNotNull(m);
       assertEquals(0, m.size());
 
-      m = ReflectUtil.getObjectValues( new TestPea() );
+      m = reflectUtil.getObjectValues( new TestPea() );
       assertNotNull(m);
       assertEquals(2, m.size());
       assertTrue(m.containsKey("id"));
@@ -208,7 +209,7 @@ public class ReflectUtilTest extends TestCase {
       assertTrue(m.containsKey("entityId"));
       assertEquals("EID", m.get("entityId"));
 
-      m = ReflectUtil.getObjectValues( new TestBean() );
+      m = reflectUtil.getObjectValues( new TestBean() );
       assertNotNull(m);
       assertEquals(2, m.size());
       assertTrue(m.containsKey("myInt"));
@@ -222,16 +223,17 @@ public class ReflectUtilTest extends TestCase {
     */
    public void testGetMethodWithAnnotation() {
       Method m = null;
+      ReflectUtil reflectUtil = new ReflectUtil();
 
       // no annotation
       try {
-         m = ReflectUtil.getMethodWithAnnotation(TestBean.class, EntityId.class);
+         m = reflectUtil.getMethodWithAnnotation(TestBean.class, EntityId.class);
       } catch (NoSuchMethodException e) {
          assertNotNull(e.getMessage());
       }
 
       try {
-         m = ReflectUtil.getMethodWithAnnotation(TestEntity.class, EntityId.class);
+         m = reflectUtil.getMethodWithAnnotation(TestEntity.class, EntityId.class);
       } catch (NoSuchMethodException e) {
          fail("Should not have thrown exception");
       }
@@ -244,15 +246,17 @@ public class ReflectUtilTest extends TestCase {
     */
    public void testGetFieldWithAnnotation() {
       Field f = null;
+      ReflectUtil reflectUtil = new ReflectUtil();
+
       // no annotation
       try {
-         f = ReflectUtil.getFieldWithAnnotation(TestBean.class, EntityId.class);
+         f = reflectUtil.getFieldWithAnnotation(TestBean.class, EntityId.class);
       } catch (NoSuchFieldException e) {
          assertNotNull(e.getMessage());
       }
 
       try {
-         f = ReflectUtil.getFieldWithAnnotation(TestPea.class, EntityId.class);
+         f = reflectUtil.getFieldWithAnnotation(TestPea.class, EntityId.class);
       } catch (NoSuchFieldException e) {
          fail("Should not have thrown exception");
       }
@@ -265,30 +269,31 @@ public class ReflectUtilTest extends TestCase {
     */
    public void testGetFieldValueAsString() {
       String value = null;
+      ReflectUtil reflectUtil = new ReflectUtil();
 
-      value = ReflectUtil.getFieldValueAsString( new TestBean(), "id", null);
+      value = reflectUtil.getFieldValueAsString( new TestBean(), "id", null);
       assertNull(value);
 
-      value = ReflectUtil.getFieldValueAsString( new TestPea(), "id", null);
+      value = reflectUtil.getFieldValueAsString( new TestPea(), "id", null);
       assertNotNull(value);
       assertEquals("id", value);
 
-      value = ReflectUtil.getFieldValueAsString( new TestEntity(), "id", null);
+      value = reflectUtil.getFieldValueAsString( new TestEntity(), "id", null);
       assertNotNull(value);
       assertEquals("5", value);
 
-      value = ReflectUtil.getFieldValueAsString( new TestBean(), "id", EntityId.class);
+      value = reflectUtil.getFieldValueAsString( new TestBean(), "id", EntityId.class);
       assertNull(value);
 
-      value = ReflectUtil.getFieldValueAsString( new TestPea(), "id", EntityId.class);
+      value = reflectUtil.getFieldValueAsString( new TestPea(), "id", EntityId.class);
       assertNotNull(value);
       assertEquals("EID", value);
 
-      value = ReflectUtil.getFieldValueAsString( new TestEntity(), "id", EntityId.class);
+      value = reflectUtil.getFieldValueAsString( new TestEntity(), "id", EntityId.class);
       assertNotNull(value);
       assertEquals("33", value);
 
-      value = ReflectUtil.getFieldValueAsString( new TestProvider(), "id", EntityId.class);
+      value = reflectUtil.getFieldValueAsString( new TestProvider(), "id", EntityId.class);
       assertNotNull(value);
       assertEquals("identity", value);
       

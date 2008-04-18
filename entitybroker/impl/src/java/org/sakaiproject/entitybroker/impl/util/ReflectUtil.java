@@ -116,7 +116,7 @@ public class ReflectUtil {
     * @param object any object
     * @return a map of name -> value
     */
-   public static Map<String, Object> getObjectValues(Object object) {
+   public Map<String, Object> getObjectValues(Object object) {
       Map<String, Object> values = new HashMap<String, Object>();
       Class<?> elementClass = object.getClass();
       for (Field field : elementClass.getFields()) {
@@ -155,7 +155,7 @@ public class ReflectUtil {
     * @param annotationClass if the annotation class is set then we will attempt to get the value from the annotated field or getter method first
     * @return the string value of the field or null if no field or null if the value is null
     */
-   public static String getFieldValueAsString(Object object, String fieldName, Class<? extends Annotation> annotationClass) {
+   public String getFieldValueAsString(Object object, String fieldName, Class<? extends Annotation> annotationClass) {
       String value = null;
       Class<?> elementClass = object.getClass();
       boolean found = false;
@@ -203,7 +203,7 @@ public class ReflectUtil {
     * @return the method
     * @throws NoSuchMethodException if no method can be found
     */
-   public static Method getMethodWithAnnotation(Class<?> c, Class<? extends Annotation> annotationClass) throws NoSuchMethodException {
+   public Method getMethodWithAnnotation(Class<?> c, Class<? extends Annotation> annotationClass) throws NoSuchMethodException {
       Method m = null;
       if (annotationClass != null) {
          for (Method method : c.getMethods()) {
@@ -226,7 +226,7 @@ public class ReflectUtil {
     * @return the field
     * @throws NoSuchFieldException if no field can be found
     */
-   public static Field getFieldWithAnnotation(Class<?> c, Class<? extends Annotation> annotationClass) throws NoSuchFieldException {
+   public Field getFieldWithAnnotation(Class<?> c, Class<? extends Annotation> annotationClass) throws NoSuchFieldException {
       Field f = null;
       if (annotationClass != null) {
          for (Field field : c.getFields()) {

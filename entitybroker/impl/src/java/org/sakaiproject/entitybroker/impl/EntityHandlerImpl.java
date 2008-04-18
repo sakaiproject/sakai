@@ -15,11 +15,13 @@
 package org.sakaiproject.entitybroker.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.ConvertUtilsBean;
+import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -108,6 +113,13 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    public static final String UTF_8 = Formats.UTF_8;
    private static final String ENTITY_PREFIX = "entityPrefix";
    private static final String COLLECTION = "-collection";
+
+   private ReflectUtil reflectUtil = new ReflectUtil();
+   private PropertyUtilsBean propertyUtils = new PropertyUtilsBean();
+   /**
+    * We are using this instead of the static version so we can manage our own caching
+    */
+   private BeanUtilsBean beanUtils = new BeanUtilsBean(new ConvertUtilsBean(), propertyUtils);
 
    /**
     * Determines if an entity exists based on the reference
@@ -659,6 +671,56 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
 
    /**
+    * Handled the internal encoding of data into an entity object
+    * 
+    * @param ref the entity reference
+    * @param format the format which the input is encoded in
+    * @param input the data being input
+    * @return the entity object based on the data
+    * @throws EntityException if there is a failure in translation
+    */
+   @SuppressWarnings("unchecked")
+   public Object internalInputTranslator(EntityReference ref, String format, InputStream input, HttpServletRequest req) {
+      Object entity = null;
+
+      // get the encoder to use
+      EntityXStream encoder = getEncoderForFormat(format);
+
+      // get a sample object
+      Object sample = null;
+      Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Inputable.class);
+      if (inputable != null) {
+         sample = inputable.getSampleEntity();
+         if (encoder != null) {
+            // translate using the encoder
+            entity = encoder.fromXML(input, sample);
+         } else {
+            // html handled specially
+            if (req != null) {
+               HashMap<String, Object> map = new HashMap<String, Object>();
+               Enumeration<String> names = req.getParameterNames();
+               while (names.hasMoreElements()) {
+                 String name = names.nextElement();
+                 map.put(name, req.getParameterValues(name));
+               }
+               entity = sample;
+               try {
+                  beanUtils.populate(entity, map);
+               } catch (Exception e) {
+                  throw new RuntimeException("Unable to populate bean for ref ("+ref+") from request: " + e.getMessage(), e);
+               }
+            }
+         }         
+      }
+
+      if (entity == null) {
+         throw new EntityException("Unable to encode entity from input for reference: " + ref, ref.toString(), HttpServletResponse.SC_BAD_REQUEST);
+      }
+      return entity;
+   }
+
+
+   /**
     * Format entities for output based on the reference into a format,
     * use the provided list or get the entities
     * 
@@ -805,7 +867,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                String entityId = ref.getId();
                if (entityId == null) {
                   // try to get it from the toEncode object
-                  entityId = ReflectUtil.getFieldValueAsString(toEncode, "id", EntityId.class);
+                  entityId = reflectUtil.getFieldValueAsString(toEncode, "id", EntityId.class);
                }
                if (entityId != null) {
                   entityData.put("ID", entityId);
@@ -825,20 +887,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             encoded = "<b>" + ref.getPrefix() + "</b>: " + toEncode.toString();
          }
       return encoded;
-   }
-
-   /**
-    * Handled the internal encoding of data into an entity object
-    * 
-    * @param ev
-    * @param req
-    * @param res
-    * @return
-    * @throws EntityException if there is a failure in translation
-    */
-   public Object internalInputTranslator(EntityView ev, HttpServletRequest req, HttpServletResponse res) {
-      Object entity = null;
-      return entity;
    }
 
 }
