@@ -89,7 +89,6 @@ account on the collab server and join any groups you like at:
 The most active site there is the "DG: Development" site, otherwise known as "sakai-dev".
 
 
-
 PROJECT STATUS
 
 The best central location for information on sub-project status and
