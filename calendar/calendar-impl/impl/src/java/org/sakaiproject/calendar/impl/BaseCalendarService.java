@@ -7183,6 +7183,49 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		m_services = services;
 	}
 
+	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{	
+		try
+		{
+			if(cleanup == true)
+			{
+				String toSiteId = toContext;	
+				String calendarId = calendarReference(toSiteId, SiteService.MAIN_CONTAINER);
+				Calendar calendarObj = getCalendar(calendarId);	
+				List calEvents = calendarObj.getEvents(null,null);
+				
+				for (int i = 0; i < calEvents.size(); i++)
+				{
+					try
+					{	
+						CalendarEvent ce = (CalendarEvent) calEvents.get(i);	
+						calendarObj.removeEvent(calendarObj.getEditEvent(ce.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
+						CalendarEventEdit edit = calendarObj.getEditEvent(ce.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_REMOVE_CALENDAR);
+						calendarObj.removeEvent(edit);
+						calendarObj.commitEvent(edit);	
+					}
+					catch (IdUnusedException e)
+					{
+						M_log.debug(".IdUnusedException " + e);
+					}
+					catch (PermissionException e)
+					{
+						M_log.debug(".PermissionException " + e);
+					}
+					catch (InUseException e)
+					{
+						M_log.debug(".InUseException delete" + e);
+					}
+				}
+				
+			}
+			transferCopyEntities(fromContext, toContext, ids);	
+		}
+		catch (Exception e)
+		{
+			M_log.info("importSiteClean: End removing Calendar data" + e);
+		}
+	}
 
 } // BaseCalendarService
 
