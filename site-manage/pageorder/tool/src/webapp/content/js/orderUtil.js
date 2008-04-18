@@ -123,8 +123,8 @@ function doSaveEdit(clickedLink) {
 	li = $(clickedLink).parent().parent();
 	newTitle = $(li).find(".new_title");
 	newConfig = $(li).find(".new_config");
-	$("#call-results").load(clickedLink + "&newTitle=" + newTitle.val() + "&newConfig=" + newConfig.val(), function() {
-		
+	$("#call-results").load(clickedLink + "&newTitle=" + encodeURIComponent(newTitle.val()) + "&newConfig=" + encodeURIComponent(newConfig.val()), function() {
+
 		var status = $("#call-results").find("#value").text();
 		if (status == 'pass') {
 			$(li).find(".item_edit_box").hide();

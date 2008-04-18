@@ -1,5 +1,7 @@
 package org.sakaiproject.site.tool.helper.order.rsf;
 
+import java.net.URLDecoder;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
@@ -44,9 +46,9 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
         try {
             params = (PageEditViewParameters) arg1;
             pageId = params.pageId;
-            newTitle = params.newTitle;
+            newTitle = URLDecoder.decode(params.newTitle, "UTF-8");
             visible = params.visible;
-            newConfig = params.newConfig;
+            newConfig = URLDecoder.decode(params.newConfig, "UTF-8");
         }
         catch (Exception e) {
             e.printStackTrace();
