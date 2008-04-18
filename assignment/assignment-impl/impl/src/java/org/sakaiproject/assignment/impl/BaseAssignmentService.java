@@ -74,6 +74,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -234,6 +235,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	
 	/** Event for grading an assignment submission. */
 	public static final String EVENT_GRADE_ASSIGNMENT_SUBMISSION = "asn.grade.submission";
+	
+	private static final String NEW_ASSIGNMENT_DUE_DATE_SCHEDULED = "new_assignment_due_date_scheduled";
 
 	protected static final String GROUP_LIST = "group";
 
@@ -10978,6 +10981,65 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				result = -result;
 			}
 			return result;
+		}
+	}
+	
+	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{	
+		try
+		{
+			if(cleanup == true)
+			{
+				SecurityService.pushAdvisor(new SecurityAdvisor() 
+				{
+					public SecurityAdvice isAllowed(String userId, String function, String reference)       
+					{    
+						return SecurityAdvice.ALLOWED;       
+					} 
+				});
+
+				String toSiteId = toContext;
+				Iterator assignmentsIter = getAssignmentsForContext(toSiteId);
+				while (assignmentsIter.hasNext())
+				{
+					try 
+					{
+						Assignment assignment = (Assignment) assignmentsIter.next();
+						String assignmentId = assignment.getId();
+						AssignmentEdit aEdit = editAssignment(assignmentId);
+						try
+						{
+							removeAssignmentContent(editAssignmentContent(aEdit.getContent().getReference()));
+						}
+						catch (Exception eee)
+						{
+							M_log.debug("removeAssignmentContent error:" + eee);
+						}
+						try
+						{
+							removeAssignment(aEdit);
+						}
+						catch (Exception eeee)
+						{
+							M_log.debug("removeAssignment error:" + eeee);
+						}
+					}
+					catch(Exception ee)
+					{
+						M_log.debug("removeAssignment process error:" + ee);
+					}
+				}
+				   
+			}
+			transferCopyEntities(fromContext, toContext, ids);
+		}
+		catch (Exception e)
+		{
+			M_log.info("transferCopyEntities: End removing Assignmentt data" + e);
+		}
+		finally
+		{
+			SecurityService.popAdvisor();
 		}
 	}
 
