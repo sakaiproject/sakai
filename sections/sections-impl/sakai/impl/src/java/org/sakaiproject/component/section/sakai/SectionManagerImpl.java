@@ -35,6 +35,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.SectionManager;
@@ -99,6 +100,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
     protected EntityManager entityManager;
     protected EventTrackingService eventTrackingService;
 	protected CourseManagementService courseManagementService;
+	protected ThreadLocalManager threadLocalManager;
 
     // Configuration setting
     protected ExternalIntegrationConfig config;
@@ -356,7 +358,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		List<CourseSection> sectionList = new ArrayList<CourseSection>();
 		Collection sections;
 		try {
-			sections = siteService().getSite(siteContext).getGroups();
+			sections = getSite(siteContext).getGroups();
 		} catch (IdUnusedException e) {
 			log.error("No site with id = " + siteContext);
 			return new ArrayList<CourseSection>();
@@ -381,7 +383,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		List<CourseSection> sectionList = new ArrayList<CourseSection>();
 		Collection sections;
 		try {
-			sections = siteService().getSite(siteContext).getGroups();
+			sections = getSite(siteContext).getGroups();
 		} catch (IdUnusedException e) {
 			log.error("No site with id = " + siteContext);
 			return new ArrayList<CourseSection>();
@@ -400,7 +402,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	 */
 	public CourseSection getSection(String sectionUuid) {
 		Group group;
-		group = siteService().findGroup(sectionUuid);
+		group = findGroup(sectionUuid);
 		if(group == null) {
 			log.error("Unable to find section " + sectionUuid);
 			return null;
@@ -475,7 +477,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	 * {@inheritDoc}
 	 */
 	public List<ParticipationRecord> getSectionTeachingAssistants(String sectionUuid) {
-		Group group = siteService().findGroup(sectionUuid);
+		Group group = findGroup(sectionUuid);
 		CourseSection section = getSection(sectionUuid);
 		if(section == null) {
 			return new ArrayList<ParticipationRecord>();
@@ -503,7 +505,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	 * {@inheritDoc}
 	 */
 	public List<EnrollmentRecord> getSectionEnrollments(String sectionUuid) {
-		Group group = siteService().findGroup(sectionUuid);
+		Group group = findGroup(sectionUuid);
 		CourseSection section = getSection(sectionUuid);
 		if(section == null) {
 			return new ArrayList<EnrollmentRecord>();
@@ -568,7 +570,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		if(log.isDebugEnabled()) log.debug("Getting course for context " + siteContext);
 		Site site;
 		try {
-			site = siteService().getSite(siteContext);
+			site = getSite(siteContext);
 		} catch (IdUnusedException e) {
 			log.error("Could not find site with id = " + siteContext);
 			return null;
@@ -661,7 +663,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	 */
 	private EnrollmentRecord joinSection(CourseSection section, int maxSize) throws RoleConfigurationException, SectionFullException {
 		
-		Group group = siteService().findGroup(section.getUuid());
+		Group group = findGroup(section.getUuid());
 		String role = getSectionStudentRole(group);
 		try {
 			authzGroupService.joinGroup(section.getUuid(), role, maxSize);
@@ -997,7 +999,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		// Get the sections in this category
 		Site site;
 		try {
-			site = siteService().getSite(siteContext);
+			site = getSite(siteContext);
 		} catch (IdUnusedException ide) {
 			log.error("Unable to find site " + siteContext);
 			return;
@@ -1027,13 +1029,47 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		}
 	}
 
+	protected static final String AZG_PREFIX = "section_azg_";
+	protected AuthzGroup getAuthzGroup(String learningContextUuid) throws GroupNotDefinedException {
+			AuthzGroup azg = (AuthzGroup)threadLocalManager.get(AZG_PREFIX + learningContextUuid);
+			if(azg == null) {
+				if(log.isDebugEnabled()) log.debug("Looking up authz group " + learningContextUuid + " from the authz service");
+				azg = authzGroupService.getAuthzGroup(learningContextUuid);
+				threadLocalManager.set(AZG_PREFIX + learningContextUuid, azg);
+			}
+			return azg;
+	}
+	
+	protected static final String GRP_PREFIX = "section_grp_";
+	protected Group findGroup(String learningContextUuid) {
+		Group grp = (Group)threadLocalManager.get(GRP_PREFIX + learningContextUuid);
+		if(grp == null) {
+			if(log.isDebugEnabled()) log.debug("Looking up group " + learningContextUuid + " from the site service");
+			grp = siteService().findGroup(learningContextUuid);
+			threadLocalManager.set(GRP_PREFIX + learningContextUuid, grp);
+		}
+		return grp;
+	}
+	
+	protected static final String SITE_PREFIX = "section_site_";
+	protected Site getSite(String siteId) throws IdUnusedException {
+		Site site = (Site)threadLocalManager.get(SITE_PREFIX + siteId);
+		if(site == null) {
+			if(log.isDebugEnabled()) log.debug("Looking up site " + siteId + " from the site service");
+			site = siteService().getSite(siteId);
+			threadLocalManager.set(SITE_PREFIX + siteId, site);
+		}
+		return site;
+	}
+
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	public int getTotalEnrollments(String learningContextUuid) {
 		AuthzGroup authzGroup;
 		try {
-			authzGroup = authzGroupService.getAuthzGroup(learningContextUuid);
+			authzGroup = getAuthzGroup(learningContextUuid);
 		} catch (GroupNotDefinedException e) {
 			log.error("learning context " + learningContextUuid + " is neither a site nor a section");
 			return 0;
@@ -1059,7 +1095,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 
 		AuthzGroup authzGroup;
 		try {
-			authzGroup = authzGroupService.getAuthzGroup(learningContextUuid);
+			authzGroup = getAuthzGroup(learningContextUuid);
 		} catch (GroupNotDefinedException e) {
 			log.error("learning context " + learningContextUuid + " is neither a site nor a section");
 			return roleMap;
@@ -1096,7 +1132,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		Reference ref = entityManager.newReference(courseUuid);
 		Site site;
 		try {
-			site = siteService().getSite(ref.getId());
+			site = getSite(ref.getId());
 		} catch (IdUnusedException e) {
 			log.error("Unable to find site " + courseUuid);
 			return null;
@@ -1163,7 +1199,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		Reference ref = entityManager.newReference(courseUuid);
 		Site site;
 		try {
-			site = siteService().getSite(ref.getId());
+			site = getSite(ref.getId());
 		} catch (IdUnusedException e) {
 			log.error("Unable to find site " + courseUuid);
 			return null;
@@ -1228,7 +1264,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		section.setMeetings(filterMeetings(meetings));
 		
 		// Decorate the framework section
-		Group group = siteService().findGroup(sectionUuid);
+		Group group = findGroup(sectionUuid);
 		section.decorateGroup(group);
 
 		// Save the site with its new section
@@ -1275,7 +1311,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		for(Iterator<String> iter = sectionUuids.iterator(); iter.hasNext();) {
 			String sectionUuid = iter.next();
 			if(log.isDebugEnabled()) log.debug("Disbanding section " + sectionUuid);
-			Group group = siteService().findGroup(sectionUuid);
+			Group group = findGroup(sectionUuid);
 
 			// TODO Add token in UI to intercept double clicks in action buttons
 			// SAK-3553 (Clicking remove button twice during section remove operation results in blank iframe.)
@@ -1308,7 +1344,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		String siteId = ref.getId();
 		Site site;
 		try {
-			site = siteService().getSite(siteId);
+			site = getSite(siteId);
 		} catch (IdUnusedException e) {
 			throw new RuntimeException("Can not find site " + courseUuid, e);
 		}
@@ -1328,7 +1364,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		String siteId = ref.getId();
 		Site site;
 		try {
-			site = siteService().getSite(siteId);
+			site = getSite(siteId);
 		} catch (IdUnusedException e) {
 			throw new RuntimeException("Can not find site " + courseUuid, e);
 		}
@@ -1361,7 +1397,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		String siteId = ref.getId();
 		Site site;
 		try {
-			site = siteService().getSite(siteId);
+			site = getSite(siteId);
 		} catch (IdUnusedException e) {
 			throw new RuntimeException("Can not find site " + courseUuid, e);
 		}
@@ -1378,7 +1414,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		String siteId = ref.getId();
 		Site site;
 		try {
-			site = siteService().getSite(siteId);
+			site = getSite(siteId);
 		} catch (IdUnusedException e) {
 			throw new RuntimeException("Can not find site " + courseUuid, e);
 		}
@@ -1414,7 +1450,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		String siteId = ref.getId();
 		Site site;
 		try {
-			site = siteService().getSite(siteId);
+			site = getSite(siteId);
 		} catch (IdUnusedException e) {
 			throw new RuntimeException("Can not find site " + courseUuid, e);
 		}
@@ -1556,5 +1592,9 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 
 	public void setGroupProvider(GroupProvider groupProvider) {
 		this.groupProvider = groupProvider;
+	}
+
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+		this.threadLocalManager = threadLocalManager;
 	}
 }
