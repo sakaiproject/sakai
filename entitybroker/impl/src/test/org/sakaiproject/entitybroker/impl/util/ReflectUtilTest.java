@@ -14,13 +14,13 @@
 
 package org.sakaiproject.entitybroker.impl.util;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
+import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -31,8 +31,6 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Saveable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
-
-import junit.framework.TestCase;
 
 /**
  * Testing the reflection utils
@@ -73,7 +71,6 @@ public class ReflectUtilTest extends TestCase {
       protected String prot = "prot";
       @SuppressWarnings("unused")
       private String priv = "priv";
-      public TestPea() {}
    }
    class TestBean {
       private int myInt = 0;
@@ -216,52 +213,6 @@ public class ReflectUtilTest extends TestCase {
       assertTrue(m.containsKey("myString"));
       assertEquals(0, m.get("myInt"));
       assertEquals("woot", m.get("myString"));
-   }
-
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.util.ReflectUtil#getMethodWithAnnotation(java.lang.Class, java.lang.Class)}.
-    */
-   public void testGetMethodWithAnnotation() {
-      Method m = null;
-      ReflectUtil reflectUtil = new ReflectUtil();
-
-      // no annotation
-      try {
-         m = reflectUtil.getMethodWithAnnotation(TestBean.class, EntityId.class);
-      } catch (NoSuchMethodException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      try {
-         m = reflectUtil.getMethodWithAnnotation(TestEntity.class, EntityId.class);
-      } catch (NoSuchMethodException e) {
-         fail("Should not have thrown exception");
-      }
-      assertNotNull(m);
-      assertEquals("getEntityId", m.getName());
-   }
-
-   /**
-    * Test method for {@link org.sakaiproject.entitybroker.impl.util.ReflectUtil#getFieldWithAnnotation(java.lang.Class, java.lang.Class)}.
-    */
-   public void testGetFieldWithAnnotation() {
-      Field f = null;
-      ReflectUtil reflectUtil = new ReflectUtil();
-
-      // no annotation
-      try {
-         f = reflectUtil.getFieldWithAnnotation(TestBean.class, EntityId.class);
-      } catch (NoSuchFieldException e) {
-         assertNotNull(e.getMessage());
-      }
-
-      try {
-         f = reflectUtil.getFieldWithAnnotation(TestPea.class, EntityId.class);
-      } catch (NoSuchFieldException e) {
-         fail("Should not have thrown exception");
-      }
-      assertNotNull(f);
-      assertEquals("entityId", f.getName());
    }
 
    /**
