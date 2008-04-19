@@ -833,11 +833,11 @@ public class BaseSite implements Site
 	public Collection getGroupsWithMember(String userId)
 	{
 		Collection siteGroups = getGroups();
-		ArrayList siteGroupIds = new ArrayList(siteGroups.size());
+		ArrayList siteGroupRefs = new ArrayList(siteGroups.size());
 		for ( Iterator it=siteGroups.iterator(); it.hasNext(); )
-			siteGroupIds.add( ((Group)it.next()).getId() );
+			siteGroupRefs.add( siteService.siteGroupReference( getId(), ((Group)it.next()).getId() ));
 			
-		List groups = AuthzGroupService.getAuthzUserGroupIds(getId(), siteGroupIds, userId);
+		List groups = AuthzGroupService.getAuthzUserGroupIds(siteGroupRefs, userId);
 		Collection rv = new Vector();
 		for (Iterator i = groups.iterator(); i.hasNext();)
 		{
@@ -859,11 +859,11 @@ public class BaseSite implements Site
 	public Collection getGroupsWithMemberHasRole(String userId, String role)
 	{
 		Collection siteGroups = getGroups();
-		ArrayList siteGroupIds = new ArrayList(siteGroups.size());
+		ArrayList siteGroupRefs = new ArrayList(siteGroups.size());
 		for ( Iterator it=siteGroups.iterator(); it.hasNext(); )
-			siteGroupIds.add( it.next() );
+			siteGroupRefs.add( siteService.siteGroupReference( getId(), ((Group)it.next()).getId() ));
 			
-		List groups = AuthzGroupService.getAuthzUserGroupIds(getId(), siteGroupIds, userId);
+		List groups = AuthzGroupService.getAuthzUserGroupIds(siteGroupRefs, userId);
 		Collection rv = new Vector();
 		for (Iterator i = groups.iterator(); i.hasNext();)
 		{
