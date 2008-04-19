@@ -364,7 +364,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			return new ArrayList<CourseSection>();
 		}
 		for(Iterator iter = sections.iterator(); iter.hasNext();) {
-			Group group = (Group)iter.next();
+			Group group = findGroup( ((Group) (Group)iter.next()).getReference());
 			// Only use groups with a category defined.  If there is no category,
 			// it is not a section.
 			if(StringUtils.trimToNull(
@@ -681,6 +681,9 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		// Return the membership record that the app understands
 		String userUid = sessionManager.getCurrentSessionUserId();
 		User user = SakaiUtil.getUserFromSakai(userUid);
+		
+		// Remove from thread local cache
+		clearGroup(section.getUuid());
 		
 		return new EnrollmentRecordImpl(section, null, user);
 	}
@@ -1028,17 +1031,6 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			return;
 		}
 	}
-
-	protected static final String AZG_PREFIX = "section_azg_";
-	protected AuthzGroup getAuthzGroup(String learningContextUuid) throws GroupNotDefinedException {
-			AuthzGroup azg = (AuthzGroup)threadLocalManager.get(AZG_PREFIX + learningContextUuid);
-			if(azg == null) {
-				if(log.isDebugEnabled()) log.debug("Looking up authz group " + learningContextUuid + " from the authz service");
-				azg = authzGroupService.getAuthzGroup(learningContextUuid);
-				threadLocalManager.set(AZG_PREFIX + learningContextUuid, azg);
-			}
-			return azg;
-	}
 	
 	protected static final String GRP_PREFIX = "section_grp_";
 	protected Group findGroup(String learningContextUuid) {
@@ -1049,6 +1041,10 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			threadLocalManager.set(GRP_PREFIX + learningContextUuid, grp);
 		}
 		return grp;
+	}
+	
+	protected void clearGroup(String learningContextUuid) {
+		threadLocalManager.set(GRP_PREFIX + learningContextUuid, null);
 	}
 	
 	protected static final String SITE_PREFIX = "section_site_";
@@ -1067,21 +1063,16 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	 * {@inheritDoc}
 	 */
 	public int getTotalEnrollments(String learningContextUuid) {
-		AuthzGroup authzGroup;
-		try {
-			authzGroup = getAuthzGroup(learningContextUuid);
-		} catch (GroupNotDefinedException e) {
-			log.error("learning context " + learningContextUuid + " is neither a site nor a section");
+		
+		Group group = findGroup(learningContextUuid); 
+		
+		if (group == null) {
+			log.error("learning context " + learningContextUuid + " not found");
 			return 0;
 		}
-		String studentRole;
-		try {
-			studentRole = getSectionStudentRole(authzGroup);
-		} catch (RoleConfigurationException rce) {
-			log.warn("Can't get total enrollments, since there is no single student-flagged role in " + learningContextUuid);
-			return 0;
-		}
-		Set users = authzGroup.getUsersHasRole(studentRole);
+
+		Set users = group.getUsersIsAllowed(SectionAwareness.STUDENT_MARKER);
+		
 		return users.size();
 	}
 
@@ -1093,27 +1084,16 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 
 		Map roleMap = new HashMap<Role, Integer>();
 
-		AuthzGroup authzGroup;
-		try {
-			authzGroup = getAuthzGroup(learningContextUuid);
-		} catch (GroupNotDefinedException e) {
+		Group group = findGroup(learningContextUuid); 
+
+		if (group == null) {
 			log.error("learning context " + learningContextUuid + " is neither a site nor a section");
 			return roleMap;
 		}
 
-		String studentRole, taRole, instructorRole;
-		try {
-			studentRole = getSectionStudentRole(authzGroup);
-			taRole = getSectionTaRole(authzGroup);
-			instructorRole = getSectionInstructorRole(authzGroup);
-		} catch (RoleConfigurationException rce) {
-			log.warn("Can't get total enrollments map, since one of the student, TA or Instructor-flagged roles occurs more than once in " + learningContextUuid);
-			return roleMap;
-		}
-		
-        roleMap.put(Role.STUDENT, authzGroup.getUsersHasRole(studentRole).size());
-        roleMap.put(Role.TA, authzGroup.getUsersHasRole(taRole).size());
-        roleMap.put(Role.INSTRUCTOR, authzGroup.getUsersHasRole(instructorRole).size());
+        roleMap.put(Role.STUDENT, group.getUsersIsAllowed(SectionAwareness.STUDENT_MARKER).size());
+        roleMap.put(Role.TA, group.getUsersIsAllowed(SectionAwareness.TA_MARKER).size());
+        roleMap.put(Role.INSTRUCTOR, group.getUsersIsAllowed(SectionAwareness.INSTRUCTOR_MARKER).size());
         return roleMap;
 	}
 
@@ -1500,6 +1480,9 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	 * {@inheritDoc}
 	 */
 	public Set<EnrollmentRecord> getSectionEnrollments(String userUid, String courseUuid) {
+
+		if(log.isDebugEnabled()) log.debug("getSectionEnrollments for userUid " + userUid + " courseUuid " + courseUuid);
+		
 		// Get the user
 		org.sakaiproject.user.api.User sakaiUser;
 		try {
@@ -1517,17 +1500,28 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		
 		// Generate a set of sections for which this user is enrolled
 		Set<EnrollmentRecord> sectionEnrollments = new HashSet<EnrollmentRecord>();
+		ArrayList siteGroupRefs = new ArrayList(sections.size());
+		
 		for(Iterator sectionIter = sections.iterator(); sectionIter.hasNext();) {
-			CourseSectionImpl section = (CourseSectionImpl)sectionIter.next();
-			Group group = section.getGroup();
+			CourseSectionImpl section = (CourseSectionImpl)sectionIter.next();			
+			siteGroupRefs.add(section.getGroup().getReference()); 
+		}
+
+		List groups = authzGroupService.getAuthzUserGroupIds(siteGroupRefs, userUid);
+
+		// Check membership of groups
+        for (Iterator i = groups.iterator(); i.hasNext();)
+        {
+			Group group = findGroup((String)i.next());
 			Member member = group.getMember(userUid);
 			if(member == null) {
 				continue;
 			}
 			if(member.getRole().isAllowed(SectionAwareness.STUDENT_MARKER)) {
-				sectionEnrollments.add(new EnrollmentRecordImpl(section, null, sectionUser));
+				sectionEnrollments.add(new EnrollmentRecordImpl(new CourseSectionImpl(group), null, sectionUser));
 			}
-		}
+        }
+		
 		return sectionEnrollments;
 	}
 
