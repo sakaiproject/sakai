@@ -14,7 +14,11 @@
 
 package org.sakaiproject.entitybroker.entityprovider;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 
 /**
  * Handles all internal work of managing and working with the entity providers<br/> <br/>
@@ -64,6 +68,7 @@ public interface EntityProviderManager {
     * handles a specific capability <br/> <b>NOTE:</b> this returns the provider that handles this
     * capability (it may handle many other things as well)
     * 
+    * @param <T> a class which extends {@link EntityProvider}
     * @param prefix
     *           the string which represents a type of entity handled by an entity provider
     * @param capability
@@ -72,8 +77,27 @@ public interface EntityProviderManager {
     * @return the {@link EntityProvider} which handles this capability for this prefix or null if
     *         none exists or the prefix is not used
     */
-   public EntityProvider getProviderByPrefixAndCapability(String prefix,
-         Class<? extends EntityProvider> capability);
+   public <T extends EntityProvider> T getProviderByPrefixAndCapability(String prefix, Class<T> capability);
+
+   /**
+    * Get all the capabilities for a given entity prefix,
+    * <b>WARNING:</b> This is very inefficient so you should normally use {@link #getProviderByPrefixAndCapability(String, Class)}
+    * when trying to determine if a provider implements a specific capability
+    * 
+    * @param prefix
+    *           the string which represents a type of entity handled by an entity provider
+    * @return a list of the capabilities classes implemented by the entity provider defining this prefix
+    */
+   public List<Class<? extends EntityProvider>> getPrefixCapabilities(String prefix);
+
+   /**
+    * Get all registered prefixes and their capabilities,
+    * <b>WARNING:</b> This is very inefficient so you should normally use {@link #getProviderByPrefixAndCapability(String, Class)}
+    * when trying to determine if a provider implements a specific capability
+    * 
+    * @return a map of prefix -> List(capabilities)
+    */
+   public Map<String, List<Class<? extends EntityProvider>>> getRegisteredEntityCapabilities();
 
    /**
     * Registers an entity provider with the manager, this allows registration to happen

@@ -14,13 +14,18 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
@@ -174,6 +179,50 @@ public class EntityProviderManagerImplTest extends TestCase {
       assertTrue(s.contains(TestData.PREFIX3));
       assertTrue(s.contains(TestData.PREFIX4));
       assertFalse(s.contains(TestData.PREFIX9));
+   }
+
+   public void testGetPrefixCapabilities() {
+      List<Class<? extends EntityProvider>> caps = null;
+
+      caps = entityProviderManager.getPrefixCapabilities(TestData.PREFIX1);
+      assertNotNull(caps);
+      assertEquals(4, caps.size());
+      assertTrue(caps.contains(EntityProvider.class));
+      assertTrue(caps.contains(CoreEntityProvider.class));
+      assertTrue(caps.contains(Taggable.class));
+      assertTrue(caps.contains(TagSearchable.class));
+
+      caps = entityProviderManager.getPrefixCapabilities(TestData.PREFIX4);
+      assertNotNull(caps);
+      assertEquals(5, caps.size());
+      assertTrue(caps.contains(EntityProvider.class));
+      assertTrue(caps.contains(CoreEntityProvider.class));
+      assertTrue(caps.contains(Resolvable.class));
+      assertTrue(caps.contains(CollectionResolvable.class));
+      assertTrue(caps.contains(Outputable.class));
+
+   }
+
+   public void testGetRegisteredEntityCapabilities() {
+      Map<String, List<Class<? extends EntityProvider>>> m = null;
+      
+      m = entityProviderManager.getRegisteredEntityCapabilities();
+      assertNotNull(m);
+      assertTrue(m.size() > 5);
+      assertTrue(m.containsKey(TestData.PREFIX1));
+      assertTrue(m.containsKey(TestData.PREFIX2));
+      assertTrue(m.containsKey(TestData.PREFIX3));
+      assertTrue(m.containsKey(TestData.PREFIX4));
+      assertFalse(m.containsKey(TestData.PREFIX9));
+
+      List<Class<? extends EntityProvider>> caps = m.get(TestData.PREFIX1);
+      assertNotNull(caps);
+      assertEquals(4, caps.size());
+      assertTrue(caps.contains(EntityProvider.class));
+      assertTrue(caps.contains(CoreEntityProvider.class));
+      assertTrue(caps.contains(Taggable.class));
+      assertTrue(caps.contains(TagSearchable.class));
+      
    }
 
    /**

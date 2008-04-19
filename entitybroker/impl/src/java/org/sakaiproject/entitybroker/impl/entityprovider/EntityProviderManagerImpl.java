@@ -15,8 +15,11 @@
 package org.sakaiproject.entitybroker.impl.entityprovider;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -30,7 +33,6 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
-import org.sakaiproject.entitybroker.impl.BlankReferenceParseable;
 import org.sakaiproject.entitybroker.impl.util.ReflectUtil;
 
 /**
@@ -52,33 +54,13 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
    }
 
 
-   // placeholder value indicating that this reference is parsed internally
-   private static ReferenceParseable internalRP = new BlankReferenceParseable();
-   
-   private ConcurrentMap<String, EntityProvider> prefixMap = new ConcurrentHashMap<String, EntityProvider>();
+   protected ConcurrentMap<String, EntityProvider> prefixMap = new ConcurrentHashMap<String, EntityProvider>();
 
-   private ConcurrentMap<String, ReferenceParseable> parseMap = new ConcurrentHashMap<String, ReferenceParseable>();
+   protected ConcurrentMap<String, ReferenceParseable> parseMap = new ConcurrentHashMap<String, ReferenceParseable>();
 
 
    public void init() {
       log.info("init");
-   }
-
-   private String getBiKey(String prefix, Class<? extends EntityProvider> clazz) {
-      return prefix + "/" + clazz.getName();
-   }
-
-   private String getPrefix(String bikey) {
-      int slashpos = bikey.indexOf('/');
-      return bikey.substring(0, slashpos);
-   }
-
-   /**
-    * @deprecated
-    */
-   public EntityProvider getProviderByReference(String reference) {
-      EntityReference ref = new EntityReference(reference);
-      return getProviderByPrefix(ref.prefix);
    }
 
    /*
@@ -93,27 +75,26 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       return provider;
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getProviderByPrefixAndCapability(java.lang.String,
-    *      java.lang.Class)
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getProviderByPrefixAndCapability(java.lang.String, java.lang.Class)
     */
-   public EntityProvider getProviderByPrefixAndCapability(String prefix,
-         Class<? extends EntityProvider> capability) {
+   @SuppressWarnings("unchecked")
+   public <T extends EntityProvider> T getProviderByPrefixAndCapability(String prefix, Class<T> capability) {
+      T provider = null;
       if (capability == null) {
          throw new NullPointerException("capability cannot be null");
       }
       if (ReferenceParseable.class.isAssignableFrom(capability)) {
-        return parseMap.get(prefix);
+        provider = (T) parseMap.get(prefix);
+      } else {
+         String bikey = getBiKey(prefix, capability);
+         provider = (T) prefixMap.get(bikey);
       }
-      String bikey = getBiKey(prefix, capability);
-      return prefixMap.get(bikey);
+      return provider;
    }
 
    /*
     * (non-Javadoc)
-    * 
     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getRegisteredPrefixes()
     */
    public Set<String> getRegisteredPrefixes() {
@@ -124,23 +105,42 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       return togo;
    }
 
-   /**
-    * Get the capabilities implemented by this provider
-    * 
-    * @param provider
-    * @return
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getPrefixCapabilities(java.lang.String)
     */
-   @SuppressWarnings("unchecked")
-   private static List<Class<? extends EntityProvider>> getCapabilities(EntityProvider provider) {
-      List<Class<?>> superclasses = ReflectUtil.getSuperclasses(provider.getClass());
-      Set<Class<? extends EntityProvider>> capabilities = new HashSet<Class<? extends EntityProvider>>();
-
-      for (Class<?> superclazz : superclasses) {
-         if (superclazz.isInterface() && EntityProvider.class.isAssignableFrom(superclazz)) {
-            capabilities.add((Class<? extends EntityProvider>) superclazz);
+   public List<Class<? extends EntityProvider>> getPrefixCapabilities(String prefix) {
+      List<Class<? extends EntityProvider>> caps = new ArrayList<Class<? extends EntityProvider>>();
+      ArrayList<String> list = new ArrayList<String>( prefixMap.keySet() );
+      Collections.sort(list);
+      boolean found = false;
+      for (String bikey : list) {
+         String keyPrefix = getPrefix(bikey);
+         if (keyPrefix.equals(prefix)) {
+            found = true;
+            caps.add( getCapability(bikey) );
+         } else {
+            // don't keep going though the list if we already found the block of prefix matches
+            if (found) break;
          }
       }
-      return new ArrayList<Class<? extends EntityProvider>>(capabilities);
+      return caps;
+   }
+
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#getRegisteredEntityCapabilities()
+    */
+   public Map<String, List<Class<? extends EntityProvider>>> getRegisteredEntityCapabilities() {
+      Map<String, List<Class<? extends EntityProvider>>> m = new HashMap<String, List<Class<? extends EntityProvider>>>();
+      ArrayList<String> list = new ArrayList<String>( prefixMap.keySet() );
+      Collections.sort(list);
+      for (String bikey : list) {
+         String prefix = getPrefix(bikey);
+         if (! m.containsKey(prefix)) {
+            m.put(prefix, new ArrayList<Class<? extends EntityProvider>>());
+         }
+         m.get(prefix).add( getCapability(bikey) );
+      }      
+      return m;
    }
 
    /*
@@ -150,7 +150,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
    public void registerEntityProvider(EntityProvider entityProvider) {
       String prefix = entityProvider.getEntityPrefix();
       new EntityReference(prefix, ""); // this checks the prefix is valid
-      List<Class<? extends EntityProvider>> superclasses = getCapabilities(entityProvider);
+      List<Class<? extends EntityProvider>> superclasses = extractCapabilities(entityProvider);
       for (Class<? extends EntityProvider> superclazz : superclasses) {
          registerPrefixCapability(prefix, superclazz, entityProvider);
          // special handling for certain EPs if needed
@@ -169,7 +169,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     */
    public void unregisterEntityProvider(EntityProvider entityProvider) {
       final String prefix = entityProvider.getEntityPrefix();
-      List<Class<? extends EntityProvider>> superclasses = getCapabilities(entityProvider);
+      List<Class<? extends EntityProvider>> superclasses = extractCapabilities(entityProvider);
       for (Class<? extends EntityProvider> superclazz : superclasses) {
          // ensure that the root EntityProvider is never absent from the map unless
          // there is a call to unregisterEntityProviderByPrefix
@@ -236,5 +236,77 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         return prefixMap.put(key, entityProvider) == null;
       }
    }
+
+   /**
+    * @deprecated use {@link #getProviderByPrefix(String)} instead
+    */
+   public EntityProvider getProviderByReference(String reference) {
+      EntityReference ref = new EntityReference(reference);
+      return getProviderByPrefix(ref.prefix);
+   }
+
+
+   // STATICS
+
+   // BIKEY methods
+   protected static String getBiKey(String prefix, Class<? extends EntityProvider> clazz) {
+      return prefix + "/" + clazz.getName();
+   }
+
+   protected static String getPrefix(String bikey) {
+      int slashpos = bikey.indexOf('/');
+      return bikey.substring(0, slashpos);
+   }
+
+   @SuppressWarnings("unchecked")
+   protected static Class<? extends EntityProvider> getCapability(String bikey) {
+      int slashpos = bikey.indexOf('/');
+      String className = bikey.substring(slashpos + 1);
+      Class<?> c;
+      try {
+         c = Class.forName(className);
+      } catch (ClassNotFoundException e) {
+         throw new RuntimeException("Could not get Class from classname: " + className);
+      }
+      return (Class<? extends EntityProvider>) c;
+   }
+
+   // OTHER
+
+   // placeholder value indicating that this reference is parsed internally
+   protected static ReferenceParseable internalRP = new BlankReferenceParseable();
+
+   /**
+    * Get the capabilities implemented by this provider
+    * 
+    * @param provider
+    * @return
+    */
+   @SuppressWarnings("unchecked")
+   private static List<Class<? extends EntityProvider>> extractCapabilities(EntityProvider provider) {
+      List<Class<?>> superclasses = ReflectUtil.getSuperclasses(provider.getClass());
+      Set<Class<? extends EntityProvider>> capabilities = new HashSet<Class<? extends EntityProvider>>();
+
+      for (Class<?> superclazz : superclasses) {
+         if (superclazz.isInterface() && EntityProvider.class.isAssignableFrom(superclazz)) {
+            capabilities.add((Class<? extends EntityProvider>) superclazz);
+         }
+      }
+      return new ArrayList<Class<? extends EntityProvider>>(capabilities);
+   }
+
+   /**
+    * A marker class to indicate that this provider parses its own reference
+    * 
+    * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
+    */
+   public static class BlankReferenceParseable implements ReferenceParseable {
+      public EntityReference getParsedExemplar() {
+        return null;
+      }
+      public String getEntityPrefix() {
+        return null;
+      }
+    }
 
 }
