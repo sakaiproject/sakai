@@ -68,6 +68,7 @@ import org.sakaiproject.entitybroker.impl.util.EntityXStream;
 import org.sakaiproject.entitybroker.impl.util.ReflectUtil;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 
+import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import com.thoughtworks.xstream.io.json.JsonHierarchicalStreamDriver;
 import com.thoughtworks.xstream.io.xml.XppDomDriver;
 
@@ -180,7 +181,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    private EntityView makeEntityView(EntityReference ref, String viewKey, String extension) {
       EntityView view = new EntityView();
       EntityViewUrlCustomizable custom = (EntityViewUrlCustomizable) entityProviderManager
-            .getProviderByPrefixAndCapability(ref.getPrefix(), EntityViewUrlCustomizable.class);
+      .getProviderByPrefixAndCapability(ref.getPrefix(), EntityViewUrlCustomizable.class);
       if (custom == null) {
          view.setEntityReference(ref);
       } else {
@@ -233,7 +234,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       String prefix = EntityReference.getPrefix(reference);
       EntityReference ref = null;
       ReferenceParseable provider = (ReferenceParseable) 
-            entityProviderManager.getProviderByPrefixAndCapability(prefix, ReferenceParseable.class);
+      entityProviderManager.getProviderByPrefixAndCapability(prefix, ReferenceParseable.class);
       if (provider == null) {
          ref = null;
       } else if (provider instanceof BlankReferenceParseable) {
@@ -249,7 +250,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                ref = (EntityReference) m.newInstance(reference);
             } catch (Exception e) {
                throw new RuntimeException("Failed to invoke a constructor which takes a single string "
-               		+ "(reference="+reference+") for class: " + exemplar.getClass(), e);
+                     + "(reference="+reference+") for class: " + exemplar.getClass(), e);
             }
          }
       }
@@ -274,7 +275,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       if (provider != null) {
          // this prefix is valid so check for custom entity templates
          EntityViewUrlCustomizable custom = (EntityViewUrlCustomizable) entityProviderManager
-               .getProviderByPrefixAndCapability(prefix, EntityViewUrlCustomizable.class);
+         .getProviderByPrefixAndCapability(prefix, EntityViewUrlCustomizable.class);
          if (custom == null) {
             view = new EntityView(entityURL);
          } else {
@@ -401,9 +402,9 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                path, HttpServletResponse.SC_NOT_IMPLEMENTED );
       } else if (! entityExists(view.getEntityReference()) ) {
          // reference parsing failure
-         String message = "Attempted to access an entity URL path (" + path + ") for an entity ("
-            + view.getEntityReference().toString() + ") that does not exist";
-         throw new EntityException( message, view.toString(), HttpServletResponse.SC_NOT_FOUND );
+         throw new EntityException( "Attempted to access an entity URL path (" + path + ") for an entity ("
+               + view.getEntityReference() + ") that does not exist", 
+               view.getEntityReference()+"", HttpServletResponse.SC_NOT_FOUND );
       } else {
          String prefix = view.getEntityReference().getPrefix();
          // reference successfully parsed
@@ -457,26 +458,27 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                         view.setViewKey(EntityView.VIEW_EDIT);
                      } else {
                         throw new EntityException("Unable to handle POST request with _method, unknown method (only PUT/DELETE allowed): " + _method, 
-                              view.toString(), HttpServletResponse.SC_BAD_REQUEST);                        
+                              view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);                        
                      }
                   }
                } else {
                   throw new EntityException("Unable to handle request method, unknown method (only GET/POST/PUT/DELETE allowed): " + method, 
-                        view.toString(), HttpServletResponse.SC_BAD_REQUEST);
+                        view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);
                }
 
                // check that the request is valid (edit and delete require an entity id)
                if ( (EntityView.VIEW_EDIT.equals(view.getViewKey()) || EntityView.VIEW_DELETE.equals(view.getViewKey()) )
                      && view.getEntityReference().getId() == null) {
-                  throw new EntityException("Unable to handle entity ("+prefix+") edit or delete request without entity id, url=" + view.getOriginalEntityUrl(), 
-                        view.getEntityReference().toString(), HttpServletResponse.SC_BAD_REQUEST);
+                  throw new EntityException("Unable to handle entity ("+prefix+") edit or delete request without entity id, url=" 
+                        + view.getOriginalEntityUrl(), 
+                        view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);
                }
             }
 
             boolean handled = false;
-            if (output) {
-               // output request
-               try {
+            try {
+               if (output) {
+                  // output request
                   Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
                   if (outputable != null) {
                      if ( ReflectUtil.contains(outputable.getHandledOutputFormats(), view.getExtension()) ) {
@@ -521,19 +523,12 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                      } else {
                         // will not handle this format type
                         throw new EntityException( "Will not handle output request for format  "+view.getExtension()+" for this path (" 
-                              + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference().toString() + ")", 
-                              view.getEntityReference().toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                              + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference() + ")", 
+                              view.getEntityReference()+"", HttpServletResponse.SC_METHOD_NOT_ALLOWED );
                      }
                   }
-               } catch (IllegalArgumentException e) {
-                  // translate IAE into EE
-                  throw new EntityException("IllegalArgumentException: Unable to handle output input request url ("
-                        + view.getOriginalEntityUrl()+"), " + e.getMessage(),
-                        view.getEntityReference().toString(), HttpServletResponse.SC_BAD_REQUEST);                  
-               }
-            } else {
-               // input request
-               try {
+               } else {
+                  // input request
                   if (EntityView.VIEW_DELETE.equals(view.getViewKey())) {
                      // delete request
                      Deleteable deleteable = (Deleteable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Deleteable.class);
@@ -560,7 +555,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                            if (translatable == null) {
                               // use internal translators or fail
                               entity = internalInputTranslator(view.getEntityReference(), 
-                                       view.getExtension(), inputStream, req);
+                                    view.getExtension(), inputStream, req);
                            } else {
                               // use provider's translator
                               entity = translatable.translateFormattedData(view.getEntityReference(), 
@@ -581,8 +576,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                  res.setStatus(HttpServletResponse.SC_NO_CONTENT);
                               } else {
                                  throw new EntityException("Unable to handle entity input ("+view.getEntityReference()+"), " +
-                                 		"action was not understood: " + view.getViewKey(), 
-                                       view.toString(), HttpServletResponse.SC_BAD_REQUEST);
+                                       "action was not understood: " + view.getViewKey(), 
+                                       view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);
                               }
                               // return the location of this updated or created entity (without any extension)
                               res.setHeader(EntityRequestHandler.HEADER_ENTITY_URL, view.getEntityURL(EntityView.VIEW_SHOW, null));
@@ -593,16 +588,21 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                            // will not handle this format type
                            throw new EntityException( "Will not handle input request for format  "+view.getExtension()+" for this path (" 
                                  + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference().toString() + ")", 
-                                 view.getEntityReference().toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                                 view.getEntityReference()+"", HttpServletResponse.SC_METHOD_NOT_ALLOWED );
                         }
                      }
                   }
-               } catch (IllegalArgumentException e) {
-                  // translate IAE into EE
-                  throw new EntityException("IllegalArgumentException: Unable to handle entity input request url ("
-                        + view.getOriginalEntityUrl()+"), " + e.getMessage(),
-                        view.getEntityReference().toString(), HttpServletResponse.SC_BAD_REQUEST);                  
                }
+            } catch (IllegalArgumentException e) {
+               // translate IAE into EE - bad request
+               throw new EntityException("IllegalArgumentException: Unable to handle " + (output ? "output" : "input") + " request url ("
+                     + view.getOriginalEntityUrl()+"), " + e.getMessage(),
+                     view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);        
+            } catch (IllegalStateException e) {
+               // translate ISE into EE - internal server error
+               throw new EntityException("IllegalStateException: Unable to handle " + (output ? "output" : "input") + " request url ("
+                     + view.getOriginalEntityUrl()+"), " + e.getMessage(),
+                     view.getEntityReference()+"", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
 
             if (! handled) {
@@ -633,8 +633,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          HttpServletAccessProvider httpAccessProvider = accessProviderManager.getProvider(view.getEntityReference().getPrefix());
          if (httpAccessProvider == null) {
             String message = "Attempted to access an entity URL path ("
-                        + view.toString() + ") for an entity (" + view.toString() + ") when there is no " 
-                        + "access provider to handle the request for prefix (" + view.getEntityReference().getPrefix() + ")";
+               + view.toString() + ") for an entity (" + view.toString() + ") when there is no " 
+               + "access provider to handle the request for prefix (" + view.getEntityReference().getPrefix() + ")";
             throw new EntityException( message, view.toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
          } else {
             handleClassLoaderAccess(httpAccessProvider, req, res, view.getEntityReference());
@@ -703,7 +703,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       Object entity = null;
 
       // get the encoder to use
-      EntityXStream encoder = getEncoderForFormat(format);
+      EntityXStream encoder = getEncoderForFormat(format, false);
 
       Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Inputable.class);
       if (inputable != null) {
@@ -717,27 +717,36 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             current = inputable.getEntity(ref);
          }
 
-         if (encoder != null) {
-            // translate using the encoder
-            entity = encoder.fromXML(input, current);
-         } else {
-            // html req handled specially
-            if (req != null) {
-               Map<String, String[]> params = req.getParameterMap();
-               if (params != null && params.size() > 0) {
-                  entity = current;
-                  try {
-                     beanUtils.populate(entity, params);
-                  } catch (Exception e) {
-                     throw new IllegalArgumentException("Unable to populate bean for ref ("+ref+") from request: " + e.getMessage(), e);
+         if (current != null) {
+            if (Formats.HTML.equals(format) || format == null || "".equals(format)) {
+               // html req handled specially
+               if (req != null) {
+                  Map<String, String[]> params = req.getParameterMap();
+                  if (params != null && params.size() > 0) {
+                     entity = current;
+                     try {
+                        beanUtils.populate(entity, params);
+                     } catch (Exception e) {
+                        throw new IllegalArgumentException("Unable to populate bean for ref ("+ref+") from request: " + e.getMessage(), e);
+                     }
+                  } else {
+                     // no request params, bad request
+                     throw new EntityException("No request params for html input request (there must be at least one) for reference: " + ref, 
+                           ref.toString(), HttpServletResponse.SC_BAD_REQUEST);
                   }
-               } else {
+               }
+            } else if (encoder != null) {
+               if (input == null) {
                   // no request params, bad request
-                  throw new EntityException("No request params for html input request (there must be at least one) for reference: " + ref, 
+                  throw new EntityException("No input for input translation (input cannot be null) for reference: " + ref, 
                         ref.toString(), HttpServletResponse.SC_BAD_REQUEST);
+               } else {
+                  encoder.alias(ref.getPrefix(), current.getClass());
+                  // translate using the encoder
+                  entity = encoder.fromXML(input, current);
                }
             }
-         }         
+         }
       }
 
       if (entity == null) {
@@ -773,7 +782,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       }
 
       // get the encoder to use
-      EntityXStream encoder = getEncoderForFormat(format);
+      EntityXStream encoder = getEncoderForFormat(format, true);
 
       String encoded = null;
       if (entities.isEmpty()) {
@@ -854,13 +863,21 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    private Map<String, EntityXStream> xstreams = new HashMap<String, EntityXStream>();
    /**
     * @param format
+    * @param output if true then get the encode for output, if false then for input
     * @return the appropriate encoder for the format
     */
-   private EntityXStream getEncoderForFormat(String format) {
+   private EntityXStream getEncoderForFormat(String format, boolean output) {
       EntityXStream encoder = null;
       if (Formats.JSON.equals(format)) {
-         if (! xstreams.containsKey(format)) {
-            xstreams.put( format, new EntityXStream(new JsonHierarchicalStreamDriver()) );
+         if (output) {
+            if (! xstreams.containsKey(format)) {
+               xstreams.put( format, new EntityXStream(new JsonHierarchicalStreamDriver()) );
+            }
+         } else {
+            format += "-IN";
+            if (! xstreams.containsKey(format)) {
+               xstreams.put( format, new EntityXStream(new JettisonMappedXmlDriver()) );
+            }
          }
          encoder = xstreams.get(format);
       } else if (Formats.XML.equals(format)) {
@@ -868,6 +885,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             xstreams.put( format, new EntityXStream(new XppDomDriver()) );
          }
          encoder = xstreams.get(format);
+      } else if (Formats.TXT.equals(format)) {
+         // TODO Add in plaintext encoder/decoder
       } else {
          encoder = null; // do a toString dump
       }
@@ -884,35 +903,35 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     */
    private String encodeEntity(EntityReference ref, EntityView workingView, Object toEncode, EntityXStream encoder) {
       String encoded = "";
-         if (encoder != null) {
-            // generate entity meta data
-            Class<?> entityClass = toEncode.getClass();
-            Map<String, Object> entityData = null;
-            if (! BasicEntity.class.equals(entityClass)) {
-               entityData = new HashMap<String, Object>();
-               entityData.put(EntityXStream.EXTRA_DATA_CLASS, entityClass);
-               String entityId = ref.getId();
-               if (entityId == null) {
-                  // try to get it from the toEncode object
-                  entityId = reflectUtil.getFieldValueAsString(toEncode, "id", EntityId.class);
-               }
-               if (entityId != null) {
-                  entityData.put("ID", entityId);
-                  workingView.setEntityReference( new EntityReference(ref.getPrefix(), entityId) );
-                  String url = makeFullURL( workingView.getEntityURL(EntityView.VIEW_SHOW, null) );
-                  entityData.put("URL", url);
-               } else {
-                  String url = makeFullURL( workingView.getEntityURL(EntityView.VIEW_LIST, null) );
-                  entityData.put("URL", url);               
-               }
+      if (encoder != null) {
+         // generate entity meta data
+         Class<?> entityClass = toEncode.getClass();
+         Map<String, Object> entityData = null;
+         if (! BasicEntity.class.equals(entityClass)) {
+            entityData = new HashMap<String, Object>();
+            entityData.put(EntityXStream.EXTRA_DATA_CLASS, entityClass);
+            String entityId = ref.getId();
+            if (entityId == null) {
+               // try to get it from the toEncode object
+               entityId = reflectUtil.getFieldValueAsString(toEncode, "id", EntityId.class);
             }
-
-            // encode the object
-            encoded = encoder.toXML(toEncode, entityData);
-         } else {
-            // just to string this and dump it out
-            encoded = "<b>" + ref.getPrefix() + "</b>: " + toEncode.toString();
+            if (entityId != null) {
+               entityData.put("ID", entityId);
+               workingView.setEntityReference( new EntityReference(ref.getPrefix(), entityId) );
+               String url = makeFullURL( workingView.getEntityURL(EntityView.VIEW_SHOW, null) );
+               entityData.put("URL", url);
+            } else {
+               String url = makeFullURL( workingView.getEntityURL(EntityView.VIEW_LIST, null) );
+               entityData.put("URL", url);               
+            }
          }
+
+         // encode the object
+         encoded = encoder.toXML(toEncode, entityData);
+      } else {
+         // just to string this and dump it out
+         encoded = "<b>" + ref.getPrefix() + "</b>: " + toEncode.toString();
+      }
       return encoded;
    }
 

@@ -100,8 +100,9 @@ public class RESTfulEntityProviderMock extends EntityProviderMock implements Cor
       String newId = null;
       int counter = 0;
       while (newId == null) {
-         if (! myEntities.containsKey("my"+counter)) {
-            newId = "my"+counter;
+         String id = "my"+counter++;
+         if (! myEntities.containsKey(id)) {
+            newId = id;
          }
       }
       me.setId( newId );

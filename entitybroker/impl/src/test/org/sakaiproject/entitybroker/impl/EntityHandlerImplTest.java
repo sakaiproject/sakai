@@ -512,12 +512,27 @@ public class EntityHandlerImplTest extends TestCase {
          assertNotNull(e.getMessage());
          assertEquals(HttpServletResponse.SC_METHOD_NOT_ALLOWED, e.responseCode);
       }
+   }
+
+   public void testHandleEntityAccessInputHTML() {
+      MockHttpServletRequest req = null;
+      MockHttpServletResponse res = null;
 
       // test the REST and CRUD methods
-
       // HTML testing
 
       // test creating an entity
+      // invalid space is invalid
+      req = new MockHttpServletRequest("POST", "/xxxxxxxxxxxxxx/new");
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("Should have thrown exception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+         assertEquals(HttpServletResponse.SC_NOT_IMPLEMENTED, e.responseCode);
+      }
+
       // create without data is invalid
       req = new MockHttpServletRequest("POST", TestData.SPACE6 + "/new");
       res = new MockHttpServletResponse();
@@ -530,8 +545,8 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       req = new MockHttpServletRequest("POST", TestData.SPACE6 + "/new");
-      req.setParameter("stuff", "TEST"); // now fill in the fields to create the entity in the request (html)
-      req.setParameter("number", "5");
+      req.addParameter("stuff", "TEST"); // now fill in the fields to create the entity in the request (html)
+      req.addParameter("number", "5");
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_CREATED, res.getStatus());
@@ -545,6 +560,23 @@ public class EntityHandlerImplTest extends TestCase {
       assertEquals("TEST", me.getStuff());
       assertEquals(5, me.getNumber());
 
+      // make sure the .html works
+      req = new MockHttpServletRequest("POST", TestData.SPACE6 + "/new" + "." + Formats.HTML);
+      req.addParameter("stuff", "TEST2"); // now fill in the fields to create the entity in the request (html)
+      req.addParameter("number", "6");
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_CREATED, res.getStatus());
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_ID));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_REFERENCE));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_URL));
+      String entityId2 = (String) res.getHeader(EntityRequestHandler.HEADER_ENTITY_ID);
+      assertTrue( td.entityProvider6.myEntities.containsKey(entityId2) );
+      MyEntity me2 = td.entityProvider6.myEntities.get(entityId2);
+      assertNotNull(me2);
+      assertEquals("TEST2", me2.getStuff());
+      assertEquals(6, me2.getNumber());
+
       // test modifying an entity
       // modify without data is invalid
       req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId);
@@ -557,8 +589,19 @@ public class EntityHandlerImplTest extends TestCase {
          assertEquals(HttpServletResponse.SC_BAD_REQUEST, e.responseCode);
       }
 
+      // invalid id is invalid
+      req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/xxxxxxx");
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("Should have thrown exception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+         assertEquals(HttpServletResponse.SC_NOT_FOUND, e.responseCode);
+      }
+
       req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId);
-      req.setParameter("stuff", "TEST-PUT"); // now fill in the fields to create the entity in the request (html)
+      req.addParameter("stuff", "TEST-PUT"); // now fill in the fields to create the entity in the request (html)
       res = new MockHttpServletResponse();
       entityHandler.handleEntityAccess(req, res, null);
       assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
@@ -570,7 +613,21 @@ public class EntityHandlerImplTest extends TestCase {
       assertNotNull(me);
       assertEquals("TEST-PUT", me.getStuff());
       assertEquals(5, me.getNumber());
-      
+
+      // make sure the .html works
+      req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId2 + "." + Formats.HTML);
+      req.addParameter("stuff", "TEST-PUT2"); // now fill in the fields to create the entity in the request (html)
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
+      assertNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_ID));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_REFERENCE));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_URL));
+      assertTrue( td.entityProvider6.myEntities.containsKey(entityId2) );
+      me2 = td.entityProvider6.myEntities.get(entityId2);
+      assertNotNull(me2);
+      assertEquals("TEST-PUT2", me2.getStuff());
+      assertEquals(6, me2.getNumber());
 
       // test deleting an entity
 
@@ -585,6 +642,17 @@ public class EntityHandlerImplTest extends TestCase {
          assertEquals(HttpServletResponse.SC_BAD_REQUEST, e.responseCode);
       }
 
+      // invalid id is invalid
+      req = new MockHttpServletRequest("DELETE", TestData.SPACE6 + "/xxxxxxx");
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("Should have thrown exception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+         assertEquals(HttpServletResponse.SC_NOT_FOUND, e.responseCode);
+      }
+
       // entity delete is allowed
       assertTrue( td.entityProvider6.myEntities.containsKey(TestData.IDS6[3]) );
       req = new MockHttpServletRequest("DELETE", TestData.REF6_4);
@@ -593,6 +661,129 @@ public class EntityHandlerImplTest extends TestCase {
       assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
       assertFalse( td.entityProvider6.myEntities.containsKey(TestData.IDS6[3]) );
 
+      assertTrue( td.entityProvider6.myEntities.containsKey(entityId2) );
+      req = new MockHttpServletRequest("DELETE", TestData.SPACE6 + "/" + entityId2 + "." + Formats.HTML);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
+      assertFalse( td.entityProvider6.myEntities.containsKey(entityId2) );
+
    }
 
+   public void testHandleEntityAccessRESTXML() {
+      MockHttpServletRequest req = null;
+      MockHttpServletResponse res = null;
+
+      // test the REST and CRUD methods
+      // XML testing
+
+      // test creating an entity
+      req = new MockHttpServletRequest("POST", TestData.SPACE6 + "/new" + "." + Formats.XML);
+      req.setContent(
+            makeUTF8Bytes("<"+TestData.PREFIX6+"><stuff>TEST</stuff><number>5</number></"+TestData.PREFIX6+">")
+         );
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_CREATED, res.getStatus());
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_ID));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_REFERENCE));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_URL));
+      String entityId = (String) res.getHeader(EntityRequestHandler.HEADER_ENTITY_ID);
+      assertTrue( td.entityProvider6.myEntities.containsKey(entityId) );
+      MyEntity me = td.entityProvider6.myEntities.get(entityId);
+      assertNotNull(me);
+      assertEquals("TEST", me.getStuff());
+      assertEquals(5, me.getNumber());
+
+      // test modifying an entity
+      req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId + "." + Formats.XML);
+      req.setContent(
+            makeUTF8Bytes("<"+TestData.PREFIX6+"><stuff>TEST-PUT</stuff></"+TestData.PREFIX6+">")
+         );
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
+      assertNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_ID));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_REFERENCE));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_URL));
+      assertTrue( td.entityProvider6.myEntities.containsKey(entityId) );
+      me = td.entityProvider6.myEntities.get(entityId);
+      assertNotNull(me);
+      assertEquals("TEST-PUT", me.getStuff());
+      assertEquals(5, me.getNumber());
+
+      // test deleting an entity (extension should have no effect)
+      assertTrue( td.entityProvider6.myEntities.containsKey(entityId) );
+      req = new MockHttpServletRequest("DELETE", TestData.SPACE6 + "/" + entityId + "." + Formats.XML);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
+      assertFalse( td.entityProvider6.myEntities.containsKey(entityId) );
+
+   }
+
+   public void testHandleEntityAccessRESTJSON() {
+      MockHttpServletRequest req = null;
+      MockHttpServletResponse res = null;
+
+      // test the REST and CRUD methods
+      // JSON testing
+
+      // test creating an entity
+      req = new MockHttpServletRequest("POST", TestData.SPACE6 + "/new" + "." + Formats.JSON);
+      req.setContent(
+            makeUTF8Bytes("{\""+TestData.PREFIX6+"\" : { \"stuff\" : \"TEST\", \"number\" : 5 }}")
+         );
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_CREATED, res.getStatus());
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_ID));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_REFERENCE));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_URL));
+      String entityId = (String) res.getHeader(EntityRequestHandler.HEADER_ENTITY_ID);
+      assertTrue( td.entityProvider6.myEntities.containsKey(entityId) );
+      MyEntity me = td.entityProvider6.myEntities.get(entityId);
+      assertNotNull(me);
+      assertEquals("TEST", me.getStuff());
+      assertEquals(5, me.getNumber());
+
+      // test modifying an entity
+      req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId + "." + Formats.JSON);
+      req.setContent(
+            makeUTF8Bytes("{\""+TestData.PREFIX6+"\" : { \"stuff\" : \"TEST-PUT\" }}")
+         );
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
+      assertNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_ID));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_REFERENCE));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_URL));
+      assertTrue( td.entityProvider6.myEntities.containsKey(entityId) );
+      me = td.entityProvider6.myEntities.get(entityId);
+      assertNotNull(me);
+      assertEquals("TEST-PUT", me.getStuff());
+      assertEquals(5, me.getNumber());
+
+      // test deleting an entity (extension should have no effect)
+      assertTrue( td.entityProvider6.myEntities.containsKey(entityId) );
+      req = new MockHttpServletRequest("DELETE", TestData.SPACE6 + "/" + entityId + "." + Formats.JSON);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
+      assertFalse( td.entityProvider6.myEntities.containsKey(entityId) );
+
+   }
+
+   /**
+    * Convenience method for making byte content encoded into UTF-8
+    */
+   private byte[] makeUTF8Bytes(String string) {
+      byte[] bytes;
+      try {
+         bytes = string.getBytes(Formats.UTF_8);
+      } catch (UnsupportedEncodingException e) {
+         bytes = string.getBytes();
+      }
+      return bytes;
+   }
 }
