@@ -631,13 +631,13 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		 */
 		public List getAuthzUserGroupIds(String siteid, ArrayList groupids, String userid)
 		{
-			if (siteid == null || groupids == null || userid == null)
+			if (siteid == null || groupids == null || userid == null || groupids.size() < 1)
 				return new ArrayList(); // empty list
 
 			String inClause = orInClause( groupids.size(), "SAKAI_REALM.REALM_ID" );
 			String statement = dbAuthzGroupSql.getSelectRealmUserGroupSql( inClause );
 			Object[] fields = new Object[groupids.size()+1];
-			for ( int i=0; i<groupids.size()-1; i++ )
+			for ( int i=0; i<groupids.size(); i++ )
 			{
 				StringBuilder idBuf = new StringBuilder("/site/");
 				idBuf.append( siteid );
