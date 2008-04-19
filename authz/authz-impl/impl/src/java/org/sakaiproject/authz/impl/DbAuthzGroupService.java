@@ -629,23 +629,19 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		/**
 		 * {@inheritDoc}
 		 */
-		public List getAuthzUserGroupIds(String siteid, ArrayList groupids, String userid)
+		public List getAuthzUserGroupIds(ArrayList authzGroupIds, String userid)
 		{
-			if (siteid == null || groupids == null || userid == null || groupids.size() < 1)
+			if (authzGroupIds == null || userid == null || authzGroupIds.size() < 1)
 				return new ArrayList(); // empty list
 
-			String inClause = orInClause( groupids.size(), "SAKAI_REALM.REALM_ID" );
+			String inClause = orInClause( authzGroupIds.size(), "SAKAI_REALM.REALM_ID" );
 			String statement = dbAuthzGroupSql.getSelectRealmUserGroupSql( inClause );
-			Object[] fields = new Object[groupids.size()+1];
-			for ( int i=0; i<groupids.size(); i++ )
+			Object[] fields = new Object[authzGroupIds.size()+1];
+			for ( int i=0; i<authzGroupIds.size(); i++ )
 			{
-				StringBuilder idBuf = new StringBuilder("/site/");
-				idBuf.append( siteid );
-				idBuf.append( "/group/" );
-				idBuf.append( groupids.get(i) );
-				fields[i] = idBuf.toString();
+				fields[i] = authzGroupIds.get(i);
 			}
-			fields[groupids.size()] = userid;
+			fields[authzGroupIds.size()] = userid;
 			
 			return sqlService().dbRead(statement, fields, null );
 		}

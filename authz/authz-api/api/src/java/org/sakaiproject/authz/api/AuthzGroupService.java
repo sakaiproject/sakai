@@ -73,17 +73,15 @@ public interface AuthzGroupService extends EntityProducer
 	List getAuthzGroups(String criteria, PagingPosition page);
 
 	/**
-	 * Access a list of AuthzGroups that meet specified criteria for a specified user_id
+	 * Access a list of AuthzGroups which contain a specified userid
 	 * 
-	 * @param siteid
-	 *        AuthzGroup selection criteria (site id)
-	 * @param groupids
-	 *        AuthzGroup selection criteria (list of group ids)
+	 * @param authzGroupIds
+	 *        AuthzGroup selection criteria (list of AuthzGroup ids)
 	 * @param userid
-	 *        Return only groups with user_id as a member
-	 * @return The List (AuthzGroup) that meet specified criteria.
+	 *        Return only groups with userid as a member
+	 * @return The List (AuthzGroup) that contain the specified userid
 	 */
-	List getAuthzUserGroupIds(String siteid, ArrayList groupids, String userid);
+	List getAuthzUserGroupIds(ArrayList authzGroupIds, String userid);
 
 	/**
 	 * Count the AuthzGroups that meet specified criteria.

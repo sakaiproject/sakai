@@ -312,9 +312,9 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getAuthzUserGroupIds(String siteid, ArrayList groupids, String userid)
+	public List getAuthzUserGroupIds(ArrayList authzGroupIds, String userid)
 	{
-		return m_storage.getAuthzUserGroupIds(siteid, groupids, userid);
+		return m_storage.getAuthzUserGroupIds(authzGroupIds, userid);
 	}
 	
 	/**
@@ -1209,15 +1209,13 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		/**
 		 * Access a list of AuthzGroups that meet specified criteria for a specified user_id
 		 * 
-		 * @param siteid
-		 *        AuthzGroup selection criteria (site id)
-		 * @param groupids
-		 *        AuthzGroup selection criteria (list of group ids)
+		 * @param authzGroupIds
+		 *        AuthzGroup selection criteria (list of authz group ids)
 		 * @param user_id
 		 *        Return only groups with user_id as a member
 		 * @return The List (AuthzGroup) that meet specified criteria.
 		 */
-		List getAuthzUserGroupIds(String siteid, ArrayList groupids, String user_id);
+		List getAuthzUserGroupIds(ArrayList authzGroupIds, String user_id);
 
 		/**
 		 * Count the AuthzGroup objets that meet specified criteria.
