@@ -67,6 +67,13 @@ public class SakaiLogin
         throw new AxisFault("Unable to login");
     }
 
+    public String loginToServer(String id,String pw)
+        throws AxisFault
+    {
+	return login(id, pw) + "," + 
+ 	  ServerConfigurationService.getString("webservices.directurl", ServerConfigurationService.getString("serverUrl"));
+    }
+
     // This code is adapted from the file:
     // ./event-impl/impl/src/java/org/sakaiproject/event/impl/UsageSessionServiceAdaptor.java
     // Method
