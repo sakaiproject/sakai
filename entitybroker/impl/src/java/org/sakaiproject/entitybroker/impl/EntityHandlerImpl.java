@@ -21,7 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -469,121 +468,140 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                // check that the request is valid (edit and delete require an entity id)
                if ( (EntityView.VIEW_EDIT.equals(view.getViewKey()) || EntityView.VIEW_DELETE.equals(view.getViewKey()) )
                      && view.getEntityReference().getId() == null) {
-                  throw new EntityException("Unable to handle entity ("+prefix+") edit or delete request without entity id", 
-                        view.toString(), HttpServletResponse.SC_BAD_REQUEST);                     
+                  throw new EntityException("Unable to handle entity ("+prefix+") edit or delete request without entity id, url=" + view.getOriginalEntityUrl(), 
+                        view.getEntityReference().toString(), HttpServletResponse.SC_BAD_REQUEST);
                }
             }
 
             boolean handled = false;
             if (output) {
                // output request
-               Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
-               if (outputable != null) {
-                  if ( ReflectUtil.contains(outputable.getHandledOutputFormats(), view.getExtension()) ) {
-                     // we are handling this type of format for this entity
-                     res.setCharacterEncoding(UTF_8);
-                     String encoding = null;
-                     if (Formats.XML.equals(view.getExtension())) {
-                        encoding = Formats.XML_MIME_TYPE;
-                     } else if (Formats.HTML.equals(view.getExtension())) {
-                        encoding = Formats.HTML_MIME_TYPE;
-                     } else if (Formats.JSON.equals(view.getExtension())) {
-                        encoding = Formats.JSON_MIME_TYPE;
-                     } else if (Formats.RSS.equals(view.getExtension())) {
-                        encoding = Formats.RSS_MIME_TYPE;                        
-                     } else if (Formats.ATOM.equals(view.getExtension())) {
-                        encoding = Formats.ATOM_MIME_TYPE;                        
-                     } else {
-                        encoding = Formats.TXT_MIME_TYPE;
-                     }
-                     res.setContentType(encoding);
-
-                     // get the entities to output
-                     Search search = makeSearchFromRequest(req);
-                     List<?> entities = fetchEntityList(view.getEntityReference(), search);
-                     OutputStream outputStream = null;
-                     try {
-                        outputStream = res.getOutputStream();
-                     } catch (IOException e) {
-                        throw new RuntimeException("Failed to get output stream from response: " + view.getEntityReference(), e);
-                     }
-
-                     OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
-                     if (formattable == null) {
-                        // handle internally or fail
-                        internalOutputFormatter(view.getEntityReference(), view.getExtension(), entities, outputStream, view);
-                     } else {
-                        // use provider's formatter
-                        formattable.formatOutput(view.getEntityReference(), view.getExtension(), entities, outputStream);
-                     }
-                     res.setStatus(HttpServletResponse.SC_OK);
-                     handled = true;
-                  } else {
-                     // will not handle this format type
-                     throw new EntityException( "Will not handle output request for format  "+view.getExtension()+" for this path (" 
-                           + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference().toString() + ")", 
-                           view.getEntityReference().toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
-                  }
-               }
-            } else {
-               // input request
-               if (EntityView.VIEW_DELETE.equals(view.getViewKey())) {
-                  // delete request
-                  Deleteable deleteable = (Deleteable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Deleteable.class);
-                  if (deleteable != null) {
-                     deleteable.deleteEntity(view.getEntityReference());
-                     res.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                     handled = true;
-                  }
-               } else {
-                  // save request
-                  Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
-                  if (inputable != null) {
-                     if ( ReflectUtil.contains(inputable.getHandledInputFormats(), view.getExtension()) ) {
+               try {
+                  Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
+                  if (outputable != null) {
+                     if ( ReflectUtil.contains(outputable.getHandledOutputFormats(), view.getExtension()) ) {
                         // we are handling this type of format for this entity
-                        InputTranslatable translatable = (InputTranslatable) entityProviderManager.getProviderByPrefixAndCapability(prefix, InputTranslatable.class);
-                        Object entity = null;
-                        if (translatable == null) {
-                           // use internal translators or fail
-                           // TODO add internal translators
-                           throw new UnsupportedOperationException("Not implemented yet");
+                        res.setCharacterEncoding(UTF_8);
+                        String encoding = null;
+                        if (Formats.XML.equals(view.getExtension())) {
+                           encoding = Formats.XML_MIME_TYPE;
+                        } else if (Formats.HTML.equals(view.getExtension())) {
+                           encoding = Formats.HTML_MIME_TYPE;
+                        } else if (Formats.JSON.equals(view.getExtension())) {
+                           encoding = Formats.JSON_MIME_TYPE;
+                        } else if (Formats.RSS.equals(view.getExtension())) {
+                           encoding = Formats.RSS_MIME_TYPE;                        
+                        } else if (Formats.ATOM.equals(view.getExtension())) {
+                           encoding = Formats.ATOM_MIME_TYPE;                        
                         } else {
-                           // use provider's translator
-                           try {
-                              entity = translatable.translateFormattedData(view.getEntityReference(), 
-                                    view.getExtension(), req.getInputStream());
-                           } catch (IOException e) {
-                              throw new RuntimeException("Failed to get inputstream from request: " + view.toString() + ":" + e.getMessage(), e);
-                           }
+                           encoding = Formats.TXT_MIME_TYPE;
+                        }
+                        res.setContentType(encoding);
+
+                        // get the entities to output
+                        Search search = makeSearchFromRequest(req);
+                        List<?> entities = fetchEntityList(view.getEntityReference(), search);
+                        OutputStream outputStream = null;
+                        try {
+                           outputStream = res.getOutputStream();
+                        } catch (IOException e) {
+                           throw new RuntimeException("Failed to get output stream from response: " + view.getEntityReference(), e);
                         }
 
-                        if (entity == null) {
-                           throw new EntityException("Unable to save entity ("+view.getEntityReference()+"), entity object was null", 
-                                 view.toString(), HttpServletResponse.SC_BAD_REQUEST);
+                        OutputFormattable formattable = (OutputFormattable) entityProviderManager.getProviderByPrefixAndCapability(prefix, OutputFormattable.class);
+                        if (formattable == null) {
+                           // handle internally or fail
+                           internalOutputFormatter(view.getEntityReference(), view.getExtension(), entities, outputStream, view);
                         } else {
-                           if (EntityView.VIEW_NEW.equals(view.getViewKey())) {
-                              String createdId = inputable.createEntity(view.getEntityReference(), entity);
-                              view.setEntityReference( new EntityReference(prefix, createdId) ); // update the entity view
-                              res.setStatus(HttpServletResponse.SC_CREATED);
-                           } else if (EntityView.VIEW_EDIT.equals(view.getViewKey())) {
-                              inputable.updateEntity(view.getEntityReference(), entity);
-                              res.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                           } else {
-                              throw new EntityException("Unable to handle entity input ("+view.getEntityReference()+"), " +
-                              		"action was not understood: " + view.getViewKey(), 
-                                    view.toString(), HttpServletResponse.SC_BAD_REQUEST);
-                           }
-                           // return the location of this updated or created entity (without any extension)
-                           res.setHeader("Location", view.getEntityURL(EntityView.VIEW_SHOW, null));
-                           handled = true;
+                           // use provider's formatter
+                           formattable.formatOutput(view.getEntityReference(), view.getExtension(), entities, outputStream);
                         }
+                        res.setStatus(HttpServletResponse.SC_OK);
+                        handled = true;
                      } else {
                         // will not handle this format type
-                        throw new EntityException( "Will not handle input request for format  "+view.getExtension()+" for this path (" 
+                        throw new EntityException( "Will not handle output request for format  "+view.getExtension()+" for this path (" 
                               + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference().toString() + ")", 
                               view.getEntityReference().toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
                      }
                   }
+               } catch (IllegalArgumentException e) {
+                  // translate IAE into EE
+                  throw new EntityException("IllegalArgumentException: Unable to handle output input request url ("
+                        + view.getOriginalEntityUrl()+"), " + e.getMessage(),
+                        view.getEntityReference().toString(), HttpServletResponse.SC_BAD_REQUEST);                  
+               }
+            } else {
+               // input request
+               try {
+                  if (EntityView.VIEW_DELETE.equals(view.getViewKey())) {
+                     // delete request
+                     Deleteable deleteable = (Deleteable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Deleteable.class);
+                     if (deleteable != null) {
+                        deleteable.deleteEntity(view.getEntityReference());
+                        res.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                        handled = true;
+                     }
+                  } else {
+                     // save request
+                     Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
+                     if (inputable != null) {
+                        if ( ReflectUtil.contains(inputable.getHandledInputFormats(), view.getExtension()) ) {
+                           // we are handling this type of format for this entity
+                           Object entity = null;
+                           InputStream inputStream = null;
+                           try {
+                              inputStream = req.getInputStream();
+                           } catch (IOException e) {
+                              throw new RuntimeException("Failed to get output stream from response: " + view.getEntityReference(), e);
+                           }
+
+                           InputTranslatable translatable = (InputTranslatable) entityProviderManager.getProviderByPrefixAndCapability(prefix, InputTranslatable.class);
+                           if (translatable == null) {
+                              // use internal translators or fail
+                              entity = internalInputTranslator(view.getEntityReference(), 
+                                       view.getExtension(), inputStream, req);
+                           } else {
+                              // use provider's translator
+                              entity = translatable.translateFormattedData(view.getEntityReference(), 
+                                    view.getExtension(), inputStream);
+                           }
+
+                           if (entity == null) {
+                              throw new EntityException("Unable to save entity ("+view.getEntityReference()+"), entity object was null", 
+                                    view.toString(), HttpServletResponse.SC_BAD_REQUEST);
+                           } else {
+                              if (EntityView.VIEW_NEW.equals(view.getViewKey())) {
+                                 String createdId = inputable.createEntity(view.getEntityReference(), entity);
+                                 view.setEntityReference( new EntityReference(prefix, createdId) ); // update the entity view
+                                 res.setHeader(EntityRequestHandler.HEADER_ENTITY_ID, createdId);
+                                 res.setStatus(HttpServletResponse.SC_CREATED);
+                              } else if (EntityView.VIEW_EDIT.equals(view.getViewKey())) {
+                                 inputable.updateEntity(view.getEntityReference(), entity);
+                                 res.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                              } else {
+                                 throw new EntityException("Unable to handle entity input ("+view.getEntityReference()+"), " +
+                                 		"action was not understood: " + view.getViewKey(), 
+                                       view.toString(), HttpServletResponse.SC_BAD_REQUEST);
+                              }
+                              // return the location of this updated or created entity (without any extension)
+                              res.setHeader(EntityRequestHandler.HEADER_ENTITY_URL, view.getEntityURL(EntityView.VIEW_SHOW, null));
+                              res.setHeader(EntityRequestHandler.HEADER_ENTITY_REFERENCE, view.getEntityReference().toString());
+                              handled = true;
+                           }
+                        } else {
+                           // will not handle this format type
+                           throw new EntityException( "Will not handle input request for format  "+view.getExtension()+" for this path (" 
+                                 + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference().toString() + ")", 
+                                 view.getEntityReference().toString(), HttpServletResponse.SC_METHOD_NOT_ALLOWED );
+                        }
+                     }
+                  }
+               } catch (IllegalArgumentException e) {
+                  // translate IAE into EE
+                  throw new EntityException("IllegalArgumentException: Unable to handle entity input request url ("
+                        + view.getOriginalEntityUrl()+"), " + e.getMessage(),
+                        view.getEntityReference().toString(), HttpServletResponse.SC_BAD_REQUEST);                  
                }
             }
 
@@ -687,28 +705,36 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       // get the encoder to use
       EntityXStream encoder = getEncoderForFormat(format);
 
-      // get a sample object
-      Object sample = null;
       Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(ref.getPrefix(), Inputable.class);
       if (inputable != null) {
-         sample = inputable.getSampleEntity();
+         // get a the current entity object or a sample
+         Object current = null;
+         if (ref.getId() == null) {
+            // get a sample
+            current = inputable.getSampleEntity();
+         } else {
+            // get the current entity
+            current = inputable.getEntity(ref);
+         }
+
          if (encoder != null) {
             // translate using the encoder
-            entity = encoder.fromXML(input, sample);
+            entity = encoder.fromXML(input, current);
          } else {
-            // html handled specially
+            // html req handled specially
             if (req != null) {
-               HashMap<String, Object> map = new HashMap<String, Object>();
-               Enumeration<String> names = req.getParameterNames();
-               while (names.hasMoreElements()) {
-                 String name = names.nextElement();
-                 map.put(name, req.getParameterValues(name));
-               }
-               entity = sample;
-               try {
-                  beanUtils.populate(entity, map);
-               } catch (Exception e) {
-                  throw new RuntimeException("Unable to populate bean for ref ("+ref+") from request: " + e.getMessage(), e);
+               Map<String, String[]> params = req.getParameterMap();
+               if (params != null && params.size() > 0) {
+                  entity = current;
+                  try {
+                     beanUtils.populate(entity, params);
+                  } catch (Exception e) {
+                     throw new IllegalArgumentException("Unable to populate bean for ref ("+ref+") from request: " + e.getMessage(), e);
+                  }
+               } else {
+                  // no request params, bad request
+                  throw new EntityException("No request params for html input request (there must be at least one) for reference: " + ref, 
+                        ref.toString(), HttpServletResponse.SC_BAD_REQUEST);
                }
             }
          }         

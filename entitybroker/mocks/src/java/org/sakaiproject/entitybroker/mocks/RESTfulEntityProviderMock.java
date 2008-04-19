@@ -47,7 +47,7 @@ public class RESTfulEntityProviderMock extends EntityProviderMock implements Cor
    public RESTfulEntityProviderMock(String prefix, String[] ids) {
       super(prefix);
       for (int i = 0; i < ids.length; i++) {
-         myEntities.put(ids[i], new MyEntity(ids[i]) );
+         myEntities.put(ids[i], new MyEntity(ids[i], "aaron" + i) );
       }
    }
 
@@ -77,7 +77,12 @@ public class RESTfulEntityProviderMock extends EntityProviderMock implements Cor
       } else {
          // restrict based on search param
          if (search.getRestrictionByProperty("stuff") != null) {
-            entities.add( myEntities.values().iterator().next() );
+            for (MyEntity me : myEntities.values()) {
+               String sMatch = search.getRestrictionByProperty("stuff").value.toString();
+               if (sMatch.equals(me.getStuff())) {
+                  entities.add(me);
+               }
+            }
          }
       }
       return entities;
@@ -89,6 +94,9 @@ public class RESTfulEntityProviderMock extends EntityProviderMock implements Cor
     */
    public String createEntity(EntityReference reference, Object entity) {
       MyEntity me = (MyEntity) entity;
+      if (me.getStuff() == null) {
+         throw new IllegalArgumentException("stuff is not set, it is required");
+      }
       String newId = null;
       int counter = 0;
       while (newId == null) {
@@ -96,17 +104,17 @@ public class RESTfulEntityProviderMock extends EntityProviderMock implements Cor
             newId = "my"+counter;
          }
       }
-      me.id = newId;
+      me.setId( newId );
       myEntities.put(newId, me);
       return newId;
    }
 
    /**
-    * Returns {@link MyEntity} objects with no id
+    * Returns {@link MyEntity} objects with no id, default number to 10
     * {@inheritDoc}
     */
    public Object getSampleEntity() {
-      return new MyEntity(null);
+      return new MyEntity(null, 10);
    }
 
    /**
@@ -115,11 +123,17 @@ public class RESTfulEntityProviderMock extends EntityProviderMock implements Cor
     */
    public void updateEntity(EntityReference reference, Object entity) {
       MyEntity me = (MyEntity) entity;
+      if (me.getStuff() == null) {
+         throw new IllegalArgumentException("stuff is not set, it is required");
+      }
       MyEntity current = myEntities.get(reference.getId());
       if (current == null) {
          throw new IllegalArgumentException("Invalid update, cannot find entity");
       }
-      myEntities.get(reference.getId()).stuff = me.stuff;
+      // update the fields
+      current.setStuff( me.getStuff() );
+      current.setNumber( me.getNumber() );
+      current.extra = me.extra;
    }
 
    public void deleteEntity(EntityReference reference) {

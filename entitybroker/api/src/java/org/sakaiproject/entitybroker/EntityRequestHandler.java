@@ -27,6 +27,23 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 public interface EntityRequestHandler {
 
    /**
+    * The reserved word used to trigger entity descriptions
+    */
+   public static String DESCRIBE = "describe";
+   /**
+    * This is the name of the header which will contain the id of newly created entities
+    */
+   public static String HEADER_ENTITY_ID = "EntityId";
+   /**
+    * This is the name of the header which will contain the reference of created/updated entities
+    */
+   public static String HEADER_ENTITY_REFERENCE = "EntityReference";
+   /**
+    * This is the name of the header that will contain created/updated entities SHOW URL
+    */
+   public static String HEADER_ENTITY_URL = "Location";
+
+   /**
     * Handles the servlet request response cycle for all direct servlet accesses,
     * logically, we only want to let this request continue on if the entity exists AND
     * there is an http access provider to handle it AND the user can access it

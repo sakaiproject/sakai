@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Order;
@@ -513,7 +514,84 @@ public class EntityHandlerImplTest extends TestCase {
       }
 
       // test the REST and CRUD methods
-      // TODO
+
+      // HTML testing
+
+      // test creating an entity
+      // create without data is invalid
+      req = new MockHttpServletRequest("POST", TestData.SPACE6 + "/new");
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("Should have thrown exception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+         assertEquals(HttpServletResponse.SC_BAD_REQUEST, e.responseCode);
+      }
+
+      req = new MockHttpServletRequest("POST", TestData.SPACE6 + "/new");
+      req.setParameter("stuff", "TEST"); // now fill in the fields to create the entity in the request (html)
+      req.setParameter("number", "5");
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_CREATED, res.getStatus());
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_ID));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_REFERENCE));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_URL));
+      String entityId = (String) res.getHeader(EntityRequestHandler.HEADER_ENTITY_ID);
+      assertTrue( td.entityProvider6.myEntities.containsKey(entityId) );
+      MyEntity me = td.entityProvider6.myEntities.get(entityId);
+      assertNotNull(me);
+      assertEquals("TEST", me.getStuff());
+      assertEquals(5, me.getNumber());
+
+      // test modifying an entity
+      // modify without data is invalid
+      req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId);
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("Should have thrown exception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+         assertEquals(HttpServletResponse.SC_BAD_REQUEST, e.responseCode);
+      }
+
+      req = new MockHttpServletRequest("PUT", TestData.SPACE6 + "/" + entityId);
+      req.setParameter("stuff", "TEST-PUT"); // now fill in the fields to create the entity in the request (html)
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
+      assertNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_ID));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_REFERENCE));
+      assertNotNull(res.getHeader(EntityRequestHandler.HEADER_ENTITY_URL));
+      assertTrue( td.entityProvider6.myEntities.containsKey(entityId) );
+      me = td.entityProvider6.myEntities.get(entityId);
+      assertNotNull(me);
+      assertEquals("TEST-PUT", me.getStuff());
+      assertEquals(5, me.getNumber());
+      
+
+      // test deleting an entity
+
+      // space delete is invalid
+      req = new MockHttpServletRequest("DELETE", TestData.SPACE6);
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("Should have thrown exception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+         assertEquals(HttpServletResponse.SC_BAD_REQUEST, e.responseCode);
+      }
+
+      // entity delete is allowed
+      assertTrue( td.entityProvider6.myEntities.containsKey(TestData.IDS6[3]) );
+      req = new MockHttpServletRequest("DELETE", TestData.REF6_4);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_NO_CONTENT, res.getStatus());
+      assertFalse( td.entityProvider6.myEntities.containsKey(TestData.IDS6[3]) );
 
    }
 

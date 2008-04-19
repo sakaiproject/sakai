@@ -11,6 +11,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResol
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Propertyable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
 import org.sakaiproject.entitybroker.mocks.CoreEntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.EntityProviderMock;
 import org.sakaiproject.entitybroker.mocks.PropertyableEntityProviderMock;
@@ -110,9 +111,9 @@ public class TestData {
    public static String REF4_3 = EntityReference.SEPARATOR + PREFIX4
          + EntityReference.SEPARATOR + IDS4[2];
    // sample entity objects
-   public static MyEntity entity4 = new MyEntity(IDS4[0]);
-   public static MyEntity entity4_two = new MyEntity(IDS4[1]);
-   public static MyEntity entity4_3 = new MyEntity(IDS4[2]);
+   public static MyEntity entity4 = new MyEntity(IDS4[0], "something0");
+   public static MyEntity entity4_two = new MyEntity(IDS4[1], "something1");
+   public static MyEntity entity4_3 = new MyEntity(IDS4[2], "something2");
    // urls to data
    public static String EXTENSION4 = Outputable.JSON;
    public static String ENTITY_URL4 = EntityReference.SEPARATOR + PREFIX4 + EntityReference.SEPARATOR + IDS4[0] + EXTENSION4;
@@ -178,12 +179,12 @@ public class TestData {
    /**
     * Registered provider which implements {@link CoreEntityProvider}
     */
-   public EntityProvider entityProvider1 = new CoreEntityProviderMock(PREFIX1, IDS1);
+   public CoreEntityProvider entityProvider1 = new CoreEntityProviderMock(PREFIX1, IDS1);
    /**
-    * Registered provider that implements {@link EntityProvider} and {@link Taggable}, this
+    * Registered provider that implements {@link EntityProvider} and {@link Taggable} and {@link TagSearchable}, this
     * provider builds on {@link #entityProvider1}
     */
-   public EntityProvider entityProvider1T = new TaggableEntityProviderMock(PREFIX1, REF1, someTags);
+   public TaggableEntityProviderMock entityProvider1T = new TaggableEntityProviderMock(PREFIX1, REF1, someTags);
    /**
     * Registered provider that only implements {@link EntityProvider}
     */
@@ -191,19 +192,19 @@ public class TestData {
    /**
     * Registered provider that implements {@link CoreEntityProvider} and {@link ReferenceParseable}
     */
-   public EntityProvider entityProvider3 = new ReferenceParseableEntityProviderMock(PREFIX3, IDS3);
+   public ReferenceParseableEntityProviderMock entityProvider3 = new ReferenceParseableEntityProviderMock(PREFIX3, IDS3);
    /**
     * Registered provider that implements {@link CoreEntityProvider} and {@link Resolvable} and {@link CollectionResolvable}
     */
-   public EntityProvider entityProvider4 = new ResolvableEntityProviderMock(PREFIX4, IDS4);
+   public ResolvableEntityProviderMock entityProvider4 = new ResolvableEntityProviderMock(PREFIX4, IDS4);
    /**
     * Registered provider which implements {@link CoreEntityProvider} and {@link Propertyable}
     */
-   public EntityProvider entityProvider5 = new PropertyableEntityProviderMock(PREFIX5, IDS5);
+   public PropertyableEntityProviderMock entityProvider5 = new PropertyableEntityProviderMock(PREFIX5, IDS5);
    /**
-    * Registered provider which implements {@link CoreEntityProvider} and {@link Propertyable}
+    * Registered provider which implements {@link CoreEntityProvider} and {@link RESTful}
     */
-   public EntityProvider entityProvider6 = new RESTfulEntityProviderMock(PREFIX6, IDS6);
+   public RESTfulEntityProviderMock entityProvider6 = new RESTfulEntityProviderMock(PREFIX6, IDS6);
 
    /**
     * Unregistered provider

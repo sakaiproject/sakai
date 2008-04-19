@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
@@ -150,6 +151,9 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
    public void registerEntityProvider(EntityProvider entityProvider) {
       String prefix = entityProvider.getEntityPrefix();
       new EntityReference(prefix, ""); // this checks the prefix is valid
+      if (EntityRequestHandler.DESCRIBE.equals(prefix)) {
+         throw new IllegalArgumentException(EntityRequestHandler.DESCRIBE + " is a reserved prefix, it cannot be used");
+      }
       List<Class<? extends EntityProvider>> superclasses = extractCapabilities(entityProvider);
       for (Class<? extends EntityProvider> superclazz : superclasses) {
          registerPrefixCapability(prefix, superclazz, entityProvider);

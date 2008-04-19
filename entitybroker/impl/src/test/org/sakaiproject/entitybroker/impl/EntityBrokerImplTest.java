@@ -316,13 +316,13 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       assertNotNull(obj);
       assertTrue(obj instanceof MyEntity);
       MyEntity entity = (MyEntity) obj;
-      assertEquals(entity.id, TestData.IDS4[0]);
+      assertEquals(entity.getId(), TestData.IDS4[0]);
 
       obj = entityBroker.fetchEntity(TestData.REF4_two);
       assertNotNull(obj);
       assertTrue(obj instanceof MyEntity);
       MyEntity entity2 = (MyEntity) obj;
-      assertEquals(entity2.id, TestData.IDS4[1]);
+      assertEquals(entity2.getId(), TestData.IDS4[1]);
 
       // no object available should cause failure
       obj = entityBroker.fetchEntity(TestData.REF1);

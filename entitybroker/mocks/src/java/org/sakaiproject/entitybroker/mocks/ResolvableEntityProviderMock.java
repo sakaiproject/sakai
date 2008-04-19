@@ -47,7 +47,7 @@ public class ResolvableEntityProviderMock extends CoreEntityProviderMock impleme
     * @see org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable#getEntity(org.sakaiproject.entitybroker.EntityReference)
     */
    public Object getEntity(EntityReference reference) {
-      return new MyEntity(reference.getId());
+      return new MyEntity(reference.getId(), "something");
    }
 
    /* (non-Javadoc)
@@ -58,12 +58,12 @@ public class ResolvableEntityProviderMock extends CoreEntityProviderMock impleme
       if (search.isEmpty()) {
          // return all
          for (int i = 0; i < ids.length; i++) {
-            entities.add( new MyEntity( ids[i] ) );
+            entities.add( new MyEntity( ids[i], "something" + i ) );
          }
       } else {
          // restrict based on search param
          if (search.getRestrictionByProperty("stuff") != null) {
-            entities.add( new MyEntity( ids[1] ) );
+            entities.add( new MyEntity( ids[1], "something1" ) );
          }
       }
       return entities;
