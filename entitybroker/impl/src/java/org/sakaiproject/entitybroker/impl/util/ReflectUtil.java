@@ -91,7 +91,7 @@ public class ReflectUtil {
          } else if (member instanceof Method) {
             Method method = (Method) member;
             try {
-               types.put(method.getName(), method.getReturnType());
+               types.put(unCapitalize(method.getName().substring(3)), method.getReturnType());
             } catch (Exception e) {
                // nothing to do here but move on
             }
@@ -322,6 +322,27 @@ public class ReflectUtil {
          }
       }
       return foundValue;
+   }
+
+   /**
+    * Take an array of anything and turn it into a string
+    * 
+    * @param array any array
+    * @return a string representing that array
+    */
+   public static String arrayToString(Object[] array) {
+      StringBuilder result = new StringBuilder();
+      if (array != null && array.length > 0) {
+         for (int i = 0; i < array.length; i++) {
+            if (i > 0) {
+               result.append(",");
+            }
+            if (array[i] != null) {
+               result.append(array[i].toString());
+            }
+         }
+      }
+      return result.toString();
    }
 
 }

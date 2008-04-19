@@ -47,6 +47,9 @@ public class ResolvableEntityProviderMock extends CoreEntityProviderMock impleme
     * @see org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable#getEntity(org.sakaiproject.entitybroker.EntityReference)
     */
    public Object getEntity(EntityReference reference) {
+      if (reference.getId() == null) {
+         return new MyEntity();
+      }
       return new MyEntity(reference.getId(), "something");
    }
 

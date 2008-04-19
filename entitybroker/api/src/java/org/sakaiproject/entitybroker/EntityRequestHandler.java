@@ -42,6 +42,10 @@ public interface EntityRequestHandler {
     * This is the name of the header that will contain created/updated entities SHOW URL
     */
    public static String HEADER_ENTITY_URL = "Location";
+   /**
+    * The id used in generated URLs
+    */
+   public static String FAKE_ID = ":ID:";
 
    /**
     * Handles the servlet request response cycle for all direct servlet accesses,

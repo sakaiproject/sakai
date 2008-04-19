@@ -118,7 +118,10 @@ public class EntityView {
    public EntityReference getEntityReference() {
       return entityReference;
    }
-   public void setEntityReference(EntityReference ref) {
+   /**
+    * Allows for easy chained construction of EntityViews by setting an EntityReference
+    */
+   public EntityView setEntityReference(EntityReference ref) {
       if (ref == null) {
          throw new IllegalArgumentException("ref cannot be null");
       }
@@ -131,6 +134,7 @@ public class EntityView {
       }
       populateInternals(viewKey, segments, null);
       this.entityReference = ref;
+      return this;
    }
 
    /**

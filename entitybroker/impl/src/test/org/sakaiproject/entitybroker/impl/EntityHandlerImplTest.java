@@ -774,6 +774,133 @@ public class EntityHandlerImplTest extends TestCase {
 
    }
 
+   public void testHandleEntityAccessDescribe() {
+      MockHttpServletRequest req = null;
+      MockHttpServletResponse res = null;
+
+      // test describe all entities
+      req = new MockHttpServletRequest("GET", "/" + EntityRequestHandler.DESCRIBE);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIX1));
+         assertTrue(content.contains(TestData.PREFIX2));
+         assertTrue(content.contains(TestData.PREFIX3));
+         assertTrue(content.contains(TestData.PREFIX4));
+         assertTrue(content.contains(TestData.PREFIX5));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      req = new MockHttpServletRequest("GET", "/" + EntityRequestHandler.DESCRIBE + "." + Formats.XML);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIX1));
+         assertTrue(content.contains(TestData.PREFIX2));
+         assertTrue(content.contains(TestData.PREFIX3));
+         assertTrue(content.contains(TestData.PREFIX4));
+         assertTrue(content.contains(TestData.PREFIX5));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      // test describe single entity space
+      req = new MockHttpServletRequest("GET", "/" + TestData.PREFIX1 + "/" + EntityRequestHandler.DESCRIBE);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIX1));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      // XML
+      req = new MockHttpServletRequest("GET", "/" + TestData.PREFIX1 + "/" + EntityRequestHandler.DESCRIBE + "." + Formats.XML);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIX1));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      req = new MockHttpServletRequest("GET", "/" + TestData.PREFIX4 + "/" + EntityRequestHandler.DESCRIBE);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIX4));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      req = new MockHttpServletRequest("GET", "/" + TestData.PREFIX6 + "/" + EntityRequestHandler.DESCRIBE);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIX6));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      // XML
+      req = new MockHttpServletRequest("GET", "/" + TestData.PREFIX6 + "/" + EntityRequestHandler.DESCRIBE + "." + Formats.XML);
+      res = new MockHttpServletResponse();
+      entityHandler.handleEntityAccess(req, res, null);
+      assertEquals(HttpServletResponse.SC_OK, res.getStatus());
+      assertNotNull(res.getOutputStream());
+      try {
+         String content = res.getContentAsString();
+         assertNotNull(content);
+         assertTrue(content.length() > 80);
+         assertTrue(content.contains(TestData.PREFIX6));
+      } catch (UnsupportedEncodingException e) {
+         fail("failure trying to get string content");
+      }
+
+      // test invalid describe
+      req = new MockHttpServletRequest("GET", "/" + TestData.PREFIX9 + "/" + EntityRequestHandler.DESCRIBE);
+      res = new MockHttpServletResponse();
+      try {
+         entityHandler.handleEntityAccess(req, res, null);
+         fail("Should have thrown exception");
+      } catch (EntityException e) {
+         assertNotNull(e.getMessage());
+         assertEquals(HttpServletResponse.SC_NOT_IMPLEMENTED, e.responseCode);
+      }      
+      
+   }
+
    /**
     * Convenience method for making byte content encoded into UTF-8
     */

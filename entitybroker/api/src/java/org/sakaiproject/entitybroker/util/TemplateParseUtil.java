@@ -234,11 +234,13 @@ public class TemplateParseUtil {
       // regex pattern: ".*(\\.[^.]+|$)"
       String stripped = input;
       String extension = null;
-      int extensionLoc = input.lastIndexOf(PERIOD, input.length());
-      if (extensionLoc > 0) {
-         stripped = input.substring(0, extensionLoc);
-         if ( (input.length() - 1) > extensionLoc) {
-            extension = input.substring(extensionLoc + 1);
+      if (input != null) {
+         int extensionLoc = input.lastIndexOf(PERIOD, input.length());
+         if (extensionLoc > 0) {
+            stripped = input.substring(0, extensionLoc);
+            if ( (input.length() - 1) > extensionLoc) {
+               extension = input.substring(extensionLoc + 1);
+            }
          }
       }
       return new String[] {input, stripped, extension};

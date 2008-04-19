@@ -21,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.EntityViewUrlCustomizable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
@@ -56,6 +58,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParsea
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestInterceptor;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.entityprovider.extension.BasicEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
@@ -67,6 +70,7 @@ import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetter
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
 import org.sakaiproject.entitybroker.impl.util.ReflectUtil;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import com.thoughtworks.xstream.io.json.JsonHierarchicalStreamDriver;
@@ -388,6 +392,19 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          path = req.getPathInfo();
       }
 
+      // special handling for describe or empty path
+      if (path == null || "".equals(path) || path.startsWith(EntityReference.SEPARATOR + DESCRIBE)) {
+         String format = TemplateParseUtil.findExtension(path)[2];
+         String output = makeDescribeAll(format);
+         try {
+            res.getWriter().write(output);
+         } catch (IOException e) {
+            throw new RuntimeException("Failed to put output into the response writer: " + e.getMessage(), e);
+         }
+         res.setStatus(HttpServletResponse.SC_OK);
+         return EntityView.SEPARATOR+""; // TODO - only one return
+      }
+
       EntityView view;
       try {
          view = parseEntityURL(path);
@@ -400,14 +417,25 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          // no provider for this entity prefix
          throw new EntityException( "No entity provider could be found to handle the prefix in this path: " + path, 
                path, HttpServletResponse.SC_NOT_IMPLEMENTED );
+      } else if ( DESCRIBE.equals(view.getEntityReference().getId()) ) {
+         // Special handling for describe URLs
+         String format = TemplateParseUtil.findExtension(path)[2];
+         String output = makeDescribeEntity(view.getEntityReference().getPrefix(), format, true, null);
+         try {
+            res.getWriter().write(output);
+         } catch (IOException e) {
+            throw new RuntimeException("Failed to put output into the response writer: " + e.getMessage(), e);
+         }
+         res.setStatus(HttpServletResponse.SC_OK);
+         return view.getEntityReference().getSpaceReference() + EntityView.SEPARATOR + DESCRIBE; // TODO - only one return
       } else if (! entityExists(view.getEntityReference()) ) {
-         // reference parsing failure
+         // invalid entity reference (entity does not exist)
          throw new EntityException( "Attempted to access an entity URL path (" + path + ") for an entity ("
                + view.getEntityReference() + ") that does not exist", 
                view.getEntityReference()+"", HttpServletResponse.SC_NOT_FOUND );
       } else {
-         String prefix = view.getEntityReference().getPrefix();
          // reference successfully parsed
+         String prefix = view.getEntityReference().getPrefix();
          res.setStatus(HttpServletResponse.SC_OK); // other things can switch this later on
 
          // store the current request and response
@@ -416,7 +444,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
          // check for extensions
          if (view.getExtension() == null) {
-            view.setExtension(Outputable.HTML); // update the view
+            view.setExtension(Formats.HTML); // update the view
          }
          req.setAttribute("extension", view.getExtension());
 
@@ -617,7 +645,218 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          }
       }
 
-      return view.toString();
+      return view.getEntityReference().toString();
+   }
+
+   /**
+    * Generate a description of all entities in the system,
+    * this is only available as XML and XHTML
+    * 
+    * @param format XML or HTML (default is HTML)
+    * @return the description string for all known entities
+    */
+   protected String makeDescribeAll(String format) {
+      Map<String, List<Class<? extends EntityProvider>>> map = entityProviderManager.getRegisteredEntityCapabilities();
+      String directUrl = makeFullURL("");
+      String output = "";
+      if (Formats.XML.equals(format)) {
+         // XML available in case someone wants to parse this in javascript or whatever
+         StringBuilder sb = new StringBuilder();
+         sb.append("<describe>\n");
+         sb.append("  <describeURL>" + directUrl + "</describeURL>\n");
+         sb.append("  <prefixes>\n");
+         ArrayList<String> prefixes = new ArrayList<String>(map.keySet());
+         Collections.sort(prefixes);
+         for (int i = 0; i < prefixes.size(); i++) {
+            String prefix = prefixes.get(i);
+            sb.append( makeDescribeEntity(prefix, format, false, map.get(prefix)) );
+         }
+         sb.append("  </prefixes>\n");
+         sb.append("</describe>\n");
+         output = sb.toString();
+      } else {
+         // just do HTML if not one of the handled ones
+         StringBuilder sb = new StringBuilder();
+         sb.append("<h1><a href='"+ directUrl + "/" + DESCRIBE +"'>Describe all</a> registered entities</h1>\n");
+         sb.append("  <h2 style='font-style: italic;'>Total registered entity types: "+map.size()+"</h2>\n");
+         sb.append("  <h2>Registered prefixes:</h2>\n");
+         ArrayList<String> prefixes = new ArrayList<String>(map.keySet());
+         Collections.sort(prefixes);
+         for (int i = 0; i < prefixes.size(); i++) {
+            String prefix = prefixes.get(i);
+            sb.append( makeDescribeEntity(prefix, format, false, map.get(prefix)) );
+         }
+         output = sb.toString();
+      }
+      return output;
+   }
+
+   /**
+    * Generate a description of an entity type
+    * 
+    * @param prefix an entity prefix
+    * @param format a format to output, HTML and XML supported
+    * @param extra if true then include URLs and extra data, if false then include basic info only
+    * @param caps (optional) a list of capabilities, this will be looked up if this is null
+    * @return the description string
+    */
+   protected String makeDescribeEntity(String prefix, String format, boolean extra, List<Class<? extends EntityProvider>> caps) {
+      if (caps == null) {
+         caps = entityProviderManager.getPrefixCapabilities(prefix);
+      }
+      String directUrl = makeFullURL("");
+      StringBuilder sb = new StringBuilder();
+      if (Formats.XML.equals(format)) {
+         // XML available in case someone wants to parse this in javascript or whatever
+         String describePrefixUrl = directUrl + "/" + prefix + "/" + DESCRIBE;
+         sb.append("    <prefix>\n");
+         sb.append("      <prefix>" + prefix + "</prefix>\n");
+         sb.append("      <describeURL>" + describePrefixUrl + "</describeRL>\n");
+         if (extra) {
+            // URLs
+            EntityView ev = makeEntityView(new EntityReference(prefix, FAKE_ID), null, null);
+            if (caps.contains(CollectionResolvable.class)) {
+               sb.append("      <collectionURL>" + ev.getEntityURL(EntityView.VIEW_LIST, null) + "</collectionURL>\n");
+            }
+            if (caps.contains(Createable.class)) {
+               sb.append("      <createURL>" + ev.getEntityURL(EntityView.VIEW_NEW, null) + "</createURL>\n");
+            }
+            sb.append("      <showURL>" + ev.getEntityURL(EntityView.VIEW_SHOW, null) + "</showURL>\n");
+            if (caps.contains(Updateable.class)) {
+               sb.append("      <updateURL>" + ev.getEntityURL(EntityView.VIEW_EDIT, null) + "</updateURL>\n");
+            }
+            if (caps.contains(Deleteable.class)) {
+               sb.append("      <deleteURL>" + ev.getEntityURL(EntityView.VIEW_DELETE, null) + "</deleteURL>\n");
+            }
+            // Formats
+            String[] outputFormats;
+            try {
+               outputFormats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class).getHandledOutputFormats();
+            } catch (NullPointerException e) {
+               outputFormats = new String[] {};
+            }
+            sb.append("      <outputFormats>\n");
+            for (int i = 0; i < outputFormats.length; i++) {
+               sb.append("        <format>"+outputFormats[i]+"</format>\n");               
+            }
+            sb.append("      </outputFormats>\n");
+            String[] inputFormats;
+            try {
+               inputFormats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class).getHandledInputFormats();
+            } catch (NullPointerException e) {
+               inputFormats = new String[] {};
+            }
+            sb.append("      <inputFormats>\n");
+            for (int i = 0; i < inputFormats.length; i++) {
+               sb.append("        <format>"+inputFormats[i]+"</format>\n");               
+            }
+            sb.append("      </inputFormats>\n");
+            // Resolvable Entity Info
+            Object entity = getSampleEntityObject(prefix);
+            if (entity != null) {
+               sb.append("      <entityClass>\n");
+               sb.append("        <class>"+ entity.getClass().getName() +"</class>\n");
+               Map<String, Class<?>> entityTypes = reflectUtil.getObjectTypes(entity.getClass());
+               ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
+               Collections.sort(keys);
+               for (String key : keys) {
+                  Class<?> type = entityTypes.get(key);
+                  sb.append("        <"+ key +">"+ type.getName() +"</"+key+">\n");
+               }
+               sb.append("      </entityClass>\n");
+            }
+         }
+         sb.append("      <capabilities>\n");
+         for (Class<? extends EntityProvider> class1 : caps) {
+            sb.append("        <capability>"+class1.getName()+"</capability>\n");
+         }
+         sb.append("      </capabilities>\n");
+         sb.append("    </prefix>\n");
+      } else {
+         // just do HTML if not one of the handled ones
+         String describePrefixUrl = directUrl + "/" + prefix + "/" + DESCRIBE;
+         sb.append("    <h3><a href='"+describePrefixUrl+"'>"+prefix+"</a></h3>\n");
+         if (extra) {
+            // URLs
+            EntityView ev = makeEntityView(new EntityReference(prefix, FAKE_ID), null, null);
+            String url = "";
+            sb.append("      <h4>Sample Entity URLs (id='"+FAKE_ID+"'):</h4>\n");
+            if (caps.contains(CollectionResolvable.class)) {
+               url = ev.getEntityURL(EntityView.VIEW_LIST, null);
+               sb.append("        <h5>Entity Collection URL: <a href='"+ directUrl+url +"'>"+url+"<a/></h5>\n");
+            }
+            if (caps.contains(Createable.class)) {
+               url = ev.getEntityURL(EntityView.VIEW_NEW, null);
+               sb.append("        <h5>Create Entity URL: <a href='"+ directUrl+url +"'>"+url+"<a/></h5>\n");
+            }
+            sb.append("        <h5>Show Entity URL: "+ ev.getEntityURL(EntityView.VIEW_SHOW, null) +"</h5>\n");
+            if (caps.contains(Updateable.class)) {
+               sb.append("        <h5>Update Entity URL: "+ ev.getEntityURL(EntityView.VIEW_EDIT, null) +"</h5>\n");
+            }
+            if (caps.contains(Deleteable.class)) {
+               sb.append("        <h5>Delete Entity URL: "+ ev.getEntityURL(EntityView.VIEW_DELETE, null) +"</h5>\n");
+            }
+            // Formats
+            String outputFormats;
+            try {
+               outputFormats = ReflectUtil.arrayToString( entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class).getHandledOutputFormats() );
+            } catch (NullPointerException e) {
+               outputFormats = "<i>NONE</i>";
+            }
+            sb.append("      <h4>Output formats : "+ outputFormats +"</h4>\n");
+            String inputFormats;
+            try {
+               inputFormats = ReflectUtil.arrayToString( entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class).getHandledInputFormats() );
+            } catch (NullPointerException e) {
+               inputFormats = "<i>NONE</i>";
+            }
+            sb.append("      <h4>Input formats : "+ inputFormats +"</h4>\n");
+            // Resolvable Entity Info
+            Object entity = getSampleEntityObject(prefix);
+            if (entity != null) {
+               sb.append("      <h4>Entity class : "+ entity.getClass().getName() +"</h4>\n");
+               Map<String, Class<?>> entityTypes = reflectUtil.getObjectTypes(entity.getClass());
+               ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
+               Collections.sort(keys);
+               for (String key : keys) {
+                  Class<?> type = entityTypes.get(key);
+                  sb.append("        <h5>"+ key +" : "+ type.getName() +"</h5>\n");                  
+               }
+            }
+         }
+         sb.append("      <h4 style='font-style: italic;'>Total capabilities: "+caps.size()+"</h4>\n");
+         for (Class<? extends EntityProvider> class1 : caps) {
+            sb.append("        <h5>"+class1.getName()+"</h5>\n");
+         }
+      }
+      return sb.toString();
+
+   }
+
+   /**
+    * Safely get the sample entity object for descriptions
+    */
+   protected Object getSampleEntityObject(String prefix) {
+      Object entity = null;
+      try {
+         Resolvable resolvable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Resolvable.class);
+         if (resolvable != null) {
+            entity = resolvable.getEntity(new EntityReference(prefix, ""));
+         }
+      } catch (RuntimeException e) {
+         entity = null;
+      }
+      if (entity == null) {
+         try {
+            Createable createable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Createable.class);
+            if (createable != null) {
+               entity = createable.getSampleEntity();
+            }
+         } catch (RuntimeException e) {
+            entity = null;
+         }
+      }
+      return entity;
    }
 
    /**

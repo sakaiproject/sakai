@@ -64,7 +64,13 @@ public class RESTfulEntityProviderMock extends EntityProviderMock implements Cor
    }
 
    public Object getEntity(EntityReference reference) {
-      return myEntities.get( reference.getId() );
+      if (reference.getId() == null) {
+         return new MyEntity();
+      }
+      if (myEntities.containsKey(reference.getId())) {
+         return myEntities.get( reference.getId() );
+      }
+      throw new IllegalArgumentException("Invalid id:" + reference.getId());
    }
 
    public List<?> getEntities(EntityReference reference, Search search) {
