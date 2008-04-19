@@ -74,7 +74,7 @@ public class SakaiLogin
     // We want to do exactly what this routine *does* but we do not have an HttpServletRequest
     // to hand it
 
-        public boolean UsageSessionService_loginDirect(String userId, String userEid, String ipAddress, String userAgent)
+        private boolean UsageSessionService_loginDirect(String userId, String userEid, String ipAddress, String userAgent)
         {
                 // establish the user's session - this has been known to fail
                 UsageSession session = UsageSessionService.startSession(userId,ipAddress,userAgent);
