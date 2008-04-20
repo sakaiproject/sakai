@@ -393,7 +393,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       String handledReference = null;
 
       // special handling for describe or empty path
-      if (path == null || "".equals(path) || path.startsWith(EntityReference.SEPARATOR + DESCRIBE)) {
+      if (path == null || "".equals(path) || "/".equals(path) 
+            || path.startsWith(EntityReference.SEPARATOR + DESCRIBE)) {
          String format = TemplateParseUtil.findExtension(path)[2];
          String output = makeDescribeAll(format);
          try {
@@ -420,7 +421,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          } else if ( DESCRIBE.equals(view.getEntityReference().getId()) ) {
             // Special handling for describe URLs
             String format = TemplateParseUtil.findExtension(path)[2];
-            String output = makeDescribeEntity(view.getEntityReference().getPrefix(), format, true, null);
+            String entityId = req.getParameter("_id");
+            if (entityId == null || "".equals(entityId)) {
+               entityId = FAKE_ID;
+            }
+            String output = makeDescribeEntity(view.getEntityReference().getPrefix(), entityId, format, true, null);
             try {
                res.getWriter().write(output);
             } catch (IOException e) {
@@ -658,19 +663,19 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     */
    protected String makeDescribeAll(String format) {
       Map<String, List<Class<? extends EntityProvider>>> map = entityProviderManager.getRegisteredEntityCapabilities();
-      String directUrl = makeFullURL("");
+      String describeURL = makeFullURL("") + EntityView.SEPARATOR + DESCRIBE;
       String output = "";
       if (Formats.XML.equals(format)) {
          // XML available in case someone wants to parse this in javascript or whatever
          StringBuilder sb = new StringBuilder();
          sb.append("<describe>\n");
-         sb.append("  <describeURL>" + directUrl + "</describeURL>\n");
+         sb.append("  <describeURL>" + describeURL + "</describeURL>\n");
          sb.append("  <prefixes>\n");
          ArrayList<String> prefixes = new ArrayList<String>(map.keySet());
          Collections.sort(prefixes);
          for (int i = 0; i < prefixes.size(); i++) {
             String prefix = prefixes.get(i);
-            sb.append( makeDescribeEntity(prefix, format, false, map.get(prefix)) );
+            sb.append( makeDescribeEntity(prefix, FAKE_ID, format, false, map.get(prefix)) );
          }
          sb.append("  </prefixes>\n");
          sb.append("</describe>\n");
@@ -678,14 +683,15 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       } else {
          // just do HTML if not one of the handled ones
          StringBuilder sb = new StringBuilder();
-         sb.append("<h1><a href='"+ directUrl + "/" + DESCRIBE +"'>Describe all</a> registered entities</h1>\n");
-         sb.append("  <h2 style='font-style: italic;'>Total registered entity types: "+map.size()+"</h2>\n");
-         sb.append("  <h2>Registered prefixes:</h2>\n");
+         sb.append("<h1><a href='"+ describeURL +"'>Describe all</a> registered entities"
+               + makeFormatUrlHtml(describeURL, Formats.XML) +"</h1>\n");
+         sb.append("  <i>RESTful URLs: <a href='http://microformats.org/wiki/rest/urls'>http://microformats.org/wiki/rest/urls</a></i><br/>\n");
+         sb.append("  <h2>Registered prefixes (entity types): "+map.size()+"</h2>\n");
          ArrayList<String> prefixes = new ArrayList<String>(map.keySet());
          Collections.sort(prefixes);
          for (int i = 0; i < prefixes.size(); i++) {
             String prefix = prefixes.get(i);
-            sb.append( makeDescribeEntity(prefix, format, false, map.get(prefix)) );
+            sb.append( makeDescribeEntity(prefix, FAKE_ID, format, false, map.get(prefix)) );
          }
          output = sb.toString();
       }
@@ -696,12 +702,13 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     * Generate a description of an entity type
     * 
     * @param prefix an entity prefix
+    * @param id the entity id to use for generating URLs
     * @param format a format to output, HTML and XML supported
     * @param extra if true then include URLs and extra data, if false then include basic info only
     * @param caps (optional) a list of capabilities, this will be looked up if this is null
     * @return the description string
     */
-   protected String makeDescribeEntity(String prefix, String format, boolean extra, List<Class<? extends EntityProvider>> caps) {
+   protected String makeDescribeEntity(String prefix, String id, String format, boolean extra, List<Class<? extends EntityProvider>> caps) {
       if (caps == null) {
          caps = entityProviderManager.getPrefixCapabilities(prefix);
       }
@@ -712,10 +719,10 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          String describePrefixUrl = directUrl + "/" + prefix + "/" + DESCRIBE;
          sb.append("    <prefix>\n");
          sb.append("      <prefix>" + prefix + "</prefix>\n");
-         sb.append("      <describeURL>" + describePrefixUrl + "</describeRL>\n");
+         sb.append("      <describeURL>" + describePrefixUrl + "</describeURL>\n");
          if (extra) {
             // URLs
-            EntityView ev = makeEntityView(new EntityReference(prefix, FAKE_ID), null, null);
+            EntityView ev = makeEntityView(new EntityReference(prefix, id), null, null);
             if (caps.contains(CollectionResolvable.class)) {
                sb.append("      <collectionURL>" + ev.getEntityURL(EntityView.VIEW_LIST, null) + "</collectionURL>\n");
             }
@@ -730,23 +737,13 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                sb.append("      <deleteURL>" + ev.getEntityURL(EntityView.VIEW_DELETE, null) + "</deleteURL>\n");
             }
             // Formats
-            String[] outputFormats;
-            try {
-               outputFormats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class).getHandledOutputFormats();
-            } catch (NullPointerException e) {
-               outputFormats = new String[] {};
-            }
+            String[] outputFormats = getFormats(prefix, true);
             sb.append("      <outputFormats>\n");
             for (int i = 0; i < outputFormats.length; i++) {
                sb.append("        <format>"+outputFormats[i]+"</format>\n");               
             }
             sb.append("      </outputFormats>\n");
-            String[] inputFormats;
-            try {
-               inputFormats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class).getHandledInputFormats();
-            } catch (NullPointerException e) {
-               inputFormats = new String[] {};
-            }
+            String[] inputFormats = getFormats(prefix, false);
             sb.append("      <inputFormats>\n");
             for (int i = 0; i < inputFormats.length; i++) {
                sb.append("        <format>"+inputFormats[i]+"</format>\n");               
@@ -776,62 +773,105 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       } else {
          // just do HTML if not one of the handled ones
          String describePrefixUrl = directUrl + "/" + prefix + "/" + DESCRIBE;
-         sb.append("    <h3><a href='"+describePrefixUrl+"'>"+prefix+"</a></h3>\n");
+         sb.append("    <h3><a href='"+describePrefixUrl+"'>"+prefix+"</a>"
+               + makeFormatUrlHtml(describePrefixUrl, Formats.XML) +"</h3>\n");
          if (extra) {
+            sb.append("      <i>RESTful URLs: <a href='http://microformats.org/wiki/rest/urls'>http://microformats.org/wiki/rest/urls</a></i><br/>\n");
+            String[] outputFormats = getFormats(prefix, true);
             // URLs
-            EntityView ev = makeEntityView(new EntityReference(prefix, FAKE_ID), null, null);
+            EntityView ev = makeEntityView(new EntityReference(prefix, id), null, null);
             String url = "";
-            sb.append("      <h4>Sample Entity URLs (id='"+FAKE_ID+"'):</h4>\n");
+            sb.append("      <h4>Sample Entity URLs (_id='"+id+"') [may not be valid]:</h4>\n");
+            sb.append("        <ul>\n");
             if (caps.contains(CollectionResolvable.class)) {
                url = ev.getEntityURL(EntityView.VIEW_LIST, null);
-               sb.append("        <h5>Entity Collection URL: <a href='"+ directUrl+url +"'>"+url+"<a/></h5>\n");
+               sb.append("          <li>Entity Collection URL: <a href='"+ directUrl+url +"'>"+url+"<a/>"
+                     + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</li>\n");
             }
             if (caps.contains(Createable.class)) {
                url = ev.getEntityURL(EntityView.VIEW_NEW, null);
-               sb.append("        <h5>Create Entity URL: <a href='"+ directUrl+url +"'>"+url+"<a/></h5>\n");
+               sb.append("          <li>Create Entity URL: <a href='"+ directUrl+url +"'>"+url+"<a/></li>\n");
             }
-            sb.append("        <h5>Show Entity URL: "+ ev.getEntityURL(EntityView.VIEW_SHOW, null) +"</h5>\n");
+            url = ev.getEntityURL(EntityView.VIEW_SHOW, null);
+            sb.append("          <li>Show Entity URL: <a href='"+ directUrl+url +"'>"+url+"<a/>"
+                     + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</li>\n");
             if (caps.contains(Updateable.class)) {
-               sb.append("        <h5>Update Entity URL: "+ ev.getEntityURL(EntityView.VIEW_EDIT, null) +"</h5>\n");
+               url = ev.getEntityURL(EntityView.VIEW_EDIT, null);
+               sb.append("          <li>Update Entity URL: <a href='"+ directUrl+url +"'>"+url+"<a/></li>\n");
             }
             if (caps.contains(Deleteable.class)) {
-               sb.append("        <h5>Delete Entity URL: "+ ev.getEntityURL(EntityView.VIEW_DELETE, null) +"</h5>\n");
+               url = ev.getEntityURL(EntityView.VIEW_DELETE, null);
+               sb.append("          <li>Delete Entity URL: <a href='"+ directUrl+url +"'>"+url+"<a/></li>\n");
             }
+            sb.append("        </ul>\n");
             // Formats
-            String outputFormats;
-            try {
-               outputFormats = ReflectUtil.arrayToString( entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class).getHandledOutputFormats() );
-            } catch (NullPointerException e) {
-               outputFormats = "<i>NONE</i>";
-            }
-            sb.append("      <h4>Output formats : "+ outputFormats +"</h4>\n");
-            String inputFormats;
-            try {
-               inputFormats = ReflectUtil.arrayToString( entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class).getHandledInputFormats() );
-            } catch (NullPointerException e) {
-               inputFormats = "<i>NONE</i>";
-            }
-            sb.append("      <h4>Input formats : "+ inputFormats +"</h4>\n");
+            sb.append("      <h4>Output formats : "+ makeFormatsString(outputFormats) +"</h4>\n");
+            String[] inputFormats = getFormats(prefix, false);
+            sb.append("      <h4>Input formats : "+ makeFormatsString(inputFormats) +"</h4>\n");
             // Resolvable Entity Info
             Object entity = getSampleEntityObject(prefix);
             if (entity != null) {
                sb.append("      <h4>Entity class : "+ entity.getClass().getName() +"</h4>\n");
+               sb.append("        <ul>\n");
                Map<String, Class<?>> entityTypes = reflectUtil.getObjectTypes(entity.getClass());
                ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
                Collections.sort(keys);
                for (String key : keys) {
                   Class<?> type = entityTypes.get(key);
-                  sb.append("        <h5>"+ key +" : "+ type.getName() +"</h5>\n");                  
+                  sb.append("          <li>"+ key +" : "+ type.getName() +"</li>\n");                  
                }
+               sb.append("        </ul>\n");
             }
          }
-         sb.append("      <h4 style='font-style: italic;'>Total capabilities: "+caps.size()+"</h4>\n");
+         sb.append("      <h4 style='font-style: italic;'>Capabilities: "+caps.size()+"</h4>\n");
+         sb.append("        <ol>\n");
          for (Class<? extends EntityProvider> class1 : caps) {
-            sb.append("        <h5>"+class1.getName()+"</h5>\n");
+            sb.append("          <li>"+class1.getName()+"</li>\n");
+         }
+         sb.append("        </ol>\n");
+      }
+      return sb.toString();
+   }
+
+   // DESCRIBE formatting utilities
+
+   private String[] getFormats(String prefix, boolean output) {
+      String[] formats;
+      try {
+         if (output) {
+            formats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class).getHandledOutputFormats();
+         } else {
+            formats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class).getHandledInputFormats();
+         }
+      } catch (NullPointerException e) {
+         formats = new String[] {};
+      }
+      if (formats == null) {
+         formats = new String[] {};
+      }
+      return formats;
+   }
+
+   protected String makeFormatsUrlHtml(String url, String[] formats) {
+      StringBuilder sb = new StringBuilder();
+      if (formats != null) {
+         for (String format : formats) {
+            sb.append( makeFormatUrlHtml(url, format) );
          }
       }
       return sb.toString();
+   }
 
+   protected String makeFormatsString(String[] formats) {
+      String s = ReflectUtil.arrayToString( formats );
+      if ("".equals(s)) {
+         s = "<i>NONE</i>";
+      }
+      return s;
+   }
+
+   protected String makeFormatUrlHtml(String url, String format) {
+      return " (<a href='"+url+"."+format+"'>"+format+"</a>)";
    }
 
    /**
@@ -859,6 +899,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       }
       return entity;
    }
+
 
    /**
     * Will choose whichever access provider is currently available to handle the request
@@ -978,8 +1019,19 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                         ref.toString(), HttpServletResponse.SC_BAD_REQUEST);
                } else {
                   encoder.alias(ref.getPrefix(), current.getClass());
-                  // translate using the encoder
-                  entity = encoder.fromXML(input, current);
+                  // START classloader protection
+                  ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+                  try {
+                     Object classloaderIndicator = current;
+                     ClassLoader newClassLoader = classloaderIndicator.getClass().getClassLoader();
+                     encoder.setClassLoader(newClassLoader);
+                     // translate using the encoder
+                     entity = encoder.fromXML(input, current);
+                     // END run in classloader
+                  } finally {
+                     encoder.setClassLoader(currentClassLoader);
+                  }
+                  // END classloader protection
                }
             }
          }

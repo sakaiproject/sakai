@@ -151,13 +151,17 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
          throw new IllegalArgumentException(EntityRequestHandler.DESCRIBE + " is a reserved prefix, it cannot be used");
       }
       List<Class<? extends EntityProvider>> superclasses = extractCapabilities(entityProvider);
+      int count = 0;
       for (Class<? extends EntityProvider> superclazz : superclasses) {
          registerPrefixCapability(prefix, superclazz, entityProvider);
+         count++;
          // special handling for certain EPs if needed
          if (superclazz.equals(RequestAware.class)) {
             ((RequestAware)entityProvider).setRequestGetter(requestGetter);
          }
       }
+      log.info("EntityBroker: Registered entity provider ("+entityProvider.getClass().getName()
+            +") prefix ("+prefix+") with "+count+" capabilities");
    }
 
    /*
@@ -167,6 +171,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
    public void unregisterEntityProvider(EntityProvider entityProvider) {
       final String prefix = entityProvider.getEntityPrefix();
       List<Class<? extends EntityProvider>> superclasses = extractCapabilities(entityProvider);
+      int count = 0;
       for (Class<? extends EntityProvider> superclazz : superclasses) {
          // ensure that the root EntityProvider is never absent from the map unless
          // there is a call to unregisterEntityProviderByPrefix
@@ -181,8 +186,10 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
             }
          } else {
             unregisterCapability(prefix, superclazz);
+            count++;
          }
       }
+      log.info("EntityBroker: Unregistered entity provider ("+entityProvider.getClass().getName()+") and "+count+" capabilities");
    }
 
    /*
@@ -193,10 +200,11 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
    public void unregisterCapability(String prefix, Class<? extends EntityProvider> capability) {
       if (capability == EntityProvider.class) {
          throw new IllegalArgumentException(
-         "Cannot separately unregister root EntityProvider capability - use unregisterEntityProviderByPrefix instead");
+               "Cannot separately unregister root EntityProvider capability - use unregisterEntityProviderByPrefix instead");
       }
       String key = getBiKey(prefix, capability);
       prefixMap.remove(key);
+      log.info("EntityBroker: Unregistered entity provider capability ("+capability.getName()+") for prefix ("+prefix+")");
    }
 
    /*
@@ -213,6 +221,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
             prefixMap.remove(bikey);
          }
       }
+      log.info("EntityBroker: Unregistered entity prefix ("+prefix+")");
    }
 
    /**
