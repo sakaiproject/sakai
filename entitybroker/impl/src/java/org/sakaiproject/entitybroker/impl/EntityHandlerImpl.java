@@ -65,7 +65,6 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
-import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl.BlankReferenceParseable;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
 import org.sakaiproject.entitybroker.impl.util.ReflectUtil;
@@ -237,24 +236,23 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    public EntityReference parseReference(String reference) {
       String prefix = EntityReference.getPrefix(reference);
       EntityReference ref = null;
-      ReferenceParseable provider = (ReferenceParseable) 
-      entityProviderManager.getProviderByPrefixAndCapability(prefix, ReferenceParseable.class);
-      if (provider == null) {
-         ref = null;
-      } else if (provider instanceof BlankReferenceParseable) {
-         ref = new EntityReference(reference);
-      } else {
-         EntityReference exemplar = provider.getParsedExemplar();
-         if (exemplar.getClass() == EntityReference.class) {
+      if (entityProviderManager.getProviderByPrefix(prefix) != null) {
+         ReferenceParseable provider = entityProviderManager.getProviderByPrefixAndCapability(prefix, ReferenceParseable.class);
+         if (provider == null) {
             ref = new EntityReference(reference);
          } else {
-            // construct the custom class and then return it
-            try {
-               Constructor<? extends Object> m = exemplar.getClass().getConstructor(String.class);
-               ref = (EntityReference) m.newInstance(reference);
-            } catch (Exception e) {
-               throw new RuntimeException("Failed to invoke a constructor which takes a single string "
-                     + "(reference="+reference+") for class: " + exemplar.getClass(), e);
+            EntityReference exemplar = provider.getParsedExemplar();
+            if (exemplar.getClass() == EntityReference.class) {
+               ref = new EntityReference(reference);
+            } else {
+               // construct the custom class and then return it
+               try {
+                  Constructor<? extends Object> m = exemplar.getClass().getConstructor(String.class);
+                  ref = (EntityReference) m.newInstance(reference);
+               } catch (Exception e) {
+                  throw new RuntimeException("Failed to invoke a constructor which takes a single string "
+                        + "(reference="+reference+") for class: " + exemplar.getClass(), e);
+               }
             }
          }
       }

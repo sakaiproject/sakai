@@ -21,8 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,10 +29,12 @@ import org.sakaiproject.entitybroker.EntityRequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.ReferenceParseable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.impl.util.ReflectUtil;
+
+import com.google.inject.util.ReferenceMap;
+import com.google.inject.util.ReferenceType;
 
 /**
  * Base implementation of the entity provider manager
@@ -54,18 +54,18 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       return requestGetter;
    }
 
+   protected Map<String, EntityProvider> prefixMap = new ReferenceMap<String, EntityProvider>(ReferenceType.STRONG, ReferenceType.WEAK);
 
-   protected ConcurrentMap<String, EntityProvider> prefixMap = new ConcurrentHashMap<String, EntityProvider>();
-
-   protected ConcurrentMap<String, ReferenceParseable> parseMap = new ConcurrentHashMap<String, ReferenceParseable>();
+   // old CHMs were switched to RMs to avoid holding strong references and allowing clean classloader unloads
+// protected ConcurrentMap<String, EntityProvider> prefixMap = new ConcurrentHashMap<String, EntityProvider>();
+// protected ConcurrentMap<String, ReferenceParseable> parseMap = new ConcurrentHashMap<String, ReferenceParseable>();
 
 
    public void init() {
       log.info("init");
    }
 
-   /*
-    * (non-Javadoc)
+   /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.managers.EntityProviderManager#getProviderByPrefix(java.lang.String)
     */
    public EntityProvider getProviderByPrefix(String prefix) {
@@ -85,12 +85,8 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       if (capability == null) {
          throw new NullPointerException("capability cannot be null");
       }
-      if (ReferenceParseable.class.isAssignableFrom(capability)) {
-        provider = (T) parseMap.get(prefix);
-      } else {
-         String bikey = getBiKey(prefix, capability);
-         provider = (T) prefixMap.get(bikey);
-      }
+      String bikey = getBiKey(prefix, capability);
+      provider = (T) prefixMap.get(bikey);
       return provider;
    }
 
@@ -149,7 +145,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     * @see org.sakaiproject.entitybroker.entityprovider.EntityProviderManager#registerEntityProvider(org.sakaiproject.entitybroker.entityprovider.EntityProvider)
     */
    public void registerEntityProvider(EntityProvider entityProvider) {
-      String prefix = entityProvider.getEntityPrefix();
+      String prefix = new String( entityProvider.getEntityPrefix() ); // copy to make sure this string is in the EB classloader
       new EntityReference(prefix, ""); // this checks the prefix is valid
       if (EntityRequestHandler.DESCRIBE.equals(prefix)) {
          throw new IllegalArgumentException(EntityRequestHandler.DESCRIBE + " is a reserved prefix, it cannot be used");
@@ -161,9 +157,6 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
          if (superclazz.equals(RequestAware.class)) {
             ((RequestAware)entityProvider).setRequestGetter(requestGetter);
          }
-      }
-      if (! superclasses.contains(ReferenceParseable.class)) {
-        registerPrefixCapability(prefix, ReferenceParseable.class, internalRP);
       }
    }
 
@@ -179,8 +172,8 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
          // there is a call to unregisterEntityProviderByPrefix
          if (superclazz == EntityProvider.class) {
             if (getProviderByPrefixAndCapability(prefix, EntityProvider.class) != null) {
+               // needed to ensure that we always have at LEAST the base level EP for a registered entity
                registerEntityProvider(new EntityProvider() {
-
                   public String getEntityPrefix() {
                      return prefix;
                   }
@@ -200,7 +193,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
    public void unregisterCapability(String prefix, Class<? extends EntityProvider> capability) {
       if (capability == EntityProvider.class) {
          throw new IllegalArgumentException(
-               "Cannot separately unregister root EntityProvider capability - use unregisterEntityProviderByPrefix instead");
+         "Cannot separately unregister root EntityProvider capability - use unregisterEntityProviderByPrefix instead");
       }
       String key = getBiKey(prefix, capability);
       prefixMap.remove(key);
@@ -232,13 +225,8 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     */
    public boolean registerPrefixCapability(String prefix,
          Class<? extends EntityProvider> capability, EntityProvider entityProvider) {
-      if (ReferenceParseable.class.isAssignableFrom(capability)) {
-        return parseMap.put(prefix, (ReferenceParseable) entityProvider) == null;
-      }
-      else {
-        String key = getBiKey(prefix, capability);
-        return prefixMap.put(key, entityProvider) == null;
-      }
+      String key = getBiKey(prefix, capability);
+      return prefixMap.put(key, entityProvider) == null;
    }
 
    /**
@@ -277,9 +265,6 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
    // OTHER
 
-   // placeholder value indicating that this reference is parsed internally
-   protected static ReferenceParseable internalRP = new BlankReferenceParseable();
-
    /**
     * Get the capabilities implemented by this provider
     * 
@@ -287,7 +272,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     * @return
     */
    @SuppressWarnings("unchecked")
-   private static List<Class<? extends EntityProvider>> extractCapabilities(EntityProvider provider) {
+   protected static List<Class<? extends EntityProvider>> extractCapabilities(EntityProvider provider) {
       List<Class<?>> superclasses = ReflectUtil.getSuperclasses(provider.getClass());
       Set<Class<? extends EntityProvider>> capabilities = new HashSet<Class<? extends EntityProvider>>();
 
@@ -298,19 +283,5 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
       }
       return new ArrayList<Class<? extends EntityProvider>>(capabilities);
    }
-
-   /**
-    * A marker class to indicate that this provider parses its own reference
-    * 
-    * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
-    */
-   public static class BlankReferenceParseable implements ReferenceParseable {
-      public EntityReference getParsedExemplar() {
-        return null;
-      }
-      public String getEntityPrefix() {
-        return null;
-      }
-    }
 
 }

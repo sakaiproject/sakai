@@ -93,6 +93,17 @@
             </properties>
         </dependency>
 
+        <!-- for managing classloaders and reflection -->
+        <dependency>
+            <groupId>com.google.code.guice</groupId>
+            <artifactId>guice</artifactId>
+            <version>1.0</version>
+            <type>jar</type>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+
 		<!-- required for bean cloning -->
 		<dependency>
 			<groupId>commons-beanutils</groupId>
