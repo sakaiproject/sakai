@@ -21,6 +21,7 @@
          
          <!--  placeholder to allow specifing additional sites to search. -->
 		<configuration name="search_site_ids" value="" />
+		<configuration name="search_all_sites" value="" />
 
 	</tool>
 

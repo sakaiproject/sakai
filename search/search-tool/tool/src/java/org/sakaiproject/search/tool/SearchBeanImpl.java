@@ -28,6 +28,7 @@ import java.text.Collator;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -55,6 +56,8 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StringUtil;
 
@@ -66,22 +69,36 @@ import org.sakaiproject.util.StringUtil;
 public class SearchBeanImpl implements SearchBean
 {
 
+	public static final String SEARCH_SITE_IDS = "search_site_ids";
+
 	private static final Log log = LogFactory.getLog(SearchBeanImpl.class);
 
 	/**
 	 * The searhc string parameter name
 	 */
 	private static final String SEARCH_PARAM = "search";
+	
+	/**
+	 * Where we should be searching (current site, all sites I'm a member of)
+	 */
+	private static final String SEARCH_SCOPE = "scope";
+	
+	public static enum Scope {SITE, MINE};
 
 	/**
 	 * The results page
 	 */
 	private static final String SEARCH_PAGE = "page";
 
+	public static final String SEARCH_ALL_SITES = "search_all_sites";
+
 	/**
 	 * The search criteria
 	 */
 	private String search;
+	
+	
+	private Scope scope = Scope.SITE;
 
 	/**
 	 * The Search Service to use
@@ -146,6 +163,8 @@ public class SearchBeanImpl implements SearchBean
 	private float divisorTerms = 3;
 
 	private String requestURL;
+	
+	private String currentUser;
 
 	// Empty constructor to aid in testing.
 	 
@@ -172,7 +191,7 @@ public class SearchBeanImpl implements SearchBean
 	 *         if there is no current worksite
 	 */
 	public SearchBeanImpl(HttpServletRequest request, SearchService searchService,
-			SiteService siteService, ToolManager toolManager) throws IdUnusedException
+			SiteService siteService, ToolManager toolManager, UserDirectoryService userDirectoryService) throws IdUnusedException
 	{
 		this.search = request.getParameter(SEARCH_PARAM);
 		this.searchService = searchService;
@@ -191,39 +210,42 @@ public class SearchBeanImpl implements SearchBean
 
 		}
 		currentSite = this.siteService.getSite(this.siteId);
-		String siteCheck = currentSite.getReference();
-		requestURL = request.getRequestURL().toString();
-
-	}
-
-	public SearchBeanImpl(HttpServletRequest request, String sortName, String filterName,
-			SearchService searchService, SiteService siteService, ToolManager toolManager)
-			throws IdUnusedException
-	{
-		this.search = request.getParameter(SEARCH_PARAM);
-		this.searchService = searchService;
-		this.siteService = siteService;
-		this.sortName = sortName;
-		this.filterName = filterName;
-		this.toolManager = toolManager;
-		this.placementId = this.toolManager.getCurrentPlacement().getId();
-		this.toolId = this.toolManager.getCurrentTool().getId();
-		this.siteId = this.toolManager.getCurrentPlacement().getContext();
 		try
 		{
-			this.requestPage = Integer.parseInt(request.getParameter(SEARCH_PAGE));
+			this.scope = Scope.valueOf(request.getParameter(SEARCH_SCOPE));
 		}
-		catch (Exception ex)
+		catch (NullPointerException npe)
+		{}
+		catch (IllegalArgumentException iae)
 		{
-			log.debug(ex);
+			log.debug(iae);
+			log.warn("Invalid Scope Supplied: "+ request.getParameter(SEARCH_SCOPE));
 
 		}
-		currentSite = this.siteService.getSite(this.siteId);
-		String siteCheck = currentSite.getReference();
+		
+		User user = userDirectoryService.getCurrentUser();
+		if (user != null)
+			currentUser = user.getId();
+		
 		requestURL = request.getRequestURL().toString();
 	}
 
 	/**
+	 * @see #SearchBeanImpl(HttpServletRequest, SearchService, SiteService, ToolManager)
+	 */
+	public SearchBeanImpl(HttpServletRequest request, String sortName,
+			String filterName, SearchService searchService,
+			SiteService siteService, ToolManager toolManager,
+			UserDirectoryService userDirectoryService) throws IdUnusedException
+	{
+		this(request, searchService, siteService, toolManager, userDirectoryService);
+		this.sortName = sortName;
+		this.filterName = filterName;
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 * @deprecated
 	 * {@inheritDoc}
 	 * @deprecated
 	 */
@@ -411,6 +433,11 @@ public class SearchBeanImpl implements SearchBean
 				"false")));
 
 	}
+	
+	public boolean isScope(String scope)
+	{
+		return this.scope != null && this.scope.equals(Scope.valueOf(scope));
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -463,34 +490,58 @@ public class SearchBeanImpl implements SearchBean
 		List<String> l = new ArrayList();
 		
 		l.add(this.siteId);
-		
-		if (toolPropertySiteIds == null) return l;
-		
-		//String[] searchSiteIds = extractSiteIdsFromToolProperty(extractPropertiesFromTool());
-		String[] searchSiteIds = toolPropertySiteIds;
+		if (toolPropertySiteIds != null) {
+			String[] searchSiteIds = toolPropertySiteIds;
 
-		// add searchSiteIds to l
-		for(int i = 0;i<searchSiteIds.length;i++){
-			String ss = searchSiteIds[i];
-			if (searchSiteIds[i].length() > 0) l.add(searchSiteIds[i]);
+			for(int i = 0;i<searchSiteIds.length;i++){
+				String ss = searchSiteIds[i];
+				if (searchSiteIds[i].length() > 0) l.add(searchSiteIds[i]);
+			}
 		}
-
-		return l;
+		if (scope != null && scope.equals(Scope.MINE)) {
+			l.addAll(Arrays.asList(getAllUsersSites()));
+		}
+		
+		 return l;
 	}
 
 	protected String[] getToolPropertySiteIds() {
 		Properties props = extractPropertiesFromTool();
-		String[] searchSiteIds = extractSiteIdsFromProperties(props);
+		String[] searchSiteIds;
+		if (siteService.isUserSite(siteId)) {
+			log.debug("Searching all sites");
+			searchSiteIds = getAllUsersSites();
+		} else {
+			searchSiteIds = extractSiteIdsFromProperties(props);
+		}
 		return searchSiteIds;
 	}
 	
+	/**
+	 * Get all the sites a user has access to.
+	 * @return An array of site IDs.
+	 */
+	protected String[] getAllUsersSites() {
+		List<Site> sites = siteService.getSites(
+				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+				null, null, null, null, null);
+		List<String> siteIds = new ArrayList<String>(sites.size());
+		for (Site site: sites) {
+			if (site != null && site.getId() != null) {
+				siteIds.add(site.getId());
+			}
+		}
+		siteIds.add(siteService.getUserSiteId(currentUser));
+		return siteIds.toArray(new String[siteIds.size()]);
+	}
+
 	/* get any site ids that are in the tool property and normalize the string.
 	 * 
 	 */
 	protected String[] extractSiteIdsFromProperties(Properties props) {
 	//	Properties props = extractPropertiesFromTool();
 		
-		String targetSiteId = StringUtil.trimToNull(props.getProperty("search_site_ids"));
+		String targetSiteId = StringUtil.trimToNull(props.getProperty(SEARCH_SITE_IDS));
 		if (targetSiteId == null) return new String[] {""};
 		String[] searchSiteIds = StringUtil.split(targetSiteId, ",");
 		for(int i = 0;i<searchSiteIds.length;i++){
@@ -519,10 +570,6 @@ public class SearchBeanImpl implements SearchBean
 			if (search != null && search.trim().length() > 0)
 			{
 
-				/*				
-				List l = new ArrayList();
-				l.add(this.siteId);
-				*/
 				List l = getSearchSites(getToolPropertySiteIds());
 				long start = System.currentTimeMillis();
 				int searchStart = requestPage * pagesize;
@@ -837,6 +884,20 @@ public class SearchBeanImpl implements SearchBean
 
 				}
 
+				public String getSiteTitle() {
+					try {
+						Site site = siteService.getSite(sr.getSiteId());
+						if (site != null)
+							return FormattedText.escapeHtml(site.getTitle(), false);
+					} catch (IdUnusedException e) {
+						log.debug("Couldn't find site: "+ siteId);
+					} catch (Exception e) {
+					}
+					
+					return "";
+
+				}
+
 			});
 		}
 		return l;
@@ -990,12 +1051,14 @@ public class SearchBeanImpl implements SearchBean
 			try
 			{
 				return FormattedText.escapeHtml(getToolUrl() + "/rss20?search="
-						+ URLEncoder.encode(search, "UTF-8"), false);
+						+ URLEncoder.encode(search, "UTF-8")
+						+ ((scope != null)?"&scope="+ URLEncoder.encode(scope.toString(), "UTF-8"):""), false);
 			}
 			catch (UnsupportedEncodingException e)
 			{
 				return FormattedText.escapeHtml(getToolUrl() + "/rss20?search="
-						+ URLEncoder.encode(search), false);
+						+ URLEncoder.encode(search)
+						+ ((scope != null)?"&scope="+ URLEncoder.encode(scope.toString()):"") , false);
 			}
 		}
 		else
@@ -1020,5 +1083,5 @@ public class SearchBeanImpl implements SearchBean
 	{
 		return FormattedText.escapeHtml(requestURL, false);
 	}
-
+	
 }

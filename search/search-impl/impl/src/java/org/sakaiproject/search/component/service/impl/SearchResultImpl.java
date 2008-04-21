@@ -217,6 +217,7 @@ public class SearchResultImpl implements SearchResult
 		sb.append(" index=\"").append(getIndex()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append(" score=\"").append(getScore()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append(" sid=\"").append(StringUtils.xmlEscape(getId())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" site=\"").append(StringUtils.xmlEscape(getSiteId())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append(" reference=\"").append(StringUtils.xmlEscape(getReference())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		try
 		{
@@ -229,6 +230,10 @@ public class SearchResultImpl implements SearchResult
 		}
 		sb.append(" tool=\"").append(StringUtils.xmlEscape(getTool())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append(" url=\"").append(StringUtils.xmlEscape(getUrl())).append("\" />"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public String getSiteId() {
+		return doc.get(SearchService.FIELD_SITEID);
 	}
 
 }

@@ -208,6 +208,10 @@ public class SearchSecurityFilter implements SearchItemFilter
 			sb.append(" url=\"\" />"); //$NON-NLS-1$
 		}
 
+		public String getSiteId() {
+			return ""; //$NON-NLS-1$
+		}
+
 	}
 
 	/**

@@ -71,6 +71,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 
 	private List<IndexQueueListener> indexQueueListeners = new ArrayList<IndexQueueListener>();
 
+	private boolean excludeUserSites = true;
+
 	public void init()
 	{
 	}
@@ -593,4 +595,17 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		return diagnostics;
 	}
 	*/
+	
+	
+	public void setExcludeUserSites(boolean excludeUserSites)
+	{
+		this.excludeUserSites  = excludeUserSites;
+	}
+
+	public boolean isExcludeUserSites()
+	{
+		// TODO Auto-generated method stub
+		return excludeUserSites;
+	}
+
 }

@@ -38,6 +38,7 @@ import org.sakaiproject.search.tool.api.SherlockSearchBean;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
  * @author ieb
@@ -54,6 +55,8 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 	private ToolManager toolManager;
 
 	private SessionManager sessionManager;
+	
+	private UserDirectoryService userDirectoryService;
 
 	private ServletContext context;
 
@@ -66,6 +69,7 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 		searchService = (SearchService) load(cm, SearchService.class.getName());
 		siteService = (SiteService) load(cm, SiteService.class.getName());
 		toolManager = (ToolManager) load(cm, ToolManager.class.getName());
+		userDirectoryService = (UserDirectoryService) load(cm, UserDirectoryService.class.getName());
 	}
 
 	private Object load(ComponentManager cm, String name)
@@ -87,8 +91,8 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 	{
 		try
 		{
-			SearchBeanImpl searchBean = new SearchBeanImpl(request,
-					searchService, siteService, toolManager);
+			SearchBean searchBean = new SearchBeanImpl(request,
+					searchService, siteService, toolManager, userDirectoryService);
 
 			return searchBean;
 		}
@@ -125,8 +129,8 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 	{
 		try
 		{
-			SearchBeanImpl searchBean = new SearchBeanImpl(request, sortName, filterName,
-					searchService, siteService, toolManager);
+			SearchBean searchBean = new SearchBeanImpl(request, sortName, filterName,
+					searchService, siteService, toolManager, userDirectoryService);
 
 			return searchBean;
 		}

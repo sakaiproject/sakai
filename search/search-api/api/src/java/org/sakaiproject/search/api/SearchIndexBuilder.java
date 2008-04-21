@@ -160,6 +160,8 @@ public interface SearchIndexBuilder
 	//String getCurrentElapsed();
 
 	boolean isOnlyIndexSearchToolSites();
+	
+	boolean isExcludeUserSites();
 
 	/**
 	 * @return

@@ -314,22 +314,28 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		try
 		{
 			BooleanQuery query = new BooleanQuery();
-			BooleanQuery contextQuery = new BooleanQuery();
-			for (Iterator i = contexts.iterator(); i.hasNext();)
-			{
-				// Setup query so that it will allow results from any
-				// included site, not all included sites.
-				contextQuery.add(new TermQuery(new Term(SearchService.FIELD_SITEID,
-						(String) i.next())), BooleanClause.Occur.SHOULD);
-				// This would require term to be in all sites :-(
-				// contextQuery.add(new TermQuery(new Term(
-				// SearchService.FIELD_SITEID, (String) i.next())),
-				// BooleanClause.Occur.MUST);
-			}
 
 			QueryParser qp = new QueryParser(SearchService.FIELD_CONTENTS, getAnalyzer());
 			Query textQuery = qp.parse(searchTerms);
-			query.add(contextQuery, BooleanClause.Occur.MUST);
+			                       
+		    // Support cross context searches
+			if (contexts != null && contexts.size() > 0)
+			{
+				BooleanQuery contextQuery = new BooleanQuery();
+				for (Iterator i = contexts.iterator(); i.hasNext();)
+				{
+					// Setup query so that it will allow results from any
+					// included site, not all included sites.
+					contextQuery.add(new TermQuery(new Term(SearchService.FIELD_SITEID,
+							(String) i.next())), BooleanClause.Occur.SHOULD);
+					// This would require term to be in all sites :-(
+					// contextQuery.add(new TermQuery(new Term(
+					// SearchService.FIELD_SITEID, (String) i.next())),
+					// BooleanClause.Occur.MUST);
+				}
+
+				query.add(contextQuery, BooleanClause.Occur.MUST);
+			}
 			query.add(textQuery, BooleanClause.Occur.MUST);
 			log.debug("Compiled Query is " + query.toString()); //$NON-NLS-1$
 

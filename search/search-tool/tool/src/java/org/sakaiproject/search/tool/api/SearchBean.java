@@ -222,4 +222,6 @@ public interface SearchBean
 	 * @return
 	 */
 	String getPortalBaseUrl();
+
+	boolean isScope(String scope);
 }

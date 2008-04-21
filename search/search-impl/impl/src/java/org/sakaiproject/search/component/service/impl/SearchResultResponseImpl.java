@@ -236,5 +236,9 @@ public class SearchResultResponseImpl implements SearchResult
 		sb.append(" tool=\"").append(StringUtils.xmlEscape(getTool())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append(" url=\"").append(StringUtils.xmlEscape(getUrl())).append("\" />"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+	
+	public String getSiteId() {
+		return (String) attributes.get("site");
+	}
 
 }

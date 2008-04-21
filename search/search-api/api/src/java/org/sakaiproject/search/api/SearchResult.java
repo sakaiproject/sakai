@@ -111,6 +111,8 @@ public interface SearchResult
 	 * @return
 	 */
 	String getTool();
+	
+	String getSiteId();
 
 	void toXMLString(StringBuilder sb);
 	

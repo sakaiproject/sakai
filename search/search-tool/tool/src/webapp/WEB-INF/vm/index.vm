@@ -17,11 +17,14 @@
 				<input type="hidden" name="panel" value="Main" />
 				<input type="text" id="search"  name="search" size="42" maxlength="1024" value="${searchModel.search}"/>
 				<input type="submit" name="sb" value="Go" />
+				<br/>
+				<input id="searchSite" type="radio" name="scope" value="SITE" #if($searchModel.isScope('SITE')) checked="true" #end "/>
+				<label for="searchSite">${rlb.jsp_current_site}</label>
+				<input id="searchMine" type="radio" name="scope" value="MINE" #if($searchModel.isScope('MINE')) checked="true" #end "/>
+				<label for="searchMine">${rlb.jsp_all_my_sites}</label>
 			</form>
 		</div>
-	</div>	
-	
-	
+	</div>
 	<div class="searchHeader">
 	<span id="sherlockButtonHolder" >
 <!--
@@ -67,11 +70,16 @@
    #foreach ( $result in ${searchModel.results} ) 
 	        <!--is-->
 	        <div class="searchItem" > 
+
 	        <span class="searchTool">${result.tool}:</span>
 	        <a href="${result.url}" target="searchresult" class="searchTopLink" >${result.title}</a>
 			      <div class="searchItemBody" >${result.searchResult}</div>
 			      <a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a>
+			    #if($searchModel.isScope('MINE'))
+	    			<br/><span class="searchSite">Site: ${result.siteTitle}<span>
+	    		#end 
 			      </div>
+
 			      <!--ie-->
 	  #end
    <!--le--> 

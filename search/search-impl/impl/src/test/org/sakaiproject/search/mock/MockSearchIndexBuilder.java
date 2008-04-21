@@ -362,4 +362,13 @@ public class MockSearchIndexBuilder implements SearchIndexBuilder
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.SearchIndexBuilder#isExcludeUserSites()
+	 */
+	public boolean isExcludeUserSites()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
