@@ -1,8 +1,8 @@
 <script type="text/javascript" language="JavaScript">
 
-	function chef_setupformattedtextarea(textarea_id)
+	function chef_setupformattedtextarea(textarea_id,height,width,ToolBarSetChoice)
 	{
-        	var oFCKeditor = new FCKeditor(textarea_id);
+   	var oFCKeditor = new FCKeditor(textarea_id);
 		oFCKeditor.BasePath = "#libraryLink("editor/FCKeditor/")";
 
                 var courseId = "$vppa_site_collection_id";
@@ -15,8 +15,28 @@
                 oFCKeditor.Config['ImageUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector?Type=Image&Command=QuickUpload&Type=Image&CurrentFolder=" + courseId;
                 oFCKeditor.Config['FlashUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector?Type=Flash&Command=QuickUpload&Type=Flash&CurrentFolder=" + courseId;
                 oFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=" + courseId;
-		oFCKeditor.Width  = "600" ;
-		oFCKeditor.Height = "400" ;
+		if (!width){
+			oFCKeditor.Width  = "600" ;
+			}
+		else{
+			oFCKeditor.Width  = width ;
+			}
+			
+		if(!height){
+			oFCKeditor.Height = "400" ;
+		}
+		else
+		{
+			oFCKeditor.Height = height ;
+		}
+		
+		if (!ToolBarSetChoice){
+			oFCKeditor.ToolbarSet = 'Default' ;
+			}
+			else {
+			oFCKeditor.ToolbarSet = ToolBarSetChoice;
+			}
+
 #if($editorConfig && $editorConfig.enableResourceSearch())
                 oFCKeditor.Config['CustomConfigurationsPath'] = "#libraryLink("editor/FCKeditor/config_rs.js")";
 #else
