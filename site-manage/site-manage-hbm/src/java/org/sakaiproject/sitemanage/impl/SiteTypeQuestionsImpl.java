@@ -22,8 +22,8 @@
 
 package org.sakaiproject.sitemanage.impl;
 
-import java.util.Set;
-import java.util.HashSet;
+import java.util.List;
+import java.util.Vector;
 
 import org.sakaiproject.sitemanage.api.model.*;
 
@@ -37,12 +37,15 @@ public class SiteTypeQuestionsImpl implements SiteTypeQuestions
 		
 	}
 	
-	public SiteTypeQuestionsImpl(String instruction, Set<SiteSetupQuestion> questions, String siteType, String siteTypeId)
+	public SiteTypeQuestionsImpl(String instruction, List<SiteSetupQuestion> questions, String siteType, String siteTypeId, String url, String urlLabel, String urlTarget)
 	{
 		this.instruction = instruction;
 		this.questions = questions;
 		this.siteType = siteType;
 		this.siteTypeId = siteTypeId;
+		this.url = url;
+		this.urlLabel = urlLabel;
+		this.urlTarget = urlTarget;
 	}
 	
 	private String id;
@@ -99,11 +102,11 @@ public class SiteTypeQuestionsImpl implements SiteTypeQuestions
 		this.siteType = siteType;
 	}
 
-	private Set<SiteSetupQuestion> questions = new HashSet<SiteSetupQuestion>();
+	private List<SiteSetupQuestion> questions = new Vector<SiteSetupQuestion>();
 	/**
 	 * {@inheritDoc}
 	 */
-	public Set<SiteSetupQuestion> getQuestions()
+	public List<SiteSetupQuestion> getQuestions()
 	{
 		return questions;
 	}
@@ -111,7 +114,7 @@ public class SiteTypeQuestionsImpl implements SiteTypeQuestions
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setQuestions(Set<SiteSetupQuestion> questions)
+	public void setQuestions(List<SiteSetupQuestion> questions)
 	{
 		this.questions = questions;
 	}
@@ -121,6 +124,8 @@ public class SiteTypeQuestionsImpl implements SiteTypeQuestions
 	 */
 	public void addQuestion(SiteSetupQuestion question)
 	{
+		// update order number
+		question.setOrderNum(this.questions.size());
 		question.setSiteTypeQuestions(this);
 		this.questions.add(question);
 	}
@@ -158,5 +163,44 @@ public class SiteTypeQuestionsImpl implements SiteTypeQuestions
 	public void setUrl(String url)
 	{
 		this.url = url;
+	}
+	
+	private String urlTarget = "_new";
+	/**
+	 * get the URL target
+	 * @return
+	 */
+	public String getUrlTarget()
+	{
+		return urlTarget;
+	}
+	
+	/**
+	 * set the URL target
+	 * @param url
+	 */
+	public void setUrlTarget(String urlTarget)
+	{
+		this.urlTarget = urlTarget;
+	}
+	
+	private String urlLabel;
+	
+	/**
+	 * get the URL label
+	 * @return
+	 */
+	public String getUrlLabel()
+	{
+		return urlLabel;
+	}
+	
+	/**
+	 * set the URL
+	 * @param url
+	 */
+	public void setUrlLabel(String urlLabel)
+	{
+		this.urlLabel = urlLabel;
 	}
 }

@@ -25,10 +25,15 @@
             <column name="MULTIPLE_ANSWERS"/>
         </property>
         
-        <set name="answers" cascade="all-delete-orphan" inverse="false">
+        <property name="orderNum" type="integer" not-null="true">
+        	<column name="ORDER_NUM"/>
+        </property>
+        
+        <list name="answers" cascade="all-delete-orphan" inverse="false">
 			<key column="QUESTION_ID" />
+			<index column="ORDER_NUM"/>
 			<one-to-many class="SiteSetupQuestionAnswerImpl" />
-		</set>
+		</list>
 		
 		<many-to-one name="siteTypeQuestions" column="SITETYPE_ID"
 			class="SiteTypeQuestionsImpl" index="SSQ_QUESTION_SITETYPE_I" />

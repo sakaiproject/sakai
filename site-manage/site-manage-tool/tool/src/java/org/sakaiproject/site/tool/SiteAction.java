@@ -2808,6 +2808,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (siteTypeQuestions != null)
 			{
 				context.put("questionSet", siteTypeQuestions);
+				context.put("userAnswers", state.getAttribute(STATE_SITE_SETUP_QUESTION_ANSWER));
 			}
 			context.put("continueIndex", state.getAttribute(STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE));
 			return (String) getContext(data).get("template") + TEMPLATE[54];
@@ -4039,8 +4040,8 @@ public class SiteAction extends PagedResourceActionII {
 		SiteTypeQuestions siteTypeQuestions = questionService.getSiteTypeQuestions(type);
 		if (siteTypeQuestions != null)
 		{
-			Set questionSet = siteTypeQuestions.getQuestions();
-			if (questionSet != null && questionSet.size() > 0)
+			List questionList = siteTypeQuestions.getQuestions();
+			if (questionList != null && questionList.size() > 0)
 			{
 				// there is at least one question defined for this type
 				if (state.getAttribute(STATE_MESSAGE) == null)
@@ -7385,7 +7386,7 @@ public class SiteAction extends PagedResourceActionII {
 		SiteTypeQuestions siteTypeQuestions = questionService.getSiteTypeQuestions((String) state.getAttribute(STATE_SITE_TYPE));
 		if (siteTypeQuestions != null)
 		{
-			Set<SiteSetupQuestion> questions = siteTypeQuestions.getQuestions();
+			List<SiteSetupQuestion> questions = siteTypeQuestions.getQuestions();
 			for (Iterator i = questions.iterator(); i.hasNext();)
 			{
 				SiteSetupQuestion question = (SiteSetupQuestion) i.next();
@@ -7409,6 +7410,7 @@ public class SiteAction extends PagedResourceActionII {
 						
 						SiteSetupUserAnswer uAnswer = questionService.newSiteSetupUserAnswer();
 						uAnswer.setAnswerId(answerId);
+						uAnswer.setAnswerString(answerString);
 						uAnswer.setQuestionId(question.getId());
 						uAnswer.setUserId(SessionManager.getCurrentSessionUserId());
 						//update the state variable

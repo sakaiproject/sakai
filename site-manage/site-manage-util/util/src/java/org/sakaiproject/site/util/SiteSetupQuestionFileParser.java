@@ -342,7 +342,34 @@ public class SiteSetupQuestionFileParser
 											}
 											else if (qNode.getNodeName().equals("url"))
 											{
-												siteTypeQuestions.setUrl(qNode.getTextContent());
+												NodeList qList = qNode.getChildNodes();
+												for (int i3 = 0; i3 < qList.getLength(); i3++)
+												{
+													Node qDetailNode = qList.item(i3);
+													switch (qDetailNode.getNodeType())
+													{
+														case Node.TEXT_NODE:
+															break;
+														case Node.ELEMENT_NODE:
+															if (qDetailNode.getNodeName().equals("a"))
+															{
+																if (qDetailNode.hasAttributes())
+																{
+																	// attributes
+																	NamedNodeMap qDetailMap = qDetailNode.getAttributes();
+																	if (qDetailMap.getNamedItem("href") != null)
+																	{
+																		siteTypeQuestions.setUrl(qDetailMap.getNamedItem("href").getNodeValue());
+																	}
+																	else if (qDetailMap.getNamedItem("target") != null)
+																	{
+																		siteTypeQuestions.setUrlTarget(qDetailMap.getNamedItem("target").getNodeValue());
+																	}
+																}
+																siteTypeQuestions.setUrlLabel(qDetailNode.getTextContent());
+															}
+													}
+												}
 											}
 											else if (qNode.getNodeName().equals("question"))
 											{

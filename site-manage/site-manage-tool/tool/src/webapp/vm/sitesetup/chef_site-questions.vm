@@ -6,7 +6,14 @@
 
 <div class="portletBody">
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-	<h4>$questionSet.getInstruction()</h4>
+	<h4>
+	$questionSet.getInstruction()
+	#set($url=false)
+	#set($url=$questionSet.getUrl())
+	#if ($!url)
+	<a href="$url" target="$questionSet.getUrlTarget()">$questionSet.getUrlLabel()</a>
+	#end
+	</h4>
 	<form name = "removeSectionForm" method="post" action="#toolForm($action)">
 		#foreach ($question in $questionSet.getQuestions())
 			<h5>
@@ -15,11 +22,17 @@
 				#end
 				$question.getQuestion()
 			</h5>
+			#foreach($userAnswer in $userAnswers)
+				#if ($userAnswer.getQuestionId().equals($question.getId()))
+					#set($selectedAnswerId=$userAnswer.getAnswerId())
+					#set($answerString = $userAnswer.getAnswerString())
+				#end
+			#end
 			#foreach($answer in $question.getAnswers())
-				<input #if ($question.isMultipleAnswsers())type="checkbox"#else type="radio" #end name="$question.getId()" value="$answer.getId()" id="$question.getId()" />
+				<input #if ($question.isMultipleAnswsers())type="checkbox"#else type="radio" #end name="$question.getId()" value="$answer.getId()" id="$question.getId()" #if ($answer.getId().equals($!selectedAnswerId)) checked="checked"#end/>
 				$answer.getAnswer()
 				#if ($answer.getIsFillInBlank())
-					<input type="text" name="fillInBlank_$answer.getId()" value="" id="fillInBlank_$answer.getId()" />
+					<input type="text" name="fillInBlank_$answer.getId()" value="$!answerString" id="fillInBlank_$answer.getId()" />
 				#end
 				<br />
 			#end

@@ -23,10 +23,19 @@
             <column name="URL"/>
         </property>
         
-        <set name="questions" cascade="all-delete-orphan" inverse="false">
+        <property name="urlLabel" type="string" not-null="false">
+            <column name="URL_LABEL"/>
+        </property>
+        
+        <property name="urlTarget" type="string" not-null="false">
+            <column name="URL_Target"/>
+        </property>
+        
+        <list name="questions" cascade="all-delete-orphan" inverse="false">
 			<key column="SITETYPE_ID" />
+			<index column="ORDER_NUM" />
 			<one-to-many class="SiteSetupQuestionImpl" />
-		</set>
+		</list>
     </class>
     
 	<query name = "findQuestionsBySiteType">

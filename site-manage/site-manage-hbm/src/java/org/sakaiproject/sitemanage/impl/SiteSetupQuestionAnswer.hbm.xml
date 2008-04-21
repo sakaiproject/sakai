@@ -23,6 +23,10 @@
             <column name="FILL_IN_BLANK"/>
         </property>
         
+        <property name="orderNum" type="integer" not-null="true">
+        	<column name="ORDER_NUM"/>
+        </property>
+        
         <many-to-one name="question" column="QUESTION_ID"
 			class="SiteSetupQuestionImpl" index="SSQ_ANSWER_QUESTION_I" />
     </class>

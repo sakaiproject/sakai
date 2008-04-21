@@ -87,5 +87,15 @@ public interface SiteSetupQuestionAnswer extends java.io.Serializable {
 	 */
 	public void setQuestion(SiteSetupQuestion question);
 	
+	/**
+	 * get the order number
+	 * @return
+	 */
+	public Integer getOrderNum();
 	
+	/**
+	 * set the order number
+	 * @param orderNum
+	 */
+	public void setOrderNum(Integer orderNum);
 }

@@ -22,8 +22,8 @@
 
 package org.sakaiproject.sitemanage.impl;
 
-import java.util.Set;
-import java.util.HashSet;
+import java.util.List;
+import java.util.Vector;
 
 import org.sakaiproject.sitemanage.api.model.*;
 
@@ -33,13 +33,14 @@ public class SiteSetupQuestionImpl implements SiteSetupQuestion {
 	{
 	}
 	
-	public SiteSetupQuestionImpl(Set<SiteSetupQuestionAnswer> answers, boolean isMultipleAnswers, String question, boolean required, SiteTypeQuestions siteTypeQuestions)
+	public SiteSetupQuestionImpl(List<SiteSetupQuestionAnswer> answers, boolean isMultipleAnswers, String question, boolean required, SiteTypeQuestions siteTypeQuestions, Integer orderNum)
 	{
 		this.answers = answers;
 		this.isMultipleAnswers = isMultipleAnswers;
 		this.question = question;
 		this.required = required;
 		this.siteTypeQuestions = siteTypeQuestions;
+		this.orderNum = orderNum;
 	}
 	
 	private static final long serialVersionUID = 1L;
@@ -80,11 +81,11 @@ public class SiteSetupQuestionImpl implements SiteSetupQuestion {
 		this.question = question;
 	}
 
-	private Set<SiteSetupQuestionAnswer> answers = new HashSet<SiteSetupQuestionAnswer>();
+	private List<SiteSetupQuestionAnswer> answers = new Vector<SiteSetupQuestionAnswer>();
 	/**
 	 * {@inheritDoc}
 	 */
-	public Set<SiteSetupQuestionAnswer> getAnswers()
+	public List<SiteSetupQuestionAnswer> getAnswers()
 	{
 		return answers;
 	}
@@ -92,7 +93,7 @@ public class SiteSetupQuestionImpl implements SiteSetupQuestion {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setAnswers(Set<SiteSetupQuestionAnswer> answers)
+	public void setAnswers(List<SiteSetupQuestionAnswer> answers)
 	{
 		this.answers = answers;
 	}
@@ -102,6 +103,8 @@ public class SiteSetupQuestionImpl implements SiteSetupQuestion {
 	 */
 	public void addAnswer(SiteSetupQuestionAnswer answer)
 	{
+		// update the order number
+		answer.setOrderNum(this.getAnswers().size());
 		answer.setQuestion(this);
 		this.answers.add(answer);
 	}
@@ -140,6 +143,24 @@ public class SiteSetupQuestionImpl implements SiteSetupQuestion {
 	public void setIsMultipleAnswers(boolean isMultipleAnswers)
 	{
 		this.isMultipleAnswers = isMultipleAnswers;
+	}
+	
+	private Integer orderNum;
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Integer getOrderNum()
+	{
+		return orderNum;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setOrderNum(Integer orderNum)
+	{
+		this.orderNum = orderNum;
 	}
 	
 	private SiteTypeQuestions siteTypeQuestions;

@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.sitemanage.api.model;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * The SiteSetupQuestion object is to store user-defined question.
@@ -58,13 +58,13 @@ public interface SiteSetupQuestion extends java.io.Serializable {
 	 * get the set of answers
 	 * @return
 	 */
-	public Set<SiteSetupQuestionAnswer> getAnswers();
+	public List<SiteSetupQuestionAnswer> getAnswers();
 
 	/**
 	 * set the set of answers
 	 * @param answers
 	 */
-	public void setAnswers(Set<SiteSetupQuestionAnswer> answers);
+	public void setAnswers(List<SiteSetupQuestionAnswer> answers);
 	
 	/**
 	 * add into the list of answers
@@ -97,7 +97,19 @@ public interface SiteSetupQuestion extends java.io.Serializable {
 	public void setIsMultipleAnswers(boolean isMultipleAnswers);
 	
 	/**
-	 * get the SiteTypeQuestions objct
+	 * get the order number
+	 * @return
+	 */
+	public Integer getOrderNum();
+	
+	/**
+	 * set the order number
+	 * @param orderNum
+	 */
+	public void setOrderNum(Integer orderNum);
+	
+	/**
+	 * get the SiteTypeQuestions object
 	 * @return
 	 */
 	public SiteTypeQuestions getSiteTypeQuestions();

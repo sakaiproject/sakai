@@ -33,11 +33,12 @@ public class SiteSetupQuestionAnswerImpl implements SiteSetupQuestionAnswer{
 		
 	}
 	
-	public SiteSetupQuestionAnswerImpl(String answer, String answerString, boolean isFillInBlank)
+	public SiteSetupQuestionAnswerImpl(String answer, String answerString, boolean isFillInBlank, Integer orderNum)
 	{
 		this.answer = answer;
 		this.answerString = answerString;
 		this.isFillInBlank = isFillInBlank;
+		this.orderNum = orderNum;
 	}
 	
 	private String id;
@@ -127,5 +128,24 @@ public class SiteSetupQuestionAnswerImpl implements SiteSetupQuestionAnswer{
 	public void setQuestion(SiteSetupQuestion question)
 	{
 		this.question = question;
+	}
+	
+	
+	private Integer orderNum;
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Integer getOrderNum()
+	{
+		return orderNum;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setOrderNum(Integer orderNum)
+	{
+		this.orderNum = orderNum;
 	}
 }

@@ -25,7 +25,7 @@ package org.sakaiproject.sitemanage.api.model;
  * @author zqian
  *
  */
-import java.util.Set;
+import java.util.List;
 
 public interface SiteTypeQuestions {
 	
@@ -69,7 +69,7 @@ public interface SiteTypeQuestions {
 	 * get the list of SiteSetupQuestion objects
 	 * @return
 	 */
-	public Set<SiteSetupQuestion> getQuestions();
+	public List<SiteSetupQuestion> getQuestions();
 	
 	/**
 	 * add the SiteSetupQuestion object
@@ -81,7 +81,7 @@ public interface SiteTypeQuestions {
 	 * set the list of SiteSetupQuestion objects
 	 * @param qList
 	 */
-	public void setQuestions(Set<SiteSetupQuestion> questions);
+	public void setQuestions(List<SiteSetupQuestion> questions);
 	
 	/**
 	 * get the instruction for taking the questions
@@ -106,4 +106,28 @@ public interface SiteTypeQuestions {
 	 * @param url
 	 */
 	public void setUrl(String url);
+	
+	/**
+	 * get the URL target
+	 * @return
+	 */
+	public String getUrlTarget();
+	
+	/**
+	 * set the URL target
+	 * @param url
+	 */
+	public void setUrlTarget(String urlTarget);
+	
+	/**
+	 * get the URL label
+	 * @return
+	 */
+	public String getUrlLabel();
+	
+	/**
+	 * set the URL
+	 * @param url
+	 */
+	public void setUrlLabel(String urlLabel);
 }
