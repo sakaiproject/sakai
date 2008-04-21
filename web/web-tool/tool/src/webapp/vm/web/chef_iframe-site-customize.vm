@@ -36,7 +36,7 @@
 					<tr>
 						<td>
 						<textarea id="description" name="description" rows="5" cols="40" tabindex="1" wrap="virtual">$!description</textarea>
-						#chef_setupformattedtextarea("description")
+							#chef_setupformattedtextareaparams("description" "300" "380" "largecompressed")
 						</td>
 					</tr>
 			</table>
