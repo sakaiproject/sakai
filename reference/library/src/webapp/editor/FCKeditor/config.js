@@ -1,4 +1,4 @@
-﻿/*
+/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  *
@@ -105,6 +105,41 @@ FCKConfig.ToolbarSets["Default"] = [
         ['FontFormat','FontName','FontSize'],
         ['About']
 ] ;
+
+FCKConfig.ToolbarSets["large"] = [
+        ['Source','DocProps','Templates'],
+        ['Cut','Copy','Paste','PasteText','PasteWord','SelectAll','RemoveFormat','SpellCheck'],
+        ['Undo','Redo','-','Find','Replace'],
+        ['Bold','Italic','Underline','StrikeThrough','Subscript','Superscript'],
+        ['OrderedList','UnorderedList','Outdent','Indent'],
+        ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull','TextColor','BGColor'],
+        ['Link','Unlink','Anchor'],
+        ['Image','Flash','Table','Rule','Smiley','SpecialChar'],['Style'],
+        ['FontFormat','FontName','FontSize'],
+] ;
+
+FCKConfig.ToolbarSets["largecompressed"] = [
+        ['Source','DocProps','Templates'],
+        ['Cut','Copy','Paste','PasteText','PasteWord','SelectAll','RemoveFormat','SpellCheck','Undo','Redo'],
+        ['Bold','Italic','Underline','StrikeThrough','Subscript','Superscript'],
+        ['OrderedList','UnorderedList','Outdent','Indent','JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
+        ['TextColor','BGColor','Link','Unlink','Anchor'],
+        ['Image','Flash','Table','Rule','Smiley','SpecialChar'],
+        ['FontFormat','FontName'],['Style','FontSize'],
+] ;
+
+FCKConfig.ToolbarSets["medium"] = [
+        ['Source'],
+	      ['Cut','Copy','Paste','PasteText','PasteWord'],
+        ['Undo','Redo','-','Find','Replace'],
+        ['Bold','Italic','Underline','TextColor','BGColor','OrderedList','UnorderedList','Outdent','Indent','JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
+        ['Image','Table','Link','Unlink','-','FontFormat','Style']        
+] ;
+
+FCKConfig.ToolbarSets["small"] = [
+        ['Bold','Italic','TextColor','BGColor','-','Outdent','Indent','JustifyLeft','JustifyCenter','JustifyRight','-','OrderedList','UnorderedList','-','Link','Unlink']
+] ;
+
 
 FCKConfig.ToolbarSets["Attachments"] = [
    ['Source','DocProps','Templates'],
