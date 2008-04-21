@@ -1068,15 +1068,16 @@ public class EntityHandlerImpl implements EntityRequestHandler {
       if (entities == null) {
          entities = fetchEntityList(ref, new Search());
       }
+      if (entities.isEmpty()) {
+         // just log this for now
+         log.info("No entities to format ("+format+") and output for ref (" + ref + ")");
+      }
 
       // get the encoder to use
       EntityXStream encoder = getEncoderForFormat(format, true);
 
       String encoded = null;
-      if (entities.isEmpty()) {
-         // nothing to do here but warn
-         log.warn("No entities to format ("+format+") and output for: " + ref);
-      } else if (EntityView.VIEW_LIST.equals(view.getViewKey()) 
+      if (EntityView.VIEW_LIST.equals(view.getViewKey()) 
             || ref.getId() == null) {
          // encoding a collection of entities
          if (encoder != null) {

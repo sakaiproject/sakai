@@ -137,7 +137,8 @@ public class DirectServlet extends HttpServlet {
       }
 
       if (! initComplete) {
-         sendError(res, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+         sendError(res, HttpServletResponse.SC_SERVICE_UNAVAILABLE, 
+               "Could not initialize the needed Sakai components");
          return;
       }
 
@@ -154,7 +155,7 @@ public class DirectServlet extends HttpServlet {
                   e.responseCode == HttpServletResponse.SC_FORBIDDEN) {
                throw new SecurityException(e.getMessage(), e);
             }
-            sendError(res, e.responseCode);
+            sendError(res, e.responseCode, e.getMessage());
          }
       } catch (SecurityException e) {
          // the end user does not have permission - offer a login if there is no user id yet
@@ -165,12 +166,14 @@ public class DirectServlet extends HttpServlet {
             doLogin(req, res, path);
          }
          // otherwise reject the request
-         log.warn("Security exception accessing entity URL: " + path + " :: " + e.getMessage());
-         sendError(res, HttpServletResponse.SC_FORBIDDEN);
+         String msg = "Security exception accessing entity URL: " + path + " (current user not allowed): " + e.getMessage();
+         log.warn(msg);
+         sendError(res, HttpServletResponse.SC_FORBIDDEN, msg);
       } catch (Exception e) {
          // all other cases
-         log.warn("Unknown exception with direct entity URL: dispatch(): exception: " + e.getMessage(), e);
-         sendError(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+         String msg = "Unknown exception with direct entity URL: dispatch(): exception: " + e.getMessage() + " (see server logs for more details)";
+         log.warn(msg, e);
+         sendError(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, msg);
       }
 
    }
@@ -224,14 +227,13 @@ public class DirectServlet extends HttpServlet {
    /**
     * handles sending back servlet errors to the client
     * 
-    * @param res
-    *           (back to the client)
-    * @param code
-    *           servlet error response code
+    * @param res (back to the client)
+    * @param code servlet error response code
+    * @param message extra info about the error
     */
-   protected void sendError(HttpServletResponse res, int code) {
+   protected void sendError(HttpServletResponse res, int code, String message) {
       try {
-         res.sendError(code);
+         res.sendError(code, message);
       } catch (Throwable t) {
          log.warn(t.getMessage(), t);
       }
