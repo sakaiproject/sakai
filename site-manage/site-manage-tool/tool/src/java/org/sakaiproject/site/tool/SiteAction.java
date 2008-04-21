@@ -877,29 +877,42 @@ public class SiteAction extends PagedResourceActionII {
 		if (state.getAttribute(STATE_INITIALIZED) == null) {
 			init(portlet, data, state);
 		}
-		int index = Integer.valueOf(
-				(String) state.getAttribute(STATE_TEMPLATE_INDEX)).intValue();
 		
+		String indexString = (String) state.getAttribute(STATE_TEMPLATE_INDEX);
+
 		// update the visited template list with the current template index
-		updateStateVisitedTemplates(state, index);
+		addIntoStateVisitedTemplates(state, indexString);
 		
-		template = buildContextForTemplate(getPrevVisitedTemplate(state), index, portlet, context, data, state);
+		template = buildContextForTemplate(getPrevVisitedTemplate(state), Integer.valueOf(indexString), portlet, context, data, state);
 		return template;
 
 	} // buildMainPanelContext
 
 	/**
-	 * update the visited template indices list
+	 * add index into the visited template indices list
 	 * @param state
 	 * @param index
 	 */
-	private void updateStateVisitedTemplates(SessionState state, int index) {
+	private void addIntoStateVisitedTemplates(SessionState state, String index) {
 		List<String> templateIndices = (List<String>) state.getAttribute(STATE_VISITED_TEMPLATES);
-		String indexString = String.valueOf(index);
-		if (templateIndices.size() == 0 || !templateIndices.get(templateIndices.size()-1).equals(indexString))
+		if (templateIndices.size() == 0 || !templateIndices.contains(index))
 		{
 			// this is to prevent from page refreshing accidentally updates the list
-			templateIndices.add(String.valueOf(index));
+			templateIndices.add(index);
+			state.setAttribute(STATE_VISITED_TEMPLATES, templateIndices);
+		}
+	}
+	
+	/**
+	 * remove the last index
+	 * @param state
+	 */
+	private void removeLastIndexInStateVisitedTemplates(SessionState state) {
+		List<String> templateIndices = (List<String>) state.getAttribute(STATE_VISITED_TEMPLATES);
+		if (templateIndices!=null && templateIndices.size() > 0)
+		{
+			// this is to prevent from page refreshing accidentally updates the list
+			templateIndices.remove(templateIndices.size()-1);
 			state.setAttribute(STATE_VISITED_TEMPLATES, templateIndices);
 		}
 	}
@@ -914,6 +927,23 @@ public class SiteAction extends PagedResourceActionII {
 		{
 			return null;
 		}
+	}
+	
+	/**
+	 * whether template indexed has been visited
+	 * @param state
+	 * @param templateIndex
+	 * @return
+	 */
+	private boolean isTemplateVisited(SessionState state, String templateIndex)
+	{
+		boolean rv = false;
+		List<String> templateIndices = (List<String>) state.getAttribute(STATE_VISITED_TEMPLATES);
+		if (templateIndices != null && templateIndices.size() >0 )
+		{
+			rv = templateIndices.contains(templateIndex);
+		}
+		return rv;
 	}
 
 	/**
@@ -4862,6 +4892,9 @@ public class SiteAction extends PagedResourceActionII {
 		// continuing to the next template
 		String direction = "back";
 		actionForTemplate(direction, currentIndex, params, state);
+		
+		// remove the last template index from the list
+		removeLastIndexInStateVisitedTemplates(state);
 
 	}// doBack
 
@@ -5539,6 +5572,7 @@ public class SiteAction extends PagedResourceActionII {
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		removeAddClassContext(state);
 		state.setAttribute(STATE_TEMPLATE_INDEX, "0");
+		resetVisitedTemplateListToIndex(state, (String) state.getAttribute(STATE_TEMPLATE_INDEX));
 
 	} // doCancel_create
 
@@ -5643,14 +5677,15 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "43");
 		}
 		// if all fails to match
-		else if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITESETUP)) {
-			// go to WSetup list view
-			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
-		} else if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITEINFO)) {
-			// go to Site Info list view
+		else if (isTemplateVisited(state, "12")) {
+			// go to site info list view
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+		} else {
+			// go to WSetup list view
+			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 		}
 		
+		resetVisitedTemplateListToIndex(state, (String) state.getAttribute(STATE_TEMPLATE_INDEX));
 
 	} // doCancel
 
@@ -5693,8 +5728,28 @@ public class SiteAction extends PagedResourceActionII {
 		setupFormNamesAndConstants(state);
 
 		state.setAttribute(STATE_TEMPLATE_INDEX, "0");
+		
+		// reset
+		resetVisitedTemplateListToIndex(state, "0");
 
 	} // doBack_to_list
+
+
+	/**
+	 * reset to sublist with index as the last item
+	 * @param state
+	 * @param index
+	 */
+	private void resetVisitedTemplateListToIndex(SessionState state, String index) {
+		if (state.getAttribute(STATE_VISITED_TEMPLATES) != null)
+		{
+			List<String> l = (List<String>) state.getAttribute(STATE_VISITED_TEMPLATES);
+			if (l != null && l.indexOf(index) >=0 && l.indexOf(index) < l.size())
+			{	
+				state.setAttribute(STATE_VISITED_TEMPLATES, l.subList(0, l.indexOf(index)+1));
+			}
+		}
+	}
 
 	/**
 	 * do called when "eventSubmit_do" is in the request parameters to c
@@ -6080,6 +6135,9 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_SITE_INSTANCE_ID);
 
 		state.setAttribute(STATE_TEMPLATE_INDEX, "0");
+		
+		// reset
+		resetVisitedTemplateListToIndex(state, "0");
 
 	} // doBack_to_site_list
 
@@ -6246,7 +6304,14 @@ public class SiteAction extends PagedResourceActionII {
 		
 		if (state.getAttribute(STATE_VISITED_TEMPLATES) == null)
 		{
-			state.setAttribute(STATE_VISITED_TEMPLATES, new Vector<String>());
+			List<String> templates = new Vector<String>();
+			if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITESETUP)) {
+				templates.add("0"); // the default page of WSetup tool
+			} else if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITEINFO)) {
+				templates.add("12");// the default page of Site Info tool
+			}
+
+			state.setAttribute(STATE_VISITED_TEMPLATES, templates);
 		}
 	} // init
 
