@@ -301,6 +301,10 @@ public class ServiceBean {
 		return SST_sm.isEnableSiteVisits();
 	}
 	
+	public boolean getSiteActivityEnabled(){
+		return SST_sm.isEnableSiteActivity();
+	}
+	
 	public boolean isLastJobRunDateVisible(){
 		return !SST_sum.isCollectThreadEnabled() && SST_sm.isLastJobRunDateVisible();
 	}

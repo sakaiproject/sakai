@@ -43,6 +43,9 @@
 			<!-- Force enable/disable site visits if SAK-8499 is solved.
 				Probably don't need to cahnge: by default, this is true if display.users.present=true in sakai.properties -->			
 			<!-- <property name="enableSiteVisits" value="true" /> -->
+
+			<!-- Enable/disable site activity charts -->
+			<!-- <property name="enableSiteActivity" value="true" /> -->
 			
 			<!-- Default chart background color (default: white) -->
 			<property name="chartBackgroundColor" value="#ffffff" />

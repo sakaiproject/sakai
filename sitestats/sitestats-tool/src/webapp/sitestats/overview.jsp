@@ -56,21 +56,21 @@
 						<%/* #####  VISITS CHART SELECTORS  ##### */%>
 						<a4j:outputPanel id="visitsSelectors">					
 							<a4j:commandLink id="visitsWeekSel" value="#{msgs.submenu_week}" actionListener="#{ChartParams.selectVisitsWeekView}" rendered="#{ChartParams.selectedVisitsView ne 'week'}"
-			                	status="visitsChartStatus" reRender="visitsSelectors,visitsChart" styleClass="selector"
+			                	status="visitsChartStatus" reRender="visitsSelectors,visitsChartPanel" styleClass="selector"
 			                	oncomplete="setVisitsChartRenderFalse()"/>
 							<t:outputText id="visitsWeekLbl" value="#{msgs.submenu_week}" rendered="#{ChartParams.selectedVisitsView eq 'week'}" styleClass="selector"/>
 							
 							<t:outputText value="    |    "/>
 							
 							<a4j:commandLink id="visitsMonthSel" value="#{msgs.submenu_month}" actionListener="#{ChartParams.selectVisitsMonthView}" rendered="#{ChartParams.selectedVisitsView ne 'month'}"
-			                	status="visitsChartStatus" reRender="visitsSelectors,visitsChart" styleClass="selector"
+			                	status="visitsChartStatus" reRender="visitsSelectors,visitsChartPanel" styleClass="selector"
 			                	oncomplete="setVisitsChartRenderFalse()"/>
 							<t:outputText id="visitsMonthLbl" value="#{msgs.submenu_month}" rendered="#{ChartParams.selectedVisitsView eq 'month'}" styleClass="selector"/>
 							
 							<t:outputText value="    |    "/>
 							
 							<a4j:commandLink id="visitsYearSel" value="#{msgs.submenu_year}" actionListener="#{ChartParams.selectVisitsYearView}" rendered="#{ChartParams.selectedVisitsView ne 'year'}"
-			                	status="visitsChartStatus" reRender="visitsSelectors,visitsChart" styleClass="selector"
+			                	status="visitsChartStatus" reRender="visitsSelectors,visitsChartPanel" styleClass="selector"
 			                	oncomplete="setVisitsChartRenderFalse()"/>
 							<t:outputText id="visitsYearLbl" value="#{msgs.submenu_year}" rendered="#{ChartParams.selectedVisitsView eq 'year'}" styleClass="selector"/>
 							
@@ -122,10 +122,10 @@
             </h:panelGrid>		
 			
 			<%/* #####  ACTIVITY  ##### */%>
-			<t:htmlTag value="h4" styleClass="summaryHeader">
+			<t:htmlTag value="h4" styleClass="summaryHeader" rendered="#{ServiceBean.siteActivityEnabled}">
 				<h:outputText value="#{msgs.overview_title_activity}"/>
 			</t:htmlTag>
-			<h:panelGrid id="activityMainArea" styleClass="sectionContainerNav" style="width:100%" columns="2" columnClasses="halfSize,halfSize">
+			<h:panelGrid id="activityMainArea" styleClass="sectionContainerNav" style="width:100%" columns="2" columnClasses="halfSize,halfSize" rendered="#{ServiceBean.siteActivityEnabled}">
 				<a4j:region id="activityChartRegion">
 						<%/* #####  ACTIVITY CHART SELECTORS  ##### */%>
 						<a4j:outputPanel id="activitySelectors">					
@@ -223,7 +223,9 @@
 		<a4j:jsFunction name="renderVisitsTable"
 			actionListener="#{OverviewBean.renderVisitsTable}"
 			reRender="visitsTablePanel" status="visitsTableStatus"
-		    immediate="true"/>
+		    immediate="true"
+		    oncomplete="setTablesRenderFalse(); setChartsRenderFalse();"/>
+		    
 		<a4j:jsFunction name="renderActivityChart"
 			actionListener="#{ChartParams.renderActivityChart}"
 		    reRender="activitySelectors,activityChartPanel" status="activityChartStatus"
@@ -257,11 +259,26 @@
 	</a4j:form>
 	
 	
-		<f:verbatim>
+
+	   <f:verbatim>
 	       	<script type="text/javascript">
 	       		function getMainAreaWidth(){
-	       			return document.getElementById('overviewForm:activityMainArea').offsetWidth - 10;
-	       		}
+	       			var element = document.getElementById('overviewForm:activityMainArea');
+	       			if (element!=null){
+	       				return document.getElementById('overviewForm:activityMainArea').offsetWidth - 10;
+	       			}else{
+	       				return document.getElementById('overviewForm:visitsMainArea').offsetWidth - 10;
+	       			}
+	       		}	       		
+	       		function getMainAreaWidth(){
+	       			return document.getElementById('overviewForm:visitsMainArea').offsetWidth - 10;
+	       		}	       		
+	       	</script>
+	   </f:verbatim>
+
+
+		<f:verbatim>
+	       	<script type="text/javascript">
 	       		function getChartWidth(){
 	       			//return document.getElementById('overviewForm:left').offsetWidth;
 	       			return (getMainAreaWidth() / 2);
@@ -304,7 +321,7 @@
 			</f:verbatim>
 		</f:subview>	
 		
-		<f:subview id="activityPartialLoader">
+		<f:subview id="activityPartialLoader" rendered="#{ServiceBean.siteActivityEnabled}">
 			<f:verbatim>
 	        	<script type="text/javascript">
                   	renderActivityChart(getChartWidth(), getChartHeight(), 'white');
