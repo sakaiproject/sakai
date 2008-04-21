@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Stack;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
@@ -39,6 +40,9 @@ public class PageVisits
 {
 	private static final int MAX_SIZE = 10;
 
+	/** Configuration: allow use of alias for site id in references. */
+	protected boolean m_siteAlias = true;
+	
 	private Stack<String> s = new Stack<String>();
 
 	public PageVisits()
@@ -61,13 +65,23 @@ public class PageVisits
 		List<String[]> l = new ArrayList<String[]>();
 		if (s.size() > 0)
 		{
-			String localSpace = NameHelper.localizeSpace(s.peek());
 			for (String pagename : s)
 			{
 				String[] pagespec = new String[2];
-				pagespec[0] = ServerConfigurationService.getAccessUrl() + RWikiObjectService.REFERENCE_ROOT + encode(pagename)
-						+ "." + type;
+
+				String localSpace = NameHelper.localizeSpace(pagename);
 				pagespec[1] = NameHelper.localizeName(pagename, localSpace);
+				
+				if (m_siteAlias) {
+					String localAliasSpace = NameHelper.aliasSpace(localSpace);
+					pagespec[0] = RWikiObjectService.REFERENCE_ROOT + localAliasSpace 
+						+ Entity.SEPARATOR 
+						+ encode(pagespec[1])
+						+ "." + type;
+				} else {
+					pagespec[0] = ServerConfigurationService.getAccessUrl() + RWikiObjectService.REFERENCE_ROOT + encode(pagename)
+							+ "." + type;
+				}
 				l.add(pagespec);
 			}
 		}
