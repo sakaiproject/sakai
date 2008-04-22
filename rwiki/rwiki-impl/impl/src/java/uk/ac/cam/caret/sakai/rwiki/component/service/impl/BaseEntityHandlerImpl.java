@@ -305,6 +305,12 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler
 		if (isAvailable())
 		{
 			if (feedFormat == null) return null;
+			
+			String url = e.getUrl();
+			if ( url.startsWith("/access") ) {
+				url = url.substring("/access".length());
+			}
+			
 			return MessageFormat
 					.format(feedFormat, new Object[] { e.getUrl() });
 		}

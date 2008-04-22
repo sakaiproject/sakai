@@ -22,18 +22,15 @@
 package uk.ac.cam.caret.sakai.rwiki.access;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Enumeration;
-import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.cheftool.VmServlet;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
@@ -48,7 +45,6 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.BasicAuth;
-import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
@@ -59,39 +55,14 @@ import org.sakaiproject.util.Web;
  * 
  * @author Sakai Software Development Team
  */
-public class WikiAccessServlet extends VmServlet
+public class WikiAccessServlet extends HttpServlet
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(WikiAccessServlet.class);
 
-	/** set to true when init'ed. */
-	protected boolean m_ready = false;
 
 	protected BasicAuth basicAuth = null;
 
-	/** delimiter for form multiple values */
-	protected static final String FORM_VALUE_DELIMETER = "^";
-
-	/** init thread - so we don't wait in the actual init() call */
-	public class WikiServletInit extends Thread
-	{
-		/**
-		 * construct and start the init activity
-		 */
-		public WikiServletInit()
-		{
-			m_ready = false;
-			start();
-		}
-
-		/**
-		 * run the init
-		 */
-		public void run()
-		{
-			m_ready = true;
-		}
-	}
 
 	/**
 	 * initialize the AccessServlet servlet
@@ -104,19 +75,11 @@ public class WikiAccessServlet extends VmServlet
 	public void init(ServletConfig config) throws ServletException
 	{
 		super.init(config);
-		startInit();
 		basicAuth = new BasicAuth();
 		basicAuth.init();
 		
 	}
 
-	/**
-	 * Start the initialization process
-	 */
-	public void startInit()
-	{
-		new WikiServletInit();
-	}
 
 	/**
 	 * Set active session according to sessionId parameter
@@ -165,28 +128,27 @@ public class WikiAccessServlet extends VmServlet
 	 */
 	public void dispatch(HttpServletRequest req, HttpServletResponse res) throws ServletException
 	{
-		ParameterParser params = (ParameterParser) req.getAttribute(ATTR_PARAMS);
+		
+		long start = System.currentTimeMillis();
+
+		req.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 
 		// get the path info
-		String path = params.getPath();
+		String path = req.getPathInfo();
+		req.setAttribute(Tool.NATIVE_URL, null);
 		if (path == null) path = "";
-
-		if (!m_ready)
-		{
-			sendError(res, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-			return;
-		}
 
 		// pre-process the path
 		String origPath = path;
 		path = preProcessPath(path, req);
+		
 
 		// what is being requested?
 		Reference ref = EntityManager.newReference(path);
 
-		// get the incoming information
-		WikiServletInfo info = newInfo(req);
 
+		
+		
 		// let the entity producer handle it
 		try
 		{
@@ -235,10 +197,12 @@ public class WikiAccessServlet extends VmServlet
 
 		finally
 		{
+			long end = System.currentTimeMillis();
+
 			// log
 			if (M_log.isDebugEnabled())
-				M_log.debug("from:" + req.getRemoteAddr() + " path:" + params.getPath() + " options: " + info.optionsString()
-						+ " time: " + info.getElapsedTime());
+				M_log.debug("from:" + req.getRemoteAddr() + " path:" + origPath + " options: " + req.getQueryString()
+						+ " time: " + (end-start));
 		}
 	}
 
@@ -258,8 +222,10 @@ public class WikiAccessServlet extends VmServlet
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
+		req.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 		// catch the login helper posts
 		String option = req.getPathInfo();
+		req.setAttribute(Tool.NATIVE_URL, null);
 		String[] parts = option.split("/");
 		if ((parts.length == 2) && ((parts[1].equals("login"))))
 		{
@@ -286,9 +252,9 @@ public class WikiAccessServlet extends VmServlet
 
 		// if path is just "/", we don't really know if the request was to .../SERVLET or .../SERVLET/ - we want to preserve the trailing slash
 		// the request URI will tell us
-		if ("/".equals(path) && !(req.getRequestURI().endsWith("/"))) return "/wiki/site";
+		if ("/".equals(path) && !(req.getRequestURI().endsWith("/"))) return "/wiki";
 
-		return "/wiki/site" + path;
+		return "/wiki" + path;
 	}
 
 	/**
@@ -318,13 +284,14 @@ public class WikiAccessServlet extends VmServlet
 		if (path != null)
 		{
 			// where to go after
-			session.setAttribute(Tool.HELPER_DONE_URL, Web.returnUrl(req, Validator.escapeUrl(path)));
+			String returnPath  = Web.returnUrl(req, Validator.escapeUrl(path));
+			session.setAttribute(Tool.HELPER_DONE_URL, returnPath );
 		}
 
 		// check that we have a return path set; might have been done earlier
 		if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
 		{
-			M_log.warn("doLogin - proceeding with null HELPER_DONE_URL");
+			M_log.error("doLogin - proceeding with null HELPER_DONE_URL");
 		}
 
 		// map the request to the helper, leaving the path after ".../options" for the helper
@@ -345,84 +312,5 @@ public class WikiAccessServlet extends VmServlet
 		}
 	}
 
-	/** create the info */
-	protected WikiServletInfo newInfo(HttpServletRequest req)
-	{
-		return new WikiServletInfo(req);
-	}
-
-	public class WikiServletInfo
-	{
-		// elapsed time start
-		protected long m_startTime = System.currentTimeMillis();
-
-		public long getStartTime()
-		{
-			return m_startTime;
-		}
-
-		public long getElapsedTime()
-		{
-			return System.currentTimeMillis() - m_startTime;
-		}
-
-		// all properties from the request
-		protected Properties m_options = null;
-
-		/** construct from the req */
-		public WikiServletInfo(HttpServletRequest req)
-		{
-			m_options = new Properties();
-			String type = req.getContentType();
-
-			Enumeration e = req.getParameterNames();
-			while (e.hasMoreElements())
-			{
-				String key = (String) e.nextElement();
-				String[] values = req.getParameterValues(key);
-				if (values.length == 1)
-				{
-					m_options.put(key, values[0]);
-				}
-				else
-				{
-					StringBuffer buf = new StringBuffer();
-					for (int i = 0; i < values.length; i++)
-					{
-						buf.append(values[i] + FORM_VALUE_DELIMETER);
-					}
-					m_options.put(key, buf.toString());
-				}
-			}
-		}
-
-		/** return the m_options as a string - obscure any "password" fields */
-		public String optionsString()
-		{
-			StringBuffer buf = new StringBuffer(1024);
-			Enumeration e = m_options.keys();
-			while (e.hasMoreElements())
-			{
-				String key = (String) e.nextElement();
-				Object o = m_options.getProperty(key);
-				if (o instanceof String)
-				{
-					buf.append(key);
-					buf.append("=");
-					if (key.equals("password"))
-					{
-						buf.append("*****");
-					}
-					else
-					{
-						buf.append(o.toString());
-					}
-					buf.append("&");
-				}
-			}
-
-			return buf.toString();
-		}
-	}
 
 }

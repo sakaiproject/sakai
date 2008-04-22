@@ -35,7 +35,7 @@
                 <script type="text/javascript" src="/sakai-rwiki-tool/scripts/ajaxpopup.js"> </script>
                 <script type="text/javascript" src="/sakai-rwiki-tool/scripts/asyncload.js"> </script>
                 <script type="text/javascript" src="/sakai-rwiki-tool/scripts/logger.js"> </script>
-                <link type="application/rss+xml" href="/access/wiki{/entity-service/entity/properties/property[@name='realm']}/-.10.rss" title="Sakai Wiki RSS" rel="alternate"/>
+                <link type="application/rss+xml" href="/wiki{/entity-service/entity/properties/property[@name='realm']}/-.10.rss" title="Sakai Wiki RSS" rel="alternate"/>
              
                 <link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/tool_base.css" type="text/css" rel="stylesheet"
                     media="all"/>

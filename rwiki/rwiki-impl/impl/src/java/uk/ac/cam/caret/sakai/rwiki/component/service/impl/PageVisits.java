@@ -79,7 +79,8 @@ public class PageVisits
 						+ encode(pagespec[1])
 						+ "." + type;
 				} else {
-					pagespec[0] = ServerConfigurationService.getAccessUrl() + RWikiObjectService.REFERENCE_ROOT + encode(pagename)
+					// /wiki
+					pagespec[0] =  RWikiObjectService.REFERENCE_ROOT + encode(pagename)
 							+ "." + type;
 				}
 				l.add(pagespec);
