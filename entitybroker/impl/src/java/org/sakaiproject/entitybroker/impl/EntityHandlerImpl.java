@@ -29,9 +29,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.ConvertUtilsBean;
-import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -119,11 +116,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    private static final String COLLECTION = "-collection";
 
    private ReflectUtil reflectUtil = new ReflectUtil();
-   private PropertyUtilsBean propertyUtils = new PropertyUtilsBean();
-   /**
-    * We are using this instead of the static version so we can manage our own caching
-    */
-   private BeanUtilsBean beanUtils = new BeanUtilsBean(new ConvertUtilsBean(), propertyUtils);
 
    /**
     * Determines if an entity exists based on the reference
@@ -754,7 +746,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             if (entity != null) {
                sb.append("      <entityClass>\n");
                sb.append("        <class>"+ entity.getClass().getName() +"</class>\n");
-               Map<String, Class<?>> entityTypes = reflectUtil.getObjectTypes(entity.getClass());
+               Map<String, Class<?>> entityTypes = reflectUtil.getReturnTypes(entity.getClass());
                ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
                Collections.sort(keys);
                for (String key : keys) {
@@ -813,7 +805,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             if (entity != null) {
                sb.append("      <h4>Entity class : "+ entity.getClass().getName() +"</h4>\n");
                sb.append("        <ul>\n");
-               Map<String, Class<?>> entityTypes = reflectUtil.getObjectTypes(entity.getClass());
+               Map<String, Class<?>> entityTypes = reflectUtil.getReturnTypes(entity.getClass());
                ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
                Collections.sort(keys);
                for (String key : keys) {
@@ -1002,7 +994,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                   if (params != null && params.size() > 0) {
                      entity = current;
                      try {
-                        beanUtils.populate(entity, params);
+                        reflectUtil.getBeanUtils().populate(entity, params);
                      } catch (Exception e) {
                         throw new IllegalArgumentException("Unable to populate bean for ref ("+ref+") from request: " + e.getMessage(), e);
                      }

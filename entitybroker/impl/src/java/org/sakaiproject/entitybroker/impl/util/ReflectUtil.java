@@ -21,9 +21,16 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.beanutils.ConvertUtilsBean;
+import org.apache.commons.beanutils.PropertyUtilsBean;
 
 import com.google.inject.util.ReferenceMap;
 import com.google.inject.util.ReferenceType;
@@ -42,20 +49,30 @@ public class ReflectUtil {
    /**
     * Should contain all publicly accessible members (fields OR methods without the "get"/"is")
     */
-   protected Map<Class<?>, List<Member>> getterMap = new ReferenceMap<Class<?>, List<Member>>(ReferenceType.WEAK, ReferenceType.SOFT);
-   protected Map<Class<?>, List<Member>> setterMap = new ReferenceMap<Class<?>, List<Member>>(ReferenceType.WEAK, ReferenceType.SOFT);
+   protected Map<Class<?>, Map<String, Member>> getterMap = new ReferenceMap<Class<?>, Map<String, Member>>(ReferenceType.WEAK, ReferenceType.SOFT);
+   protected Map<Class<?>, Map<String, Member>> setterMap = new ReferenceMap<Class<?>, Map<String, Member>>(ReferenceType.WEAK, ReferenceType.SOFT);
+
+   private PropertyUtilsBean propertyUtils = new PropertyUtilsBean();
+   private ConvertUtilsBean convertUtils = new ConvertUtilsBean();
+   /**
+    * We are using this instead of the static version so we can manage our own caching
+    */
+   private BeanUtilsBean beanUtils = new BeanUtilsBean(convertUtils, propertyUtils);
+   public BeanUtilsBean getBeanUtils() {
+      return beanUtils;
+   }
 
    protected void analyzeClass(Class<?> elementClass) {
       if (! getterMap.containsKey(elementClass) 
             || ! setterMap.containsKey(elementClass)) {
          // class was not yet analyzed
-         getterMap.put(elementClass, new Vector<Member>());
-         setterMap.put(elementClass, new Vector<Member>());
+         getterMap.put(elementClass, new ConcurrentHashMap<String, Member>());
+         setterMap.put(elementClass, new ConcurrentHashMap<String, Member>());
 
          for (Field field : elementClass.getFields()) {
             try {
-               getterMap.get(elementClass).add(field);
-               setterMap.get(elementClass).add(field);
+               getterMap.get(elementClass).put(field.getName(), field);
+               setterMap.get(elementClass).put(field.getName(), field);
             } catch (Exception e) {
                // nothing to do here but move on
             }
@@ -66,11 +83,12 @@ public class ReflectUtil {
             if (paramTypes.length == 0) {
                if (METHOD_GET_CLASS.equals(name)) {
                   continue;
-               } else if ( name.startsWith(PREFIX_GET) || name.startsWith(PREFIX_IS) ) {
+               } else if ( name.startsWith(PREFIX_GET) 
+                     || name.startsWith(PREFIX_IS) ) {
                   Class<?> returnType = method.getReturnType();
                   if (returnType != null) {
                      try {
-                        getterMap.get(elementClass).add(method);
+                        getterMap.get(elementClass).put(makeFieldNameFromMethod(method.getName()), method);
                      } catch (Exception e) {
                         // nothing to do here but move on
                      }  
@@ -79,7 +97,7 @@ public class ReflectUtil {
             } else if ( name.startsWith(PREFIX_SET) 
                   && paramTypes.length == 1 ) {
                try {
-                  setterMap.get(elementClass).add(method);
+                  setterMap.get(elementClass).put(makeFieldNameFromMethod(method.getName()), method);
                } catch (Exception e) {
                   // nothing to do here but move on
                }                     
@@ -88,84 +106,272 @@ public class ReflectUtil {
       }
    }
 
-   protected List<Member> getGetterMembers(Class<?> elementClass) {
+   protected Map<String, Member> getGetterMap(Class<?> elementClass) {
       analyzeClass(elementClass);
-      List<Member> members = getterMap.get(elementClass);
+      return getterMap.get(elementClass);
+   }
+
+   protected Map<String, Member> getSetterMap(Class<?> elementClass) {
+      analyzeClass(elementClass);
+      return setterMap.get(elementClass);
+   }
+
+   protected Collection<Member> getGetterMembers(Class<?> elementClass) {
+      analyzeClass(elementClass);
+      Collection<Member> members = getterMap.get(elementClass).values();
       return members;
    }
 
-   protected List<Member> getSetterMembers(Class<?> elementClass) {
+   protected Collection<Member> getSetterMembers(Class<?> elementClass) {
       analyzeClass(elementClass);
-      List<Member> members = setterMap.get(elementClass);
+      Collection<Member> members = setterMap.get(elementClass).values();
       return members;
    }
 
-   protected String getFieldnameFromMethod(String methodName) {
-      String name = null;
-      if (methodName.startsWith(PREFIX_IS)) {
-         name = methodName.substring(2);
-      } else {
-         // set or get
-         name = methodName.substring(3);
+   private String getAnnotatedFieldNameFromMember(Member member, Class<? extends Annotation> annotationClass) {
+      String fieldName = null;
+      if (member instanceof Field) {
+         Field field = (Field) member;
+         try {
+            if (field.isAnnotationPresent(annotationClass)) {
+               fieldName = field.getName();
+            }
+         } catch (Exception e) {
+            // nothing to do here but move on
+         }
+      } else if (member instanceof Method) {
+         Method method = (Method) member;
+         try {
+            if (method.isAnnotationPresent(annotationClass)) {
+               fieldName = makeFieldNameFromMethod(method.getName());
+            }
+         } catch (Exception e) {
+            // nothing to do here but move on
+         }
       }
-      name = unCapitalize(name);
-      return name;
+      return fieldName;
+   }
+
+
+   // PUBLIC methods
+
+   /**
+    * Get the value of a field or getter method from an object
+    * @param object any object
+    * @param fieldName the name of the field (property) to get the value of or the getter method without the "get" and lowercase first char
+    * @throws IllegalArgumentException if the fieldName could not be found in this object
+    */
+   public Object getFieldValue(Object object, String fieldName) {
+      Object value = null;
+      boolean found = false;
+      Class<?> elementClass = object.getClass();
+      Member member = getGetterMap(elementClass).get(fieldName);
+      if (member != null) {
+         if (member instanceof Field) {
+            Field field = (Field) member;
+            try {
+               value = field.get(object);
+               found = true;
+            } catch (Exception e) {
+               // nothing to do here but move on
+            }
+         } else if (member instanceof Method) {
+            Method method = (Method) member;
+            try {
+               value = method.invoke(object, (Object[])null);
+               found = true;
+            } catch (Exception e) {
+               // nothing to do here but move on
+            }
+         }
+      }
+      if (!found) {
+         throw new IllegalArgumentException("Could not find a field with name (" + fieldName + ") to get value from");
+      }
+      return value;
+   }
+
+   /**
+    * Set the value on the object field or setter method
+    * @param object any object
+    * @param fieldName the name of the field (property) to set the value of or the setter method without the "set" and lowercase first char
+    * @param value the value to set on this field, must match the type in the object (will not attempt to covert)
+    * @throws IllegalArgumentException if the fieldName could not be found in this object 
+    * OR the value type does not match the field type
+    */
+   public void setFieldValue(Object object, String fieldName, Object value) {
+      boolean found = false;
+      Class<?> elementClass = object.getClass();
+      Member member = getSetterMap(elementClass).get(fieldName);
+      if (member != null) {
+         if (member instanceof Field) {
+            Field field = (Field) member;
+               try {
+                  field.set(object, value);
+                  found = true;
+               } catch (Exception e) {
+                  throw new IllegalArgumentException("Could not set fieldName (" + fieldName + ") to value: " + value, e);
+               }
+               found = true;
+         } else if (member instanceof Method) {
+            Method method = (Method) member;
+            try {
+               method.invoke(object, new Object[] {value});
+            } catch (Exception e) {
+               throw new IllegalArgumentException("Could not invoke setter method (" + method.getName() + ") with value: " + value, e);
+            }
+         }
+      }
+      if (!found) {
+         throw new IllegalArgumentException("Could not find a field with name (" + fieldName + ") to set value on");
+      }
+   }
+
+   /**
+    * Set the value on the object field or setter method
+    * @param object any object
+    * @param fieldName the name of the field (property) to set the value of or the setter method without the "set" and lowercase first char
+    * @param value the value to set on this field as a string, will attempt to auto-convert from string to the proper type
+    * @throws IllegalArgumentException if the fieldName could not be found in this object 
+    * OR the value could not be converted from String to the field type
+    */
+   public void setFieldStringValue(Object object, String fieldName, String value) {
+      Class<?> elementClass = object.getClass();
+      Class<?> type = getSetType(elementClass, fieldName);
+      Object convertedValue;
+      try {
+         convertedValue = convertUtils.convert(value, type);
+      } catch (ConversionException e) {
+         throw new IllegalArgumentException("Could not convert value from ("+value+") to an object of type ("+type+")");
+      }
+      setFieldValue(object, fieldName, convertedValue);
+   }
+
+   /**
+    * @param <T>
+    * @param original the original object to copy from
+    * @param destination the object to copy the values to (must have the same fields with the same types)
+    * @param fieldNamesToSkip an array of the fieldNames which should NOT be copied from original to destination
+    * @throws IllegalArgumentException if the copy cannot be completed because the objects to copy do not have matching fields or types
+    */
+   public <T> void copyObjectValues(T original, T destination, String[] fieldNamesToSkip) {
+      if (original == null || destination == null) {
+         throw new IllegalArgumentException("Cannot have null objects involved in the copy");
+      }
+      Set<String> skip = new HashSet<String>();
+      if (fieldNamesToSkip != null) {
+         for (int i = 0; i < fieldNamesToSkip.length; i++) {
+            if (fieldNamesToSkip[i] != null) {
+               skip.add(fieldNamesToSkip[i]);
+            }
+         }
+      }
+      try {
+         Class<?> elementClass = destination.getClass();
+         Map<String, Member> gm = getSetterMap(elementClass);
+         for (String fieldName : gm.keySet()) {
+            if (skip.isEmpty() || ! skip.contains(fieldName)) {
+               Object value = getFieldValue(original, fieldName);
+               setFieldValue(destination, fieldName, value);
+            }
+         }
+      } catch (Exception e) {
+         throw new IllegalArgumentException("Failed to copy values from original ("+original+") to destination ("+destination+")", e);
+      }
    }
 
    /**
     * Get the return types of the fields and getter methods of a specific class type
+    * returns the method names without the "get"/"is" part and camelCased
     * @param elementClass any class
     * @return a map of field name/getter method name -> class type
     */
-   public Map<String, Class<?>> getObjectTypes(Class<?> elementClass) {
+   public Map<String, Class<?>> getReturnTypes(Class<?> elementClass) {
       Map<String, Class<?>> types = new HashMap<String, Class<?>>();
-      for (Member member : getGetterMembers(elementClass)) {
-         if (member instanceof Field) {
-            Field field = (Field) member;
-            try {
-               types.put(field.getName(), field.getType());
-            } catch (Exception e) {
-               // nothing to do here but move on
-            }
-         } else if (member instanceof Method) {
-            Method method = (Method) member;
-            try {
-               types.put(getFieldnameFromMethod(method.getName()), method.getReturnType());
-            } catch (Exception e) {
-               // nothing to do here but move on
-            }
-         }
+      Map<String, Member> gm = getGetterMap(elementClass);
+      for (String fieldName : gm.keySet()) {
+         Class<?> type = getReturnType(elementClass, fieldName);
+         types.put(fieldName, type);
       }
       return types;
    }
 
    /**
-    * Get the set types of the fields and setter methods for a specific class
     * @param elementClass any class
-    * @return a map of field name/getter method name -> class type
+    * @param fieldName the name of the field (property) or a getter method converted to a fieldname
+    * @return the type of object stored in the field or returned by the getter
     */
-   public Map<String, Class<?>> getSetTypes(Class<?> elementClass) {
-      Map<String, Class<?>> types = new HashMap<String, Class<?>>();
-      for (Member member : getSetterMembers(elementClass)) {
+   public Class<?> getReturnType(Class<?> elementClass, String fieldName) {
+      Class<?> type = null;
+      Member member = getGetterMap(elementClass).get(fieldName);
+      if (member != null) {
          if (member instanceof Field) {
             Field field = (Field) member;
             try {
-               types.put(field.getName(), field.getType());
+               type = field.getType();
             } catch (Exception e) {
                // nothing to do here but move on
             }
          } else if (member instanceof Method) {
             Method method = (Method) member;
             try {
-               // expect all setters to have at least one param
-               Class<?> type = method.getParameterTypes()[0];
-               types.put(getFieldnameFromMethod(method.getName()), type);
+               type = method.getReturnType();
             } catch (Exception e) {
                // nothing to do here but move on
             }
          }
       }
+      if (type == null) {
+         throw new IllegalArgumentException("Could not find a field with name (" + fieldName + ") to get return type from");
+      }
+      return type;
+   }
+
+   /**
+    * Get the types of the public fields and setter methods for a specific class,
+    * returns the method names without the "set" part and camelCased
+    * @param elementClass any class
+    * @return a map of field name/setter method name -> class type
+    */
+   public Map<String, Class<?>> getSetTypes(Class<?> elementClass) {
+      Map<String, Class<?>> types = new HashMap<String, Class<?>>();
+      Map<String, Member> sm = getSetterMap(elementClass);
+      for (String fieldName : sm.keySet()) {
+         Class<?> type = getSetType(elementClass, fieldName);
+         types.put(fieldName, type);
+      }
       return types;
+   }
+
+   /**
+    * Get the type of the public field or setter method of this name for this class
+    * @param elementClass any class
+    * @param fieldName the name of the field (property) or a setter method converted to a fieldname
+    * @return the type of object stored in the field or expected by the setter
+    */
+   public Class<?> getSetType(Class<?> elementClass, String fieldName) {
+      Class<?> type = null;
+      Member member = getSetterMap(elementClass).get(fieldName);
+      if (member instanceof Field) {
+         Field field = (Field) member;
+         try {
+            type = field.getType();
+         } catch (Exception e) {
+            // nothing to do here but move on
+         }
+      } else if (member instanceof Method) {
+         Method method = (Method) member;
+         try {
+            // expect all setters to have one param
+            type = method.getParameterTypes()[0];
+         } catch (Exception e) {
+            // nothing to do here but move on
+         }
+      }      
+      if (type == null) {
+         throw new IllegalArgumentException("Could not find a field with name (" + fieldName + ") to get setter type from");
+      }
+      return type;
    }
 
    /**
@@ -177,13 +383,15 @@ public class ReflectUtil {
    public Map<String, Object> getObjectValues(Object object) {
       Map<String, Object> values = new HashMap<String, Object>();
       Class<?> elementClass = object.getClass();
-      for (Member member : getGetterMembers(elementClass)) {
+      Map<String, Member> gm = getGetterMap(elementClass);
+      for (String fieldName : gm.keySet()) {
+         Member member = gm.get(fieldName);
          if (member instanceof Field) {
             Field field = (Field) member;
             Object value;
             try {
                value = field.get(object);
-               values.put(field.getName(), value);
+               values.put(fieldName, value);
             } catch (Exception e) {
                // nothing to do here but move on
             }
@@ -191,7 +399,7 @@ public class ReflectUtil {
             Method method = (Method) member;
             try {
                Object value = method.invoke(object, (Object[])null);
-               values.put(getFieldnameFromMethod(method.getName()), value);
+               values.put(fieldName, value);
             } catch (Exception e) {
                // nothing to do here but move on
             }
@@ -201,82 +409,108 @@ public class ReflectUtil {
    }
 
    /**
-    * Get the string value of a field or getter method from an object 
-    * if the field or getter method exists on the object,
-    * if not then return null
+    * Find the getter field on a class which has the given annotation
+    * @param elementClass any class
+    * @param annotationClass the annotation type which is expected to be on the field
+    * @return the name of the field or null if no fields are found with the indicated annotation
+    */
+   public String getFieldNameForGetterWithAnnotation(Class<?> elementClass, Class<? extends Annotation> annotationClass) {
+      String fieldName = null;
+      if (annotationClass == null) {
+         throw new IllegalArgumentException("the annotationClass must not be null");
+      }
+      for (Member member : getGetterMembers(elementClass)) {
+         fieldName = getAnnotatedFieldNameFromMember(member, annotationClass);
+         if (fieldName != null) {
+            break;
+         }
+      }
+      return fieldName;
+   }
+
+   /**
+    * Find the setter field on a class which has the given annotation
+    * @param elementClass any class
+    * @param annotationClass the annotation type which is expected to be on the field
+    * @return the name of the field or null if no fields are found with the indicated annotation
+    */
+   public String getFieldNameForSetterWithAnnotation(Class<?> elementClass, Class<? extends Annotation> annotationClass) {
+      String fieldName = null;
+      if (annotationClass == null) {
+         throw new IllegalArgumentException("the annotationClass must not be null");
+      }
+      if (annotationClass != null) {
+         for (Member member : getSetterMembers(elementClass)) {
+            fieldName = getAnnotatedFieldNameFromMember(member, annotationClass);
+            if (fieldName != null) {
+               break;
+            }
+         }
+      }
+      return fieldName;
+   }
+
+   /**
+    * Get the value of a field or getter method from an object
     * 
     * @param object any object
     * @param fieldName the name of the field (property) to get the value of or the getter method without the "get" and lowercase first char
     * @param annotationClass if the annotation class is set then we will attempt to get the value from the annotated field or getter method first
-    * @return the string value of the field or null if no field or null if the value is null
+    * @return the value of the field OR null if the value is null
+    * @throws IllegalArgumentException if neither the fieldName or a field with the annotationClass could be found
     */
-   public String getFieldValueAsString(Object object, String fieldName, Class<? extends Annotation> annotationClass) {
+   public Object getFieldValue(Object object, String fieldName, Class<? extends Annotation> annotationClass) {
       Object value = null;
       Class<?> elementClass = object.getClass();
-      boolean found = false;
       if (annotationClass != null) {
          // try to find annotation first
-         for (Member member : getGetterMembers(elementClass)) {
-            if (member instanceof Field) {
-               Field field = (Field) member;
-               try {
-                  if (field.isAnnotationPresent(annotationClass)) {
-                     value = field.get(object);
-                     found = true;
-                     break;
-                  }
-               } catch (Exception e) {
-                  // nothing to do here but move on
-               }
-            } else if (member instanceof Method) {
-               Method method = (Method) member;
-               try {
-                  if (method.isAnnotationPresent(annotationClass)) {
-                     value = method.invoke(object, (Object[])null);
-                     found = true;
-                     break;
-                  }
-               } catch (Exception e) {
-                  // nothing to do here but move on
-               }
-            }
+         String annotatedField = getFieldNameForGetterWithAnnotation(elementClass, annotationClass);
+         if (annotatedField != null) {
+            fieldName = annotatedField;
          }
       }
-      if (!found) {
-         // no luck with annotation so try to find the field instead
-         for (Member member : getGetterMembers(elementClass)) {
-            if (member instanceof Field) {
-               Field field = (Field) member;
-               try {
-                  if (fieldName.equals(field.getName())) {
-                     found = true;
-                     value = field.get(object);
-                     break;
-                  }
-               } catch (Exception e) {
-                  // nothing to do here but move on
-               }
-            } else if (member instanceof Method) {
-               Method method = (Method) member;
-               String name = unCapitalize(method.getName().substring(3));
-               try {
-                  if (fieldName.equals(name)) {
-                     found = true;
-                     value = method.invoke(object, (Object[])null);
-                     break;
-                  }
-               } catch (Exception e) {
-                  // nothing to do here but move on
-               }
-            }
-         }
-      }
+      value = getFieldValue(object, fieldName);
+      return value;
+   }
+
+   /**
+    * Get the string value of a field or getter method from an object
+    * 
+    * @param object any object
+    * @param fieldName the name of the field (property) to get the value of or the getter method without the "get" and lowercase first char
+    * @param annotationClass if the annotation class is set then we will attempt to get the value from the annotated field or getter method first
+    * @return the string value of the field OR null if the value is null
+    * @throws IllegalArgumentException if neither the fieldName or a field with the annotationClass could be found
+    */
+   public String getFieldValueAsString(Object object, String fieldName, Class<? extends Annotation> annotationClass) {
       String sValue = null;
+      Object value = getFieldValue(object, fieldName, annotationClass);
       if (value != null) {
-         sValue = value.toString();
+         sValue = convertUtils.convert(value); //value.toString();
       }
       return sValue;
    }
+
+   /**
+    * @param methodName a getter or setter style method name (e.g. getThing, setStuff, isType)
+    * @return the fieldName equivalent (thing, stuff, type)
+    */
+   public String makeFieldNameFromMethod(String methodName) {
+      String name = null;
+      if (methodName.startsWith(PREFIX_IS)) {
+         name = unCapitalize(methodName.substring(2));
+      } else if ( methodName.startsWith(PREFIX_GET)
+            || methodName.startsWith(PREFIX_SET) ) {
+         // set or get
+         name = unCapitalize(methodName.substring(3));
+      } else {
+         name = new String(methodName);
+      }
+      return name;
+   }
+
+
+   // STATIC methods
 
    /**
     * Capitalize a string

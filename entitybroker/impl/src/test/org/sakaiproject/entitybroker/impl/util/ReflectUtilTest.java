@@ -42,6 +42,7 @@ public class ReflectUtilTest extends TestCase {
    class TestNone { }
    class TestProvider implements EntityProvider {
       public String id = "identity";
+      public Long nullVal = null;
       public String getEntityPrefix() {
          return "provider";
       }
@@ -222,9 +223,16 @@ public class ReflectUtilTest extends TestCase {
       String value = null;
       ReflectUtil reflectUtil = new ReflectUtil();
 
-      value = reflectUtil.getFieldValueAsString( new TestBean(), "id", null);
-      assertNull(value);
+      try {
+         value = reflectUtil.getFieldValueAsString( new TestBean(), "id", null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
 
+      value = reflectUtil.getFieldValueAsString( new TestProvider(), "nullVal", null);
+      assertNull(value);
+      
       value = reflectUtil.getFieldValueAsString( new TestPea(), "id", null);
       assertNotNull(value);
       assertEquals("id", value);
@@ -233,8 +241,12 @@ public class ReflectUtilTest extends TestCase {
       assertNotNull(value);
       assertEquals("5", value);
 
-      value = reflectUtil.getFieldValueAsString( new TestBean(), "id", EntityId.class);
-      assertNull(value);
+      try {
+         value = reflectUtil.getFieldValueAsString( new TestBean(), "id", EntityId.class);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
 
       value = reflectUtil.getFieldValueAsString( new TestPea(), "id", EntityId.class);
       assertNotNull(value);
