@@ -24,6 +24,7 @@ package org.sakaiproject.access.tool;
 import java.io.IOException;
 import java.util.Enumeration;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,10 +33,11 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -63,7 +65,20 @@ public class WebServlet extends AccessServlet
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(WebServlet.class);
+	private ContentHostingService contentHostingService;
 
+	
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.access.tool.AccessServlet#init(javax.servlet.ServletConfig)
+	 */
+	@Override
+	public void init(ServletConfig config) throws ServletException
+	{
+		super.init(config);
+		
+		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
+	}
 	/**
 	 * Set active session according to sessionId parameter
 	 */
@@ -214,14 +229,14 @@ public class WebServlet extends AccessServlet
 
 			String path = dir + name;
 
-			ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();
+			ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
 
 			// Try to delete the resource
 			try
 			{
 				// System.out.println("Trying Del " + path);
 				// The existing document may be a collection or a file.
-				boolean isCollection = ContentHostingService.getProperties(path).getBooleanProperty(
+				boolean isCollection = contentHostingService.getProperties(path).getBooleanProperty(
 						ResourceProperties.PROP_IS_COLLECTION);
 
 				if (isCollection)
@@ -234,10 +249,10 @@ public class WebServlet extends AccessServlet
 				{
 					// not sure why removeesource(path) didn't
 					// work for my workspace
-					ContentResourceEdit edit = ContentHostingService.editResource(path);
+					ContentResourceEdit edit = contentHostingService.editResource(path);
 					// if (edit != null)
 					// System.out.println("Got edit");
-					ContentHostingService.removeResource(edit);
+					contentHostingService.removeResource(edit);
 				}
 			}
 			catch (IdUnusedException e)
@@ -266,7 +281,7 @@ public class WebServlet extends AccessServlet
 				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 
 				// System.out.println("Trying Add " + path);
-				ContentResource resource = ContentHostingService.addResource(path, type, data, resourceProperties,
+				ContentResource resource = contentHostingService.addResource(path, type, data, resourceProperties,
 						NotificationService.NOTI_NONE);
 
 			}
@@ -277,7 +292,7 @@ public class WebServlet extends AccessServlet
 				{
 					try
 					{
-						ContentCollection collection = ContentHostingService.addCollection(dir, resourceProperties);
+						ContentCollection collection = contentHostingService.addCollection(dir, resourceProperties);
 						return writeFile(name, type, data, dir, req, resp, false);
 					}
 					catch (Throwable ee)
