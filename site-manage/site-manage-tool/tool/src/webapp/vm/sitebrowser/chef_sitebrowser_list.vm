@@ -33,6 +33,7 @@
 		<li class="firstToolBarItem" role="menuitem"><span><a href="#" onclick="location='#toolLink("$action" "doShow_simple_search")';return false;"  title ="Search">$tlang.getString("list.search")</a></span></li>
 	</ul>
 	<h3>$tlang.getString("list.results")</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	#if ($sites.size() > 0)
 		<div class="navPanel">
 			<div class="viewNav">
@@ -82,10 +83,12 @@
 
 			</div>
 		</div>
-
+<form action="#toolForm("$action")" method="post">
 	#set ($siteCount = 0)
 		<table summary ="$tlang.getString("list.summary")" class="listHier lines nolines" cellspacing="0" cellpadding="0" border="0">
-		
+		#if ($helperMode)
+			<th scope="col" id="selected"></th>
+		#end
 			<tr>
 				<th scope="col" id="title">$tlang.getString("list.work")</th>
 				<th scope="col" id="type">$tlang.getString("list.type")</th>
@@ -99,6 +102,11 @@
                 #set ($shortDesc = "")
                 #set ($desc = "")
                 <tr>
+                	#if ($helperMode)
+	                		<td headers="selected">
+	               				<input type="radio" name="siteId" value="$site.Id">
+	                		</td>
+	                #end
                         <td headers="title">
 							<h4>
                              <a href="#toolLinkParam("$action" "doVisit" "id=$validator.escapeUrl($site.Id)")" title="$tlang.getString("list.go") $validator.escapeHtml($site.Title) $tlang.getString("site")">
@@ -177,10 +185,24 @@
                 </tr>
 			#end ##foreach
 		</table>
+		#if ($helperMode)
+			<p class="act">
+			 <input type="submit" class="active"  name="eventSubmit_doSelect" value="Select" #if ($sites.size() == 0) disabled="true" #end/>
+			 <input type="submit" class="inactive"  name="eventSubmit_doCancel" value="Cancel" />
+			</p>
+		#end
+	</form>
 #else
 		<p class="instruction">
 			$tlang.getString("list.nosites")
 		</p>
+		#if ($helperMode)
+			<p class="act">
+				<form action="#toolForm("$action")" method="post">		
+			 	<input type="submit" class="inactive"  name="eventSubmit_doCancel" value="Cancel" />
+				</form>
+			</p>
+		#end
 #end
 
 </div>

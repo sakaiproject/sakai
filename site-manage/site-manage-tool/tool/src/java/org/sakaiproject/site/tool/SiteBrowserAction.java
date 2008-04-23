@@ -21,6 +21,7 @@
 
 package org.sakaiproject.site.tool;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.sakaiproject.announcement.cover.AnnouncementService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -39,6 +44,7 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.Reference;
@@ -48,34 +54,51 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
-//import org.sakaiproject.site.cover.CourseManagementService;
+import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.sitemanage.api.SiteHelper;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>
  * SiteBrowserAction is the Sakai site browser, showing a searchable list of the defined sites, and details including public resources of each when selected.
  * </p>
  */
-public class SiteBrowserAction extends PagedResourceActionII
+public class SiteBrowserAction extends PagedResourceActionII implements SiteHelper
 {
+	private static final String INTER_SIZE = "inter_size";
+
 	private org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager
 	.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
+	
+	private static Log log = LogFactory.getLog(SiteBrowserAction.class); 
 
 	private static ResourceLoader rb = new ResourceLoader("sitebrowser");
+	
+	private static final String PREFIX = "sitebrowser.";
+
+	private static final String MODE = PREFIX+ "mode";
 
 	private final static String SITE_TYPE_ANY = "Any";
 
 	private final static String SITE_TERM_ANY = "Any";
 
-	private final static String STATE_TERM_SELECTION = "termSelection";
+	private final static String STATE_TERM_SELECTION = PREFIX+ "termSelection";
 
-	private final static String STATE_SEARCH_SITE_TYPE = "siteType";
+	private final static String STATE_SEARCH_SITE_TYPE = PREFIX+ "siteType";
 
-	private final static String STATE_SEARCH_LIST = "searchList";
+	private final static String STATE_SEARCH_LIST = PREFIX+ "searchList";
 
-	private final static String STATE_PROP_SEARCH_MAP = "propertyCriteriaMap";
+	private final static String STATE_PROP_SEARCH_MAP = PREFIX+ "propertyCriteriaMap";
 
 	private final static String SIMPLE_SEARCH_VIEW = "simpleSearch";
 
@@ -89,11 +112,13 @@ public class SiteBrowserAction extends PagedResourceActionII
 	private static final String NO_SHOW_SEARCH_TYPE = "noshow_search_sitetype";
 
 	/** for navigating between sites in site list */
-	private static final String STATE_SITES = "state_sites";
+	private static final String STATE_SITES = PREFIX+ "state_sites";
 
-	private static final String STATE_PREV_SITE = "state_prev_site";
+	private static final String STATE_PREV_SITE = PREFIX+ "state_prev_site";
 
-	private static final String STATE_NEXT_SITE = "state_next_site";
+	private static final String STATE_NEXT_SITE = PREFIX+ "state_next_site";
+	
+	private static final String STATE_HELPER_DONE = PREFIX+ "helperDone";
 
 	/**
 	 * {@inheritDoc}
@@ -103,9 +128,16 @@ public class SiteBrowserAction extends PagedResourceActionII
 		// search?
 		String search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
 
-		return SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.PUBVIEW, state
+		// See what sort of search.
+		org.sakaiproject.site.api.SiteService.SelectionType type =
+			(org.sakaiproject.site.api.SiteService.SelectionType)state.getAttribute(SiteHelper.SITE_PICKER_PERMISSION);
+
+
+		List sites =  SiteService.getSites(type, state
 				.getAttribute(STATE_SEARCH_SITE_TYPE), search, (HashMap) state.getAttribute(STATE_PROP_SEARCH_MAP),
 				org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, new PagingPosition(first, last));
+		
+		return sites;
 
 	}
 
@@ -116,7 +148,10 @@ public class SiteBrowserAction extends PagedResourceActionII
 	{
 		String search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
 
-		return SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.PUBVIEW, state
+		org.sakaiproject.site.api.SiteService.SelectionType type =
+			(org.sakaiproject.site.api.SiteService.SelectionType)state.getAttribute(SiteHelper.SITE_PICKER_PERMISSION);
+		
+		return SiteService.countSites(type, state
 				.getAttribute(STATE_SEARCH_SITE_TYPE), search, (HashMap) state.getAttribute(STATE_PROP_SEARCH_MAP));
 	}
 
@@ -144,6 +179,13 @@ public class SiteBrowserAction extends PagedResourceActionII
 		if (noSearchSiteType != null)
 		{
 			state.setAttribute(NO_SHOW_SEARCH_TYPE, noSearchSiteType);
+		}
+
+		// Make sure we have a permission to be looking for.
+		if (!(state.getAttribute(SiteHelper.SITE_PICKER_PERMISSION) instanceof org.sakaiproject.site.api.SiteService.SelectionType))
+		{
+			// The default is pubview.
+			state.setAttribute(SiteHelper.SITE_PICKER_PERMISSION, org.sakaiproject.site.api.SiteService.SelectionType.PUBVIEW);
 		}
 
 		// setup the observer to notify our main panel
@@ -176,7 +218,7 @@ public class SiteBrowserAction extends PagedResourceActionII
 		String template = null;
 
 		// check mode and dispatch
-		String mode = (String) state.getAttribute("mode");
+		String mode = (String) state.getAttribute(MODE);
 		if ((mode == null) || mode.equals(SIMPLE_SEARCH_VIEW))
 		{
 			template = buildSimpleSearchContext(state, context);
@@ -185,10 +227,6 @@ public class SiteBrowserAction extends PagedResourceActionII
 		{
 			template = buildListContext(state, context);
 		}
-		// else if (mode.equals(ADV_SEARCH_VIEW))
-		// {
-		// template = buildAdvSearchContext(state, context);
-		// }
 		else if (mode.equals("visit"))
 		{
 			template = buildVisitContext(state, context);
@@ -210,6 +248,8 @@ public class SiteBrowserAction extends PagedResourceActionII
 	{
 		// put the service in the context (used for allow update calls on each site)
 		context.put("service", SiteService.getInstance());
+		
+		context.put("helperMode", new Boolean(state.getAttribute(Tool.HELPER_DONE_URL) != null));
 
 		context.put("termProp", (String) state.getAttribute(SEARCH_TERM_PROP));
 		context.put("searchText", (String) state.getAttribute(STATE_SEARCH));
@@ -217,7 +257,7 @@ public class SiteBrowserAction extends PagedResourceActionII
 		context.put("termSelection", (String) state.getAttribute(STATE_TERM_SELECTION));
 
 		// String newPageSize = state.getAttribute(STATE_PAGESIZE).toString();
-		Integer newPageSize = (Integer) state.getAttribute("inter_size");
+		Integer newPageSize = (Integer) state.getAttribute(INTER_SIZE);
 		if (newPageSize != null)
 		{
 			context.put("pagesize", newPageSize);
@@ -474,7 +514,7 @@ public class SiteBrowserAction extends PagedResourceActionII
 		{
 			Site site = SiteService.getSite(id);
 			state.setAttribute("siteId", id);
-			state.setAttribute("mode", "visit");
+			state.setAttribute(MODE, "visit");
 
 			int pos = (new Integer(position)).intValue() - 1;
 			state.setAttribute(STATE_VIEW_ID, new Integer(pos));
@@ -487,7 +527,7 @@ public class SiteBrowserAction extends PagedResourceActionII
 			Log.warn("chef", "SiteBrowserAction.doEdit: site not found: " + id);
 
 			addAlert(state, rb.getString("site") + " " + id + " " + rb.getString("notfound"));
-			state.removeAttribute("mode");
+			state.removeAttribute(MODE);
 
 			// make sure auto-updates are enabled
 			// enableObserver(state);
@@ -502,10 +542,9 @@ public class SiteBrowserAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		// state.removeAttribute("mode");
 		state.removeAttribute("siteId");
 
-		state.setAttribute("mode", LIST_VIEW);
+		state.setAttribute(MODE, LIST_VIEW);
 
 	} // doBack
 
@@ -516,7 +555,7 @@ public class SiteBrowserAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		state.setAttribute("mode", SIMPLE_SEARCH_VIEW);
+		state.setAttribute(MODE, SIMPLE_SEARCH_VIEW);
 
 	} // doShow_simple_search
 
@@ -536,12 +575,12 @@ public class SiteBrowserAction extends PagedResourceActionII
 
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		String mode = (String) state.getAttribute("mode");
+		String mode = (String) state.getAttribute(MODE);
 		state.setAttribute("searchMode", mode);
 
 		state.removeAttribute(STATE_PROP_SEARCH_MAP);
 		state.removeAttribute(STATE_TERM_SELECTION);
-
+		
 		// read the search form field into the state object
 		String siteType = StringUtil.trimToNull(data.getParameters().getString("siteType"));
 		if (siteType != null)
@@ -584,12 +623,31 @@ public class SiteBrowserAction extends PagedResourceActionII
 			state.setAttribute(STATE_SEARCH_SITE_TYPE, null);
 		}
 
-		state.setAttribute("mode", LIST_VIEW);
+		state.setAttribute(MODE, LIST_VIEW);
 
 		state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
-		state.removeAttribute("inter_size");
+		state.removeAttribute(INTER_SIZE);
 
 	} // doSearch
+	
+	public void doCancel(RunData data, Context context) 
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		state.setAttribute(SiteHelper.SITE_PICKER_CANCELLED, Boolean.TRUE);
+		state.setAttribute(MODE, STATE_HELPER_DONE);
+	}
+	
+	public void doSelect(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		String siteId = data.getParameters().getString("siteId");
+		if (siteId != null && siteId.length() > 0) {
+			state.setAttribute(SiteHelper.SITE_PICKER_SITE_ID, siteId);
+			state.setAttribute(MODE, STATE_HELPER_DONE);
+		} else { 
+			addAlert(state, rb.getString("list.not.selected"));
+		}
+	}
 
 	/**
 	 * Return the url unchanged, unless it's a reference, then return the reference url
@@ -606,6 +664,60 @@ public class SiteBrowserAction extends PagedResourceActionII
 		return ref.getUrl();
 
 	} // convertReferenceUrl
+	
+	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
+	throws ToolException
+	{
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		SessionState state = getState(req);
+
+		if (STATE_HELPER_DONE.equals(toolSession.getAttribute(MODE)))
+		{
+
+
+			String url = (String) SessionManager.getCurrentToolSession().getAttribute(Tool.HELPER_DONE_URL);
+
+			SessionManager.getCurrentToolSession().removeAttribute(Tool.HELPER_DONE_URL);
+
+			// TODO: Implement cleanup.
+			cleanup(state);
+			
+			if (log.isDebugEnabled())
+			{
+				log.debug("Sending redirect to: "+ url);
+			}
+			try
+			{
+				res.sendRedirect(url);
+			}
+			catch (IOException e)
+			{
+				log.warn("Problem sending redirect to: "+ url,  e);
+			}
+			return;
+		}
+		else if(sendToHelper(req, res, req.getPathInfo()))
+		{
+			return;
+		}
+		else
+		{
+			super.toolModeDispatch(methodBase, methodExt, req, res);
+		}
+	}
+
+	private void cleanup(SessionState state) {
+		
+		List<String> names = (List<String>)state.getAttributeNames();
+		for (String name : names) {
+			if (name.startsWith(PREFIX)) {
+				log.debug("Removed attribute: "+ name);
+				state.removeAttribute(name);
+			}
+		}
+		
+	}
+	
 
 } // SiteBrowserAction
 
