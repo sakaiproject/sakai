@@ -318,14 +318,14 @@ public class SiteBrowserAction extends PagedResourceActionII
 
 		context.put("siteTypes", newTypes);
 
-		//List terms = CourseManagementService.getTerms();
-		List terms = cms.getAcademicSessions();
-
 		String termSearchSiteType = (String) state.getAttribute(SEARCH_TERM_SITE_TYPE);
 		if (termSearchSiteType != null)
 		{
 			context.put("termSearchSiteType", termSearchSiteType);
-			context.put("terms", terms);
+			if (cms != null) 
+			{
+				context.put("terms", cms.getAcademicSessions());
+			}
 		}
 
 		return "_simpleSearch";
