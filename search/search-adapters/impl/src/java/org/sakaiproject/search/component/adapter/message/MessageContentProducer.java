@@ -254,7 +254,6 @@ public class MessageContentProducer implements EntityContentProducer
 	 */
 	public String getTitle(String reference)
 	{
-		log.error("Getting Title");
 		Reference ref = getReference(reference);
 		EntityProducer ep = getProducer(ref);
 		if (ep instanceof MessageService)
