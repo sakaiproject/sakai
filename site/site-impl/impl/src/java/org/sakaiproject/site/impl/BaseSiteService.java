@@ -981,6 +981,12 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 		// check security (throws if not permitted)
 		unlock(SECURE_ADD_SITE, siteReference(id));
+		
+		
+		// SAK-12631
+		if (serverConfigurationService().getString("courseSiteType", "course").equals(type)) {
+			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));
+		}
 
 		// reserve a site with this id from the info store - if it's in use, this will return null
 		Site site = m_storage.put(id);
@@ -1020,6 +1026,11 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		else
 		{
 			unlock(SECURE_ADD_SITE, siteReference(id));
+		}
+		
+		// SAK=12631
+		if ( isCourseSite(other.getId()) ) {
+			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));			
 		}
 
 		// reserve a site with this id from the info store - if it's in use, this will return null
