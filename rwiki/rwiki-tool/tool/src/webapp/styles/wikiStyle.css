@@ -970,7 +970,7 @@ h6 {
 
 .heading-1, .heading-h1 {
 	
-  color: #000000;
+  color: inherit;
   background-color: inherit;
   font-weight: bold;
   font-size: 150%;
@@ -980,7 +980,7 @@ h6 {
   margin: 20px 0px 4px 0px;
 }
 .heading-h2 {	
-  color: #000000;
+  color: inherit;
   background-color: inherit;
   font-weight: bold;
   font-size: 140%;
@@ -995,7 +995,7 @@ h6 {
 .heading-1-1, .heading-h3 {
 	line-height: normal;
 	font-weight: bold;
-	  color: #000000;
+	  color: inherit;
   background-color: inherit;
   font-size: 130%;
   font-variant: small-caps;
@@ -1006,7 +1006,7 @@ h6 {
 .heading-h4 {	
 	line-height: normal;
 	font-weight: bold;
-	color: #000000;
+	color: inherit;
     background-color: inherit;
     font-size: 120%;
     font-variant: small-caps;
@@ -1015,7 +1015,7 @@ h6 {
 }
 
 .heading-1-1-1, .heading-h5 {
-  color: #000000;
+  color: inherit;
   background-color: inherit;
   font-size: 110%;
   font-variant: small-caps;	
@@ -1024,7 +1024,7 @@ h6 {
   margin: 14px 0px 4px 0px;	
 }
 .heading-h6 {
-  color: #000000;
+  color: inherit;
   background-color: inherit;
   font-size: 100%;
   font-variant: small-caps;		
@@ -1119,7 +1119,7 @@ h6 {
   font-weight: bold;
   /* background-color: #DDEEFF; */
   background: #FFFF66;
-  color: #000000;
+  color: inherit;
 }
 
 .wiki-table .table-odd {
