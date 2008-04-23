@@ -158,8 +158,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 	/** Configuration: allow use of alias for site id in references. */
 	protected boolean m_siteAlias = true;
-	
-	
+
 	private Object load(ComponentManager cm, String name)
 	{
 		Object o = cm.get(name);
@@ -226,8 +225,9 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			PageVisits pageVisits = (PageVisits) s.getAttribute(XSLTEntityHandler.class
 					.getName()
 					+ this.getMinorType() + "_visits");
-			
-			boolean withBreadcrumbs = !"0".equals(request.getParameter(breadCrumbParameter ) );
+
+			boolean withBreadcrumbs = !"0".equals(request
+					.getParameter(breadCrumbParameter));
 			if (pageVisits == null)
 			{
 				pageVisits = new PageVisits();
@@ -302,23 +302,24 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_REQUEST_PROPERTIES,
 					SchemaNames.EL_NSREQUEST_PROPERTIES);
 
-			if ( withBreadcrumbs ) {
-			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_PAGEVISITS,
-					SchemaNames.EL_NSPAGEVISITS, dummyAttributes);
-
-			List<String[]> pv = pageVisits.getPageNames(this.getMinorType());
-
-			for (Iterator<String[]> i = pv.iterator(); i.hasNext();)
+			if (withBreadcrumbs)
 			{
-				String[] visit = i.next();
-				propA = new AttributesImpl();
-				propA.addAttribute("", SchemaNames.ATTR_URL, SchemaNames.ATTR_URL,
-						"string", visit[0]);
-				addElement(ch, SchemaNames.NS_CONTAINER, SchemaNames.EL_PAGEVISIT,
-						SchemaNames.EL_NSPAGEVISIT, propA, visit[1]);
-			}
-			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_PAGEVISITS,
-					SchemaNames.EL_NSPAGEVISITS);
+				ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_PAGEVISITS,
+						SchemaNames.EL_NSPAGEVISITS, dummyAttributes);
+
+				List<String[]> pv = pageVisits.getPageNames(this.getMinorType());
+
+				for (Iterator<String[]> i = pv.iterator(); i.hasNext();)
+				{
+					String[] visit = i.next();
+					propA = new AttributesImpl();
+					propA.addAttribute("", SchemaNames.ATTR_URL, SchemaNames.ATTR_URL,
+							"string", visit[0]);
+					addElement(ch, SchemaNames.NS_CONTAINER, SchemaNames.EL_PAGEVISIT,
+							SchemaNames.EL_NSPAGEVISIT, propA, visit[1]);
+				}
+				ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_PAGEVISITS,
+						SchemaNames.EL_NSPAGEVISITS);
 			}
 
 			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ENTITY,
@@ -384,28 +385,37 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 				RWikiEntity sbrwe = (RWikiEntity) sideBar;
 				RWikiObject sbrwo = sbrwe.getRWikiObject();
-				ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_SIDEBAR,
-						SchemaNames.EL_NSSIDEBAR, dummyAttributes);
 
-				ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_XMLPROPERTIES,
-						SchemaNames.EL_NSXMLPROPERTIES, dummyAttributes);
-				propA = new AttributesImpl();
-				propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
-						SchemaNames.ATTR_NAME, "string", "_title"); //$NON-NLS-1$ //$NON-NLS-2$
-				addElement(ch, SchemaNames.NS_CONTAINER, SchemaNames.EL_XMLPROPERTY,
-						SchemaNames.EL_NSXMLPROPERTY, propA, NameHelper.localizeName(
-								sbrwo.getName(), sbrwo.getRealm()));
-				ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_XMLPROPERTIES,
-						SchemaNames.EL_NSXMLPROPERTIES);
+				String sbcontent = sbrwo.getContent();
+				if (sbcontent != null && sbcontent.trim().length() > 0)
+				{
 
-				ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RENDEREDCONTENT,
-						SchemaNames.EL_NSRENDEREDCONTENT, dummyAttributes);
-				renderToXML(sbrwo, ch, withBreadcrumbs);
-				ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RENDEREDCONTENT,
-						SchemaNames.EL_NSRENDEREDCONTENT);
+					ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_SIDEBAR,
+							SchemaNames.EL_NSSIDEBAR, dummyAttributes);
 
-				ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_SIDEBAR,
-						SchemaNames.EL_NSSIDEBAR);
+					ch.startElement(SchemaNames.NS_CONTAINER,
+							SchemaNames.EL_XMLPROPERTIES, SchemaNames.EL_NSXMLPROPERTIES,
+							dummyAttributes);
+					propA = new AttributesImpl();
+					propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
+							SchemaNames.ATTR_NAME, "string", "_title"); //$NON-NLS-1$ //$NON-NLS-2$
+					addElement(ch, SchemaNames.NS_CONTAINER, SchemaNames.EL_XMLPROPERTY,
+							SchemaNames.EL_NSXMLPROPERTY, propA, NameHelper.localizeName(
+									sbrwo.getName(), sbrwo.getRealm()));
+					ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_XMLPROPERTIES,
+							SchemaNames.EL_NSXMLPROPERTIES);
+
+					ch.startElement(SchemaNames.NS_CONTAINER,
+							SchemaNames.EL_RENDEREDCONTENT,
+							SchemaNames.EL_NSRENDEREDCONTENT, dummyAttributes);
+					renderToXML(sbrwo, ch, withBreadcrumbs);
+					ch.endElement(SchemaNames.NS_CONTAINER,
+							SchemaNames.EL_RENDEREDCONTENT,
+							SchemaNames.EL_NSRENDEREDCONTENT);
+
+					ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_SIDEBAR,
+							SchemaNames.EL_NSSIDEBAR);
+				}
 
 			}
 
@@ -479,16 +489,16 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	 * 
 	 * @param rwo
 	 * @param ch
-	 * @param withBreadCrumb 
+	 * @param withBreadCrumb
 	 */
-	public void renderToXML(RWikiObject rwo, final ContentHandler ch, boolean withBreadCrumb)
-			throws SAXException, IOException
+	public void renderToXML(RWikiObject rwo, final ContentHandler ch,
+			boolean withBreadCrumb) throws SAXException, IOException
 	{
 
 		String renderedPage;
 		try
 		{
-			renderedPage = render(rwo,withBreadCrumb);
+			renderedPage = render(rwo, withBreadCrumb);
 		}
 		catch (Exception e)
 		{
@@ -659,21 +669,24 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	{
 		String localSpace = NameHelper.localizeSpace(rwo.getName(), rwo.getRealm());
 
- 		// use mail archive aliasing here to render links with short URL
- 		// localSpace pattern: /site/siteId
- 		String localAliasSpace;
- 		if (m_siteAlias) {
- 			localAliasSpace = NameHelper.aliasSpace(localSpace);
- 		} else {
- 			localAliasSpace = localSpace;			
- 		}
- 		
- 		ComponentPageLinkRenderImpl plr = new ComponentPageLinkRenderImpl(localAliasSpace, withBreadCrumb);
- 
+		// use mail archive aliasing here to render links with short URL
+		// localSpace pattern: /site/siteId
+		String localAliasSpace;
+		if (m_siteAlias)
+		{
+			localAliasSpace = NameHelper.aliasSpace(localSpace);
+		}
+		else
+		{
+			localAliasSpace = localSpace;
+		}
+
+		ComponentPageLinkRenderImpl plr = new ComponentPageLinkRenderImpl(
+				localAliasSpace, withBreadCrumb);
 
 		plr.setAnchorURLFormat(anchorLinkFormat);
 		plr.setStandardURLFormat(standardLinkFormat);
-		plr.setBreadcrumbSwitch(breadCrumbParameterFormat );
+		plr.setBreadcrumbSwitch(breadCrumbParameterFormat);
 		plr.setUrlFormat(hrefTagFormat);
 
 		if (renderService == null)
@@ -826,7 +839,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		catch (Exception ex)
 		{
 			log.error("Please check that the xslt is in the classpath " //$NON-NLS-1$
-					+ xslt,ex);
+					+ xslt, ex);
 			throw new RuntimeException(
 					"Failed to initialise XSLTTransformer context with xslt " //$NON-NLS-1$
 							+ xslt, ex);
@@ -848,42 +861,26 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	{
 		throw new RuntimeException("Method Not In Use ");
 		/*
-		if (!isAvailable()) return null;
-		try
-		{
-			XSLTTransform xsltTransform = (XSLTTransform) transformerHolder.get();
-			if (xsltTransform == null)
-			{
-				xsltTransform = new XSLTTransform();
-				xsltTransform.setXslt(new InputSource(this.getClass()
-						.getResourceAsStream(xslt)));
-				transformerHolder.set(xsltTransform);
-			}
-			SAXResult sr = new SAXResult();
-			TransformerHandler th = xsltTransform.getContentHandler();
-			Properties p = OutputPropertiesFactory.getDefaultMethodProperties("xml");
-			p.putAll(outputProperties);
-			
-			Serializer s = SerializerFactory.getSerializer(p);
-			s.setWriter(out);
-			sr.setHandler(s.asContentHandler());
-			th.setResult(sr);
-			return th;
-		}
-		catch (Exception ex)
-		{
-			throw new RuntimeException("Failed to create Content Handler", ex); //$NON-NLS-1$
-			/*
-			 * String stackTrace = null; try { StringWriter exw = new
-			 * StringWriter(); PrintWriter pw = new PrintWriter(exw);
-			 * ex.printStackTrace(pw); stackTrace = exw.toString(); } catch
-			 * (Exception ex2) { stackTrace =
-			 * MessageFormat.format(defaultStackTrace, new Object[] {
-			 * ex.getMessage() }); } out.write(MessageFormat.format(errorFormat,
-			 * new Object[] { ex.getMessage(), stackTrace }));
-			 * /
-		}
-	    */
+		 * if (!isAvailable()) return null; try { XSLTTransform xsltTransform =
+		 * (XSLTTransform) transformerHolder.get(); if (xsltTransform == null) {
+		 * xsltTransform = new XSLTTransform(); xsltTransform.setXslt(new
+		 * InputSource(this.getClass() .getResourceAsStream(xslt)));
+		 * transformerHolder.set(xsltTransform); } SAXResult sr = new
+		 * SAXResult(); TransformerHandler th =
+		 * xsltTransform.getContentHandler(); Properties p =
+		 * OutputPropertiesFactory.getDefaultMethodProperties("xml");
+		 * p.putAll(outputProperties); Serializer s =
+		 * SerializerFactory.getSerializer(p); s.setWriter(out);
+		 * sr.setHandler(s.asContentHandler()); th.setResult(sr); return th; }
+		 * catch (Exception ex) { throw new RuntimeException("Failed to create
+		 * Content Handler", ex); //$NON-NLS-1$ /* String stackTrace = null; try {
+		 * StringWriter exw = new StringWriter(); PrintWriter pw = new
+		 * PrintWriter(exw); ex.printStackTrace(pw); stackTrace =
+		 * exw.toString(); } catch (Exception ex2) { stackTrace =
+		 * MessageFormat.format(defaultStackTrace, new Object[] {
+		 * ex.getMessage() }); } out.write(MessageFormat.format(errorFormat, new
+		 * Object[] { ex.getMessage(), stackTrace })); / }
+		 */
 	}
 
 	public ContentHandler getOutputHandler(OutputStream out) throws IOException
@@ -905,15 +902,15 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 			Properties p = OutputPropertiesFactory.getDefaultMethodProperties("xml");
 			p.putAll(outputProperties);
-			
+
 			/*
-			S_KEY_CONTENT_HANDLER:{http://xml.apache.org/xalan}content-handler
-				S_KEY_ENTITIES:{http://xml.apache.org/xalan}entities
-				S_KEY_INDENT_AMOUNT:{http://xml.apache.org/xalan}indent-amount
-				S_OMIT_META_TAG:{http://xml.apache.org/xalan}omit-meta-tag
-				S_USE_URL_ESCAPING:{http://xml.apache.org/xalan}use-url-escaping
-			*/
-			
+			 * S_KEY_CONTENT_HANDLER:{http://xml.apache.org/xalan}content-handler
+			 * S_KEY_ENTITIES:{http://xml.apache.org/xalan}entities
+			 * S_KEY_INDENT_AMOUNT:{http://xml.apache.org/xalan}indent-amount
+			 * S_OMIT_META_TAG:{http://xml.apache.org/xalan}omit-meta-tag
+			 * S_USE_URL_ESCAPING:{http://xml.apache.org/xalan}use-url-escaping
+			 */
+
 			Serializer s = SerializerFactory.getSerializer(p);
 			s.setOutputStream(out);
 			sr.setHandler(s.asContentHandler());
@@ -1194,7 +1191,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	}
 
 	/**
-	 * @param breadCrumbParameterFormat the breadCrumbParameterFormat to set
+	 * @param breadCrumbParameterFormat
+	 *        the breadCrumbParameterFormat to set
 	 */
 	public void setBreadCrumbParameterFormat(String breadCrumbParameterFormat)
 	{
@@ -1210,7 +1208,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	}
 
 	/**
-	 * @param breadCrumbParameter the breadCrumbParameter to set
+	 * @param breadCrumbParameter
+	 *        the breadCrumbParameter to set
 	 */
 	public void setBreadCrumbParameter(String breadCrumbParameter)
 	{
