@@ -39,6 +39,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * @author ieb
@@ -46,6 +47,8 @@ import org.sakaiproject.user.api.PreferencesService;
  */
 public class MoreSiteViewImpl extends DefaultSiteViewImpl
 {
+	/** messages. */
+	private static ResourceLoader rb = new ResourceLoader("sitenav");
 
 	/**
 	 * @param siteHelper
@@ -94,19 +97,19 @@ public class MoreSiteViewImpl extends DefaultSiteViewImpl
 				}
 				else if ("project".equals(type))
 				{
-					term = "PROJECTS";
+					term = rb.getString("moresite_projects");
 				}
 				else if ("portfolio".equals(type))
 				{
-					term = "PORTFOLIOS";
+					term = rb.getString("moresite_portfolios");
 				}
 				else if ("admin".equals(type))
 				{
-					term = "ADMINISTRATION";
+					term = rb.getString("moresite_administration");
 				}
 				else
 				{
-					term = "OTHER";
+					term = rb.getString("moresite_other");
 				}
 
 				List<Site> currentList = new ArrayList();
