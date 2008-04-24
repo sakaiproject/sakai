@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -67,6 +69,31 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
 /**
+ *
+ * This class is used in two ways:
+ *  1) It is a JSF backing bean, with session scope. A new one is created
+ *    every time the user enters the main chat tool. This includes a refresh.
+ *  2) It is an observer. It is put on a list of observers for the room
+ *    by AddRoomListener. 
+ * This double existence is messy, because JSF manages beans, but
+ * if JSF replaces or finishes the bean, there is no automatic way for
+ * it to get removed from the list of observers. 
+ *   Getting it off the list of observers is kind of tricky, because
+ * there's no direct way to know when the instance is no longer valid.
+ * Since a refresh generates a new instance, we have to get rid of the
+ * old one, or the list of observers keeps growing. We assume there's
+ * only one per session, so we keep track of the current instance in
+ * a hash by session ID, and kill the old one before adding this one.
+ *    (Actually, it's a double hash, by room ID and session ID. I thought
+ *    it was possible to have two rooms active per session. That's not
+ *    so clear, but the current code seems safe.)
+ * The other way an instance can become invalid is if the session
+ * goes away. So in userLeft we check whether the current session is
+ * still alive, and if not, remove the instance.
+ *   This bookkeeping is done in SetCurrentChannel and 
+ * ResetCurrentChannel, so they should be the only code to call
+ * AddRoomListener and RemoveRoomListener.
+ *
  * Chat works by the courier but not the same way as the old message delivery
  * system.  The courier sends messages into the JSF tool.  When the user dials home
  * it then picks up the messages.
@@ -78,14 +105,11 @@ import org.sakaiproject.util.Web;
  * 
  * When entering the tool the first main page calls the enterTool function which
  * redirects the users based upon the tool's preferences: go to select a room or 
- * to a specific tool.
+ * to a specific tool. NB: each time enterTool is called, we are dealing
+ * with a new instance.
  * 
  * The PresenceObserverHelper is placed on the current room.  This this tool is informed
- * when a user enters and exits the room.  If the tool is forgotten (user clicked
- * the tool refresh button or closed the browser) then eventually the presence service
- * will remove that user from the location... which we are informed.  The problem is
- * that the presence change event doesn't say WHO entered or exited.  Thus... we must wait
- * until there are no users in the location before we know that we shouldn't be observing
+ * when a user enters and exits the room.  
  * 
  * 
  * @author andersjb
@@ -189,9 +213,19 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    /** Allows us to see who is in the current room */
    private PresenceObserverHelper presenceChannelObserver = null;
    
+   /** Double map by room ID and then Session ID
+    ** Used to keep track of instances of this tool so
+    ** we can find dead ones and remove them from the
+    ** list of observers
+    **/
+
+   private static Map toolsBySessionId = new HashMap();
+
    
    /**
     * This is called from the first page to redirect the user to the proper view.
+    * This is the first call after JSF creates a new instance, so initialization is 
+    *   done here.
     * If the tool is set to go to the select a chat room view and there are multiple chat
     * rooms, then it will go to the select a room page.  If the user is to select a room and
     * there is only one room, then it will go to that room.
@@ -304,6 +338,9 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    }
    
    protected boolean refreshPresence() {
+       //       System.out.println("refreshPresence " + this + " " +
+       //			  SessionManager.getCurrentSessionUserId());
+
       if (getCurrentChannel() == null) {
          ChatChannel defaultChannel = getChatManager().getDefaultChannel(
                getToolManager().getCurrentPlacement().getContext(),
@@ -312,10 +349,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       }
       if(getCurrentChannel() != null) {
          // place a presence observer on this tool.
-         presenceChannelObserver = new PresenceObserverHelper(this,
-               getCurrentChannel().getChatChannel().getId());
+	  //         presenceChannelObserver = new PresenceObserverHelper(this,
+	  //               getCurrentChannel().getChatChannel().getId());
          
-         getChatManager().addRoomListener(this, getCurrentChannel().getChatChannel().getId());
+	  //         getChatManager().addRoomListener(this, getCurrentChannel().getChatChannel().getId());
          return true;
          //presenceChannelObserver.updatePresence();
       }
@@ -343,7 +380,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public void roomDeleted(String roomId)
    {
       if(currentChannel != null && currentChannel.getChatChannel().getId().equals(roomId)) {
-         resetCurrentChannel(currentChannel);
+	  resetCurrentChannel(currentChannel, true);
       }
    }
 
@@ -357,22 +394,43 @@ public class ChatTool implements RoomObserver, PresenceObserver {
 
    /**
     * {@inheritDoc}
-    * If a user left the location and there are no more users then 
-    * something happened and this is a stray presence observer.  When there 
-    * are no users in a presence then the observer should be removed because 
-    * this tool isn't updating the presence any longer thus isn't in the location
-    * thus doesn't need to observe the presence of the room.
+    * In addition to refreshing the list, this code takes care of
+    * removing instances associated with processes that are now dead.
+    * Despite the user argument, the API doesn't tell us what user
+    * left. So the best we can do is check ourself, and rely on the
+    * fact that this will be called once for each user who has an
+    * observer in the room observer list, so the user who left
+    * should catch himself.
     */
+   
+   // new impl that counts the number of system in the location
    public void userLeft(String location, String user)
    {
-      if(presenceChannelObserver != null && presenceChannelObserver.getPresentUsers().size() == 0) {
-         presenceChannelObserver.endObservation();
-         getChatManager().removeRoomListener(this, currentChannel.getChatChannel().getId());
-         presenceChannelObserver = null;
-      } else
+       //      if(presenceChannelObserver != null && presenceChannelObserver.getPresentSessionsCount() == 0) {
+       //         presenceChannelObserver.endObservation();
+       //         getChatManager().removeRoomListener(this, currentChannel.getChatChannel().getId());
+       //         presenceChannelObserver = null;
+       //      } else
+       if (currentChannel != null && 
+	   SessionManager.getSession(sessionId) == null) {
+	   System.out.println("user left expired session " + sessionId + " " + currentChannel);
+	   resetCurrentChannel(currentChannel, true);
+       }
+       else
          m_courierService.deliver(new DirectRefreshDelivery(sessionId+location, "Presence"));
    }
 
+
+   // old impl that looked at list of users present in the location.
+//   public void userLeft(String location, String user)
+//   {
+//      if(presenceChannelObserver != null && presenceChannelObserver.getPresentUsers().size() == 0) {
+//         presenceChannelObserver.endObservation();
+//         getChatManager().removeRoomListener(this, currentChannel.getChatChannel().getId());
+//         presenceChannelObserver = null;
+//      } else
+//         m_courierService.deliver(new DirectRefreshDelivery(sessionId+location, "Presence"));
+//   }
 
    
    //********************************************************************
@@ -861,35 +919,95 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    public void setCurrentChannel(DecoratedChatChannel channel)
    {
-      if(presenceChannelObserver != null) {
-         presenceChannelObserver.endObservation();
-         presenceChannelObserver.removePresence();
-         getChatManager().removeRoomListener(this, channel.getChatChannel().getId());
-      }
-      presenceChannelObserver = null;
+
+      // if changing to the same channel, nothing to do
+      // this is a fairly expensive operation, so it's worth optimizing out
+
+      if (this.currentChannel != null && channel != null &
+	   this.currentChannel.getChatChannel().getId() ==
+	   channel.getChatChannel().getId())
+	   return;
+
+      // turn off observation for the old channel
+      if(presenceChannelObserver != null)
+	  resetCurrentChannel(this.currentChannel, true);
       
       this.currentChannel = channel;
+      
+      // turn on observation for the new channel
+      // the problem is that we have already have an observer
+      // in this room for this session, because JSF tends to
+      // generate new instances when you wouldn't expect it.
+      // so look up the current channel and session in the
+      // hash and remember the old instance if there was one
+      // add the current instance to the hash in its place
 
       if(channel != null) {
+
+	 String channelId = channel.getChatChannel().getId();
+
+	 ChatTool oldTool = null;
+
+	 synchronized(toolsBySessionId) {
+	     Map tools = (Map)toolsBySessionId.get(channelId);
+	     if (tools == null) {
+		 // no entry for this chat room, make one
+		 tools = new HashMap();
+		 toolsBySessionId.put(channelId, tools);
+	     } else
+		 // there is an entry for this chat room
+		 // see if an instance for this session
+		 oldTool = (ChatTool)tools.get(sessionId);
+	     // either way, there's now a hash for this
+	     // chat room, so put this instance in it,
+	     // replacing the old entry if there was one
+	     tools.put(sessionId, this);
+	 }
+
+	 if (oldTool != null) {
+	     // there was another instance for this session
+	     // kill it. pass false, since we already handled
+	     // the hash table.
+	     // System.out.println("setcurrent removing " + channel);
+	     oldTool.resetCurrentChannel(channel, false);
+	 }
+	 
+	 // now do stuff for the new instance. It's already in the hash.
          // place a presence observer on this tool.
-         presenceChannelObserver = new PresenceObserverHelper(this,
-                  channel.getChatChannel().getId());
+         presenceChannelObserver = new PresenceObserverHelper(this, channelId);
          
-         getChatManager().addRoomListener(this, channel.getChatChannel().getId());
+	 // hmmmm.... should this all be under the synchronize?
+	 // System.out.println("addroom " + channelId + " " + sessionId + " " + this);
+         getChatManager().addRoomListener(this, channelId);
          
          presenceChannelObserver.updatePresence();
       }
    }
-   
-   protected void resetCurrentChannel(DecoratedChatChannel oldChannel) {
+
+    // this removes the current channel but doesn't add a new one. sort of
+    // half of setCurrentChannel.
+    protected void resetCurrentChannel(DecoratedChatChannel oldChannel, Boolean removeFromHash) {
+      String channelId = oldChannel.getChatChannel().getId();
+
       if(presenceChannelObserver != null) {
          presenceChannelObserver.endObservation();
          presenceChannelObserver.removePresence();
-         getChatManager().removeRoomListener(this, oldChannel.getChatChannel().getId());
+         getChatManager().removeRoomListener(this, channelId);
       }
       presenceChannelObserver = null;
       
-      this.currentChannel = null;
+      if (removeFromHash) {
+	  // System.out.println("reset current removing " + channelId);
+	  synchronized(toolsBySessionId) {
+	      Map tools = (Map)toolsBySessionId.get(channelId);
+	      if (tools != null) {
+		  tools.remove(sessionId);
+		  if (tools.size() == 0)
+		      toolsBySessionId.remove(tools);
+	      }
+	  }
+      }
+
    }
    
    /**
@@ -1444,6 +1562,9 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       this.toolContext = toolContext;
    }
    
+   public String getSessionId() {
+      return sessionId;
+   }
 
    public void validatePositiveNumber(FacesContext context, UIComponent component, Object value){
 	    if (value != null)
