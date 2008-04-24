@@ -58,6 +58,7 @@ import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.AuthenticatedUserProvider;
+import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
@@ -1358,6 +1359,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * <b>WARNING:</b> Do not call this method directly! Use {@link AuthenticationManager#authenticate(org.sakaiproject.user.api.Evidence)}
 	 */
 	public User authenticate(String loginId, String password)
 	{

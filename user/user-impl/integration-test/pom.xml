@@ -15,51 +15,67 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-test-harness</artifactId>
       <version>${sakai.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-user-api</artifactId>
       <version>${sakai.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-user-util</artifactId>
       <version>${sakai.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-user-impl</artifactId>
       <version>${sakai.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.8</version>
+      <scope>test</scope>
+    </dependency>
+	<dependency>
+      <groupId>${sakai.ehcache.groupId}</groupId>
+      <artifactId>${sakai.ehcache.artifactId}</artifactId>
+      <version>${sakai.ehcache.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
