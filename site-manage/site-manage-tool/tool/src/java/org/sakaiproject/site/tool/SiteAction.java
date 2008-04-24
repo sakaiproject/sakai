@@ -1480,6 +1480,14 @@ public class SiteAction extends PagedResourceActionII {
 					.getString("officialAccountName"));
 			context.put("officialAccountLabel", ServerConfigurationService
 					.getString("officialAccountLabel"));
+			String pickerAction = ServerConfigurationService.getString("officialAccountPickerAction");
+			if (pickerAction != null && !"".equals(pickerAction))
+			{
+				context.put("hasPickerDefined", Boolean.TRUE);
+				context.put("officialAccountPickerLabel", ServerConfigurationService
+					.getString("officialAccountPickerLabel"));
+				context.put("officialAccountPickerAction", pickerAction);
+			}
 			if (state.getAttribute("officialAccountValue") != null) {
 				context.put("officialAccountValue", (String) state
 						.getAttribute("officialAccountValue"));

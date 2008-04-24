@@ -21,7 +21,7 @@
 			</p>
 		</div>
 	#end
-	<form action="#toolForm("SiteAction")" method="post">
+	<form action="#toolForm("SiteAction")" method="post" name="participants">
 		<div class="instruction">
 			<h4>$!officialAccountSectionTitle</h4>
 		</div>
@@ -30,6 +30,11 @@
 				$!officialAccountLabel
 			</label>
 			<textarea id="officialAccount" name="officialAccount"  cols="35" rows="4" wrap="virtual">$!validator.escapeHtmlTextarea($!officialAccountValue)</textarea>
+			#if ($hasPickerDefined)
+				<a href="#" onclick="$officialAccountPickerAction">
+				$officialAccountPickerLabel 
+				</a><br />
+			#end
 			<div class="instruction textPanelFooter">
 				$tlang.getString("add.multiple")
 			</div>
