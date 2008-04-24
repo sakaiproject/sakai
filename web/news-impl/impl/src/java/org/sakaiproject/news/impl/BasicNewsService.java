@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Vector;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -670,7 +671,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 		if (value.length() == 0) return null;
 		return value;
 	}
-	
+
 	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
 	{	
 		try
@@ -678,18 +679,16 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 			if(cleanup == true)
 			{
 				// retrieve all of the news tools to remove
-				
 				Site toSite = SiteService.getSite(toContext);
-				
+		
 				List toSitePages = toSite.getPages();
-
 				if (toSitePages != null && !toSitePages.isEmpty()) 
 				{
+					Vector removePageIds = new Vector();
 					Iterator pageIter = toSitePages.iterator();
 					while (pageIter.hasNext()) 
 					{
 						SitePage currPage = (SitePage) pageIter.next();
-
 						List toolList = currPage.getTools();
 						Iterator toolIter = toolList.iterator();
 						while (toolIter.hasNext()) 
@@ -699,12 +698,15 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 
 							if (toolId.equals(TOOL_ID)) 
 							{
-								toolConfig.getPlacementConfig().setProperty(NEWS_URL_PROP, null);
-								toolConfig.setTitle(null);
-								currPage.setTitle(null);
-
-							}
-						}
+								removePageIds.add(toolConfig.getPageId());
+							}	
+						}	
+					}
+					for (int i = 0; i < removePageIds.size(); i++)
+					{
+						String removeId = (String) removePageIds.get(i);
+						SitePage sitePage = toSite.getPage(removeId);
+						toSite.removePage(sitePage);
 					}
 				}
 				SiteService.save(toSite);
