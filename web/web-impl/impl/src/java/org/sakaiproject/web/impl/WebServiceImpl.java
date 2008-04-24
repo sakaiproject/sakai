@@ -1,6 +1,6 @@
 /**********************************************************************************
  * $URL: https://source.sakaiproject.org/svn/web/trunk/web-impl/impl/src/java/org/sakaiproject/web/impl/WebServiceImpl.java$
- * $Id: WebServiceImpl.java 9227 2006-06-22 02:02:42Z cwen@iupui.edu $
+ * $Id: WebServiceImpl.java 39315 2007-12-15 18:08:26Z cwen@iupui.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
@@ -474,37 +474,46 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 				Site toSite = SiteService.getSite(toContext);
 				
 				List toSitePages = toSite.getPages();
-				if (toSitePages != null && !toSitePages.isEmpty()) {
+				if (toSitePages != null && !toSitePages.isEmpty()) 
+				{
+					Vector removePageIds = new Vector();
 					Iterator pageIter = toSitePages.iterator();
-					while (pageIter.hasNext()) {
+					while (pageIter.hasNext()) 
+					{
 						SitePage currPage = (SitePage) pageIter.next();
 
 						List toolList = currPage.getTools();
 						Iterator toolIter = toolList.iterator();
-						while (toolIter.hasNext()) {
+						while (toolIter.hasNext()) 
+						{
 							ToolConfiguration toolConfig = (ToolConfiguration)toolIter.next();
 							
 							 // we do not want to import "special" uses of sakai.iframe, such as worksite info
 							String special = toolConfig.getPlacementConfig().getProperty(SPECIAL_PROP);
 
-							if (toolConfig.getToolId().equals(TOOL_ID) && special == null) {
-								
-								toolConfig.getPlacementConfig().setProperty(WEB_CONTENT_URL_PROP, null);
-								toolConfig.setTitle(null);
-								currPage.setTitle(null);
-								toolConfig.getPlacementConfig().setProperty(HEIGHT_PROP, null);
+							if (toolConfig.getToolId().equals(TOOL_ID) && special == null) 
+							{
+								removePageIds.add(toolConfig.getPageId());
 							}
 						}
 					}
-					SiteService.save(toSite);
-					ToolSession session = SessionManager.getCurrentToolSession();
-
-					if (session.getAttribute(ATTR_TOP_REFRESH) == null)
+					for (int i = 0; i < removePageIds.size(); i++) 
 					{
-						session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+						String removeId = (String) removePageIds.get(i);
+						SitePage sitePage = toSite.getPage(removeId);
+						toSite.removePage(sitePage);
 					}
+					
 				}
-			}
+				SiteService.save(toSite);
+				ToolSession session = SessionManager.getCurrentToolSession();
+
+				if (session.getAttribute(ATTR_TOP_REFRESH) == null)
+				{
+					session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+				}
+				 
+			} 
 			transferCopyEntities(fromContext, toContext, ids);
 		}
 		catch (Exception e)
