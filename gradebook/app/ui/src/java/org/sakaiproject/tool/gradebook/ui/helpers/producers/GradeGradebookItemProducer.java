@@ -106,9 +106,6 @@ public class GradeGradebookItemProducer extends HelperAwareProducer implements V
     		commentOTPKey += EntityBeanLocator.NEW_PREFIX + "1";
     	}
     	commentOTP += commentOTPKey;
-    	
-        UIVerbatim.make(tofill, "instructions", messageLocator.getMessage("gradebook.grade-gradebook-item.instructions",
-        		new Object[]{ reqStar }));
         
         //Start Form
         UIForm form = UIForm.make(tofill, "form");
