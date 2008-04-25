@@ -909,9 +909,8 @@ right now "namespaced" for mneme only to avoid any possible conflicts*/
 	margin-right: -2em;
 }
 
+
 /* Make a list based css menu */
-
-
 ul.makeMenu, ul.makeMenu ul {
   width: auto;
   border: 1px solid #ddd !important;
@@ -927,7 +926,7 @@ ul.makeMenu, ul.makeMenu ul {
 	white-space: nowrap;
 }
 ul.makeMenu:hover{
-	border:1px solid #666  !important;
+	border:1px solid #000  !important;
 }	
 .listHier ul.makeMenu img{
 	margin-right: 0;
@@ -938,32 +937,61 @@ ul.makeMenu li {
   list-style-type: none;
   margin: 0px;
   position: relative;
-  color: #000000 !important;
+  color: #000000;
  display:inline;
 }
 ul.makeMenu li > ul {
   display: none;
-  position: absolute;
-  top: 4px;
-  left: 0;
-}
-ul.makeMenu li:hover, ul.makeMenu li.CSStoHighlight {
-  color: #000  !important;
-}
-ul.makeMenu ul.CSStoShow {
-  display: block;
-}
-ul.makeMenu li:hover > ul {
-	display: block;
   	width: 14em;
 	background-color:#ffffff;
 	background-image:none;
 	position:absolute;
-	border:1px solid #666 !important;
-	margin-top:9px;
+	border:1px solid #000 !important;
+	margin-top:0px;
  	z-index:3
 }
-ul.makeMenu li a { display: block; width: 100%; text-decoration: underline;   padding:6px; color:#35B !important}
+
+.makeMenuChild{
+  display: none;
+  position: absolute;
+	width: 14em;
+	background-color:#ffffff;
+	background-image:none;
+	position:absolute;
+	border:1px solid #666 !important;
+	margin-top:0px;
+ 	z-index:3
+}
+
+ul.makeMenu li a { display: block; width: 100%; text-decoration: underline;   padding:6px; color:#35B !important;	outline:none; }
+ul.makeMenu li a:active{outline:none;}
 ul.makeMenu li a:hover, ul.makeMenu li a.CSStoHighLink { color: #000 !important; }
 ul.makeMenu li:hover > a { color: #000; }
 
+ul.makeMenu li.menuClose{
+	display:block;
+	height:100%;
+	font-size:.9em;
+	font-weight: bold;
+	border-bottom:1px solid blue;
+}
+ul.makeMenu li.menuClose:hover{
+	border-bottom:1px solid green;
+}
+ul.makeMenu li.menuClose a {
+	display:block;
+	color:blue !important;
+	text-align: right;
+	text-decoration: none !important;
+	height:20px;
+	padding:3px 0;
+	outline:none;
+}
+ul.makeMenu li.menuClose a:hover {
+	color:green !important;
+	text-decoration: none !important;
+}
+
+.centerLines td{
+	vertical-align: middle;
+}
