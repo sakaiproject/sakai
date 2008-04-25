@@ -3,7 +3,7 @@
  * $URL$
  * ReflectUtil.java - entity-broker - 24 Aug 2007 6:43:14 PM - azeckoski
  **************************************************************************
- * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
+ * Copyright (c) 2008 Aaron Zeckoski
  * Licensed under the Educational Community License version 1.0
  * 
  * A copy of the Educational Community License has been included in this 
@@ -14,12 +14,19 @@
 
 package org.sakaiproject.entitybroker.impl.util;
 
+import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +37,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtilsBean;
+import org.apache.commons.beanutils.DynaBean;
+import org.apache.commons.beanutils.DynaProperty;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 
 import com.google.inject.util.ReferenceMap;
@@ -46,33 +55,383 @@ public class ReflectUtil {
    private static final String PREFIX_IS = "is";
    private static final String PREFIX_GET = "get";
    private static final String PREFIX_SET = "set";
-   /**
-    * Should contain all publicly accessible members (fields OR methods without the "get"/"is")
-    */
-   protected Map<Class<?>, Map<String, Member>> getterMap = new ReferenceMap<Class<?>, Map<String, Member>>(ReferenceType.WEAK, ReferenceType.SOFT);
-   protected Map<Class<?>, Map<String, Member>> setterMap = new ReferenceMap<Class<?>, Map<String, Member>>(ReferenceType.WEAK, ReferenceType.SOFT);
 
-   private PropertyUtilsBean propertyUtils = new PropertyUtilsBean();
-   private ConvertUtilsBean convertUtils = new ConvertUtilsBean();
+   private Map<Class<?>, Map<String, Member>> classMemberMap;
    /**
-    * We are using this instead of the static version so we can manage our own caching
+    * Should contain all publicly accessible members of a class for annotation lookups
     */
+   protected Map<Class<?>, Map<String, Member>> getClassMemberMap() {
+      if (classMemberMap == null) {
+         classMemberMap = new ReferenceMap<Class<?>, Map<String, Member>>(ReferenceType.WEAK, ReferenceType.SOFT);
+      }
+      return classMemberMap;
+   }
+
+   protected Map<String, Member> getMemberMap(Class<?> elementClass) {
+      analyzeClass(elementClass);
+      return getClassMemberMap().get(elementClass);
+   }
+
+   protected Collection<Member> getMembers(Class<?> elementClass) {
+      analyzeClass(elementClass);
+      return getClassMemberMap().get(elementClass).values();
+   }
+
+   /**
+    * We are using these instead of the static versions so we can manage our own caching
+    */
+   private PropertyUtilsBean propertyUtils = new PropertyUtilsBean();
+   public PropertyUtilsBean getPropertyUtils() {
+      return propertyUtils;
+   }
+
+   private ConvertUtilsBean convertUtils = new ConvertUtilsBean();
+   public ConvertUtilsBean getConvertUtils() {
+      return convertUtils;
+   }
+
    private BeanUtilsBean beanUtils = new BeanUtilsBean(convertUtils, propertyUtils);
    public BeanUtilsBean getBeanUtils() {
       return beanUtils;
    }
 
+   /* 
+    * Code below derived from BeanCloner
+    * http://www.coderslog.com/Main_Page
+    * Copyright 2007 CodersLog.com 
+    *   Licensed under the Apache License, Version 2.0 (the "License");
+    */
+   private Set<Class<?>> immutableTypes = null;
+   private Set<Class<?>> getImmutableTypes() {
+      if (immutableTypes == null 
+            || immutableTypes.isEmpty()) {
+         makeDefaultImmuatableSet();
+      }
+      return immutableTypes;
+   }
+
+   private void makeDefaultImmuatableSet() {
+      immutableTypes = new HashSet<Class<?>>();
+      immutableTypes.add(BigDecimal.class);
+      immutableTypes.add(BigInteger.class);
+      immutableTypes.add(Boolean.class);
+      immutableTypes.add(Byte.class);
+      immutableTypes.add(Character.class);
+      immutableTypes.add(Date.class);
+      immutableTypes.add(Double.class);
+      immutableTypes.add(Float.class);
+      immutableTypes.add(Long.class);
+      immutableTypes.add(Integer.class);
+      immutableTypes.add(String.class);
+      immutableTypes.add(Short.class);
+      immutableTypes.add(Timestamp.class);
+   }
+   /* derived code ends */
+
+
+   /**
+    * @param beanClass
+    * @return true if this class is a primitive or other simple class (like String or immutable)
+    */
+   public boolean isClassSimple(Class<?> beanClass) {
+      if (beanClass.isPrimitive() 
+            || getImmutableTypes().contains(beanClass)) {
+         return true;
+      }
+      return false;
+   }
+
+   /* 
+    * Some code below derived from BeanUtilsBean and PropertyUtilsbean
+    * http://commons.apache.org/beanutils/
+    *   Licensed under the Apache License, Version 2.0 (the "License");
+    */
+
+   /**
+    * Construct a class of the given type regardless of whether it has a default constructor
+    * @param <T>
+    * @param beanClass any object class
+    * @return the newly constructed object of the given class type
+    */
+   @SuppressWarnings("unchecked")
+   public <T> T constructClass(Class<T> beanClass) {
+      T newC = null;
+      try {
+         newC = (T) beanClass.newInstance();
+      } catch (InstantiationException e) {
+         // now we will try to use the various constructors
+         Constructor[] c = beanClass.getConstructors();
+         for (int i = 0; i < c.length; i++) {
+            Object[] params = new Object[ c[i].getParameterTypes().length ];
+            try {
+               newC = (T) c[i].newInstance(params);
+               break;
+            } catch (Exception e1) {
+               // keep trying
+            }
+         }
+      } catch (IllegalAccessException e) {
+         throw new IllegalArgumentException("Cannot construct object for class: " + beanClass, e);
+      }
+      if (newC == null) {
+         throw new IllegalArgumentException("Cannot construct object for class: " + beanClass);
+      }
+      return newC;
+   }
+
+   /**
+    * @param <T>
+    * @param bean
+    * @param maxDepth
+    * @param fieldNamesToSkip
+    * @param currentDepth
+    * @return a deep clone of an object
+    */
+   @SuppressWarnings("unchecked")
+   protected <T> T deepClone(T bean, int maxDepth, Set<String> fieldNamesToSkip, int currentDepth) {
+      if ( bean == null ) { return null; }
+      Class<T> beanClass = (Class<T>) bean.getClass();
+      // always copy the simple types if possible
+      if (isClassSimple(beanClass)) {
+         return bean;
+      }
+      T copy = null;
+      if (currentDepth <= maxDepth) {
+         currentDepth++;
+         try {
+            // create an instance of the object to clone
+            if (DynaBean.class.isAssignableFrom(beanClass)) {
+               copy = (T) ((DynaBean) bean).getDynaClass().newInstance();
+            } else {
+               copy = constructClass(beanClass);
+            }
+            // now do the cloning based on the thing to clone
+            if (beanClass.isArray()) {
+               // special case, use array reflection
+               for (int i = 0; i < Array.getLength(bean); i++) {
+                  Object value = Array.get(bean, i);
+                  Array.set(copy, i, 
+                        deepClone(value, maxDepth, null, currentDepth));
+               }
+            } else if (Collection.class.isAssignableFrom(beanClass)) {
+               // special case, clone everything in the list
+               for (Object element : (Collection) bean) {
+                  ((Collection) copy).add( deepClone(element, maxDepth, null, currentDepth) );
+               }
+            } else if (Map.class.isAssignableFrom(beanClass)) {
+               // special case, clone everything in the map except keys
+               for (Object key : ((Map) bean).keySet()) {
+                  if ( fieldNamesToSkip != null
+                        && fieldNamesToSkip.contains(key) ) {
+                     continue; // skip to next
+                  }
+                  Object value = ((Map) bean).get(key);
+                  ((Map) copy).put(key, 
+                        deepClone(value, maxDepth, null, currentDepth) );                     
+               }
+            } else if (DynaBean.class.isAssignableFrom(beanClass)) {
+               // special handling for dynabeans
+               DynaProperty origDescriptors[] =
+                  ((DynaBean) bean).getDynaClass().getDynaProperties();
+               for (DynaProperty dynaProperty : origDescriptors) {
+                  String name = dynaProperty.getName();
+                  if ( fieldNamesToSkip != null
+                        && fieldNamesToSkip.contains(name) ) {
+                     continue; // skip to next
+                  }
+                  if (getPropertyUtils().isWriteable(copy, name)) {
+                     Object value = ((DynaBean) bean).get(name);
+                     setFieldValue(copy, name, 
+                           deepClone(value, maxDepth, null, currentDepth) );
+                  }
+               }
+            } else {
+               // regular javabean
+               PropertyDescriptor origDescriptors[] =
+                  getPropertyUtils().getPropertyDescriptors(bean);
+               for (int i = 0; i < origDescriptors.length; i++) {
+                  String name = origDescriptors[i].getName();
+                  if ("class".equals(name)) {
+                     continue; // No point in trying to set an object's class
+                  }
+                  if ( fieldNamesToSkip != null
+                        && fieldNamesToSkip.contains(name) ) {
+                     continue; // skip to next
+                  }
+                  if (getPropertyUtils().isReadable(bean, name) &&
+                        getPropertyUtils().isWriteable(copy, name)) {
+                     try {
+                        Object value = getPropertyUtils().getSimpleProperty(bean, name);
+                        setFieldValue(copy, name, 
+                              deepClone(value, maxDepth, null, currentDepth));
+                     } catch (NoSuchMethodException e) {
+                        ; // Should not happen
+                     }
+                  }
+               }
+            }
+         } catch (Exception e) {
+            throw new RuntimeException("Failure during cloning ("+beanClass+") maxDepth="+maxDepth+", currentDepth="+currentDepth+": " + e.getMessage(), e);
+         }
+      }
+      return copy;
+   }
+
+   /**
+    * @param original the original object to copy from
+    * @param destination the object to copy the values to (must have the same fields with the same types)
+    * @param maxDepth the number of objects to follow when traveling through the object and copying
+    * the values from it, 0 means to only copy the simple values in the object, any objects will
+    * be ignored and will end up as nulls, 1 means to follow the first objects found and copy all
+    * of their simple values as well, and so forth
+    * @param fieldNamesToSkip the names of fields to skip while cloning this object,
+    * this only has an effect on the bottom level of the object, any fields found
+    * on child objects will always be copied (if the maxDepth allows)
+    * @param ignoreNulls if true then nulls are ot copied and the destination retains the value it has,
+    * if false then nulls are copied and the destination value will become a null if the original value is a null
+    * @throws IllegalArgumentException if the copy cannot be completed because the objects to copy do not have matching fields or types
+    */
+   @SuppressWarnings("unchecked")
+   protected void deepCopy(Object orig, Object dest, int maxDepth, Set<String> fieldNamesToSkip, boolean ignoreNulls) {
+      if (orig == null || dest == null) {
+         throw new IllegalArgumentException("original object and destination object must not be null");
+      }
+
+      int currentDepth = 1;
+      Class<?> origClass = orig.getClass();
+      Class<?> destClass = dest.getClass();
+      // copy orig to dest
+      try {
+         if (getImmutableTypes().contains(origClass)) {
+            if (getImmutableTypes().contains(destClass)) {
+               dest = orig;
+            } else {
+               throw new IllegalArgumentException("Cannot copy a simple value to a complex object");
+            }
+         } else {
+            if (origClass.isArray()) {
+               // special case, copy and overwrite existing array values
+               if (destClass.isArray()) {
+                  try {
+                     for (int i = 0; i < Array.getLength(orig); i++) {
+                        Object value = Array.get(orig, i);
+                        if (ignoreNulls && value == null) {
+                           // don't copy this null over the existing value
+                        } else {
+                           Array.set(dest, i, 
+                                 deepClone(value, maxDepth, null, currentDepth));
+                        }
+                     }
+                  } catch (ArrayIndexOutOfBoundsException e) {
+                     // partial copy is ok, continue on
+                  }
+               } else {
+                  throw new IllegalArgumentException("Cannot copy a simple value to a complex object");                  
+               }
+            } else if (Collection.class.isAssignableFrom(origClass)) {
+               // special case, copy everything from orig and add to dest
+               for (Object value : (Collection) orig) {
+                  if (ignoreNulls && value == null) {
+                     // don't copy this null over the existing value
+                  } else {
+                     ((Collection) dest).add( 
+                           deepClone(value, maxDepth, null, currentDepth) );
+                  }
+               }
+            } else if (Map.class.isAssignableFrom(origClass)) {
+               // special case clone everything in the map except keys
+               for (Object key : ((Map) orig).keySet()) {
+                  if ( fieldNamesToSkip != null
+                        && fieldNamesToSkip.contains(key) ) {
+                     continue; // skip to next
+                  }
+                  Object value = ((Map) orig).get(key);
+                  if (ignoreNulls && value == null) {
+                     // don't copy this null over the existing value
+                  } else {
+                     ((Map) dest).put(key, 
+                           deepClone(value, maxDepth, null, currentDepth) );
+                  }
+               }
+            } else if (DynaBean.class.isAssignableFrom(origClass)) {
+               DynaProperty origDescriptors[] =
+                  ((DynaBean) orig).getDynaClass().getDynaProperties();
+               for (DynaProperty dynaProperty : origDescriptors) {
+                  String name = dynaProperty.getName();
+                  if ( fieldNamesToSkip != null
+                        && fieldNamesToSkip.contains(name) ) {
+                     continue; // skip to next
+                  }
+                  if (getPropertyUtils().isWriteable(dest, name)) {
+                     Object value = ((DynaBean) orig).get(name);
+                     try {
+                        if (ignoreNulls && value == null) {
+                           // don't copy this null over the existing value
+                        } else {
+                           setFieldValue(dest, name, 
+                                 deepClone(value, maxDepth, null, currentDepth) );
+                        }
+                     } catch (IllegalArgumentException e) {
+                        // it is ok for the objects to not be the same
+                     }
+                  }
+               }
+            } else {
+               // regular javabean
+               PropertyDescriptor origDescriptors[] =
+                  getPropertyUtils().getPropertyDescriptors(orig);
+               for (int i = 0; i < origDescriptors.length; i++) {
+                  String name = origDescriptors[i].getName();
+                  if ("class".equals(name)) {
+                     continue; // No point in trying to set an object's class
+                  }
+                  if ( fieldNamesToSkip != null
+                        && fieldNamesToSkip.contains(name) ) {
+                     continue; // skip to next
+                  }
+                  if (getPropertyUtils().isReadable(orig, name) &&
+                        getPropertyUtils().isWriteable(dest, name)) {
+                     try {
+                        Object value = getPropertyUtils().getSimpleProperty(orig, name);
+                        if (ignoreNulls && value == null) {
+                           // don't copy this null over the existing value
+                        } else {
+                           setFieldValue(dest, name, 
+                                 deepClone(value, maxDepth, null, currentDepth));
+                        }
+                     } catch (NoSuchMethodException e) {
+                        // it is ok for the objects to not be the same
+                     }
+                  }
+               }
+            }
+         }
+      } catch (Exception e) {
+         throw new IllegalArgumentException("Failure copying " + orig + " ("+origClass+") to " 
+               + dest + " ("+destClass+")" + e.getMessage(), e);
+      }
+   }
+
+   private Set<String> makeSetFromArray(String[] fieldNamesToSkip) {
+      Set<String> skip = new HashSet<String>();
+      if (fieldNamesToSkip != null) {
+         for (int i = 0; i < fieldNamesToSkip.length; i++) {
+            if (fieldNamesToSkip[i] != null) {
+               skip.add(fieldNamesToSkip[i]);
+            }
+         }
+      }
+      return skip;
+   }
+
    protected void analyzeClass(Class<?> elementClass) {
-      if (! getterMap.containsKey(elementClass) 
-            || ! setterMap.containsKey(elementClass)) {
+      if (! getClassMemberMap().containsKey(elementClass) ) {
          // class was not yet analyzed
-         getterMap.put(elementClass, new ConcurrentHashMap<String, Member>());
-         setterMap.put(elementClass, new ConcurrentHashMap<String, Member>());
+         getClassMemberMap().put(elementClass, new ConcurrentHashMap<String, Member>());
 
          for (Field field : elementClass.getFields()) {
             try {
-               getterMap.get(elementClass).put(field.getName(), field);
-               setterMap.get(elementClass).put(field.getName(), field);
+               getClassMemberMap().get(elementClass).put(field.getName(), field);
             } catch (Exception e) {
                // nothing to do here but move on
             }
@@ -88,44 +447,22 @@ public class ReflectUtil {
                   Class<?> returnType = method.getReturnType();
                   if (returnType != null) {
                      try {
-                        getterMap.get(elementClass).put(makeFieldNameFromMethod(method.getName()), method);
+                        getClassMemberMap().get(elementClass).put(makeFieldNameFromMethod(method.getName()), method);
                      } catch (Exception e) {
                         // nothing to do here but move on
                      }  
                   }
                }
-            } else if ( name.startsWith(PREFIX_SET) 
-                  && paramTypes.length == 1 ) {
-               try {
-                  setterMap.get(elementClass).put(makeFieldNameFromMethod(method.getName()), method);
-               } catch (Exception e) {
-                  // nothing to do here but move on
-               }                     
+//             } else if ( name.startsWith(PREFIX_SET) 
+//             && paramTypes.length == 1 ) {
+//             try {
+//             getClassMemberMap().get(elementClass).put(makeFieldNameFromMethod(method.getName()), method);
+//             } catch (Exception e) {
+//             // nothing to do here but move on
+//             }                     
             }
          }
       }
-   }
-
-   protected Map<String, Member> getGetterMap(Class<?> elementClass) {
-      analyzeClass(elementClass);
-      return getterMap.get(elementClass);
-   }
-
-   protected Map<String, Member> getSetterMap(Class<?> elementClass) {
-      analyzeClass(elementClass);
-      return setterMap.get(elementClass);
-   }
-
-   protected Collection<Member> getGetterMembers(Class<?> elementClass) {
-      analyzeClass(elementClass);
-      Collection<Member> members = getterMap.get(elementClass).values();
-      return members;
-   }
-
-   protected Collection<Member> getSetterMembers(Class<?> elementClass) {
-      analyzeClass(elementClass);
-      Collection<Member> members = setterMap.get(elementClass).values();
-      return members;
    }
 
    private String getAnnotatedFieldNameFromMember(Member member, Class<? extends Annotation> annotationClass) {
@@ -163,30 +500,10 @@ public class ReflectUtil {
     */
    public Object getFieldValue(Object object, String fieldName) {
       Object value = null;
-      boolean found = false;
-      Class<?> elementClass = object.getClass();
-      Member member = getGetterMap(elementClass).get(fieldName);
-      if (member != null) {
-         if (member instanceof Field) {
-            Field field = (Field) member;
-            try {
-               value = field.get(object);
-               found = true;
-            } catch (Exception e) {
-               // nothing to do here but move on
-            }
-         } else if (member instanceof Method) {
-            Method method = (Method) member;
-            try {
-               value = method.invoke(object, (Object[])null);
-               found = true;
-            } catch (Exception e) {
-               // nothing to do here but move on
-            }
-         }
-      }
-      if (!found) {
-         throw new IllegalArgumentException("Could not find a field with name (" + fieldName + ") to get value from");
+      try {
+         value = getPropertyUtils().getProperty(object, fieldName);
+      } catch (Exception e) {
+         throw new IllegalArgumentException("Could not get value from a field with name (" + fieldName + "): " + e.getMessage(), e);
       }
       return value;
    }
@@ -200,30 +517,10 @@ public class ReflectUtil {
     * OR the value type does not match the field type
     */
    public void setFieldValue(Object object, String fieldName, Object value) {
-      boolean found = false;
-      Class<?> elementClass = object.getClass();
-      Member member = getSetterMap(elementClass).get(fieldName);
-      if (member != null) {
-         if (member instanceof Field) {
-            Field field = (Field) member;
-               try {
-                  field.set(object, value);
-                  found = true;
-               } catch (Exception e) {
-                  throw new IllegalArgumentException("Could not set fieldName (" + fieldName + ") to value: " + value, e);
-               }
-               found = true;
-         } else if (member instanceof Method) {
-            Method method = (Method) member;
-            try {
-               method.invoke(object, new Object[] {value});
-            } catch (Exception e) {
-               throw new IllegalArgumentException("Could not invoke setter method (" + method.getName() + ") with value: " + value, e);
-            }
-         }
-      }
-      if (!found) {
-         throw new IllegalArgumentException("Could not find a field with name (" + fieldName + ") to set value on");
+      try {
+         getPropertyUtils().setProperty(object, fieldName, value);
+      } catch (Exception e) {
+         throw new IllegalArgumentException("Could not set field with name (" + fieldName + ") to value ("+value+"): " + e.getMessage(), e);
       }
    }
 
@@ -237,10 +534,10 @@ public class ReflectUtil {
     */
    public void setFieldStringValue(Object object, String fieldName, String value) {
       Class<?> elementClass = object.getClass();
-      Class<?> type = getSetType(elementClass, fieldName);
+      Class<?> type = getFieldType(elementClass, fieldName);
       Object convertedValue;
       try {
-         convertedValue = convertUtils.convert(value, type);
+         convertedValue = getConvertUtils().convert(value, type);
       } catch (ConversionException e) {
          throw new IllegalArgumentException("Could not convert value from ("+value+") to an object of type ("+type+")");
       }
@@ -248,50 +545,18 @@ public class ReflectUtil {
    }
 
    /**
-    * @param <T>
-    * @param original the original object to copy from
-    * @param destination the object to copy the values to (must have the same fields with the same types)
-    * @param fieldNamesToSkip an array of the fieldNames which should NOT be copied from original to destination
-    * @throws IllegalArgumentException if the copy cannot be completed because the objects to copy do not have matching fields or types
-    */
-   public <T> void copyObjectValues(T original, T destination, String[] fieldNamesToSkip) {
-      if (original == null || destination == null) {
-         throw new IllegalArgumentException("Cannot have null objects involved in the copy");
-      }
-      Set<String> skip = new HashSet<String>();
-      if (fieldNamesToSkip != null) {
-         for (int i = 0; i < fieldNamesToSkip.length; i++) {
-            if (fieldNamesToSkip[i] != null) {
-               skip.add(fieldNamesToSkip[i]);
-            }
-         }
-      }
-      try {
-         Class<?> elementClass = destination.getClass();
-         Map<String, Member> gm = getSetterMap(elementClass);
-         for (String fieldName : gm.keySet()) {
-            if (skip.isEmpty() || ! skip.contains(fieldName)) {
-               Object value = getFieldValue(original, fieldName);
-               setFieldValue(destination, fieldName, value);
-            }
-         }
-      } catch (Exception e) {
-         throw new IllegalArgumentException("Failed to copy values from original ("+original+") to destination ("+destination+")", e);
-      }
-   }
-
-   /**
-    * Get the return types of the fields and getter methods of a specific class type
+    * Get the types of the fields of a specific class type
     * returns the method names without the "get"/"is" part and camelCased
     * @param elementClass any class
-    * @return a map of field name/getter method name -> class type
+    * @return a map of field name -> class type
     */
-   public Map<String, Class<?>> getReturnTypes(Class<?> elementClass) {
+   public Map<String, Class<?>> getFieldTypes(Class<?> elementClass) {
       Map<String, Class<?>> types = new HashMap<String, Class<?>>();
-      Map<String, Member> gm = getGetterMap(elementClass);
-      for (String fieldName : gm.keySet()) {
-         Class<?> type = getReturnType(elementClass, fieldName);
-         types.put(fieldName, type);
+      PropertyDescriptor[] pds = getPropertyUtils().getPropertyDescriptors(elementClass);
+      for (int i = 0; i < pds.length; i++) {
+         PropertyDescriptor pd = pds[i];
+         if ("class".equals(pd.getName())) { continue; } // skip the getClass method
+         types.put(pd.getName(), pd.getPropertyType());
       }
       return types;
    }
@@ -299,77 +564,22 @@ public class ReflectUtil {
    /**
     * @param elementClass any class
     * @param fieldName the name of the field (property) or a getter method converted to a fieldname
-    * @return the type of object stored in the field or returned by the getter
+    * @return the type of object stored in the field
+    * @throws IllegalArgumentException if the fieldname cannot be found to get the type from
     */
-   public Class<?> getReturnType(Class<?> elementClass, String fieldName) {
+   public Class<?> getFieldType(Class<?> elementClass, String fieldName) {
       Class<?> type = null;
-      Member member = getGetterMap(elementClass).get(fieldName);
-      if (member != null) {
-         if (member instanceof Field) {
-            Field field = (Field) member;
-            try {
-               type = field.getType();
-            } catch (Exception e) {
-               // nothing to do here but move on
-            }
-         } else if (member instanceof Method) {
-            Method method = (Method) member;
-            try {
-               type = method.getReturnType();
-            } catch (Exception e) {
-               // nothing to do here but move on
-            }
+      PropertyDescriptor[] pds = getPropertyUtils().getPropertyDescriptors(elementClass);
+      for (int i = 0; i < pds.length; i++) {
+         PropertyDescriptor pd = pds[i];
+         if ("class".equals(pd.getName())) { continue; } // skip the getClass method
+         if (pd.getName().equals(fieldName)) {
+            type = pd.getPropertyType();
+            break;
          }
       }
       if (type == null) {
          throw new IllegalArgumentException("Could not find a field with name (" + fieldName + ") to get return type from");
-      }
-      return type;
-   }
-
-   /**
-    * Get the types of the public fields and setter methods for a specific class,
-    * returns the method names without the "set" part and camelCased
-    * @param elementClass any class
-    * @return a map of field name/setter method name -> class type
-    */
-   public Map<String, Class<?>> getSetTypes(Class<?> elementClass) {
-      Map<String, Class<?>> types = new HashMap<String, Class<?>>();
-      Map<String, Member> sm = getSetterMap(elementClass);
-      for (String fieldName : sm.keySet()) {
-         Class<?> type = getSetType(elementClass, fieldName);
-         types.put(fieldName, type);
-      }
-      return types;
-   }
-
-   /**
-    * Get the type of the public field or setter method of this name for this class
-    * @param elementClass any class
-    * @param fieldName the name of the field (property) or a setter method converted to a fieldname
-    * @return the type of object stored in the field or expected by the setter
-    */
-   public Class<?> getSetType(Class<?> elementClass, String fieldName) {
-      Class<?> type = null;
-      Member member = getSetterMap(elementClass).get(fieldName);
-      if (member instanceof Field) {
-         Field field = (Field) member;
-         try {
-            type = field.getType();
-         } catch (Exception e) {
-            // nothing to do here but move on
-         }
-      } else if (member instanceof Method) {
-         Method method = (Method) member;
-         try {
-            // expect all setters to have one param
-            type = method.getParameterTypes()[0];
-         } catch (Exception e) {
-            // nothing to do here but move on
-         }
-      }      
-      if (type == null) {
-         throw new IllegalArgumentException("Could not find a field with name (" + fieldName + ") to get setter type from");
       }
       return type;
    }
@@ -380,31 +590,15 @@ public class ReflectUtil {
     * @param object any object
     * @return a map of name -> value
     */
+   @SuppressWarnings("unchecked")
    public Map<String, Object> getObjectValues(Object object) {
-      Map<String, Object> values = new HashMap<String, Object>();
-      Class<?> elementClass = object.getClass();
-      Map<String, Member> gm = getGetterMap(elementClass);
-      for (String fieldName : gm.keySet()) {
-         Member member = gm.get(fieldName);
-         if (member instanceof Field) {
-            Field field = (Field) member;
-            Object value;
-            try {
-               value = field.get(object);
-               values.put(fieldName, value);
-            } catch (Exception e) {
-               // nothing to do here but move on
-            }
-         } else if (member instanceof Method) {
-            Method method = (Method) member;
-            try {
-               Object value = method.invoke(object, (Object[])null);
-               values.put(fieldName, value);
-            } catch (Exception e) {
-               // nothing to do here but move on
-            }
-         }
+      Map<String, Object> values;
+      try {
+         values = getPropertyUtils().describe(object);
+      } catch (Exception e) {
+         throw new IllegalArgumentException("Could not access the object values for ("+object+"): " + e.getMessage(), e);
       }
+      values.remove("class"); // remove the class property
       return values;
    }
 
@@ -414,37 +608,16 @@ public class ReflectUtil {
     * @param annotationClass the annotation type which is expected to be on the field
     * @return the name of the field or null if no fields are found with the indicated annotation
     */
-   public String getFieldNameForGetterWithAnnotation(Class<?> elementClass, Class<? extends Annotation> annotationClass) {
+   public String getFieldNameWithAnnotation(Class<?> elementClass, Class<? extends Annotation> annotationClass) {
       String fieldName = null;
       if (annotationClass == null) {
          throw new IllegalArgumentException("the annotationClass must not be null");
       }
-      for (Member member : getGetterMembers(elementClass)) {
+      Collection<Member> members = getMembers(elementClass);
+      for (Member member : members) {
          fieldName = getAnnotatedFieldNameFromMember(member, annotationClass);
          if (fieldName != null) {
             break;
-         }
-      }
-      return fieldName;
-   }
-
-   /**
-    * Find the setter field on a class which has the given annotation
-    * @param elementClass any class
-    * @param annotationClass the annotation type which is expected to be on the field
-    * @return the name of the field or null if no fields are found with the indicated annotation
-    */
-   public String getFieldNameForSetterWithAnnotation(Class<?> elementClass, Class<? extends Annotation> annotationClass) {
-      String fieldName = null;
-      if (annotationClass == null) {
-         throw new IllegalArgumentException("the annotationClass must not be null");
-      }
-      if (annotationClass != null) {
-         for (Member member : getSetterMembers(elementClass)) {
-            fieldName = getAnnotatedFieldNameFromMember(member, annotationClass);
-            if (fieldName != null) {
-               break;
-            }
          }
       }
       return fieldName;
@@ -464,7 +637,7 @@ public class ReflectUtil {
       Class<?> elementClass = object.getClass();
       if (annotationClass != null) {
          // try to find annotation first
-         String annotatedField = getFieldNameForGetterWithAnnotation(elementClass, annotationClass);
+         String annotatedField = getFieldNameWithAnnotation(elementClass, annotationClass);
          if (annotatedField != null) {
             fieldName = annotatedField;
          }
@@ -489,6 +662,51 @@ public class ReflectUtil {
          sValue = convertUtils.convert(value); //value.toString();
       }
       return sValue;
+   }
+
+   /**
+    * Deep clone an object and all the values in it into a brand new object of the same type,
+    * this will traverse the bean and will make new objects for all non-null values contained in the object
+    * 
+    * @param <T>
+    * @param object any java object, this can be a list, map, array, or any simple
+    * object, it does not have to be a custom object or even a java bean,
+    * also works with DynaBeans
+    * @param maxDepth the number of objects to follow when traveling through the object and copying
+    * the values from it, 0 means to only copy the simple values in the object, any objects will
+    * be ignored and will end up as nulls, 1 means to follow the first objects found and copy all
+    * of their simple values as well, and so forth
+    * @param fieldNamesToSkip the names of fields to skip while cloning this object,
+    * this only has an effect on the bottom level of the object, any fields found
+    * on child objects will always be copied (if the maxDepth allows)
+    * @return the cloned object
+    */
+   public <T> T clone(T object, int maxDepth, String[] fieldNamesToSkip) {
+      Set<String> skip = makeSetFromArray(fieldNamesToSkip);
+      return deepClone(object, maxDepth, skip, 0);
+   }
+
+   /**
+    * Deep copies one object into another, this is primarily for copying between identical types of objects but
+    * it can also handle copying between objects which are quite different, 
+    * this does not just do a reference copy of the values but actually creates new objects in the current classloader
+    * 
+    * @param original the original object to copy from
+    * @param destination the object to copy the values to (must have the same fields with the same types)
+    * @param maxDepth the number of objects to follow when traveling through the object and copying
+    * the values from it, 0 means to only copy the simple values in the object, any objects will
+    * be ignored and will end up as nulls, 1 means to follow the first objects found and copy all
+    * of their simple values as well, and so forth
+    * @param fieldNamesToSkip the names of fields to skip while cloning this object,
+    * this only has an effect on the bottom level of the object, any fields found
+    * on child objects will always be copied (if the maxDepth allows)
+    * @param ignoreNulls if true then nulls are not copied and the destination retains the value it has,
+    * if false then nulls are copied and the destination value will become a null if the original value is a null
+    * @throws IllegalArgumentException if the copy cannot be completed because the objects to copy do not have matching fields or types
+    */
+   public void copy(Object orig, Object dest, int maxDepth, String[] fieldNamesToSkip, boolean ignoreNulls) {
+      Set<String> skip = makeSetFromArray(fieldNamesToSkip);
+      deepCopy(orig, dest, maxDepth, skip, ignoreNulls);
    }
 
    /**

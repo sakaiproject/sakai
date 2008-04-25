@@ -116,6 +116,9 @@ public class EntityHandlerImpl implements EntityRequestHandler {
    private static final String COLLECTION = "-collection";
 
    private ReflectUtil reflectUtil = new ReflectUtil();
+   public ReflectUtil getReflectUtil() {
+      return reflectUtil;
+   }
 
    /**
     * Determines if an entity exists based on the reference
@@ -746,7 +749,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             if (entity != null) {
                sb.append("      <entityClass>\n");
                sb.append("        <class>"+ entity.getClass().getName() +"</class>\n");
-               Map<String, Class<?>> entityTypes = reflectUtil.getReturnTypes(entity.getClass());
+               Map<String, Class<?>> entityTypes = reflectUtil.getFieldTypes(entity.getClass());
                ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
                Collections.sort(keys);
                for (String key : keys) {
@@ -805,7 +808,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             if (entity != null) {
                sb.append("      <h4>Entity class : "+ entity.getClass().getName() +"</h4>\n");
                sb.append("        <ul>\n");
-               Map<String, Class<?>> entityTypes = reflectUtil.getReturnTypes(entity.getClass());
+               Map<String, Class<?>> entityTypes = reflectUtil.getFieldTypes(entity.getClass());
                ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
                Collections.sort(keys);
                for (String key : keys) {

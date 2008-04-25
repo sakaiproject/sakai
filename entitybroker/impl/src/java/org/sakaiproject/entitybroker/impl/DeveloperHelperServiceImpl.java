@@ -24,7 +24,6 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.impl.util.BeanCloner;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -38,6 +37,11 @@ import org.sakaiproject.util.ResourceLoader;
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
 public class DeveloperHelperServiceImpl implements DeveloperHelperService {
+
+   private EntityHandlerImpl entityHandler;
+   public void setEntityHandler(EntityHandlerImpl entityHandler) {
+      this.entityHandler = entityHandler;
+   }
 
    private AuthzGroupService authzGroupService;
    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
@@ -67,21 +71,6 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
    private UserDirectoryService userDirectoryService;
    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
       this.userDirectoryService = userDirectoryService;
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.DeveloperHelperService#cloneBean(java.lang.Object, int)
-    */
-   public <T> T cloneBean(T bean, int level) {
-      String pattern = "";
-      if (level > 0) {
-         for (int i = 0; i < level; i++) {
-            if (i > 0) { pattern += "."; }
-            pattern += "**";
-         }
-      }
-      T clone = BeanCloner.clone(bean, pattern);
-      return clone;
    }
 
    /* (non-Javadoc)
@@ -225,6 +214,21 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
          userRefs.add( getUserRefFromUserId(userId) );
       }
       return userRefs;
+   }
+
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.DeveloperHelperService#cloneBean(java.lang.Object, int, java.lang.String[])
+    */
+   public <T> T cloneBean(T bean, int maxDepth, String[] propertiesToSkip) {
+      return entityHandler.getReflectUtil().clone(bean, maxDepth, propertiesToSkip);
+   }
+
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.DeveloperHelperService#copyBean(java.lang.Object, java.lang.Object, int, java.lang.String[], boolean)
+    */
+   public void copyBean(Object orig, Object dest, int maxDepth, String[] fieldNamesToSkip,
+         boolean ignoreNulls) {
+      entityHandler.getReflectUtil().copy(orig, dest, maxDepth, fieldNamesToSkip, ignoreNulls);
    }
 
 }

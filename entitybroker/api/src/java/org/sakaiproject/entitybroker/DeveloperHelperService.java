@@ -130,7 +130,8 @@ public interface DeveloperHelperService {
    // BEANS
 
    /**
-    * Clone a bean including contained objects,
+    * Deep clone a bean (object) and all the values in it into a brand new object of the same type,
+    * this will traverse the bean and will make new objects for all non-null values contained in the object,
     * the level indicates the number of contained objects to traverse and clone,
     * setting this to zero will only clone basic type values in the bean,
     * setting this to one will clone basic fields, references, and collections in the bean,
@@ -139,10 +140,40 @@ public interface DeveloperHelperService {
     * be the persistent object with the hibernate proxies and lazy loading
     * 
     * @param <T>
-    * @param bean a java bean (object) to make a copy of
-    * @param level number of levels of objects to include
+    * @param bean any java bean, this can also be a list, map, array, or any simple
+    * object, it does not have to be a custom object or even a java bean,
+    * also works with apache beanutils DynaBeans
+    * @param maxDepth the number of objects to follow when traveling through the object and copying
+    * the values from it, 0 means to only copy the simple values in the object, any objects will
+    * be ignored and will end up as nulls, 1 means to follow the first objects found and copy all
+    * of their simple values as well, and so forth
+    * @param propertiesToSkip the names of properties to skip while cloning this object,
+    * this only has an effect on the bottom level of the object, any properties found
+    * on child objects will always be copied (if the maxDepth allows)
     * @return the clone of the bean
+    * @throws IllegalArgumentException if there is a failure cloning the bean
     */
-   public <T> T cloneBean(T bean, int level);
+   public <T> T cloneBean(T bean, int maxDepth, String[] propertiesToSkip);
+
+   /**
+    * Deep copies one bean (object) into another, this is primarily for copying between identical types of objects but
+    * it can also handle copying between objects which are quite different, 
+    * this does not just do a reference copy of the values but actually creates new objects in the current classloader
+    * and traverses through all properties of the object to make a complete deep copy
+    * 
+    * @param original the original object to copy from
+    * @param destination the object to copy the values to (must have the same fields with the same types)
+    * @param maxDepth the number of objects to follow when traveling through the object and copying
+    * the values from it, 0 means to only copy the simple values in the object, any objects will
+    * be ignored and will end up as nulls, 1 means to follow the first objects found and copy all
+    * of their simple values as well, and so forth
+    * @param fieldNamesToSkip the names of fields to skip while cloning this object,
+    * this only has an effect on the bottom level of the object, any fields found
+    * on child objects will always be copied (if the maxDepth allows)
+    * @param ignoreNulls if true then nulls are not copied and the destination retains the value it has,
+    * if false then nulls are copied and the destination value will become a null if the original value is a null
+    * @throws IllegalArgumentException if the copy cannot be completed because the objects to copy do not have matching fields or types
+    */
+   public void copyBean(Object orig, Object dest, int maxDepth, String[] fieldNamesToSkip, boolean ignoreNulls);
 
 }
