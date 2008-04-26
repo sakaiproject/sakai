@@ -15,7 +15,10 @@
 package org.sakaiproject.entitybroker;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+
+import org.sakaiproject.entitybroker.util.SakaiToolData;
 
 /**
  * Includes methods which are likely to be helpful to developers who are implementing
@@ -68,6 +71,27 @@ public interface DeveloperHelperService {
    public String getCurrentLocationReference();
 
    /**
+    * @param locationReference
+    * @return
+    */
+   public String getLocationIdFromRef(String locationReference);
+
+   /**
+    * @return the entity reference of the location which is the main starting point for the system
+    * (in Sakai this is probably the reference to the gateway site)
+    */
+   public String getStartingLocationReference();
+
+   /**
+    * Get the entity reference of the location of a user's workspace/homespace
+    * @param userReference the user entity reference (e.g. /user/{userId} - not id, eid, or username)
+    * @return the entity reference of the location OR null if it cannot be generated
+    */
+   public String getUserHomeLocationReference(String userReference);
+
+   // TOOLS
+
+   /**
     * @return the entity reference of the current active tool for the current session
     * (represents the tool that is currently being used by the current user in the system)
     */
@@ -80,6 +104,18 @@ public interface DeveloperHelperService {
     * @return the toolId (needed for other Sakai API operations)
     */
    public String getToolIdFromToolRef(String toolReference);
+
+   /**
+    * @param toolRegistrationId this is the id string from the Sakai
+    * tool registration XML file (i.e. sakai.mytool.xml) and will 
+    * probably look something like "sakai.mytool"
+    * @param locationReference (optional) an entity reference to a location (e.g. /site/siteId) 
+    * OR null if it should be for the current site
+    * @return an object which contains data about a tool
+    * @throws IllegalArgumentException if any parameters are invalid
+    * or a tool with this toolRegistrationId cannot be located in the given location
+    */
+   public SakaiToolData getToolData(String toolRegistrationId, String locationReference);
 
    // PERMISSIONS
 
@@ -126,6 +162,66 @@ public interface DeveloperHelperService {
     * @return a set of user entity references (e.g. /user/{userId} - not id, eid, or username)
     */
    public Set<String> getUserReferencesForEntityReference(String reference, String permission);
+
+   /**
+    * Register a permission key as a valid permission for use in Sakai,
+    * permissions will not appear unless they are registered each time Sakai starts
+    * up so you should run this in your service init method
+    * @param permission the permission key (e.g.: toolname.read.all, toolname.delete.owned)
+    */
+   public void registerPermission(String permission);
+
+   // URLS
+
+   /**
+    * @return the full portal URL as Sakai understands it (e.g. http://server:port/portal)
+    */
+   public String getPortalURL();
+
+   /**
+    * @return the full server base URL (e.g. http://server:port)
+    */
+   public String getServerURL();   
+
+   /**
+    * @param locationReference an entity reference to a location (e.g. /site/siteId)
+    * @return the full URL to a location (e.g. http://server:port/portal/site/siteId)
+    * @throws IllegalArgumentException if this reference does not appear to be valid
+    */
+   public String getLocationReferenceURL(String locationReference);
+
+   /**
+    * @param userReference the user entity reference (e.g. /user/{userId} - not id, eid, or username)
+    * @return the full URL to a user's workspace/homespace (e.g. http://server:port/portal/~someuser)
+    * @throws IllegalArgumentException if this user reference does not appear to be valid
+    */
+   public String getUserHomeLocationURL(String userReference);
+
+   /**
+    * Generate a URL to a tool which will work from anywhere and 
+    * can carry parameters with it<br/>
+    * <b>NOTE:</b> you should set the A tag target="_top" if you
+    * are inside an existing tool iFrame
+    * 
+    * @param toolRegistrationId this is the id string from the Sakai
+    * tool registration XML file (i.e. sakai.mytool.xml) and will 
+    * probably look something like "sakai.mytool"
+    * @param localView (optional) the local URL of the view/page 
+    * to navigate to within the tool OR null to go to the starting view/page,
+    * examples: /view, /page.jsp, /path/to/someview,
+    * make sure you include the leading slash ("/")
+    * @param parameters (optional) a map of parameters to include
+    * in the URL and send along to the tool (these will be turned
+    * into GET parameters in the URL), the map should contain
+    * parameterName -> parameterValue (e.g. "thing" -> "value")
+    * @param locationReference (optional) an entity reference to a location (e.g. /site/siteId) 
+    * OR null if it should be for the current site
+    * @return a full URL to a tool (e.g. http://server:port/portal/site/siteId/page/pageId?toolstate-toolpid=/view?thing=value)
+    * @throws IllegalArgumentException if any parameters are invalid
+    * or a tool with this toolRegistrationId cannot be located in the given location
+    */
+   public String getToolViewURL(String toolRegistrationId, String localView, 
+         Map<String, String> parameters, String locationReference);
 
    // BEANS
 

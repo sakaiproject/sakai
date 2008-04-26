@@ -16,8 +16,8 @@ package org.sakaiproject.entitybroker.impl.access;
 
 import java.util.Map;
 
-import com.google.inject.util.ReferenceMap;
-import com.google.inject.util.ReferenceType;
+import org.sakaiproject.entitybroker.util.refmap.ReferenceMap;
+import org.sakaiproject.entitybroker.util.refmap.ReferenceType;
 
 /**
  * A common generic implementation class for managers of different kinds of access providers.

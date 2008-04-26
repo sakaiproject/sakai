@@ -32,9 +32,8 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.impl.util.ReflectUtil;
-
-import com.google.inject.util.ReferenceMap;
-import com.google.inject.util.ReferenceType;
+import org.sakaiproject.entitybroker.util.refmap.ReferenceMap;
+import org.sakaiproject.entitybroker.util.refmap.ReferenceType;
 
 /**
  * Base implementation of the entity provider manager

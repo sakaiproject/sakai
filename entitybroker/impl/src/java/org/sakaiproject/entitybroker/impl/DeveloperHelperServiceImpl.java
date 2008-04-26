@@ -14,19 +14,32 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.util.SakaiToolData;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
@@ -38,19 +51,50 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class DeveloperHelperServiceImpl implements DeveloperHelperService {
 
+   /**
+    * Location id for the Sakai Gateway site
+    */
+   public static String GATEWAY_ID = "!gateway";
+   /**
+    * Encoding method to use when URL encoding
+    */
+   public static String URL_ENCODING = "UTF-8";
+   /**
+    * The portal base URL
+    */
+   public static String PORTAL_BASE = "/portal";
+   /**
+    * The site reference base
+    */
+   public static String SITE_BASE = "/site/";
+
+   private static Log log = LogFactory.getLog(DeveloperHelperService.class);
+
+   // INTERNAL
    private EntityHandlerImpl entityHandler;
    public void setEntityHandler(EntityHandlerImpl entityHandler) {
       this.entityHandler = entityHandler;
    }
 
+   // SAKAI
    private AuthzGroupService authzGroupService;
    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
       this.authzGroupService = authzGroupService;
    }
 
+   private FunctionManager functionManager;
+   public void setFunctionManager(FunctionManager functionManager) {
+      this.functionManager = functionManager;
+   }
+
    private SecurityService securityService;
    public void setSecurityService(SecurityService securityService) {
       this.securityService = securityService;
+   }
+
+   private ServerConfigurationService serverConfigurationService;
+   public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+      this.serverConfigurationService = serverConfigurationService;
    }
 
    private SessionManager sessionManager;
@@ -73,27 +117,13 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
       this.userDirectoryService = userDirectoryService;
    }
 
+   // USER
+
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.DeveloperHelperService#getCurrentLocale()
     */
    public Locale getCurrentLocale() {
       return new ResourceLoader().getLocale();
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entitybroker.DeveloperHelperService#getCurrentLocationReference()
-    */
-   public String getCurrentLocationReference() {
-      String location = null;
-      try {
-         String context = toolManager.getCurrentPlacement().getContext();
-         Site s = siteService.getSite( context );
-         location = s.getReference(); // get the entity reference to the site
-      } catch (Exception e) {
-         // sakai failed to get us a location so we can assume we are not inside the portal
-         location = null;
-      }
-      return location;
    }
 
    /* (non-Javadoc)
@@ -122,6 +152,53 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
       return userRef;
    }
 
+   // LOCATION
+
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.DeveloperHelperService#getCurrentLocationReference()
+    */
+   public String getCurrentLocationReference() {
+      String location = null;
+      try {
+         String context = toolManager.getCurrentPlacement().getContext();
+         Site s = siteService.getSite( context );
+         location = s.getReference(); // get the entity reference to the site
+      } catch (Exception e) {
+         // sakai failed to get us a location so we can assume we are not inside the portal
+         location = null;
+      }
+      return location;
+   }
+
+   public String getLocationIdFromRef(String locationReference) {
+      String locationId = null;
+      if (locationReference != null) {
+         // assume the form of "/site/siteId" (the Site method is protected)
+         locationId = new EntityReference(locationReference).getId();
+      }
+      return locationId;
+   }
+
+   public String getStartingLocationReference() {
+      return SITE_BASE + GATEWAY_ID;
+   }
+
+   public String getUserHomeLocationReference(String userReference) {
+      if (userReference == null) {
+         userReference = getCurrentUserReference();
+      }
+      String userId = getUserIdFromRef(userReference);
+      String locationRef = null;
+      if (userId != null) {
+         locationRef = SITE_BASE + "~" + userId; // make this manually
+      } else {
+         log.warn("Cannot get the userhome locationReference because there is no current user: " + userReference);
+      }
+      return locationRef;
+   }
+
+   // TOOLS
+
    public String getCurrentToolReference() {
       String toolRef = null;
       String toolId = toolManager.getCurrentTool().getId();
@@ -138,6 +215,139 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
          toolId = new EntityReference(toolReference).getId();
       }
       return toolId;
+   }
+
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.DeveloperHelperService#getToolData(java.lang.String, java.lang.String)
+    */
+   @SuppressWarnings("unchecked")
+   public SakaiToolData getToolData(String toolRegistrationId, String locationReference) {
+      SakaiToolData toolData = new SakaiToolData();
+      if (locationReference == null) {
+         locationReference = getCurrentLocationReference();
+      }
+      toolData.setLocationReference(locationReference);
+
+      String locationId = getLocationIdFromRef(locationReference);
+      Site site = null;
+      try {
+         site = siteService.getSite( locationId );
+      } catch (IdUnusedException e) {
+         throw new IllegalArgumentException("Could not find a site by locationId=" + locationId, e);
+      } catch (Exception e) {
+         throw new IllegalArgumentException("Could not locate tool"
+               + " in location=" + locationReference
+               + " with toolRegistrationId=" + toolRegistrationId, e);
+      }
+      toolData.setRegistrationId(toolRegistrationId);
+
+      // get the pages for this site
+      List<SitePage> pages = site.getOrderedPages();
+      for (SitePage page : pages) {
+         // get the tool configs for each
+         for (ToolConfiguration tc : (List<ToolConfiguration>) page.getTools(0)) {
+            // get the tool from column 0 for this tool config (if there is one)
+            Tool tool = tc.getTool();
+            if (tool != null 
+                  && tool.getId().equals(toolRegistrationId)) {
+               // this has to be here because the tc will expect it when the portal urls are generated -AZ
+               ThreadLocalManager.set(ServerConfigurationService.CURRENT_PORTAL_PATH, PORTAL_BASE);
+               // back to normal stuff again
+               toolData.setToolURL(page.getUrl());
+               toolData.setPlacementId(tc.getId());
+               toolData.setTitle(tool.getTitle());
+               toolData.setDescription(tool.getDescription());
+            }
+         }
+      }
+
+      if (toolData.getPlacementId() == null) {
+         throw new IllegalArgumentException("Could not locate tool"
+               + " in location=" + locationReference
+               + " with toolRegistrationId=" + toolRegistrationId);
+      }
+      return toolData;
+   }
+
+   // URLS
+
+   public String getPortalURL() {
+      return serverConfigurationService.getPortalUrl();
+   }
+
+   public String getServerURL() {
+      return serverConfigurationService.getServerUrl();
+   }
+
+   public String getUserHomeLocationURL(String userReference) {
+      String locationReference = getUserHomeLocationReference(userReference);
+      if (locationReference == null) {
+         throw new IllegalArgumentException("Could not get location from userReference ("+userReference+") to generate URL");
+      }
+      return getLocationReferenceURL(locationReference);
+   }
+
+   public String getLocationReferenceURL(String locationReference) {
+      new EntityReference(locationReference); // validate the reference
+      return getPortalURL() + locationReference;
+   }
+
+   public String getToolViewURL(String toolRegistrationId, String localView,
+         Map<String, String> parameters, String locationReference) {
+      if (toolRegistrationId == null || "".equals(toolRegistrationId)) {
+         throw new IllegalArgumentException("toolRegistrationId must be set and cannot be null or blank");
+      }
+
+      SakaiToolData info = getToolData(toolRegistrationId, locationReference);
+
+      StringBuilder viewURL = new StringBuilder();
+      if (localView == null || "".equals(localView)) {
+         // do nothing
+      } else {
+         viewURL.append(localView);
+      }
+
+      // build the params map into a string
+      boolean firstParamUsed = false;
+      if (parameters != null && parameters.size() > 0) {
+         for (String key : parameters.keySet()) {
+            String value = parameters.get(key);
+            if (value != null) {
+               if (firstParamUsed) {
+                  viewURL.append("&");
+               } else {
+                  viewURL.append("?");
+                  firstParamUsed = true;
+               }
+               viewURL.append(key);
+               viewURL.append("=");
+               viewURL.append(parameters.get(key));
+            }
+         }
+      }
+
+      // urlencode the view part to append
+      String encodedViewURL = null;
+      try {
+         encodedViewURL = URLEncoder.encode(viewURL.toString(), URL_ENCODING);
+      } catch (UnsupportedEncodingException e) {
+         throw new IllegalStateException("Invalid character encoding specified: " + URL_ENCODING);
+      }
+
+      // use the base URL or add in the extra bits if desired
+      String toolURL = info.getToolURL();
+      if (encodedViewURL != null && encodedViewURL.length() > 0) {
+         toolURL = info.getToolURL() + "?toolstate-" + info.getPlacementId() + "=" + encodedViewURL;
+      }
+
+      // Sample URL: http://server:port/portal/site/siteId/page/pageId?toolstate-toolpid=/newpage?thing=value
+      return toolURL;
+   }
+
+   // PERMISSIONS
+
+   public void registerPermission(String permission) {
+      functionManager.registerFunction(permission);
    }
 
    /* (non-Javadoc)
@@ -215,6 +425,8 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
       }
       return userRefs;
    }
+
+   // BEANS
 
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.DeveloperHelperService#cloneBean(java.lang.Object, int, java.lang.String[])

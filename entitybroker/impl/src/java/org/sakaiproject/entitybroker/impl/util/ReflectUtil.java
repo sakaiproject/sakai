@@ -23,6 +23,8 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,9 +42,8 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaProperty;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-
-import com.google.inject.util.ReferenceMap;
-import com.google.inject.util.ReferenceType;
+import org.sakaiproject.entitybroker.util.refmap.ReferenceMap;
+import org.sakaiproject.entitybroker.util.refmap.ReferenceType;
 
 /**
  * Reflection utilities and utilities related to working with classes
@@ -871,6 +872,43 @@ public class ReflectUtil {
          }
       }
       return result.toString();
+   }
+
+   /**
+    * @param text string to make MD5 hash from
+    * @param maxLength
+    * @return an MD5 hash no longer than maxLength
+    */
+   public static String makeMD5(String text, int maxLength) {
+
+      MessageDigest md;
+      try {
+         md = MessageDigest.getInstance("MD5");
+      } catch (NoSuchAlgorithmException e) {
+         throw new RuntimeException("Stupid java sucks for MD5", e);
+      }
+      md.update(text.getBytes());
+
+      // convert the binary md5 hash into hex
+      String md5 = "";
+      byte[] b_arr = md.digest();
+
+      for (int i = 0; i < b_arr.length; i++) {
+         // convert the high nibble
+         byte b = b_arr[i];
+         b >>>= 4;
+         b &= 0x0f; // this clears the top half of the byte
+         md5 += Integer.toHexString(b);
+
+         // convert the low nibble
+         b = b_arr[i];
+         b &= 0x0F;
+         md5 += Integer.toHexString(b);
+      }
+      if (maxLength > 0 && md5.length() > maxLength) {
+         md5 = md5.substring(0, maxLength);
+      }
+      return md5;
    }
 
 }
