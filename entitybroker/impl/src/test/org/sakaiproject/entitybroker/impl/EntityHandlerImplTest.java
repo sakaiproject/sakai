@@ -223,14 +223,14 @@ public class EntityHandlerImplTest extends TestCase {
       search = entityHandler.makeSearchFromRequest(req);
       assertNotNull(search);
       assertTrue( search.isEmpty() );
-      assertEquals(0, search.restrictions.length);
+      assertEquals(0, search.getRestrictions().length);
       search.addOrder( new Order("test") );
 
       req = new MockHttpServletRequest("GET", "test", "stuff");
       search = entityHandler.makeSearchFromRequest(req);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
-      assertEquals(1, search.restrictions.length);
+      assertEquals(1, search.getRestrictions().length);
       assertNotNull( search.getRestrictionByProperty("test") );
       assertEquals("stuff", search.getRestrictionByProperty("test").value);
 
@@ -239,7 +239,7 @@ public class EntityHandlerImplTest extends TestCase {
       search = entityHandler.makeSearchFromRequest(req);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
-      assertEquals(1, search.restrictions.length);
+      assertEquals(1, search.getRestrictions().length);
       assertNotNull( search.getRestrictionByProperty("test") );
       assertEquals("stuff", search.getRestrictionByProperty("test").value);
 
@@ -247,7 +247,7 @@ public class EntityHandlerImplTest extends TestCase {
       search = entityHandler.makeSearchFromRequest(req);
       assertNotNull(search);
       assertFalse( search.isEmpty() );
-      assertEquals(2, search.restrictions.length);
+      assertEquals(2, search.getRestrictions().length);
       assertNotNull( search.getRestrictionByProperty("test") );
       assertEquals("stuff", search.getRestrictionByProperty("test").value);
       assertNotNull( search.getRestrictionByProperty("other") );

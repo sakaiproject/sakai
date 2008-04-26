@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This is a simple pea which allows the passing of a set of search parameters in a nice way
+ * This is a simple class which allows the passing of a set of search parameters in a nice way
  * 
  * @author Aaron Zeckoski (aaronz@caret.cam.ac.uk)
  */
@@ -28,29 +28,53 @@ public class Search {
    /**
     * the index of the first persisted result object to be retrieved (numbered from 0)
     */
-   public long start = 0;
+   private long start = 0;
+   public void setStart(long start) {
+      this.start = start < 0 ? 0 : start;
+   }
+   public long getStart() {
+      return start;
+   }
 
    /**
-    * the maximum number of persisted result objects to retrieve (or <=0 for no limit)
+    * the maximum number of persisted result objects to retrieve (or 0 for no limit)
     */
-   public long limit = 0;
+   private long limit = 0;
+   public void setLimit(long limit) {
+      this.limit = limit < 0 ? 0 : limit;
+   }
+   public long getLimit() {
+      return limit;
+   }
 
    /**
     * if true then all restrictions are run using AND, if false then all restrictions are run using OR
     */
    public boolean conjunction = true;
+   public void setConjunction(boolean conjunction) {
+      this.conjunction = conjunction;
+   }
+   public boolean isConjunction() {
+      return conjunction;
+   }
 
    /**
     * Restrictions define limitations on the results of a search, e.g. propertyA > 100 or property B = 'jump'<br/> You
     * can add as many restrictions as you like and they will be applied in the array order
     */
-   public Restriction[] restrictions = new Restriction[] {};
+   private Restriction[] restrictions = new Restriction[] {};
+   public Restriction[] getRestrictions() {
+      return restrictions;
+   }
 
    /**
     * Orders define the order of the returned results of a search, You can add as many orders as you like and they will
     * be applied in the array order
     */
-   public Order[] orders = new Order[] {};
+   private Order[] orders = new Order[] {};
+   public Order[] getOrders() {
+      return orders;
+   }
 
 
    // CONSTRUCTORS
@@ -429,6 +453,17 @@ public class Search {
          empty = true;
       }
       return empty;
+   }
+
+   /**
+    * Resets the search object to empty state
+    */
+   public void reset() {
+      restrictions = new Restriction[] {};
+      orders = new Order[] {};
+      conjunction = false;
+      start = 0;
+      limit = 0;
    }
 
    /**
