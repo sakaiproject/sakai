@@ -14,6 +14,7 @@
 
 package org.sakaiproject.entitybroker;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -271,5 +272,26 @@ public interface DeveloperHelperService {
     * @throws IllegalArgumentException if the copy cannot be completed because the objects to copy do not have matching fields or types
     */
    public void copyBean(Object orig, Object dest, int maxDepth, String[] fieldNamesToSkip, boolean ignoreNulls);
+
+   /**
+    * Populates an object with the values in the properties map,
+    * this will not fail if the fieldName in the map is not a property on the
+    * object or the fieldName cannot be written to with the value in the object.
+    * This will attempt to convert the provided object values into the right values
+    * to place in the object<br/>
+    * <b>NOTE:</b> simple types like numbers and strings can almost always be converted from
+    * just about anything though they will probably end up as 0 or ""<br/>
+    * Setting fields supports simple, nested, indexed, and mapped values:<br/>
+    * <b>Simple:</b> Get/set a field in a bean (or map), Example: "title", "id"<br/>
+    * <b>Nested:</b> Get/set a field in a bean which is contained in another bean, Example: "someBean.title", "someBean.id"<br/>
+    * <b>Indexed:</b> Get/set a list/array item by index in a bean, Example: "myList[1]", "anArray[2]"<br/>
+    * <b>Mapped:</b> Get/set a map entry by key in a bean, Example: "myMap(key)", "someMap(thing)"<br/>
+    * 
+    * @param object any object
+    * @param properties a map of fieldNames -> Object
+    * @return the list of fieldNames which were successfully written to the object
+    * @throws IllegalArgumentException if the arguments are invalid
+    */
+   public List<String> populate(Object object, Map<String, Object> properties);
 
 }

@@ -443,4 +443,11 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
       entityHandler.getReflectUtil().copy(orig, dest, maxDepth, fieldNamesToSkip, ignoreNulls);
    }
 
+   /* (non-Javadoc)
+    * @see org.sakaiproject.entitybroker.DeveloperHelperService#populate(java.lang.Object, java.util.Map)
+    */
+   public List<String> populate(Object object, Map<String, Object> properties) {
+      return entityHandler.getReflectUtil().populate(object, properties);
+   }
+
 }

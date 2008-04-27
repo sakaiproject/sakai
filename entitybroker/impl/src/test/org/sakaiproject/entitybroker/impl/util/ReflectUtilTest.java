@@ -15,6 +15,8 @@
 package org.sakaiproject.entitybroker.impl.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Saveable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
+import org.sakaiproject.entitybroker.impl.util.exceptions.FieldnameNotFoundException;
 
 /**
  * Testing the reflection utils
@@ -67,8 +70,8 @@ public class ReflectUtilTest extends TestCase {
    }
 
    /**
-    * String id = "id"
-    * String entityId = "EID"; @EntityId
+    * (f) String id = "id" <br/>
+    * (f) String entityId = "EID" (EntityId) <br/>
     */
    public class TestPea {
       public String id = "id";
@@ -79,8 +82,8 @@ public class ReflectUtilTest extends TestCase {
       private String priv = "priv";
    }
    /**
-    * (m) int myInt = 0
-    * (m) String myString = "woot"
+    * int myInt = 0 (EntityId) <br/>
+    * String myString = "woot" <br/>
     */
    public class TestBean {
       private int myInt = 0;
@@ -100,15 +103,16 @@ public class ReflectUtilTest extends TestCase {
       }
    }
    /**
-    * (m) Long id = 3
-    * (m) String entityId = "33" @EntityId
-    * (m) String extra = null
-    * (m) String[] sArray = {"1","2"}
+    * Long id = 3 <br/>
+    * String entityId = "33" (EntityId) <br/>
+    * String extra = null <br/>
+    * String[] sArray = {"1","2"} <br/>
     */
    public class TestEntity {
       private Long id = new Long(3);
       private String entityId = "33";
       private String extra = null;
+      private Boolean bool = null;
       private String[] sArray = {"1","2"};
       public String getPrefix() {
          return "crud";
@@ -141,11 +145,97 @@ public class ReflectUtilTest extends TestCase {
       public void setSArray(String[] array) {
          sArray = array;
       }
+      public Boolean getBool() {
+         return bool;
+      }
+      public void setBool(Boolean bool) {
+         this.bool = bool;
+      }
+   }
+   /**
+    * int id = 5 <br/>
+    * String title = "55" <br/>
+    * String extra = null <br/>
+    * List<String> sList = [A,B] <br/>
+    * Map<String, String> sMap = [A1=ONE, B2=TWO] <br/>
+    * TestBean testBean = null <br/>
+    * - int myInt = 0 <br/>
+    * - String myString = "woot" <br/>
+    * TestEntity testEntity <br/>
+    * - Long id = 3 <br/>
+    * - String entityId = "33" (EntityId) <br/>
+    * - String extra = null <br/>
+    * - String[] sArray = {"1","2"} <br/>
+    */
+   public class TestNesting {
+      private int id = 5;
+      private String title = "55";
+      private String extra = null;
+      private List<String> sList = new ArrayList<String>();
+      private Map<String, String> sMap = new HashMap<String, String>();
+      private TestBean testBean = null;
+      private TestEntity testEntity;
+      public TestNesting() {
+         testEntity = new TestEntity();
+         sMap.put("A1", "ONE");
+         sMap.put("B2", "TWO");
+         sList.add("A");
+         sList.add("B");
+      }
+      public TestNesting(int id, String title, String[] list) {
+         this();
+         this.id = id;
+         this.title = title;
+         sList = Arrays.asList(list);
+      }
+      public int getId() {
+         return id;
+      }
+      public void setId(int id) {
+         this.id = id;
+      }
+      public String getTitle() {
+         return title;
+      }
+      public void setTitle(String title) {
+         this.title = title;
+      }
+      public String getExtra() {
+         return extra;
+      }
+      public void setExtra(String extra) {
+         this.extra = extra;
+      }
+      public List<String> getSList() {
+         return sList;
+      }
+      public void setSList(List<String> list) {
+         sList = list;
+      }
+      public TestBean getTestBean() {
+         return testBean;
+      }
+      public void setTestBean(TestBean testBean) {
+         this.testBean = testBean;
+      }
+      public TestEntity getTestEntity() {
+         return testEntity;
+      }
+      public void setTestEntity(TestEntity testEntity) {
+         this.testEntity = testEntity;
+      }
+      public Map<String, String> getSMap() {
+         return sMap;
+      }
+      public void setSMap(Map<String, String> map) {
+         sMap = map;
+      }
    }
 
    /**
     * Test method for {@link org.sakaiproject.entitybroker.impl.util.ReflectUtil#getFieldValue(java.lang.Object, java.lang.String)}.
     */
+   @SuppressWarnings("unchecked")
    public void testGetFieldValueObjectString() {
       ReflectUtil reflectUtil = new ReflectUtil();
       Object value = null;
@@ -160,6 +250,37 @@ public class ReflectUtilTest extends TestCase {
       assertNotNull(value);
       assertEquals(new Long(3), value);
 
+      TestNesting nested = new TestNesting(10, "100", new String[] {"A", "B"});
+      value = reflectUtil.getFieldValue( nested, "id");
+      assertNotNull(value);
+      assertEquals(10, value);
+
+      value = reflectUtil.getFieldValue( nested, "testEntity.id");
+      assertNotNull(value);
+      assertEquals(new Long(3), value);
+
+      // get list value
+      value = reflectUtil.getFieldValue( nested, "sList[0]");
+      assertNotNull(value);
+      assertEquals("A", value);
+
+      value = reflectUtil.getFieldValue( nested, "sList[1]");
+      assertNotNull(value);
+      assertEquals("B", value);
+
+      value = reflectUtil.getFieldValue( nested, "sList");
+      assertNotNull(value);
+      assertEquals("A", ((List)value).get(0));
+
+      // get map value
+      value = reflectUtil.getFieldValue( nested, "sMap(A1)");
+      assertNotNull(value);
+      assertEquals("ONE", value);
+
+      value = reflectUtil.getFieldValue( nested, "sMap(B2)");
+      assertNotNull(value);
+      assertEquals("TWO", value);
+
       value = reflectUtil.getFieldValue( thing, "extra");
       assertNull(value);
 
@@ -169,17 +290,19 @@ public class ReflectUtilTest extends TestCase {
       assertEquals("1", ((String[])value)[0]);
       assertEquals("2", ((String[])value)[1]);
 
-      // TODO pea support?
-//    thing = new TestPea();
-//    value = reflectUtil.getFieldValue( thing, "id");
-//    assertNotNull(value);
-//    assertEquals("id", value);
+      // basic pea support
+      thing = new TestPea();
+      value = reflectUtil.getFieldValue( thing, "id");
+      assertNotNull(value);
+      assertEquals("id", value);
+
+      // TODO add in nested/mapped/indexed support for peas?
 
       thing = new TestBean();
       try {
          value = reflectUtil.getFieldValue(thing, "id");
          fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
+      } catch (FieldnameNotFoundException e) {
          assertNotNull(e.getMessage());
       }
    }
@@ -199,6 +322,8 @@ public class ReflectUtilTest extends TestCase {
       reflectUtil.setFieldValue(thing, "myInt", 5);
       assertEquals(5, ((TestBean)thing).getMyInt());
 
+      // TODO test setting other stuff?
+
       thing = new TestEntity();
       reflectUtil.setFieldValue(thing, "SArray", new String[] {"A", "B", "C"});
       assertEquals(3, ((TestEntity)thing).getSArray().length);
@@ -210,7 +335,7 @@ public class ReflectUtilTest extends TestCase {
       try {
          reflectUtil.setFieldValue(thing, "id", "uhohes");
          fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
+      } catch (FieldnameNotFoundException e) {
          assertNotNull(e.getMessage());
       }
    }
@@ -242,6 +367,59 @@ public class ReflectUtilTest extends TestCase {
       assertEquals("C", ((TestEntity)thing).getSArray()[2]);
    }
 
+   public void testSetFieldValueWithConversion() {
+      ReflectUtil reflectUtil = new ReflectUtil();
+      Object thing = null;
+
+      thing = new TestEntity();
+      reflectUtil.setFieldValueWithConversion(thing, "id", "10");
+      assertEquals(new Long(10), ((TestEntity)thing).getId());
+
+      thing = new TestEntity();
+      reflectUtil.setFieldValueWithConversion(thing, "id", 10);
+      assertEquals(new Long(10), ((TestEntity)thing).getId());
+
+      thing = new TestEntity();
+      reflectUtil.setFieldValueWithConversion(thing, "id", new String[] {"10"});
+      assertEquals(new Long(10), ((TestEntity)thing).getId());
+
+      thing = new TestEntity();
+      reflectUtil.setFieldValueWithConversion(thing, "bool", true);
+      assertEquals(Boolean.TRUE, ((TestEntity)thing).getBool());
+
+      thing = new TestEntity();
+      reflectUtil.setFieldValueWithConversion(thing, "bool", "true");
+      assertEquals(Boolean.TRUE, ((TestEntity)thing).getBool());
+
+      thing = new TestEntity();
+      reflectUtil.setFieldValueWithConversion(thing, "bool", "false");
+      assertEquals(Boolean.FALSE, ((TestEntity)thing).getBool());
+
+      thing = new TestEntity();
+      reflectUtil.setFieldValueWithConversion(thing, "bool", "xxxx");
+      assertEquals(Boolean.FALSE, ((TestEntity)thing).getBool());
+
+      thing = new TestEntity();
+      reflectUtil.setFieldValueWithConversion(thing, "bool", "");
+      assertEquals(Boolean.FALSE, ((TestEntity)thing).getBool());
+
+      thing = new TestEntity();
+      reflectUtil.setFieldValueWithConversion(thing, "extra", "stuff");
+      assertEquals("stuff", ((TestEntity)thing).getExtra());
+
+      thing = new TestEntity();
+      reflectUtil.setFieldValueWithConversion(thing, "extra", 100);
+      assertEquals("100", ((TestEntity)thing).getExtra());
+
+      thing = new TestEntity();
+      reflectUtil.setFieldValueWithConversion(thing, "extra", new String[] {"stuff"});
+      assertEquals("stuff", ((TestEntity)thing).getExtra());
+
+      thing = new TestEntity();
+      reflectUtil.setFieldValueWithConversion(thing, "extra", new String[] {"stuff", "plus"});
+      assertEquals("stuff", ((TestEntity)thing).getExtra());
+   }
+
    /**
     * Test method for {@link org.sakaiproject.entitybroker.impl.util.ReflectUtil#getFieldTypes(java.lang.Class)}.
     */
@@ -270,6 +448,18 @@ public class ReflectUtilTest extends TestCase {
       type = reflectUtil.getFieldType(TestBean.class, "myInt");
       assertNotNull(type);
       assertEquals(int.class, type);
+
+      type = reflectUtil.getFieldType(TestPea.class, "id");
+      assertNotNull(type);
+      assertEquals(String.class, type);
+
+      type = reflectUtil.getFieldType(TestNesting.class, "sList");
+      assertNotNull(type);
+      assertEquals(List.class, type);
+
+      type = reflectUtil.getFieldType(TestNesting.class, "sMap");
+      assertNotNull(type);
+      assertEquals(Map.class, type);
    }
 
    /**
@@ -283,13 +473,13 @@ public class ReflectUtilTest extends TestCase {
       assertNotNull(m);
       assertEquals(0, m.size());
 
-//      m = reflectUtil.getObjectValues( new TestPea() );
-//      assertNotNull(m);
-//      assertEquals(2, m.size());
-//      assertTrue(m.containsKey("id"));
-//      assertEquals("id", m.get("id"));
-//      assertTrue(m.containsKey("entityId"));
-//      assertEquals("EID", m.get("entityId"));
+      m = reflectUtil.getObjectValues( new TestPea() );
+      assertNotNull(m);
+      assertEquals(2, m.size());
+      assertTrue(m.containsKey("id"));
+      assertEquals("id", m.get("id"));
+      assertTrue(m.containsKey("entityId"));
+      assertEquals("EID", m.get("entityId"));
 
       m = reflectUtil.getObjectValues( new TestBean() );
       assertNotNull(m);
@@ -301,11 +491,12 @@ public class ReflectUtilTest extends TestCase {
 
       m = reflectUtil.getObjectValues( new TestEntity() );
       assertNotNull(m);
-      assertEquals(5, m.size());
+      assertEquals(6, m.size());
       assertTrue(m.containsKey("id"));
       assertTrue(m.containsKey("entityId"));
       assertTrue(m.containsKey("extra"));
       assertTrue(m.containsKey("SArray"));
+      assertTrue(m.containsKey("bool"));
       assertTrue(m.containsKey("prefix"));
       assertEquals(new Long(3), m.get("id"));
       assertEquals("33", m.get("entityId"));
@@ -338,24 +529,24 @@ public class ReflectUtilTest extends TestCase {
       try {
          value = reflectUtil.getFieldValueAsString( new TestBean(), "id", null);
          fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
+      } catch (FieldnameNotFoundException e) {
          assertNotNull(e.getMessage());
       }
 
       value = reflectUtil.getFieldValueAsString( new TestEntity(), "extra", null);
       assertNull(value);
 
-//    value = reflectUtil.getFieldValueAsString( new TestPea(), "id", null);
-//    assertNotNull(value);
-//    assertEquals("id", value);
+      value = reflectUtil.getFieldValueAsString( new TestPea(), "id", null);
+      assertNotNull(value);
+      assertEquals("id", value);
 
       value = reflectUtil.getFieldValueAsString( new TestEntity(), "id", null);
       assertNotNull(value);
       assertEquals("3", value);
 
-//    value = reflectUtil.getFieldValueAsString( new TestPea(), "id", EntityId.class);
-//    assertNotNull(value);
-//    assertEquals("EID", value);
+      value = reflectUtil.getFieldValueAsString( new TestPea(), "id", EntityId.class);
+      assertNotNull(value);
+      assertEquals("EID", value);
 
       value = reflectUtil.getFieldValueAsString( new TestEntity(), "id", EntityId.class);
       assertNotNull(value);
@@ -364,7 +555,7 @@ public class ReflectUtilTest extends TestCase {
       try {
          value = reflectUtil.getFieldValueAsString( new TestNone(), "id", EntityId.class);
          fail("Should have thrown exception");
-      } catch (IllegalArgumentException e) {
+      } catch (FieldnameNotFoundException e) {
          assertNotNull(e.getMessage());
       }
 
@@ -431,8 +622,83 @@ public class ReflectUtilTest extends TestCase {
       assertNotNull(dest);
       assertEquals(orig.getMyInt(), dest.getMyInt());
       assertEquals(orig.getMyString(), dest.getMyString());
+   }
 
-      //FIXME TODO fail("Not yet implemented");
+   public void testPopulate() {
+      ReflectUtil reflectUtil = new ReflectUtil();
+      List<String> results = null;
+      Map<String, Object> properties = new HashMap<String, Object>();
+
+      // empty should be ok and should not change anything
+      TestBean target = new TestBean();
+      results = reflectUtil.populate(target, properties);
+      assertNotNull(results);
+      assertEquals(0, results.size());
+      assertNotNull(target);
+      assertEquals(0, target.getMyInt());
+      assertEquals("woot", target.getMyString());
+
+      // non matching fields should be ok
+      properties.put("xxxxxxx", "xxxxxx");
+      properties.put("yyyyyyy", 1000000);
+      results = reflectUtil.populate(target, properties);
+      assertNotNull(results);
+      assertEquals(0, results.size());
+      assertNotNull(target);
+      assertEquals(0, target.getMyInt());
+      assertEquals("woot", target.getMyString());
+
+      // strings should be ok
+      properties.put("myInt", "100");
+      properties.put("myString", "NEW");
+      results = reflectUtil.populate(target, properties);
+      assertNotNull(results);
+      assertEquals(2, results.size());
+      assertNotNull(target);
+      assertEquals(100, target.getMyInt());
+      assertEquals("NEW", target.getMyString());
+
+      // string arrays should be ok also
+      properties.put("myInt", new String[] {"1000"});
+      properties.put("myString", new String[] {"OLD","BLUE"});
+      results = reflectUtil.populate(target, properties);
+      assertNotNull(results);
+      assertEquals(2, results.size());
+      assertNotNull(target);
+      assertEquals(1000, target.getMyInt());
+      assertEquals("OLD", target.getMyString());
+
+      // objects
+      properties.put("myInt", new Long(222));
+      properties.put("myString", 55555);
+      results = reflectUtil.populate(target, properties);
+      assertNotNull(results);
+      assertEquals(2, results.size());
+      assertNotNull(target);
+      assertEquals(222, target.getMyInt());
+      assertEquals("55555", target.getMyString());
+   }
+
+   public void testPopulateFromParams() {
+      ReflectUtil reflectUtil = new ReflectUtil();
+      List<String> results = null;
+      Map<String, String[]> properties = new HashMap<String, String[]>();
+
+      TestEntity target = new TestEntity();
+
+      properties.put("id", new String[] {"1000"});
+      properties.put("extra", new String[] {"OLD","BLUE"});
+      properties.put("SArray", new String[] {"AA","BB","CC"});
+      results = reflectUtil.populateFromParams(target, properties);
+      assertNotNull(results);
+      assertEquals(3, results.size());
+      assertNotNull(target);
+      assertEquals(new Long(1000), target.getId());
+      assertEquals("OLD", target.getExtra());
+      assertEquals("33", target.getEntityId());
+      assertEquals(null, target.getBool());
+      assertEquals(3, target.getSArray().length);
+   
    }
 
    /**

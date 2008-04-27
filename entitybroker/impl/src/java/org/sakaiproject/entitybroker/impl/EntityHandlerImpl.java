@@ -997,7 +997,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                   if (params != null && params.size() > 0) {
                      entity = current;
                      try {
-                        reflectUtil.getBeanUtils().populate(entity, params);
+                        reflectUtil.populateFromParams(entity, params);
                      } catch (Exception e) {
                         throw new IllegalArgumentException("Unable to populate bean for ref ("+ref+") from request: " + e.getMessage(), e);
                      }
