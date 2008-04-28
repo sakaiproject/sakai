@@ -53,9 +53,21 @@
 
         <!-- for reloadable proxy -->
         <dependency>
-            <groupId>org.sakaiproject</groupId>
+            <groupId>sakaiproject</groupId>
             <artifactId>sakai-component</artifactId>
             <version>${sakai.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.0.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${sakai.spring.groupId}</groupId>
+            <artifactId>${sakai.spring.artifactId}</artifactId>
+            <version>${sakai.spring.version}</version>
         </dependency>
 
 	</dependencies>
