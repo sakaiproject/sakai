@@ -51,7 +51,7 @@ public class PooledLDAPConnectionTest extends MockObjectTestCase {
      * Verifies that active {@link PooledLDAPConnection}s are returned to the
      * assigned {@link LdapConnectionManager}.
      *
-     * @see #testFinalizeAbandonsInactiveConnections() for handling of
+     * @see #testFinalizeDoesNotReturnInactiveConnectionToTheConnectionManager() for handling of
      *   inactive connections
      * @throws LDAPException test error
      */

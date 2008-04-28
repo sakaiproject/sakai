@@ -229,12 +229,24 @@ public class PooledLDAPConnectionFactory implements PoolableObjectFactory {
 	}
 
 	/**
-	 * Cleans up a PooledLDAPConnection that is about to be destroyed.
-	 * The finalize method in LDAPConnection handles everything, so
-	 * there is nothing to do here.
+	 * Cleans up a PooledLDAPConnection that is about to be destroyed by
+	 * invoking {@link PooledLDAPConnection#disconnect()}. To ensure that the
+	 * object is not inadvertently returned to the pool again by a 
+	 * <code>finalize()</code> call, the connection's active flag is lowered 
+	 * prior to the <code>disconnect()</code> call. Does nothing but log a pair of
+	 * debug messages if the received object is not a {@link PooledLDAPConnection}.
 	 */
 	public void destroyObject(Object obj) throws Exception {
 		if (log.isDebugEnabled()) log.debug("destroyObject()");
+		if ( obj instanceof PooledLDAPConnection ) {
+			((PooledLDAPConnection)obj).setActive(false);
+			((PooledLDAPConnection)obj).disconnect();
+		} else {
+			if (log.isDebugEnabled()) {
+    			log.debug("destroyObject(): connection not of expected type [" + 
+    				(obj == null ? "null" : obj.getClass().getName()) + "] nothing to do");
+    		}
+		}
 	}
 
 

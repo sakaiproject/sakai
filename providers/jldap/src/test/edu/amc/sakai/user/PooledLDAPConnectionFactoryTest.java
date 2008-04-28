@@ -296,5 +296,27 @@ public class PooledLDAPConnectionFactoryTest extends MockObjectTestCase {
     	assertFalse(factory.validateObject(null));
     	
     }
+    
+    public void testDestroyObjectInvokesDisconnect() throws Exception {
+    	mockConn.expects(once()).method("setActive").with(eq(false));
+    	mockConn.expects(once()).method("disconnect").after("setActive");
+    	factory.destroyObject(conn);
+    }
+    
+    public void testDestroyObjectIgnoresNullReferences() {
+    	try {
+    		factory.destroyObject(null);
+    	} catch ( Exception e ) {
+    		fail("Should have ignored null reference");
+    	}
+    }
+    
+    public void testDestroyObjectIgnoresNonPoolableLdapConnections() {
+    	try {
+    		factory.destroyObject(mock(LDAPConnection.class).proxy());
+    	} catch ( Exception e ) {
+    		fail("Should have ignored non-poolable connection");
+    	}
+    }
         
 }
