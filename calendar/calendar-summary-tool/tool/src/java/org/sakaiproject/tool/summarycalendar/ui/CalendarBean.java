@@ -799,7 +799,7 @@ public class CalendarBean {
 	}
 
 	// tbd: this needs to used gif files defined in calendar-tool/tool/src/config/.../calendar.config
-	public Map getEventImageMap() {
+	public synchronized Map getEventImageMap() {
 		if(eventImageMap == null || eventImageMap.size() == 0){
 			eventImageMap = new HashMap();
 			eventImageMap.put("Academic Calendar", imgLocation + "academic_calendar.gif");
