@@ -34,11 +34,18 @@ import org.springframework.beans.factory.InitializingBean;
  * How to use:<br/>
  * 1) Create a bean for the service you want to proxy in your webapp application context (example: myLocalBean)<br/>
  * 2) Create a bean in your webapp like so:
- * <xmp><bean class="org.sakaiproject.entitybroker.util.ReloadableComponentProxy">
-               <property name="proxyInterfaces" value="org.sakaiproject.myproject.MyService" />
-               <property name="sakaiComponentName" value="org.sakaiproject.myproject.MyService" />
-               <property name="localSakaiComponentBean" ref="myLocalBeanName" />
-   </bean></xmp>
+<xmp><bean class="org.sakaiproject.entitybroker.util.ReloadableComponentProxy">
+     <property name="proxyInterfaces" value="org.sakaiproject.myproject.MyService" />
+     <property name="sakaiComponentName" value="org.sakaiproject.myproject.MyService" />
+     <property name="localSakaiComponentBean" ref="myLocalBeanName" />
+</bean></xmp><br/>
+ * 3) Put the interface for your service into shared (this has to be the same interface you are registering in proxyInterfaces)<br/>
+ * 4) Use {@link ComponentManager#get(Class)} to load up the proxied bean in the service/thing that is using your service
+ * at the point where it is used (not in the init or it will fail):
+<xmp>if (webappService == null) {
+     webappService = (MyService) ComponentManager.get(MyService.class);
+}</xmp>
+ * That's it. Good luck.<br/>
  * 
  * @author Steven Githens (sgithens@caret.cam.ac.uk)
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
