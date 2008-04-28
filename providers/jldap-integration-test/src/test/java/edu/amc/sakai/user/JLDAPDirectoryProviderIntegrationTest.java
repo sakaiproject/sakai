@@ -312,9 +312,14 @@ public class JLDAPDirectoryProviderIntegrationTest extends SakaiTestBase {
         
         LdapConnectionManager connMgr = support.udp.getLdapConnectionManager();
         LDAPConnection conn = connMgr.getConnection();
+        
+        // We don't actually know that disconnect() hasn't been overridden
+        // to return the conn to the pool, a la JDBC. So we cover all bases
+        // by attempting both a direct disconnect() and a finalize() which
+        // we fully expect to disconnect a deactivated, i.e. in-pool connection.
         conn.disconnect();
         connMgr.returnConnection(conn);
-        ((PooledLDAPConnection)conn).finalize(); // some whitebox evil here
+        ((PooledLDAPConnection)conn).finalize(); 
         
         // should be able to allocate an LDAP connection and pass the following simple test
         testConfirmsUserExistenceIfPassedValidEid();
