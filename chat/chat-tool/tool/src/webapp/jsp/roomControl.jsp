@@ -51,7 +51,8 @@ try { parent.updateNow(); } catch (error) {}
 
    <h:form id="mainForm">
 	  <input type="hidden" id="actionInjection" name="_idOfAction" value="some value" />
-      <label for="message"></label>
+      <h:outputLabel for="message"	value="#{msgs['control.lab']}" />    
+      <br>      
       <h:inputTextarea id="message" value="#{ChatTool.newMessageText}" rows="3" cols="60" onkeypress="formSubmitOnEnterJSF(this, event)" />
       <sakai:button_bar>
           <sakai:button_bar_item id="submit"
