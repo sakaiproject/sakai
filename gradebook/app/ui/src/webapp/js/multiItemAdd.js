@@ -229,6 +229,28 @@ function copyPanes(rowIndex1, rowIndex2, idPrefix) {
 	else { 
 		curEl1.style.display = 'none';
 	}
+
+	// Added per SAK-13459
+	curEl1 = getEl(idPrefix + rowIndex1 + ':invalidPtsErrMsg');
+	if (!curEl1) curEl1 = getEl(idPrefix + rowIndex1 + ':invalidPtsErrMsgH');
+	curEl2 = getEl(idPrefix + rowIndex2 + ':invalidPtsErrMsg');
+	if (curEl2) {
+		curEl1.style.display = 'inline';
+	}
+	else { 
+		curEl1.style.display = 'none';
+	}
+
+	// Added per SAK-13459
+	curEl1 = getEl(idPrefix + rowIndex1 + ':precisionPtsErrMsg');
+	if (!curEl1) curEl1 = getEl(idPrefix + rowIndex1 + ':precisionPtsErrMsgH');
+	curEl2 = getEl(idPrefix + rowIndex2 + ':precisionPtsErrMsg');
+	if (curEl2) {
+		curEl1.style.display = 'inline';
+	}
+	else { 
+		curEl1.style.display = 'none';
+	}
 }
 
 //*********************************************************************
@@ -270,16 +292,20 @@ function eraseAndHide(idPrefix, rowIndex) {
 	// for each textbox there can only be at most one
 	// error message so once found we can skip the rest
 	curEl = getEl(idPrefix + ':noTitleErrMsg');
-	if (!curEl) curEl = getEl(idPrefix + ':noTitleErrMsgH');
-	if (!curEl) curEl = getEl(idPrefix + ':dupTitleErrMsg');
-	if (!curEl) curEl = getEl(idPrefix + ':dupTitleErrMsgH');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':noTitleErrMsgH');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':dupTitleErrMsg');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':dupTitleErrMsgH');
 	
 	if (curEl) curEl.style.display = 'none';
 	
 	curEl = getEl(idPrefix + ':blankPtsErrMsg');
-	if (!curEl) curEl = getEl(idPrefix + ':blankPtsErrMsgH');
-	if (!curEl) curEl = getEl(idPrefix + ':nanPtsErrMsg');
-	if (!curEl) curEl = getEl(idPrefix + ':nanPtsErrMsgH');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':blankPtsErrMsgH');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':nanPtsErrMsg');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':nanPtsErrMsgH');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':invalidPtsErrMsg');  // Added per SAK-13459
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':invalidPtsErrMsgH'); // Added per SAK-13459
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':precisionPtsErrMsg');  // Added per SAK-13459
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':precisionPtsErrMsgH'); // Added per SAK-13459
 	if (curEl) curEl.style.display = 'none';
 
 	// Get the enclosing tr for the enclosing table this pane is nested inside of

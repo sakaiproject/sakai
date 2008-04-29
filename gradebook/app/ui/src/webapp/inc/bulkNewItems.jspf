@@ -82,6 +82,15 @@
 									rendered="#{item.bulkNoPointsError == 'NaN'}" />
 					<h:outputText id="nanPtsErrMsgH" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline errHide"
 									rendered="#{item.bulkNoPointsError != 'NaN'}" />
+					<%-- Added per SAK-13459 --%>
+					<h:outputText id="invalidPtsErrMsg" value="#{msgs.add_assignment_invalid_points}" styleClass="alertMessageInline"
+									rendered="#{item.bulkNoPointsError == 'invalid'}" />
+					<h:outputText id="invalidPtsErrMsgH" value="#{msgs.add_assignment_invalid_points}" styleClass="alertMessageInline errHide"
+									rendered="#{item.bulkNoPointsError != 'invalid'}" />
+					<h:outputText id="precisionPtsErrMsg" value="#{msgs.add_assignment_invalid_precision_points}" styleClass="alertMessageInline"
+									rendered="#{item.bulkNoPointsError == 'precision'}" />
+					<h:outputText id="precisionPtsErrMsgH" value="#{msgs.add_assignment_invalid_precision_points}" styleClass="alertMessageInline errHide"
+									rendered="#{item.bulkNoPointsError != 'precision'}" />
 				</h:panelGroup>
 			  </h:panelGrid>
 

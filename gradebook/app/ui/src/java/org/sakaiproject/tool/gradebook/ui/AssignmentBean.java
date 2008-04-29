@@ -23,12 +23,14 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -199,9 +201,29 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 				else {
 					try {
 						double dblPointsPossible = new Double(bulkAssignDecoBean.getPointsPossible()).doubleValue();
-					
-						bulkAssignDecoBean.setBulkNoPointsError("OK");
-						bulkAssignDecoBean.getAssignment().setPointsPossible(new Double(bulkAssignDecoBean.getPointsPossible()));
+
+						// Added per SAK-13459: did not validate if point value was valid (> zero)
+						if (dblPointsPossible > 0) {
+							// No more than 2 decimal places can be entered.
+							BigDecimal bd = new BigDecimal(dblPointsPossible);
+							bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP); // Two decimal places
+							double roundedVal = bd.doubleValue();
+							double diff = dblPointsPossible - roundedVal;
+							if(diff != 0) {
+								saveAll = false;
+								resultString = "failure";
+								bulkAssignDecoBean.setBulkNoPointsError("precision");
+							}
+							else {
+								bulkAssignDecoBean.setBulkNoPointsError("OK");
+								bulkAssignDecoBean.getAssignment().setPointsPossible(new Double(bulkAssignDecoBean.getPointsPossible()));
+							}
+						}
+						else {
+							saveAll = false;
+							resultString = "failure";
+							bulkAssignDecoBean.setBulkNoPointsError("invalid");
+						}
 					}
 					catch (Exception e) {
 						bulkAssignDecoBean.setBulkNoPointsError("NaN");
