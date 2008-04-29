@@ -247,16 +247,10 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
     */
    public void testFireEvent() {
       // we are mostly handing this to a mocked service so we can only check to see if errors occur
-      boolean valid = false;
-
-      valid = entityBroker.fireEvent(TestData.EVENT1_NAME, TestData.REF1);
-      assertTrue(valid);
-      valid = entityBroker.fireEvent(TestData.EVENT1_NAME, TestData.REF2);
-      assertTrue(valid);
-      valid = entityBroker.fireEvent(TestData.EVENT2_NAME, TestData.REF1);
-      assertTrue(valid);
-      valid = entityBroker.fireEvent(TestData.EVENT2_NAME, "XXXXXXXXXX");
-      assertFalse(valid);
+      entityBroker.fireEvent(TestData.EVENT1_NAME, TestData.REF1);
+      entityBroker.fireEvent(TestData.EVENT1_NAME, TestData.REF2);
+      entityBroker.fireEvent(TestData.EVENT2_NAME, TestData.REF1);
+      entityBroker.fireEvent(TestData.EVENT2_NAME, "XXXXXXXXXXXXXX");
 
       // event with a null name should die
       try {
