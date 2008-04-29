@@ -84,14 +84,18 @@ public interface EntityBroker extends PropertiesProvider, TagProvider, TagSearch
 
    /**
     * Fire an event to Sakai with the specified name, targetted at the supplied reference, which
-    * should be a reference to an existing entity managed by this broker
+    * should be a reference to an existing entity managed by this broker<br/>
+    * <b>NOTE:</b> This will allow events to be fired for references without a broker or invalid references,
+    * the return can be used as an indicator of validity if desired
     * 
-    * @param eventName
-    *           a string which represents the name of the event (e.g. announcement.create)
+    * @param eventName a string which represents the name of the event (e.g. announcement.create),
+    * cannot be null or empty
     * @param reference a globally unique reference to an entity, 
-    * consists of the entity prefix and optional segments
+    * consists of the entity prefix and optional segments,
+    * cannot be null or empty
+    * @return true if the entity reference is valid, false otherwise
     */
-   public void fireEvent(String eventName, String reference);
+   public boolean fireEvent(String eventName, String reference);
 
    /**
     * Parses an entity reference into a concrete object, of type {@link EntityReference}, or some

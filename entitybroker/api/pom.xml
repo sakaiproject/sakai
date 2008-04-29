@@ -59,15 +59,20 @@
 	</dependencies>
 
 	<build>
-		<resources>
-			<resource>
-				<directory>${basedir}/src/java</directory>
-				<includes>
-					<include>**/*.xml</include>
-				</includes>
-				<filtering>false</filtering>
-			</resource>
-		</resources>
+	   <resources>
+        <!-- include the readme.txt file and the java source files -->
+	   	<resource>
+	   		<directory>${basedir}</directory>
+	   		<includes>
+	   			<include>*.txt</include>
+	   			<include>src/**/*.java</include>
+	   			<include>src/**/*.html</include>
+	   			<include>src/**/*.xml</include>
+	   			<include>src/**/*.properties</include>
+	   		</includes>
+	   		<filtering>false</filtering>
+	   	</resource>
+	   </resources>
 
 		<!-- unit testing -->
 		<plugins>

@@ -120,16 +120,36 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
    /* (non-Javadoc)
     * @see org.sakaiproject.entitybroker.EntityBroker#fireEvent(java.lang.String, java.lang.String)
     */
-   public void fireEvent(String eventName, String reference) {
+   public boolean fireEvent(String eventName, String reference) {
       if (eventName == null || "".equals(eventName)) {
          throw new IllegalArgumentException("Cannot fire event if name is null or empty");
       }
-      // parse the reference string to validate it and remove any extra bits
-      EntityReference ref = entityHandler.parseReference(reference);
+      if (reference == null || "".equals(reference)) {
+         throw new IllegalArgumentException("Cannot fire event if reference is null or empty");
+      }
+      boolean valid = false;
+      String refName = reference;
+      try {
+         // parse the reference string to validate it and remove any extra bits
+         EntityReference ref = entityHandler.parseReference(reference);
+         if (ref != null) {
+            refName = ref.toString();
+            valid = true;
+         } else {
+            // fallback to simple parsing
+            refName = new EntityReference(reference).toString();
+            valid = false;
+         }
+      } catch (Exception e) {
+         refName = reference;
+         valid = false;
+         log.warn("Invalid reference ("+reference+") for eventName ("+eventName+"), could not parse the reference correctly, continuing to create event with original reference");
+      }
       // had to take out the exists check because it makes firing events for removing entities very annoying -AZ
-      Event event = eventTrackingService.newEvent(eventName, ref.toString(), true,
+      Event event = eventTrackingService.newEvent(eventName, refName, true,
             NotificationService.PREF_IMMEDIATE);
       eventTrackingService.post(event);
+      return valid;
    }
 
    /* (non-Javadoc)
