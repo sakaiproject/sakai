@@ -60,6 +60,13 @@
 
 	<build>
 	   <resources>
+         <resource>
+            <directory>${basedir}/src/java</directory>
+            <includes>
+               <include>**/*.xml</include>
+            </includes>
+            <filtering>false</filtering>
+         </resource>
         <!-- include the readme.txt file and the java source files -->
 	   	<resource>
 	   		<directory>${basedir}</directory>
