@@ -212,7 +212,7 @@ public class RefCountIndexSearcher extends IndexSearcher implements ThreadBound,
 		}
 		try
 		{
-			indexReader.close();
+			if (indexReader != null) indexReader.close();
 		}
 		catch (IOException ioex)
 		{
