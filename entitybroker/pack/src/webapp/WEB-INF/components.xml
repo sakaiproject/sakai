@@ -60,6 +60,15 @@
          ref="org.sakaiproject.user.api.UserDirectoryService" />
    </bean>
 
+    <bean id="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+            abstract="true" 
+            class="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider">
+        <property name="entityProviderManager"
+            ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
+        <property name="developerHelperService"
+            ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+    </bean>
+
 
    <!-- Private beans -->
    <bean class="org.sakaiproject.entitybroker.impl.event.EventReceiverCoordinator"
