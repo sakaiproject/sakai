@@ -775,6 +775,7 @@ This is not needed now that pluto have been released
     </plugins>
   </build>
   <modules>
+    <module>loader</module>
     <module>component</module>
     <module>alias</module>
     <module>event</module>

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<web-app id="Kernel Loader" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>sakai-kernel</display-name>
+	<description>Sakai Kernel Loader</description>
+	
+	<!--
+	The Kernel Loader 
+        This is a temporary measure to load the kernel while the component manager does not live
+	in a webapp contianer.
+	-->
+	
+	<servlet>
+		<servlet-name>sakai.kernel</servlet-name>
+		<servlet-class>
+			org.sakaiproject.kernel.loader.LoaderServlet
+		</servlet-class>
+		<load-on-startup>100</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>sakai.kernel</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+	
+</web-app>
