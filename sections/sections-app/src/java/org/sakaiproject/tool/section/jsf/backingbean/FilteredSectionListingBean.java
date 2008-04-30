@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.model.SelectItem;
 
@@ -50,6 +51,9 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 	protected boolean siteWithoutSections;
 
 	public void init() {
+		
+		if (log.isDebugEnabled()) log.debug("FilteredSectionListingBean init()");
+		
 		setDefaultPrefs();
 		// Get the filter settings
 		String categoryFilter = getCategoryFilter();
@@ -63,6 +67,12 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 
 		sections = new ArrayList<SectionDecorator>();
 
+		// Get the total enrollments for all groups
+		Map sectionSize = getSectionManager().getEnrollmentCount(sectionSet);
+
+		// Get the TAs for all groups
+		Map<String,List<ParticipationRecord>> sectionTAs = getSectionManager().getSectionTeachingAssistantsMap(sectionSet);
+		
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
 			String catName = getCategoryName(section.getCategory());
@@ -74,7 +84,7 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 			}
 
 			// Generate the string showing the TAs
-			List<ParticipationRecord> tas = getSectionManager().getSectionTeachingAssistants(section.getUuid());
+			List<ParticipationRecord> tas = (List<ParticipationRecord>) sectionTAs.get(section.getUuid());
 			List<String> taNames = generateTaNames(tas);
 			List<String> taUids = generateTaUids(tas);
 
@@ -87,7 +97,8 @@ public abstract class FilteredSectionListingBean extends CourseDependentBean imp
 				}
 			}
 
-			int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
+			int totalEnrollments = sectionSize.containsKey(section.getUuid()) ? 
+					(Integer) sectionSize.get(section.getUuid()) : 0;
 
 			SectionDecorator decoratedSection = new SectionDecorator(
 					section, catName, taNames, totalEnrollments, true);

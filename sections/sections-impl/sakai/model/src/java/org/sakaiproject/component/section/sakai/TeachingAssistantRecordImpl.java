@@ -48,6 +48,11 @@ public class TeachingAssistantRecordImpl extends ParticipationRecordImpl impleme
 		this.userUid = user.getUserUid();
 	}
 
+	public TeachingAssistantRecordImpl(User user) {
+		this.user = user;
+		this.userUid = user.getUserUid();
+	}
+	
 	public Role getRole() {
 		return Role.TA;
 	}

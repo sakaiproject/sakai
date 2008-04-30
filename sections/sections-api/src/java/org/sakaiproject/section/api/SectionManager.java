@@ -432,6 +432,22 @@ public interface SectionManager {
     public List<EnrollmentRecord> getUnsectionedEnrollments(String courseUuid, String category);
 
     /**
+     * Gets the enrollment size for a set of sections.
+     *
+     * @param sectionSet
+     * @return A Map (sectionUuid, size) 
+     */
+    public Map getEnrollmentCount(List sectionSet);
+    
+    /**
+     * Gets the list of Teaching Assistants for a set of sections 
+     *
+     * @param sectionSet
+     * @return A Map (sectionUuid, List<ParticipationRecord> ) of TAs for each section 
+     */
+    public Map<String,List<ParticipationRecord>> getSectionTeachingAssistantsMap(List sectionSet);
+    
+    /**
      * Gets all of the section enrollments for a user in a course.  Useful for
      * listing all of the sections in which a student is enrolled.
      *

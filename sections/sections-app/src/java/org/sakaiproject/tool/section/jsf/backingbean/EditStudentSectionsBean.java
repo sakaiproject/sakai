@@ -24,8 +24,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
@@ -95,6 +97,12 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 		// Get the section enrollments for this student
 		Set enrolled = getEnrolledSections(studentUid);
 
+		// Get the total enrollments for all groups
+		Map sectionSize = getSectionManager().getEnrollmentCount(sectionSet);
+		
+		// Get the TAs for all groups
+		Map<String,List<ParticipationRecord>> sectionTAs = getSectionManager().getSectionTeachingAssistantsMap(sectionSet);
+		
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
 			CourseSection section = (CourseSection)sectionIter.next();
 			String catName = getCategoryName(section.getCategory());
@@ -108,7 +116,8 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 			}
 
 			// Generate the string showing the TAs
-			List<ParticipationRecord> tas = getSectionManager().getSectionTeachingAssistants(section.getUuid());
+						
+			List<ParticipationRecord> tas = (List<ParticipationRecord>) sectionTAs.get(section.getUuid());
 			List<String> taNames = generateTaNames(tas);
 			List<String> taUids = generateTaUids(tas);
 
@@ -125,7 +134,9 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 			Collections.sort(taNames);
 
 			// Get the enrollments and membership so we can decorate the section
-			int totalEnrollments = getSectionManager().getTotalEnrollments(section.getUuid());
+			int totalEnrollments = sectionSize.containsKey(section.getUuid()) ? 
+					(Integer) sectionSize.get(section.getUuid()) : 0;
+					
 			boolean member = isEnrolledInSection(enrolled, section);
 			boolean memberOtherSection = isEnrolledInOtherSection(enrolled, section);
 			

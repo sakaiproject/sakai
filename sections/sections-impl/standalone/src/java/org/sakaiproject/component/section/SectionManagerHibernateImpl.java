@@ -162,6 +162,29 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	/**
 	 * {@inheritDoc}
 	 */
+	public Map getEnrollmentCount(List sectionSet) {
+
+		// TODO - not implemented
+		
+		return new HashMap();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Map<String,List<ParticipationRecord>> getSectionTeachingAssistantsMap(List sectionSet)
+	{
+		ArrayList<String> siteGroupRefs = new ArrayList<String>(sectionSet.size());
+		Map<String,List<ParticipationRecord>> sectionTaMap = new HashMap<String,List<ParticipationRecord>>();
+	
+		// TODO - not implemented
+		
+		return sectionTaMap;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<ParticipationRecord> getSectionTeachingAssistants(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
