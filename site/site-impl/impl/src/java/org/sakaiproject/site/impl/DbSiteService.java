@@ -276,9 +276,6 @@ public abstract class DbSiteService extends BaseSiteService
 			// delete the pages, tools, page properties, tool properties
 			Object fields[] = new Object[1];
 			fields[0] = caseId(edit.getId());
-			
-			// Ensure the site is already loaded before we delete stuff
-			edit.loadAll();
 
 			String statement = siteServiceSql.getDeleteToolPropertiesSql();
 			m_sql.dbWrite(statement, fields);
