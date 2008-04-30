@@ -69,7 +69,7 @@
 	<!-- if there are podcasts, display their information here -->
       	  <h:dataTable value="#{podHomeBean.contents}" var="eachPodcast" rendered="#{podHomeBean.actPodcastsExist}" styleClass="indnt1" >
           <h:column>
-          	<h:panelGrid rendered="#{! eachPodcast.hidden || podHomeBean.hasHidden}">
+          	<h:panelGrid rendered="#{! eachPodcast.hidden || podHomeBean.hasHidden}" styleClass="#{eachPodcast.styleClass}" >
 	            <h:outputText value="#{eachPodcast.displayDate}" styleClass="podDateFormat" />
 
 	            <h:outputText value="#{eachPodcast.title}" styleClass="podTitleFormat" />
