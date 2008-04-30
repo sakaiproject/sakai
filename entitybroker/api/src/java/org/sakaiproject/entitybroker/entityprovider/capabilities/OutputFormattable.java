@@ -49,5 +49,5 @@ public interface OutputFormattable extends Outputable {
     * should be UTF-8 encoded if there is char data
     */
    public void formatOutput(EntityReference ref, String format, List<?> entities, OutputStream output);
-   
+
 }

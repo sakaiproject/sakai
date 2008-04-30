@@ -61,6 +61,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.exception.EncodingException;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
@@ -1023,6 +1024,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                      // translate using the encoder
                      entity = encoder.fromXML(input, current);
                      // END run in classloader
+                  } catch (RuntimeException e) {
+                     throw new EncodingException("Failure during internal input encoding of entity: " + ref, ref.toString(), e);
                   } finally {
                      encoder.setClassLoader(currentClassLoader);
                   }
@@ -1030,6 +1033,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                }
             }
          }
+      } else {
+         throw new IllegalArgumentException("This entity ("+ref+") does not allow input translation");
       }
 
       if (entity == null) {
@@ -1120,13 +1125,18 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          // encoding a single entity
          Object toEncode = entities.get(0);
          if (toEncode == null) {
-            throw new RuntimeException("Failed to encode data for entity (" + ref.toString() + "), entity object to encode could not be found");
+            throw new EncodingException("Failed to encode data for entity (" + ref 
+                  + "), entity object to encode could not be found", ref.toString());
          } else {
             Class<?> encodeClass = toEncode.getClass();
             if (encoder != null) {
                encoder.alias(ref.getPrefix(), encodeClass); // add alias for the current entity prefix
             }
-            encoded = encodeEntity(ref, workingView, toEncode, encoder);
+            try {
+               encoded = encodeEntity(ref, workingView, toEncode, encoder);
+            } catch (RuntimeException e) {
+               throw new EncodingException("Failure during internal output encoding of entity: " + ref, ref.toString(), e);
+            }
          }
       }
       // put the encoded data into the OS
@@ -1134,9 +1144,9 @@ public class EntityHandlerImpl implements EntityRequestHandler {
          byte[] b = encoded.getBytes(UTF_8);
          output.write(b);
       } catch (UnsupportedEncodingException e) {
-         throw new RuntimeException("Failed to encode UTF-8: " + ref.toString(), e);
+         throw new EncodingException("Failed to encode UTF-8: " + ref, ref.toString(), e);
       } catch (IOException e) {
-         throw new RuntimeException("Failed to encode into output stream: " + ref.toString(), e);
+         throw new EncodingException("Failed to encode into output stream: " + ref, ref.toString(), e);
       }
    }
 

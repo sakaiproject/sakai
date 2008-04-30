@@ -4,6 +4,12 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,12 +19,12 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
-import org.sakaiproject.entitybroker.impl.EntityBrokerImpl;
-import org.sakaiproject.entitybroker.impl.EntityHandlerImpl;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.data.TestDataPreload;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
 import org.sakaiproject.entitybroker.impl.mocks.FakeEvent;
 import org.sakaiproject.entitybroker.impl.mocks.FakeServerConfigurationService;
+import org.sakaiproject.entitybroker.impl.util.EntityXStream;
 import org.sakaiproject.entitybroker.mocks.HttpServletAccessProviderManagerMock;
 import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
@@ -351,6 +357,80 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
          assertNotNull(e.getMessage());
       }
 
+   }
+
+   public void testFormatAndOutputEntity() {
+
+      String fo = null;
+      String reference = null;
+      OutputStream output = null;
+      String format = Formats.XML;
+
+      // XML test valid resolveable entity
+      reference = TestData.REF4;
+      output = new ByteArrayOutputStream();
+      entityBroker.formatAndOutputEntity(reference, format, null, output);
+      fo = output.toString();
+      assertNotNull(fo);
+      assertTrue(fo.length() > 20);
+      assertTrue(fo.contains(TestData.PREFIX4));
+      assertTrue(fo.contains("<id>4-one</id>"));
+      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+      
+      // test list of entities
+      ArrayList<MyEntity> testEntities = new ArrayList<MyEntity>();
+      testEntities.add(TestData.entity4);
+      testEntities.add(TestData.entity4_two);
+      reference = TestData.SPACE4;
+      output = new ByteArrayOutputStream();
+      entityBroker.formatAndOutputEntity(reference, format, testEntities, output);
+      fo = output.toString();
+      assertNotNull(fo);
+      assertTrue(fo.length() > 20);
+      assertTrue(fo.contains(TestData.PREFIX4));
+      assertTrue(fo.contains("<id>4-one</id>"));
+      assertTrue(fo.contains("<id>4-two</id>"));
+      assertFalse(fo.contains("<id>4-three</id>"));
+      assertTrue(fo.contains(EntityXStream.SAKAI_ENTITY));
+
+   }
+
+   /**
+    * Convenience method for making byte content encoded into UTF-8
+    */
+   private byte[] makeUTF8Bytes(String string) {
+      byte[] bytes;
+      try {
+         bytes = string.getBytes(Formats.UTF_8);
+      } catch (UnsupportedEncodingException e) {
+         bytes = string.getBytes();
+      }
+      return bytes;
+   }
+
+   public void testTranslateInputToEntity() {
+      InputStream input = null;
+      MyEntity me = null;
+
+      // test creating an entity
+      String reference = TestData.SPACE6;
+      String format = Formats.XML;
+      input = new ByteArrayInputStream( makeUTF8Bytes("<"+TestData.PREFIX6+"><stuff>TEST</stuff><number>5</number></"+TestData.PREFIX6+">") );
+      me = (MyEntity) entityBroker.translateInputToEntity(reference, format, input);
+      assertNotNull(me);
+      assertNull(me.getId());
+      assertEquals("TEST", me.getStuff());
+      assertEquals(5, me.getNumber());
+
+      // test modifying an entity
+      reference = TestData.REF6_2;
+      input = new ByteArrayInputStream( makeUTF8Bytes("<"+TestData.PREFIX6+"><id>"+TestData.IDS6[1]+"</id><stuff>TEST-PUT</stuff><number>8</number></"+TestData.PREFIX6+">") );
+      me = (MyEntity) entityBroker.translateInputToEntity(reference, format, input);
+      assertNotNull(me);
+      assertNotNull(me.getId());
+      assertEquals(TestData.IDS6[1], me.getId());
+      assertEquals("TEST-PUT", me.getStuff());
+      assertEquals(8, me.getNumber());
    }
 
    /**

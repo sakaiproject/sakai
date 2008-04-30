@@ -30,6 +30,7 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.exception.IdUnusedException;
@@ -38,10 +39,13 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -68,12 +72,20 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
     */
    public static String SITE_BASE = "/site/";
 
+   protected final String CURRENT_USER_MARKER = "originalCurrentUser";
+
+
    private static Log log = LogFactory.getLog(DeveloperHelperService.class);
 
    // INTERNAL
    private EntityHandlerImpl entityHandler;
    public void setEntityHandler(EntityHandlerImpl entityHandler) {
       this.entityHandler = entityHandler;
+   }
+
+   private EntityBroker entityBroker;
+   public void setEntityBroker(EntityBroker entityBroker) {
+      this.entityBroker = entityBroker;
    }
 
    // SAKAI
@@ -117,6 +129,76 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
       this.userDirectoryService = userDirectoryService;
    }
 
+
+   // ENTITY
+
+   public boolean entityExists(String reference) {
+      return entityBroker.entityExists(reference);
+   }
+
+   public Object fetchEntity(String reference) {
+      return entityBroker.fetchEntity(reference);
+   }
+
+   public void fireEvent(String eventName, String reference) {
+      entityBroker.fireEvent(eventName, reference);
+   }
+
+   public String getEntityURL(String reference, String viewKey, String extension) {
+      return entityBroker.getEntityURL(reference, viewKey, extension);
+   }
+
+   public String setCurrentUser(String userReference) {
+      if (userReference == null) {
+         throw new IllegalArgumentException("userReference cannot be null");
+      }
+      String userId = getUserIdFromRef(userReference);
+      try {
+         // make sure the user id is valid
+         userDirectoryService.getUser(userId);
+      } catch (UserNotDefinedException e) {
+         throw new IllegalArgumentException("Invalid user reference ("+userReference+"), could not find user");
+      }
+      Session currentSession = sessionManager.getCurrentSession();
+      if (currentSession == null) {
+         // start a session if none is around
+         currentSession = sessionManager.startSession(userId);
+      }
+      String currentUserId = currentSession.getUserId();
+      if (currentSession.getAttribute(CURRENT_USER_MARKER) == null) {
+         // only set this if it is not already set
+         if (currentUserId == null) {
+            currentUserId = "";
+         }
+         currentSession.setAttribute(CURRENT_USER_MARKER, currentUserId);
+      }
+      currentSession.setUserId(userId);
+      currentSession.setActive();
+      sessionManager.setCurrentSession(currentSession);
+      authzGroupService.refreshUser(userId);
+      return getUserRefFromUserId(currentUserId);
+   }
+
+   public String restoreCurrentUser() {
+      // switch user session back if it was taken over
+      Session currentSession = sessionManager.getCurrentSession();
+      String currentUserId = null;
+      if (currentSession != null) {
+         currentUserId = (String) currentSession.getAttribute(CURRENT_USER_MARKER);
+         if (currentUserId != null) {
+            currentSession.removeAttribute(CURRENT_USER_MARKER);
+            currentSession.setUserId(currentUserId);
+            authzGroupService.refreshUser(currentUserId);
+            sessionManager.setCurrentSession(currentSession);
+         }
+         if ("".equals(currentUserId)) {
+            currentUserId = null;
+         }
+      }
+      return getUserRefFromUserId(currentUserId);
+   }
+
+
    // USER
 
    /* (non-Javadoc)
@@ -148,6 +230,17 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
       if (userId != null) {
          // user the UDS method for controlling its references
          userRef = userDirectoryService.userReference(userId);
+      }
+      return userRef;
+   }
+
+   public String getUserRefFromUserEid(String userEid) {
+      String userRef = null;
+      try {
+         User u = userDirectoryService.getUserByEid(userEid);
+         userRef = u.getReference();
+      } catch (UserNotDefinedException e) {
+         userRef = null;
       }
       return userRef;
    }
