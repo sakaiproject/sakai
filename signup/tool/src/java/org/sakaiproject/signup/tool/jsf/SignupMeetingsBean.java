@@ -230,7 +230,8 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 				setLastUpdatedTime(new Date().getTime());
 			}
 			/* sorting according to user's choices on main page */
-			getSignupSorter().sort(signupMeetings);
+			if(hasToSortAgain())
+				getSignupSorter().sort(signupMeetings);
 
 		} catch (Exception e) {
 			log.error(Utilities.rb.getString("failed.fetch_allEvents_from_db") + " - " + e.getMessage());
@@ -239,6 +240,20 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		return signupMeetings;
 	}
 
+	private long lastSortTime = (new Date()).getTime();
+	private final long INTERVAL = 500; //milli-second
+	/**
+	 * This will make sure that it only sorts once per user's click for the meetings in the main webpage
+	 * @return true if the time frame pass the interval
+	 */
+	private boolean hasToSortAgain() {
+		Long currentSortTime = (new Date()).getTime();
+		if ((currentSortTime - lastSortTime) > INTERVAL ){
+			lastSortTime = currentSortTime;
+			return true;
+		}
+		return false;
+	}
 	/**
 	 * This is a getter method for UI.
 	 * 

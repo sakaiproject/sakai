@@ -97,7 +97,7 @@ public class SignupSorter {
 					return -1;
 				int comparison = date1.compareTo(date2);
 				if (comparison == 0) {
-					return Collator.getInstance().compare(one.getMeeting().getId(), another.getMeeting().getId());
+					return Collator.getInstance().compare(one.getMeeting().getId().toString(), another.getMeeting().getId().toString());
 				}
 				return comparison;
 			}
