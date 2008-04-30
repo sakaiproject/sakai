@@ -439,15 +439,15 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             String prefix = view.getEntityReference().getPrefix();
             res.setStatus(HttpServletResponse.SC_OK); // other things can switch this later on
 
-            // store the current request and response
-            ((RequestGetterImpl) requestGetter).setRequest(req);
-            ((RequestGetterImpl) requestGetter).setResponse(res);
-
             // check for extensions
             if (view.getExtension() == null) {
                view.setExtension(Formats.HTML); // update the view
             }
             req.setAttribute("extension", view.getExtension());
+
+            // store the current request and response
+            ((RequestGetterImpl) requestGetter).setRequest(req);
+            ((RequestGetterImpl) requestGetter).setResponse(res);
 
             // handle the before interceptor
             RequestInterceptor interceptor = (RequestInterceptor) entityProviderManager.getProviderByPrefixAndCapability(prefix, RequestInterceptor.class);
@@ -644,6 +644,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             if (interceptor != null) {
                interceptor.after(view, req, res);
             }
+
+            // clear the request getter
+            ((RequestGetterImpl) requestGetter).setRequest(null);
+            ((RequestGetterImpl) requestGetter).setResponse(null);
+
             handledReference = view.getEntityReference().toString();
          }
       }
