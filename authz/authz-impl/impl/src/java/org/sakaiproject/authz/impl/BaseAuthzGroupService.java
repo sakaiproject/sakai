@@ -848,7 +848,23 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	{
 		return m_storage.getUsersIsAllowed(function, azGroups);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Set<String[]> getUsersIsAllowedByGroup(String function, Collection<String> azGroups)
+	{
+		return m_storage.getUsersIsAllowedByGroup(function, azGroups);
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public Map<String,Integer> getUserCountIsAllowed(String function, Collection<String> azGroups)
+	{
+		return m_storage.getUserCountIsAllowed(function, azGroups);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1287,6 +1303,30 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		 */
 		Set getUsersIsAllowed(String function, Collection azGroups);
 
+		/**
+		 * Get the set of user ids per group of users who are allowed to perform the function in the named AuthzGroups.
+		 * 
+		 * @param function
+		 *        The function to check.
+		 * @param azGroups
+		 *        A collection of the ids of AuthzGroups to consult.
+		 * @return A Set of String arrays (userid, realm) with user ids per group who are allowed to perform the function in the named AuthzGroups.
+		 */
+		Set<String[]> getUsersIsAllowedByGroup(String function, Collection<String> azGroups);
+
+		
+		/**
+		 * Get the number of users per group who are allowed to perform the function in the given AuthzGroups.
+		 * 
+		 * @param function
+		 *        The function to check.
+		 * @param azGroups
+		 *        A collection of the ids of AuthzGroups to consult.
+		 * @return A Map (authzgroupid (String) -> user count (Integer) ) of the number of users who are allowed to perform the function in the given AuthzGroups.
+		 */
+		Map<String,Integer> getUserCountIsAllowed(String function, Collection<String> azGroups);
+
+		
 		/**
 		 * Get the set of functions that users with this role in these AuthzGroups are allowed to perform.
 		 * 

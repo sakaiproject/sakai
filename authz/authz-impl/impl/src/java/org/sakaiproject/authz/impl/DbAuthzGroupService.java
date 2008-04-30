@@ -1587,6 +1587,110 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		/**
 		 * {@inheritDoc}
 		 */
+		public Set<String[]> getUsersIsAllowedByGroup(String lock, Collection<String> realms)
+		{
+			final Set<String[]> usersByGroup = new HashSet<String[]>(); 
+			
+			if ((lock == null) || (realms != null && realms.isEmpty())) return usersByGroup;
+			
+			String sql;
+			Object[] fields;
+			
+			if (realms != null) {
+				sql = dbAuthzGroupSql.getSelectRealmRoleGroupUserIdSql(orInClause(realms.size(), "REALM_ID"));
+				fields = new Object[realms.size() + 1];
+				int pos = 0;
+				fields[pos++] = lock;
+				for (Iterator i = realms.iterator(); i.hasNext();)
+				{
+					String roleRealm = (String) i.next();
+					fields[pos++] = roleRealm;
+				}
+			} else {
+				sql = dbAuthzGroupSql.getSelectRealmRoleGroupUserIdSql("true");
+				fields = new Object[1];
+				fields[0] = lock;				
+			}
+
+			// read the strings
+			m_sql.dbRead(sql, fields, new SqlReader()
+					{
+				public Object readSqlResultRecord(ResultSet result)
+				{
+					try
+					{
+						String[] useringroup = new String[2];
+						useringroup[0] = result.getString(1);
+						useringroup[1] = result.getString(2);
+						
+						usersByGroup.add( useringroup );
+					}
+					catch (SQLException ignore)
+					{
+					}
+
+					return null;
+				}
+			});
+						
+			return usersByGroup;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */		
+		public Map<String,Integer> getUserCountIsAllowed(String function, Collection<String> azGroups)
+		{
+			final Map<String, Integer> userCountByGroup = new HashMap<String, Integer>();
+			
+			if ((function == null) || (azGroups != null && azGroups.isEmpty())) return userCountByGroup;
+			
+			String sql;
+			Object[] fields;
+			
+			if (azGroups != null) {
+				sql = dbAuthzGroupSql.getSelectRealmRoleGroupUserCountSql(orInClause(azGroups.size(), "REALM_ID"));
+				fields = new Object[azGroups.size() + 1];
+				int pos = 0;
+				fields[pos++] = function;
+
+				for (Iterator i = azGroups.iterator(); i.hasNext();)
+				{
+					String roleRealm = (String) i.next();
+					fields[pos++] = roleRealm;
+				}				
+			} else {
+				sql = dbAuthzGroupSql.getSelectRealmRoleGroupUserCountSql("true");
+				fields = new Object[1];
+				fields[0] = function;
+			}
+
+			// read the realm size counts
+			m_sql.dbRead(sql, fields, new SqlReader()
+					{
+						public Object readSqlResultRecord(ResultSet result)
+						{
+							try
+							{
+								String realm = result.getString(1);
+								Integer size = result.getInt(2);
+								userCountByGroup.put(realm, size);
+							}
+							catch (SQLException ignore)
+							{
+							}
+
+							return null;
+						}
+					});
+			
+			return userCountByGroup;
+		}
+
+		
+		/**
+		 * {@inheritDoc}
+		 */
 		public Set getAllowedFunctions(String role, Collection realms)
 		{
 			if ((role == null) || (realms == null) || (realms.isEmpty())) return new HashSet();
