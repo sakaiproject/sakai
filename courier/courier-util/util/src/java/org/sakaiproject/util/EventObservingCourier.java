@@ -104,11 +104,6 @@ public class EventObservingCourier extends org.sakaiproject.util.ObservingCourie
 		return true;
 	}
 
-	protected void finalize()
-	{
-		// stop observing the presence location
-		m_eventTrackingService.deleteObserver(this);
-	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * SessionBindingListener implementation
