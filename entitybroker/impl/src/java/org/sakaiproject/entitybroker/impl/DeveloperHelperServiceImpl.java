@@ -137,7 +137,21 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
    }
 
    public Object fetchEntity(String reference) {
-      return entityBroker.fetchEntity(reference);
+      Object entity = entityBroker.fetchEntity(reference);
+      if (entity == null 
+            && reference.startsWith("/user")) {
+         // this sucks but legacy user cannot be resolved for some reason 
+         // so look up directly since it is one of the top entities being fetched
+         String userId = getUserIdFromRef(reference);
+         if (userId != null) {
+            try {
+               entity = userDirectoryService.getUser(userId);
+            } catch (UserNotDefinedException e) {
+               entity = null;
+            }
+         }
+      }
+      return entity;
    }
 
    public void fireEvent(String eventName, String reference) {
