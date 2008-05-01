@@ -44,6 +44,7 @@ public class ContextSakaiImpl implements Context {
         Placement placement = ToolManager.getCurrentPlacement();        
         if(placement == null) {
             log.error("Placement is null");
+            return null;
         }
         return placement.getContext();
 	}
