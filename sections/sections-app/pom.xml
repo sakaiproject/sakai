@@ -364,9 +364,9 @@
             <exclude implementation="java.lang.String">**/*Test*</exclude>
             <exclude implementation="java.lang.String">**/*Loader*</exclude>
           </testExcludes>
-          <testiNcludes>
+          <testIncludes>
             <include implementation="java.lang.String">**/SectionsTestSuite</include>
-          </testiNcludes>
+          </testIncludes>
         </configuration>
       </plugin>
     </plugins>
