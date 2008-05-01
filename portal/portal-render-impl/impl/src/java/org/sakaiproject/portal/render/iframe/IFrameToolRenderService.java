@@ -214,7 +214,7 @@ public class IFrameToolRenderService implements ToolRenderService
 		}
 
 		String responseStr = bufferedResponse.getInternalBuffer();
-		if (responseStr == null && responseStr.length() < 1) return null;
+		if (responseStr == null || responseStr.length() < 1) return null;
 
 		String responseStrLower = responseStr.toLowerCase();
 		int headStart = responseStrLower.indexOf("<head");

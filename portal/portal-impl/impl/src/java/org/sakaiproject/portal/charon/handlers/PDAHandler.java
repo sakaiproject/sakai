@@ -231,7 +231,7 @@ public class PDAHandler extends PageHandler
 		}
 
 		String responseStr = bufferedResponse.getInternalBuffer();
-		if (responseStr == null && responseStr.length() < 1) return;
+		if (responseStr == null || responseStr.length() < 1) return;
 
 		String responseStrLower = responseStr.toLowerCase();
 		int headStart = responseStrLower.indexOf("<head");
