@@ -973,6 +973,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
 		rcontext.put("browser", new BrowserDetector(request));
+		
+		Session s = SessionManager.getCurrentSession();
+		rcontext.put("loggedIn", Boolean.valueOf(s.getUserId() != null));
+		
 		// rcontext.put("sitHelp", Web.escapeHtml(rb.getString("sit_help")));
 		// rcontext.put("sitReset", Web.escapeHtml(rb.getString("sit_reset")));
 
