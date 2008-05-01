@@ -84,8 +84,13 @@ import com.thoughtworks.xstream.io.xml.XppDomDriver;
 @SuppressWarnings("deprecation")
 public class EntityHandlerImpl implements EntityRequestHandler {
 
+   private static final String POST_METHOD = "_method";
+
    private static Log log = LogFactory.getLog(EntityHandlerImpl.class);
 
+   // must be the same as the string in DirectServlet with the same name
+   private static final String ORIGINAL_METHOD = "_originalMethod";
+   
    private EntityProviderManager entityProviderManager;
    public void setEntityProviderManager(EntityProviderManager entityProviderManager) {
       this.entityProviderManager = entityProviderManager;
@@ -303,7 +308,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             Map<String, String[]> params = req.getParameterMap();
             if (params != null) {
                for (String key : params.keySet()) {
-                  if ("_method".equals(key)) {
+                  if (POST_METHOD.equals(key) 
+                        || ORIGINAL_METHOD.equals(key)) {
                      // skip the method
                      continue;
                   }
@@ -466,6 +472,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                // identify the type of request (input or output) and the action (will be encoded in the viewKey)
                boolean output = false;
                String method = req.getMethod() == null ? "GET" : req.getMethod().toUpperCase().trim();
+               // this fails because the original post gets lost therefore we are giving up on this for now
+//               // check to see if the original method value was set
+//               if (req.getAttribute(ORIGINAL_METHOD) != null) {
+//                  method = (String) req.getAttribute(ORIGINAL_METHOD);
+//               }
                if ("GET".equals(method)) {
                   output = true;
                } else {
@@ -475,7 +486,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                   } else if ("PUT".equals(method)) {
                      view.setViewKey(EntityView.VIEW_EDIT);
                   } else if ("POST".equals(method)) {
-                     String _method = req.getParameter("_method");
+                     String _method = req.getParameter(POST_METHOD);
                      if (_method == null) {
                         // this better be a create request
                         view.setViewKey(EntityView.VIEW_NEW);

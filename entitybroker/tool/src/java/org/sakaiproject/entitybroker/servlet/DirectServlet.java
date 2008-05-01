@@ -50,6 +50,9 @@ public class DirectServlet extends HttpServlet {
 
    private static Log log = LogFactory.getLog(DirectServlet.class);
 
+   // must be the same as the string in EntityHandlerImpl with the same name
+   private static final String ORIGINAL_METHOD = "_originalMethod";
+
    /**
     * set to true when initialization complete
     */
@@ -145,6 +148,12 @@ public class DirectServlet extends HttpServlet {
       // mark the direct entity request for this session
       SessionManager.getCurrentSession().setAttribute("sakaiEntity-direct", path);
 
+      // this cannot work because the original request data is lost
+//      // check for the originalMethod and store it in an attribute
+//      if (req.getParameter(ORIGINAL_METHOD) != null) {
+//         req.setAttribute(ORIGINAL_METHOD, req.getParameter(ORIGINAL_METHOD));
+//      }
+
       // just handle the request if possible or pass along the failure codes so it can be understood
       try {
          try {
@@ -163,7 +172,11 @@ public class DirectServlet extends HttpServlet {
          if (SessionManager.getCurrentSessionUserId() == null) {
             log.debug("Attempted to access an entity URL path (" + path
                   + ") for a resource which requires authentication without a session", e);
+//            // store the original request type and query string, this is needed because the method gets lost when Sakai handles the login
+//            path = path + (req.getQueryString() == null ? "?" : "?"+req.getQueryString()) + ORIGINAL_METHOD + "=" + req.getMethod();
+            path = path + (req.getQueryString() == null ? "" : "?"+req.getQueryString()); // preserve the query string
             doLogin(req, res, path);
+            return;
          }
          // otherwise reject the request
          String msg = "Security exception accessing entity URL: " + path + " (current user not allowed): " + e.getMessage();
@@ -217,8 +230,7 @@ public class DirectServlet extends HttpServlet {
          log.warn("doLogin - proceeding with null HELPER_DONE_URL");
       }
 
-      // map the request to the helper, leaving the path after ".../options" for
-      // the helper
+      // map the request to the helper, leaving the path after ".../options" for the helper
       ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
       String context = req.getContextPath() + req.getServletPath() + "/login";
       tool.help(req, res, context, "/login");
