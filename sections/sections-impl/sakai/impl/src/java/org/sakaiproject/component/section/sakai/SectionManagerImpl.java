@@ -1231,7 +1231,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		try {
 			siteService().save(site);
 			clearSite(ref.getId());
-			for(Iterator<CourseSection> iter = sections.iterator(); iter.hasNext();) {
+			for(Iterator<CourseSection> iter = addedSections.iterator(); iter.hasNext();) {
 				postEvent("section.add", iter.next().getUuid());
 			}
 			return addedSections;
