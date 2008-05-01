@@ -524,8 +524,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 					// System.out.println("propKey = "+propKey);
 					// System.out.println("storeString = "+storeString);
 					// System.out.println("oldString = "+oldString);
-					if ((oldString == null && storeString != null)
-							|| (!storeString.equals(oldString)))
+					if (storeString!=null && !storeString.equals(oldString))
 					{
 						// System.out.println("Setting "+propKey+"
 						// value="+storeString);

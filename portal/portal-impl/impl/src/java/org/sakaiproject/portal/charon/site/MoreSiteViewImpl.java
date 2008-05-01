@@ -128,7 +128,7 @@ public class MoreSiteViewImpl extends DefaultSiteViewImpl
 				public int compare(Map first, Map second)
 				{
 
-					if (first == null && second == null) return 0;
+					if (first == null || second == null) return 0;
 
 					String firstTitle = (String) first.get("siteTitle");
 					String secondTitle = (String) second.get("siteTitle");
