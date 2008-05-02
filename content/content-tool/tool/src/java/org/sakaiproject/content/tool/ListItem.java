@@ -47,6 +47,7 @@ import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.content.api.ExpandableResourceType;
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
@@ -125,9 +126,10 @@ public class ListItem
 	 * @param depth
 	 * @param userSelectedSort
 	 * @param preventPublicDisplay
+	 * @param addFilter TODO
 	 * @return
 	 */
-	public static ListItem getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String> expandedFolders, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay)
+	public static ListItem getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String> expandedFolders, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay, ContentResourceFilter addFilter)
 	{
 		ListItem item = null;
 		boolean isCollection = entity.isCollection();
@@ -263,7 +265,7 @@ public class ListItem
 						continue;
 					}
 
-	        		ListItem child = getListItem(childEntity, item, registry, expandAll, expandedFolders, items_to_be_moved, items_to_be_copied, depth + 1, userSelectedSort, preventPublicDisplay);
+	        		ListItem child = getListItem(childEntity, item, registry, expandAll, expandedFolders, items_to_be_moved, items_to_be_copied, depth + 1, userSelectedSort, preventPublicDisplay, addFilter);
 	        		if(items_to_be_copied != null && items_to_be_copied.contains(child.id))
 	        		{
 	        			child.setSelectedForCopy(true);
@@ -275,7 +277,13 @@ public class ListItem
 	        		item.addMember(child);
 	        	}
 			}
-			item.setAddActions(ResourcesAction.getAddActions(entity, item.getPermissions(), registry));
+ 			
+			List<ResourceToolAction> myAddActions = ResourcesAction.getAddActions(entity, item.getPermissions(), registry);
+			if(addFilter != null)
+			{
+				myAddActions = addFilter.filterAllowedActions(myAddActions);
+			}
+			item.setAddActions(myAddActions );
 			//this.members = coll.getMembers();
 			item.setIconLocation( ContentTypeImageService.getContentTypeImage("folder"));
         }

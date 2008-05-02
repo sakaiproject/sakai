@@ -654,6 +654,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 			boolean expandAll = Boolean.TRUE.toString().equals(toolSession.getAttribute(STATE_NEED_TO_EXPAND_ALL));
 
+			ContentResourceFilter filter = (ContentResourceFilter) state.getAttribute(STATE_ATTACHMENT_FILTER);
+			
 			//state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
 
 			List<ListItem> this_site = new Vector<ListItem>();
@@ -685,9 +687,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 								ContentCollection db = contentService.getCollection(dbId);
 								expandedCollections.add(dbId);
 
-								ListItem item = ListItem.getListItem(db, (ListItem) null, registry, expandAll, expandedCollections, (List<String>) null, (List<String>) null, 0, userSelectedSort, false);
+								ListItem item = ListItem.getListItem(db, (ListItem) null, registry, expandAll, expandedCollections, (List<String>) null, (List<String>) null, 0, userSelectedSort, false, null);
 								List<ListItem> items = item.convert2list();
-								ContentResourceFilter filter = (ContentResourceFilter)toolSession.getAttribute(STATE_ATTACHMENT_FILTER);
 								if(filter != null)
 								{
 									items = filterList(items, filter);
@@ -718,7 +719,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 							ContentCollection db = contentService.getCollection(dropboxId);
 							expandedCollections.add(dropboxId);
 
-							ListItem item = ListItem.getListItem(db, null, registry, expandAll, expandedCollections, null, null, 0, null, false);
+							ListItem item = ListItem.getListItem(db, null, registry, expandAll, expandedCollections, null, null, 0, null, false, null);
 							this_site.addAll(item.convert2list());
 
 	//						List dbox = getListView(dropboxId, highlightedItems, (ResourcesBrowseItem) null, false, state);
@@ -742,9 +743,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 			else
 			{
 				ContentCollection collection = contentService.getCollection(collectionId);
-				ListItem item = ListItem.getListItem(collection, null, registry, expandAll, expandedCollections, null, null, 0, null, false);
+				ListItem item = ListItem.getListItem(collection, null, registry, expandAll, expandedCollections, null, null, 0, null, false, filter);
 				List<ListItem> items = item.convert2list();
-				ContentResourceFilter filter = (ContentResourceFilter)toolSession.getAttribute(STATE_ATTACHMENT_FILTER);
 				if(filter != null)
 				{
 					items = filterList(items, filter);
@@ -3159,6 +3159,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 		
 		Comparator userSelectedSort = (Comparator) toolSession.getAttribute(STATE_LIST_VIEW_SORT);
 		
+		ContentResourceFilter filter = (ContentResourceFilter) state.getAttribute(STATE_ATTACHMENT_FILTER);
+		
 		// set the sort values
 		String sortedBy = (String) toolSession.getAttribute (STATE_SORT_BY);
 		String sortedAsc = (String) toolSession.getAttribute (STATE_SORT_ASC);
@@ -3175,7 +3177,7 @@ public class FilePickerAction extends PagedResourceHelperAction
             try
             {
             	ContentCollection wsCollection = contentService.getCollection(wsCollectionId);
-				ListItem wsRoot = ListItem.getListItem(wsCollection, null, registry, false, expandedCollections, null, null, 0, userSelectedSort, false);
+				ListItem wsRoot = ListItem.getListItem(wsCollection, null, registry, false, expandedCollections, null, null, 0, userSelectedSort, false, filter);
 		        other_sites.add(wsRoot);
             }
             catch (IdUnusedException e)
@@ -3223,7 +3225,7 @@ public class FilePickerAction extends PagedResourceHelperAction
                 try
                 {
 	                collection = contentService.getCollection(collId);
-					ListItem root = ListItem.getListItem(collection, null, registry, false, expandedCollections, null, null, 0, null, false);
+					ListItem root = ListItem.getListItem(collection, null, registry, false, expandedCollections, null, null, 0, null, false, null);
 					root.setName(displayName);
 					other_sites.add(root);
                 }

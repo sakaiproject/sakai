@@ -4475,7 +4475,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 			ContentCollection collection = ContentHostingService.getCollection(collectionId);
 			
-			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort, false);
+			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort, false, null);
 			
 			Map<String, ResourceToolAction> listActions = new HashMap<String, ResourceToolAction>();
 			
@@ -8132,7 +8132,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
             try
             {
             	ContentCollection wsCollection = ContentHostingService.getCollection(wsCollectionId);
-				ListItem wsRoot = ListItem.getListItem(wsCollection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort, false);
+				ListItem wsRoot = ListItem.getListItem(wsCollection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort, false, null);
 		        other_sites.add(wsRoot);
             }
             catch (IdUnusedException e)
@@ -8180,7 +8180,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
                 try
                 {
 	                collection = ContentHostingService.getCollection(collId);
-					ListItem root = ListItem.getListItem(collection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, null, false);
+					ListItem root = ListItem.getListItem(collection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, null, false, null);
 					root.setName(displayName);
 					other_sites.add(root);
                 }
