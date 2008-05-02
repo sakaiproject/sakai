@@ -94,3 +94,15 @@ CREATE UNIQUE INDEX EVENT_INDEX ON CALENDAR_EVENT
 INSERT INTO SAKAI_REALM_RL_FN SELECT DISTINCT SR.REALM_KEY, SRR.ROLE_KEY, SRF.FUNCTION_KEY  from SAKAI_REALM SR, SAKAI_REALM_ROLE SRR, SAKAI_REALM_FUNCTION SRF where SR.REALM_ID like '/site/~%' AND SRR.ROLE_NAME = 'maintain' AND SRF.FUNCTION_NAME ='osp.matrix.evaluate';
 
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.user'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'));
+
+--SAK-13406 matrix feedback options
+
+alter table osp_scaffolding add column generalFeedbackOption tinyint not null DEFAULT '0';
+alter table osp_scaffolding add column itemFeedbackOption tinyint not null DEFAULT '0';
+update osp_scaffolding set generalFeedbackOption=0;
+update osp_scaffolding set itemFeedbackOption=0;
+
+alter table osp_wizard add column generalFeedbackOption tinyint not null DEFAULT '0';
+alter table osp_wizard add column itemFeedbackOption tinyint not null DEFAULT '0';
+update osp_wizard set generalFeedbackOption=0;
+update osp_wizard set itemFeedbackOption=0;
