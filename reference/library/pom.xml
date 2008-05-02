@@ -16,12 +16,31 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
-  <profiles>    
+   <profiles>    
     <profile>
     	<id>without-jsmath</id>    
     	<activation>
        		<activeByDefault>true</activeByDefault>
     	</activation>    
+		<dependencies>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-util-api</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-util</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>      
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-component</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+          </dependency>
+		</dependencies>
     </profile>
     <profile>
     	<id>with-jsmath</id>    
@@ -34,7 +53,25 @@
     	</activation>
     
 		<dependencies>
-		    <dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-util-api</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-util</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>      
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-component</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+          </dependency>
+         
+          <dependency>
 				<groupId>net.sf.jsmath</groupId>
 				<artifactId>jsmath</artifactId>
 				<version>3.3g</version>
@@ -48,7 +85,8 @@
 		    </dependency>
 		</dependencies>
     </profile>
-  </profiles>    
+  </profiles> 
+   
   <build>
     <resources/>
 <!-- java source -->
