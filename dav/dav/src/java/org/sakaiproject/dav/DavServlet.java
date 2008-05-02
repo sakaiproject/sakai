@@ -911,9 +911,15 @@ public class DavServlet extends HttpServlet
 	protected DocumentBuilder getDocumentBuilder() throws ServletException
 	{
 		DocumentBuilder documentBuilder = null;
+		DocumentBuilderFactory documentBuilderFactory = null;
 		try
 		{
-			documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			documentBuilderFactory =
+				DocumentBuilderFactory.newInstance();
+			documentBuilderFactory.setNamespaceAware(true);
+			documentBuilderFactory.setExpandEntityReferences(false);
+			documentBuilder =
+				documentBuilderFactory.newDocumentBuilder();
 		}
 		catch (ParserConfigurationException e)
 		{
