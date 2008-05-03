@@ -5,72 +5,73 @@
 <!-- Antranig Basman (antranig@caret.cam.ac.uk) -->
 <beans>
 
-    <bean id="sakaiAutoDDL" 
+    <bean id="sakaiAutoDDL"
         factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
         factory-method="getBoolean">
         <constructor-arg value="auto.ddl" />
         <constructor-arg value="false" />
     </bean>
 
-    <bean id="sakaiDatabaseType"
-        factory-bean="org.sakaiproject.db.api.SqlService"
+    <bean id="sakaiDatabaseType" factory-bean="org.sakaiproject.db.api.SqlService"
         factory-method="getVendor" />
 
-   <!-- Bring in the spring jdbc related beans -->
-   <import resource="spring-jdbc.xml" />
+    <!-- Bring in the spring jdbc related beans -->
+    <import resource="spring-jdbc.xml" />
 
-   <!-- Public beans -->
-   <bean id="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager"
-      class="org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl"
-      init-method="init">
-      <property name="requestGetter"
-         ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter" />
-   </bean>
+    <!-- Public beans -->
+    <bean id="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager"
+        class="org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl"
+        init-method="init">
+        <property name="requestGetter"
+            ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter" />
+    </bean>
 
-   <bean id="org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager"
-      class="org.sakaiproject.entitybroker.impl.access.EntityViewAccessProviderImpl">
-   </bean>
+    <bean id="org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager"
+        class="org.sakaiproject.entitybroker.impl.access.EntityViewAccessProviderImpl">
+    </bean>
 
-   <bean id="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager"
-      class="org.sakaiproject.entitybroker.impl.access.HttpServletAccessProviderManagerImpl">
-   </bean>
+    <bean id="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager"
+        class="org.sakaiproject.entitybroker.impl.access.HttpServletAccessProviderManagerImpl">
+    </bean>
 
-   <bean id="org.sakaiproject.entitybroker.access.PortletAccessProviderManager"
-      class="org.sakaiproject.entitybroker.impl.access.PortletAccessProviderManagerImpl">
-   </bean>
+    <bean id="org.sakaiproject.entitybroker.access.PortletAccessProviderManager"
+        class="org.sakaiproject.entitybroker.impl.access.PortletAccessProviderManagerImpl">
+    </bean>
 
-   <!-- beans meant for EntityProvider developers -->
-   <bean id="org.sakaiproject.entitybroker.EntityBroker"
-      class="org.sakaiproject.entitybroker.impl.EntityBrokerImpl" init-method="init">
-      <property name="entityProviderManager"
-         ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
-      <property name="entityHandler"
-         ref="org.sakaiproject.entitybroker.EntityRequestHandler" />
-      <property name="eventTrackingService"
-         ref="org.sakaiproject.event.api.EventTrackingService" />
-      <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
-      <property name="dao" ref="org.sakaiproject.entitybroker.dao.EntityBrokerDao" />
-   </bean>
+    <!-- beans meant for EntityProvider developers -->
+    <bean id="org.sakaiproject.entitybroker.EntityBroker"
+        class="org.sakaiproject.entitybroker.impl.EntityBrokerImpl" init-method="init">
+        <property name="entityProviderManager"
+            ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
+        <property name="entityHandler"
+            ref="org.sakaiproject.entitybroker.EntityRequestHandler" />
+        <property name="eventTrackingService"
+            ref="org.sakaiproject.event.api.EventTrackingService" />
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+        <property name="dao" ref="org.sakaiproject.entitybroker.dao.EntityBrokerDao" />
+    </bean>
 
-   <bean id="org.sakaiproject.entitybroker.DeveloperHelperService"
-      class="org.sakaiproject.entitybroker.impl.DeveloperHelperServiceImpl">
-      <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
-      <property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
-      <property name="entityHandler" ref="org.sakaiproject.entitybroker.EntityRequestHandler" />
-      <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
-      <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-      <property name="serverConfigurationService"
-         ref="org.sakaiproject.component.api.ServerConfigurationService" />
-      <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-      <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-      <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-      <property name="userDirectoryService"
-         ref="org.sakaiproject.user.api.UserDirectoryService" />
-   </bean>
+    <bean id="org.sakaiproject.entitybroker.DeveloperHelperService"
+        class="org.sakaiproject.entitybroker.impl.DeveloperHelperServiceImpl">
+        <property name="authzGroupService"
+            ref="org.sakaiproject.authz.api.AuthzGroupService" />
+        <property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
+        <property name="entityHandler"
+            ref="org.sakaiproject.entitybroker.EntityRequestHandler" />
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="serverConfigurationService"
+            ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="userDirectoryService"
+            ref="org.sakaiproject.user.api.UserDirectoryService" />
+    </bean>
 
-    <bean id="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
-            abstract="true" 
-            class="org.sakaiproject.entitybroker.util.AbstractEntityProvider">
+    <bean id="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+        abstract="true"
+        class="org.sakaiproject.entitybroker.util.AbstractEntityProvider">
         <property name="entityProviderManager"
             ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
         <property name="developerHelperService"
@@ -78,62 +79,63 @@
     </bean>
 
 
-   <!-- Private beans -->
-   <bean class="org.sakaiproject.entitybroker.impl.event.EventReceiverCoordinator"
-      init-method="init">
-      <property name="eventTrackingService"
-         ref="org.sakaiproject.event.api.EventTrackingService" />
-   </bean>
+    <!-- Private beans -->
+    <bean class="org.sakaiproject.entitybroker.impl.event.EventReceiverCoordinator"
+        init-method="init">
+        <property name="eventTrackingService"
+            ref="org.sakaiproject.event.api.EventTrackingService" />
+    </bean>
 
-   <bean id="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerEntityProducer"
-      class="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerEntityProducer"
-      init-method="init">
-      <property name="entityHandler"
-         ref="org.sakaiproject.entitybroker.EntityRequestHandler" />
-      <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
-      <property name="entityProviderManager"
-         ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
-      <property name="httpAccess"
-         ref="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerHttpAccess" />
-   </bean>
+    <bean id="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerEntityProducer"
+        class="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerEntityProducer"
+        init-method="init">
+        <property name="entityHandler"
+            ref="org.sakaiproject.entitybroker.EntityRequestHandler" />
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+        <property name="entityProviderManager"
+            ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
+        <property name="httpAccess"
+            ref="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerHttpAccess" />
+    </bean>
 
-   <bean id="org.sakaiproject.entitybroker.EntityRequestHandler"
-      class="org.sakaiproject.entitybroker.impl.EntityHandlerImpl">
-      <property name="serverConfigurationService"
-         ref="org.sakaiproject.component.api.ServerConfigurationService" />
-      <property name="entityViewAccessProviderManager"
-         ref="org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager" />
-      <property name="entityProviderManager"
-         ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
-      <property name="accessProviderManager"
-         ref="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager" />
-      <property name="requestGetter"
-         ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter" />
-   </bean>
+    <bean id="org.sakaiproject.entitybroker.EntityRequestHandler"
+        class="org.sakaiproject.entitybroker.impl.EntityHandlerImpl">
+        <property name="serverConfigurationService"
+            ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="entityViewAccessProviderManager"
+            ref="org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager" />
+        <property name="entityProviderManager"
+            ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
+        <property name="accessProviderManager"
+            ref="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager" />
+        <property name="requestGetter"
+            ref="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter" />
+    </bean>
 
-   <bean id="org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderAutoRegistrar"
-      class="org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderAutoRegistrar"
-      init-method="init">
-      <property name="entityProviderManager"
-         ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
-   </bean>
+    <bean
+        id="org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderAutoRegistrar"
+        class="org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderAutoRegistrar"
+        init-method="init">
+        <property name="entityProviderManager"
+            ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
+    </bean>
 
-   <bean id="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerHttpAccess"
-      class="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerHttpAccess">
-      <property name="accessProviderManager"
-         ref="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager" />
-      <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-      <property name="entityHandler"
-         ref="org.sakaiproject.entitybroker.EntityRequestHandler" />
-   </bean>
+    <bean id="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerHttpAccess"
+        class="org.sakaiproject.entitybroker.impl.oldentity.EntityBrokerHttpAccess">
+        <property name="accessProviderManager"
+            ref="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="entityHandler"
+            ref="org.sakaiproject.entitybroker.EntityRequestHandler" />
+    </bean>
 
-   <bean id="org.sakaiproject.entitybroker.impl.collector.BeanCollectorAutoRegistrar"
-      class="org.sakaiproject.entitybroker.impl.collector.BeanCollectorAutoRegistrar"
-      init-method="init">
-   </bean>
+    <bean id="org.sakaiproject.entitybroker.impl.collector.BeanCollectorAutoRegistrar"
+        class="org.sakaiproject.entitybroker.impl.collector.BeanCollectorAutoRegistrar"
+        init-method="init">
+    </bean>
 
-   <bean id="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter"
-      class="org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl">
-   </bean>
+    <bean id="org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter"
+        class="org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl">
+    </bean>
 
 </beans>

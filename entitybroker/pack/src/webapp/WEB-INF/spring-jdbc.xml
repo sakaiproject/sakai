@@ -4,16 +4,16 @@
 <!-- Aaron Zeckoski (aaronz@vt.edu) -->
 <beans>
 
-   <!-- dao beans -->
-   <bean id="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoTarget" 
-         class="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoImpl">
+    <!-- dao beans -->
+    <bean id="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoTarget"
+        class="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoImpl">
         <property name="dataSource" ref="javax.sql.DataSource" />
         <property name="autoDDL" ref="sakaiAutoDDL" />
         <property name="databaseType" ref="sakaiDatabaseType" />
         <property name="dataMappers">
             <list>
                 <bean class="org.sakaiproject.genericdao.springjdbc.SimpleDataMapper">
-                    <property name="persistentClassname" 
+                    <property name="persistentClassname"
                         value="org.sakaiproject.entitybroker.dao.EntityProperty" />
                     <property name="tableName" value="ENTITY_PROPERTIES" />
                     <property name="usePropertyNamesForColumns" value="true" />
@@ -29,29 +29,33 @@
         </property>
     </bean>
 
-   <bean id="org.sakaiproject.entitybroker.DataSourceTransactionManager" 
-            class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-       <property name="dataSource" ref="javax.sql.DataSource" />
-   </bean>
+    <bean id="org.sakaiproject.entitybroker.DataSourceTransactionManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="javax.sql.DataSource" />
+    </bean>
 
-   <!-- This wraps our DAO so that the transactions are managed -->
-   <bean id="org.sakaiproject.entitybroker.dao.EntityBrokerDao" 
-         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-      <property name="transactionManager" ref="org.sakaiproject.entitybroker.DataSourceTransactionManager" />
-      <property name="target">
-         <ref bean="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoTarget" />
-      </property>
-      <property name="transactionAttributes">
-         <props>
-            <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
-            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
-            <prop key="can*">PROPAGATION_REQUIRED,readOnly</prop>
-            <prop key="check*">PROPAGATION_REQUIRED,readOnly</prop>
-            <prop key="count*">PROPAGATION_REQUIRED,readOnly</prop>
-            <prop key="*">PROPAGATION_REQUIRED</prop>
-            <!--           <prop key="*">PROPAGATION_REQUIRED,+java.lang.RuntimeException</prop>-->
-         </props>
-      </property>
-   </bean>
+    <!-- This wraps our DAO so that the transactions are managed -->
+    <bean id="org.sakaiproject.entitybroker.dao.EntityBrokerDao"
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager"
+            ref="org.sakaiproject.entitybroker.DataSourceTransactionManager" />
+        <property name="beanClassLoader">
+            <bean class="org.sakaiproject.entitybroker.dao.MyClassLoader" factory-method="getMyClassLoader" />
+        </property>
+        <property name="target">
+            <ref bean="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoTarget" />
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="can*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="check*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="count*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+                <!--           <prop key="*">PROPAGATION_REQUIRED,+java.lang.RuntimeException</prop>-->
+            </props>
+        </property>
+    </bean>
 
 </beans>
