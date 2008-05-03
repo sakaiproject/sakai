@@ -30,7 +30,7 @@ public class EntityPropertyTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.dao.EntityProperty#EntityProperty()}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityProperty#EntityProperty()}.
     */
    public void testEntityProperty() {
       EntityProperty ep = new EntityProperty();
@@ -46,7 +46,7 @@ public class EntityPropertyTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.dao.EntityProperty#EntityProperty(java.lang.String, java.lang.String, java.lang.String, java.lang.String[])}.
+    * {@link org.sakaiproject.entitybroker.impl.EntityProperty#EntityProperty(java.lang.String, java.lang.String, java.lang.String, java.lang.String[])}.
     */
    public void testEntityPropertyStringStringStringStringArray() {
       EntityProperty ep = new EntityProperty(REF, PREFIX, NAME, VALUE);

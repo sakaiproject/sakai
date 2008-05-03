@@ -7,6 +7,7 @@ package org.sakaiproject.entitybroker.impl.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoImpl;
 import org.sakaiproject.entitybroker.impl.data.TestDataPreload;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
@@ -20,7 +21,7 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
  */
 public class EntityBrokerDaoImplTest extends AbstractTransactionalSpringContextTests {
 
-   private EntityBrokerDaoImpl dao;
+   private EntityBrokerDao dao;
    private TestDataPreload tdp;
 
    protected String[] getConfigLocations() {
@@ -37,7 +38,7 @@ public class EntityBrokerDaoImplTest extends AbstractTransactionalSpringContextT
    // run this before each test starts and as part of the transaction
    protected void onSetUpInTransaction() {
       // load the spring created dao class bean from the Spring Application Context
-      dao = (EntityBrokerDaoImpl) applicationContext
+      dao = (EntityBrokerDao) applicationContext
             .getBean("org.sakaiproject.entitybroker.dao.EntityBrokerDao");
       if (dao == null) {
          throw new NullPointerException("Dao could not be retrieved from spring context");

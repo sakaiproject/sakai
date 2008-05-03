@@ -14,10 +14,8 @@
 	</organization>
 	<inceptionYear>2006</inceptionYear>
 
-	<!-- must deploy the service API to shared -->
 	<properties>
 		<deploy.type>jar</deploy.type>
-		<deploy.target>shared</deploy.target>
 	</properties>
 
 	<dependencies>

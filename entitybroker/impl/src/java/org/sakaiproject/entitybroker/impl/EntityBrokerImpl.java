@@ -29,8 +29,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.dao.EntityProperty;
-import org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoImpl;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
@@ -80,8 +80,8 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       this.entityManager = entityManager;
    }
 
-   private EntityBrokerDaoImpl dao;
-   public void setDao(EntityBrokerDaoImpl dao) {
+   private EntityBrokerDao dao;
+   public void setDao(EntityBrokerDao dao) {
       this.dao = dao;
    }
 

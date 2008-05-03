@@ -18,7 +18,7 @@
 	</parent>
 
 	<properties>
-	   <sakai.generic-dao.version>0.9.5-RC3</sakai.generic-dao.version>
+	   <sakai.generic-dao.version>0.9.5-SNAPSHOT</sakai.generic-dao.version>
 	</properties>
 
 	<dependencies>
@@ -34,7 +34,6 @@
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-utils</artifactId>
             <version>1.3.1-SNAPSHOT</version><!--entitybroker.version-->
-            <scope>provided</scope>
         </dependency>
 
 		<dependency>
@@ -111,7 +110,6 @@
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>generic-dao</artifactId>
 			<version>${sakai.generic-dao.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<!-- Commons JARS put in shared/lib by Sakai -->
@@ -254,11 +252,11 @@
 	<build>
 		<resources>
 			<resource>
-				<directory>${basedir}/src/bundle</directory>
-				<includes>
-					<include>**/*.properties</include>
-				</includes>
-				<filtering>false</filtering>
+                <directory>${basedir}/src/ddl</directory>
+                <includes>
+                    <include>**/*.sql</include>
+                </includes>
+                <filtering>false</filtering>
 			</resource>
 			<resource>
 				<directory>${basedir}/src/java</directory>
@@ -283,6 +281,12 @@
 			</plugin>
 		</plugins>
 		<testResources>
+            <testResource>
+                <directory>${basedir}/src/ddl</directory>
+                <includes>
+                    <include>**/*.sql</include>
+                </includes>
+            </testResource>
 			<testResource>
 				<directory>
 					${basedir}/../pack/src/webapp/WEB-INF

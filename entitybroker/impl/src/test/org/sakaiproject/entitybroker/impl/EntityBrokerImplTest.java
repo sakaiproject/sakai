@@ -18,7 +18,7 @@ import org.easymock.MockControl;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoImpl;
+import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.data.TestDataPreload;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
@@ -40,7 +40,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
 
    protected EntityBrokerImpl entityBroker;
 
-   private EntityBrokerDaoImpl dao;
+   private EntityBrokerDao dao;
    private TestData td;
    private TestDataPreload tdp;
 
@@ -59,7 +59,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
    // run this before each test starts
    protected void onSetUpBeforeTransaction() throws Exception {
       // load the spring created dao class bean from the Spring Application Context
-      dao = (EntityBrokerDaoImpl) applicationContext
+      dao = (EntityBrokerDao) applicationContext
             .getBean("org.sakaiproject.entitybroker.dao.EntityBrokerDao");
       if (dao == null) {
          throw new NullPointerException("Dao could not be retrieved from spring context");

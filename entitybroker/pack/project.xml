@@ -42,14 +42,23 @@
 			</properties>
 		</dependency>
 
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-entitybroker-utils</artifactId>
+            <version>${sakai.version}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+
 		<!-- generic DAO -->
 		<dependency>
 			<groupId>generic-dao</groupId>
 			<artifactId>generic-dao</artifactId>
 			<version>0.9.5</version>
-			<properties>
-				<deploy.target>shared</deploy.target>
-			</properties>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
 		</dependency>
 
 		<!-- Data processing -->

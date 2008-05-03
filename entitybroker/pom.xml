@@ -36,7 +36,6 @@
       <module>tool</module>
       <module>pack</module>
       <module>mocks</module>
-      <module>shared-deployer</module>
       <module>utils</module>
    </modules>
 

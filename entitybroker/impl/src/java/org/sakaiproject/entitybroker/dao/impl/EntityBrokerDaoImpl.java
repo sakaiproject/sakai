@@ -17,6 +17,7 @@ package org.sakaiproject.entitybroker.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
 import org.sakaiproject.entitybroker.dao.EntityProperty;
 import org.sakaiproject.genericdao.api.mappers.NamesRecord;
 import org.sakaiproject.genericdao.api.mappers.StatementMapper;
@@ -28,7 +29,7 @@ import org.sakaiproject.genericdao.springjdbc.JdbcBasicGenericDao;
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
-public class EntityBrokerDaoImpl extends JdbcBasicGenericDao {
+public class EntityBrokerDaoImpl extends JdbcBasicGenericDao implements EntityBrokerDao {
 
    /**
     * Get a list of unique entity references for a set of search params, all lists must be the same
