@@ -18,7 +18,7 @@ import org.easymock.MockControl;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
+import org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoImpl;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.impl.data.TestDataPreload;
 import org.sakaiproject.entitybroker.impl.entityprovider.EntityProviderManagerImpl;
@@ -40,7 +40,7 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
 
    protected EntityBrokerImpl entityBroker;
 
-   private EntityBrokerDao dao;
+   private EntityBrokerDaoImpl dao;
    private TestData td;
    private TestDataPreload tdp;
 
@@ -53,13 +53,13 @@ public class EntityBrokerImplTest extends AbstractTransactionalSpringContextTest
       // point to the needed spring config files, must be on the classpath
       // (add component/src/webapp/WEB-INF to the build path in Eclipse),
       // they also need to be referenced in the project.xml file
-      return new String[] { "hibernate-test.xml", "spring-hibernate.xml" };
+      return new String[] { "database-test.xml", "spring-jdbc.xml" };
    }
 
    // run this before each test starts
    protected void onSetUpBeforeTransaction() throws Exception {
       // load the spring created dao class bean from the Spring Application Context
-      dao = (EntityBrokerDao) applicationContext
+      dao = (EntityBrokerDaoImpl) applicationContext
             .getBean("org.sakaiproject.entitybroker.dao.EntityBrokerDao");
       if (dao == null) {
          throw new NullPointerException("Dao could not be retrieved from spring context");

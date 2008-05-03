@@ -30,12 +30,17 @@
 		</dependency>
 
 		<!-- internal dependencies -->
-
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-entitybroker-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-entitybroker-utils</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -111,20 +116,14 @@
 		<dependency>
 			<groupId>generic-dao</groupId>
 			<artifactId>generic-dao</artifactId>
-			<version>0.9</version>
+			<version>0.9.5</version>
 		</dependency>
 
-		<!-- Spring and Hibernate dependencies. -->
+		<!-- Spring dependencies. -->
 		<dependency>
 			<groupId>${sakai.spring.groupId}</groupId>
 			<artifactId>${sakai.spring.artifactId}</artifactId>
 			<version>${sakai.spring.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>${sakai.hibernate.groupId}</groupId>
-			<artifactId>${sakai.hibernate.artifactId}</artifactId>
-			<version>${sakai.hibernate.version}</version>
 		</dependency>
 
 		<!-- Data processing -->
@@ -165,26 +164,6 @@
             <type>jar</type>
         </dependency>
 -->
-
-		<!-- required for bean cloning -->
-		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-			<version>1.8.0-BETA</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-collections</groupId>
-			<artifactId>commons-collections</artifactId>
-			<version>3.1</version>
-		</dependency>
-
-		<!-- Required for hibernate 3 HQL queries -->
-		<dependency>
-			<groupId>antlr</groupId>
-			<artifactId>antlr</artifactId>
-			<version>2.7.6</version>
-		</dependency>
 
 		<!-- Apache commons dependencies -->
 		<dependency>
@@ -264,7 +243,6 @@
 
 	</dependencies>
 
-
 	<build>
 		<sourceDirectory>src/java</sourceDirectory>
 
@@ -280,15 +258,14 @@
 						${basedir}/../pack/src/webapp/WEB-INF
 					</directory>
 					<includes>
-						<include>spring-hibernate.xml</include>
-						<include>logic-support.xml</include>
+						<include>spring-jdbc.xml</include>
 					</includes>
 				</resource>
 				<resource>
 					<directory>${basedir}/src/test</directory>
 					<includes>
-						<include>hibernate-test.xml</include>
-						<include>hibernate.properties</include>
+						<include>database-test.xml</include>
+						<include>database.properties</include>
 					</includes>
 				</resource>
 			</resources>

@@ -9,9 +9,9 @@
  * 
  *****************************************************************************/
 
-package org.sakaiproject.entitybroker;
+package org.sakaiproject.entitybroker.impl.dao;
 
-import org.sakaiproject.entitybroker.dao.model.EntityProperty;
+import org.sakaiproject.entitybroker.dao.EntityProperty;
 
 import junit.framework.TestCase;
 
@@ -30,7 +30,7 @@ public class EntityPropertyTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.dao.model.EntityProperty#EntityProperty()}.
+    * {@link org.sakaiproject.entitybroker.dao.EntityProperty#EntityProperty()}.
     */
    public void testEntityProperty() {
       EntityProperty ep = new EntityProperty();
@@ -46,7 +46,7 @@ public class EntityPropertyTest extends TestCase {
 
    /**
     * Test method for
-    * {@link org.sakaiproject.entitybroker.dao.model.EntityProperty#EntityProperty(java.lang.String, java.lang.String, java.lang.String, java.lang.String[])}.
+    * {@link org.sakaiproject.entitybroker.dao.EntityProperty#EntityProperty(java.lang.String, java.lang.String, java.lang.String, java.lang.String[])}.
     */
    public void testEntityPropertyStringStringStringStringArray() {
       EntityProperty ep = new EntityProperty(REF, PREFIX, NAME, VALUE);

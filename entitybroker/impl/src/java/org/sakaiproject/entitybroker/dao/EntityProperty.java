@@ -12,7 +12,7 @@
  * Aaron Zeckoski (azeckoski@gmail.com) (aaronz@vt.edu) (aaron@caret.cam.ac.uk)
  **/
 
-package org.sakaiproject.entitybroker.dao.model;
+package org.sakaiproject.entitybroker.dao;
 
 /**
  * This is the persistent object for storing entity properties

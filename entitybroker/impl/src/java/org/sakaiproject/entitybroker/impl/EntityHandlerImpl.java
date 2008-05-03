@@ -65,9 +65,9 @@ import org.sakaiproject.entitybroker.exception.EncodingException;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.impl.entityprovider.extension.RequestGetterImpl;
 import org.sakaiproject.entitybroker.impl.util.EntityXStream;
-import org.sakaiproject.entitybroker.impl.util.ReflectUtil;
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
+import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import com.thoughtworks.xstream.io.json.JsonHierarchicalStreamDriver;

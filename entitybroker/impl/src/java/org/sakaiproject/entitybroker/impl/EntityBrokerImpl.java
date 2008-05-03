@@ -29,8 +29,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.dao.EntityBrokerDao;
-import org.sakaiproject.entitybroker.dao.model.EntityProperty;
+import org.sakaiproject.entitybroker.dao.EntityProperty;
+import org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoImpl;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
@@ -43,11 +43,12 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagSearchable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
-import org.sakaiproject.entitybroker.impl.util.ReflectUtil;
+import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.genericdao.api.finders.ByPropsFinder;
+import org.sakaiproject.genericdao.api.search.Restriction;
+import org.sakaiproject.genericdao.api.search.Search;
 
 /**
  * The default implementation of the EntityBroker interface
@@ -79,8 +80,8 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
       this.entityManager = entityManager;
    }
 
-   private EntityBrokerDao dao;
-   public void setDao(EntityBrokerDao dao) {
+   private EntityBrokerDaoImpl dao;
+   public void setDao(EntityBrokerDaoImpl dao) {
       this.dao = dao;
    }
 
@@ -245,6 +246,27 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
 
    // PROPERTIES
 
+   /**
+    * Allows searching for entities by property values, at least one of the params (prefix, name,
+    * searchValue) must be set in order to do a search, (searches which return all references to all
+    * entities with properties are not allowed) <br/> <b>WARNING:</b> this search is very fast but
+    * will not actually limit by properties that should have been placed on the entity itself or
+    * return the entity itself and is not a substitute for an API which allows searches of your
+    * entities
+    * 
+    * @param prefix
+    *           limit the search to a specific entity prefix, this must be set and cannot be an
+    *           empty array
+    * @param name
+    *           limit the property names to search for, can be null to return all names
+    * @param searchValue
+    *           limit the search by property values can be null to return all values, must be the
+    *           same size as the name array if it is not null, (i.e. this cannot be set without
+    *           setting at least one name)
+    * @param exactMatch
+    *           if true then only match property values exactly, otherwise use a "like" search
+    * @return a list of entity references for all entities matching the search
+    */
    public List<String> findEntityRefs(String[] prefixes, String[] name, String[] searchValue,
          boolean exactMatch) {
       // check for valid inputs
@@ -290,7 +312,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
             for (int i = 0; i < prefixes.length; i++) {
                props.add("entityPrefix");
                values.add(prefixes[i]);
-               comparisons.add(Integer.valueOf(ByPropsFinder.EQUALS));
+               comparisons.add(Integer.valueOf(Restriction.EQUALS));
                relations.add(i == 0 ? "and" : "or");
             }
 
@@ -298,7 +320,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
                for (int i = 0; i < name.length; i++) {
                   props.add("propertyName");
                   values.add(name[i]);
-                  comparisons.add(Integer.valueOf(ByPropsFinder.EQUALS));
+                  comparisons.add(Integer.valueOf(Restriction.EQUALS));
                   relations.add(i == 0 ? "and" : "or");
                }
             }
@@ -311,7 +333,7 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
                for (int i = 0; i < searchValue.length; i++) {
                   props.add("propertyValue");
                   values.add(searchValue[i]);
-                  comparisons.add(exactMatch ? ByPropsFinder.EQUALS : ByPropsFinder.LIKE);
+                  comparisons.add(exactMatch ? Restriction.EQUALS : Restriction.LIKE);
                   relations.add(i == 0 ? "and" : "or");
                }
             }
@@ -342,8 +364,8 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
          if (provider != null) {
             m = ((PropertyProvideable) provider).getProperties(reference);
          } else {
-            List<EntityProperty> properties = dao.findByProperties(EntityProperty.class,
-                  new String[] { "entityRef" }, new Object[] { reference });
+            List<EntityProperty> properties = dao.findBySearch(EntityProperty.class,
+                  new Search( "entityRef", reference ) );
             for (EntityProperty property : properties) {
                m.put(property.getPropertyName(), property.getPropertyValue());
             }
@@ -370,8 +392,10 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
          if (provider != null) {
             value = ((PropertyProvideable) provider).getPropertyValue(reference, name);
          } else {
-            List<EntityProperty> properties = dao.findByProperties(EntityProperty.class, new String[] {
-                  "entityRef", "propertyName" }, new Object[] { reference, name });
+            List<EntityProperty> properties = dao.findBySearch(EntityProperty.class, 
+                  new Search( 
+                        new String[] { "entityRef", "propertyName" }, 
+                        new Object[] { reference, name } ) );
             if (properties.size() == 1) {
                value = properties.get(0).getPropertyValue();
             }
@@ -402,13 +426,14 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
             ((PropertyProvideable) provider).setPropertyValue(reference, name, value);
          } else {
             if (value == null) {
-               // remove all properties from this entity if name also null, otherwise just remove this
-               // one
+               // remove all properties from this entity if name also null, otherwise just remove this one
                dao.deleteProperties(reference, name);
             } else {
                // add or update property
-               List<EntityProperty> properties = dao.findByProperties(EntityProperty.class,
-                     new String[] { "entityRef", "propertyName" }, new Object[] { reference, name });
+               List<EntityProperty> properties = dao.findBySearch(EntityProperty.class,
+                     new Search(
+                           new String[] { "entityRef", "propertyName" }, 
+                           new Object[] { reference, name }) );
                if (properties.isEmpty()) {
                   dao.create(new EntityProperty(reference, ref.getPrefix(), name, value));
                } else {

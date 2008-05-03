@@ -31,7 +31,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
-import org.sakaiproject.entitybroker.impl.util.ReflectUtil;
+import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 import org.sakaiproject.entitybroker.util.refmap.ReferenceMap;
 import org.sakaiproject.entitybroker.util.refmap.ReferenceType;
 

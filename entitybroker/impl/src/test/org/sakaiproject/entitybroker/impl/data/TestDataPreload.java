@@ -4,7 +4,7 @@
 
 package org.sakaiproject.entitybroker.impl.data;
 
-import org.sakaiproject.entitybroker.dao.model.EntityProperty;
+import org.sakaiproject.entitybroker.dao.EntityProperty;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.genericdao.api.GenericDao;
 

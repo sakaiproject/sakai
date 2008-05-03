@@ -5,12 +5,19 @@
 <!-- Antranig Basman (antranig@caret.cam.ac.uk) -->
 <beans>
 
-   <!-- Bring in the HBM related beans beans -->
-   <import resource="hibernate-hbms.xml" />
+    <bean id="sakaiAutoDDL" 
+        factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
+        factory-method="getBoolean">
+        <constructor-arg value="auto.ddl" />
+        <constructor-arg value="false" />
+    </bean>
 
-   <!-- Bring in the hibernate related beans -->
-   <import resource="spring-hibernate.xml" />
+    <bean id="sakaiDatabaseType"
+        factory-bean="org.sakaiproject.db.api.SqlService"
+        factory-method="getVendor" />
 
+   <!-- Bring in the spring jdbc related beans -->
+   <import resource="spring-jdbc.xml" />
 
    <!-- Public beans -->
    <bean id="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager"
@@ -63,7 +70,7 @@
 
     <bean id="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
             abstract="true" 
-            class="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider">
+            class="org.sakaiproject.entitybroker.util.AbstractEntityProvider">
         <property name="entityProviderManager"
             ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
         <property name="developerHelperService"
