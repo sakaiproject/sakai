@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- Aaron Zeckoski (aaronz@vt.edu) -->
+<beans>
+
+   <!-- dao beans -->
+   <bean id="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoTarget" 
+         class="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoImpl">
+        <property name="dataSource" ref="javax.sql.DataSource" />
+        <property name="autoDDL" ref="sakaiAutoDDL" />
+        <property name="databaseType" ref="sakaiDatabaseType" />
+        <property name="dataMappers">
+            <list>
+                <bean class="org.sakaiproject.genericdao.springjdbc.SimpleDataMapper">
+                    <property name="persistentClassname" 
+                        value="org.sakaiproject.entitybroker.dao.EntityProperty" />
+                    <property name="tableName" value="ENTITY_PROPERTIES" />
+                    <property name="DBTypeToDDL">
+                        <map>
+                            <entry key="HSQLDB">
+                                <value>
+CREATE TABLE {TABLENAME} ( 
+    {ID}            BIGINT NOT NULL IDENTITY,
+    ENTITY_REF      varchar(255) NOT NULL,
+    ENTITY_PREFIX   varchar(255) NOT NULL,
+    PROPERTY_NAME   varchar(255) NOT NULL,
+    PROPERTY_VALUE  LONGVARCHAR NOT NULL);
+                                </value>
+                            </entry>
+                            <entry key="MYSQL">
+                                <value>
+CREATE TABLE {TABLENAME} ( 
+    {ID}            bigint(20) AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    ENTITY_REF      varchar(255) NOT NULL,
+    ENTITY_PREFIX   varchar(255) NOT NULL,
+    PROPERTY_NAME   varchar(255) NOT NULL,
+    PROPERTY_VALUE  text NOT NULL,
+    INDEX (ENTITY_REF) );
+                                </value>
+                            </entry>
+                        </map>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+   <bean id="org.sakaiproject.entitybroker.DataSourceTransactionManager" 
+            class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+       <property name="dataSource" ref="javax.sql.DataSource" />
+   </bean>
+
+   <!-- This wraps our DAO so that the transactions are managed -->
+   <bean id="org.sakaiproject.entitybroker.dao.EntityBrokerDao" 
+         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="proxyTargetClass" value="true" />
+      <property name="transactionManager" ref="org.sakaiproject.entitybroker.DataSourceTransactionManager" />
+      <property name="target">
+         <ref bean="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoTarget" />
+      </property>
+      <property name="transactionAttributes">
+         <props>
+            <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="count*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="*">PROPAGATION_REQUIRED</prop>
+            <!--           <prop key="*">PROPAGATION_REQUIRED,+java.lang.RuntimeException</prop>-->
+         </props>
+      </property>
+   </bean>
+
+</beans>
