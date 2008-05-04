@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>content</artifactId>
+    <groupId>org.sakaiproject.kernel.impl</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Content Migration Component</name>
+  <groupId>org.sakaiproject.kernel.impl.content</groupId>
+  <artifactId>migration</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>sakai-content-jcr-migration-api</module>
+    <module>sakai-content-jcr-migration-impl</module>
+    <module>sakai-contentmulti-impl</module>
+  </modules>
+</project>

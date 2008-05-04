@@ -21,7 +21,7 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject.kernel.alias.component</groupId>
+      <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-alias-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>

@@ -683,9 +683,9 @@ This is not needed now that pluto have been released
     <module>component-manager</module>
     <module>kernel-private</module>
     <module>kernel-component</module>
+    <module>kernel-impl</module>
+    <module>kernel-test</module>
     <module>loader</module>
-    <module>component</module>
-    <module>alias</module>
     <module>event</module>
     <module>tool</module>
     <module>util</module>
@@ -699,7 +699,6 @@ This is not needed now that pluto have been released
     <module>memory</module>
     <module>test</module>
     <module>jcr</module>
-    <module>cluster</module>
     <module>kernel-site</module>
   </modules>
 </project>

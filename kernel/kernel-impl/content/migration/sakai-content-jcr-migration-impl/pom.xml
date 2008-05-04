@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>migration</artifactId>
+    <groupId>org.sakaiproject.kernel.impl.content</groupId>
+    <version>SNAPSHOT</version>
+    <relativePath>../</relativePath>
+  </parent>
+  <name>Sakai Content JCR Migration Implementation</name>
+  <groupId>org.sakaiproject.kernel.impl.content.migration</groupId>
+  <artifactId>sakai-content-jcr-migration-impl</artifactId>
+  <organization>
+    <name>The Sakai Foundation</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <packaging>jar</packaging>
+  <properties>
+    <deploy.target/>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernelnt.component.migration</groupId>
+      <artifactId>sakai-content-jcr-migration-api</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.content</groupId>
+      <artifactId>sakai-content-util</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.content.component.jcr</groupId>
+      <artifactId>sakai-content-jcr-impl</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.db</groupId>
+      <artifactId>sakai-db-storage</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel.util</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+    <dependency>      
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+
+<!-- jcr dependencies -->
+
+    <dependency>
+        <groupId>javax.jcr</groupId>
+        <artifactId>jcr</artifactId>
+        <version>${sakai.jcr.version}</version> 
+    </dependency>
+
+
+
+
+<!-- end jcr dependencies -->
+
+
+
+
+  </dependencies>
+</project>

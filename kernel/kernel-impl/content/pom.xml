@@ -2,16 +2,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>authz</artifactId>
+    <artifactId>impl</artifactId>
     <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Sakai AuthZ Component</name>
-  <groupId>org.sakaiproject.kernel.authz</groupId>
-  <artifactId>component</artifactId>
+  <name>Sakai Content Component</name>
+  <groupId>org.sakaiproject.kernel.impl</groupId>
+  <artifactId>content</artifactId>
   <packaging>pom</packaging>
   <modules>
-   <module>integration-test</module>
+    <module>db</module>
+    <module>sakai-content-bundles</module>
+<!--
+    <module>jcr</module>
+    <module>migration</module>
+    <module>test</module>
+-->
   </modules>
 </project>
