@@ -20,6 +20,7 @@
     <module>event</module>
     <module>jcr</module>
     <module>tool</module>
+    <module>user</module>
     <module>util</module>
   </modules>
 </project>

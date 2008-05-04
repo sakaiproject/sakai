@@ -28,12 +28,12 @@
     </dependency>
 
     <dependency>
-      <groupId>org.sakaiproject.kernel.user</groupId>
+      <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-user-util</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.user.component</groupId>
+      <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-user-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>

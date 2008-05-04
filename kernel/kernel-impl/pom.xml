@@ -25,6 +25,7 @@
     <module>memory</module>
     <module>site</module>
     <module>tool</module>
+    <module>user</module>
     <module>util</module>
   </modules>
 </project>

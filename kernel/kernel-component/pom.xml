@@ -122,7 +122,7 @@
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.user.component</groupId>
+      <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-user-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
