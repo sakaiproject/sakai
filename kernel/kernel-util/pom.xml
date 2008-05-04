@@ -7,13 +7,13 @@
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Sakai Content Project</name>
+  <name>Kernel Implementation Project</name>
   <groupId>org.sakaiproject.kernel</groupId>
-  <artifactId>content</artifactId>
+  <artifactId>util</artifactId>
   <packaging>pom</packaging>
-
   <modules>
-    <module>component</module>
-    <module>sakai-content-util</module>
+    <module>content</module>
+    <module>log</module>
+    <module>util</module>
   </modules>
 </project>

@@ -17,5 +17,6 @@
     <module>cluster</module>
     <module>component</module>
     <module>content</module>
+    <module>util</module>
   </modules>
 </project>

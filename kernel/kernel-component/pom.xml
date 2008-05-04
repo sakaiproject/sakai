@@ -46,33 +46,33 @@
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.authz.component</groupId>
+      <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-authz-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.cluster.component</groupId>
+      <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-cluster-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.component.component</groupId>
+      <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-component-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.content.component.db</groupId>
+      <groupId>org.sakaiproject.kernel.impl.content.db</groupId>
       <artifactId>sakai-content-impl</artifactId>
       <version>SNAPSHOT</version>
       <exclusions>
 	<exclusion>
-	  <groupId>org.sakaiproject.kernel.content.component.db</groupId>
+	  <groupId>org.sakaiproject.kernel.impl.content.db</groupId>
           <artifactId>sakai-content-lock-hbm</artifactId>
 	</exclusion>
       </exclusions>
     </dependency>
     <dependency>
-	<groupId>org.sakaiproject.kernel.content.component</groupId>
+	<groupId>org.sakaiproject.kernel.impl.content</groupId>
         <artifactId>sakai-content-bundles</artifactId>
         <version>SNAPSHOT</version>
     </dependency>
@@ -127,7 +127,7 @@
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.util.component</groupId>
+      <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-util-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>

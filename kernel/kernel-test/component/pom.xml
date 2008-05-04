@@ -16,7 +16,7 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject.kernel.event</groupId>
+      <groupId>org.sakaiproject.kernel.test</groupId>
       <artifactId>sakai-test-harness</artifactId>
       <version>SNAPSHOT</version>
     </dependency>

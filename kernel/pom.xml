@@ -685,19 +685,16 @@ This is not needed now that pluto have been released
     <module>kernel-component</module>
     <module>kernel-impl</module>
     <module>kernel-test</module>
+    <module>kernel-util</module>
     <module>loader</module>
     <module>event</module>
     <module>tool</module>
-    <module>util</module>
     <module>entity</module>
     <module>user</module>
-    <module>content</module>
     <module>site</module>
-    <module>authz</module>
     <module>email</module>
     <module>db</module>
     <module>memory</module>
-    <module>test</module>
     <module>jcr</module>
     <module>kernel-site</module>
   </modules>
