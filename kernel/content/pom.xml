@@ -13,7 +13,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>sakai-content-api</module>
     <module>component</module>
     <module>sakai-content-util</module>
   </modules>

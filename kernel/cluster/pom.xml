@@ -13,7 +13,6 @@
   <packaging>pom</packaging>
   
   <modules>
-    <module>sakai-cluster-api</module>
     <module>component</module>
   </modules>
 </project>

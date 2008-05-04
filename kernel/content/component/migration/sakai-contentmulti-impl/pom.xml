@@ -21,38 +21,13 @@
   </properties>
   <dependencies>
     <dependency>      
-      <groupId>org.sakaiproject.kernel.content</groupId>
-      <artifactId>sakai-content-api</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>      
       <groupId>org.sakaiproject.kernel.content.component.migration</groupId>
       <artifactId>sakai-content-jcr-migration-api</artifactId>
-      <version>SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.entity</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-      <version>SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.site</groupId>
-      <artifactId>sakai-site-api</artifactId>
-      <version>SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.event</groupId>
-      <artifactId>sakai-event-api</artifactId>
-      <version>SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.memory</groupId>
-      <artifactId>sakai-memory-api</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>      

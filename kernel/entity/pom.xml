@@ -12,7 +12,6 @@
   <artifactId>entity</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>sakai-entity-api</module>
     <module>component</module>
     <module>sakai-entity-util</module>
   </modules>

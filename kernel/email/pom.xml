@@ -12,8 +12,6 @@
   <artifactId>email</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>sakai-email-api</module>
     <module>component</module>
-    <module>deploy</module>
   </modules>
 </project>

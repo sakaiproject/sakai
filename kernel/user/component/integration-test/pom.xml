@@ -17,10 +17,16 @@
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.user</groupId>
-      <artifactId>sakai-user-api</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
+
     <dependency>
       <groupId>org.sakaiproject.kernel.user</groupId>
       <artifactId>sakai-user-util</artifactId>
@@ -29,26 +35,6 @@
     <dependency>
       <groupId>org.sakaiproject.kernel.user.component</groupId>
       <artifactId>sakai-user-impl</artifactId>
-      <version>SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.authz</groupId>
-      <artifactId>sakai-authz-api</artifactId>
-      <version>SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.entity</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-      <version>SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.tool</groupId>
-      <artifactId>sakai-tool-api</artifactId>
-      <version>SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util-api</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>

@@ -458,110 +458,14 @@ This is not needed now that pluto have been released
 
 	<!-- kernel apis -->
            <dependency>
-		<groupId>org.sakaiproject.kernel.authz</groupId>
-		<artifactId>sakai-authz-api</artifactId>
+		<groupId>org.sakaiproject.kernel</groupId>
+		<artifactId>sakai-kernel-api</artifactId>
                 <version>SNAPSHOT</version>
 		<scope>provided</scope>
 	   </dependency>
            <dependency>
-                <groupId>org.sakaiproject.kernel.alias</groupId>
-                <artifactId>sakai-alias-api</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.cluster</groupId>
-                <artifactId>sakai-cluster-api</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
                 <groupId>org.sakaiproject.kernel.component.api</groupId>
-                <artifactId>sakai-component-api</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.component.api</groupId>
-                <artifactId>sakai-component</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.content</groupId>
-                <artifactId>sakai-content-api</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.db</groupId>
-                <artifactId>sakai-db-api</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.db</groupId>
-                <artifactId>sakai-db-ext</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.email</groupId>
-                <artifactId>sakai-email-api</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.entity</groupId>
-                <artifactId>sakai-entity-api</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.event</groupId>
-                <artifactId>sakai-event-api</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.jcr</groupId>
-                <artifactId>sakai-jcr-api</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.memory</groupId>
-                <artifactId>sakai-memory-api</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.site</groupId>
-                <artifactId>sakai-site-api</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.tool</groupId>
-                <artifactId>sakai-tool-api</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.tool.util</groupId>
-                <artifactId>sakai-tool-servlet</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.user</groupId>
-                <artifactId>sakai-user-api</artifactId>
-                <version>SNAPSHOT</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject.kernel.util</groupId>
-                <artifactId>sakai-util-api</artifactId>
+                <artifactId>sakai-component-manager</artifactId>
                 <version>SNAPSHOT</version>
                 <scope>provided</scope>
            </dependency>
@@ -775,6 +679,9 @@ This is not needed now that pluto have been released
     </plugins>
   </build>
   <modules>
+    <module>api</module>
+    <module>component-manager</module>
+    <module>kernel-private</module>
     <module>loader</module>
     <module>component</module>
     <module>alias</module>

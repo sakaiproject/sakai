@@ -5,15 +5,15 @@
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>SNAPSHOT</version>
-    <relativePath>../</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Sakai JSR-170</name>
+  <name>Sakai User Project</name>
   <groupId>org.sakaiproject.kernel</groupId>
-  <artifactId>jcr</artifactId>
-  <inceptionYear>2007</inceptionYear>
+  <artifactId>deploy</artifactId>
   <packaging>pom</packaging>
+
   <modules>
-    <module>sakai-jcr-util</module>
-    <module>component</module>
+    <module>shared</module>
+    <module>comon</module>
   </modules>
 </project>

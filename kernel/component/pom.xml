@@ -11,8 +11,6 @@
   <name>Sakai Component Project</name>
   <packaging>pom</packaging>
   <modules>
-     <module>api</module>
      <module>component</module>
-     <module>deploy</module>
   </modules>
 </project>

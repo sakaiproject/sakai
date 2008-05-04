@@ -15,11 +15,8 @@
   
 
   <modules>
-    <module>sakai-util-api</module>
-    <module>sakai-util-id-hbm</module>
     <module>component</module>
     <module>sakai-util-log</module>
     <module>sakai-util</module>
-    <module>deploy</module>
   </modules>
 </project>

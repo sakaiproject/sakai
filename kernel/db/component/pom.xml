@@ -16,6 +16,5 @@
   <modules>
     <module>sakai-db-impl</module>
     <module>sakai-db-pack</module>
-    <module>sakai-db-ext</module>
   </modules>
 </project>

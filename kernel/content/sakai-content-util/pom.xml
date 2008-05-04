@@ -18,28 +18,13 @@
   <packaging>jar</packaging>
   <dependencies>
       <dependency>
-      	<groupId>org.sakaiproject.kernel.content</groupId>
-      	<artifactId>sakai-content-api</artifactId>
+      	<groupId>org.sakaiproject.kernel</groupId>
+      	<artifactId>sakai-kernel-api</artifactId>
       	<version>SNAPSHOT</version>
       </dependency>
       <dependency>
-      	<groupId>org.sakaiproject.kernel.entity</groupId>
-      	<artifactId>sakai-entity-api</artifactId>
-      	<version>SNAPSHOT</version>
-      </dependency>
-      <dependency>
-      	<groupId>org.sakaiproject.kernel.util</groupId>
-      	<artifactId>sakai-util-api</artifactId>
-      	<version>SNAPSHOT</version>
-      </dependency>
-      <dependency>
-      	<groupId>org.sakaiproject.kernel.component.api</groupId>
-      	<artifactId>sakai-component</artifactId>
-      	<version>SNAPSHOT</version>
-      </dependency>
-      <dependency>
-      	<groupId>org.sakaiproject.kernel.component.api</groupId>
-      	<artifactId>sakai-component-api</artifactId>
+      	<groupId>org.sakaiproject.kernel</groupId>
+      	<artifactId>sakai-component-manager</artifactId>
       	<version>SNAPSHOT</version>
       </dependency>
       <dependency>

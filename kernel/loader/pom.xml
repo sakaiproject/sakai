@@ -13,8 +13,9 @@
   <packaging>war</packaging>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject.kernel.component.api</groupId>
-      <artifactId>sakai-component</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+      <version>SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

@@ -13,9 +13,7 @@
   <packaging>pom</packaging>
 
         <modules>
-            <module>sakai-tool-api</module>
             <module>component</module>
             <module>util</module>
-            <module>deploy</module>
         </modules>
 </project>

@@ -12,7 +12,6 @@
   <artifactId>authz</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>sakai-authz-api</module>
     <module>component</module>
   </modules>
 </project>

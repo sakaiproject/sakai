@@ -21,8 +21,8 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject.kernel.content</groupId>
-      <artifactId>sakai-content-api</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
