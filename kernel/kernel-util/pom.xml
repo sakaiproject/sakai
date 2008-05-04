@@ -16,5 +16,6 @@
     <module>log</module>
     <module>util</module>
     <module>db-storage</module>
+    <module>db-conversion</module>
   </modules>
 </project>

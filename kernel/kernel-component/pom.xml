@@ -36,7 +36,7 @@
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.db</groupId>
+      <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-db-storage</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
@@ -77,7 +77,7 @@
         <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.db.component</groupId>
+      <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-db-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
