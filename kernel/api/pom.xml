@@ -25,11 +25,6 @@
       <artifactId>servlet-api</artifactId>
       <version>${sakai.servletapi.version}</version>
     </dependency>
-  <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.artifactId}</artifactId>
-      <version>${sakai.spring.version}</version>
-    </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
@@ -48,16 +43,6 @@
 
 
     <dependency>
-      <groupId>${sakai.hibernate.groupId}</groupId>
-      <artifactId>${sakai.hibernate.artifactId}</artifactId>
-      <version>${sakai.hibernate.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.artifactId}</artifactId>
-      <version>${sakai.spring.version}</version>
-    </dependency>
-    <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
       <version>1.2.2</version>
@@ -66,12 +51,6 @@
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
       <version>1.3</version>
-    </dependency>
-    <dependency>
-	  <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <version>${sakai.ehcache.version}</version>
-      <type>jar</type>
     </dependency>
 
 
@@ -86,7 +65,11 @@
       <version>1.0.2</version>
     </dependency>
 
-
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
 
   </dependencies>
 </project>
