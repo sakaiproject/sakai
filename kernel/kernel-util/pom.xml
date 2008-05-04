@@ -19,6 +19,7 @@
     <module>entity</module>
     <module>event</module>
     <module>jcr</module>
+    <module>tool</module>
     <module>util</module>
   </modules>
 </project>

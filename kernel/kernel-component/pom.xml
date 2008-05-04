@@ -107,17 +107,17 @@
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.memory.component</groupId>
+      <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-memory-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.site.component</groupId>
+      <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-site-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.tool.component</groupId>
+      <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-tool-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>

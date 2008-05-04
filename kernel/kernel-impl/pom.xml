@@ -22,6 +22,9 @@
     <module>entity</module>
     <module>event</module>
     <module>jcr</module>
+    <module>memory</module>
+    <module>site</module>
+    <module>tool</module>
     <module>util</module>
   </modules>
 </project>
