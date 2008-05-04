@@ -13,7 +13,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>sakai-user-impl</module>
-    <module>sakai-user-pack</module>
 <!--
     <module>integration-test</module>
 -->

@@ -13,6 +13,5 @@
   <packaging>pom</packaging>
   <modules>
     <module>sakai-entity-impl</module>
-    <module>sakai-entity-pack</module>
   </modules>
 </project>

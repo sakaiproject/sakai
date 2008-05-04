@@ -13,7 +13,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>sakai-content-impl</module>
-    <module>sakai-content-pack</module>
     <module>sakai-content-lock-hbm</module>
   </modules>
 </project>

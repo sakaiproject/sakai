@@ -3,7 +3,7 @@
 
 <beans>
 
-	<import resource="preloadcontent.xml" />
+	<import resource="jackrabbit-preloadcontent.xml" />
 	
 	<bean id="org.sakaiproject.jcr.api.JCRService"
 			class="org.sakaiproject.jcr.jackrabbit.JCRServiceImpl"

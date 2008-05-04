@@ -12,6 +12,5 @@
   <packaging>pom</packaging>
   <modules>
      <module>sakai-component-impl</module>
-     <module>sakai-component-pack</module>
   </modules>
 </project>

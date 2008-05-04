@@ -13,6 +13,5 @@
   <packaging>pom</packaging>
   <modules>
     <module>sakai-event-impl</module>
-    <module>sakai-event-pack</module>
   </modules>
 </project>

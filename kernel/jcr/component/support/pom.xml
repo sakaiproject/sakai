@@ -18,7 +18,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>sakai-jcr-support-impl</module>
-    <module>sakai-jcr-support-pack</module>
   </modules>
  <dependencies>
     <dependency>

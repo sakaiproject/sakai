@@ -18,6 +18,5 @@
   <packaging>pom</packaging>
   <modules>
   <module>sakai-util-impl</module>
-  <module>sakai-util-pack</module>
   </modules>
 </project>

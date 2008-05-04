@@ -18,7 +18,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>sakai-jackrabbit-impl</module>
-    <module>sakai-jackrabbit-pack</module>
   </modules>
   <properties>
 	  <jackrabbit.version>1.3.3</jackrabbit.version>

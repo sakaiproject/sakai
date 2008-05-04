@@ -14,6 +14,5 @@
 
         <modules>
             <module>sakai-tool-impl</module>
-            <module>sakai-tool-pack</module>
         </modules>
 </project>

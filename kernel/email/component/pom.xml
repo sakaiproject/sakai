@@ -13,6 +13,5 @@
   <packaging>pom</packaging>
   <modules>
     <module>sakai-email-impl</module>
-    <module>sakai-email-pack</module>
   </modules>
 </project>

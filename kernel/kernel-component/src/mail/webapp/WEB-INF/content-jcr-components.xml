@@ -7,7 +7,7 @@
 
 
 
-   <import resource="components-jcr.xml" />
+   <import resource="content-jcr-components-jcr.xml" />
 
 
 	<bean id="org.sakaiproject.content.api.ContentHostingService"

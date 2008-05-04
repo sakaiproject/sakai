@@ -13,6 +13,5 @@
   <packaging>pom</packaging>
   <modules>
     <module>sakai-site-impl</module>
-    <module>sakai-site-pack</module>
   </modules>
 </project>

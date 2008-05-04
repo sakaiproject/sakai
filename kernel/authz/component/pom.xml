@@ -13,7 +13,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>sakai-authz-impl</module>
-    <module>sakai-authz-pack</module>
-    <module>integration-test</module>
+   <module>integration-test</module>
   </modules>
 </project>

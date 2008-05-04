@@ -13,6 +13,5 @@
   <packaging>pom</packaging>
   <modules>
     <module>sakai-content-jcr-impl</module>
-    <module>sakai-content-jcr-pack</module>
   </modules>
 </project>
