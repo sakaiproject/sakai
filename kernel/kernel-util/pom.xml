@@ -15,5 +15,6 @@
     <module>content</module>
     <module>log</module>
     <module>util</module>
+    <module>db-storage</module>
   </modules>
 </project>
