@@ -17,6 +17,8 @@
     <module>db-storage</module>
     <module>db-conversion</module>
     <module>entity</module>
+    <module>event</module>
+    <module>jcr</module>
     <module>util</module>
   </modules>
 </project>

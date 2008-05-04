@@ -1,39 +1,75 @@
-<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>component</artifactId>
-    <groupId>org.sakaiproject.kernel.jcr</groupId>
+    <artifactId>jcr</artifactId>
+    <groupId>org.sakaiproject.kernel.impl</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Sakai Jackrabbit JSR-170 Service Impl</name>
-  <groupId>org.sakaiproject.kernel.jcr.component</groupId>
-  <artifactId>jackrabbit</artifactId>
+  <name>Sakai Jackrabbit JCR Service Implementation</name>
+  <groupId>org.sakaiproject.kernel.impl.jcr</groupId>
+  <artifactId>sakai-jackrabbit-impl</artifactId>
     <organization>
     <name>Timefields Ltd</name>
     <url>http://www.tfd.co.uk/</url>
   </organization>
   <inceptionYear>2007</inceptionYear>
-  <packaging>pom</packaging>
-  <modules>
-    <module>sakai-jackrabbit-impl</module>
-  </modules>
+  <packaging>jar</packaging>
   <properties>
 	  <jackrabbit.version>1.3.3</jackrabbit.version>
  </properties>
- <dependencies>
+  <build>
+   <plugins>
+     <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+        <!--
+           <includes>
+             <include>**/AllTests*</include>
+           </includes>
+         -->
+          <forkMode>once</forkMode>
+          <argLine>-Xmx256m -enableassertions</argLine>
+          <systemProperties>
+            <property>
+              <name>derby.system.durability</name>
+              <value>test</value>
+            </property>
+            <property>
+              <name>known.issues</name>
+              <value>
+              </value>
+            </property>
+          </systemProperties>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
+  <dependencies>
+   <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-jcr-tests</artifactId>
+      <version>${jackrabbit.version}</version>
+      <scope>test</scope>
+    </dependency>
+   <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.5</version>
+      <scope>test</scope>
+    </dependency>
+   <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+      <version>SNAPSHOT</version>
+    </dependency>
     <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
       <version>1.0</version>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-      <version>SNAPSHOT</version>
-    </dependency>
-    
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>

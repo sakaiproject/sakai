@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>jcr</artifactId>
+    <artifactId>impl</artifactId>
     <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../</relativePath>
   </parent>
   <name>Sakai JSR-170 Component</name>
-  <groupId>org.sakaiproject.kernel.jcr</groupId>
-  <artifactId>component</artifactId>
+  <groupId>org.sakaiproject.kernel.impl</groupId>
+  <artifactId>jcr</artifactId>
   <inceptionYear>2007</inceptionYear>
   <packaging>pom</packaging>
   <modules>

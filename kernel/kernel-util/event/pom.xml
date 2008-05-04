@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>event</artifactId>
+    <artifactId>util</artifactId>
     <groupId>org.sakaiproject.kernel</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Event Utilities</name>
-  <groupId>org.sakaiproject.kernel.event</groupId>
+  <groupId>org.sakaiproject.kernel.util</groupId>
   <artifactId>sakai-event-util</artifactId>
   <organization>
     <name>Sakai Foundation</name>

@@ -687,12 +687,10 @@ This is not needed now that pluto have been released
     <module>kernel-test</module>
     <module>kernel-util</module>
     <module>loader</module>
-    <module>event</module>
     <module>tool</module>
     <module>user</module>
     <module>site</module>
     <module>memory</module>
-    <module>jcr</module>
     <module>kernel-site</module>
   </modules>
 </project>

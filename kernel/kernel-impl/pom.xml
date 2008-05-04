@@ -20,6 +20,8 @@
     <module>db</module>
     <module>email</module>
     <module>entity</module>
+    <module>event</module>
+    <module>jcr</module>
     <module>util</module>
   </modules>
 </project>

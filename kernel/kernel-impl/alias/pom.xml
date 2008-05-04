@@ -37,7 +37,7 @@
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.event</groupId>
+      <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-event-util</artifactId>
       <version>SNAPSHOT</version>
     </dependency>

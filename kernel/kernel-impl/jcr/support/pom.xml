@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>component</artifactId>
-    <groupId>org.sakaiproject.kernel.jcr</groupId>
+    <artifactId>jcr</artifactId>
+    <groupId>org.sakaiproject.kernel.impl</groupId>
     <version>SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai JSR-170 Support Service Impl</name>
-  <groupId>org.sakaiproject.kernel.jcr.component</groupId>
+  <groupId>org.sakaiproject.kernel.impl.jcr</groupId>
   <artifactId>support</artifactId>
     <organization>
     <name>Timefields Ltd</name>

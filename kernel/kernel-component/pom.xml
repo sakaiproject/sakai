@@ -31,7 +31,7 @@
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.event</groupId>
+      <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-event-util</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
@@ -92,17 +92,17 @@
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.event.component</groupId>
+      <groupId>org.sakaiproject.kernel.impl</groupId>
       <artifactId>sakai-event-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
    <dependency>      
-      <groupId>org.sakaiproject.kernel.jcr.component.jackrabbit</groupId>
+      <groupId>org.sakaiproject.kernel.impl.jcr.jackrabbit</groupId>
       <artifactId>sakai-jackrabbit-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
    <dependency>      
-      <groupId>org.sakaiproject.kernel.jcr.component.support</groupId>
+      <groupId>org.sakaiproject.kernel.impl.jcr.support</groupId>
       <artifactId>sakai-jcr-support-impl</artifactId>
       <version>SNAPSHOT</version>
     </dependency>
