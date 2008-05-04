@@ -18,6 +18,8 @@
     <module>component</module>
     <module>content</module>
     <module>db</module>
+    <module>email</module>
+    <module>entity</module>
     <module>util</module>
   </modules>
 </project>

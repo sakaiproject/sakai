@@ -37,7 +37,7 @@
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.kernel.entity</groupId>
+      <groupId>org.sakaiproject.kernel.util</groupId>
       <artifactId>sakai-entity-util</artifactId>
       <version>SNAPSHOT</version>
     </dependency>

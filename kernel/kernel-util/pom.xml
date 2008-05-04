@@ -14,8 +14,9 @@
   <modules>
     <module>content</module>
     <module>log</module>
-    <module>util</module>
     <module>db-storage</module>
     <module>db-conversion</module>
+    <module>entity</module>
+    <module>util</module>
   </modules>
 </project>

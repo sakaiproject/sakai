@@ -689,10 +689,8 @@ This is not needed now that pluto have been released
     <module>loader</module>
     <module>event</module>
     <module>tool</module>
-    <module>entity</module>
     <module>user</module>
     <module>site</module>
-    <module>email</module>
     <module>memory</module>
     <module>jcr</module>
     <module>kernel-site</module>
