@@ -14,5 +14,4 @@ create trigger bef_ins_ENTITYPROPS
     for each row 
     begin 
 	    select {IDSEQNAME}.nextval 
-        into :new.{ID} from dual;
-    end;
+        into :new.{ID} from dual; end;
