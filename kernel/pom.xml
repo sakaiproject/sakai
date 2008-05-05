@@ -459,6 +459,12 @@ This is not needed now that pluto have been released
 	<!-- kernel apis -->
            <dependency>
 		<groupId>org.sakaiproject.kernel</groupId>
+		<artifactId>sakai-component-manager</artifactId>
+                <version>SNAPSHOT</version>
+		<scope>provided</scope>
+	   </dependency>
+           <dependency>
+		<groupId>org.sakaiproject.kernel</groupId>
 		<artifactId>sakai-kernel-api</artifactId>
                 <version>SNAPSHOT</version>
 		<scope>provided</scope>
@@ -613,6 +619,12 @@ This is not needed now that pluto have been released
            </includes>
 	</resource>
 	<resource>
+	   <directory>${basedir}/src/main/bundle</directory>
+           <includes>
+		<include>**/*</include>
+           </includes>
+	</resource>
+	<resource>
 	   <directory>${basedir}/src/main/resources</directory>
            <includes>
 		<include>**/*</include>
@@ -684,9 +696,10 @@ This is not needed now that pluto have been released
     <module>kernel-private</module>
     <module>kernel-component</module>
     <module>kernel-impl</module>
-    <module>kernel-test</module>
+    <!-- <module>kernel-test</module> -->
     <module>kernel-util</module>
     <module>loader</module>
+    <module>deploy</module>
     <module>kernel-site</module>
   </modules>
 </project>
