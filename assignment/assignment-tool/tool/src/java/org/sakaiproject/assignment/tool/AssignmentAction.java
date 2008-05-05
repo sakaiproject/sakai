@@ -1176,7 +1176,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String sortedBy = (String) state.getAttribute(SORTED_BY);
 		String sortedAsc = (String) state.getAttribute(SORTED_ASC);
 		// clean sort criteria
-		if (sortedBy.equals(SORTED_BY_GROUP_TITLE) || sortedBy.equals(SORTED_BY_GROUP_DESCRIPTION))
+		if (SORTED_BY_GROUP_TITLE.equals(sortedBy) || SORTED_BY_GROUP_DESCRIPTION.equals(sortedBy))
 		{
 			sortedBy = SORTED_BY_DUEDATE;
 			sortedAsc = Boolean.TRUE.toString();
