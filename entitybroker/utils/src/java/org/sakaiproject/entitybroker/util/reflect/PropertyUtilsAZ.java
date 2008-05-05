@@ -84,13 +84,20 @@ public class PropertyUtilsAZ extends PropertyUtilsBean {
       if (! getClassFieldMap().containsKey(elementClass) ) {
          // class was not yet analyzed
          Map<String, Field> fMap = new ConcurrentHashMap<String, Field>();
-
-         for (Field field : elementClass.getFields()) {
-            try {
-               fMap.put(field.getName(), field);
-            } catch (Exception e) {
-               // nothing to do here but move on
+         try {
+            Field[] fields = elementClass.getFields();
+            for (Field field : fields) {
+               try {
+                  if (! field.isAccessible()) {
+                     field.setAccessible(true);
+                  }
+                  fMap.put(field.getName(), field);
+               } catch (Exception e) {
+                  // if we fail then nothing to do here but move on
+               }
             }
+         } catch (SecurityException e) {
+            // if security manager denies us access then we just move on
          }
          getClassFieldMap().put(elementClass, fMap);
       }
