@@ -37,6 +37,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
@@ -64,6 +65,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.StringUtil;
 
 
 public class CalendarBean {
@@ -729,7 +731,7 @@ public class CalendarBean {
 
 	public String getSelectedDayAsString() {
 		SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT, msgs.getLocale());
-		return formatter.format(selectedDay);
+		return StringUtils.capitalize(formatter.format(selectedDay));
 	}
 
 	public List getSelectedDayEvents() {
