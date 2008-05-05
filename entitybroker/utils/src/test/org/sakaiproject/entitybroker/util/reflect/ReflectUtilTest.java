@@ -14,6 +14,9 @@
 
 package org.sakaiproject.entitybroker.util.reflect;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,15 +27,6 @@ import java.util.Vector;
 
 import junit.framework.TestCase;
 
-import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.CRUDable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Saveable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.util.reflect.ReflectUtil;
 import org.sakaiproject.entitybroker.util.reflect.exception.FieldnameNotFoundException;
 
@@ -44,30 +38,24 @@ import org.sakaiproject.entitybroker.util.reflect.exception.FieldnameNotFoundExc
 public class ReflectUtilTest extends TestCase {
 
    class TestNone { }
-   class TestProvider implements EntityProvider {
+   class TestImplOne implements TestInterfaceOne {
       public String id = "identity";
       public Long nullVal = null;
-      public String getEntityPrefix() {
-         return "provider";
-      }
    }
-   class TestCrud implements CRUDable {
-      public String getEntityPrefix() {
-         return "crud";
+   class TestImplFour implements TestInterfaceFour {
+      private String thing;
+      public void setThing(String thing) {
+         this.thing = thing;
       }
-      public String createEntity(EntityReference ref, Object entity) {
-         return "1";
+      public String getThing() {
+         return thing;
       }
-      public Object getSampleEntity() {
-         return new String();
+      public void run() {
+         // nothing
       }
-      public void updateEntity(EntityReference ref, Object entity) {
+      public int read(CharBuffer cb) throws IOException {
+         return 0;
       }
-      public Object getEntity(EntityReference ref) {
-         return "one";
-      }
-      public void deleteEntity(EntityReference ref) {
-      }         
    }
 
    /**
@@ -76,7 +64,7 @@ public class ReflectUtilTest extends TestCase {
     */
    public class TestPea {
       public String id = "id";
-      @EntityId
+      @TestAnnote
       public String entityId = "EID";
       protected String prot = "prot";
       @SuppressWarnings("unused")
@@ -89,7 +77,7 @@ public class ReflectUtilTest extends TestCase {
    public class TestBean {
       private int myInt = 0;
       private String myString = "woot";
-      @EntityId
+      @TestAnnote
       public int getMyInt() {
          return myInt;
       }
@@ -121,7 +109,7 @@ public class ReflectUtilTest extends TestCase {
       public String createEntity(Object entity) {
          return "1";
       }
-      @EntityId
+      @TestAnnote
       public String getEntityId() {
          return entityId;
       }
@@ -513,10 +501,10 @@ public class ReflectUtilTest extends TestCase {
       ReflectUtil reflectUtil = new ReflectUtil();
       String fieldName = null;
 
-      fieldName = reflectUtil.getFieldNameWithAnnotation(TestBean.class, EntityId.class);
+      fieldName = reflectUtil.getFieldNameWithAnnotation(TestBean.class, TestAnnote.class);
       assertEquals("myInt", fieldName);
 
-      fieldName = reflectUtil.getFieldNameWithAnnotation(TestEntity.class, EntityId.class);
+      fieldName = reflectUtil.getFieldNameWithAnnotation(TestEntity.class, TestAnnote.class);
       assertEquals("entityId", fieldName);
    }
 
@@ -545,16 +533,16 @@ public class ReflectUtilTest extends TestCase {
       assertNotNull(value);
       assertEquals("3", value);
 
-      value = reflectUtil.getFieldValueAsString( new TestPea(), "id", EntityId.class);
+      value = reflectUtil.getFieldValueAsString( new TestPea(), "id", TestAnnote.class);
       assertNotNull(value);
       assertEquals("EID", value);
 
-      value = reflectUtil.getFieldValueAsString( new TestEntity(), "id", EntityId.class);
+      value = reflectUtil.getFieldValueAsString( new TestEntity(), "id", TestAnnote.class);
       assertNotNull(value);
       assertEquals("33", value);
 
       try {
-         value = reflectUtil.getFieldValueAsString( new TestNone(), "id", EntityId.class);
+         value = reflectUtil.getFieldValueAsString( new TestNone(), "id", TestAnnote.class);
          fail("Should have thrown exception");
       } catch (FieldnameNotFoundException e) {
          assertNotNull(e.getMessage());
@@ -736,23 +724,23 @@ public class ReflectUtilTest extends TestCase {
       assertEquals(1, superClasses.size());
       assertEquals(TestNone.class, superClasses.get(0));
 
-      superClasses = ReflectUtil.getSuperclasses(TestProvider.class);
+      superClasses = ReflectUtil.getSuperclasses(TestImplOne.class);
       assertNotNull(superClasses);
-      assertEquals(2, superClasses.size());
-      assertEquals(TestProvider.class, superClasses.get(0));
-      assertEquals(EntityProvider.class, superClasses.get(1));
+      assertEquals(3, superClasses.size());
+      assertTrue( superClasses.contains(TestImplOne.class) );
+      assertTrue( superClasses.contains(TestInterfaceOne.class) );
+      assertTrue( superClasses.contains(Serializable.class) );
 
-      superClasses = ReflectUtil.getSuperclasses(TestCrud.class);
+      superClasses = ReflectUtil.getSuperclasses(TestImplFour.class);
       assertNotNull(superClasses);
-      assertTrue(superClasses.size() > 8);
-      assertTrue( superClasses.contains(TestCrud.class) );
-      assertTrue( superClasses.contains(EntityProvider.class) );
-      assertTrue( superClasses.contains(CRUDable.class) );
-      assertTrue( superClasses.contains(Createable.class) );
-      assertTrue( superClasses.contains(Resolvable.class) );
-      assertTrue( superClasses.contains(Updateable.class) );
-      assertTrue( superClasses.contains(Deleteable.class) );
-      assertTrue( superClasses.contains(Saveable.class) );
+      assertTrue(superClasses.size() >= 7);
+      assertTrue( superClasses.contains(TestImplFour.class) );
+      assertTrue( superClasses.contains(TestInterfaceOne.class) );
+      assertTrue( superClasses.contains(TestInterfaceFour.class) );
+      assertTrue( superClasses.contains(Serializable.class) );
+      assertTrue( superClasses.contains(Runnable.class) );
+      assertTrue( superClasses.contains(Cloneable.class) );
+      assertTrue( superClasses.contains(Readable.class) );
    }
 
    /**
