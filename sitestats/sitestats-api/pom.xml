@@ -4,8 +4,7 @@
 	<parent>
 		<artifactId>sitestats-base</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>M2</version>
-		<relativePath>../pom.xml</relativePath>
+		<version>${sitestats.version}</version>	
 	</parent>
 	<name>Sakai SiteStats Service</name>
 	<groupId>org.sakaiproject</groupId>

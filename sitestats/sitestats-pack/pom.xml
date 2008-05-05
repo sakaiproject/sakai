@@ -4,8 +4,7 @@
 	<parent>
 		<artifactId>sitestats-base</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>M2</version>
-		<relativePath>../pom.xml</relativePath>
+		<version>${sitestats.version}</version>
 	</parent>
 	<name>Sakai SiteStats Components</name>
 	<groupId>org.sakaiproject</groupId>
@@ -25,13 +24,13 @@
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-sitestats-api</artifactId>
-			<version>${sakai.version}</version>
+			<version>${sitestats.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-sitestats-impl</artifactId>
-			<version>${sakai.version}</version>
+			<version>${sitestats.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.sakaiproject</groupId>
