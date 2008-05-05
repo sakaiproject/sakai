@@ -73,7 +73,7 @@ public class CalendarBean {
 	public static final String 						PRIORITY_HIGH			= "priority_high";
 	public static final String 						PRIORITY_MEDIUM			= "priority_medium";
 	public static final String 						PRIORITY_LOW			= "priority_low";
-	public static final String						DATE_FORMAT				= "MMM dd, yyyy";
+	public static final String						DATE_FORMAT				= "MMMMM dd, yyyy";
 	private static final String 					imgLocation				= "../../../library/image/sakai/";
 	private static final String 					SCHEDULE_TOOL_ID		= "sakai.schedule";
 	
@@ -728,7 +728,7 @@ public class CalendarBean {
 	}
 
 	public String getSelectedDayAsString() {
-		SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+		SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT, msgs.getLocale());
 		return formatter.format(selectedDay);
 	}
 
