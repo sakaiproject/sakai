@@ -107,6 +107,9 @@ public class Part extends edu.indiana.lib.osid.base.repository.Part
 					} else if (partStructureId.isEqual(OpenUrlPartStructure.getInstance().getId())) {
 						this.partStructure = OpenUrlPartStructure.getInstance();
 
+					} else if (partStructureId.isEqual(PreferredUrlPartStructure.getInstance().getId())) {
+						this.partStructure = PreferredUrlPartStructure.getInstance();
+
 					} else if (partStructureId.isEqual(PagesPartStructure.getInstance().getId())) {
 						this.partStructure = PagesPartStructure.getInstance();
 

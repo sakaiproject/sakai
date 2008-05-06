@@ -196,7 +196,7 @@ public class BaseSearchManager implements SearchManager, Observer
          */
         public BasicSearch()
         {
-	        this.m_searchId = newSearchId(); 
+	        this.m_searchId = newSearchId();
 	        this.m_searchType = null;
 	        this.m_assets = new Vector();
 	        m_pageOrder = new Vector();
@@ -1066,7 +1066,7 @@ public class BaseSearchManager implements SearchManager, Observer
 				// make sure this category has databases in it
 				if( !hasDatabases() )
 				{
-					m_log.warn( "Search Library Resources Category: '" + 
+					m_log.warn( "Search Library Resources Category: '" +
 							displayName + "' contains no databases." );
 				}
 				else
@@ -1827,10 +1827,14 @@ public class BaseSearchManager implements SearchManager, Observer
 
 					Citation citation = CitationService.getTemporaryCitation(asset);
 
-					String openUrlParams = citation.getOpenurlParameters();
+					String dupCheckCriteria = citation.hasPreferredUrl()
+					                          ? citation.getPrimaryUrl()
+					                          : citation.getOpenurlParameters();
+
+			    m_log.debug("DUP CHECK: " + dupCheckCriteria);
 
 					if (((BasicSearch) search).isDuplicateCheckEnabled() &&
-					      duplicateCheck.contains(openUrlParams))
+					      duplicateCheck.contains(dupCheckCriteria))
 					{
  					  m_log.debug("Duplicate #" + (duplicateCount + 1) + " found");
 					  if (duplicateCount++ >= MAX_DUPLICATES)
@@ -1844,7 +1848,7 @@ public class BaseSearchManager implements SearchManager, Observer
 						((BasicSearch) search).m_pageOrder.add(citation.getId());
 						citations.add(citation);
 
-						duplicateCheck.add(openUrlParams);
+						duplicateCheck.add(dupCheckCriteria);
 						duplicateCount = 0;
 					}
 
@@ -2072,10 +2076,14 @@ public class BaseSearchManager implements SearchManager, Observer
 
 	    				Citation citation = CitationService.getTemporaryCitation(asset);
 
-	    				String openUrlParams = citation.getOpenurlParameters();
+    					String dupCheckCriteria = citation.hasPreferredUrl()
+		    		  	                          ? citation.getPrimaryUrl()
+				    	                            : citation.getOpenurlParameters();
+
+					    m_log.debug("DUP CHECK: " + dupCheckCriteria);
 
 	    				if (((BasicSearch) search).isDuplicateCheckEnabled() &&
-	    						duplicateCheck.contains(openUrlParams))
+	    						duplicateCheck.contains(dupCheckCriteria))
 	    				{
 	    					m_log.debug("Duplicate #" + (duplicateCount + 1) + " found");
 	    					if (duplicateCount++ >= MAX_DUPLICATES)
@@ -2089,7 +2097,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	    					((BasicSearch) search).m_pageOrder.add(citation.getId());
 	    					citations.add(citation);
 
-	    					duplicateCheck.add(openUrlParams);
+	    					duplicateCheck.add(dupCheckCriteria);
 	    					duplicateCount = 0;
 	    				}
 

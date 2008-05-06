@@ -4,17 +4,17 @@
  ***********************************************************************************
  *
  * Copyright (c) 2006 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -33,7 +33,7 @@ import org.sakaiproject.exception.IdUnusedException;
 
 
 /**
- * 
+ *
  *
  */
 public interface Citation 	// extends Entity
@@ -44,24 +44,24 @@ public interface Citation 	// extends Entity
      * @return A unique identifier for the URL and its label.
      */
     public String addCustomUrl(String label, String url);
-    
+
     /**
      * @param name
      * @param value
      */
     public void addPropertyValue(String name, Object value);
-    
+
     /**
      * Write this citation in RIS format to an output stream
      * @param buffer
-     * @throws IOException 
+     * @throws IOException
      */
     public void exportRis(StringBuilder buffer) throws IOException;
-    
+
     /**
 	 * Access a mapping of name-value pairs for various bibliographic information about the resource.
 	 * Ideally, the names will be expressed as URIs for standard tags representing nuggets of bibliographic metadata.
-	 * Values will be strings in formats specified by the standards defining the property names.  For example if the 
+	 * Values will be strings in formats specified by the standards defining the property names.  For example if the
 	 * name is a URI referencing a standard format for a "publication_date" and the standard indicates that the value
 	 * should be expressed as in xs:date format, the value should be expressed as a string representation of xs:date.
 	 * @return The mapping of name-value pairs.  The mapping may be empty, but it should never be null.
@@ -69,45 +69,45 @@ public interface Citation 	// extends Entity
 	public Map getCitationProperties();
 
 	/**
-	 * Access a representation of the value(s) of a named property.  If the property is multivalued, 
-	 * the object returned will be a (possibly empty) java.util.List.  Otherwise it will be an Object 
+	 * Access a representation of the value(s) of a named property.  If the property is multivalued,
+	 * the object returned will be a (possibly empty) java.util.List.  Otherwise it will be an Object
 	 * of a type appropriate for the named property (usually a String or a Date). The value(s)
-	 * must be of a type for which toString() is defined and returns a reasonable representation 
+	 * must be of a type for which toString() is defined and returns a reasonable representation
 	 * for use in a textual display of the citation.
 	 * @param name The name of the property for which a value is to be returned.
-	 * @return A representation of the value(s) of the named property.  May be an empty String ("") 
-	 * if the property is not defined. 
+	 * @return A representation of the value(s) of the named property.  May be an empty String ("")
+	 * if the property is not defined.
 	 */
 	public Object getCitationProperty(String name);
-	
+
 	/**
 	 * @return
 	 */
 	public String getCreator();
-	
+
 	/**
      * @param id
      * @return
      */
     public String getCustomUrl(String id) throws IdUnusedException;
-    
+
 	/**
      * @return
      */
     public List getCustomUrlIds();
-	
+
 	/**
      * @param id
      * @return
-	 * @throws IdUnusedException 
+	 * @throws IdUnusedException
      */
     public String getCustomUrlLabel(String id) throws IdUnusedException;
-    
+
     public String getYear();
-	
+
 	/**
 	 * Access the brief "title" of the resource, which can be used to display the item in a list of items.
-	 * @return The display name.  
+	 * @return The display name.
 	 */
 	public String getDisplayName();
 
@@ -115,12 +115,12 @@ public interface Citation 	// extends Entity
      * @return
      */
     public String getFirstAuthor();
-	
+
 	/**
      * @return
      */
     public String getId();
-	
+
 	/**
 	 * @return
 	 */
@@ -130,13 +130,19 @@ public interface Citation 	// extends Entity
 	 * @return
 	 */
 	public String getOpenurlParameters();
-	
+
 	/**
 	 * Access the id for the custom-url (if any) that should be used in place of the open-url.
 	 * @return The id of the preferred-url, or null if no preferred-url is defined, in which case, the open-url should be used.
 	 */
 	public String getPreferredUrlId();
-	
+
+  /**
+   * Get the primary URL for this resource: if a "preferred" URL was provided,
+   * use it as the title link.  Otherwise, use an OpenURL.
+   */
+  public String getPrimaryUrl();
+
 	public String getSaveUrl(String collectionId);
 
 	/**
@@ -144,17 +150,17 @@ public interface Citation 	// extends Entity
 	 * @return th
 	 */
 	public Schema getSchema();
-    
+
     /**
 	 * @return
 	 */
 	public String getSource();
-	
+
 	/**
      * @return
      */
     public boolean hasCustomUrls();
-    
+
     /**
      * Does this citation have a custom-url that should be displayed instead of the open-url?
      */
@@ -168,7 +174,7 @@ public interface Citation 	// extends Entity
 	/**
      * Read this citation from an input stream in RIS format
      * @param istream
-	 * @throws IOException 
+	 * @throws IOException
      */
     public void importFromRis(InputStream ris) throws IOException;
 
@@ -183,7 +189,7 @@ public interface Citation 	// extends Entity
 	 * @return
 	 */
 	public boolean isAdded();
-    
+
     /**
      * @param fieldId
      * @return
@@ -195,18 +201,18 @@ public interface Citation 	// extends Entity
 	 * @return The list of property names.  The list may be empty, but it should never be null.
 	 */
 	public List listCitationProperties();
-    
+
     /**
      * @param added
      */
     public void setAdded(boolean added);
-    
+
     /**
 	 * @param name
 	 * @param value
 	 */
 	public void setCitationProperty(String name, Object value);
-    
+
     /**
 	 * @param name
 	 */
@@ -218,11 +224,11 @@ public interface Citation 	// extends Entity
     public void setSchema(Schema schema);
 
 	/**
-	 * Replaces the current value(s) of a citation property.  If the field identified by the parameter "name" 
-	 * is multivalued, the values in the list parameter "values" replace the current values.  If the field is 
+	 * Replaces the current value(s) of a citation property.  If the field identified by the parameter "name"
+	 * is multivalued, the values in the list parameter "values" replace the current values.  If the field is
 	 * single valued, the first value in the list "values" replaces the current value. In either case, if the
-	 * values parameter is null or empty, all current values are removed and no new values are added.  
-	 * 
+	 * values parameter is null or empty, all current values are removed and no new values are added.
+	 *
 	 * @param name
 	 * @param values
 	 */
@@ -234,12 +240,12 @@ public interface Citation 	// extends Entity
      * @param url
      */
     public void updateCustomUrl(String urlid, String label, String url);
-    
+
     /**
-     * Designate that a previously defined custom-url should be used in place of the open-url as the primary 
+     * Designate that a previously defined custom-url should be used in place of the open-url as the primary
      * link in displaying the citation.
      * @param urlid The id of the custom-url to use as the preferred-url, or null to remove any previous
-     * designations and restore the open-url as the primary url for the citation. 
+     * designations and restore the open-url as the primary url for the citation.
      */
     public void setPreferredUrl(String urlid);
 

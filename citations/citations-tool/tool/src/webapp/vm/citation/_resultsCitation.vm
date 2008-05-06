@@ -12,7 +12,7 @@
       #end
       #if( $editorIntegration )
         <input type="button" id="$citation.id"
-          onclick="SRC_addCitation('$citation.openurl',
+          onclick="SRC_addCitation('$citation.primaryUrl',
                                    '$TextValidator.escapeHtmlAndJsQuoted($!{citation.displayName})',
                                    '$TextValidator.escapeHtmlAndJsQuoted($!{citation.creator})',
                                    '$TextValidator.escapeHtmlAndJsQuoted($!{citation.source})');"
@@ -32,7 +32,7 @@
       />
     </td>
     <td headers="details">
-      <a href="$citation.openurl" target="_blank">$citation.displayName</a>
+      <a href="$citation.primaryUrl" target="_blank">$citation.displayName</a>
       <br />$xilator.escapeHtml( $!{citation.creator} )
         $xilator.escapeHtml( $!{citation.source} )
       <div class="citationDetails" id="details_$citation.id" style="display:none;">

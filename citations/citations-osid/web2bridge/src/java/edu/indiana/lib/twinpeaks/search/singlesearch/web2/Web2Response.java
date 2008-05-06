@@ -38,6 +38,7 @@ import edu.indiana.lib.osid.base.repository.http.IsnIdentifierPartStructure;
 import edu.indiana.lib.osid.base.repository.http.IssuePartStructure;
 import edu.indiana.lib.osid.base.repository.http.LanguagePartStructure;
 import edu.indiana.lib.osid.base.repository.http.PagesPartStructure;
+import edu.indiana.lib.osid.base.repository.http.PreferredUrlPartStructure;
 import edu.indiana.lib.osid.base.repository.http.PublisherPartStructure;
 import edu.indiana.lib.osid.base.repository.http.SourceTitlePartStructure;
 import edu.indiana.lib.osid.base.repository.http.StartPagePartStructure;
@@ -46,7 +47,9 @@ import edu.indiana.lib.osid.base.repository.http.TypePartStructure;
 import edu.indiana.lib.osid.base.repository.http.URLPartStructure;
 import edu.indiana.lib.osid.base.repository.http.VolumePartStructure;
 import edu.indiana.lib.osid.base.repository.http.YearPartStructure;
+
 import edu.indiana.lib.twinpeaks.search.MatchItem;
+import edu.indiana.lib.twinpeaks.search.PreferredUrlHandler;
 import edu.indiana.lib.twinpeaks.search.QueryBase;
 import edu.indiana.lib.twinpeaks.search.SearchResultBase;
 import edu.indiana.lib.twinpeaks.util.DomUtils;
@@ -121,7 +124,7 @@ public class Web2Response extends SearchResultBase {
 			String title, description;
 			String database, hit, target;
 			String recordId, recordType;
-			String content;
+			String content, preferredUrl;
 
 			/*
 			 * Skip status RECORD elements
@@ -320,7 +323,19 @@ public class Web2Response extends SearchResultBase {
 			 */
 			addPartStructureList(dataElement, "SUBJECT", item,
 					SubjectPartStructure.getPartStructureId());
-
+      /*
+       * Is a preferred URL available?
+       */
+      preferredUrl = PreferredUrlHandler.getUrl(target, dataElement);
+      if (preferredUrl != null)
+      {
+  			addPartStructure(item,
+	  				             PreferredUrlPartStructure.getPartStructureId(),
+	  				             preferredUrl);
+      }
+      /*
+       * See if we need to normalize any data for this source
+       */
 			doRegexParse(database, item);
 
 			/*
@@ -561,20 +576,55 @@ public class Web2Response extends SearchResultBase {
 	 * @return true if PartStructure data was added, false if none found
 	 */
 	private boolean addPartStructureList(Element parentElement,
-			String partDataName, MatchItem item, org.osid.shared.Id id) {
-		NodeList nodeList = DomUtils
-				.getElementList(parentElement, partDataName);
+			String partDataName, MatchItem item, org.osid.shared.Id id)
+  {
+    return addPartStructureList(parentElement, partDataName, null, null, item, id);
+  }
+
+	/**
+	 * Locate (and save as PartStructure id/value pairs) all matching items
+	 *
+	 * @param rootElement
+	 *            Start looking here
+	 * @param partDataName
+	 *            Name of the XML element we're looking for
+	 * @param partAttributeName
+	 *            Name of the XML attribute we're looking for
+	 *                (use null to skip the attribute check)
+	 * @param partAttributeValue
+	 *            Attribute value we're looking for
+	 *                (can be null if partAttributeName is null)
+	 * @param item
+	 *            Current MatchItem (eg Asset)
+	 * @param id
+	 *            Part ID
+	 * @return true if PartStructure data was added, false if none found
+	 */
+	private boolean addPartStructureList(Element parentElement,
+			                                 String partDataName,
+			                                 String partAttributeName,
+			                                 String partAttributeValue,
+			                                 MatchItem item, org.osid.shared.Id id)
+  {
+		NodeList nodeList = DomUtils.getElementList(parentElement, partDataName);
 		boolean partsAdded = false;
 
-		for (int i = 0; i < nodeList.getLength(); i++) {
+		for (int i = 0; i < nodeList.getLength(); i++)
+		{
 			Element element = (Element) nodeList.item(i);
-			String text = DomUtils.getText(element);
 
-			if (!StringUtils.isNull(text)) {
-				addPartStructure(item, id, text);
-				partsAdded = true;
-			}
-		}
+			if ((partAttributeName == null) ||
+			    (element.getAttribute(partAttributeName).equals(partAttributeValue)))
+			{
+  			String text = DomUtils.getText(element);
+
+  			if (!StringUtils.isNull(text))
+  			{
+  				addPartStructure(item, id, text);
+  				partsAdded = true;
+  			}
+  		}
+    }
 		return partsAdded;
 	}
 

@@ -181,7 +181,7 @@ public abstract class BaseCitationService implements CitationService
 		protected boolean m_temporary = false;
 		protected boolean m_isAdded = false;
 		protected String m_preferredUrl;
-		
+
 		/**
 		 * Constructs a temporary citation.
 		 */
@@ -207,6 +207,8 @@ public abstract class BaseCitationService implements CitationService
 			m_urls = new Hashtable();
 
 			boolean unknownSchema = true;
+			String preferredUrl = null;
+			String title = null;
 
 			Set validProperties = getValidPropertyNames();
 			Set multivalued = getMultivalued();
@@ -216,7 +218,7 @@ public abstract class BaseCitationService implements CitationService
 			// assetId = asset.getId().getIdString();
 			try
 			{
-				String title = asset.getDisplayName();
+				title = asset.getDisplayName();
 				if (title != null)
 				{
 					m_citationProperties.put(Schema.TITLE, title);
@@ -237,6 +239,7 @@ public abstract class BaseCitationService implements CitationService
 						try
 						{
 							record = rit.nextRecord();
+							preferredUrl = null;
 
 							try
 							{
@@ -250,6 +253,7 @@ public abstract class BaseCitationService implements CitationService
 											Part part = pit.nextPart();
 											String type = part.getPartStructure().getType()
 											        .getKeyword();
+
 											if (type == null)
 											{
 												// continue;
@@ -270,8 +274,16 @@ public abstract class BaseCitationService implements CitationService
 												}
 												else
 												{
-													m_citationProperties.put(type, part.getValue());
+												  m_citationProperties.put(type, part.getValue());
 												}
+											}
+										  /*
+										   * This type isn't described by the schema.  Is
+										   * it a preferred (title link) URL?
+										   */
+											else if (type.equals("preferredUrl"))
+										  {
+											  preferredUrl = (String) part.getValue();
 											}
 											else if (type.equals("type"))
 											{
@@ -370,6 +382,19 @@ public abstract class BaseCitationService implements CitationService
 			}
 
 			setDefaults();
+      /*
+       * Did we find a preferred URL?
+       */
+			if (preferredUrl != null)
+			{
+			  String id;
+        /*
+         * Save the URL without a label (it'll get the default label at
+         * render-time) and set it as the preferred (title) link
+         */
+			  id = addCustomUrl("", preferredUrl);
+			  setPreferredUrl(id);
+			}
 		}
 
 		/**
@@ -554,7 +579,7 @@ public abstract class BaseCitationService implements CitationService
 			m_imageUrl = other.m_imageUrl;
 			m_searchSourceUrl = other.m_searchSourceUrl;
 			m_preferredUrl = other.m_preferredUrl;
-			
+
 			m_schema = other.m_schema;
 
 			if (m_citationProperties == null)
@@ -612,12 +637,12 @@ public abstract class BaseCitationService implements CitationService
 				{
 					String id = (String) urlIt.next();
 					UrlWrapper wrapper = (UrlWrapper) other.m_urls.get(id);
-					
+
 					// Do not want to addCustomUrl because that assigns a new, unique id to the customUrl.
 					// This causes problems when we try to reference the preferredUrl by its id - it was
-					// created and set in the 'other' citation 
+					// created and set in the 'other' citation
 					//addCustomUrl(wrapper.getLabel(), wrapper.getUrl());
-					
+
 					// instead, we store the customUrl along with it's originial id -- since this citation
 					// is a copy of 'other', there should be no harm in doing this
 					m_urls.put(id, wrapper);
@@ -954,7 +979,7 @@ public abstract class BaseCitationService implements CitationService
 			String yearDate = (String) getCitationProperty(Schema.YEAR);
 			return yearDate;
 		}
-		
+
 		public String getDisplayName()
 		{
 			String displayName = (String) getCitationProperty(Schema.TITLE);
@@ -971,6 +996,49 @@ public abstract class BaseCitationService implements CitationService
 			return new String(displayName);
 
 		}
+
+		/**
+		 * Get the primary URL for this resource
+		 *
+		 * Normally, this is an OpenURL created from citation properties, but if
+		 * either the Repository OSID or the user has designated a preferred URL,
+		 * we'll use it instead.
+		 *
+		 * @return The primary URL (null if none available)
+		 */
+    public String getPrimaryUrl()
+    {
+		  String url;
+			/*
+			 * Stop now if we haven't set up any Citation properties
+			 */
+			if (m_citationProperties == null)
+			{
+				return null;
+			}
+			/*
+			 * Custom URL?
+			 */
+			if (hasPreferredUrl())
+			{
+			  String id = getPreferredUrlId();
+
+  			try
+	  		{
+  			  return getCustomUrl(id);
+  			}
+        catch (IdUnusedException exception)
+        {
+          M_log.warn("No matching URL for ID: "
+                  +  id
+                  +  ", returning an OpenURL");
+        }
+      }
+      /*
+       * Use an OpenURL
+       */
+      return getOpenurl();
+    }
 
 		/*
 		 * (non-Javadoc)
@@ -1038,7 +1106,7 @@ public abstract class BaseCitationService implements CitationService
 			// default to journal
 			boolean journalOpenUrlType = true;
 			String referentValueFormat = OPENURL_JOURNAL_FORMAT;
-			
+
 			// check to see whether we should construct a journal OpenUrl
 			// (includes types: article, report, unknown)
 			// or a book OpenUrl (includes types: book, chapter)
@@ -1542,7 +1610,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 	    public void importFromRis(InputStream ris) throws IOException
 		{
-			
+
 			// TODO Auto-generated method stub
 
 		}
@@ -1561,14 +1629,14 @@ public abstract class BaseCitationService implements CitationService
 			Schema schema = null;  // The Citations Helper Schema to use based on the TY RIS field
 			String schemaName = null; // The name/string of the schema used to lookup the schema
 			List Fields = null; // This holds the mapped fields for a particular Schema
-			Field tempField = null; // This holds the current field being evaluated while iterating through 
+			Field tempField = null; // This holds the current field being evaluated while iterating through
 			                        // Fields
 			Iterator iter = null; // The iterator used to boogie through the Schema Fields
 			boolean status = true; // Used to maintain/exit the tag lookup while loop
 			String[] RIScodes = null; // This holds the RISCodes valid for a given schema
-			
+
 			logger.debug("importFromRisList: In importFromRisList. List size is " + risImportList.size());
-			
+
 			// process loop that iterates list size many times
 			for(int i=0; i< risImportList.size(); i++)
 			{
@@ -1576,7 +1644,7 @@ public abstract class BaseCitationService implements CitationService
 				currentLine = (String) risImportList.get(i);
 				currentLine = currentLine.trim();
 				logger.debug("importFromRisList: currentLine = " + currentLine);
-				
+
 				// If the RIS line is less than 4, it isn't really a valid line. Set some default values
 				// that we know won't be processed for this line.
 				if (currentLine.length() < 4)
@@ -1589,19 +1657,19 @@ public abstract class BaseCitationService implements CitationService
 					// get the RIS code
 					RIScode = currentLine.substring(0, 2);
 					logger.debug("importFromRisList: substr code = " + RIScode);
-					
-					// If the RIS line is of the right minimum length, get the RIS value. 
+
+					// If the RIS line is of the right minimum length, get the RIS value.
 					if (currentLine.length() >= 7)
 						RISvalue = currentLine.substring(6);
 					else // Just set the value to some default value
 						RISvalue = "";
-					
+
 					logger.debug("importFromRisList: substr value = " + RISvalue);
 				}
 
 				// Trim the value
 				RISvalue = RISvalue.trim();
-				
+
 				// The RIS code TY must be the first entry is a RIS record. This sets the Schema type.
 				if (i == 0)
 				{
@@ -1613,21 +1681,21 @@ public abstract class BaseCitationService implements CitationService
 					else // process the schema
 					{
 						// RIS resource type forced mappings
-						
+
 						if (RISvalue.equalsIgnoreCase("NEWS"))
 						{
 						   	logger.debug("importFromRisList: force mapping NEWS resource type to JOUR");
 							RISvalue = "JOUR";
 						}
-							
+
 
 					   	logger.debug("importFromRisList: size of m_RISTypeInverse = " + m_RISTypeInverse.size());
 					 	logger.debug("importFromRisList: RISvalue before schemaName = " + RISvalue);
-					 	
-					 	// get the Schema String name that we need to use for Schema look up from 
+
+					 	// get the Schema String name that we need to use for Schema look up from
 					 	// the map m_RISTypeInverse using the RISvalue for RIScode "TY";
 				    	schemaName = (String) m_RISTypeInverse.get(RISvalue);
-					    	
+
 				    	// If we couldn't find a valid schema name mapping, set the name to "unknown"
 					    if (schemaName == null)
 					    {
@@ -1636,7 +1704,7 @@ public abstract class BaseCitationService implements CitationService
 					    		schemaName = "unknown";
 					    }
 					    	logger.debug("importFromRisList: Schema Name = " + schemaName);
-					    	
+
 					    	// Lookup the Schema based on the Schema string gotten from the reverse map
 							schema = org.sakaiproject.citation.cover.CitationService.getSchema(schemaName);
 					    	logger.debug("importFromRisList: Retrieved Schema Name = " + schema.getIdentifier());
@@ -1648,7 +1716,7 @@ public abstract class BaseCitationService implements CitationService
 				   	if (RIScode.equalsIgnoreCase("ER")) // RIScode "ER" signifies the end of a citation record
 					{
 					   	logger.debug("importFromRisList: Read an ER. End of citation.");
-					   	
+
 /*
 					   	if (((String) getCitationProperty(Schema.TITLE)).length() == 0 &&
 					   		((String) getCitationProperty(Schema.SOURCE_TITLE)).length() > 0)
@@ -1664,19 +1732,19 @@ public abstract class BaseCitationService implements CitationService
 					Fields = schema.getFields();
 					iter = Fields.iterator();
 					status = true;
-						
+
 					while (iter.hasNext() && status == true)
 					{
 						tempField = (Field) iter.next();
-						
+
 						// We found that this field is a valid field for this schema
-						
+
 						RIScodes = tempField.getIdentifierComplex(RIS_FORMAT);
-						
+
 						for(int j=0; j< RIScodes.length && status; j++)
-						{						
-							
-//							logger.debug("importFromRisList: Seeing if I can find a match that has the " + 
+						{
+
+//							logger.debug("importFromRisList: Seeing if I can find a match that has the " +
 //									     "given code '" + RIScode + "' == '" + RIScodes[j] + "' for Schema " + schema.getIdentifier());
 
 							// Need Trim in case RIS complex value has a space after the delimiter
@@ -1688,7 +1756,7 @@ public abstract class BaseCitationService implements CitationService
 							}
 						} // end for j (loop through complex RIS codes)
 					} // end while
-						
+
 					if (status) // couldn't find the field mapping
 					{
 /*						if (schema.getIdentifier().equalsIgnoreCase("book"))
@@ -1697,7 +1765,7 @@ public abstract class BaseCitationService implements CitationService
 							if (RIScode.equalsIgnoreCase("T1")) // Refworks
 							{
 									setCitationProperty(Schema.TITLE, RISvalue);
-									logger.debug("importFromRisList: I manually mapped " + RIScode + 
+									logger.debug("importFromRisList: I manually mapped " + RIScode +
 											     " to " + Schema.TITLE);
 							}
 							else
@@ -1709,19 +1777,19 @@ public abstract class BaseCitationService implements CitationService
 							if (RIScode.equalsIgnoreCase("AU")) // EndNote
 							{
 									setCitationProperty(Schema.CREATOR, RISvalue);
-									logger.debug("importFromRisList: I manually mapped " + RIScode + 
+									logger.debug("importFromRisList: I manually mapped " + RIScode +
 											     " to " + Schema.CREATOR);
 							}
 							else if (RIScode.equalsIgnoreCase("PY")) // EndNote
 							{
 									setCitationProperty(Schema.YEAR, RISvalue);
-									logger.debug("importFromRisList: I manually mapped " + RIScode + 
+									logger.debug("importFromRisList: I manually mapped " + RIScode +
 											     " to " + Schema.YEAR);
 							}
 							else if (RIScode.equalsIgnoreCase("TI")) // EndNote
 							{
 									setCitationProperty(Schema.TITLE, RISvalue);
-									logger.debug("importFromRisList: I manually mapped " + RIScode + 
+									logger.debug("importFromRisList: I manually mapped " + RIScode +
 											     " to " + Schema.TITLE);
 							}
 							else
@@ -1732,28 +1800,28 @@ public abstract class BaseCitationService implements CitationService
 							if (RIScode.equalsIgnoreCase("AU")) // EndNote
 							{
 									setCitationProperty(Schema.CREATOR, RISvalue);
-									logger.debug("importFromRisList: I manually mapped " + RIScode + 
+									logger.debug("importFromRisList: I manually mapped " + RIScode +
 											     " to " + Schema.CREATOR);
 							}
 							else
 								logger.debug("importFromRisList: Cannot find Field mapping");
 						} // end unknown schema mapping exceptions
 						else
-*/						  logger.debug("importFromRisList: Cannot find field mapping for RIScode " + 
+*/						  logger.debug("importFromRisList: Cannot find field mapping for RIScode " +
 		                               RIScode + " for Schema = " + schema);
 					} // end if status (field not found)
 					else // ! status. We found a field in the Schema
 					{
 						logger.debug("importFromRisList: Field mapping is " + tempField.getIdentifier() +
 								     " => " + RISvalue);
-							
+
 						// We found the mapping in the previous while loop. Set the citation property
 						setCitationProperty(tempField.getIdentifier(), RISvalue);
 					} // end we found the mapping
-						
+
 				} // end else of i == 0
 			} // end for i
-			
+
 			// if we got here, the record wasn't properly formatted with an "ER" record (or other issues).
 	    	logger.debug("importFromRisList: FALSE - End of Input. Citation not added.");
 			return false;
@@ -2000,17 +2068,17 @@ public abstract class BaseCitationService implements CitationService
 	        return url;
         }
 
-		public String getPreferredUrlId() 
+		public String getPreferredUrlId()
 		{
 			return this.m_preferredUrl;
 		}
 
-		public boolean hasPreferredUrl() 
+		public boolean hasPreferredUrl()
 		{
 			return this.m_preferredUrl != null;
 		}
 
-		public void setPreferredUrl(String urlid) 
+		public void setPreferredUrl(String urlid)
 		{
 			if(urlid == null)
 			{
@@ -2170,7 +2238,7 @@ public abstract class BaseCitationService implements CitationService
 		public class BasicIterator implements CitationIterator
 		{
 			protected List listOfKeys;
-			
+
 			// This is the firstItem on a given rendered page
 			protected int firstItem;
 
@@ -2229,12 +2297,12 @@ public abstract class BaseCitationService implements CitationService
 			public boolean hasNextPage()
 			{
 				boolean hasNextPage = false;
-				
+
 				if (m_ascending)
 					hasNextPage = this.firstItem + m_pageSize < this.listOfKeys.size();
 				else
 					hasNextPage = this.firstItem - m_pageSize >= 0;
-					
+
 				return hasNextPage;
 
 //				return m_pageSize * (startPage + 1) < this.listOfKeys.size();
@@ -2248,12 +2316,12 @@ public abstract class BaseCitationService implements CitationService
 			public boolean hasPreviousPage()
 			{
 				boolean hasPreviousPage = false;
-				
+
 				if (m_ascending)
 					hasPreviousPage = this.firstItem - m_pageSize >= 0;
 				else
 					hasPreviousPage = this.firstItem + m_pageSize < this.listOfKeys.size();
-					
+
 				return hasPreviousPage;
 
 //				return this.startPage > 0;
@@ -2301,7 +2369,7 @@ public abstract class BaseCitationService implements CitationService
 				{
 					this.firstItem = this.firstItem - m_pageSize;
 				}
-				
+
 				setIndexes();
 			}
 
@@ -2338,7 +2406,7 @@ public abstract class BaseCitationService implements CitationService
 			protected void setIndexes()
 			{
 				this.nextItem = this.firstItem;
-				
+
 				if (m_ascending)
 				{
 					this.lastItem = Math.min(this.listOfKeys.size(), this.nextItem + m_pageSize);
@@ -2365,7 +2433,7 @@ public abstract class BaseCitationService implements CitationService
 				{
 					Collections.sort(this.listOfKeys, m_comparator);
 				}
-				
+
 				this.firstItem = 0;
 				setIndexes();
 			}
@@ -2385,28 +2453,28 @@ public abstract class BaseCitationService implements CitationService
 					{
 						this.firstItem = 0;
 					}
-					
+
 					this.lastItem = this.firstItem + size;
-					
+
 					if (this.lastItem >= this.listOfKeys.size())
 						this.lastItem = this.listOfKeys.size() - 1;
 
 					m_pageSize = size;
 					setIndexes();
 				} // end if size > 0
-				
+
 			} // end setPageSize()
-			
+
 			public int getStart()
 			{
 				return this.firstItem;
 			}
-			
+
 			public int getEnd()
 			{
 				return this.lastItem;
 			}
-			
+
 			public void setStart(int i)
 			{
 				if (i >= 0 && i < this.listOfKeys.size())
@@ -2434,7 +2502,7 @@ public abstract class BaseCitationService implements CitationService
 		protected Map<String, Citation> m_citations = new Hashtable<String, Citation>();
 
 		protected Comparator m_comparator = DEFAULT_COMPARATOR;
-		
+
 		protected String m_sortOrder;
 
 		protected SortedSet<String> m_order;
@@ -2584,7 +2652,7 @@ public abstract class BaseCitationService implements CitationService
 			}
 
 			set(other);
-			
+
 		}
 
 		public void exportRis(StringBuilder buffer, List<String>  citationIds) throws IOException
@@ -2766,7 +2834,7 @@ public abstract class BaseCitationService implements CitationService
         {
         	if (m_sortOrder == null)
         		m_sortOrder = this.SORT_BY_DEFAULT_ORDER;
-        	
+
 	        return m_sortOrder;
         }
 
@@ -2898,7 +2966,7 @@ public abstract class BaseCitationService implements CitationService
 			m_ascending = ascending;
 
 			String status = "UNSET";
-			
+
 			if (sortBy == null || sortBy.equalsIgnoreCase(SORT_BY_DEFAULT_ORDER))
 			{
 				this.m_comparator = null;
@@ -2918,7 +2986,7 @@ public abstract class BaseCitationService implements CitationService
 					this.m_comparator = new YearComparator(ascending);
 					status = "YEAR SET";
 			}
-			
+
 			if (this.m_comparator != null)
 			{
 				this.m_sortOrder = sortBy;
@@ -2946,28 +3014,28 @@ public abstract class BaseCitationService implements CitationService
 			return null;
 		}
 
-		protected void checkForUpdates() 
+		protected void checkForUpdates()
 		{
 			if(this.m_mostRecentUpdate < m_storage.mostRecentUpdate(this.m_id))
 			{
 				CitationCollection edit = m_storage.getCollection(this.m_id);
 				if (edit == null)
 				{
-					
+
 				}
 				else
 				{
 					set((BasicCitationCollection) edit);
 				}
 			}
-			
+
 		}
 
 		/**
 		 * copy
 		 * @param other
 		 */
-		protected void set(BasicCitationCollection other) 
+		protected void set(BasicCitationCollection other)
 		{
 			this.m_description = other.m_description;
 //			this.m_comparator = other.m_comparator;
@@ -3105,12 +3173,12 @@ public abstract class BaseCitationService implements CitationService
 		{
 			String tempString = null;
 			String[] tokens = null;
-			
+
 			tempString = (String) this.identifiers.get(format);
-			
+
 			if (tempString == null)
 				tempString = "";
-			
+
 			tempString = tempString.trim();
 
 			// Is this a compound/delimited value?
@@ -3121,7 +3189,7 @@ public abstract class BaseCitationService implements CitationService
 				// use the first delimiter as the identifier
 				tempString = tokens[0];
 			} // end getIdentifier
-			
+
 			return tempString;
 		}
 
@@ -3129,12 +3197,12 @@ public abstract class BaseCitationService implements CitationService
 		{
 			String tempString = null;
 			String[] tokens = null;
-			
+
 			tempString = (String) this.identifiers.get(format);
 
 			if (tempString == null)
 				tempString = "";
-			
+
 			tempString = tempString.trim();
 
 			// Is this a compound/delimited value?
@@ -3148,7 +3216,7 @@ public abstract class BaseCitationService implements CitationService
 				tokens = new String[1];
 				tokens[0] = tempString;
 			}
-			
+
 			return tokens;
 		} // end getComplexIdentifers
 
@@ -3603,7 +3671,7 @@ public abstract class BaseCitationService implements CitationService
 		public boolean checkCollection(String collectionId);
 
 		public boolean checkSchema(String schemaId);
-		
+
 		public long mostRecentUpdate(String collectionId);
 
 		/**
@@ -3750,7 +3818,7 @@ public abstract class BaseCitationService implements CitationService
 	 * Set up a mapping of our type to RIS 'TY - ' values
 	 */
 	protected static final Map m_RISType = new Hashtable();
-	
+
 	protected static final Map m_RISTypeInverse = new Hashtable();
 
 	/**
@@ -4359,7 +4427,6 @@ public abstract class BaseCitationService implements CitationService
 				}
 			}
 		}
-
 		return names;
 
 	} // getValidPropertyNames
@@ -4415,7 +4482,7 @@ public abstract class BaseCitationService implements CitationService
 		{
 			registerResourceType();
 		}
-		
+
 	}
 
 	/**
@@ -4916,16 +4983,16 @@ public abstract class BaseCitationService implements CitationService
 		}
 
 	}
-	
+
 	public class CitationSizeLabeler implements BasicResourceType.SizeLabeler
 	{
-		
-		public String getLongSizeLabel(ContentEntity entity) 
+
+		public String getLongSizeLabel(ContentEntity entity)
 		{
 			return getSizeLabel(entity);
 		}
 
-		public String getSizeLabel(ContentEntity entity) 
+		public String getSizeLabel(ContentEntity entity)
 		{
 			String label = null;
 			if(entity instanceof ContentResource)
@@ -4954,7 +5021,7 @@ public abstract class BaseCitationService implements CitationService
 			}
 			return label;
 		}
-	
+
 	}
 
 	public class CitationListCopyAction extends BaseServiceLevelAction
