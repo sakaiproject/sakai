@@ -10007,14 +10007,17 @@ public class SiteAction extends PagedResourceActionII {
 			{
 				// get the type of template
 				String type = site.getType();
-				// populate the list according to template site type
-				List<Site> subTemplateList = new Vector<Site>();
-				if (templateList.containsKey(type))
+				if (type != null)
 				{
-					subTemplateList = templateList.get(type);
+					// populate the list according to template site type
+					List<Site> subTemplateList = new Vector<Site>();
+					if (templateList.containsKey(type))
+					{
+						subTemplateList = templateList.get(type);
+					}
+					subTemplateList.add(site);
+					templateList.put(type, subTemplateList);
 				}
-				subTemplateList.add(site);
-				templateList.put(type, subTemplateList);
 			}
 		}
 		
