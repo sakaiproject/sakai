@@ -97,7 +97,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	Boolean add = (params.assignmentId == null);
     	
         //set dateEvolver
-        dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);
+        dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);
         
         //Display None Decorator list
 		Map attrmap = new HashMap();

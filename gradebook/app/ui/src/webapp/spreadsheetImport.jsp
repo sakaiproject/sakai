@@ -37,7 +37,7 @@
 						<h:outputText style="font-weight:normal;" value=" #{msgs.date_entry_format_description}"/>
 					</h:panelGroup>
 					<h:panelGroup>
-				    <t:inputDate id="dueDate" value="#{bean.assignment.dueDate}" popupCalendar="true" type="both" ampm="true" />
+				    <t:inputCalendar id="dueDate" value="#{spreadsheetUploadBean.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true" popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
 						<h:message for="dueDate" styleClass="alertMessageInline" />
 					</h:panelGroup>
 					
