@@ -586,14 +586,18 @@ public class BasicPodfeedService implements PodfeedService {
 				ResourceProperties podcastProperties = podcastResource.getProperties();
 
 				// publish date for this particular podcast
+				// SAK-12052: need to compare for hidden using local time
+				// then grab GMT time when storing for podcast feed
 				Date publishDate = null;
-
+				Date compareDate = null;
 				try {
 					if (podcastResource.getReleaseDate() != null) {
+						compareDate = new Date(podcastResource.getReleaseDate().getTime());
 						publishDate = podcastService.getGMTdate(podcastResource.getReleaseDate().getTime());
 					}
 					else {
 						// need to put in GMT for the feed
+						compareDate = new Date(podcastProperties.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
 						publishDate = podcastService.getGMTdate(podcastProperties.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
 					}
 				} 
@@ -604,7 +608,7 @@ public class BasicPodfeedService implements PodfeedService {
 				}
 				
 				// if getting the date generates an error, skip this podcast.
-				if (publishDate != null && ! hiddenInUI(podcastResource, publishDate)) {
+				if (publishDate != null && ! hiddenInUI(podcastResource, compareDate)) {
 					try {
 						Map podcastMap = new HashMap();
 						podcastMap.put("date", publishDate);
