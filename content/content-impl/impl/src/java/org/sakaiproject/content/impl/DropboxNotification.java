@@ -261,27 +261,6 @@ public class DropboxNotification extends EmailNotification
 			logger.warn("IdUnusedException trying to get title for individual dropbox: " + dropboxId);
 		}
 
-		Time releaseDate = null;
-		Time retractDate = null;
-		try
-		{
-			ContentResource res = ContentHostingService.getResource(ref.getId());
-			releaseDate = res.getReleaseDate();
-			retractDate = res.getRetractDate();
-		}
-		catch (IdUnusedException iue)
-		{
-			logger.warn("Message constructed without knowledge of release date.\n" + iue.getMessage(), iue);
-		}
-		catch (PermissionException pe)
-		{
-			logger.warn("Message constructed without knowledge of release date.\n" + pe.getMessage(), pe);
-		}
-		catch (TypeException te)
-		{
-			logger.warn("Message constructed without knowledge of release date.\n" + te.getMessage(), te);
-		}
-		
 		if ( doHtml ) 
 		{
 			siteTitle = FormattedText.escapeHtmlFormattedTextarea(siteTitle);
@@ -316,27 +295,6 @@ public class DropboxNotification extends EmailNotification
 			buf.append(rb.getFormattedMessage("db.text.upd", new String[]{dropboxTitle, siteTitle, portalName, portalUrl}));
 		}
 		buf.append(blankLine);
-
-		// add availability information
-		Time now = TimeService.newTime();
-		if (releaseDate != null && releaseDate.after(now))
-		{
-			String rawmsg = null;
-			Object[] args = null;
-			if (retractDate != null)
-			{
-				rawmsg = rb.getString("resource.available.range");
-				args = new Object[] { releaseDate.toStringLocalFull(), retractDate.toStringLocalFull() };
-			}
-			else
-			{
-				rawmsg = rb.getString("resource.available.become");
-				args = new Object[] { releaseDate.toStringLocalFull() };
-				
-			}
-			String msg = MessageFormat.format(rawmsg, args);
-			buf.append(msg).append(blankLine);
-		}
 
 		// add location
 		String path = constructPath(ref.getReference());

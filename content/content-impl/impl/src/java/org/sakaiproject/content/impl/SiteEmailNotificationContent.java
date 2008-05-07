@@ -135,27 +135,6 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		String url = ref.getUrl();
 		String blankLine = "\n\n";
 		String newLine = "\n";
-		Time releaseDate = null;
-		Time retractDate = null;
-
-		try
-		{
-			ContentResource res = ContentHostingService.getResource(ref.getId());
-			releaseDate = res.getReleaseDate();
-			retractDate = res.getRetractDate();
-		}
-		catch (IdUnusedException iue)
-		{
-			log.warn("Message constructed without knowledge of release date.\n" + iue.getMessage(), iue);
-		}
-		catch (PermissionException pe)
-		{
-			log.warn("Message constructed without knowledge of release date.\n" + pe.getMessage(), pe);
-		}
-		catch (TypeException te)
-		{
-			log.warn("Message constructed without knowledge of release date.\n" + te.getMessage(), te);
-		}
 
 		if ( doHtml ) 
 		{
@@ -205,27 +184,6 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 			buf.append(")");
 		}
 		buf.append(blankLine);
-
-		// add availability information
-		Time now = TimeService.newTime();
-		if (releaseDate != null && releaseDate.after(now))
-		{
-			String rawmsg = null;
-			Object[] args = null;
-			if (retractDate != null)
-			{
-				rawmsg = rb.getString("resource.available.range");
-				args = new Object[] { releaseDate.toStringLocalFull(), retractDate.toStringLocalFull() };
-			}
-			else
-			{
-				rawmsg = rb.getString("resource.available.become");
-				args = new Object[] { releaseDate.toStringLocalFull() };
-				
-			}
-			String msg = MessageFormat.format(rawmsg, args);
-			buf.append(msg).append(blankLine);
-		}
 
 		// add location
 		String path = constructPath(ref.getReference());
