@@ -69,7 +69,7 @@
 					<t:htmlTag value="br"/>	
 			
 					<%/* #####  CHART  ##### */%>
-					<t:div>
+					<t:div rendered="#{ServiceBean.enableSiteVisits || ServiceBean.enableSiteActivity}">
 						<t:htmlTag value="h4" styleClass="summaryHeader">
 							<h:outputText value="#{msgs.prefs_sep_chart}"/>
 						</t:htmlTag>		
@@ -96,7 +96,7 @@
 				
 			
 				<%/* #####  ACTIVITY EVENTS  ##### */%>
-				<t:div>
+				<t:div rendered="#{ServiceBean.enableSiteActivity}">
 					<t:htmlTag value="h4" styleClass="summaryHeader">
 						<h:outputText value="#{msgs.prefs_sep_activity_definition}"/>
 					</t:htmlTag>

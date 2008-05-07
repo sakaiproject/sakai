@@ -173,6 +173,14 @@ public class ServiceBean {
 		return allowed;
 	}
 	
+	public boolean isEnableSiteVisits() {
+		return SST_sm.isEnableSiteVisits();
+	}
+	
+	public boolean isEnableSiteActivity() {
+		return SST_sm.isEnableSiteActivity();
+	}
+	
 	public ResourceLoader getBundle(){
 		return msgs;
 	}

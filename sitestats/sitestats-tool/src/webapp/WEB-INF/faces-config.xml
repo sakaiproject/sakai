@@ -222,6 +222,7 @@
             <redirect/>
           </navigation-case>
     </navigation-rule>
+    
 
 	<converter>
 		<converter-id>org.sakaiproject.sitestats.tool.jsf.converter.USER_ID_NAME</converter-id>

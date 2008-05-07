@@ -68,7 +68,7 @@
 		<servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
 		<init-param>
 			<param-name>default</param-name>
-			<param-value>overview</param-value>
+			<param-value>entry.servlet</param-value>
 		</init-param>
 		<init-param>
 			<param-name>path</param-name>
@@ -99,6 +99,18 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	
+	<!-- Redirects the user to the appropriate starting page, based on charts visibility -->
+	<servlet>
+		<servlet-name>Entry Servlet</servlet-name>
+		<servlet-class>org.sakaiproject.sitestats.tool.jsf.EntryServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Entry Servlet</servlet-name>
+		<url-pattern>/entry.servlet</url-pattern>
+	</servlet-mapping>
+	
 	
 
 	<!-- Faces Servlet -->

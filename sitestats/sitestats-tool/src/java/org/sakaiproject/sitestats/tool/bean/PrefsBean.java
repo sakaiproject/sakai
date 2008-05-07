@@ -150,28 +150,29 @@ public class PrefsBean extends InitializableBean {
 	// Action/ActionListener methods
 	// ######################################################################################
 	public void processUpdate(ActionEvent e) {
-		TreeNode treeObject = treeData;		
-		List<ToolInfo> newToolEventPrefs = new ArrayList<ToolInfo>();
-		Iterator<ToolNodeBase> iToolNodes = treeObject.getChildren().iterator();
-		while(iToolNodes.hasNext()){
-			ToolNodeBase toolNB = iToolNodes.next();
-			if(toolNB.isSelected()){
-				ToolInfo toolInfo = SST_sm.getToolFactory().createTool(toolNB.getIdentifier());
-				toolInfo.setSelected(true);
-				Iterator<ToolNodeBase> iEventNodes = toolNB.getChildren().iterator();
-				while(iEventNodes.hasNext()){
-					ToolNodeBase eventNB = iEventNodes.next();
-					if(eventNB.isSelected()){
-						EventInfo eventInfo = SST_sm.getEventFactory().createEvent(eventNB.getIdentifier());
-						eventInfo.setSelected(true);
-						toolInfo.addEvent(eventInfo);
+		if(serviceBean.isEnableSiteActivity()) {
+			TreeNode treeObject = treeData;		
+			List<ToolInfo> newToolEventPrefs = new ArrayList<ToolInfo>();
+			Iterator<ToolNodeBase> iToolNodes = treeObject.getChildren().iterator();
+			while(iToolNodes.hasNext()){
+				ToolNodeBase toolNB = iToolNodes.next();
+				if(toolNB.isSelected()){
+					ToolInfo toolInfo = SST_sm.getToolFactory().createTool(toolNB.getIdentifier());
+					toolInfo.setSelected(true);
+					Iterator<ToolNodeBase> iEventNodes = toolNB.getChildren().iterator();
+					while(iEventNodes.hasNext()){
+						ToolNodeBase eventNB = iEventNodes.next();
+						if(eventNB.isSelected()){
+							EventInfo eventInfo = SST_sm.getEventFactory().createEvent(eventNB.getIdentifier());
+							eventInfo.setSelected(true);
+							toolInfo.addEvent(eventInfo);
+						}
 					}
+					newToolEventPrefs.add(toolInfo);
 				}
-				newToolEventPrefs.add(toolInfo);
-			}
+			}		
+			getPrefsdata().setToolEventsDef(newToolEventPrefs);
 		}
-		
-		getPrefsdata().setToolEventsDef(newToolEventPrefs);
 		boolean opOk = SST_sm.setPreferences(serviceBean.getSiteId(), prefsdata);		
 		if(opOk){
 			serviceBean.setPreferencesModified();

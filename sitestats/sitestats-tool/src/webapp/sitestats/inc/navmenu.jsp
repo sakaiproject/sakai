@@ -10,8 +10,13 @@
 		<sakai:tool_bar_item
 			action="#{MenuBean.processOverview}"
 			disabled="#{viewName eq 'OverviewBean'}"
-			value="#{msgs.menu_overview}" />
-		<sakai:tool_bar_spacer/>
+			value="#{msgs.menu_overview}" 
+			rendered="#{ServiceBean.enableSiteVisits || ServiceBean.enableSiteActivity}" />
+		<sakai:tool_bar_item
+			value=" | "
+			disabled="true"
+			rendered="#{ServiceBean.enableSiteVisits || ServiceBean.enableSiteActivity}" />
+		<%-- <sakai:tool_bar_spacer/> --%>
 		<sakai:tool_bar_item 
 			action="#{MenuBean.processReports}"
 			disabled="#{viewName eq 'ReportsBean'}"
