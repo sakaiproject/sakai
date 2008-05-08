@@ -46,7 +46,7 @@ import org.sakaiproject.announcement.cover.AnnouncementService;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.assignment.api.Assignment;
-import org.sakaiproject.assignment.cover.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -60,9 +60,10 @@ import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuDivider;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -213,6 +214,10 @@ public class AnnouncementAction extends PagedResourceActionII
  
    private static final String UPDATE_PERMISSIONS = "site.upd";
 
+   private ContentHostingService contentHostingService = null;
+   
+   private AssignmentService assignmentService = null;
+   
 	/**
 	 * Used by callback to convert channel references to channels.
 	 */
@@ -1584,7 +1589,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	protected String buildPreviewContext(VelocityPortlet portlet, Context context, RunData rundata, AnnouncementActionState state)
 	{
-		context.put("conService", ContentHostingService.getInstance());
+		context.put("conService", contentHostingService);
 
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
@@ -1665,7 +1670,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	protected String buildReviseAnnouncementContext(VelocityPortlet portlet, Context context, RunData rundata,
 			AnnouncementActionState state, SessionState sstate)
 	{
-		context.put("service", ContentHostingService.getInstance());
+		context.put("service", contentHostingService);
 
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
@@ -1917,7 +1922,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	protected String buildShowMetadataContext(VelocityPortlet portlet, Context context, RunData rundata,
 			AnnouncementActionState state, SessionState sstate)
 	{
-		context.put("conService", ContentHostingService.getInstance());
+		context.put("conService", contentHostingService);
 
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
@@ -1973,7 +1978,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			
 			try // Check to see if this is an announcement associated with an assignment
 			{
-				Iterator i = AssignmentService.getAssignmentsForContext(channel.getContext());
+				Iterator i = assignmentService.getAssignmentsForContext(channel.getContext());
 				String assignmentId = "";
 				
 				while (i.hasNext()) // if i is empty, none of this code is ran
@@ -1995,12 +2000,12 @@ public class AnnouncementAction extends PagedResourceActionII
 						if (assignmentId != null && assignmentId.length() > 0)
 						{
 							String assignmentContext = a.getContext(); // assignment context
-							boolean allowReadAssignment = AssignmentService.allowGetAssignment(assignmentContext); // check for read permission
+							boolean allowReadAssignment = assignmentService.allowGetAssignment(assignmentContext); // check for read permission
 							if (allowReadAssignment && a.getOpenTime().before(TimeService.newTime())) // this checks if we want to display an assignment link
 							{
 								Site site = SiteService.getSite(assignmentContext); // site id
 								ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
-								boolean allowAddAssignment = AssignmentService.allowAddAssignment(assignmentContext); // this checks for the asn.new permission and determines the url we present the user
+								boolean allowAddAssignment = assignmentService.allowAddAssignment(assignmentContext); // this checks for the asn.new permission and determines the url we present the user
 								
 								// Two different urls to be rendered depending on the user's permission
 								if (allowAddAssignment)
@@ -3799,6 +3804,16 @@ public class AnnouncementAction extends PagedResourceActionII
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
 	{
 		super.initState(state, portlet, rundata);
+		
+		if (contentHostingService == null)
+		{
+			contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+		}
+		
+		if (assignmentService == null)
+		{
+			assignmentService = (AssignmentService) ComponentManager.get("org.sakaiproject.assignment.api.AssignmentService");
+		}
 
 		// retrieve the state from state object
 		AnnouncementActionState annState = (AnnouncementActionState) getState(portlet, rundata, AnnouncementActionState.class);

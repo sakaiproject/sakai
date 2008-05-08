@@ -50,7 +50,8 @@ import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
@@ -125,6 +126,8 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	private DocumentBuilder docBuilder = null;
 	private Transformer docTransformer = null;
 	
+	private ContentHostingService contentHostingService;
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -156,6 +159,8 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 		{
 			super.init();
 
+			contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.contentHostingService");
+			
 			// register a transient notification for announcements
 			NotificationEdit edit = m_notificationService.addTransientNotification();
 
@@ -1096,20 +1101,20 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 								String nAttachmentId = oAttachmentId.replaceAll(fromContext, toContext);
 								try
 								{
-									ContentResource attachment = ContentHostingService.getResource(nAttachmentId);
+									ContentResource attachment = contentHostingService.getResource(nAttachmentId);
 									nAttachments.add(m_entityManager.newReference(attachment.getReference()));
 								}
 								catch (IdUnusedException e)
 								{
 									try
 									{
-										ContentResource oAttachment = ContentHostingService.getResource(oAttachmentId);
+										ContentResource oAttachment = contentHostingService.getResource(oAttachmentId);
 										try
 										{
-											if (ContentHostingService.isAttachmentResource(nAttachmentId))
+											if (contentHostingService.isAttachmentResource(nAttachmentId))
 											{
 												// add the new resource into attachment collection area
-												ContentResource attachment = ContentHostingService.addAttachmentResource(
+												ContentResource attachment = contentHostingService.addAttachmentResource(
 														Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)), 
 														ToolManager.getCurrentPlacement().getContext(), 
 														ToolManager.getTool("sakai.announcements").getTitle(), 
@@ -1122,7 +1127,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 											else
 											{
 												// add the new resource into resource area
-												ContentResource attachment = ContentHostingService.addResource(
+												ContentResource attachment = contentHostingService.addResource(
 														Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
 														ToolManager.getCurrentPlacement().getContext(), 
 														1, 
