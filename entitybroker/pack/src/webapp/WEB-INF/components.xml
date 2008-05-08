@@ -34,10 +34,6 @@
         class="org.sakaiproject.entitybroker.impl.access.HttpServletAccessProviderManagerImpl">
     </bean>
 
-    <bean id="org.sakaiproject.entitybroker.access.PortletAccessProviderManager"
-        class="org.sakaiproject.entitybroker.impl.access.PortletAccessProviderManagerImpl">
-    </bean>
-
     <!-- beans meant for EntityProvider developers -->
     <bean id="org.sakaiproject.entitybroker.EntityBroker"
         class="org.sakaiproject.entitybroker.impl.EntityBrokerImpl" init-method="init">
