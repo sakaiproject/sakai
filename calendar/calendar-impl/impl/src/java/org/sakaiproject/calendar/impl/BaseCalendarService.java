@@ -95,8 +95,9 @@ import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -189,6 +190,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
    private DocumentBuilder docBuilder = null;
    
    private ResourceLoader rb = new ResourceLoader("calendar");
+   
+   private ContentHostingService contentHostingService;
    
 	/**
 	 * Access this service from the inner classes.
@@ -569,6 +572,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 */
 	public void init()
 	{
+		contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.contentHostingService");
+		
 		try
 		{
 			m_relativeAccessPoint = REFERENCE_ROOT;
@@ -1910,20 +1915,20 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 									String nAttachmentId = oAttachmentId.replaceAll(fromContext, toContext);
 									try
 									{
-										ContentResource attachment = ContentHostingService.getResource(nAttachmentId);
+										ContentResource attachment = contentHostingService.getResource(nAttachmentId);
 										nAttachments.add(m_entityManager.newReference(attachment.getReference()));
 									}
 									catch (IdUnusedException ee)
 									{
 										try
 										{
-											ContentResource oAttachment = ContentHostingService.getResource(oAttachmentId);
+											ContentResource oAttachment = contentHostingService.getResource(oAttachmentId);
 											try
 											{
-												if (ContentHostingService.isAttachmentResource(nAttachmentId))
+												if (contentHostingService.isAttachmentResource(nAttachmentId))
 												{
 													// add the new resource into attachment collection area
-													ContentResource attachment = ContentHostingService.addAttachmentResource(
+													ContentResource attachment = contentHostingService.addAttachmentResource(
 															Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)), 
 															ToolManager.getCurrentPlacement().getContext(), 
 															ToolManager.getTool("sakai.schedule").getTitle(), 
@@ -1936,7 +1941,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 												else
 												{
 													// add the new resource into resource area
-													ContentResource attachment = ContentHostingService.addResource(
+													ContentResource attachment = contentHostingService.addResource(
 															Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
 															ToolManager.getCurrentPlacement().getContext(), 
 															1, 

@@ -47,7 +47,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.assignment.api.Assignment;
-import org.sakaiproject.assignment.cover.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
@@ -69,9 +69,10 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -187,6 +188,10 @@ extends VelocityPortletStateAction
 	private final static String STATE_SCHEDULE_TO = "scheduleTo";
 	private final static String STATE_SCHEDULE_TO_GROUPS = "scheduleToGroups";
 	private static final String STATE_SELECTED_GROUPS_FILTER = "groups_filters";
+	
+	private AssignmentService assignmentService;
+	
+	private ContentHostingService contentHostingService;
 	
 	/**
 	 * Used by callback to convert channel references to channels.
@@ -2884,7 +2889,7 @@ extends VelocityPortletStateAction
 		else
 			context.put("vmtype","revise");
 		
-		context.put("service", ContentHostingService.getInstance());
+		context.put("service", contentHostingService);
 		
 		// output the real time
 		context.put("realDate", TimeService.newTime());
@@ -2976,20 +2981,20 @@ extends VelocityPortletStateAction
 				{
 					try
 					{
-						Assignment a = AssignmentService.getAssignment(assignmentId);
+						Assignment a = assignmentService.getAssignment(assignmentId);
 						
 						if (a != null) {
 							
 						context.put("assignment", a);
 
 						String assignmentContext = a.getContext(); // assignment context
-						boolean allowReadAssignment = AssignmentService.allowGetAssignment(assignmentContext); // check for read permission
+						boolean allowReadAssignment = assignmentService.allowGetAssignment(assignmentContext); // check for read permission
 						
 						if (allowReadAssignment && a.getOpenTime().before(TimeService.newTime())) // this checks if we want to display an assignment link based on the open date
 						{
 							Site site = SiteService.getSite(assignmentContext); // site id
 							ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
-							boolean allowAddAssignment = AssignmentService.allowAddAssignment(assignmentContext); // this checks for the asn.new permission and determines the url we present the user
+							boolean allowAddAssignment = assignmentService.allowAddAssignment(assignmentContext); // this checks for the asn.new permission and determines the url we present the user
 							
 							// Two different urls to be rendered depending on the user's permission
 							if (allowAddAssignment)
@@ -7996,6 +8001,16 @@ extends VelocityPortletStateAction
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
 	{
 		super.initState(state, portlet, rundata);
+		
+		if (contentHostingService == null)
+		{
+			contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+		}
+		
+		if (assignmentService == null)
+		{
+			assignmentService = (AssignmentService) ComponentManager.get("org.sakaiproject.assignment.api.AssignmentService");
+		}
 
 		// retrieve the state from state object
 		CalendarActionState calState = (CalendarActionState)getState( portlet, rundata, CalendarActionState.class );
