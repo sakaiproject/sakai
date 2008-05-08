@@ -31,13 +31,6 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<dependency>
-			<artifactId>portlet-api</artifactId>
-			<groupId>portlet-api</groupId>
-			<version>1.0</version>
-			<scope>provided</scope>
-		</dependency>
-
 	</dependencies>
 
 	<build>
