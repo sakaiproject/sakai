@@ -90,6 +90,13 @@ public interface CalendarEvent
 	public RecurrenceRule getRecurrenceRule();
 	
 	/**
+	 * Gets the exclusion recurrence rule, if any.
+	 * 
+	 * @return The exclusionrecurrence rule, or null if none.
+	 */
+	public RecurrenceRule getExclusionRule();
+		 
+	/**
 	* Gets the event creator (userid), if any (cover for PROP_CREATOR).
 	* @return The event's creator property.
 	*/

@@ -208,8 +208,8 @@ public class BaseExternalCalendarSubscriptionService implements
 		m_log.info("destroy()");
 		try
 		{
-			((SubscriptionCacheMap) institutionalSubscriptions).finalize();
-			((SubscriptionCacheMap) userSubscriptions).finalize();
+			((SubscriptionCacheMap) institutionalSubscriptions).stopCleanerThread();
+			((SubscriptionCacheMap) userSubscriptions).stopCleanerThread();
 		}
 		catch (Throwable e)
 		{
@@ -1308,7 +1308,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			return m_singleRule;
 		}
 
-		protected RecurrenceRule getExclusionRule()
+		public RecurrenceRule getExclusionRule()
 		{
 			if (m_exclusionRule == null)
 				m_exclusionRule = new ExclusionSeqRecurrenceRule();
@@ -1355,7 +1355,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			m_singleRule = rule;
 		}
 
-		protected void setExclusionRule(RecurrenceRule rule)
+		public void setExclusionRule(RecurrenceRule rule)
 		{
 			m_exclusionRule = rule;
 		}
@@ -1555,13 +1555,6 @@ public class BaseExternalCalendarSubscriptionService implements
 		}
 
 		@Override
-		protected void finalize() throws Throwable
-		{
-			if (maxCachedTime > 0) stopCleanerThread();
-			super.finalize();
-		}
-
-		@Override
 		public ExternalSubscription get(Object arg0)
 		{
 			ExternalSubscription e = null;
@@ -1649,9 +1642,9 @@ public class BaseExternalCalendarSubscriptionService implements
 						synchronized (this)
 						{
 							ExternalSubscription e = this.get(key);
-							Calendar c = e.getCalendar();
-							if (e != null && c != null)
+							if (e != null && e.getCalendar() != null)
 							{
+								Calendar c = e.getCalendar();
 								e.setCalendar(null);
 								this.put(key, e);
 								m_log

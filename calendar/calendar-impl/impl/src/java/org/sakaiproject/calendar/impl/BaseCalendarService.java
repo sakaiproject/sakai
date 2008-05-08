@@ -1369,15 +1369,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				rv = "Event: " + ref.getReference();
 			}
 		}
-		catch (PermissionException e)
-		{
-		}
-		catch (IdUnusedException e)
-		{
-		}
-		catch (NullPointerException e)
-		{
-		}
+		catch (PermissionException ignore) {}
+		catch (IdUnusedException ignore) {}
+		catch (NullPointerException ignore) {}
 
 		return rv;
 	}
@@ -1423,7 +1417,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		{
 			M_log.warn(".getEntityResourceProperties(): " + e);
 		}
-		catch (IdUnusedException e)
+		catch (IdUnusedException ignore)
 		{
 			// This just means that the resource once pointed to as an attachment or something has been deleted.
 			// m_logger(this + ".getProperties(): " + e);
@@ -1860,19 +1854,11 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				{
 					nCalendar = addCalendar(nCalendarRef);
 				}
-				catch (IdUsedException ee)
-				{
-				}
-				catch (IdInvalidException ee)
-				{
-				}
+				catch (IdUsedException ignore) {}
+				catch (IdInvalidException ignore) {}
 			}
-			catch (PermissionException e)
-			{
-			}
-			catch (InUseException e)
-			{
-			}
+			catch (PermissionException ignore) {}
+			catch (InUseException ignore) {}
 
 			if (nCalendar != null)
 			{
@@ -1986,42 +1972,28 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 								}
 							}
 							eEdit.replaceAttachments(nAttachments);
-							// recurrence rule
+							
+							// recurrence rules
 							RecurrenceRule rule = oEvent.getRecurrenceRule();
 							eEdit.setRecurrenceRule(rule);
 
-							try
-							{
-								BaseCalendarEventEdit oEdit = (BaseCalendarEventEdit) oCalendar.getEditEvent(oEvent.getId(),EVENT_ADD_CALENDAR);
-								RecurrenceRule exRule = oEdit.getExclusionRule();
-								eEdit.setExclusionRule(exRule);
-							}
-							catch (Exception error)
-							{
-							}
+							RecurrenceRule exRule = oEvent.getExclusionRule();
+							eEdit.setExclusionRule(exRule);
 
 							// commit new event
 							m_storage.commitEvent(nCalendar, eEdit);
 						}
-						catch (InUseException eee)
-						{
-						}
+						catch (InUseException ignore) {}
 					}
-					catch (PermissionException ee)
-					{
-					}
+					catch (PermissionException ignore) {}
 				}
 				// commit new calendar
 				m_storage.commitCalendar(nCalendar);
 				((BaseCalendarEdit) nCalendar).closeEdit();
 			} // if
 		}
-		catch (IdUnusedException e)
-		{
-		}
-		catch (PermissionException e)
-		{
-		}
+		catch (IdUnusedException ignore) {}
+		catch (PermissionException ignore) {}
 
 	} // importResources
 
@@ -2082,16 +2054,10 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				CalendarEdit edit = addCalendar(calRef);
 				commitCalendar(edit);
 			}
-			catch (IdUsedException e)
-			{
-			}
-			catch (IdInvalidException e)
-			{
-			}
+			catch (IdUsedException ignore) {}
+			catch (IdInvalidException ignore) {}
 		}
-		catch (PermissionException e)
-		{
-		}
+		catch (PermissionException ignore) {}
 	}
 
 	/**
@@ -2201,21 +2167,6 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			}
 
 		} // BaseCalendarEdit
-
-		/**
-		 * Clean up.
-		 */
-		protected void finalize()
-		{
-			deleteObservers();
-
-			// catch the case where an edit was made but never resolved
-			if (m_active)
-			{
-				cancelCalendar(this);
-			}
-
-		} // finalize
 
 		/**
 		 * Set the calendar as removed.
@@ -3169,14 +3120,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			// check for closed edit
 			if (!edit.isActiveEdit())
 			{
-				try
-				{
-					throw new Exception();
-				}
-				catch (Exception e)
-				{
-					M_log.warn("cancelEvent(): closed CalendarEventEdit", e);
-				}
+				Throwable e = new Throwable();
+				M_log.warn("cancelEvent(): closed CalendarEventEdit", e);
 				return;
 			}
 
@@ -3516,7 +3461,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					}
 				}
 			}
-			catch (IdUnusedException e) {}
+			catch (IdUnusedException ignore) {}
 
 			return rv;
 			
@@ -3908,21 +3853,6 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		} // setPartial
 
 		/**
-		 * Clean up.
-		 */
-		protected void finalize()
-		{
-			// catch the case where an edit was made but never resolved
-			if (m_active)
-			{
-				m_calendar.cancelEvent(this);
-			}
-
-			m_calendar = null;
-
-		} // finalize
-
-		/**
 		 * Access the time range
 		 * 
 		 * @return The event time range
@@ -4080,7 +4010,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 * 
 		 * @return The exclusionrecurrence rule, or null if none.
 		 */
-		protected RecurrenceRule getExclusionRule()
+		public RecurrenceRule getExclusionRule()
 		{
 			if (m_exclusionRule == null) m_exclusionRule = new ExclusionSeqRecurrenceRule();
 
@@ -4089,10 +4019,6 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		} // getExclusionRule
 
 		/*
-		 * public RecurrenceRule getExclusionRuleII() { if (m_exclusionRule == null) m_exclusionRule = new ExclusionSeqRecurrenceRule(); return m_exclusionRule; } // getExclusionRule
-		 */
-
-		/**
 		 * Return a list of all resolved events generated from this event plus it's recurrence rules that fall within the time range, including this event, possibly empty.
 		 * 
 		 * @param range
@@ -4263,7 +4189,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 * @param rule
 		 *        The recurrence rule, or null to clear out the rule.
 		 */
-		protected void setExclusionRule(RecurrenceRule rule)
+		public void setExclusionRule(RecurrenceRule rule)
 		{
 			m_exclusionRule = rule;
 

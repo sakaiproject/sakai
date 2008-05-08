@@ -84,6 +84,14 @@ public interface CalendarEventEdit
 	public void setRecurrenceRule(RecurrenceRule rule);
 	
 	/**
+	 * Sets the exclusion recurrence rule.
+	 * 
+	 * @param rule
+	 *        The recurrence rule, or null to clear out the rule.
+	 */
+	public void setExclusionRule(RecurrenceRule rule);
+		
+	/**
 	 * Set these as the event's groups, replacing the access and groups already defined.
 	 * 
 	 * @param Collection
