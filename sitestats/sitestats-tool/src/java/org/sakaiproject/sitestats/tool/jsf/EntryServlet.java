@@ -13,7 +13,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
 
 public class EntryServlet extends HttpServlet {
 	private static final long	serialVersionUID	= 1L;
-	private static Log			LOG					= LogFactory.getLog(InitialPage.class);
+	private static Log			LOG					= LogFactory.getLog(EntryServlet.class);
 	private StatsManager		m_sm				= (StatsManager) ComponentManager.get(StatsManager.class);
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, java.io.IOException {
