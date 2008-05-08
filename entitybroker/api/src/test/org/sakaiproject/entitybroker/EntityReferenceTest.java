@@ -47,6 +47,73 @@ public class EntityReferenceTest extends TestCase {
       assertEquals(-1, EntityReference.getSeparatorPos(reference, 6));
    }
 
+   public void testCheckReference() {
+      EntityReference.checkReference("/testing");
+      EntityReference.checkReference("/testing/something");
+      EntityReference.checkReference("/test/a/long/thing");
+      EntityReference.checkReference("/TETETE/SDASDASD/FFFFF/XXXXXXXXXXXXXXXXXXXXX");
+
+      try {
+         EntityReference.checkReference(null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+      try {
+         EntityReference.checkReference("");
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+      try {
+         EntityReference.checkReference("xxxxxxxxxxxxxxxxxxxx");
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+   }
+
+   public void testCheckPrefixId() {
+      EntityReference.checkPrefixId("aaronz", "1111");
+      EntityReference.checkPrefixId("AARONZ", "");
+      EntityReference.checkPrefixId("ABCdef123-AZ_AZ:AZ;AZ.AZ", "anID");
+      EntityReference.checkPrefixId("azeckoski", "ABCdef123-AZ_AZ:AZ;AZ.AZ");
+
+      EntityReference.checkPrefixId("eval-config", "ENABLE_XLS_REPORT_EXPORT:java.lang.Boolean");
+
+      try {
+         EntityReference.checkPrefixId(null, null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+      try {
+         EntityReference.checkPrefixId(null, "");
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+      try {
+         EntityReference.checkPrefixId("", null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+      try {
+         EntityReference.checkPrefixId("aaronz", null);
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+      try {
+         EntityReference.checkPrefixId("aaronz", "asd/def");
+         fail("Should have thrown exception");
+      } catch (IllegalArgumentException e) {
+         assertNotNull(e.getMessage());
+      }
+
+   }
+
    /**
     * Test method for {@link org.sakaiproject.entitybroker.EntityReference#getOriginalReference()}.
     */

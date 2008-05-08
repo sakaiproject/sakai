@@ -85,7 +85,7 @@ public class TemplateParseUtil {
    /**
     * Defines the valid chars for a replacement variable
     */
-   public static String VALID_VAR_CHARS = "[A-Za-z0-9_\\-=:;]";
+   public static String VALID_VAR_CHARS = "[A-Za-z0-9_\\.\\-=:;]";
    /**
     * Defines the valid chars for a parser input (e.g. entity reference)
     */
