@@ -163,6 +163,8 @@ public class GenericCalendarImporter implements CalendarImporterService
 	public class PrototypeEvent implements CalendarEventEdit
 	{
 		private RecurrenceRule recurrenceRule;
+		
+		private RecurrenceRule exclusionRule;
 
 		private Map fields;
 
@@ -266,6 +268,17 @@ public class GenericCalendarImporter implements CalendarImporterService
 		{
 			// Stub routine only
 			return this.recurrenceRule;
+		}
+		
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.calendar.api.CalendarEvent#getExclusionRule()
+		 */
+		public RecurrenceRule getExclusionRule()
+		{
+			// Stub routine only
+			return this.exclusionRule;
 		}
 
 		/*
@@ -480,6 +493,16 @@ public class GenericCalendarImporter implements CalendarImporterService
 		public void setRecurrenceRule(RecurrenceRule recurrenceRule)
 		{
 			this.recurrenceRule = recurrenceRule;
+		}
+		
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#setExclusionRule(org.sakaiproject.calendar.api.ExclusionRule)
+		 */
+		public void setExclusionRule(RecurrenceRule exclusionRule)
+		{
+			this.exclusionRule = exclusionRule;
 		}
 
 		/*
