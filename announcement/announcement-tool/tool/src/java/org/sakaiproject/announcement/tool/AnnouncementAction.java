@@ -1986,7 +1986,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					Assignment a = (Assignment) i.next();
 					
 					// This is the only link we have to know if the announcement is associated with an assignment
-					String announcementCheck = "";//a.getProperties().getProperty("CHEF:assignment_opendate_announcement_message_id");
+					String announcementCheck = a.getProperties().getProperty("CHEF:assignment_opendate_announcement_message_id");
 					
 					// Get the titles of both for comparison
 					String title = a.getTitle();
@@ -1995,13 +1995,13 @@ public class AnnouncementAction extends PagedResourceActionII
 					// Lots of checks to make absolutely sure this is the assignment we are looking for
 					if (announcementCheck!="" && announcementCheck!=null && announcementCheck.equals(message.getId()) && title2.endsWith(title))
 					{
-						assignmentId = Long.toString(a.getId());
+						assignmentId = a.getId();
 						context.put("assignment", a);
 						if (assignmentId != null && assignmentId.length() > 0)
 						{
 							String assignmentContext = a.getContext(); // assignment context
 							boolean allowReadAssignment = assignmentService.allowGetAssignment(assignmentContext); // check for read permission
-							if (allowReadAssignment)// && a.getOpenTime().before(TimeService.newTime())) // this checks if we want to display an assignment link
+							if (allowReadAssignment && a.getOpenTime().before(TimeService.newTime())) // this checks if we want to display an assignment link
 							{
 								Site site = SiteService.getSite(assignmentContext); // site id
 								ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
