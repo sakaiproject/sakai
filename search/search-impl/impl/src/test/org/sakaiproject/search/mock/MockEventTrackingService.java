@@ -25,7 +25,9 @@ import java.util.Observer;
 
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.EventVoter;
 import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.user.api.User;
 
 /**
  * @author ieb
@@ -104,6 +106,33 @@ public class MockEventTrackingService implements EventTrackingService
 	{
 		// TODO Auto-generated method stub
 
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.event.api.EventTrackingService#addVoter(org.sakaiproject.event.api.EventVoter)
+	 */
+	public void addVoter(EventVoter arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.event.api.EventTrackingService#deleteVoter(org.sakaiproject.event.api.EventVoter)
+	 */
+	public void deleteVoter(EventVoter arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.event.api.EventTrackingService#post(org.sakaiproject.event.api.Event, org.sakaiproject.user.api.User)
+	 */
+	public void post(Event arg0, User arg1)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 }
