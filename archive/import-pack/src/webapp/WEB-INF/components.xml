@@ -23,7 +23,10 @@
 	<bean id="org.sakaiproject.importer.impl.handlers.ResourcesHandler"
 			class="org.sakaiproject.importer.impl.handlers.ResourcesHandler"
 			singleton="true">
-			<property name="chs"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+			<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+			<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+			<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+			<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 	</bean>
 	
 	<!-- <bean id="org.sakaiproject.importer.impl.handlers.AnnouncementHandler" -->

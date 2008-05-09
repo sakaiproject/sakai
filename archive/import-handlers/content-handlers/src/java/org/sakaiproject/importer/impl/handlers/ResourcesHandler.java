@@ -46,10 +46,10 @@ import org.sakaiproject.importer.impl.importables.Folder;
 import org.sakaiproject.importer.impl.importables.WebLink;
 import org.sakaiproject.importer.impl.importables.HtmlDocument;
 import org.sakaiproject.importer.impl.importables.TextDocument;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -64,7 +64,10 @@ import org.apache.commons.logging.Log;
 public class ResourcesHandler implements HandlesImportable {
 	private static final String COPYRIGHT = "(c) 2007";
 	
-	private ContentHostingService chs; 
+	private ContentHostingService contentHostingService;
+	private SessionManager sessionManager;
+	private SecurityService securityService;
+	private ServerConfigurationService serverConfigurationService;
 	
 	private Log m_log = LogFactory.getLog(org.sakaiproject.importer.impl.handlers.ResourcesHandler.class);
 
@@ -76,8 +79,8 @@ public class ResourcesHandler implements HandlesImportable {
 
 	public void handle(Importable thing, String siteId) {
 		if(canHandleType(thing.getTypeName())){
-			final String currentUser = SessionManager.getCurrentSessionUserId();
-			SecurityService.pushAdvisor(new SecurityAdvisor() {
+			final String currentUser = sessionManager.getCurrentSessionUserId();
+			securityService.pushAdvisor(new SecurityAdvisor() {
 				public SecurityAdvice isAllowed(String userId, String function,
 						String reference) {
 					if ((userId != null) && (userId.equals(currentUser)) && 
@@ -99,7 +102,7 @@ public class ResourcesHandler implements HandlesImportable {
 				//title = ((FileResource)thing).getTitle();
 				description = ((FileResource)thing).getDescription();
 				String fileName = ((FileResource)thing).getFileName();
-				id = chs.getSiteCollection(siteId) + ((FileResource)thing).getDestinationResourcePath();
+				id = contentHostingService.getSiteCollection(siteId) + ((FileResource)thing).getDestinationResourcePath();
 				contentType = new MimetypesFileTypeMap().getContentType(fileName);
 				contents = ((FileResource)thing).getFileBytes();
 //				if((title == null) || (title.equals(""))) {
@@ -133,14 +136,14 @@ public class ResourcesHandler implements HandlesImportable {
 			} else if ("sakai-web-link".equals(thing.getTypeName())) {
 				title = ((WebLink)thing).getTitle();
 				description = ((WebLink)thing).getDescription();
-				id = chs.getSiteCollection(siteId) + thing.getContextPath();
+				id = contentHostingService.getSiteCollection(siteId) + thing.getContextPath();
 				contentType = ResourceProperties.TYPE_URL;
 				String absoluteUrl = "";
 				if (((WebLink)thing).isAbsolute()) {
 					absoluteUrl = ((WebLink)thing).getUrl();
 				} else {
-					absoluteUrl = ServerConfigurationService.getServerUrl() + "/access/content" + 
-						chs.getSiteCollection(siteId) + ((WebLink)thing).getUrl();
+					absoluteUrl = serverConfigurationService.getServerUrl() + "/access/content" + 
+						contentHostingService.getSiteCollection(siteId) + ((WebLink)thing).getUrl();
 				}
 				contents = absoluteUrl.getBytes();
 				if((title == null) || (title.equals(""))) {
@@ -157,7 +160,7 @@ public class ResourcesHandler implements HandlesImportable {
 			} else if ("sakai-html-document".equals(thing.getTypeName())) {
 				title = ((HtmlDocument)thing).getTitle();
 				contents = ((HtmlDocument)thing).getContent().getBytes();
-				id = chs.getSiteCollection(siteId) + thing.getContextPath();
+				id = contentHostingService.getSiteCollection(siteId) + thing.getContextPath();
 				contentType = "text/html";
 				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
 				if(m_log.isDebugEnabled()){ 
@@ -167,7 +170,7 @@ public class ResourcesHandler implements HandlesImportable {
 			} else if ("sakai-text-document".equals(thing.getTypeName())) {
 				title = ((TextDocument)thing).getTitle();
 				contents = ((TextDocument)thing).getContent().getBytes();
-				id = chs.getSiteCollection(siteId) + thing.getContextPath();
+				id = contentHostingService.getSiteCollection(siteId) + thing.getContextPath();
 				contentType = "text/plain";
 				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
 				if(m_log.isDebugEnabled()){ 
@@ -185,11 +188,11 @@ public class ResourcesHandler implements HandlesImportable {
 	  			 * Added title to the end of the path. Otherwise, we're setting the props on the 
 	  			 * containing folder rather than the folder itself.
 	  			 */
-	  			String path = chs.getSiteCollection(siteId) + ((Folder)thing).getPath();
+	  			String path = contentHostingService.getSiteCollection(siteId) + ((Folder)thing).getPath();
 	    		addContentCollection(path,resourceProps);
 
 			}
-			SecurityService.popAdvisor();
+			securityService.popAdvisor();
 		}
 
 	}
@@ -258,7 +261,7 @@ public class ResourcesHandler implements HandlesImportable {
 	protected void addContentResource(String id, String contentType, byte[] contents, Map properties, int notifyOption) {
 		try {
 			id = makeIdClean(id);
-			ResourcePropertiesEdit resourceProps = chs.newResourceProperties();
+			ResourcePropertiesEdit resourceProps = contentHostingService.newResourceProperties();
 			Set keys = properties.keySet();
 			for (Iterator i = keys.iterator();i.hasNext();) {
 				String key = (String)i.next();
@@ -267,9 +270,9 @@ public class ResourcesHandler implements HandlesImportable {
 			}
 			String enclosingDirectory = id.substring(0, id.lastIndexOf('/', id.length() - 2) + 1);
 			if(existsDirectory(enclosingDirectory)) {
-				chs.addProperty(enclosingDirectory, ResourceProperties.PROP_HAS_CUSTOM_SORT, Boolean.TRUE.toString());
+				contentHostingService.addProperty(enclosingDirectory, ResourceProperties.PROP_HAS_CUSTOM_SORT, Boolean.TRUE.toString());
 			}
-			chs.addResource(id, contentType, contents, resourceProps, notifyOption);
+			contentHostingService.addResource(id, contentType, contents, resourceProps, notifyOption);
 		} catch (PermissionException e) {
 			m_log.error("ResourcesHandler.addContentResource: " + e.toString());
 		} catch (IdUsedException e) {
@@ -301,7 +304,7 @@ public class ResourcesHandler implements HandlesImportable {
 	
 	protected boolean existsDirectory(String path) {
 		try {
-			chs.getCollection(path);
+			contentHostingService.getCollection(path);
 		} catch (IdUnusedException e) {
 			return false;
 		} catch (TypeException e) {
@@ -315,7 +318,7 @@ public class ResourcesHandler implements HandlesImportable {
 
 	protected void addContentCollection(String path, Map properties) {
 			path = makeIdClean(path);
-			ResourcePropertiesEdit resourceProps = chs.newResourceProperties();
+			ResourcePropertiesEdit resourceProps = contentHostingService.newResourceProperties();
 			Set keys = properties.keySet();
 			for (Iterator i = keys.iterator();i.hasNext();) {
 				String key = (String)i.next();
@@ -332,7 +335,7 @@ public class ResourcesHandler implements HandlesImportable {
 //
 //				}
 
-				chs.addCollection(path, resourceProps);
+				contentHostingService.addCollection(path, resourceProps);
 				//coll = ContentHostingService.addCollection(path);
                 //ContentHostingService.commitCollection(coll);
 				
@@ -388,11 +391,36 @@ public class ResourcesHandler implements HandlesImportable {
 	}
 
 	public ContentHostingService getChs() {
-		return chs;
+		return contentHostingService;
 	}
 
 	public void setChs(ContentHostingService chs) {
-		this.chs = chs;
+		this.contentHostingService = chs;
+	}
+
+	public SessionManager getSessionManager() {
+		return sessionManager;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	public SecurityService getSecurityService() {
+		return securityService;
+	}
+
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	public ServerConfigurationService getServerConfigurationService() {
+		return serverConfigurationService;
+	}
+
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
 	}
 
 }
