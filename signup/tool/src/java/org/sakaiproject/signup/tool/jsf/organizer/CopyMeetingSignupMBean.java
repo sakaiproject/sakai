@@ -77,7 +77,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	public void reset() {
 		keepAttendees = false;
-		sendEmail = true;
+		sendEmail = DEFAULT_SEND_EMAIL;
 		this.signupMeeting = signupMeetingService.loadSignupMeeting(meetingWrapper.getMeeting().getId(), sakaiFacade
 				.getCurrentUserId(), sakaiFacade.getCurrentLocationId());
 

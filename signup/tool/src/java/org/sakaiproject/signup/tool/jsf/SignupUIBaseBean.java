@@ -61,7 +61,9 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 
 	protected boolean currentUserSignedup;
 
-	protected boolean sendEmail = true;
+	protected static boolean DEFAULT_SEND_EMAIL= "true".equalsIgnoreCase(Utilities.rb.getString("default.email.notification"))? true : false;
+
+	protected boolean sendEmail = DEFAULT_SEND_EMAIL;
 
 	protected Log logger = LogFactoryImpl.getLog(getClass());
 

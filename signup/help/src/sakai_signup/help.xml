@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+   <bean id="signupOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>signup_ov</value></property>
+      <property name="name"><value>Sign-up Overview</value></property>
+      <property name="location"><value>/sakai_signup/signup_ov.html</value></property>
+      <property name="defaultForTool"><value>sakai.signup</value></property>
+   </bean>
+   
+   <bean id="signupCreate" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>signup_create</value></property>
+      <property name="name"><value>Creating meetings</value></property>
+      <property name="location"><value>/sakai_signup/signup_create.html</value></property>
+      <property name="defaultForTool"><value>sakai.signup</value></property>
+   </bean>
+   
+    <bean id="signupStudent" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>signup_student</value></property>
+      <property name="name"><value>Student view</value></property>
+      <property name="location"><value>/sakai_signup/signup_student.html</value></property>
+      <property name="defaultForTool"><value>sakai.signup</value></property>
+   </bean>
+     
+    <bean id="signupUses" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>signup_uses</value></property>
+      <property name="name"><value>Suggestions for use</value></property>
+      <property name="location"><value>/sakai_signup/signup_uses.html</value></property>
+      <property name="defaultForTool"><value>sakai.signup</value></property>
+   </bean>
+      
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="podcastsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Sign-up</value></property>
+               <property name="resources">
+                  <list>
+                    <ref bean="signupOverview"/>
+					<ref bean="signupCreate"/>
+					<ref bean="signupStudent"/>
+					<ref bean="signupUses"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>     
+</beans>

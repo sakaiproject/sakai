@@ -16,6 +16,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>api</module>
+		<module>help</module>
 		<module>impl</module>
 		<module>pack</module>
 		<module>tool</module>

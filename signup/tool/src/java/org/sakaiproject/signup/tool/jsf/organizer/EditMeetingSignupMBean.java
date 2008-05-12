@@ -84,7 +84,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		addMoreTimeslots = 0;
 		maxNumOfAttendees = 0;
 		showAttendeeName = false;
-		sendEmail = true;
+		sendEmail = DEFAULT_SEND_EMAIL;
 		unlimited = false;
 		
 		editMeeting =null;
