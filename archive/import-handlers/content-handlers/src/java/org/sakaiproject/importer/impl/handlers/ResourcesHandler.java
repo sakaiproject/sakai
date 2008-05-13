@@ -390,11 +390,11 @@ public class ResourcesHandler implements HandlesImportable {
 		return rv;
 	}
 
-	public ContentHostingService getChs() {
+	public ContentHostingService getContentHostingService() {
 		return contentHostingService;
 	}
 
-	public void setChs(ContentHostingService chs) {
+	public void setContentHostingService(ContentHostingService chs) {
 		this.contentHostingService = chs;
 	}
 
