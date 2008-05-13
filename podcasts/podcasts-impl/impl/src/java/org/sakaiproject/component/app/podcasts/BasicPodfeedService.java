@@ -21,7 +21,9 @@
 
 package org.sakaiproject.component.app.podcasts;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -109,7 +111,7 @@ public class BasicPodfeedService implements PodfeedService {
 	private final String PODFEED_MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
 	private ResourceLoader resbud = new ResourceLoader(PODFEED_MESSAGE_BUNDLE);
 
-	private static final Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
+	private static final Log LOG = LogFactory.getLog(BasicPodfeedService.class);
 
 	private PodcastService podcastService;
 	private PodcastPermissionsService podcastPermissionsService;
@@ -312,8 +314,19 @@ public class BasicPodfeedService implements PodfeedService {
 	 * @return String 
 	 * 			The global feed generator string.
 	 */
-	public String getPodfeedGenerator(String siteId) {
-		return retrievePropValue(PODFEED_GENERATOR, siteId, FEED_GENERATOR_STRING);
+	public String getPodfeedGenerator(String siteId) {		  
+		// Generator consists of 3 parts, first 2 pulled from sakai.properties:
+		//		ui.service - institution name
+		//		version.service - version number for the instance
+		//		last part is url of this instance
+		final String localSakaiName = ServerConfigurationService.getString("ui.service","Sakai");		//localsakainame
+		final String versionNumber = ServerConfigurationService.getString("version.service", "?");//dev
+		final String portalUrl = ServerConfigurationService.getPortalUrl(); //last part exactly http://
+		
+		final String generatorString = localSakaiName + " " + versionNumber + " " + 
+											portalUrl.substring(0, portalUrl.lastIndexOf("/")+1);	
+		
+		return generatorString;
 	}
 
 	/**
@@ -348,8 +361,18 @@ public class BasicPodfeedService implements PodfeedService {
 	 * @return String 
 	 * 			The global feed generator string.
 	 */
-	public String getPodfeedCopyright(String siteId) {
-		return retrievePropValue(PODFEED_COPYRIGHT, siteId, FEED_COPYRIGHT_STATEMENT);
+	public String getPodfeedCopyright(String siteId) {	
+		String currentCopyright=retrievePropValue(PODFEED_COPYRIGHT, siteId, FEED_COPYRIGHT_STATEMENT);
+		Calendar rightNow = Calendar.getInstance();              
+		int year = rightNow.get(Calendar.YEAR); 
+		Object[] arguments = {
+			     new Integer(year).toString()			    
+			 };
+		
+		MessageFormat form = new MessageFormat(currentCopyright);
+		String returnCopyright = form.format(arguments);
+		
+		return returnCopyright;
 	}
 
 	/**
@@ -397,9 +420,8 @@ public class BasicPodfeedService implements PodfeedService {
 
 		/* For site where not added to folder upon creation
 		 * and has not been revised/updated */
-		if (propValue == null) {
-			propValue = getMessageBundleString(bundleName);
-			LOG.info("No property " + propName + " stored for site: " + siteId + ". Using " + propValue);
+		if ("".equals(propValue)) {
+			propValue = getMessageBundleString(bundleName);			
 		}
 
 		return propValue;
