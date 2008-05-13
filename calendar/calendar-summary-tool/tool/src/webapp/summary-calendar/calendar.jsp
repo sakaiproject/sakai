@@ -28,12 +28,15 @@
 	    
 	
 			
-	<h:panelGroup style="width:100%; display: block" id="div100">
+	<%--<h:panelGroup style="width:100%; display: block" id="div100">--%>
+	<f:verbatim><div style="width:100%" id="div100"></f:verbatim>
 	
 		<h:panelGrid styleClass="sectionContainerNav" style="width:100%" columns="2" columnClasses="calLeft,calRight" id="panelgrid_top"> 		
-			<h:panelGroup style="text-align: left; white-space: nowrap; display: block">
-				<f:verbatim><h3></f:verbatim><h:outputText value="#{CalBean.caption}"/><f:verbatim></h3></f:verbatim>
-			</h:panelGroup>
+			<%--<h:panelGroup style="text-align: left; white-space: nowrap; display: block">--%>
+			<f:subview id="title">
+				<f:verbatim><h3 style="text-align: left; white-space: nowrap;"></f:verbatim><h:outputText value="#{CalBean.caption}"/><f:verbatim></h3></f:verbatim>
+			</f:subview>
+			<%--</h:panelGroup>--%>
 	        <h:panelGroup style="text-align: right; white-space: nowrap; display: block ">
 	        	<h:commandButton value=" < " actionListener="#{CalBean.prev}" immediate="true"/>
 	        	<h:commandButton value="#{msgs.today}" actionListener="#{CalBean.currDay}" immediate="true"/>
@@ -54,7 +57,7 @@
 		           <h:outputText value="#{CalBean.dayOfWeekNames[0]}" />		          
 		        </f:facet>
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[0].backgroundCSSProperty}; display: block" styleClass="#{week.days[0].styleClass}">
-			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[0].eventCount}"/></h:panelGroup>
+			        <h:panelGroup rendered="#{not empty week.days[0].eventCount}" styleClass="eventCount"><h:outputText value="#{week.days[0].eventCount}"/></h:panelGroup>
 			        <h:commandLink value="#{week.days[0].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[0].hasEvents}" immediate="true">
 			        	<f:param name="selectedDay" value="#{week.days[0].dateAsString}"/>
 			        </h:commandLink>
@@ -66,7 +69,7 @@
 		           <h:outputText value="#{CalBean.dayOfWeekNames[1]}"/>		                
 		        </f:facet>		        
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[1].backgroundCSSProperty}; display: block" styleClass="#{week.days[1].styleClass}">
-			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[1].eventCount}"/></h:panelGroup>
+			        <h:panelGroup rendered="#{not empty week.days[1].eventCount}" styleClass="eventCount"><h:outputText value="#{week.days[1].eventCount}"/></h:panelGroup>
 			        <h:commandLink value="#{week.days[1].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[1].hasEvents}" immediate="true">
 			        	<f:param name="selectedDay" value="#{week.days[1].dateAsString}"/>
 			        </h:commandLink>
@@ -78,7 +81,7 @@
 		           <h:outputText value="#{CalBean.dayOfWeekNames[2]}"/>		                
 		        </f:facet>		        
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[2].backgroundCSSProperty}; display: block" styleClass="#{week.days[2].styleClass}">
-			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[2].eventCount}"/></h:panelGroup>
+			        <h:panelGroup rendered="#{not empty week.days[2].eventCount}" styleClass="eventCount"><h:outputText value="#{week.days[2].eventCount}"/></h:panelGroup>
 			        <h:commandLink value="#{week.days[2].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[2].hasEvents}" immediate="true">
 			        	<f:param name="selectedDay" value="#{week.days[2].dateAsString}"/>
 			        </h:commandLink>
@@ -90,7 +93,7 @@
 		           <h:outputText value="#{CalBean.dayOfWeekNames[3]}"/>		                
 		        </f:facet>		        
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[3].backgroundCSSProperty}; display: block" styleClass="#{week.days[3].styleClass}">
-			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[3].eventCount}"/></h:panelGroup>
+			        <h:panelGroup rendered="#{not empty week.days[3].eventCount}" styleClass="eventCount"><h:outputText value="#{week.days[3].eventCount}"/></h:panelGroup>
 			        <h:commandLink value="#{week.days[3].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[3].hasEvents}" immediate="true">
 			        	<f:param name="selectedDay" value="#{week.days[3].dateAsString}"/>
 			        </h:commandLink>
@@ -102,7 +105,7 @@
 		           <h:outputText value="#{CalBean.dayOfWeekNames[4]}"/>		                
 		        </f:facet>
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[4].backgroundCSSProperty}; display: block" styleClass="#{week.days[4].styleClass}">
-			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[4].eventCount}"/></h:panelGroup>
+			        <h:panelGroup rendered="#{not empty week.days[4].eventCount}" styleClass="eventCount"><h:outputText value="#{week.days[4].eventCount}"/></h:panelGroup>
 			        <h:commandLink value="#{week.days[4].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[4].hasEvents}" immediate="true">
 			        	<f:param name="selectedDay" value="#{week.days[4].dateAsString}"/>
 			        </h:commandLink>
@@ -114,7 +117,7 @@
 		           <h:outputText value="#{CalBean.dayOfWeekNames[5]}"/>		                
 		        </f:facet>
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[5].backgroundCSSProperty}; display: block" styleClass="#{week.days[5].styleClass}">
-			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[5].eventCount}"/></h:panelGroup>
+			        <h:panelGroup rendered="#{not empty week.days[5].eventCount}" styleClass="eventCount"><h:outputText value="#{week.days[5].eventCount}"/></h:panelGroup>
 			        <h:commandLink value="#{week.days[5].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[5].hasEvents}" immediate="true">
 			        	<f:param name="selectedDay" value="#{week.days[5].dateAsString}"/>
 			        </h:commandLink>
@@ -126,7 +129,7 @@
 		           <h:outputText value="#{CalBean.dayOfWeekNames[6]}"/>		                
 		        </f:facet>
 		        <h:panelGroup style="width:100%; position: relative; text-align: center; #{week.days[6].backgroundCSSProperty}; display: block" styleClass="#{week.days[6].styleClass}">
-			        <h:panelGroup style="display:none" styleClass="eventCount"><h:outputText value="#{week.days[6].eventCount}"/></h:panelGroup>
+			        <h:panelGroup rendered="#{not empty week.days[6].eventCount}" styleClass="eventCount"><h:outputText value="#{week.days[6].eventCount}"/></h:panelGroup>
 			        <h:commandLink value="#{week.days[6].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[6].hasEvents}" immediate="true">
 			        	<f:param name="selectedDay" value="#{week.days[6].dateAsString}"/>
 			        </h:commandLink>
@@ -208,7 +211,8 @@
 			</h:panelGrid>			
 		</h:panelGroup>
 		
-	</h:panelGroup>
+	<%--</h:panelGroup>--%>
+	<f:verbatim></div></f:verbatim>
 	
 	</h:form>
 </sakai:view>
