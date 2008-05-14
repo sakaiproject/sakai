@@ -106,3 +106,6 @@ alter table osp_wizard add column generalFeedbackOption tinyint not null DEFAULT
 alter table osp_wizard add column itemFeedbackOption tinyint not null DEFAULT '0';
 update osp_wizard set generalFeedbackOption=0;
 update osp_wizard set itemFeedbackOption=0;
+
+--OSP SAK-11545
+alter table osp_wizard add reviewerGroupAccess integer not null default '0';
