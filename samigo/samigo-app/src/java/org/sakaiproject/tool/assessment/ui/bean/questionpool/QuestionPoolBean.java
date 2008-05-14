@@ -1185,6 +1185,12 @@ public String getAddOrEdit()
 			this.sourcePart = ContextUtil.lookupParam("sectionId");
 			return "copyPool";
 		}
+		
+        FacesContext context=FacesContext.getCurrentInstance();
+        String err;
+        err=rb.getString("no_pools_error");
+        context.addMessage(null, new FacesMessage(err));
+
 		return "editAssessment";
 	}
      
