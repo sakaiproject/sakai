@@ -220,7 +220,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     **/
 
    private static Map toolsBySessionId = new HashMap();
-
+   private static Map<String,Long> timeouts = new HashMap();
    
    /**
     * This is called from the first page to redirect the user to the proper view.
@@ -341,12 +341,13 @@ public class ChatTool implements RoomObserver, PresenceObserver {
        //       System.out.println("refreshPresence " + this + " " +
        //			  SessionManager.getCurrentSessionUserId());
 
-      if (getCurrentChannel() == null) {
-         ChatChannel defaultChannel = getChatManager().getDefaultChannel(
-               getToolManager().getCurrentPlacement().getContext(),
-               getToolManager().getCurrentPlacement().getId());
-         setCurrentChannel(new DecoratedChatChannel(this, defaultChannel));
-      }
+       // not sure what this would accomplish
+       //if (getCurrentChannel() == null) {
+       //         ChatChannel defaultChannel = getChatManager().getDefaultChannel(
+       //               getToolManager().getCurrentPlacement().getContext(),
+       //               getToolManager().getCurrentPlacement().getId());
+       //         setCurrentChannel(new DecoratedChatChannel(this, defaultChannel));
+       //      }
       if(getCurrentChannel() != null) {
          // place a presence observer on this tool.
 	  //         presenceChannelObserver = new PresenceObserverHelper(this,
@@ -363,6 +364,16 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    //********************************************************************
    // Interface Implementations
    
+   static void setTimeout(String address, Long timeout)
+   {
+       synchronized(timeouts) {
+	   if (timeout != null)
+	       timeouts.put(address, timeout);
+	   else
+	       timeouts.remove(address);
+       }
+   }
+
    /**
     * {@inheritDoc}
     * in the context of the event manager thread
@@ -370,7 +381,20 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public void receivedMessage(String roomId, Object message)
    {
       if(currentChannel != null && currentChannel.getChatChannel().getId().equals(roomId)) {
-         m_courierService.deliver(new ChatDelivery(sessionId+roomId, "Monitor", message, placementId, false, getChatManager()));
+	  String address = sessionId + roomId;
+	  Long timeout = timeouts.get(address);
+	  if (SessionManager.getSession(sessionId) == null ||
+	      (timeout != null && 
+	       (timeout + (60*1000)) < System.currentTimeMillis())) {
+	      System.out.println("received msg expired session " + sessionId + " " + currentChannel);
+	      resetCurrentChannel(currentChannel, true);
+	      m_courierService.clear(address);
+	      setTimeout(address, null);
+	  } else {
+	      m_courierService.deliver(new ChatDelivery(address, "Monitor", message, placementId, false, getChatManager()));
+	      if (timeout == null)
+		  setTimeout(address, System.currentTimeMillis());
+	  }
       }
    }
 
@@ -381,6 +405,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    {
       if(currentChannel != null && currentChannel.getChatChannel().getId().equals(roomId)) {
 	  resetCurrentChannel(currentChannel, true);
+	  m_courierService.clear(sessionId+roomId);
+	  setTimeout(sessionId+roomId, null);
       }
    }
 
@@ -413,8 +439,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
        //      } else
        if (currentChannel != null && 
 	   SessionManager.getSession(sessionId) == null) {
-	   System.out.println("user left expired session " + sessionId + " " + currentChannel);
+	   // System.out.println("user left expired session " + sessionId + " " + currentChannel);
 	   resetCurrentChannel(currentChannel, true);
+	   m_courierService.clear(sessionId+location);
+	   setTimeout(sessionId+location, null);
        }
        else
          m_courierService.deliver(new DirectRefreshDelivery(sessionId+location, "Presence"));
@@ -929,8 +957,13 @@ public class ChatTool implements RoomObserver, PresenceObserver {
 	   return;
 
       // turn off observation for the old channel
-      if(presenceChannelObserver != null)
+      if(presenceChannelObserver != null){
+	  // need to save location, as we're about to clear current channel
+	  String address = sessionId+currentChannel.getChatChannel().getId();
 	  resetCurrentChannel(this.currentChannel, true);
+	  m_courierService.clear(address);
+	  setTimeout(address, null);
+      }
       
       this.currentChannel = channel;
       
@@ -995,6 +1028,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
          getChatManager().removeRoomListener(this, channelId);
       }
       presenceChannelObserver = null;
+      currentChannel = null;
       
       if (removeFromHash) {
 	  // System.out.println("reset current removing " + channelId);

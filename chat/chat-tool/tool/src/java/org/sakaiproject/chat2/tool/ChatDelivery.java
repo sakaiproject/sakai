@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.chat2.model.ChatManager;
+import org.sakaiproject.chat2.tool.ChatTool;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.event.api.UsageSession;
@@ -96,6 +97,9 @@ public class ChatDelivery extends BaseDelivery
 	{
       ChatMessage message = null;
       
+      // assume the message is being delivered, so clear timeout
+      ChatTool.setTimeout(getAddress(),null);
+
       if(m_message instanceof ChatMessage) {
          message = (ChatMessage)m_message;
       } else if(m_message instanceof String) {
