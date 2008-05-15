@@ -160,6 +160,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private static final int DEFAULT_ITEMS = 3;
    private static final int DEFAULT_LENGTH = 50;
    
+   private static final int CHAT_SESSION_TIMEOUT = 300*1000;
+   
    /* All the managers */
    /**   The work-horse of chat   */
    private ChatManager chatManager;
@@ -338,24 +340,9 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    }
    
    protected boolean refreshPresence() {
-       //       System.out.println("refreshPresence " + this + " " +
-       //			  SessionManager.getCurrentSessionUserId());
 
-       // not sure what this would accomplish
-       //if (getCurrentChannel() == null) {
-       //         ChatChannel defaultChannel = getChatManager().getDefaultChannel(
-       //               getToolManager().getCurrentPlacement().getContext(),
-       //               getToolManager().getCurrentPlacement().getId());
-       //         setCurrentChannel(new DecoratedChatChannel(this, defaultChannel));
-       //      }
-      if(getCurrentChannel() != null) {
-         // place a presence observer on this tool.
-	  //         presenceChannelObserver = new PresenceObserverHelper(this,
-	  //               getCurrentChannel().getChatChannel().getId());
-         
-	  //         getChatManager().addRoomListener(this, getCurrentChannel().getChatChannel().getId());
+	  if(getCurrentChannel() != null) {
          return true;
-         //presenceChannelObserver.updatePresence();
       }
       return false;
    }
@@ -367,10 +354,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    static void setTimeout(String address, Long timeout)
    {
        synchronized(timeouts) {
-	   if (timeout != null)
-	       timeouts.put(address, timeout);
-	   else
-	       timeouts.remove(address);
+		   if (timeout != null)
+		       timeouts.put(address, timeout);
+		   else
+		       timeouts.remove(address);
        }
    }
 
@@ -381,20 +368,20 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public void receivedMessage(String roomId, Object message)
    {
       if(currentChannel != null && currentChannel.getChatChannel().getId().equals(roomId)) {
-	  String address = sessionId + roomId;
-	  Long timeout = timeouts.get(address);
-	  if (SessionManager.getSession(sessionId) == null ||
-	      (timeout != null && 
-	       (timeout + (60*1000)) < System.currentTimeMillis())) {
-	      System.out.println("received msg expired session " + sessionId + " " + currentChannel);
-	      resetCurrentChannel(currentChannel, true);
-	      m_courierService.clear(address);
-	      setTimeout(address, null);
-	  } else {
-	      m_courierService.deliver(new ChatDelivery(address, "Monitor", message, placementId, false, getChatManager()));
-	      if (timeout == null)
-		  setTimeout(address, System.currentTimeMillis());
-	  }
+		  String address = sessionId + roomId;
+		  Long timeout = timeouts.get(address);
+		  if (SessionManager.getSession(sessionId) == null ||
+		      (timeout != null && 
+		       (timeout + CHAT_SESSION_TIMEOUT) < System.currentTimeMillis())) {
+		      logger.debug("received msg expired session " + sessionId + " " + currentChannel);
+		      resetCurrentChannel(currentChannel, true);
+		      m_courierService.clear(address);
+		      setTimeout(address, null);
+		  } else {
+		      m_courierService.deliver(new ChatDelivery(address, "Monitor", message, placementId, false, getChatManager()));
+		      if (timeout == null)
+			  setTimeout(address, System.currentTimeMillis());
+		  }
       }
    }
 
@@ -404,9 +391,9 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public void roomDeleted(String roomId)
    {
       if(currentChannel != null && currentChannel.getChatChannel().getId().equals(roomId)) {
-	  resetCurrentChannel(currentChannel, true);
-	  m_courierService.clear(sessionId+roomId);
-	  setTimeout(sessionId+roomId, null);
+		  resetCurrentChannel(currentChannel, true);
+		  m_courierService.clear(sessionId+roomId);
+		  setTimeout(sessionId+roomId, null);
       }
    }
 
@@ -432,34 +419,14 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    // new impl that counts the number of system in the location
    public void userLeft(String location, String user)
    {
-       //      if(presenceChannelObserver != null && presenceChannelObserver.getPresentSessionsCount() == 0) {
-       //         presenceChannelObserver.endObservation();
-       //         getChatManager().removeRoomListener(this, currentChannel.getChatChannel().getId());
-       //         presenceChannelObserver = null;
-       //      } else
-       if (currentChannel != null && 
-	   SessionManager.getSession(sessionId) == null) {
-	   // System.out.println("user left expired session " + sessionId + " " + currentChannel);
-	   resetCurrentChannel(currentChannel, true);
-	   m_courierService.clear(sessionId+location);
-	   setTimeout(sessionId+location, null);
+       if (currentChannel != null && SessionManager.getSession(sessionId) == null) {
+		   resetCurrentChannel(currentChannel, true);
+		   m_courierService.clear(sessionId+location);
+		   setTimeout(sessionId+location, null);
        }
        else
-         m_courierService.deliver(new DirectRefreshDelivery(sessionId+location, "Presence"));
+    	   m_courierService.deliver(new DirectRefreshDelivery(sessionId+location, "Presence"));
    }
-
-
-   // old impl that looked at list of users present in the location.
-//   public void userLeft(String location, String user)
-//   {
-//      if(presenceChannelObserver != null && presenceChannelObserver.getPresentUsers().size() == 0) {
-//         presenceChannelObserver.endObservation();
-//         getChatManager().removeRoomListener(this, currentChannel.getChatChannel().getId());
-//         presenceChannelObserver = null;
-//      } else
-//         m_courierService.deliver(new DirectRefreshDelivery(sessionId+location, "Presence"));
-//   }
-
    
    //********************************************************************
    // Tool Process Actions
@@ -535,7 +502,6 @@ public class ChatTool implements RoomObserver, PresenceObserver {
             currentChannelEdit.setFilterParamPast(currentChannelEdit.getChatChannel().getTimeParam());
             currentChannelEdit.setFilterParamNone(0);
          }
-         //return "";
          return PAGE_EDIT_A_ROOM;
       }
       catch (PermissionException e) {
@@ -728,7 +694,6 @@ public class ChatTool implements RoomObserver, PresenceObserver {
             if (getCurrentChannel() != null && getCurrentChannel().getChatChannel().getId().equals(channel.getId())) {
                setCurrentChannel(new DecoratedChatChannel(this, channel));
             }
-            //setCurrentChannel(channel);
             setCurrentChannelEdit(null);
             
          }
@@ -951,18 +916,18 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       // if changing to the same channel, nothing to do
       // this is a fairly expensive operation, so it's worth optimizing out
 
-      if (this.currentChannel != null && channel != null &
+      if (this.currentChannel != null && channel != null &&
 	   this.currentChannel.getChatChannel().getId() ==
 	   channel.getChatChannel().getId())
-	   return;
+    	  return;
 
       // turn off observation for the old channel
       if(presenceChannelObserver != null){
-	  // need to save location, as we're about to clear current channel
-	  String address = sessionId+currentChannel.getChatChannel().getId();
-	  resetCurrentChannel(this.currentChannel, true);
-	  m_courierService.clear(address);
-	  setTimeout(address, null);
+		  // need to save location, as we're about to clear current channel
+		  String address = sessionId+currentChannel.getChatChannel().getId();
+		  resetCurrentChannel(this.currentChannel, true);
+		  m_courierService.clear(address);
+		  setTimeout(address, null);
       }
       
       this.currentChannel = channel;
@@ -975,42 +940,42 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       // hash and remember the old instance if there was one
       // add the current instance to the hash in its place
 
-      if(channel != null) {
+     if (channel != null) {
 
-	 String channelId = channel.getChatChannel().getId();
-
-	 ChatTool oldTool = null;
-
-	 synchronized(toolsBySessionId) {
-	     Map tools = (Map)toolsBySessionId.get(channelId);
-	     if (tools == null) {
-		 // no entry for this chat room, make one
-		 tools = new HashMap();
-		 toolsBySessionId.put(channelId, tools);
-	     } else
-		 // there is an entry for this chat room
-		 // see if an instance for this session
-		 oldTool = (ChatTool)tools.get(sessionId);
-	     // either way, there's now a hash for this
-	     // chat room, so put this instance in it,
-	     // replacing the old entry if there was one
-	     tools.put(sessionId, this);
-	 }
-
-	 if (oldTool != null) {
-	     // there was another instance for this session
-	     // kill it. pass false, since we already handled
-	     // the hash table.
-	     // System.out.println("setcurrent removing " + channel);
-	     oldTool.resetCurrentChannel(channel, false);
-	 }
-	 
-	 // now do stuff for the new instance. It's already in the hash.
-         // place a presence observer on this tool.
-         presenceChannelObserver = new PresenceObserverHelper(this, channelId);
-         
-	 // hmmmm.... should this all be under the synchronize?
-	 // System.out.println("addroom " + channelId + " " + sessionId + " " + this);
+		 String channelId = channel.getChatChannel().getId();
+	
+		 ChatTool oldTool = null;
+	
+		 synchronized(toolsBySessionId) {
+		     Map tools = (Map)toolsBySessionId.get(channelId);
+		     if (tools == null) {
+				 // no entry for this chat room, make one
+				 tools = new HashMap();
+				 toolsBySessionId.put(channelId, tools);
+		     } else {
+				 // there is an entry for this chat room
+				 // see if an instance for this session
+				 oldTool = (ChatTool)tools.get(sessionId);
+		     }
+		     
+		     // either way, there's now a hash for this
+		     // chat room, so put this instance in it,
+		     // replacing the old entry if there was one
+		     tools.put(sessionId, this);
+		 }
+	
+		 if (oldTool != null) {
+		     // there was another instance for this session
+		     // kill it. pass false, since we already handled
+		     // the hash table.
+		     oldTool.resetCurrentChannel(channel, false);
+		 }
+		 
+		 // now do stuff for the new instance. It's already in the hash.
+	     // place a presence observer on this tool.
+		 presenceChannelObserver = new PresenceObserverHelper(this, channelId);
+	         
+		 // hmmmm.... should this all be under the synchronize?
          getChatManager().addRoomListener(this, channelId);
          
          presenceChannelObserver.updatePresence();
@@ -1031,17 +996,15 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       currentChannel = null;
       
       if (removeFromHash) {
-	  // System.out.println("reset current removing " + channelId);
-	  synchronized(toolsBySessionId) {
-	      Map tools = (Map)toolsBySessionId.get(channelId);
-	      if (tools != null) {
-		  tools.remove(sessionId);
-		  if (tools.size() == 0)
-		      toolsBySessionId.remove(tools);
-	      }
-	  }
+		  synchronized(toolsBySessionId) {
+		      Map tools = (Map)toolsBySessionId.get(channelId);
+		      if (tools != null) {
+			  tools.remove(sessionId);
+			  if (tools.size() == 0)
+			      toolsBySessionId.remove(tools);
+		      }
+		  }
       }
-
    }
    
    /**

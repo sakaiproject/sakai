@@ -584,8 +584,11 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       synchronized(roomObservers) {
          roomObservers.add(observer);
       }
-      System.out.println("after add roomObservers " + roomObservers);
-     
+      
+      if (logger.isDebugEnabled()) {
+          logger.debug("after add roomObservers " + roomObservers);
+       }
+
    }
    
    public void removeRoomListener(RoomObserver observer, String roomId)
@@ -608,14 +611,12 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                
             }
          } // end if(roomObservers != null)
-	 System.out.println("after remove roomObservers " + roomObservers);
+         
+         if (logger.isDebugEnabled()) {
+             logger.debug("after remove roomObservers " + roomObservers);
+          }
       }
    }
-   
-   
-   
-   
-
 
    /**
     * {@inheritDoc}
@@ -623,16 +624,9 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    public void sendMessage(ChatMessage message) {
       ChatMessageTxSync txSync = new ChatMessageTxSync(message);
 
-      //      if (TransactionSynchronizationManager.isSynchronizationActive()) {
-      //         TransactionSynchronizationManager.registerSynchronization(txSync);
-      //      }
-      //      else {
       getHibernateTemplate().flush();
-         txSync.afterCompletion(ChatMessageTxSync.STATUS_COMMITTED);
-	 //      }
+      txSync.afterCompletion(ChatMessageTxSync.STATUS_COMMITTED);
    }
-   
-   
    
    /**
     * {@inheritDoc}

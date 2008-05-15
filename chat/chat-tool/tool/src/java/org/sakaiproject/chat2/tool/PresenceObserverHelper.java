@@ -96,16 +96,6 @@ public class PresenceObserverHelper implements Observer
       return PresenceService.getPresentUsers(location);
    }
    
-   /**
-    * This method is called to find out if there are other users in this location.
-    * @return count
-    * 	       The number of sessions present in this location.
-    */
-   public int getPresentSessionsCount() 
-   {
-      return PresenceService.getPresentSessionsCount(location);
-   }
-
    public String getLocation()
    {
       return location;
