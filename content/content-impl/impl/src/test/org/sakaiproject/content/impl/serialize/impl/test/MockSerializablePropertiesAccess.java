@@ -21,8 +21,10 @@
 
 package org.sakaiproject.content.impl.serialize.impl.test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
@@ -38,6 +40,21 @@ public class MockSerializablePropertiesAccess implements SerializableEntity,
 
 	public Map<String, Object> properties = new HashMap<String, Object>();
 	public Map<String,Object> set_properties = new HashMap<String, Object>();
+	
+	public MockSerializablePropertiesAccess() {
+		properties.put("testProperty1", "propertyValue1");
+		properties.put("testProperty2", "propertyValue2");
+		properties.put("testProperty3", "propertyValue3");
+		properties.put("testProperty4", "propertyValue4");
+		properties.put("testProperty5", "propertyValue5");
+		List<String> list = new ArrayList<String>();
+		list.add("StringArray1");
+		list.add("StringArray2");
+		list.add("StringArray3");
+		list.add("StringArray4");
+		list.add("StringArray5");
+		properties.put("testProperty5", list);
+	}
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.entity.api.serialize.SerializablePropertiesAccess#getSerializableProperties()
 	 */
