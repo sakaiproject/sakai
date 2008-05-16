@@ -96,7 +96,9 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	private List<SignupSiteWrapper> otherSites;
 
-	private boolean sendEmail;
+	private static boolean DEFAULT_SEND_EMAIL= "true".equalsIgnoreCase(Utilities.rb.getString("default.email.notification"))? true : false;
+
+	private boolean sendEmail = DEFAULT_SEND_EMAIL;
 
 	private boolean receiveEmail;
 
@@ -163,7 +165,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		signupBeginsType = Utilities.DAYS;
 		deadlineTimeType = Utilities.HOURS;
 		validationError = false;
-		sendEmail = true;
+		sendEmail = DEFAULT_SEND_EMAIL;
 		receiveEmail = false;
 		currentStepHiddenInfo = null;
 		eidInputMode = false;
