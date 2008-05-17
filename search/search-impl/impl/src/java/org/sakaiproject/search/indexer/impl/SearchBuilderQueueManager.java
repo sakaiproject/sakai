@@ -777,8 +777,6 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 			else
 			{
-				stm.execute("delete from searchbuilderitem where itemscope = "
-						+ SearchBuilderItem.ITEM);
 				stm.execute("delete from searchbuilderitem where context = '" //$NON-NLS-1$
 						+ controlItem.getContext() + "' and name <> '" //$NON-NLS-1$
 						+ controlItem.getName() + "' "); //$NON-NLS-1$
