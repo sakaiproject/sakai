@@ -45,6 +45,9 @@ package org.sakaiproject.portal.util;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * @author ieb
  */
@@ -61,6 +64,8 @@ public class BrowserDetector
 	public static final String UNIX = "Unix";
 
 	public static final String MACINTOSH = "Macintosh";
+
+	private static final Log log = LogFactory.getLog(BrowserDetector.class);
 
 	private String userAgentString = "";
 
@@ -83,7 +88,11 @@ public class BrowserDetector
 		{
 			this.userAgentString = request.getHeader("user-agent");
 		}
-		parse();
+		try {
+			parse();
+		} catch ( Exception ex ) {
+			log.debug("Unable to detect browser");
+		}
 	}
 
 	/**
