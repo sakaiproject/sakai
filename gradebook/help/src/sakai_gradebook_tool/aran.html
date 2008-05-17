@@ -37,7 +37,7 @@ Gradebook item</h2>
 
 
 
-<ul><li><a href="#section1">Create/add a new Gradebook item</a></li><li><a href="#section2">Edit an existing Gradebook item</a></li><li><a href="#section3">Delete a Gradebook item</a></li></ul>
+<ul><li><a href="#section1">Adding a new gradebook item</a></li><li><a href="#section2">Edit an existing gradebook item</a></li><li><a href="#section3">Delete a gradebook item</a></li></ul>
 
 <hr />
 
@@ -49,9 +49,9 @@ basic understanding of roles and permissions, see <a href="content.hlp?docId=ara
 
 <a name="section1"> </a>
 
-<h3>Create/add a new Gradebook item</h3>
+<h3>Adding a new gradebook item</h3>
 
-<p>To create/add a new Gradebook item:</p>
+<p>To create/add a new gradebook item:</p>
 
 <ol><li>In the <a href="content.hlp?docId=arcc">menubar</a>, click <strong><code>Gradebook</code></strong>, and then
 click <strong><code>Add Gradebook item</code></strong>.
@@ -61,68 +61,67 @@ click <strong><code>Add Gradebook item</code></strong>.
 
 <br /><br />
 
-<ul><li><strong>Title:</strong> A title is required for all Gradebook
+<ul><li><strong>Title:</strong> A title is required for all gradebook
 items. The title can be up to 255 characters long.
-<br /><br />
-</li><li>Item Value: You must assign a value to all Gradebook
-items. Depending on whether you have chosen (in Gradebook Setup) to
-enter grades as points or either percentages or letters, you will see
-one of the following:
-<br /><br />
-
-  <ul><li><strong>Gradebook Item Point Value:</strong> If you have chosen
-  to enter your grades as points, enter a value greater than
-  zero. Decimals are permitted, but values are limited to two decimal
-  places.
-
-  </li><li><strong>Gradebook Item Relative Weight:</strong> If you have
-  chosen to enter your grades as either percentages or letter grades,
-  enter the relative weight.
-
-  </li></ul>
-<br /><br />
+</li><li><strong>Gradebook Item Point Value:</strong> You must assign a point
+value to all gradebook items. Enter a value greater than
+zero. Decimals are permitted, but values are limited to two decimal
+places.
 </li><li><strong>Due Date:</strong> You can optionally designate a due date
-for a Gradebook item. You can manually enter the due date (e.g.,
+for a gradebook item. You can manually enter the due date (e.g.,
 <code>09/28/07</code>), or click the calendar icon  <div class="inlineimage image"><img class="noborder" src="image/a012w.gif" alt="Calendar icon" /></div>  to
 select a date from a pop-up calendar.
+</li><li><strong>Category:</strong> If you have created a category, you can
+optionally assign an item to a category using the drop-down list. For
+more information, see <a href="content.hlp?docId=avdp">Using categories and weighted grades in Gradebook</a>.
+
 </li></ul><br />
-</li><li>If you wish to include this item when calculating students'
-final grades, check the box provided. You can change this later.
+</li><li>If you wish to allow students to view the grade for this item,
+check the boxes next to both <strong><code>Release this item to Students</code></strong>
+and <strong><code>Include this item in course grade calculations</code></strong>. You can
+change this option later.
 
-<p><strong>Note:</strong> To prevent the item from being counted in
-the running grade, <strong>do not</strong> select this option. After
-you've scored submissions for this item, you can edit the item and
-choose to add it to the Gradebook.</p>
-</li><li>To make the item visible to students, check the box next to
-<strong><code>Release item</code></strong>.<br /><br />
+<p><strong>Note:</strong> For this item to be visible to students,
+Gradebook Setup must also have <strong><code>Display released Gradebook Items to
+students</code></strong> selected. For the course grade to be visible to
+students, Course Grade Options must also have <strong><code>Display course grade
+to students now</code></strong> selected. For instructions, see <a href="content.hlp?docId=arah">Making grades available to students</a>.  </p>
 
- </li><li>To create the item, click <strong><code>Submit</code></strong>. You will see a message
-saying the item has been added. Alternatively, click <strong><code>Cancel</code></strong>
-to discard the item, and you will be returned to the Item Overview
-page.
+<p>If you wish to exclude this item from the course grade calculation,
+uncheck the box next to <strong><code>Include this item in course grade
+calculations</code></strong>. You can change this option later.</p>
+
+<p><strong>Note:</strong> If an item is excluded from the course grade
+calculation, the individual grade will appear to students in
+parentheses. A legend underneath will explain that "Grades in
+parentheses are not included in the course grade calculation".</p>
+</li><li>To create the item, click <strong><code>Add Item</code></strong>. You will see a
+message saying the item has been added. Alternatively, click
+<strong><code>Cancel</code></strong> to discard the item, and you will be returned to the
+Gradebook Items page.
+
+
+
+
 </li></ol>
 
 <p><a href="#top">Back to top</a></p>
 
 <a name="section2"> </a>
 
-<h3>Edit an existing Gradebook item</h3>
+<h3>Edit an existing gradebook item</h3>
 
-<p>To edit an existing Gradebook item:</p>
+<p>To edit an existing gradebook item:</p>
 
 <ol><li>In the menubar, click <strong><code>Gradebook</code></strong>.
 
 <br /><br />
-</li><li>In the list of Gradebook items, click the title of the item
-you want to modify.
+</li><li>In the list of gradebook items, next to the title of the item you
+want to modify, click <strong><code>Edit</code></strong>.
 
 <br /><br />
-</li><li>On the Item Summary page that opens, next to "Options", click
-<strong><code>Edit item settings</code></strong>.
-
-<br /><br />
-</li><li>Change the Gradebook item's settings, and then click
-<strong><code>Submit</code></strong>. You will see a message saying that the item has been
+</li><li>Change the gradebook item's settings, and then click
+<strong><code>Save Changes</code></strong>. You will see a message saying that the item has been
 updated. Alternatively, click <strong><code>Cancel</code></strong> to discard the changes.
 </li></ol>
 
@@ -130,34 +129,14 @@ updated. Alternatively, click <strong><code>Cancel</code></strong> to discard th
 
 <a name="section3"> </a>
 
-<h3>Delete a Gradebook item</h3>
+<h3>Delete a gradebook item</h3>
 
-<p>To delete a Gradebook item:</p>
+<p>To delete a gradebook item, you must go to the Assignments tool and
+remove the gradebook item there.</p>
 
-<ol><li>In the menubar, click <strong><code>Gradebook</code></strong>.
-
-<br /><br />
-</li><li>In the list of Gradebook item, click the title of the item
-you want to delete.
-
-<br /><br />
-</li><li>On the Item Summary page that opens, under "Options", click
-<strong><code>Remove item from gradebook</code></strong>.
-
-<br /><br />
-</li><li>On the Remove Item confirmation page, check the box next to
-<strong><code>Remove this item and all associated scores from the
-gradebook.</code></strong>
-
-<br /><br />
-</li><li>To delete the item from the Gradebook, click <strong><code>Remove</code></strong>. You
-will see a message saying the item has been deleted. Alternatively,
-you can click <strong><code>Cancel</code></strong> to exit the page, preserving the item.
-</li></ol>
 
 <p><a href="#top">Back to top</a></p>
 
- <a name="demos"> </a> 
 
 
 </div>
