@@ -174,7 +174,6 @@ public class SiteArchiver {
 			
 			stack.push(root);
 
-			//SWG String msg = org.sakaiproject.content.cover.ContentHostingService.archiveResources(attachments, doc, stack, storagePath);
 			String msg = m_contentHostingService.archiveResources(attachments, doc, stack, storagePath);
 			results.append(msg);
 

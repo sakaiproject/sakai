@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
+import javax.swing.text.AbstractDocument.Content;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -144,6 +146,8 @@ public class BasicArchiveService
 	/** Dependency: EntityManager. */
 	protected EntityManager m_entityManager = null;
 
+	private ContentHostingService contentHostingService;
+
 	/**
 	 * Dependency: EntityManager.
 	 * 
@@ -164,6 +168,7 @@ public class BasicArchiveService
 	 */
 	public void init()
 	{
+		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
 		if ((m_storagePath != null) && (!m_storagePath.endsWith("/")))
 		{
 			m_storagePath = m_storagePath + "/";
@@ -269,7 +274,7 @@ public class BasicArchiveService
 			
 			stack.push(root);
 
-			String msg = org.sakaiproject.content.cover.ContentHostingService.archiveResources(attachments, doc, stack, storagePath);
+			String msg = contentHostingService.archiveResources(attachments, doc, stack, storagePath);
 			results.append(msg);
 
 			stack.pop();
