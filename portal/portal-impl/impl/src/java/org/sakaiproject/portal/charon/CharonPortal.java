@@ -69,6 +69,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
 /**
@@ -407,7 +408,7 @@ public class CharonPortal extends HttpServlet
 				String toolUrl = req.getContextPath() + "/tool"
 						+ Web.makePath(parts, 2, parts.length);
 				// Make sure to add the parameters such as panel=Main
-				String queryString = req.getQueryString();
+				String queryString = Validator.generateQueryString(req);
 				if (queryString != null)
 				{
 					toolUrl = toolUrl + "?" + queryString;
