@@ -45,6 +45,7 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
 /**
@@ -115,7 +116,7 @@ public class PDAHandler extends PageHandler
 					toolId = parts[4];
 					String toolUrl = req.getContextPath() + "/pda/" + siteId + "/tool"
 							+ Web.makePath(parts, 4, parts.length);
-					String queryString = req.getQueryString();
+					String queryString = Validator.generateQueryString(req);
 					if (queryString != null)
 					{
 						toolUrl = toolUrl + "?" + queryString;
