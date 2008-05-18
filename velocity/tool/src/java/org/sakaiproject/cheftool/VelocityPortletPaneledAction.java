@@ -40,8 +40,9 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.api.Alert;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuEntry;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.UsageSession;
@@ -93,6 +94,12 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	/** The panel name of the main panel - append the tool's id. */
 	protected static final String LAYOUT_MAIN = "Main";
 
+	private ContentHostingService contentHostingService;
+
+	public VelocityPortletPaneledAction() {
+		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
+	}
+	
 	protected class MyLogger
 	{
 		public void warn(String channel, String msg)
@@ -330,7 +337,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		context.put("param_pid", ActionURL.PARAM_PID);
 		context.put("pid", getPid(req));
 		
-		String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+		String collectionId = contentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
 		context.put(CONTEXT_SITE_COLLECTION_ID, collectionId);
 		
 		//		String collectionUrl = ContentHostingService.getUrl(collectionId);
