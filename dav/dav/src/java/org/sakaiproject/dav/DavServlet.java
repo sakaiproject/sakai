@@ -121,12 +121,13 @@ import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.XMLWriter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -268,7 +269,7 @@ public class DavServlet extends HttpServlet
 		return false;
 	    if (id.startsWith("/attachment/") || id.equals("/attachment") ||
 		(doProtected && id.toLowerCase().indexOf("/protected") >= 0 &&
-		 (!ContentHostingService.allowAddCollection(adjustId(id)))))
+		 (!contentHostingService.allowAddCollection(adjustId(id)))))
 		return true;
 	    return false;
 	}
@@ -284,7 +285,7 @@ public class DavServlet extends HttpServlet
 		// Note: code stolen and to be kept synced wtih BaseContentService.parseEntityReference() -ggolden
 
 		// map unknown prefix to, if "~", /user/, else /group/
-		if (ContentHostingService.isShortRefs())
+		if (contentHostingService.isShortRefs())
 		{
 			// ignoring the first separator, get the first item separated from the rest
 			String prefix[] = StringUtil.splitFirst((id.length() > 1) ? id.substring(1) : "", Entity.SEPARATOR);
@@ -475,6 +476,8 @@ public class DavServlet extends HttpServlet
 	 */
 	private String[] ignorePatterns = null;
 
+	private ContentHostingService contentHostingService;
+
 	// --------------------------------------------------------- Public Methods
 
 	/**
@@ -482,6 +485,7 @@ public class DavServlet extends HttpServlet
 	 */
 	public void init() throws ServletException
 	{
+		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
 
 		// Set our properties from the initialization parameters
 		String value = null;
@@ -1290,15 +1294,15 @@ public class DavServlet extends HttpServlet
 					throw new NamingException();
 				}
 
-				props = ContentHostingService.getProperties(adjustId(path));
+				props = contentHostingService.getProperties(adjustId(path));
 
 				isCollection = props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
 
 				if (isCollection)
 				{
 					// if (M_log.isDebugEnabled()) M_log.debug("DirContextSAKAI.lookup getting collection");
-					collection = ContentHostingService.getCollection(adjustId(path));
-					isRootCollection = ContentHostingService.isRootCollection(adjustId(path));
+					collection = contentHostingService.getCollection(adjustId(path));
+					isRootCollection = contentHostingService.isRootCollection(adjustId(path));
 				}
 			}
 			catch (PermissionException e)
@@ -1401,7 +1405,7 @@ public class DavServlet extends HttpServlet
 
 				path = fixDirPathSAKAI(path); // Add slash as necessary
 
-				props = ContentHostingService.getProperties(adjustId(path));
+				props = contentHostingService.getProperties(adjustId(path));
 
 				collection = props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
 
@@ -1411,7 +1415,7 @@ public class DavServlet extends HttpServlet
 
 				if (!collection)
 				{
-					mbr = ContentHostingService.getResource(adjustId(path));
+					mbr = contentHostingService.getResource(adjustId(path));
 					// Props for a file is OK from above
 					length = ((ContentResource) mbr).getContentLength();
 					MIMEType = ((ContentResource) mbr).getContentType();
@@ -1419,7 +1423,7 @@ public class DavServlet extends HttpServlet
 				}
 				else
 				{
-					mbr = ContentHostingService.getCollection(adjustId(path));
+					mbr = contentHostingService.getCollection(adjustId(path));
 					props = mbr.getProperties();
 					eTag = our_path;
 				}
@@ -1477,7 +1481,7 @@ public class DavServlet extends HttpServlet
 		ResourceProperties props;
 		try
 		{
-			props = ContentHostingService.getProperties(adjustId(tmpPath));
+			props = contentHostingService.getProperties(adjustId(tmpPath));
 		}
 		catch (IdUnusedException e)
 		{
@@ -1486,7 +1490,7 @@ public class DavServlet extends HttpServlet
 				String newPath = tmpPath + "/";
 				try
 				{
-					props = ContentHostingService.getProperties(adjustId(newPath));
+					props = contentHostingService.getProperties(adjustId(newPath));
 					tmpPath = newPath;
 				}
 				catch (Exception x)
@@ -1554,7 +1558,7 @@ public class DavServlet extends HttpServlet
 
 		try
 		{
-			ContentCollection x = ContentHostingService.getCollection(adjustId(id));
+			ContentCollection x = contentHostingService.getCollection(adjustId(id));
 
 			// I want to use relative paths in the listing,
 			// so we need to redirect if there's no trailing /
@@ -1623,12 +1627,12 @@ public class DavServlet extends HttpServlet
 
 				if (xss.endsWith("/"))
 				{
-					ContentCollection nextres = ContentHostingService.getCollection(adjustId(xs));
+					ContentCollection nextres = contentHostingService.getCollection(adjustId(xs));
 					ResourceProperties properties = nextres.getProperties();
 					if (doProtected
 							&& xs.toLowerCase().indexOf("/protected") >= 0)
 					{
-						if (!ContentHostingService.allowAddCollection(adjustId(xs)))
+						if (!contentHostingService.allowAddCollection(adjustId(xs)))
 						{
 							continue;
 						}
@@ -1639,7 +1643,7 @@ public class DavServlet extends HttpServlet
 				else
 					try
 					{
-						ContentResource nextres = ContentHostingService.getResource(adjustId(xs));
+						ContentResource nextres = contentHostingService.getResource(adjustId(xs));
 						ResourceProperties properties = nextres.getProperties();
 
 						long filesize = ((nextres.getContentLength() - 1) / 1024) + 1;
@@ -1683,7 +1687,7 @@ public class DavServlet extends HttpServlet
 		boolean isCollection = false;
 		try
 		{
-			ResourceProperties props = ContentHostingService.getProperties(adjustId(id));
+			ResourceProperties props = contentHostingService.getProperties(adjustId(id));
 			isCollection = props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
 		}
 		catch (PermissionException e)
@@ -1709,7 +1713,7 @@ public class DavServlet extends HttpServlet
 			if (M_log.isDebugEnabled()) M_log.debug("SAKAIAccess doContent is resource " + id);
 			try
 			{
-				ContentResource resource = ContentHostingService.getResource(adjustId(id));
+				ContentResource resource = contentHostingService.getResource(adjustId(id));
 				long len = resource.getContentLength();
 				String contentType = resource.getContentType();
 				byte[] content = resource.getContent();
@@ -2100,7 +2104,7 @@ public class DavServlet extends HttpServlet
 						String newPath = currentPath;
 						if (!(newPath.endsWith("/"))) newPath += "/";
 						newPath += resourceName;
-						if (!(newPath.toLowerCase().indexOf("/protected") >= 0 && !ContentHostingService.allowAddCollection(newPath)))
+						if (!(newPath.toLowerCase().indexOf("/protected") >= 0 && !contentHostingService.allowAddCollection(newPath)))
 						stackBelow.push(newPath);
 						// if (M_log.isDebugEnabled()) M_log.debug("SAKAI found resource " + newPath);
 					}
@@ -2218,7 +2222,7 @@ public class DavServlet extends HttpServlet
 		// Check to see if collection already exists
 		try
 		{
-			boolean isCollection = ContentHostingService.getProperties(adjustId(path)).getBooleanProperty(
+			boolean isCollection = contentHostingService.getProperties(adjustId(path)).getBooleanProperty(
 					ResourceProperties.PROP_IS_COLLECTION);
 
 			// if the path already exists and it is a collection there is nothing to do
@@ -2229,7 +2233,7 @@ public class DavServlet extends HttpServlet
 			}
 			else
 			{
-				ContentHostingService.removeResource(adjustId(path));
+				contentHostingService.removeResource(adjustId(path));
 			}
 		}
 		catch (PermissionException e)
@@ -2276,13 +2280,13 @@ public class DavServlet extends HttpServlet
 					+ ". All Rights Reserved. ";
 
 
-			ContentCollectionEdit edit = ContentHostingService.addCollection(adjustId(path));
+			ContentCollectionEdit edit = contentHostingService.addCollection(adjustId(path));
 			ResourcePropertiesEdit resourceProperties = edit.getPropertiesEdit();
 			resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 			resourceProperties.addProperty(ResourceProperties.PROP_COPYRIGHT, mycopyright);
-			ContentHostingService.commitCollection(edit);
+			contentHostingService.commitCollection(edit);
 
-			ContentCollection collection = ContentHostingService.addCollection(adjustId(path), resourceProperties);
+			ContentCollection collection = contentHostingService.addCollection(adjustId(path), resourceProperties);
 		}
 
 		catch (IdUsedException e)
@@ -2398,19 +2402,19 @@ public class DavServlet extends HttpServlet
 		try
 		{
 			// The existing document may be a collection or a file.
-			boolean isCollection = ContentHostingService.getProperties(adjustId(path)).getBooleanProperty(
+			boolean isCollection = contentHostingService.getProperties(adjustId(path)).getBooleanProperty(
 					ResourceProperties.PROP_IS_COLLECTION);
 
 			if (isCollection)
 			{
-				ContentHostingService.removeCollection(adjustId(path));
+				contentHostingService.removeCollection(adjustId(path));
 			}
 			else
 			{
 				// save original properties; we're just updating the file
-				oldProps = ContentHostingService.getProperties(adjustId(path));
+				oldProps = contentHostingService.getProperties(adjustId(path));
 				newfile = false;
-				ContentHostingService.removeResource(adjustId(path));
+				contentHostingService.removeResource(adjustId(path));
 			}
 		}
 		catch (PermissionException e)
@@ -2515,7 +2519,7 @@ public class DavServlet extends HttpServlet
 			// use this code rather than the long form of addResource
 			// because it doesn't add an extension. Delete doesn't, so we have
 			// to match, and I'd just as soon be able to create items with no extension anyway
-			ContentResourceEdit edit = ContentHostingService.addResource(adjustId(path));
+			ContentResourceEdit edit = contentHostingService.addResource(adjustId(path));
 			edit.setContentType(contentType);
 			edit.setContent(byteContent);
 			ResourcePropertiesEdit p = edit.getPropertiesEdit();
@@ -2544,7 +2548,7 @@ public class DavServlet extends HttpServlet
 			}
 
 			// commit the change
-			ContentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
+			contentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
 
 		}
 		catch (IdUsedException e)
@@ -2637,7 +2641,7 @@ public class DavServlet extends HttpServlet
 
 		/*
 		 * String destinationPath = getDestinationPath(req); if (destinationPath == null) { resp.sendError(SakaidavStatus.SC_BAD_REQUEST); return; } // path = fixDirPathSAKAI(path); destinationPath = fixDirPathSAKAI(destinationPath); //
-		 * System.out.println("doMove source="+path+" dest="+destinationPath); try { ContentHostingService.rename(path,destinationPath); } catch (PermissionException e) { resp.sendError(SakaidavStatus.SC_BAD_REQUEST); return; } catch (InUseException e) {
+		 * System.out.println("doMove source="+path+" dest="+destinationPath); try { contentHostingService.rename(path,destinationPath); } catch (PermissionException e) { resp.sendError(SakaidavStatus.SC_BAD_REQUEST); return; } catch (InUseException e) {
 		 * resp.sendError(SakaidavStatus.SC_BAD_REQUEST); return; } catch (IdUnusedException e) { // Resource not found (this is actually the normal case) } catch (TypeException e) { M_log.warn("SAKAIDavServlet.doMove() - TypeException "+path);
 		 * resp.sendError(SakaidavStatus.SC_BAD_REQUEST); return; }
 		 */
@@ -2935,8 +2939,8 @@ public class DavServlet extends HttpServlet
 		// It seems reasonable to allow it only for someone who
 		// is allowed to modify it.
 		if (prohibited(path) || 
-		    !(exists ? ContentHostingService.allowUpdateResource(adjustId(path)) :
-		      ContentHostingService.allowAddResource(adjustId(path))))
+		    !(exists ? contentHostingService.allowUpdateResource(adjustId(path)) :
+		      contentHostingService.allowAddResource(adjustId(path))))
 		{
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN, path);
 			return;
@@ -3256,8 +3260,8 @@ public class DavServlet extends HttpServlet
 		// the resource exists, so it would be safe to use alone, but
 		// that seems like a bad assumption to make.
 		if (prohibited(path) ||
-		    !(ContentHostingService.allowAddResource(adjustId(path)) ||
-		      ContentHostingService.allowUpdateResource(adjustId(path))))
+		    !(contentHostingService.allowAddResource(adjustId(path)) ||
+		      contentHostingService.allowUpdateResource(adjustId(path))))
 
 		{
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
@@ -3505,7 +3509,7 @@ public class DavServlet extends HttpServlet
 
     private ResourcePropertiesEdit duplicateResourceProperties(ResourceProperties properties, String id) {
 
-	ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();
+	ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
 	try {
 
 	    if (properties == null) return resourceProperties;
@@ -3542,7 +3546,7 @@ public class DavServlet extends HttpServlet
 	  new_id = new_id + "/";
 
 
-	ContentCollection thisCollection = ContentHostingService.getCollection(id);
+	ContentCollection thisCollection = contentHostingService.getCollection(id);
 
 	List members = thisCollection.getMembers();
 	 
@@ -3557,7 +3561,7 @@ public class DavServlet extends HttpServlet
 	    name = name.substring(i+1);
 	newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 
-	ContentCollection newCollection = ContentHostingService.addCollection(new_id, newProps);
+	ContentCollection newCollection = contentHostingService.addCollection(new_id, newProps);
 
 	Iterator memberIt = members.iterator();
 	while (memberIt.hasNext()) {
@@ -3565,8 +3569,8 @@ public class DavServlet extends HttpServlet
 
 	    // this isn't perfect. It only protects the top two levels of directory
 	    if (!(doProtected && member_id.toLowerCase().indexOf("/protected") >= 0 &&
-		  (!ContentHostingService.allowAddCollection(adjustId(member_id)))))
-		ContentHostingService.copyIntoFolder(member_id, new_id);
+		  (!contentHostingService.allowAddCollection(adjustId(member_id)))))
+		contentHostingService.copyIntoFolder(member_id, new_id);
 	}
 
     }
@@ -3740,14 +3744,14 @@ public class DavServlet extends HttpServlet
 
 		try
 		{
-		    boolean isCollection = ContentHostingService.getProperties(source).getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
+		    boolean isCollection = contentHostingService.getProperties(source).getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
 		    String destfolder = null;
 		    String tempname = null;
 
 		    if (isCollection)
 			copyCollection(adjustId(source), adjustId(dest));
 		    else
-			ContentHostingService.copy(adjustId(source), adjustId(dest));
+			contentHostingService.copy(adjustId(source), adjustId(dest));
 		}
 		catch (EntityPropertyNotDefinedException e)
 		{
@@ -3890,15 +3894,15 @@ public class DavServlet extends HttpServlet
 		boolean isCollection = false;
 		try
 		{
-			isCollection = ContentHostingService.getProperties(adjustId(path)).getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
+			isCollection = contentHostingService.getProperties(adjustId(path)).getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
 
 			if (isCollection)
 			{
-				ContentHostingService.removeCollection(adjustId(path));
+				contentHostingService.removeCollection(adjustId(path));
 			}
 			else
 			{
-				ContentHostingService.removeResource(adjustId(path));
+				contentHostingService.removeResource(adjustId(path));
 			}
 		}
 		catch (PermissionException e)
