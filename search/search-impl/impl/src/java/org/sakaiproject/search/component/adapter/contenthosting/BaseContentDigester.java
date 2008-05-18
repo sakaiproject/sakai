@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.search.component.adapter.contenthosting;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,7 +55,7 @@ public abstract class BaseContentDigester implements ContentDigester
 		contentProducer.removeDigester(this);
 	}
 
-	private HashMap mimeTypes = null;
+	private Map mimeTypes = null;
 
 
 	/*
@@ -71,7 +71,7 @@ public abstract class BaseContentDigester implements ContentDigester
 	/**
 	 * @return Returns the mimeTypes.
 	 */
-	public HashMap getMimeTypes()
+	public Map getMimeTypes()
 	{
 		return mimeTypes;
 	}
@@ -80,7 +80,7 @@ public abstract class BaseContentDigester implements ContentDigester
 	 * @param mimeTypes
 	 *        The mimeTypes to set.
 	 */
-	public void setMimeTypes(HashMap mimeTypes)
+	public void setMimeTypes(Map mimeTypes)
 	{
 		this.mimeTypes = mimeTypes;
 	}
