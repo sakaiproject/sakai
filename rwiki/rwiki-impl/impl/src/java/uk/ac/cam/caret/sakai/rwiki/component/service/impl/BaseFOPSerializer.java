@@ -44,9 +44,10 @@ import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
 import org.apache.xml.serializer.DOMSerializer;
 import org.apache.xml.serializer.ToXMLSAXHandler;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.xml.sax.Attributes;
@@ -58,6 +59,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 {
 
+	
 	private static final Log logger = LogFactory
 			.getLog(BaseFOPSerializer.class);
 
@@ -74,6 +76,13 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 	private Fop fop = null;
 
 	protected String mimeType = MimeConstants.MIME_PDF;
+
+	private ContentHostingService contentHostingService;
+	
+	
+	public BaseFOPSerializer() {
+		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -162,7 +171,7 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 
 									Reference ref = EntityManager
 											.newReference(path);
-									ContentResource resource = ContentHostingService
+									ContentResource resource = contentHostingService
 											.getResource(ref.getId());
 									String headers = "Content-type: "
 											+ resource.getContentType()

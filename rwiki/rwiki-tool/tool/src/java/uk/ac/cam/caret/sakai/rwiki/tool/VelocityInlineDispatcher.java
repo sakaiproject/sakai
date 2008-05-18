@@ -34,13 +34,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
-import org.apache.velocity.context.Context;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.FormattedText;
 
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
-import uk.ac.cam.caret.sakai.rwiki.service.exception.ReadPermissionException;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean;
@@ -61,6 +60,7 @@ public class VelocityInlineDispatcher implements Dispatcher
 	private String basePath;
 
 	private VelocityUtilBean utilBean = new VelocityUtilBean();
+	private ContentHostingService contentHostingService;
 	protected static final String LIBRARY_PATH = "/library/";
 
 	/** The name of the context variable containing the identifier for the site's root content collection */
@@ -69,6 +69,7 @@ public class VelocityInlineDispatcher implements Dispatcher
 
 	public void init(ServletContext context) throws ServletException
 	{
+		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
 		inlineMacros = MACROS;
 		try
 		{
@@ -103,7 +104,7 @@ public class VelocityInlineDispatcher implements Dispatcher
 		// EventCartridge ec = new EventCartridge();
 		// ec.addEventHandler(new ExcludeEscapeHtmlReference());
 		// ec.attachToContext(vcontext);
-		String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+		String collectionId = contentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
 
 		vcontext.put("session", request.getSession());
 		vcontext.put("request", request);
