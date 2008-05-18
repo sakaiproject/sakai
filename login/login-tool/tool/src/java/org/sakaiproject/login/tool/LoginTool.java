@@ -43,6 +43,7 @@ import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.cover.AuthenticationManager;
 import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
 /**
@@ -173,7 +174,7 @@ public class LoginTool extends HttpServlet
 					String containerCheckUrl = Web.serverUrl(req) + containerCheckPath;
 
 					// support query parms in url for container auth
-					String queryString = req.getQueryString();
+					String queryString = Validator.generateQueryString(req);;
 					if (queryString != null) containerCheckUrl = containerCheckUrl + "?" + queryString;
 
 					res.sendRedirect(res.encodeRedirectURL(containerCheckUrl));
