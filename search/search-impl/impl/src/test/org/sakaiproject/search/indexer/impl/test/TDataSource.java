@@ -33,6 +33,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -535,14 +536,22 @@ public class TDataSource
 		int errors = 0;
 		try
 		{
+			Map<String, SearchBuilderItem> finalState = new HashMap<String, SearchBuilderItem>();
+
 			for (SearchBuilderItem sbi : items)
+			{
+				if (sbi.getSearchstate().equals(SearchBuilderItem.STATE_PENDING)) {
+					finalState.put(sbi.getId(), sbi);
+				}
+			}
+			for (SearchBuilderItem sbi :finalState.values() )
 			{
 				TermQuery tq = new TermQuery(new Term(SearchService.FIELD_REFERENCE, sbi
 						.getName()));
 				Hits h = indexSearcher.search(tq);
-				if (sbi.getSearchaction().equals(SearchBuilderItem.ACTION_ADD)
-						&& sbi.getSearchstate().equals(SearchBuilderItem.STATE_PENDING))
+				if (sbi.getSearchaction().equals(SearchBuilderItem.ACTION_ADD))
 				{
+					log.info("====== ADD CHECKING =====");
 					if (h.length() != 1)
 					{
 						log.error("Didnt find " + sbi.getName() + " got " + h.length());
@@ -565,6 +574,7 @@ public class TDataSource
 				}
 				else
 				{
+					log.info("====== DELETE CHECKING =====");
 					if (h.length() != 0)
 					{
 						Document doc = h.doc(0);

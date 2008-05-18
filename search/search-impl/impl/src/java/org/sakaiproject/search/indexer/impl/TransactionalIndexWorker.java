@@ -200,10 +200,15 @@ public class TransactionalIndexWorker implements IndexWorker
 			fireIndexStart();
 
 			long last = System.currentTimeMillis();
+			Map<String, SearchBuilderItem> finalState = new HashMap<String, SearchBuilderItem>();
 			for (Iterator<SearchBuilderItem> tditer = ((IndexUpdateTransaction) transaction)
 					.lockedItemIterator(); tditer.hasNext();)
 			{
 				SearchBuilderItem sbi = tditer.next();
+				finalState.put(sbi.getId(),sbi);
+			}
+			for (SearchBuilderItem sbi : finalState.values())
+			{
 				if (log.isDebugEnabled())
 				{
 					log.debug("Item [" + sbi.getName() + "] state ["
@@ -211,23 +216,36 @@ public class TransactionalIndexWorker implements IndexWorker
 							+ " action ["
 							+ SearchBuilderItem.actions[sbi.getSearchaction()] + "]");
 				}
-				if (SearchBuilderItem.ACTION_ADD.equals(sbi.getSearchaction()))
+				if (SearchBuilderItem.ACTION_ADD.equals(sbi.getSearchaction()) )
 				{
 					indexReader = ((IndexUpdateTransaction) transaction).getIndexReader();
 					int ndel = indexReader.deleteDocuments(new Term(
 							SearchService.FIELD_REFERENCE, sbi.getName()));
 				}
+				else if (SearchBuilderItem.ACTION_DELETE
+						.equals(sbi.getSearchaction()))
+				{
+					if (log.isDebugEnabled())
+					{
+						log.debug("-------------------Delete "+sbi.getId());
+					}
+					indexReader = ((IndexUpdateTransaction) transaction)
+							.getIndexReader();
+					int ndel = indexReader.deleteDocuments(new Term(
+							SearchService.FIELD_REFERENCE, sbi.getName()));
+
+					nprocessed++;
+				}
+
 
 			}
-			for (Iterator<SearchBuilderItem> tditer = ((IndexUpdateTransaction) transaction)
-					.lockedItemIterator(); tditer.hasNext();)
+			for (SearchBuilderItem sbi : finalState.values())
 			{
 
 				Reader contentReader = null;
 				String ref = null;
 				try
 				{
-					SearchBuilderItem sbi = tditer.next();
 					if (log.isDebugEnabled())
 					{
 						log.debug("Item [" + sbi.getName() + "] state ["
@@ -446,17 +464,6 @@ public class TransactionalIndexWorker implements IndexWorker
 									+ e1.getMessage(), e1);
 							sbi.setSearchstate(SearchBuilderItem.STATE_FAILED);
 						}
-					}
-					else if (SearchBuilderItem.ACTION_DELETE
-							.equals(sbi.getSearchaction()))
-					{
-
-						indexReader = ((IndexUpdateTransaction) transaction)
-								.getIndexReader();
-						int ndel = indexReader.deleteDocuments(new Term(
-								SearchService.FIELD_REFERENCE, sbi.getName()));
-
-						nprocessed++;
 					}
 				}
 				finally
