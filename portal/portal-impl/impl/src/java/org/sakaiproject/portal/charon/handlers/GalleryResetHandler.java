@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
 /**
@@ -55,7 +56,7 @@ public class GalleryResetHandler extends BasePortalHandler
 				String galleryUrl = req.getContextPath() + "/gallery"
 						+ Web.makePath(parts, 2, parts.length);
 				// Make sure to add the parameters such as panel=Main
-				String queryString = req.getQueryString();
+				String queryString = Validator.generateQueryString(req);
 				if (queryString != null)
 				{
 					galleryUrl = galleryUrl + "?" + queryString;
