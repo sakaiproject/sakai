@@ -151,7 +151,7 @@ public class CollectionAccessFormatter
 				{
 					out.println("<script type=\"text/javascript\">");
 					out.println("function seturl(url) {");
-					out.println("window.opener.document.forms[0]." + field + ".value = url;  window.close();");
+					out.println("window.opener.document.forms[0]." + Validator.escapeJavascript(field) + ".value = url;  window.close();");
 					out.println("}");
 					out.println("</script>");
 				}
