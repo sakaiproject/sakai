@@ -44,8 +44,8 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -79,6 +79,8 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 
 	private org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager
 	.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
+
+	private ContentHostingService contentHostingService;
 	
 	private static Log log = LogFactory.getLog(SiteBrowserAction.class); 
 
@@ -120,6 +122,9 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 	
 	private static final String STATE_HELPER_DONE = PREFIX+ "helperDone";
 
+	public SiteBrowserAction() {
+		 contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
+	}
 	/**
 	 * {@inheritDoc}
 	 */
@@ -460,7 +465,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			}
 
 			// get the public resources
-			List resources = ContentHostingService.getAllResources(ContentHostingService.getSiteCollection(site.getId()));
+			List resources = contentHostingService.getAllResources(contentHostingService.getSiteCollection(site.getId()));
 			context.put("resources", resources);
 
 			// the height for the info frame
