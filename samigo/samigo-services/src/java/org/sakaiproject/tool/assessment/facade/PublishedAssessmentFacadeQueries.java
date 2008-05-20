@@ -2464,8 +2464,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		catch (IdUnusedException ex) {
 			// no site found
 		}
-		Iterator groupsIter = siteGroups.iterator();
 		final ArrayList groupIds = new ArrayList();
+		if (siteGroups == null) {
+			return groupIds;
+		}
+		Iterator groupsIter = siteGroups.iterator();
 		// To accomodate the problem with Hibernate and empty array parameters 
 		// TODO: this should probably be handled in a more efficient way
 		groupIds.add("none");  

@@ -97,21 +97,17 @@ public class ShowAttachmentMediaServlet extends HttpServlet
     // ** note that res.setContentType() must be called before
 	// res.getOutputStream(). see javadoc on this
     res.setContentType(mimeType);
-    FileInputStream inputStream = null;
-    BufferedInputStream buf_inputStream = null;
     ServletOutputStream outputStream = res.getOutputStream();
     BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
-    ByteArrayInputStream byteArrayInputStream = null;
 
 	ContentResource cr = null;
-	byte[] media;
+	byte[] media = null;
 	try {
 		// create a copy of the resource
 		cr = ContentHostingService.getResource(resourceId);
 		media = cr.getContent();
 	    log.debug("**** media.length = " + media.length);
-		byteArrayInputStream = new ByteArrayInputStream(media);
-	    buf_inputStream = new BufferedInputStream(byteArrayInputStream);
+		
 	} catch (PermissionException e) {
 		log.warn("PermissionException from doPost(): " +  e.getMessage());
 	} catch (IdUnusedException e) {
@@ -121,7 +117,9 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 	} catch (ServerOverloadException e) {
 		log.warn("ServerOverloadException from doPost(): " + e.getMessage());
 	}
-        
+	
+	ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(media);
+	BufferedInputStream buf_inputStream = new BufferedInputStream(byteArrayInputStream);
     int count=0;
     try{
     	int i=0;
@@ -149,14 +147,6 @@ public class ShowAttachmentMediaServlet extends HttpServlet
     	if (buf_inputStream != null) {
     		try {
     			buf_inputStream.close();
-    		}
-    		catch(IOException e) {
-    			log.error(e.getMessage());
-    		}
-    	}
-    	if (inputStream != null) {
-    		try {
-    			inputStream.close();
     		}
     		catch(IOException e) {
     			log.error(e.getMessage());

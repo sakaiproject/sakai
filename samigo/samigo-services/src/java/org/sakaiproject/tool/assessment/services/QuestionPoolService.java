@@ -512,7 +512,7 @@ public class QuestionPoolService
   */
   public int getCountItems(Long poolId)
   {
-     Integer result = null;
+     Integer result = Integer.valueOf(0);
      try {
        result =
          PersistenceService.getInstance().

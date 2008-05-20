@@ -89,13 +89,6 @@ public interface ItemHelperIfc
    */
   public Item readXMLDocument(InputStream inputStream);
 
-  /**
-   * Get item type string which is used for the title of a given item type
-   * @param type
-   * @return
-   */
-
-  public String getItemTypeString(TypeIfc type);
 
 //  /**
 //   * Add/update a response entry/answer

@@ -264,27 +264,6 @@ public abstract class ItemHelperBase
   }
 
   /**
-   * Get item type string which is used for the title of a given item type
-   * @param type
-   * @return
-   */
-  public String getItemTypeString(TypeIfc type)
-  {
-    long typeId = 0;
-    if (type != null)
-    {
-      typeId = type.getTypeId().longValue();
-    }
-
-    int itemType = type.getTypeId().intValue();
-    if (itemType < 1 || itemType > itemTypes.length)
-    {
-      itemType = 0;
-    }
-    return itemTypes[itemType];
-  }
-
-  /**
    * Update path with value
    *
    * @param itemXml the item xml

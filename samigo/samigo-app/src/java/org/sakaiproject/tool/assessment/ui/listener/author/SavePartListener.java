@@ -102,17 +102,6 @@ public class SavePartListener
     String sectionId = sectionBean.getSectionId();
     AssessmentService assessmentService = new AssessmentService();
     SectionFacade section;
-    /*
-    if (sectionId.equals("")){
-      section = addPart(assessmentId);
-      sectionId = section.getSectionId().toString();
-    }
-    else {
-      section = assessmentService.getSection(sectionId);
-    }
-    */
-    //Long assessmentId = section.getAssessmentId();
-
     boolean addItemsFromPool = false;
 
     sectionBean.setOutcome("editAssessment");
@@ -164,6 +153,12 @@ public class SavePartListener
     	section = getOrAddSection(assessmentService, assessmentId, sectionId);
     }
 
+    if (section == null) {
+    	log.info("section == null - Should not come to here. Simply return.");
+    	log.info("assessmentId =" + assessmentId);
+    	log.info("sectionId =" + sectionId);
+    	return;
+    }
     log.debug("**** section title ="+section.getTitle());
     log.debug("**** title ="+title);
     // if (title != null & !title.equals(""))  // There is no spec saying we don't allow empty string for title , SAK-4211

@@ -1373,9 +1373,9 @@ public class ItemAddListener
 							}
 						}
 					}
+					answerSet.removeAll(toBeRemovedAnswerSet);
+					delegate.deleteSet(toBeRemovedAnswerSet);
 				}
-				answerSet.removeAll(toBeRemovedAnswerSet);
-				delegate.deleteSet(toBeRemovedAnswerSet);
 			}
 			for (int i = newSize + 1; i < oldSize + 1; i++) {
 				ItemTextIfc text = (ItemTextIfc) itemTextMap.get(Long.valueOf(i));

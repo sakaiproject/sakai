@@ -140,6 +140,9 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 		  .getPublishedAssessmentFacadeQueries()
 		  .getReleaseToGroupIdsForPublishedAssessment(publishedAssessmentId);
 
+		if (siteGroups == null) {
+			return false;
+		}
 		Iterator groupsIter = siteGroups.iterator();
 		while (groupsIter.hasNext()) {
 			Group group = (Group) groupsIter.next();

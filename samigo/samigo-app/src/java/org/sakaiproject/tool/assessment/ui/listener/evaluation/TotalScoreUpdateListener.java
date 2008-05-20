@@ -234,7 +234,7 @@ public class TotalScoreUpdateListener
         		   // following condition will happen when there is no comments (null) and user clicks on SubmissionId.
         		   // getComments() in AgentResults calls Validator.check(comments, "") so the null comment gets set to ""
         		   // there is nothing updated. update flag should be false
-        		   || (newComments.equals("") && oldComments==null)) 
+        		   || ((newComments!=null && newComments.equals("")) && oldComments==null)) 
         		   ) {
         update = false;
       }

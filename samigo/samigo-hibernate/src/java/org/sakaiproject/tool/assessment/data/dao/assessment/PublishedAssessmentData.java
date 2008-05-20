@@ -590,7 +590,7 @@ public class PublishedAssessmentData
       if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())))
 {
         ArrayList randomsample = new ArrayList();
-        Integer numberToBeDrawn= null;
+        Integer numberToBeDrawn= Integer.valueOf(0);
         if (s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
           numberToBeDrawn= new Integer(s.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
         }
