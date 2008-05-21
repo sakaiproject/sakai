@@ -358,7 +358,8 @@ public class DeveloperHelperServiceImpl implements DeveloperHelperService {
             if (tool != null 
                   && tool.getId().equals(toolRegistrationId)) {
                // this has to be here because the tc will expect it when the portal urls are generated -AZ
-               ThreadLocalManager.set(ServerConfigurationService.CURRENT_PORTAL_PATH, PORTAL_BASE);
+               ThreadLocalManager.set("sakai:request.portal.path", PORTAL_BASE); 
+                  // hardcoding to make this backwards compatible with 2.3 - ServerConfigurationService.CURRENT_PORTAL_PATH, PORTAL_BASE);
                // back to normal stuff again
                toolData.setToolURL(page.getUrl());
                toolData.setPlacementId(tc.getId());
