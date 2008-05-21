@@ -1,26 +1,38 @@
 <!-- sakai_filepicker_select.vm, version: Id:  $, use with org.sakaiproject.content.tool.FilePickerAction.java -->
+<!-- this is the new list template, which uses the resources type registry -->
 <!--[if gt IE 5.0]><![if lt IE 7]>
 <style type="text/css">
-/* that IE 5+ conditional comment makes this only visible in IE 5+ */
+/* that IE 5+ conditional comment makes this only visible in IE 5+*/ 
 ul.makeMenu li {  /* the behaviour to mimic the li:hover rules in IE 5+ */
-  behavior: url( /library/js/IEmen.htc );
-  }
+## not needed by click version
+##	behavior: url( /library/js/IEmen.htc );
+}
+  
 ul.makeMenu ul {  /* copy of above declaration without the > selector */                                                                      
-  display: none; position: absolute; top: 15px; left: 20px; background-image:none; background-color:#ffffff;width: 15em; z-index:3;border:1px solid  #666  	
+  display: none; position: absolute; top: 18px; left: 0px; background-image:none; background-color:#ffffff;width: 15em; z-index:3;border:1px solid  #666  	
 }
 </style>
 <![endif]><![endif]-->
+<!--[if gt IE 6.0]>
 <style type="text/css">
-    @import "/library/dojo/dojo-release-0.9.0/dijit/themes/sakadojo/sakadojo.css";
+ul.makeMenu li {
+  list-style-type: none; 
+  margin: 0px; 
+  padding:5px; 
+  position: relative;
+  color: #000000;
+  display:inline;
+}
+
+.menuOpen{margin:2px !important;padding:2px !important;background:#fff;width:6em;border-width:1px 1px 1px 0;border-style:solid;border-color: #ccc;}
+	.menuOpen:hover{border-width:1px 1px 1px 0;border-style:solid;border-color: #ccc;;background:#fff}
+	ul.makeMenu{border:none !important;background:#fff;border:1px solid #ccc !important;margin:2px;padding:2px;padding-left:5px;width:3em;}
+	ul.makeMenu:hover{border:1px solid #ccc !important; background:#fff}
+	ul.makeMenu ul{top: 15px !important;left:0}
+	 .attach{width:1em !important;}
+
 </style>
-<script type="text/javascript" src="/library/dojo/dojo-release-0.9.0/dojo/dojo.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
-<script type="text/javascript" src="/library/dojo/dojo-release-0.9.0/dijit/dijit.js.uncompressed.js" djConfig="parseOnLoad: true"></script>
-<script type="text/javascript" src="/library/dojo/dojo-release-0.9.0/dojo/dojo.xd.js" djConfig="parseOnLoad: true"></script>
-<script type="text/javascript">
-	dojo.require("dojo.parser");
-	dojo.require("dijit.form.Button");
-	dojo.require("dijit.Menu");
-</script>
+<![endif]-->
 
 <script language="JavaScript" type="text/JavaScript">
 	<!--
@@ -42,6 +54,30 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 			}
 		}
 	//-->
+</script>
+<script type ="text/javascript" src ="/library/js/jquery.js"></script>
+<script  type ="text/javascript">
+$(document).ready(function() {
+	jQuery('.portletBody').click(function(e) { 
+			
+		if ( e.target.className !='menuOpen' &&e.target.className !='dropdn'  ){
+			$('.makeMenuChild').hide();
+		}
+			else
+			{
+				if( e.target.className =='dropdn' ){
+					targetId=$(e.target).parent('li').attr('id');
+				$('.makeMenuChild').hide();
+				$('#menu-' + targetId).show();
+				}
+				else{
+					
+			targetId=e.target.id;
+			$('.makeMenuChild').hide();
+			$('#menu-' + targetId).show();
+			}}
+	});
+	});
 </script>
 <div class="portletBody specialLink">
 	#if ($alertMessage)
@@ -168,6 +204,8 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 				<th id="actions">
 					$tlang.getString("gen.actions")
 				</th>
+				<th id="actionsspacer">
+				</th>	
 			</tr>
 			#set($itemcount = 0)
 			#set ($unit = "em")
@@ -261,29 +299,40 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 						#end
 						</h$headerDepth>
 					</td>
-					<td headers="actions"   class="attach sakadojo">
+					<td headers="actions"   class="attach">
 						#set ($actionCount=($actionCount - 1))
 						#if($can_attach_more)
 							#if($item.isCollection())
 								#if($item.addActions && !$item.addActions.isEmpty())
-									<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("addMenu-${item.id}")">
-		    							<span>$tlang.getString('gen.add')</span>
-							            <div dojotype="dijit.Menu" id="$validator.escapeJavascript("addMenu-${item.id}")" toggle="fade" style="display: none;">
-							            	#foreach($action in $item.addActions)
-								                <div dojotype="dijit.MenuItem" iconclass="dijitEditorIcon dijitEditorIconSave" 
-								                     onclick="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">
-								                    $labeler.getLabel($action)
-								                </div>
-							                #end
-							            </div>
-							        </div>
+									<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu">
+										<li class="menuOpen" id="$actionCount">
+		    							&nbsp;$tlang.getString('gen.add')
+											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="$tlang.getString("gen.add")" class="dropdn"/> 
+											<ul  id="menu-$actionCount" class="makeMenuChild">
+							        	#foreach($action in $item.addActions)
+													<li>
+														<a href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">
+										                    $labeler.getLabel($action)
+														</a>
+													</li>							
+				                #end
+												<li style="height:1px;width:1px;display:inline;">
+													<a href="#"  class="skip" onfocus="document.getElementById('menu-$actionCount').style.display='none';document.getElementById('last-$actionCount').focus()" >$tlang.getString("att.menu.end")</a>
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<a href="#" id="last-$actionCount"></a>							
 								#end
 							#elseif($item.canSelect())
-								<div class="itemAction">
+								<div class="itemAction" style="margin:0;">
 									<a href="#toolLinkParam("ResourcesAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.select')">$tlang.getString("att.select").trim()</a>
 								</div>
 							#end
 						#end
+					</td>
+					<td style="width:12em">
+						
 					</td>					
 				</tr>
 			#end ## foreach $item in $this_site
@@ -438,11 +487,36 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 								#end
 								</h$headerDepth>
 							</td>
-							<td headers="actions"   class="attach sakadojo">
+							<td headers="actions"   class="attach">
+							##aaaaaa
 								#set ($actionCount=($actionCount - 1))
 								#if($can_attach_more)
 									#if($item.isCollection())
 										#if($item.addActions && !$item.addActions.isEmpty())
+											<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu">
+												<li class="menuOpen" id="$actionCount">
+												&nbsp;$tlang.getString('gen.add')
+													<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="$tlang.getString("button.add")" class="dropdn"/> 
+													<ul  id="menu-$actionCount" class="makeMenuChild">
+													#foreach($action in $item.addActions)
+															<li>
+																<a href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">
+																	$labeler.getLabel($action)
+																</a>
+															</li>							
+													#end                                           
+													<li>
+														<a href="#"  class="skip" onfocus="document.getElementById('menu-$actionCount').style.display='none';document.getElementById('last-$actionCount').focus()" >$tlang.getString("button.endadd")</a>
+													</li>
+												</ul>
+											</li>
+										</ul>
+										<a href="#" id="last-$actionCount"></a>							
+
+
+
+#*
+
 											<div dojotype="dijit.form.DropDownButton" menuid="$validator.escapeJavascript("addMenu-${item.id}")">
 				    							<span>$tlang.getString('gen.add')</span>
 									            <div dojotype="dijit.Menu" id="$validator.escapeJavascript("addMenu-${item.id}")" toggle="fade" style="display: none;">
@@ -454,7 +528,8 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 									                #end
 									            </div>
 									        </div>
-										#end
+*#
+								#end
 									#elseif($item.canSelect())
 										<div class="itemAction">
 											<a href="#toolLinkParam("ResourcesAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.select')">$tlang.getString("att.select").trim()</a>
