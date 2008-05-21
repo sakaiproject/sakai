@@ -1050,18 +1050,24 @@ ul.makeMenu, ul.makeMenu ul {
   border: 1px solid #ddd !important;
   background:#fff; 
   padding: 3px;
-  padding-left: 6px;
-  margin-right: 3px;
-  cursor: default;
-  margin-left: 0px;
+ 	cursor: default;
+ 	 margin-left: 0px;
 	display:inline;
 	position: relative;
 	text-align: left;
 	white-space: nowrap;
 }
+
+ul.makeMenu{
+	background:#eee url(images/makemenu.gif) top left repeat-x
+}
+
 ul.makeMenu:hover{
+	color:#07b;
 	border:1px solid #000  !important;
+	background:#eee url(images/makemenu-h.gif) top left repeat-x
 }	
+
 .listHier ul.makeMenu img{
 	margin-right: 0;
 	vertical-align: middle;
@@ -1069,11 +1075,13 @@ ul.makeMenu:hover{
 
 ul.makeMenu li {
   list-style-type: none;
-  margin: 0px;
+  margin: 0px; 
+/*  padding:5px; 
   position: relative;
   color: #000000;
- display:inline;
+  display:inline;*/
 }
+
 ul.makeMenu li > ul {
   display: none;
   	width: 14em;
@@ -1097,7 +1105,10 @@ ul.makeMenu li > ul {
  	z-index:3
 }
 
-ul.makeMenu li a { display: block; width: 100%; text-decoration: underline;   padding:6px; color:#35B !important;	outline:none; }
+.makeMenuChild li{
+	padding:0 !important;
+}
+ul.makeMenu li a { display: block; width: 100%; text-decoration: underline;   padding:6px; color:#35B !important;	}
 ul.makeMenu li a:active{outline:none;}
 ul.makeMenu li a:hover, ul.makeMenu li a.CSStoHighLink { color: #000 !important; }
 ul.makeMenu li:hover > a { color: #000; }
@@ -1128,4 +1139,7 @@ ul.makeMenu li.menuClose a:hover {
 
 .centerLines td{
 	vertical-align: middle;
+}
+.menuOpen{
+	cursor:pointer;
 }
