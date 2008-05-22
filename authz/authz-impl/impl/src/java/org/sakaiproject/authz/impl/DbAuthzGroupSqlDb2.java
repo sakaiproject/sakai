@@ -26,4 +26,27 @@ package org.sakaiproject.authz.impl;
  */
 public class DbAuthzGroupSqlDb2 extends DbAuthzGroupSqlDefault
 {
+   public String getInsertRealmFunctionSql()
+   {
+      return "insert into SAKAI_REALM_FUNCTION (FUNCTION_NAME) values (?)";
+   }
+
+   public String getInsertRealmRoleSql()
+   {
+      return "insert into SAKAI_REALM_ROLE (ROLE_NAME) values(?)";
+   }
+
+   public String getCountRealmRoleFunctionSql(String anonymousRole, String authorizationRole, boolean authorized)
+      {
+         return "select count(1) " + "from   SAKAI_REALM_RL_FN MAINTABLE "
+               + "       LEFT JOIN SAKAI_REALM_RL_GR GRANTED_ROLES ON (MAINTABLE.REALM_KEY = GRANTED_ROLES.REALM_KEY AND "
+               + "       MAINTABLE.ROLE_KEY = GRANTED_ROLES.ROLE_KEY), SAKAI_REALM REALMS, SAKAI_REALM_ROLE ROLES, SAKAI_REALM_FUNCTION FUNCTIONS "
+               + "where "
+               +
+               // our criteria
+               "  (ROLES.ROLE_NAME in('" + anonymousRole + "'" + (authorized ? ",'" + authorizationRole + "'" : "") + ") or "
+               + "  (GRANTED_ROLES.USER_ID = ? AND GRANTED_ROLES.ACTIVE = '1')) AND FUNCTIONS.FUNCTION_NAME = ? AND REALMS.REALM_ID in (?) " +
+               // for the join
+               "  AND MAINTABLE.REALM_KEY = REALMS.REALM_KEY AND MAINTABLE.FUNCTION_KEY = FUNCTIONS.FUNCTION_KEY AND MAINTABLE.ROLE_KEY = ROLES.ROLE_KEY ";
+      }
 }
