@@ -23,8 +23,6 @@
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
-            <version>1.3.4-SNAPSHOT</version><!--entitybroker.version-->
-            <scope>provided</scope>
         </dependency>
 
         <!-- for reloadable proxy -->

@@ -26,21 +26,16 @@
 		<dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
 			<artifactId>entitybroker-api</artifactId>
-			<version>1.3.4-SNAPSHOT</version><!--entitybroker.version-->
-			<scope>provided</scope>
 		</dependency>
 
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-utils</artifactId>
-            <version>1.3.4-SNAPSHOT</version><!--entitybroker.version-->
         </dependency>
 
 		<dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
 			<artifactId>entitybroker-mocks</artifactId>
-			<version>1.3.4-SNAPSHOT</version><!--entitybroker.version-->
-			<scope>provided</scope>
 		</dependency>
 
 		<!-- external dependencies -->
@@ -124,63 +119,47 @@
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-authz-api</artifactId>
-			<version>${sakai.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-component-api</artifactId>
-			<version>${sakai.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-entity-api</artifactId>
-			<version>${sakai.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-event-api</artifactId>
-			<version>${sakai.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-site-api</artifactId>
-			<version>${sakai.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-tool-api</artifactId>
-			<version>${sakai.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-user-api</artifactId>
-			<version>${sakai.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-util-api</artifactId>
-			<version>${sakai.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-entity-util</artifactId>
-			<version>${sakai.version}</version>
+            <version>${sakai.version}</version>
 		</dependency>
 
 		<!-- testing dependencies -->
