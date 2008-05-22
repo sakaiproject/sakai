@@ -22,6 +22,7 @@
                             <entry key="HSQLDB" value="hsqldb/entityProperty.sql" />
                             <entry key="MYSQL" value="mysql/entityProperty.sql" />
                             <entry key="ORACLE" value="oracle/entityProperty.sql" />
+                            <entry key="DB2" value="db2/entityProperty.sql" />
                         </map>
                     </property>
                 </bean>
