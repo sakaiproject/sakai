@@ -1,0 +1,1 @@
+VALUES 'Migration is not available for the DB2 version of this module';
