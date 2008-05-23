@@ -47,6 +47,7 @@
     <module>site-manage-tool/tool</module>
     <module>site-manage-util/util</module>
     <module>pageorder/tool</module>
+    <module>site-manage-group-helper/tool</module>
   </modules>
  </profile>
  </profiles>

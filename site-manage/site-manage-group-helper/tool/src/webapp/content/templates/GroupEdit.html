@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+	<title>Site Page Order</title>
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" rsf:id="resize"/>
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+	<script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url"></script>
+	<SCRIPT LANGUAGE="JavaScript">
+	var opt = new OptionTransfer("siteMembers-selection","groupMembers-selection");
+	opt.setAutoSort(true);
+	opt.setDelimiter(",");
+	opt.setStaticOptionRegex("^(Bill|Bob|Matt)$");
+	opt.saveRemovedLeftOptions("removedLeft");
+	opt.saveRemovedRightOptions("removedRight");
+	opt.saveAddedLeftOptions("addedLeft");
+	opt.saveAddedRightOptions("addedRight");
+	opt.saveNewLeftOptions("newLeft");
+	opt.saveNewRightOptions("newRight");
+	</SCRIPT>
+</head>
+<body onLoad="opt.init(document.forms[0])">
+<div class="portletBody">
+	<div rsf:id="error-row:">
+		<div class="alertMessage" rsf:id="error">We Have Errors!</div>
+	</div>
+	<form rsf:id="groups-form">
+		<h3 rsf:id="prompt"></h3>
+		<p rsf:id="instructions" class="instruction">
+		</p>
+		 <table>
+			<tr>
+				<td><span class="reqStarInline">*</span> <label
+					rsf:id="group_title_label">Title</label></td>
+				<td><input name="Title" type="text" size="50"
+					rsf:id="group_title" /></td>
+			</tr>
+		 	<tr>
+				<td valign="top">
+					<label rsf:id="group_description_label">
+						Description
+					</label>
+				</td>
+				<td>
+					<div rsf:id="group_description"><textarea rsf:id="input" name="Description" cols="50" rows="3" wrap="virtual"></textarea></div>
+				</td>
+			</tr>
+		</table>
+		<h3 rsf:id="membership_label"></h3>
+		<table>
+			<tr>
+				<td>
+					<h3 rsf:id="membership_site_label"></h3>
+					<select multiple="multiple" size="10" rsf:id="siteMembers" id="siteMembers-selection" name="siteMembers-selection" onDblClick="opt.transferRight()">
+					</select>
+				</td>
+				<td>
+					<input type="button" name="right" value="&gt;&gt;" onclick="opt.transferRight()" /><br /><br />
+					<input type="button" name="right" value="All &gt;&gt;" onclick="opt.transferAllRight()" /><br /><br />
+					<input type="button" name="left" value="&lt;&lt;" onclick="opt.transferLeft()" /><br /><br />
+					<input type="button" name="left" value="All &lt;&lt;" onclick="opt.transferAllLeft()" />
+				</td>
+				<td valign="top">
+					<h3 rsf:id="membership_group_label"></h3>
+					<select multiple="multiple" rsf:id="groupMembers" id = "groupMembers-selection" name="groupMembers-selection" size="10" ondblclick="opt.transferLeft()" >
+					</select>
+				</td>
+			</tr>
+		</table>
+		<input rsf:id="newRight" id="newRight" type="hidden"/>
+		<input rsf:id="groupId" id="groupId" type="hidden"/>
+		<p class="act">
+
+			<input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit"/>
+			<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+		</p>			
+	</form>
+</div>
+</body>
+</html>
