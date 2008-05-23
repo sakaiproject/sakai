@@ -421,54 +421,60 @@
 			#end
 		</h4>
 	
-		<table class="itemSummary" border="0" style="clear:both;margin:left:.7em">
+		<table class="itemSummary" border="0" style="clear:both;"">
 			#if (!($dropboxMode && $collectionId==$homeCollectionId))
 				<tr> 
-					<td style="width:180px;padding-left:.7em"> 
-						<label>#if("$!TYPE_UPLOAD" == "$!{type.id}")$tlang.getString("props.creator.upl")#else$tlang.getString("props.creator")#end</label>
-					</td>
+					<th> 
+						#if("$!TYPE_UPLOAD" == "$!{type.id}")$tlang.getString("props.creator.upl")#else$tlang.getString("props.creator")#end
+					</th>
 					<td>
 						$validator.escapeHtml("$model.createdBy")
 					</td>
 				</tr>
 				<tr> 
-					<td style="width:180px;padding-left:.7em"> 
-						<label>#if("$!TYPE_UPLOAD" == "$!{type.id}")$tlang.getString("props.creatime.upl")#else$tlang.getString("props.creatime")#end</label>
-					</td>
+					<th> 
+						#if("$!TYPE_UPLOAD" == "$!{type.id}")$tlang.getString("props.creatime.upl")#else$tlang.getString("props.creatime")#end
+					</th>
 					<td>
 						$validator.escapeHtml("$model.createdTime")
 					</td>
 				</tr>
 			#end
 			<tr>
-				<td style="width:180px;padding-left:.7em"> 
-					<label>$tlang.getString("props.modby")</label>
-				</td>
+				<th> 
+					$tlang.getString("props.modby")
+				</th>
 				<td>
 					$validator.escapeHtml("$model.modifiedBy")
 				</td>
 			</tr>
 			<tr> 
-				<td style="width:180px;padding-left:.7em"> 
-					<label>$tlang.getString("props.modtime")</label>
-				</td>
+				<th> 
+					$tlang.getString("props.modtime")
+				</th>
 				<td>
 					$validator.escapeHtml("$model.modifiedTime")
 				</td>
 			</tr>
 			<tr> 
-				<td  style="width:180px;padding-left:.7em"> 
-					<label>$tlang.getString("props.url")</label>
-				</td>
+				<th> 
+					$tlang.getString("props.url")
+				</th>
 				<td>
-					<a href="$model.accessUrl" target="$model.target">$model.accessUrl</a>
+					<div>
+						<a class="textPanelFooter" href="javascript:document.getElementById('fileURLHolder').style.overflow='auto';
+						document.getElementById('fileURLHolder').focus();document.getElementById('fileURLHolder').select();">$tlang.getString("props.select")</a>
+						| <a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>
+					</div>
+					<textarea id="fileURLHolder" rows="2" cols="50" style="overflow:hidden">$model.accessUrl</textarea>						
+
 				</td>
 			</tr>
 			#if(! $item.isCollection())
 				<tr> 
-					<td  style="width:180px;padding-left:.7em"> 
-						<label>$tlang.getString("props.size")</label>
-					</td>
+					<th>
+						$tlang.getString("props.size")
+					</th>
 					<td>
 						$model.sizzle 
 					</td>
@@ -476,9 +482,9 @@
 			#end
 			#if(! $model.isUrl() && ! $model.isCollection() && "$!{model.mimetype}" != "")
 				<tr> 
-					<td style="width:180px;padding-left:.7em"> 
-						<label>$tlang.getString("props.mime")</label>
-					</td>
+					<th>
+						$tlang.getString("props.mime")
+					</th>
 					<td>
 						<span id="mime_warning${DOT}$i"></span>
 						<span id="mime_widget${DOT}$i">
@@ -492,8 +498,8 @@
 			#end
 			#if ($showMountPointProperty)
 				<tr>
-					<td>$tlang.getString("props.mountpoint")</td>
-                    <td><input type="textbox" name="sakai:handler-bean-id" id="sakai:handler-bean-id" value="$CHHmountpoint" /></td>
+					<th>$tlang.getString("props.mountpoint")</th>
+          <td><input type="textbox" name="sakai:handler-bean-id" id="sakai:handler-bean-id" value="$CHHmountpoint" /></td>
 				</tr>
 			#end
 		</table> 
