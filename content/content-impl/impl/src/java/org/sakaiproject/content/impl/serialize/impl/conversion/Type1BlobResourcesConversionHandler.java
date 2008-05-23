@@ -21,9 +21,13 @@
 
 package org.sakaiproject.content.impl.serialize.impl.conversion;
 
+import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,18 +50,50 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#getSource(java.lang.String,
 	 *      java.sql.ResultSet)
 	 */
 	public Object getSource(String id, ResultSet rs) throws SQLException
 	{
-		return rs.getString(1);
+		ResultSetMetaData metadata = rs.getMetaData();
+		String rv = null;
+		switch(metadata.getColumnType(1))
+		{
+		case Types.BLOB:
+			Blob blob = rs.getBlob(1);
+			if(blob != null)
+			{
+				rv = new String(blob.getBytes(1L, (int) blob.length()));
+			}
+			break;
+		case Types.CLOB:
+			Clob clob = rs.getClob(1);
+			if(clob != null)
+			{
+				rv = clob.getSubString(1L, (int) clob.length());
+			}
+			break;
+		case Types.CHAR:
+		case Types.LONGVARCHAR:
+		case Types.VARCHAR:
+		case Types.BINARY:
+		case Types.VARBINARY:
+		case Types.LONGVARBINARY:
+			byte[] bytes = rs.getBytes(1);
+			if(bytes != null)
+			{
+				rv = new String(bytes);
+			}
+			break;
+		}
+		//System.out.println("getSource(" + id + ") \n" + rv + "\n");
+		return rv;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.sakaiproject.content.impl.serialize.impl.SchemaConversionHandler#convertSource(java.lang.String,
 	 *      java.lang.Object, java.sql.PreparedStatement)
 	 */
@@ -113,8 +149,8 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 		return false;
 
 	}
-	
-	/** 
+
+	/**
 	 * @see org.sakaiproject.util.conversion.SchemaConversionHandler#validate(java.lang.String, java.lang.Object, java.lang.Object)
 	 */
 	public void validate(String id, Object source, Object result) throws Exception
@@ -125,21 +161,58 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 		SAXSerializableResourceAccess sourceResource = new SAXSerializableResourceAccess();
 		SAXSerializableResourceAccess resultResource = new SAXSerializableResourceAccess();
 		sourceResource.parse(xml);
-		
+
 		Type1BaseContentResourceSerializer t1b = new Type1BaseContentResourceSerializer();
 		t1b.setTimeService(new ConversionTimeService());
 		t1b.parse(resultResource, buffer);
-		
+
 		sourceResource.check(resultResource);
-		
+
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.impl.serialize.impl.conversion.SchemaConversionHandler#getValidateSource(java.lang.String, java.sql.ResultSet)
 	 */
 	public Object getValidateSource(String id, ResultSet rs) throws SQLException
 	{
-		return rs.getBytes(1);
+		ResultSetMetaData metadata = rs.getMetaData();
+		byte[] rv = null;
+		switch(metadata.getColumnType(1))
+		{
+		case Types.BLOB:
+			Blob blob = rs.getBlob(1);
+			if(blob != null)
+			{
+				//System.out.println("getValidateSource(" + id + ") blob == " + blob + " blob.length == " + blob.length());
+				rv = blob.getBytes(1L, (int) blob.length());
+			}
+			else
+			{
+				System.out.println("getValidateSource(" + id + ") blob == " + blob );
+			}
+			break;
+		case Types.CLOB:
+			Clob clob = rs.getClob(1);
+			if(clob != null)
+			{
+				rv = clob.getSubString(1L, (int) clob.length()).getBytes();
+			}
+			break;
+		case Types.CHAR:
+		case Types.LONGVARCHAR:
+		case Types.VARCHAR:
+			rv = rs.getString(1).getBytes();
+			break;
+		case Types.BINARY:
+		case Types.VARBINARY:
+		case Types.LONGVARBINARY:
+			rv = rs.getBytes(1);
+			break;
+		}
+		// System.out.println("getValidateSource(" + id + ") \n" + rv + "\n");
+		return rv;
+
+		//return rs.getBytes(1);
 	}
 
 
