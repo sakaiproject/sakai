@@ -73,6 +73,8 @@ public interface StatsManager {
 	
 	public boolean isEnableSiteActivity();
 	
+	public boolean isVisitsInfoAvailable();
+	
 	public String getChartBackgroundColor();
 	
 	public boolean isChartIn3D();

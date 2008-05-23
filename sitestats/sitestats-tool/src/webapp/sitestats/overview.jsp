@@ -264,14 +264,13 @@
 	       	<script type="text/javascript">
 	       		function getMainAreaWidth(){
 	       			var element = document.getElementById('overviewForm:activityMainArea');
-	       			if (element!=null){
-	       				return document.getElementById('overviewForm:activityMainArea').offsetWidth - 10;
-	       			}else{
-	       				return document.getElementById('overviewForm:visitsMainArea').offsetWidth - 10;
+	       			if (element == null){
+	       				element = document.getElementById('overviewForm:visitsMainArea');
+	       				if (element==null){
+	       					element = document.getElementById('overviewForm:activityMainArea');
+	       				}
 	       			}
-	       		}	       		
-	       		function getMainAreaWidth(){
-	       			return document.getElementById('overviewForm:visitsMainArea').offsetWidth - 10;
+	       			return element.offsetWidth - 10;
 	       		}	       		
 	       	</script>
 	   </f:verbatim>
