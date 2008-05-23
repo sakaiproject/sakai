@@ -37,7 +37,7 @@
 
     <!-- This wraps our DAO so that the transactions are managed -->
     <bean id="org.sakaiproject.entitybroker.dao.EntityBrokerDao"
-        class="org.sakaiproject.genericdao.api.spring.CurrentClassLoaderTxProxyFactoryBean">
+        class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">
         <property name="transactionManager"
             ref="org.sakaiproject.entitybroker.DataSourceTransactionManager" />
         <property name="target">
