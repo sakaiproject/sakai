@@ -48,6 +48,13 @@
             <version>${sakai.version}</version>
         </dependency>
 
+        <!-- generic DAO -->
+        <dependency>
+            <groupId>generic-dao</groupId>
+            <artifactId>generic-dao</artifactId>
+            <version>0.9.8</version>
+        </dependency>
+
         <!-- Various Sakai dependencies -->
         <dependency>
             <groupId>sakaiproject</groupId>
@@ -110,13 +117,6 @@
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-util</artifactId>
             <version>${sakai.version}</version>
-        </dependency>
-
-        <!-- generic DAO -->
-        <dependency>
-            <groupId>generic-dao</groupId>
-            <artifactId>generic-dao</artifactId>
-            <version>0.9.5</version>
         </dependency>
 
         <!-- Spring dependencies. -->

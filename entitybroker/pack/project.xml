@@ -55,7 +55,7 @@
 		<dependency>
 			<groupId>generic-dao</groupId>
 			<artifactId>generic-dao</artifactId>
-			<version>0.9.5</version>
+			<version>0.9.8</version>
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>
