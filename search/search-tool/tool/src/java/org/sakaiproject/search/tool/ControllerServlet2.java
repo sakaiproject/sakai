@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.tool.api.SearchAdminBean;
 import org.sakaiproject.search.tool.api.SearchBeanFactory;
@@ -88,6 +89,8 @@ public class ControllerServlet2 extends HttpServlet
 
 	private String basePath;
 
+	private String serverUrl;
+
 	@Override
 	public void init(ServletConfig servletConfig) throws ServletException
 	{
@@ -110,6 +113,13 @@ public class ControllerServlet2 extends HttpServlet
 		{
 			throw new ServletException("Unable to get " + SessionManager.class.getName());
 		}
+		
+		ServerConfigurationService  serverConfigurationService = (ServerConfigurationService) wac.getBean(ServerConfigurationService.class.getName());
+		if (serverConfigurationService == null)
+		{
+			throw new ServletException("Unable to get " + ServerConfigurationService.class.getName());
+		}
+		serverUrl = serverConfigurationService.getServerUrl();
 
 		searchBeanFactory.setContext(sc);
 
@@ -166,6 +176,7 @@ public class ControllerServlet2 extends HttpServlet
 		vc.put("rlb",rlb);
 		vc.put("sakai_tool_placement_id", toolPlacement);
 		vc.put("sakai_tool_placement_id_js", toolPlacementJs);
+		vc.put("serverurl", serverUrl);
 
 		String targetURL = persistState(request);
 		if (targetURL != null && targetURL.trim().length() > 0)

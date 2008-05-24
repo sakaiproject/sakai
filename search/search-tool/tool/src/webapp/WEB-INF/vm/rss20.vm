@@ -23,13 +23,13 @@
     #foreach ( $result in ${searchModel.results} ) 
 	  	     <item>
 	  	     <title>${result.tool}: ${result.title}</title>
-	  	     <link>${result.url}</link>
+	  	     <link>${serverurl}${result.url}</link>
 	  	     <description> 
 	        <div class="searchItem" > 
 	        <span class="searchTool">${result.tool}:</span>
-	        <a href="${result.url}" target="searchresult" class="searchTopLink" >${result.title}</a>
+	        <a href="${serverurl}${result.url}" target="searchresult" class="searchTopLink" >${result.title}</a>
 			      <div class="searchItemBody" >${result.searchResult}</div>
-			      <a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a>
+			      <a href="${serverurl}${result.url}" target="searchresult" class="searchBottonLink" >${serverurl}${result.url}</a>
 			      </div>
 			  				</description> 
 			  				</item>
