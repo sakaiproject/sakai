@@ -43,22 +43,11 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
-			<version>2.4</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
-			<artifactId>portlet-api</artifactId>
-			<groupId>portlet-api</groupId>
-			<version>1.0</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>${sakai.spring.groupId}</groupId>
-			<artifactId>${sakai.spring.artifactId}</artifactId>
-			<version>${sakai.spring.version}</version>
-			<scope>provided</scope>
+		    <groupId>org.springframework</groupId>
+		    <artifactId>spring</artifactId>
 		</dependency>
 
 		<!-- Data processing -->
@@ -112,8 +101,6 @@
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>1.1</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<!-- Sakai dependencies -->
@@ -165,9 +152,9 @@
 
 		<!-- testing dependencies -->
 		<dependency>
-			<groupId>${sakai.spring.groupId}</groupId>
-			<artifactId>${sakai.spring.mock.artifactId}</artifactId>
-			<version>${sakai.spring.mock.version}</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-mock</artifactId>
+			<version>2.0.6</version>
 			<scope>test</scope>
 		</dependency>
 

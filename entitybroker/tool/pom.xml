@@ -29,30 +29,22 @@
       <dependency>
          <groupId>javax.servlet</groupId>
          <artifactId>servlet-api</artifactId>
-         <version>2.4</version>
-         <scope>provided</scope>
       </dependency>
 
       <dependency>
          <groupId>commons-logging</groupId>
          <artifactId>commons-logging</artifactId>
-         <version>1.1</version>
-         <scope>provided</scope>
       </dependency>
 
       <!-- Sakai dependencies -->
       <dependency>
          <groupId>org.sakaiproject</groupId>
          <artifactId>sakai-component</artifactId>
-         <version>${sakai.version}</version>
-         <scope>provided</scope>
       </dependency>
 
       <dependency>
          <groupId>org.sakaiproject</groupId>
          <artifactId>sakai-tool-api</artifactId>
-         <version>${sakai.version}</version>
-         <scope>provided</scope>
       </dependency>
 
       <dependency>
