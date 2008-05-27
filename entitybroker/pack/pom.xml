@@ -27,6 +27,7 @@
       <dependency>
          <groupId>org.sakaiproject.entitybroker</groupId>
          <artifactId>entitybroker-impl</artifactId>
+         <scope>runtime</scope> <!-- for 2.0.6 compatibility, http://jira.codehaus.org/browse/MNG-2919 -->
       </dependency>
 
    </dependencies>
