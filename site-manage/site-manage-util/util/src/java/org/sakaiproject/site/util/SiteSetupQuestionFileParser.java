@@ -194,7 +194,15 @@ public class SiteSetupQuestionFileParser
 	    		if (reference == null) return false;
 
 	    		enableSecurityAdvisor();
-	    		ContentResource resource = contentHostingService.getResource(reference.getId());
+	    		ContentResource resource= null;
+	    		try
+	    		{
+	    			resource = contentHostingService.getResource(reference.getId());
+	    		}
+	    		catch (Exception ee)
+	    		{
+	    			m_log.warn("exists(): cannot find resource " + reference.getId() + ee.toString());
+	    		}
 	    		clearSecurityAdvisor();
 
 	        return (resource != null);
@@ -254,6 +262,8 @@ public class SiteSetupQuestionFileParser
 	        {
 	          m_siteSetupQuestionMap = populateConfig(ref.getReference(), resource.streamContent());
 	        }
+	        // clear the security advisor
+	        clearSecurityAdvisor();
 	      }
 	      catch (PermissionException e)
 	      {
