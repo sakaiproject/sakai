@@ -7046,23 +7046,23 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			switch (type)
 			{
 				case 1:
-					retVal = Assignment.UNGRADED_GRADE_TYPE_STRING;
+					retVal = rb.getString("ungra");
 					break;
 
 				case 2:
-					retVal = Assignment.LETTER_GRADE_TYPE_STRING;
+					retVal = rb.getString("letter");
 					break;
 
 				case 3:
-					retVal = Assignment.SCORE_GRADE_TYPE_STRING;
+					retVal = rb.getString("points");
 					break;
 
 				case 4:
-					retVal = Assignment.PASS_FAIL_GRADE_TYPE_STRING;
+					retVal = rb.getString("pass");
 					break;
 
 				case 5:
-					retVal = Assignment.CHECK_GRADE_TYPE_STRING;
+					retVal = rb.getString("check");
 					break;
 
 				default:
