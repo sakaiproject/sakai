@@ -124,6 +124,7 @@
         <module>metaobj/metaobj-api/api</module>
         <module>metaobj/metaobj-impl</module>
         <module>portal</module>
+        <module>presence/presence-api/api</module>
         <module>reference/library</module>
         <module>sakai-mock</module>
         <module>site/site-api/api</module>
