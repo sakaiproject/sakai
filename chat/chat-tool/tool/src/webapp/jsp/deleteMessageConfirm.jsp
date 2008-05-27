@@ -2,17 +2,24 @@
 	<sakai:view title="#{msgs['delete.delete']}">
 		<sakai:view_title value="#{msgs['delete.delete']}"/>
 		
-		<h:outputText value="#{msgs['delete.sure']}" styleClass="alertMessage" />
+		<c:if test="${not empty ChatTool.currentMessage.chatMessage.unformattedBody}">
+			<h:outputText id="deletemessageconfirm" value="#{msgs['delete.sure']}" styleClass="alertMessage" />
+		</c:if>		
+
+		<c:if test="${ empty ChatTool.currentMessage.chatMessage.unformattedBody}">
+	   		<h:outputText id="deletemessagecancel" value="#{msgs['delete.wrong']}" styleClass="alertMessage" />
+		</c:if> 
 		<sakai:messages />
 		
 		<h:form styleClass="portletBody">
 		
+		<c:if test="${not empty ChatTool.currentMessage.chatMessage.unformattedBody}">		
 			<sakai:panel_edit>
 				<h:outputLabel for="owner" value="#{msgs['gen.from']}" />
-				<h:outputText id="owner" value="#{ChatTool.currentMessage.owner}" />
+				<h:outputText id="owner" value="#{ChatTool.currentMessage.owner}" /><br>
 	
 				<h:outputLabel for="date" value="#{msgs['gen.date']}" />
-				<h:outputText id="date" value="#{ChatTool.currentMessage.chatMessage.messageDate}" />
+				<h:outputText id="date" value="#{ChatTool.currentMessage.chatMessage.messageDate}" /><br>
 	
 				<h:outputLabel for="message" value="#{msgs['gen.mess']}" />
 				<h:outputText id="message" value="#{ChatTool.currentMessage.chatMessage.unformattedBody}" />
@@ -26,6 +33,16 @@
 					action="#{ChatTool.processActionDeleteMessageCancel}"
 					value="#{msgs['gen.cancel']}" />
 			</sakai:button_bar>
+		</c:if>		
+			
+		<c:if test="${ empty ChatTool.currentMessage.chatMessage.unformattedBody}">     
+			<sakai:button_bar>				
+				<sakai:button_bar_item id="reset2"
+					action="#{ChatTool.processActionDeleteMessageCancel}"
+					value="#{msgs['gen.cancel']}"/>
+			</sakai:button_bar>
+        </c:if> 
+			
 		</h:form>
 	</sakai:view>
 </f:view>

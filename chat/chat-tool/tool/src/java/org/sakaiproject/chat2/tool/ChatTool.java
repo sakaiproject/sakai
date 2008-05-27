@@ -1030,6 +1030,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
          String messageId = (String)SessionManager.getCurrentToolSession().getAttribute("current_message");
          if(messageId != null) {
             ChatMessage message = getChatManager().getMessage(messageId);
+            if(message==null) return null;            
             tmpCurrent = new DecoratedChatMessage(this, message);
             return tmpCurrent;
          }
