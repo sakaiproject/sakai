@@ -482,6 +482,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     */
    public void deleteMessage(ChatMessage message) throws PermissionException 
    {
+	  if(message==null) return;
       if(!getCanDelete(message))
          checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_ANY);
       
