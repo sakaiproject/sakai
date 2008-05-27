@@ -1877,30 +1877,31 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		AssignmentSubmissionEdit submission = m_submissionStorage.edit(submissionId);
 		if (submission == null) throw new InUseException(submissionId);
 		
-		if (!unlockCheck(SECURE_GRADE_ASSIGNMENT_SUBMISSION, submissionReference))
+		// pass if with grade or update assignment right
+		if (!unlockCheck(SECURE_GRADE_ASSIGNMENT_SUBMISSION, submissionReference) && !unlockCheck(SECURE_UPDATE_ASSIGNMENT, submissionReference))
 		{
-			// check security (throws if not permitted)
-			unlock2(SECURE_UPDATE_ASSIGNMENT_SUBMISSION, SECURE_UPDATE_ASSIGNMENT, submissionReference);
-			
+			boolean notAllowed = true;
 			// normal user(not a grader) can only edit his/her own submission
 			User currentUser = UserDirectoryService.getCurrentUser(); 
-			User[] submitters = submission.getSubmitters();
-			boolean notAllowed = true;
-			if (submitters != null && submitters.length == 1 && submitters[0].equals(currentUser))
+			if (unlockCheck(SECURE_UPDATE_ASSIGNMENT_SUBMISSION, submissionReference))
 			{
-				// is editing one's own submission
-				// then test against extra criteria depend on the status of submission
-				try
+				User[] submitters = submission.getSubmitters();
+				if (submitters != null && submitters.length == 1 && submitters[0].equals(currentUser))
 				{
-					Assignment a = submission.getAssignment();
-					if (canSubmit(a.getContext(), a))
+					// is editing one's own submission
+					// then test against extra criteria depend on the status of submission
+					try
 					{
-						notAllowed = false;
+						Assignment a = submission.getAssignment();
+						if (canSubmit(a.getContext(), a))
+						{
+							notAllowed = false;
+						}
 					}
-				}
-				catch (Exception e)
-				{
-					M_log.warn(this + " editSubmission(): cannot get assignment for submission " + submissionReference + e.getMessage());
+					catch (Exception e)
+					{
+						M_log.warn(this + " editSubmission(): cannot get assignment for submission " + submissionReference + e.getMessage());
+					}
 				}
 			}
 			
