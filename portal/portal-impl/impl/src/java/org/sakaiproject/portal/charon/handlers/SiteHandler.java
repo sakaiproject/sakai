@@ -228,6 +228,14 @@ public class SiteHandler extends WorksiteHandler
 			portal.includeBottom(rcontext);
 		}
 
+
+//Log the visit into SAKAI_EVENT - begin
+		try{
+			boolean presenceEvents = ServerConfigurationService.getBoolean("presence.events.log", true);
+			if (presenceEvents)
+				org.sakaiproject.presence.cover.PresenceService.setPresence(siteId + "-presence");
+		}catch(Exception e){}
+//End - log the visit into SAKAI_EVENT		
 		rcontext.put("currentUrlPath", Web.serverUrl(req) + req.getContextPath()
 				+ req.getPathInfo());
 
