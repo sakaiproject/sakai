@@ -172,19 +172,9 @@
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-pack</artifactId>
-                <version>1.3.4-SNAPSHOT</version><!--entitybroker.version-->
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
                 <artifactId>entitybroker-mocks</artifactId>
                 <version>1.3.4-SNAPSHOT</version><!--entitybroker.version-->
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-tool</artifactId>
-                <version>1.3.4-SNAPSHOT</version><!--entitybroker.version-->
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.entitybroker</groupId>
