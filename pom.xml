@@ -147,7 +147,6 @@
         <module>user/user-util/util</module>
         <module>util</module>
         <module>velocity</module>
-	<module>reset-pass</module>
       </modules>
     </profile>
     <profile>
