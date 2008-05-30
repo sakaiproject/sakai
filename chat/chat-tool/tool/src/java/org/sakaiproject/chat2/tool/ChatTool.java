@@ -917,8 +917,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       // this is a fairly expensive operation, so it's worth optimizing out
 
       if (this.currentChannel != null && channel != null &&
-	   this.currentChannel.getChatChannel().getId() ==
-	   channel.getChatChannel().getId())
+	   this.currentChannel.getChatChannel().getId().equals(
+	   channel.getChatChannel().getId()))
     	  return;
 
       // turn off observation for the old channel
