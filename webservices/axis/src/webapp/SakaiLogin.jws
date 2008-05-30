@@ -98,7 +98,7 @@ public class SakaiLogin
                 // update the user's externally provided realm definitions
                 AuthzGroupService.refreshUser(userId);
 
-		String EVENT_LOGIN = "user.login";
+		String EVENT_LOGIN = "user.login.ws";
 
                 // post the login event
                 EventTrackingService.post(EventTrackingService.newEvent(EVENT_LOGIN, null, true));
