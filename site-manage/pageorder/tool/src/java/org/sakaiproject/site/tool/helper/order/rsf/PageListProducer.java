@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.tool.helper.order.impl.SitePageEditHandler;
@@ -48,6 +49,8 @@ public class PageListProducer
     public MessageLocator messageLocator;
     public SessionManager sessionManager;
     public FrameAdjustingProducer frameAdjustingProducer;
+    public ServerConfigurationService serverConfigurationService;
+    public String ALLOW_TITLE_EDIT = "org.sakaiproject.site.tool.helper.order.rsf.PageListProducer.allowTitleEdit";
     
     public String getViewID() {
         return VIEW_ID;
@@ -96,18 +99,24 @@ public class PageListProducer
                 param.pageId = page.getId();
 
                 param.viewID = PageEditProducer.VIEW_ID;
-                UIInternalLink.make(pagerow, "edit-link", param).decorate(
-                        new UITooltipDecorator(messageLocator.getMessage("page_edit")
-                                               + " " + page.getTitle()));
 
-                UIInternalLink.make(pagerow, "save-edit-link", param).decorate(
-                        new UITooltipDecorator(messageLocator.getMessage("save_page_edit")
-                                               + " " + page.getTitle()));
+                //default value is to allow the Title to be edited.  If the sakai properties 
+                //specifically requests this to be set to false, then do not allow this function
+                if(serverConfigurationService.getBoolean(ALLOW_TITLE_EDIT, true)){
 
-                UIOutput.make(pagerow, "cancel-edit-link").decorate(
-                        new UITooltipDecorator(messageLocator.getMessage("cancel_page_edit")                                         
-                                               + " " + page.getTitle()));
-              
+                	UIInternalLink.make(pagerow, "edit-link", param).decorate(
+                			new UITooltipDecorator(messageLocator.getMessage("page_edit")
+                					+ " " + page.getTitle()));
+
+                	UIInternalLink.make(pagerow, "save-edit-link", param).decorate(
+                			new UITooltipDecorator(messageLocator.getMessage("save_page_edit")
+                					+ " " + page.getTitle()));
+
+                	UIOutput.make(pagerow, "cancel-edit-link").decorate(
+                			new UITooltipDecorator(messageLocator.getMessage("cancel_page_edit")                                         
+                					+ " " + page.getTitle()));
+                }
+                
                 if (page.getTools().size() == 1) {
                     ToolConfiguration tool = (ToolConfiguration) page.getTools().get(0);
 
@@ -205,4 +214,13 @@ public class PageListProducer
 
         return togo;
     }
+
+	public ServerConfigurationService getServerConfigurationService() {
+		return serverConfigurationService;
+	}
+
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
 }
