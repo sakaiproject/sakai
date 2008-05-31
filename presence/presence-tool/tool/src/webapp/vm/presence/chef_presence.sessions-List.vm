@@ -25,7 +25,7 @@
 				</tr>
 				<tr>
 					<td>$tlang.getString("presence.session.adress")</td>
-					<td>$validator.escapeHtml($session.IpAddress)</td>															
+					<td>$validator.escapeHtml($session.IpAddress) ($validator.escapeHtml($session.HostName))</td>
 				</tr>
 				<tr>
 					<td>$tlang.getString("presence.session.agent")</td>
