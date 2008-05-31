@@ -19,18 +19,14 @@ import org.apache.axis.AxisFault;
 import org.apache.axis.Constants;
 import org.apache.axis.MessageContext;
 
-// Necessary until code moves into UsageSessionServiceAdaptor.java
-import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
-import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.event.cover.EventTrackingService;
 
 /**
  * class to support Sakai Login headers sent in request as a string array
  */
 public class SakaiPortalLogin {
 
-    private static final Log LOG = LogFactory.getLog(SakaiPortalLogin.class);
+    private static final Log LOG = LogFactory.getLog("org.sakaiproject.axis.SakaiPortalLogin");
 
     private User getSakaiUser(String id, String pw)
     {
@@ -104,11 +100,11 @@ public class SakaiPortalLogin {
                 }
                 else
                 {
-			// We do not care too much on the off-change that this fails - folks simply won't show up in presense
+			// We do not care too much on the off-chance that this fails - folks simply won't show up in presense
 			// and events won't be trackable back to people / IP Addresses - but if it fails - there is nothing
 			// we can do anyways.
 
-			UsageSessionService_loginDirect(user.getId(), id, ipAddress, "SakaiPortalLogin.jws");
+			UsageSessionService.login(user.getId(), id, ipAddress, "SakaiPortalLogin.jws", UsageSessionService.EVENT_LOGIN_WS);
 
 			try {
 				String siteId = SiteService.getUserSiteId(s.getUserId());
@@ -128,39 +124,7 @@ public class SakaiPortalLogin {
     public String login(String id,String pw) 
         throws AxisFault
     {
-	LOG.debug("SakiaPortalLogin.login()");
+	LOG.debug("SakaiPortalLogin.login()");
 	return loginAndCreate(id, pw, null, null, null);
     }
-
-    // This code is adapted from the file:
-    // ./event-impl/impl/src/java/org/sakaiproject/event/impl/UsageSessionServiceAdaptor.java
-    // Method
-    // public boolean login(Authentication authn, HttpServletRequest req)
-    // We want to do exactly what this routine *does* but we do not have an HttpServletRequest
-    // to hand it
-
-        public boolean UsageSessionService_loginDirect(String userId, String userEid, String ipAddress, String userAgent)
-        {
-                // establish the user's session - this has been known to fail
-                UsageSession session = UsageSessionService.startSession(userId,ipAddress,userAgent);
-                if (session == null)
-                {
-                        return false;
-                }
-
-                // set the user information into the current session
-                Session sakaiSession = SessionManager.getCurrentSession();
-                sakaiSession.setUserId(userId);
-                sakaiSession.setUserEid(userEid);
-
-                // update the user's externally provided realm definitions
-                AuthzGroupService.refreshUser(userId);
-
-		String EVENT_LOGIN = "user.login";
-
-                // post the login event
-                EventTrackingService.post(EventTrackingService.newEvent(EVENT_LOGIN, null, true));
-
-                return true;
-        }
 }
