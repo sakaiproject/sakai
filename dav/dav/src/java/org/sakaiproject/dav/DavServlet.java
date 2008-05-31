@@ -977,7 +977,7 @@ public class DavServlet extends HttpServlet
 
 				Authentication a = AuthenticationManager.authenticate(e);
 
-				if (!UsageSessionService.login(a, req))
+				if (!UsageSessionService.login(a, req, UsageSessionService.EVENT_LOGIN_DAV))
 				{
 					// login failed
 					res.sendError(401);
