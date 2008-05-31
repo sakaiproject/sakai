@@ -109,3 +109,6 @@ update osp_wizard set itemFeedbackOption=0;
 --OSP SAK-11545
 alter table osp_wizard add reviewerGroupAccess number(10, 0) default '0' not null;
 
+--SAK-6216 Optional ability to store client hostname (resolved IP) in SAKAI_SESSION
+alter table SAKAI_SESSION add SESSION_HOSTNAME varchar2(255) NULL;
+
