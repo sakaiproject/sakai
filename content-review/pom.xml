@@ -32,7 +32,6 @@ limitations under the License.
   </scm>
   <packaging>pom</packaging>
   <modules>
-    <module>content-review-api/logic</module>
     <module>content-review-api/model</module>
     <module>content-review-api/public</module>
   </modules>
