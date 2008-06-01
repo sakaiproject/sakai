@@ -51,7 +51,7 @@ public class PermissionAction {
 	public String setPermissions()
 	{
 		
-		  if (submissionStatus.equals("cancel"))
+		  if ("cancel".equals(submissionStatus))
 			  return "cancel";
 		  
 		  m_log.info("Seting permissions");

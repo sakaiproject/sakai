@@ -251,7 +251,7 @@ public class PollToolBean {
   
   public String proccessActionAddOption() {
 	  
-	  if (submissionStatus.equals("cancel"))
+	  if ("cancel".equals(submissionStatus))
 		  return "cancel";
     
 	 m_log.debug("adding option with text " + option.getOptionText());
@@ -287,7 +287,7 @@ public class PollToolBean {
 	//voteBean.poll = manager.getPollById(option.getPollId());
 	
 	 
-	if (submissionStatus.equals("option"))
+	if ("option".equals(submissionStatus))
 	 return "option";
 	else 
 	 return "Saved";
