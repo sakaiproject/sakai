@@ -26,6 +26,7 @@ import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
+import uk.org.ponder.rsf.components.decorators.UIAlternativeTextDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.DynamicNavigationCaseReporter;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -63,10 +64,10 @@ public class PageListProducer
             
             PageAddViewParameters addParam = new PageAddViewParameters();
             addParam.viewID = PageAddProducer.VIEW_ID;
-            UIInternalLink.make(tofill, "add-link", messageLocator.getMessage("show_add"), addParam).decorators =
-                new DecoratorList(new UITooltipDecorator(messageLocator
-                      .getMessage("page_show_add")));
 
+            UIInternalLink.make(tofill, "add-link", messageLocator.getMessage("show_add"), addParam)
+                .decorate(new UIAlternativeTextDecorator(messageLocator.getMessage("page_show_add")))
+                .decorate(new UITooltipDecorator(messageLocator.getMessage("page_show_add")));
             UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
             
             UIOutput.make(content, "message", messageLocator.getMessage("welcome"));
@@ -84,7 +85,7 @@ public class PageListProducer
                     UIBranchContainer.make(pageForm, "page-row:", page.getId());
     
                 pagerow.decorate(new UITooltipDecorator(messageLocator
-                        .getMessage("page_click_n_drag")));
+                    .getMessage("page_click_n_drag")));
                 
                 UIOutput.make(pagerow, "page-name", page.getTitle());
                 UIInput name = 
@@ -102,19 +103,25 @@ public class PageListProducer
 
                 //default value is to allow the Title to be edited.  If the sakai properties 
                 //specifically requests this to be set to false, then do not allow this function
-                if(serverConfigurationService.getBoolean(ALLOW_TITLE_EDIT, true)){
+                if(serverConfigurationService.getBoolean(ALLOW_TITLE_EDIT, true)) {
 
-                	UIInternalLink.make(pagerow, "edit-link", param).decorate(
-                			new UITooltipDecorator(messageLocator.getMessage("page_edit")
-                					+ " " + page.getTitle()));
+                    UIInternalLink.make(pagerow, "edit-link", param).decorate(
+                        new UITooltipDecorator(messageLocator.getMessage("page_edit")
+                            + " " + page.getTitle())).decorate(
+                        new UIAlternativeTextDecorator(messageLocator.getMessage("page_edit")
+                            + " " + page.getTitle()));
 
-                	UIInternalLink.make(pagerow, "save-edit-link", param).decorate(
-                			new UITooltipDecorator(messageLocator.getMessage("save_page_edit")
-                					+ " " + page.getTitle()));
+                    UIInternalLink.make(pagerow, "save-edit-link", param).decorate(
+                        new UITooltipDecorator(messageLocator.getMessage("save_page_edit")
+                            + " " + page.getTitle())).decorate(
+                        new UIAlternativeTextDecorator(messageLocator.getMessage("save_page_edit")
+                            + " " + page.getTitle()));
 
-                	UIOutput.make(pagerow, "cancel-edit-link").decorate(
-                			new UITooltipDecorator(messageLocator.getMessage("cancel_page_edit")                                         
-                					+ " " + page.getTitle()));
+                    UIOutput.make(pagerow, "cancel-edit-link").decorate(
+                        new UITooltipDecorator(messageLocator.getMessage("cancel_page_edit")                                         
+                            + " " + page.getTitle())).decorate(
+                        new UIAlternativeTextDecorator(messageLocator.getMessage("cancel_page_edit")                                         
+                            + " " + page.getTitle()));
                 }
                 
                 if (page.getTools().size() == 1) {
@@ -127,11 +134,13 @@ public class PageListProducer
 
                         param.viewID = PageDelProducer.VIEW_ID;
                         UIInternalLink.make(pagerow, "del-link", param).decorate(
-                              new UITooltipDecorator(messageLocator.getMessage("page_remove") 
-                                                     + " " + page.getTitle()));
+                            new UITooltipDecorator(messageLocator.getMessage("page_remove") + " "
+                                + page.getTitle())).decorate(
+                            new UIAlternativeTextDecorator(messageLocator.getMessage("page_remove")
+                                + " " + page.getTitle()));
                     }
                   
-                    //allow special configuration for the iframe tool. This needs to be generalized
+                    // allow special configuration for the iframe tool. This needs to be generalized
                     //for all tools that want special configuration and/or allow multiple instances 
                     //per site
                     if ("sakai.iframe".equals(tool.getToolId())) {
@@ -139,9 +148,8 @@ public class PageListProducer
                         UIInput config = UIInput.make(pagerow, "page-config-input", "#{SitePageEditHandler.nil}", 
                                 tool.getPlacementConfig().getProperty("source"));
  
-                        UIOutput configLabel = UIOutput.make(pagerow, "page-config-label", messageLocator
-                                .getMessage("url"));
-                        configLabel.decorate(new UILabelTargetDecorator(config));
+                        UIOutput.make(pagerow, "page-config-label", messageLocator
+                            .getMessage("url")).decorate(new UILabelTargetDecorator(config));
                     }
                 }
 
@@ -150,24 +158,32 @@ public class PageListProducer
                     if (handler.isVisible(page)) {
                         param.visible = "false";
                         UIInternalLink.make(pagerow, "hide-link", param).decorate(
-                                new UITooltipDecorator(messageLocator.getMessage("page_hide")
-                                                       + " " + page.getTitle()));
+                            new UITooltipDecorator(messageLocator.getMessage("page_hide")
+                                + " " + page.getTitle())).decorate(
+                            new UIAlternativeTextDecorator(messageLocator.getMessage("page_hide")
+                                + " " + page.getTitle()));
                         
                         param.visible = "true";
                         UIInternalLink.make(pagerow, "show-link-off", param).decorate(
-                                new UITooltipDecorator(messageLocator.getMessage("page_show")
-                                                       + " " + page.getTitle()));
+                            new UITooltipDecorator(messageLocator.getMessage("page_show")
+                                + " " + page.getTitle())).decorate(
+                            new UIAlternativeTextDecorator(messageLocator.getMessage("page_show")
+                                + " " + page.getTitle()));
                     }
                     else {
                         param.visible = "true";
                         UIInternalLink.make(pagerow, "show-link", param).decorate(
-                                new UITooltipDecorator(messageLocator.getMessage("page_show")
-                                                       + " " + page.getTitle()));
+                            new UITooltipDecorator(messageLocator.getMessage("page_show")
+                                + " " + page.getTitle())).decorate(
+                            new UIAlternativeTextDecorator(messageLocator.getMessage("page_show")
+                                + " " + page.getTitle()));
                      
                         param.visible = "false";
                         UIInternalLink.make(pagerow, "hide-link-off", param).decorate(
-                                new UITooltipDecorator(messageLocator.getMessage("page_hide")
-                                                       + " " + page.getTitle()));
+                            new UITooltipDecorator(messageLocator.getMessage("page_hide")
+                                + " " + page.getTitle())).decorate(
+                            new UIAlternativeTextDecorator(messageLocator.getMessage("page_hide")
+                                + " " + page.getTitle()));
                     }
                 }
                 
@@ -180,17 +196,17 @@ public class PageListProducer
 
             UIInput.make(pageForm, "state-init", "#{SitePageEditHandler.state}", state);
             UICommand.make(pageForm, "save", "#{SitePageEditHandler.savePages}")
-              .decorate(new UITooltipDecorator(messageLocator
-                        .getMessage("save_message")));
+                .decorate(new UITooltipDecorator(messageLocator
+                    .getMessage("save_message")));
 
             UICommand.make(pageForm, "revert", "#{SitePageEditHandler.cancel}")
-              .decorate(new UITooltipDecorator(messageLocator
-                        .getMessage("cancel_message")));
+                .decorate(new UITooltipDecorator(messageLocator
+                    .getMessage("cancel_message")));
 
             if (handler.isSiteOrdered()) {
                 UICommand.make(pageForm, "reset", "#{SitePageEditHandler.reset}")
-                .decorate(new UITooltipDecorator(messageLocator
-                            .getMessage("reset_message")));
+                    .decorate(new UITooltipDecorator(messageLocator
+                        .getMessage("reset_message")));
             }
  
             frameAdjustingProducer.fillComponents(tofill, "resize", "resetFrame");
@@ -199,8 +215,7 @@ public class PageListProducer
         else {
             //error messages
             UIBranchContainer error = UIBranchContainer.make(tofill, "error:");
-            UIOutput.make(error, "message", messageLocator
-                    .getMessage("access_error"));
+            UIOutput.make(error, "message", messageLocator.getMessage("access_error"));
         }
     }
 
@@ -210,17 +225,16 @@ public class PageListProducer
         togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
         togo.add(new NavigationCase("done", 
                  new RawViewParameters(SakaiURLUtil.getHelperDoneURL(tool, sessionManager))));
-        
 
         return togo;
     }
 
-	public ServerConfigurationService getServerConfigurationService() {
-		return serverConfigurationService;
-	}
+    public ServerConfigurationService getServerConfigurationService() {
+        return serverConfigurationService;
+    }
 
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
+    public void setServerConfigurationService(
+        ServerConfigurationService serverConfigurationService) {
+            this.serverConfigurationService = serverConfigurationService;
+    }
 }
