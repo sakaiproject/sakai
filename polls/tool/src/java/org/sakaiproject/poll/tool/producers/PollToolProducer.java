@@ -190,7 +190,7 @@ DefaultView,NavigationCaseReporter {
 		Locale M_locale = null;
 		String langLoc[] = localegetter.get().toString().split("_");
 		if ( langLoc.length >= 2 ) {
-			if (langLoc[0].equals("en") && langLoc[1].equals("ZA"))
+			if ("en".equals(langLoc[0]) && "ZA".equals(langLoc[1]))
 				M_locale = new Locale("en", "GB");
 			else
 				M_locale = new Locale(langLoc[0], langLoc[1]);

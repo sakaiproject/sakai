@@ -183,7 +183,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	    UIForm newPoll = UIForm.make(tofill, "add-poll-form");
 	    
 	    m_log.debug("Poll of id: " + ecvp.id);
-	    if (ecvp.id == null || ecvp.id.equals("New 0")) {
+	    if (ecvp.id == null || "New 0".equals(ecvp.id)) {
 			UIMessage.make(tofill,"new_poll_title","new_poll_title");
 			//build an empty poll 
 			m_log.debug("this is a new poll");
