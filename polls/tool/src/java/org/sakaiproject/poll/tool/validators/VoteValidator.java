@@ -109,7 +109,7 @@ public class VoteValidator implements Validator {
 	
 	if (votes.getOptionsSelected() == null && votes.getOption() == null && poll.getMinOptions()>0) {
 		logger.debug("there seems to be no vote on this poll");  
-		String errStr = new Integer(poll.getMinOptions()).toString();
+		String errStr = Integer.valueOf(poll.getMinOptions()).toString();
 		errors.reject("error_novote", new Object[] {errStr}, "no vote");
 		  return;
 	} else if (votes.getOptionsSelected() == null && votes.getOption() == null && poll.getMinOptions()==0) {
@@ -136,15 +136,15 @@ public class VoteValidator implements Validator {
 	  
 	  if (poll.getMaxOptions() == poll.getMinOptions() && options.size() != poll.getMaxOptions()){
 		  logger.debug("exact match failure!");
-		  String errStr = new Integer(poll.getMinOptions()).toString();
+		  String errStr = Integer.valueOf(poll.getMinOptions()).toString();
 		  errors.reject("error_exact_required", new Object[] {errStr}, "exact required");
 	  }else if (options.size() > poll.getMaxOptions()) {
 		  logger.debug("votes are for more than allowed!");
-		  String errStr = new Integer(poll.getMaxOptions()).toString();
+		  String errStr = Integer.valueOf(poll.getMaxOptions()).toString();
 		  errors.reject("error_tomany_votes", new Object[] {errStr}, "to many votes");
 	  }else if (options.size() < poll.getMinOptions()) {
 		  logger.debug("votes are for fewer than required!");
-		  String errStr = new Integer(poll.getMinOptions()).toString();
+		  String errStr = Integer.valueOf(poll.getMinOptions()).toString();
 		  errors.reject("error_tofew_votes", new Object[] {errStr}, "to few");
 	  }
 	}

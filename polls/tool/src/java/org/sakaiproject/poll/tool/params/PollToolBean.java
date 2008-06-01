@@ -186,7 +186,7 @@ public class PollToolBean {
   public void processActionDelete() {
     
     	for (int i = 0; i < deleteids.length; i ++) {
-    		Poll todelete = (Poll) manager.getPollById(new Long(deleteids[i].longValue()));
+    		Poll todelete = (Poll) manager.getPollById(Long.valueOf(deleteids[i].longValue()));
     		try {
     			manager.deletePoll(todelete);
     		}
@@ -234,7 +234,7 @@ public class PollToolBean {
 	  for (int i = 0; i < options.size(); i++){
 		  //create a new vote
 		 m_log.debug("this vote is for option " + options.get(i));
-		 Option opt = new Option(new Long((String)options.get(i)));  
+		 Option opt = new Option(Long.valueOf((String)options.get(i)));  
 		 Vote vote = new Vote(poll,opt,votes.getId());
 		 if (vote.getIp() == null) {
 			 m_log.warn("IP is null");

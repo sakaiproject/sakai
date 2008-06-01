@@ -25,7 +25,7 @@ public class PollBeanLocator implements BeanLocator {
 				togo = new Poll();
 			}
 			else { 
-				togo = pollListManager.getPollById(new Long(name));
+				togo = pollListManager.getPollById(Long.valueOf(name));
 			}
 			delivered.put(name, togo);
 		}

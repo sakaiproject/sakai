@@ -145,16 +145,16 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		OptionViewParameters aivp = (OptionViewParameters) viewparams;
 		boolean newOption = false;
 		if(aivp.id != null) {
-			m_log.debug("got a paramater with id: " + new Long(aivp.id));
+			m_log.debug("got a paramater with id: " + Long.valueOf(aivp.id));
 			// passed in an id so we should be modifying an item if we can find it
-			option = pollListManager.getOptionById(new Long(aivp.id));
+			option = pollListManager.getOptionById(Long.valueOf(aivp.id));
 			poll = pollListManager.getPollById(option.getOptionId());
 			UIMessage.make(tofill,"new-option-title","edit_option_title");
 		} else {
 			option = new Option();
 			if (aivp.pollId != null) {
-				option.setPollId(new Long(aivp.pollId));
-				poll = pollListManager.getPollById(new Long(aivp.pollId));
+				option.setPollId(Long.valueOf(aivp.pollId));
+				poll = pollListManager.getPollById(Long.valueOf(aivp.pollId));
 			} else { 
 				option.setPollId(voteBean.getPoll().getPollId());
 			}
@@ -227,7 +227,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 				}
 
 			} else {
-				Option option = pollListManager.getOptionById(new Long(optvp.id));
+				Option option = pollListManager.getOptionById(Long.valueOf(optvp.id));
 				result.resultingView = new PollViewParameters(viewId, option.getPollId().toString());
 			}
 		}

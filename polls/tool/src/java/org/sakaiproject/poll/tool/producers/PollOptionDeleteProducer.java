@@ -105,9 +105,9 @@ public class PollOptionDeleteProducer implements ViewComponentProducer,Navigatio
 		Option option = null;
 		OptionViewParameters aivp = (OptionViewParameters) viewparams;
 		if(aivp.id != null) {
-			m_log.debug("got a paramater with id: " + new Long(aivp.id));
+			m_log.debug("got a paramater with id: " + Long.valueOf(aivp.id));
 			// passed in an id so we should be modifying an item if we can find it
-			option = pollListManager.getOptionById(new Long(aivp.id));
+			option = pollListManager.getOptionById(Long.valueOf(aivp.id));
 		} 
 
 		UIVerbatim.make(tofill,"poll_text",option.getOptionText());

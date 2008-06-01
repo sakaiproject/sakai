@@ -134,7 +134,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 
 			String strId = ecvp.id;
 			m_log.debug("got id of " + strId);
-			Poll poll = pollListManager.getPollById(new Long(strId));
+			Poll poll = pollListManager.getPollById(Long.valueOf(strId));
 
 			m_log.debug("got poll " + poll.getText());
 
@@ -187,7 +187,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			if (isMultiple)
 				radio = UISelect.makeMultiple(voteForm,"optionform",values,"#{voteCollection.optionsSelected}",new String[]{});
 			else
-				radio = UISelect.make(voteForm,"optionform",values,"#{voteCollection.option}",new String());
+				radio = UISelect.make(voteForm,"optionform",values,"#{voteCollection.option}","");
 
 			radio.optionnames = UIOutputMany.make(labels);
 			String selectID = radio.getFullID();

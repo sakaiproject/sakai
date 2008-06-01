@@ -50,12 +50,12 @@ public class PollRolePerms {
 		
 		public PollRolePerms(String rolename, boolean vote, boolean add, boolean deleteOwn, boolean deleteAny, boolean editOwn, boolean editAny) {	
 			this.rolename = rolename; 
-			this.vote = new Boolean(vote); 
-			this.add = new Boolean(add); 
-			this.deleteAny = new Boolean(deleteAny); 
-			this.deleteOwn = new Boolean(deleteOwn);
-			this.editAny = new Boolean(editAny); 
-			this.editOwn = new Boolean(editOwn); 
+			this.vote = Boolean.valueOf(vote); 
+			this.add = Boolean.valueOf(add); 
+			this.deleteAny = Boolean.valueOf(deleteAny); 
+			this.deleteOwn = Boolean.valueOf(deleteOwn);
+			this.editAny = Boolean.valueOf(editAny); 
+			this.editOwn = Boolean.valueOf(editOwn); 
 			
 		}
 		

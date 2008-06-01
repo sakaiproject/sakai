@@ -304,7 +304,7 @@ public class Poll implements Entity  {
 		
 		poll.setAttribute("open-time", this.voteOpen.toString());
 		poll.setAttribute("close-time", this.voteClose.toString());
-		poll.setAttribute("limit-voting", new Boolean(limitVoting).toString());
+		poll.setAttribute("limit-voting", Boolean.valueOf(limitVoting).toString());
 		// properties
 		//getProperties().toXml(doc, stack);
 		//apppend the options as chidren

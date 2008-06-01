@@ -162,7 +162,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		  //process any messages
 		if (tml.size() > 0) {
 		    	for (int i = 0; i < tml.size(); i ++ ) {
-		    		UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", new Integer(i).toString());
+		    		UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.valueOf(i).toString());
 		    		if (tml.messageAt(i).args != null ) {	    		
 		    			UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode(),(String[])tml.messageAt(i).args[0]);
 		    		} else {
@@ -193,7 +193,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			
 			String strId = ecvp.id;
 			m_log.debug("got id of " + strId);
-			poll = pollListManager.getPollById(new Long(strId));
+			poll = pollListManager.getPollById(Long.valueOf(strId));
 			voteBean.setPoll(poll);
 			newPoll.parameters.add(new UIELBinding("#{poll.pollId}",
 			           poll.getPollId()));

@@ -130,7 +130,7 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 		for (int i =0; i < perms.length;i++){
 			String thisPerm = (String)perms[i];
 			thisPerm = thisPerm.substring(thisPerm.indexOf('.') + 1);
-			UIBranchContainer b = UIBranchContainer.make(tofill,"head-row:", new Integer(i).toString());
+			UIBranchContainer b = UIBranchContainer.make(tofill,"head-row:", Integer.valueOf(i).toString());
 			UIOutput.make(b,"perm-name",thisPerm);
 		}
 		
@@ -152,8 +152,8 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 					thisPerm = thisPerm.substring(thisPerm.indexOf('.') + 1);
 					UIBranchContainer col = UIBranchContainer.make(row,"box-row:", thisPerm);
 					m_log.debug("drawing box for "+ thisPerm + " for role " + role.getId());
-					//new Boolean(role.isAllowed((String)perms[ip]))
-					UIBoundBoolean.make(col, "perm-box","#{" + prefix +"."+ thisPerm + "}", new Boolean(role.isAllowed((String)perms[ip])));
+					//Boolean.valueOf(role.isAllowed((String)perms[ip]))
+					UIBoundBoolean.make(col, "perm-box","#{" + prefix +"."+ thisPerm + "}", Boolean.valueOf(role.isAllowed((String)perms[ip])));
 					 									  
 				}
 			}

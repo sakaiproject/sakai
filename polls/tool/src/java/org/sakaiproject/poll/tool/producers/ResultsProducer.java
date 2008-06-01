@@ -126,14 +126,14 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 
 		String strId = ecvp.id;
 		m_log.debug("got id of " + strId);
-		Poll poll = pollListManager.getPollById(new Long(strId));
+		Poll poll = pollListManager.getPollById(Long.valueOf(strId));
 
 
 		//get the number of votes
 		int voters = pollVoteManager.getDisctinctVotersForPoll(poll);
-		//Object[] args = new Object[] { new Integer(voters).toString()};
+		//Object[] args = new Object[] { Integer.valueOf(voters).toString()};
 		if (poll.getMaxOptions()>1)
-			UIOutput.make(tofill,"poll-size",messageLocator.getMessage("results_poll_size",new Integer(voters).toString()));
+			UIOutput.make(tofill,"poll-size",messageLocator.getMessage("results_poll_size",Integer.valueOf(voters).toString()));
 
 		m_log.debug(voters + " have voted on this poll");
 
@@ -144,7 +144,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		m_log.debug("got a list of " + pollOptions.size() + " options");
 		//appeng an option for no votes
 		if (poll.getMinOptions()==0) {
-			Option noVote = new Option(new Long(0));
+			Option noVote = new Option(Long.valueOf(0));
 			noVote.setOptionText(messageLocator.getMessage("result_novote"));
 			noVote.setPollId(poll.getPollId());
 			pollOptions.add(noVote);
@@ -181,7 +181,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			CollatedVote cv = (CollatedVote)collation.get(i);
 			UIBranchContainer resultRow = UIBranchContainer.make(tofill,"answer-row:",cv.getoptionId().toString());
 			UIVerbatim.make(resultRow,"answer-option",cv.getOptionText());
-			UIOutput.make(resultRow,"answer-numVotes",new Long(cv.getVotes()).toString());
+			UIOutput.make(resultRow,"answer-numVotes",Long.valueOf(cv.getVotes()).toString());
 			m_log.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
 			double percent = (double)0;
 			if (totalVotes>0  && poll.getMaxOptions() == 1)
@@ -197,7 +197,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			UIOutput.make(resultRow,"answer-percVotes", nf.format(percent));
 
 		}
-		UIOutput.make(tofill,"votes-total",new Integer(totalVotes).toString());
+		UIOutput.make(tofill,"votes-total",Integer.valueOf(totalVotes).toString());
 		if (totalVotes > 0 && poll.getMaxOptions() == 1)
 			UIOutput.make(tofill,"total-percent","100%");
 
