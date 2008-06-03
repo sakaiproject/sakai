@@ -187,10 +187,15 @@
 				</h:panelGroup>
                	
    	       		<h:outputText escape="false" value="<br />&nbsp;" rendered="#{message.depth == 0}" />
-    	   		<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 0 && message.read}"
+    	   		<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 0 && message.childCount < 1 && message.read}"
            	   			value="#{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msg} - #{message.childUnread} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
-           	   	<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 0 && !message.read}"
+           	   	<h:outputText  escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 0 && message.childCount < 1 && !message.read}"
            	   			value="#{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msg} - #{message.childUnread +1} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />		
+
+    	   		<h:outputText  escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount >= 1 && message.read}"
+           	   			value="#{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msgs} - #{message.childUnread} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
+           	   	<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount >= 1 && !message.read}"
+           	   			value="#{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msgs} - #{message.childUnread +1} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
 			</h:column>
 
 			<h:column>
