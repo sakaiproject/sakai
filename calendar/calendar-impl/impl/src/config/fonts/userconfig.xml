@@ -1,0 +1,15 @@
+<configuration>
+	<fonts>
+		<font metrics-file="fonts/dejavusans.xml" 
+			embed-file="fonts/dejavu-fonts-ttf-2.25/ttf/DejaVuSans.ttf"
+			kerning="yes">
+		    	<font-triplet name="DejaVuSans" style="normal" weight="normal"/>
+		</font>
+		
+		<font metrics-file="fonts/dejavusans-bold.xml" 
+			embed-file="fonts/dejavu-fonts-ttf-2.25/ttf/DejaVuSans-Bold.ttf"
+			kerning="yes">
+		    	<font-triplet name="DejaVuSans" style="normal" weight="bold"/>
+		</font>
+	</fonts>
+</configuration>

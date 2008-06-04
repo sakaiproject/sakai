@@ -4,6 +4,8 @@
 	xmlns:fo="http://www.w3.org/1999/XSL/Format"
 	version="1.0">
 
+<xsl:output encoding='utf-8'/>
+
 <xsl:param name="dayNames0"/>
 <xsl:param name="dayNames1"/>
 <xsl:param name="dayNames2"/>
@@ -556,7 +558,7 @@
 <!-- end scheduleUtil templates -->
 
 <xsl:template match="schedule">
-<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">  
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" font-family="DejaVuSans">  
   <!-- defines page layout -->
   <fo:layout-master-set>
 
@@ -593,7 +595,7 @@
     <fo:static-content flow-name="xsl-region-before">
    		<xsl:variable name="frm-len" select="$frmlen"/>
 		<fo:block font-size="12pt" 
-            font-family="sans-serif"
+            font-family="DejaVuSans"
             font-weight="bold" 
             line-height="0.5cm"
             space-after.optimum="1pt"

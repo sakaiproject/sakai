@@ -22,11 +22,12 @@
 package org.sakaiproject.calendar.impl;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.DecimalFormat;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,19 +65,22 @@ import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.Comment;
+import net.fortuna.ical4j.model.property.Description;
+import net.fortuna.ical4j.model.property.Location;
+import net.fortuna.ical4j.model.property.Organizer;
 import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.TzId;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
-import net.fortuna.ical4j.model.property.Location;
-import net.fortuna.ical4j.model.property.Description;
-import net.fortuna.ical4j.model.property.Comment;
-import net.fortuna.ical4j.model.property.Organizer;
 
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.fop.apps.Driver;
+import org.apache.fop.apps.FOPException;
+import org.apache.fop.apps.Options;
+import org.apache.fop.configuration.Configuration;
 import org.apache.fop.messaging.MessageHandler;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
@@ -91,13 +95,13 @@ import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
-import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
+import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -136,8 +140,8 @@ import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.DefaultEntityHandler;
@@ -5253,6 +5257,10 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	protected final static String MONTH_VIEW_XSLT_FILENAME = "schedulemm.xsl";
 
 	protected final static String WEEK_VIEW_XSLT_FILENAME = "schedule.xsl";
+	
+	// FOP Configuration
+	protected final static String FOP_USERCONFIG = "fonts/userconfig.xml";
+	protected final static String FOP_FONTBASEDIR = "fonts";
 
 	// Mime Types
 	protected final static String PDF_MIME_TYPE = "application/pdf";
@@ -6007,6 +6015,19 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		org.apache.avalon.framework.logger.Logger logger = new ConsoleLogger(ConsoleLogger.LEVEL_ERROR);
 		MessageHandler.setScreenLogger(logger);
 		driver.setLogger(logger);
+
+		try {
+			String baseDir = getClass().getClassLoader().getResource(FOP_FONTBASEDIR).toString();
+			Configuration.put("fontBaseDir", baseDir);
+			InputStream userConfig = getClass().getClassLoader().getResourceAsStream(FOP_USERCONFIG);
+			Options options = new Options(userConfig);
+		}
+      catch (FOPException fe){
+			M_log.warn(this+".generatePDF: ", fe);
+		}
+      catch(Exception e){
+			M_log.warn(this+".generatePDF: ", e);
+		}
 
 		driver.setOutputStream(streamOut);
 		driver.setRenderer(Driver.RENDER_PDF);
