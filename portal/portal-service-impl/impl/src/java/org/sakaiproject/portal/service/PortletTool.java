@@ -21,11 +21,8 @@
 
 package org.sakaiproject.portal.service;
 
-import java.io.File;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -39,7 +36,6 @@ import org.apache.pluto.internal.InternalPortletContext;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.cover.ActiveToolManager;
 
 /**
  * <p>
@@ -88,54 +84,18 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 	/** The parsed tool registration (if any) * */
 	protected Tool m_tool = null;
 
+	// Note the Tool as a parameter has property data to copy - we
+	// copy data from that - and create ourselves as a new instance
 	public PortletTool(PortletDD pdd, InternalPortletContext portlet,
-			ServletContext portalContext)
+			ServletContext portalContext, Tool t)
 	{
-
 		String portletSupport = ServerConfigurationService.getString("portlet.support");
 
 		String portletName = pdd.getPortletName();
 		String appName = portlet.getApplicationId();
 
-		List<Tool> toolRegs = null;
-
-		// See if we have a registration in the portlet itself
-		String webappRegPath = "/WEB-INF/sakai/"+portletName+".xml";
-		InputStream is = portalContext.getResourceAsStream(webappRegPath);
-		if ( is != null ) 
+		if (t != null )
 		{
-			toolRegs = ActiveToolManager.parseTools(is);
-			if ( toolRegs != null ) 
-			{
-				M_log.info("Found Portlet Registration="+webappRegPath);
-			}
-		}
-		
-		// If not there - do we have one in Sakai Home?
-		if ( toolRegs == null )
-		{
-			String homePath = ServerConfigurationService.getSakaiHomePath() + "/portlets/";
-			String portletReg = homePath + appName + "/" + portletName + ".xml";
-	
-			File toolRegFile = new File(portletReg);
-			if (!toolRegFile.canRead())
-			{
-				portletReg = homePath + portletName + ".xml";
-				toolRegFile = new File(portletReg);
-			}
-
-			// Attempt to read and parse the registraiton file
-			toolRegs = ActiveToolManager.parseTools(new File(portletReg));
-			if ( toolRegs != null ) 
-			{
-				M_log.info("Found Portlet Registration="+homePath);
-			}
-		}
-
-		// We ignore the tool registrations other than the first
-		if (toolRegs != null && toolRegs.size() > 0)
-		{
-			Tool t = toolRegs.get(0);
 			m_id = t.getId();
 			m_title = t.getTitle();
 			m_description = t.getDescription();
@@ -148,19 +108,19 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 			m_mutableConfig = t.getMutableConfig();
 			// RegisteredConfig is derived in the getter of this class
 			M_log.info("Portlet registered from tool registration with Sakai toolId="
-					+ m_id);
+				+ m_id);
 		}
 		else
 		{
-			m_id = "portlet." + portlet.getApplicationId() + "." + pdd.getPortletName();
+			m_id = "portlet." + portlet.getApplicationId() + "." + portletName;
 			PortletInfoDD pidd = pdd.getPortletInfo();
 			if (pidd != null)
 			{
 				m_title = pidd.getShortTitle();
 				m_description = pidd.getTitle();
 			}
-			if (m_title == null) m_title = pdd.getPortletName();
-			if (m_description == null) m_description = pdd.getPortletName();
+			if (m_title == null) m_title = portletName;
+			if (m_description == null) m_description = portletName;
 
 			if ("stealth".equals(portletSupport))
 			{
@@ -177,10 +137,10 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 
 		// Indicate that these tools are indeed portlets and where to dispatch
 		// the portlet
-		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH, portlet
-				.getApplicationId());
-		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_NAME, pdd.getPortletName());
+		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH, appName);
+		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_NAME, portletName);
 		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_APP_NAME, appName);
+
 	}
 
 	/**

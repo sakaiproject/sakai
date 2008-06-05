@@ -20,7 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.portal.service;
 
+import java.util.List;
 import java.util.Iterator;
+
+import java.io.File;
+import java.io.InputStream;
 
 import javax.servlet.ServletContext;
 
@@ -33,6 +37,9 @@ import org.apache.pluto.internal.InternalPortletContext;
 import org.apache.pluto.spi.optional.PortletRegistryEvent;
 import org.apache.pluto.spi.optional.PortletRegistryListener;
 import org.sakaiproject.tool.api.ActiveToolManager;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
 
 /**
  * @author ieb
@@ -75,9 +82,21 @@ public class SakaiPortletRegistryListener implements PortletRegistryListener
 			for (Iterator<PortletDD> i = appDD.getPortlets().iterator(); i.hasNext();)
 			{
 				PortletDD pdd = i.next();
-				PortletTool tool = new PortletTool(pdd, iPortlet, portalContext);
-				String portlentName = pdd.getPortletName();
-				activeToolManager.register(tool, portalContext);
+				List<Tool> toolRegs = getRegistrationsForPortlet(pdd, iPortlet, portalContext);
+				if ( toolRegs == null )
+				{
+					PortletTool tool = new PortletTool(pdd, iPortlet, portalContext, null);
+					activeToolManager.register(tool, portalContext);
+				}
+				else
+				{
+					for ( Iterator<Tool> it = toolRegs.iterator(); it.hasNext(); ) 
+					{
+						Tool t = it.next();
+						PortletTool tool = new PortletTool(pdd, iPortlet, portalContext, t);
+						activeToolManager.register(tool, portalContext);
+					}
+				}
 
 			}
 		}
@@ -85,6 +104,53 @@ public class SakaiPortletRegistryListener implements PortletRegistryListener
 		{
 			log.warn("Failed to register portlets as tools ", e);
 		}
+	}
+
+	// See if there are any sakai-style tool registrations for this portlet
+	public List<Tool> getRegistrationsForPortlet(PortletDD pdd, InternalPortletContext portlet,
+			ServletContext portalContext)
+	{
+
+		String portletName = pdd.getPortletName();
+		String appName = portlet.getApplicationId();
+
+		List<Tool> toolRegs = null;
+
+		// Check sakai.home first
+		String homePath = ServerConfigurationService.getSakaiHomePath() + "/portlets/";
+		String portletReg = homePath + appName + "/" + portletName + ".xml";
+
+		File toolRegFile = new File(portletReg);
+		if (!toolRegFile.canRead())
+		{
+			portletReg = homePath + portletName + ".xml";
+			toolRegFile = new File(portletReg);
+		}
+
+		// Attempt to read and parse the registration file
+		toolRegs = activeToolManager.parseTools(new File(portletReg));
+		if ( toolRegs != null ) 
+		{
+			log.info("Found "+toolRegs.size()+" Tool(s) to register from="+portletReg);
+		}
+		
+		// If not there - do we have one in the webapp?
+		if ( toolRegs == null )
+		{
+			// See if we have a registration in the portlet itself
+			String webappRegPath = "/WEB-INF/sakai/"+portletName+".xml";
+			InputStream is = portalContext.getResourceAsStream(webappRegPath);
+			if ( is != null ) 
+			{
+				toolRegs = activeToolManager.parseTools(is);
+				if ( toolRegs != null ) 
+				{
+					log.info("Found "+toolRegs.size()+" Tool(s) to register from="+webappRegPath);
+				}
+			}
+		}
+
+		return toolRegs;
 	}
 
 	/*
