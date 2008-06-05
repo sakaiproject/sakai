@@ -157,6 +157,8 @@ public class SiteManageGroupSectionRoleHandler {
 		deleteGroupIds=new String[]{};
 		selectedGroupMembers = new String[]{};
 	    selectedSiteMembers = new String[]{};
+	    selectedRosters = new HashMap<String, Boolean>();
+	    selectedRoles = new HashMap<String, Boolean>();
 	}
 	 
     /**
@@ -583,7 +585,7 @@ public class SiteManageGroupSectionRoleHandler {
     				{
     					String roleUserId = (String) iRoleUsers.next();
         				Member member = site.getMember(roleUserId);
-    					group.addMember(roleUserId, memberId, member.isActive(), member.isProvided());
+    					group.addMember(roleUserId, memberId, member.isActive(), false);
     				}
     				selectedRoles.add(memberId);
 				}
@@ -777,7 +779,7 @@ public class SiteManageGroupSectionRoleHandler {
         				{
         					String roleUserId = (String) iRoleUsers.next();
             				Member member = site.getMember(roleUserId);
-        					group.addMember(roleUserId, roleId, member.isActive(), member.isProvided());
+        					group.addMember(roleUserId, roleId, member.isActive(), false);
         				}
         			}
         			

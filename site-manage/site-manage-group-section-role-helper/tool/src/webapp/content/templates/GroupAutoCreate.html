@@ -20,50 +20,54 @@
 	</div>
 	<form rsf:id="groups-form">
 		<h3 rsf:id="prompt"></h3>
-		<h3 rsf:id="instruction-roster">Select a course roster to create a separate group for that roster.</h3>
-		<table width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines" summary="placeholder summary">
-            <thead>
-                <tr>
-                    <th width="10%">
-                        <input id="rosterSelectAllNone" type="checkbox" />
-                        <span rsf:id="roster-select-header">Select</span>
-                    </th>
-                    <th rsf:id="roster-title-header">Course Roster</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr rsf:id="roster-row:">
-                    <td width="10%">
-                        <input class=" rostercheckbox "rsf:id="roster-checkbox" type="checkbox" />
-                    </td>
-                    <td>
-                        <label rsf:id="roster-title">Provider Title</label>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <h3 rsf:id="instruction-role">Select a role to create a separate group for that role.</h3>
-        <table width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines" summary="placeholder summary">
-            <thead>
-                <tr>
-                    <th width="10%">
-                        <input id="roleSelectAllNone" type="checkbox" />
-                        <span rsf:id="role-select-header">Select</span>
-                    </th>
-                    <th rsf:id="role-title-header">Role</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr rsf:id="role-row:">
-                    <td width="10%">
-                        <input class=" rolecheckbox "rsf:id="role-checkbox" type="checkbox" />
-                    </td>
-                    <td>
-                        <label rsf:id="role-title">Role Title</label>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+		<div rsf:id="roster_options:">
+			<h3 rsf:id="instruction-roster">Select a course roster to create a separate group for that roster.</h3>
+			<table width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines" summary="placeholder summary">
+	            <thead>
+	                <tr>
+	                    <th width="10%">
+	                        <input id="rosterSelectAllNone" type="checkbox" />
+	                        <span rsf:id="roster-select-header">Select</span>
+	                    </th>
+	                    <th rsf:id="roster-title-header">Course Roster</th>
+	                </tr>
+	            </thead>
+	            <tbody>
+	                <tr rsf:id="roster-row:">
+	                    <td width="10%">
+	                        <input class=" rostercheckbox "rsf:id="roster-checkbox" type="checkbox" />
+	                    </td>
+	                    <td>
+	                        <label rsf:id="roster-title">Provider Title</label>
+	                    </td>
+	                </tr>
+	            </tbody>
+	        </table>
+        </div>
+        <div rsf:id="role_options:">
+	        <h3 rsf:id="instruction-role">Select a role to create a separate group for that role.</h3>
+	        <table width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines" summary="placeholder summary">
+	            <thead>
+	                <tr>
+	                    <th width="10%">
+	                        <input id="roleSelectAllNone" type="checkbox" />
+	                        <span rsf:id="role-select-header">Select</span>
+	                    </th>
+	                    <th rsf:id="role-title-header">Role</th>
+	                </tr>
+	            </thead>
+	            <tbody>
+	                <tr rsf:id="role-row:">
+	                    <td width="10%">
+	                        <input class=" rolecheckbox "rsf:id="role-checkbox" type="checkbox" />
+	                    </td>
+	                    <td>
+	                        <label rsf:id="role-title">Role Title</label>
+	                    </td>
+	                </tr>
+	            </tbody>
+	        </table>
+	    </div>
 		<p class="act">
 			<input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit"/>
 			<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>

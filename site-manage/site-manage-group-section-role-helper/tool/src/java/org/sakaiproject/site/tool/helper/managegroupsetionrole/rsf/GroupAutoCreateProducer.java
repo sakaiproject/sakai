@@ -124,28 +124,35 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, DynamicNa
          UIOutput.make(groupForm, "group_label", messageLocator.getMessage("group.title"));
          UIInput titleTextIn = UIInput.make(groupForm, "group_title", "#{SiteManageGroupSectionRoleHandler.title}",groupTitle);
 		 
-		 UIMessage.make(arg0, "instruction-roster", "instruction.roster");
-		 UIMessage.make(arg0, "instruction-role", "instruction.role");
-		 
 		 // for the site rosters list
-		 UIMessage.make(arg0, "roster-select-header", "table.roster_select");
-		 UIMessage.make(arg0, "roster-title-header", "table.roster_title");
-		 Collection<String> siteRosters= handler.getSiteRosters(null);
-		 for (String roster: siteRosters) {
-			 UIBranchContainer tablerow = UIBranchContainer.make(groupForm, "roster-row:");
-			 UIBoundBoolean.make(tablerow, "roster-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRosters." + roster + "}");
-			 UIOutput.make(tablerow, "roster-title", roster);
+		 List<String> siteRosters= handler.getSiteRosters(null);
+		 if (siteRosters != null && siteRosters.size() > 0)
+		 {
+			 UIBranchContainer rosterOptions = UIBranchContainer.make(groupForm, "roster_options:");
+			 UIMessage.make(arg0, "roster-select-header", "table.roster_select");
+			 UIMessage.make(arg0, "roster-title-header", "table.roster_title");
+			 UIMessage.make(arg0, "instruction-roster", "instruction.roster");
+			 for (String roster: siteRosters) {
+				 UIBranchContainer tablerow = UIBranchContainer.make(rosterOptions, "roster-row:");
+				 UIBoundBoolean.make(tablerow, "roster-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRosters." + roster + "}");
+				 UIOutput.make(tablerow, "roster-title", roster);
+			 }
 		 }
 		 
 		 // for the site roles list
-		 UIMessage.make(arg0, "role-select-header", "table.role_select");
-		 UIMessage.make(arg0, "role-title-header", "table.role_title");
-		 Collection<Role> siteRoles= handler.getSiteRoles(null);
-		 for (Role role: siteRoles) {
-			 UIBranchContainer tablerow = UIBranchContainer.make(groupForm, "role-row:");
-			 UIBoundBoolean.make(tablerow, "role-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRoles." + role.getId() + "}");
-			 
-			 UIOutput.make(tablerow, "role-title", role.getId());
+		 List<Role> siteRoles= handler.getSiteRoles(null);
+		 if (siteRoles != null && siteRoles.size() > 0)
+		 {
+			 UIBranchContainer roleOptions = UIBranchContainer.make(groupForm, "role_options:");
+			 UIMessage.make(arg0, "role-select-header", "table.role_select");
+			 UIMessage.make(arg0, "role-title-header", "table.role_title");
+			 UIMessage.make(arg0, "instruction-role", "instruction.role");
+			 for (Role role: siteRoles) {
+				 UIBranchContainer tablerow = UIBranchContainer.make(roleOptions, "role-row:");
+				 UIBoundBoolean.make(tablerow, "role-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRoles." + role.getId() + "}");
+				 
+				 UIOutput.make(tablerow, "role-title", role.getId());
+			 }
 		 }
 		 
     	 UICommand.make(groupForm, "save", messageLocator.getMessage("update"), "#{SiteManageGroupSectionRoleHandler.processAutoCreateGroup}");
