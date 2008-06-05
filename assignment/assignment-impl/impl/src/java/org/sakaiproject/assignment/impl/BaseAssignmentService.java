@@ -4715,9 +4715,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 													// filter out the invalid characters in the attachment id
 													// map the attachment area folder name
 													String oldUrl = element5.getAttribute("relative-url");
-													if (oldUrl.startsWith("/content/attachment/"))
+													if (oldUrl.startsWith("/content/attachment/" + fromSiteId + "/"))
 													{
-														String newUrl = (String) attachmentNames.get(oldUrl);
+														String newUrl = "/content/attachment/" + siteId + oldUrl.substring(("/content/attachment" + fromSiteId).length());
+														element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
+														
+														// transfer attachment, replace the context string and add new attachment if necessary
+														newUrl = transferAttachment(fromSiteId, siteId, null, oldUrl.substring("/content".length()));
+														element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
+														
+														newUrl = (String) attachmentNames.get(oldUrl);
 														if (newUrl != null)
 														{
 															if (newUrl.startsWith("/attachment/"))
@@ -4732,7 +4739,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 													else if (oldUrl.startsWith("/content/group/" + fromSiteId + "/"))
 													{
 														String newUrl = "/content/group/" + siteId
-																+ oldUrl.substring(15 + fromSiteId.length());
+																+ oldUrl.substring(("/content/group/" + fromSiteId).length());
 														element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
 													}
 													// put the attachment back to the attribute field of content
@@ -4873,64 +4880,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								String oAttachmentId = ((Reference) oAttachments.get(n)).getId();
 								if (oAttachmentId.indexOf(fromContext) != -1)
 								{
-									// replace old site id with new site id in attachments
-									String nAttachmentId = oAttachmentId.replaceAll(fromContext, toContext);
-									try
-									{
-										ContentResource attachment = m_contentHostingService.getResource(nAttachmentId);
-										nAttachments.add(m_entityManager.newReference(attachment.getReference()));
-									}
-									catch (IdUnusedException e)
-									{
-										try
-										{
-											ContentResource oAttachment = m_contentHostingService.getResource(oAttachmentId);
-											try
-											{
-												if (m_contentHostingService.isAttachmentResource(nAttachmentId))
-												{
-													// add the new resource into attachment collection area
-													ContentResource attachment = m_contentHostingService.addAttachmentResource(
-															Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)), 
-															ToolManager.getCurrentPlacement().getContext(), 
-															ToolManager.getTool("sakai.assignment.grades").getTitle(), 
-															oAttachment.getContentType(), 
-															oAttachment.getContent(), 
-															oAttachment.getProperties());
-													// add to attachment list
-													nAttachments.add(m_entityManager.newReference(attachment.getReference()));
-												}
-												else
-												{
-													// add the new resource into resource area
-													ContentResource attachment = m_contentHostingService.addResource(
-															Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
-															ToolManager.getCurrentPlacement().getContext(), 
-															1, 
-															oAttachment.getContentType(), 
-															oAttachment.getContent(), 
-															oAttachment.getProperties(), 
-															NotificationService.NOTI_NONE);
-													// add to attachment list
-													nAttachments.add(m_entityManager.newReference(attachment.getReference()));
-												}
-											}
-											catch (Exception eeAny)
-											{
-												// if the new resource cannot be added
-												M_log.warn(this + " transferCopyEntities: cannot add new attachment with id=" + nAttachmentId + " " + eeAny.getMessage());
-											}
-										}
-										catch (Exception eAny)
-										{
-											// if cannot find the original attachment, do nothing.
-											M_log.warn(this + " transferCopyEntities: cannot find the original attachment with id=" + oAttachmentId + " " + eAny.getMessage());
-										}
-									}
-									catch (Exception any)
-									{
-										M_log.warn(this + " transferCopyEntities" + any.getMessage() + " oAttachmentId=" + oAttachmentId + " nAttachmentId=" + nAttachmentId);
-									}
+									// transfer attachment, replace the context string and add new attachment if necessary
+									transferAttachment(fromContext, toContext, nAttachments, oAttachmentId);
 								}
 								else
 								{
@@ -5019,6 +4970,94 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			} // if
 		} // for
 	} // importResources
+
+	/**
+	 * manipulate the transfered attachment
+	 * @param fromContext
+	 * @param toContext
+	 * @param nAttachments
+	 * @param oAttachmentId
+	 * @return the new reference
+	 */
+
+	private String transferAttachment(String fromContext, String toContext,
+			List nAttachments, String oAttachmentId) 
+	{
+		String rv = "";
+		
+		// replace old site id with new site id in attachments
+		String nAttachmentId = oAttachmentId.replaceAll(fromContext, toContext);
+		try
+		{
+			ContentResource attachment = m_contentHostingService.getResource(nAttachmentId);
+			if (nAttachments != null)
+			{
+				nAttachments.add(m_entityManager.newReference(attachment.getReference()));
+			}
+			rv = attachment.getReference();
+		}
+		catch (IdUnusedException e)
+		{
+			try
+			{
+				ContentResource oAttachment = m_contentHostingService.getResource(oAttachmentId);
+				try
+				{
+					if (m_contentHostingService.isAttachmentResource(nAttachmentId))
+					{
+						// add the new resource into attachment collection area
+						ContentResource attachment = m_contentHostingService.addAttachmentResource(
+								Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)), 
+								toContext, 
+								ToolManager.getTool("sakai.assignment.grades").getTitle(), 
+								oAttachment.getContentType(), 
+								oAttachment.getContent(), 
+								oAttachment.getProperties());
+						rv = attachment.getReference();
+						// add to attachment list
+						if (nAttachments != null)
+						{
+							nAttachments.add(m_entityManager.newReference(rv));
+						}
+					}
+					else
+					{
+						// add the new resource into resource area
+						ContentResource attachment = m_contentHostingService.addResource(
+								Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+								ToolManager.getCurrentPlacement().getContext(), 
+								1, 
+								oAttachment.getContentType(), 
+								oAttachment.getContent(), 
+								oAttachment.getProperties(), 
+								NotificationService.NOTI_NONE);
+						rv = attachment.getReference();
+						// add to attachment list
+						if (nAttachments != null)
+						{
+							nAttachments.add(m_entityManager.newReference(rv));
+						}
+					}
+				}
+				catch (Exception eeAny)
+				{
+					// if the new resource cannot be added
+					M_log.warn(this + " transferCopyEntities: cannot add new attachment with id=" + nAttachmentId + " " + eeAny.getMessage());
+				}
+			}
+			catch (Exception eAny)
+			{
+				// if cannot find the original attachment, do nothing.
+				M_log.warn(this + " transferCopyEntities: cannot find the original attachment with id=" + oAttachmentId + " " + eAny.getMessage());
+			}
+		}
+		catch (Exception any)
+		{
+			M_log.warn(this + " transferCopyEntities" + any.getMessage() + " oAttachmentId=" + oAttachmentId + " nAttachmentId=" + nAttachmentId);
+		}
+		
+		return rv;
+	}
 
 	/**
 	 * {@inheritDoc}
