@@ -36,5 +36,7 @@ public class SiteConstants {
 	public static final String SORTED_BY_GROUP_SIZE = "group_size";
 	
 	public static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
+	
+	public static final String GROUP_PROP_ROLE_PROVIDERID = "group_prop_role_providerid";
 
 }

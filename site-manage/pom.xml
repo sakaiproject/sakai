@@ -27,10 +27,11 @@
     <module>site-manage-help</module>
     <module>site-manage-impl/impl</module>
     <module>site-manage-impl/pack</module>
-	<module>site-manage-hbm</module>
+    <module>site-manage-hbm</module>
     <module>site-manage-tool/tool</module>
     <module>site-manage-util/util</module>
-  </modules>
+    <module>site-manage-group-helper/tool</module> 
+ </modules>
  </profile>
 
  <profile>
@@ -43,11 +44,12 @@
     <module>site-manage-help</module>
     <module>site-manage-impl/impl</module>
     <module>site-manage-impl/pack</module>
-	<module>site-manage-hbm</module>
+    <module>site-manage-hbm</module>
     <module>site-manage-tool/tool</module>
     <module>site-manage-util/util</module>
     <module>pageorder/tool</module>
     <module>site-manage-group-helper/tool</module>
+    <module>site-manage-group-section-role-helper/tool</module>
   </modules>
  </profile>
  </profiles>

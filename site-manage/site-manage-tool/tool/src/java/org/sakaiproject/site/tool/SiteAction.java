@@ -601,6 +601,8 @@ public class SiteAction extends PagedResourceActionII {
 	
 	// the list of visited templates
 	private static final String STATE_VISITED_TEMPLATES = "state_visited_templates";
+	
+	private String STATE_GROUP_HELPER_ID = "state_group_helper_id";
 
 	/**
 	 * Populate the state object, if needed.
@@ -1736,7 +1738,7 @@ public class SiteAction extends PagedResourceActionII {
 						// to not support group
 						// if the manage group helper is available, not
 						// stealthed and not hidden, show the link
-						if (notStealthOrHiddenTool("sakai-site-manage-group-helper")) {
+						if (setHelper("wsetup.groupHelper", "sakai-site-manage-group-helper", state, STATE_GROUP_HELPER_ID)) {
 							b.add(new MenuEntry(rb.getString("java.group"),
 									"doManageGroupHelper"));
 						}
@@ -2879,6 +2881,7 @@ public class SiteAction extends PagedResourceActionII {
 	public void doManageGroupHelper(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
 
 		// pass in the siteId of the site to be ordered (so it can configure
 		// sites other then the current site)
@@ -2886,8 +2889,23 @@ public class SiteAction extends PagedResourceActionII {
 				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
 
 		// launch the helper
-		startHelper(data.getRequest(), "sakai-site-manage-group-helper");
+		startHelper(data.getRequest(), (String) state.getAttribute(STATE_GROUP_HELPER_ID));//"sakai-site-manage-group-helper");
 		
+	}
+	
+	public boolean setHelper(String helperName, String defaultHelperId, SessionState state, String stateHelperString)
+	{
+		String helperId = ServerConfigurationService.getString(helperName, defaultHelperId);
+		
+		// if the state variable regarding the helper is not set yet, set it with the configured helper id
+		if (state.getAttribute(stateHelperString) == null)
+		{
+			state.setAttribute(stateHelperString, helperId);
+		}
+		if (notStealthOrHiddenTool(helperId)) {
+			return true;
+		}
+		return false;
 	}
 
 	// htripath: import materials from classic
