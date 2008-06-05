@@ -5283,7 +5283,7 @@ public class SiteAction extends PagedResourceActionII {
 			removeAddParticipantContext(state);
 
 			params = data.getParameters();
-			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
+			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		} else if (currentIndex.equals("13") || currentIndex.equals("14")) {
 			// clean state attributes
 			state.removeAttribute(FORM_SITEINFO_TITLE);
