@@ -189,7 +189,7 @@
 							</td>
 							<td headers="createdBy">
 								#if ($site.CreatedBy)
-									$site.CreatedBy.DisplayId
+									$validator.escapeHtml($site.CreatedBy.DisplayId)
 								#end
 							</td>
 							<td headers="term">
